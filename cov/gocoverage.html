@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (79.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.5%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.0%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -95,7 +95,7 @@
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (66.7%)</option>
 				
-				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_roaming.go (92.5%)</option>
+				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_roaming.go (93.1%)</option>
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/planner_squad.go (23.8%)</option>
 				
@@ -185,7 +185,7 @@
 				
 				<option value="file64">github.com/kijimaD/ruins/internal/engine/states/base.go (100.0%)</option>
 				
-				<option value="file65">github.com/kijimaD/ruins/internal/engine/states/lib.go (77.0%)</option>
+				<option value="file65">github.com/kijimaD/ruins/internal/engine/states/lib.go (76.2%)</option>
 				
 				<option value="file66">github.com/kijimaD/ruins/internal/engine/world/lib.go (75.0%)</option>
 				
@@ -205,7 +205,7 @@
 				
 				<option value="file74">github.com/kijimaD/ruins/internal/hooks/ref.go (100.0%)</option>
 				
-				<option value="file75">github.com/kijimaD/ruins/internal/hooks/store.go (100.0%)</option>
+				<option value="file75">github.com/kijimaD/ruins/internal/hooks/store.go (47.1%)</option>
 				
 				<option value="file76">github.com/kijimaD/ruins/internal/hooks/tabmenu.go (90.0%)</option>
 				
@@ -313,11 +313,11 @@
 				
 				<option value="file128">github.com/kijimaD/ruins/internal/resources/ui.go (0.0%)</option>
 				
-				<option value="file129">github.com/kijimaD/ruins/internal/save/converter.go (95.7%)</option>
+				<option value="file129">github.com/kijimaD/ruins/internal/save/converter.go (85.0%)</option>
 				
-				<option value="file130">github.com/kijimaD/ruins/internal/save/desktop.go (60.0%)</option>
+				<option value="file130">github.com/kijimaD/ruins/internal/save/desktop.go (83.9%)</option>
 				
-				<option value="file131">github.com/kijimaD/ruins/internal/save/manager.go (92.1%)</option>
+				<option value="file131">github.com/kijimaD/ruins/internal/save/manager.go (92.7%)</option>
 				
 				<option value="file132">github.com/kijimaD/ruins/internal/save/stable_id.go (90.9%)</option>
 				
@@ -345,11 +345,11 @@
 				
 				<option value="file144">github.com/kijimaD/ruins/internal/states/dungeon.go (51.9%)</option>
 				
-				<option value="file145">github.com/kijimaD/ruins/internal/states/dungeon_select.go (68.7%)</option>
+				<option value="file145">github.com/kijimaD/ruins/internal/states/dungeon_select.go (64.8%)</option>
 				
 				<option value="file146">github.com/kijimaD/ruins/internal/states/equip_menu.go (50.4%)</option>
 				
-				<option value="file147">github.com/kijimaD/ruins/internal/states/factories.go (21.8%)</option>
+				<option value="file147">github.com/kijimaD/ruins/internal/states/factories.go (23.8%)</option>
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/states/fadeout_animation.go (0.0%)</option>
 				
@@ -467,11 +467,11 @@
 				
 				<option value="file205">github.com/kijimaD/ruins/internal/widgets/styled/table.go (98.2%)</option>
 				
-				<option value="file206">github.com/kijimaD/ruins/internal/widgets/tabmenu/tabmenu.go (72.0%)</option>
+				<option value="file206">github.com/kijimaD/ruins/internal/widgets/tabmenu/tabmenu.go (92.3%)</option>
 				
-				<option value="file207">github.com/kijimaD/ruins/internal/widgets/tabmenu/ui_builder.go (68.8%)</option>
+				<option value="file207">github.com/kijimaD/ruins/internal/widgets/tabmenu/ui_builder.go (31.0%)</option>
 				
-				<option value="file208">github.com/kijimaD/ruins/internal/widgets/tabmenu/view.go (17.5%)</option>
+				<option value="file208">github.com/kijimaD/ruins/internal/widgets/tabmenu/view.go (42.9%)</option>
 				
 				<option value="file209">github.com/kijimaD/ruins/internal/widgets/theme/colors.go (0.0%)</option>
 				
@@ -1522,7 +1522,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -4707,7 +4707,7 @@ func (rp *roamingPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, a
 
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
-        if rp.rng.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
+        if rp.rng.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
@@ -6540,8 +6540,12 @@ func runPlay(_ context.Context, _ *cli.Command) error <span class="cov0" title="
         // 開始ステートの決定
         <span class="cov0" title="0">var initialState es.State[w.World]
         if cfg.SkipOpening </span><span class="cov0" title="0">{
-                initialState = gs.NewDemoStartState()
-        }</span> else<span class="cov0" title="0"> {
+                var stateErr error
+                initialState, stateErr = gs.NewDemoStartState()
+                if stateErr != nil </span><span class="cov0" title="0">{
+                        return stateErr
+                }</span>
+        } else<span class="cov0" title="0"> {
                 initialState = &amp;gs.MainMenuState{}
         }</span>
 
@@ -7249,7 +7253,7 @@ type Components struct {
         Book *ecs.SliceComponent `save:"true"`
 
         // battle ================
-        CommandTable *ecs.SliceComponent
+        CommandTable *ecs.SliceComponent `save:"true"`
         DropTable    *ecs.SliceComponent
 
         // squad ================
@@ -10930,7 +10934,7 @@ type ActionHandler[T any] interface {
 }
 
 // StateFactory はステートを作成するファクトリー関数の型
-type StateFactory[T any] func() State[T]
+type StateFactory[T any] func() (State[T], error)
 
 // StateMachine はジェネリックな状態スタックを管理する
 type StateMachine[T any] struct {
@@ -10952,9 +10956,12 @@ func Init[T any](s State[T], world T) (StateMachine[T], error) <span class="cov8
 // Update はステートマシンを更新する
 func (sm *StateMachine[T]) Update(world T) error <span class="cov8" title="1">{
         // ファクトリー関数からステートを作成
-        states := sm.createStatesFromFunc()
+        states, err := sm.createStatesFromFunc()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
 
-        switch sm.lastTransition.Type </span>{
+        <span class="cov8" title="1">switch sm.lastTransition.Type </span>{
         case TransNone:<span class="cov8" title="1"></span>
                 // 何もしない
         case TransPop:<span class="cov8" title="1">
@@ -11003,16 +11010,20 @@ func (sm *StateMachine[T]) Draw(world T, screen *ebiten.Image) error <span class
 }
 
 // createStatesFromFunc はファクトリー関数からステートを作成する
-func (sm *StateMachine[T]) createStatesFromFunc() []State[T] <span class="cov8" title="1">{
+func (sm *StateMachine[T]) createStatesFromFunc() ([]State[T], error) <span class="cov8" title="1">{
         if len(sm.lastTransition.NewStateFuncs) == 0 </span><span class="cov8" title="1">{
-                return []State[T]{}
+                return []State[T]{}, nil
         }</span>
 
         <span class="cov8" title="1">states := make([]State[T], len(sm.lastTransition.NewStateFuncs))
         for i, factory := range sm.lastTransition.NewStateFuncs </span><span class="cov8" title="1">{
-                states[i] = factory()
-        }</span>
-        <span class="cov8" title="1">return states</span>
+                s, err := factory()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">states[i] = s</span>
+        }
+        <span class="cov8" title="1">return states, nil</span>
 }
 
 // pop はアクティブなステートを削除して次のステートを再開する
@@ -11867,6 +11878,21 @@ func (store *Store) Dispatch(action inputmapper.ActionID) <span class="cov8" tit
         for key, reducer := range store.reducers </span><span class="cov8" title="1">{
                 store.states[key] = reducer(store.states[key], action)
         }</span>
+}
+
+// GetStoreState は指定キーの状態を取得する。Mount を経由せずに直接取得できる
+func GetStoreState[T any](store *Store, key string) (T, bool) <span class="cov0" title="0">{
+        v, ok := store.states[key]
+        if !ok </span><span class="cov0" title="0">{
+                var zero T
+                return zero, false
+        }</span>
+        <span class="cov0" title="0">typed, ok := v.(T)
+        if !ok </span><span class="cov0" title="0">{
+                var zero T
+                return zero, false
+        }</span>
+        <span class="cov0" title="0">return typed, true</span>
 }
 </pre>
 		
@@ -18250,7 +18276,6 @@ type Choice struct {
         Text        string
         Action      func(w.World) error // 選択時に実行する
         MessageData *MessageData        // 選択肢を選んだ時に表示するメッセージ
-        Disabled    bool
 }
 
 // ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す
@@ -19822,6 +19847,12 @@ type SaveDataAttackTypeId = string
 // SaveDataAttackTypeLabel 攻撃種別の表示用ラベル
 type SaveDataAttackTypeLabel = string
 
+// SaveDataBodyPartHealth 1つの部位の健康状態
+type SaveDataBodyPartHealth struct {
+        // Conditions この部位に付与されている状態の配列
+        Conditions *[]SaveDataHealthCondition `json:"Conditions,omitempty"`
+}
+
 // SaveDataCameraComponent カメラ状態
 type SaveDataCameraComponent struct {
         // Scale カメラのスケール値
@@ -19855,6 +19886,12 @@ type SaveDataChecksum = string
 // SaveDataCombatPolicyType 戦闘ポリシー
 type SaveDataCombatPolicyType string
 
+// SaveDataCommandTableComponent 戦闘コマンドテーブル名
+type SaveDataCommandTableComponent struct {
+        // Name コマンドテーブル名
+        Name string `json:"Name"`
+}
+
 // SaveDataComponentsMap エンティティが持つコンポーネントのマップ。
 // 存在するコンポーネントのみがキーとして含まれる。
 // 保存対象: プレイヤー、バックパック内アイテム、装備中アイテム
@@ -19867,6 +19904,9 @@ type SaveDataComponentsMap struct {
 
         // Camera カメラ状態
         Camera *SaveDataCameraComponent `json:"Camera,omitempty"`
+
+        // CommandTable 戦闘コマンドテーブル名
+        CommandTable *SaveDataCommandTableComponent `json:"CommandTable,omitempty"`
 
         // Consumable 消費可能アイテム設定
         Consumable *SaveDataConsumableComponent `json:"Consumable,omitempty"`
@@ -19885,6 +19925,9 @@ type SaveDataComponentsMap struct {
 
         // HP 生命力
         HP *SaveDataHPComponent `json:"HP,omitempty"`
+
+        // HealthStatus 部位ごとの健康状態
+        HealthStatus *SaveDataHealthStatusComponent `json:"HealthStatus,omitempty"`
 
         // InflictsDamage ダメージ効果
         InflictsDamage *SaveDataInflictsDamageComponent `json:"InflictsDamage,omitempty"`
@@ -19918,6 +19961,9 @@ type SaveDataComponentsMap struct {
 
         // Recipe レシピ設定
         Recipe *SaveDataRecipeComponent `json:"Recipe,omitempty"`
+
+        // Skills スキルセット
+        Skills *SaveDataSkillsComponent `json:"Skills,omitempty"`
 
         // SpriteRender スプライト描画設定
         SpriteRender *SaveDataSpriteRenderComponent `json:"SpriteRender,omitempty"`
@@ -20118,6 +20164,27 @@ type SaveDataHealingAmountData struct {
 // SaveDataHealingAmountType 回復量の計算方式。types.tspのHealingValueTypeとは値が異なるためセーブ固有で定義する
 type SaveDataHealingAmountType string
 
+// SaveDataHealthCondition 部位に付与される1つの状態
+type SaveDataHealthCondition struct {
+        // Effects この状態によるステータスへの影響
+        Effects *[]SaveDataStatEffect `json:"Effects,omitempty"`
+
+        // Severity 重症度
+        Severity int32 `json:"Severity"`
+
+        // Timer 進行度タイマー
+        Timer float64 `json:"Timer"`
+
+        // Type 状態の種類
+        Type string `json:"Type"`
+}
+
+// SaveDataHealthStatusComponent 部位ごとの健康状態
+type SaveDataHealthStatusComponent struct {
+        // Parts 部位ごとの健康情報の配列
+        Parts []SaveDataBodyPartHealth `json:"Parts"`
+}
+
 // SaveDataInflictsDamageComponent ダメージ効果
 type SaveDataInflictsDamageComponent struct {
         // Amount ダメージ量
@@ -20293,6 +20360,24 @@ type SaveDataSaveData struct {
 // SaveDataSaveDataVersion セーブデータのバージョン。現在は "1.0.0" のみ
 type SaveDataSaveDataVersion string
 
+// SaveDataSkillEntry 個別スキルの状態
+type SaveDataSkillEntry struct {
+        // ExpCurrent 蓄積経験値
+        ExpCurrent int32 `json:"ExpCurrent"`
+
+        // ExpMax 経験値の最大値
+        ExpMax int32 `json:"ExpMax"`
+
+        // Value スキル値
+        Value int32 `json:"Value"`
+}
+
+// SaveDataSkillsComponent スキルセット
+type SaveDataSkillsComponent struct {
+        // Data スキルIDをキーとしたスキルデータのマップ
+        Data map[string]SaveDataSkillEntry `json:"Data"`
+}
+
 // SaveDataSpeed APの毎ターン回復量
 type SaveDataSpeed = int32
 
@@ -20360,6 +20445,15 @@ type SaveDataStableID struct {
 
         // Index エンティティインデックス
         Index SaveDataEntityIndex `json:"index"`
+}
+
+// SaveDataStatEffect ステータスへの影響
+type SaveDataStatEffect struct {
+        // Stat 影響を受けるステータスの種類
+        Stat string `json:"Stat"`
+
+        // Value 修正値
+        Value int32 `json:"Value"`
 }
 
 // SaveDataTargetTypeData 対象指定
@@ -26300,194 +26394,203 @@ import (
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-        "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",
-        "oOaSn7uh6UPHhv5fAAAA//8=",
+        "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",
+        "+AP2Zgb/4AWaEX8OqLnk525o+vCR4f8XAAD//w==",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
@@ -28953,6 +29056,89 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI <span class="cov
         return ai
 }</span>
 
+// ================== 健康状態コンポーネント ==================
+
+func healthStatusToSaveData(hs gc.HealthStatus) oapi.SaveDataHealthStatusComponent <span class="cov8" title="1">{
+        parts := make([]oapi.SaveDataBodyPartHealth, len(hs.Parts))
+        for i, part := range hs.Parts </span><span class="cov8" title="1">{
+                if len(part.Conditions) == 0 </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">conds := make([]oapi.SaveDataHealthCondition, len(part.Conditions))
+                for j, c := range part.Conditions </span><span class="cov0" title="0">{
+                        conds[j] = oapi.SaveDataHealthCondition{
+                                Type:     string(c.Type),
+                                Severity: int32(c.Severity),
+                                Timer:    c.Timer,
+                        }
+                        if len(c.Effects) &gt; 0 </span><span class="cov0" title="0">{
+                                effects := make([]oapi.SaveDataStatEffect, len(c.Effects))
+                                for k, e := range c.Effects </span><span class="cov0" title="0">{
+                                        effects[k] = oapi.SaveDataStatEffect{Stat: string(e.Stat), Value: int32(e.Value)}
+                                }</span>
+                                <span class="cov0" title="0">conds[j].Effects = &amp;effects</span>
+                        }
+                }
+                <span class="cov0" title="0">parts[i].Conditions = &amp;conds</span>
+        }
+        <span class="cov8" title="1">return oapi.SaveDataHealthStatusComponent{Parts: parts}</span>
+}
+
+func healthStatusFromSaveData(sd oapi.SaveDataHealthStatusComponent) gc.HealthStatus <span class="cov8" title="1">{
+        var hs gc.HealthStatus
+        for i := 0; i &lt; len(sd.Parts) &amp;&amp; i &lt; len(hs.Parts); i++ </span><span class="cov8" title="1">{
+                if sd.Parts[i].Conditions == nil </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">for _, sc := range *sd.Parts[i].Conditions </span><span class="cov0" title="0">{
+                        cond := gc.HealthCondition{
+                                Type:     gc.ConditionType(sc.Type),
+                                Severity: gc.Severity(sc.Severity),
+                                Timer:    sc.Timer,
+                        }
+                        if sc.Effects != nil </span><span class="cov0" title="0">{
+                                for _, se := range *sc.Effects </span><span class="cov0" title="0">{
+                                        cond.Effects = append(cond.Effects, gc.StatEffect{
+                                                Stat:  gc.StatType(se.Stat),
+                                                Value: int(se.Value),
+                                        })
+                                }</span>
+                        }
+                        <span class="cov0" title="0">hs.Parts[i].Conditions = append(hs.Parts[i].Conditions, cond)</span>
+                }
+        }
+        <span class="cov8" title="1">return hs</span>
+}
+
+// ================== スキルコンポーネント ==================
+
+func skillsToSaveData(skills gc.Skills) oapi.SaveDataSkillsComponent <span class="cov8" title="1">{
+        data := make(map[string]oapi.SaveDataSkillEntry, len(skills.Data))
+        for id, sk := range skills.Data </span><span class="cov8" title="1">{
+                data[string(id)] = oapi.SaveDataSkillEntry{
+                        Value:      int32(sk.Value),
+                        ExpMax:     int32(sk.Exp.Max),
+                        ExpCurrent: int32(sk.Exp.Current),
+                }
+        }</span>
+        <span class="cov8" title="1">return oapi.SaveDataSkillsComponent{Data: data}</span>
+}
+
+func skillsFromSaveData(sd oapi.SaveDataSkillsComponent) *gc.Skills <span class="cov8" title="1">{
+        skills := gc.NewSkills()
+        for id, entry := range sd.Data </span><span class="cov8" title="1">{
+                skillID := gc.SkillID(id)
+                if !gc.HasSkillName(skillID) </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">sk := skills.Data[skillID]
+                sk.Value = int(entry.Value)
+                sk.Exp.Max = int(entry.ExpMax)
+                sk.Exp.Current = int(entry.ExpCurrent)</span>
+        }
+        <span class="cov8" title="1">return skills</span>
+}
+
 // ================== マーカーコンポーネント ==================
 
 // emptyMarker はマーカーコンポーネント用の空マップを返す
@@ -28970,15 +29156,15 @@ import (
         "fmt"
         "os"
         "path/filepath"
+        "strings"
 )
 
 // initImpl はデスクトップ環境での初期化処理
-func (sm *SerializationManager) initImpl() <span class="cov8" title="1">{
-        // セーブディレクトリを作成（存在しない場合）
+func (sm *SerializationManager) initImpl() error <span class="cov8" title="1">{
         if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil </span><span class="cov0" title="0">{
-                // エラーが発生してもマネージャーは作成する（ログ出力のみ）
-                fmt.Printf("Failed to create save directory: %v\n", err)
+                return fmt.Errorf("セーブディレクトリの作成に失敗: %w", err)
         }</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する
@@ -28997,18 +29183,47 @@ func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error
 func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) <span class="cov8" title="1">{
         fileName := filepath.Join(sm.saveDirectory, slotName+".json")
         data, err := os.ReadFile(fileName)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("failed to read save file: %w", err)
         }</span>
         <span class="cov8" title="1">return data, nil</span>
 }
 
 // saveFileExistsImpl はデスクトップ環境でセーブファイルが存在するかチェックする
-func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool <span class="cov0" title="0">{
+func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool <span class="cov8" title="1">{
         fileName := filepath.Join(sm.saveDirectory, slotName+".json")
         _, err := os.Stat(fileName)
         return err == nil
 }</span>
+
+// listSavesImpl はデスクトップ環境でセーブファイル名の一覧を返す
+func (sm *SerializationManager) listSavesImpl() ([]string, error) <span class="cov8" title="1">{
+        entries, err := os.ReadDir(sm.saveDirectory)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to read save directory: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">var names []string
+        for _, entry := range entries </span><span class="cov8" title="1">{
+                if entry.IsDir() </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">name := entry.Name()
+                if before, ok := strings.CutSuffix(name, ".json"); ok </span><span class="cov8" title="1">{
+                        names = append(names, before)
+                }</span>
+        }
+        <span class="cov8" title="1">return names, nil</span>
+}
+
+// deleteSaveImpl はデスクトップ環境でセーブファイルを削除する
+func (sm *SerializationManager) deleteSaveImpl(slotName string) error <span class="cov8" title="1">{
+        fileName := filepath.Join(sm.saveDirectory, slotName+".json")
+        if err := os.Remove(fileName); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to delete save file: %w", err)
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
 </pre>
 		
 		<pre class="file" id="file131" style="display: none">package save
@@ -29019,6 +29234,7 @@ import (
         "encoding/json"
         "fmt"
         "sort"
+        "strings"
         "time"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -29031,6 +29247,23 @@ import (
 
 const saveDataVersion = "1.0.0"
 
+const maxAutoSaves = 4
+
+// autoSavePrefix はオートセーブスロット名の接頭辞
+const autoSavePrefix = "auto_"
+
+const defaultSaveDir = "./saves"
+
+// Option はSerializationManagerの設定を変更する関数
+type Option func(*SerializationManager)
+
+// WithSaveDir はセーブディレクトリを変更する
+func WithSaveDir(dir string) Option <span class="cov8" title="1">{
+        return func(sm *SerializationManager) </span><span class="cov8" title="1">{
+                sm.saveDirectory = dir
+        }</span>
+}
+
 // SerializationManager は安定ID + 静的型ベースのシリアライゼーションを管理する
 type SerializationManager struct {
         saveDirectory   string
@@ -29038,14 +29271,19 @@ type SerializationManager struct {
 }
 
 // NewSerializationManager は新しいSerializationManagerを作成する
-func NewSerializationManager(saveDir string) *SerializationManager <span class="cov8" title="1">{
+func NewSerializationManager(opts ...Option) (*SerializationManager, error) <span class="cov8" title="1">{
         sm := &amp;SerializationManager{
-                saveDirectory:   saveDir,
+                saveDirectory:   defaultSaveDir,
                 stableIDManager: NewStableIDManager(),
         }
-        sm.initImpl()
-        return sm
-}</span>
+        for _, opt := range opts </span><span class="cov8" title="1">{
+                opt(sm)
+        }</span>
+        <span class="cov8" title="1">if err := sm.initImpl(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return sm, nil</span>
+}
 
 // GenerateWorldJSON はワールドからJSON文字列を生成する
 func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error) <span class="cov8" title="1">{
@@ -29226,6 +29464,16 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
                 sd := abilitiesToSaveData(*ab)
                 comp.Abilities = &amp;sd
         }</span>
+        <span class="cov8" title="1">if entity.HasComponent(c.HealthStatus) </span><span class="cov8" title="1">{
+                hs := c.HealthStatus.Get(entity).(*gc.HealthStatus)
+                sd := healthStatusToSaveData(*hs)
+                comp.HealthStatus = &amp;sd
+        }</span>
+        <span class="cov8" title="1">if entity.HasComponent(c.Skills) </span><span class="cov8" title="1">{
+                sk := c.Skills.Get(entity).(*gc.Skills)
+                sd := skillsToSaveData(*sk)
+                comp.Skills = &amp;sd
+        }</span>
 
         // 表示コンポーネント
         <span class="cov8" title="1">if entity.HasComponent(c.Camera) </span><span class="cov8" title="1">{
@@ -29302,6 +29550,12 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
         <span class="cov8" title="1">if entity.HasComponent(c.Wallet) </span><span class="cov8" title="1">{
                 wal := c.Wallet.Get(entity).(*gc.Wallet)
                 comp.Wallet = &amp;oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
+        }</span>
+
+        // 戦闘コンポーネント
+        <span class="cov8" title="1">if entity.HasComponent(c.CommandTable) </span><span class="cov8" title="1">{
+                ct := c.CommandTable.Get(entity).(*gc.CommandTable)
+                comp.CommandTable = &amp;oapi.SaveDataCommandTableComponent{Name: ct.Name}
         }</span>
 
         // 隊員コンポーネント
@@ -29381,6 +29635,13 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
                 }
         }
 
+        // 第4段階: 派生コンポーネントの再計算をマークする
+        <span class="cov8" title="1">for _, entry := range entries </span><span class="cov8" title="1">{
+                if entry.entity.HasComponent(c.Skills) </span><span class="cov8" title="1">{
+                        entry.entity.AddComponent(c.StatsChanged, &amp;gc.StatsChanged{})
+                }</span>
+        }
+
         // GameProgressを復元
         <span class="cov8" title="1">if gp := gameProgressFromSaveData(worldData.GameProgress); gp != nil </span><span class="cov8" title="1">{
                 *query.GetGameProgress(world) = *gp
@@ -29426,21 +29687,15 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
         // アイテム効果コンポーネント
         restoreEffectComponents(entity, comp, c)
 
-        // 隊員コンポーネント（Leaderは第3段階で解決）
-        if comp.SquadMember != nil </span><span class="cov8" title="1">{
-                entity.AddComponent(c.SquadMember, &amp;gc.SquadMember{})
+        // 戦闘コンポーネント
+        if comp.CommandTable != nil </span><span class="cov8" title="1">{
+                entity.AddComponent(c.CommandTable, &amp;gc.CommandTable{Name: comp.CommandTable.Name})
+        }</span>
 
-                entity.AddComponent(c.BlockPass, &amp;gc.BlockPass{})
-                entity.AddComponent(c.HealthStatus, &amp;gc.HealthStatus{})
-                skills := gc.NewSkills()
-                entity.AddComponent(c.Skills, skills)
-                if comp.Abilities != nil </span><span class="cov8" title="1">{
-                        ab := abilitiesFromSaveData(*comp.Abilities)
-                        entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, &amp;ab, nil))
-                }</span> else<span class="cov0" title="0"> {
-                        entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, nil, nil))
-                }</span>
-        }
+        // 隊員コンポーネント
+        <span class="cov8" title="1">if comp.SquadMember != nil </span><span class="cov8" title="1">{
+                entity.AddComponent(c.SquadMember, &amp;gc.SquadMember{})
+        }</span>
         <span class="cov8" title="1">if comp.SquadPolicy != nil </span><span class="cov8" title="1">{
                 ai := aiFromSaveData(*comp.SquadPolicy)
                 entity.AddComponent(c.AI, &amp;ai)
@@ -29481,6 +29736,14 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
         <span class="cov8" title="1">if comp.Abilities != nil </span><span class="cov8" title="1">{
                 ab := abilitiesFromSaveData(*comp.Abilities)
                 entity.AddComponent(c.Abilities, &amp;ab)
+        }</span>
+        <span class="cov8" title="1">if comp.HealthStatus != nil </span><span class="cov8" title="1">{
+                hs := healthStatusFromSaveData(*comp.HealthStatus)
+                entity.AddComponent(c.HealthStatus, &amp;hs)
+        }</span>
+        <span class="cov8" title="1">if comp.Skills != nil </span><span class="cov8" title="1">{
+                skills := skillsFromSaveData(*comp.Skills)
+                entity.AddComponent(c.Skills, skills)
         }</span>
         <span class="cov8" title="1">if comp.Camera != nil </span><span class="cov8" title="1">{
                 cam := cameraFromSaveData(*comp.Camera)
@@ -29549,24 +29812,24 @@ func restoreEffectComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap,
 }
 
 // SaveFileExists はセーブファイルが存在するかチェックする
-func (sm *SerializationManager) SaveFileExists(slotName string) bool <span class="cov0" title="0">{
+func (sm *SerializationManager) SaveFileExists(slotName string) bool <span class="cov8" title="1">{
         return sm.saveFileExistsImpl(slotName)
 }</span>
 
 // GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する。
 // セーブデータ全体をデシリアライズせず、タイムスタンプだけを抽出する。
-func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) <span class="cov0" title="0">{
+func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) <span class="cov8" title="1">{
         data, err := sm.loadDataImpl(slotName)
         if err != nil </span><span class="cov0" title="0">{
                 return time.Time{}, err
         }</span>
-        <span class="cov0" title="0">var partial struct {
+        <span class="cov8" title="1">var partial struct {
                 Timestamp time.Time `json:"timestamp"`
         }
         if err := json.Unmarshal(data, &amp;partial); err != nil </span><span class="cov0" title="0">{
                 return time.Time{}, fmt.Errorf("failed to parse save data: %w", err)
         }</span>
-        <span class="cov0" title="0">return partial.Timestamp, nil</span>
+        <span class="cov8" title="1">return partial.Timestamp, nil</span>
 }
 
 // calculateChecksum はセーブデータからチェックサムを計算する。
@@ -29584,6 +29847,109 @@ func (sm *SerializationManager) calculateChecksum(data *oapi.SaveDataSaveData) (
         }</span>
         <span class="cov8" title="1">hash := sha256.Sum256(jsonBytes)
         return hex.EncodeToString(hash[:]), nil</span>
+}
+
+// ListSaves はセーブデータの一覧を新しい順に返す
+func (sm *SerializationManager) ListSaves() ([]string, error) <span class="cov8" title="1">{
+        names, err := sm.listSavesImpl()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        // タイムスタンプを取得できたもののみ返す
+        <span class="cov8" title="1">var valid []string
+        timestamps := make(map[string]time.Time, len(names))
+        for _, name := range names </span><span class="cov8" title="1">{
+                ts, err := sm.GetSaveFileTimestamp(name)
+                if err != nil </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">valid = append(valid, name)
+                timestamps[name] = ts</span>
+        }
+
+        <span class="cov8" title="1">sort.Slice(valid, func(i, j int) bool </span><span class="cov8" title="1">{
+                return timestamps[valid[i]].After(timestamps[valid[j]])
+        }</span>)
+        <span class="cov8" title="1">return valid, nil</span>
+}
+
+// ListAutoSaves はオートセーブスロット名の一覧を返す。
+func (sm *SerializationManager) ListAutoSaves() ([]string, error) <span class="cov8" title="1">{
+        saves, err := sm.ListSaves()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">var autoSaves []string
+        for _, name := range saves </span><span class="cov8" title="1">{
+                if strings.HasPrefix(name, autoSavePrefix) </span><span class="cov8" title="1">{
+                        autoSaves = append(autoSaves, name)
+                }</span>
+        }
+        <span class="cov8" title="1">return autoSaves, nil</span>
+}
+
+// AutoSave はオートセーブを実行する。
+// スロット名の生成、保存、古いオートセーブのローテーションを一括で行う。
+func (sm *SerializationManager) AutoSave(world w.World) error <span class="cov8" title="1">{
+        slotName := fmt.Sprintf("%s%d", autoSavePrefix, time.Now().UnixNano())
+        if err := sm.SaveWorld(world, slotName); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("オートセーブに失敗: %w", err)
+        }</span>
+        <span class="cov8" title="1">if err := sm.rotateAutoSaves(); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("古いオートセーブの削除に失敗: %w", err)
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+// rotateAutoSaves はオートセーブを最大件数まで削減する。
+// 古い順に削除して maxAutoSaves 件を保持する。
+func (sm *SerializationManager) rotateAutoSaves() error <span class="cov8" title="1">{
+        autoSaves, err := sm.ListAutoSaves()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if len(autoSaves) &lt;= maxAutoSaves </span><span class="cov8" title="1">{
+                return nil
+        }</span>
+
+        <span class="cov8" title="1">for _, name := range autoSaves[maxAutoSaves:] </span><span class="cov8" title="1">{
+                if err := sm.deleteSaveImpl(name); err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to prune auto save %s: %w", name, err)
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// GetSavePlayerName はセーブデータからプレイヤー名を取得する。
+// セーブデータ全体をデシリアライズせず、エンティティのName.Nameフィールドだけを抽出する。
+func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) <span class="cov8" title="1">{
+        data, err := sm.loadDataImpl(slotName)
+        if err != nil </span><span class="cov8" title="1">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">var partial struct {
+                World struct {
+                        Entities []struct {
+                                Components struct {
+                                        Player *json.RawMessage `json:"player"`
+                                        Name   *struct {
+                                                Name string `json:"name"`
+                                        } `json:"name"`
+                                } `json:"components"`
+                        } `json:"entities"`
+                } `json:"world"`
+        }
+        if err := json.Unmarshal(data, &amp;partial); err != nil </span><span class="cov0" title="0">{
+                return "", fmt.Errorf("failed to parse save data: %w", err)
+        }</span>
+        <span class="cov8" title="1">for _, entity := range partial.World.Entities </span><span class="cov8" title="1">{
+                if entity.Components.Player != nil &amp;&amp; entity.Components.Name != nil </span><span class="cov8" title="1">{
+                        return entity.Components.Name.Name, nil
+                }</span>
+        }
+        <span class="cov0" title="0">return "", fmt.Errorf("player entity not found in save data")</span>
 }
 
 // validateChecksum はセーブデータのチェックサムを検証する
@@ -30220,8 +30586,8 @@ type autoSellProps struct {
 
 // NewAutoSellState は帰還報告画面のStateを作成するファクトリー関数
 func NewAutoSellState() es.StateFactory[w.World] <span class="cov8" title="1">{
-        return func() es.State[w.World] </span><span class="cov8" title="1">{
-                return &amp;AutoSellState{}
+        return func() (es.State[w.World], error) </span><span class="cov8" title="1">{
+                return &amp;AutoSellState{}, nil
         }</span>
 }
 
@@ -30315,6 +30681,7 @@ func (st *AutoSellState) DoAction(world w.World, action inputmapper.ActionID) (e
                 <span class="cov0" title="0">if err := gameaction.ExecuteEndRun(world, playerEntity, st.preview.Total); err != nil </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{}, fmt.Errorf("売却実行に失敗: %w", err)
                 }</span>
+
                 <span class="cov0" title="0">return es.Transition[w.World]{
                         Type:          es.TransReplace,
                         NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
@@ -30473,10 +30840,10 @@ type CharacterJobState struct {
 
 // NewCharacterJobState は職業選択ステートのファクトリを返す
 func NewCharacterJobState(playerName string) es.StateFactory[w.World] <span class="cov8" title="1">{
-        return func() es.State[w.World] </span><span class="cov8" title="1">{
+        return func() (es.State[w.World], error) </span><span class="cov8" title="1">{
                 return &amp;CharacterJobState{
                         playerName: playerName,
-                }
+                }, nil
         }</span>
 }
 
@@ -30803,8 +31170,8 @@ type CharacterNamingState struct {
 }
 
 // NewCharacterNamingState は名付けステートのファクトリを返す
-func NewCharacterNamingState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;CharacterNamingState{}
+func NewCharacterNamingState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;CharacterNamingState{}, nil
 }</span>
 
 func (st CharacterNamingState) String() string <span class="cov0" title="0">{
@@ -31159,8 +31526,8 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
 }
 
 // NewComponentDebugState はコンポーネントデバッグ画面を作成する
-func NewComponentDebugState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;ComponentDebugState{}
+func NewComponentDebugState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;ComponentDebugState{}, nil
 }</span>
 
 // ================
@@ -32155,7 +32522,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) <s
         if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) </span><span class="cov0" title="0">{
                 query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() es.State[w.World] </span><span class="cov0" title="0">{ return NewAllClearEventState() }</span>,
+                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewAllClearEventState() }</span>,
                 }}, nil
         }
 
@@ -32327,23 +32694,23 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewInventoryMenuState}}, nil</span>
         case inputmapper.ActionOpenInteractionMenu:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() es.State[w.World] </span><span class="cov0" title="0">{ return NewInteractionMenuState(world) }</span>,
+                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewInteractionMenuState(world) }</span>,
                 }}, nil
         case inputmapper.ActionOpenFieldInfo:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() es.State[w.World] </span><span class="cov0" title="0">{ return &amp;LookAroundState{} }</span>,
+                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return &amp;LookAroundState{}, nil }</span>,
                 }}, nil
         case inputmapper.ActionShoot:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() es.State[w.World] </span><span class="cov0" title="0">{ return &amp;ShootingState{} }</span>,
+                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return &amp;ShootingState{}, nil }</span>,
                 }}, nil
         case inputmapper.ActionPickup:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() es.State[w.World] </span><span class="cov0" title="0">{ return &amp;PickupState{} }</span>,
+                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return &amp;PickupState{}, nil }</span>,
                 }}, nil
         case inputmapper.ActionPlace:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() es.State[w.World] </span><span class="cov0" title="0">{ return &amp;PlaceState{} }</span>,
+                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return &amp;PlaceState{}, nil }</span>,
                 }}, nil
 
         // 移動系アクション
@@ -32409,7 +32776,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
                         }</span>
                 default:<span class="cov0" title="0">
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                                func() es.State[w.World] </span><span class="cov0" title="0">{ return newActionChoiceMenu(actions) }</span>,
+                                func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return newActionChoiceMenu(actions), nil }</span>,
                         }}, nil
                 }
                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
@@ -32470,21 +32837,21 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
                 switch e.MessageKey </span>{
                 case "merchant_greeting":<span class="cov0" title="0">
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                                func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMerchantDialogState(speakerName) }</span>,
+                                func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMerchantDialogState(speakerName) }</span>,
                         }}, nil
                 case "doctor_greeting":<span class="cov0" title="0">
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                                func() es.State[w.World] </span><span class="cov0" title="0">{ return NewDoctorDialogState(speakerName) }</span>,
+                                func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewDoctorDialogState(speakerName) }</span>,
                         }}, nil
                 case "tavern_keeper_greeting":<span class="cov0" title="0">
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                                func() es.State[w.World] </span><span class="cov0" title="0">{ return NewTavernKeeperDialogState(speakerName) }</span>,
+                                func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewTavernKeeperDialogState(speakerName) }</span>,
                         }}, nil
                 default:<span class="cov0" title="0">
                         // 通常の会話はdialoguesから取得
                         dialogMessage := messagedata.GetDialogue(e.MessageKey, speakerName)
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                                func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMessageState(dialogMessage) }</span>,
+                                func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMessageState(dialogMessage) }</span>,
                         }}, nil
                 }
         case gc.WarpNextEvent:<span class="cov0" title="0">
@@ -32504,7 +32871,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
         case gc.OpenStorageEvent:<span class="cov0" title="0">
                 // 収納メニューを開く
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() es.State[w.World] </span><span class="cov0" title="0">{ return NewStorageMenuState(e.StorageEntity) }</span>,
+                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewStorageMenuState(e.StorageEntity) }</span>,
                 }}, nil
         }
 
@@ -32603,6 +32970,7 @@ import (
         "github.com/kijimaD/ruins/internal/hooks"
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/resources"
+        "github.com/kijimaD/ruins/internal/save"
         "github.com/kijimaD/ruins/internal/widgets/styled"
         "github.com/kijimaD/ruins/internal/widgets/theme"
         w "github.com/kijimaD/ruins/internal/world"
@@ -32706,12 +33074,19 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error <s
 }
 
 // DoAction はActionを実行する
-func (st *DungeonSelectState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov0" title="0">{
+func (st *DungeonSelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov0" title="0">{
         switch action </span>{
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPop}, nil</span>
         case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
-                return st.handleSelection()</span>
+                saveManager, err := save.NewSerializationManager()
+                if err != nil </span><span class="cov0" title="0">{
+                        return es.Transition[w.World]{}, err
+                }</span>
+                <span class="cov0" title="0">if err := saveManager.AutoSave(world); err != nil </span><span class="cov0" title="0">{
+                        return es.Transition[w.World]{}, err
+                }</span>
+                <span class="cov0" title="0">return st.handleSelection()</span>
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown,
                 inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight,
                 inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov0" title="0">
@@ -33716,7 +34091,7 @@ import (
 // 各ステートのファクトリー関数を集約したファイル
 
 // NewDungeonMenuState は新しいDungeonMenuStateインスタンスを作成するファクトリー関数
-func NewDungeonMenuState() es.State[w.World] <span class="cov8" title="1">{
+func NewDungeonMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
         persistentState := NewPersistentMessageState(nil)
 
         persistentState.messageData = messagedata.NewSystemMessage("").
@@ -33776,26 +34151,26 @@ func NewDungeonMenuState() es.State[w.World] <span class="cov8" title="1">{
                         return nil
                 }</span>)
 
-        <span class="cov8" title="1">return persistentState</span>
+        <span class="cov8" title="1">return persistentState, nil</span>
 }
 
 // NewCraftMenuState は新しいCraftMenuStateインスタンスを作成するファクトリー関数
-func NewCraftMenuState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;CraftMenuState{}
+func NewCraftMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;CraftMenuState{}, nil
 }</span>
 
 // NewInventoryMenuState は新しいInventoryMenuStateインスタンスを作成するファクトリー関数
-func NewInventoryMenuState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;InventoryMenuState{}
+func NewInventoryMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;InventoryMenuState{}, nil
 }</span>
 
 // NewEquipMenuState は新しいEquipMenuStateインスタンスを作成するファクトリー関数
-func NewEquipMenuState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;EquipMenuState{}
+func NewEquipMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;EquipMenuState{}, nil
 }</span>
 
 // NewDebugMenuState は新しいDebugMenuStateインスタンスを作成するファクトリー関数
-func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
+func NewDebugMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
         messageState := &amp;MessageState{}
 
         messageState.messageData = messagedata.NewSystemMessage("").
@@ -33904,7 +34279,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
                         testMessageData := messagedata.NewSystemMessage("ゲームが自動保存されました。\n\n進行状況は安全に記録されています。")
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMessageState(testMessageData) }</span>}})
+                                NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMessageState(testMessageData) }</span>}})
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("アイテム入手イベント", func(world w.World) error <span class="cov0" title="0">{
@@ -33931,7 +34306,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
                         itemMessageData.AddText(messageText)
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMessageState(itemMessageData) }</span>}})
+                                NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMessageState(itemMessageData) }</span>}})
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("長いメッセージテスト", func(_ w.World) error <span class="cov0" title="0">{
@@ -33950,7 +34325,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
                         longMessageData := messagedata.NewSystemMessage(longText)
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMessageState(longMessageData) }</span>}})
+                                NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMessageState(longMessageData) }</span>}})
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("連鎖メッセージテスト", func(_ w.World) error <span class="cov0" title="0">{
@@ -33960,7 +34335,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
 
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMessageState(chainMessageData) }</span>}})
+                                NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMessageState(chainMessageData) }</span>}})
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("選択肢分岐メッセージテスト", func(_ w.World) error <span class="cov0" title="0">{
@@ -33975,7 +34350,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
 
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMessageState(choiceMessageData) }</span>}})
+                                NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMessageState(choiceMessageData) }</span>}})
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("選択肢処理テスト", func(_ w.World) error <span class="cov0" title="0">{
@@ -34007,7 +34382,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
 
                         <span class="cov0" title="0">messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMessageState(testMessageData) }</span>}})
+                                NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMessageState(testMessageData) }</span>}})
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("デバッグ表示切り替え", func(world w.World) error <span class="cov0" title="0">{
@@ -34023,7 +34398,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPush,
                                 NewStateFuncs: []es.StateFactory[w.World]{
-                                        func() es.State[w.World] </span><span class="cov0" title="0">{
+                                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{
                                                 return NewMessageState(testMessage)
                                         }</span>,
                                 }})
@@ -34040,7 +34415,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPush,
                                 NewStateFuncs: []es.StateFactory[w.World]{
-                                        func() es.State[w.World] </span><span class="cov0" title="0">{ return NewAllClearEventState() }</span>,
+                                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewAllClearEventState() }</span>,
                                 },
                         })
                         <span class="cov0" title="0">return nil</span>
@@ -34154,7 +34529,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
                         return nil
                 }</span>)
 
-        <span class="cov8" title="1">return messageState</span>
+        <span class="cov8" title="1">return messageState, nil</span>
 }
 
 // spawnPropNearPlayer はプレイヤーの隣にPropをスポーンする
@@ -34228,7 +34603,7 @@ func WithDefinitionName(name string) DungeonStateOption <span class="cov8" title
 // NewDungeonState はDungeonStateインスタンスを作成するファクトリー関数
 // デフォルトではBuilderTypeはPlannerTypeRandomになる
 func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.World] <span class="cov8" title="1">{
-        return func() es.State[w.World] </span><span class="cov8" title="1">{
+        return func() (es.State[w.World], error) </span><span class="cov8" title="1">{
                 ds := &amp;DungeonState{
                         Depth:       depth,
                         BuilderType: mapplanner.PlannerTypeRandom,
@@ -34236,14 +34611,14 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
                 for _, opt := range opts </span><span class="cov8" title="1">{
                         opt(ds)
                 }</span>
-                <span class="cov8" title="1">return ds</span>
+                <span class="cov8" title="1">return ds, nil</span>
         }
 }
 
 // NewDemoStartState はデモ用の初期化ステートを作成するファクトリー関数
 // キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する
-func NewDemoStartState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;DemoStartState{}
+func NewDemoStartState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;DemoStartState{}, nil
 }</span>
 
 // NewTownState は街のステートを作成するファクトリー関数
@@ -34258,17 +34633,17 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] <span cla
 }</span>
 
 // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
-func NewDungeonSelectState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;DungeonSelectState{}
+func NewDungeonSelectState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;DungeonSelectState{}, nil
 }</span>
 
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
-func NewMainMenuState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;MainMenuState{}
+func NewMainMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;MainMenuState{}, nil
 }</span>
 
 // NewGameOverMessageState はゲームオーバー用のMessageStateを作成するファクトリー関数
-func NewGameOverMessageState() es.State[w.World] <span class="cov8" title="1">{
+func NewGameOverMessageState() (es.State[w.World], error) <span class="cov8" title="1">{
         messageState := &amp;MessageState{}
 
         // ゲームオーバーメッセージを作成（選択肢付き）
@@ -34284,11 +34659,11 @@ func NewGameOverMessageState() es.State[w.World] <span class="cov8" title="1">{
         // MessageStateにMessageDataを設定
         <span class="cov8" title="1">messageState.messageData = messageData
 
-        return messageState</span>
+        return messageState, nil</span>
 }
 
 // NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数
-func NewAllClearEventState() es.State[w.World] <span class="cov0" title="0">{
+func NewAllClearEventState() (es.State[w.World], error) <span class="cov0" title="0">{
         messageState := &amp;MessageState{}
 
         messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
@@ -34298,38 +34673,27 @@ func NewAllClearEventState() es.State[w.World] <span class="cov0" title="0">{
                 }</span>)
 
         <span class="cov0" title="0">messageState.messageData = messageData
-        return messageState</span>
+        return messageState, nil</span>
 }
 
-// NewSaveMenuState は新しいSaveMenuStateインスタンスを作成するファクトリー関数
-func NewSaveMenuState() es.State[w.World] <span class="cov8" title="1">{
+// NewSaveMenuState は手動セーブ画面を作成するファクトリー関数。
+// 固定4スロットで、主人公名とタイムスタンプを表示する。
+func NewSaveMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
         messageState := &amp;MessageState{}
+        saveManager, err := save.NewSerializationManager()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
+        }</span>
+        <span class="cov8" title="1">messageData := messagedata.NewSystemMessage("")
 
-        // セーブマネージャーで現在のスロット状態を取得
-        saveManager := save.NewSerializationManager("./saves")
-
-        messageData := messagedata.NewSystemMessage("")
-
-        // 各スロットの状態を確認して選択肢を動的に生成
-        for i := 1; i &lt;= 3; i++ </span><span class="cov8" title="1">{
+        for i := 1; i &lt;= 4; i++ </span><span class="cov8" title="1">{
                 slotName := fmt.Sprintf("slot%d", i)
-                var label string
+                label := formatSaveSlotLabel(saveManager, slotName)
 
-                if saveManager.SaveFileExists(slotName) </span><span class="cov0" title="0">{
-                        if timestamp, err := saveManager.GetSaveFileTimestamp(slotName); err == nil </span><span class="cov0" title="0">{
-                                label = fmt.Sprintf("スロット%d  %s", i, timestamp.Format("01/02 15:04"))
-                        }</span> else<span class="cov0" title="0"> {
-                                label = fmt.Sprintf("スロット%d  データあり", i)
-                        }</span>
-                } else<span class="cov8" title="1"> {
-                        label = fmt.Sprintf("スロット%d", i)
-                }</span>
-
-                <span class="cov8" title="1">messageData = messageData.WithChoice(label, func(world w.World) error </span><span class="cov0" title="0">{
+                messageData.WithChoice(label, func(world w.World) error </span><span class="cov0" title="0">{
                         if err := saveManager.SaveWorld(world, slotName); err != nil </span><span class="cov0" title="0">{
                                 return fmt.Errorf("save failed: %w", err)
                         }</span>
-                        // セーブ後は同じセーブメニューを再作成してメニューを維持
                         <span class="cov0" title="0">messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransSwitch,
                                 NewStateFuncs: []es.StateFactory[w.World]{NewSaveMenuState}})
@@ -34337,122 +34701,144 @@ func NewSaveMenuState() es.State[w.World] <span class="cov8" title="1">{
                 })
         }
 
-        <span class="cov8" title="1">messageData = messageData.WithChoice("戻る", func(_ w.World) error </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">messageData.WithChoice("戻る", func(_ w.World) error </span><span class="cov0" title="0">{
                 messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
                 return nil
         }</span>)
 
         <span class="cov8" title="1">messageState.messageData = messageData
-        return messageState</span>
+        return messageState, nil</span>
 }
 
-// NewLoadMenuState は新しいLoadMenuStateインスタンスを作成するファクトリー関数
-func NewLoadMenuState() es.State[w.World] <span class="cov8" title="1">{
+// NewLoadMenuState はロード画面を作成するファクトリー関数。
+// 手動4スロットとオートセーブ4スロットをセクション分けで表示する。
+func NewLoadMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
         messageState := &amp;MessageState{}
+        saveManager, err := save.NewSerializationManager()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
+        }</span>
+        <span class="cov8" title="1">messageData := messagedata.NewSystemMessage("")
 
-        // セーブマネージャーで現在のスロット状態を取得
-        saveManager := save.NewSerializationManager("./saves")
-
-        messageData := messagedata.NewSystemMessage("")
-
-        // 各スロットの状態を確認して選択肢を動的に生成
-        hasValidSlot := false
-        for i := 1; i &lt;= 3; i++ </span><span class="cov8" title="1">{
+        // 手動セーブセクション
+        messageData.WithChoice("手動セーブ", nil)
+        for i := 1; i &lt;= 4; i++ </span><span class="cov8" title="1">{
                 slotName := fmt.Sprintf("slot%d", i)
-                var label string
+                addLoadSlot(messageData, messageState, saveManager, slotName)
+        }</span>
 
-                if saveManager.SaveFileExists(slotName) </span><span class="cov0" title="0">{
-                        hasValidSlot = true
-                        if timestamp, err := saveManager.GetSaveFileTimestamp(slotName); err == nil </span><span class="cov0" title="0">{
-                                label = fmt.Sprintf("スロット%d  %s", i, timestamp.Format("01/02 15:04"))
-                        }</span> else<span class="cov0" title="0"> {
-                                label = fmt.Sprintf("スロット%d  データあり", i)
-                        }</span>
-
-                        <span class="cov0" title="0">messageData = messageData.WithChoice(label, func(world w.World) error </span><span class="cov0" title="0">{
-                                // ロードを実行
-                                err := saveManager.LoadWorld(world, slotName)
-                                if err != nil </span><span class="cov0" title="0">{
-                                        println("Load failed:", err.Error())
-                                        messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-                                        return err
-                                }</span>
-                                // 遷移（街マップを生成してプレイヤーを配置）
-                                <span class="cov0" title="0">messageState.SetTransition(es.Transition[w.World]{
-                                        Type:          es.TransReplace,
-                                        NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
-                                return nil</span>
-                        })
-                }
+        // オートセーブセクション
+        <span class="cov8" title="1">messageData.WithChoice("オートセーブ", nil)
+        autoSaves, err := saveManager.ListAutoSaves()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("オートセーブ一覧の取得に失敗: %w", err)
+        }</span>
+        <span class="cov8" title="1">if len(autoSaves) &gt; 4 </span><span class="cov0" title="0">{
+                autoSaves = autoSaves[:4]
+        }</span>
+        <span class="cov8" title="1">for i := range 4 </span><span class="cov8" title="1">{
+                if i &lt; len(autoSaves) </span><span class="cov0" title="0">{
+                        addLoadSlot(messageData, messageState, saveManager, autoSaves[i])
+                }</span> else<span class="cov8" title="1"> {
+                        messageData.WithChoice("  ---", nil)
+                }</span>
         }
 
-        // 有効なセーブデータが存在しない場合の処理
-        <span class="cov8" title="1">if !hasValidSlot </span><span class="cov8" title="1">{
-                messageData = messageData.WithChoice("セーブデータがありません", func(_ w.World) error </span><span class="cov0" title="0">{
-                        // 何もしない（選択不可を示すためのダミー選択肢）
-                        return nil
-                }</span>)
-        }
-
-        <span class="cov8" title="1">messageData = messageData.WithChoice("戻る", func(_ w.World) error </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">messageData.WithChoice("戻る", func(_ w.World) error </span><span class="cov0" title="0">{
                 messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
                 return nil
         }</span>)
 
-        // MessageStateにMessageDataを設定
         <span class="cov8" title="1">messageState.messageData = messageData
+        return messageState, nil</span>
+}
 
-        return messageState</span>
+// addLoadSlot はロードメニューにスロットを追加する。
+// データが存在するスロットは選択可能、存在しないスロットは "---" で選択不可にする。
+func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageState, saveManager *save.SerializationManager, slotName string) <span class="cov8" title="1">{
+        if !saveManager.SaveFileExists(slotName) </span><span class="cov8" title="1">{
+                messageData.WithChoice("  ---", nil)
+                return
+        }</span>
+
+        <span class="cov0" title="0">label := formatSaveSlotLabel(saveManager, slotName)
+        messageData.WithChoice(label, func(world w.World) error </span><span class="cov0" title="0">{
+                err := saveManager.LoadWorld(world, slotName)
+                if err != nil </span><span class="cov0" title="0">{
+                        messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+                        return err
+                }</span>
+                <span class="cov0" title="0">messageState.SetTransition(es.Transition[w.World]{
+                        Type:          es.TransReplace,
+                        NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
+                return nil</span>
+        })
+}
+
+// formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。
+// データがある場合は "プレイヤー名  日時" 、ない場合は "---" を返す。
+func formatSaveSlotLabel(saveManager *save.SerializationManager, slotName string) string <span class="cov8" title="1">{
+        if !saveManager.SaveFileExists(slotName) </span><span class="cov8" title="1">{
+                return "---"
+        }</span>
+
+        <span class="cov0" title="0">playerName, nameErr := saveManager.GetSavePlayerName(slotName)
+        timestamp, tsErr := saveManager.GetSaveFileTimestamp(slotName)
+
+        if nameErr == nil &amp;&amp; tsErr == nil </span><span class="cov0" title="0">{
+                return fmt.Sprintf("  %s  %s", playerName, timestamp.Format("01/02 15:04"))
+        }</span>
+        <span class="cov0" title="0">return "  データあり"</span>
 }
 
 // NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数
-func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] <span class="cov8" title="1">{
+func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], error) <span class="cov8" title="1">{
         return &amp;MessageState{
                 messageData: messageData,
-        }
+        }, nil
 }</span>
 
 // NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数
-func NewSquadMenuState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;SquadMenuState{}
+func NewSquadMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;SquadMenuState{}, nil
 }</span>
 
 // NewMemberStatusState は隊員ステータス詳細画面のStateを作成するファクトリー関数
-func NewMemberStatusState(member ecs.Entity) es.State[w.World] <span class="cov0" title="0">{
-        return &amp;MemberStatusState{member: member}
+func NewMemberStatusState(member ecs.Entity) (es.State[w.World], error) <span class="cov0" title="0">{
+        return &amp;MemberStatusState{member: member}, nil
 }</span>
 
 // NewFormationMenuState は隊編成画面のStateを作成するファクトリー関数
-func NewFormationMenuState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;FormationMenuState{}
+func NewFormationMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;FormationMenuState{}, nil
 }</span>
 
 // NewTavernMenuState は酒場の雇用画面のStateを作成するファクトリー関数
-func NewTavernMenuState() es.State[w.World] <span class="cov0" title="0">{
-        return &amp;TavernMenuState{}
+func NewTavernMenuState() (es.State[w.World], error) <span class="cov0" title="0">{
+        return &amp;TavernMenuState{}, nil
 }</span>
 
 // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数
-func NewShopMenuState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;ShopMenuState{}
+func NewShopMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;ShopMenuState{}, nil
 }</span>
 
 // NewStorageMenuState は収納メニューStateを作成する
-func NewStorageMenuState(storageEntity ecs.Entity) es.State[w.World] <span class="cov8" title="1">{
-        return &amp;StorageMenuState{storageEntity: storageEntity}
+func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;StorageMenuState{storageEntity: storageEntity}, nil
 }</span>
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する
-func NewInteractionMenuState(world w.World) es.State[w.World] <span class="cov0" title="0">{
+func NewInteractionMenuState(world w.World) (es.State[w.World], error) <span class="cov0" title="0">{
         interactionActions := GetInteractionActions(world)
 
         if len(interactionActions) == 0 </span><span class="cov0" title="0">{
                 messageState := &amp;MessageState{}
                 messageState.messageData = messagedata.NewSystemMessage("実行可能なアクションがありません。")
-                return messageState
+                return messageState, nil
         }</span>
 
-        <span class="cov0" title="0">return newActionChoiceMenu(interactionActions)</span>
+        <span class="cov0" title="0">return newActionChoiceMenu(interactionActions), nil</span>
 }
 
 // newActionChoiceMenu はInteractionActionのリストから選択メニューを作成する
@@ -34461,7 +34847,7 @@ func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] <span cl
         messageState.messageData = messagedata.NewSystemMessage("")
 
         for _, action := range actions </span><span class="cov0" title="0">{
-                messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error </span><span class="cov0" title="0">{
+                messageState.messageData.WithChoice(action.Label, func(world w.World) error </span><span class="cov0" title="0">{
                         playerEntity, err := query.GetPlayerEntity(world)
                         if err != nil </span><span class="cov0" title="0">{
                                 return fmt.Errorf("failed to get player entity: %w", err)
@@ -34476,7 +34862,7 @@ func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] <span cl
                 })
         }
 
-        <span class="cov0" title="0">messageState.messageData = messageState.messageData.WithChoice("キャンセル", func(_ w.World) error </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">messageState.messageData.WithChoice("キャンセル", func(_ w.World) error </span><span class="cov0" title="0">{
                 messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
                 return nil
         }</span>)
@@ -34485,7 +34871,7 @@ func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] <span cl
 }
 
 // NewMerchantDialogState は商人との会話ステートを作成
-func NewMerchantDialogState(speakerName string) es.State[w.World] <span class="cov0" title="0">{
+func NewMerchantDialogState(speakerName string) (es.State[w.World], error) <span class="cov0" title="0">{
         persistentState := NewPersistentMessageState(nil)
 
         persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
@@ -34504,11 +34890,11 @@ func NewMerchantDialogState(speakerName string) es.State[w.World] <span class="c
                         return nil
                 }</span>)
 
-        <span class="cov0" title="0">return persistentState</span>
+        <span class="cov0" title="0">return persistentState, nil</span>
 }
 
 // NewTavernKeeperDialogState は酒場の主人との会話ステートを作成
-func NewTavernKeeperDialogState(speakerName string) es.State[w.World] <span class="cov0" title="0">{
+func NewTavernKeeperDialogState(speakerName string) (es.State[w.World], error) <span class="cov0" title="0">{
         persistentState := NewPersistentMessageState(nil)
 
         persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
@@ -34527,11 +34913,11 @@ func NewTavernKeeperDialogState(speakerName string) es.State[w.World] <span clas
                         return nil
                 }</span>)
 
-        <span class="cov0" title="0">return persistentState</span>
+        <span class="cov0" title="0">return persistentState, nil</span>
 }
 
 // NewDoctorDialogState は怪しい科学者との会話ステートを作成
-func NewDoctorDialogState(speakerName string) es.State[w.World] <span class="cov0" title="0">{
+func NewDoctorDialogState(speakerName string) (es.State[w.World], error) <span class="cov0" title="0">{
         persistentState := NewPersistentMessageState(nil)
 
         persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
@@ -34550,12 +34936,12 @@ func NewDoctorDialogState(speakerName string) es.State[w.World] <span class="cov
                         return nil
                 }</span>)
 
-        <span class="cov0" title="0">return persistentState</span>
+        <span class="cov0" title="0">return persistentState, nil</span>
 }
 
 // NewOpeningState はオープニングを表示するStateを作成するファクトリー関数
 // 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む
-func NewOpeningState() es.State[w.World] <span class="cov8" title="1">{
+func NewOpeningState() (es.State[w.World], error) <span class="cov8" title="1">{
         // 1. 黒背景: 荒野の大穴
         page1a := &amp;messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
         page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
@@ -34604,11 +34990,11 @@ type FadeoutAnimationState struct {
 
 // NewFadeoutAnimationState はフェードアウトアニメーションステートを生成するファクトリを返す
 func NewFadeoutAnimationState(nextStateFunc es.StateFactory[w.World]) es.StateFactory[w.World] <span class="cov0" title="0">{
-        return func() es.State[w.World] </span><span class="cov0" title="0">{
+        return func() (es.State[w.World], error) </span><span class="cov0" title="0">{
                 return &amp;FadeoutAnimationState{
                         nextStateFunc: nextStateFunc,
                         fadeMs:        400.0,
-                }
+                }, nil
         }</span>
 }
 
@@ -34832,7 +35218,7 @@ func (st *FormationMenuState) showMemberDetail() <span class="cov0" title="0">{
         <span class="cov0" title="0">member := props.Members[itemIndex]
         st.SetTransition(es.Transition[w.World]{
                 Type:          es.TransPush,
-                NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] </span><span class="cov0" title="0">{ return NewMemberStatusState(member.Entity) }</span>},
+                NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewMemberStatusState(member.Entity) }</span>},
         })
 }
 
@@ -38939,8 +39325,8 @@ func (st *StatusState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tran
 }
 
 // NewStatusState はステータス画面のStateを作成する
-func NewStatusState() es.State[w.World] <span class="cov8" title="1">{
-        return &amp;StatusState{}
+func NewStatusState() (es.State[w.World], error) <span class="cov8" title="1">{
+        return &amp;StatusState{}, nil
 }</span>
 
 // ================
@@ -45279,6 +45665,7 @@ import (
         eui_image "github.com/ebitenui/ebitenui/image"
         "github.com/ebitenui/ebitenui/widget"
         "github.com/hajimehoshi/ebiten/v2"
+        "github.com/kijimaD/ruins/internal/hooks"
         "github.com/kijimaD/ruins/internal/input"
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/messagedata"
@@ -45302,6 +45689,7 @@ type Window struct {
 
         // 選択肢がある場合、メニューシステムでページング可能な選択肢一覧を表示
         choiceMenuView  *tabmenu.View
+        choiceStore     *hooks.Store
         hasChoices      bool
         currentMenuPage int
         needsUIRebuild  bool // ページ変更時のUI再構築フラグ
@@ -45327,7 +45715,7 @@ func (w *Window) Update() error <span class="cov0" title="0">{
         }
 
         <span class="cov0" title="0">if w.hasChoices &amp;&amp; w.choiceMenuView != nil </span><span class="cov0" title="0">{
-                if err := w.choiceMenuView.Update(); err != nil </span><span class="cov0" title="0">{
+                if err := w.handleChoiceInput(); err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
 
@@ -45417,7 +45805,8 @@ func (w *Window) showNextMessage() <span class="cov0" title="0">{
         w.initialized = false
         w.ui = nil
         w.window = nil
-        w.choiceMenuView = nil</span>
+        w.choiceMenuView = nil
+        w.choiceStore = nil</span>
 }
 
 // updateContentFromMessage はMessageDataから表示コンテンツを更新する
@@ -45786,52 +46175,89 @@ func (w *Window) initChoiceMenu() <span class="cov0" title="0">{
                 items[i] = tabmenu.Item{
                         ID:       choice.Text,
                         Label:    choice.Text,
-                        Disabled: false,
                         UserData: i,
                 }
         }</span>
 
         <span class="cov0" title="0">itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))
 
-        // タブ1つ
-        tabs := []tabmenu.TabItem{
-                {
-                        ID:    "choices",
-                        Label: "",
-                        Items: items,
-                },
-        }
-
         config := tabmenu.Config{
-                Tabs:             tabs,
-                InitialTabIndex:  0,
-                InitialItemIndex: 0,
-                WrapNavigation:   true,
-                ItemsPerPage:     itemsPerPage,
-        }
-
-        callbacks := tabmenu.Callbacks{
-                OnSelectItem: func(_ int, itemIndex int, _ tabmenu.TabItem, _ tabmenu.Item) error </span><span class="cov0" title="0">{
-                        return w.selectChoice(itemIndex)
-                }</span>,
-                OnCancel: func() <span class="cov0" title="0">{
-                        w.Close()
-                }</span>,
-                OnItemChange: func(_ int, _, _ int, _ tabmenu.Item) error <span class="cov0" title="0">{
-                        if w.choiceMenuView != nil </span><span class="cov0" title="0">{
-                                newPage := w.choiceMenuView.GetCurrentPage()
-                                if newPage != w.currentMenuPage </span><span class="cov0" title="0">{
-                                        w.currentMenuPage = newPage
-                                        w.needsUIRebuild = true
-                                }</span>
-                        }
-                        <span class="cov0" title="0">return nil</span>
+                Tabs: []tabmenu.TabItem{
+                        {ID: "choices", Label: "", Items: items},
                 },
+                ItemsPerPage: itemsPerPage,
         }
 
-        // View を作成（TabMenu + UIBuilder を統合）
-        <span class="cov0" title="0">w.choiceMenuView = tabmenu.NewView(config, callbacks, w.world)
+        // hooks で Skip 込みのナビゲーションを管理する
+        skips := make([]bool, len(w.currentMessage.Choices))
+        for i, choice := range w.currentMessage.Choices </span><span class="cov0" title="0">{
+                skips[i] = choice.Action == nil
+        }</span>
+
+        <span class="cov0" title="0">w.choiceStore = hooks.NewStore()
+        menuState := hooks.UseTabMenu(w.choiceStore, "choices", hooks.TabMenuConfig{
+                TabCount:     1,
+                ItemCounts:   []int{len(items)},
+                ItemsPerPage: itemsPerPage,
+                Skips:        [][]bool{skips},
+        })
+
+        w.choiceMenuView = tabmenu.NewView(config, w.world)
+        w.choiceMenuView.SetState(tabmenu.ViewState{
+                TabIndex:  menuState.TabIndex,
+                ItemIndex: menuState.ItemIndex,
+        })
         w.currentMenuPage = 1</span>
+}
+
+// handleChoiceInput はキー入力を hooks Store にディスパッチし、View を同期する
+func (w *Window) handleChoiceInput() error <span class="cov0" title="0">{
+        keyboardInput := input.GetSharedKeyboardInput()
+        action, ok := w.translateChoiceInput(keyboardInput)
+        if !ok </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">switch action </span>{
+        case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
+                menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
+                return w.selectChoice(menuState.ItemIndex)</span>
+        case inputmapper.ActionMenuCancel:<span class="cov0" title="0">
+                w.Close()
+                return nil</span>
+        default:<span class="cov0" title="0">
+                w.choiceStore.Dispatch(action)
+                menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
+                w.choiceMenuView.SetState(tabmenu.ViewState{
+                        TabIndex:  menuState.TabIndex,
+                        ItemIndex: menuState.ItemIndex,
+                })
+                w.choiceMenuView.UpdateFocus()
+
+                newPage := w.choiceMenuView.GetCurrentPage()
+                if newPage != w.currentMenuPage </span><span class="cov0" title="0">{
+                        w.currentMenuPage = newPage
+                        w.needsUIRebuild = true
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        }
+}
+
+// translateChoiceInput はキーボード入力を選択肢メニューのアクションに変換する
+func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) <span class="cov0" title="0">{
+        if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) </span><span class="cov0" title="0">{
+                return inputmapper.ActionMenuUp, true
+        }</span>
+        <span class="cov0" title="0">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) </span><span class="cov0" title="0">{
+                return inputmapper.ActionMenuDown, true
+        }</span>
+        <span class="cov0" title="0">if keyboardInput.IsEnterJustPressedOnce() </span><span class="cov0" title="0">{
+                return inputmapper.ActionMenuSelect, true
+        }</span>
+        <span class="cov0" title="0">if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) </span><span class="cov0" title="0">{
+                return inputmapper.ActionMenuCancel, true
+        }</span>
+        <span class="cov0" title="0">return "", false</span>
 }
 
 // rebuildUI はUIを再構築する
@@ -46930,13 +47356,7 @@ func addDataRow(container *widget.Container, columnWidths []int, values []string
 		
 		<pre class="file" id="file206" style="display: none">package tabmenu
 
-import (
-        "fmt"
-
-        "github.com/hajimehoshi/ebiten/v2"
-        "github.com/kijimaD/ruins/internal/input"
-        "github.com/kijimaD/ruins/internal/inputmapper"
-)
+import "fmt"
 
 // TabItem はタブの項目を定義する
 type TabItem struct {
@@ -46945,453 +47365,27 @@ type TabItem struct {
         Items []Item
 }
 
-// Config はタブメニューの設定
+// Config はタブメニューの描画設定
 type Config struct {
-        Tabs             []TabItem
-        InitialTabIndex  int
-        InitialItemIndex int
-        WrapNavigation   bool // タブ/アイテム両方で端循環するか
-        ItemsPerPage     int  // 1ページに表示する項目数（0=制限なし）
+        Tabs         []TabItem
+        ItemsPerPage int // 1ページに表示する項目数（0=制限なし）
 }
 
-// Callbacks はタブメニューのコールバック
-type Callbacks struct {
-        OnSelectItem func(tabIndex int, itemIndex int, tab TabItem, item Item) error
-        OnCancel     func()
-        OnTabChange  func(oldTabIndex, newTabIndex int, tab TabItem)
-        OnItemChange func(tabIndex int, oldItemIndex, newItemIndex int, item Item) error
+// ViewState は外部から設定される描画状態
+type ViewState struct {
+        TabIndex  int
+        ItemIndex int
 }
 
-// TabMenu はタブ付きメニューコンポーネント
-type tabMenu struct {
-        config    Config
-        callbacks Callbacks
-
-        // 状態
-        currentTabIndex  int
-        currentItemIndex int
-
-        // ページネーション状態
-        currentPage int // 現在のページ（0ベース）
-}
-
-// newTabMenu は新しいtabMenuを作成する
-func newTabMenu(config Config, callbacks Callbacks) *tabMenu <span class="cov8" title="1">{
-        tm := &amp;tabMenu{
-                config:           config,
-                callbacks:        callbacks,
-                currentTabIndex:  config.InitialTabIndex,
-                currentItemIndex: config.InitialItemIndex,
-        }
-
-        // 初期タブのアイテム数を確認してインデックスを調整
-        if len(config.Tabs) &gt; 0 &amp;&amp; config.InitialTabIndex &lt; len(config.Tabs) </span><span class="cov8" title="1">{
-                initialTab := config.Tabs[config.InitialTabIndex]
-                if len(initialTab.Items) == 0 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex = -1
-                }</span> else<span class="cov8" title="1"> if config.InitialItemIndex &gt;= len(initialTab.Items) </span><span class="cov8" title="1">{
-                        tm.currentItemIndex = len(initialTab.Items) - 1
-                }</span> else<span class="cov8" title="1"> if config.InitialItemIndex &lt; 0 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex = 0
-                }</span>
-        }
-
-        <span class="cov8" title="1">return tm</span>
-}
-
-// Update はキーボード入力を待ち受けて、Actionに変換してタブメニュー操作を実行する
-// 本実装で使用する。テストではDoAction()を直接呼ぶ
-func (tm *tabMenu) Update() (bool, error) <span class="cov0" title="0">{
-        keyboardInput := input.GetSharedKeyboardInput()
-        if action, ok := tm.translateKeyToAction(keyboardInput); ok </span><span class="cov0" title="0">{
-                return false, tm.DoAction(action)
-        }</span>
-        <span class="cov0" title="0">return false, nil</span>
-}
-
-// translateKeyToAction はキーボード入力をActionに変換する
-func (tm *tabMenu) translateKeyToAction(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) <span class="cov0" title="0">{
-        // 左移動キー
-        if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) </span><span class="cov0" title="0">{
-                return inputmapper.ActionMenuLeft, true
-        }</span>
-
-        // 右移動キー
-        <span class="cov0" title="0">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) </span><span class="cov0" title="0">{
-                return inputmapper.ActionMenuRight, true
-        }</span>
-
-        // 上移動キー
-        <span class="cov0" title="0">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) </span><span class="cov0" title="0">{
-                return inputmapper.ActionMenuUp, true
-        }</span>
-
-        // 下移動キー
-        <span class="cov0" title="0">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) </span><span class="cov0" title="0">{
-                return inputmapper.ActionMenuDown, true
-        }</span>
-
-        // Tabキー（タブ切り替え）
-        <span class="cov0" title="0">if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) </span><span class="cov0" title="0">{
-                if keyboardInput.IsKeyPressed(ebiten.KeyShift) </span><span class="cov0" title="0">{
-                        return inputmapper.ActionMenuLeft, true
-                }</span>
-                <span class="cov0" title="0">return inputmapper.ActionMenuRight, true</span>
-        }
-
-        // Enterキー（セッションベース検出で複数回実行を防止）
-        <span class="cov0" title="0">if keyboardInput.IsEnterJustPressedOnce() </span><span class="cov0" title="0">{
-                return inputmapper.ActionMenuSelect, true
-        }</span>
-
-        // Escapeキー
-        <span class="cov0" title="0">if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) </span><span class="cov0" title="0">{
-                return inputmapper.ActionMenuCancel, true
-        }</span>
-
-        <span class="cov0" title="0">return "", false</span>
-}
-
-// DoAction はActionを受け取ってタブメニュー操作を実行する
-func (tm *tabMenu) DoAction(action inputmapper.ActionID) error <span class="cov8" title="1">{
-        switch action </span>{
-        case inputmapper.ActionMenuLeft:<span class="cov8" title="1">
-                return tm.navigateToPreviousTab()</span>
-        case inputmapper.ActionMenuRight:<span class="cov8" title="1">
-                return tm.navigateToNextTab()</span>
-        case inputmapper.ActionMenuUp:<span class="cov8" title="1">
-                return tm.navigateToPreviousItem()</span>
-        case inputmapper.ActionMenuDown:<span class="cov8" title="1">
-                return tm.navigateToNextItem()</span>
-        case inputmapper.ActionMenuSelect:<span class="cov8" title="1">
-                return tm.selectCurrentItem()</span>
-        case inputmapper.ActionMenuCancel:<span class="cov8" title="1">
-                if tm.callbacks.OnCancel != nil </span><span class="cov8" title="1">{
-                        tm.callbacks.OnCancel()
-                }</span>
-                <span class="cov8" title="1">return nil</span>
-        default:<span class="cov8" title="1">
-                return nil</span>
-        }
-}
-
-// navigateToPreviousTab は前のタブに移動する
-func (tm *tabMenu) navigateToPreviousTab() error <span class="cov8" title="1">{
-        oldIndex := tm.currentTabIndex
-
-        if tm.currentTabIndex &gt; 0 </span><span class="cov8" title="1">{
-                tm.currentTabIndex--
-        }</span> else<span class="cov8" title="1"> if tm.config.WrapNavigation </span><span class="cov8" title="1">{
-                tm.currentTabIndex = len(tm.config.Tabs) - 1
-        }</span>
-
-        <span class="cov8" title="1">if oldIndex != tm.currentTabIndex </span><span class="cov8" title="1">{
-                // タブ変更時はアイテムインデックスとページをリセット
-                newTab := tm.config.Tabs[tm.currentTabIndex]
-                if len(newTab.Items) &gt; 0 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex = 0
-                        tm.currentPage = 0
-                }</span> else<span class="cov0" title="0"> {
-                        tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-                }</span>
-
-                <span class="cov8" title="1">if tm.callbacks.OnTabChange != nil </span><span class="cov8" title="1">{
-                        tm.callbacks.OnTabChange(oldIndex, tm.currentTabIndex, newTab)
-                }</span>
-
-                // アイテムが存在する場合のみnotifyItemChangeを呼ぶ
-                <span class="cov8" title="1">if len(newTab.Items) &gt; 0 </span><span class="cov8" title="1">{
-                        if err := tm.notifyItemChange(0, 0); err != nil </span><span class="cov0" title="0">{
-                                return err
-                        }</span>
-                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// navigateToNextTab は次のタブに移動する
-func (tm *tabMenu) navigateToNextTab() error <span class="cov8" title="1">{
-        oldIndex := tm.currentTabIndex
-
-        if tm.currentTabIndex &lt; len(tm.config.Tabs)-1 </span><span class="cov8" title="1">{
-                tm.currentTabIndex++
-        }</span> else<span class="cov8" title="1"> if tm.config.WrapNavigation </span><span class="cov8" title="1">{
-                tm.currentTabIndex = 0
-        }</span>
-
-        <span class="cov8" title="1">if oldIndex != tm.currentTabIndex </span><span class="cov8" title="1">{
-                // タブ変更時はアイテムインデックスとページをリセット
-                newTab := tm.config.Tabs[tm.currentTabIndex]
-                if len(newTab.Items) &gt; 0 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex = 0
-                        tm.currentPage = 0
-                }</span> else<span class="cov0" title="0"> {
-                        tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-                }</span>
-
-                <span class="cov8" title="1">if tm.callbacks.OnTabChange != nil </span><span class="cov8" title="1">{
-                        tm.callbacks.OnTabChange(oldIndex, tm.currentTabIndex, newTab)
-                }</span>
-
-                // アイテムが存在する場合のみnotifyItemChangeを呼ぶ
-                <span class="cov8" title="1">if len(newTab.Items) &gt; 0 </span><span class="cov8" title="1">{
-                        if err := tm.notifyItemChange(0, 0); err != nil </span><span class="cov0" title="0">{
-                                return err
-                        }</span>
-                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// navigateToPreviousItem は前のアイテムに移動する
-func (tm *tabMenu) navigateToPreviousItem() error <span class="cov8" title="1">{
-        if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov8" title="1">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">currentTab := tm.config.Tabs[tm.currentTabIndex]
-        if len(currentTab.Items) == 0 </span><span class="cov0" title="0">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">oldIndex := tm.currentItemIndex
-
-        // ページネーション対応
-        if tm.config.ItemsPerPage &gt; 0 </span><span class="cov0" title="0">{
-                pageStart := tm.currentPage * tm.config.ItemsPerPage
-
-                // ページ内での移動
-                if tm.currentItemIndex &lt; 0 </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = pageStart
-                }</span> else<span class="cov0" title="0"> if tm.currentItemIndex &gt; pageStart </span><span class="cov0" title="0">{
-                        tm.currentItemIndex--
-                }</span> else<span class="cov0" title="0"> if tm.currentPage &gt; 0 </span><span class="cov0" title="0">{
-                        // 前のページへ
-                        tm.currentPage--
-                        tm.currentItemIndex = (tm.currentPage+1)*tm.config.ItemsPerPage - 1
-                }</span> else<span class="cov0" title="0"> if tm.config.WrapNavigation </span><span class="cov0" title="0">{
-                        // 最後のページへ
-                        tm.currentPage = (len(currentTab.Items) - 1) / tm.config.ItemsPerPage
-                        tm.currentItemIndex = len(currentTab.Items) - 1
-                }</span>
-        } else<span class="cov8" title="1"> {
-                // ページネーションなし
-                if tm.currentItemIndex &lt; 0 </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = 0
-                }</span> else<span class="cov8" title="1"> if tm.currentItemIndex &gt; 0 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex--
-                }</span> else<span class="cov8" title="1"> if tm.config.WrapNavigation </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = len(currentTab.Items) - 1
-                }</span>
-        }
-
-        <span class="cov8" title="1">if oldIndex != tm.currentItemIndex </span><span class="cov8" title="1">{
-                if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// navigateToNextItem は次のアイテムに移動する
-func (tm *tabMenu) navigateToNextItem() error <span class="cov8" title="1">{
-        if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov8" title="1">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">currentTab := tm.config.Tabs[tm.currentTabIndex]
-        if len(currentTab.Items) == 0 </span><span class="cov0" title="0">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">oldIndex := tm.currentItemIndex
-
-        // ページネーション対応
-        if tm.config.ItemsPerPage &gt; 0 </span><span class="cov8" title="1">{
-                pageStart := tm.currentPage * tm.config.ItemsPerPage
-                pageEnd := min(pageStart+tm.config.ItemsPerPage, len(currentTab.Items))
-
-                // ページ内での移動
-                if tm.currentItemIndex &lt; 0 </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = pageStart
-                }</span> else<span class="cov8" title="1"> if tm.currentItemIndex &lt; pageEnd-1 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex++
-                }</span> else<span class="cov8" title="1"> if pageEnd &lt; len(currentTab.Items) </span><span class="cov8" title="1">{
-                        // 次のページへ
-                        tm.currentPage++
-                        tm.currentItemIndex = tm.currentPage * tm.config.ItemsPerPage
-                }</span> else<span class="cov0" title="0"> if tm.config.WrapNavigation </span><span class="cov0" title="0">{
-                        // 最初のページへ
-                        tm.currentPage = 0
-                        tm.currentItemIndex = 0
-                }</span>
-        } else<span class="cov8" title="1"> {
-                // ページネーションなし
-                if tm.currentItemIndex &lt; 0 </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = 0
-                }</span> else<span class="cov8" title="1"> if tm.currentItemIndex &lt; len(currentTab.Items)-1 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex++
-                }</span> else<span class="cov0" title="0"> if tm.config.WrapNavigation </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = 0
-                }</span>
-        }
-
-        <span class="cov8" title="1">if oldIndex != tm.currentItemIndex </span><span class="cov8" title="1">{
-                if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// selectCurrentItem は現在のアイテムを選択する
-func (tm *tabMenu) selectCurrentItem() error <span class="cov8" title="1">{
-        if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov8" title="1">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">currentTab := tm.config.Tabs[tm.currentTabIndex]
-        if len(currentTab.Items) == 0 || tm.currentItemIndex &gt;= len(currentTab.Items) || tm.currentItemIndex &lt; 0 </span><span class="cov8" title="1">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">currentItem := currentTab.Items[tm.currentItemIndex]
-
-        if tm.callbacks.OnSelectItem != nil </span><span class="cov8" title="1">{
-                if err := tm.callbacks.OnSelectItem(tm.currentTabIndex, tm.currentItemIndex, currentTab, currentItem); err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// notifyItemChange はアイテム変更を通知する
-func (tm *tabMenu) notifyItemChange(oldIndex, newIndex int) error <span class="cov8" title="1">{
-        if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov0" title="0">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">currentTab := tm.config.Tabs[tm.currentTabIndex]
-        if len(currentTab.Items) == 0 || newIndex &gt;= len(currentTab.Items) || newIndex &lt; 0 </span><span class="cov0" title="0">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">if tm.callbacks.OnItemChange != nil </span><span class="cov8" title="1">{
-                if err := tm.callbacks.OnItemChange(tm.currentTabIndex, oldIndex, newIndex, currentTab.Items[newIndex]); err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// GetCurrentTabIndex は現在のタブインデックスを返す
-func (tm *tabMenu) GetCurrentTabIndex() int <span class="cov8" title="1">{
-        return tm.currentTabIndex
-}</span>
-
-// GetCurrentItemIndex は現在のアイテムインデックスを返す
-func (tm *tabMenu) GetCurrentItemIndex() int <span class="cov8" title="1">{
-        return tm.currentItemIndex
-}</span>
-
-// GetCurrentTab は現在のタブを返す
-func (tm *tabMenu) GetCurrentTab() TabItem <span class="cov8" title="1">{
-        if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov8" title="1">{
-                return TabItem{}
-        }</span>
-        <span class="cov8" title="1">return tm.config.Tabs[tm.currentTabIndex]</span>
-}
-
-// GetCurrentItem は現在のアイテムを返す
-func (tm *tabMenu) GetCurrentItem() Item <span class="cov8" title="1">{
-        currentTab := tm.GetCurrentTab()
-        if len(currentTab.Items) == 0 || tm.currentItemIndex &gt;= len(currentTab.Items) || tm.currentItemIndex &lt; 0 </span><span class="cov8" title="1">{
-                return Item{}
-        }</span>
-        <span class="cov8" title="1">return currentTab.Items[tm.currentItemIndex]</span>
-}
-
-// SetTabIndex はタブインデックスを設定する
-func (tm *tabMenu) SetTabIndex(index int) error <span class="cov8" title="1">{
-        if index &gt;= 0 &amp;&amp; index &lt; len(tm.config.Tabs) </span><span class="cov8" title="1">{
-                oldIndex := tm.currentTabIndex
-                tm.currentTabIndex = index
-
-                // タブ変更時はアイテムインデックスとページをリセット
-                newTab := tm.config.Tabs[tm.currentTabIndex]
-                if len(newTab.Items) &gt; 0 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex = 0
-                        tm.currentPage = 0
-                }</span> else<span class="cov0" title="0"> {
-                        tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-                }</span>
-
-                <span class="cov8" title="1">if oldIndex != tm.currentTabIndex </span><span class="cov8" title="1">{
-                        if tm.callbacks.OnTabChange != nil </span><span class="cov0" title="0">{
-                                tm.callbacks.OnTabChange(oldIndex, tm.currentTabIndex, newTab)
-                        }</span>
-
-                        // アイテムが存在する場合のみnotifyItemChangeを呼ぶ
-                        <span class="cov8" title="1">if len(newTab.Items) &gt; 0 </span><span class="cov8" title="1">{
-                                if err := tm.notifyItemChange(0, 0); err != nil </span><span class="cov0" title="0">{
-                                        return err
-                                }</span>
-                        }
-                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// SetItemIndex はアイテムインデックスを設定する
-func (tm *tabMenu) SetItemIndex(index int) error <span class="cov8" title="1">{
-        currentTab := tm.GetCurrentTab()
-        if index &gt;= 0 &amp;&amp; index &lt; len(currentTab.Items) </span><span class="cov8" title="1">{
-                oldIndex := tm.currentItemIndex
-                tm.currentItemIndex = index
-
-                if oldIndex != tm.currentItemIndex </span><span class="cov8" title="1">{
-                        if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil </span><span class="cov0" title="0">{
-                                return err
-                        }</span>
-                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// UpdateTabs はタブを更新する（動的にアイテムが変更された場合）
-func (tm *tabMenu) UpdateTabs(tabs []TabItem) <span class="cov8" title="1">{
-        tm.config.Tabs = tabs
-
-        // 現在のインデックスが範囲外になった場合は調整
-        if tm.currentTabIndex &gt;= len(tabs) </span><span class="cov8" title="1">{
-                tm.currentTabIndex = max(len(tabs)-1, 0)
-        }</span>
-
-        // 現在のタブのアイテムインデックスを調整
-        <span class="cov8" title="1">if len(tabs) &gt; 0 &amp;&amp; tm.currentTabIndex &lt; len(tabs) </span><span class="cov8" title="1">{
-                currentTab := tabs[tm.currentTabIndex]
-                if len(currentTab.Items) == 0 </span><span class="cov8" title="1">{
-                        tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-                }</span> else<span class="cov8" title="1"> if tm.currentItemIndex &gt;= len(currentTab.Items) </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = len(currentTab.Items) - 1
-                }</span> else<span class="cov8" title="1"> if tm.currentItemIndex &lt; 0 </span><span class="cov0" title="0">{
-                        tm.currentItemIndex = 0
-                }</span>
-
-                // UpdateTabsは内部状態の更新のみを行い、コールバックは呼ばない
-                // コールバックは呼び出し元で必要に応じて実行される
-        }
-}
-
-// GetVisibleItems は現在のページで表示される項目とその元のインデックスを返す
-func (tm *tabMenu) GetVisibleItems() ([]Item, []int) <span class="cov8" title="1">{
-        if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov0" title="0">{
+// getVisibleItems は指定ページで表示される項目とその元のインデックスを返す
+func getVisibleItems(config Config, state ViewState) ([]Item, []int) <span class="cov8" title="1">{
+        if len(config.Tabs) == 0 || state.TabIndex &gt;= len(config.Tabs) </span><span class="cov8" title="1">{
                 return []Item{}, []int{}
         }</span>
 
-        <span class="cov8" title="1">currentTab := tm.config.Tabs[tm.currentTabIndex]
+        <span class="cov8" title="1">currentTab := config.Tabs[state.TabIndex]
 
-        if tm.config.ItemsPerPage &lt;= 0 </span><span class="cov8" title="1">{
+        if config.ItemsPerPage &lt;= 0 </span><span class="cov8" title="1">{
                 indices := make([]int, len(currentTab.Items))
                 for i := range indices </span><span class="cov8" title="1">{
                         indices[i] = i
@@ -47399,8 +47393,9 @@ func (tm *tabMenu) GetVisibleItems() ([]Item, []int) <span class="cov8" title="1
                 <span class="cov8" title="1">return currentTab.Items, indices</span>
         }
 
-        <span class="cov8" title="1">start := tm.currentPage * tm.config.ItemsPerPage
-        end := min(start+tm.config.ItemsPerPage, len(currentTab.Items))
+        <span class="cov8" title="1">page := currentPage(config, state)
+        start := page * config.ItemsPerPage
+        end := min(start+config.ItemsPerPage, len(currentTab.Items))
 
         if start &gt;= len(currentTab.Items) </span><span class="cov0" title="0">{
                 return []Item{}, []int{}
@@ -47415,68 +47410,51 @@ func (tm *tabMenu) GetVisibleItems() ([]Item, []int) <span class="cov8" title="1
         <span class="cov8" title="1">return visibleItems, indices</span>
 }
 
-// GetCurrentPage は現在のページ番号を返す(表示用なので1ベース)
-func (tm *tabMenu) GetCurrentPage() int <span class="cov8" title="1">{
-        return tm.currentPage + 1
-}</span>
-
-// GetTotalPages は総ページ数を返す
-func (tm *tabMenu) GetTotalPages() int <span class="cov8" title="1">{
-        if tm.config.ItemsPerPage &lt;= 0 </span><span class="cov8" title="1">{
-                return 1
+// currentPage は現在のページ番号を返す（0ベース）
+func currentPage(config Config, state ViewState) int <span class="cov8" title="1">{
+        if config.ItemsPerPage &lt;= 0 || state.ItemIndex &lt; 0 </span><span class="cov0" title="0">{
+                return 0
         }</span>
-
-        <span class="cov8" title="1">if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov0" title="0">{
-                return 1
-        }</span>
-
-        <span class="cov8" title="1">currentTab := tm.config.Tabs[tm.currentTabIndex]
-        return (len(currentTab.Items) + tm.config.ItemsPerPage - 1) / tm.config.ItemsPerPage</span>
+        <span class="cov8" title="1">return state.ItemIndex / config.ItemsPerPage</span>
 }
 
-// GetPageIndicatorText はページインジケーターのテキストを返す
-func (tm *tabMenu) GetPageIndicatorText() string <span class="cov8" title="1">{
-        if tm.config.ItemsPerPage &lt;= 0 || tm.GetTotalPages() &lt;= 1 </span><span class="cov8" title="1">{
+// totalPages は総ページ数を返す
+func totalPages(config Config, state ViewState) int <span class="cov8" title="1">{
+        if config.ItemsPerPage &lt;= 0 </span><span class="cov8" title="1">{
+                return 1
+        }</span>
+
+        <span class="cov8" title="1">if len(config.Tabs) == 0 || state.TabIndex &gt;= len(config.Tabs) </span><span class="cov0" title="0">{
+                return 1
+        }</span>
+
+        <span class="cov8" title="1">currentTab := config.Tabs[state.TabIndex]
+        return (len(currentTab.Items) + config.ItemsPerPage - 1) / config.ItemsPerPage</span>
+}
+
+// pageIndicatorText はページインジケーターのテキストを返す
+func pageIndicatorText(config Config, state ViewState) string <span class="cov8" title="1">{
+        total := totalPages(config, state)
+        if config.ItemsPerPage &lt;= 0 || total &lt;= 1 </span><span class="cov8" title="1">{
                 return ""
         }</span>
 
-        <span class="cov8" title="1">arrows := ""
+        <span class="cov8" title="1">page := currentPage(config, state)
+        arrows := ""
 
-        // 前のページがある場合は上矢印を追加
-        if tm.HasPreviousPage() </span><span class="cov0" title="0">{
+        if page &gt; 0 </span><span class="cov8" title="1">{
                 arrows += " ↑"
         }</span> else<span class="cov8" title="1"> {
                 arrows += " 　"
         }</span>
 
-        // 次のページがある場合は下矢印を追加
-        <span class="cov8" title="1">if tm.HasNextPage() </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if (page+1)*config.ItemsPerPage &lt; len(config.Tabs[state.TabIndex].Items) </span><span class="cov8" title="1">{
                 arrows += " ↓"
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 arrows += " 　"
         }</span>
 
-        <span class="cov8" title="1">return fmt.Sprintf("%d/%d%s", tm.GetCurrentPage(), tm.GetTotalPages(), arrows)</span>
-}
-
-// HasPreviousPage は前のページがあるかを返す
-func (tm *tabMenu) HasPreviousPage() bool <span class="cov8" title="1">{
-        return tm.currentPage &gt; 0
-}</span>
-
-// HasNextPage は次のページがあるかを返す
-func (tm *tabMenu) HasNextPage() bool <span class="cov8" title="1">{
-        if tm.config.ItemsPerPage &lt;= 0 </span><span class="cov0" title="0">{
-                return false
-        }</span>
-
-        <span class="cov8" title="1">if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) </span><span class="cov0" title="0">{
-                return false
-        }</span>
-
-        <span class="cov8" title="1">currentTab := tm.config.Tabs[tm.currentTabIndex]
-        nextPageStart := (tm.currentPage + 1) * tm.config.ItemsPerPage
-        return nextPageStart &lt; len(currentTab.Items)</span>
+        <span class="cov8" title="1">return fmt.Sprintf("%d/%d%s", page+1, total, arrows)</span>
 }
 </pre>
 		
@@ -47493,7 +47471,7 @@ import (
 // UIBuilder はTabMenuのUI要素を構築する
 type uiBuilder struct {
         world       w.World
-        itemWidgets []widget.PreferredSizeLocateableWidget // 現在表示中のウィジェット
+        itemWidgets []widget.PreferredSizeLocateableWidget
 }
 
 // newUIBuilder はUIビルダーを作成する
@@ -47504,49 +47482,34 @@ func newUIBuilder(world w.World) *uiBuilder <span class="cov8" title="1">{
         }
 }</span>
 
-// BuildUI はtabMenuのUI要素を構築する（タブが1つの場合を想定）
-func (b *uiBuilder) BuildUI(tabMenu *tabMenu) *widget.Container <span class="cov8" title="1">{
-        // タブが1つしかない場合は、そのタブのアイテムを直接表示
-        // 垂直リスト表示（固定）
-        return b.buildVerticalUI(tabMenu)
-}</span>
-
-// buildVerticalUI は垂直リスト表示のUIを構築する
-func (b *uiBuilder) buildVerticalUI(tabMenu *tabMenu) *widget.Container <span class="cov8" title="1">{
+// BuildUI はUI要素を構築する
+func (b *uiBuilder) BuildUI(config Config, state ViewState) *widget.Container <span class="cov8" title="1">{
         mainContainer := styled.NewVerticalContainer()
         b.itemWidgets = make([]widget.PreferredSizeLocateableWidget, 0)
 
-        // ページインジケーターを追加
-        pageText := tabMenu.GetPageIndicatorText()
+        pageText := pageIndicatorText(config, state)
         if pageText != "" </span><span class="cov8" title="1">{
-                pageIndicator := b.CreatePageIndicator(tabMenu)
+                pageIndicator := b.createPageIndicator(pageText)
                 mainContainer.AddChild(pageIndicator)
         }</span>
 
-        // 表示する項目のみを追加（スクロール対応）
-        <span class="cov8" title="1">visibleItems, indices := tabMenu.GetVisibleItems()
+        <span class="cov8" title="1">visibleItems, indices := getVisibleItems(config, state)
         for i, item := range visibleItems </span><span class="cov8" title="1">{
                 originalIndex := indices[i]
-                btn := b.CreateMenuButton(tabMenu, originalIndex, item)
+                isFocused := originalIndex == state.ItemIndex
+                btn := b.createMenuButton(item, isFocused)
                 mainContainer.AddChild(btn)
                 b.itemWidgets = append(b.itemWidgets, btn)
         }</span>
 
-        <span class="cov8" title="1">b.UpdateFocus(tabMenu)
-
-        return mainContainer</span>
+        <span class="cov8" title="1">return mainContainer</span>
 }
 
-// CreateMenuButton はメニューボタンを作成する
-func (b *uiBuilder) CreateMenuButton(tabMenu *tabMenu, index int, item Item) widget.PreferredSizeLocateableWidget <span class="cov8" title="1">{
-        // フォーカス状態をチェック
-        isFocused := index == tabMenu.GetCurrentItemIndex()
-
-        textColor := theme.TextSecondary
-
+// createMenuButton はメニューボタンを作成する
+func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.PreferredSizeLocateableWidget <span class="cov8" title="1">{
         return styled.NewListItemText(
                 item.Label,
-                textColor,
+                theme.TextSecondary,
                 isFocused,
                 b.world.Resources.UIResources,
                 item.AdditionalLabels...,
@@ -47554,64 +47517,56 @@ func (b *uiBuilder) CreateMenuButton(tabMenu *tabMenu, index int, item Item) wid
 }</span>
 
 // UpdateFocus はメニューのフォーカス表示を更新する
-// カーソルの色、背景バー、テキスト色を変更して選択状態を表現する
-func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) <span class="cov8" title="1">{
-        if len(b.itemWidgets) == 0 </span><span class="cov8" title="1">{
+func (b *uiBuilder) UpdateFocus(config Config, state ViewState) <span class="cov0" title="0">{
+        if len(b.itemWidgets) == 0 </span><span class="cov0" title="0">{
                 return
         }</span>
 
-        // 表示中の項目とそのインデックスを取得
-        <span class="cov8" title="1">_, indices := tabMenu.GetVisibleItems()
+        <span class="cov0" title="0">_, indices := getVisibleItems(config, state)
 
-        // 全てのアイテムのフォーカス表示を更新
-        for i, w := range b.itemWidgets </span><span class="cov8" title="1">{
+        for i, w := range b.itemWidgets </span><span class="cov0" title="0">{
                 if i &gt;= len(indices) </span><span class="cov0" title="0">{
                         continue</span>
                 }
 
-                <span class="cov8" title="1">originalIndex := indices[i]
-                isFocused := originalIndex == tabMenu.GetCurrentItemIndex()
+                <span class="cov0" title="0">originalIndex := indices[i]
+                isFocused := originalIndex == state.ItemIndex
 
-                // wrapperコンテナの最初の子がコンテンツ行
                 wrapper, ok := w.(*widget.Container)
                 if !ok </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov8" title="1">wrapperChildren := wrapper.Children()
+                <span class="cov0" title="0">wrapperChildren := wrapper.Children()
                 if len(wrapperChildren) == 0 </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov8" title="1">contentContainer, ok := wrapperChildren[0].(*widget.Container)
+                <span class="cov0" title="0">contentContainer, ok := wrapperChildren[0].(*widget.Container)
                 if !ok </span><span class="cov0" title="0">{
                         continue</span>
                 }
 
-                // 背景バーの画像を更新
-                <span class="cov8" title="1">if isFocused </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">if isFocused </span><span class="cov0" title="0">{
                         contentContainer.SetBackgroundImage(b.world.Resources.UIResources.Panel.SelectionBar)
-                }</span> else<span class="cov8" title="1"> {
+                }</span> else<span class="cov0" title="0"> {
                         contentContainer.SetBackgroundImage(eui_image.NewNineSliceColor(theme.Transparent))
                 }</span>
 
-                // テキストの色を更新
-                <span class="cov8" title="1">textColor := theme.TextSecondary
-                if isFocused </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">textColor := theme.TextSecondary
+                if isFocused </span><span class="cov0" title="0">{
                         textColor = theme.TextSelected
                 }</span>
 
-                <span class="cov8" title="1">for _, child := range contentContainer.Children() </span><span class="cov8" title="1">{
-                        if textWidget, ok := child.(*widget.Text); ok </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">for _, child := range contentContainer.Children() </span><span class="cov0" title="0">{
+                        if textWidget, ok := child.(*widget.Text); ok </span><span class="cov0" title="0">{
                                 textWidget.SetColor(textColor)
                         }</span>
                 }
         }
 }
 
-// CreatePageIndicator はページインジケーターを作成する
-func (b *uiBuilder) CreatePageIndicator(tabMenu *tabMenu) *widget.Text <span class="cov8" title="1">{
+// createPageIndicator はページインジケーターを作成する
+func (b *uiBuilder) createPageIndicator(pageText string) *widget.Text <span class="cov8" title="1">{
         res := b.world.Resources.UIResources
-
-        pageText := tabMenu.GetPageIndicatorText()
 
         return widget.NewText(
                 widget.TextOpts.Text(pageText, &amp;res.Text.SmallFace, theme.TextPrimary),
@@ -47626,35 +47581,26 @@ func (b *uiBuilder) CreatePageIndicator(tabMenu *tabMenu) *widget.Text <span cla
 }</span>
 
 // UpdateTabDisplayContainer はタブ表示コンテナを更新する
-// ページインジケーター、アイテム一覧、空の場合のメッセージを表示する
-func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, tabMenu *tabMenu) <span class="cov0" title="0">{
-        // 既存の子要素をクリア
+func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) <span class="cov0" title="0">{
         container.RemoveChildren()
 
-        currentTab := tabMenu.GetCurrentTab()
-        currentItemIndex := tabMenu.GetCurrentItemIndex()
-
-        // ページインジケーターを表示
-        pageText := tabMenu.GetPageIndicatorText()
+        pageText := pageIndicatorText(config, state)
         if pageText != "" </span><span class="cov0" title="0">{
                 pageIndicator := styled.NewPageIndicator(pageText, b.world.Resources.UIResources)
                 container.AddChild(pageIndicator)
         }</span>
 
-        // 現在のページで表示されるアイテムとインデックスを取得
-        <span class="cov0" title="0">visibleItems, indices := tabMenu.GetVisibleItems()
+        <span class="cov0" title="0">visibleItems, indices := getVisibleItems(config, state)
 
-        // アイテム一覧を表示（ページ内のアイテムのみ）
         for i, item := range visibleItems </span><span class="cov0" title="0">{
                 actualIndex := indices[i]
-                isSelected := actualIndex == currentItemIndex &amp;&amp; currentItemIndex &gt;= 0
+                isSelected := actualIndex == state.ItemIndex &amp;&amp; state.ItemIndex &gt;= 0
 
                 itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, b.world.Resources.UIResources, item.AdditionalLabels...)
                 container.AddChild(itemWidget)
         }</span>
 
-        // アイテムがない場合の表示
-        <span class="cov0" title="0">if len(currentTab.Items) == 0 </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">if len(config.Tabs) &gt; 0 &amp;&amp; state.TabIndex &lt; len(config.Tabs) &amp;&amp; len(config.Tabs[state.TabIndex].Items) == 0 </span><span class="cov0" title="0">{
                 emptyText := styled.NewDescriptionText("(アイテムなし)", b.world.Resources.UIResources)
                 container.AddChild(emptyText)
         }</span>
@@ -47665,133 +47611,52 @@ func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, tabMe
 
 import (
         "github.com/ebitenui/ebitenui/widget"
-        "github.com/kijimaD/ruins/internal/inputmapper"
         w "github.com/kijimaD/ruins/internal/world"
 )
 
-// View は tabMenu と uiBuilder を統合した構造体
-// tabMenu（状態管理）と uiBuilder（UI表示）を一緒に管理する
+// View はタブメニューの描画を担当する。状態管理は外部（hooks）が行う
 type View struct {
-        tabMenu   *tabMenu
+        config    Config
+        state     ViewState
         uiBuilder *uiBuilder
 }
 
 // NewView は View を作成する
-func NewView(config Config, callbacks Callbacks, world w.World) *View <span class="cov8" title="1">{
-        // OnItemChange コールバックにフォーカス更新を自動追加
-        originalOnItemChange := callbacks.OnItemChange
-        callbacks.OnItemChange = func(tabIndex int, oldItemIndex, newItemIndex int, item Item) error </span><span class="cov0" title="0">{
-                // 元のコールバックを呼び出し
-                if originalOnItemChange != nil </span><span class="cov0" title="0">{
-                        if err := originalOnItemChange(tabIndex, oldItemIndex, newItemIndex, item); err != nil </span><span class="cov0" title="0">{
-                                return err
-                        }</span>
-                }
-                <span class="cov0" title="0">return nil</span>
+func NewView(config Config, world w.World) *View <span class="cov8" title="1">{
+        return &amp;View{
+                config:    config,
+                uiBuilder: newUIBuilder(world),
         }
+}</span>
 
-        <span class="cov8" title="1">tabMenu := newTabMenu(config, callbacks)
-        uiBuilder := newUIBuilder(world)
-
-        view := &amp;View{
-                tabMenu:   tabMenu,
-                uiBuilder: uiBuilder,
-        }
-
-        return view</span>
-}
+// SetState は外部から描画状態を設定する
+func (v *View) SetState(state ViewState) <span class="cov8" title="1">{
+        v.state = state
+}</span>
 
 // BuildUI はメニューのUIを構築する
 func (v *View) BuildUI() *widget.Container <span class="cov8" title="1">{
-        return v.uiBuilder.BuildUI(v.tabMenu)
+        return v.uiBuilder.BuildUI(v.config, v.state)
 }</span>
 
-// Update はキーボード入力を処理する
-func (v *View) Update() error <span class="cov0" title="0">{
-        _, err := v.tabMenu.Update()
-        if err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-
-        // フォーカスが変わった可能性があるのでUIを更新
-        <span class="cov0" title="0">v.uiBuilder.UpdateFocus(v.tabMenu)
-
-        return nil</span>
-}
-
-// DoAction はアクションを実行する
-func (v *View) DoAction(actionID inputmapper.ActionID) error <span class="cov0" title="0">{
-        err := v.tabMenu.DoAction(actionID)
-        if err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-
-        // アクション実行後にUIを更新
-        <span class="cov0" title="0">v.uiBuilder.UpdateFocus(v.tabMenu)
-
-        return nil</span>
-}
-
-// GetCurrentItemIndex は現在のアイテムインデックスを取得する
-func (v *View) GetCurrentItemIndex() int <span class="cov0" title="0">{
-        return v.tabMenu.GetCurrentItemIndex()
+// UpdateFocus はフォーカス表示を更新する
+func (v *View) UpdateFocus() <span class="cov0" title="0">{
+        v.uiBuilder.UpdateFocus(v.config, v.state)
 }</span>
 
-// GetCurrentTab は現在のタブを取得する
-func (v *View) GetCurrentTab() TabItem <span class="cov0" title="0">{
-        return v.tabMenu.GetCurrentTab()
+// GetCurrentPage は現在のページ番号を返す（1ベース、表示用）
+func (v *View) GetCurrentPage() int <span class="cov0" title="0">{
+        return currentPage(v.config, v.state) + 1
+}</span>
+
+// UpdateTabDisplayContainer はタブ表示コンテナを更新する
+func (v *View) UpdateTabDisplayContainer(container *widget.Container) <span class="cov0" title="0">{
+        v.uiBuilder.UpdateTabDisplayContainer(container, v.config, v.state)
 }</span>
 
 // UpdateTabs はタブを更新する
 func (v *View) UpdateTabs(tabs []TabItem) <span class="cov0" title="0">{
-        v.tabMenu.UpdateTabs(tabs)
-        v.uiBuilder.UpdateFocus(v.tabMenu)
-}</span>
-
-// GetCurrentTabIndex は現在のタブインデックスを取得する
-func (v *View) GetCurrentTabIndex() int <span class="cov0" title="0">{
-        return v.tabMenu.GetCurrentTabIndex()
-}</span>
-
-// GetPageIndicatorText はページインジケーターのテキストを取得する
-func (v *View) GetPageIndicatorText() string <span class="cov0" title="0">{
-        return v.tabMenu.GetPageIndicatorText()
-}</span>
-
-// GetVisibleItems は現在のページで表示されるアイテムとインデックスを取得する
-func (v *View) GetVisibleItems() ([]Item, []int) <span class="cov0" title="0">{
-        return v.tabMenu.GetVisibleItems()
-}</span>
-
-// SetTabIndex はタブインデックスを設定する
-func (v *View) SetTabIndex(index int) error <span class="cov0" title="0">{
-        err := v.tabMenu.SetTabIndex(index)
-        if err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-        <span class="cov0" title="0">v.uiBuilder.UpdateFocus(v.tabMenu)
-        return nil</span>
-}
-
-// SetItemIndex はアイテムインデックスを設定する
-func (v *View) SetItemIndex(index int) error <span class="cov0" title="0">{
-        err := v.tabMenu.SetItemIndex(index)
-        if err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-        <span class="cov0" title="0">v.uiBuilder.UpdateFocus(v.tabMenu)
-        return nil</span>
-}
-
-// GetCurrentPage は現在のページ番号を返す
-func (v *View) GetCurrentPage() int <span class="cov0" title="0">{
-        return v.tabMenu.GetCurrentPage()
-}</span>
-
-// UpdateTabDisplayContainer はタブ表示コンテナを更新する
-// ページインジケーター、アイテム一覧、空の場合のメッセージを表示する
-func (v *View) UpdateTabDisplayContainer(container *widget.Container) <span class="cov0" title="0">{
-        v.uiBuilder.UpdateTabDisplayContainer(container, v.tabMenu)
+        v.config.Tabs = tabs
 }</span>
 </pre>
 		

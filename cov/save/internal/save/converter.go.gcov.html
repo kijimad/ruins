@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">97.6&nbsp;%</td>
-            <td class="headerCovTableEntry">331</td>
-            <td class="headerCovTableEntry">323</td>
+            <td class="headerCovTableEntryHi">90.6&nbsp;%</td>
+            <td class="headerCovTableEntry">392</td>
+            <td class="headerCovTableEntry">355</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:40:50</td>
+            <td class="headerValue">2026-07-05 07:38:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -467,13 +467,96 @@
 <span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         return ai</span></span>
 <span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L407"><span class="lineNum">     407</span>              : </span>
-<span id="L408"><span class="lineNum">     408</span>              : // ================== マーカーコンポーネント ==================</span>
+<span id="L408"><span class="lineNum">     408</span>              : // ================== 健康状態コンポーネント ==================</span>
 <span id="L409"><span class="lineNum">     409</span>              : </span>
-<span id="L410"><span class="lineNum">     410</span>              : // emptyMarker はマーカーコンポーネント用の空マップを返す</span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 : func emptyMarker() *oapi.SaveDataMarkerComponent {</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :         m := oapi.SaveDataMarkerComponent{}</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :         return &amp;m</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 : func healthStatusToSaveData(hs gc.HealthStatus) oapi.SaveDataHealthStatusComponent {</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :         parts := make([]oapi.SaveDataBodyPartHealth, len(hs.Parts))</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           2 :         for i, part := range hs.Parts {</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           2 :                 if len(part.Conditions) == 0 {</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L415"><span class="lineNum">     415</span>              :                 }</span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC tlaBgUNC">           0 :                 conds := make([]oapi.SaveDataHealthCondition, len(part.Conditions))</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :                 for j, c := range part.Conditions {</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                         conds[j] = oapi.SaveDataHealthCondition{</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                                 Type:     string(c.Type),</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :                                 Severity: int32(c.Severity),</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                                 Timer:    c.Timer,</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                         if len(c.Effects) &gt; 0 {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                                 effects := make([]oapi.SaveDataStatEffect, len(c.Effects))</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                                 for k, e := range c.Effects {</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :                                         effects[k] = oapi.SaveDataStatEffect{Stat: string(e.Stat), Value: int32(e.Value)}</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                                 conds[j].Effects = &amp;effects</span></span>
+<span id="L429"><span class="lineNum">     429</span>              :                         }</span>
+<span id="L430"><span class="lineNum">     430</span>              :                 }</span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                 parts[i].Conditions = &amp;conds</span></span>
+<span id="L432"><span class="lineNum">     432</span>              :         }</span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC tlaBgGNC">           1 :         return oapi.SaveDataHealthStatusComponent{Parts: parts}</span></span>
+<span id="L434"><span class="lineNum">     434</span>              : }</span>
+<span id="L435"><span class="lineNum">     435</span>              : </span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 : func healthStatusFromSaveData(sd oapi.SaveDataHealthStatusComponent) gc.HealthStatus {</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :         var hs gc.HealthStatus</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; len(sd.Parts) &amp;&amp; i &lt; len(hs.Parts); i++ {</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           2 :                 if sd.Parts[i].Conditions == nil {</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L441"><span class="lineNum">     441</span>              :                 }</span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC tlaBgUNC">           0 :                 for _, sc := range *sd.Parts[i].Conditions {</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :                         cond := gc.HealthCondition{</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                                 Type:     gc.ConditionType(sc.Type),</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                                 Severity: gc.Severity(sc.Severity),</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :                                 Timer:    sc.Timer,</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :                         if sc.Effects != nil {</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                                 for _, se := range *sc.Effects {</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                                         cond.Effects = append(cond.Effects, gc.StatEffect{</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :                                                 Stat:  gc.StatType(se.Stat),</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :                                                 Value: int(se.Value),</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :                                         })</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L455"><span class="lineNum">     455</span>              :                         }</span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :                         hs.Parts[i].Conditions = append(hs.Parts[i].Conditions, cond)</span></span>
+<span id="L457"><span class="lineNum">     457</span>              :                 }</span>
+<span id="L458"><span class="lineNum">     458</span>              :         }</span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC tlaBgGNC">           1 :         return hs</span></span>
+<span id="L460"><span class="lineNum">     460</span>              : }</span>
+<span id="L461"><span class="lineNum">     461</span>              : </span>
+<span id="L462"><span class="lineNum">     462</span>              : // ================== スキルコンポーネント ==================</span>
+<span id="L463"><span class="lineNum">     463</span>              : </span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 : func skillsToSaveData(skills gc.Skills) oapi.SaveDataSkillsComponent {</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :         data := make(map[string]oapi.SaveDataSkillEntry, len(skills.Data))</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           2 :         for id, sk := range skills.Data {</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :                 data[string(id)] = oapi.SaveDataSkillEntry{</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :                         Value:      int32(sk.Value),</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                         ExpMax:     int32(sk.Exp.Max),</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                         ExpCurrent: int32(sk.Exp.Current),</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :         return oapi.SaveDataSkillsComponent{Data: data}</span></span>
+<span id="L474"><span class="lineNum">     474</span>              : }</span>
+<span id="L475"><span class="lineNum">     475</span>              : </span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 : func skillsFromSaveData(sd oapi.SaveDataSkillsComponent) *gc.Skills {</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 :         skills := gc.NewSkills()</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           2 :         for id, entry := range sd.Data {</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                 skillID := gc.SkillID(id)</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :                 if !gc.HasSkillName(skillID) {</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L482"><span class="lineNum">     482</span>              :                 }</span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC tlaBgGNC">           1 :                 sk := skills.Data[skillID]</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                 sk.Value = int(entry.Value)</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                 sk.Exp.Max = int(entry.ExpMax)</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :                 sk.Exp.Current = int(entry.ExpCurrent)</span></span>
+<span id="L487"><span class="lineNum">     487</span>              :         }</span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           1 :         return skills</span></span>
+<span id="L489"><span class="lineNum">     489</span>              : }</span>
+<span id="L490"><span class="lineNum">     490</span>              : </span>
+<span id="L491"><span class="lineNum">     491</span>              : // ================== マーカーコンポーネント ==================</span>
+<span id="L492"><span class="lineNum">     492</span>              : </span>
+<span id="L493"><span class="lineNum">     493</span>              : // emptyMarker はマーカーコンポーネント用の空マップを返す</span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 : func emptyMarker() *oapi.SaveDataMarkerComponent {</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :         m := oapi.SaveDataMarkerComponent{}</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :         return &amp;m</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

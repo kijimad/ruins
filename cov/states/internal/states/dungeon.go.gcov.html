@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:40:50</td>
+            <td class="headerValue">2026-07-05 07:38:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -255,7 +255,7 @@
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC tlaBgUNC">           0 :                 query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                         func() es.State[w.World] { return NewAllClearEventState() },</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewAllClearEventState() },</span></span>
 <span id="L197"><span class="lineNum">     197</span>              :                 }}, nil</span>
 <span id="L198"><span class="lineNum">     198</span>              :         }</span>
 <span id="L199"><span class="lineNum">     199</span>              : </span>
@@ -427,23 +427,23 @@
 <span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewInventoryMenuState}}, nil</span></span>
 <span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionOpenInteractionMenu:</span></span>
 <span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                         func() es.State[w.World] { return NewInteractionMenuState(world) },</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewInteractionMenuState(world) },</span></span>
 <span id="L369"><span class="lineNum">     369</span>              :                 }}, nil</span>
 <span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :         case inputmapper.ActionOpenFieldInfo:</span></span>
 <span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                         func() es.State[w.World] { return &amp;LookAroundState{} },</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return &amp;LookAroundState{}, nil },</span></span>
 <span id="L373"><span class="lineNum">     373</span>              :                 }}, nil</span>
 <span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         case inputmapper.ActionShoot:</span></span>
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                         func() es.State[w.World] { return &amp;ShootingState{} },</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return &amp;ShootingState{}, nil },</span></span>
 <span id="L377"><span class="lineNum">     377</span>              :                 }}, nil</span>
 <span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         case inputmapper.ActionPickup:</span></span>
 <span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                         func() es.State[w.World] { return &amp;PickupState{} },</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return &amp;PickupState{}, nil },</span></span>
 <span id="L381"><span class="lineNum">     381</span>              :                 }}, nil</span>
 <span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         case inputmapper.ActionPlace:</span></span>
 <span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         func() es.State[w.World] { return &amp;PlaceState{} },</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return &amp;PlaceState{}, nil },</span></span>
 <span id="L385"><span class="lineNum">     385</span>              :                 }}, nil</span>
 <span id="L386"><span class="lineNum">     386</span>              : </span>
 <span id="L387"><span class="lineNum">     387</span>              :         // 移動系アクション</span>
@@ -509,7 +509,7 @@
 <span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :                 default:</span></span>
 <span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                                 func() es.State[w.World] { return newActionChoiceMenu(actions) },</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return newActionChoiceMenu(actions), nil },</span></span>
 <span id="L451"><span class="lineNum">     451</span>              :                         }}, nil</span>
 <span id="L452"><span class="lineNum">     452</span>              :                 }</span>
 <span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
@@ -570,21 +570,21 @@
 <span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :                 switch e.MessageKey {</span></span>
 <span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :                 case &quot;merchant_greeting&quot;:</span></span>
 <span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                                 func() es.State[w.World] { return NewMerchantDialogState(speakerName) },</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName) },</span></span>
 <span id="L512"><span class="lineNum">     512</span>              :                         }}, nil</span>
 <span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :                 case &quot;doctor_greeting&quot;:</span></span>
 <span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                                 func() es.State[w.World] { return NewDoctorDialogState(speakerName) },</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewDoctorDialogState(speakerName) },</span></span>
 <span id="L516"><span class="lineNum">     516</span>              :                         }}, nil</span>
 <span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                 case &quot;tavern_keeper_greeting&quot;:</span></span>
 <span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                                 func() es.State[w.World] { return NewTavernKeeperDialogState(speakerName) },</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewTavernKeeperDialogState(speakerName) },</span></span>
 <span id="L520"><span class="lineNum">     520</span>              :                         }}, nil</span>
 <span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                 default:</span></span>
 <span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                         // 通常の会話はdialoguesから取得</span></span>
 <span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :                         dialogMessage := messagedata.GetDialogue(e.MessageKey, speakerName)</span></span>
 <span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                                 func() es.State[w.World] { return NewMessageState(dialogMessage) },</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },</span></span>
 <span id="L526"><span class="lineNum">     526</span>              :                         }}, nil</span>
 <span id="L527"><span class="lineNum">     527</span>              :                 }</span>
 <span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :         case gc.WarpNextEvent:</span></span>
@@ -604,7 +604,7 @@
 <span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :         case gc.OpenStorageEvent:</span></span>
 <span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :                 // 収納メニューを開く</span></span>
 <span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                         func() es.State[w.World] { return NewStorageMenuState(e.StorageEntity) },</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewStorageMenuState(e.StorageEntity) },</span></span>
 <span id="L546"><span class="lineNum">     546</span>              :                 }}, nil</span>
 <span id="L547"><span class="lineNum">     547</span>              :         }</span>
 <span id="L548"><span class="lineNum">     548</span>              : </span>
