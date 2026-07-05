@@ -231,6 +231,16 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		sd := abilitiesToSaveData(*ab)
 		comp.Abilities = &sd
 	}
+	if entity.HasComponent(c.HealthStatus) {
+		hs := c.HealthStatus.Get(entity).(*gc.HealthStatus)
+		sd := healthStatusToSaveData(*hs)
+		comp.HealthStatus = &sd
+	}
+	if entity.HasComponent(c.Skills) {
+		sk := c.Skills.Get(entity).(*gc.Skills)
+		sd := skillsToSaveData(*sk)
+		comp.Skills = &sd
+	}
 
 	// 表示コンポーネント
 	if entity.HasComponent(c.Camera) {
@@ -392,6 +402,13 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 		}
 	}
 
+	// 第4段階: 派生コンポーネントの再計算をマークする
+	for _, entry := range entries {
+		if entry.entity.HasComponent(c.Skills) {
+			entry.entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
+		}
+	}
+
 	// GameProgressを復元
 	if gp := gameProgressFromSaveData(worldData.GameProgress); gp != nil {
 		*query.GetGameProgress(world) = *gp
@@ -442,20 +459,9 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 		entity.AddComponent(c.CommandTable, &gc.CommandTable{Name: comp.CommandTable.Name})
 	}
 
-	// 隊員コンポーネント（Leaderは第3段階で解決）
+	// 隊員コンポーネント
 	if comp.SquadMember != nil {
 		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
-
-		entity.AddComponent(c.BlockPass, &gc.BlockPass{})
-		entity.AddComponent(c.HealthStatus, &gc.HealthStatus{})
-		skills := gc.NewSkills()
-		entity.AddComponent(c.Skills, skills)
-		if comp.Abilities != nil {
-			ab := abilitiesFromSaveData(*comp.Abilities)
-			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, &ab, nil))
-		} else {
-			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, nil, nil))
-		}
 	}
 	if comp.SquadPolicy != nil {
 		ai := aiFromSaveData(*comp.SquadPolicy)
@@ -497,6 +503,14 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 	if comp.Abilities != nil {
 		ab := abilitiesFromSaveData(*comp.Abilities)
 		entity.AddComponent(c.Abilities, &ab)
+	}
+	if comp.HealthStatus != nil {
+		hs := healthStatusFromSaveData(*comp.HealthStatus)
+		entity.AddComponent(c.HealthStatus, &hs)
+	}
+	if comp.Skills != nil {
+		skills := skillsFromSaveData(*comp.Skills)
+		entity.AddComponent(c.Skills, skills)
 	}
 	if comp.Camera != nil {
 		cam := cameraFromSaveData(*comp.Camera)

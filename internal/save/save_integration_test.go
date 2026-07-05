@@ -270,7 +270,8 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		// ステータス関連コンポーネント
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.HealthStatus), "HealthStatusが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.Skills), "Skillsが復元される")
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.CharModifiers), "CharModifiersが復元される")
+		// CharModifiersはStatsChangedSystemが再計算する。復元直後はダーティフラグのみ
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.StatsChanged), "StatsChangedフラグが付与される")
 
 		// AIの値が正しいことを確認
 		ai := newWorld.Components.AI.Get(memberEntity).(*gc.AI)
