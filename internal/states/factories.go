@@ -616,7 +616,7 @@ func NewSaveMenuState() es.State[w.World] {
 		slotName := fmt.Sprintf("slot%d", i)
 		label := formatSaveSlotLabel(saveManager, slotName)
 
-		messageData = messageData.WithChoice(label, func(world w.World) error {
+		messageData.WithChoice(label, func(world w.World) error {
 			if err := saveManager.SaveWorld(world, slotName); err != nil {
 				return fmt.Errorf("save failed: %w", err)
 			}
@@ -627,7 +627,7 @@ func NewSaveMenuState() es.State[w.World] {
 		})
 	}
 
-	messageData = messageData.WithChoice("戻る", func(_ w.World) error {
+	messageData.WithChoice("戻る", func(_ w.World) error {
 		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		return nil
 	})
@@ -644,14 +644,14 @@ func NewLoadMenuState() es.State[w.World] {
 	messageData := messagedata.NewSystemMessage("")
 
 	// 手動セーブセクション
-	messageData = messageData.WithChoice("手動セーブ", nil)
+	messageData.WithChoice("手動セーブ", nil)
 	for i := 1; i <= 4; i++ {
 		slotName := fmt.Sprintf("slot%d", i)
 		addLoadSlot(messageData, messageState, saveManager, slotName)
 	}
 
 	// オートセーブセクション
-	messageData = messageData.WithChoice("オートセーブ", nil)
+	messageData.WithChoice("オートセーブ", nil)
 	autoSaves, err := saveManager.ListAutoSaves()
 	if err != nil {
 		panic(fmt.Sprintf("オートセーブ一覧の取得に失敗: %v", err))
@@ -667,7 +667,7 @@ func NewLoadMenuState() es.State[w.World] {
 		}
 	}
 
-	messageData = messageData.WithChoice("戻る", func(_ w.World) error {
+	messageData.WithChoice("戻る", func(_ w.World) error {
 		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		return nil
 	})
@@ -770,7 +770,7 @@ func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] {
 	messageState.messageData = messagedata.NewSystemMessage("")
 
 	for _, action := range actions {
-		messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error {
+		messageState.messageData.WithChoice(action.Label, func(world w.World) error {
 			playerEntity, err := query.GetPlayerEntity(world)
 			if err != nil {
 				return fmt.Errorf("failed to get player entity: %w", err)
@@ -785,7 +785,7 @@ func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] {
 		})
 	}
 
-	messageState.messageData = messageState.messageData.WithChoice("キャンセル", func(_ w.World) error {
+	messageState.messageData.WithChoice("キャンセル", func(_ w.World) error {
 		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		return nil
 	})
