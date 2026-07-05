@@ -9,6 +9,7 @@ import (
 	eui_image "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/messagedata"
@@ -32,6 +33,7 @@ type Window struct {
 
 	// 選択肢がある場合、メニューシステムでページング可能な選択肢一覧を表示
 	choiceMenuView  *tabmenu.View
+	choiceStore     *hooks.Store
 	hasChoices      bool
 	currentMenuPage int
 	needsUIRebuild  bool // ページ変更時のUI再構築フラグ
@@ -57,7 +59,7 @@ func (w *Window) Update() error {
 	}
 
 	if w.hasChoices && w.choiceMenuView != nil {
-		if err := w.choiceMenuView.Update(); err != nil {
+		if err := w.handleChoiceInput(); err != nil {
 			return err
 		}
 
@@ -148,6 +150,7 @@ func (w *Window) showNextMessage() {
 	w.ui = nil
 	w.window = nil
 	w.choiceMenuView = nil
+	w.choiceStore = nil
 }
 
 // updateContentFromMessage はMessageDataから表示コンテンツを更新する
@@ -522,51 +525,83 @@ func (w *Window) initChoiceMenu() {
 
 	itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))
 
-	// タブ1つ
-	tabs := []tabmenu.TabItem{
-		{
-			ID:    "choices",
-			Label: "",
-			Items: items,
+	config := tabmenu.Config{
+		Tabs: []tabmenu.TabItem{
+			{ID: "choices", Label: "", Items: items},
 		},
+		ItemsPerPage: itemsPerPage,
 	}
 
+	// hooks で Skip 込みのナビゲーションを管理する
 	skips := make([]bool, len(w.currentMessage.Choices))
 	for i, choice := range w.currentMessage.Choices {
 		skips[i] = choice.Action == nil
 	}
 
-	config := tabmenu.Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-		ItemsPerPage:     itemsPerPage,
-		Skips:            [][]bool{skips},
-	}
+	w.choiceStore = hooks.NewStore()
+	menuState := hooks.UseTabMenu(w.choiceStore, "choices", hooks.TabMenuConfig{
+		TabCount:     1,
+		ItemCounts:   []int{len(items)},
+		ItemsPerPage: itemsPerPage,
+		Skips:        [][]bool{skips},
+	})
 
-	callbacks := tabmenu.Callbacks{
-		OnSelectItem: func(_ int, itemIndex int, _ tabmenu.TabItem, _ tabmenu.Item) error {
-			return w.selectChoice(itemIndex)
-		},
-		OnCancel: func() {
-			w.Close()
-		},
-		OnItemChange: func(_ int, _, _ int, _ tabmenu.Item) error {
-			if w.choiceMenuView != nil {
-				newPage := w.choiceMenuView.GetCurrentPage()
-				if newPage != w.currentMenuPage {
-					w.currentMenuPage = newPage
-					w.needsUIRebuild = true
-				}
-			}
-			return nil
-		},
-	}
-
-	// View を作成（TabMenu + UIBuilder を統合）
-	w.choiceMenuView = tabmenu.NewView(config, callbacks, w.world)
+	w.choiceMenuView = tabmenu.NewView(config, w.world)
+	w.choiceMenuView.SetState(tabmenu.ViewState{
+		TabIndex:  menuState.TabIndex,
+		ItemIndex: menuState.ItemIndex,
+	})
 	w.currentMenuPage = 1
+}
+
+// handleChoiceInput はキー入力を hooks Store にディスパッチし、View を同期する
+func (w *Window) handleChoiceInput() error {
+	keyboardInput := input.GetSharedKeyboardInput()
+	action, ok := w.translateChoiceInput(keyboardInput)
+	if !ok {
+		return nil
+	}
+
+	switch action {
+	case inputmapper.ActionMenuSelect:
+		menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
+		return w.selectChoice(menuState.ItemIndex)
+	case inputmapper.ActionMenuCancel:
+		w.Close()
+		return nil
+	default:
+		w.choiceStore.Dispatch(action)
+		menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
+		w.choiceMenuView.SetState(tabmenu.ViewState{
+			TabIndex:  menuState.TabIndex,
+			ItemIndex: menuState.ItemIndex,
+		})
+		w.choiceMenuView.UpdateFocus()
+
+		newPage := w.choiceMenuView.GetCurrentPage()
+		if newPage != w.currentMenuPage {
+			w.currentMenuPage = newPage
+			w.needsUIRebuild = true
+		}
+		return nil
+	}
+}
+
+// translateChoiceInput はキーボード入力を選択肢メニューのアクションに変換する
+func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {
+		return inputmapper.ActionMenuUp, true
+	}
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {
+		return inputmapper.ActionMenuDown, true
+	}
+	if keyboardInput.IsEnterJustPressedOnce() {
+		return inputmapper.ActionMenuSelect, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
+		return inputmapper.ActionMenuCancel, true
+	}
+	return "", false
 }
 
 // rebuildUI はUIを再構築する

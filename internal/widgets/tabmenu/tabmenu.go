@@ -1,12 +1,6 @@
 package tabmenu
 
-import (
-	"fmt"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/input"
-	"github.com/kijimaD/ruins/internal/inputmapper"
-)
+import "fmt"
 
 // TabItem はタブの項目を定義する
 type TabItem struct {
@@ -15,506 +9,27 @@ type TabItem struct {
 	Items []Item
 }
 
-// Config はタブメニューの設定
+// Config はタブメニューの描画設定
 type Config struct {
-	Tabs             []TabItem
-	InitialTabIndex  int
-	InitialItemIndex int
-	WrapNavigation   bool     // タブ/アイテム両方で端循環するか
-	ItemsPerPage     int      // 1ページに表示する項目数（0=制限なし）
-	Skips            [][]bool // 各タブのスキップ判定。trueの位置はカーソルが止まらない
+	Tabs         []TabItem
+	ItemsPerPage int // 1ページに表示する項目数（0=制限なし）
 }
 
-// Callbacks はタブメニューのコールバック
-type Callbacks struct {
-	OnSelectItem func(tabIndex int, itemIndex int, tab TabItem, item Item) error
-	OnCancel     func()
-	OnTabChange  func(oldTabIndex, newTabIndex int, tab TabItem)
-	OnItemChange func(tabIndex int, oldItemIndex, newItemIndex int, item Item) error
+// ViewState は外部から設定される描画状態
+type ViewState struct {
+	TabIndex  int
+	ItemIndex int
 }
 
-// TabMenu はタブ付きメニューコンポーネント
-type tabMenu struct {
-	config    Config
-	callbacks Callbacks
-
-	// 状態
-	currentTabIndex  int
-	currentItemIndex int
-
-	// ページネーション状態
-	currentPage int // 現在のページ（0ベース）
-}
-
-// newTabMenu は新しいtabMenuを作成する
-func newTabMenu(config Config, callbacks Callbacks) *tabMenu {
-	tm := &tabMenu{
-		config:           config,
-		callbacks:        callbacks,
-		currentTabIndex:  config.InitialTabIndex,
-		currentItemIndex: config.InitialItemIndex,
-	}
-
-	// 初期タブのアイテム数を確認してインデックスを調整
-	if len(config.Tabs) > 0 && config.InitialTabIndex < len(config.Tabs) {
-		initialTab := config.Tabs[config.InitialTabIndex]
-		if len(initialTab.Items) == 0 {
-			tm.currentItemIndex = -1
-		} else if config.InitialItemIndex >= len(initialTab.Items) {
-			tm.currentItemIndex = len(initialTab.Items) - 1
-		} else if config.InitialItemIndex < 0 {
-			tm.currentItemIndex = 0
-		}
-		// 初期位置がスキップ対象の場合、次の有効なアイテムを探す
-		if tm.currentItemIndex >= 0 && tm.currentItemIndex < len(initialTab.Items) {
-			tm.currentItemIndex = tm.findEnabledItem(initialTab.Items, tm.currentItemIndex, 1)
-		}
-	}
-
-	return tm
-}
-
-// Update はキーボード入力を待ち受けて、Actionに変換してタブメニュー操作を実行する
-// 本実装で使用する。テストではDoAction()を直接呼ぶ
-func (tm *tabMenu) Update() (bool, error) {
-	keyboardInput := input.GetSharedKeyboardInput()
-	if action, ok := tm.translateKeyToAction(keyboardInput); ok {
-		return false, tm.DoAction(action)
-	}
-	return false, nil
-}
-
-// translateKeyToAction はキーボード入力をActionに変換する
-func (tm *tabMenu) translateKeyToAction(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
-	// 左移動キー
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
-		return inputmapper.ActionMenuLeft, true
-	}
-
-	// 右移動キー
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
-		return inputmapper.ActionMenuRight, true
-	}
-
-	// 上移動キー
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {
-		return inputmapper.ActionMenuUp, true
-	}
-
-	// 下移動キー
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {
-		return inputmapper.ActionMenuDown, true
-	}
-
-	// Tabキー（タブ切り替え）
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {
-		if keyboardInput.IsKeyPressed(ebiten.KeyShift) {
-			return inputmapper.ActionMenuLeft, true
-		}
-		return inputmapper.ActionMenuRight, true
-	}
-
-	// Enterキー（セッションベース検出で複数回実行を防止）
-	if keyboardInput.IsEnterJustPressedOnce() {
-		return inputmapper.ActionMenuSelect, true
-	}
-
-	// Escapeキー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
-		return inputmapper.ActionMenuCancel, true
-	}
-
-	return "", false
-}
-
-// DoAction はActionを受け取ってタブメニュー操作を実行する
-func (tm *tabMenu) DoAction(action inputmapper.ActionID) error {
-	switch action {
-	case inputmapper.ActionMenuLeft:
-		return tm.navigateToPreviousTab()
-	case inputmapper.ActionMenuRight:
-		return tm.navigateToNextTab()
-	case inputmapper.ActionMenuUp:
-		return tm.navigateToPreviousItem()
-	case inputmapper.ActionMenuDown:
-		return tm.navigateToNextItem()
-	case inputmapper.ActionMenuSelect:
-		return tm.selectCurrentItem()
-	case inputmapper.ActionMenuCancel:
-		if tm.callbacks.OnCancel != nil {
-			tm.callbacks.OnCancel()
-		}
-		return nil
-	default:
-		return nil
-	}
-}
-
-// navigateToPreviousTab は前のタブに移動する
-func (tm *tabMenu) navigateToPreviousTab() error {
-	oldIndex := tm.currentTabIndex
-
-	if tm.currentTabIndex > 0 {
-		tm.currentTabIndex--
-	} else if tm.config.WrapNavigation {
-		tm.currentTabIndex = len(tm.config.Tabs) - 1
-	}
-
-	if oldIndex != tm.currentTabIndex {
-		// タブ変更時はアイテムインデックスとページをリセット
-		newTab := tm.config.Tabs[tm.currentTabIndex]
-		if len(newTab.Items) > 0 {
-			tm.currentItemIndex = 0
-			tm.currentPage = 0
-		} else {
-			tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-		}
-
-		if tm.callbacks.OnTabChange != nil {
-			tm.callbacks.OnTabChange(oldIndex, tm.currentTabIndex, newTab)
-		}
-
-		// アイテムが存在する場合のみnotifyItemChangeを呼ぶ
-		if len(newTab.Items) > 0 {
-			if err := tm.notifyItemChange(0, 0); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// navigateToNextTab は次のタブに移動する
-func (tm *tabMenu) navigateToNextTab() error {
-	oldIndex := tm.currentTabIndex
-
-	if tm.currentTabIndex < len(tm.config.Tabs)-1 {
-		tm.currentTabIndex++
-	} else if tm.config.WrapNavigation {
-		tm.currentTabIndex = 0
-	}
-
-	if oldIndex != tm.currentTabIndex {
-		// タブ変更時はアイテムインデックスとページをリセット
-		newTab := tm.config.Tabs[tm.currentTabIndex]
-		if len(newTab.Items) > 0 {
-			tm.currentItemIndex = 0
-			tm.currentPage = 0
-		} else {
-			tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-		}
-
-		if tm.callbacks.OnTabChange != nil {
-			tm.callbacks.OnTabChange(oldIndex, tm.currentTabIndex, newTab)
-		}
-
-		// アイテムが存在する場合のみnotifyItemChangeを呼ぶ
-		if len(newTab.Items) > 0 {
-			if err := tm.notifyItemChange(0, 0); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// navigateToPreviousItem は前のアイテムに移動する。
-// スキップ対象のアイテムはスキップする。
-func (tm *tabMenu) navigateToPreviousItem() error {
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
-		return nil
-	}
-
-	currentTab := tm.config.Tabs[tm.currentTabIndex]
-	if len(currentTab.Items) == 0 {
-		return nil
-	}
-
-	oldIndex := tm.currentItemIndex
-
-	// ページネーション対応
-	if tm.config.ItemsPerPage > 0 {
-		pageStart := tm.currentPage * tm.config.ItemsPerPage
-
-		// ページ内での移動
-		if tm.currentItemIndex < 0 {
-			tm.currentItemIndex = pageStart
-		} else if tm.currentItemIndex > pageStart {
-			tm.currentItemIndex--
-		} else if tm.currentPage > 0 {
-			// 前のページへ
-			tm.currentPage--
-			tm.currentItemIndex = (tm.currentPage+1)*tm.config.ItemsPerPage - 1
-		} else if tm.config.WrapNavigation {
-			// 最後のページへ
-			tm.currentPage = (len(currentTab.Items) - 1) / tm.config.ItemsPerPage
-			tm.currentItemIndex = len(currentTab.Items) - 1
-		}
-	} else {
-		// ページネーションなし
-		if tm.currentItemIndex < 0 {
-			tm.currentItemIndex = 0
-		} else if tm.currentItemIndex > 0 {
-			tm.currentItemIndex--
-		} else if tm.config.WrapNavigation {
-			tm.currentItemIndex = len(currentTab.Items) - 1
-		}
-	}
-
-	tm.currentItemIndex = tm.findEnabledItem(currentTab.Items, tm.currentItemIndex, -1)
-
-	if oldIndex != tm.currentItemIndex {
-		if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// navigateToNextItem は次のアイテムに移動する。
-// スキップ対象のアイテムはスキップする。
-func (tm *tabMenu) navigateToNextItem() error {
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
-		return nil
-	}
-
-	currentTab := tm.config.Tabs[tm.currentTabIndex]
-	if len(currentTab.Items) == 0 {
-		return nil
-	}
-
-	oldIndex := tm.currentItemIndex
-
-	// ページネーション対応
-	if tm.config.ItemsPerPage > 0 {
-		pageStart := tm.currentPage * tm.config.ItemsPerPage
-		pageEnd := min(pageStart+tm.config.ItemsPerPage, len(currentTab.Items))
-
-		// ページ内での移動
-		if tm.currentItemIndex < 0 {
-			tm.currentItemIndex = pageStart
-		} else if tm.currentItemIndex < pageEnd-1 {
-			tm.currentItemIndex++
-		} else if pageEnd < len(currentTab.Items) {
-			// 次のページへ
-			tm.currentPage++
-			tm.currentItemIndex = tm.currentPage * tm.config.ItemsPerPage
-		} else if tm.config.WrapNavigation {
-			// 最初のページへ
-			tm.currentPage = 0
-			tm.currentItemIndex = 0
-		}
-	} else {
-		// ページネーションなし
-		if tm.currentItemIndex < 0 {
-			tm.currentItemIndex = 0
-		} else if tm.currentItemIndex < len(currentTab.Items)-1 {
-			tm.currentItemIndex++
-		} else if tm.config.WrapNavigation {
-			tm.currentItemIndex = 0
-		}
-	}
-
-	tm.currentItemIndex = tm.findEnabledItem(currentTab.Items, tm.currentItemIndex, 1)
-
-	if oldIndex != tm.currentItemIndex {
-		if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// selectCurrentItem は現在のアイテムを選択する。
-// スキップ対象のアイテムは選択できない。
-func (tm *tabMenu) selectCurrentItem() error {
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
-		return nil
-	}
-
-	currentTab := tm.config.Tabs[tm.currentTabIndex]
-	if len(currentTab.Items) == 0 || tm.currentItemIndex >= len(currentTab.Items) || tm.currentItemIndex < 0 {
-		return nil
-	}
-
-	if tm.isSkip(tm.currentTabIndex, tm.currentItemIndex) {
-		return nil
-	}
-
-	currentItem := currentTab.Items[tm.currentItemIndex]
-	if tm.callbacks.OnSelectItem != nil {
-		if err := tm.callbacks.OnSelectItem(tm.currentTabIndex, tm.currentItemIndex, currentTab, currentItem); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// isSkip は指定タブ・アイテムがスキップ対象かを返す
-func (tm *tabMenu) isSkip(tabIdx, itemIdx int) bool {
-	if tabIdx < 0 || tabIdx >= len(tm.config.Skips) {
-		return false
-	}
-	skips := tm.config.Skips[tabIdx]
-	if itemIdx < 0 || itemIdx >= len(skips) {
-		return false
-	}
-	return skips[itemIdx]
-}
-
-// findEnabledItem は指定方向にスキップ対象でないアイテムを探す。
-// 見つからない場合は元のインデックスを返す。
-func (tm *tabMenu) findEnabledItem(items []Item, startIndex int, direction int) int {
-	if startIndex < 0 || startIndex >= len(items) {
-		return startIndex
-	}
-	if !tm.isSkip(tm.currentTabIndex, startIndex) {
-		return startIndex
-	}
-
-	for i := 1; i < len(items); i++ {
-		next := startIndex + i*direction
-		if next < 0 || next >= len(items) {
-			if tm.config.WrapNavigation {
-				next = (next + len(items)) % len(items)
-			} else {
-				break
-			}
-		}
-		if !tm.isSkip(tm.currentTabIndex, next) {
-			return next
-		}
-	}
-	return startIndex
-}
-
-// notifyItemChange はアイテム変更を通知する
-func (tm *tabMenu) notifyItemChange(oldIndex, newIndex int) error {
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
-		return nil
-	}
-
-	currentTab := tm.config.Tabs[tm.currentTabIndex]
-	if len(currentTab.Items) == 0 || newIndex >= len(currentTab.Items) || newIndex < 0 {
-		return nil
-	}
-
-	if tm.callbacks.OnItemChange != nil {
-		if err := tm.callbacks.OnItemChange(tm.currentTabIndex, oldIndex, newIndex, currentTab.Items[newIndex]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// GetCurrentTabIndex は現在のタブインデックスを返す
-func (tm *tabMenu) GetCurrentTabIndex() int {
-	return tm.currentTabIndex
-}
-
-// GetCurrentItemIndex は現在のアイテムインデックスを返す
-func (tm *tabMenu) GetCurrentItemIndex() int {
-	return tm.currentItemIndex
-}
-
-// GetCurrentTab は現在のタブを返す
-func (tm *tabMenu) GetCurrentTab() TabItem {
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
-		return TabItem{}
-	}
-	return tm.config.Tabs[tm.currentTabIndex]
-}
-
-// GetCurrentItem は現在のアイテムを返す
-func (tm *tabMenu) GetCurrentItem() Item {
-	currentTab := tm.GetCurrentTab()
-	if len(currentTab.Items) == 0 || tm.currentItemIndex >= len(currentTab.Items) || tm.currentItemIndex < 0 {
-		return Item{}
-	}
-	return currentTab.Items[tm.currentItemIndex]
-}
-
-// SetTabIndex はタブインデックスを設定する
-func (tm *tabMenu) SetTabIndex(index int) error {
-	if index >= 0 && index < len(tm.config.Tabs) {
-		oldIndex := tm.currentTabIndex
-		tm.currentTabIndex = index
-
-		// タブ変更時はアイテムインデックスとページをリセット
-		newTab := tm.config.Tabs[tm.currentTabIndex]
-		if len(newTab.Items) > 0 {
-			tm.currentItemIndex = 0
-			tm.currentPage = 0
-		} else {
-			tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-		}
-
-		if oldIndex != tm.currentTabIndex {
-			if tm.callbacks.OnTabChange != nil {
-				tm.callbacks.OnTabChange(oldIndex, tm.currentTabIndex, newTab)
-			}
-
-			// アイテムが存在する場合のみnotifyItemChangeを呼ぶ
-			if len(newTab.Items) > 0 {
-				if err := tm.notifyItemChange(0, 0); err != nil {
-					return err
-				}
-			}
-		}
-	}
-	return nil
-}
-
-// SetItemIndex はアイテムインデックスを設定する
-func (tm *tabMenu) SetItemIndex(index int) error {
-	currentTab := tm.GetCurrentTab()
-	if index >= 0 && index < len(currentTab.Items) {
-		oldIndex := tm.currentItemIndex
-		tm.currentItemIndex = index
-
-		if oldIndex != tm.currentItemIndex {
-			if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// UpdateTabs はタブを更新する（動的にアイテムが変更された場合）
-func (tm *tabMenu) UpdateTabs(tabs []TabItem) {
-	tm.config.Tabs = tabs
-
-	// 現在のインデックスが範囲外になった場合は調整
-	if tm.currentTabIndex >= len(tabs) {
-		tm.currentTabIndex = max(len(tabs)-1, 0)
-	}
-
-	// 現在のタブのアイテムインデックスを調整
-	if len(tabs) > 0 && tm.currentTabIndex < len(tabs) {
-		currentTab := tabs[tm.currentTabIndex]
-		if len(currentTab.Items) == 0 {
-			tm.currentItemIndex = -1 // 空のタブでは無効なインデックス
-		} else if tm.currentItemIndex >= len(currentTab.Items) {
-			tm.currentItemIndex = len(currentTab.Items) - 1
-		} else if tm.currentItemIndex < 0 {
-			tm.currentItemIndex = 0
-		}
-
-		// UpdateTabsは内部状態の更新のみを行い、コールバックは呼ばない
-		// コールバックは呼び出し元で必要に応じて実行される
-	}
-}
-
-// GetVisibleItems は現在のページで表示される項目とその元のインデックスを返す
-func (tm *tabMenu) GetVisibleItems() ([]Item, []int) {
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
+// getVisibleItems は指定ページで表示される項目とその元のインデックスを返す
+func getVisibleItems(config Config, state ViewState) ([]Item, []int) {
+	if len(config.Tabs) == 0 || state.TabIndex >= len(config.Tabs) {
 		return []Item{}, []int{}
 	}
 
-	currentTab := tm.config.Tabs[tm.currentTabIndex]
+	currentTab := config.Tabs[state.TabIndex]
 
-	if tm.config.ItemsPerPage <= 0 {
+	if config.ItemsPerPage <= 0 {
 		indices := make([]int, len(currentTab.Items))
 		for i := range indices {
 			indices[i] = i
@@ -522,8 +37,9 @@ func (tm *tabMenu) GetVisibleItems() ([]Item, []int) {
 		return currentTab.Items, indices
 	}
 
-	start := tm.currentPage * tm.config.ItemsPerPage
-	end := min(start+tm.config.ItemsPerPage, len(currentTab.Items))
+	page := currentPage(config, state)
+	start := page * config.ItemsPerPage
+	end := min(start+config.ItemsPerPage, len(currentTab.Items))
 
 	if start >= len(currentTab.Items) {
 		return []Item{}, []int{}
@@ -538,66 +54,49 @@ func (tm *tabMenu) GetVisibleItems() ([]Item, []int) {
 	return visibleItems, indices
 }
 
-// GetCurrentPage は現在のページ番号を返す(表示用なので1ベース)
-func (tm *tabMenu) GetCurrentPage() int {
-	return tm.currentPage + 1
+// currentPage は現在のページ番号を返す（0ベース）
+func currentPage(config Config, state ViewState) int {
+	if config.ItemsPerPage <= 0 || state.ItemIndex < 0 {
+		return 0
+	}
+	return state.ItemIndex / config.ItemsPerPage
 }
 
-// GetTotalPages は総ページ数を返す
-func (tm *tabMenu) GetTotalPages() int {
-	if tm.config.ItemsPerPage <= 0 {
+// totalPages は総ページ数を返す
+func totalPages(config Config, state ViewState) int {
+	if config.ItemsPerPage <= 0 {
 		return 1
 	}
 
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
+	if len(config.Tabs) == 0 || state.TabIndex >= len(config.Tabs) {
 		return 1
 	}
 
-	currentTab := tm.config.Tabs[tm.currentTabIndex]
-	return (len(currentTab.Items) + tm.config.ItemsPerPage - 1) / tm.config.ItemsPerPage
+	currentTab := config.Tabs[state.TabIndex]
+	return (len(currentTab.Items) + config.ItemsPerPage - 1) / config.ItemsPerPage
 }
 
-// GetPageIndicatorText はページインジケーターのテキストを返す
-func (tm *tabMenu) GetPageIndicatorText() string {
-	if tm.config.ItemsPerPage <= 0 || tm.GetTotalPages() <= 1 {
+// pageIndicatorText はページインジケーターのテキストを返す
+func pageIndicatorText(config Config, state ViewState) string {
+	total := totalPages(config, state)
+	if config.ItemsPerPage <= 0 || total <= 1 {
 		return ""
 	}
 
+	page := currentPage(config, state)
 	arrows := ""
 
-	// 前のページがある場合は上矢印を追加
-	if tm.HasPreviousPage() {
+	if page > 0 {
 		arrows += " ↑"
 	} else {
 		arrows += " 　"
 	}
 
-	// 次のページがある場合は下矢印を追加
-	if tm.HasNextPage() {
+	if (page+1)*config.ItemsPerPage < len(config.Tabs[state.TabIndex].Items) {
 		arrows += " ↓"
 	} else {
 		arrows += " 　"
 	}
 
-	return fmt.Sprintf("%d/%d%s", tm.GetCurrentPage(), tm.GetTotalPages(), arrows)
-}
-
-// HasPreviousPage は前のページがあるかを返す
-func (tm *tabMenu) HasPreviousPage() bool {
-	return tm.currentPage > 0
-}
-
-// HasNextPage は次のページがあるかを返す
-func (tm *tabMenu) HasNextPage() bool {
-	if tm.config.ItemsPerPage <= 0 {
-		return false
-	}
-
-	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
-		return false
-	}
-
-	currentTab := tm.config.Tabs[tm.currentTabIndex]
-	nextPageStart := (tm.currentPage + 1) * tm.config.ItemsPerPage
-	return nextPageStart < len(currentTab.Items)
+	return fmt.Sprintf("%d/%d%s", page+1, total, arrows)
 }

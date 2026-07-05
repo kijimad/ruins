@@ -42,3 +42,18 @@ func (store *Store) Dispatch(action inputmapper.ActionID) {
 		store.states[key] = reducer(store.states[key], action)
 	}
 }
+
+// GetStoreState は指定キーの状態を取得する。Mount を経由せずに直接取得できる
+func GetStoreState[T any](store *Store, key string) (T, bool) {
+	v, ok := store.states[key]
+	if !ok {
+		var zero T
+		return zero, false
+	}
+	typed, ok := v.(T)
+	if !ok {
+		var zero T
+		return zero, false
+	}
+	return typed, true
+}
