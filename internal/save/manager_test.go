@@ -401,13 +401,26 @@ func TestAutoSaveRotation(t *testing.T) {
 	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
 	entity.AddComponent(world.Components.Player, &gc.Player{})
 
-	for range maxAutoSaves + 2 {
+	// 先に2件作る
+	for range 2 {
+		require.NoError(t, manager.AutoSave(world))
+	}
+	earlySaves, err := manager.ListAutoSaves()
+	require.NoError(t, err)
+
+	// さらに maxAutoSaves 件作ってローテーションを発動させる
+	for range maxAutoSaves {
 		require.NoError(t, manager.AutoSave(world))
 	}
 
 	autoSaves, err := manager.ListAutoSaves()
 	require.NoError(t, err)
 	assert.Equal(t, maxAutoSaves, len(autoSaves))
+
+	// 古い2件は削除されている
+	for _, name := range earlySaves {
+		assert.False(t, manager.SaveFileExists(name), "古いオートセーブ %s は削除されている", name)
+	}
 }
 
 func TestGetSavePlayerName(t *testing.T) {
