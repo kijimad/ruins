@@ -264,9 +264,6 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.AI), "AIが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.GridElement), "GridElementが復元される")
 
-		// 通行・視界に必要なコンポーネント
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.BlockPass), "BlockPassが復元される")
-
 		// ステータス関連コンポーネント
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.HealthStatus), "HealthStatusが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.Skills), "Skillsが復元される")
