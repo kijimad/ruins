@@ -193,7 +193,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
 		query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return NewAllClearEventState() },
+			func() (es.State[w.World], error) { return NewAllClearEventState() },
 		}}, nil
 	}
 
@@ -365,23 +365,23 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewInventoryMenuState}}, nil
 	case inputmapper.ActionOpenInteractionMenu:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return NewInteractionMenuState(world) },
+			func() (es.State[w.World], error) { return NewInteractionMenuState(world) },
 		}}, nil
 	case inputmapper.ActionOpenFieldInfo:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return &LookAroundState{} },
+			func() (es.State[w.World], error) { return &LookAroundState{}, nil },
 		}}, nil
 	case inputmapper.ActionShoot:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return &ShootingState{} },
+			func() (es.State[w.World], error) { return &ShootingState{}, nil },
 		}}, nil
 	case inputmapper.ActionPickup:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return &PickupState{} },
+			func() (es.State[w.World], error) { return &PickupState{}, nil },
 		}}, nil
 	case inputmapper.ActionPlace:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return &PlaceState{} },
+			func() (es.State[w.World], error) { return &PlaceState{}, nil },
 		}}, nil
 
 	// 移動系アクション
@@ -447,7 +447,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			}
 		default:
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] { return newActionChoiceMenu(actions) },
+				func() (es.State[w.World], error) { return newActionChoiceMenu(actions), nil },
 			}}, nil
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
@@ -508,21 +508,21 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		switch e.MessageKey {
 		case "merchant_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] { return NewMerchantDialogState(speakerName) },
+				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName) },
 			}}, nil
 		case "doctor_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] { return NewDoctorDialogState(speakerName) },
+				func() (es.State[w.World], error) { return NewDoctorDialogState(speakerName) },
 			}}, nil
 		case "tavern_keeper_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] { return NewTavernKeeperDialogState(speakerName) },
+				func() (es.State[w.World], error) { return NewTavernKeeperDialogState(speakerName) },
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
 			dialogMessage := messagedata.GetDialogue(e.MessageKey, speakerName)
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] { return NewMessageState(dialogMessage) },
+				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
 			}}, nil
 		}
 	case gc.WarpNextEvent:
@@ -542,7 +542,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	case gc.OpenStorageEvent:
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return NewStorageMenuState(e.StorageEntity) },
+			func() (es.State[w.World], error) { return NewStorageMenuState(e.StorageEntity) },
 		}}, nil
 	}
 

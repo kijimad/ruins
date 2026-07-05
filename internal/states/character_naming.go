@@ -35,8 +35,8 @@ type CharacterNamingState struct {
 }
 
 // NewCharacterNamingState は名付けステートのファクトリを返す
-func NewCharacterNamingState() es.State[w.World] {
-	return &CharacterNamingState{}
+func NewCharacterNamingState() (es.State[w.World], error) {
+	return &CharacterNamingState{}, nil
 }
 
 func (st CharacterNamingState) String() string {

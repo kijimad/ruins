@@ -14,14 +14,14 @@ func TestStateNoReuse(t *testing.T) {
 		t.Parallel()
 
 		// ファクトリー関数を定義
-		factory := func() State[TestWorld] {
-			return &TestState{name: "TestState"}
+		var factory StateFactory[TestWorld] = func() (State[TestWorld], error) {
+			return &TestState{name: "TestState"}, nil
 		}
 
 		// 複数回ファクトリー関数を実行
-		state1 := factory()
-		state2 := factory()
-		state3 := factory()
+		state1, _ := factory()
+		state2, _ := factory()
+		state3, _ := factory()
 
 		// 各インスタンスが異なることを確認（ポインタアドレスが異なる）
 		assert.NotSame(t, state1, state2, "state1とstate2は異なるインスタンスである必要があります")
@@ -35,12 +35,12 @@ func TestStateNoReuse(t *testing.T) {
 
 		// カウンターを使用して各インスタンスを追跡
 		instanceCount := 0
-		factory := func() State[TestWorld] {
+		factory := func() (State[TestWorld], error) {
 			instanceCount++
 			return &TestStateWithID{
 				TestState: TestState{name: "TestState"},
 				ID:        instanceCount,
-			}
+			}, nil
 		}
 
 		// Transitionを作成
@@ -75,14 +75,14 @@ func TestStateNoReuse(t *testing.T) {
 		createdStates := []*TestStateWithID{}
 		idCounter := 0
 
-		factory := func() State[TestWorld] {
+		factory := func() (State[TestWorld], error) {
 			idCounter++
 			state := &TestStateWithID{
 				TestState: TestState{name: "TestState"},
 				ID:        idCounter,
 			}
 			createdStates = append(createdStates, state)
-			return state
+			return state, nil
 		}
 
 		// StateMachineを初期化

@@ -20,11 +20,11 @@ type FadeoutAnimationState struct {
 
 // NewFadeoutAnimationState はフェードアウトアニメーションステートを生成するファクトリを返す
 func NewFadeoutAnimationState(nextStateFunc es.StateFactory[w.World]) es.StateFactory[w.World] {
-	return func() es.State[w.World] {
+	return func() (es.State[w.World], error) {
 		return &FadeoutAnimationState{
 			nextStateFunc: nextStateFunc,
 			fadeMs:        400.0,
-		}
+		}, nil
 	}
 }
 

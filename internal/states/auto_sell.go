@@ -41,8 +41,8 @@ type autoSellProps struct {
 
 // NewAutoSellState は帰還報告画面のStateを作成するファクトリー関数
 func NewAutoSellState() es.StateFactory[w.World] {
-	return func() es.State[w.World] {
-		return &AutoSellState{}
+	return func() (es.State[w.World], error) {
+		return &AutoSellState{}, nil
 	}
 }
 

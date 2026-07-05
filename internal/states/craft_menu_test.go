@@ -213,8 +213,8 @@ func TestNewCraftMenuState(t *testing.T) {
 	t.Parallel()
 
 	factory := NewCraftMenuState
-	state := factory()
-
+	state, err := factory()
+	require.NoError(t, err)
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*CraftMenuState)
 	assert.True(t, ok, "CraftMenuState型である")

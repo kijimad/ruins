@@ -192,8 +192,8 @@ func TestNewShopMenuState(t *testing.T) {
 	t.Parallel()
 
 	factory := NewShopMenuState
-	state := factory()
-
+	state, err := factory()
+	require.NoError(t, err)
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*ShopMenuState)
 	assert.True(t, ok, "ShopMenuState型である")

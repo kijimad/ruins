@@ -35,10 +35,10 @@ type CharacterJobState struct {
 
 // NewCharacterJobState は職業選択ステートのファクトリを返す
 func NewCharacterJobState(playerName string) es.StateFactory[w.World] {
-	return func() es.State[w.World] {
+	return func() (es.State[w.World], error) {
 		return &CharacterJobState{
 			playerName: playerName,
-		}
+		}, nil
 	}
 }
 

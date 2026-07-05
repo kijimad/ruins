@@ -155,7 +155,7 @@ func (st *FormationMenuState) showMemberDetail() {
 	member := props.Members[itemIndex]
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransPush,
-		NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMemberStatusState(member.Entity) }},
+		NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMemberStatusState(member.Entity) }},
 	})
 }
 

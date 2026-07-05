@@ -20,7 +20,7 @@ import (
 // 各ステートのファクトリー関数を集約したファイル
 
 // NewDungeonMenuState は新しいDungeonMenuStateインスタンスを作成するファクトリー関数
-func NewDungeonMenuState() es.State[w.World] {
+func NewDungeonMenuState() (es.State[w.World], error) {
 	persistentState := NewPersistentMessageState(nil)
 
 	persistentState.messageData = messagedata.NewSystemMessage("").
@@ -80,26 +80,26 @@ func NewDungeonMenuState() es.State[w.World] {
 			return nil
 		})
 
-	return persistentState
+	return persistentState, nil
 }
 
 // NewCraftMenuState は新しいCraftMenuStateインスタンスを作成するファクトリー関数
-func NewCraftMenuState() es.State[w.World] {
-	return &CraftMenuState{}
+func NewCraftMenuState() (es.State[w.World], error) {
+	return &CraftMenuState{}, nil
 }
 
 // NewInventoryMenuState は新しいInventoryMenuStateインスタンスを作成するファクトリー関数
-func NewInventoryMenuState() es.State[w.World] {
-	return &InventoryMenuState{}
+func NewInventoryMenuState() (es.State[w.World], error) {
+	return &InventoryMenuState{}, nil
 }
 
 // NewEquipMenuState は新しいEquipMenuStateインスタンスを作成するファクトリー関数
-func NewEquipMenuState() es.State[w.World] {
-	return &EquipMenuState{}
+func NewEquipMenuState() (es.State[w.World], error) {
+	return &EquipMenuState{}, nil
 }
 
 // NewDebugMenuState は新しいDebugMenuStateインスタンスを作成するファクトリー関数
-func NewDebugMenuState() es.State[w.World] {
+func NewDebugMenuState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
 	messageState.messageData = messagedata.NewSystemMessage("").
@@ -208,7 +208,7 @@ func NewDebugMenuState() es.State[w.World] {
 			testMessageData := messagedata.NewSystemMessage("ゲームが自動保存されました。\n\n進行状況は安全に記録されています。")
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(testMessageData) }}})
+				NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(testMessageData) }}})
 			return nil
 		}).
 		WithChoice("アイテム入手イベント", func(world w.World) error {
@@ -235,7 +235,7 @@ func NewDebugMenuState() es.State[w.World] {
 			itemMessageData.AddText(messageText)
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(itemMessageData) }}})
+				NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(itemMessageData) }}})
 			return nil
 		}).
 		WithChoice("長いメッセージテスト", func(_ w.World) error {
@@ -254,7 +254,7 @@ func NewDebugMenuState() es.State[w.World] {
 			longMessageData := messagedata.NewSystemMessage(longText)
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(longMessageData) }}})
+				NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(longMessageData) }}})
 			return nil
 		}).
 		WithChoice("連鎖メッセージテスト", func(_ w.World) error {
@@ -264,7 +264,7 @@ func NewDebugMenuState() es.State[w.World] {
 
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(chainMessageData) }}})
+				NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(chainMessageData) }}})
 			return nil
 		}).
 		WithChoice("選択肢分岐メッセージテスト", func(_ w.World) error {
@@ -279,7 +279,7 @@ func NewDebugMenuState() es.State[w.World] {
 
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(choiceMessageData) }}})
+				NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(choiceMessageData) }}})
 			return nil
 		}).
 		WithChoice("選択肢処理テスト", func(_ w.World) error {
@@ -311,7 +311,7 @@ func NewDebugMenuState() es.State[w.World] {
 
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(testMessageData) }}})
+				NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(testMessageData) }}})
 			return nil
 		}).
 		WithChoice("デバッグ表示切り替え", func(world w.World) error {
@@ -327,7 +327,7 @@ func NewDebugMenuState() es.State[w.World] {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{
-					func() es.State[w.World] {
+					func() (es.State[w.World], error) {
 						return NewMessageState(testMessage)
 					},
 				}})
@@ -344,7 +344,7 @@ func NewDebugMenuState() es.State[w.World] {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{
-					func() es.State[w.World] { return NewAllClearEventState() },
+					func() (es.State[w.World], error) { return NewAllClearEventState() },
 				},
 			})
 			return nil
@@ -458,7 +458,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		})
 
-	return messageState
+	return messageState, nil
 }
 
 // spawnPropNearPlayer はプレイヤーの隣にPropをスポーンする
@@ -532,7 +532,7 @@ func WithDefinitionName(name string) DungeonStateOption {
 // NewDungeonState はDungeonStateインスタンスを作成するファクトリー関数
 // デフォルトではBuilderTypeはPlannerTypeRandomになる
 func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.World] {
-	return func() es.State[w.World] {
+	return func() (es.State[w.World], error) {
 		ds := &DungeonState{
 			Depth:       depth,
 			BuilderType: mapplanner.PlannerTypeRandom,
@@ -540,14 +540,14 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 		for _, opt := range opts {
 			opt(ds)
 		}
-		return ds
+		return ds, nil
 	}
 }
 
 // NewDemoStartState はデモ用の初期化ステートを作成するファクトリー関数
 // キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する
-func NewDemoStartState() es.State[w.World] {
-	return &DemoStartState{}
+func NewDemoStartState() (es.State[w.World], error) {
+	return &DemoStartState{}, nil
 }
 
 // NewTownState は街のステートを作成するファクトリー関数
@@ -562,17 +562,17 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 }
 
 // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
-func NewDungeonSelectState() es.State[w.World] {
-	return &DungeonSelectState{}
+func NewDungeonSelectState() (es.State[w.World], error) {
+	return &DungeonSelectState{}, nil
 }
 
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
-func NewMainMenuState() es.State[w.World] {
-	return &MainMenuState{}
+func NewMainMenuState() (es.State[w.World], error) {
+	return &MainMenuState{}, nil
 }
 
 // NewGameOverMessageState はゲームオーバー用のMessageStateを作成するファクトリー関数
-func NewGameOverMessageState() es.State[w.World] {
+func NewGameOverMessageState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
 	// ゲームオーバーメッセージを作成（選択肢付き）
@@ -588,11 +588,11 @@ func NewGameOverMessageState() es.State[w.World] {
 	// MessageStateにMessageDataを設定
 	messageState.messageData = messageData
 
-	return messageState
+	return messageState, nil
 }
 
 // NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数
-func NewAllClearEventState() es.State[w.World] {
+func NewAllClearEventState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
 	messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
@@ -602,16 +602,16 @@ func NewAllClearEventState() es.State[w.World] {
 		})
 
 	messageState.messageData = messageData
-	return messageState
+	return messageState, nil
 }
 
 // NewSaveMenuState は手動セーブ画面を作成するファクトリー関数。
 // 固定4スロットで、主人公名とタイムスタンプを表示する。
-func NewSaveMenuState() es.State[w.World] {
+func NewSaveMenuState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
-		panic(fmt.Sprintf("セーブマネージャーの作成に失敗: %v", err))
+		return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
 	}
 	messageData := messagedata.NewSystemMessage("")
 
@@ -636,16 +636,16 @@ func NewSaveMenuState() es.State[w.World] {
 	})
 
 	messageState.messageData = messageData
-	return messageState
+	return messageState, nil
 }
 
 // NewLoadMenuState はロード画面を作成するファクトリー関数。
 // 手動4スロットとオートセーブ4スロットをセクション分けで表示する。
-func NewLoadMenuState() es.State[w.World] {
+func NewLoadMenuState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
-		panic(fmt.Sprintf("セーブマネージャーの作成に失敗: %v", err))
+		return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
 	}
 	messageData := messagedata.NewSystemMessage("")
 
@@ -660,7 +660,7 @@ func NewLoadMenuState() es.State[w.World] {
 	messageData.WithChoice("オートセーブ", nil)
 	autoSaves, err := saveManager.ListAutoSaves()
 	if err != nil {
-		panic(fmt.Sprintf("オートセーブ一覧の取得に失敗: %v", err))
+		return nil, fmt.Errorf("オートセーブ一覧の取得に失敗: %w", err)
 	}
 	if len(autoSaves) > 4 {
 		autoSaves = autoSaves[:4]
@@ -679,7 +679,7 @@ func NewLoadMenuState() es.State[w.World] {
 	})
 
 	messageState.messageData = messageData
-	return messageState
+	return messageState, nil
 }
 
 // addLoadSlot はロードメニューにスロットを追加する。
@@ -721,53 +721,53 @@ func formatSaveSlotLabel(saveManager *save.SerializationManager, slotName string
 }
 
 // NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数
-func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] {
+func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], error) {
 	return &MessageState{
 		messageData: messageData,
-	}
+	}, nil
 }
 
 // NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数
-func NewSquadMenuState() es.State[w.World] {
-	return &SquadMenuState{}
+func NewSquadMenuState() (es.State[w.World], error) {
+	return &SquadMenuState{}, nil
 }
 
 // NewMemberStatusState は隊員ステータス詳細画面のStateを作成するファクトリー関数
-func NewMemberStatusState(member ecs.Entity) es.State[w.World] {
-	return &MemberStatusState{member: member}
+func NewMemberStatusState(member ecs.Entity) (es.State[w.World], error) {
+	return &MemberStatusState{member: member}, nil
 }
 
 // NewFormationMenuState は隊編成画面のStateを作成するファクトリー関数
-func NewFormationMenuState() es.State[w.World] {
-	return &FormationMenuState{}
+func NewFormationMenuState() (es.State[w.World], error) {
+	return &FormationMenuState{}, nil
 }
 
 // NewTavernMenuState は酒場の雇用画面のStateを作成するファクトリー関数
-func NewTavernMenuState() es.State[w.World] {
-	return &TavernMenuState{}
+func NewTavernMenuState() (es.State[w.World], error) {
+	return &TavernMenuState{}, nil
 }
 
 // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数
-func NewShopMenuState() es.State[w.World] {
-	return &ShopMenuState{}
+func NewShopMenuState() (es.State[w.World], error) {
+	return &ShopMenuState{}, nil
 }
 
 // NewStorageMenuState は収納メニューStateを作成する
-func NewStorageMenuState(storageEntity ecs.Entity) es.State[w.World] {
-	return &StorageMenuState{storageEntity: storageEntity}
+func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
+	return &StorageMenuState{storageEntity: storageEntity}, nil
 }
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する
-func NewInteractionMenuState(world w.World) es.State[w.World] {
+func NewInteractionMenuState(world w.World) (es.State[w.World], error) {
 	interactionActions := GetInteractionActions(world)
 
 	if len(interactionActions) == 0 {
 		messageState := &MessageState{}
 		messageState.messageData = messagedata.NewSystemMessage("実行可能なアクションがありません。")
-		return messageState
+		return messageState, nil
 	}
 
-	return newActionChoiceMenu(interactionActions)
+	return newActionChoiceMenu(interactionActions), nil
 }
 
 // newActionChoiceMenu はInteractionActionのリストから選択メニューを作成する
@@ -800,7 +800,7 @@ func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] {
 }
 
 // NewMerchantDialogState は商人との会話ステートを作成
-func NewMerchantDialogState(speakerName string) es.State[w.World] {
+func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
 	persistentState := NewPersistentMessageState(nil)
 
 	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
@@ -819,11 +819,11 @@ func NewMerchantDialogState(speakerName string) es.State[w.World] {
 			return nil
 		})
 
-	return persistentState
+	return persistentState, nil
 }
 
 // NewTavernKeeperDialogState は酒場の主人との会話ステートを作成
-func NewTavernKeeperDialogState(speakerName string) es.State[w.World] {
+func NewTavernKeeperDialogState(speakerName string) (es.State[w.World], error) {
 	persistentState := NewPersistentMessageState(nil)
 
 	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
@@ -842,11 +842,11 @@ func NewTavernKeeperDialogState(speakerName string) es.State[w.World] {
 			return nil
 		})
 
-	return persistentState
+	return persistentState, nil
 }
 
 // NewDoctorDialogState は怪しい科学者との会話ステートを作成
-func NewDoctorDialogState(speakerName string) es.State[w.World] {
+func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {
 	persistentState := NewPersistentMessageState(nil)
 
 	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
@@ -865,12 +865,12 @@ func NewDoctorDialogState(speakerName string) es.State[w.World] {
 			return nil
 		})
 
-	return persistentState
+	return persistentState, nil
 }
 
 // NewOpeningState はオープニングを表示するStateを作成するファクトリー関数
 // 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む
-func NewOpeningState() es.State[w.World] {
+func NewOpeningState() (es.State[w.World], error) {
 	// 1. 黒背景: 荒野の大穴
 	page1a := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
 	page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
