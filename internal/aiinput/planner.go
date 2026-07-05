@@ -16,7 +16,7 @@ import (
 // Planner はエンティティの行動計画を担うインターフェースを表す。
 // 各ターンのAPループ内で呼ばれ、次のアクションを返す
 type Planner interface {
-	Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams)
+	Plan(world w.World, entity ecs.Entity) activity.Behavior
 }
 
 // maxActivitiesPerTurn は1ターン中に実行可能なアクティビティの上限を表す
@@ -32,7 +32,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 			break
 		}
 
-		behavior, params := planner.Plan(world, entity)
+		behavior := planner.Plan(world, entity)
 		if behavior == nil {
 			break
 		}
@@ -44,7 +44,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 			break
 		}
 
-		result, err := activity.Execute(behavior, params, world)
+		result, err := activity.Execute(behavior, entity, world)
 		if err != nil {
 			log.Warn("アクション実行失敗", "entity", entity, "activity", behavior.Name(), "error", err.Error())
 			break
@@ -116,30 +116,27 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 }
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
-func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, activity.ActionParams, bool) {
+func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, bool) {
 	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
 	for _, c := range candidates {
 		dest := consts.Coord[int]{X: fromPos.X + c.X, Y: fromPos.Y + c.Y}
 		if activity.CanMoveTo(world, dest, fromPos, entity) {
-			b, p := moveAction(entity, dest)
-			return b, p, true
+			return moveAction(dest), true
 		}
 	}
-	return nil, activity.ActionParams{}, false
+	return nil, false
 }
 
 // moveAction は指定座標への移動アクションを生成する
-func moveAction(aiEntity ecs.Entity, dest consts.Coord[int]) (activity.Behavior, activity.ActionParams) {
-	gridDest := gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}
-	return &activity.MoveActivity{}, activity.ActionParams{
-		Actor:       aiEntity,
-		Destination: &gridDest,
+func moveAction(dest consts.Coord[int]) activity.Behavior {
+	return &activity.MoveActivity{
+		Destination: gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)},
 	}
 }
 
 // waitAction は待機アクションを生成する
-func waitAction(aiEntity ecs.Entity, reason string) (activity.Behavior, activity.ActionParams) {
-	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: reason}
+func waitAction(reason string) activity.Behavior {
+	return &activity.WaitActivity{Duration: 1, Reason: reason}
 }
 
 // shuffledEightDirections は8方向をシャッフルして返す

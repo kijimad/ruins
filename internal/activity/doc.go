@@ -123,12 +123,10 @@
 //	// パッケージレベル関数を通じた統一的なアクション実行
 //
 //	// 即座実行アクション（移動）
-//	params := activity.ActionParams{Actor: player, Destination: &dest}
-//	result, err := activity.Execute(&activity.MoveActivity{}, params, world)
+//	result, err := activity.Execute(&activity.MoveActivity{Destination: dest}, player, world)
 //
 //	// 継続実行アクション（休息）
-//	params := activity.ActionParams{Actor: player, Duration: 10}
-//	result, err := activity.Execute(&activity.RestActivity{}, params, world)
+//	result, err := activity.Execute(&activity.RestActivity{Duration: 10}, player, world)
 //
 //	// アクティビティの管理
 //	activity.InterruptActivity(player, "戦闘開始", world)

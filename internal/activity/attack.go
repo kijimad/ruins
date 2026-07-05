@@ -24,7 +24,9 @@ const (
 )
 
 // AttackActivity はBehaviorの実装
-type AttackActivity struct{}
+type AttackActivity struct {
+	Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (aa *AttackActivity) Info() Info {
@@ -41,6 +43,16 @@ func (aa *AttackActivity) Info() Info {
 // Name はBehaviorの実装
 func (aa *AttackActivity) Name() gc.BehaviorName {
 	return gc.BehaviorAttack
+}
+
+// BuildActivity はBehaviorの実装
+func (aa *AttackActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(aa, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &aa.Target
+	return comp, nil
 }
 
 // Validate はBehaviorの実装

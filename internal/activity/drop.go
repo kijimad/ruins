@@ -14,7 +14,10 @@ import (
 )
 
 // DropActivity はBehaviorの実装
-type DropActivity struct{}
+type DropActivity struct {
+	Target      ecs.Entity
+	Destination gc.GridElement
+}
 
 // Info はBehaviorの実装
 func (da *DropActivity) Info() Info {
@@ -31,6 +34,17 @@ func (da *DropActivity) Info() Info {
 // Name はBehaviorの実装
 func (da *DropActivity) Name() gc.BehaviorName {
 	return gc.BehaviorDrop
+}
+
+// BuildActivity はBehaviorの実装
+func (da *DropActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(da, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &da.Target
+	comp.Destination = &da.Destination
+	return comp, nil
 }
 
 // Validate はアイテムドロップアクティビティの検証を行う

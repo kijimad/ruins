@@ -20,7 +20,9 @@ const (
 )
 
 // ShootActivity は射撃アクティビティの実装
-type ShootActivity struct{}
+type ShootActivity struct {
+	Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (sa *ShootActivity) Info() Info {
@@ -36,6 +38,16 @@ func (sa *ShootActivity) Info() Info {
 // Name はBehaviorの実装
 func (sa *ShootActivity) Name() gc.BehaviorName {
 	return gc.BehaviorShoot
+}
+
+// BuildActivity はBehaviorの実装
+func (sa *ShootActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(sa, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &sa.Target
+	return comp, nil
 }
 
 // Validate は射撃の検証を行う
@@ -235,11 +247,7 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
 
 // ExecuteShootAction は射撃アクションを実行する
 func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error {
-	params := ActionParams{
-		Actor:  actor,
-		Target: &target,
-	}
-	_, err := Execute(&ShootActivity{}, params, world)
+	_, err := Execute(&ShootActivity{Target: target}, actor, world)
 	if err != nil {
 		gamelog.New(query.GetGameLog(world)).
 			Append(err.Error()).

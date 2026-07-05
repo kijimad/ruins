@@ -15,7 +15,10 @@ import (
 )
 
 // PickupActivity はBehaviorの実装
-type PickupActivity struct{}
+type PickupActivity struct {
+	Target      *ecs.Entity
+	Destination *gc.GridElement
+}
 
 // Info はBehaviorの実装
 func (pa *PickupActivity) Info() Info {
@@ -32,6 +35,21 @@ func (pa *PickupActivity) Info() Info {
 // Name はBehaviorの実装
 func (pa *PickupActivity) Name() gc.BehaviorName {
 	return gc.BehaviorPickup
+}
+
+// BuildActivity はBehaviorの実装
+func (pa *PickupActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(pa, 1)
+	if err != nil {
+		return nil, err
+	}
+	if pa.Target != nil {
+		comp.Target = pa.Target
+	}
+	if pa.Destination != nil {
+		comp.Destination = pa.Destination
+	}
+	return comp, nil
 }
 
 // Validate はアイテム拾得アクティビティの検証を行う

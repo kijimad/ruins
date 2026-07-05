@@ -548,11 +548,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		params := activity.ActionParams{
-			Actor:  playerEntity,
-			Target: &entity,
-		}
-		_, err = activity.Execute(&activity.UseItemActivity{}, params, world)
+		_, err = activity.Execute(&activity.UseItemActivity{Target: entity}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -572,12 +568,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		if remaining <= 0 {
 			remaining = 1
 		}
-		params := activity.ActionParams{
-			Actor:    playerEntity,
-			Target:   &entity,
-			Duration: remaining,
-		}
-		_, err = activity.Execute(&activity.ReadActivity{}, params, world)
+		_, err = activity.Execute(&activity.ReadActivity{Target: entity, Duration: remaining}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -593,12 +584,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 		playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 		destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
-		params := activity.ActionParams{
-			Actor:       playerEntity,
-			Target:      &entity,
-			Destination: &destination,
-		}
-		_, err = activity.Execute(&activity.DropActivity{}, params, world)
+		_, err = activity.Execute(&activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err

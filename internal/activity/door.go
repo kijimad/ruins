@@ -14,7 +14,9 @@ import (
 )
 
 // OpenDoorActivity はBehaviorの実装
-type OpenDoorActivity struct{}
+type OpenDoorActivity struct {
+	Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (oda *OpenDoorActivity) Info() Info {
@@ -31,6 +33,16 @@ func (oda *OpenDoorActivity) Info() Info {
 // Name はBehaviorの実装
 func (oda *OpenDoorActivity) Name() gc.BehaviorName {
 	return gc.BehaviorOpenDoor
+}
+
+// BuildActivity はBehaviorの実装
+func (oda *OpenDoorActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(oda, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &oda.Target
+	return comp, nil
 }
 
 // Validate は扉開閉アクティビティの検証を行う
@@ -111,7 +123,9 @@ func (oda *OpenDoorActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.W
 }
 
 // CloseDoorActivity はBehaviorの実装
-type CloseDoorActivity struct{}
+type CloseDoorActivity struct {
+	Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (cda *CloseDoorActivity) Info() Info {
@@ -128,6 +142,16 @@ func (cda *CloseDoorActivity) Info() Info {
 // Name はBehaviorの実装
 func (cda *CloseDoorActivity) Name() gc.BehaviorName {
 	return gc.BehaviorCloseDoor
+}
+
+// BuildActivity はBehaviorの実装
+func (cda *CloseDoorActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(cda, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &cda.Target
+	return comp, nil
 }
 
 // Validate は扉閉鎖アクティビティの検証を行う

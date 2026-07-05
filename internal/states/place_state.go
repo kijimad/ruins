@@ -205,12 +205,7 @@ func (st *PlaceState) executeDrop(world w.World) error {
 
 	item := st.backpackItems[st.selectedIndex]
 	destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}
-	params := activity.ActionParams{
-		Actor:       playerEntity,
-		Target:      &item,
-		Destination: &destination,
-	}
-	_, err = activity.Execute(&activity.DropActivity{}, params, world)
+	_, err = activity.Execute(&activity.DropActivity{Target: item, Destination: destination}, playerEntity, world)
 	return err
 }
 

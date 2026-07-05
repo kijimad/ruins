@@ -15,7 +15,9 @@ import (
 )
 
 // UseItemActivity はBehaviorの実装
-type UseItemActivity struct{}
+type UseItemActivity struct {
+	Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (u *UseItemActivity) Info() Info {
@@ -32,6 +34,16 @@ func (u *UseItemActivity) Info() Info {
 // Name はBehaviorの実装
 func (u *UseItemActivity) Name() gc.BehaviorName {
 	return gc.BehaviorUseItem
+}
+
+// BuildActivity はBehaviorの実装
+func (u *UseItemActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(u, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &u.Target
+	return comp, nil
 }
 
 // Validate はBehaviorの実装

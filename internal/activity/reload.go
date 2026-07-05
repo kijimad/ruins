@@ -39,6 +39,15 @@ func (ra *ReloadActivity) Name() gc.BehaviorName {
 	return gc.BehaviorReload
 }
 
+// BuildActivity はBehaviorの実装
+func (ra *ReloadActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(ra, 1)
+	if err != nil {
+		return nil, err
+	}
+	return comp, nil
+}
+
 // Validate はリロードの検証を行う
 func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
