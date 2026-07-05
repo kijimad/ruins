@@ -32,10 +32,11 @@ func TestSaveLoadIntegration(t *testing.T) {
 	npc.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemyData{})
 
 	// セーブマネージャーを作成
-	saveManager := NewSerializationManager(WithSaveDir(testDir))
+	saveManager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
 
 	// セーブテスト
-	err := saveManager.SaveWorld(world, "test_slot")
+	err = saveManager.SaveWorld(world, "test_slot")
 	require.NoError(t, err)
 
 	// セーブファイルの存在確認
@@ -71,14 +72,15 @@ func TestSaveSlotInfo(t *testing.T) {
 	testDir := t.TempDir()
 
 	// セーブマネージャーを作成
-	saveManager := NewSerializationManager(WithSaveDir(testDir))
+	saveManager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
 
 	// テスト用のワールドを作成
 	world := testutil.InitTestWorld(t)
 
 	// 初期状態（セーブファイルなし）でセーブファイルの存在を確認
 	slotFile := filepath.Join(testDir, "slot1.json")
-	_, err := os.Stat(slotFile)
+	_, err = os.Stat(slotFile)
 	assert.Error(t, err, "Save file should not exist initially")
 
 	// 1つのセーブファイルを作成
@@ -125,8 +127,9 @@ func TestSaveLoadInPlace(t *testing.T) {
 	// GameProgressにデータを設定
 	query.GetGameProgress(world).MarkDungeonCleared("遺跡")
 
-	sm := NewSerializationManager(WithSaveDir(tempDir))
-	err := sm.SaveWorld(world, "inplace")
+	sm, err := NewSerializationManager(WithSaveDir(tempDir))
+	require.NoError(t, err)
+	err = sm.SaveWorld(world, "inplace")
 	require.NoError(t, err)
 
 	// 同一ワールドにロードする（ゲーム内と同じフロー）

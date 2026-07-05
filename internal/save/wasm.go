@@ -8,9 +8,9 @@ import (
 	"syscall/js"
 )
 
-// initializePlatform はWASM環境での初期化処理（特に何もしない）
-func (sm *SerializationManager) initImpl() {
-	// WASM環境ではディレクトリ作成は不要
+// initImpl はWASM環境での初期化処理
+func (sm *SerializationManager) initImpl() error {
+	return nil
 }
 
 // saveDataImpl はWASM環境でローカルストレージにデータを保存する

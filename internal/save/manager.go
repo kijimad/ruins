@@ -43,7 +43,7 @@ type SerializationManager struct {
 }
 
 // NewSerializationManager は新しいSerializationManagerを作成する
-func NewSerializationManager(opts ...Option) *SerializationManager {
+func NewSerializationManager(opts ...Option) (*SerializationManager, error) {
 	sm := &SerializationManager{
 		saveDirectory:   defaultSaveDir,
 		stableIDManager: NewStableIDManager(),
@@ -51,8 +51,10 @@ func NewSerializationManager(opts ...Option) *SerializationManager {
 	for _, opt := range opts {
 		opt(sm)
 	}
-	sm.initImpl()
-	return sm
+	if err := sm.initImpl(); err != nil {
+		return nil, err
+	}
+	return sm, nil
 }
 
 // GenerateWorldJSON はワールドからJSON文字列を生成する

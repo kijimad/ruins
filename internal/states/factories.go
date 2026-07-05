@@ -609,7 +609,10 @@ func NewAllClearEventState() es.State[w.World] {
 // 固定4スロットで、主人公名とタイムスタンプを表示する。
 func NewSaveMenuState() es.State[w.World] {
 	messageState := &MessageState{}
-	saveManager := save.NewSerializationManager()
+	saveManager, err := save.NewSerializationManager()
+	if err != nil {
+		panic(fmt.Sprintf("セーブマネージャーの作成に失敗: %v", err))
+	}
 	messageData := messagedata.NewSystemMessage("")
 
 	for i := 1; i <= 4; i++ {
@@ -640,7 +643,10 @@ func NewSaveMenuState() es.State[w.World] {
 // 手動4スロットとオートセーブ4スロットをセクション分けで表示する。
 func NewLoadMenuState() es.State[w.World] {
 	messageState := &MessageState{}
-	saveManager := save.NewSerializationManager()
+	saveManager, err := save.NewSerializationManager()
+	if err != nil {
+		panic(fmt.Sprintf("セーブマネージャーの作成に失敗: %v", err))
+	}
 	messageData := messagedata.NewSystemMessage("")
 
 	// 手動セーブセクション

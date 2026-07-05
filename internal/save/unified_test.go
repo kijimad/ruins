@@ -279,7 +279,8 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 			_ = os.RemoveAll(tempDir)
 		}()
 
-		sm := NewSerializationManager(WithSaveDir(tempDir))
+		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
+		require.NoError(t, smErr)
 		originalWorld := createStandardTestWorld(t)
 
 		// 元データ保存
@@ -317,7 +318,8 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 			_ = os.RemoveAll(tempDir)
 		}()
 
-		sm := NewSerializationManager(WithSaveDir(tempDir))
+		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
+		require.NoError(t, smErr)
 		world := createStandardTestWorld(t)
 
 		contents := make([]string, 0, 3)
@@ -359,7 +361,8 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 			_ = os.RemoveAll(tempDir)
 		}()
 
-		sm := NewSerializationManager(WithSaveDir(tempDir))
+		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
+		require.NoError(t, smErr)
 
 		// 保存対象のみを含むワールドを作成
 		originalWorld := createStandardTestWorld(t)
@@ -420,7 +423,9 @@ func createTestSerializationManager(t *testing.T) *SerializationManager {
 	t.Cleanup(func() {
 		_ = os.RemoveAll(tempDir)
 	})
-	return NewSerializationManager(WithSaveDir(tempDir))
+	sm, err := NewSerializationManager(WithSaveDir(tempDir))
+	require.NoError(t, err)
+	return sm
 }
 
 // createComplexDeterministicWorld InitNewGameDataのような複雑だが決定的なワールドを作成

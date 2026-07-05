@@ -122,7 +122,10 @@ func (st *DungeonSelectState) DoAction(world w.World, action inputmapper.ActionI
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
-		saveManager := save.NewSerializationManager()
+		saveManager, err := save.NewSerializationManager()
+		if err != nil {
+			return es.Transition[w.World]{}, err
+		}
 		if err := saveManager.AutoSave(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
