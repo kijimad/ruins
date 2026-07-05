@@ -250,7 +250,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		newState := &TestState{name: "PushedState"}
 		stateMachine.lastTransition = Transition[TestWorld]{
 			Type:          TransPush,
-			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return newState }},
+			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return newState, nil }},
 		}
 		err = stateMachine.Update(world)
 		assert.NoError(t, err, "Push遷移でエラーが発生")
@@ -285,7 +285,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		pushedState := &TestState{name: "PushedState"}
 		stateMachine.lastTransition = Transition[TestWorld]{
 			Type:          TransPush,
-			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return pushedState }},
+			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return pushedState, nil }},
 		}
 		err = stateMachine.Update(world)
 		assert.NoError(t, err, "Push遷移でエラーが発生")
@@ -319,7 +319,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		newState := &TestState{name: "SwitchedState"}
 		stateMachine.lastTransition = Transition[TestWorld]{
 			Type:          TransSwitch,
-			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return newState }},
+			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return newState, nil }},
 		}
 		err = stateMachine.Update(world)
 		assert.NoError(t, err, "Switch遷移でエラーが発生")
@@ -348,7 +348,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		state2 := &TestState{name: "State2"}
 		sm.lastTransition = Transition[TestWorld]{
 			Type:          TransPush,
-			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return state2 }},
+			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return state2, nil }},
 		}
 		err = sm.Update(world)
 		assert.NoError(t, err)
@@ -358,7 +358,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		newState := &TestState{name: "Replaced"}
 		sm.lastTransition = Transition[TestWorld]{
 			Type:          TransReplace,
-			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return newState }},
+			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return newState, nil }},
 		}
 		err = sm.Update(world)
 		assert.NoError(t, err)
@@ -380,7 +380,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		state2 := &TestState{name: "State2"}
 		sm.lastTransition = Transition[TestWorld]{
 			Type:          TransPush,
-			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return state2 }},
+			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return state2, nil }},
 		}
 		err = sm.Update(world)
 		assert.NoError(t, err)
@@ -407,8 +407,8 @@ func TestStateMachineTransitions(t *testing.T) {
 		sm.lastTransition = Transition[TestWorld]{
 			Type: TransReplace,
 			NewStateFuncs: []StateFactory[TestWorld]{
-				func() State[TestWorld] { return bottom },
-				func() State[TestWorld] { return top },
+				func() (State[TestWorld], error) { return bottom, nil },
+				func() (State[TestWorld], error) { return top, nil },
 			},
 		}
 		err = sm.Update(world)

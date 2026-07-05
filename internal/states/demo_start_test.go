@@ -14,10 +14,11 @@ import (
 func TestDemoStartState_OnStart(t *testing.T) {
 	t.Parallel()
 
-	state := NewDemoStartState()
+	state, err := NewDemoStartState()
+	require.NoError(t, err)
 	world := testutil.InitTestWorld(t)
 
-	err := state.OnStart(world)
+	err = state.OnStart(world)
 	require.NoError(t, err)
 
 	// プレイヤーが生成されていることを確認
@@ -28,7 +29,8 @@ func TestDemoStartState_OnStart(t *testing.T) {
 func TestDemoStartState_Update(t *testing.T) {
 	t.Parallel()
 
-	state := NewDemoStartState()
+	state, err := NewDemoStartState()
+	require.NoError(t, err)
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -40,12 +42,13 @@ func TestDemoStartState_Update(t *testing.T) {
 func TestDemoStartState_Update_AfterConsumed(t *testing.T) {
 	t.Parallel()
 
-	state := NewDemoStartState()
+	state, err := NewDemoStartState()
+	require.NoError(t, err)
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	// 1回目で遷移を消費
-	_, err := state.Update(world)
+	_, err = state.Update(world)
 	require.NoError(t, err)
 
 	// 2回目はTransNone

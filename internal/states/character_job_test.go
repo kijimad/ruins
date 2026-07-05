@@ -241,7 +241,9 @@ func TestNewCharacterJobState(t *testing.T) {
 
 	playerName := "TestPlayer"
 	factory := NewCharacterJobState(playerName)
-	state := factory().(*CharacterJobState)
+	s, err := factory()
+	require.NoError(t, err)
+	state := s.(*CharacterJobState)
 
 	assert.Equal(t, playerName, state.playerName, "プレイヤー名が設定される")
 }

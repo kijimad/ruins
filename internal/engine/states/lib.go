@@ -58,7 +58,7 @@ type ActionHandler[T any] interface {
 }
 
 // StateFactory はステートを作成するファクトリー関数の型
-type StateFactory[T any] func() State[T]
+type StateFactory[T any] func() (State[T], error)
 
 // StateMachine はジェネリックな状態スタックを管理する
 type StateMachine[T any] struct {
@@ -80,7 +80,10 @@ func Init[T any](s State[T], world T) (StateMachine[T], error) {
 // Update はステートマシンを更新する
 func (sm *StateMachine[T]) Update(world T) error {
 	// ファクトリー関数からステートを作成
-	states := sm.createStatesFromFunc()
+	states, err := sm.createStatesFromFunc()
+	if err != nil {
+		return err
+	}
 
 	switch sm.lastTransition.Type {
 	case TransNone:
@@ -131,16 +134,20 @@ func (sm *StateMachine[T]) Draw(world T, screen *ebiten.Image) error {
 }
 
 // createStatesFromFunc はファクトリー関数からステートを作成する
-func (sm *StateMachine[T]) createStatesFromFunc() []State[T] {
+func (sm *StateMachine[T]) createStatesFromFunc() ([]State[T], error) {
 	if len(sm.lastTransition.NewStateFuncs) == 0 {
-		return []State[T]{}
+		return []State[T]{}, nil
 	}
 
 	states := make([]State[T], len(sm.lastTransition.NewStateFuncs))
 	for i, factory := range sm.lastTransition.NewStateFuncs {
-		states[i] = factory()
+		s, err := factory()
+		if err != nil {
+			return nil, err
+		}
+		states[i] = s
 	}
-	return states
+	return states, nil
 }
 
 // pop はアクティブなステートを削除して次のステートを再開する

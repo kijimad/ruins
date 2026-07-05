@@ -73,7 +73,8 @@ func TestDoActionUIActions(t *testing.T) {
 				require.NotEmpty(t, transition.NewStateFuncs, "NewStateFuncsが空です")
 
 				// ステートファクトリーが実際に動作することを確認
-				newState := transition.NewStateFuncs[0]()
+				newState, factoryErr := transition.NewStateFuncs[0]()
+				require.NoError(t, factoryErr, "NewStateFunc がエラーを返しました")
 				require.NotNil(t, newState, "NewStateFunc が nil を返しました")
 
 				// ステートの型を検証
@@ -394,7 +395,8 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			require.NotEmpty(t, transition.NewStateFuncs, "NewStateFuncsが空です")
 
 			// ステートファクトリーが実際にステートを作成できることを検証
-			newState := transition.NewStateFuncs[0]()
+			newState, factoryErr := transition.NewStateFuncs[0]()
+			require.NoError(t, factoryErr, "NewStateFunc がエラーを返しました")
 			require.NotNil(t, newState, "NewStateFunc が nil を返しました")
 
 			// ステートが正しい型であることを検証

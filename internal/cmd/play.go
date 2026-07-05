@@ -107,7 +107,11 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	// 開始ステートの決定
 	var initialState es.State[w.World]
 	if cfg.SkipOpening {
-		initialState = gs.NewDemoStartState()
+		var stateErr error
+		initialState, stateErr = gs.NewDemoStartState()
+		if stateErr != nil {
+			return stateErr
+		}
 	} else {
 		initialState = &gs.MainMenuState{}
 	}

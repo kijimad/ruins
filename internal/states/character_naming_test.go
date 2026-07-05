@@ -238,8 +238,8 @@ func TestNewCharacterNamingState(t *testing.T) {
 	t.Parallel()
 
 	factory := NewCharacterNamingState
-	state := factory()
-
+	state, err := factory()
+	require.NoError(t, err)
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*CharacterNamingState)
 	assert.True(t, ok, "CharacterNamingState型である")

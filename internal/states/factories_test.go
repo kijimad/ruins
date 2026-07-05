@@ -10,8 +10,8 @@ import (
 func TestNewOpeningState(t *testing.T) {
 	t.Parallel()
 
-	state := NewOpeningState()
-
+	state, err := NewOpeningState()
+	require.NoError(t, err)
 	require.NotNil(t, state)
 	ms, ok := state.(*MessageState)
 	require.True(t, ok, "MessageState型である")

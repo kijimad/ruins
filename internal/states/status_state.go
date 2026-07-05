@@ -114,8 +114,8 @@ func (st *StatusState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tran
 }
 
 // NewStatusState はステータス画面のStateを作成する
-func NewStatusState() es.State[w.World] {
-	return &StatusState{}
+func NewStatusState() (es.State[w.World], error) {
+	return &StatusState{}, nil
 }
 
 // ================

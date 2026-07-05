@@ -96,8 +96,8 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
 }
 
 // NewComponentDebugState はコンポーネントデバッグ画面を作成する
-func NewComponentDebugState() es.State[w.World] {
-	return &ComponentDebugState{}
+func NewComponentDebugState() (es.State[w.World], error) {
+	return &ComponentDebugState{}, nil
 }
 
 // ================

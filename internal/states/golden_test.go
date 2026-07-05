@@ -41,57 +41,89 @@ func TestGolden_CharacterNaming(t *testing.T) {
 
 func TestGolden_CharacterJob(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewCharacterJobState("Ash")()))
+	s, err := gs.NewCharacterJobState("Ash")()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
 func TestGolden_Town(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town))
 }
 
 func TestGolden_InventoryMenu(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), &gs.InventoryMenuState{}))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, &gs.InventoryMenuState{}))
 }
 
 func TestGolden_EquipMenu(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), &gs.EquipMenuState{}))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, &gs.EquipMenuState{}))
 }
 
 func TestGolden_CraftMenu(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), &gs.CraftMenuState{}))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, &gs.CraftMenuState{}))
 }
 
 func TestGolden_ShopMenu(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), &gs.ShopMenuState{}))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, &gs.ShopMenuState{}))
 }
 
 func TestGolden_AutoSell(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewAutoSellState()()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewAutoSellState()()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_SaveMenu(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewSaveMenuState()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewSaveMenuState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_LoadMenu(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewLoadMenuState()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewLoadMenuState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_DebugMenu(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewDebugMenuState()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewDebugMenuState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_ComponentDebug(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewComponentDebugState()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewComponentDebugState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_SquadMenu(t *testing.T) {
@@ -103,9 +135,13 @@ func TestGolden_SquadMenu(t *testing.T) {
 		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
 		require.NoError(t, err)
 
+		town, err := gs.NewTownState()()
+		require.NoError(t, err)
+		squad, err := gs.NewSquadMenuState()
+		require.NoError(t, err)
 		return []es.State[w.World]{
-			gs.NewTownState()(),
-			gs.NewSquadMenuState(),
+			town,
+			squad,
 		}
 	})
 }
@@ -119,16 +155,24 @@ func TestGolden_FormationMenu(t *testing.T) {
 		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
 		require.NoError(t, err)
 
+		town, err := gs.NewTownState()()
+		require.NoError(t, err)
+		formation, err := gs.NewFormationMenuState()
+		require.NoError(t, err)
 		return []es.State[w.World]{
-			gs.NewTownState()(),
-			gs.NewFormationMenuState(),
+			town,
+			formation,
 		}
 	})
 }
 
 func TestGolden_DungeonSelect(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewDungeonSelectState()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewDungeonSelectState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_Dungeon(t *testing.T) {
@@ -149,7 +193,11 @@ func TestGolden_LookAround(t *testing.T) {
 
 func TestGolden_GameOver(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewGameOverMessageState()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewGameOverMessageState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_Message(t *testing.T) {
@@ -162,12 +210,20 @@ func TestGolden_Message(t *testing.T) {
 	).WithChoice(
 		"選択肢2", func(_ w.World) error { return nil },
 	)
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewMessageState(messageData)))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	msgState, err := gs.NewMessageState(messageData)
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, msgState))
 }
 
 func TestGolden_Status(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewStatusState()))
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewStatusState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_Shooting(t *testing.T) {
@@ -196,11 +252,13 @@ func TestGolden_Place(t *testing.T) {
 
 func TestGolden_PersistentMessage(t *testing.T) {
 	t.Parallel()
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
 	messageData := messagedata.NewDialogMessage(
 		"永続メッセージのVRTテストです。",
 		"テスト",
 	)
-	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewPersistentMessageState(messageData)))
+	vrt.AssertStateGolden(t, vrt.States(town, gs.NewPersistentMessageState(messageData)))
 }
 
 func TestGolden_StorageMenu(t *testing.T) {
@@ -212,9 +270,14 @@ func TestGolden_StorageMenu(t *testing.T) {
 		_, err = lifecycle.SpawnStorageItem(world, "回復薬", 1, storageEntity)
 		require.NoError(t, err)
 
+		town, err := gs.NewTownState()()
+		require.NoError(t, err)
+		storageState, stateErr := gs.NewStorageMenuState(storageEntity)
+		require.NoError(t, stateErr)
+
 		return []es.State[w.World]{
-			gs.NewTownState()(),
-			gs.NewStorageMenuState(storageEntity),
+			town,
+			storageState,
 		}
 	})
 }
