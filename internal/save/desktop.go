@@ -7,14 +7,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/kijimaD/ruins/internal/logger"
 )
 
 // initImpl はデスクトップ環境での初期化処理
 func (sm *SerializationManager) initImpl() {
 	// セーブディレクトリを作成（存在しない場合）
 	if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil {
-		// エラーが発生してもマネージャーは作成する（ログ出力のみ）
-		fmt.Printf("Failed to create save directory: %v\n", err)
+		logger.New(logger.CategorySave).Warn("セーブディレクトリの作成に失敗", "error", err)
 	}
 }
 
