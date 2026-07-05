@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (79.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.5%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -95,7 +95,7 @@
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (66.7%)</option>
 				
-				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_roaming.go (93.1%)</option>
+				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_roaming.go (92.5%)</option>
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/planner_squad.go (23.8%)</option>
 				
@@ -1522,7 +1522,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -4707,7 +4707,7 @@ func (rp *roamingPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, a
 
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
-        if rp.rng.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
+        if rp.rng.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
