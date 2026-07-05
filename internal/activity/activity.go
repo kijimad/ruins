@@ -14,7 +14,8 @@ import (
 // log はactivityパッケージ用のロガー
 var log = logger.New(logger.CategoryAction)
 
-// behaviors は登録されたBehavior実装のマップ
+// behaviors はProcessTurn経由の継続アクション処理で使うシングルトンBehaviorのマップ。
+// Execute経路で使うBuildActivityはこのマップのインスタンスでは呼ばれない
 var behaviors = map[gc.BehaviorName]Behavior{
 	gc.BehaviorMove:      &MoveActivity{},
 	gc.BehaviorAttack:    &AttackActivity{},

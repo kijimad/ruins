@@ -184,19 +184,12 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 // ExecuteReloadAction はリロードアクションを実行する
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
-	behavior := &ReloadActivity{}
-	activity, err := NewActivity(behavior, 1) // 初期値。Startで更新される
+	_, err := Execute(&ReloadActivity{}, actor, world)
 	if err != nil {
-		return fmt.Errorf("リロードアクティビティの作成に失敗: %w", err)
-	}
-
-	if err := behavior.Validate(activity, actor, world); err != nil {
 		gamelog.New(query.GetGameLog(world)).
 			Append(err.Error()).
 			Log()
 		return nil
 	}
-
-	actor.AddComponent(world.Components.Activity, activity)
 	return nil
 }

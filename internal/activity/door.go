@@ -71,11 +71,12 @@ func (oda *OpenDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
-	if doorComp == nil {
+	raw := world.Components.Door.Get(targetEntity)
+	if raw == nil {
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
+	doorComp := raw.(*gc.Door)
 
 	if doorComp.Locked {
 		gamelog.New(query.GetGameLog(world)).
@@ -180,11 +181,12 @@ func (cda *CloseDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
-	if doorComp == nil {
+	raw := world.Components.Door.Get(targetEntity)
+	if raw == nil {
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
+	doorComp := raw.(*gc.Door)
 
 	if doorComp.Locked {
 		Cancel(comp, "扉はロックされている")

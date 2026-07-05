@@ -39,7 +39,7 @@
 // - aiinput/processor.go から使用（AI行動処理）
 //
 // ```go
-// result, err := activity.Execute(activityImpl, params, world)
+// result, err := activity.Execute(behavior, actor, world)
 // ```
 //
 // ### 個別Activity実装

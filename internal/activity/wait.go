@@ -63,8 +63,7 @@ func (wa *WaitActivity) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 
 // Start は待機開始時の処理を実行する
 func (wa *WaitActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	reason := "時間を過ごすため"
-	log.Debug("待機開始", "actor", actor, "reason", reason, "duration", comp.TurnsLeft)
+	log.Debug("待機開始", "actor", actor, "reason", wa.Reason, "duration", comp.TurnsLeft)
 	return nil
 }
 
