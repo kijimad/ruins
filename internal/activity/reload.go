@@ -186,10 +186,7 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
 	_, err := Execute(&ReloadActivity{}, actor, world)
 	if err != nil {
-		gamelog.New(query.GetGameLog(world)).
-			Append(err.Error()).
-			Log()
-		return nil
+		return err
 	}
 	return nil
 }

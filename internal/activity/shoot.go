@@ -6,7 +6,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -249,10 +248,7 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
 func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error {
 	_, err := Execute(&ShootActivity{Target: target}, actor, world)
 	if err != nil {
-		gamelog.New(query.GetGameLog(world)).
-			Append(err.Error()).
-			Log()
-		return nil
+		return err
 	}
 	return nil
 }

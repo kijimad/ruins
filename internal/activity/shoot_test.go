@@ -270,9 +270,8 @@ func TestExecuteShootAction(t *testing.T) {
 		require.NoError(t, err)
 
 		err = ExecuteShootAction(player, enemy, world)
-		require.NoError(t, err) // エラーではなくログに記録される
+		assert.Error(t, err)
 
-		// Activityは設定されない
 		assert.False(t, player.HasComponent(world.Components.Activity))
 	})
 }
