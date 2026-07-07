@@ -36,6 +36,7 @@ var (
 	ErrMoveTargetInvalid      = errors.New("移動先が無効です")
 	ErrMoveTargetCoordInvalid = errors.New("移動先の座標が無効です")
 	ErrMoveNoGridElement      = errors.New("移動するエンティティにGridElementが見つかりません")
+	ErrMoveOverweight         = errors.New("重すぎて動けません")
 	ErrGridElementNotFound    = errors.New("GridElementコンポーネントが見つかりません")
 
 	// アイテム関連エラー

@@ -119,8 +119,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 					Warning("重すぎて動けない").
 					Log()
 			}
-			// エラーではない
-			return nil
+			return ErrMoveOverweight
 		}
 	}
 

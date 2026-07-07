@@ -301,7 +301,11 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
 func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int {
-	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+	attackerAbilsComp := world.Components.Abilities.Get(attacker)
+	if attackerAbilsComp == nil {
+		return formula.BaseHitRate
+	}
+	attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
 	// Abilitiesを持たないターゲットには自動命中する
 	targetAgility := 0

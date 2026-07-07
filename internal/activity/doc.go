@@ -103,10 +103,10 @@
 // 全てのアクションは`Activity`構造体を通じて統一的に管理される：
 //
 //	type Activity struct {
-//		Type       ActivityType  // アクション種別
-//		State      State // 実行状態
-//		TurnsTotal int          // 必要ターン数
-//		TurnsLeft  int          // 残りターン数
+//		BehaviorName gc.BehaviorName // アクション種別
+//		State        gc.ActivityState // 実行状態
+//		TurnsTotal   int              // 必要ターン数
+//		TurnsLeft    int              // 残りターン数
 //		// ...
 //	}
 //

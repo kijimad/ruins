@@ -201,8 +201,13 @@ func EntityDistance(a, b ecs.Entity, world w.World) float64 {
 // checkLineOfSight は射線上の壁と遮蔽物を1パスでチェックする。
 // 壁（BlockView=true）があればblocked=true、遮蔽物（BlockPass=true, BlockView=false）の数をcoverCountで返す
 func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, coverCount int) {
-	aPos := world.Components.GridElement.Get(actor).(*gc.GridElement)
-	tPos := world.Components.GridElement.Get(target).(*gc.GridElement)
+	aGrid := world.Components.GridElement.Get(actor)
+	tGrid := world.Components.GridElement.Get(target)
+	if aGrid == nil || tGrid == nil {
+		return true, 0
+	}
+	aPos := aGrid.(*gc.GridElement)
+	tPos := tGrid.(*gc.GridElement)
 
 	points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
 	for _, p := range points {

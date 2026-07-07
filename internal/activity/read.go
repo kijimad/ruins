@@ -82,6 +82,10 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は読書開始時の処理を実行する
 func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if comp.Target == nil {
+		return ErrReadTargetNotSet
+	}
+
 	book := ra.getBook(*comp.Target, world)
 	if book == nil {
 		return fmt.Errorf("Bookコンポーネントが見つかりません")
