@@ -152,9 +152,7 @@
 //
 // 新しいアクションを追加する場合：
 //
-// 1. ActivityTypeに新しい定数を追加
-// 2. activityInfosに情報を追加
-// 3. 具体的な実装ファイルを作成（例：new_action.go）
-// 4. Activity インターフェースを実装
-// 5. 必要に応じてActivity.DoTurnに処理を追加
+// 1. gc.BehaviorNameに新しい定数を追加
+// 2. Behaviorインターフェースを実装した構造体を作成
+// 3. behaviorsマップに登録
 package activity

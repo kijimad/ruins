@@ -346,7 +346,11 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 
 // calculateDamage はダメージ計算を行う
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+	attackerAbilsComp := world.Components.Abilities.Get(attacker)
+	if attackerAbilsComp == nil {
+		return 0
+	}
+	attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
 	baseAbil := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {

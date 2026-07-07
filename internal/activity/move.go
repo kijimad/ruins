@@ -225,7 +225,11 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 	if !CanSwapPosition(world, actor, target) {
 		return
 	}
-	targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+	targetGridComp := world.Components.GridElement.Get(target)
+	if targetGridComp == nil {
+		return
+	}
+	targetGrid := targetGridComp.(*gc.GridElement)
 	targetGrid.X = consts.Tile(fromX)
 	targetGrid.Y = consts.Tile(fromY)
 
