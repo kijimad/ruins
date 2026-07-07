@@ -39,6 +39,15 @@ func (ra *ReloadActivity) Name() gc.BehaviorName {
 	return gc.BehaviorReload
 }
 
+// BuildActivity はBehaviorの実装
+func (ra *ReloadActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(ra, 1)
+	if err != nil {
+		return nil, err
+	}
+	return comp, nil
+}
+
 // Validate はリロードの検証を行う
 func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
@@ -175,19 +184,9 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 // ExecuteReloadAction はリロードアクションを実行する
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
-	behavior := &ReloadActivity{}
-	activity, err := NewActivity(behavior, 1) // 初期値。Startで更新される
+	_, err := Execute(&ReloadActivity{}, actor, world)
 	if err != nil {
-		return fmt.Errorf("リロードアクティビティの作成に失敗: %w", err)
+		return err
 	}
-
-	if err := behavior.Validate(activity, actor, world); err != nil {
-		gamelog.New(query.GetGameLog(world)).
-			Append(err.Error()).
-			Log()
-		return nil
-	}
-
-	actor.AddComponent(world.Components.Activity, activity)
 	return nil
 }

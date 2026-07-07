@@ -3,6 +3,7 @@ package aiinput
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -144,7 +145,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
 
-		b, _, ok := sp.planItemPickupAction(world, member, ctx)
+		b, ok := sp.planItemPickupAction(world, member, ctx)
 		assert.True(t, ok, "拾得アクションが返る")
 		assert.NotNil(t, b)
 	})
@@ -172,7 +173,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
 
-		_, _, ok := sp.planItemPickupAction(world, member, ctx)
+		_, ok := sp.planItemPickupAction(world, member, ctx)
 		assert.False(t, ok, "PolicyIgnoreでは拾得しない")
 	})
 
@@ -196,7 +197,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
 
-		_, _, ok := sp.planItemPickupAction(world, member, ctx)
+		_, ok := sp.planItemPickupAction(world, member, ctx)
 		assert.False(t, ok, "アイテムがなければ何もしない")
 	})
 
@@ -223,7 +224,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
 
-		_, _, ok := sp.planItemPickupAction(world, member, ctx)
+		_, ok := sp.planItemPickupAction(world, member, ctx)
 		assert.False(t, ok, "視界外のアイテムには反応しない")
 	})
 }
@@ -257,10 +258,11 @@ func TestPlanItemHandlingAction(t *testing.T) {
 			LeaderGrid:   leaderGrid,
 		}
 
-		b, p, ok := sp.planItemHandlingAction(world, member, ctx)
+		b, ok := sp.planItemHandlingAction(world, member, ctx)
 		assert.True(t, ok, "転送アクションが返る")
 		assert.NotNil(t, b)
-		assert.NotNil(t, p.Target)
+		transfer := b.(*activity.TransferActivity)
+		assert.NotZero(t, transfer.Target)
 	})
 
 	t.Run("PolicyKeepではアイテムがあっても転送しない", func(t *testing.T) {
@@ -289,7 +291,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 			LeaderGrid:   leaderGrid,
 		}
 
-		_, _, ok := sp.planItemHandlingAction(world, member, ctx)
+		_, ok := sp.planItemHandlingAction(world, member, ctx)
 		assert.False(t, ok, "PolicyKeepでは転送しない")
 	})
 
@@ -322,7 +324,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 			LeaderGrid:   leaderGrid,
 		}
 
-		_, _, ok := sp.planItemHandlingAction(world, member, ctx)
+		_, ok := sp.planItemHandlingAction(world, member, ctx)
 		assert.False(t, ok, "離れているときは転送しない")
 	})
 
@@ -347,7 +349,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 			LeaderGrid:   leaderGrid,
 		}
 
-		_, _, ok := sp.planItemHandlingAction(world, member, ctx)
+		_, ok := sp.planItemHandlingAction(world, member, ctx)
 		assert.False(t, ok, "バックパックが空なら転送しない")
 	})
 }

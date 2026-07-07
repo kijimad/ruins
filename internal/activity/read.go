@@ -15,7 +15,10 @@ import (
 )
 
 // ReadActivity は読書アクティビティの実装
-type ReadActivity struct{}
+type ReadActivity struct {
+	Target   ecs.Entity
+	Duration int
+}
 
 // Info はBehaviorの実装
 func (ra *ReadActivity) Info() Info {
@@ -31,6 +34,24 @@ func (ra *ReadActivity) Info() Info {
 // Name はBehaviorの実装
 func (ra *ReadActivity) Name() gc.BehaviorName {
 	return gc.BehaviorRead
+}
+
+// BuildActivity はBehaviorの実装
+func (ra *ReadActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	duration := ra.Duration
+	if duration <= 0 {
+		characterAP, err := getEntityMaxAP(actor, world)
+		if err != nil {
+			return nil, err
+		}
+		duration = CalculateRequiredTurns(ra, characterAP)
+	}
+	comp, err := NewActivity(ra, duration)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &ra.Target
+	return comp, nil
 }
 
 // Validate は読書アクティビティの検証を行う
@@ -61,6 +82,10 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は読書開始時の処理を実行する
 func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if comp.Target == nil {
+		return ErrReadTargetNotSet
+	}
+
 	book := ra.getBook(*comp.Target, world)
 	if book == nil {
 		return fmt.Errorf("Bookコンポーネントが見つかりません")

@@ -57,7 +57,9 @@ func CanSwapPosition(world w.World, mover, target ecs.Entity) bool {
 }
 
 // MoveActivity はBehaviorの実装
-type MoveActivity struct{}
+type MoveActivity struct {
+	Destination gc.GridElement
+}
 
 // Info はBehaviorの実装
 func (ma *MoveActivity) Info() Info {
@@ -74,6 +76,16 @@ func (ma *MoveActivity) Info() Info {
 // Name はBehaviorの実装
 func (ma *MoveActivity) Name() gc.BehaviorName {
 	return gc.BehaviorMove
+}
+
+// BuildActivity はBehaviorの実装
+func (ma *MoveActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(ma, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Destination = &ma.Destination
+	return comp, nil
 }
 
 // Validate はBehaviorの実装
@@ -107,8 +119,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 					Warning("重すぎて動けない").
 					Log()
 			}
-			// エラーではない
-			return nil
+			return ErrMoveOverweight
 		}
 	}
 
@@ -214,7 +225,11 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 	if !CanSwapPosition(world, actor, target) {
 		return
 	}
-	targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+	targetGridComp := world.Components.GridElement.Get(target)
+	if targetGridComp == nil {
+		return
+	}
+	targetGrid := targetGridComp.(*gc.GridElement)
 	targetGrid.X = consts.Tile(fromX)
 	targetGrid.Y = consts.Tile(fromY)
 

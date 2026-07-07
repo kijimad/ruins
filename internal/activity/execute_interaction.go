@@ -77,15 +77,11 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 	}
 
 	door := world.Components.Door.Get(doorEntity).(*gc.Door)
-	params := ActionParams{
-		Actor:  actor,
-		Target: &doorEntity,
-	}
 
 	if door.IsOpen {
-		return Execute(&CloseDoorActivity{}, params, world)
+		return Execute(&CloseDoorActivity{Target: doorEntity}, actor, world)
 	}
-	return Execute(&OpenDoorActivity{}, params, world)
+	return Execute(&OpenDoorActivity{Target: doorEntity}, actor, world)
 }
 
 func executeDoorLock(world w.World) (*ActionResult, error) {
@@ -102,12 +98,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 		return nil, fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません")
 	}
 
-	params := ActionParams{
-		Actor:  actor,
-		Target: &npcEntity,
-	}
-
-	result, err := Execute(&TalkActivity{}, params, world)
+	result, err := Execute(&TalkActivity{Target: npcEntity}, actor, world)
 	if err != nil {
 		return nil, fmt.Errorf("会話アクション失敗: %w", err)
 	}
@@ -116,11 +107,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 }
 
 func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	params := ActionParams{
-		Actor:  actor,
-		Target: &target,
-	}
-	return Execute(&PickupActivity{}, params, world)
+	return Execute(&PickupActivity{Target: &target}, actor, world)
 }
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
@@ -130,11 +117,7 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 	}
 	playerGrid := gridElement.(*gc.GridElement)
 	destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
-	params := ActionParams{
-		Actor:       actor,
-		Destination: &destination,
-	}
-	return Execute(&PickupActivity{}, params, world)
+	return Execute(&PickupActivity{Destination: &destination}, actor, world)
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
@@ -145,9 +128,5 @@ func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, err
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	params := ActionParams{
-		Actor:  actor,
-		Target: &target,
-	}
-	return Execute(&AttackActivity{}, params, world)
+	return Execute(&AttackActivity{Target: target}, actor, world)
 }

@@ -24,7 +24,9 @@ const (
 )
 
 // AttackActivity はBehaviorの実装
-type AttackActivity struct{}
+type AttackActivity struct {
+	Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (aa *AttackActivity) Info() Info {
@@ -41,6 +43,16 @@ func (aa *AttackActivity) Info() Info {
 // Name はBehaviorの実装
 func (aa *AttackActivity) Name() gc.BehaviorName {
 	return gc.BehaviorAttack
+}
+
+// BuildActivity はBehaviorの実装
+func (aa *AttackActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(aa, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &aa.Target
+	return comp, nil
 }
 
 // Validate はBehaviorの実装
@@ -289,7 +301,11 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
 func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int {
-	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+	attackerAbilsComp := world.Components.Abilities.Get(attacker)
+	if attackerAbilsComp == nil {
+		return formula.BaseHitRate
+	}
+	attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
 	// Abilitiesを持たないターゲットには自動命中する
 	targetAgility := 0
@@ -330,7 +346,11 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 
 // calculateDamage はダメージ計算を行う
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+	attackerAbilsComp := world.Components.Abilities.Get(attacker)
+	if attackerAbilsComp == nil {
+		return 0
+	}
+	attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
 	baseAbil := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {

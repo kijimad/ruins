@@ -35,11 +35,11 @@ func newSoloPlanner(rng *rand.Rand) *soloPlanner {
 
 // Plan は状態遷移の評価とアクション決定を一体的に行う。
 // APループ内で繰り返し呼ばれ、状態遷移は同一ターン内でべき等
-func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior {
 	aiComp := world.Components.AI.Get(entity)
 	if aiComp == nil {
 		rp.logger.Warn("AIコンポーネントなし", "entity", entity)
-		return nil, activity.ActionParams{}
+		return nil
 	}
 	solo := aiComp.(*gc.AI).Planner.(*gc.SoloAI)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -61,9 +61,9 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior
 	case gc.AIStateDriving:
 		return rp.planDrivingAction(world, entity, solo, grid)
 	case gc.AIStateWaiting:
-		return waitAction(entity, "AI待機")
+		return waitAction("AI待機")
 	default:
-		return waitAction(entity, "AIデフォルト待機")
+		return waitAction("AIデフォルト待機")
 	}
 }
 
@@ -175,61 +175,58 @@ func (rp *soloPlanner) initializeToWaiting(solo *gc.SoloAI, currentTurn int) {
 
 // ========== アクション計画ロジック ==========
 
-func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
 	if isAdjacent(aiGrid, playerGrid) {
-		return &activity.AttackActivity{}, activity.ActionParams{
-			Actor:  aiEntity,
-			Target: &playerEntity,
-		}
+		return &activity.AttackActivity{Target: playerEntity}
 	}
 
 	dx := int(playerGrid.X) - int(aiGrid.X)
 	dy := int(playerGrid.Y) - int(aiGrid.Y)
 
 	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
-	if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
-		return b, p
+	if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
+		return b
 	}
 
-	return waitAction(aiEntity, "AI追跡失敗")
+	return waitAction("AI追跡失敗")
 }
 
-func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
 	dx := int(aiGrid.X) - int(playerGrid.X)
 	dy := int(aiGrid.Y) - int(playerGrid.Y)
 
 	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
-	if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
-		return b, p
+	if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
+		return b
 	}
 
 	return rp.planRandomMoveAction(world, aiEntity, aiGrid)
 }
 
-func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	if rp.rng.Float64() < 0.3 {
-		return waitAction(aiEntity, "AIランダム待機")
+		return waitAction("AIランダム待機")
 	}
 
 	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
 	for _, d := range shuffledEightDirections(rp.rng) {
 		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 		if activity.CanMoveTo(world, dest, from, aiEntity) {
-			return moveAction(aiEntity, dest)
+			return moveAction(dest)
 		}
 	}
 
-	return waitAction(aiEntity, "AIランダム移動失敗")
+	return waitAction("AIランダム移動失敗")
 }
 
-func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {
 	switch solo.Movement {
 	case gc.SoloStationary:
-		return waitAction(aiEntity, "AI固定待機")
+		return waitAction("AI固定待機")
 	case gc.SoloWander:
 		return rp.planWanderAction(world, aiEntity, grid)
 	case gc.SoloWallHug:
@@ -245,16 +242,16 @@ func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, sol
 	}
 }
 
-func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	if rp.rng.Float64() < 0.8 {
-		return waitAction(aiEntity, "AI徘徊待機")
+		return waitAction("AI徘徊待機")
 	}
 	return rp.planRandomMoveAction(world, aiEntity, aiGrid)
 }
 
-func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	if rp.rng.Float64() < 0.3 {
-		return waitAction(aiEntity, "AI壁沿い待機")
+		return waitAction("AI壁沿い待機")
 	}
 
 	si := query.GetSpatialIndex(world)
@@ -283,7 +280,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 	}
 
 	if len(candidates) == 0 {
-		return waitAction(aiEntity, "AI壁沿い移動失敗")
+		return waitAction("AI壁沿い移動失敗")
 	}
 
 	best := candidates[0].score
@@ -300,10 +297,10 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 	}
 	chosen := tied[rp.rng.IntN(len(tied))]
 
-	return moveAction(aiEntity, consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})
+	return moveAction(consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})
 }
 
-func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	_, nearestGrid, nearestDist := query.FindNearestEntity(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {
 		return entity.HasComponent(world.Components.AI)
 	})
@@ -316,19 +313,19 @@ func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGri
 	dy := int(nearestGrid.Y) - int(aiGrid.Y)
 
 	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
-	if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
-		return b, p
+	if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
+		return b
 	}
 
 	return rp.planRandomMoveAction(world, aiEntity, aiGrid)
 }
 
-func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {
 	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
 	dest := consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
 	if activity.CanMoveTo(world, dest, from, aiEntity) {
-		return moveAction(aiEntity, dest)
+		return moveAction(dest)
 	}
 
 	solo.PatrolDirX = -solo.PatrolDirX
@@ -336,13 +333,13 @@ func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo
 
 	dest = consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
 	if activity.CanMoveTo(world, dest, from, aiEntity) {
-		return moveAction(aiEntity, dest)
+		return moveAction(dest)
 	}
 
-	return waitAction(aiEntity, "AI巡回移動失敗")
+	return waitAction("AI巡回移動失敗")
 }
 
-func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {
 	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
 	for _, d := range shuffledEightDirections(rp.rng) {
@@ -355,9 +352,9 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 		}
 
 		if activity.CanMoveTo(world, dest, from, aiEntity) {
-			return moveAction(aiEntity, dest)
+			return moveAction(dest)
 		}
 	}
 
-	return waitAction(aiEntity, "AI縄張り移動失敗")
+	return waitAction("AI縄張り移動失敗")
 }

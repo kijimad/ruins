@@ -39,7 +39,7 @@
 // - aiinput/processor.go から使用（AI行動処理）
 //
 // ```go
-// result, err := activity.Execute(activityImpl, params, world)
+// result, err := activity.Execute(behavior, actor, world)
 // ```
 //
 // ### 個別Activity実装
@@ -103,10 +103,10 @@
 // 全てのアクションは`Activity`構造体を通じて統一的に管理される：
 //
 //	type Activity struct {
-//		Type       ActivityType  // アクション種別
-//		State      State // 実行状態
-//		TurnsTotal int          // 必要ターン数
-//		TurnsLeft  int          // 残りターン数
+//		BehaviorName gc.BehaviorName // アクション種別
+//		State        gc.ActivityState // 実行状態
+//		TurnsTotal   int              // 必要ターン数
+//		TurnsLeft    int              // 残りターン数
 //		// ...
 //	}
 //
@@ -123,12 +123,10 @@
 //	// パッケージレベル関数を通じた統一的なアクション実行
 //
 //	// 即座実行アクション（移動）
-//	params := activity.ActionParams{Actor: player, Destination: &dest}
-//	result, err := activity.Execute(&activity.MoveActivity{}, params, world)
+//	result, err := activity.Execute(&activity.MoveActivity{Destination: dest}, player, world)
 //
 //	// 継続実行アクション（休息）
-//	params := activity.ActionParams{Actor: player, Duration: 10}
-//	result, err := activity.Execute(&activity.RestActivity{}, params, world)
+//	result, err := activity.Execute(&activity.RestActivity{Duration: 10}, player, world)
 //
 //	// アクティビティの管理
 //	activity.InterruptActivity(player, "戦闘開始", world)
@@ -154,9 +152,7 @@
 //
 // 新しいアクションを追加する場合：
 //
-// 1. ActivityTypeに新しい定数を追加
-// 2. activityInfosに情報を追加
-// 3. 具体的な実装ファイルを作成（例：new_action.go）
-// 4. Activity インターフェースを実装
-// 5. 必要に応じてActivity.DoTurnに処理を追加
+// 1. gc.BehaviorNameに新しい定数を追加
+// 2. Behaviorインターフェースを実装した構造体を作成
+// 3. behaviorsマップに登録
 package activity

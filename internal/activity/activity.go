@@ -14,7 +14,8 @@ import (
 // log はactivityパッケージ用のロガー
 var log = logger.New(logger.CategoryAction)
 
-// behaviors は登録されたBehavior実装のマップ
+// behaviors はProcessTurn経由の継続アクション処理で使うシングルトンBehaviorのマップ。
+// Execute経路で使うBuildActivityはこのマップのインスタンスでは呼ばれない
 var behaviors = map[gc.BehaviorName]Behavior{
 	gc.BehaviorMove:      &MoveActivity{},
 	gc.BehaviorAttack:    &AttackActivity{},
@@ -45,6 +46,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
+	BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error)
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error

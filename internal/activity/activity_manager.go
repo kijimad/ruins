@@ -10,16 +10,6 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// ActionParams はアクション実行時のパラメータを表す
-type ActionParams struct {
-	Actor       ecs.Entity      // アクションを実行するエンティティ
-	Target      *ecs.Entity     // 対象エンティティ（攻撃等で使用）
-	Recipient   *ecs.Entity     // 受取人エンティティ（アイテム転送等で使用）
-	Destination *gc.GridElement // 移動先のグリッド座標（移動等で使用）
-	Duration    int             // 継続時間（休息、待機等で使用）
-	Reason      string          // 理由（待機等で使用）
-}
-
 // ActionResult はアクション実行結果を表す
 type ActionResult struct {
 	Success      bool             // 実行成功/失敗
@@ -30,14 +20,14 @@ type ActionResult struct {
 
 // Execute は指定されたアクティビティを実行する
 // 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する
-func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResult, error) {
+func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult, error) {
 	behaviorName := behavior.Name()
 	log.Debug("アクション実行開始",
 		"type", behaviorName,
-		"actor", params.Actor)
+		"actor", actor)
 
 	// アクティビティを作成
-	comp, err := buildActivity(behavior, params, world)
+	comp, err := behavior.BuildActivity(actor, world)
 	if err != nil {
 		result := &ActionResult{
 			Success:      false,
@@ -45,19 +35,19 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 			ActivityName: behaviorName,
 			Message:      err.Error(),
 		}
-		setLastResult(params.Actor, result, world)
+		setLastResult(actor, result, world)
 		return result, err
 	}
 
 	// アクティビティを開始
-	if err := StartActivity(comp, params.Actor, world); err != nil {
+	if err := StartActivity(comp, actor, world); err != nil {
 		result := &ActionResult{
 			Success:      false,
 			State:        gc.ActivityStateCanceled,
 			ActivityName: behaviorName,
 			Message:      err.Error(),
 		}
-		setLastResult(params.Actor, result, world)
+		setLastResult(actor, result, world)
 		return result, err
 	}
 
@@ -67,10 +57,10 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 		ProcessTurn(world)
 
 		// ターン管理システムに移動コストを通知
-		consumePassCost(world, behavior, params.Actor, params.Destination)
+		consumePassCost(world, behavior, actor, comp.Destination)
 
 		// 結果を確認
-		currentActivity := query.GetActivity(world, params.Actor)
+		currentActivity := query.GetActivity(world, actor)
 		if currentActivity == nil || IsCompleted(currentActivity) {
 			result := &ActionResult{
 				Success:      true,
@@ -78,7 +68,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 				ActivityName: behaviorName,
 				Message:      "アクション完了",
 			}
-			setLastResult(params.Actor, result, world)
+			setLastResult(actor, result, world)
 			return result, nil
 		} else if IsCanceled(currentActivity) {
 			result := &ActionResult{
@@ -87,7 +77,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 				ActivityName: behaviorName,
 				Message:      currentActivity.CancelReason,
 			}
-			setLastResult(params.Actor, result, world)
+			setLastResult(actor, result, world)
 			return result, nil
 		}
 	}
@@ -99,7 +89,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 		ActivityName: behaviorName,
 		Message:      "アクション開始",
 	}
-	setLastResult(params.Actor, result, world)
+	setLastResult(actor, result, world)
 	return result, nil
 }
 
@@ -304,38 +294,6 @@ func ProcessTurn(world w.World) {
 	}
 
 	log.Debug("アクティビティターン処理完了", "removed", len(toRemove))
-}
-
-// buildActivity はアクティビティ実装とパラメータからアクティビティを作成する
-func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.Activity, error) {
-	// 基本のdurationを計算
-	duration := params.Duration
-	if duration <= 0 {
-		characterAP, err := getEntityMaxAP(params.Actor, world)
-		if err != nil {
-			return nil, err
-		}
-		duration = CalculateRequiredTurns(behavior, characterAP)
-	}
-
-	// アクティビティを作成
-	comp, err := NewActivity(behavior, duration)
-	if err != nil {
-		return nil, err
-	}
-
-	// パラメータを設定
-	if params.Destination != nil {
-		comp.Destination = params.Destination
-	}
-	if params.Target != nil {
-		comp.Target = params.Target
-	}
-	if params.Recipient != nil {
-		comp.Recipient = params.Recipient
-	}
-
-	return comp, nil
 }
 
 // consumePassCost はアクションのAPコストを消費する

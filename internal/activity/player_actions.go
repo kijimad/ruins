@@ -69,11 +69,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	canMove := CanMoveTo(world, consts.Coord[int]{X: newX, Y: newY}, consts.Coord[int]{X: currentX, Y: currentY}, entity)
 	if canMove {
 		destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
-		params := ActionParams{
-			Actor:       entity,
-			Destination: &destination,
-		}
-		_, err := Execute(&MoveActivity{}, params, world)
+		_, err := Execute(&MoveActivity{Destination: destination}, entity, world)
 		return err
 	}
 
@@ -87,12 +83,7 @@ func ExecuteWaitAction(world w.World) error {
 		return err
 	}
 
-	params := ActionParams{
-		Actor:    entity,
-		Duration: 1,
-		Reason:   "プレイヤー待機",
-	}
-	_, err = Execute(&WaitActivity{}, params, world)
+	_, err = Execute(&WaitActivity{Duration: 1, Reason: "プレイヤー待機"}, entity, world)
 	return err
 }
 

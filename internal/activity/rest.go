@@ -13,7 +13,9 @@ import (
 )
 
 // RestActivity はBehaviorの実装
-type RestActivity struct{}
+type RestActivity struct {
+	Duration int
+}
 
 // Info はBehaviorの実装
 func (ra *RestActivity) Info() Info {
@@ -30,6 +32,23 @@ func (ra *RestActivity) Info() Info {
 // Name はBehaviorの実装
 func (ra *RestActivity) Name() gc.BehaviorName {
 	return gc.BehaviorRest
+}
+
+// BuildActivity はBehaviorの実装
+func (ra *RestActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	duration := ra.Duration
+	if duration <= 0 {
+		characterAP, err := getEntityMaxAP(actor, world)
+		if err != nil {
+			return nil, err
+		}
+		duration = CalculateRequiredTurns(ra, characterAP)
+	}
+	comp, err := NewActivity(ra, duration)
+	if err != nil {
+		return nil, err
+	}
+	return comp, nil
 }
 
 // Validate は休息アクティビティの検証を行う
@@ -103,7 +122,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 	if hpComponent != nil {
 		hp := hpComponent.(*gc.HP)
 		if hp.Current < hp.Max {
-			bonusHealing := 5 / 2 // 完了ボーナス
+			bonusHealing := 2
 			hp.Current += bonusHealing
 			if hp.Current > hp.Max {
 				hp.Current = hp.Max

@@ -15,7 +15,10 @@ import (
 
 // TransferActivity はエンティティ間でアイテムを転送するBehavior実装。
 // Targetに転送するアイテム、Recipientに受取人を指定する
-type TransferActivity struct{}
+type TransferActivity struct {
+	Target    ecs.Entity
+	Recipient ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (ta *TransferActivity) Info() Info {
@@ -32,6 +35,17 @@ func (ta *TransferActivity) Info() Info {
 // Name はBehaviorの実装
 func (ta *TransferActivity) Name() gc.BehaviorName {
 	return gc.BehaviorTransfer
+}
+
+// BuildActivity はBehaviorの実装
+func (ta *TransferActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(ta, 1)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = &ta.Target
+	comp.Recipient = &ta.Recipient
+	return comp, nil
 }
 
 // Validate はアイテム転送アクティビティの検証を行う

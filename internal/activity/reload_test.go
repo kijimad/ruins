@@ -244,9 +244,8 @@ func TestExecuteReloadAction(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		err := ExecuteReloadAction(player, world)
-		require.NoError(t, err)
+		assert.Error(t, err)
 
-		// Activityは設定されない（検証失敗でログに記録される）
 		assert.False(t, player.HasComponent(world.Components.Activity))
 	})
 }

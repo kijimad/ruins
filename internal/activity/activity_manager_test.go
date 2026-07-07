@@ -333,8 +333,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		tbBefore := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		apBefore := tbBefore.AP.Current
 
-		params := ActionParams{Actor: player, Destination: &gc.GridElement{X: 11, Y: 10}}
-		_, err = Execute(&MoveActivity{}, params, world)
+		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 11, Y: 10}}, player, world)
 		require.NoError(t, err)
 
 		normalCost := apBefore - tbBefore.AP.Current
@@ -347,8 +346,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 12, Y: 10})
 		prop.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 50})
 
-		params = ActionParams{Actor: player, Destination: &gc.GridElement{X: 12, Y: 10}}
-		_, err = Execute(&MoveActivity{}, params, world)
+		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 12, Y: 10}}, player, world)
 		require.NoError(t, err)
 
 		modCost := apBefore - tbBefore.AP.Current
@@ -367,12 +365,7 @@ func TestLastActivity(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		params := ActionParams{
-			Actor:    player,
-			Duration: 1,
-			Reason:   "テスト",
-		}
-		_, err = Execute(&WaitActivity{}, params, world)
+		_, err = Execute(&WaitActivity{Duration: 1, Reason: "テスト"}, player, world)
 		require.NoError(t, err)
 
 		result := GetLastResult(player, world)
@@ -393,8 +386,7 @@ func TestLastActivity(t *testing.T) {
 		require.NoError(t, err)
 
 		// 待機
-		params := ActionParams{Actor: player, Duration: 1, Reason: "待機"}
-		_, err = Execute(&WaitActivity{}, params, world)
+		_, err = Execute(&WaitActivity{Duration: 1, Reason: "待機"}, player, world)
 		require.NoError(t, err)
 
 		result := GetLastResult(player, world)
@@ -407,8 +399,7 @@ func TestLastActivity(t *testing.T) {
 		assert.Equal(t, expected, result)
 
 		// 移動
-		params = ActionParams{Actor: player, Destination: &gc.GridElement{X: 10, Y: 9}}
-		_, err = Execute(&MoveActivity{}, params, world)
+		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 10, Y: 9}}, player, world)
 		require.NoError(t, err)
 
 		result = GetLastResult(player, world)
@@ -430,8 +421,7 @@ func TestLastActivity(t *testing.T) {
 
 		// 存在しないターゲットへの攻撃（失敗する）
 		nonExistentEntity := consts.InvalidEntity
-		params := ActionParams{Actor: player, Target: &nonExistentEntity}
-		_, _ = Execute(&AttackActivity{}, params, world)
+		_, _ = Execute(&AttackActivity{Target: nonExistentEntity}, player, world)
 
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{

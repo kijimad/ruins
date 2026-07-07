@@ -32,11 +32,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		door.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
 		// OpenDoorActivityを実行
-		params := ActionParams{
-			Actor:  player,
-			Target: &door,
-		}
-		result, err := Execute(&OpenDoorActivity{}, params, world)
+		result, err := Execute(&OpenDoorActivity{Target: door}, player, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -69,11 +65,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		wall.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 
 		// OpenDoorActivityを実行
-		params := ActionParams{
-			Actor:  player,
-			Target: &wall,
-		}
-		result, err := Execute(&OpenDoorActivity{}, params, world)
+		result, err := Execute(&OpenDoorActivity{Target: wall}, player, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)
@@ -99,11 +91,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		door.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		door.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
-		params := ActionParams{
-			Actor:  player,
-			Target: &door,
-		}
-		result, err := Execute(&OpenDoorActivity{}, params, world)
+		result, err := Execute(&OpenDoorActivity{Target: door}, player, world)
 
 		require.NoError(t, err, "ロック済み扉のキャンセルは致命的エラーではない")
 		require.NotNil(t, result)
@@ -134,16 +122,13 @@ func TestOpenDoorActivity(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-		// OpenDoorActivityを実行（Targetなし）
-		params := ActionParams{
-			Actor: player,
-		}
-		result, err := Execute(&OpenDoorActivity{}, params, world)
+		// OpenDoorActivityを実行（Targetなし → ゼロ値Entityは扉ではない）
+		result, err := Execute(&OpenDoorActivity{}, player, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
-		assert.Contains(t, result.Message, "扉エンティティが指定されていません")
+		assert.Contains(t, result.Message, "対象エンティティは扉ではありません")
 
 		world.Manager.DeleteEntity(player)
 	})
