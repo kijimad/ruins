@@ -95,7 +95,7 @@
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (66.7%)</option>
 				
-				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.5%)</option>
+				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (93.1%)</option>
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/planner_squad.go (23.9%)</option>
 				
@@ -491,7 +491,7 @@
 				
 				<option value="file217">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (88.3%)</option>
 				
-				<option value="file218">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (69.2%)</option>
+				<option value="file218">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (69.6%)</option>
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.6%)</option>
 				
@@ -4699,7 +4699,7 @@ func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGr
 }
 
 func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
-        if rp.rng.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
+        if rp.rng.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
@@ -49002,7 +49002,7 @@ var (
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() int <span class="cov8" title="1">{
-        if rand.IntN(2) == 0 </span><span class="cov0" title="0">{
+        if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
         <span class="cov8" title="1">return -1</span>
