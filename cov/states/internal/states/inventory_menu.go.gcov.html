@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">51.7&nbsp;%</td>
-            <td class="headerCovTableEntry">412</td>
+            <td class="headerCovTableEntryLo">53.5&nbsp;%</td>
+            <td class="headerCovTableEntry">398</td>
             <td class="headerCovTableEntry">213</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-07 15:31:56</td>
+            <td class="headerValue">2026-07-07 15:58:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -610,69 +610,55 @@
 <span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :                         return err</span></span>
 <span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L550"><span class="lineNum">     550</span>              : </span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :                         Actor:  playerEntity,</span></span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :                         Target: &amp;entity,</span></span>
-<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.UseItemActivity{}, params, world)</span></span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L560"><span class="lineNum">     560</span>              : </span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :         case actionRead:</span></span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L568"><span class="lineNum">     568</span>              : </span>
-<span id="L569"><span class="lineNum">     569</span>              :                 // Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する</span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 book := world.Components.Book.Get(entity).(*gc.Book)</span></span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :                 remaining := book.Effort.Max - book.Effort.Current</span></span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :                 if remaining &lt;= 0 {</span></span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                         remaining = 1</span></span>
-<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
-<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :                         Actor:    playerEntity,</span></span>
-<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :                         Target:   &amp;entity,</span></span>
-<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :                         Duration: remaining,</span></span>
-<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.ReadActivity{}, params, world)</span></span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L585"><span class="lineNum">     585</span>              : </span>
-<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :         case actionDrop:</span></span>
-<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L589"><span class="lineNum">     589</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L590"><span class="lineNum">     590</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L592"><span class="lineNum">     592</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L593"><span class="lineNum">     593</span>              : </span>
-<span id="L594"><span class="lineNum">     594</span> <span class="tlaUNC">           0 :                 playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
-<span id="L595"><span class="lineNum">     595</span> <span class="tlaUNC">           0 :                 destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}</span></span>
-<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC">           0 :                         Actor:       playerEntity,</span></span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :                         Target:      &amp;entity,</span></span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :                         Destination: &amp;destination,</span></span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)</span></span>
-<span id="L602"><span class="lineNum">     602</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L606"><span class="lineNum">     606</span>              : </span>
-<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :         case actionClose:</span></span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L610"><span class="lineNum">     610</span>              :         }</span>
-<span id="L611"><span class="lineNum">     611</span>              : </span>
-<span id="L612"><span class="lineNum">     612</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L613"><span class="lineNum">     613</span>              : }</span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.UseItemActivity{Target: entity}, playerEntity, world)</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L556"><span class="lineNum">     556</span>              : </span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :         case actionRead:</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L564"><span class="lineNum">     564</span>              : </span>
+<span id="L565"><span class="lineNum">     565</span>              :                 // Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する</span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :                 book := world.Components.Book.Get(entity).(*gc.Book)</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :                 remaining := book.Effort.Max - book.Effort.Current</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :                 if remaining &lt;= 0 {</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :                         remaining = 1</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.ReadActivity{Target: entity, Duration: remaining}, playerEntity, world)</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L576"><span class="lineNum">     576</span>              : </span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :         case actionDrop:</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L584"><span class="lineNum">     584</span>              : </span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :                 playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                 destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L592"><span class="lineNum">     592</span>              : </span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaUNC">           0 :         case actionClose:</span></span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L596"><span class="lineNum">     596</span>              :         }</span>
+<span id="L597"><span class="lineNum">     597</span>              : </span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L599"><span class="lineNum">     599</span>              : }</span>
         </pre>
               </td>
             </tr>

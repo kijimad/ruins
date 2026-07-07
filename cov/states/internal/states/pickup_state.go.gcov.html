@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">63.9&nbsp;%</td>
-            <td class="headerCovTableEntry">194</td>
+            <td class="headerCovTableEntryLo">65.3&nbsp;%</td>
+            <td class="headerCovTableEntry">190</td>
             <td class="headerCovTableEntry">124</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-07 15:31:56</td>
+            <td class="headerValue">2026-07-07 15:58:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -218,142 +218,138 @@
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         params := activity.ActionParams{</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 Actor:       playerEntity,</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 Destination: &amp;destination,</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         _, err = activity.Execute(&amp;activity.PickupActivity{}, params, world)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         return err</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : }</span>
-<span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span>              : // Draw はステートの描画処理</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PickupState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         st.drawTargetCursor(world, screen)</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return st.drawPickupPanel(world, screen)</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L172"><span class="lineNum">     172</span>              : </span>
-<span id="L173"><span class="lineNum">     173</span>              : // pickupCursorCache はカーソル画像のキャッシュ</span>
-<span id="L174"><span class="lineNum">     174</span>              : var pickupCursorCache *ebiten.Image</span>
-<span id="L175"><span class="lineNum">     175</span>              : </span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 : func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         tileSize := int(consts.TileSize)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         cursorPixelX := float64(int(st.cursor.X) * tileSize)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         cursorPixelY := float64(int(st.cursor.Y) * tileSize)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :         if pickupCursorCache == nil {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 pickupCursorCache = ebiten.NewImage(tileSize, tileSize)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 cursorColor := theme.CursorPickup</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :                 for i := range 3 {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           2 :                         for x := range tileSize {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(x, i, cursorColor)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(x, tileSize-1-i, cursorColor)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         _, err = activity.Execute(&amp;activity.PickupActivity{Destination: &amp;destination}, playerEntity, world)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         return err</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : }</span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              : // Draw はステートの描画処理</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PickupState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         st.drawTargetCursor(world, screen)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         return st.drawPickupPanel(world, screen)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L168"><span class="lineNum">     168</span>              : </span>
+<span id="L169"><span class="lineNum">     169</span>              : // pickupCursorCache はカーソル画像のキャッシュ</span>
+<span id="L170"><span class="lineNum">     170</span>              : var pickupCursorCache *ebiten.Image</span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 : func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         tileSize := int(consts.TileSize)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         cursorPixelX := float64(int(st.cursor.X) * tileSize)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         cursorPixelY := float64(int(st.cursor.Y) * tileSize)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           2 :         if pickupCursorCache == nil {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 pickupCursorCache = ebiten.NewImage(tileSize, tileSize)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 cursorColor := theme.CursorPickup</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           2 :                 for i := range 3 {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :                         for x := range tileSize {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(x, i, cursorColor)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(x, tileSize-1-i, cursorColor)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           2 :                         for y := range tileSize {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(i, y, cursorColor)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(tileSize-1-i, y, cursorColor)</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :                         for y := range tileSize {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(i, y, cursorColor)</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(tileSize-1-i, y, cursorColor)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L193"><span class="lineNum">     193</span>              :                 }</span>
-<span id="L194"><span class="lineNum">     194</span>              :         }</span>
-<span id="L195"><span class="lineNum">     195</span>              : </span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(cursorPixelX, cursorPixelY)</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         gs.SetTranslate(world, op)</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         if !world.Config.DisableAnimation {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC tlaBgUNC">           0 :                 alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                 op.ColorScale.ScaleAlpha(float32(alpha))</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :         screen.DrawImage(pickupCursorCache, op)</span></span>
-<span id="L206"><span class="lineNum">     206</span>              : }</span>
-<span id="L207"><span class="lineNum">     207</span>              : </span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 : func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         const (</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 panelWidth  = 300</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 panelHeight = 200</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 marginX     = 10</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 marginY     = 10</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 lineHeight  = 20</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L189"><span class="lineNum">     189</span>              :                 }</span>
+<span id="L190"><span class="lineNum">     190</span>              :         }</span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(cursorPixelX, cursorPixelY)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         gs.SetTranslate(world, op)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         if !world.Config.DisableAnimation {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC tlaBgUNC">           0 :                 alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 op.ColorScale.ScaleAlpha(float32(alpha))</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L200"><span class="lineNum">     200</span>              : </span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC tlaBgGNC">           1 :         screen.DrawImage(pickupCursorCache, op)</span></span>
+<span id="L202"><span class="lineNum">     202</span>              : }</span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 : func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         const (</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 panelWidth  = 300</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 panelHeight = 200</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 marginX     = 10</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 marginY     = 10</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 lineHeight  = 20</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         panelX := screen.Bounds().Dx() - panelWidth - marginX</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         panelY := marginY</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         panelX := screen.Bounds().Dx() - panelWidth - marginX</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         panelY := marginY</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         textX := float64(panelX + 12)</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         y := panelY + 12</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           2 :         drawColorText := func(str string, c color.RGBA) {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 op := &amp;text.DrawOptions{}</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 op.GeoM.Translate(textX, float64(y))</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 op.ColorScale.ScaleWithColor(c)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 text.Draw(screen, str, face, op)</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 y += lineHeight</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :         drawText := func(str string) { drawColorText(str, theme.TextPrimary) }</span></span>
-<span id="L234"><span class="lineNum">     234</span>              : </span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         drawColorText(&quot;拾うモード&quot;, theme.TextPrimary)</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         textX := float64(panelX + 12)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         y := panelY + 12</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           2 :         drawColorText := func(str string, c color.RGBA) {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 op := &amp;text.DrawOptions{}</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 op.GeoM.Translate(textX, float64(y))</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 op.ColorScale.ScaleWithColor(c)</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 text.Draw(screen, str, face, op)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 y += lineHeight</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           2 :         drawText := func(str string) { drawColorText(str, theme.TextPrimary) }</span></span>
+<span id="L230"><span class="lineNum">     230</span>              : </span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         drawColorText(&quot;拾うモード&quot;, theme.TextPrimary)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         y += 5</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;方向: %s&quot;, dirLabel))</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         y += 5</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;方向: %s&quot;, dirLabel))</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         y += 5</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           2 :         if len(st.itemsAtTarget) == 0 {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 drawColorText(&quot;拾えるものがありません&quot;, theme.TextSecondary)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         } else {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(fmt.Sprintf(&quot;アイテム: %d個&quot;, len(st.itemsAtTarget)))</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                 for i, entity := range st.itemsAtTarget {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                         if i &gt;= 5 {</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                                 drawColorText(&quot;...&quot;, theme.TextSecondary)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                                 break</span></span>
-<span id="L250"><span class="lineNum">     250</span>              :                         }</span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                         name := query.GetEntityName(entity, world)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                         drawText(fmt.Sprintf(&quot;  - %s&quot;, name))</span></span>
-<span id="L253"><span class="lineNum">     253</span>              :                 }</span>
-<span id="L254"><span class="lineNum">     254</span>              :         }</span>
-<span id="L255"><span class="lineNum">     255</span>              : </span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC tlaBgGNC">           1 :         y = panelY + panelHeight - 30</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         drawColorText(&quot;WASD/矢印:移動 Enter:拾う Esc:戻る&quot;, theme.TextSecondary)</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L260"><span class="lineNum">     260</span>              : }</span>
-<span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span>              : // moveCursorAdjacent はカーソルを移動する。基準点からチェビシェフ距離1以内に制限する</span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 : func moveCursorAdjacent(cursor *consts.Coord[consts.Tile], origin consts.Coord[consts.Tile], dx, dy int) {</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         newX := int(cursor.X) + dx</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         newY := int(cursor.Y) + dy</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           2 :         if geometry.ChebyshevDistance(newX, newY, int(origin.X), int(origin.Y)) &lt;= 1 {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 cursor.X = consts.Tile(newX)</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 cursor.Y = consts.Tile(newY)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L270"><span class="lineNum">     270</span>              : }</span>
-<span id="L271"><span class="lineNum">     271</span>              : </span>
-<span id="L272"><span class="lineNum">     272</span>              : // offsetToLabel はプレイヤーからのオフセットを日本語ラベルに変換する</span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 : func offsetToLabel(dx, dy int) string {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         case dx == 0 &amp;&amp; dy == -1:</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 return &quot;上&quot;</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         case dx == 0 &amp;&amp; dy == 1:</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 return &quot;下&quot;</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         case dx == -1 &amp;&amp; dy == 0:</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 return &quot;左&quot;</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         case dx == 1 &amp;&amp; dy == 0:</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 return &quot;右&quot;</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         case dx == -1 &amp;&amp; dy == -1:</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 return &quot;左上&quot;</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         case dx == 1 &amp;&amp; dy == -1:</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 return &quot;右上&quot;</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         case dx == -1 &amp;&amp; dy == 1:</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 return &quot;左下&quot;</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         case dx == 1 &amp;&amp; dy == 1:</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 return &quot;右下&quot;</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 return &quot;足元&quot;</span></span>
-<span id="L293"><span class="lineNum">     293</span>              :         }</span>
-<span id="L294"><span class="lineNum">     294</span>              : }</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :         if len(st.itemsAtTarget) == 0 {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 drawColorText(&quot;拾えるものがありません&quot;, theme.TextSecondary)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         } else {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(fmt.Sprintf(&quot;アイテム: %d個&quot;, len(st.itemsAtTarget)))</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                 for i, entity := range st.itemsAtTarget {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         if i &gt;= 5 {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                                 drawColorText(&quot;...&quot;, theme.TextSecondary)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                                 break</span></span>
+<span id="L246"><span class="lineNum">     246</span>              :                         }</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                         name := query.GetEntityName(entity, world)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                         drawText(fmt.Sprintf(&quot;  - %s&quot;, name))</span></span>
+<span id="L249"><span class="lineNum">     249</span>              :                 }</span>
+<span id="L250"><span class="lineNum">     250</span>              :         }</span>
+<span id="L251"><span class="lineNum">     251</span>              : </span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC tlaBgGNC">           1 :         y = panelY + panelHeight - 30</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         drawColorText(&quot;WASD/矢印:移動 Enter:拾う Esc:戻る&quot;, theme.TextSecondary)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L256"><span class="lineNum">     256</span>              : }</span>
+<span id="L257"><span class="lineNum">     257</span>              : </span>
+<span id="L258"><span class="lineNum">     258</span>              : // moveCursorAdjacent はカーソルを移動する。基準点からチェビシェフ距離1以内に制限する</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 : func moveCursorAdjacent(cursor *consts.Coord[consts.Tile], origin consts.Coord[consts.Tile], dx, dy int) {</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         newX := int(cursor.X) + dx</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         newY := int(cursor.Y) + dy</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           2 :         if geometry.ChebyshevDistance(newX, newY, int(origin.X), int(origin.Y)) &lt;= 1 {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 cursor.X = consts.Tile(newX)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 cursor.Y = consts.Tile(newY)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L266"><span class="lineNum">     266</span>              : }</span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span>              : // offsetToLabel はプレイヤーからのオフセットを日本語ラベルに変換する</span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 : func offsetToLabel(dx, dy int) string {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         case dx == 0 &amp;&amp; dy == -1:</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 return &quot;上&quot;</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         case dx == 0 &amp;&amp; dy == 1:</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 return &quot;下&quot;</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         case dx == -1 &amp;&amp; dy == 0:</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 return &quot;左&quot;</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         case dx == 1 &amp;&amp; dy == 0:</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 return &quot;右&quot;</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         case dx == -1 &amp;&amp; dy == -1:</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 return &quot;左上&quot;</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         case dx == 1 &amp;&amp; dy == -1:</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 return &quot;右上&quot;</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         case dx == -1 &amp;&amp; dy == 1:</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 return &quot;左下&quot;</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         case dx == 1 &amp;&amp; dy == 1:</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 return &quot;右下&quot;</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 return &quot;足元&quot;</span></span>
+<span id="L289"><span class="lineNum">     289</span>              :         }</span>
+<span id="L290"><span class="lineNum">     290</span>              : }</span>
         </pre>
               </td>
             </tr>

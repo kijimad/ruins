@@ -57,43 +57,43 @@
 				
 				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (94.6%)</option>
 				
-				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (79.6%)</option>
+				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.4%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.5%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.2%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.3%)</option>
 				
-				<option value="file4">github.com/kijimaD/ruins/internal/activity/drop.go (80.0%)</option>
+				<option value="file4">github.com/kijimaD/ruins/internal/activity/drop.go (66.7%)</option>
 				
-				<option value="file5">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (71.9%)</option>
+				<option value="file5">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (71.2%)</option>
 				
-				<option value="file6">github.com/kijimaD/ruins/internal/activity/move.go (82.2%)</option>
+				<option value="file6">github.com/kijimaD/ruins/internal/activity/move.go (81.6%)</option>
 				
 				<option value="file7">github.com/kijimaD/ruins/internal/activity/pathfind.go (92.3%)</option>
 				
-				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (81.7%)</option>
+				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (81.0%)</option>
 				
-				<option value="file9">github.com/kijimaD/ruins/internal/activity/player_actions.go (75.0%)</option>
+				<option value="file9">github.com/kijimaD/ruins/internal/activity/player_actions.go (74.5%)</option>
 				
-				<option value="file10">github.com/kijimaD/ruins/internal/activity/read.go (65.9%)</option>
+				<option value="file10">github.com/kijimaD/ruins/internal/activity/read.go (57.1%)</option>
 				
-				<option value="file11">github.com/kijimaD/ruins/internal/activity/reload.go (82.2%)</option>
+				<option value="file11">github.com/kijimaD/ruins/internal/activity/reload.go (81.9%)</option>
 				
-				<option value="file12">github.com/kijimaD/ruins/internal/activity/rest.go (91.5%)</option>
+				<option value="file12">github.com/kijimaD/ruins/internal/activity/rest.go (78.3%)</option>
 				
-				<option value="file13">github.com/kijimaD/ruins/internal/activity/shoot.go (90.3%)</option>
+				<option value="file13">github.com/kijimaD/ruins/internal/activity/shoot.go (89.1%)</option>
 				
-				<option value="file14">github.com/kijimaD/ruins/internal/activity/talk.go (82.9%)</option>
+				<option value="file14">github.com/kijimaD/ruins/internal/activity/talk.go (82.6%)</option>
 				
-				<option value="file15">github.com/kijimaD/ruins/internal/activity/transfer.go (68.8%)</option>
+				<option value="file15">github.com/kijimaD/ruins/internal/activity/transfer.go (57.9%)</option>
 				
-				<option value="file16">github.com/kijimaD/ruins/internal/activity/use_item.go (52.3%)</option>
+				<option value="file16">github.com/kijimaD/ruins/internal/activity/use_item.go (49.5%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/activity/wait.go (93.8%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (66.7%)</option>
+				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (65.7%)</option>
 				
 				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (93.1%)</option>
 				
@@ -355,7 +355,7 @@
 				
 				<option value="file149">github.com/kijimaD/ruins/internal/states/formation_menu.go (60.3%)</option>
 				
-				<option value="file150">github.com/kijimaD/ruins/internal/states/inventory_menu.go (49.6%)</option>
+				<option value="file150">github.com/kijimaD/ruins/internal/states/inventory_menu.go (50.2%)</option>
 				
 				<option value="file151">github.com/kijimaD/ruins/internal/states/lib.go (0.0%)</option>
 				
@@ -371,9 +371,9 @@
 				
 				<option value="file157">github.com/kijimaD/ruins/internal/states/persistent_message_state.go (37.5%)</option>
 				
-				<option value="file158">github.com/kijimaD/ruins/internal/states/pickup_state.go (65.1%)</option>
+				<option value="file158">github.com/kijimaD/ruins/internal/states/pickup_state.go (65.6%)</option>
 				
-				<option value="file159">github.com/kijimaD/ruins/internal/states/place_state.go (41.4%)</option>
+				<option value="file159">github.com/kijimaD/ruins/internal/states/place_state.go (41.7%)</option>
 				
 				<option value="file160">github.com/kijimaD/ruins/internal/states/shooting.go (40.8%)</option>
 				
@@ -563,7 +563,8 @@ import (
 // log はactivityパッケージ用のロガー
 var log = logger.New(logger.CategoryAction)
 
-// behaviors は登録されたBehavior実装のマップ
+// behaviors はProcessTurn経由の継続アクション処理で使うシングルトンBehaviorのマップ。
+// Execute経路で使うBuildActivityはこのマップのインスタンスでは呼ばれない
 var behaviors = map[gc.BehaviorName]Behavior{
         gc.BehaviorMove:      &amp;MoveActivity{},
         gc.BehaviorAttack:    &amp;AttackActivity{},
@@ -594,6 +595,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) <span class="cov8" titl
 type Behavior interface {
         Info() Info
         Name() gc.BehaviorName
+        BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error)
         Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
         Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
         DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
@@ -790,16 +792,6 @@ import (
         ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// ActionParams はアクション実行時のパラメータを表す
-type ActionParams struct {
-        Actor       ecs.Entity      // アクションを実行するエンティティ
-        Target      *ecs.Entity     // 対象エンティティ（攻撃等で使用）
-        Recipient   *ecs.Entity     // 受取人エンティティ（アイテム転送等で使用）
-        Destination *gc.GridElement // 移動先のグリッド座標（移動等で使用）
-        Duration    int             // 継続時間（休息、待機等で使用）
-        Reason      string          // 理由（待機等で使用）
-}
-
 // ActionResult はアクション実行結果を表す
 type ActionResult struct {
         Success      bool             // 実行成功/失敗
@@ -810,34 +802,34 @@ type ActionResult struct {
 
 // Execute は指定されたアクティビティを実行する
 // 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する
-func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
+func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
         behaviorName := behavior.Name()
         log.Debug("アクション実行開始",
                 "type", behaviorName,
-                "actor", params.Actor)
+                "actor", actor)
 
         // アクティビティを作成
-        comp, err := buildActivity(behavior, params, world)
-        if err != nil </span><span class="cov8" title="1">{
+        comp, err := behavior.BuildActivity(actor, world)
+        if err != nil </span><span class="cov0" title="0">{
                 result := &amp;ActionResult{
                         Success:      false,
                         State:        gc.ActivityStateCanceled,
                         ActivityName: behaviorName,
                         Message:      err.Error(),
                 }
-                setLastResult(params.Actor, result, world)
+                setLastResult(actor, result, world)
                 return result, err
         }</span>
 
         // アクティビティを開始
-        <span class="cov8" title="1">if err := StartActivity(comp, params.Actor, world); err != nil </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if err := StartActivity(comp, actor, world); err != nil </span><span class="cov8" title="1">{
                 result := &amp;ActionResult{
                         Success:      false,
                         State:        gc.ActivityStateCanceled,
                         ActivityName: behaviorName,
                         Message:      err.Error(),
                 }
-                setLastResult(params.Actor, result, world)
+                setLastResult(actor, result, world)
                 return result, err
         }</span>
 
@@ -847,10 +839,10 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
                 ProcessTurn(world)
 
                 // ターン管理システムに移動コストを通知
-                consumePassCost(world, behavior, params.Actor, params.Destination)
+                consumePassCost(world, behavior, actor, comp.Destination)
 
                 // 結果を確認
-                currentActivity := query.GetActivity(world, params.Actor)
+                currentActivity := query.GetActivity(world, actor)
                 if currentActivity == nil || IsCompleted(currentActivity) </span><span class="cov8" title="1">{
                         result := &amp;ActionResult{
                                 Success:      true,
@@ -858,7 +850,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
                                 ActivityName: behaviorName,
                                 Message:      "アクション完了",
                         }
-                        setLastResult(params.Actor, result, world)
+                        setLastResult(actor, result, world)
                         return result, nil
                 }</span> else<span class="cov8" title="1"> if IsCanceled(currentActivity) </span><span class="cov8" title="1">{
                         result := &amp;ActionResult{
@@ -867,19 +859,19 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
                                 ActivityName: behaviorName,
                                 Message:      currentActivity.CancelReason,
                         }
-                        setLastResult(params.Actor, result, world)
+                        setLastResult(actor, result, world)
                         return result, nil
                 }</span>
         }
 
         // 継続アクションの場合は開始成功を返す
-        <span class="cov0" title="0">result := &amp;ActionResult{
+        <span class="cov8" title="1">result := &amp;ActionResult{
                 Success:      true,
                 State:        gc.ActivityStateRunning,
                 ActivityName: behaviorName,
                 Message:      "アクション開始",
         }
-        setLastResult(params.Actor, result, world)
+        setLastResult(actor, result, world)
         return result, nil</span>
 }
 
@@ -1086,38 +1078,6 @@ func ProcessTurn(world w.World) <span class="cov8" title="1">{
         <span class="cov8" title="1">log.Debug("アクティビティターン処理完了", "removed", len(toRemove))</span>
 }
 
-// buildActivity はアクティビティ実装とパラメータからアクティビティを作成する
-func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.Activity, error) <span class="cov8" title="1">{
-        // 基本のdurationを計算
-        duration := params.Duration
-        if duration &lt;= 0 </span><span class="cov8" title="1">{
-                characterAP, err := getEntityMaxAP(params.Actor, world)
-                if err != nil </span><span class="cov8" title="1">{
-                        return nil, err
-                }</span>
-                <span class="cov8" title="1">duration = CalculateRequiredTurns(behavior, characterAP)</span>
-        }
-
-        // アクティビティを作成
-        <span class="cov8" title="1">comp, err := NewActivity(behavior, duration)
-        if err != nil </span><span class="cov0" title="0">{
-                return nil, err
-        }</span>
-
-        // パラメータを設定
-        <span class="cov8" title="1">if params.Destination != nil </span><span class="cov8" title="1">{
-                comp.Destination = params.Destination
-        }</span>
-        <span class="cov8" title="1">if params.Target != nil </span><span class="cov8" title="1">{
-                comp.Target = params.Target
-        }</span>
-        <span class="cov8" title="1">if params.Recipient != nil </span><span class="cov0" title="0">{
-                comp.Recipient = params.Recipient
-        }</span>
-
-        <span class="cov8" title="1">return comp, nil</span>
-}
-
 // consumePassCost はアクションのAPコストを消費する
 func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destination *gc.GridElement) <span class="cov8" title="1">{
         info := behavior.Info()
@@ -1163,11 +1123,11 @@ func getPassCostAt(world w.World, x, y int) int <span class="cov8" title="1">{
 }
 
 // getEntityMaxAP はエンティティの最大AP値を取得する
-func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) <span class="cov8" title="1">{
-        if !entity.HasComponent(world.Components.TurnBased) </span><span class="cov8" title="1">{
+func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) <span class="cov0" title="0">{
+        if !entity.HasComponent(world.Components.TurnBased) </span><span class="cov0" title="0">{
                 return 0, fmt.Errorf("TurnBasedコンポーネントが見つからない: entity=%v", entity)
         }</span>
-        <span class="cov8" title="1">turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+        <span class="cov0" title="0">turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
         return turnBased.AP.Max, nil</span>
 }
 </pre>
@@ -1198,7 +1158,9 @@ const (
 )
 
 // AttackActivity はBehaviorの実装
-type AttackActivity struct{}
+type AttackActivity struct {
+        Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (aa *AttackActivity) Info() Info <span class="cov8" title="1">{
@@ -1217,6 +1179,16 @@ func (aa *AttackActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorAttack
 }</span>
 
+// BuildActivity はBehaviorの実装
+func (aa *AttackActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(aa, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">comp.Target = &amp;aa.Target
+        return comp, nil</span>
+}
+
 // Validate はBehaviorの実装
 func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         if comp.Target == nil </span><span class="cov0" title="0">{
@@ -1231,7 +1203,7 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
                 return ErrAttackTargetNotExists
         }</span>
 
-        <span class="cov8" title="1">if comp.Target.HasComponent(world.Components.Dead) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if comp.Target.HasComponent(world.Components.Dead) </span><span class="cov8" title="1">{
                 return ErrAttackTargetDead
         }</span>
 
@@ -1239,7 +1211,7 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
                 return ErrAttackOutOfRange
         }</span>
 
-        <span class="cov8" title="1">if !aa.canPerformAttack(actor, world) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !aa.canPerformAttack(actor, world) </span><span class="cov8" title="1">{
                 return ErrAttackNoWeapon
         }</span>
 
@@ -1463,7 +1435,11 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
 func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int <span class="cov8" title="1">{
-        attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+        attackerAbilsComp := world.Components.Abilities.Get(attacker)
+        if attackerAbilsComp == nil </span><span class="cov0" title="0">{
+                return formula.BaseHitRate
+        }</span>
+        <span class="cov8" title="1">attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
         // Abilitiesを持たないターゲットには自動命中する
         targetAgility := 0
@@ -1504,7 +1480,11 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int <span class="cov8" titl
 
 // calculateDamage はダメージ計算を行う
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int <span class="cov8" title="1">{
-        attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+        attackerAbilsComp := world.Components.Abilities.Get(attacker)
+        if attackerAbilsComp == nil </span><span class="cov0" title="0">{
+                return 0
+        }</span>
+        <span class="cov8" title="1">attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
         baseAbil := attackerAbils.Strength.Total
         if attack.GetAttackCategory().Range == gc.AttackRangeRanged </span><span class="cov8" title="1">{
@@ -1617,7 +1597,9 @@ import (
 )
 
 // OpenDoorActivity はBehaviorの実装
-type OpenDoorActivity struct{}
+type OpenDoorActivity struct {
+        Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (oda *OpenDoorActivity) Info() Info <span class="cov8" title="1">{
@@ -1636,9 +1618,19 @@ func (oda *OpenDoorActivity) Name() gc.BehaviorName <span class="cov8" title="1"
         return gc.BehaviorOpenDoor
 }</span>
 
+// BuildActivity はBehaviorの実装
+func (oda *OpenDoorActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(oda, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">comp.Target = &amp;oda.Target
+        return comp, nil</span>
+}
+
 // Validate は扉開閉アクティビティの検証を行う
 func (oda *OpenDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        if comp.Target == nil </span><span class="cov8" title="1">{
+        if comp.Target == nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("扉エンティティが指定されていません")
         }</span>
 
@@ -1662,13 +1654,14 @@ func (oda *OpenDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         targetEntity := *comp.Target
 
-        doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
-        if doorComp == nil </span><span class="cov0" title="0">{
+        raw := world.Components.Door.Get(targetEntity)
+        if raw == nil </span><span class="cov0" title="0">{
                 Cancel(comp, "扉コンポーネントが取得できません")
                 return fmt.Errorf("扉コンポーネントが取得できません")
         }</span>
+        <span class="cov8" title="1">doorComp := raw.(*gc.Door)
 
-        <span class="cov8" title="1">if doorComp.Locked </span><span class="cov8" title="1">{
+        if doorComp.Locked </span><span class="cov8" title="1">{
                 gamelog.New(query.GetGameLog(world)).
                         Append("扉はロックされている。").
                         Log()
@@ -1714,7 +1707,9 @@ func (oda *OpenDoorActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.W
 }</span>
 
 // CloseDoorActivity はBehaviorの実装
-type CloseDoorActivity struct{}
+type CloseDoorActivity struct {
+        Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (cda *CloseDoorActivity) Info() Info <span class="cov8" title="1">{
@@ -1732,6 +1727,16 @@ func (cda *CloseDoorActivity) Info() Info <span class="cov8" title="1">{
 func (cda *CloseDoorActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorCloseDoor
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (cda *CloseDoorActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(cda, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">comp.Target = &amp;cda.Target
+        return comp, nil</span>
+}
 
 // Validate は扉閉鎖アクティビティの検証を行う
 func (cda *CloseDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -1759,13 +1764,14 @@ func (cda *CloseDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         targetEntity := *comp.Target
 
-        doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
-        if doorComp == nil </span><span class="cov0" title="0">{
+        raw := world.Components.Door.Get(targetEntity)
+        if raw == nil </span><span class="cov0" title="0">{
                 Cancel(comp, "扉コンポーネントが取得できません")
                 return fmt.Errorf("扉コンポーネントが取得できません")
         }</span>
+        <span class="cov8" title="1">doorComp := raw.(*gc.Door)
 
-        <span class="cov8" title="1">if doorComp.Locked </span><span class="cov0" title="0">{
+        if doorComp.Locked </span><span class="cov0" title="0">{
                 Cancel(comp, "扉はロックされている")
                 return nil
         }</span>
@@ -1824,7 +1830,10 @@ import (
 )
 
 // DropActivity はBehaviorの実装
-type DropActivity struct{}
+type DropActivity struct {
+        Target      ecs.Entity
+        Destination gc.GridElement
+}
 
 // Info はBehaviorの実装
 func (da *DropActivity) Info() Info <span class="cov8" title="1">{
@@ -1842,6 +1851,17 @@ func (da *DropActivity) Info() Info <span class="cov8" title="1">{
 func (da *DropActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorDrop
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (da *DropActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov0" title="0">{
+        comp, err := NewActivity(da, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">comp.Target = &amp;da.Target
+        comp.Destination = &amp;da.Destination
+        return comp, nil</span>
+}
 
 // Validate はアイテムドロップアクティビティの検証を行う
 func (da *DropActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -1999,15 +2019,11 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
         }</span>
 
         <span class="cov8" title="1">door := world.Components.Door.Get(doorEntity).(*gc.Door)
-        params := ActionParams{
-                Actor:  actor,
-                Target: &amp;doorEntity,
-        }
 
         if door.IsOpen </span><span class="cov8" title="1">{
-                return Execute(&amp;CloseDoorActivity{}, params, world)
+                return Execute(&amp;CloseDoorActivity{Target: doorEntity}, actor, world)
         }</span>
-        <span class="cov8" title="1">return Execute(&amp;OpenDoorActivity{}, params, world)</span>
+        <span class="cov8" title="1">return Execute(&amp;OpenDoorActivity{Target: doorEntity}, actor, world)</span>
 }
 
 func executeDoorLock(world w.World) (*ActionResult, error) <span class="cov8" title="1">{
@@ -2024,12 +2040,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
                 return nil, fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません")
         }</span>
 
-        <span class="cov8" title="1">params := ActionParams{
-                Actor:  actor,
-                Target: &amp;npcEntity,
-        }
-
-        result, err := Execute(&amp;TalkActivity{}, params, world)
+        <span class="cov8" title="1">result, err := Execute(&amp;TalkActivity{Target: npcEntity}, actor, world)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, fmt.Errorf("会話アクション失敗: %w", err)
         }</span>
@@ -2038,11 +2049,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 }
 
 func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
-        params := ActionParams{
-                Actor:  actor,
-                Target: &amp;target,
-        }
-        return Execute(&amp;PickupActivity{}, params, world)
+        return Execute(&amp;PickupActivity{Target: &amp;target}, actor, world)
 }</span>
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
@@ -2052,11 +2059,7 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) <spa
         }</span>
         <span class="cov0" title="0">playerGrid := gridElement.(*gc.GridElement)
         destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
-        params := ActionParams{
-                Actor:       actor,
-                Destination: &amp;destination,
-        }
-        return Execute(&amp;PickupActivity{}, params, world)</span>
+        return Execute(&amp;PickupActivity{Destination: &amp;destination}, actor, world)</span>
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
@@ -2067,11 +2070,7 @@ func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, err
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
-        params := ActionParams{
-                Actor:  actor,
-                Target: &amp;target,
-        }
-        return Execute(&amp;AttackActivity{}, params, world)
+        return Execute(&amp;AttackActivity{Target: target}, actor, world)
 }</span>
 </pre>
 		
@@ -2134,7 +2133,9 @@ func CanSwapPosition(world w.World, mover, target ecs.Entity) bool <span class="
 }
 
 // MoveActivity はBehaviorの実装
-type MoveActivity struct{}
+type MoveActivity struct {
+        Destination gc.GridElement
+}
 
 // Info はBehaviorの実装
 func (ma *MoveActivity) Info() Info <span class="cov8" title="1">{
@@ -2152,6 +2153,16 @@ func (ma *MoveActivity) Info() Info <span class="cov8" title="1">{
 func (ma *MoveActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorMove
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (ma *MoveActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(ma, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">comp.Destination = &amp;ma.Destination
+        return comp, nil</span>
+}
 
 // Validate はBehaviorの実装
 func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -2184,8 +2195,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
                                         Warning("重すぎて動けない").
                                         Log()
                         }</span>
-                        // エラーではない
-                        <span class="cov0" title="0">return nil</span>
+                        <span class="cov0" title="0">return ErrMoveOverweight</span>
                 }
         }
 
@@ -2291,7 +2301,11 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
         <span class="cov8" title="1">if !CanSwapPosition(world, actor, target) </span><span class="cov0" title="0">{
                 return
         }</span>
-        <span class="cov8" title="1">targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+        <span class="cov8" title="1">targetGridComp := world.Components.GridElement.Get(target)
+        if targetGridComp == nil </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">targetGrid := targetGridComp.(*gc.GridElement)
         targetGrid.X = consts.Tile(fromX)
         targetGrid.Y = consts.Tile(fromY)
 
@@ -2442,7 +2456,10 @@ import (
 )
 
 // PickupActivity はBehaviorの実装
-type PickupActivity struct{}
+type PickupActivity struct {
+        Target      *ecs.Entity
+        Destination *gc.GridElement
+}
 
 // Info はBehaviorの実装
 func (pa *PickupActivity) Info() Info <span class="cov8" title="1">{
@@ -2460,6 +2477,21 @@ func (pa *PickupActivity) Info() Info <span class="cov8" title="1">{
 func (pa *PickupActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorPickup
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (pa *PickupActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(pa, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if pa.Target != nil </span><span class="cov8" title="1">{
+                comp.Target = pa.Target
+        }</span>
+        <span class="cov8" title="1">if pa.Destination != nil </span><span class="cov0" title="0">{
+                comp.Destination = pa.Destination
+        }</span>
+        <span class="cov8" title="1">return comp, nil</span>
+}
 
 // Validate はアイテム拾得アクティビティの検証を行う
 func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -2687,11 +2719,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error <span class=
         <span class="cov8" title="1">canMove := CanMoveTo(world, consts.Coord[int]{X: newX, Y: newY}, consts.Coord[int]{X: currentX, Y: currentY}, entity)
         if canMove </span><span class="cov8" title="1">{
                 destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
-                params := ActionParams{
-                        Actor:       entity,
-                        Destination: &amp;destination,
-                }
-                _, err := Execute(&amp;MoveActivity{}, params, world)
+                _, err := Execute(&amp;MoveActivity{Destination: destination}, entity, world)
                 return err
         }</span>
 
@@ -2705,12 +2733,7 @@ func ExecuteWaitAction(world w.World) error <span class="cov8" title="1">{
                 return err
         }</span>
 
-        <span class="cov8" title="1">params := ActionParams{
-                Actor:    entity,
-                Duration: 1,
-                Reason:   "プレイヤー待機",
-        }
-        _, err = Execute(&amp;WaitActivity{}, params, world)
+        <span class="cov8" title="1">_, err = Execute(&amp;WaitActivity{Duration: 1, Reason: "プレイヤー待機"}, entity, world)
         return err</span>
 }
 
@@ -2849,7 +2872,10 @@ import (
 )
 
 // ReadActivity は読書アクティビティの実装
-type ReadActivity struct{}
+type ReadActivity struct {
+        Target   ecs.Entity
+        Duration int
+}
 
 // Info はBehaviorの実装
 func (ra *ReadActivity) Info() Info <span class="cov0" title="0">{
@@ -2866,6 +2892,24 @@ func (ra *ReadActivity) Info() Info <span class="cov0" title="0">{
 func (ra *ReadActivity) Name() gc.BehaviorName <span class="cov0" title="0">{
         return gc.BehaviorRead
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (ra *ReadActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) <span class="cov0" title="0">{
+        duration := ra.Duration
+        if duration &lt;= 0 </span><span class="cov0" title="0">{
+                characterAP, err := getEntityMaxAP(actor, world)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">duration = CalculateRequiredTurns(ra, characterAP)</span>
+        }
+        <span class="cov0" title="0">comp, err := NewActivity(ra, duration)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">comp.Target = &amp;ra.Target
+        return comp, nil</span>
+}
 
 // Validate は読書アクティビティの検証を行う
 func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -2895,7 +2939,11 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は読書開始時の処理を実行する
 func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov0" title="0">{
-        book := ra.getBook(*comp.Target, world)
+        if comp.Target == nil </span><span class="cov0" title="0">{
+                return ErrReadTargetNotSet
+        }</span>
+
+        <span class="cov0" title="0">book := ra.getBook(*comp.Target, world)
         if book == nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("Bookコンポーネントが見つかりません")
         }</span>
@@ -3095,6 +3143,15 @@ func (ra *ReloadActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorReload
 }</span>
 
+// BuildActivity はBehaviorの実装
+func (ra *ReloadActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(ra, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return comp, nil</span>
+}
+
 // Validate はリロードの検証を行う
 func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         fire, _, err := getEquippedFire(actor, world)
@@ -3231,21 +3288,11 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 // ExecuteReloadAction はリロードアクションを実行する
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        behavior := &amp;ReloadActivity{}
-        activity, err := NewActivity(behavior, 1) // 初期値。Startで更新される
-        if err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("リロードアクティビティの作成に失敗: %w", err)
+        _, err := Execute(&amp;ReloadActivity{}, actor, world)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
         }</span>
-
-        <span class="cov8" title="1">if err := behavior.Validate(activity, actor, world); err != nil </span><span class="cov8" title="1">{
-                gamelog.New(query.GetGameLog(world)).
-                        Append(err.Error()).
-                        Log()
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">actor.AddComponent(world.Components.Activity, activity)
-        return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -3264,7 +3311,9 @@ import (
 )
 
 // RestActivity はBehaviorの実装
-type RestActivity struct{}
+type RestActivity struct {
+        Duration int
+}
 
 // Info はBehaviorの実装
 func (ra *RestActivity) Info() Info <span class="cov8" title="1">{
@@ -3282,6 +3331,23 @@ func (ra *RestActivity) Info() Info <span class="cov8" title="1">{
 func (ra *RestActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorRest
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (ra *RestActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) <span class="cov0" title="0">{
+        duration := ra.Duration
+        if duration &lt;= 0 </span><span class="cov0" title="0">{
+                characterAP, err := getEntityMaxAP(actor, world)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">duration = CalculateRequiredTurns(ra, characterAP)</span>
+        }
+        <span class="cov0" title="0">comp, err := NewActivity(ra, duration)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return comp, nil</span>
+}
 
 // Validate は休息アクティビティの検証を行う
 func (ra *RestActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -3354,7 +3420,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
         if hpComponent != nil </span><span class="cov8" title="1">{
                 hp := hpComponent.(*gc.HP)
                 if hp.Current &lt; hp.Max </span><span class="cov8" title="1">{
-                        bonusHealing := 5 / 2 // 完了ボーナス
+                        bonusHealing := 2
                         hp.Current += bonusHealing
                         if hp.Current &gt; hp.Max </span><span class="cov0" title="0">{
                                 hp.Current = hp.Max
@@ -3431,7 +3497,6 @@ import (
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
-        "github.com/kijimaD/ruins/internal/gamelog"
         "github.com/kijimaD/ruins/internal/geometry"
         w "github.com/kijimaD/ruins/internal/world"
 
@@ -3445,7 +3510,9 @@ const (
 )
 
 // ShootActivity は射撃アクティビティの実装
-type ShootActivity struct{}
+type ShootActivity struct {
+        Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (sa *ShootActivity) Info() Info <span class="cov8" title="1">{
@@ -3462,6 +3529,16 @@ func (sa *ShootActivity) Info() Info <span class="cov8" title="1">{
 func (sa *ShootActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorShoot
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (sa *ShootActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(sa, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">comp.Target = &amp;sa.Target
+        return comp, nil</span>
+}
 
 // Validate は射撃の検証を行う
 func (sa *ShootActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -3615,8 +3692,13 @@ func EntityDistance(a, b ecs.Entity, world w.World) float64 <span class="cov8" t
 // checkLineOfSight は射線上の壁と遮蔽物を1パスでチェックする。
 // 壁（BlockView=true）があればblocked=true、遮蔽物（BlockPass=true, BlockView=false）の数をcoverCountで返す
 func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, coverCount int) <span class="cov8" title="1">{
-        aPos := world.Components.GridElement.Get(actor).(*gc.GridElement)
-        tPos := world.Components.GridElement.Get(target).(*gc.GridElement)
+        aGrid := world.Components.GridElement.Get(actor)
+        tGrid := world.Components.GridElement.Get(target)
+        if aGrid == nil || tGrid == nil </span><span class="cov0" title="0">{
+                return true, 0
+        }</span>
+        <span class="cov8" title="1">aPos := aGrid.(*gc.GridElement)
+        tPos := tGrid.(*gc.GridElement)
 
         points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
         for _, p := range points </span><span class="cov8" title="1">{
@@ -3660,16 +3742,9 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int <span cl
 
 // ExecuteShootAction は射撃アクションを実行する
 func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        params := ActionParams{
-                Actor:  actor,
-                Target: &amp;target,
-        }
-        _, err := Execute(&amp;ShootActivity{}, params, world)
+        _, err := Execute(&amp;ShootActivity{Target: target}, actor, world)
         if err != nil </span><span class="cov8" title="1">{
-                gamelog.New(query.GetGameLog(world)).
-                        Append(err.Error()).
-                        Log()
-                return nil
+                return err
         }</span>
         <span class="cov8" title="1">return nil</span>
 }
@@ -3691,7 +3766,9 @@ import (
 )
 
 // TalkActivity は会話アクティビティ
-type TalkActivity struct{}
+type TalkActivity struct {
+        Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (ta *TalkActivity) Info() Info <span class="cov8" title="1">{
@@ -3709,6 +3786,16 @@ func (ta *TalkActivity) Info() Info <span class="cov8" title="1">{
 func (ta *TalkActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorTalk
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (ta *TalkActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        comp, err := NewActivity(ta, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">comp.Target = &amp;ta.Target
+        return comp, nil</span>
+}
 
 // Validate は会話アクティビティの検証を行う
 func (ta *TalkActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -3822,7 +3909,10 @@ import (
 
 // TransferActivity はエンティティ間でアイテムを転送するBehavior実装。
 // Targetに転送するアイテム、Recipientに受取人を指定する
-type TransferActivity struct{}
+type TransferActivity struct {
+        Target    ecs.Entity
+        Recipient ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (ta *TransferActivity) Info() Info <span class="cov8" title="1">{
@@ -3840,6 +3930,17 @@ func (ta *TransferActivity) Info() Info <span class="cov8" title="1">{
 func (ta *TransferActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorTransfer
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (ta *TransferActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov0" title="0">{
+        comp, err := NewActivity(ta, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">comp.Target = &amp;ta.Target
+        comp.Recipient = &amp;ta.Recipient
+        return comp, nil</span>
+}
 
 // Validate はアイテム転送アクティビティの検証を行う
 func (ta *TransferActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -3931,7 +4032,9 @@ import (
 )
 
 // UseItemActivity はBehaviorの実装
-type UseItemActivity struct{}
+type UseItemActivity struct {
+        Target ecs.Entity
+}
 
 // Info はBehaviorの実装
 func (u *UseItemActivity) Info() Info <span class="cov8" title="1">{
@@ -3949,6 +4052,16 @@ func (u *UseItemActivity) Info() Info <span class="cov8" title="1">{
 func (u *UseItemActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorUseItem
 }</span>
+
+// BuildActivity はBehaviorの実装
+func (u *UseItemActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov0" title="0">{
+        comp, err := NewActivity(u, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">comp.Target = &amp;u.Target
+        return comp, nil</span>
+}
 
 // Validate はBehaviorの実装
 func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
@@ -4160,7 +4273,10 @@ import (
 )
 
 // WaitActivity はBehaviorの実装
-type WaitActivity struct{}
+type WaitActivity struct {
+        Duration int
+        Reason   string
+}
 
 // Info はBehaviorの実装
 func (wa *WaitActivity) Info() Info <span class="cov8" title="1">{
@@ -4179,6 +4295,19 @@ func (wa *WaitActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorWait
 }</span>
 
+// BuildActivity はBehaviorの実装
+func (wa *WaitActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) <span class="cov8" title="1">{
+        duration := wa.Duration
+        if duration &lt;= 0 </span><span class="cov0" title="0">{
+                duration = 1
+        }</span>
+        <span class="cov8" title="1">comp, err := NewActivity(wa, duration)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return comp, nil</span>
+}
+
 // Validate は待機アクティビティの検証を行う
 func (wa *WaitActivity) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) error <span class="cov8" title="1">{
         // 待機は基本的に常に実行可能
@@ -4194,8 +4323,7 @@ func (wa *WaitActivity) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 
 // Start は待機開始時の処理を実行する
 func (wa *WaitActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov8" title="1">{
-        reason := "時間を過ごすため"
-        log.Debug("待機開始", "actor", actor, "reason", reason, "duration", comp.TurnsLeft)
+        log.Debug("待機開始", "actor", actor, "reason", wa.Reason, "duration", comp.TurnsLeft)
         return nil
 }</span>
 
@@ -4301,7 +4429,7 @@ import (
 // Planner はエンティティの行動計画を担うインターフェースを表す。
 // 各ターンのAPループ内で呼ばれ、次のアクションを返す
 type Planner interface {
-        Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams)
+        Plan(world w.World, entity ecs.Entity) activity.Behavior
 }
 
 // maxActivitiesPerTurn は1ターン中に実行可能なアクティビティの上限を表す
@@ -4317,7 +4445,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
                         break</span>
                 }
 
-                <span class="cov0" title="0">behavior, params := planner.Plan(world, entity)
+                <span class="cov0" title="0">behavior := planner.Plan(world, entity)
                 if behavior == nil </span><span class="cov0" title="0">{
                         break</span>
                 }
@@ -4329,7 +4457,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
                         break</span>
                 }
 
-                <span class="cov0" title="0">result, err := activity.Execute(behavior, params, world)
+                <span class="cov0" title="0">result, err := activity.Execute(behavior, entity, world)
                 if err != nil </span><span class="cov0" title="0">{
                         log.Warn("アクション実行失敗", "entity", entity, "activity", behavior.Name(), "error", err.Error())
                         break</span>
@@ -4401,30 +4529,27 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] <span 
 }
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
-func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, activity.ActionParams, bool) <span class="cov8" title="1">{
+func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, bool) <span class="cov8" title="1">{
         fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
         for _, c := range candidates </span><span class="cov8" title="1">{
                 dest := consts.Coord[int]{X: fromPos.X + c.X, Y: fromPos.Y + c.Y}
                 if activity.CanMoveTo(world, dest, fromPos, entity) </span><span class="cov8" title="1">{
-                        b, p := moveAction(entity, dest)
-                        return b, p, true
+                        return moveAction(dest), true
                 }</span>
         }
-        <span class="cov0" title="0">return nil, activity.ActionParams{}, false</span>
+        <span class="cov0" title="0">return nil, false</span>
 }
 
 // moveAction は指定座標への移動アクションを生成する
-func moveAction(aiEntity ecs.Entity, dest consts.Coord[int]) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
-        gridDest := gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}
-        return &amp;activity.MoveActivity{}, activity.ActionParams{
-                Actor:       aiEntity,
-                Destination: &amp;gridDest,
+func moveAction(dest consts.Coord[int]) activity.Behavior <span class="cov8" title="1">{
+        return &amp;activity.MoveActivity{
+                Destination: gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)},
         }
 }</span>
 
 // waitAction は待機アクションを生成する
-func waitAction(aiEntity ecs.Entity, reason string) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
-        return &amp;activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: reason}
+func waitAction(reason string) activity.Behavior <span class="cov8" title="1">{
+        return &amp;activity.WaitActivity{Duration: 1, Reason: reason}
 }</span>
 
 // shuffledEightDirections は8方向をシャッフルして返す
@@ -4481,11 +4606,11 @@ func newSoloPlanner(rng *rand.Rand) *soloPlanner <span class="cov8" title="1">{
 
 // Plan は状態遷移の評価とアクション決定を一体的に行う。
 // APループ内で繰り返し呼ばれ、状態遷移は同一ターン内でべき等
-func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior <span class="cov8" title="1">{
         aiComp := world.Components.AI.Get(entity)
         if aiComp == nil </span><span class="cov0" title="0">{
                 rp.logger.Warn("AIコンポーネントなし", "entity", entity)
-                return nil, activity.ActionParams{}
+                return nil
         }</span>
         <span class="cov8" title="1">solo := aiComp.(*gc.AI).Planner.(*gc.SoloAI)
         grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -4507,9 +4632,9 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior
         case gc.AIStateDriving:<span class="cov8" title="1">
                 return rp.planDrivingAction(world, entity, solo, grid)</span>
         case gc.AIStateWaiting:<span class="cov8" title="1">
-                return waitAction(entity, "AI待機")</span>
+                return waitAction("AI待機")</span>
         default:<span class="cov0" title="0">
-                return waitAction(entity, "AIデフォルト待機")</span>
+                return waitAction("AIデフォルト待機")</span>
         }
 }
 
@@ -4621,61 +4746,58 @@ func (rp *soloPlanner) initializeToWaiting(solo *gc.SoloAI, currentTurn int) <sp
 
 // ========== アクション計画ロジック ==========
 
-func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
         if isAdjacent(aiGrid, playerGrid) </span><span class="cov8" title="1">{
-                return &amp;activity.AttackActivity{}, activity.ActionParams{
-                        Actor:  aiEntity,
-                        Target: &amp;playerEntity,
-                }
+                return &amp;activity.AttackActivity{Target: playerEntity}
         }</span>
 
         <span class="cov8" title="1">dx := int(playerGrid.X) - int(aiGrid.X)
         dy := int(playerGrid.Y) - int(aiGrid.Y)
 
         candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
-        if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok </span><span class="cov8" title="1">{
-                return b, p
+        if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok </span><span class="cov8" title="1">{
+                return b
         }</span>
 
-        <span class="cov0" title="0">return waitAction(aiEntity, "AI追跡失敗")</span>
+        <span class="cov0" title="0">return waitAction("AI追跡失敗")</span>
 }
 
-func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
         dx := int(aiGrid.X) - int(playerGrid.X)
         dy := int(aiGrid.Y) - int(playerGrid.Y)
 
         candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
-        if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok </span><span class="cov8" title="1">{
-                return b, p
+        if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok </span><span class="cov8" title="1">{
+                return b
         }</span>
 
         <span class="cov0" title="0">return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span>
 }
 
-func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         if rp.rng.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
-                return waitAction(aiEntity, "AIランダム待機")
+                return waitAction("AIランダム待機")
         }</span>
 
         <span class="cov8" title="1">from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
         for _, d := range shuffledEightDirections(rp.rng) </span><span class="cov8" title="1">{
                 dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
                 if activity.CanMoveTo(world, dest, from, aiEntity) </span><span class="cov8" title="1">{
-                        return moveAction(aiEntity, dest)
+                        return moveAction(dest)
                 }</span>
         }
 
-        <span class="cov0" title="0">return waitAction(aiEntity, "AIランダム移動失敗")</span>
+        <span class="cov0" title="0">return waitAction("AIランダム移動失敗")</span>
 }
 
-func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         switch solo.Movement </span>{
         case gc.SoloStationary:<span class="cov8" title="1">
-                return waitAction(aiEntity, "AI固定待機")</span>
+                return waitAction("AI固定待機")</span>
         case gc.SoloWander:<span class="cov8" title="1">
                 return rp.planWanderAction(world, aiEntity, grid)</span>
         case gc.SoloWallHug:<span class="cov8" title="1">
@@ -4691,16 +4813,16 @@ func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, sol
         }
 }
 
-func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         if rp.rng.Float64() &lt; 0.8 </span><span class="cov8" title="1">{
-                return waitAction(aiEntity, "AI徘徊待機")
+                return waitAction("AI徘徊待機")
         }</span>
         <span class="cov8" title="1">return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span>
 }
 
-func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         if rp.rng.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
-                return waitAction(aiEntity, "AI壁沿い待機")
+                return waitAction("AI壁沿い待機")
         }</span>
 
         <span class="cov8" title="1">si := query.GetSpatialIndex(world)
@@ -4729,7 +4851,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
         }
 
         <span class="cov8" title="1">if len(candidates) == 0 </span><span class="cov0" title="0">{
-                return waitAction(aiEntity, "AI壁沿い移動失敗")
+                return waitAction("AI壁沿い移動失敗")
         }</span>
 
         <span class="cov8" title="1">best := candidates[0].score
@@ -4746,10 +4868,10 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
         }
         <span class="cov8" title="1">chosen := tied[rp.rng.IntN(len(tied))]
 
-        return moveAction(aiEntity, consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})</span>
+        return moveAction(consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})</span>
 }
 
-func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         _, nearestGrid, nearestDist := query.FindNearestEntity(world, aiEntity, aiGrid, func(entity ecs.Entity) bool </span><span class="cov8" title="1">{
                 return entity.HasComponent(world.Components.AI)
         }</span>)
@@ -4762,19 +4884,19 @@ func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGri
         dy := int(nearestGrid.Y) - int(aiGrid.Y)
 
         candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
-        if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok </span><span class="cov8" title="1">{
-                return b, p
+        if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok </span><span class="cov8" title="1">{
+                return b
         }</span>
 
         <span class="cov0" title="0">return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span>
 }
 
-func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
         dest := consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
         if activity.CanMoveTo(world, dest, from, aiEntity) </span><span class="cov8" title="1">{
-                return moveAction(aiEntity, dest)
+                return moveAction(dest)
         }</span>
 
         <span class="cov8" title="1">solo.PatrolDirX = -solo.PatrolDirX
@@ -4782,13 +4904,13 @@ func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo
 
         dest = consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
         if activity.CanMoveTo(world, dest, from, aiEntity) </span><span class="cov8" title="1">{
-                return moveAction(aiEntity, dest)
+                return moveAction(dest)
         }</span>
 
-        <span class="cov8" title="1">return waitAction(aiEntity, "AI巡回移動失敗")</span>
+        <span class="cov8" title="1">return waitAction("AI巡回移動失敗")</span>
 }
 
-func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior <span class="cov8" title="1">{
         from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
         for _, d := range shuffledEightDirections(rp.rng) </span><span class="cov8" title="1">{
@@ -4801,11 +4923,11 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
                 }
 
                 <span class="cov8" title="1">if activity.CanMoveTo(world, dest, from, aiEntity) </span><span class="cov8" title="1">{
-                        return moveAction(aiEntity, dest)
+                        return moveAction(dest)
                 }</span>
         }
 
-        <span class="cov0" title="0">return waitAction(aiEntity, "AI縄張り移動失敗")</span>
+        <span class="cov0" title="0">return waitAction("AI縄張り移動失敗")</span>
 }
 </pre>
 		
@@ -4858,10 +4980,10 @@ type squadContext struct {
 }
 
 // Plan はsquadContextを収集し、優先度チェーンで行動を決定する
-func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams) <span class="cov0" title="0">{
+func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior <span class="cov0" title="0">{
         ctx, ok := sp.gatherSquadContext(world, entity)
         if !ok </span><span class="cov0" title="0">{
-                return nil, activity.ActionParams{}
+                return nil
         }</span>
         <span class="cov0" title="0">return sp.planAction(world, entity, ctx)</span>
 }
@@ -4898,29 +5020,29 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 
 // planAction はポリシーと状況に基づいてアクションを決定する。
 // 優先順位: HP低下時後退 → エリア制限 → 戦闘 → アイテム転送 → アイテム拾得 → 位置ポリシー
-func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) <span class="cov0" title="0">{
+func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior <span class="cov0" title="0">{
         if sp.shouldRetreatLowHP(world, entity) </span><span class="cov0" title="0">{
-                if b, p, ok := sp.planRetreatAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
-                        return b, p
+                if b, ok := sp.planRetreatAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
+                        return b
                 }</span>
         }
 
         <span class="cov0" title="0">if sp.isOutsideExploredArea(world, ctx.Grid) </span><span class="cov0" title="0">{
-                if b, p, ok := sp.planReturnToExploredArea(world, entity, ctx); ok </span><span class="cov0" title="0">{
-                        return b, p
+                if b, ok := sp.planReturnToExploredArea(world, entity, ctx); ok </span><span class="cov0" title="0">{
+                        return b
                 }</span>
         }
 
-        <span class="cov0" title="0">if b, p, ok := sp.planCombatAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
-                return b, p
+        <span class="cov0" title="0">if b, ok := sp.planCombatAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
+                return b
         }</span>
 
-        <span class="cov0" title="0">if b, p, ok := sp.planItemHandlingAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
-                return b, p
+        <span class="cov0" title="0">if b, ok := sp.planItemHandlingAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
+                return b
         }</span>
 
-        <span class="cov0" title="0">if b, p, ok := sp.planItemPickupAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
-                return b, p
+        <span class="cov0" title="0">if b, ok := sp.planItemPickupAction(world, entity, ctx); ok </span><span class="cov0" title="0">{
+                return b
         }</span>
 
         <span class="cov0" title="0">return sp.planPositionAction(world, entity, ctx)</span>
@@ -4940,7 +5062,7 @@ func (sp *squadPlanner) shouldRetreatLowHP(world w.World, entity ecs.Entity) boo
 }
 
 // planRetreatAction はリーダーに向かって後退するアクションを計画する
-func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov0" title="0">{
         sp.logger.Debug("隊員HP低下、後退", "entity", entity)
         return sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid)
 }</span>
@@ -4955,38 +5077,34 @@ func (sp *squadPlanner) isOutsideExploredArea(world w.World, grid *gc.GridElemen
 }
 
 // planReturnToExploredArea は最寄りの探索済みマスへ移動するアクションを計画する
-func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov0" title="0">{
         sp.logger.Debug("隊員がエリア外、リーダーに向かう", "entity", entity)
         return sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid)
 }</span>
 
 // planCombatAction は戦闘ポリシーに基づくアクションを計画する
-func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov0" title="0">{
         switch ctx.Squad.CombatCurrent </span>{
         case gc.CombatAttack:<span class="cov0" title="0">
                 return sp.planAttackAction(world, entity, ctx)</span>
         case gc.CombatEvade:<span class="cov0" title="0">
                 return sp.planEvadeAction(world, entity, ctx)</span>
         default:<span class="cov0" title="0">
-                return nil, activity.ActionParams{}, false</span>
+                return nil, false</span>
         }
 }
 
 // planAttackAction は攻撃ポリシーに基づくアクションを計画する。
 // 隣接する敵がいれば攻撃し、視界内の敵がいれば接近する。
 // 移動しても敵に近づけない場合は諦めて次の優先度に進む
-func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov0" title="0">{
         nearestEnemy, nearestGrid, dist := sp.findNearestEnemy(world, entity, ctx)
         if nearestEnemy == nil </span><span class="cov0" title="0">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
         <span class="cov0" title="0">if dist == 1 </span><span class="cov0" title="0">{
-                target := *nearestEnemy
-                return &amp;activity.AttackActivity{}, activity.ActionParams{
-                        Actor:  entity,
-                        Target: &amp;target,
-                }, true
+                return &amp;activity.AttackActivity{Target: *nearestEnemy}, true
         }</span>
 
         <span class="cov0" title="0">return sp.tryMoveToward(world, entity, ctx.Grid, nearestGrid)</span>
@@ -4994,10 +5112,10 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, ctx *
 
 // planEvadeAction は回避ポリシーに基づくアクションを計画する。
 // 視界内の最寄りの敵から距離を取る
-func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov0" title="0">{
         nearestEnemy, _, _ := sp.findNearestEnemy(world, entity, ctx)
         if nearestEnemy == nil </span><span class="cov0" title="0">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
         <span class="cov0" title="0">enemyGrid := world.Components.GridElement.Get(*nearestEnemy).(*gc.GridElement)
@@ -5005,7 +5123,7 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 }
 
 // planPositionAction は位置ポリシーに基づくアクションを計画する
-func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) <span class="cov0" title="0">{
+func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior <span class="cov0" title="0">{
         switch ctx.Squad.Movement </span>{
         case gc.SquadEscort:<span class="cov0" title="0">
                 return sp.planEscortAction(world, entity, ctx)</span>
@@ -5014,56 +5132,56 @@ func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx
         case gc.SquadPatrol:<span class="cov0" title="0">
                 return sp.planSquadPatrolAction(world, entity, ctx)</span>
         case gc.SquadStationary:<span class="cov0" title="0">
-                return waitAction(entity, "隊員待機")</span>
+                return waitAction("隊員待機")</span>
         case gc.SquadRetreat:<span class="cov0" title="0">
                 return sp.planEscortAction(world, entity, ctx)</span>
         default:<span class="cov0" title="0">
-                return waitAction(entity, "隊員デフォルト待機")</span>
+                return waitAction("隊員デフォルト待機")</span>
         }
 }
 
 // planEscortAction はリーダーから2マス以内にとどまるアクションを計画する
-func (sp *squadPlanner) planEscortAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) <span class="cov0" title="0">{
+func (sp *squadPlanner) planEscortAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior <span class="cov0" title="0">{
         dist := gridDistance(ctx.Grid, ctx.LeaderGrid)
         if dist &lt;= escortMaxDistance </span><span class="cov0" title="0">{
-                return waitAction(entity, "隊員護衛位置")
+                return waitAction("隊員護衛位置")
         }</span>
-        <span class="cov0" title="0">if b, p, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok </span><span class="cov0" title="0">{
-                return b, p
+        <span class="cov0" title="0">if b, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok </span><span class="cov0" title="0">{
+                return b
         }</span>
-        <span class="cov0" title="0">return waitAction(entity, "隊員護衛移動失敗")</span>
+        <span class="cov0" title="0">return waitAction("隊員護衛移動失敗")</span>
 }
 
 // planVanguardAction はリーダーの前方に展開するアクションを計画する。
 // リーダーから離れすぎている場合はリーダーに接近する
-func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) <span class="cov0" title="0">{
+func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior <span class="cov0" title="0">{
         dist := gridDistance(ctx.Grid, ctx.LeaderGrid)
         if dist &gt; vanguardMaxDistance </span><span class="cov0" title="0">{
-                if b, p, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok </span><span class="cov0" title="0">{
-                        return b, p
+                if b, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok </span><span class="cov0" title="0">{
+                        return b
                 }</span>
-                <span class="cov0" title="0">return waitAction(entity, "隊員前衛接近失敗")</span>
+                <span class="cov0" title="0">return waitAction("隊員前衛接近失敗")</span>
         }
-        <span class="cov0" title="0">if b, p, ok := sp.tryRandomMove(world, entity, ctx); ok </span><span class="cov0" title="0">{
-                return b, p
+        <span class="cov0" title="0">if b, ok := sp.tryRandomMove(world, entity, ctx); ok </span><span class="cov0" title="0">{
+                return b
         }</span>
-        <span class="cov0" title="0">return waitAction(entity, "隊員前衛移動失敗")</span>
+        <span class="cov0" title="0">return waitAction("隊員前衛移動失敗")</span>
 }
 
 // planSquadPatrolAction は探索済みエリア内を自律的に巡回するアクションを計画する
-func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) <span class="cov0" title="0">{
-        if b, p, ok := sp.tryRandomMove(world, entity, ctx); ok </span><span class="cov0" title="0">{
-                return b, p
+func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior <span class="cov0" title="0">{
+        if b, ok := sp.tryRandomMove(world, entity, ctx); ok </span><span class="cov0" title="0">{
+                return b
         }</span>
-        <span class="cov0" title="0">return waitAction(entity, "隊員巡回移動失敗")</span>
+        <span class="cov0" title="0">return waitAction("隊員巡回移動失敗")</span>
 }
 
 // planItemPickupAction は拾得可能アイテムを拾うアクションを計画する。
 // 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。
 // PolicyIgnoreの場合は何もしない
-func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov8" title="1">{
+func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov8" title="1">{
         if ctx.Squad.ItemPickup == gc.PolicyIgnore </span><span class="cov8" title="1">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
         <span class="cov8" title="1">hasPickableHere := false
@@ -5097,10 +5215,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
         <span class="cov8" title="1">if hasPickableHere </span><span class="cov8" title="1">{
                 sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", ctx.Grid.X, "y", ctx.Grid.Y)
                 dest := *ctx.Grid
-                return &amp;activity.PickupActivity{}, activity.ActionParams{
-                        Actor:       entity,
-                        Destination: &amp;dest,
-                }, true
+                return &amp;activity.PickupActivity{Destination: &amp;dest}, true
         }</span>
 
         <span class="cov8" title="1">if nearestItemGrid != nil </span><span class="cov0" title="0">{
@@ -5108,19 +5223,19 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
                 return sp.tryMoveToward(world, entity, ctx.Grid, nearestItemGrid)
         }</span>
 
-        <span class="cov8" title="1">return nil, activity.ActionParams{}, false</span>
+        <span class="cov8" title="1">return nil, false</span>
 }
 
 // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。
 // PolicyDistributeの場合はリーダーにアイテムを転送する
-func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov8" title="1">{
+func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov8" title="1">{
         if ctx.Squad.ItemHandling != gc.PolicyDistribute </span><span class="cov8" title="1">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
         <span class="cov8" title="1">dist := gridDistance(ctx.Grid, ctx.LeaderGrid)
         if dist &gt; 1 </span><span class="cov8" title="1">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
         <span class="cov8" title="1">var itemToTransfer *ecs.Entity
@@ -5138,16 +5253,11 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
         }))
 
         <span class="cov8" title="1">if itemToTransfer == nil </span><span class="cov8" title="1">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
         <span class="cov8" title="1">sp.logger.Debug("隊員アイテム転送", "entity", entity, "item", *itemToTransfer)
-        leader := ctx.LeaderEntity
-        return &amp;activity.TransferActivity{}, activity.ActionParams{
-                Actor:     entity,
-                Target:    itemToTransfer,
-                Recipient: &amp;leader,
-        }, true</span>
+        return &amp;activity.TransferActivity{Target: *itemToTransfer, Recipient: ctx.LeaderEntity}, true</span>
 }
 
 // findNearestEnemy は視界内の最も近い敵を探す
@@ -5159,26 +5269,25 @@ func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *
 }
 
 // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる
-func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, bool) <span class="cov0" title="0">{
         fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
         goalX, goalY := int(target.X), int(target.Y)
 
         nextX, nextY, ok := activity.FindNextStep(world, entity, fromPos.X, fromPos.Y, goalX, goalY)
         if !ok </span><span class="cov0" title="0">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
         <span class="cov0" title="0">next := consts.Coord[int]{X: nextX, Y: nextY}
         if !activity.CanMoveTo(world, next, fromPos, entity) </span><span class="cov0" title="0">{
-                return nil, activity.ActionParams{}, false
+                return nil, false
         }</span>
 
-        <span class="cov0" title="0">b, p := moveAction(entity, next)
-        return b, p, true</span>
+        <span class="cov0" title="0">return moveAction(next), true</span>
 }
 
 // tryMoveAway はターゲットから離れる移動を試みる
-func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, threat *gc.GridElement) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, threat *gc.GridElement) (activity.Behavior, bool) <span class="cov0" title="0">{
         dx := int(from.X) - int(threat.X)
         dy := int(from.Y) - int(threat.Y)
 
@@ -5187,7 +5296,7 @@ func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, thre
 }</span>
 
 // tryRandomMove は探索済みエリア内でランダム移動を試みる
-func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
+func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) <span class="cov0" title="0">{
         dungeon := query.GetDungeon(world)
         from := consts.Coord[int]{X: int(ctx.Grid.X), Y: int(ctx.Grid.Y)}
 
@@ -5202,11 +5311,10 @@ func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squ
                 }
 
                 <span class="cov0" title="0">if activity.CanMoveTo(world, dest, from, entity) </span><span class="cov0" title="0">{
-                        b, p := moveAction(entity, dest)
-                        return b, p, true
+                        return moveAction(dest), true
                 }</span>
         }
-        <span class="cov0" title="0">return nil, activity.ActionParams{}, false</span>
+        <span class="cov0" title="0">return nil, false</span>
 }
 </pre>
 		
@@ -35880,11 +35988,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error <span class
                         return err
                 }</span>
 
-                <span class="cov0" title="0">params := activity.ActionParams{
-                        Actor:  playerEntity,
-                        Target: &amp;entity,
-                }
-                _, err = activity.Execute(&amp;activity.UseItemActivity{}, params, world)
+                <span class="cov0" title="0">_, err = activity.Execute(&amp;activity.UseItemActivity{Target: entity}, playerEntity, world)
                 if err != nil </span><span class="cov0" title="0">{
                         st.subState = invSubStateMenu
                         return err
@@ -35904,12 +36008,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error <span class
                 if remaining &lt;= 0 </span><span class="cov0" title="0">{
                         remaining = 1
                 }</span>
-                <span class="cov0" title="0">params := activity.ActionParams{
-                        Actor:    playerEntity,
-                        Target:   &amp;entity,
-                        Duration: remaining,
-                }
-                _, err = activity.Execute(&amp;activity.ReadActivity{}, params, world)
+                <span class="cov0" title="0">_, err = activity.Execute(&amp;activity.ReadActivity{Target: entity, Duration: remaining}, playerEntity, world)
                 if err != nil </span><span class="cov0" title="0">{
                         st.subState = invSubStateMenu
                         return err
@@ -35925,12 +36024,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error <span class
 
                 <span class="cov0" title="0">playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
                 destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
-                params := activity.ActionParams{
-                        Actor:       playerEntity,
-                        Target:      &amp;entity,
-                        Destination: &amp;destination,
-                }
-                _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)
+                _, err = activity.Execute(&amp;activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)
                 if err != nil </span><span class="cov0" title="0">{
                         st.subState = invSubStateMenu
                         return err
@@ -37362,11 +37456,7 @@ func (st *PickupState) executePickup(world w.World) error <span class="cov0" tit
         }</span>
 
         <span class="cov0" title="0">destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}
-        params := activity.ActionParams{
-                Actor:       playerEntity,
-                Destination: &amp;destination,
-        }
-        _, err = activity.Execute(&amp;activity.PickupActivity{}, params, world)
+        _, err = activity.Execute(&amp;activity.PickupActivity{Destination: &amp;destination}, playerEntity, world)
         return err</span>
 }
 
@@ -37707,12 +37797,7 @@ func (st *PlaceState) executeDrop(world w.World) error <span class="cov0" title=
 
         <span class="cov0" title="0">item := st.backpackItems[st.selectedIndex]
         destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}
-        params := activity.ActionParams{
-                Actor:       playerEntity,
-                Target:      &amp;item,
-                Destination: &amp;destination,
-        }
-        _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)
+        _, err = activity.Execute(&amp;activity.DropActivity{Target: item, Destination: destination}, playerEntity, world)
         return err</span>
 }
 
