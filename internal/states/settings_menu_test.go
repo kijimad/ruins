@@ -24,7 +24,7 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	assert.Equal(t, settingsItemBack, props.Items[1].Kind)
 }
 
-func TestLanguageMenuState_選択肢が言語プリセットぶんある(t *testing.T) {
+func TestLanguageMenuState_選択肢が言語プリセット分ある(t *testing.T) {
 	t.Parallel()
 
 	state, err := NewLanguageMenuState()
