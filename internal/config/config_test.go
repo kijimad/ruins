@@ -79,19 +79,22 @@ func TestValidate(t *testing.T) {
 	t.Run("不正な値はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 
-		cases := map[string]func(*Config){
-			"ウィンドウ幅が最小値未満":  func(c *Config) { c.User.WindowWidth = 100 },
-			"ウィンドウ高さが最小値未満": func(c *Config) { c.User.WindowHeight = 50 },
-			"目標FPSが1未満":     func(c *Config) { c.TargetFPS = 0 },
-			"pprofポートが下限未満": func(c *Config) { c.PProfPort = 80 },
-			"pprofポートが上限超過": func(c *Config) { c.PProfPort = 70000 },
+		cases := []struct {
+			name   string
+			mutate func(*Config)
+		}{
+			{"ウィンドウ幅が最小値未満", func(c *Config) { c.User.WindowWidth = 100 }},
+			{"ウィンドウ高さが最小値未満", func(c *Config) { c.User.WindowHeight = 50 }},
+			{"目標FPSが1未満", func(c *Config) { c.TargetFPS = 0 }},
+			{"pprofポートが下限未満", func(c *Config) { c.PProfPort = 80 }},
+			{"pprofポートが上限超過", func(c *Config) { c.PProfPort = 70000 }},
 		}
-		for name, mutate := range cases {
-			t.Run(name, func(t *testing.T) {
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
 				cfg := valid()
-				mutate(cfg)
+				tc.mutate(cfg)
 				assert.Error(t, cfg.Validate())
 			})
 		}
