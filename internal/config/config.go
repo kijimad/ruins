@@ -20,12 +20,8 @@ type Config struct {
 	// 設定のデフォルト値を決定するプロファイル
 	Profile Profile `env:"RUINS_PROFILE" envDefault:"production"`
 
-	// ゲームウィンドウの幅（ピクセル）
-	WindowWidth int `env:"RUINS_WINDOW_WIDTH"`
-	// ゲームウィンドウの高さ（ピクセル）
-	WindowHeight int `env:"RUINS_WINDOW_HEIGHT"`
-	// フルスクリーンで起動するかどうか
-	Fullscreen bool `env:"RUINS_FULLSCREEN"`
+	// プレイヤーが変更してファイルに永続化するユーザー設定
+	User UserConfig
 
 	// デバッグモードを有効にする。有効時は設定情報をログ出力する
 	Debug bool `env:"RUINS_DEBUG"`
@@ -70,8 +66,30 @@ type Config struct {
 	ProfilePath string `env:"RUINS_PROFILE_PATH"`
 }
 
+// UserConfig はプレイヤーが変更してファイルに永続化するユーザー設定を表す。
+// この構造体に含めたフィールドだけが設定ファイルへ書き出される。
+// デバッグ用フィールドを混ぜないことで、永続化対象を構造で明示する。
+type UserConfig struct {
+	// ゲームウィンドウの幅（ピクセル）
+	WindowWidth int `env:"RUINS_WINDOW_WIDTH" toml:"window_width"`
+	// ゲームウィンドウの高さ（ピクセル）
+	WindowHeight int `env:"RUINS_WINDOW_HEIGHT" toml:"window_height"`
+}
+
+// DefaultUserConfig はユーザー設定のデフォルト値を返す。
+// 設定ファイルが存在しない場合や、新規フィールド追加でファイルに値が無い場合の補完に使う。
+func DefaultUserConfig() UserConfig {
+	return UserConfig{
+		WindowWidth:  960,
+		WindowHeight: 720,
+	}
+}
+
 // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
 func (c *Config) ApplyProfileDefaults() {
+	// ユーザー設定のデフォルトはプロファイルによらず共通
+	c.User = DefaultUserConfig()
+
 	switch c.Profile {
 	case ProfileProduction:
 		c.applyProductionDefaults()
@@ -85,17 +103,6 @@ func (c *Config) ApplyProfileDefaults() {
 
 // applyProductionDefaults は本番環境のデフォルト値を設定
 func (c *Config) applyProductionDefaults() {
-	// ウィンドウ設定
-	if os.Getenv("RUINS_WINDOW_WIDTH") == "" {
-		c.WindowWidth = 960
-	}
-	if os.Getenv("RUINS_WINDOW_HEIGHT") == "" {
-		c.WindowHeight = 720
-	}
-	if os.Getenv("RUINS_FULLSCREEN") == "" {
-		c.Fullscreen = false
-	}
-
 	// デバッグ設定
 	if os.Getenv("RUINS_DEBUG") == "" {
 		c.Debug = false
@@ -155,16 +162,6 @@ func (c *Config) applyProductionDefaults() {
 
 // applyDevelopmentDefaults は開発環境のデフォルト値を設定
 func (c *Config) applyDevelopmentDefaults() {
-	if os.Getenv("RUINS_WINDOW_WIDTH") == "" {
-		c.WindowWidth = 960
-	}
-	if os.Getenv("RUINS_WINDOW_HEIGHT") == "" {
-		c.WindowHeight = 720
-	}
-	if os.Getenv("RUINS_FULLSCREEN") == "" {
-		c.Fullscreen = false
-	}
-
 	// デバッグ設定
 	if os.Getenv("RUINS_DEBUG") == "" {
 		c.Debug = true
@@ -224,11 +221,11 @@ func (c *Config) applyDevelopmentDefaults() {
 
 // Validate は設定値の妥当性を検証する
 func (c *Config) Validate() error {
-	if c.WindowWidth < 320 {
-		c.WindowWidth = 320
+	if c.User.WindowWidth < 320 {
+		c.User.WindowWidth = 320
 	}
-	if c.WindowHeight < 240 {
-		c.WindowHeight = 240
+	if c.User.WindowHeight < 240 {
+		c.User.WindowHeight = 240
 	}
 	if c.TargetFPS < 1 {
 		c.TargetFPS = 60
