@@ -32,37 +32,39 @@
 // # 使用可能な環境変数
 //
 // ## プロファイル設定
-//   - RUINS_PROFILE: 環境プロファイル (デフォルト: production)
+//   - RUINS_PROFILE: 環境プロファイル
 //   - "production": 本番環境 (デバッグ機能無効、軽量設定)
 //   - "development": 開発環境 (デバッグ機能有効、開発効率重視)
 //
+// 各環境変数のデフォルト値はプロファイルによって異なり、コードとの二重管理で
+// 乖離するため、ここには記載しない。デフォルト値は ApplyProfileDefaults を参照する。
+//
 // ## ウィンドウ設定
-//   - RUINS_WINDOW_WIDTH: ウィンドウ幅 (デフォルト: 960)
-//   - RUINS_WINDOW_HEIGHT: ウィンドウ高さ (デフォルト: 720)
+//   - RUINS_WINDOW_WIDTH: ウィンドウ幅
+//   - RUINS_WINDOW_HEIGHT: ウィンドウ高さ
 //
 // ## デバッグ設定
-//   - RUINS_DEBUG: デバッグモード (production: false, development: true)
-//   - RUINS_LOG_LEVEL: ログレベル (デフォルト: info) "debug", "info", "warn", "error", "fatal", "ignore"
+//   - RUINS_DEBUG: デバッグモード
+//   - RUINS_LOG_LEVEL: ログレベル "debug", "info", "warn", "error", "fatal", "ignore"
 //   - RUINS_LOG_CATEGORIES: カテゴリ別ログレベル設定 (例: "battle=debug,render=warn")
-//   - RUINS_DEBUG_PPROF: pprofサーバー起動 (production: false, development: true)
-//   - RUINS_PPROF_PORT: pprofサーバーポート (デフォルト: 6060)
-//   - RUINS_SHOW_MONITOR: パフォーマンスモニター表示 (デフォルト: false)
+//   - RUINS_DEBUG_PPROF: pprofサーバー起動
+//   - RUINS_PPROF_PORT: pprofサーバーポート
+//   - RUINS_SHOW_MONITOR: パフォーマンスモニター表示
 //
 // ## ゲーム設定
-//   - RUINS_STARTING_STATE: 開始ステート (デフォルト: main_menu)
+//   - RUINS_STARTING_STATE: 開始ステート
 //   - "main_menu": メインメニュー
 //   - "debug_menu": デバッグメニュー
 //   - "dungeon": ダンジョン
-//   - RUINS_SEED: 乱数シード (デフォルト: ランダム生成)
-//   - 指定すると同じシードで再現可能なゲームプレイが可能
+//   - RUINS_SEED: 乱数シード。指定すると同じシードで再現可能なゲームプレイが可能
 //
 // ## パフォーマンス設定
-//   - RUINS_TARGET_FPS: 目標フレームレート (デフォルト: 60)
-//   - RUINS_PROFILE_MEMORY: メモリプロファイル (production: false, development: true)
-//   - RUINS_PROFILE_CPU: CPUプロファイル (デフォルト: false)
-//   - RUINS_PROFILE_MUTEX: Mutexプロファイル (デフォルト: false)
-//   - RUINS_PROFILE_TRACE: トレースプロファイル (デフォルト: false)
-//   - RUINS_PROFILE_PATH: プロファイル出力パス (デフォルト: ".")
+//   - RUINS_TARGET_FPS: 目標フレームレート
+//   - RUINS_PROFILE_MEMORY: メモリプロファイル
+//   - RUINS_PROFILE_CPU: CPUプロファイル
+//   - RUINS_PROFILE_MUTEX: Mutexプロファイル
+//   - RUINS_PROFILE_TRACE: トレースプロファイル
+//   - RUINS_PROFILE_PATH: プロファイル出力パス
 //
 // # 使用例
 //
