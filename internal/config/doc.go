@@ -43,6 +43,9 @@
 //   - RUINS_WINDOW_WIDTH: ウィンドウ幅
 //   - RUINS_WINDOW_HEIGHT: ウィンドウ高さ
 //
+// ## 表示設定
+//   - RUINS_LANGUAGE: 表示言語 "ja" / "en"（現状は保持のみで切り替えは未実装）
+//
 // ## デバッグ設定
 //   - RUINS_DEBUG: デバッグモード
 //   - RUINS_LOG_LEVEL: ログレベル "debug", "info", "warn", "error", "fatal", "ignore"

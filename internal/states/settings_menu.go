@@ -10,6 +10,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -91,13 +92,17 @@ func (st *SettingsMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID
 }
 
 // DoAction はActionを実行する
-func (st *SettingsMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *SettingsMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(), nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+	case inputmapper.ActionMenuLeft:
+		st.changeLanguage(world, -1)
+	case inputmapper.ActionMenuRight:
+		st.changeLanguage(world, 1)
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: 未対応のアクション: %s", action)
@@ -114,27 +119,119 @@ type settingsMenuProps struct {
 	Items []settingsMenuItem
 }
 
+// settingsItemKind は設定項目の種類
+type settingsItemKind int
+
+const (
+	// settingsItemLanguage は言語設定項目
+	settingsItemLanguage settingsItemKind = iota
+	// settingsItemBack は前の画面へ戻る項目
+	settingsItemBack
+)
+
 // settingsMenuItem は設定メニューの1項目
 type settingsMenuItem struct {
-	Label      string
-	Transition es.Transition[w.World]
+	Kind  settingsItemKind
+	Label string
+	Value string // 現在値の表示。値を持たない項目は空
 }
 
-func (st *SettingsMenuState) fetchProps(_ w.World) settingsMenuProps {
+// display は項目の表示文字列を返す。値を持つ項目は左右カーソルで変更できることを示す
+func (it settingsMenuItem) display() string {
+	if it.Value == "" {
+		return it.Label
+	}
+	return fmt.Sprintf("%s  ◀ %s ▶", it.Label, it.Value)
+}
+
+func (st *SettingsMenuState) fetchProps(world w.World) settingsMenuProps {
 	return settingsMenuProps{
 		Items: []settingsMenuItem{
-			{Label: "戻る", Transition: es.Transition[w.World]{Type: es.TransPop}},
+			{Kind: settingsItemLanguage, Label: "言語", Value: currentLanguageLabel(world.Config.User.Language)},
+			{Kind: settingsItemBack, Label: "戻る"},
 		},
 	}
 }
 
-func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
+// focusedItem は現在カーソルが当たっている項目を返す
+func (st *SettingsMenuState) focusedItem() (settingsMenuItem, bool) {
 	props := st.menuMount.GetProps()
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-	if !ok || menuState.ItemIndex >= len(props.Items) {
+	if !ok || menuState.ItemIndex < 0 || menuState.ItemIndex >= len(props.Items) {
+		return settingsMenuItem{}, false
+	}
+	return props.Items[menuState.ItemIndex], true
+}
+
+func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
+	item, ok := st.focusedItem()
+	if !ok {
 		return es.Transition[w.World]{Type: es.TransNone}
 	}
-	return props.Items[menuState.ItemIndex].Transition
+	if item.Kind == settingsItemBack {
+		return es.Transition[w.World]{Type: es.TransPop}
+	}
+	return es.Transition[w.World]{Type: es.TransNone}
+}
+
+// changeLanguage は言語項目にカーソルがある場合に言語を切り替えて保存する。
+// 実際の表示言語の切り替えは未実装で、設定値の保持のみを行う。
+func (st *SettingsMenuState) changeLanguage(world w.World, dir int) {
+	item, ok := st.focusedItem()
+	if !ok || item.Kind != settingsItemLanguage {
+		return
+	}
+	next := nextLanguage(world.Config.User.Language, dir)
+	if err := applyLanguage(world, next); err != nil {
+		logger.New(logger.CategorySave).Warn("言語設定の保存に失敗しました", "error", err)
+	}
+}
+
+// ================
+// 言語プリセット
+// ================
+
+// language は選択できる表示言語
+type language struct {
+	Code  string // 言語コード（"ja" / "en"）
+	Label string // 表示名（"日本語" / "English"）
+}
+
+// languagePresets は選択できる言語の一覧
+var languagePresets = []language{
+	{Code: "ja", Label: "日本語"},
+	{Code: "en", Label: "English"},
+}
+
+// currentLanguageLabel は言語コードに対応する表示名を返す。一覧に無ければコードをそのまま返す
+func currentLanguageLabel(code string) string {
+	for _, l := range languagePresets {
+		if l.Code == code {
+			return l.Label
+		}
+	}
+	return code
+}
+
+// nextLanguage は現在の言語コードから dir 方向（+1/-1）の次の言語を返す。
+// 一覧の端では反対側へ循環する。現在値が一覧に無い場合は先頭を起点とする。
+func nextLanguage(code string, dir int) language {
+	idx := 0
+	for i, l := range languagePresets {
+		if l.Code == code {
+			idx = i
+			break
+		}
+	}
+	n := len(languagePresets)
+	idx = ((idx+dir)%n + n) % n
+	return languagePresets[idx]
+}
+
+// applyLanguage は言語をユーザー設定に保存する。実際の表示切り替えは未実装。
+func applyLanguage(world w.World, l language) error {
+	world.Config.User.Language = l.Code
+	return world.Config.SaveUserConfig()
 }
 
 // ================
@@ -169,7 +266,7 @@ func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI {
 
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, res)
+		itemWidget := styled.NewListItemText(item.display(), theme.TextSecondary, isSelected, res)
 		menuContainer.AddChild(itemWidget)
 	}
 
