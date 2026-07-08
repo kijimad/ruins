@@ -157,8 +157,8 @@ const (
 	dungeonSelectWindowWidth = dungeonSelectWindowPad*3 + dungeonSelectListWidth + dungeonSelectImageWidth
 	// ウィンドウ左端X = (screenW - windowW) / 2
 	// 画像左端X = ウィンドウ左端 + pad + listWidth + pad(spacing)
-	dungeonSelectImageX = float64(consts.MinGameWidth-dungeonSelectWindowWidth)/2 + dungeonSelectWindowPad*2 + dungeonSelectListWidth
-	dungeonSelectImageY = float64(consts.MinGameHeight-dungeonSelectImageHeight) / 2
+	dungeonSelectImageX = float64(consts.GameWidth-dungeonSelectWindowWidth)/2 + dungeonSelectWindowPad*2 + dungeonSelectListWidth
+	dungeonSelectImageY = float64(consts.GameHeight-dungeonSelectImageHeight) / 2
 )
 
 type dungeonSelectProps struct {

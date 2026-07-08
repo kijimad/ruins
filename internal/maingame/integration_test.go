@@ -54,8 +54,8 @@ func TestGameInitializationIntegration(t *testing.T) {
 		assert.NotNil(t, world.Resources, "ワールドリソースが初期化されていない")
 		assert.NotNil(t, world.Resources.ScreenDimensions, "画面サイズが設定されていない")
 		width, height := world.Resources.GetScreenDimensions()
-		assert.Equal(t, consts.MinGameWidth, width, "画面幅が正しくない")
-		assert.Equal(t, consts.MinGameHeight, height, "画面高さが正しくない")
+		assert.Equal(t, consts.GameWidth, width, "画面幅が正しくない")
+		assert.Equal(t, consts.GameHeight, height, "画面高さが正しくない")
 	})
 }
 
@@ -78,15 +78,15 @@ func TestMainGameLifecycle(t *testing.T) {
 
 		// Layout関数のテスト
 		width, height := game.Layout(0, 0) // パラメータは無視される
-		assert.Equal(t, consts.MinGameWidth, width, "レイアウト幅が正しくない")
-		assert.Equal(t, consts.MinGameHeight, height, "レイアウト高さが正しくない")
+		assert.Equal(t, consts.GameWidth, width, "レイアウト幅が正しくない")
+		assert.Equal(t, consts.GameHeight, height, "レイアウト高さが正しくない")
 
 		// Update関数のテスト（エラーが発生しないことを確認）
 		err = game.Update()
 		assert.NoError(t, err, "Updateでエラーが発生")
 
 		// Draw関数のテスト（パニックしないことを確認）
-		screen := ebiten.NewImage(consts.MinGameWidth, consts.MinGameHeight)
+		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 		assert.NotPanics(t, func() {
 			game.Draw(screen)
 		}, "Drawでパニックが発生")
@@ -201,8 +201,8 @@ func TestResourceIntegration(t *testing.T) {
 func validateWorldInitialization(t *testing.T, world ew.World) {
 	assert.NotNil(t, world.Resources, "ワールドリソースがnil")
 	assert.NotNil(t, world.Resources.ScreenDimensions, "画面サイズがnil")
-	assert.Equal(t, consts.MinGameWidth, world.Resources.ScreenDimensions.Width, "画面幅が正しくない")
-	assert.Equal(t, consts.MinGameHeight, world.Resources.ScreenDimensions.Height, "画面高さが正しくない")
+	assert.Equal(t, consts.GameWidth, world.Resources.ScreenDimensions.Width, "画面幅が正しくない")
+	assert.Equal(t, consts.GameHeight, world.Resources.ScreenDimensions.Height, "画面高さが正しくない")
 	assert.NotNil(t, world.Manager, "ECSマネージャがnil")
 	assert.NotNil(t, world.Components, "コンポーネントがnil")
 }
