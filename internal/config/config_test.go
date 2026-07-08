@@ -59,6 +59,9 @@ func TestLoad(t *testing.T) {
 func TestValidate(t *testing.T) {
 	t.Parallel()
 
+	// Validate は最初に見つかった不正値でエラーを返すため、各ケースを「1フィールドだけ不正」に
+	// する必要がある。妥当なベースラインを返して1箇所だけ変異させることで、変異したフィールドが
+	// 唯一のエラー要因になり、そのフィールドを正しく検証できる。
 	valid := func() *Config {
 		return &Config{
 			User:      UserConfig{WindowWidth: 1920, WindowHeight: 1080},
