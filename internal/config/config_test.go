@@ -16,8 +16,8 @@ func TestApplyProfileDefaults_Production(t *testing.T) {
 	// 環境変数が未設定の場合にデフォルト値が適用される
 	// テスト実行時に一部の環境変数が設定されている可能性があるため、
 	// 環境変数に依存しないフィールドのみ検証する
-	assert.Equal(t, 960, cfg.WindowWidth)
-	assert.Equal(t, 720, cfg.WindowHeight)
+	assert.Equal(t, 960, cfg.User.WindowWidth)
+	assert.Equal(t, 720, cfg.User.WindowHeight)
 	assert.False(t, cfg.SkipOpening)
 	assert.Equal(t, 60, cfg.TargetFPS)
 }
@@ -28,8 +28,8 @@ func TestApplyProfileDefaults_Development(t *testing.T) {
 	cfg := &Config{Profile: ProfileDevelopment}
 	cfg.ApplyProfileDefaults()
 
-	assert.Equal(t, 960, cfg.WindowWidth)
-	assert.Equal(t, 720, cfg.WindowHeight)
+	assert.Equal(t, 960, cfg.User.WindowWidth)
+	assert.Equal(t, 720, cfg.User.WindowHeight)
 	assert.True(t, cfg.SkipOpening)
 }
 
@@ -52,63 +52,53 @@ func TestLoad(t *testing.T) {
 
 	assert.NotNil(t, cfg)
 	assert.NotNil(t, cfg.RNG)
-	assert.Greater(t, cfg.WindowWidth, 0)
-	assert.Greater(t, cfg.WindowHeight, 0)
+	assert.Greater(t, cfg.User.WindowWidth, 0)
+	assert.Greater(t, cfg.User.WindowHeight, 0)
 	assert.Greater(t, cfg.TargetFPS, 0)
 }
 func TestValidate(t *testing.T) {
 	t.Parallel()
 
-	t.Run("無効な値が修正される", func(t *testing.T) {
+	// Validate は最初に見つかった不正値でエラーを返すため、各ケースを「1フィールドだけ不正」に
+	// する必要がある。妥当なベースラインを返して1箇所だけ変異させることで、変異したフィールドが
+	// 唯一のエラー要因になり、そのフィールドを正しく検証できる。
+	valid := func() *Config {
+		return &Config{
+			User:      UserConfig{WindowWidth: 1920, WindowHeight: 1080},
+			TargetFPS: 144,
+			PProfPort: 8080,
+		}
+	}
+
+	t.Run("有効な値はエラーを返さない", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := &Config{
-			WindowWidth:  100, // 最小値以下
-			WindowHeight: 50,  // 最小値以下
-			TargetFPS:    0,   // 無効
-			PProfPort:    80,  // 範囲外
-		}
-
-		err := cfg.Validate()
-		assert.NoError(t, err)
-
-		assert.Equal(t, 320, cfg.WindowWidth)
-		assert.Equal(t, 240, cfg.WindowHeight)
-		assert.Equal(t, 60, cfg.TargetFPS)
-		assert.Equal(t, 6060, cfg.PProfPort)
+		assert.NoError(t, valid().Validate())
 	})
 
-	t.Run("有効な値は変更されない", func(t *testing.T) {
+	t.Run("不正な値はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := &Config{
-			WindowWidth:  1920,
-			WindowHeight: 1080,
-			TargetFPS:    144,
-			PProfPort:    8080,
+		// wantErr で「変異したフィールドがまさにそのエラーを起こす」ことを検証する
+		cases := []struct {
+			name    string
+			mutate  func(*Config)
+			wantErr error
+		}{
+			{"ウィンドウ幅が最小値未満", func(c *Config) { c.User.WindowWidth = 100 }, errWindowWidthTooSmall},
+			{"ウィンドウ高さが最小値未満", func(c *Config) { c.User.WindowHeight = 50 }, errWindowHeightTooSmall},
+			{"目標FPSが1未満", func(c *Config) { c.TargetFPS = 0 }, errTargetFPSInvalid},
+			{"pprofポートが下限未満", func(c *Config) { c.PProfPort = 80 }, errPProfPortOutOfRange},
+			{"pprofポートが上限超過", func(c *Config) { c.PProfPort = 70000 }, errPProfPortOutOfRange},
 		}
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 
-		err := cfg.Validate()
-		assert.NoError(t, err)
-
-		assert.Equal(t, 1920, cfg.WindowWidth)
-		assert.Equal(t, 1080, cfg.WindowHeight)
-		assert.Equal(t, 144, cfg.TargetFPS)
-		assert.Equal(t, 8080, cfg.PProfPort)
-	})
-
-	t.Run("PProfPortが上限を超える場合", func(t *testing.T) {
-		t.Parallel()
-
-		cfg := &Config{
-			WindowWidth:  960,
-			WindowHeight: 720,
-			TargetFPS:    60,
-			PProfPort:    70000,
+				cfg := valid()
+				tc.mutate(cfg)
+				assert.ErrorIs(t, cfg.Validate(), tc.wantErr)
+			})
 		}
-
-		err := cfg.Validate()
-		assert.NoError(t, err)
-		assert.Equal(t, 6060, cfg.PProfPort)
 	})
 }

@@ -37,6 +37,12 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return fmt.Errorf("steam初期化に失敗: %w", err)
 	}
 
+	// ユーザー設定ファイルが無ければデフォルト値で作成する。
+	// 失敗しても Load はデフォルト値で継続できるため、警告のみで処理を進める
+	if err := config.EnsureUserConfigFile(); err != nil {
+		logger.New(logger.CategoryLoad).Warn("ユーザー設定ファイルの作成に失敗しました", "error", err)
+	}
+
 	// 設定を読み込み
 	cfg, err := config.Load()
 	if err != nil {
@@ -53,13 +59,8 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 
 	// ウィンドウ設定
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	ebiten.SetWindowSize(cfg.WindowWidth, cfg.WindowHeight)
+	ebiten.SetWindowSize(cfg.User.WindowWidth, cfg.User.WindowHeight)
 	ebiten.SetWindowTitle("ruins")
-
-	// フルスクリーン設定
-	if cfg.Fullscreen {
-		ebiten.SetFullscreen(true)
-	}
 
 	// FPS設定
 	if cfg.TargetFPS != 60 {

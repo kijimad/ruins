@@ -163,7 +163,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 
 	world.Config = cfg
-	world.Resources.SetScreenDimensions(cfg.WindowWidth, cfg.WindowHeight)
+	world.Resources.SetScreenDimensions(cfg.User.WindowWidth, cfg.User.WindowHeight)
 
 	// Rawデータを読み込む
 	rw, err := loader.LoadRaws()
