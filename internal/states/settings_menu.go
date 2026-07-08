@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -136,14 +137,6 @@ type settingsMenuItem struct {
 	Value string // 現在値の表示。値を持たない項目は空
 }
 
-// display は項目の表示文字列を返す。値を持つ項目は左右カーソルで変更できることを示す
-func (it settingsMenuItem) display() string {
-	if it.Value == "" {
-		return it.Label
-	}
-	return fmt.Sprintf("%s  ◀ %s ▶", it.Label, it.Value)
-}
-
 func (st *SettingsMenuState) fetchProps(world w.World) settingsMenuProps {
 	return settingsMenuProps{
 		Items: []settingsMenuItem{
@@ -242,7 +235,21 @@ func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-	itemIndex := menuState.ItemIndex
+
+	// 項目リストの描画は tabmenu.View に任せる。値は AdditionalLabels で右側に表示する
+	items := make([]tabmenu.Item, len(props.Items))
+	for i, item := range props.Items {
+		it := tabmenu.Item{ID: item.Label, Label: item.Label}
+		if item.Value != "" {
+			it.AdditionalLabels = []string{fmt.Sprintf("◀ %s ▶", item.Value)}
+		}
+		items[i] = it
+	}
+	view := tabmenu.NewView(tabmenu.Config{
+		Tabs: []tabmenu.TabItem{{ID: "settings", Items: items}},
+	}, world)
+	view.SetState(tabmenu.ViewState{ItemIndex: menuState.ItemIndex})
+	listContainer := view.BuildUI()
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
@@ -263,12 +270,7 @@ func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.TextOpts.Text("設定", &res.Text.BodyFace, theme.TextPrimary),
 	)
 	menuContainer.AddChild(titleText)
-
-	for i, item := range props.Items {
-		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.display(), theme.TextSecondary, isSelected, res)
-		menuContainer.AddChild(itemWidget)
-	}
+	menuContainer.AddChild(listContainer)
 
 	rootContainer.AddChild(menuContainer)
 	return &ebitenui.UI{Container: rootContainer}

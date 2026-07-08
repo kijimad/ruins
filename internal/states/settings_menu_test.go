@@ -56,13 +56,3 @@ func TestCurrentLanguageLabel(t *testing.T) {
 	// 一覧に無いコードはそのまま返す
 	assert.Equal(t, "fr", currentLanguageLabel("fr"))
 }
-
-func TestSettingsMenuItemDisplay(t *testing.T) {
-	t.Parallel()
-
-	withValue := settingsMenuItem{Kind: settingsItemLanguage, Label: "言語", Value: "日本語"}
-	assert.Equal(t, "言語  ◀ 日本語 ▶", withValue.display())
-
-	noValue := settingsMenuItem{Kind: settingsItemBack, Label: "戻る"}
-	assert.Equal(t, "戻る", noValue.display())
-}
