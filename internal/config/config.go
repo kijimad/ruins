@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"os"
 )
@@ -219,19 +220,20 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 }
 
-// Validate は設定値を安全な範囲に補正する。
-// 不正な値はエラーとして返さず安全なデフォルト値へ補正する方針のため、戻り値は持たない。
-func (c *Config) Validate() {
+// Validate は設定値が妥当な範囲にあるか検証する。
+// 不正な値があればエラーを返す。値の補正は行わず、呼び出し側が起動中止などを判断する。
+func (c *Config) Validate() error {
 	if c.User.WindowWidth < 320 {
-		c.User.WindowWidth = 320
+		return fmt.Errorf("ウィンドウ幅が小さすぎます: %d（最小 320）", c.User.WindowWidth)
 	}
 	if c.User.WindowHeight < 240 {
-		c.User.WindowHeight = 240
+		return fmt.Errorf("ウィンドウ高さが小さすぎます: %d（最小 240）", c.User.WindowHeight)
 	}
 	if c.TargetFPS < 1 {
-		c.TargetFPS = 60
+		return fmt.Errorf("目標FPSが不正です: %d（1以上）", c.TargetFPS)
 	}
 	if c.PProfPort < 1024 || c.PProfPort > 65535 {
-		c.PProfPort = 6060
+		return fmt.Errorf("pprofポートが範囲外です: %d（1024〜65535）", c.PProfPort)
 	}
+	return nil
 }

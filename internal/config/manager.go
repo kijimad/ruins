@@ -43,7 +43,9 @@ func Load() (*Config, error) {
 	// SeedからRNGを生成
 	cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
 
-	cfg.Validate()
+	if err := cfg.Validate(); err != nil {
+		return nil, fmt.Errorf("設定の検証に失敗しました: %w", err)
+	}
 
 	return cfg, nil
 }

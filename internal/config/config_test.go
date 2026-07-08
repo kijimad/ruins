@@ -59,59 +59,38 @@ func TestLoad(t *testing.T) {
 func TestValidate(t *testing.T) {
 	t.Parallel()
 
-	t.Run("無効な値が修正される", func(t *testing.T) {
-		t.Parallel()
-
-		cfg := &Config{
-			User: UserConfig{
-				WindowWidth:  100, // 最小値以下
-				WindowHeight: 50,  // 最小値以下
-			},
-			TargetFPS: 0,  // 無効
-			PProfPort: 80, // 範囲外
-		}
-
-		cfg.Validate()
-
-		assert.Equal(t, 320, cfg.User.WindowWidth)
-		assert.Equal(t, 240, cfg.User.WindowHeight)
-		assert.Equal(t, 60, cfg.TargetFPS)
-		assert.Equal(t, 6060, cfg.PProfPort)
-	})
-
-	t.Run("有効な値は変更されない", func(t *testing.T) {
-		t.Parallel()
-
-		cfg := &Config{
-			User: UserConfig{
-				WindowWidth:  1920,
-				WindowHeight: 1080,
-			},
+	valid := func() *Config {
+		return &Config{
+			User:      UserConfig{WindowWidth: 1920, WindowHeight: 1080},
 			TargetFPS: 144,
 			PProfPort: 8080,
 		}
+	}
 
-		cfg.Validate()
-
-		assert.Equal(t, 1920, cfg.User.WindowWidth)
-		assert.Equal(t, 1080, cfg.User.WindowHeight)
-		assert.Equal(t, 144, cfg.TargetFPS)
-		assert.Equal(t, 8080, cfg.PProfPort)
-	})
-
-	t.Run("PProfPortが上限を超える場合", func(t *testing.T) {
+	t.Run("有効な値はエラーを返さない", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := &Config{
-			User: UserConfig{
-				WindowWidth:  960,
-				WindowHeight: 720,
-			},
-			TargetFPS: 60,
-			PProfPort: 70000,
-		}
+		assert.NoError(t, valid().Validate())
+	})
 
-		cfg.Validate()
-		assert.Equal(t, 6060, cfg.PProfPort)
+	t.Run("不正な値はエラーを返す", func(t *testing.T) {
+		t.Parallel()
+
+		cases := map[string]func(*Config){
+			"ウィンドウ幅が最小値未満":  func(c *Config) { c.User.WindowWidth = 100 },
+			"ウィンドウ高さが最小値未満": func(c *Config) { c.User.WindowHeight = 50 },
+			"目標FPSが1未満":     func(c *Config) { c.TargetFPS = 0 },
+			"pprofポートが下限未満": func(c *Config) { c.PProfPort = 80 },
+			"pprofポートが上限超過": func(c *Config) { c.PProfPort = 70000 },
+		}
+		for name, mutate := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				cfg := valid()
+				mutate(cfg)
+				assert.Error(t, cfg.Validate())
+			})
+		}
 	})
 }
