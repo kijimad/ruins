@@ -112,22 +112,22 @@ func (st *SettingsMenuState) DoAction(_ w.World, action inputmapper.ActionID) (e
 // Props
 // ================
 
-// settingsMenuProps は設定メニューのProps
+// settingsMenuProps は設定メニューの表示に必要なプロパティを保持する
 type settingsMenuProps struct {
 	Items []settingsMenuItem
 }
 
-// settingsItemKind は設定項目の種類
+// settingsItemKind は設定項目の種類を表す
 type settingsItemKind int
 
 const (
-	// settingsItemLanguage は言語設定項目
+	// settingsItemLanguage は言語を設定する項目を表す
 	settingsItemLanguage settingsItemKind = iota
-	// settingsItemBack は前の画面へ戻る項目
+	// settingsItemBack は前の画面へ戻る項目を表す
 	settingsItemBack
 )
 
-// settingsMenuItem は設定メニューの1項目
+// settingsMenuItem は設定メニューの1項目を表す
 type settingsMenuItem struct {
 	Kind  settingsItemKind
 	Label string
@@ -172,13 +172,13 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
 // 言語プリセット
 // ================
 
-// language は選択できる表示言語
+// language は選択できる表示言語を表す
 type language struct {
 	Code  string // 言語コード（"ja" / "en"）
 	Label string // 表示名（"日本語" / "English"）
 }
 
-// languagePresets は選択できる言語の一覧
+// languagePresets は選択できる言語の一覧を保持する
 var languagePresets = []language{
 	{Code: "ja", Label: "日本語"},
 	{Code: "en", Label: "English"},
