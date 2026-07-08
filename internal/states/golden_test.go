@@ -34,6 +34,11 @@ func TestGolden_MainMenu(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(&gs.MainMenuState{}))
 }
 
+func TestGolden_SettingsMenu(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, vrt.States(&gs.MainMenuState{}, &gs.SettingsMenuState{}))
+}
+
 func TestGolden_CharacterNaming(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.CharacterNamingState{}))

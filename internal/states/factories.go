@@ -571,6 +571,11 @@ func NewMainMenuState() (es.State[w.World], error) {
 	return &MainMenuState{}, nil
 }
 
+// NewSettingsMenuState は新しいSettingsMenuStateインスタンスを作成するファクトリー関数
+func NewSettingsMenuState() (es.State[w.World], error) {
+	return &SettingsMenuState{}, nil
+}
+
 // NewGameOverMessageState はゲームオーバー用のMessageStateを作成するファクトリー関数
 func NewGameOverMessageState() (es.State[w.World], error) {
 	messageState := &MessageState{}

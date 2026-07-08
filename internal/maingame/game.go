@@ -44,9 +44,10 @@ func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGam
 	}, nil
 }
 
-// Layout はinterface methodのため、シグネチャは変更できない
+// Layout は論理解像度を返す。スプライトが32x32固定のため論理解像度は固定とし、
+// ウィンドウサイズへの拡大縮小は Ebiten に任せる（ウィンドウは可変）。
+// interface method のためシグネチャは変更できない
 func (game *MainGame) Layout(_, _ int) (int, int) {
-	// TODO: 解像度変更は未実装
 	return consts.MinGameWidth, consts.MinGameHeight
 }
 
@@ -163,7 +164,10 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 
 	world.Config = cfg
-	world.Resources.SetScreenDimensions(cfg.User.WindowWidth, cfg.User.WindowHeight)
+	// ScreenDimensions は描画の基準（カメラ中心・HUD配置）であり、Layout が返す論理解像度と
+	// 一致させる。論理解像度は固定のため consts の値を渡す。ウィンドウサイズ（cfg.User）とは
+	// 分離する。cfg.User で大きなウィンドウを指定しても描画基準がズレないようにする
+	world.Resources.SetScreenDimensions(consts.MinGameWidth, consts.MinGameHeight)
 
 	// Rawデータを読み込む
 	rw, err := loader.LoadRaws()

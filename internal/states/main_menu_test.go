@@ -31,11 +31,12 @@ func TestMainMenuState_FetchProps(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 4, len(props.Items), "メニュー項目は4つ")
+	assert.Equal(t, 5, len(props.Items), "メニュー項目は5つ")
 	assert.Equal(t, "開始", props.Items[0].Label)
 	assert.Equal(t, "デモ", props.Items[1].Label)
 	assert.Equal(t, "読込", props.Items[2].Label)
-	assert.Equal(t, "終了", props.Items[3].Label)
+	assert.Equal(t, "設定", props.Items[3].Label)
+	assert.Equal(t, "終了", props.Items[4].Label)
 }
 
 func TestMainMenuState_Navigation(t *testing.T) {
@@ -90,7 +91,7 @@ func TestMainMenuState_CircularNavigation(t *testing.T) {
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
 	menuState, _ := hooks.GetState[hooks.TabMenuState](state.menuMount, "menu")
-	assert.Equal(t, 3, menuState.ItemIndex, "循環して最後の項目に移動")
+	assert.Equal(t, 4, menuState.ItemIndex, "循環して最後の項目に移動")
 
 	// 最後の項目から下に移動すると最初の項目に
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
@@ -231,7 +232,8 @@ func TestMainMenuState_Selection_Exit(t *testing.T) {
 	})
 	state.menuMount.Update()
 
-	// 「終了」に移動して選択（インデックス3）
+	// 「終了」に移動して選択（インデックス4）
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
