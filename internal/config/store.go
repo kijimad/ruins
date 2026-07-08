@@ -16,10 +16,10 @@ const userConfigDirName = "ruins"
 // userConfigFileName はユーザー設定ファイル名
 const userConfigFileName = "settings.toml"
 
-// UserConfigPath は永続化するユーザー設定ファイルの絶対パスを返す。
+// userConfigPath は永続化するユーザー設定ファイルの絶対パスを返す。
 // OS標準の設定ディレクトリ配下にアプリ専用のサブディレクトリを切ってその中に置く。
 // Linuxでは ~/.config/ruins/settings.toml となる。
-func UserConfigPath() (string, error) {
+func userConfigPath() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", fmt.Errorf("設定ディレクトリの取得に失敗しました: %w", err)
@@ -30,7 +30,7 @@ func UserConfigPath() (string, error) {
 // loadUserConfig は設定ファイルがあれば c.User を上書きする。
 // ファイルが存在しない場合はデフォルト値のまま何もしない。読み取り専用で副作用を持たない。
 func (c *Config) loadUserConfig() error {
-	path, err := UserConfigPath()
+	path, err := userConfigPath()
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (c *Config) loadUserConfig() error {
 // EnsureUserConfigFile は設定ファイルが存在しない場合にデフォルト値で作成する。
 // 初回起動時に設定ファイルを生成してユーザーが編集できるようにする用途で、アプリ起動時に呼ぶ。
 func EnsureUserConfigFile() error {
-	path, err := UserConfigPath()
+	path, err := userConfigPath()
 	if err != nil {
 		return err
 	}
@@ -50,17 +50,22 @@ func EnsureUserConfigFile() error {
 // ensureUserConfigFileAt は指定パスにファイルが無ければデフォルト値で作成する。
 // パスを引数に取ることで、実際の設定ディレクトリに依存せずテストできる。
 func ensureUserConfigFileAt(path string) error {
-	if _, err := os.Stat(path); !errors.Is(err, os.ErrNotExist) {
-		// 既に存在する場合や Stat のその他のエラー時は作成しない
-		return nil
+	_, err := os.Stat(path)
+	if err == nil {
+		return nil // 既に存在するので作成しない
 	}
+	if !errors.Is(err, os.ErrNotExist) {
+		// パーミッションエラー等、存在確認自体に失敗した場合は診断できるよう返す
+		return fmt.Errorf("設定ファイルの存在確認に失敗しました: %w", err)
+	}
+	// ファイルが存在しないのでデフォルト値で作成する
 	def := &Config{User: DefaultUserConfig()}
 	return def.saveUserConfigTo(path)
 }
 
 // SaveUserConfig は c.User を設定ファイルへ書き込む。オプション画面での設定変更後に呼ぶ。
 func (c *Config) SaveUserConfig() error {
-	path, err := UserConfigPath()
+	path, err := userConfigPath()
 	if err != nil {
 		return err
 	}
@@ -102,6 +107,8 @@ func (c *Config) saveUserConfigTo(path string) error {
 		return fmt.Errorf("設定ファイルの書き込みに失敗しました: %w", err)
 	}
 	if err := os.Rename(tmp, path); err != nil {
+		// 中途半端な一時ファイルを残さないようベストエフォートで削除する
+		_ = os.Remove(tmp)
 		return fmt.Errorf("設定ファイルの置き換えに失敗しました: %w", err)
 	}
 	return nil

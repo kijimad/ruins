@@ -219,8 +219,9 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 }
 
-// Validate は設定値の妥当性を検証する
-func (c *Config) Validate() error {
+// Validate は設定値を安全な範囲に補正する。
+// 不正な値はエラーとして返さず安全なデフォルト値へ補正する方針のため、戻り値は持たない。
+func (c *Config) Validate() {
 	if c.User.WindowWidth < 320 {
 		c.User.WindowWidth = 320
 	}
@@ -233,6 +234,4 @@ func (c *Config) Validate() error {
 	if c.PProfPort < 1024 || c.PProfPort > 65535 {
 		c.PProfPort = 6060
 	}
-
-	return nil
 }

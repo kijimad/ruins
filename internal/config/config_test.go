@@ -71,8 +71,7 @@ func TestValidate(t *testing.T) {
 			PProfPort: 80, // 範囲外
 		}
 
-		err := cfg.Validate()
-		assert.NoError(t, err)
+		cfg.Validate()
 
 		assert.Equal(t, 320, cfg.User.WindowWidth)
 		assert.Equal(t, 240, cfg.User.WindowHeight)
@@ -92,8 +91,7 @@ func TestValidate(t *testing.T) {
 			PProfPort: 8080,
 		}
 
-		err := cfg.Validate()
-		assert.NoError(t, err)
+		cfg.Validate()
 
 		assert.Equal(t, 1920, cfg.User.WindowWidth)
 		assert.Equal(t, 1080, cfg.User.WindowHeight)
@@ -113,8 +111,7 @@ func TestValidate(t *testing.T) {
 			PProfPort: 70000,
 		}
 
-		err := cfg.Validate()
-		assert.NoError(t, err)
+		cfg.Validate()
 		assert.Equal(t, 6060, cfg.PProfPort)
 	})
 }

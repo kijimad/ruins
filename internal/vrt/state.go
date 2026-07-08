@@ -94,7 +94,7 @@ func InitVRTWorld(t *testing.T) w.World {
 	cfg.Seed = 12345
 	cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
 	cfg.DisableAnimation = true
-	require.NoError(t, cfg.Validate())
+	cfg.Validate()
 
 	world, err := maingame.InitWorld(cfg)
 	require.NoError(t, err)

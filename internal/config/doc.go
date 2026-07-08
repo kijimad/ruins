@@ -44,7 +44,7 @@
 //   - RUINS_DEBUG: デバッグモード (デフォルト: false)
 //   - RUINS_LOG_LEVEL: ログレベル (デフォルト: info) "debug", "info", "warn", "error", "fatal", "ignore"
 //   - RUINS_LOG_CATEGORIES: カテゴリ別ログレベル設定 (例: "battle=debug,render=warn")
-//   - RUINS_DEBUG_PPROF: pprofサーバー起動 (デフォルト: true)
+//   - RUINS_DEBUG_PPROF: pprofサーバー起動 (production: false, development: true)
 //   - RUINS_PPROF_PORT: pprofサーバーポート (デフォルト: 6060)
 //   - RUINS_SHOW_MONITOR: パフォーマンスモニター表示 (デフォルト: false)
 //
