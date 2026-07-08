@@ -41,7 +41,7 @@
 //   - RUINS_WINDOW_HEIGHT: ウィンドウ高さ (デフォルト: 720)
 //
 // ## デバッグ設定
-//   - RUINS_DEBUG: デバッグモード (デフォルト: false)
+//   - RUINS_DEBUG: デバッグモード (production: false, development: true)
 //   - RUINS_LOG_LEVEL: ログレベル (デフォルト: info) "debug", "info", "warn", "error", "fatal", "ignore"
 //   - RUINS_LOG_CATEGORIES: カテゴリ別ログレベル設定 (例: "battle=debug,render=warn")
 //   - RUINS_DEBUG_PPROF: pprofサーバー起動 (production: false, development: true)
@@ -58,7 +58,7 @@
 //
 // ## パフォーマンス設定
 //   - RUINS_TARGET_FPS: 目標フレームレート (デフォルト: 60)
-//   - RUINS_PROFILE_MEMORY: メモリプロファイル (デフォルト: true)
+//   - RUINS_PROFILE_MEMORY: メモリプロファイル (production: false, development: true)
 //   - RUINS_PROFILE_CPU: CPUプロファイル (デフォルト: false)
 //   - RUINS_PROFILE_MUTEX: Mutexプロファイル (デフォルト: false)
 //   - RUINS_PROFILE_TRACE: トレースプロファイル (デフォルト: false)
