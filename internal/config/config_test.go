@@ -79,15 +79,17 @@ func TestValidate(t *testing.T) {
 	t.Run("不正な値はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 
+		// wantErr で「変異したフィールドがまさにそのエラーを起こす」ことを検証する
 		cases := []struct {
-			name   string
-			mutate func(*Config)
+			name    string
+			mutate  func(*Config)
+			wantErr error
 		}{
-			{"ウィンドウ幅が最小値未満", func(c *Config) { c.User.WindowWidth = 100 }},
-			{"ウィンドウ高さが最小値未満", func(c *Config) { c.User.WindowHeight = 50 }},
-			{"目標FPSが1未満", func(c *Config) { c.TargetFPS = 0 }},
-			{"pprofポートが下限未満", func(c *Config) { c.PProfPort = 80 }},
-			{"pprofポートが上限超過", func(c *Config) { c.PProfPort = 70000 }},
+			{"ウィンドウ幅が最小値未満", func(c *Config) { c.User.WindowWidth = 100 }, errWindowWidthTooSmall},
+			{"ウィンドウ高さが最小値未満", func(c *Config) { c.User.WindowHeight = 50 }, errWindowHeightTooSmall},
+			{"目標FPSが1未満", func(c *Config) { c.TargetFPS = 0 }, errTargetFPSInvalid},
+			{"pprofポートが下限未満", func(c *Config) { c.PProfPort = 80 }, errPProfPortOutOfRange},
+			{"pprofポートが上限超過", func(c *Config) { c.PProfPort = 70000 }, errPProfPortOutOfRange},
 		}
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
@@ -95,7 +97,7 @@ func TestValidate(t *testing.T) {
 
 				cfg := valid()
 				tc.mutate(cfg)
-				assert.Error(t, cfg.Validate())
+				assert.ErrorIs(t, cfg.Validate(), tc.wantErr)
 			})
 		}
 	})
