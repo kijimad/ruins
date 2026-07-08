@@ -24,28 +24,16 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	assert.Equal(t, settingsItemBack, props.Items[1].Kind)
 }
 
-func TestNextLanguage(t *testing.T) {
+func TestLanguageMenuState_選択肢が言語プリセットぶんある(t *testing.T) {
 	t.Parallel()
 
-	// プリセットは {ja, 日本語}, {en, English} の2つを前提とする
-	cases := []struct {
-		name     string
-		code     string
-		dir      int
-		wantCode string
-	}{
-		{"jaから次へ", "ja", 1, "en"},
-		{"enから次へは循環してja", "en", 1, "ja"},
-		{"jaから前へは循環してen", "ja", -1, "en"},
-		{"一覧に無いコードは先頭を起点に次へ", "fr", 1, "en"},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+	state, err := NewLanguageMenuState()
+	require.NoError(t, err)
+	require.NotNil(t, state)
 
-			assert.Equal(t, tc.wantCode, nextLanguage(tc.code, tc.dir).Code)
-		})
-	}
+	ms, ok := state.(*MessageState)
+	require.True(t, ok)
+	assert.Len(t, ms.messageData.Choices, len(languagePresets))
 }
 
 func TestCurrentLanguageLabel(t *testing.T) {

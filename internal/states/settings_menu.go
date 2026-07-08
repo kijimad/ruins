@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/logger"
+	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -93,17 +94,13 @@ func (st *SettingsMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID
 }
 
 // DoAction はActionを実行する
-func (st *SettingsMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *SettingsMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(), nil
-	case inputmapper.ActionMenuLeft:
-		st.changeLanguage(world, -1)
-	case inputmapper.ActionMenuRight:
-		st.changeLanguage(world, 1)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: 未対応のアクション: %s", action)
@@ -161,23 +158,14 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
 	if !ok {
 		return es.Transition[w.World]{Type: es.TransNone}
 	}
-	if item.Kind == settingsItemBack {
+	switch item.Kind {
+	case settingsItemLanguage:
+		// Enter で言語選択のモーダルを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLanguageMenuState}}
+	case settingsItemBack:
 		return es.Transition[w.World]{Type: es.TransPop}
 	}
 	return es.Transition[w.World]{Type: es.TransNone}
-}
-
-// changeLanguage は言語項目にカーソルがある場合に言語を切り替えて保存する。
-// 実際の表示言語の切り替えは未実装で、設定値の保持のみを行う。
-func (st *SettingsMenuState) changeLanguage(world w.World, dir int) {
-	item, ok := st.focusedItem()
-	if !ok || item.Kind != settingsItemLanguage {
-		return
-	}
-	next := nextLanguage(world.Config.User.Language, dir)
-	if err := applyLanguage(world, next); err != nil {
-		logger.New(logger.CategorySave).Warn("言語設定の保存に失敗しました", "error", err)
-	}
 }
 
 // ================
@@ -206,25 +194,23 @@ func currentLanguageLabel(code string) string {
 	return code
 }
 
-// nextLanguage は現在の言語コードから dir 方向（+1/-1）の次の言語を返す。
-// 一覧の端では反対側へ循環する。現在値が一覧に無い場合は先頭を起点とする。
-func nextLanguage(code string, dir int) language {
-	idx := 0
-	for i, l := range languagePresets {
-		if l.Code == code {
-			idx = i
-			break
-		}
+// NewLanguageMenuState は言語選択のモーダルを作成する。
+// 選択した言語をユーザー設定に保存して設定画面へ戻る。実際の表示言語の切り替えは未実装。
+func NewLanguageMenuState() (es.State[w.World], error) {
+	messageState := &MessageState{}
+	messageData := messagedata.NewSystemMessage("言語")
+	for _, l := range languagePresets {
+		messageData.WithChoice(l.Label, func(world w.World) error {
+			world.Config.User.Language = l.Code
+			if err := world.Config.SaveUserConfig(); err != nil {
+				logger.New(logger.CategorySave).Warn("言語設定の保存に失敗しました", "error", err)
+			}
+			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+			return nil
+		})
 	}
-	n := len(languagePresets)
-	idx = ((idx+dir)%n + n) % n
-	return languagePresets[idx]
-}
-
-// applyLanguage は言語をユーザー設定に保存する。実際の表示切り替えは未実装。
-func applyLanguage(world w.World, l language) error {
-	world.Config.User.Language = l.Code
-	return world.Config.SaveUserConfig()
+	messageState.messageData = messageData
+	return messageState, nil
 }
 
 // ================
@@ -241,7 +227,8 @@ func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI {
 	for i, item := range props.Items {
 		it := tabmenu.Item{ID: item.Label, Label: item.Label}
 		if item.Value != "" {
-			it.AdditionalLabels = []string{fmt.Sprintf("◀ %s ▶", item.Value)}
+			// 現在値を右側に表示する。変更は Enter で開くモーダルから行う
+			it.AdditionalLabels = []string{item.Value}
 		}
 		items[i] = it
 	}

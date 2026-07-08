@@ -39,6 +39,13 @@ func TestGolden_SettingsMenu(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(&gs.MainMenuState{}, &gs.SettingsMenuState{}))
 }
 
+func TestGolden_LanguageMenu(t *testing.T) {
+	t.Parallel()
+	s, err := gs.NewLanguageMenuState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(&gs.MainMenuState{}, s))
+}
+
 func TestGolden_CharacterNaming(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.CharacterNamingState{}))
