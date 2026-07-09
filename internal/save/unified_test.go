@@ -176,36 +176,9 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			jsonStrings = append(jsonStrings, jsonStr)
 		}
 
-		// プレイヤー生成が決定的であることを確認
+		// プレイヤー生成が決定的であることを確認する。
+		// 失敗時の差分は assert.JSONEq が表示する
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
-		for i := 1; i < len(jsonStrings); i++ {
-			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-
-			if baseJSON != normalizedJSON {
-				t.Errorf("プレイヤー生成セッション %d のJSONが一致しません（非決定的）", i+1)
-
-				// 差分の詳細を表示
-				baseLines := strings.Split(baseJSON, "\n")
-				compareLines := strings.Split(normalizedJSON, "\n")
-
-				diffCount := 0
-				maxDiffs := 10
-				for lineNum := 0; lineNum < len(baseLines) && lineNum < len(compareLines) && diffCount < maxDiffs; lineNum++ {
-					if baseLines[lineNum] != compareLines[lineNum] {
-						t.Logf("行 %d の違い:", lineNum+1)
-						t.Logf("  セッション1: %s", baseLines[lineNum])
-						t.Logf("  セッション%d: %s", i+1, compareLines[lineNum])
-						diffCount++
-					}
-				}
-				if diffCount >= maxDiffs {
-					t.Logf("... (さらに %d個以上の違いが見つかりました)", maxDiffs)
-				}
-				break
-			}
-		}
-
-		// すべてのセッションで同一のJSONが生成されることを確認
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
 			assert.JSONEq(t, baseJSON, normalizedJSON,
@@ -434,7 +407,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	player.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
 
 	// 決定的なアイテム作成（手動でコンポーネント追加）
-	var items []ecs.Entity
 
 	// 武器1: 木刀
 	sword := world.Manager.NewEntity()
@@ -444,7 +416,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		Accuracy: 100, Damage: 8, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 	})
-	_ = append(items, sword)
 
 	// 武器2: ハンドガン
 	handgun := world.Manager.NewEntity()
@@ -454,7 +425,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		Accuracy: 85, Damage: 12, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackHandgun,
 	})
-	_ = append(items, handgun)
 
 	// 防具: 西洋鎧
 	armor := world.Manager.NewEntity()
@@ -467,7 +437,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 			Vitality: 2, Strength: 1, Sensation: 0, Dexterity: 0, Agility: -1,
 		},
 	})
-	_ = append(items, armor)
 
 	// 回復アイテム
 	potion := world.Manager.NewEntity()
@@ -483,7 +452,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	potion.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{
 		Amount: gc.RatioAmount{Ratio: 0.3},
 	})
-	_ = append(items, potion)
 
 	// 決定的なNPC作成
 	for i := range 3 {
