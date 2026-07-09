@@ -17,10 +17,11 @@ type Tile int
 // ========== ウィンドウサイズ ==========
 
 const (
-	// MinGameWidth はゲームウィンドウの最小幅
-	MinGameWidth = 960
-	// MinGameHeight はゲームウィンドウの最小高さ
-	MinGameHeight = 720
+	// GameWidth はゲームの論理解像度の幅。Ebiten の Layout が返す固定値で、
+	// ウィンドウはこのサイズを拡大縮小して表示する
+	GameWidth = 960
+	// GameHeight はゲームの論理解像度の高さ
+	GameHeight = 720
 )
 
 // ========== アクションポイント ==========

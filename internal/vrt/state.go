@@ -74,7 +74,7 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 		}
 	}
 
-	width, height := consts.MinGameWidth, consts.MinGameHeight
+	width, height := consts.GameWidth, consts.GameHeight
 	screen := ebiten.NewImage(width, height)
 
 	for _, state := range stateMachine.GetStates() {
