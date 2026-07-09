@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -201,8 +201,8 @@
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 : func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         professions := raw.PtrSlice(world.Resources.RawMaster.Professions)</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         items := make([]jobMenuItem, len(professions))</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :         for i, p := range professions {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 items[i] = jobMenuItem{Profession: p}</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :         for i := range professions {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 items[i] = jobMenuItem{Profession: professions[i]}</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return jobMenuProps{Items: items}</span></span>
 <span id="L146"><span class="lineNum">     146</span>              : }</span>
@@ -296,9 +296,9 @@
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         // メインエリア: 左右分割</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         leftContainer := styled.NewVerticalContainer()</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           2 :         for i, item := range props.Items {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           2 :         for i := range props.Items {</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 isSelected := i == itemIndex</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 itemWidget := styled.NewListItemText(item.Profession.Name, theme.TextSecondary, isSelected, res)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 itemWidget := styled.NewListItemText(props.Items[i].Profession.Name, theme.TextSecondary, isSelected, res)</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 leftContainer.AddChild(itemWidget)</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         rightContainer := st.buildDetailPanel(props, itemIndex, res)</span></span>

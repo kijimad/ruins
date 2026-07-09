@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -157,8 +157,8 @@
 <span id="L95"><span class="lineNum">      95</span>              : // GetAllDungeonNames は全ダンジョン名のスライスを返す</span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : func GetAllDungeonNames() []string {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         names := make([]string, len(allDungeons))</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           2 :         for i, d := range allDungeons {</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 names[i] = d.Name</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           2 :         for i := range allDungeons {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 names[i] = allDungeons[i].Name</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         return names</span></span>
 <span id="L102"><span class="lineNum">     102</span>              : }</span>
@@ -172,14 +172,14 @@
 <span id="L110"><span class="lineNum">     110</span>              : // GetDungeon は名前からダンジョン定義を取得する</span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 : func GetDungeon(name string) (Definition, bool) {</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         // 内部用定義を先にチェック</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         for _, d := range internalDungeons {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 if d.Name == name {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC tlaBgUNC">           0 :                         return d, true</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         for i := range internalDungeons {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 if internalDungeons[i].Name == name {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC tlaBgUNC">           0 :                         return internalDungeons[i], true</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L117"><span class="lineNum">     117</span>              :         }</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC tlaBgGNC">           2 :         for _, d := range allDungeons {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           2 :                 if d.Name == name {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                         return d, true</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC tlaBgGNC">           2 :         for i := range allDungeons {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           2 :                 if allDungeons[i].Name == name {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                         return allDungeons[i], true</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L122"><span class="lineNum">     122</span>              :         }</span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         return Definition{}, false</span></span>

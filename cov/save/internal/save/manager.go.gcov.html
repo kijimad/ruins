@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.7&nbsp;%</td>
-            <td class="headerCovTableEntry">562</td>
-            <td class="headerCovTableEntry">510</td>
+            <td class="headerCovTableEntryHi">90.8&nbsp;%</td>
+            <td class="headerCovTableEntry">563</td>
+            <td class="headerCovTableEntry">511</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -417,390 +417,392 @@
 <span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L356"><span class="lineNum">     356</span>              : }</span>
 <span id="L357"><span class="lineNum">     357</span>              : </span>
-<span id="L358"><span class="lineNum">     358</span>              : // entityEntry はエンティティ復元時の一時データ</span>
-<span id="L359"><span class="lineNum">     359</span>              : type entityEntry struct {</span>
-<span id="L360"><span class="lineNum">     360</span>              :         entity ecs.Entity</span>
-<span id="L361"><span class="lineNum">     361</span>              :         data   oapi.SaveDataEntitySaveData</span>
-<span id="L362"><span class="lineNum">     362</span>              : }</span>
-<span id="L363"><span class="lineNum">     363</span>              : </span>
-<span id="L364"><span class="lineNum">     364</span>              : // restoreWorldData はセーブデータからワールドを復元する</span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.SaveDataWorldSaveData) error {</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         // 第1段階: 全エンティティを作成して安定IDマッピング</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         entries := make([]entityEntry, 0, len(worldData.Entities))</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           2 :         for _, entityData := range worldData.Entities {</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 entity := world.Manager.NewEntity()</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                 stableID := stableIDFromSaveData(entityData.StableId)</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 if err := sm.stableIDManager.RegisterEntity(entity, stableID); err != nil {</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to register entity mapping: %w&quot;, err)</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC tlaBgGNC">           1 :                 entries = append(entries, entityEntry{entity: entity, data: entityData})</span></span>
-<span id="L375"><span class="lineNum">     375</span>              :         }</span>
-<span id="L376"><span class="lineNum">     376</span>              : </span>
-<span id="L377"><span class="lineNum">     377</span>              :         // 第2段階: コンポーネントを復元</span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :         c := world.Components</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           2 :         for _, entry := range entries {</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :                 restoreComponents(entry.entity, entry.data.Components, c)</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L382"><span class="lineNum">     382</span>              : </span>
-<span id="L383"><span class="lineNum">     383</span>              :         // 第3段階: エンティティ参照を解決</span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           2 :         for _, entry := range entries {</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :                 comp := entry.data.Components</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                 // LocationInBackpack の Owner を解決</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           2 :                 if comp.LocationInBackpack != nil {</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                         ownerStableID := stableIDFromSaveData(comp.LocationInBackpack.OwnerRef)</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                         ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                         if !exists {</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;required owner entity not found for stable ID: %v&quot;, ownerStableID)</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC tlaBgGNC">           1 :                         backpack := c.LocationInBackpack.Get(entry.entity).(*gc.LocationInBackpack)</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                         backpack.Owner = ownerEntity</span></span>
-<span id="L396"><span class="lineNum">     396</span>              :                 }</span>
-<span id="L397"><span class="lineNum">     397</span>              : </span>
-<span id="L398"><span class="lineNum">     398</span>              :                 // LocationEquipped の Owner を解決</span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           2 :                 if comp.LocationEquipped != nil {</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :                         ownerStableID := stableIDFromSaveData(comp.LocationEquipped.OwnerRef)</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :                         ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                         if !exists {</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;required owner entity not found for stable ID: %v&quot;, ownerStableID)</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC tlaBgGNC">           1 :                         equipped := c.LocationEquipped.Get(entry.entity).(*gc.LocationEquipped)</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                         equipped.Owner = ownerEntity</span></span>
-<span id="L407"><span class="lineNum">     407</span>              :                 }</span>
-<span id="L408"><span class="lineNum">     408</span>              :         }</span>
-<span id="L409"><span class="lineNum">     409</span>              : </span>
-<span id="L410"><span class="lineNum">     410</span>              :         // 第4段階: 派生コンポーネントの再計算をマークする</span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           2 :         for _, entry := range entries {</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           2 :                 if entry.entity.HasComponent(c.Skills) {</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                         entry.entity.AddComponent(c.StatsChanged, &amp;gc.StatsChanged{})</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L415"><span class="lineNum">     415</span>              :         }</span>
-<span id="L416"><span class="lineNum">     416</span>              : </span>
-<span id="L417"><span class="lineNum">     417</span>              :         // GameProgressを復元</span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           2 :         if gp := gameProgressFromSaveData(worldData.GameProgress); gp != nil {</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :                 *query.GetGameProgress(world) = *gp</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L421"><span class="lineNum">     421</span>              : </span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L423"><span class="lineNum">     423</span>              : }</span>
-<span id="L424"><span class="lineNum">     424</span>              : </span>
-<span id="L425"><span class="lineNum">     425</span>              : // restoreComponents はComponentsMapから全コンポーネントをエンティティに復元する</span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 : func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         // マーカーコンポーネント (NullComponent)</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           2 :         if comp.Player != nil {</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Player, &amp;gc.Player{})</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           2 :         if comp.FactionAllyData != nil {</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.FactionAlly, &amp;gc.FactionAllyData{})</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L434"><span class="lineNum">     434</span>              :         // LocationInBackpack（Ownerは第3段階で解決）</span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           2 :         if comp.LocationInBackpack != nil {</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.LocationInBackpack, &amp;gc.LocationInBackpack{})</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           2 :         if comp.StatsChanged != nil {</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.StatsChanged, &amp;gc.StatsChanged{})</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L441"><span class="lineNum">     441</span>              : </span>
-<span id="L442"><span class="lineNum">     442</span>              :         // Stackable (Countフィールドあり)</span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           2 :         if comp.Stackable != nil {</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                 stackable := gc.Stackable{}</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           2 :                 if count, ok := (*comp.Stackable)[&quot;Count&quot;]; ok {</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           2 :                         if countFloat, ok := count.(float64); ok {</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :                                 stackable.Count = int(countFloat)</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L449"><span class="lineNum">     449</span>              :                 }</span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Stackable, &amp;stackable)</span></span>
-<span id="L451"><span class="lineNum">     451</span>              :         }</span>
-<span id="L452"><span class="lineNum">     452</span>              : </span>
-<span id="L453"><span class="lineNum">     453</span>              :         // データコンポーネント</span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :         restoreDataComponents(entity, comp, c)</span></span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :         // アイテム属性コンポーネント</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :         restoreItemComponents(entity, comp, c)</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :         // アイテム効果コンポーネント</span></span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :         restoreEffectComponents(entity, comp, c)</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         // 戦闘コンポーネント</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           2 :         if comp.CommandTable != nil {</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.CommandTable, &amp;gc.CommandTable{Name: comp.CommandTable.Name})</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L466"><span class="lineNum">     466</span>              : </span>
-<span id="L467"><span class="lineNum">     467</span>              :         // 隊員コンポーネント</span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           2 :         if comp.SquadMember != nil {</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.SquadMember, &amp;gc.SquadMember{})</span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           2 :         if comp.SquadPolicy != nil {</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :                 ai := aiFromSaveData(*comp.SquadPolicy)</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.AI, &amp;ai)</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L475"><span class="lineNum">     475</span>              :         // LocationEquipped (Owner以外を復元。Ownerは後で解決)</span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           2 :         if comp.LocationEquipped != nil {</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 :                 slot := gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot)</span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           2 :                 if slot &gt;= gc.SlotHead &amp;&amp; slot &lt;= gc.SlotWeapon5 {</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                         equipped := gc.LocationEquipped{</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :                                 Owner:         0,</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :                                 EquipmentSlot: slot,</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                         entity.AddComponent(c.LocationEquipped, &amp;equipped)</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L485"><span class="lineNum">     485</span>              :         }</span>
-<span id="L486"><span class="lineNum">     486</span>              : }</span>
-<span id="L487"><span class="lineNum">     487</span>              : </span>
-<span id="L488"><span class="lineNum">     488</span>              : // restoreDataComponents はデータ/表示コンポーネントを復元する</span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 : func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           2 :         if comp.Name != nil {</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Name, &amp;gc.Name{Name: comp.Name.Name})</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           2 :         if comp.Description != nil {</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Description, &amp;gc.Description{Description: comp.Description.Description})</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           2 :         if comp.HP != nil {</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :                 hp := hpFromSaveData(*comp.HP)</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.HP, &amp;hp)</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           2 :         if comp.WeightCapacity != nil {</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :                 cw := weightCapacityFromSaveData(*comp.WeightCapacity)</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.WeightCapacity, &amp;cw)</span></span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           2 :         if comp.TurnBased != nil {</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :                 tb := turnBasedFromSaveData(*comp.TurnBased)</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.TurnBased, &amp;tb)</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           2 :         if comp.Abilities != nil {</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :                 ab := abilitiesFromSaveData(*comp.Abilities)</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Abilities, &amp;ab)</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           2 :         if comp.HealthStatus != nil {</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :                 hs := healthStatusFromSaveData(*comp.HealthStatus)</span></span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.HealthStatus, &amp;hs)</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           2 :         if comp.Skills != nil {</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :                 skills := skillsFromSaveData(*comp.Skills)</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Skills, skills)</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           2 :         if comp.Camera != nil {</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :                 cam := cameraFromSaveData(*comp.Camera)</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Camera, &amp;cam)</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           2 :         if comp.GridElement != nil {</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :                 ge := gridElementFromSaveData(*comp.GridElement)</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.GridElement, &amp;ge)</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           2 :         if comp.SpriteRender != nil {</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :                 sr := spriteRenderFromSaveData(*comp.SpriteRender)</span></span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.SpriteRender, &amp;sr)</span></span>
-<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           2 :         if comp.LightSource != nil {</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :                 ls := lightSourceFromSaveData(*comp.LightSource)</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.LightSource, &amp;ls)</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L536"><span class="lineNum">     536</span>              : }</span>
-<span id="L537"><span class="lineNum">     537</span>              : </span>
-<span id="L538"><span class="lineNum">     538</span>              : // restoreItemComponents はアイテム属性コンポーネントを復元する</span>
-<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           1 : func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           2 :         if comp.Wearable != nil {</span></span>
-<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :                 w := wearableFromSaveData(*comp.Wearable)</span></span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Wearable, &amp;w)</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           2 :         if comp.Value != nil {</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Value, &amp;gc.Value{Value: int(comp.Value.Value)})</span></span>
-<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           2 :         if comp.Melee != nil {</span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :                 m := meleeFromSaveData(*comp.Melee)</span></span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Melee, &amp;m)</span></span>
-<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           2 :         if comp.Fire != nil {</span></span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :                 f := fireFromSaveData(*comp.Fire)</span></span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Fire, &amp;f)</span></span>
-<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           2 :         if comp.Recipe != nil {</span></span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :                 r := recipeFromSaveData(*comp.Recipe)</span></span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Recipe, &amp;r)</span></span>
-<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           2 :         if comp.Ammo != nil {</span></span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :                 a := ammoFromSaveData(*comp.Ammo)</span></span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Ammo, &amp;a)</span></span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L563"><span class="lineNum">     563</span>              : }</span>
-<span id="L564"><span class="lineNum">     564</span>              : </span>
-<span id="L565"><span class="lineNum">     565</span>              : // restoreEffectComponents はアイテム効果コンポーネントを復元する</span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">           1 : func restoreEffectComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           2 :         if comp.Consumable != nil {</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 :                 con := consumableFromSaveData(*comp.Consumable)</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Consumable, &amp;con)</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           2 :         if comp.ProvidesHealing != nil {</span></span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           1 :                 ph := providesHealingFromSaveData(*comp.ProvidesHealing)</span></span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.ProvidesHealing, &amp;ph)</span></span>
-<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">           2 :         if comp.ProvidesNutrition != nil {</span></span>
-<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.ProvidesNutrition, &amp;gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})</span></span>
-<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           2 :         if comp.InflictsDamage != nil {</span></span>
-<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.InflictsDamage, &amp;gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})</span></span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">           2 :         if comp.Wallet != nil {</span></span>
-<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Wallet, &amp;gc.Wallet{Currency: int(comp.Wallet.Currency)})</span></span>
-<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L584"><span class="lineNum">     584</span>              : }</span>
-<span id="L585"><span class="lineNum">     585</span>              : </span>
-<span id="L586"><span class="lineNum">     586</span>              : // SaveFileExists はセーブファイルが存在するかチェックする</span>
-<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) SaveFileExists(slotName string) bool {</span></span>
-<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :         return sm.saveFileExistsImpl(slotName)</span></span>
-<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L590"><span class="lineNum">     590</span>              : </span>
-<span id="L591"><span class="lineNum">     591</span>              : // GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する。</span>
-<span id="L592"><span class="lineNum">     592</span>              : // セーブデータ全体をデシリアライズせず、タイムスタンプだけを抽出する。</span>
-<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) {</span></span>
-<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           1 :         data, err := sm.loadDataImpl(slotName)</span></span>
-<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC tlaBgUNC">           0 :                 return time.Time{}, err</span></span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC tlaBgGNC">           1 :         var partial struct {</span></span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :                 Timestamp time.Time `json:&quot;timestamp&quot;`</span></span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :         if err := json.Unmarshal(data, &amp;partial); err != nil {</span></span>
-<span id="L602"><span class="lineNum">     602</span> <span class="tlaUNC tlaBgUNC">           0 :                 return time.Time{}, fmt.Errorf(&quot;failed to parse save data: %w&quot;, err)</span></span>
-<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC tlaBgGNC">           1 :         return partial.Timestamp, nil</span></span>
-<span id="L605"><span class="lineNum">     605</span>              : }</span>
-<span id="L606"><span class="lineNum">     606</span>              : </span>
-<span id="L607"><span class="lineNum">     607</span>              : // calculateChecksum はセーブデータからチェックサムを計算する。</span>
-<span id="L608"><span class="lineNum">     608</span>              : // Checksum自身を除いた全データのJSON表現をSHA-256でハッシュする。</span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateChecksum(data *oapi.SaveDataSaveData) (string, error) {</span></span>
-<span id="L610"><span class="lineNum">     610</span> <span class="tlaGNC">           1 :         // チェックサムフィールドを空にしたコピーでハッシュ計算</span></span>
-<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           1 :         hashTarget := oapi.SaveDataSaveData{</span></span>
-<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           1 :                 Version:   data.Version,</span></span>
-<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           1 :                 Timestamp: data.Timestamp,</span></span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 :                 World:     data.World,</span></span>
-<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(hashTarget)</span></span>
-<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L618"><span class="lineNum">     618</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;failed to marshal save data for checksum: %w&quot;, err)</span></span>
-<span id="L619"><span class="lineNum">     619</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC tlaBgGNC">           1 :         hash := sha256.Sum256(jsonBytes)</span></span>
-<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:]), nil</span></span>
-<span id="L622"><span class="lineNum">     622</span>              : }</span>
-<span id="L623"><span class="lineNum">     623</span>              : </span>
-<span id="L624"><span class="lineNum">     624</span>              : // ListSaves はセーブデータの一覧を新しい順に返す</span>
-<span id="L625"><span class="lineNum">     625</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) ListSaves() ([]string, error) {</span></span>
-<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           1 :         names, err := sm.listSavesImpl()</span></span>
-<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L628"><span class="lineNum">     628</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L630"><span class="lineNum">     630</span>              : </span>
-<span id="L631"><span class="lineNum">     631</span>              :         // タイムスタンプを取得できたもののみ返す</span>
-<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC tlaBgGNC">           1 :         var valid []string</span></span>
-<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           1 :         timestamps := make(map[string]time.Time, len(names))</span></span>
-<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           2 :         for _, name := range names {</span></span>
-<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           1 :                 ts, err := sm.GetSaveFileTimestamp(name)</span></span>
-<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L637"><span class="lineNum">     637</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L638"><span class="lineNum">     638</span>              :                 }</span>
-<span id="L639"><span class="lineNum">     639</span> <span class="tlaGNC tlaBgGNC">           1 :                 valid = append(valid, name)</span></span>
-<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           1 :                 timestamps[name] = ts</span></span>
-<span id="L641"><span class="lineNum">     641</span>              :         }</span>
-<span id="L642"><span class="lineNum">     642</span>              : </span>
-<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC">           2 :         sort.Slice(valid, func(i, j int) bool {</span></span>
-<span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC">           1 :                 return timestamps[valid[i]].After(timestamps[valid[j]])</span></span>
-<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           1 :         return valid, nil</span></span>
-<span id="L647"><span class="lineNum">     647</span>              : }</span>
-<span id="L648"><span class="lineNum">     648</span>              : </span>
-<span id="L649"><span class="lineNum">     649</span>              : // ListAutoSaves はオートセーブスロット名の一覧を返す。</span>
-<span id="L650"><span class="lineNum">     650</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) ListAutoSaves() ([]string, error) {</span></span>
-<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">           1 :         saves, err := sm.ListSaves()</span></span>
-<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L653"><span class="lineNum">     653</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L654"><span class="lineNum">     654</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC tlaBgGNC">           1 :         var autoSaves []string</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           2 :         for _, name := range saves {</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">           2 :                 if strings.HasPrefix(name, autoSavePrefix) {</span></span>
-<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           1 :                         autoSaves = append(autoSaves, name)</span></span>
-<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L660"><span class="lineNum">     660</span>              :         }</span>
-<span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">           1 :         return autoSaves, nil</span></span>
-<span id="L662"><span class="lineNum">     662</span>              : }</span>
-<span id="L663"><span class="lineNum">     663</span>              : </span>
-<span id="L664"><span class="lineNum">     664</span>              : // AutoSave はオートセーブを実行する。</span>
-<span id="L665"><span class="lineNum">     665</span>              : // スロット名の生成、保存、古いオートセーブのローテーションを一括で行う。</span>
-<span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) AutoSave(world w.World) error {</span></span>
-<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           1 :         slotName := fmt.Sprintf(&quot;%s%d&quot;, autoSavePrefix, time.Now().UnixNano())</span></span>
-<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           1 :         if err := sm.SaveWorld(world, slotName); err != nil {</span></span>
-<span id="L669"><span class="lineNum">     669</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;オートセーブに失敗: %w&quot;, err)</span></span>
-<span id="L670"><span class="lineNum">     670</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := sm.rotateAutoSaves(); err != nil {</span></span>
-<span id="L672"><span class="lineNum">     672</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;古いオートセーブの削除に失敗: %w&quot;, err)</span></span>
-<span id="L673"><span class="lineNum">     673</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L675"><span class="lineNum">     675</span>              : }</span>
-<span id="L676"><span class="lineNum">     676</span>              : </span>
-<span id="L677"><span class="lineNum">     677</span>              : // rotateAutoSaves はオートセーブを最大件数まで削減する。</span>
-<span id="L678"><span class="lineNum">     678</span>              : // 古い順に削除して maxAutoSaves 件を保持する。</span>
-<span id="L679"><span class="lineNum">     679</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) rotateAutoSaves() error {</span></span>
-<span id="L680"><span class="lineNum">     680</span> <span class="tlaGNC">           1 :         autoSaves, err := sm.ListAutoSaves()</span></span>
-<span id="L681"><span class="lineNum">     681</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L682"><span class="lineNum">     682</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L683"><span class="lineNum">     683</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L684"><span class="lineNum">     684</span>              : </span>
-<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC tlaBgGNC">           2 :         if len(autoSaves) &lt;= maxAutoSaves {</span></span>
-<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L688"><span class="lineNum">     688</span>              : </span>
-<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           2 :         for _, name := range autoSaves[maxAutoSaves:] {</span></span>
-<span id="L690"><span class="lineNum">     690</span> <span class="tlaGNC">           1 :                 if err := sm.deleteSaveImpl(name); err != nil {</span></span>
-<span id="L691"><span class="lineNum">     691</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to prune auto save %s: %w&quot;, name, err)</span></span>
-<span id="L692"><span class="lineNum">     692</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L693"><span class="lineNum">     693</span>              :         }</span>
-<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L695"><span class="lineNum">     695</span>              : }</span>
-<span id="L696"><span class="lineNum">     696</span>              : </span>
-<span id="L697"><span class="lineNum">     697</span>              : // GetSavePlayerName はセーブデータからプレイヤー名を取得する。</span>
-<span id="L698"><span class="lineNum">     698</span>              : // セーブデータ全体をデシリアライズせず、エンティティのName.Nameフィールドだけを抽出する。</span>
-<span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) {</span></span>
-<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">           1 :         data, err := sm.loadDataImpl(slotName)</span></span>
-<span id="L701"><span class="lineNum">     701</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L702"><span class="lineNum">     702</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, err</span></span>
-<span id="L703"><span class="lineNum">     703</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">           1 :         var partial struct {</span></span>
-<span id="L705"><span class="lineNum">     705</span> <span class="tlaGNC">           1 :                 World struct {</span></span>
-<span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">           1 :                         Entities []struct {</span></span>
-<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">           1 :                                 Components struct {</span></span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">           1 :                                         Player *json.RawMessage `json:&quot;player&quot;`</span></span>
-<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           1 :                                         Name   *struct {</span></span>
-<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           1 :                                                 Name string `json:&quot;name&quot;`</span></span>
-<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">           1 :                                         } `json:&quot;name&quot;`</span></span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">           1 :                                 } `json:&quot;components&quot;`</span></span>
-<span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">           1 :                         } `json:&quot;entities&quot;`</span></span>
-<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">           1 :                 } `json:&quot;world&quot;`</span></span>
-<span id="L715"><span class="lineNum">     715</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">           1 :         if err := json.Unmarshal(data, &amp;partial); err != nil {</span></span>
-<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;failed to parse save data: %w&quot;, err)</span></span>
-<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC tlaBgGNC">           2 :         for _, entity := range partial.World.Entities {</span></span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           2 :                 if entity.Components.Player != nil &amp;&amp; entity.Components.Name != nil {</span></span>
-<span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC">           1 :                         return entity.Components.Name.Name, nil</span></span>
-<span id="L722"><span class="lineNum">     722</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L723"><span class="lineNum">     723</span>              :         }</span>
-<span id="L724"><span class="lineNum">     724</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;, fmt.Errorf(&quot;player entity not found in save data&quot;)</span></span>
-<span id="L725"><span class="lineNum">     725</span>              : }</span>
-<span id="L726"><span class="lineNum">     726</span>              : </span>
-<span id="L727"><span class="lineNum">     727</span>              : // validateChecksum はセーブデータのチェックサムを検証する</span>
-<span id="L728"><span class="lineNum">     728</span> <span class="tlaGNC tlaBgGNC">           1 : func (sm *SerializationManager) validateChecksum(data *oapi.SaveDataSaveData) error {</span></span>
-<span id="L729"><span class="lineNum">     729</span> <span class="tlaGNC">           2 :         if data.Checksum == &quot;&quot; {</span></span>
-<span id="L730"><span class="lineNum">     730</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum field is missing: このセーブデータは改ざんされているか、古いバージョンです&quot;)</span></span>
-<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L732"><span class="lineNum">     732</span> <span class="tlaGNC">           1 :         expected, err := sm.calculateChecksum(data)</span></span>
-<span id="L733"><span class="lineNum">     733</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L734"><span class="lineNum">     734</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to calculate checksum: %w&quot;, err)</span></span>
-<span id="L735"><span class="lineNum">     735</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L736"><span class="lineNum">     736</span> <span class="tlaGNC tlaBgGNC">           2 :         if data.Checksum != expected {</span></span>
-<span id="L737"><span class="lineNum">     737</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)&quot;,</span></span>
-<span id="L738"><span class="lineNum">     738</span> <span class="tlaGNC">           1 :                         expected, data.Checksum)</span></span>
-<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L740"><span class="lineNum">     740</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L741"><span class="lineNum">     741</span>              : }</span>
+<span id="L358"><span class="lineNum">     358</span>              : // entityEntry はエンティティ復元時の一時データ。</span>
+<span id="L359"><span class="lineNum">     359</span>              : // dataは大きな構造体のため、コピーを避けてworldData.Entitiesの要素を指すポインタで保持する</span>
+<span id="L360"><span class="lineNum">     360</span>              : type entityEntry struct {</span>
+<span id="L361"><span class="lineNum">     361</span>              :         entity ecs.Entity</span>
+<span id="L362"><span class="lineNum">     362</span>              :         data   *oapi.SaveDataEntitySaveData</span>
+<span id="L363"><span class="lineNum">     363</span>              : }</span>
+<span id="L364"><span class="lineNum">     364</span>              : </span>
+<span id="L365"><span class="lineNum">     365</span>              : // restoreWorldData はセーブデータからワールドを復元する</span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.SaveDataWorldSaveData) error {</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         // 第1段階: 全エンティティを作成して安定IDマッピング</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :         entries := make([]entityEntry, 0, len(worldData.Entities))</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           2 :         for i := range worldData.Entities {</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                 entityData := &amp;worldData.Entities[i]</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 entity := world.Manager.NewEntity()</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :                 stableID := stableIDFromSaveData(entityData.StableId)</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 if err := sm.stableIDManager.RegisterEntity(entity, stableID); err != nil {</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to register entity mapping: %w&quot;, err)</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC tlaBgGNC">           1 :                 entries = append(entries, entityEntry{entity: entity, data: entityData})</span></span>
+<span id="L377"><span class="lineNum">     377</span>              :         }</span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span>              :         // 第2段階: コンポーネントを復元</span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :         c := world.Components</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           2 :         for _, entry := range entries {</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :                 restoreComponents(entry.entity, entry.data.Components, c)</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L384"><span class="lineNum">     384</span>              : </span>
+<span id="L385"><span class="lineNum">     385</span>              :         // 第3段階: エンティティ参照を解決</span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           2 :         for _, entry := range entries {</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                 comp := entry.data.Components</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                 // LocationInBackpack の Owner を解決</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           2 :                 if comp.LocationInBackpack != nil {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                         ownerStableID := stableIDFromSaveData(comp.LocationInBackpack.OwnerRef)</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :                         ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :                         if !exists {</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;required owner entity not found for stable ID: %v&quot;, ownerStableID)</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC tlaBgGNC">           1 :                         backpack := c.LocationInBackpack.Get(entry.entity).(*gc.LocationInBackpack)</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                         backpack.Owner = ownerEntity</span></span>
+<span id="L398"><span class="lineNum">     398</span>              :                 }</span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              :                 // LocationEquipped の Owner を解決</span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           2 :                 if comp.LocationEquipped != nil {</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                         ownerStableID := stableIDFromSaveData(comp.LocationEquipped.OwnerRef)</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                         ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                         if !exists {</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;required owner entity not found for stable ID: %v&quot;, ownerStableID)</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC tlaBgGNC">           1 :                         equipped := c.LocationEquipped.Get(entry.entity).(*gc.LocationEquipped)</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                         equipped.Owner = ownerEntity</span></span>
+<span id="L409"><span class="lineNum">     409</span>              :                 }</span>
+<span id="L410"><span class="lineNum">     410</span>              :         }</span>
+<span id="L411"><span class="lineNum">     411</span>              : </span>
+<span id="L412"><span class="lineNum">     412</span>              :         // 第4段階: 派生コンポーネントの再計算をマークする</span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           2 :         for _, entry := range entries {</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           2 :                 if entry.entity.HasComponent(c.Skills) {</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :                         entry.entity.AddComponent(c.StatsChanged, &amp;gc.StatsChanged{})</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L417"><span class="lineNum">     417</span>              :         }</span>
+<span id="L418"><span class="lineNum">     418</span>              : </span>
+<span id="L419"><span class="lineNum">     419</span>              :         // GameProgressを復元</span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           2 :         if gp := gameProgressFromSaveData(worldData.GameProgress); gp != nil {</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :                 *query.GetGameProgress(world) = *gp</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L423"><span class="lineNum">     423</span>              : </span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L425"><span class="lineNum">     425</span>              : }</span>
+<span id="L426"><span class="lineNum">     426</span>              : </span>
+<span id="L427"><span class="lineNum">     427</span>              : // restoreComponents はComponentsMapから全コンポーネントをエンティティに復元する</span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 : func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :         // マーカーコンポーネント (NullComponent)</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           2 :         if comp.Player != nil {</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Player, &amp;gc.Player{})</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           2 :         if comp.FactionAllyData != nil {</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.FactionAlly, &amp;gc.FactionAllyData{})</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L436"><span class="lineNum">     436</span>              :         // LocationInBackpack（Ownerは第3段階で解決）</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           2 :         if comp.LocationInBackpack != nil {</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.LocationInBackpack, &amp;gc.LocationInBackpack{})</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           2 :         if comp.StatsChanged != nil {</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.StatsChanged, &amp;gc.StatsChanged{})</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L443"><span class="lineNum">     443</span>              : </span>
+<span id="L444"><span class="lineNum">     444</span>              :         // Stackable (Countフィールドあり)</span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           2 :         if comp.Stackable != nil {</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 stackable := gc.Stackable{}</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           2 :                 if count, ok := (*comp.Stackable)[&quot;Count&quot;]; ok {</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           2 :                         if countFloat, ok := count.(float64); ok {</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                                 stackable.Count = int(countFloat)</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L451"><span class="lineNum">     451</span>              :                 }</span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Stackable, &amp;stackable)</span></span>
+<span id="L453"><span class="lineNum">     453</span>              :         }</span>
+<span id="L454"><span class="lineNum">     454</span>              : </span>
+<span id="L455"><span class="lineNum">     455</span>              :         // データコンポーネント</span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :         restoreDataComponents(entity, comp, c)</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :         // アイテム属性コンポーネント</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :         restoreItemComponents(entity, comp, c)</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         // アイテム効果コンポーネント</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         restoreEffectComponents(entity, comp, c)</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :         // 戦闘コンポーネント</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           2 :         if comp.CommandTable != nil {</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.CommandTable, &amp;gc.CommandTable{Name: comp.CommandTable.Name})</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L468"><span class="lineNum">     468</span>              : </span>
+<span id="L469"><span class="lineNum">     469</span>              :         // 隊員コンポーネント</span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           2 :         if comp.SquadMember != nil {</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.SquadMember, &amp;gc.SquadMember{})</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           2 :         if comp.SquadPolicy != nil {</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :                 ai := aiFromSaveData(*comp.SquadPolicy)</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.AI, &amp;ai)</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L477"><span class="lineNum">     477</span>              :         // LocationEquipped (Owner以外を復元。Ownerは後で解決)</span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           2 :         if comp.LocationEquipped != nil {</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                 slot := gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot)</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           2 :                 if slot &gt;= gc.SlotHead &amp;&amp; slot &lt;= gc.SlotWeapon5 {</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :                         equipped := gc.LocationEquipped{</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :                                 Owner:         0,</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                                 EquipmentSlot: slot,</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                         entity.AddComponent(c.LocationEquipped, &amp;equipped)</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L487"><span class="lineNum">     487</span>              :         }</span>
+<span id="L488"><span class="lineNum">     488</span>              : }</span>
+<span id="L489"><span class="lineNum">     489</span>              : </span>
+<span id="L490"><span class="lineNum">     490</span>              : // restoreDataComponents はデータ/表示コンポーネントを復元する</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 : func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           2 :         if comp.Name != nil {</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Name, &amp;gc.Name{Name: comp.Name.Name})</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           2 :         if comp.Description != nil {</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Description, &amp;gc.Description{Description: comp.Description.Description})</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           2 :         if comp.HP != nil {</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :                 hp := hpFromSaveData(*comp.HP)</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.HP, &amp;hp)</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           2 :         if comp.WeightCapacity != nil {</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :                 cw := weightCapacityFromSaveData(*comp.WeightCapacity)</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.WeightCapacity, &amp;cw)</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           2 :         if comp.TurnBased != nil {</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :                 tb := turnBasedFromSaveData(*comp.TurnBased)</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.TurnBased, &amp;tb)</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           2 :         if comp.Abilities != nil {</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :                 ab := abilitiesFromSaveData(*comp.Abilities)</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Abilities, &amp;ab)</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           2 :         if comp.HealthStatus != nil {</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :                 hs := healthStatusFromSaveData(*comp.HealthStatus)</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.HealthStatus, &amp;hs)</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           2 :         if comp.Skills != nil {</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                 skills := skillsFromSaveData(*comp.Skills)</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Skills, skills)</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           2 :         if comp.Camera != nil {</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :                 cam := cameraFromSaveData(*comp.Camera)</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Camera, &amp;cam)</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           2 :         if comp.GridElement != nil {</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :                 ge := gridElementFromSaveData(*comp.GridElement)</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.GridElement, &amp;ge)</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           2 :         if comp.SpriteRender != nil {</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :                 sr := spriteRenderFromSaveData(*comp.SpriteRender)</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.SpriteRender, &amp;sr)</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           2 :         if comp.LightSource != nil {</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :                 ls := lightSourceFromSaveData(*comp.LightSource)</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.LightSource, &amp;ls)</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L538"><span class="lineNum">     538</span>              : }</span>
+<span id="L539"><span class="lineNum">     539</span>              : </span>
+<span id="L540"><span class="lineNum">     540</span>              : // restoreItemComponents はアイテム属性コンポーネントを復元する</span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 : func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           2 :         if comp.Wearable != nil {</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :                 w := wearableFromSaveData(*comp.Wearable)</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Wearable, &amp;w)</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           2 :         if comp.Value != nil {</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Value, &amp;gc.Value{Value: int(comp.Value.Value)})</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           2 :         if comp.Melee != nil {</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :                 m := meleeFromSaveData(*comp.Melee)</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Melee, &amp;m)</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           2 :         if comp.Fire != nil {</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :                 f := fireFromSaveData(*comp.Fire)</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Fire, &amp;f)</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           2 :         if comp.Recipe != nil {</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           1 :                 r := recipeFromSaveData(*comp.Recipe)</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Recipe, &amp;r)</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           2 :         if comp.Ammo != nil {</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :                 a := ammoFromSaveData(*comp.Ammo)</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Ammo, &amp;a)</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L565"><span class="lineNum">     565</span>              : }</span>
+<span id="L566"><span class="lineNum">     566</span>              : </span>
+<span id="L567"><span class="lineNum">     567</span>              : // restoreEffectComponents はアイテム効果コンポーネントを復元する</span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 : func restoreEffectComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           2 :         if comp.Consumable != nil {</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :                 con := consumableFromSaveData(*comp.Consumable)</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Consumable, &amp;con)</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC">           2 :         if comp.ProvidesHealing != nil {</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">           1 :                 ph := providesHealingFromSaveData(*comp.ProvidesHealing)</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.ProvidesHealing, &amp;ph)</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">           2 :         if comp.ProvidesNutrition != nil {</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.ProvidesNutrition, &amp;gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           2 :         if comp.InflictsDamage != nil {</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.InflictsDamage, &amp;gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           2 :         if comp.Wallet != nil {</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.Wallet, &amp;gc.Wallet{Currency: int(comp.Wallet.Currency)})</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L586"><span class="lineNum">     586</span>              : }</span>
+<span id="L587"><span class="lineNum">     587</span>              : </span>
+<span id="L588"><span class="lineNum">     588</span>              : // SaveFileExists はセーブファイルが存在するかチェックする</span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) SaveFileExists(slotName string) bool {</span></span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           1 :         return sm.saveFileExistsImpl(slotName)</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L592"><span class="lineNum">     592</span>              : </span>
+<span id="L593"><span class="lineNum">     593</span>              : // GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する。</span>
+<span id="L594"><span class="lineNum">     594</span>              : // セーブデータ全体をデシリアライズせず、タイムスタンプだけを抽出する。</span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) {</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :         data, err := sm.loadDataImpl(slotName)</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC tlaBgUNC">           0 :                 return time.Time{}, err</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC tlaBgGNC">           1 :         var partial struct {</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :                 Timestamp time.Time `json:&quot;timestamp&quot;`</span></span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           1 :         if err := json.Unmarshal(data, &amp;partial); err != nil {</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC tlaBgUNC">           0 :                 return time.Time{}, fmt.Errorf(&quot;failed to parse save data: %w&quot;, err)</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC tlaBgGNC">           1 :         return partial.Timestamp, nil</span></span>
+<span id="L607"><span class="lineNum">     607</span>              : }</span>
+<span id="L608"><span class="lineNum">     608</span>              : </span>
+<span id="L609"><span class="lineNum">     609</span>              : // calculateChecksum はセーブデータからチェックサムを計算する。</span>
+<span id="L610"><span class="lineNum">     610</span>              : // Checksum自身を除いた全データのJSON表現をSHA-256でハッシュする。</span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateChecksum(data *oapi.SaveDataSaveData) (string, error) {</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           1 :         // チェックサムフィールドを空にしたコピーでハッシュ計算</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           1 :         hashTarget := oapi.SaveDataSaveData{</span></span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 :                 Version:   data.Version,</span></span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :                 Timestamp: data.Timestamp,</span></span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :                 World:     data.World,</span></span>
+<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(hashTarget)</span></span>
+<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;failed to marshal save data for checksum: %w&quot;, err)</span></span>
+<span id="L621"><span class="lineNum">     621</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC tlaBgGNC">           1 :         hash := sha256.Sum256(jsonBytes)</span></span>
+<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:]), nil</span></span>
+<span id="L624"><span class="lineNum">     624</span>              : }</span>
+<span id="L625"><span class="lineNum">     625</span>              : </span>
+<span id="L626"><span class="lineNum">     626</span>              : // ListSaves はセーブデータの一覧を新しい順に返す</span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) ListSaves() ([]string, error) {</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :         names, err := sm.listSavesImpl()</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L632"><span class="lineNum">     632</span>              : </span>
+<span id="L633"><span class="lineNum">     633</span>              :         // タイムスタンプを取得できたもののみ返す</span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC tlaBgGNC">           1 :         var valid []string</span></span>
+<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           1 :         timestamps := make(map[string]time.Time, len(names))</span></span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           2 :         for _, name := range names {</span></span>
+<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           1 :                 ts, err := sm.GetSaveFileTimestamp(name)</span></span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L639"><span class="lineNum">     639</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L640"><span class="lineNum">     640</span>              :                 }</span>
+<span id="L641"><span class="lineNum">     641</span> <span class="tlaGNC tlaBgGNC">           1 :                 valid = append(valid, name)</span></span>
+<span id="L642"><span class="lineNum">     642</span> <span class="tlaGNC">           1 :                 timestamps[name] = ts</span></span>
+<span id="L643"><span class="lineNum">     643</span>              :         }</span>
+<span id="L644"><span class="lineNum">     644</span>              : </span>
+<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           2 :         sort.Slice(valid, func(i, j int) bool {</span></span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           1 :                 return timestamps[valid[i]].After(timestamps[valid[j]])</span></span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">           1 :         return valid, nil</span></span>
+<span id="L649"><span class="lineNum">     649</span>              : }</span>
+<span id="L650"><span class="lineNum">     650</span>              : </span>
+<span id="L651"><span class="lineNum">     651</span>              : // ListAutoSaves はオートセーブスロット名の一覧を返す。</span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) ListAutoSaves() ([]string, error) {</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :         saves, err := sm.ListSaves()</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC tlaBgGNC">           1 :         var autoSaves []string</span></span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           2 :         for _, name := range saves {</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           2 :                 if strings.HasPrefix(name, autoSavePrefix) {</span></span>
+<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">           1 :                         autoSaves = append(autoSaves, name)</span></span>
+<span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L662"><span class="lineNum">     662</span>              :         }</span>
+<span id="L663"><span class="lineNum">     663</span> <span class="tlaGNC">           1 :         return autoSaves, nil</span></span>
+<span id="L664"><span class="lineNum">     664</span>              : }</span>
+<span id="L665"><span class="lineNum">     665</span>              : </span>
+<span id="L666"><span class="lineNum">     666</span>              : // AutoSave はオートセーブを実行する。</span>
+<span id="L667"><span class="lineNum">     667</span>              : // スロット名の生成、保存、古いオートセーブのローテーションを一括で行う。</span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) AutoSave(world w.World) error {</span></span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">           1 :         slotName := fmt.Sprintf(&quot;%s%d&quot;, autoSavePrefix, time.Now().UnixNano())</span></span>
+<span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC">           1 :         if err := sm.SaveWorld(world, slotName); err != nil {</span></span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;オートセーブに失敗: %w&quot;, err)</span></span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := sm.rotateAutoSaves(); err != nil {</span></span>
+<span id="L674"><span class="lineNum">     674</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;古いオートセーブの削除に失敗: %w&quot;, err)</span></span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L677"><span class="lineNum">     677</span>              : }</span>
+<span id="L678"><span class="lineNum">     678</span>              : </span>
+<span id="L679"><span class="lineNum">     679</span>              : // rotateAutoSaves はオートセーブを最大件数まで削減する。</span>
+<span id="L680"><span class="lineNum">     680</span>              : // 古い順に削除して maxAutoSaves 件を保持する。</span>
+<span id="L681"><span class="lineNum">     681</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) rotateAutoSaves() error {</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC">           1 :         autoSaves, err := sm.ListAutoSaves()</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L686"><span class="lineNum">     686</span>              : </span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC tlaBgGNC">           2 :         if len(autoSaves) &lt;= maxAutoSaves {</span></span>
+<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L690"><span class="lineNum">     690</span>              : </span>
+<span id="L691"><span class="lineNum">     691</span> <span class="tlaGNC">           2 :         for _, name := range autoSaves[maxAutoSaves:] {</span></span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaGNC">           1 :                 if err := sm.deleteSaveImpl(name); err != nil {</span></span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to prune auto save %s: %w&quot;, name, err)</span></span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L695"><span class="lineNum">     695</span>              :         }</span>
+<span id="L696"><span class="lineNum">     696</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L697"><span class="lineNum">     697</span>              : }</span>
+<span id="L698"><span class="lineNum">     698</span>              : </span>
+<span id="L699"><span class="lineNum">     699</span>              : // GetSavePlayerName はセーブデータからプレイヤー名を取得する。</span>
+<span id="L700"><span class="lineNum">     700</span>              : // セーブデータ全体をデシリアライズせず、エンティティのName.Nameフィールドだけを抽出する。</span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) {</span></span>
+<span id="L702"><span class="lineNum">     702</span> <span class="tlaGNC">           1 :         data, err := sm.loadDataImpl(slotName)</span></span>
+<span id="L703"><span class="lineNum">     703</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, err</span></span>
+<span id="L705"><span class="lineNum">     705</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">           1 :         var partial struct {</span></span>
+<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">           1 :                 World struct {</span></span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">           1 :                         Entities []struct {</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           1 :                                 Components struct {</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           1 :                                         Player *json.RawMessage `json:&quot;player&quot;`</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">           1 :                                         Name   *struct {</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">           1 :                                                 Name string `json:&quot;name&quot;`</span></span>
+<span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">           1 :                                         } `json:&quot;name&quot;`</span></span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">           1 :                                 } `json:&quot;components&quot;`</span></span>
+<span id="L715"><span class="lineNum">     715</span> <span class="tlaGNC">           1 :                         } `json:&quot;entities&quot;`</span></span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">           1 :                 } `json:&quot;world&quot;`</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">           1 :         if err := json.Unmarshal(data, &amp;partial); err != nil {</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;failed to parse save data: %w&quot;, err)</span></span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC tlaBgGNC">           2 :         for _, entity := range partial.World.Entities {</span></span>
+<span id="L722"><span class="lineNum">     722</span> <span class="tlaGNC">           2 :                 if entity.Components.Player != nil &amp;&amp; entity.Components.Name != nil {</span></span>
+<span id="L723"><span class="lineNum">     723</span> <span class="tlaGNC">           1 :                         return entity.Components.Name.Name, nil</span></span>
+<span id="L724"><span class="lineNum">     724</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L725"><span class="lineNum">     725</span>              :         }</span>
+<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;, fmt.Errorf(&quot;player entity not found in save data&quot;)</span></span>
+<span id="L727"><span class="lineNum">     727</span>              : }</span>
+<span id="L728"><span class="lineNum">     728</span>              : </span>
+<span id="L729"><span class="lineNum">     729</span>              : // validateChecksum はセーブデータのチェックサムを検証する</span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaGNC tlaBgGNC">           1 : func (sm *SerializationManager) validateChecksum(data *oapi.SaveDataSaveData) error {</span></span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">           2 :         if data.Checksum == &quot;&quot; {</span></span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum field is missing: このセーブデータは改ざんされているか、古いバージョンです&quot;)</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L734"><span class="lineNum">     734</span> <span class="tlaGNC">           1 :         expected, err := sm.calculateChecksum(data)</span></span>
+<span id="L735"><span class="lineNum">     735</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to calculate checksum: %w&quot;, err)</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L738"><span class="lineNum">     738</span> <span class="tlaGNC tlaBgGNC">           2 :         if data.Checksum != expected {</span></span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)&quot;,</span></span>
+<span id="L740"><span class="lineNum">     740</span> <span class="tlaGNC">           1 :                         expected, data.Checksum)</span></span>
+<span id="L741"><span class="lineNum">     741</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L742"><span class="lineNum">     742</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L743"><span class="lineNum">     743</span>              : }</span>
         </pre>
               </td>
             </tr>

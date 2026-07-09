@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -317,7 +317,7 @@
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :                 depth = d.Depth</span></span>
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L257"><span class="lineNum">     257</span>              : </span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         for i := 0; i &lt; lootCount; i++ {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         for range lootCount {</span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                 itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;アイテム抽選エラー: %w&quot;, err)</span></span>

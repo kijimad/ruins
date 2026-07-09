@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">270</td>
+            <td class="headerCovTableEntry">271</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -318,194 +318,195 @@
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         })</span></span>
 <span id="L257"><span class="lineNum">     257</span>              : </span>
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         candidates := make([]tavernCandidateData, 0, len(st.candidates))</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         for i, c := range st.candidates {</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, tavernCandidateData{</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                         Index:     i,</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                         Name:      c.Name,</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                         Stats:     fmt.Sprintf(&quot;体%d 力%d 感%d 器%d 敏%d 防%d&quot;, c.Abilities.Vitality.Base, c.Abilities.Strength.Base, c.Abilities.Sensation.Base, c.Abilities.Dexterity.Base, c.Abilities.Agility.Base, c.Abilities.Defense.Base),</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                         Cost:      c.Cost,</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                         CanAfford: currency &gt;= c.Cost,</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L268"><span class="lineNum">     268</span>              : </span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :         return tavernProps{</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                 Candidates: candidates,</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 Currency:   currency,</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L273"><span class="lineNum">     273</span>              : }</span>
-<span id="L274"><span class="lineNum">     274</span>              : </span>
-<span id="L275"><span class="lineNum">     275</span>              : // ================</span>
-<span id="L276"><span class="lineNum">     276</span>              : // Window</span>
-<span id="L277"><span class="lineNum">     277</span>              : // ================</span>
-<span id="L278"><span class="lineNum">     278</span>              : </span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) setupWindowState() {</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems()</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         hooks.UseState(st.windowMount.Store(), &quot;tavern_window_index&quot;, 0, func(v int, action inputmapper.ActionID) int {</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 switch action {</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionWindowUp:</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                         if v &gt; 0 {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                                 return v - 1</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                         return len(actionItems) - 1</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionWindowDown:</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                         if v &lt; len(actionItems)-1 {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                                 return v + 1</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         return 0</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 default:</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                         return v</span></span>
-<span id="L296"><span class="lineNum">     296</span>              :                 }</span>
-<span id="L297"><span class="lineNum">     297</span>              :         })</span>
-<span id="L298"><span class="lineNum">     298</span>              : }</span>
-<span id="L299"><span class="lineNum">     299</span>              : </span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) getActionItems() []string {</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         if windowProps.Candidate.Name == &quot;&quot; {</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                 return []string{TextClose}</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         items := []string{}</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         if windowProps.Candidate.CanAfford {</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 items = append(items, &quot;雇用する&quot;)</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         items = append(items, TextClose)</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         return items</span></span>
-<span id="L311"><span class="lineNum">     311</span>              : }</span>
-<span id="L312"><span class="lineNum">     312</span>              : </span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) handleCandidateSelection() {</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :         props := st.menuMount.GetProps()</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :         menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, &quot;tavern&quot;)</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         itemIndex := menuState.ItemIndex</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :         if itemIndex &gt;= len(props.Candidates) {</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L323"><span class="lineNum">     323</span>              : </span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         st.subState = tavernSubStateWindow</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :         st.windowMount = hooks.NewMount[tavernWindowProps]()</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         st.windowMount.SetProps(tavernWindowProps{</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :                 Candidate: props.Candidates[itemIndex],</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L329"><span class="lineNum">     329</span>              : }</span>
-<span id="L330"><span class="lineNum">     330</span>              : </span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) executeWindowAction(world w.World) error {</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         actionIndex, ok := hooks.GetState[int](st.windowMount, &quot;tavern_window_index&quot;)</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems()</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         if actionIndex &gt;= len(actionItems) {</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L341"><span class="lineNum">     341</span>              : </span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :         selectedAction := actionItems[actionIndex]</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         case &quot;雇用する&quot;:</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 candidate := st.candidates[windowProps.Candidate.Index]</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L351"><span class="lineNum">     351</span>              : </span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 if !query.ConsumeCurrency(world, playerEntity, candidate.Cost) {</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L355"><span class="lineNum">     355</span>              : </span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 if _, err := lifecycle.SpawnSquadMember(world, playerEntity, candidate.Name, candidate.Abilities, candidate.SpriteKey); err != nil {</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;雇用に失敗: %w&quot;, err)</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L359"><span class="lineNum">     359</span>              : </span>
-<span id="L360"><span class="lineNum">     360</span>              :                 // 候補リストから削除する</span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 st.candidates = append(st.candidates[:windowProps.Candidate.Index], st.candidates[windowProps.Candidate.Index+1:]...)</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 st.subState = tavernSubStateMenu</span></span>
-<span id="L363"><span class="lineNum">     363</span>              : </span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         case TextClose:</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                 st.subState = tavernSubStateMenu</span></span>
-<span id="L366"><span class="lineNum">     366</span>              :         }</span>
-<span id="L367"><span class="lineNum">     367</span>              : </span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L369"><span class="lineNum">     369</span>              : }</span>
-<span id="L370"><span class="lineNum">     370</span>              : </span>
-<span id="L371"><span class="lineNum">     371</span>              : // ================</span>
-<span id="L372"><span class="lineNum">     372</span>              : // buildUI</span>
-<span id="L373"><span class="lineNum">     373</span>              : // ================</span>
-<span id="L374"><span class="lineNum">     374</span>              : </span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         props := st.menuMount.GetProps()</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, &quot;tavern&quot;)</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         itemIndex := menuState.ItemIndex</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         root := styled.NewVerticalContainer(</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :         root.AddChild(styled.NewTitleText(&quot;酒場&quot;, res))</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCurrencyRow(props.Currency, res))</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         eui := &amp;ebitenui.UI{Container: root}</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         if st.subState == tavernSubStateWindow {</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                 window := st.buildActionWindow(world)</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                 eui.AddWindow(window)</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L395"><span class="lineNum">     395</span>              : </span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         return eui</span></span>
-<span id="L397"><span class="lineNum">     397</span>              : }</span>
-<span id="L398"><span class="lineNum">     398</span>              : </span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildCurrencyRow(currency int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L404"><span class="lineNum">     404</span>              : </span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         if len(candidates) == 0 {</span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewDescriptionText(&quot;雇用できる候補がいません&quot;, res))</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                 return container</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L412"><span class="lineNum">     412</span>              : </span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :         columnWidths := []int{20, 60, 180, 80}</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :         table := styled.NewTableContainer(columnWidths, res)</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :         styled.NewTableHeaderRow(table, columnWidths, []string{&quot;&quot;, &quot;名前&quot;, &quot;能力&quot;, &quot;費用&quot;}, res)</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         for i, c := range candidates {</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :                 isSelected := i == selectedIndex</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                 costStr := query.FormatCurrency(c.Cost)</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 styled.NewTableRow(table, columnWidths, []string{&quot;&quot;, c.Name, c.Stats, costStr}, aligns, &amp;isSelected, res)</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L424"><span class="lineNum">     424</span>              : </span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :         container.AddChild(table)</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L427"><span class="lineNum">     427</span>              : }</span>
-<span id="L428"><span class="lineNum">     428</span>              : </span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildActionWindow(world w.World) *widget.Window {</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :         actionIndex, _ := hooks.GetState[int](st.windowMount, &quot;tavern_window_index&quot;)</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems()</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(windowProps.Candidate.Name, res)</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :         window := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(styled.NewListItemText(action, theme.TextSecondary, isSelected, res))</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L443"><span class="lineNum">     443</span>              : </span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :         window.SetLocation(getCenterWinRect(world))</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :         return window</span></span>
-<span id="L446"><span class="lineNum">     446</span>              : }</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         for i := range st.candidates {</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :                 c := &amp;st.candidates[i]</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, tavernCandidateData{</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                         Index:     i,</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                         Name:      c.Name,</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                         Stats:     fmt.Sprintf(&quot;体%d 力%d 感%d 器%d 敏%d 防%d&quot;, c.Abilities.Vitality.Base, c.Abilities.Strength.Base, c.Abilities.Sensation.Base, c.Abilities.Dexterity.Base, c.Abilities.Agility.Base, c.Abilities.Defense.Base),</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                         Cost:      c.Cost,</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                         CanAfford: currency &gt;= c.Cost,</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : </span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         return tavernProps{</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 Candidates: candidates,</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                 Currency:   currency,</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L274"><span class="lineNum">     274</span>              : }</span>
+<span id="L275"><span class="lineNum">     275</span>              : </span>
+<span id="L276"><span class="lineNum">     276</span>              : // ================</span>
+<span id="L277"><span class="lineNum">     277</span>              : // Window</span>
+<span id="L278"><span class="lineNum">     278</span>              : // ================</span>
+<span id="L279"><span class="lineNum">     279</span>              : </span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) setupWindowState() {</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems()</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         hooks.UseState(st.windowMount.Store(), &quot;tavern_window_index&quot;, 0, func(v int, action inputmapper.ActionID) int {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 switch action {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionWindowUp:</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                         if v &gt; 0 {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                                 return v - 1</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                         return len(actionItems) - 1</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionWindowDown:</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                         if v &lt; len(actionItems)-1 {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                                 return v + 1</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                         return 0</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                 default:</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                         return v</span></span>
+<span id="L297"><span class="lineNum">     297</span>              :                 }</span>
+<span id="L298"><span class="lineNum">     298</span>              :         })</span>
+<span id="L299"><span class="lineNum">     299</span>              : }</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) getActionItems() []string {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         if windowProps.Candidate.Name == &quot;&quot; {</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 return []string{TextClose}</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         items := []string{}</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :         if windowProps.Candidate.CanAfford {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 items = append(items, &quot;雇用する&quot;)</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         items = append(items, TextClose)</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :         return items</span></span>
+<span id="L312"><span class="lineNum">     312</span>              : }</span>
+<span id="L313"><span class="lineNum">     313</span>              : </span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) handleCandidateSelection() {</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :         props := st.menuMount.GetProps()</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :         menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, &quot;tavern&quot;)</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :         itemIndex := menuState.ItemIndex</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :         if itemIndex &gt;= len(props.Candidates) {</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L324"><span class="lineNum">     324</span>              : </span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :         st.subState = tavernSubStateWindow</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         st.windowMount = hooks.NewMount[tavernWindowProps]()</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         st.windowMount.SetProps(tavernWindowProps{</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                 Candidate: props.Candidates[itemIndex],</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L330"><span class="lineNum">     330</span>              : }</span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) executeWindowAction(world w.World) error {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         actionIndex, ok := hooks.GetState[int](st.windowMount, &quot;tavern_window_index&quot;)</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems()</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         if actionIndex &gt;= len(actionItems) {</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L342"><span class="lineNum">     342</span>              : </span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         selectedAction := actionItems[actionIndex]</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         case &quot;雇用する&quot;:</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 candidate := st.candidates[windowProps.Candidate.Index]</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L352"><span class="lineNum">     352</span>              : </span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                 if !query.ConsumeCurrency(world, playerEntity, candidate.Cost) {</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                 if _, err := lifecycle.SpawnSquadMember(world, playerEntity, candidate.Name, candidate.Abilities, candidate.SpriteKey); err != nil {</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;雇用に失敗: %w&quot;, err)</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L360"><span class="lineNum">     360</span>              : </span>
+<span id="L361"><span class="lineNum">     361</span>              :                 // 候補リストから削除する</span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 st.candidates = append(st.candidates[:windowProps.Candidate.Index], st.candidates[windowProps.Candidate.Index+1:]...)</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 st.subState = tavernSubStateMenu</span></span>
+<span id="L364"><span class="lineNum">     364</span>              : </span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :         case TextClose:</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                 st.subState = tavernSubStateMenu</span></span>
+<span id="L367"><span class="lineNum">     367</span>              :         }</span>
+<span id="L368"><span class="lineNum">     368</span>              : </span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L370"><span class="lineNum">     370</span>              : }</span>
+<span id="L371"><span class="lineNum">     371</span>              : </span>
+<span id="L372"><span class="lineNum">     372</span>              : // ================</span>
+<span id="L373"><span class="lineNum">     373</span>              : // buildUI</span>
+<span id="L374"><span class="lineNum">     374</span>              : // ================</span>
+<span id="L375"><span class="lineNum">     375</span>              : </span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         props := st.menuMount.GetProps()</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, &quot;tavern&quot;)</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :         itemIndex := menuState.ItemIndex</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         root := styled.NewVerticalContainer(</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         root.AddChild(styled.NewTitleText(&quot;酒場&quot;, res))</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCurrencyRow(props.Currency, res))</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         eui := &amp;ebitenui.UI{Container: root}</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         if st.subState == tavernSubStateWindow {</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                 window := st.buildActionWindow(world)</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 eui.AddWindow(window)</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L396"><span class="lineNum">     396</span>              : </span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         return eui</span></span>
+<span id="L398"><span class="lineNum">     398</span>              : }</span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildCurrencyRow(currency int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L405"><span class="lineNum">     405</span>              : </span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :         if len(candidates) == 0 {</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewDescriptionText(&quot;雇用できる候補がいません&quot;, res))</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :                 return container</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L413"><span class="lineNum">     413</span>              : </span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         columnWidths := []int{20, 60, 180, 80}</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :         table := styled.NewTableContainer(columnWidths, res)</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :         styled.NewTableHeaderRow(table, columnWidths, []string{&quot;&quot;, &quot;名前&quot;, &quot;能力&quot;, &quot;費用&quot;}, res)</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         for i, c := range candidates {</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                 isSelected := i == selectedIndex</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 costStr := query.FormatCurrency(c.Cost)</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                 styled.NewTableRow(table, columnWidths, []string{&quot;&quot;, c.Name, c.Stats, costStr}, aligns, &amp;isSelected, res)</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L425"><span class="lineNum">     425</span>              : </span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :         container.AddChild(table)</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L428"><span class="lineNum">     428</span>              : }</span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) buildActionWindow(world w.World) *widget.Window {</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :         actionIndex, _ := hooks.GetState[int](st.windowMount, &quot;tavern_window_index&quot;)</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems()</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(windowProps.Candidate.Name, res)</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :         window := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(styled.NewListItemText(action, theme.TextSecondary, isSelected, res))</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L444"><span class="lineNum">     444</span>              : </span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :         window.SetLocation(getCenterWinRect(world))</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :         return window</span></span>
+<span id="L447"><span class="lineNum">     447</span>              : }</span>
         </pre>
               </td>
             </tr>

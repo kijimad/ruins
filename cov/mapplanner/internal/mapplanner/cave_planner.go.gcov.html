@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         height := int(planData.Level.TileHeight)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         // セルラーオートマトンを指定回数実行</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :         for iter := 0; iter &lt; iterations; iter++ {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :         for range iterations {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 newTiles := make([]oapi.Tile, len(planData.Tiles))</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :                 for x := range width {</span></span>
@@ -342,7 +342,7 @@
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L281"><span class="lineNum">     281</span>              : </span>
 <span id="L282"><span class="lineNum">     282</span>              :         // 各部屋を最低1つの他の部屋と接続する</span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC tlaBgUNC">           0 :         for i := 0; i &lt; len(planData.Rooms)-1; i++ {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC tlaBgUNC">           0 :         for i := range len(planData.Rooms) - 1 {</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 room1 := planData.Rooms[i]</span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 room2 := planData.Rooms[i+1]</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 : </span></span>

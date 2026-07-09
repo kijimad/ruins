@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -832,7 +832,7 @@
 <span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">           2 :         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) {</span></span>
 <span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">           1 :                 item := tabs[tabIndex].Items[itemIndex]</span></span>
-<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">           1 :                 if item.Entity != nil &amp;&amp; (*item.Entity).HasComponent(world.Components.Description) {</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">           1 :                 if item.Entity != nil &amp;&amp; item.Entity.HasComponent(world.Components.Description) {</span></span>
 <span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC tlaBgUNC">           0 :                         descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)</span></span>
 <span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                         desc = descComp.Description</span></span>
 <span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :                 }</span></span>

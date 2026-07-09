@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -771,7 +771,7 @@
 <span id="L709"><span class="lineNum">     709</span> <span class="tlaUNC">           0 :                         var trimmed strings.Builder</span></span>
 <span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 :                         for _, r := range seg.Text {</span></span>
 <span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :                                 if r != ' ' &amp;&amp; r != '\t' &amp;&amp; r != '\n' &amp;&amp; r != '\r' {</span></span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaUNC">           0 :                                         trimmed.WriteString(string(r))</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaUNC">           0 :                                         trimmed.WriteRune(r)</span></span>
 <span id="L713"><span class="lineNum">     713</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L714"><span class="lineNum">     714</span>              :                         }</span>
 <span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC">           0 :                         if trimmed.String() != &quot;&quot; {</span></span>

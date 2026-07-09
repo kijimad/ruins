@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -173,14 +173,15 @@
 <span id="L111"><span class="lineNum">     111</span>              : </span>
 <span id="L112"><span class="lineNum">     112</span>              : // AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する</span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 : func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         if entity.HasComponent(world.Components.Player) {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 logger.PlayerName(name)</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         } else if entity.HasComponent(world.Components.AI) {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 logger.NPCName(name)</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 logger.Append(name)</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L121"><span class="lineNum">     121</span>              : }</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         switch {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         case entity.HasComponent(world.Components.Player):</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 logger.PlayerName(name)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         case entity.HasComponent(world.Components.AI):</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 logger.NPCName(name)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 logger.Append(name)</span></span>
+<span id="L121"><span class="lineNum">     121</span>              :         }</span>
+<span id="L122"><span class="lineNum">     122</span>              : }</span>
         </pre>
               </td>
             </tr>

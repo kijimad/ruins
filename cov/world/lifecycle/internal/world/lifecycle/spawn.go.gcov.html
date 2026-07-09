@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -125,7 +125,7 @@
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         componentList := entities.ComponentList[gc.EntitySpec]{}</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %v&quot;, ErrMemberGeneration, err)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %w&quot;, ErrMemberGeneration, err)</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           1 :         skills := gc.NewSkills()</span></span>
@@ -229,7 +229,7 @@
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         componentList := entities.ComponentList[gc.EntitySpec]{}</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %v&quot;, ErrEnemyGeneration, err)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %w&quot;, ErrEnemyGeneration, err)</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L172"><span class="lineNum">     172</span>              : </span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC tlaBgGNC">           1 :         entitySpec.GridElement = &amp;gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}</span></span>
@@ -328,7 +328,7 @@
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         componentList.Entities = append(componentList.Entities, entitySpec)</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         entitiesSlice, err := entities.AddEntities(world, componentList)</span></span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %v&quot;, ErrMemberGeneration, err)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %w&quot;, ErrMemberGeneration, err)</span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC tlaBgGNC">           1 :         if len(entitiesSlice) != 1 {</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;隊員エンティティの生成に失敗しました: エンティティ数=%d&quot;, len(entitiesSlice))</span></span>
@@ -401,7 +401,7 @@
 <span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         componentList := entities.ComponentList[gc.EntitySpec]{}</span></span>
 <span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)</span></span>
 <span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %v&quot;, ErrItemGeneration, err)</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;%w: %w&quot;, ErrItemGeneration, err)</span></span>
 <span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC tlaBgGNC">           2 :         if entitySpec.Stackable != nil {</span></span>
 <span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :                 entitySpec.Stackable.Count = count</span></span>

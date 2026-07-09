@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.4%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (80.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.6%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.3%)</option>
 				
@@ -93,7 +93,7 @@
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (65.7%)</option>
+				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (64.6%)</option>
 				
 				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.5%)</option>
 				
@@ -347,13 +347,13 @@
 				
 				<option value="file145">github.com/kijimaD/ruins/internal/states/demo_start.go (50.0%)</option>
 				
-				<option value="file146">github.com/kijimaD/ruins/internal/states/dungeon.go (51.9%)</option>
+				<option value="file146">github.com/kijimaD/ruins/internal/states/dungeon.go (52.0%)</option>
 				
-				<option value="file147">github.com/kijimaD/ruins/internal/states/dungeon_select.go (64.8%)</option>
+				<option value="file147">github.com/kijimaD/ruins/internal/states/dungeon_select.go (65.2%)</option>
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/states/equip_menu.go (50.4%)</option>
 				
-				<option value="file149">github.com/kijimaD/ruins/internal/states/factories.go (23.7%)</option>
+				<option value="file149">github.com/kijimaD/ruins/internal/states/factories.go (23.9%)</option>
 				
 				<option value="file150">github.com/kijimaD/ruins/internal/states/fadeout_animation.go (0.0%)</option>
 				
@@ -401,7 +401,7 @@
 				
 				<option value="file172">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (81.2%)</option>
 				
-				<option value="file173">github.com/kijimaD/ruins/internal/systems/camera_system.go (79.3%)</option>
+				<option value="file173">github.com/kijimaD/ruins/internal/systems/camera_system.go (78.6%)</option>
 				
 				<option value="file174">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (71.7%)</option>
 				
@@ -511,7 +511,7 @@
 				
 				<option value="file227">github.com/kijimaD/ruins/internal/world/query/currency.go (96.9%)</option>
 				
-				<option value="file228">github.com/kijimaD/ruins/internal/world/query/enemy.go (82.7%)</option>
+				<option value="file228">github.com/kijimaD/ruins/internal/world/query/enemy.go (84.3%)</option>
 				
 				<option value="file229">github.com/kijimaD/ruins/internal/world/query/equipment.go (40.0%)</option>
 				
@@ -1575,13 +1575,14 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov8" title="1">query.AppendNameWithColor(l, target, targetName, world)</span>
                 }).
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
-                        if !hit </span><span class="cov0" title="0">{
-                                l.Append(" を攻撃したが外れた。")
-                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov8" title="1">{
-                                l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
-                        }</span> else<span class="cov8" title="1"> {
-                                l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
-                        }</span>
+                        switch </span>{
+                        case !hit:<span class="cov0" title="0">
+                                l.Append(" を攻撃したが外れた。")</span>
+                        case critical:<span class="cov0" title="0">
+                                l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))</span>
+                        default:<span class="cov8" title="1">
+                                l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))</span>
+                        }
                 }).
                 Log()
 }
@@ -4495,7 +4496,8 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] <span 
         var candidates []consts.Coord[int]
         dx, dy := delta.X, delta.Y
 
-        if dx != 0 &amp;&amp; dy != 0 </span><span class="cov8" title="1">{
+        switch </span>{
+        case dx != 0 &amp;&amp; dy != 0:<span class="cov8" title="1">
                 moveX := 1
                 if dx &lt; 0 </span><span class="cov8" title="1">{
                         moveX = -1
@@ -4513,7 +4515,7 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] <span 
                         candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
                         candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
                 }</span>
-        } else<span class="cov8" title="1"> if dx != 0 </span><span class="cov8" title="1">{
+        case dx != 0:<span class="cov8" title="1">
                 moveX := 1
                 if dx &lt; 0 </span><span class="cov8" title="1">{
                         moveX = -1
@@ -4521,7 +4523,7 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] <span 
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
                 candidates = append(candidates, consts.Coord[int]{X: 0, Y: 1})
                 candidates = append(candidates, consts.Coord[int]{X: 0, Y: -1})</span>
-        } else<span class="cov8" title="1"> if dy != 0 </span><span class="cov8" title="1">{
+        case dy != 0:<span class="cov8" title="1">
                 moveY := 1
                 if dy &lt; 0 </span><span class="cov0" title="0">{
                         moveY = -1
@@ -5815,7 +5817,9 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
                 stats WeaponStats
         }
         var weapons []weaponEntry
-        for _, item := range raw.PtrSlice(master.Items) </span><span class="cov0" title="0">{
+        items := raw.PtrSlice(master.Items)
+        for i := range items </span><span class="cov0" title="0">{
+                item := &amp;items[i]
                 w, err := LoadWeaponFromItem(master, item.Name)
                 if err != nil </span><span class="cov0" title="0">{
                         continue</span>
@@ -6523,7 +6527,7 @@ func buildImageTableFrom(dir string) (string, error) <span class="cov8" title="1
         }
         // 最終行の残りセルを埋める
         <span class="cov8" title="1">if rem := len(images) % columns; rem != 0 </span><span class="cov8" title="1">{
-                for i := 0; i &lt; columns-rem; i++ </span><span class="cov8" title="1">{
+                for range columns - rem </span><span class="cov8" title="1">{
                         sb.WriteString(" |")
                 }</span>
         }
@@ -7435,7 +7439,7 @@ func (c *Components) InitializeComponents(manager *ecs.Manager) error <span clas
         val := reflect.ValueOf(c).Elem() // *Components から Components へ
         typ := val.Type()
 
-        for i := 0; i &lt; val.NumField(); i++ </span><span class="cov8" title="1">{
+        for i := range val.NumField() </span><span class="cov8" title="1">{
                 field := val.Field(i)
                 fieldType := typ.Field(i)
                 fieldName := fieldType.Name
@@ -10951,8 +10955,8 @@ func GetAllDungeons() []Definition <span class="cov8" title="1">{
 // GetAllDungeonNames は全ダンジョン名のスライスを返す
 func GetAllDungeonNames() []string <span class="cov8" title="1">{
         names := make([]string, len(allDungeons))
-        for i, d := range allDungeons </span><span class="cov8" title="1">{
-                names[i] = d.Name
+        for i := range allDungeons </span><span class="cov8" title="1">{
+                names[i] = allDungeons[i].Name
         }</span>
         <span class="cov8" title="1">return names</span>
 }
@@ -10966,14 +10970,14 @@ var internalDungeons = []Definition{
 // GetDungeon は名前からダンジョン定義を取得する
 func GetDungeon(name string) (Definition, bool) <span class="cov8" title="1">{
         // 内部用定義を先にチェック
-        for _, d := range internalDungeons </span><span class="cov8" title="1">{
-                if d.Name == name </span><span class="cov0" title="0">{
-                        return d, true
+        for i := range internalDungeons </span><span class="cov8" title="1">{
+                if internalDungeons[i].Name == name </span><span class="cov0" title="0">{
+                        return internalDungeons[i], true
                 }</span>
         }
-        <span class="cov8" title="1">for _, d := range allDungeons </span><span class="cov8" title="1">{
-                if d.Name == name </span><span class="cov8" title="1">{
-                        return d, true
+        <span class="cov8" title="1">for i := range allDungeons </span><span class="cov8" title="1">{
+                if allDungeons[i].Name == name </span><span class="cov8" title="1">{
+                        return allDungeons[i], true
                 }</span>
         }
         <span class="cov8" title="1">return Definition{}, false</span>
@@ -11097,7 +11101,7 @@ func AddEntityComponents(entity ecs.Entity, ecsComponentList any, components any
         ecv := reflect.ValueOf(ecsComponentList).Elem()
         // 追加するコンポーネント
         cv := reflect.ValueOf(components)
-        for iField := 0; iField &lt; cv.NumField(); iField++ </span><span class="cov0" title="0">{
+        for iField := range cv.NumField() </span><span class="cov0" title="0">{
                 if !cv.Field(iField).IsNil() </span><span class="cov0" title="0">{
                         component := cv.Field(iField).Elem()
                         value := reflect.New(reflect.TypeOf(component.Interface()))
@@ -13710,7 +13714,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error <span class="co
         height := int(planData.Level.TileHeight)
 
         // セルラーオートマトンを指定回数実行
-        for iter := 0; iter &lt; iterations; iter++ </span><span class="cov8" title="1">{
+        for range iterations </span><span class="cov8" title="1">{
                 newTiles := make([]oapi.Tile, len(planData.Tiles))
 
                 for x := range width </span><span class="cov8" title="1">{
@@ -13948,7 +13952,7 @@ func (c CaveConnector) PlanMeta(planData *MetaPlan) error <span class="cov8" tit
         }</span>
 
         // 各部屋を最低1つの他の部屋と接続する
-        <span class="cov0" title="0">for i := 0; i &lt; len(planData.Rooms)-1; i++ </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">for i := range len(planData.Rooms) - 1 </span><span class="cov0" title="0">{
                 room1 := planData.Rooms[i]
                 room2 := planData.Rooms[i+1]
 
@@ -14501,7 +14505,7 @@ func (f ForestPaths) PlanMeta(planData *MetaPlan) error <span class="cov8" title
 
         if len(planData.Rooms) &gt;= 2 </span><span class="cov8" title="1">{
                 // 各空き地を他の空き地と繋ぐ
-                for i := 0; i &lt; len(planData.Rooms); i++ </span><span class="cov8" title="1">{
+                for i := range len(planData.Rooms) </span><span class="cov8" title="1">{
                         for j := i + 1; j &lt; len(planData.Rooms); j++ </span><span class="cov8" title="1">{
                                 // 距離が近い空き地のみ繋ぐ（50%の確率）
                                 if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) </span><span class="cov8" title="1">{
@@ -16732,7 +16736,7 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error <span class="cov8" ti
         }</span>
 
         // 各建物間に通路を作成
-        <span class="cov8" title="1">for i := 0; i &lt; len(planData.Rooms); i++ </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">for i := range len(planData.Rooms) </span><span class="cov8" title="1">{
                 for j := i + 1; j &lt; len(planData.Rooms); j++ </span><span class="cov8" title="1">{
                         room1 := planData.Rooms[i]
                         room2 := planData.Rooms[j]
@@ -17282,7 +17286,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error <span class="cov8" ti
         <span class="cov8" title="1">pathFinder := NewPathFinder(planData)
         playerPos, err := pathFinder.FindPlayerStartPosition()
         if err != nil </span><span class="cov8" title="1">{
-                return fmt.Errorf("%w: %v", ErrConnectivity, err)
+                return fmt.Errorf("%w: %w", ErrConnectivity, err)
         }</span>
 
         // 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック
@@ -17574,7 +17578,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
                 depth = d.Depth
         }</span>
 
-        <span class="cov0" title="0">for i := 0; i &lt; lootCount; i++ </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">for range lootCount </span><span class="cov0" title="0">{
                 itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)
                 if err != nil </span><span class="cov0" title="0">{
                         return fmt.Errorf("アイテム抽選エラー: %w", err)
@@ -18622,7 +18626,7 @@ type Choice struct {
 
 // ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す
 func ChainMessages(pages ...*MessageData) *MessageData <span class="cov8" title="1">{
-        for i := 0; i &lt; len(pages)-1; i++ </span><span class="cov8" title="1">{
+        for i := range len(pages) - 1 </span><span class="cov8" title="1">{
                 pages[i].nextMessages = []*MessageData{pages[i+1]}
         }</span>
         <span class="cov8" title="1">return pages[0]</span>
@@ -27946,10 +27950,14 @@ func (f *Font) UnmarshalTOML(i any) error <span class="cov0" title="0">{
 		<pre class="file" id="file127" style="display: none">package resources
 
 import (
+        "errors"
         "fmt"
 
         "github.com/hajimehoshi/ebiten/v2/text/v2"
 )
+
+// errNoFontSource は利用可能なフォントソースが無い場合に返す
+var errNoFontSource = errors.New("利用可能なフォントソースがない")
 
 type fonts struct {
         smallFace      text.Face
@@ -27988,7 +27996,7 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) <span class="co
 
 func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error) <span class="cov0" title="0">{
         if len(sources) == 0 </span><span class="cov0" title="0">{
-                return nil, nil
+                return nil, errNoFontSource
         }</span>
 
         <span class="cov0" title="0">faces := make([]text.Face, 0, len(sources))
@@ -28002,7 +28010,7 @@ func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error)
         }
 
         <span class="cov0" title="0">if len(faces) == 0 </span><span class="cov0" title="0">{
-                return nil, nil
+                return nil, errNoFontSource
         }</span>
         <span class="cov0" title="0">if len(faces) == 1 </span><span class="cov0" title="0">{
                 return faces[0], nil
@@ -29947,17 +29955,19 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
         }</span>
 }
 
-// entityEntry はエンティティ復元時の一時データ
+// entityEntry はエンティティ復元時の一時データ。
+// dataは大きな構造体のため、コピーを避けてworldData.Entitiesの要素を指すポインタで保持する
 type entityEntry struct {
         entity ecs.Entity
-        data   oapi.SaveDataEntitySaveData
+        data   *oapi.SaveDataEntitySaveData
 }
 
 // restoreWorldData はセーブデータからワールドを復元する
 func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.SaveDataWorldSaveData) error <span class="cov8" title="1">{
         // 第1段階: 全エンティティを作成して安定IDマッピング
         entries := make([]entityEntry, 0, len(worldData.Entities))
-        for _, entityData := range worldData.Entities </span><span class="cov8" title="1">{
+        for i := range worldData.Entities </span><span class="cov8" title="1">{
+                entityData := &amp;worldData.Entities[i]
                 entity := world.Manager.NewEntity()
                 stableID := stableIDFromSaveData(entityData.StableId)
                 if err := sm.stableIDManager.RegisterEntity(entity, stableID); err != nil </span><span class="cov0" title="0">{
@@ -31308,8 +31318,8 @@ type jobMenuItem struct {
 func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps <span class="cov8" title="1">{
         professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
         items := make([]jobMenuItem, len(professions))
-        for i, p := range professions </span><span class="cov8" title="1">{
-                items[i] = jobMenuItem{Profession: p}
+        for i := range professions </span><span class="cov8" title="1">{
+                items[i] = jobMenuItem{Profession: professions[i]}
         }</span>
         <span class="cov8" title="1">return jobMenuProps{Items: items}</span>
 }
@@ -31403,9 +31413,9 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI <span class="co
 
         // メインエリア: 左右分割
         leftContainer := styled.NewVerticalContainer()
-        for i, item := range props.Items </span><span class="cov8" title="1">{
+        for i := range props.Items </span><span class="cov8" title="1">{
                 isSelected := i == itemIndex
-                itemWidget := styled.NewListItemText(item.Profession.Name, theme.TextSecondary, isSelected, res)
+                itemWidget := styled.NewListItemText(props.Items[i].Profession.Name, theme.TextSecondary, isSelected, res)
                 leftContainer.AddChild(itemWidget)
         }</span>
         <span class="cov8" title="1">rightContainer := st.buildDetailPanel(props, itemIndex, res)
@@ -31913,10 +31923,10 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps <sp
         val := reflect.ValueOf(comps).Elem()
         typ := val.Type()
 
-        var items []componentDebugItem
+        items := make([]componentDebugItem, 0, val.NumField())
         total := 0
 
-        for i := 0; i &lt; val.NumField(); i++ </span><span class="cov8" title="1">{
+        for i := range val.NumField() </span><span class="cov8" title="1">{
                 field := val.Field(i)
                 fieldName := typ.Field(i).Name
 
@@ -32775,17 +32785,18 @@ func (st *DungeonState) OnStart(world w.World) error <span class="cov8" title="1
         // ビルダータイプを決定
         var builderType mapplanner.PlannerType
         // 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
-        if def.BossPlannerType != nil &amp;&amp; st.Depth == def.TotalFloors </span><span class="cov0" title="0">{
-                builderType = *def.BossPlannerType
-        }</span> else<span class="cov8" title="1"> if st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name </span><span class="cov0" title="0">{
+        switch </span>{
+        case def.BossPlannerType != nil &amp;&amp; st.Depth == def.TotalFloors:<span class="cov0" title="0">
+                builderType = *def.BossPlannerType</span>
+        case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:<span class="cov0" title="0">
                 var err error
                 builderType, err = dungeon.SelectPlanner(def, stageRNG)
                 if err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
-        } else<span class="cov8" title="1"> {
-                builderType = st.BuilderType
-        }</span>
+        default:<span class="cov8" title="1">
+                builderType = st.BuilderType</span>
+        }
 
         // テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
         <span class="cov8" title="1">builderType.EnemyTableName = def.EnemyTableName
@@ -32886,9 +32897,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) <s
         if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) </span><span class="cov0" title="0">{
                 query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewAllClearEventState() }</span>,
+                        NewAllClearEventState,
                 }}, nil
-        }
+        }</span>
 
         // キー入力をActionに変換
         <span class="cov8" title="1">if action, ok := st.HandleInput(world.Config); ok </span><span class="cov0" title="0">{
@@ -33498,7 +33509,8 @@ func (st *DungeonSelectState) fetchProps(world w.World) dungeonSelectProps <span
         allDungeons := dungeon.GetAllDungeons()
         items := make([]dungeonSelectItem, 0, len(allDungeons)+1)
 
-        for _, d := range allDungeons </span><span class="cov8" title="1">{
+        for i := range allDungeons </span><span class="cov8" title="1">{
+                d := &amp;allDungeons[i]
                 items = append(items, dungeonSelectItem{
                         Name:     d.Name,
                         Cleared:  gp.IsDungeonCleared(d.Name),
@@ -34380,7 +34392,7 @@ func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabD
 
         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) </span><span class="cov8" title="1">{
                 item := tabs[tabIndex].Items[itemIndex]
-                if item.Entity != nil &amp;&amp; (*item.Entity).HasComponent(world.Components.Description) </span><span class="cov0" title="0">{
+                if item.Entity != nil &amp;&amp; item.Entity.HasComponent(world.Components.Description) </span><span class="cov0" title="0">{
                         descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)
                         desc = descComp.Description
                 }</span>
@@ -34779,11 +34791,11 @@ func NewDebugMenuState() (es.State[w.World], error) <span class="cov8" title="1"
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPush,
                                 NewStateFuncs: []es.StateFactory[w.World]{
-                                        func() (es.State[w.World], error) </span><span class="cov0" title="0">{ return NewAllClearEventState() }</span>,
+                                        NewAllClearEventState,
                                 },
                         })
-                        <span class="cov0" title="0">return nil</span>
-                }).
+                        return nil
+                }</span>).
                 WithChoice("次の階層に進む", func(world w.World) error <span class="cov0" title="0">{
                         currentDepth := query.GetDungeon(world).Depth
 
@@ -34876,9 +34888,7 @@ func NewDebugMenuState() (es.State[w.World], error) <span class="cov8" title="1"
                 WithChoice("Propスポーン:construction_sign(通行不可)", func(world w.World) error <span class="cov0" title="0">{
                         return spawnPropNearPlayer(world, "construction_sign")
                 }</span>).
-                WithChoice("Propスポーン:木箱(収納・アイテム入り)", func(world w.World) error <span class="cov0" title="0">{
-                        return spawnStorageWithItems(world)
-                }</span>).
+                WithChoice("Propスポーン:木箱(収納・アイテム入り)", spawnStorageWithItems).
                 WithChoice("コンポーネント一覧", func(_ w.World) error <span class="cov0" title="0">{
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
@@ -41163,7 +41173,8 @@ func (st *TavernMenuState) fetchProps(world w.World) tavernProps <span class="co
         }</span>)
 
         <span class="cov0" title="0">candidates := make([]tavernCandidateData, 0, len(st.candidates))
-        for i, c := range st.candidates </span><span class="cov0" title="0">{
+        for i := range st.candidates </span><span class="cov0" title="0">{
+                c := &amp;st.candidates[i]
                 candidates = append(candidates, tavernCandidateData{
                         Index:     i,
                         Name:      c.Name,
@@ -41638,11 +41649,12 @@ func (sys *CameraSystem) Update(world w.World) error <span class="cov8" title="1
                 // ズーム率変更
                 // 参考: https://ebitengine.org/ja/examples/isometric.html
                 var scrollY float64
-                if ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown) </span><span class="cov0" title="0">{
-                        scrollY = -0.25
-                }</span> else<span class="cov8" title="1"> if ebiten.IsKeyPressed(ebiten.KeyE) || ebiten.IsKeyPressed(ebiten.KeyPageUp) </span><span class="cov0" title="0">{
-                        scrollY = 0.25
-                }</span> else<span class="cov8" title="1"> {
+                switch </span>{
+                case ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown):<span class="cov0" title="0">
+                        scrollY = -0.25</span>
+                case ebiten.IsKeyPressed(ebiten.KeyE) || ebiten.IsKeyPressed(ebiten.KeyPageUp):<span class="cov0" title="0">
+                        scrollY = 0.25</span>
+                default:<span class="cov8" title="1">
                         _, scrollY = ebiten.Wheel()
                         if scrollY &lt; -1 </span><span class="cov0" title="0">{
                                 scrollY = -1
@@ -42615,7 +42627,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
                 return spriteRender1.Depth &lt; spriteRender2.Depth
         }</span>)
 
-        <span class="cov0" title="0">for i := 0; i &lt; iSprite; i++ </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">for i := range iSprite </span><span class="cov0" title="0">{
                 entity := entities[i]
                 gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
@@ -44705,7 +44717,7 @@ import (
 var (
         sharedUIResources *resources.UIResources
         uiResourcesOnce   sync.Once
-        uiResourcesErr    error
+        errUIResources    error
 )
 
 // SharedUIResources はテスト用UIリソースを返す。sync.Onceで1回だけ初期化する
@@ -44714,18 +44726,18 @@ func SharedUIResources(t *testing.T) resources.UIResources <span class="cov0" ti
         uiResourcesOnce.Do(func() </span><span class="cov0" title="0">{
                 fonts, err := loader.LoadFonts()
                 if err != nil </span><span class="cov0" title="0">{
-                        uiResourcesErr = err
+                        errUIResources = err
                         return
                 }</span>
                 <span class="cov0" title="0">uir, err := loader.LoadUIResources(fonts)
                 if err != nil </span><span class="cov0" title="0">{
-                        uiResourcesErr = err
+                        errUIResources = err
                         return
                 }</span>
                 <span class="cov0" title="0">sharedUIResources = &amp;uir</span>
         })
 
-        <span class="cov0" title="0">require.NoError(t, uiResourcesErr)
+        <span class="cov0" title="0">require.NoError(t, errUIResources)
         return *sharedUIResources</span>
 }
 </pre>
@@ -45226,16 +45238,17 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
         var textColor color.RGBA
         if data.PlayerMaxWeight &gt; 0 </span><span class="cov0" title="0">{
                 ratio := data.PlayerWeight / data.PlayerMaxWeight
-                if ratio &gt; 1.0 </span><span class="cov0" title="0">{
+                switch </span>{
+                case ratio &gt; 1.0:<span class="cov0" title="0">
                         // 超過: 赤
-                        textColor = theme.HUDWeightDanger
-                }</span> else<span class="cov0" title="0"> if ratio &gt; 0.8 </span><span class="cov0" title="0">{
+                        textColor = theme.HUDWeightDanger</span>
+                case ratio &gt; 0.8:<span class="cov0" title="0">
                         // 80%以上: 黄色
-                        textColor = theme.HUDWeightWarning
-                }</span> else<span class="cov0" title="0"> {
+                        textColor = theme.HUDWeightWarning</span>
+                default:<span class="cov0" title="0">
                         // 通常: 白
-                        textColor = theme.TextPrimary
-                }</span>
+                        textColor = theme.TextPrimary</span>
+                }
         } else<span class="cov0" title="0"> {
                 textColor = theme.TextPrimary
         }</span>
@@ -46999,7 +47012,7 @@ func (w *Window) createSegmentedTextLines() *widget.Container <span class="cov0"
                         var trimmed strings.Builder
                         for _, r := range seg.Text </span><span class="cov0" title="0">{
                                 if r != ' ' &amp;&amp; r != '\t' &amp;&amp; r != '\n' &amp;&amp; r != '\r' </span><span class="cov0" title="0">{
-                                        trimmed.WriteString(string(r))
+                                        trimmed.WriteRune(r)
                                 }</span>
                         }
                         <span class="cov0" title="0">if trimmed.String() != "" </span><span class="cov0" title="0">{
@@ -47215,7 +47228,7 @@ func (p Pagination) GetIndicatorText() string <span class="cov8" title="1">{
         }</span>
 
         <span class="cov8" title="1">if p.HasNextPage() </span><span class="cov8" title="1">{
-                text = text + " ↓"
+                text += " ↓"
         }</span>
 
         <span class="cov8" title="1">return text</span>
@@ -49132,7 +49145,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error <spa
                 err := lifecycle.ChangeStackableCount(world, itemName, 1)
                 if err != nil </span><span class="cov0" title="0">{
                         if refundErr := query.AddCurrency(world, playerEntity, price); refundErr != nil </span><span class="cov0" title="0">{
-                                return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
+                                return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %w)", err, refundErr)
                         }</span>
                         <span class="cov0" title="0">return fmt.Errorf("アイテムの生成に失敗しました: %w", err)</span>
                 }
@@ -49140,7 +49153,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error <spa
                 _, err := lifecycle.SpawnBackpackItem(world, itemName, 1)
                 if err != nil </span><span class="cov0" title="0">{
                         if refundErr := query.AddCurrency(world, playerEntity, price); refundErr != nil </span><span class="cov0" title="0">{
-                                return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
+                                return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %w)", err, refundErr)
                         }</span>
                         <span class="cov0" title="0">return fmt.Errorf("アイテムの生成に失敗しました: %w", err)</span>
                 }
@@ -49585,7 +49598,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
         componentList := entities.ComponentList[gc.EntitySpec]{}
         entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
-                return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrMemberGeneration, err)
+                return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
         }</span>
 
         <span class="cov8" title="1">skills := gc.NewSkills()
@@ -49689,7 +49702,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
         componentList := entities.ComponentList[gc.EntitySpec]{}
         entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
-                return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrEnemyGeneration, err)
+                return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
         }</span>
 
         <span class="cov8" title="1">entitySpec.GridElement = &amp;gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
@@ -49788,7 +49801,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
         componentList.Entities = append(componentList.Entities, entitySpec)
         entitiesSlice, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrMemberGeneration, err)
+                return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
         }</span>
         <span class="cov8" title="1">if len(entitiesSlice) != 1 </span><span class="cov0" title="0">{
                 return consts.InvalidEntity, fmt.Errorf("隊員エンティティの生成に失敗しました: エンティティ数=%d", len(entitiesSlice))
@@ -49861,7 +49874,7 @@ func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) <s
         <span class="cov8" title="1">componentList := entities.ComponentList[gc.EntitySpec]{}
         entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
-                return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrItemGeneration, err)
+                return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrItemGeneration, err)
         }</span>
         <span class="cov8" title="1">if entitySpec.Stackable != nil </span><span class="cov8" title="1">{
                 entitySpec.Stackable.Count = count
@@ -50552,13 +50565,14 @@ func GetEntityName(entity ecs.Entity, world w.World) string <span class="cov8" t
 
 // AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する
 func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) <span class="cov0" title="0">{
-        if entity.HasComponent(world.Components.Player) </span><span class="cov0" title="0">{
-                logger.PlayerName(name)
-        }</span> else<span class="cov0" title="0"> if entity.HasComponent(world.Components.AI) </span><span class="cov0" title="0">{
-                logger.NPCName(name)
-        }</span> else<span class="cov0" title="0"> {
-                logger.Append(name)
-        }</span>
+        switch </span>{
+        case entity.HasComponent(world.Components.Player):<span class="cov0" title="0">
+                logger.PlayerName(name)</span>
+        case entity.HasComponent(world.Components.AI):<span class="cov0" title="0">
+                logger.NPCName(name)</span>
+        default:<span class="cov0" title="0">
+                logger.Append(name)</span>
+        }
 }
 </pre>
 		

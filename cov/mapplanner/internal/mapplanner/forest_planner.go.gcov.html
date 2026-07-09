@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 01:04:13</td>
+            <td class="headerValue">2026-07-09 13:21:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -239,7 +239,7 @@
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           2 :         if len(planData.Rooms) &gt;= 2 {</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 // 各空き地を他の空き地と繋ぐ</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; len(planData.Rooms); i++ {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           2 :                 for i := range len(planData.Rooms) {</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :                         for j := i + 1; j &lt; len(planData.Rooms); j++ {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                                 // 距離が近い空き地のみ繋ぐ（50%の確率）</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           2 :                                 if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {</span></span>
