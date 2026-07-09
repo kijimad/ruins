@@ -7,8 +7,9 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す
-func GetSingleton[T any](world w.World, comp *ecs.SliceComponent) *T {
+// GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す。
+// compはComponent[T]と*ecs.SliceComponentの両方を受けられるようDataComponentで受ける
+func GetSingleton[T any](world w.World, comp ecs.DataComponent) *T {
 	data := comp.Get(world.Resources.SingletonEntity)
 	if data == nil {
 		return nil

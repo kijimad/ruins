@@ -83,97 +83,130 @@ type EntitySpec struct {
 	GameLog *GameLog
 }
 
-//go:generate go run ./gen
+// Component は *ecs.SliceComponent をラップし、型付きの取得を提供する。
+// *ecs.SliceComponent を埋め込むため、Join/AddComponent 等が要求する
+// ecs.DataComponent/joinable インターフェースは昇格したメソッドで満たす。
+// 埋め込みの Get(ecs.Entity) interface{} は残す（DataComponent が要求するため）。
+type Component[T any] struct {
+	*ecs.SliceComponent
+}
+
+// MustGet はエンティティの当該コンポーネントを型付きで取得する。
+// 保持していない場合はpanicする（呼び出し側が保持を保証している場合に使う）。
+func (c Component[T]) MustGet(entity ecs.Entity) *T {
+	return c.Get(entity).(*T)
+}
+
+// TryGet はエンティティの当該コンポーネントを型付きで取得する。
+// 保持していない場合は (nil, false) を返す。
+func (c Component[T]) TryGet(entity ecs.Entity) (*T, bool) {
+	v := c.Get(entity)
+	if v == nil {
+		return nil, false
+	}
+	comp, ok := v.(*T)
+	return comp, ok
+}
+
+// initSlice は内部の SliceComponent を初期化する。InitializeComponents から reflect 経由で呼ばれる
+func (c *Component[T]) initSlice(manager *ecs.Manager) {
+	c.SliceComponent = manager.NewSliceComponent()
+}
+
+// sliceComponentIniter は Component[T] を型に依らず初期化するためのマーカーインターフェース
+type sliceComponentIniter interface {
+	initSlice(*ecs.Manager)
+}
 
 // Components はECSコンポーネントストレージ
-// 各コンポーネント型のSliceComponent/NullComponentを保持し、
+// 各コンポーネント型のComponent[T]/NullComponentを保持し、
 // Manager.Join()でのクエリに使用される。
-// 各SliceComponentの型付き取得は生成された GetX メソッドを使う（accessors_gen.go）
+// 各コンポーネントの型付き取得は Component[T] の MustGet/TryGet を使う
 type Components struct {
 	// general ================
-	Name        *ecs.SliceComponent `save:"true"`
-	Description *ecs.SliceComponent `save:"true"`
+	Name        Component[Name]        `save:"true"`
+	Description Component[Description] `save:"true"`
 
 	// item ================
-	HP                 *ecs.SliceComponent `save:"true"`
-	Consumable         *ecs.SliceComponent `save:"true"`
-	WeightCapacity     *ecs.SliceComponent `save:"true"`
-	Melee              *ecs.SliceComponent `save:"true"`
-	Fire               *ecs.SliceComponent `save:"true"`
-	Value              *ecs.SliceComponent `save:"true"`
-	Weight             *ecs.SliceComponent `save:"true"`
-	Recipe             *ecs.SliceComponent `save:"true"`
-	Wearable           *ecs.SliceComponent `save:"true"`
-	Abilities          *ecs.SliceComponent `save:"true"`
-	Ammo               *ecs.SliceComponent `save:"true"`
-	Stackable          *ecs.SliceComponent `save:"true"`
-	Material           *ecs.NullComponent  `save:"true"`
-	LocationInBackpack *ecs.SliceComponent `save:"true"`
-	LocationEquipped   *ecs.SliceComponent `save:"true"`
+	HP                 Component[HP]                 `save:"true"`
+	Consumable         Component[Consumable]         `save:"true"`
+	WeightCapacity     Component[WeightCapacity]     `save:"true"`
+	Melee              Component[Melee]              `save:"true"`
+	Fire               Component[Fire]               `save:"true"`
+	Value              Component[Value]              `save:"true"`
+	Weight             Component[Weight]             `save:"true"`
+	Recipe             Component[Recipe]             `save:"true"`
+	Wearable           Component[Wearable]           `save:"true"`
+	Abilities          Component[Abilities]          `save:"true"`
+	Ammo               Component[Ammo]               `save:"true"`
+	Stackable          Component[Stackable]          `save:"true"`
+	Material           *ecs.NullComponent            `save:"true"`
+	LocationInBackpack Component[LocationInBackpack] `save:"true"`
+	LocationEquipped   Component[LocationEquipped]   `save:"true"`
 	LocationOnField    *ecs.NullComponent
-	LocationInStorage  *ecs.SliceComponent
+	LocationInStorage  Component[LocationInStorage]
 
 	// field ================
 	Tile            *ecs.NullComponent
-	AI              *ecs.SliceComponent
-	Camera          *ecs.SliceComponent `save:"true"`
-	Position        *ecs.SliceComponent
-	GridElement     *ecs.SliceComponent `save:"true"`
-	SpriteRender    *ecs.SliceComponent `save:"true"`
+	AI              Component[AI]
+	Camera          Component[Camera] `save:"true"`
+	Position        Component[Position]
+	GridElement     Component[GridElement]  `save:"true"`
+	SpriteRender    Component[SpriteRender] `save:"true"`
 	BlockView       *ecs.NullComponent
 	BlockPass       *ecs.NullComponent
-	PassCost        *ecs.SliceComponent
-	Door            *ecs.SliceComponent
+	PassCost        Component[PassCost]
+	Door            Component[Door]
 	Prop            *ecs.NullComponent
-	LightSource     *ecs.SliceComponent `save:"true"`
-	Interactable    *ecs.SliceComponent
-	VisualEffect    *ecs.SliceComponent
-	TileTemperature *ecs.SliceComponent
+	LightSource     Component[LightSource] `save:"true"`
+	Interactable    Component[Interactable]
+	VisualEffect    Component[VisualEffects]
+	TileTemperature Component[TileTemperature]
 
 	// member ================
-	Player         *ecs.NullComponent  `save:"true"`
-	Profession     *ecs.SliceComponent `save:"true"`
-	Hunger         *ecs.SliceComponent
-	Wallet         *ecs.SliceComponent `save:"true"`
-	FactionAlly    *ecs.NullComponent  `save:"true"`
+	Player         *ecs.NullComponent    `save:"true"`
+	Profession     Component[Profession] `save:"true"`
+	Hunger         Component[Hunger]
+	Wallet         Component[Wallet]  `save:"true"`
+	FactionAlly    *ecs.NullComponent `save:"true"`
 	FactionEnemy   *ecs.NullComponent
 	FactionNeutral *ecs.NullComponent `save:"true"`
 	Boss           *ecs.NullComponent // ボスエンティティのマーカー
-	Dialog         *ecs.SliceComponent
+	Dialog         Component[Dialog]
 	Dead           *ecs.NullComponent
-	TurnBased      *ecs.SliceComponent `save:"true"`
-	HealthStatus   *ecs.SliceComponent `save:"true"`
-	Skills         *ecs.SliceComponent `save:"true"`
-	CharModifiers  *ecs.SliceComponent `save:"true"`
+	TurnBased      Component[TurnBased]     `save:"true"`
+	HealthStatus   Component[HealthStatus]  `save:"true"`
+	Skills         Component[Skills]        `save:"true"`
+	CharModifiers  Component[CharModifiers] `save:"true"`
 
 	// event ================
-	StateChangeRequest *ecs.SliceComponent // ステート遷移リクエスト
+	StateChangeRequest Component[StateChangeRequest] // ステート遷移リクエスト
 	StatsChanged       *ecs.NullComponent
 	WeightDirty        *ecs.NullComponent
-	ProvidesHealing    *ecs.SliceComponent `save:"true"`
-	ProvidesNutrition  *ecs.SliceComponent `save:"true"`
-	InflictsDamage     *ecs.SliceComponent `save:"true"`
+	ProvidesHealing    Component[ProvidesHealing]   `save:"true"`
+	ProvidesNutrition  Component[ProvidesNutrition] `save:"true"`
+	InflictsDamage     Component[InflictsDamage]    `save:"true"`
 
 	// book ================
-	Book *ecs.SliceComponent `save:"true"`
+	Book Component[Book] `save:"true"`
 
 	// battle ================
-	CommandTable *ecs.SliceComponent `save:"true"`
-	DropTable    *ecs.SliceComponent
+	CommandTable Component[CommandTable] `save:"true"`
+	DropTable    Component[DropTable]
 
 	// squad ================
-	SquadMember *ecs.SliceComponent `save:"true"`
+	SquadMember Component[SquadMember] `save:"true"`
 
 	// activity ================
-	Activity     *ecs.SliceComponent // 実行中のアクティビティ
-	LastActivity *ecs.SliceComponent // 直近のアクティビティ実行結果
+	Activity     Component[Activity]     // 実行中のアクティビティ
+	LastActivity Component[LastActivity] // 直近のアクティビティ実行結果
 
 	// singleton ================
-	GameLog      *ecs.SliceComponent // フィールドログストレージ
-	DungeonState *ecs.SliceComponent // ダンジョン状態
-	GameProgress *ecs.SliceComponent // ゲーム進行データ
-	TurnState    *ecs.SliceComponent // ターン状態
-	SpatialIndex *ecs.SliceComponent // 空間インデックス
+	GameLog      Component[GameLog]      // フィールドログストレージ
+	DungeonState Component[Dungeon]      // ダンジョン状態
+	GameProgress Component[GameProgress] // ゲーム進行データ
+	TurnState    Component[TurnState]    // ターン状態
+	SpatialIndex Component[SpatialIndex] // 空間インデックス
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する
@@ -193,14 +226,16 @@ func (c *Components) InitializeComponents(manager *ecs.Manager) error {
 			return fmt.Errorf("field %s is not settable", fieldName)
 		}
 
-		// フィールドの型に基づいて適切なコンポーネントを作成
-		switch field.Type() {
-		case reflect.TypeFor[*ecs.SliceComponent]():
-			// SliceComponent の初期化
-			field.Set(reflect.ValueOf(manager.NewSliceComponent()))
-		case reflect.TypeFor[*ecs.NullComponent]():
+		// フィールドの種類に応じて初期化する。
+		// Component[T] はジェネリックで各インスタンスが別型のため、型switchではなく
+		// マーカーインターフェース経由で初期化する。
+		switch f := field.Addr().Interface().(type) {
+		case sliceComponentIniter:
+			// Component[T] の内部 SliceComponent を初期化
+			f.initSlice(manager)
+		case **ecs.NullComponent:
 			// NullComponent の初期化
-			field.Set(reflect.ValueOf(manager.NewNullComponent()))
+			*f = manager.NewNullComponent()
 		default:
 			// 未対応の型はエラーとして扱う
 			return fmt.Errorf("unsupported component type %v for field %s", field.Type(), fieldName)

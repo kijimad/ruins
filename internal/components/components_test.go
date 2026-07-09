@@ -2,7 +2,6 @@ package components
 
 import (
 	"reflect"
-	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,20 +24,23 @@ func TestInitializeComponents(t *testing.T) {
 		// Assert
 		require.NoError(t, err, "InitializeComponentsは成功する必要がある")
 
-		// 全てのSliceComponentフィールドが初期化されているかチェック
+		// 全てのフィールドが初期化されているかチェック
 		val := reflect.ValueOf(components).Elem()
 		typ := val.Type()
 
 		for i := range val.NumField() {
 			field := val.Field(i)
-			fieldType := typ.Field(i)
-			fieldName := fieldType.Name
+			fieldName := typ.Field(i).Name
 
-			switch field.Type() {
-			case reflect.TypeFor[*ecs.SliceComponent]():
-				assert.NotNil(t, field.Interface(), "SliceComponent %s は初期化されている必要がある", fieldName)
-			case reflect.TypeFor[*ecs.NullComponent]():
+			switch field.Addr().Interface().(type) {
+			case sliceComponentIniter:
+				// Component[T] の埋め込み SliceComponent が初期化されているか
+				embedded := field.FieldByName("SliceComponent")
+				assert.False(t, embedded.IsNil(), "Component %s は初期化されている必要がある", fieldName)
+			case **ecs.NullComponent:
 				assert.NotNil(t, field.Interface(), "NullComponent %s は初期化されている必要がある", fieldName)
+			default:
+				assert.Fail(t, "未対応の型", "フィールド %s の型 %v", fieldName, field.Type())
 			}
 		}
 	})
@@ -55,10 +57,10 @@ func TestInitializeComponents(t *testing.T) {
 		// Assert
 		require.NoError(t, err)
 
-		// SliceComponentのサンプルチェック
-		assert.NotNil(t, components.Name, "Name SliceComponentが初期化されている")
-		assert.NotNil(t, components.Position, "Position SliceComponentが初期化されている")
-		assert.NotNil(t, components.Abilities, "Abilities SliceComponentが初期化されている")
+		// Component[T]のサンプルチェック（埋め込みSliceComponentの初期化を確認）
+		assert.NotNil(t, components.Name.SliceComponent, "Name コンポーネントが初期化されている")
+		assert.NotNil(t, components.Position.SliceComponent, "Position コンポーネントが初期化されている")
+		assert.NotNil(t, components.Abilities.SliceComponent, "Abilities コンポーネントが初期化されている")
 
 		// NullComponentのサンプルチェック
 		assert.NotNil(t, components.Player, "Player NullComponentが初期化されている")
@@ -195,19 +197,16 @@ func TestComponentsStructure(t *testing.T) {
 		val := reflect.ValueOf(&Components{}).Elem()
 		typ := val.Type()
 
-		supportedTypes := []reflect.Type{
-			reflect.TypeFor[*ecs.SliceComponent](),
-			reflect.TypeFor[*ecs.NullComponent](),
-		}
-
 		for i := range val.NumField() {
 			field := val.Field(i)
-			fieldType := typ.Field(i)
-			fieldName := fieldType.Name
+			fieldName := typ.Field(i).Name
 
-			isSupported := slices.Contains(supportedTypes, field.Type())
+			// InitializeComponentsが扱えるのは Component[T]（sliceComponentIniter）
+			// または *ecs.NullComponent のいずれか
+			_, isSlice := field.Addr().Interface().(sliceComponentIniter)
+			_, isNull := field.Addr().Interface().(**ecs.NullComponent)
 
-			assert.True(t, isSupported,
+			assert.True(t, isSlice || isNull,
 				"フィールド %s の型 %v はサポートされている必要がある",
 				fieldName, field.Type())
 		}
