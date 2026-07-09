@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -40,23 +41,15 @@ func TestSeedReproducibility(t *testing.T) {
 	copy(rooms2, chain2.PlanData.Rooms)
 
 	// タイルが完全に一致することを確認
-	if len(tiles1) != len(tiles2) {
-		t.Errorf("タイル数が異なります。1回目: %d, 2回目: %d", len(tiles1), len(tiles2))
-	}
+	require.Len(t, tiles2, len(tiles1), "タイル数が異なります")
 	for i := range tiles1 {
-		if tiles1[i].Name != tiles2[i].Name {
-			t.Errorf("タイル[%d]が異なります。1回目: %v, 2回目: %v", i, tiles1[i], tiles2[i])
-		}
+		assert.Equal(t, tiles1[i].Name, tiles2[i].Name, "タイル[%d]が異なります", i)
 	}
 
 	// 部屋が完全に一致することを確認
-	if len(rooms1) != len(rooms2) {
-		t.Errorf("部屋数が異なります。1回目: %d, 2回目: %d", len(rooms1), len(rooms2))
-	}
+	require.Len(t, rooms2, len(rooms1), "部屋数が異なります")
 	for i := range rooms1 {
-		if rooms1[i] != rooms2[i] {
-			t.Errorf("部屋[%d]が異なります。1回目: %v, 2回目: %v", i, rooms1[i], rooms2[i])
-		}
+		assert.Equal(t, rooms1[i], rooms2[i], "部屋[%d]が異なります", i)
 	}
 }
 
@@ -88,9 +81,7 @@ func TestDifferentSeeds(t *testing.T) {
 		}
 	}
 
-	if differentTiles == 0 {
-		t.Error("異なるシードなのにマップが完全に一致しています")
-	}
+	assert.NotZero(t, differentTiles, "異なるシードなのにマップが完全に一致しています")
 }
 
 func TestRandomSourceDeterministic(t *testing.T) {
@@ -106,17 +97,13 @@ func TestRandomSourceDeterministic(t *testing.T) {
 	for i := range 100 {
 		val1 := rs1.IntN(1000)
 		val2 := rs2.IntN(1000)
-		if val1 != val2 {
-			t.Errorf("反復%dで異なる値が生成されました。val1: %d, val2: %d", i, val1, val2)
-		}
+		assert.Equal(t, val1, val2, "反復%dで異なる値が生成されました", i)
 	}
 
 	// Float64も確認
 	for i := range 100 {
 		val1 := rs1.Float64()
 		val2 := rs2.Float64()
-		if val1 != val2 {
-			t.Errorf("反復%dで異なるFloat64値が生成されました。val1: %f, val2: %f", i, val1, val2)
-		}
+		assert.Equal(t, val1, val2, "反復%dで異なるFloat64値が生成されました", i)
 	}
 }

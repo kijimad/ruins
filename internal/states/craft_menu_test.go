@@ -33,7 +33,7 @@ func TestCraftMenuState_FetchProps(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 3, len(props.Tabs), "タブは3つ（道具、武器、装備）")
+	assert.Len(t, props.Tabs, 3, "タブは3つ（道具、武器、装備）")
 	assert.Equal(t, "consumables", props.Tabs[0].ID)
 	assert.Equal(t, "weapons", props.Tabs[1].ID)
 	assert.Equal(t, "wearables", props.Tabs[2].ID)

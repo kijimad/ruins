@@ -51,7 +51,7 @@ func TestDropActivity_Validate(t *testing.T) {
 
 		da := &DropActivity{}
 		err = da.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "ドロップ対象が指定されていません")
 	})
 
@@ -73,7 +73,7 @@ func TestDropActivity_Validate(t *testing.T) {
 
 		da := &DropActivity{}
 		err = da.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "バックパック内にありません")
 	})
 
@@ -94,7 +94,7 @@ func TestDropActivity_Validate(t *testing.T) {
 
 		da := &DropActivity{}
 		err = da.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
@@ -174,7 +174,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 
 		da := &DropActivity{}
 		err = da.performDropActivity(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
@@ -226,7 +226,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		da := &DropActivity{}
 		err = da.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }

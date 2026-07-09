@@ -55,12 +55,12 @@ func TestSpriteImageCacheOperations(t *testing.T) {
 		assert.True(t, exists, "設定したキーが存在しない")
 
 		// サイズが増えたことを確認
-		assert.Equal(t, initialLen+1, len(sys.spriteImageCache), "キャッシュサイズが正しくない")
+		assert.Len(t, sys.spriteImageCache, initialLen+1, "キャッシュサイズが正しくない")
 
 		// キャッシュをクリア（テスト後の処理）
 		delete(sys.spriteImageCache, testKey)
 
 		// 元の状態に戻ったことを確認
-		assert.Equal(t, initialLen, len(sys.spriteImageCache), "キャッシュクリア後のサイズが正しくない")
+		assert.Len(t, sys.spriteImageCache, initialLen, "キャッシュクリア後のサイズが正しくない")
 	})
 }

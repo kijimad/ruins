@@ -31,7 +31,7 @@ func TestMainMenuState_FetchProps(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 5, len(props.Items), "メニュー項目は5つ")
+	assert.Len(t, props.Items, 5, "メニュー項目は5つ")
 	assert.Equal(t, "開始", props.Items[0].Label)
 	assert.Equal(t, "デモ", props.Items[1].Label)
 	assert.Equal(t, "読込", props.Items[2].Label)

@@ -48,7 +48,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 
 		ta := &TalkActivity{}
 		err = ta.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "会話対象が指定されていません")
 	})
 
@@ -70,7 +70,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 
 		ta := &TalkActivity{}
 		err = ta.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "対象エンティティは会話できません")
 	})
 
@@ -92,7 +92,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 
 		ta := &TalkActivity{}
 		err = ta.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "対象エンティティは中立派閥ではありません")
 	})
 }
@@ -162,7 +162,7 @@ func TestTalkActivity_DoTurn(t *testing.T) {
 		ta := &TalkActivity{}
 		err = ta.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }

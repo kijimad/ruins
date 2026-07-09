@@ -540,7 +540,7 @@ func TestPlanWanderAction(t *testing.T) {
 	gotWait := false
 	for range 50 {
 		behavior := rp.planWanderAction(world, entity, grid)
-		switch behavior.Name() { //nolint:exhaustive
+		switch behavior.Name() { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
 		case gc.BehaviorMove:
 			gotMove = true
 		case gc.BehaviorWait:
@@ -736,7 +736,7 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	gotWait := false
 	for range 50 {
 		behavior := rp.planRandomMoveAction(world, entity, grid)
-		switch behavior.Name() { //nolint:exhaustive
+		switch behavior.Name() { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
 		case gc.BehaviorMove:
 			gotMove = true
 		case gc.BehaviorWait:
@@ -891,5 +891,5 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name(), "離れた隊員に向かって移動すべき")
 	move := behavior.(*activity.MoveActivity)
-	assert.True(t, int(move.Destination.X) > 5, "隊員方向に移動すべき")
+	assert.Greater(t, int(move.Destination.X), 5, "隊員方向に移動すべき")
 }

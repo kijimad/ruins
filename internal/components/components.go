@@ -180,7 +180,7 @@ func (c *Components) InitializeComponents(manager *ecs.Manager) error {
 	val := reflect.ValueOf(c).Elem() // *Components から Components へ
 	typ := val.Type()
 
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		field := val.Field(i)
 		fieldType := typ.Field(i)
 		fieldName := fieldType.Name

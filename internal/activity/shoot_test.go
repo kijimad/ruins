@@ -230,7 +230,7 @@ func TestShootActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		err = sa.DoTurn(comp, player, world)
-		assert.ErrorIs(t, err, ErrAttackTargetNotSet)
+		require.ErrorIs(t, err, ErrAttackTargetNotSet)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
@@ -270,7 +270,7 @@ func TestExecuteShootAction(t *testing.T) {
 		require.NoError(t, err)
 
 		err = ExecuteShootAction(player, enemy, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		assert.False(t, player.HasComponent(world.Components.Activity))
 	})
@@ -465,7 +465,7 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
-		assert.Less(t, mod, 0)
+		assert.Negative(t, mod)
 	})
 
 	t.Run("遮蔽物があるとさらにペナルティ", func(t *testing.T) {
@@ -498,7 +498,7 @@ func TestGetEquippedFire(t *testing.T) {
 
 		fire, _, err := getEquippedFire(player, world)
 		require.NoError(t, err)
-		assert.Greater(t, fire.MagazineSize, 0)
+		assert.Positive(t, fire.MagazineSize)
 	})
 
 	t.Run("武器未装備でエラー", func(t *testing.T) {

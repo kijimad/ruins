@@ -45,22 +45,22 @@ func TestActivityInterruptAndResume(t *testing.T) {
 
 	// 中断実行
 	err = Interrupt(comp, "テスト中断")
-	assert.NoError(t, err, "Unexpected error during interrupt")
+	require.NoError(t, err, "Unexpected error during interrupt")
 	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected state to be Paused after interrupt")
 	assert.Equal(t, "テスト中断", comp.CancelReason, "Expected cancel reason 'テスト中断'")
 
 	// 中断状態での再中断テスト（エラーになるはず）
 	err = Interrupt(comp, "再中断")
-	assert.Error(t, err, "Expected error when interrupting already paused activity")
+	require.Error(t, err, "Expected error when interrupting already paused activity")
 
 	// 再開可能性チェック
 	assert.True(t, CanResume(comp), "Expected activity to be resumable")
 
 	// 再開実行
 	err = Resume(comp)
-	assert.NoError(t, err, "Unexpected error during resume")
+	require.NoError(t, err, "Unexpected error during resume")
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected state to be Running after resume")
-	assert.Equal(t, "", comp.CancelReason, "Expected empty cancel reason after resume")
+	assert.Empty(t, comp.CancelReason, "Expected empty cancel reason after resume")
 }
 
 func TestActivityCancel(t *testing.T) {
@@ -130,18 +130,18 @@ func TestActivityDoTurn(t *testing.T) {
 
 	// 1ターン目
 	err = behavior.DoTurn(comp, actor, world)
-	assert.NoError(t, err, "Unexpected error in turn 1")
+	require.NoError(t, err, "Unexpected error in turn 1")
 	assert.Equal(t, 2, comp.TurnsLeft, "Expected 2 turns left after turn 1")
 	assert.False(t, IsCompleted(comp), "Expected activity not to be completed after turn 1")
 
 	// 2ターン目
 	err = behavior.DoTurn(comp, actor, world)
-	assert.NoError(t, err, "Unexpected error in turn 2")
+	require.NoError(t, err, "Unexpected error in turn 2")
 	assert.Equal(t, 1, comp.TurnsLeft, "Expected 1 turn left after turn 2")
 
 	// 3ターン目（完了）
 	err = behavior.DoTurn(comp, actor, world)
-	assert.NoError(t, err, "Unexpected error in turn 3")
+	require.NoError(t, err, "Unexpected error in turn 3")
 	assert.Equal(t, 0, comp.TurnsLeft, "Expected 0 turns left after turn 3")
 	assert.True(t, IsCompleted(comp), "Expected activity to be completed after turn 3")
 }

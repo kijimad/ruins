@@ -27,7 +27,7 @@ func TestGetAttackFromCommandTable(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotEmpty(t, weaponName)
 	assert.NotNil(t, attack)
-	assert.Greater(t, attack.GetDamage(), 0)
+	assert.Positive(t, attack.GetDamage())
 }
 
 func TestGetAttackFromCommandTable_NoCommandTable(t *testing.T) {
@@ -132,7 +132,7 @@ func TestAttackUnification(t *testing.T) {
 	// 取得した敵の攻撃が有効であることを検証する
 	assert.NotEmpty(t, enemyWeaponName)
 	assert.NotNil(t, enemyAttack)
-	assert.Greater(t, enemyAttack.GetDamage(), 0)
+	assert.Positive(t, enemyAttack.GetDamage())
 
 	// プレイヤーの武器攻撃取得も同じインターフェースで動作することを確認
 	playerWeapon := world.Manager.NewEntity()

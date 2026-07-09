@@ -21,9 +21,6 @@ import (
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestGameInitializationIntegration(t *testing.T) {
 	t.Run("完全なゲーム初期化フロー", func(t *testing.T) {
-		// メモリ使用量の初期値を記録
-		initialMemStats := getMemoryStats()
-
 		// 1. ワールドの初期化
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
@@ -41,9 +38,6 @@ func TestGameInitializationIntegration(t *testing.T) {
 
 		// 5. MainGameの初期化と基本動作検証
 		validateMainGameInitialization(t, world)
-
-		// 6. メモリリーク検証
-		validateMemoryUsage(t, initialMemStats)
 	})
 
 	t.Run("部分的な初期化テスト", func(t *testing.T) {
@@ -83,7 +77,7 @@ func TestMainGameLifecycle(t *testing.T) {
 
 		// Update関数のテスト（エラーが発生しないことを確認）
 		err = game.Update()
-		assert.NoError(t, err, "Updateでエラーが発生")
+		require.NoError(t, err, "Updateでエラーが発生")
 
 		// Draw関数のテスト（パニックしないことを確認）
 		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
@@ -199,6 +193,7 @@ func TestResourceIntegration(t *testing.T) {
 
 // validateWorldInitialization はワールド初期化の基本検証
 func validateWorldInitialization(t *testing.T, world ew.World) {
+	t.Helper()
 	assert.NotNil(t, world.Resources, "ワールドリソースがnil")
 	assert.NotNil(t, world.Resources.ScreenDimensions, "画面サイズがnil")
 	assert.Equal(t, consts.GameWidth, world.Resources.ScreenDimensions.Width, "画面幅が正しくない")
@@ -209,6 +204,7 @@ func validateWorldInitialization(t *testing.T, world ew.World) {
 
 // validateResourceLoading はリソース読み込みの検証
 func validateResourceLoading(t *testing.T, world ew.World) {
+	t.Helper()
 	// 各リソースの存在確認
 	resources := []struct {
 		name     string
@@ -229,6 +225,7 @@ func validateResourceLoading(t *testing.T, world ew.World) {
 
 // validateStateMachineInitialization は状態機械初期化の検証
 func validateStateMachineInitialization(t *testing.T, world ew.World) {
+	t.Helper()
 	initialState := &gs.MainMenuState{}
 	stateMachine, err := es.Init(initialState, world)
 	require.NoError(t, err)
@@ -256,6 +253,7 @@ func validateStateMachineInitialization(t *testing.T, world ew.World) {
 
 // validateMainGameInitialization はMainGame初期化の検証
 func validateMainGameInitialization(t *testing.T, world ew.World) {
+	t.Helper()
 	stateMachine, err := es.Init(&gs.MainMenuState{}, world)
 	require.NoError(t, err)
 	game := &MainGame{
@@ -268,48 +266,15 @@ func validateMainGameInitialization(t *testing.T, world ew.World) {
 
 	// Layout関数の動作確認
 	width, height := game.Layout(0, 0)
-	assert.Greater(t, width, 0, "レイアウト幅が0以下")
-	assert.Greater(t, height, 0, "レイアウト高さが0以下")
-}
-
-// validateMemoryUsage はメモリ使用量の検証
-func validateMemoryUsage(t *testing.T, initialStats memoryStats) {
-	finalStats := getMemoryStats()
-
-	// メモリ使用量の増加が異常でないことを確認
-	memoryIncreaseRatio := float64(finalStats.Alloc) / float64(initialStats.Alloc)
-	assert.Less(t, memoryIncreaseRatio, 10.0, "メモリ使用量が異常に増加している")
-
-	t.Logf("メモリ使用量 - 初期: %d bytes, 最終: %d bytes, 増加率: %.2fx",
-		initialStats.Alloc, finalStats.Alloc, memoryIncreaseRatio)
-}
-
-// memoryStats はメモリ統計情報
-type memoryStats struct {
-	Alloc      uint64
-	TotalAlloc uint64
-	Mallocs    uint64
-	Frees      uint64
-}
-
-// getMemoryStats は現在のメモリ統計を取得
-func getMemoryStats() memoryStats {
-	// 実際のメモリ統計取得は実装環境に依存するため、
-	// テスト環境では簡易実装
-	// 実際の実装では runtime.ReadMemStats() を使用
-	return memoryStats{
-		Alloc:      1024 * 1024, // 1MB
-		TotalAlloc: 2048 * 1024, // 2MB
-		Mallocs:    1000,
-		Frees:      500,
-	}
+	assert.Positive(t, width, "レイアウト幅が0以下")
+	assert.Positive(t, height, "レイアウト高さが0以下")
 }
 
 // TestGameInitializationBenchmark はゲーム初期化のベンチマーク
 func BenchmarkGameInitialization(b *testing.B) {
 	b.Run("InitWorld", func(b *testing.B) {
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			cfg := &config.Config{Profile: config.ProfileDevelopment}
 			cfg.ApplyProfileDefaults()
 			_, err := InitWorld(cfg)
@@ -324,7 +289,7 @@ func BenchmarkGameInitialization(b *testing.B) {
 		world, err := InitWorld(cfg)
 		require.NoError(b, err)
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			_, _ = es.Init(&gs.MainMenuState{}, world)
 		}
 	})
@@ -338,7 +303,7 @@ func BenchmarkGameInitialization(b *testing.B) {
 		stateMachine, err := es.Init(&gs.MainMenuState{}, world)
 		require.NoError(b, err)
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			_ = &MainGame{
 				World:        world,
 				StateMachine: stateMachine,

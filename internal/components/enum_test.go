@@ -41,8 +41,8 @@ func TestGetRangeParams(t *testing.T) {
 		for _, at := range []AttackType{AttackBow, AttackHandgun, AttackRifle, AttackCanon} {
 			params, ok := GetRangeParams(at)
 			assert.True(t, ok, at.Label)
-			assert.Greater(t, params.MaxRange, 0, at.Label)
-			assert.Greater(t, params.OptimalRange, 0, at.Label)
+			assert.Positive(t, params.MaxRange, at.Label)
+			assert.Positive(t, params.OptimalRange, at.Label)
 		}
 	})
 
@@ -61,7 +61,7 @@ func TestEquipmentType_Valid(t *testing.T) {
 		EquipmentHands, EquipmentLegs, EquipmentFeet, EquipmentJewelry,
 	}
 	for _, et := range validTypes {
-		assert.NoError(t, et.Valid(), string(et))
+		require.NoError(t, et.Valid(), string(et))
 	}
 
 	assert.ErrorIs(t, EquipmentType("INVALID").Valid(), ErrInvalidEnumType)

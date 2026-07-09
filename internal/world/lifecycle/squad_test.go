@@ -71,7 +71,7 @@ func TestSpawnSquadMember(t *testing.T) {
 
 	// HPが全回復していることの確認
 	hp := world.Components.HP.Get(member).(*gc.HP)
-	assert.Greater(t, hp.Max, 0, "最大HPが設定されている")
+	assert.Positive(t, hp.Max, "最大HPが設定されている")
 	assert.Equal(t, hp.Max, hp.Current, "HPが全回復している")
 }
 

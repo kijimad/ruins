@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,9 +21,7 @@ func TestBigRoomPlanner(t *testing.T) {
 	require.NoError(t, err)
 
 	// 部屋が1つだけ生成されることを確認
-	if len(chain.PlanData.Rooms) != 1 {
-		t.Errorf("期待される部屋数: 1, 実際: %d", len(chain.PlanData.Rooms))
-	}
+	require.Len(t, chain.PlanData.Rooms, 1, "期待される部屋数と異なる")
 
 	// 生成された部屋のサイズを確認
 	room := chain.PlanData.Rooms[0]
@@ -32,13 +31,8 @@ func TestBigRoomPlanner(t *testing.T) {
 	actualWidth := int(room.X2 - room.X1 + 1)
 	actualHeight := int(room.Y2 - room.Y1 + 1)
 
-	if actualWidth < expectedMinWidth {
-		t.Errorf("部屋の幅が小さすぎます。期待最小値: %d, 実際: %d", expectedMinWidth, actualWidth)
-	}
-
-	if actualHeight < expectedMinHeight {
-		t.Errorf("部屋の高さが小さすぎます。期待最小値: %d, 実際: %d", expectedMinHeight, actualHeight)
-	}
+	assert.GreaterOrEqual(t, actualWidth, expectedMinWidth, "部屋の幅が小さすぎる")
+	assert.GreaterOrEqual(t, actualHeight, expectedMinHeight, "部屋の高さが小さすぎる")
 
 	// 床と壁の両方が存在することを確認
 	floorCount := 0
@@ -51,12 +45,8 @@ func TestBigRoomPlanner(t *testing.T) {
 		}
 	}
 
-	if floorCount == 0 {
-		t.Error("床タイルが存在しません")
-	}
-	if wallCount == 0 {
-		t.Error("壁タイルが存在しません")
-	}
+	assert.Positive(t, floorCount, "床タイルが存在しない")
+	assert.Positive(t, wallCount, "壁タイルが存在しない")
 
 	t.Logf("床タイル: %d, 壁タイル: %d", floorCount, wallCount)
 }
@@ -77,9 +67,7 @@ func TestBigRoomVariations(t *testing.T) {
 		require.NoError(t, err)
 
 		// 部屋が1つ生成されることを確認
-		if len(chain.PlanData.Rooms) != 1 {
-			t.Errorf("Seed %d: Expected 1 room, got %d", seed, len(chain.PlanData.Rooms))
-		}
+		assert.Len(t, chain.PlanData.Rooms, 1, "Seed %d: 部屋数が想定と異なる", seed)
 
 		// タイル構成を分析してバリエーションを推測
 		wallCount := 0
@@ -95,13 +83,14 @@ func TestBigRoomVariations(t *testing.T) {
 
 		// 壁と床の比率から大まかなバリエーションを判定
 		ratio := float64(wallCount) / float64(wallCount+floorCount)
-		variantType := ""
+		var variantType string
 
-		if ratio <= 0.25 {
+		switch {
+		case ratio <= 0.25:
 			variantType = "basic"
-		} else if ratio <= 0.35 {
+		case ratio <= 0.35:
 			variantType = "pillars_obstacles_platform"
-		} else {
+		default:
 			variantType = "maze"
 		}
 
@@ -112,9 +101,7 @@ func TestBigRoomVariations(t *testing.T) {
 	}
 
 	// 複数のバリエーションが生成されていることを確認
-	if len(variantCounts) < 2 {
-		t.Errorf("Expected multiple variants to be generated, got: %v", variantCounts)
-	}
+	assert.GreaterOrEqual(t, len(variantCounts), 2, "複数のバリエーションが生成されるべき: %v", variantCounts)
 
 	t.Logf("Variant distribution: %v", variantCounts)
 }

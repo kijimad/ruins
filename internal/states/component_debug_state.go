@@ -119,10 +119,10 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 	val := reflect.ValueOf(comps).Elem()
 	typ := val.Type()
 
-	var items []componentDebugItem
+	items := make([]componentDebugItem, 0, val.NumField())
 	total := 0
 
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		field := val.Field(i)
 		fieldName := typ.Field(i).Name
 

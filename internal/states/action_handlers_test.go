@@ -26,7 +26,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// 移動を実行
-		assert.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionUp))
+		require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionUp))
 
 		// 検証
 		result := activity.GetLastResult(player, world)
@@ -86,7 +86,7 @@ func TestExecuteMoveAction(t *testing.T) {
 				player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 				player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-				assert.NoError(t, activity.ExecuteMoveAction(world, tt.direction))
+				require.NoError(t, activity.ExecuteMoveAction(world, tt.direction))
 
 				gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
 				assert.Equal(t, tt.expectedX, int(gridAfter.X), "X座標が正しく移動するべき")
@@ -109,7 +109,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 		// 移動を実行（APがマイナスになる）
 		err := activity.ExecuteMoveAction(world, gc.DirectionUp)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// プレイヤーは移動している
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
@@ -118,7 +118,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 		// APはマイナスになる
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
-		assert.Less(t, turnBased.AP.Current, 0, "移動コストでAPがマイナスになる")
+		assert.Negative(t, turnBased.AP.Current, "移動コストでAPがマイナスになる")
 	})
 }
 
@@ -134,7 +134,7 @@ func TestExecuteWaitAction(t *testing.T) {
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// 待機を実行
-		assert.NoError(t, activity.ExecuteWaitAction(world))
+		require.NoError(t, activity.ExecuteWaitAction(world))
 
 		// 検証
 		result := activity.GetLastResult(player, world)
@@ -382,7 +382,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 
 		// 上に移動しようとする
 		err := activity.ExecuteMoveAction(world, gc.DirectionUp)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Propに自動攻撃せず、移動もブロックされる
 		grid := world.Components.GridElement.Get(player).(*gc.GridElement)

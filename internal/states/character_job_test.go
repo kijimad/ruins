@@ -18,7 +18,7 @@ func TestProfessions(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 
-	assert.Equal(t, 6, len(professions), "職業は6種類")
+	assert.Len(t, professions, 6, "職業は6種類")
 
 	expectedIDs := []string{"evacuee", "hunter", "mechanic", "medic", "sniper", "soldier"}
 	for i, expectedID := range expectedIDs {
@@ -55,7 +55,7 @@ func TestProfessionItems(t *testing.T) {
 			var found bool
 			for _, p := range professions {
 				if p.Id == tt.professionID {
-					assert.Equal(t, tt.itemCount, len(p.Items), "初期アイテム数")
+					assert.Len(t, p.Items, tt.itemCount, "初期アイテム数")
 					found = true
 					break
 				}
@@ -89,7 +89,7 @@ func TestProfessionEquips(t *testing.T) {
 			var found bool
 			for _, p := range professions {
 				if p.Id == tt.professionID {
-					assert.Equal(t, tt.equipCount, len(p.Equips), "初期装備数")
+					assert.Len(t, p.Equips, tt.equipCount, "初期装備数")
 					found = true
 					break
 				}
@@ -119,7 +119,7 @@ func TestCharacterJobState_FetchProps(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 6, len(props.Items), "職業は6つ")
+	assert.Len(t, props.Items, 6, "職業は6つ")
 	assert.Equal(t, "避難民", props.Items[0].Profession.Name)
 	assert.Equal(t, "猟師", props.Items[1].Profession.Name)
 	assert.Equal(t, "整備士", props.Items[2].Profession.Name)

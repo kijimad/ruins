@@ -76,7 +76,8 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 	var candidates []consts.Coord[int]
 	dx, dy := delta.X, delta.Y
 
-	if dx != 0 && dy != 0 {
+	switch {
+	case dx != 0 && dy != 0:
 		moveX := 1
 		if dx < 0 {
 			moveX = -1
@@ -94,7 +95,7 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 			candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
 			candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
 		}
-	} else if dx != 0 {
+	case dx != 0:
 		moveX := 1
 		if dx < 0 {
 			moveX = -1
@@ -102,7 +103,7 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 		candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
 		candidates = append(candidates, consts.Coord[int]{X: 0, Y: 1})
 		candidates = append(candidates, consts.Coord[int]{X: 0, Y: -1})
-	} else if dy != 0 {
+	case dy != 0:
 		moveY := 1
 		if dy < 0 {
 			moveY = -1

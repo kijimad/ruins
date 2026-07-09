@@ -19,7 +19,25 @@ linters:
     - tparallel      # t.Parallel()の不適切な使用検出
     - depguard       # 依存関係制御（禁止パッケージの使用防止）
     - exhaustive     # enum switch文の網羅性チェック（バグ防止）
+    - gocritic       # 意見の分かれない有用なチェックのみ個別有効化する
+    - errorlint      # エラーラップ（%w）の不備検出（errors.Is/Asを効かせる）
+    - thelper        # テストヘルパのt.Helper()欠落検出（失敗行を正確にする）
+    - nilnil         # (nil, nil)返しの検出（センチネルエラーを促す）
+    - wastedassign   # 使われない代入の検出
+    - mirror         # string/[]byteの非効率なメソッド選択を検出（性能）
+    - errname        # センチネルエラーの命名規約（errXxx）
+    - testifylint    # testifyの誤用検出（require-error, float-compare 等）
+    - intrange       # for i:=0;i<n;i++ を for i:=range n に近代化（Go1.22+）
+    - usetesting     # テストの近代化（t.Context/t.Setenv 等）
+    - makezero       # make([]T, n)後のappendによる長さ二重化バグを検出
+    - gocheckcompilerdirectives # //go:embed 等のコンパイラディレクティブ誤記を検出
+    - nilnesserr     # nilエラー判定の不備を検出（errorlint/nilerrを補完）
+    - reassign       # 他パッケージの変数への再代入を検出
+    - nolintlint     # nolintディレクティブに理由と対象linterの明示を強制
+    - bidichk        # 不可視の危険なUnicode（トロイソース攻撃）を検出
+    - forbidigo      # t.Error/t.Fatal を禁止しtestifyの使用を強制する
     # 現状と乖離が大きいので追加しない
+    # - forcetypeassert # ECSの .Get().(*T) が意図的な型アサーションのため不適合
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
   exclusions:
@@ -27,6 +45,25 @@ linters:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
 
   settings:
+    gocritic:
+      # 追加で有効化する
+      enabled-checks:
+        # - hugeParam # 値渡しを広くポインタ化させ、エイリアシングのリスクと大きな差分を招くため採用しない
+        # - commentedOutCode # 日本語コメントを誤検知するため採用しない
+        - rangeValCopy # rangeでの大きな値コピーを検出する（性能）
+    testifylint:
+      disable:
+        - float-compare # 厳密値/センチネル/0との比較が大半で、InDeltaの許容誤差付与が恣意的でノイズになるため
+    nolintlint:
+      require-explanation: true # nolintには理由コメントを必須にする
+      require-specific: true # 対象linterを明示させる（//nolint単独を禁止）
+    forbidigo:
+      # 型情報でマッチする。受け手の変数名（t/tt/tb 等）に依らず testing.T/B/TB のメソッドだけを
+      # 確実に捕捉し、fmt.Errorf などの同名パッケージ関数は誤検知しない。
+      analyze-types: true
+      forbid:
+        # テストは t.Error/Errorf/Fatal/Fatalf でなく testify の assert/require を使う
+        - pattern: '^testing\.(T|B|TB)\.(Errorf?|Fatalf?)$'
     exhaustive:
       check:
         - switch

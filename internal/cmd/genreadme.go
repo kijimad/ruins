@@ -96,7 +96,7 @@ func buildImageTableFrom(dir string) (string, error) {
 	}
 	// 最終行の残りセルを埋める
 	if rem := len(images) % columns; rem != 0 {
-		for i := 0; i < columns-rem; i++ {
+		for range columns - rem {
 			sb.WriteString(" |")
 		}
 	}

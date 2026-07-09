@@ -63,7 +63,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrMemberGeneration, err)
+		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
 	}
 
 	skills := gc.NewSkills()
@@ -167,7 +167,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrEnemyGeneration, err)
+		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
@@ -266,7 +266,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrMemberGeneration, err)
+		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
 	}
 	if len(entitiesSlice) != 1 {
 		return consts.InvalidEntity, fmt.Errorf("隊員エンティティの生成に失敗しました: エンティティ数=%d", len(entitiesSlice))
@@ -339,7 +339,7 @@ func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrItemGeneration, err)
+		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrItemGeneration, err)
 	}
 	if entitySpec.Stackable != nil {
 		entitySpec.Stackable.Count = count

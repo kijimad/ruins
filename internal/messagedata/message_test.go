@@ -39,7 +39,7 @@ func TestNewDialogMessage(t *testing.T) {
 		msg := NewDialogMessage("メッセージ", "")
 
 		assert.Equal(t, "メッセージ", getMessageText(msg))
-		assert.Equal(t, "", msg.Speaker)
+		assert.Empty(t, msg.Speaker)
 	})
 
 	t.Run("空のテキストでも作成可能", func(t *testing.T) {
@@ -47,7 +47,7 @@ func TestNewDialogMessage(t *testing.T) {
 
 		msg := NewDialogMessage("", "キャラクター")
 
-		assert.Equal(t, "", getMessageText(msg))
+		assert.Empty(t, getMessageText(msg))
 		assert.Equal(t, "キャラクター", msg.Speaker)
 	})
 }
@@ -62,7 +62,7 @@ func TestNewSystemMessage(t *testing.T) {
 		msg := NewSystemMessage(text)
 
 		assert.Equal(t, text, getMessageText(msg))
-		assert.Equal(t, "", msg.Speaker)
+		assert.Empty(t, msg.Speaker)
 		assert.Empty(t, msg.Choices)
 		assert.Nil(t, msg.OnComplete)
 		assert.Empty(t, msg.nextMessages)
@@ -73,8 +73,8 @@ func TestNewSystemMessage(t *testing.T) {
 
 		msg := NewSystemMessage("")
 
-		assert.Equal(t, "", getMessageText(msg))
-		assert.Equal(t, "", msg.Speaker)
+		assert.Empty(t, getMessageText(msg))
+		assert.Empty(t, msg.Speaker)
 	})
 }
 
@@ -209,7 +209,7 @@ func TestMessageChaining(t *testing.T) {
 		require.Len(t, msg.nextMessages, 1)
 		nextMsg := msg.nextMessages[0]
 		assert.Equal(t, "イベント発生", getMessageText(nextMsg))
-		assert.Equal(t, "", nextMsg.Speaker)
+		assert.Empty(t, nextMsg.Speaker)
 	})
 
 	t.Run("複数メッセージの連鎖", func(t *testing.T) {
@@ -276,7 +276,7 @@ func TestChoice(t *testing.T) {
 
 		choice := Choice{}
 
-		assert.Equal(t, "", choice.Text)
+		assert.Empty(t, choice.Text)
 		assert.Nil(t, choice.Action)
 		assert.Nil(t, choice.MessageData)
 	})

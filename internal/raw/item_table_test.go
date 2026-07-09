@@ -85,9 +85,9 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	}
 
 	// グループ内の全アイテムが選択されることを確認
-	assert.Greater(t, results["回復薬"], 0, "回復薬が選択されるべき")
-	assert.Greater(t, results["毒消し"], 0, "毒消しが選択されるべき")
-	assert.Greater(t, results["手榴弾"], 0, "手榴弾が選択されるべき")
+	assert.Positive(t, results["回復薬"], "回復薬が選択されるべき")
+	assert.Positive(t, results["毒消し"], "毒消しが選択されるべき")
+	assert.Positive(t, results["手榴弾"], "手榴弾が選択されるべき")
 }
 
 func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
@@ -106,7 +106,7 @@ func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	result, err := SelectItemByWeight(raws, table, rng, 5)
 	require.NoError(t, err)
 
-	assert.Equal(t, "", result, "重みが全て0の場合は空文字列を返すべき")
+	assert.Empty(t, result, "重みが全て0の場合は空文字列を返すべき")
 }
 
 func TestItemTable_SelectByWeight_EmptyEntries(t *testing.T) {
@@ -122,7 +122,7 @@ func TestItemTable_SelectByWeight_EmptyEntries(t *testing.T) {
 	result, err := SelectItemByWeight(raws, table, rng, 1)
 	require.NoError(t, err)
 
-	assert.Equal(t, "", result, "エントリが空の場合は空文字列を返すべき")
+	assert.Empty(t, result, "エントリが空の場合は空文字列を返すべき")
 }
 
 func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {

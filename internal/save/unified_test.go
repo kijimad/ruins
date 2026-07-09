@@ -1,7 +1,6 @@
 package save
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -39,7 +38,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"同じワールドから生成されたJSON %d が一致しません", i+1)
 		}
 	})
@@ -60,7 +59,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"セッション %d のJSONが一致しません", i+1)
 		}
 	})
@@ -113,7 +112,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"コンポーネント追加順序による差異 (variant %d)", i+1)
 		}
 	})
@@ -152,7 +151,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		// 両方のバリアントが同じJSONを生成することを確認
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		normalizedJSON := normalizeJSONForComparison(jsonStrings[1])
-		assert.Equal(t, baseJSON, normalizedJSON,
+		assert.JSONEq(t, baseJSON, normalizedJSON,
 			"エンティティ作成順序による差異")
 	})
 
@@ -177,39 +176,12 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			jsonStrings = append(jsonStrings, jsonStr)
 		}
 
-		// プレイヤー生成が決定的であることを確認
+		// プレイヤー生成が決定的であることを確認する。
+		// 失敗時の差分は assert.JSONEq が表示する
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-
-			if baseJSON != normalizedJSON {
-				t.Errorf("プレイヤー生成セッション %d のJSONが一致しません（非決定的）", i+1)
-
-				// 差分の詳細を表示
-				baseLines := strings.Split(baseJSON, "\n")
-				compareLines := strings.Split(normalizedJSON, "\n")
-
-				diffCount := 0
-				maxDiffs := 10
-				for lineNum := 0; lineNum < len(baseLines) && lineNum < len(compareLines) && diffCount < maxDiffs; lineNum++ {
-					if baseLines[lineNum] != compareLines[lineNum] {
-						t.Logf("行 %d の違い:", lineNum+1)
-						t.Logf("  セッション1: %s", baseLines[lineNum])
-						t.Logf("  セッション%d: %s", i+1, compareLines[lineNum])
-						diffCount++
-					}
-				}
-				if diffCount >= maxDiffs {
-					t.Logf("... (さらに %d個以上の違いが見つかりました)", maxDiffs)
-				}
-				break
-			}
-		}
-
-		// すべてのセッションで同一のJSONが生成されることを確認
-		for i := 1; i < len(jsonStrings); i++ {
-			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"プレイヤー生成セッション %d のJSONが初回と異なります", i+1)
 		}
 	})
@@ -232,7 +204,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"決定的複雑データセッション %d のJSONが初回と異なります", i+1)
 		}
 	})
@@ -273,18 +245,14 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	t.Run("ファイル経由のラウンドトリップ", func(t *testing.T) {
 		t.Parallel()
 		// 従来のファイル保存APIを使用
-		tempDir, err := os.MkdirTemp("", "round_trip_test_")
-		require.NoError(t, err)
-		defer func() {
-			_ = os.RemoveAll(tempDir)
-		}()
+		tempDir := t.TempDir()
 
 		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
 		require.NoError(t, smErr)
 		originalWorld := createStandardTestWorld(t)
 
 		// 元データ保存
-		err = sm.SaveWorld(originalWorld, "original")
+		err := sm.SaveWorld(originalWorld, "original")
 		require.NoError(t, err)
 
 		// ロード
@@ -312,11 +280,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	t.Run("多段階ラウンドトリップ", func(t *testing.T) {
 		t.Parallel()
 		// 複数回のセーブ・ロードサイクル
-		tempDir, err := os.MkdirTemp("", "multi_round_trip_test_")
-		require.NoError(t, err)
-		defer func() {
-			_ = os.RemoveAll(tempDir)
-		}()
+		tempDir := t.TempDir()
 
 		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
 		require.NoError(t, smErr)
@@ -355,11 +319,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	t.Run("複雑な実世界データのラウンドトリップ", func(t *testing.T) {
 		t.Parallel()
 		// 保存対象のみ（プレイヤー、バックパック、装備）のラウンドトリップをテストする
-		tempDir, err := os.MkdirTemp("", "complex_round_trip_test_")
-		require.NoError(t, err)
-		defer func() {
-			_ = os.RemoveAll(tempDir)
-		}()
+		tempDir := t.TempDir()
 
 		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
 		require.NoError(t, smErr)
@@ -368,7 +328,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		originalWorld := createStandardTestWorld(t)
 
 		// 元データ保存
-		err = sm.SaveWorld(originalWorld, "complex_original")
+		err := sm.SaveWorld(originalWorld, "complex_original")
 		require.NoError(t, err)
 
 		// ロード
@@ -418,11 +378,7 @@ func createStandardTestWorld(t *testing.T) w.World {
 // createTestSerializationManager テスト用のSerializationManagerを作成
 func createTestSerializationManager(t *testing.T) *SerializationManager {
 	t.Helper()
-	tempDir, err := os.MkdirTemp("", "test_sm_")
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		_ = os.RemoveAll(tempDir)
-	})
+	tempDir := t.TempDir()
 	sm, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 	return sm
@@ -451,7 +407,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	player.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
 
 	// 決定的なアイテム作成（手動でコンポーネント追加）
-	var items []ecs.Entity
 
 	// 武器1: 木刀
 	sword := world.Manager.NewEntity()
@@ -461,7 +416,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		Accuracy: 100, Damage: 8, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 	})
-	_ = append(items, sword)
 
 	// 武器2: ハンドガン
 	handgun := world.Manager.NewEntity()
@@ -471,7 +425,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		Accuracy: 85, Damage: 12, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackHandgun,
 	})
-	_ = append(items, handgun)
 
 	// 防具: 西洋鎧
 	armor := world.Manager.NewEntity()
@@ -484,7 +437,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 			Vitality: 2, Strength: 1, Sensation: 0, Dexterity: 0, Agility: -1,
 		},
 	})
-	_ = append(items, armor)
 
 	// 回復アイテム
 	potion := world.Manager.NewEntity()
@@ -500,7 +452,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	potion.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{
 		Amount: gc.RatioAmount{Ratio: 0.3},
 	})
-	_ = append(items, potion)
 
 	// 決定的なNPC作成
 	for i := range 3 {

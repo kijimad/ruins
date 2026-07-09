@@ -3,6 +3,9 @@ package gamelog
 import (
 	"image/color"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoggerBuildMethod(t *testing.T) {
@@ -22,16 +25,10 @@ func TestLoggerBuildMethod(t *testing.T) {
 
 	// 結果確認
 	entries := store.GetHistoryEntries()
-	if len(entries) != 1 {
-		t.Errorf("Expected 1 entry, got %d", len(entries))
-		return
-	}
+	require.Len(t, entries, 1, "Expected 1 entry")
 
 	fragments := entries[0].Fragments
-	if len(fragments) != 5 {
-		t.Errorf("Expected 5 fragments, got %d", len(fragments))
-		return
-	}
+	require.Len(t, fragments, 5, "Expected 5 fragments")
 
 	// フラグメントの内容確認
 	expected := []struct {
@@ -46,12 +43,8 @@ func TestLoggerBuildMethod(t *testing.T) {
 	}
 
 	for i, exp := range expected {
-		if fragments[i].Text != exp.text {
-			t.Errorf("Fragment %d: expected text '%s', got '%s'", i, exp.text, fragments[i].Text)
-		}
-		if fragments[i].Color != exp.color {
-			t.Errorf("Fragment %d: expected color %v, got %v", i, exp.color, fragments[i].Color)
-		}
+		assert.Equal(t, exp.text, fragments[i].Text, "Fragment %d text", i)
+		assert.Equal(t, exp.color, fragments[i].Color, "Fragment %d color", i)
 	}
 }
 
@@ -78,23 +71,15 @@ func TestLoggerBuildWithCondition(t *testing.T) {
 
 	// 結果確認
 	entries := store.GetHistoryEntries()
-	if len(entries) != 1 {
-		t.Errorf("Expected 1 entry, got %d", len(entries))
-		return
-	}
+	require.Len(t, entries, 1, "Expected 1 entry")
 
 	fragments := entries[0].Fragments
 	expectedTexts := []string{"プレイヤー", " が ", "敵", " にクリティカル攻撃", "した。"}
 
-	if len(fragments) != len(expectedTexts) {
-		t.Errorf("Expected %d fragments, got %d", len(expectedTexts), len(fragments))
-		return
-	}
+	require.Len(t, fragments, len(expectedTexts), "Expected %d fragments", len(expectedTexts))
 
 	for i, expectedText := range expectedTexts {
-		if fragments[i].Text != expectedText {
-			t.Errorf("Fragment %d: expected '%s', got '%s'", i, expectedText, fragments[i].Text)
-		}
+		assert.Equal(t, expectedText, fragments[i].Text, "Fragment %d", i)
 	}
 }
 
@@ -108,11 +93,12 @@ func TestLoggerBuildWithEntityLogic(t *testing.T) {
 
 	logger := New(store)
 	logger.Build(func(l *Logger) {
-		if isPlayer {
+		switch {
+		case isPlayer:
 			l.PlayerName("Ash")
-		} else if isNPC {
+		case isNPC:
 			l.NPCName("スライム")
-		} else {
+		default:
 			l.Append("Unknown")
 		}
 	}).
@@ -126,24 +112,14 @@ func TestLoggerBuildWithEntityLogic(t *testing.T) {
 
 	// 結果確認
 	entries := store.GetHistoryEntries()
-	if len(entries) != 1 {
-		t.Errorf("Expected 1 entry, got %d", len(entries))
-		return
-	}
+	require.Len(t, entries, 1, "Expected 1 entry")
 
 	fragments := entries[0].Fragments
-	if len(fragments) != 4 {
-		t.Errorf("Expected 4 fragments, got %d", len(fragments))
-		return
-	}
+	require.Len(t, fragments, 4, "Expected 4 fragments")
 
 	// 色の確認
-	if fragments[0].Color != ColorGreen { // PlayerName
-		t.Errorf("Expected player name to be green, got %v", fragments[0].Color)
-	}
-	if fragments[2].Color != ColorYellow { // NPCName
-		t.Errorf("Expected NPC name to be yellow, got %v", fragments[2].Color)
-	}
+	assert.Equal(t, ColorGreen, fragments[0].Color, "Expected player name to be green") // PlayerName
+	assert.Equal(t, ColorYellow, fragments[2].Color, "Expected NPC name to be yellow")  // NPCName
 }
 
 func TestComplexMethodChain(t *testing.T) {
@@ -164,11 +140,12 @@ func TestComplexMethodChain(t *testing.T) {
 			l.NPCName("ゴブリン")
 		}).
 		Build(func(l *Logger) {
-			if !hit {
+			switch {
+			case !hit:
 				l.Append(" を攻撃したが外れた。")
-			} else if critical {
+			case critical:
 				l.Append(" にクリティカルヒット。").Damage(damage).Append("ダメージ")
-			} else {
+			default:
 				l.Append(" を攻撃した。").Damage(damage).Append("ダメージ")
 			}
 		}).
@@ -176,16 +153,10 @@ func TestComplexMethodChain(t *testing.T) {
 
 	// 結果確認
 	entries := store.GetHistoryEntries()
-	if len(entries) != 1 {
-		t.Errorf("Expected 1 entry, got %d", len(entries))
-		return
-	}
+	require.Len(t, entries, 1, "Expected 1 entry")
 
 	fragments := entries[0].Fragments
-	if len(fragments) != 6 {
-		t.Errorf("Expected 6 fragments, got %d", len(fragments))
-		return
-	}
+	require.Len(t, fragments, 6, "Expected 6 fragments")
 
 	// 期待される内容: "プレイヤー が ゴブリン を攻撃した。15ダメージ"
 	expectedTexts := []string{"プレイヤー", " が ", "ゴブリン", " を攻撃した。", "15", "ダメージ"}
@@ -199,11 +170,7 @@ func TestComplexMethodChain(t *testing.T) {
 	}
 
 	for i, expectedText := range expectedTexts {
-		if fragments[i].Text != expectedText {
-			t.Errorf("Fragment %d: expected text '%s', got '%s'", i, expectedText, fragments[i].Text)
-		}
-		if fragments[i].Color != expectedColors[i] {
-			t.Errorf("Fragment %d: expected color %v, got %v", i, expectedColors[i], fragments[i].Color)
-		}
+		assert.Equal(t, expectedText, fragments[i].Text, "Fragment %d text", i)
+		assert.Equal(t, expectedColors[i], fragments[i].Color, "Fragment %d color", i)
 	}
 }

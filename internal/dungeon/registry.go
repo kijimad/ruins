@@ -95,8 +95,8 @@ func GetAllDungeons() []Definition {
 // GetAllDungeonNames は全ダンジョン名のスライスを返す
 func GetAllDungeonNames() []string {
 	names := make([]string, len(allDungeons))
-	for i, d := range allDungeons {
-		names[i] = d.Name
+	for i := range allDungeons {
+		names[i] = allDungeons[i].Name
 	}
 	return names
 }
@@ -110,14 +110,14 @@ var internalDungeons = []Definition{
 // GetDungeon は名前からダンジョン定義を取得する
 func GetDungeon(name string) (Definition, bool) {
 	// 内部用定義を先にチェック
-	for _, d := range internalDungeons {
-		if d.Name == name {
-			return d, true
+	for i := range internalDungeons {
+		if internalDungeons[i].Name == name {
+			return internalDungeons[i], true
 		}
 	}
-	for _, d := range allDungeons {
-		if d.Name == name {
-			return d, true
+	for i := range allDungeons {
+		if allDungeons[i].Name == name {
+			return allDungeons[i], true
 		}
 	}
 	return Definition{}, false

@@ -709,7 +709,7 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 			var trimmed strings.Builder
 			for _, r := range seg.Text {
 				if r != ' ' && r != '\t' && r != '\n' && r != '\r' {
-					trimmed.WriteString(string(r))
+					trimmed.WriteRune(r)
 				}
 			}
 			if trimmed.String() != "" {

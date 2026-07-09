@@ -12,7 +12,7 @@ import (
 var (
 	sharedUIResources *resources.UIResources
 	uiResourcesOnce   sync.Once
-	uiResourcesErr    error
+	errUIResources    error
 )
 
 // SharedUIResources はテスト用UIリソースを返す。sync.Onceで1回だけ初期化する
@@ -21,17 +21,17 @@ func SharedUIResources(t *testing.T) resources.UIResources {
 	uiResourcesOnce.Do(func() {
 		fonts, err := loader.LoadFonts()
 		if err != nil {
-			uiResourcesErr = err
+			errUIResources = err
 			return
 		}
 		uir, err := loader.LoadUIResources(fonts)
 		if err != nil {
-			uiResourcesErr = err
+			errUIResources = err
 			return
 		}
 		sharedUIResources = &uir
 	})
 
-	require.NoError(t, uiResourcesErr)
+	require.NoError(t, errUIResources)
 	return *sharedUIResources
 }

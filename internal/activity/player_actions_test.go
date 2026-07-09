@@ -26,7 +26,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// 移動を実行
-		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
+		require.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
 
 		// 検証
 		result := GetLastResult(player, world)
@@ -84,7 +84,7 @@ func TestExecuteMoveAction(t *testing.T) {
 				player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 				player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-				assert.NoError(t, ExecuteMoveAction(world, tt.direction))
+				require.NoError(t, ExecuteMoveAction(world, tt.direction))
 
 				grid := world.Components.GridElement.Get(player).(*gc.GridElement)
 				assert.Equal(t, tt.expectedX, int(grid.X))
@@ -133,7 +133,7 @@ func TestExecuteWaitAction(t *testing.T) {
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-		assert.NoError(t, ExecuteWaitAction(world))
+		require.NoError(t, ExecuteWaitAction(world))
 
 		result := GetLastResult(player, world)
 		require.NotNil(t, result)

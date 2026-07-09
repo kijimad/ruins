@@ -57,8 +57,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 				wallCount++
 			}
 		}
-		assert.Greater(t, floorCount, 0, "床タイルが存在しない")
-		assert.Greater(t, wallCount, 0, "壁タイルが存在しない")
+		assert.Positive(t, floorCount, "床タイルが存在しない")
+		assert.Positive(t, wallCount, "壁タイルが存在しない")
 
 		// 床と壁の合計がタイル総数と一致することを確認（他のタイルタイプがない場合）
 		// 廊下や特殊タイルがある場合はこのアサーションを調整
@@ -154,7 +154,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 					"%sのタイル数が正しくない", tc.name)
 
 				// 部屋が生成されていることを確認
-				assert.Greater(t, len(chain.PlanData.Rooms), 0,
+				assert.NotEmpty(t, chain.PlanData.Rooms,
 					"%sで部屋が生成されていない", tc.name)
 
 				// 床タイルと壁タイルの両方が存在することを確認
@@ -167,9 +167,9 @@ func TestSmallRoomPlanner(t *testing.T) {
 						wallCount++
 					}
 				}
-				assert.Greater(t, floorCount, 0,
+				assert.Positive(t, floorCount,
 					"%sで床タイルが生成されていない", tc.name)
-				assert.Greater(t, wallCount, 0,
+				assert.Positive(t, wallCount,
 					"%sで壁タイルが生成されていない", tc.name)
 
 				// 床+壁でタイル総数と一致することを確認

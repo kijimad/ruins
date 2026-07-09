@@ -114,7 +114,7 @@ func TestReloadActivity_Start(t *testing.T) {
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
-		assert.Greater(t, comp.TurnsTotal, 0)
+		assert.Positive(t, comp.TurnsTotal)
 		assert.Equal(t, comp.TurnsTotal, comp.TurnsLeft)
 	})
 }
@@ -137,7 +137,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// DoTurnを繰り返してリロード完了させる
-		for i := 0; i < comp.TurnsTotal+1; i++ {
+		for range comp.TurnsTotal + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -146,7 +146,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		}
 
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		assert.Greater(t, fire.Magazine, 0)
+		assert.Positive(t, fire.Magazine)
 	})
 
 	t.Run("弾薬が不足していたら持っている分だけ装填する", func(t *testing.T) {
@@ -175,7 +175,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
-		for i := 0; i < comp.TurnsTotal+1; i++ {
+		for range comp.TurnsTotal + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -244,7 +244,7 @@ func TestExecuteReloadAction(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		err := ExecuteReloadAction(player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		assert.False(t, player.HasComponent(world.Components.Activity))
 	})

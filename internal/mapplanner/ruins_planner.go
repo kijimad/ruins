@@ -191,7 +191,7 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error {
 	}
 
 	// 各建物間に通路を作成
-	for i := 0; i < len(planData.Rooms); i++ {
+	for i := range len(planData.Rooms) {
 		for j := i + 1; j < len(planData.Rooms); j++ {
 			room1 := planData.Rooms[i]
 			room2 := planData.Rooms[j]

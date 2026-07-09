@@ -103,7 +103,7 @@ func TestRestActivity_Validate(t *testing.T) {
 
 		ra := &RestActivity{}
 		err = ra.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "敵がいる")
 	})
 
@@ -121,7 +121,7 @@ func TestRestActivity_Validate(t *testing.T) {
 
 		ra := &RestActivity{}
 		err = ra.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "休息時間が無効")
 	})
 }
@@ -271,7 +271,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		ra := &RestActivity{}
 		err = ra.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 

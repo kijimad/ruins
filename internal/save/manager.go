@@ -355,17 +355,19 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	}
 }
 
-// entityEntry はエンティティ復元時の一時データ
+// entityEntry はエンティティ復元時の一時データ。
+// dataは大きな構造体のため、コピーを避けてworldData.Entitiesの要素を指すポインタで保持する
 type entityEntry struct {
 	entity ecs.Entity
-	data   oapi.SaveDataEntitySaveData
+	data   *oapi.SaveDataEntitySaveData
 }
 
 // restoreWorldData はセーブデータからワールドを復元する
 func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.SaveDataWorldSaveData) error {
 	// 第1段階: 全エンティティを作成して安定IDマッピング
 	entries := make([]entityEntry, 0, len(worldData.Entities))
-	for _, entityData := range worldData.Entities {
+	for i := range worldData.Entities {
+		entityData := &worldData.Entities[i]
 		entity := world.Manager.NewEntity()
 		stableID := stableIDFromSaveData(entityData.StableId)
 		if err := sm.stableIDManager.RegisterEntity(entity, stableID); err != nil {

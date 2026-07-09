@@ -14,9 +14,9 @@ func TestLoadFonts(t *testing.T) {
 		t.Parallel()
 		fonts, err := LoadFonts()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, fonts)
-		assert.Greater(t, len(fonts), 0)
+		assert.NotEmpty(t, fonts)
 	})
 }
 
@@ -29,9 +29,9 @@ func TestLoadSpriteSheets(t *testing.T) {
 
 		sprites, err := LoadSpriteSheets(rw)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, sprites)
-		assert.Greater(t, len(sprites), 0)
+		assert.NotEmpty(t, sprites)
 
 		// 各スプライトシートに名前が設定されていることを確認
 		for name, sprite := range sprites {
@@ -76,7 +76,7 @@ func TestLoadSpriteSheets(t *testing.T) {
 		assert.True(t, exists, "void が存在すること")
 
 		// 合計65個のスプライトがあることを確認（dirt: 16, floor: 16, wall: 16, dwall: 16, void: 1）
-		assert.Equal(t, 65, len(tileSheet.Sprites), "65個のタイルスプライトが存在すること")
+		assert.Len(t, tileSheet.Sprites, 65, "65個のタイルスプライトが存在すること")
 	})
 }
 
@@ -86,7 +86,7 @@ func TestLoadRaws(t *testing.T) {
 		t.Parallel()
 		rawMaster, err := LoadRaws()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, rawMaster.Items)
 	})
 }
@@ -101,12 +101,12 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, sheet)
 		assert.NotNil(t, sheet.Texture)
-		assert.Greater(t, len(sheet.Sprites), 0)
+		assert.NotEmpty(t, sheet.Sprites)
 
 		// 各スプライトのサイズが正しいことを確認
 		for key, sprite := range sheet.Sprites {
-			assert.Greater(t, sprite.Width, 0, "スプライト %s の幅が正の値であること", key)
-			assert.Greater(t, sprite.Height, 0, "スプライト %s の高さが正の値であること", key)
+			assert.Positive(t, sprite.Width, "スプライト %s の幅が正の値であること", key)
+			assert.Positive(t, sprite.Height, "スプライト %s の高さが正の値であること", key)
 		}
 	})
 
@@ -118,7 +118,7 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		assert.NotNil(t, sheet)
 
 		// 65個のタイルスプライトが存在することを確認（dirt: 16, floor: 16, wall: 16, dwall: 16, void: 1）
-		assert.Equal(t, 65, len(sheet.Sprites), "65個のタイルスプライトが存在すること")
+		assert.Len(t, sheet.Sprites, 65, "65個のタイルスプライトが存在すること")
 	})
 
 	t.Run("singleスプライトシートを正常に読み込める", func(t *testing.T) {
@@ -127,14 +127,14 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.NotNil(t, sheet)
-		assert.Greater(t, len(sheet.Sprites), 0)
+		assert.NotEmpty(t, sheet.Sprites)
 	})
 
 	t.Run("存在しないファイルを読み込むとエラー", func(t *testing.T) {
 		t.Parallel()
 		_, err := LoadSpriteSheetFromAseprite("file/textures/dist/nonexistent.json")
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "JSONファイルの読み込みに失敗")
 	})
 
@@ -157,7 +157,7 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 			sheet, err := LoadSpriteSheetFromAseprite(file)
 			require.NoError(t, err, "ファイル %s の読み込みに失敗", file)
 
-			assert.Greater(t, len(sheet.Sprites), 0, "ファイル %s にスプライトが存在すること", file)
+			assert.NotEmpty(t, sheet.Sprites, "ファイル %s にスプライトが存在すること", file)
 		}
 	})
 }

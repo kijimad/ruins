@@ -112,7 +112,7 @@ func TestRunSimulations_Stats(t *testing.T) {
 	stats := RunSimulations(master, "廃墟", player, playerWeapon, 10, 100, 42)
 
 	// 基本的な統計が取れることの確認
-	assert.Greater(t, stats.MedianDepth(), 0)
+	assert.Positive(t, stats.MedianDepth())
 	assert.GreaterOrEqual(t, stats.DeathRate(), 0.0)
 
 	// 各深度の統計が取れる

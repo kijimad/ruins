@@ -145,7 +145,7 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	err = manager.LoadWorld(world, "valid_no_checksum")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "バリデーションエラー")
 	assert.Contains(t, err.Error(), "checksum")
 }
@@ -173,20 +173,20 @@ func TestChecksumValidation(t *testing.T) {
 
 	// 正常なチェックサム検証
 	err = manager.validateChecksum(&saveData)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// チェックサムを改ざん
 	originalChecksum := saveData.Checksum
 	saveData.Checksum = "invalid_checksum"
 	err = manager.validateChecksum(&saveData)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "checksum mismatch")
 
 	// データを改ざん（チェックサムは元に戻す）
 	saveData.Checksum = originalChecksum
 	saveData.Version = "tampered_version"
 	err = manager.validateChecksum(&saveData)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "checksum mismatch")
 }
 
@@ -220,7 +220,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	require.NoError(t, err)
 
 	err = manager.LoadWorld(world, "test_tampered")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "バリデーションエラー")
 }
 
@@ -312,7 +312,7 @@ func TestMissingChecksumValidation(t *testing.T) {
 	}
 
 	err = manager.validateChecksum(&saveDataWithoutChecksum)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "checksum field is missing")
 }
 
@@ -341,7 +341,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	require.NoError(t, err)
 
 	err = manager.LoadWorld(world, "old_format_test")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "バリデーションエラー")
 	assert.Contains(t, err.Error(), "checksum")
 }
@@ -415,7 +415,7 @@ func TestAutoSaveRotation(t *testing.T) {
 
 	autoSaves, err := manager.ListAutoSaves()
 	require.NoError(t, err)
-	assert.Equal(t, maxAutoSaves, len(autoSaves))
+	assert.Len(t, autoSaves, maxAutoSaves)
 
 	// 古い2件は削除されている
 	for _, name := range earlySaves {

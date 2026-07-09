@@ -3,6 +3,8 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -46,10 +48,8 @@ func TestPlanData_GetWallType(t *testing.T) {
 	rightFloor := planData.isFloorOrWarp(planData.RightTile(centerWallIdx))
 
 	wallType := planData.GetWallType(centerWallIdx)
-	if wallType != WallTypeTop {
-		t.Errorf("WallTypeTopの判定が間違っています。期待値: %s, 実際: %s\n上:%t, 下:%t, 左:%t, 右:%t",
-			WallTypeTop.String(), wallType.String(), upFloor, downFloor, leftFloor, rightFloor)
-	}
+	assert.Equal(t, WallTypeTop, wallType,
+		"WallTypeTopの判定が間違っています。上:%t, 下:%t, 左:%t, 右:%t", upFloor, downFloor, leftFloor, rightFloor)
 
 	// テストケース2: WallTypeRight（左に床がある壁）
 	leftFloorX, leftFloorY := centerWallX-1, centerWallY // 左の床（X座標が小さくなる）
@@ -59,9 +59,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 	planData.Tiles[bottomFloorIdx] = planData.GetTile("wall") // 前のテストケースをリセット
 
 	wallType = planData.GetWallType(centerWallIdx)
-	if wallType != WallTypeRight {
-		t.Errorf("WallTypeRightの判定が間違っています。期待値: %s, 実際: %s", WallTypeRight.String(), wallType.String())
-	}
+	assert.Equal(t, WallTypeRight, wallType, "WallTypeRightの判定が間違っています")
 
 	// テストケース3: WallTypeTopLeft（右下に床がある角壁）
 	rightFloorX, rightFloorY := centerWallX+1, centerWallY // 右の床（X座標が大きくなる）
@@ -75,9 +73,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 	planData.Tiles[leftFloorIdx] = planData.GetTile("wall") // リセット
 
 	wallType = planData.GetWallType(centerWallIdx)
-	if wallType != WallTypeTopLeft {
-		t.Errorf("WallTypeTopLeftの判定が間違っています。期待値: %s, 実際: %s", WallTypeTopLeft.String(), wallType.String())
-	}
+	assert.Equal(t, WallTypeTopLeft, wallType, "WallTypeTopLeftの判定が間違っています")
 
 	// テストケース4: WallTypeGeneric（複雑なパターン）
 	upFloorX, upFloorY := centerWallX, centerWallY-1 // 上の床（Y座標が小さくなる）
@@ -85,9 +81,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 	planData.Tiles[upFloorIdx] = planData.GetTile("floor")
 
 	wallType = planData.GetWallType(centerWallIdx) // 今は上、右、下に床がある状態
-	if wallType != WallTypeGeneric {
-		t.Errorf("WallTypeGenericの判定が間違っています。期待値: %s, 実際: %s", WallTypeGeneric.String(), wallType.String())
-	}
+	assert.Equal(t, WallTypeGeneric, wallType, "WallTypeGenericの判定が間違っています")
 }
 
 func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
@@ -119,7 +113,5 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 	planData.Tiles[floorIdx] = planData.GetTile("floor")
 
 	wallType := planData.GetWallType(wallIdx)
-	if wallType != WallTypeTop {
-		t.Errorf("床タイルに対するWallTypeTopの判定が間違っています。期待値: %s, 実際: %s", WallTypeTop.String(), wallType.String())
-	}
+	assert.Equal(t, WallTypeTop, wallType, "床タイルに対するWallTypeTopの判定が間違っています")
 }

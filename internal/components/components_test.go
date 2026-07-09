@@ -29,7 +29,7 @@ func TestInitializeComponents(t *testing.T) {
 		val := reflect.ValueOf(components).Elem()
 		typ := val.Type()
 
-		for i := 0; i < val.NumField(); i++ {
+		for i := range val.NumField() {
 			field := val.Field(i)
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
@@ -94,15 +94,12 @@ func TestInitializeComponents(t *testing.T) {
 		typ := val.Type()
 
 		hasUnsupportedType := false
-		for i := 0; i < val.NumField(); i++ {
+		for i := range val.NumField() {
 			field := val.Field(i)
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
 
-			if !field.CanSet() {
-				t.Errorf("field %s is not settable", fieldName)
-				return
-			}
+			require.True(t, field.CanSet(), "field %s is not settable", fieldName)
 
 			switch field.Type() {
 			case reflect.TypeFor[*ecs.SliceComponent]():
@@ -137,7 +134,7 @@ func TestInitializeComponents(t *testing.T) {
 		val := reflect.ValueOf(testComponents).Elem()
 
 		hasUnsettableField := false
-		for i := 0; i < val.NumField(); i++ {
+		for i := range val.NumField() {
 			field := val.Field(i)
 			if !field.CanSet() {
 				hasUnsettableField = true
@@ -203,7 +200,7 @@ func TestComponentsStructure(t *testing.T) {
 			reflect.TypeFor[*ecs.NullComponent](),
 		}
 
-		for i := 0; i < val.NumField(); i++ {
+		for i := range val.NumField() {
 			field := val.Field(i)
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
@@ -222,7 +219,7 @@ func TestComponentsStructure(t *testing.T) {
 		val := reflect.ValueOf(&Components{}).Elem()
 		typ := val.Type()
 
-		for i := 0; i < val.NumField(); i++ {
+		for i := range val.NumField() {
 			field := val.Field(i)
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name

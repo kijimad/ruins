@@ -91,7 +91,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 
 		enemies, err := query.GetVisibleEnemies(world)
 
-		assert.Error(t, err, "プレイヤーがいない場合はエラーを返すべき")
+		require.Error(t, err, "プレイヤーがいない場合はエラーを返すべき")
 		assert.Nil(t, enemies)
 	})
 

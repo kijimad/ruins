@@ -2,6 +2,8 @@ package gamelog
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLogEntry_Text(t *testing.T) {
@@ -20,9 +22,7 @@ func TestLogEntry_Text(t *testing.T) {
 		expected := "Hello World!"
 		actual := entry.Text()
 
-		if actual != expected {
-			t.Errorf("Expected '%s', got '%s'", expected, actual)
-		}
+		assert.Equal(t, expected, actual)
 	})
 
 	t.Run("単一フラグメントのテキスト", func(t *testing.T) {
@@ -36,9 +36,7 @@ func TestLogEntry_Text(t *testing.T) {
 		expected := "Success"
 		actual := entry.Text()
 
-		if actual != expected {
-			t.Errorf("Expected '%s', got '%s'", expected, actual)
-		}
+		assert.Equal(t, expected, actual)
 	})
 
 	t.Run("空のフラグメントリスト", func(t *testing.T) {
@@ -50,9 +48,7 @@ func TestLogEntry_Text(t *testing.T) {
 		expected := ""
 		actual := entry.Text()
 
-		if actual != expected {
-			t.Errorf("Expected '%s', got '%s'", expected, actual)
-		}
+		assert.Equal(t, expected, actual)
 	})
 }
 
@@ -65,9 +61,7 @@ func TestLogEntry_IsEmpty(t *testing.T) {
 			Fragments: []LogFragment{},
 		}
 
-		if !entry.IsEmpty() {
-			t.Error("Expected entry to be empty")
-		}
+		assert.True(t, entry.IsEmpty(), "Expected entry to be empty")
 	})
 
 	t.Run("nilフラグメント", func(t *testing.T) {
@@ -76,9 +70,7 @@ func TestLogEntry_IsEmpty(t *testing.T) {
 			Fragments: nil,
 		}
 
-		if !entry.IsEmpty() {
-			t.Error("Expected entry with nil fragments to be empty")
-		}
+		assert.True(t, entry.IsEmpty(), "Expected entry with nil fragments to be empty")
 	})
 
 	t.Run("非空のエントリ", func(t *testing.T) {
@@ -89,9 +81,7 @@ func TestLogEntry_IsEmpty(t *testing.T) {
 			},
 		}
 
-		if entry.IsEmpty() {
-			t.Error("Expected entry to not be empty")
-		}
+		assert.False(t, entry.IsEmpty(), "Expected entry to not be empty")
 	})
 
 	t.Run("空テキストのフラグメントがある場合", func(t *testing.T) {
@@ -103,8 +93,6 @@ func TestLogEntry_IsEmpty(t *testing.T) {
 		}
 
 		// フラグメントが存在するので空ではない
-		if entry.IsEmpty() {
-			t.Error("Expected entry with empty text fragment to not be empty")
-		}
+		assert.False(t, entry.IsEmpty(), "Expected entry with empty text fragment to not be empty")
 	})
 }

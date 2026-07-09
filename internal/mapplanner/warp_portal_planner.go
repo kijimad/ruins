@@ -41,7 +41,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	pathFinder := NewPathFinder(planData)
 	playerPos, err := pathFinder.FindPlayerStartPosition()
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrConnectivity, err)
+		return fmt.Errorf("%w: %w", ErrConnectivity, err)
 	}
 
 	// 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック

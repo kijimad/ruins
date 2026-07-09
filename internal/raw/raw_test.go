@@ -20,10 +20,10 @@ Name = "回復薬"
 Description = "半分程度回復する"
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	items := PtrSlice(raws.Items)
-	assert.Equal(t, 2, len(items))
+	assert.Len(t, items, 2)
 	assert.Equal(t, "リペア", items[0].Name)
 	assert.Equal(t, "回復薬", items[1].Name)
 }
@@ -37,9 +37,9 @@ SpriteSheetName = "field"
 SpriteKey = "repair_item"
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	entitySpec, err := NewItemSpec(raws, "リペア")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	loc := gc.LocationTypeInBackpack
 	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.Name)
@@ -55,7 +55,7 @@ Name = "テストアイテム"
 Description = "スプライトなしアイテム"
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := NewItemSpec(raws, "テストアイテム")
@@ -85,9 +85,9 @@ Agility = 5
 Defense = 0
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	entitySpec, err := NewPlayerSpec(raws, "テストプレイヤー")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 基本コンポーネントの確認
 	assert.NotNil(t, entitySpec.Name)
@@ -115,14 +115,14 @@ Agility = 5
 Defense = 0
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 現在の実装ではスプライト情報なしでも生成される（空文字列が設定される）
 	entitySpec, err := NewPlayerSpec(raws, "スプライトなしキャラ")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
-	assert.Equal(t, "", entitySpec.SpriteRender.SpriteSheetName)
-	assert.Equal(t, "", entitySpec.SpriteRender.SpriteKey)
+	assert.Empty(t, entitySpec.SpriteRender.SpriteSheetName)
+	assert.Empty(t, entitySpec.SpriteRender.SpriteKey)
 }
 
 func TestGenerateMaterialWithSprite(t *testing.T) {
@@ -136,9 +136,9 @@ SpriteKey = "field_item"
 Stackable = true
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	entitySpec, err := NewItemSpec(raws, "テスト素材")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	loc := gc.LocationTypeInBackpack
 	entitySpec.LocationType = &loc
 
@@ -163,11 +163,11 @@ Name = "スプライトなし素材"
 Description = "スプライトなし素材"
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := NewItemSpec(raws, "スプライトなし素材")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	loc := gc.LocationTypeInBackpack
 	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
@@ -319,7 +319,7 @@ func TestLoadFromRealTileFile(t *testing.T) {
 	expectedTiles := []string{"floor", "wall", "dirt"}
 	for _, tileName := range expectedTiles {
 		_, err := GetTile(raws, tileName)
-		assert.NoError(t, err, "タイル '%s' が実際のファイルで見つかりません", tileName)
+		require.NoError(t, err, "タイル '%s' が実際のファイルで見つかりません", tileName)
 	}
 
 	// 実際のタイル取得テスト
@@ -348,7 +348,7 @@ SomeField = "これは未知のセクション"
 `
 
 	_, err := DecodeRaws(invalidToml)
-	assert.Error(t, err, "未知のフィールドがあるTOMLでエラーが発生すべき")
+	require.Error(t, err, "未知のフィールドがあるTOMLでエラーが発生すべき")
 	assert.Contains(t, err.Error(), "unknown keys found in TOML", "エラーメッセージに未知のキーについての情報が含まれるべき")
 }
 
@@ -369,9 +369,9 @@ Description = "正常なタイル"
 `
 
 	raws, err := DecodeRaws(validToml)
-	assert.NoError(t, err, "正常なTOMLでエラーが発生してはいけない")
-	assert.Equal(t, 1, len(PtrSlice(raws.Items)), "アイテムが1つ読み込まれるべき")
-	assert.Equal(t, 1, len(PtrSlice(raws.Tiles)), "タイルが1つ読み込まれるべき")
+	require.NoError(t, err, "正常なTOMLでエラーが発生してはいけない")
+	assert.Len(t, PtrSlice(raws.Items), 1, "アイテムが1つ読み込まれるべき")
+	assert.Len(t, PtrSlice(raws.Tiles), 1, "タイルが1つ読み込まれるべき")
 }
 
 func TestItemWithAnimKeys(t *testing.T) {
@@ -385,17 +385,17 @@ SpriteKey = "item_0"
 AnimKeys = ["item_0", "item_1"]
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// AnimKeysが正しく読み込まれていることを確認
 	items := PtrSlice(raws.Items)
-	assert.Equal(t, 1, len(items))
+	assert.Len(t, items, 1)
 	item := items[0]
 	assert.Equal(t, []string{"item_0", "item_1"}, PtrSlice(item.AnimKeys))
 
 	// NewItemSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := NewItemSpec(raws, "アニメーションアイテム")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	loc := gc.LocationTypeInBackpack
 	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
@@ -412,7 +412,7 @@ SpriteSheetName = "field"
 SpriteKey = "static_item"
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// AnimKeysが指定されていない場合はnil
 	item := PtrSlice(raws.Items)[0]
@@ -420,7 +420,7 @@ SpriteKey = "static_item"
 
 	// NewItemSpecでもAnimKeysはnil
 	entitySpec, err := NewItemSpec(raws, "静的アイテム")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	loc := gc.LocationTypeInBackpack
 	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
@@ -445,17 +445,17 @@ Agility = 5
 Defense = 0
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// AnimKeysが正しく読み込まれていることを確認
 	members := PtrSlice(raws.Members)
-	assert.Equal(t, 1, len(members))
+	assert.Len(t, members, 1)
 	member := members[0]
 	assert.Equal(t, []string{"player_0", "player_1"}, PtrSlice(member.AnimKeys))
 
 	// NewPlayerSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := NewPlayerSpec(raws, "アニメーションキャラ")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, []string{"player_0", "player_1"}, entitySpec.SpriteRender.AnimKeys)
 }
@@ -477,7 +477,7 @@ Agility = 5
 Defense = 0
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// AnimKeysが指定されていない場合はnil
 	member := PtrSlice(raws.Members)[0]
@@ -485,7 +485,7 @@ Defense = 0
 
 	// NewPlayerSpecでもAnimKeysはnil
 	entitySpec, err := NewPlayerSpec(raws, "静的キャラ")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }
@@ -506,17 +506,17 @@ SpriteKey = "fire_0_"
 Depth = 1
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// AnimKeysが正しく読み込まれていることを確認
 	props := PtrSlice(raws.Props)
-	assert.Equal(t, 1, len(props))
+	assert.Len(t, props, 1)
 	prop := props[0]
 	assert.Equal(t, []string{"fire_0_", "fire_1_"}, PtrSlice(prop.AnimKeys))
 
 	// NewPropSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := NewPropSpec(raws, "アニメーションProp")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, []string{"fire_0_", "fire_1_"}, entitySpec.SpriteRender.AnimKeys)
 }
@@ -536,7 +536,7 @@ SpriteKey = "prop_table"
 Depth = 1
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// AnimKeysが指定されていない場合はnil
 	prop := PtrSlice(raws.Props)[0]
@@ -544,7 +544,7 @@ Depth = 1
 
 	// NewPropSpecでもAnimKeysはnil
 	entitySpec, err := NewPropSpec(raws, "静的Prop")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }
@@ -565,10 +565,10 @@ SpriteKey = "prop_table"
 Depth = 1
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = NewPropSpec(raws, "矛盾Prop")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "blockPassとpassCostは同時に設定できません")
 }
 
@@ -588,10 +588,10 @@ SpriteKey = "prop_table"
 Depth = 1
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	entitySpec, err := NewPropSpec(raws, "壊れるProp")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.HP)
 	assert.Equal(t, 20, entitySpec.HP.Max)
 	assert.Equal(t, 20, entitySpec.HP.Current)
@@ -616,10 +616,10 @@ SpriteKey = "prop_table"
 Depth = 1
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	entitySpec, err := NewPropSpec(raws, "壊れないProp")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Nil(t, entitySpec.WeightCapacity)
 	assert.Nil(t, entitySpec.Interactable, "HPを持たないPropにはInteractableが設定されないべき")
 }
@@ -642,10 +642,10 @@ Depth = 2
 MaxWeight = 20.0
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	entitySpec, err := NewPropSpec(raws, "木箱")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.NotNil(t, entitySpec.WeightCapacity, "Storage付きPropにはWeightCapacityコンポーネントが設定されるべき")
 	assert.Equal(t, 20.0, entitySpec.WeightCapacity.Max)
@@ -671,10 +671,10 @@ SpriteKey = "table"
 Depth = 1
 `
 	raws, err := DecodeRaws(str)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	entitySpec, err := NewPropSpec(raws, "テーブル")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Nil(t, entitySpec.WeightCapacity, "Storage定義のないPropにはWeightCapacityコンポーネントが設定されないべき")
 }

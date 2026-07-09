@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -30,12 +30,8 @@ func captureOutput(f func()) string {
 func TestLoggerNew(t *testing.T) {
 	t.Parallel()
 	logger := New(CategoryDebug)
-	if logger.category != CategoryDebug {
-		t.Errorf("期待値: %s, 実際: %s", CategoryDebug, logger.category)
-	}
-	if len(logger.fields) != 0 {
-		t.Errorf("fieldsは空であるべき")
-	}
+	assert.Equal(t, CategoryDebug, logger.category)
+	assert.Empty(t, logger.fields, "fieldsは空であるべき")
 }
 
 func TestLoggerWithField(t *testing.T) {
@@ -43,12 +39,8 @@ func TestLoggerWithField(t *testing.T) {
 	logger := New(CategoryDebug)
 	newLogger := logger.WithField("key", "value")
 
-	if len(logger.fields) != 0 {
-		t.Errorf("元のロガーは変更されないべき")
-	}
-	if newLogger.fields["key"] != "value" {
-		t.Errorf("フィールドが追加されていない")
-	}
+	assert.Empty(t, logger.fields, "元のロガーは変更されないべき")
+	assert.Equal(t, "value", newLogger.fields["key"], "フィールドが追加されていない")
 }
 
 func TestLoggerWithFields(t *testing.T) {
@@ -60,12 +52,9 @@ func TestLoggerWithFields(t *testing.T) {
 	}
 	newLogger := logger.WithFields(fields)
 
-	if len(logger.fields) != 0 {
-		t.Errorf("元のロガーは変更されないべき")
-	}
-	if newLogger.fields["key1"] != "value1" || newLogger.fields["key2"] != 42 {
-		t.Errorf("フィールドが正しく追加されていない")
-	}
+	assert.Empty(t, logger.fields, "元のロガーは変更されないべき")
+	assert.Equal(t, "value1", newLogger.fields["key1"], "フィールドが正しく追加されていない")
+	assert.Equal(t, 42, newLogger.fields["key2"], "フィールドが正しく追加されていない")
 }
 
 //nolint:paralleltest // modifies global config
@@ -83,17 +72,13 @@ func TestLogLevelFiltering(t *testing.T) {
 	output := captureOutput(func() {
 		logger.Debug("デバッグメッセージ")
 	})
-	if output != "" {
-		t.Errorf("DEBUGレベルのログは出力されないべき")
-	}
+	assert.Empty(t, output, "DEBUGレベルのログは出力されないべき")
 
 	// Infoログは出力される
 	output = captureOutput(func() {
 		logger.Info("情報メッセージ")
 	})
-	if output == "" {
-		t.Errorf("INFOレベルのログは出力されるべき")
-	}
+	assert.NotEmpty(t, output, "INFOレベルのログは出力されるべき")
 }
 
 //nolint:paralleltest // modifies global config
@@ -112,18 +97,14 @@ func TestContextLevelFiltering(t *testing.T) {
 	output := captureOutput(func() {
 		battleLogger.Debug("戦闘デバッグ")
 	})
-	if output == "" {
-		t.Errorf("Battleカテゴリのデバッグログは出力されるべき")
-	}
+	assert.NotEmpty(t, output, "Battleカテゴリのデバッグログは出力されるべき")
 
 	// Moveカテゴリはデフォルト（Warn）レベル
 	moveLogger := New(CategoryMove)
 	output = captureOutput(func() {
 		moveLogger.Info("移動情報")
 	})
-	if output != "" {
-		t.Errorf("Moveカテゴリの情報ログは出力されないべき")
-	}
+	assert.Empty(t, output, "Moveカテゴリの情報ログは出力されないべき")
 }
 
 //nolint:paralleltest // modifies global config
@@ -146,21 +127,11 @@ func TestJSONOutput(t *testing.T) {
 
 	// 必須フィールドの確認
 	const expectedLevel = "INFO"
-	if entry["level"] != expectedLevel {
-		t.Errorf("levelが正しくない: %v", entry["level"])
-	}
-	if entry["category"] != "debug" {
-		t.Errorf("categoryが正しくない: %v", entry["category"])
-	}
-	if entry["message"] != "テストメッセージ" {
-		t.Errorf("messageが正しくない: %v", entry["message"])
-	}
-	if entry["key1"] != "value1" {
-		t.Errorf("key1が正しくない: %v", entry["key1"])
-	}
-	if entry["key2"] != float64(42) { // JSONでは数値はfloat64になる
-		t.Errorf("key2が正しくない: %v", entry["key2"])
-	}
+	assert.Equal(t, expectedLevel, entry["level"], "levelが正しくない")
+	assert.Equal(t, "debug", entry["category"], "categoryが正しくない")
+	assert.Equal(t, "テストメッセージ", entry["message"], "messageが正しくない")
+	assert.Equal(t, "value1", entry["key1"], "key1が正しくない")
+	assert.Equal(t, float64(42), entry["key2"], "key2が正しくない") // JSONでは数値はfloat64になる
 }
 
 //nolint:paralleltest // modifies global config
@@ -210,9 +181,7 @@ func TestIsDebugEnabled(t *testing.T) {
 			defer ResetConfig()
 
 			logger := New(tt.category)
-			if logger.IsDebugEnabled() != tt.expectEnabled {
-				t.Errorf("期待値: %v, 実際: %v", tt.expectEnabled, logger.IsDebugEnabled())
-			}
+			assert.Equal(t, tt.expectEnabled, logger.IsDebugEnabled())
 		})
 	}
 }
@@ -242,9 +211,7 @@ func TestParseLevel(t *testing.T) {
 		t.Run(tt.input, func(t *testing.T) {
 			t.Parallel()
 			result := parseLevel(tt.input)
-			if result != tt.expected {
-				t.Errorf("parseLevel(%q) = %v, 期待値: %v", tt.input, result, tt.expected)
-			}
+			assert.Equal(t, tt.expected, result, "parseLevel(%q)", tt.input)
 		})
 	}
 }
@@ -301,15 +268,10 @@ func TestParseCategoryLevels(t *testing.T) {
 	input := "battle=debug,render=warn,invalid"
 	result := parseCategoryLevels(input)
 
-	if result[CategoryDebug] != LevelDebug {
-		t.Errorf("battleカテゴリのレベルが正しくない")
-	}
-	if result[CategoryRender] != LevelWarn {
-		t.Errorf("renderカテゴリのレベルが正しくない")
-	}
-	if _, exists := result["invalid"]; exists {
-		t.Errorf("無効な形式は無視されるべき")
-	}
+	assert.Equal(t, LevelDebug, result[CategoryDebug], "battleカテゴリのレベルが正しくない")
+	assert.Equal(t, LevelWarn, result[CategoryRender], "renderカテゴリのレベルが正しくない")
+	_, exists := result["invalid"]
+	assert.False(t, exists, "無効な形式は無視されるべき")
 }
 
 //nolint:paralleltest // modifies global config
@@ -364,15 +326,13 @@ func TestLoggerOutput(t *testing.T) {
 			})
 
 			for _, expected := range tt.contains {
-				if !strings.Contains(output, expected) {
-					t.Errorf("出力に %q が含まれていない: %s", expected, output)
-				}
+				assert.Contains(t, output, expected)
 			}
 		})
 	}
 }
 
-//nolint:paralleltest
+//nolint:paralleltest // グローバルなロガー設定を変更するため並列化しない
 func TestIgnoreLevel(t *testing.T) {
 	// ignoreレベルではすべてのログが出力されない
 	SetConfig(Config{
@@ -399,9 +359,7 @@ func TestIgnoreLevel(t *testing.T) {
 			output := captureOutput(func() {
 				level.fn("テストメッセージ")
 			})
-			if output != "" {
-				t.Errorf("%sレベルのログは出力されないべき（ignoreレベル設定時）: %s", level.name, output)
-			}
+			assert.Empty(t, output, "%sレベルのログは出力されないべき（ignoreレベル設定時）", level.name)
 		})
 	}
 }

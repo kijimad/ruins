@@ -17,7 +17,7 @@ func TestGetAllDungeons(t *testing.T) {
 	// 全てのダンジョンが有効な設定を持っている
 	for _, d := range dungeons {
 		assert.NotEmpty(t, d.Name)
-		assert.Greater(t, d.TotalFloors, 0)
+		assert.Positive(t, d.TotalFloors)
 		assert.NotEmpty(t, d.PlannerPool)
 	}
 }
@@ -27,7 +27,7 @@ func TestGetAllDungeonNames(t *testing.T) {
 
 	names := GetAllDungeonNames()
 	assert.NotEmpty(t, names)
-	assert.Equal(t, len(GetAllDungeons()), len(names))
+	assert.Len(t, names, len(GetAllDungeons()))
 
 	for _, name := range names {
 		assert.NotEmpty(t, name)

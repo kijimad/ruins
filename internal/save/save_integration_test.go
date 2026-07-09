@@ -42,7 +42,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 	// セーブファイルの存在確認
 	saveFile := filepath.Join(testDir, "test_slot.json")
 	_, err = os.Stat(saveFile)
-	assert.NoError(t, err, "Save file should exist")
+	require.NoError(t, err, "Save file should exist")
 
 	// 新しいワールドを作成
 	newWorld := testutil.InitTestWorld(t)
@@ -81,7 +81,7 @@ func TestSaveSlotInfo(t *testing.T) {
 	// 初期状態（セーブファイルなし）でセーブファイルの存在を確認
 	slotFile := filepath.Join(testDir, "slot1.json")
 	_, err = os.Stat(slotFile)
-	assert.Error(t, err, "Save file should not exist initially")
+	require.Error(t, err, "Save file should not exist initially")
 
 	// 1つのセーブファイルを作成
 	err = saveManager.SaveWorld(world, "slot1")
@@ -89,7 +89,7 @@ func TestSaveSlotInfo(t *testing.T) {
 
 	// セーブファイル作成後の状態を確認
 	_, err = os.Stat(slotFile)
-	assert.NoError(t, err, "Save file should exist after save")
+	require.NoError(t, err, "Save file should exist after save")
 
 	// 複数のスロットにセーブ
 	err = saveManager.SaveWorld(world, "slot2")
@@ -102,9 +102,9 @@ func TestSaveSlotInfo(t *testing.T) {
 	slot3File := filepath.Join(testDir, "slot3.json")
 
 	_, err = os.Stat(slot2File)
-	assert.NoError(t, err, "Slot 2 save file should exist")
+	require.NoError(t, err, "Slot 2 save file should exist")
 	_, err = os.Stat(slot3File)
-	assert.NoError(t, err, "Slot 3 save file should exist")
+	require.NoError(t, err, "Slot 3 save file should exist")
 
 	t.Logf("All save files created successfully")
 }

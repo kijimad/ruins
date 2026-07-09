@@ -82,15 +82,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// ビルダータイプを決定
 	var builderType mapplanner.PlannerType
 	// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
-	if def.BossPlannerType != nil && st.Depth == def.TotalFloors {
+	switch {
+	case def.BossPlannerType != nil && st.Depth == def.TotalFloors:
 		builderType = *def.BossPlannerType
-	} else if st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name {
+	case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
 		var err error
 		builderType, err = dungeon.SelectPlanner(def, stageRNG)
 		if err != nil {
 			return err
 		}
-	} else {
+	default:
 		builderType = st.BuilderType
 	}
 
@@ -193,7 +194,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
 		query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return NewAllClearEventState() },
+			NewAllClearEventState,
 		}}, nil
 	}
 

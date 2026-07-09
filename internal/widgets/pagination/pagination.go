@@ -91,7 +91,7 @@ func (p Pagination) GetIndicatorText() string {
 	}
 
 	if p.HasNextPage() {
-		text = text + " ↓"
+		text += " ↓"
 	}
 
 	return text

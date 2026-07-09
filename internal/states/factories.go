@@ -344,7 +344,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{
-					func() (es.State[w.World], error) { return NewAllClearEventState() },
+					NewAllClearEventState,
 				},
 			})
 			return nil
@@ -441,9 +441,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 		WithChoice("Propスポーン:construction_sign(通行不可)", func(world w.World) error {
 			return spawnPropNearPlayer(world, "construction_sign")
 		}).
-		WithChoice("Propスポーン:木箱(収納・アイテム入り)", func(world w.World) error {
-			return spawnStorageWithItems(world)
-		}).
+		WithChoice("Propスポーン:木箱(収納・アイテム入り)", spawnStorageWithItems).
 		WithChoice("コンポーネント一覧", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,

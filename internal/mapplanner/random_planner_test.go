@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,20 +29,14 @@ func TestNewRandomPlanner(t *testing.T) {
 	require.NoError(t, err)
 
 	// 同じシードなので同じビルダータイプが選ばれ、同じ結果になるはず
-	if len(chain1.PlanData.Rooms) != len(chain2.PlanData.Rooms) {
-		t.Errorf("同じシードなのに部屋数が異なります。1回目: %d, 2回目: %d",
-			len(chain1.PlanData.Rooms), len(chain2.PlanData.Rooms))
-	}
+	assert.Len(t, chain2.PlanData.Rooms, len(chain1.PlanData.Rooms), "同じシードなのに部屋数が異なります")
 
 	// タイル配置が同じことを確認
-	if len(chain1.PlanData.Tiles) != len(chain2.PlanData.Tiles) {
-		t.Errorf("同じシードなのにタイル数が異なります。1回目: %d, 2回目: %d",
-			len(chain1.PlanData.Tiles), len(chain2.PlanData.Tiles))
-	}
+	require.Len(t, chain2.PlanData.Tiles, len(chain1.PlanData.Tiles), "同じシードなのにタイル数が異なります")
 
 	for i, tile1 := range chain1.PlanData.Tiles {
 		if chain2.PlanData.Tiles[i].Name != tile1.Name {
-			t.Errorf("タイル[%d]が異なります。1回目: %v, 2回目: %v", i, tile1, chain2.PlanData.Tiles[i])
+			assert.Equal(t, tile1.Name, chain2.PlanData.Tiles[i].Name, "タイル[%d]が異なります", i)
 			break // 最初の違いだけ報告
 		}
 	}
@@ -72,11 +67,11 @@ func TestRandomPlannerTypes(t *testing.T) {
 
 		// タイル総数の確認
 		expectedTileCount := int(width) * int(height)
-		require.Equal(t, expectedTileCount, len(chain.PlanData.Tiles),
+		require.Len(t, chain.PlanData.Tiles, expectedTileCount,
 			"シード%dでタイル数が不正", seed)
 
 		// 部屋が生成されていることを確認
-		require.Greater(t, roomCount, 0,
+		require.Positive(t, roomCount,
 			"シード%dで部屋が生成されませんでした", seed)
 
 		// 床タイルと壁タイルの両方が存在することを確認
@@ -89,9 +84,9 @@ func TestRandomPlannerTypes(t *testing.T) {
 				wallCount++
 			}
 		}
-		require.Greater(t, floorCount, 0,
+		require.Positive(t, floorCount,
 			"シード%dで床タイルが生成されませんでした", seed)
-		require.Greater(t, wallCount, 0,
+		require.Positive(t, wallCount,
 			"シード%dで壁タイルが生成されませんでした", seed)
 
 		// 床と壁でタイル総数と一致することを確認

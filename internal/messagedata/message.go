@@ -34,7 +34,7 @@ type Choice struct {
 
 // ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す
 func ChainMessages(pages ...*MessageData) *MessageData {
-	for i := 0; i < len(pages)-1; i++ {
+	for i := range len(pages) - 1 {
 		pages[i].nextMessages = []*MessageData{pages[i+1]}
 	}
 	return pages[0]
