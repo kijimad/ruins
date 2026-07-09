@@ -122,9 +122,10 @@ func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
 	require.Len(t, path, 4, "パス長が期待値と異なる")
 
 	// スタートとゴールが正しいことを確認
-	assert.True(t, path[0].X == 1 && path[0].Y == 1, "スタートが(1,1)でない。got (%d,%d)", path[0].X, path[0].Y)
-	assert.True(t, path[len(path)-1].X == 3 && path[len(path)-1].Y == 2,
-		"ゴールが(3,2)でない。got (%d,%d)", path[len(path)-1].X, path[len(path)-1].Y)
+	assert.Equal(t, 1, path[0].X, "スタートのXが期待値と異なる")
+	assert.Equal(t, 1, path[0].Y, "スタートのYが期待値と異なる")
+	assert.Equal(t, 3, path[len(path)-1].X, "ゴールのXが期待値と異なる")
+	assert.Equal(t, 2, path[len(path)-1].Y, "ゴールのYが期待値と異なる")
 }
 
 func TestPathFinder_IsReachable(t *testing.T) {
