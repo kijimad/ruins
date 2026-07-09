@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -645,6 +646,9 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
 
+	// 苔亀のwander移動は80%待機の確率的挙動のため、シードを固定してflaky化を防ぐ
+	world.Config.RNG = rand.New(rand.NewPCG(1, 0))
+
 	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
@@ -697,6 +701,9 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
+
+	// 苔亀のwander移動は80%待機の確率的挙動のため、シードを固定してflaky化を防ぐ
+	world.Config.RNG = rand.New(rand.NewPCG(1, 0))
 
 	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
