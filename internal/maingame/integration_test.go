@@ -199,6 +199,7 @@ func TestResourceIntegration(t *testing.T) {
 
 // validateWorldInitialization はワールド初期化の基本検証
 func validateWorldInitialization(t *testing.T, world ew.World) {
+	t.Helper()
 	assert.NotNil(t, world.Resources, "ワールドリソースがnil")
 	assert.NotNil(t, world.Resources.ScreenDimensions, "画面サイズがnil")
 	assert.Equal(t, consts.GameWidth, world.Resources.ScreenDimensions.Width, "画面幅が正しくない")
@@ -209,6 +210,7 @@ func validateWorldInitialization(t *testing.T, world ew.World) {
 
 // validateResourceLoading はリソース読み込みの検証
 func validateResourceLoading(t *testing.T, world ew.World) {
+	t.Helper()
 	// 各リソースの存在確認
 	resources := []struct {
 		name     string
@@ -229,6 +231,7 @@ func validateResourceLoading(t *testing.T, world ew.World) {
 
 // validateStateMachineInitialization は状態機械初期化の検証
 func validateStateMachineInitialization(t *testing.T, world ew.World) {
+	t.Helper()
 	initialState := &gs.MainMenuState{}
 	stateMachine, err := es.Init(initialState, world)
 	require.NoError(t, err)
@@ -256,6 +259,7 @@ func validateStateMachineInitialization(t *testing.T, world ew.World) {
 
 // validateMainGameInitialization はMainGame初期化の検証
 func validateMainGameInitialization(t *testing.T, world ew.World) {
+	t.Helper()
 	stateMachine, err := es.Init(&gs.MainMenuState{}, world)
 	require.NoError(t, err)
 	game := &MainGame{
@@ -274,6 +278,7 @@ func validateMainGameInitialization(t *testing.T, world ew.World) {
 
 // validateMemoryUsage はメモリ使用量の検証
 func validateMemoryUsage(t *testing.T, initialStats memoryStats) {
+	t.Helper()
 	finalStats := getMemoryStats()
 
 	// メモリ使用量の増加が異常でないことを確認

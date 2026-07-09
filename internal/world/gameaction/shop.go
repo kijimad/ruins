@@ -42,7 +42,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 		err := lifecycle.ChangeStackableCount(world, itemName, 1)
 		if err != nil {
 			if refundErr := query.AddCurrency(world, playerEntity, price); refundErr != nil {
-				return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
+				return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %w)", err, refundErr)
 			}
 			return fmt.Errorf("アイテムの生成に失敗しました: %w", err)
 		}
@@ -50,7 +50,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 		_, err := lifecycle.SpawnBackpackItem(world, itemName, 1)
 		if err != nil {
 			if refundErr := query.AddCurrency(world, playerEntity, price); refundErr != nil {
-				return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
+				return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %w)", err, refundErr)
 			}
 			return fmt.Errorf("アイテムの生成に失敗しました: %w", err)
 		}

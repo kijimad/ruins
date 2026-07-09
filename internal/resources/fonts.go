@@ -1,10 +1,14 @@
 package resources
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
+
+// errNoFontSource は利用可能なフォントソースが無い場合に返す
+var errNoFontSource = errors.New("利用可能なフォントソースがない")
 
 type fonts struct {
 	smallFace      text.Face
@@ -43,7 +47,7 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 
 func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error) {
 	if len(sources) == 0 {
-		return nil, nil
+		return nil, errNoFontSource
 	}
 
 	faces := make([]text.Face, 0, len(sources))
@@ -57,7 +61,7 @@ func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error)
 	}
 
 	if len(faces) == 0 {
-		return nil, nil
+		return nil, errNoFontSource
 	}
 	if len(faces) == 1 {
 		return faces[0], nil

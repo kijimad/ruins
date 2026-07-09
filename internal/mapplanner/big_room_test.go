@@ -95,7 +95,7 @@ func TestBigRoomVariations(t *testing.T) {
 
 		// 壁と床の比率から大まかなバリエーションを判定
 		ratio := float64(wallCount) / float64(wallCount+floorCount)
-		variantType := ""
+		var variantType string
 
 		switch {
 		case ratio <= 0.25:

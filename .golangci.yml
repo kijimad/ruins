@@ -20,6 +20,12 @@ linters:
     - depguard       # 依存関係制御（禁止パッケージの使用防止）
     - exhaustive     # enum switch文の網羅性チェック（バグ防止）
     - gocritic       # 意見の分かれない有用なチェックのみ個別有効化する
+    - errorlint      # エラーラップ（%w）の不備検出（errors.Is/Asを効かせる）
+    - thelper        # テストヘルパのt.Helper()欠落検出（失敗行を正確にする）
+    - nilnil         # (nil, nil)返しの検出（センチネルエラーを促す）
+    - wastedassign   # 使われない代入の検出
+    - mirror         # string/[]byteの非効率なメソッド選択を検出（性能）
+    - errname        # センチネルエラーの命名規約（errXxx）
     # 現状と乖離が大きいので追加しない
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
