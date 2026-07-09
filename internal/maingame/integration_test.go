@@ -314,7 +314,7 @@ func getMemoryStats() memoryStats {
 func BenchmarkGameInitialization(b *testing.B) {
 	b.Run("InitWorld", func(b *testing.B) {
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			cfg := &config.Config{Profile: config.ProfileDevelopment}
 			cfg.ApplyProfileDefaults()
 			_, err := InitWorld(cfg)
@@ -329,7 +329,7 @@ func BenchmarkGameInitialization(b *testing.B) {
 		world, err := InitWorld(cfg)
 		require.NoError(b, err)
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			_, _ = es.Init(&gs.MainMenuState{}, world)
 		}
 	})
@@ -343,7 +343,7 @@ func BenchmarkGameInitialization(b *testing.B) {
 		stateMachine, err := es.Init(&gs.MainMenuState{}, world)
 		require.NoError(b, err)
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			_ = &MainGame{
 				World:        world,
 				StateMachine: stateMachine,

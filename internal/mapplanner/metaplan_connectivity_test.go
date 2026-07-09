@@ -35,7 +35,7 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			for seed := uint64(0); seed < uint64(seedCount); seed++ {
+			for seed := range uint64(seedCount) {
 				t.Run(fmt.Sprintf("seed=%d", seed), func(t *testing.T) {
 					t.Parallel()
 					world := testutil.InitTestWorld(t)

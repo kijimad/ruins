@@ -255,7 +255,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 		depth = d.Depth
 	}
 
-	for i := 0; i < lootCount; i++ {
+	for range lootCount {
 		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)
 		if err != nil {
 			return fmt.Errorf("アイテム抽選エラー: %w", err)

@@ -20,7 +20,7 @@ func TestCraftMenuSortIntegration(t *testing.T) {
 
 	// レシピ名がアルファベット順にソートされているか確認
 	if len(consumables) > 1 {
-		for i := 0; i < len(consumables)-1; i++ {
+		for i := range len(consumables) - 1 {
 			assert.LessOrEqual(t, consumables[i], consumables[i+1],
 				"消耗品レシピがソートされていない: %s > %s", consumables[i], consumables[i+1])
 		}
@@ -38,7 +38,7 @@ func TestCraftMenuWeaponSortIntegration(t *testing.T) {
 
 	// 武器名がアルファベット順にソートされているか確認
 	if len(weapons) > 1 {
-		for i := 0; i < len(weapons)-1; i++ {
+		for i := range len(weapons) - 1 {
 			assert.LessOrEqual(t, weapons[i], weapons[i+1],
 				"武器レシピがソートされていない: %s > %s", weapons[i], weapons[i+1])
 		}
@@ -56,7 +56,7 @@ func TestCraftMenuWearableSortIntegration(t *testing.T) {
 
 	// 装備名がアルファベット順にソートされているか確認
 	if len(wearables) > 1 {
-		for i := 0; i < len(wearables)-1; i++ {
+		for i := range len(wearables) - 1 {
 			assert.LessOrEqual(t, wearables[i], wearables[i+1],
 				"装備レシピがソートされていない: %s > %s", wearables[i], wearables[i+1])
 		}

@@ -27,7 +27,14 @@ linters:
     - mirror         # string/[]byteの非効率なメソッド選択を検出（性能）
     - errname        # センチネルエラーの命名規約（errXxx）
     - testifylint    # testifyの誤用検出（require-error, float-compare 等）
+    - intrange       # for i:=0;i<n;i++ を for i:=range n に近代化（Go1.22+）
+    - usetesting     # テストの近代化（t.Context/t.Setenv 等）
+    - makezero       # make([]T, n)後のappendによる長さ二重化バグを検出
+    - gocheckcompilerdirectives # //go:embed 等のコンパイラディレクティブ誤記を検出
+    - nilnesserr     # nilエラー判定の不備を検出（errorlint/nilerrを補完）
+    - reassign       # 他パッケージの変数への再代入を検出
     # 現状と乖離が大きいので追加しない
+    # - forcetypeassert # ECSの .Get().(*T) が意図的な型アサーションのため不適合
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
   exclusions:

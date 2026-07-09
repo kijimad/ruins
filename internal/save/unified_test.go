@@ -1,7 +1,6 @@
 package save
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -273,18 +272,14 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	t.Run("ファイル経由のラウンドトリップ", func(t *testing.T) {
 		t.Parallel()
 		// 従来のファイル保存APIを使用
-		tempDir, err := os.MkdirTemp("", "round_trip_test_")
-		require.NoError(t, err)
-		defer func() {
-			_ = os.RemoveAll(tempDir)
-		}()
+		tempDir := t.TempDir()
 
 		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
 		require.NoError(t, smErr)
 		originalWorld := createStandardTestWorld(t)
 
 		// 元データ保存
-		err = sm.SaveWorld(originalWorld, "original")
+		err := sm.SaveWorld(originalWorld, "original")
 		require.NoError(t, err)
 
 		// ロード
@@ -312,11 +307,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	t.Run("多段階ラウンドトリップ", func(t *testing.T) {
 		t.Parallel()
 		// 複数回のセーブ・ロードサイクル
-		tempDir, err := os.MkdirTemp("", "multi_round_trip_test_")
-		require.NoError(t, err)
-		defer func() {
-			_ = os.RemoveAll(tempDir)
-		}()
+		tempDir := t.TempDir()
 
 		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
 		require.NoError(t, smErr)
@@ -355,11 +346,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	t.Run("複雑な実世界データのラウンドトリップ", func(t *testing.T) {
 		t.Parallel()
 		// 保存対象のみ（プレイヤー、バックパック、装備）のラウンドトリップをテストする
-		tempDir, err := os.MkdirTemp("", "complex_round_trip_test_")
-		require.NoError(t, err)
-		defer func() {
-			_ = os.RemoveAll(tempDir)
-		}()
+		tempDir := t.TempDir()
 
 		sm, smErr := NewSerializationManager(WithSaveDir(tempDir))
 		require.NoError(t, smErr)
@@ -368,7 +355,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		originalWorld := createStandardTestWorld(t)
 
 		// 元データ保存
-		err = sm.SaveWorld(originalWorld, "complex_original")
+		err := sm.SaveWorld(originalWorld, "complex_original")
 		require.NoError(t, err)
 
 		// ロード
@@ -418,11 +405,7 @@ func createStandardTestWorld(t *testing.T) w.World {
 // createTestSerializationManager テスト用のSerializationManagerを作成
 func createTestSerializationManager(t *testing.T) *SerializationManager {
 	t.Helper()
-	tempDir, err := os.MkdirTemp("", "test_sm_")
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		_ = os.RemoveAll(tempDir)
-	})
+	tempDir := t.TempDir()
 	sm, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 	return sm

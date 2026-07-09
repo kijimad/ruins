@@ -146,7 +146,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		return spriteRender1.Depth < spriteRender2.Depth
 	})
 
-	for i := 0; i < iSprite; i++ {
+	for i := range iSprite {
 		entity := entities[i]
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 

@@ -109,7 +109,7 @@ func TestStateNoReuse(t *testing.T) {
 		assert.Equal(t, 3, createdStates[2].ID)
 
 		// ポインタが異なることを確認
-		for i := 0; i < len(createdStates)-1; i++ {
+		for i := range len(createdStates) - 1 {
 			for j := i + 1; j < len(createdStates); j++ {
 				assert.NotSame(t, createdStates[i], createdStates[j],
 					"インスタンス%dとインスタンス%dは異なるべき", i, j)

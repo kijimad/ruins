@@ -53,7 +53,7 @@ func AddEntityComponents(entity ecs.Entity, ecsComponentList any, components any
 	ecv := reflect.ValueOf(ecsComponentList).Elem()
 	// 追加するコンポーネント
 	cv := reflect.ValueOf(components)
-	for iField := 0; iField < cv.NumField(); iField++ {
+	for iField := range cv.NumField() {
 		if !cv.Field(iField).IsNil() {
 			component := cv.Field(iField).Elem()
 			value := reflect.New(reflect.TypeOf(component.Interface()))

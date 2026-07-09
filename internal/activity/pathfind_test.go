@@ -47,7 +47,7 @@ func TestFindNextStep(t *testing.T) {
 		mover := world.Manager.NewEntity()
 		mover.AddComponent(world.Components.Player, &gc.Player{})
 
-		for y := 0; y <= 3; y++ {
+		for y := range 4 {
 			si.BlockPass[gc.GridElement{X: consts.Tile(2), Y: consts.Tile(y)}] = true
 		}
 

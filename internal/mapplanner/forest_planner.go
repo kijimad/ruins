@@ -177,7 +177,7 @@ func (f ForestPaths) PlanMeta(planData *MetaPlan) error {
 
 	if len(planData.Rooms) >= 2 {
 		// 各空き地を他の空き地と繋ぐ
-		for i := 0; i < len(planData.Rooms); i++ {
+		for i := range len(planData.Rooms) {
 			for j := i + 1; j < len(planData.Rooms); j++ {
 				// 距離が近い空き地のみ繋ぐ（50%の確率）
 				if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {

@@ -42,7 +42,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 	height := int(planData.Level.TileHeight)
 
 	// セルラーオートマトンを指定回数実行
-	for iter := 0; iter < iterations; iter++ {
+	for range iterations {
 		newTiles := make([]oapi.Tile, len(planData.Tiles))
 
 		for x := range width {
@@ -280,7 +280,7 @@ func (c CaveConnector) PlanMeta(planData *MetaPlan) error {
 	}
 
 	// 各部屋を最低1つの他の部屋と接続する
-	for i := 0; i < len(planData.Rooms)-1; i++ {
+	for i := range len(planData.Rooms) - 1 {
 		room1 := planData.Rooms[i]
 		room2 := planData.Rooms[i+1]
 
