@@ -2,6 +2,9 @@ package gamelog
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPresetFunctions(t *testing.T) {
@@ -47,15 +50,11 @@ func TestPresetFunctions(t *testing.T) {
 		Log()
 
 	// ログ数の確認
-	if testGameLog.Count() != 6 {
-		t.Errorf("Expected 6 log entries, got %d", testGameLog.Count())
-	}
+	assert.Equal(t, 6, testGameLog.Count(), "Expected 6 log entries")
 
 	// 色付きエントリの確認
 	entries := testGameLog.GetRecentEntries(6)
-	if len(entries) != 6 {
-		t.Errorf("Expected 6 colored entries, got %d", len(entries))
-	}
+	require.Len(t, entries, 6, "Expected 6 colored entries")
 
 	// 各エントリの色の確認
 	testCases := []struct {
@@ -86,37 +85,23 @@ func TestPresetFunctions(t *testing.T) {
 		}
 		fragment := entry.Fragments[tc.fragmentIndex]
 
-		if fragment.Text != tc.expectedText {
-			t.Errorf("Entry %d, Fragment %d: expected text '%s', got '%s'",
-				tc.entryIndex, tc.fragmentIndex, tc.expectedText, fragment.Text)
-		}
+		assert.Equal(t, tc.expectedText, fragment.Text,
+			"Entry %d, Fragment %d text", tc.entryIndex, tc.fragmentIndex)
 
 		// 色の確認（簡単なチェック）
 		switch tc.expectedColor {
 		case "green":
-			if fragment.Color != ColorGreen {
-				t.Errorf("Expected green color for '%s'", tc.expectedText)
-			}
+			assert.Equal(t, ColorGreen, fragment.Color, "Expected green color for '%s'", tc.expectedText)
 		case "yellow":
-			if fragment.Color != ColorYellow {
-				t.Errorf("Expected yellow color for '%s'", tc.expectedText)
-			}
+			assert.Equal(t, ColorYellow, fragment.Color, "Expected yellow color for '%s'", tc.expectedText)
 		case "red":
-			if fragment.Color != ColorRed {
-				t.Errorf("Expected red color for '%s'", tc.expectedText)
-			}
+			assert.Equal(t, ColorRed, fragment.Color, "Expected red color for '%s'", tc.expectedText)
 		case "orange":
-			if fragment.Color != ColorOrange {
-				t.Errorf("Expected orange color for '%s'", tc.expectedText)
-			}
+			assert.Equal(t, ColorOrange, fragment.Color, "Expected orange color for '%s'", tc.expectedText)
 		case "cyan":
-			if fragment.Color != ColorCyan {
-				t.Errorf("Expected cyan color for '%s'", tc.expectedText)
-			}
+			assert.Equal(t, ColorCyan, fragment.Color, "Expected cyan color for '%s'", tc.expectedText)
 		case "purple":
-			if fragment.Color != ColorPurple {
-				t.Errorf("Expected purple color for '%s'", tc.expectedText)
-			}
+			assert.Equal(t, ColorPurple, fragment.Color, "Expected purple color for '%s'", tc.expectedText)
 		}
 	}
 }
@@ -133,12 +118,8 @@ func TestSystemPresets(t *testing.T) {
 		Log()
 
 	entries := testGameLog.GetRecentEntries(1)
-	if len(entries) != 1 {
-		t.Errorf("Expected 1 entry, got %d", len(entries))
-	}
+	require.Len(t, entries, 1, "Expected 1 entry")
 
 	// System は水色（シアン）
-	if entries[0].Fragments[0].Color != ColorCyan {
-		t.Errorf("Expected cyan color for System")
-	}
+	assert.Equal(t, ColorCyan, entries[0].Fragments[0].Color, "Expected cyan color for System")
 }

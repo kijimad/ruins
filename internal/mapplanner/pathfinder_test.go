@@ -41,44 +41,28 @@ func TestPathFinder_IsWalkable(t *testing.T) {
 	pf := NewPathFinder(planData)
 
 	// 境界外テスト
-	if pf.IsWalkable(-1, 0) {
-		t.Error("Expected (-1, 0) to be not walkable")
-	}
-	if pf.IsWalkable(0, -1) {
-		t.Error("Expected (0, -1) to be not walkable")
-	}
-	if pf.IsWalkable(5, 0) {
-		t.Error("Expected (5, 0) to be not walkable")
-	}
-	if pf.IsWalkable(0, 5) {
-		t.Error("Expected (0, 5) to be not walkable")
-	}
+	assert.False(t, pf.IsWalkable(-1, 0), "Expected (-1, 0) to be not walkable")
+	assert.False(t, pf.IsWalkable(0, -1), "Expected (0, -1) to be not walkable")
+	assert.False(t, pf.IsWalkable(5, 0), "Expected (5, 0) to be not walkable")
+	assert.False(t, pf.IsWalkable(0, 5), "Expected (0, 5) to be not walkable")
 
 	// 壁タイルテスト（デフォルト）
-	if pf.IsWalkable(1, 1) {
-		t.Error("Expected wall tile to be not walkable")
-	}
+	assert.False(t, pf.IsWalkable(1, 1), "Expected wall tile to be not walkable")
 
 	// 床タイルに変更してテスト
 	idx := planData.Level.XYTileIndex(1, 1)
 	planData.Tiles[idx] = planData.GetTile("floor")
-	if !pf.IsWalkable(1, 1) {
-		t.Error("Expected floor tile to be walkable")
-	}
+	assert.True(t, pf.IsWalkable(1, 1), "Expected floor tile to be walkable")
 
 	// ワープタイルテスト
 	idx = planData.Level.XYTileIndex(2, 2)
 	planData.Tiles[idx] = planData.GetTile("floor")
-	if !pf.IsWalkable(2, 2) {
-		t.Error("Expected warp next tile to be walkable")
-	}
+	assert.True(t, pf.IsWalkable(2, 2), "Expected warp next tile to be walkable")
 
 	// 脱出タイルテスト
 	idx = planData.Level.XYTileIndex(3, 3)
 	planData.Tiles[idx] = planData.GetTile("floor")
-	if !pf.IsWalkable(3, 3) {
-		t.Error("Expected warp escape tile to be walkable")
-	}
+	assert.True(t, pf.IsWalkable(3, 3), "Expected warp escape tile to be walkable")
 }
 
 func TestPathFinder_FindPath_SimplePath(t *testing.T) {
@@ -96,17 +80,13 @@ func TestPathFinder_FindPath_SimplePath(t *testing.T) {
 	path := pf.FindPath(1, 1, 1, 3)
 
 	expectedLength := 3 // スタート、中間、ゴール
-	if len(path) != expectedLength {
-		t.Errorf("Expected path length %d, got %d", expectedLength, len(path))
-	}
+	require.Len(t, path, expectedLength, "パス長が期待値と異なる")
 
 	// パスの内容を検証
 	expected := []consts.Coord[int]{{X: 1, Y: 1}, {X: 1, Y: 2}, {X: 1, Y: 3}}
 	for i, pos := range expected {
-		if i >= len(path) || path[i].X != pos.X || path[i].Y != pos.Y {
-			t.Errorf("Expected position %d to be (%d, %d), got (%d, %d)",
-				i, pos.X, pos.Y, path[i].X, path[i].Y)
-		}
+		assert.Equal(t, pos.X, path[i].X, "位置%dのXが期待値と異なる", i)
+		assert.Equal(t, pos.Y, path[i].Y, "位置%dのYが期待値と異なる", i)
 	}
 }
 
@@ -121,9 +101,7 @@ func TestPathFinder_FindPath_NoPath(t *testing.T) {
 
 	path := pf.FindPath(1, 1, 3, 3)
 
-	if len(path) != 0 {
-		t.Errorf("Expected no path, got path of length %d", len(path))
-	}
+	assert.Empty(t, path, "パスが存在しないはずなのに見つかった")
 }
 
 func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
@@ -141,18 +119,12 @@ func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
 
 	path := pf.FindPath(1, 1, 3, 2)
 
-	if len(path) != 4 {
-		t.Errorf("Expected path length 4, got %d", len(path))
-	}
+	require.Len(t, path, 4, "パス長が期待値と異なる")
 
 	// スタートとゴールが正しいことを確認
-	if path[0].X != 1 || path[0].Y != 1 {
-		t.Errorf("Expected start at (1,1), got (%d,%d)", path[0].X, path[0].Y)
-	}
-	if path[len(path)-1].X != 3 || path[len(path)-1].Y != 2 {
-		t.Errorf("Expected goal at (3,2), got (%d,%d)",
-			path[len(path)-1].X, path[len(path)-1].Y)
-	}
+	assert.True(t, path[0].X == 1 && path[0].Y == 1, "スタートが(1,1)でない。got (%d,%d)", path[0].X, path[0].Y)
+	assert.True(t, path[len(path)-1].X == 3 && path[len(path)-1].Y == 2,
+		"ゴールが(3,2)でない。got (%d,%d)", path[len(path)-1].X, path[len(path)-1].Y)
 }
 
 func TestPathFinder_IsReachable(t *testing.T) {
@@ -168,14 +140,10 @@ func TestPathFinder_IsReachable(t *testing.T) {
 	}
 
 	// 到達可能なテスト
-	if !pf.IsReachable(1, 1, 2, 2) {
-		t.Error("Expected (1,1) to (2,2) to be reachable")
-	}
+	assert.True(t, pf.IsReachable(1, 1, 2, 2), "Expected (1,1) to (2,2) to be reachable")
 
 	// 到達不可能なテスト
-	if pf.IsReachable(1, 1, 3, 3) {
-		t.Error("Expected (1,1) to (3,3) to be not reachable")
-	}
+	assert.False(t, pf.IsReachable(1, 1, 3, 3), "Expected (1,1) to (3,3) to be not reachable")
 }
 
 // TestFindPlayerStartPosition_AvoidsNPCs はプレイヤーのスポーン位置がNPCと重複しないことを検証する

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,20 +29,14 @@ func TestNewRandomPlanner(t *testing.T) {
 	require.NoError(t, err)
 
 	// 同じシードなので同じビルダータイプが選ばれ、同じ結果になるはず
-	if len(chain1.PlanData.Rooms) != len(chain2.PlanData.Rooms) {
-		t.Errorf("同じシードなのに部屋数が異なります。1回目: %d, 2回目: %d",
-			len(chain1.PlanData.Rooms), len(chain2.PlanData.Rooms))
-	}
+	assert.Len(t, chain2.PlanData.Rooms, len(chain1.PlanData.Rooms), "同じシードなのに部屋数が異なります")
 
 	// タイル配置が同じことを確認
-	if len(chain1.PlanData.Tiles) != len(chain2.PlanData.Tiles) {
-		t.Errorf("同じシードなのにタイル数が異なります。1回目: %d, 2回目: %d",
-			len(chain1.PlanData.Tiles), len(chain2.PlanData.Tiles))
-	}
+	require.Len(t, chain2.PlanData.Tiles, len(chain1.PlanData.Tiles), "同じシードなのにタイル数が異なります")
 
 	for i, tile1 := range chain1.PlanData.Tiles {
 		if chain2.PlanData.Tiles[i].Name != tile1.Name {
-			t.Errorf("タイル[%d]が異なります。1回目: %v, 2回目: %v", i, tile1, chain2.PlanData.Tiles[i])
+			assert.Equal(t, tile1.Name, chain2.PlanData.Tiles[i].Name, "タイル[%d]が異なります", i)
 			break // 最初の違いだけ報告
 		}
 	}

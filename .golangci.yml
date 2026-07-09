@@ -35,6 +35,7 @@ linters:
     - reassign       # 他パッケージの変数への再代入を検出
     - nolintlint     # nolintディレクティブに理由と対象linterの明示を強制
     - bidichk        # 不可視の危険なUnicode（トロイソース攻撃）を検出
+    - forbidigo      # t.Error/t.Fatal を禁止しtestifyの使用を強制する
     # 現状と乖離が大きいので追加しない
     # - forcetypeassert # ECSの .Get().(*T) が意図的な型アサーションのため不適合
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
@@ -56,6 +57,13 @@ linters:
     nolintlint:
       require-explanation: true # nolintには理由コメントを必須にする
       require-specific: true # 対象linterを明示させる（//nolint単独を禁止）
+    forbidigo:
+      # 型情報でマッチする。受け手の変数名（t/tt/tb 等）に依らず testing.T/B/TB のメソッドだけを
+      # 確実に捕捉し、fmt.Errorf などの同名パッケージ関数は誤検知しない。
+      analyze-types: true
+      forbid:
+        # テストは t.Error/Errorf/Fatal/Fatalf でなく testify の assert/require を使う
+        - pattern: '^testing\.(T|B|TB)\.(Errorf?|Fatalf?)$'
     exhaustive:
       check:
         - switch

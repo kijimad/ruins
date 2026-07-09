@@ -2,6 +2,9 @@ package gamelog
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // NewLoggerWithTestStore はテスト用ストアを使用するLoggerを作成
@@ -26,27 +29,19 @@ func TestLoggerBasicUsage(t *testing.T) {
 		Log()
 
 	// ログが追加されたかチェック
-	if store.Count() != 1 {
-		t.Errorf("Expected 1 log entry, got %d", store.Count())
-	}
+	assert.Equal(t, 1, store.Count(), "Expected 1 log entry")
 
 	// テキストの内容をチェック
 	messages := store.GetRecent(1)
 	expected := "Player attacks Goblin for 15 damage!"
-	if messages[0] != expected {
-		t.Errorf("Expected '%s', got '%s'", expected, messages[0])
-	}
+	assert.Equal(t, expected, messages[0])
 
 	// 色付きエントリもチェック
 	entries := store.GetRecentEntries(1)
-	if len(entries) != 1 {
-		t.Errorf("Expected 1 colored entry, got %d", len(entries))
-	}
+	require.Len(t, entries, 1, "Expected 1 colored entry")
 
 	entry := entries[0]
-	if len(entry.Fragments) != 6 {
-		t.Errorf("Expected 6 fragments, got %d", len(entry.Fragments))
-	}
+	require.Len(t, entry.Fragments, 6, "Expected 6 fragments")
 
 	// 各フラグメントをチェック
 	expectedFragments := []struct {
@@ -62,18 +57,12 @@ func TestLoggerBasicUsage(t *testing.T) {
 	}
 
 	for i, expected := range expectedFragments {
-		if entry.Fragments[i].Text != expected.text {
-			t.Errorf("Fragment %d: expected text '%s', got '%s'", i, expected.text, entry.Fragments[i].Text)
-		}
+		assert.Equal(t, expected.text, entry.Fragments[i].Text, "Fragment %d text", i)
 	}
 
 	// NPCの名前が黄色、ダメージが赤色かチェック
-	if entry.Fragments[2].Color != ColorYellow {
-		t.Errorf("Expected NPC name to be yellow, got %v", entry.Fragments[2].Color)
-	}
-	if entry.Fragments[4].Color != ColorRed {
-		t.Errorf("Expected damage to be red, got %v", entry.Fragments[4].Color)
-	}
+	assert.Equal(t, ColorYellow, entry.Fragments[2].Color, "Expected NPC name to be yellow")
+	assert.Equal(t, ColorRed, entry.Fragments[4].Color, "Expected damage to be red")
 }
 
 func TestLoggerColorMethod(t *testing.T) {
@@ -91,25 +80,15 @@ func TestLoggerColorMethod(t *testing.T) {
 		Log()
 
 	entries := store.GetRecentEntries(1)
-	if len(entries) != 1 {
-		t.Errorf("Expected 1 entry, got %d", len(entries))
-	}
+	require.Len(t, entries, 1, "Expected 1 entry")
 
 	fragments := entries[0].Fragments
-	if len(fragments) != 3 {
-		t.Errorf("Expected 3 fragments, got %d", len(fragments))
-	}
+	require.Len(t, fragments, 3, "Expected 3 fragments")
 
 	// 色のチェック
-	if fragments[0].Color != ColorCyan {
-		t.Errorf("Expected first fragment to be cyan")
-	}
-	if fragments[1].Color != ColorWhite {
-		t.Errorf("Expected second fragment to be white")
-	}
-	if fragments[2].Color != ColorCyan {
-		t.Errorf("Expected third fragment to be cyan")
-	}
+	assert.Equal(t, ColorCyan, fragments[0].Color, "Expected first fragment to be cyan")
+	assert.Equal(t, ColorWhite, fragments[1].Color, "Expected second fragment to be white")
+	assert.Equal(t, ColorCyan, fragments[2].Color, "Expected third fragment to be cyan")
 }
 
 func TestLoggerItemName(t *testing.T) {
@@ -125,12 +104,8 @@ func TestLoggerItemName(t *testing.T) {
 	entries := store.GetRecentEntries(1)
 	fragments := entries[0].Fragments
 
-	if fragments[1].Color != ColorCyan {
-		t.Errorf("Expected item name to be cyan")
-	}
-	if fragments[1].Text != "Iron Sword" {
-		t.Errorf("Expected item name 'Iron Sword', got '%s'", fragments[1].Text)
-	}
+	assert.Equal(t, ColorCyan, fragments[1].Color, "Expected item name to be cyan")
+	assert.Equal(t, "Iron Sword", fragments[1].Text, "Expected item name 'Iron Sword'")
 }
 
 func TestLoggerPlayerName(t *testing.T) {
@@ -145,12 +120,8 @@ func TestLoggerPlayerName(t *testing.T) {
 	entries := store.GetRecentEntries(1)
 	fragments := entries[0].Fragments
 
-	if fragments[0].Color != ColorGreen {
-		t.Errorf("Expected player name to be green")
-	}
-	if fragments[0].Text != "Hero" {
-		t.Errorf("Expected player name 'Hero', got '%s'", fragments[0].Text)
-	}
+	assert.Equal(t, ColorGreen, fragments[0].Color, "Expected player name to be green")
+	assert.Equal(t, "Hero", fragments[0].Text, "Expected player name 'Hero'")
 }
 
 func TestLoggerMultipleLogs(t *testing.T) {
@@ -162,23 +133,15 @@ func TestLoggerMultipleLogs(t *testing.T) {
 	logger.Append("Second message").Log()
 	logger.NPCName("Enemy").Append(" appears!").Log()
 
-	if store.Count() != 3 {
-		t.Errorf("Expected 3 log entries, got %d", store.Count())
-	}
+	assert.Equal(t, 3, store.Count(), "Expected 3 log entries")
 
 	entries := store.GetRecentEntries(3)
-	if len(entries) != 3 {
-		t.Errorf("Expected 3 colored entries, got %d", len(entries))
-	}
+	require.Len(t, entries, 3, "Expected 3 colored entries")
 
 	// 最後のエントリをチェック
 	lastEntry := entries[2]
-	if len(lastEntry.Fragments) != 2 {
-		t.Errorf("Expected 2 fragments in last entry, got %d", len(lastEntry.Fragments))
-	}
-	if lastEntry.Fragments[0].Color != ColorYellow {
-		t.Errorf("Expected enemy name to be yellow")
-	}
+	require.Len(t, lastEntry.Fragments, 2, "Expected 2 fragments in last entry")
+	assert.Equal(t, ColorYellow, lastEntry.Fragments[0].Color, "Expected enemy name to be yellow")
 }
 
 func TestLoggerEmptyFragments(t *testing.T) {
@@ -191,9 +154,7 @@ func TestLoggerEmptyFragments(t *testing.T) {
 		// フラグメントを追加せずにLogを呼ぶ
 		logger.Log()
 
-		if store.Count() != 0 {
-			t.Errorf("Expected 0 log entries when logging empty fragments, got %d", store.Count())
-		}
+		assert.Equal(t, 0, store.Count(), "Expected 0 log entries when logging empty fragments")
 	})
 
 	t.Run("フラグメント追加後にLogし、再度空の状態でLogを呼ぶ", func(t *testing.T) {
@@ -203,17 +164,13 @@ func TestLoggerEmptyFragments(t *testing.T) {
 		// 最初にフラグメントを追加してLog
 		logger.Append("Test message").Log()
 
-		if store.Count() != 1 {
-			t.Errorf("Expected 1 log entry after first log, got %d", store.Count())
-		}
+		assert.Equal(t, 1, store.Count(), "Expected 1 log entry after first log")
 
 		// 空の状態で再度Log
 		logger.Log()
 
 		// カウントは変わらない
-		if store.Count() != 1 {
-			t.Errorf("Expected 1 log entry after empty log, got %d", store.Count())
-		}
+		assert.Equal(t, 1, store.Count(), "Expected 1 log entry after empty log")
 	})
 
 	t.Run("同じLoggerインスタンスでの複数回ログ出力", func(t *testing.T) {
@@ -227,21 +184,14 @@ func TestLoggerEmptyFragments(t *testing.T) {
 		// 3回目 - 空
 		logger.Log()
 
-		if store.Count() != 2 {
-			t.Errorf("Expected 2 log entries, got %d", store.Count())
-		}
+		assert.Equal(t, 2, store.Count(), "Expected 2 log entries")
 
 		messages := store.GetRecent(2)
 		// GetRecentは時系列順で返す（古い順）
 		expected := []string{"First", "Second"}
+		require.Len(t, messages, len(expected), "Expected %d messages", len(expected))
 		for i, exp := range expected {
-			if i >= len(messages) {
-				t.Errorf("Message index %d out of range, got %d messages", i, len(messages))
-				continue
-			}
-			if messages[i] != exp {
-				t.Errorf("Message %d: expected '%s', got '%s'", i, exp, messages[i])
-			}
+			assert.Equal(t, exp, messages[i], "Message %d", i)
 		}
 	})
 }

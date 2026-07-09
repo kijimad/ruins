@@ -99,10 +99,7 @@ func TestInitializeComponents(t *testing.T) {
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
 
-			if !field.CanSet() {
-				t.Errorf("field %s is not settable", fieldName)
-				return
-			}
+			require.True(t, field.CanSet(), "field %s is not settable", fieldName)
 
 			switch field.Type() {
 			case reflect.TypeFor[*ecs.SliceComponent]():

@@ -3,6 +3,7 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -43,11 +44,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 
 	// テストケース1: 孤立した土タイル
 	autoTileIndex := metaPlan.CalculateAutoTileIndex(centerIdx, dirtTileType)
-	if autoTileIndex != AutoTileIsolated {
-		t.Errorf("孤立タイルの判定が間違っています。期待値: %s(%d), 実際: %s(%d)",
-			AutoTileIsolated.String(), int(AutoTileIsolated),
-			autoTileIndex.String(), int(autoTileIndex))
-	}
+	assert.Equal(t, AutoTileIsolated, autoTileIndex, "孤立タイルの判定が間違っています")
 
 	// テストケース2: 上に土タイルを追加（下だけが異なる状態）
 	topIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(1))
@@ -64,11 +61,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	right := metaPlan.RightTile(centerIdx).Name == dirtTileType
 	t.Logf("デバッグ: 上=%t, 下=%t, 左=%t, 右=%t, ビットマスク=%d", up, down, left, right, int(autoTileIndex))
 
-	if autoTileIndex != AutoTileUp {
-		t.Errorf("上だけが同じタイルの判定が間違っています。期待値: %s(%d), 実際: %s(%d)",
-			AutoTileUp.String(), int(AutoTileUp),
-			autoTileIndex.String(), int(autoTileIndex))
-	}
+	assert.Equal(t, AutoTileUp, autoTileIndex, "上だけが同じタイルの判定が間違っています")
 
 	// テストケース3: 右にも土タイルを追加（下左が異なる状態）
 	rightIdx := metaPlan.Level.XYTileIndex(consts.Tile(3), consts.Tile(2))
@@ -77,11 +70,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	metaPlan.Tiles[rightIdx] = rightDirt
 
 	autoTileIndex = metaPlan.CalculateAutoTileIndex(centerIdx, dirtTileType)
-	if autoTileIndex != AutoTileUpRight {
-		t.Errorf("上右が同じタイルの判定が間違っています。期待値: %s(%d), 実際: %s(%d)",
-			AutoTileUpRight.String(), int(AutoTileUpRight),
-			autoTileIndex.String(), int(autoTileIndex))
-	}
+	assert.Equal(t, AutoTileUpRight, autoTileIndex, "上右が同じタイルの判定が間違っています")
 
 	// テストケース4: 全方向に土タイルを配置（中央タイル）
 	bottomIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(3))
@@ -94,11 +83,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	metaPlan.Tiles[leftIdx] = leftDirt
 
 	autoTileIndex = metaPlan.CalculateAutoTileIndex(centerIdx, dirtTileType)
-	if autoTileIndex != AutoTileCenter {
-		t.Errorf("中央タイルの判定が間違っています。期待値: %s(%d), 実際: %s(%d)",
-			AutoTileCenter.String(), int(AutoTileCenter),
-			autoTileIndex.String(), int(autoTileIndex))
-	}
+	assert.Equal(t, AutoTileCenter, autoTileIndex, "中央タイルの判定が間違っています")
 }
 
 func TestAutoTileIndexString(t *testing.T) {
@@ -128,10 +113,7 @@ func TestAutoTileIndexString(t *testing.T) {
 
 	for _, tc := range testCases {
 		actual := tc.index.String()
-		if actual != tc.expected {
-			t.Errorf("AutoTileIndex.String()が間違っています。インデックス: %d, 期待値: %s, 実際: %s",
-				int(tc.index), tc.expected, actual)
-		}
+		assert.Equal(t, tc.expected, actual, "AutoTileIndex.String()が間違っています。インデックス: %d", int(tc.index))
 	}
 }
 
@@ -157,10 +139,7 @@ func TestIsValidIndex(t *testing.T) {
 
 	for _, tc := range testCases {
 		actual := metaPlan.IsValidIndex(tc.idx)
-		if actual != tc.expected {
-			t.Errorf("IsValidIndex(%d)が間違っています。期待値: %t, 実際: %t",
-				int(tc.idx), tc.expected, actual)
-		}
+		assert.Equal(t, tc.expected, actual, "IsValidIndex(%d)が間違っています", int(tc.idx))
 	}
 }
 
