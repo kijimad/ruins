@@ -72,7 +72,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		world.Components.GridElement,
 		world.Components.Player,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
+		playerGridElement = world.Components.GridElement.MustGet(entity)
 	}))
 
 	if playerGridElement == nil {
@@ -359,14 +359,14 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 		world.Components.LightSource,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(lightEntity ecs.Entity) {
-		lightSource := world.Components.LightSource.Get(lightEntity).(*gc.LightSource)
+		lightSource := world.Components.LightSource.MustGet(lightEntity)
 
 		// 無効な光源はスキップ
 		if !lightSource.Enabled {
 			return
 		}
 
-		lightGrid := world.Components.GridElement.Get(lightEntity).(*gc.GridElement)
+		lightGrid := world.Components.GridElement.MustGet(lightEntity)
 
 		// 距離計算（タイル単位）
 		distance := geometry.Distance(float64(tileX), float64(tileY), float64(lightGrid.X), float64(lightGrid.Y))
@@ -428,7 +428,7 @@ func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 		world.Components.GridElement,
 		world.Components.BlockView,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		index[*grid] = true
 	}))
 	return index

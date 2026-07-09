@@ -297,7 +297,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
 	// 再計算されたCharModifiersにHealthStatusのペナルティが反映されている
-	mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+	mods := world.Components.CharModifiers.MustGet(actor)
 	require.NotNil(t, mods)
 	// MoveCost = 100 + 走破Lv0*(-2) + AGI0*(-1) + 軽度低体温10 = 110
 	assert.Equal(t, 110, mods.MoveCost, "HealthStatusのペナルティがCharModifiers再計算に反映されている")
@@ -381,7 +381,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		// 中断不可なので生存中はアクティビティが残る
 		assert.True(t, target.HasComponent(world.Components.Activity),
 			"中断不可のアクティビティは被ダメージでも残る")
-		activityComp := world.Components.Activity.Get(target).(*gc.Activity)
+		activityComp := world.Components.Activity.MustGet(target)
 		assert.Equal(t, gc.ActivityStateRunning, activityComp.State)
 	})
 

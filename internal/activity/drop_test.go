@@ -143,7 +143,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 
 		// アイテムがフィールドに配置されていることを確認
 		assert.True(t, item.HasComponent(world.Components.GridElement))
-		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(item)
 		assert.Equal(t, 10, int(gridElement.X))
 		assert.Equal(t, 10, int(gridElement.Y))
 
@@ -257,7 +257,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.True(t, item.HasComponent(world.Components.GridElement))
-		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(item)
 		assert.Equal(t, 11, int(gridElement.X))
 		assert.Equal(t, 10, int(gridElement.Y))
 		assert.True(t, item.HasComponent(world.Components.LocationOnField))
@@ -285,7 +285,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		err = da.performDropActivity(comp, player, world)
 		require.NoError(t, err)
 
-		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(item)
 		assert.Equal(t, 11, int(gridElement.X))
 		assert.Equal(t, 11, int(gridElement.Y))
 	})
@@ -327,7 +327,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		// フィールドに配置されていることを確認
 		assert.True(t, prop.HasComponent(world.Components.LocationOnField))
 		assert.True(t, prop.HasComponent(world.Components.GridElement))
-		gridElement := world.Components.GridElement.Get(prop).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(prop)
 		assert.Equal(t, 11, int(gridElement.X))
 		assert.Equal(t, 10, int(gridElement.Y))
 	})
@@ -375,7 +375,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.True(t, item.HasComponent(world.Components.LocationOnField))
-		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(item)
 		assert.Equal(t, 9, int(gridElement.X))
 		assert.Equal(t, 9, int(gridElement.Y))
 		// 通常アイテムはPropコンポーネントを持たない

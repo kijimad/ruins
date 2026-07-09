@@ -22,7 +22,7 @@ func TestApplyHealing(t *testing.T) {
 		actual := ApplyHealing(world, entity, 30)
 		assert.Equal(t, 30, actual)
 
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+		hp := world.Components.HP.MustGet(entity)
 		assert.Equal(t, 80, hp.Current)
 	})
 
@@ -37,7 +37,7 @@ func TestApplyHealing(t *testing.T) {
 		actual := ApplyHealing(world, entity, 50)
 		assert.Equal(t, 10, actual, "実際の回復量は10のみ")
 
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+		hp := world.Components.HP.MustGet(entity)
 		assert.Equal(t, 100, hp.Current)
 	})
 
@@ -130,7 +130,7 @@ func TestApplyDamage_Prop(t *testing.T) {
 
 		ApplyDamage(world, prop, 10, source)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.MustGet(prop)
 		assert.Equal(t, 20, hp.Current)
 		assert.False(t, prop.HasComponent(world.Components.Dead))
 	})
@@ -149,7 +149,7 @@ func TestApplyDamage_Prop(t *testing.T) {
 
 		ApplyDamage(world, prop, 10, source)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.MustGet(prop)
 		assert.Equal(t, 0, hp.Current)
 		assert.True(t, prop.HasComponent(world.Components.Dead))
 	})
@@ -168,7 +168,7 @@ func TestApplyDamage_Prop(t *testing.T) {
 
 		ApplyDamage(world, prop, 100, source)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.MustGet(prop)
 		assert.Equal(t, 0, hp.Current)
 		assert.True(t, prop.HasComponent(world.Components.Dead))
 	})

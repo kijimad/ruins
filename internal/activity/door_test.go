@@ -39,7 +39,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		assert.True(t, result.Success, "扉を開くアクションが成功するべき")
 
 		// 扉が開いていることを確認
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(door)
 		assert.True(t, doorComp.IsOpen, "扉が開いているべき")
 
 		// BlockPassとBlockViewが削除されていることを確認
@@ -99,7 +99,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
 
 		// 扉は閉じたまま
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(door)
 		assert.False(t, doorComp.IsOpen)
 		assert.True(t, doorComp.Locked)
 

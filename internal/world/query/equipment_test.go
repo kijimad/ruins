@@ -70,7 +70,7 @@ func TestEquipDisarm(t *testing.T) {
 	assert.False(t, item.HasComponent(world.Components.LocationInBackpack), "アイテムがまだバックパックにある")
 	assert.True(t, owner.HasComponent(world.Components.StatsChanged), "オーナーにステータス再計算フラグが設定されていない")
 
-	equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
+	equipped := world.Components.LocationEquipped.MustGet(item)
 	assert.Equal(t, owner, equipped.Owner, "オーナーが正しく設定されていない")
 	assert.Equal(t, gc.EquipmentSlotNumber(0), equipped.EquipmentSlot, "スロット番号が正しく設定されていない")
 

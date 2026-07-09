@@ -49,7 +49,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	world.Manager.Join(
 		world.Components.VisualEffect,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
+		ve := world.Components.VisualEffect.MustGet(entity)
 
 		// エフェクトを更新
 		activeEffects := ve.Effects[:0]
@@ -93,7 +93,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		if err != nil {
 			return
 		}
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
+		ve := world.Components.VisualEffect.MustGet(entity)
 
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
@@ -101,12 +101,12 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 				sys.drawSplashText(world, screen, e)
 			case *gc.DamageTextEffect:
 				if entity.HasComponent(world.Components.GridElement) {
-					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+					gridElement := world.Components.GridElement.MustGet(entity)
 					sys.drawDamageText(world, screen, smallFace, gridElement, e)
 				}
 			case *gc.SpriteFadeoutEffect:
 				if entity.HasComponent(world.Components.GridElement) {
-					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+					gridElement := world.Components.GridElement.MustGet(entity)
 					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
 					if err != nil {
 						return

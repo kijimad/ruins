@@ -66,7 +66,7 @@ func RestoreAllActionPoints(world w.World) error {
 	var err error
 
 	world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {
-		tb := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+		tb := world.Components.TurnBased.MustGet(entity)
 
 		// MaxAPとSpeedを計算
 		maxAP, calcErr := CalculateMaxActionPoints(world, entity)
@@ -130,7 +130,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	// MoveCost倍率を適用する。
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	if entity.HasComponent(world.Components.CharModifiers) {
-		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+		effects := world.Components.CharModifiers.MustGet(entity)
 		moveCost := max(effects.MoveCost, 10)
 		speed = speed * 100 / moveCost
 	}

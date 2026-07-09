@@ -67,7 +67,7 @@ func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		if grid.X == x && grid.Y == y {
 			entities = append(entities, entity)
 		}

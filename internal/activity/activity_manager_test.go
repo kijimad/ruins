@@ -25,7 +25,7 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 	}
 
 	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
-		comp := world.Components.Activity.Get(entity).(*gc.Activity)
+		comp := world.Components.Activity.MustGet(entity)
 		summary["total"]++
 		switch comp.State {
 		case gc.ActivityStateRunning:
@@ -330,7 +330,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		require.NoError(t, err)
 
 		// 通常移動のAP消費を記録する
-		tbBefore := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		tbBefore := world.Components.TurnBased.MustGet(player)
 		apBefore := tbBefore.AP.Current
 
 		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 11, Y: 10}}, player, world)

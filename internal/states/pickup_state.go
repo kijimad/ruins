@@ -57,7 +57,7 @@ func (st *PickupState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 	st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}
 	st.cursor = st.playerPos
 	st.refreshItems(world)

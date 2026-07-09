@@ -21,15 +21,15 @@ func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
 		return
 	}
 
-	wc := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)
+	wc := world.Components.WeightCapacity.MustGet(entity)
 
 	// Abilitiesを持つエンティティはMaxを再計算する（Player用）
 	if entity.HasComponent(world.Components.Abilities) {
-		abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)
+		abilities := world.Components.Abilities.MustGet(entity)
 		maxWeight := calculateMaxCarryingWeight(abilities)
 
 		if entity.HasComponent(world.Components.CharModifiers) {
-			mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+			mods := world.Components.CharModifiers.MustGet(entity)
 			maxWeight = maxWeight * float64(mods.MaxWeight) / 100
 		}
 
@@ -58,21 +58,21 @@ func calculateOwnedWeight(world w.World, entity ecs.Entity) float64 {
 		world.Components.Weight,
 	).Visit(ecs.Visit(func(itemEntity ecs.Entity) {
 		if itemEntity.HasComponent(world.Components.LocationInBackpack) {
-			loc := world.Components.LocationInBackpack.Get(itemEntity).(*gc.LocationInBackpack)
+			loc := world.Components.LocationInBackpack.MustGet(itemEntity)
 			if loc.Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
 
 		if itemEntity.HasComponent(world.Components.LocationEquipped) {
-			loc := world.Components.LocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
+			loc := world.Components.LocationEquipped.MustGet(itemEntity)
 			if loc.Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
 
 		if itemEntity.HasComponent(world.Components.LocationInStorage) {
-			loc := world.Components.LocationInStorage.Get(itemEntity).(*gc.LocationInStorage)
+			loc := world.Components.LocationInStorage.MustGet(itemEntity)
 			if loc.Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}

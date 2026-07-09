@@ -208,7 +208,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		require.NoError(t, err)
 
 		// 寒い環境なので低体温のタイマーが増加しているはず
-		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.MustGet(player)
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		require.NotNil(t, cond)
 		assert.Greater(t, cond.Timer, 0.0)

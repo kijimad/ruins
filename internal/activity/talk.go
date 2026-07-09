@@ -76,7 +76,7 @@ func (ta *TalkActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	dialogComp := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
+	dialogComp := world.Components.Dialog.MustGet(targetEntity)
 	if dialogComp == nil {
 		Cancel(comp, "会話データが取得できません")
 		return fmt.Errorf("会話データが取得できません")
@@ -87,7 +87,7 @@ func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 		Cancel(comp, "対象エンティティにNameコンポーネントがありません")
 		return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
 	}
-	nameComp := world.Components.Name.Get(targetEntity).(*gc.Name)
+	nameComp := world.Components.Name.MustGet(targetEntity)
 	speakerName := nameComp.Name
 
 	log.Debug("会話実行", "messageKey", dialogComp.MessageKey, "speaker", speakerName)
@@ -112,7 +112,7 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		if !targetEntity.HasComponent(world.Components.Name) {
 			return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
 		}
-		nameComp := world.Components.Name.Get(targetEntity).(*gc.Name)
+		nameComp := world.Components.Name.MustGet(targetEntity)
 
 		gamelog.New(query.GetGameLog(world)).
 			Append(nameComp.Name + "と話した。").
@@ -120,7 +120,7 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 		// 会話ダイアログを表示
 		if targetEntity.HasComponent(world.Components.Dialog) {
-			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
+			dialog := world.Components.Dialog.MustGet(targetEntity)
 			if err := lifecycle.RequestStateChange(world, gc.ShowDialogEvent{
 				MessageKey:    dialog.MessageKey,
 				SpeakerEntity: targetEntity,

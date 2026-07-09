@@ -177,11 +177,11 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 
 		// 満腹度が回復していることを確認
-		hungerComp := world.Components.Hunger.Get(actor).(*gc.Hunger)
+		hungerComp := world.Components.Hunger.MustGet(actor)
 		assert.Equal(t, 350, hungerComp.Current)
 
 		// アイテムが1つ消費されていることを確認
-		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		stackableComp := world.Components.Stackable.MustGet(item)
 		assert.Equal(t, 2, stackableComp.Count)
 	})
 

@@ -3,7 +3,6 @@ package states
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
@@ -34,7 +33,7 @@ func TestLookAroundState_OnStart(t *testing.T) {
 	err = state.OnStart(world)
 	require.NoError(t, err)
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 	assert.Equal(t, playerGrid.X, state.cursor.X, "カーソルX座標がプレイヤー位置と一致するべき")
 	assert.Equal(t, playerGrid.Y, state.cursor.Y, "カーソルY座標がプレイヤー位置と一致するべき")
 }

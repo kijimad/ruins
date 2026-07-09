@@ -177,7 +177,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	}
 
 	// プレイヤー名を上書き
-	name := world.Components.Name.Get(player).(*gc.Name)
+	name := world.Components.Name.MustGet(player)
 	name.Name = st.playerName
 
 	// 操作ガイドを表示する

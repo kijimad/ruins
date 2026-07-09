@@ -20,7 +20,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 		if cat != gc.CategoryWeapon {
 			return
 		}
-		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.MustGet(entity)
 		if owner == equipped.Owner {
 			if equipped.EquipmentSlot >= gc.SlotWeapon1 && equipped.EquipmentSlot <= gc.SlotWeapon5 {
 				index := int(equipped.EquipmentSlot) - int(gc.SlotWeapon1)
@@ -41,7 +41,7 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 		world.Components.LocationEquipped,
 		world.Components.Wearable,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.MustGet(entity)
 		if owner == equipped.Owner {
 			switch equipped.EquipmentSlot {
 			case gc.SlotHead:

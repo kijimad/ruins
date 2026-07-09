@@ -204,7 +204,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 
 	if npcEntity.HasComponent(world.Components.TurnBased) {
-		actionPoints := world.Components.TurnBased.Get(npcEntity).(*gc.TurnBased)
+		actionPoints := world.Components.TurnBased.MustGet(npcEntity)
 		maxAP, err := query.CalculateMaxActionPoints(world, npcEntity)
 		if err != nil {
 			return consts.InvalidEntity, fmt.Errorf("AP計算エラー: %w", err)
@@ -227,7 +227,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	if !leader.HasComponent(world.Components.GridElement) {
 		return consts.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
 	}
-	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+	leaderGrid := world.Components.GridElement.MustGet(leader)
 
 	// リーダーの隣接空きタイルを探す
 	spawnX, spawnY, err := findAdjacentEmptyTile(world, int(leaderGrid.X), int(leaderGrid.Y), nil)
@@ -374,7 +374,7 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 		if err != nil {
 			return fmt.Errorf("AP計算エラー: %w", err)
 		}
-		turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.MustGet(entity)
 		turnBased.AP.Current = maxAP
 		turnBased.AP.Max = maxAP
 	}
@@ -388,8 +388,8 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 		return fmt.Errorf("entity %v does not have required components (HP or Abilities)", entity)
 	}
 
-	hp := world.Components.HP.Get(entity).(*gc.HP)
-	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+	hp := world.Components.HP.MustGet(entity)
+	abils := world.Components.Abilities.MustGet(entity)
 
 	if abils.Vitality.Total == 0 {
 		abils.Vitality.Total = abils.Vitality.Base
@@ -449,7 +449,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 		return
 	}
 
-	gridElement := world.Components.GridElement.Get(target).(*gc.GridElement)
+	gridElement := world.Components.GridElement.MustGet(target)
 
 	effectEntity := world.Manager.NewEntity()
 	effectEntity.AddComponent(world.Components.GridElement, &gc.GridElement{

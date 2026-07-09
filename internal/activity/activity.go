@@ -220,7 +220,7 @@ func isAreaSafe(actor ecs.Entity, world w.World) bool {
 		if query.FactionRelation(world, actor, entity) != query.RelationHostile {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		dx, dy := int(grid.X)-actorX, int(grid.Y)-actorY
 		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
 			hasHostile = true

@@ -17,7 +17,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.Id})
 
 	// 職業の属性値で上書き
-	abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+	abils := world.Components.Abilities.MustGet(player)
 	abils.Strength = gc.Ability{Base: int(prof.Abilities.Strength)}
 	abils.Sensation = gc.Ability{Base: int(prof.Abilities.Sensation)}
 	abils.Dexterity = gc.Ability{Base: int(prof.Abilities.Dexterity)}
@@ -26,7 +26,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	abils.Defense = gc.Ability{Base: int(prof.Abilities.Defense)}
 
 	// 職業のスキル初期値を設定
-	playerSkills := world.Components.Skills.Get(player).(*gc.Skills)
+	playerSkills := world.Components.Skills.MustGet(player)
 	*playerSkills = *gc.NewSkills()
 	if prof.Skills != nil {
 		for _, ps := range *prof.Skills {

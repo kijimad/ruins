@@ -211,7 +211,7 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorWait, behavior.Name())
@@ -234,7 +234,7 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	name := behavior.Name()
@@ -258,7 +258,7 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	name := behavior.Name()
@@ -282,7 +282,7 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	name := behavior.Name()
@@ -308,7 +308,7 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
@@ -331,7 +331,7 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	name := behavior.Name()
@@ -359,7 +359,7 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
@@ -393,7 +393,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planPatrolAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
@@ -429,7 +429,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planPatrolAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorWait, behavior.Name())
@@ -456,7 +456,7 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 	rp := newSoloPlanner(testRNG)
 
 	for i := range 100 {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
 		if behavior.Name() == gc.BehaviorMove {
@@ -497,7 +497,7 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	entity := setupTestAI(t, world, 25, 25, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	for i := range 50 {
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
@@ -534,7 +534,7 @@ func TestPlanWanderAction(t *testing.T) {
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
 	entity := setupTestAI(t, world, 20, 20, ai)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	gotMove := false
 	gotWait := false
@@ -577,7 +577,7 @@ func TestPlanWallHugAction(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	moved := false
 	for range 50 {
@@ -607,7 +607,7 @@ func TestPlanSwarmAction_NoAllies(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	behavior := rp.planSwarmAction(world, entity, grid)
 	name := behavior.Name()
@@ -642,7 +642,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	ally.AddComponent(world.Components.AI, allyAI)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	moved := false
 	for range 50 {
@@ -730,7 +730,7 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newSoloPlanner(testRNG)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	gotMove := false
 	gotWait := false
@@ -785,7 +785,7 @@ func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
 	}
 	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 	require.NoError(t, err)
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid := world.Components.GridElement.MustGet(member)
 	memberGrid.X = consts.Tile(6)
 	memberGrid.Y = consts.Tile(5)
 
@@ -834,7 +834,7 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 	}
 	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 	require.NoError(t, err)
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid := world.Components.GridElement.MustGet(member)
 	memberGrid.X = consts.Tile(6)
 	memberGrid.Y = consts.Tile(5)
 
@@ -871,7 +871,7 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 	}
 	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 	require.NoError(t, err)
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid := world.Components.GridElement.MustGet(member)
 	memberGrid.X = consts.Tile(8)
 	memberGrid.Y = consts.Tile(5)
 

@@ -22,18 +22,18 @@ func TestSpawnFieldItem(t *testing.T) {
 
 	// Nameコンポーネントの確認
 	require.True(t, item.HasComponent(world.Components.Name), "Nameコンポーネントが必要")
-	name := world.Components.Name.Get(item).(*gc.Name)
+	name := world.Components.Name.MustGet(item)
 	assert.Equal(t, "回復薬", name.Name, "アイテム名が正しくない")
 
 	// GridElementコンポーネントの確認
 	require.True(t, item.HasComponent(world.Components.GridElement), "GridElementコンポーネントが必要")
-	gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+	gridElement := world.Components.GridElement.MustGet(item)
 	assert.Equal(t, consts.Tile(5), gridElement.X, "行位置が正しくない")
 	assert.Equal(t, consts.Tile(10), gridElement.Y, "列位置が正しくない")
 
 	// SpriteRenderコンポーネントの確認
 	require.True(t, item.HasComponent(world.Components.SpriteRender), "SpriteRenderコンポーネントが必要")
-	sprite := world.Components.SpriteRender.Get(item).(*gc.SpriteRender)
+	sprite := world.Components.SpriteRender.MustGet(item)
 	assert.Equal(t, "field", sprite.SpriteSheetName, "スプライトシート名が正しくない")
 	assert.Equal(t, "healing_potion", sprite.SpriteKey, "スプライトキーが正しくない")
 	assert.Equal(t, gc.DepthNumRug, sprite.Depth, "描画深度が正しくない")
@@ -68,7 +68,7 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 		createdItems = append(createdItems, item)
 
 		// 位置の確認
-		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(item)
 		assert.Equal(t, itemData.row, gridElement.X, "行位置が正しくない")
 		assert.Equal(t, itemData.col, gridElement.Y, "列位置が正しくない")
 	}

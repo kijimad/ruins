@@ -32,7 +32,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 	if !playerEntity.HasComponent(world.Components.GridElement) {
 		return nil
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 
 	// プレイヤーの範囲内にある相互作用を検索
 	var interactablesToProcess []ecs.Entity
@@ -41,8 +41,8 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 		world.Components.GridElement,
 		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-		interactableGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		interactable := world.Components.Interactable.MustGet(entity)
+		interactableGrid := world.Components.GridElement.MustGet(entity)
 
 		// いずれかのインタラクションが範囲内にあれば候補に追加する
 		for _, interaction := range interactable.Interactions {
@@ -60,7 +60,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 
 	// 検索した自動実行相互作用を処理する
 	for _, interactableEntity := range interactablesToProcess {
-		interactable := world.Components.Interactable.Get(interactableEntity).(*gc.Interactable)
+		interactable := world.Components.Interactable.MustGet(interactableEntity)
 
 		for _, interaction := range interactable.Interactions {
 			config := interaction.Config()

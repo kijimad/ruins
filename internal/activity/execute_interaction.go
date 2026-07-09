@@ -76,7 +76,7 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 		return nil, fmt.Errorf("DoorInteractionだがDoorコンポーネントがない")
 	}
 
-	door := world.Components.Door.Get(doorEntity).(*gc.Door)
+	door := world.Components.Door.MustGet(doorEntity)
 
 	if door.IsOpen {
 		return Execute(&CloseDoorActivity{Target: doorEntity}, actor, world)

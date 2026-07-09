@@ -74,7 +74,7 @@ func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 		if hasPickable {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
@@ -144,7 +144,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}

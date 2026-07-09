@@ -17,7 +17,7 @@ func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
-	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+	doorComp := world.Components.Door.MustGet(doorEntity)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, true)
 }
 
@@ -27,7 +27,7 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
-	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+	doorComp := world.Components.Door.MustGet(doorEntity)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, false)
 }
 
@@ -35,7 +35,7 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 func LockAllDoors(world w.World) int {
 	locked := 0
 	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(doorEntity)
 		if doorComp.Locked {
 			return
 		}
@@ -52,7 +52,7 @@ func LockAllDoors(world w.World) int {
 func UnlockAllDoors(world w.World) int {
 	opened := 0
 	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(doorEntity)
 		doorComp.Locked = false
 		if !doorComp.IsOpen {
 			_ = OpenDoor(world, doorEntity)
@@ -64,13 +64,13 @@ func UnlockAllDoors(world w.World) int {
 
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
 func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error {
-	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+	doorComp := world.Components.Door.MustGet(doorEntity)
 	doorComp.Orientation = orientation
 	doorComp.IsOpen = isOpen
 
 	// スプライトキーを更新
 	if doorEntity.HasComponent(world.Components.SpriteRender) {
-		spriteRender := world.Components.SpriteRender.Get(doorEntity).(*gc.SpriteRender)
+		spriteRender := world.Components.SpriteRender.MustGet(doorEntity)
 
 		if isOpen {
 			if orientation == gc.DoorOrientationHorizontal {
@@ -173,7 +173,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 func DeleteDoorLockTriggers(world w.World) {
 	var toDelete []ecs.Entity
 	world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
-		interactable := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
+		interactable := world.Components.Interactable.MustGet(triggerEntity)
 		for _, interaction := range interactable.Interactions {
 			if _, ok := interaction.(gc.DoorLockInteraction); ok {
 				toDelete = append(toDelete, triggerEntity)

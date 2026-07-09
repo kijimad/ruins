@@ -12,7 +12,7 @@ import (
 // ApplyDamage は共通のダメージ処理を実行する
 // source から target へダメージを与え、死亡判定とログ出力を行う
 func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity) {
-	hp := world.Components.HP.Get(target).(*gc.HP)
+	hp := world.Components.HP.MustGet(target)
 
 	beforeHP := hp.Current
 	hp.Current -= damage
@@ -75,7 +75,7 @@ func isPlayerEntity(entity ecs.Entity, world w.World) bool {
 // target に amount 分のHPを回復させる
 // 実際の回復量を返す
 func ApplyHealing(world w.World, target ecs.Entity, amount int) int {
-	hp := world.Components.HP.Get(target).(*gc.HP)
+	hp := world.Components.HP.MustGet(target)
 
 	beforeHP := hp.Current
 	hp.Current += amount

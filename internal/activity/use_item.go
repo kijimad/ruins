@@ -143,7 +143,7 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 		amount = amt.Calc()
 	case gc.RatioAmount:
 		// 最大HPに対する割合で回復
-		hp := world.Components.HP.Get(actor).(*gc.HP)
+		hp := world.Components.HP.MustGet(actor)
 		amount = amt.Calc(hp.Max)
 	default:
 		return fmt.Errorf("未対応のAmounterタイプ: %T", amounter)
@@ -151,7 +151,7 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 
 	// 回復効果倍率を適用する
 	if actor.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+		mods := world.Components.CharModifiers.MustGet(actor)
 		amount = amount * mods.HealingEffect / 100
 	}
 	if amount < 1 {

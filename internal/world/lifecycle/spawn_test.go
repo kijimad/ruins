@@ -78,8 +78,8 @@ func TestSetMaxStats(t *testing.T) {
 			err := setMaxStats(world, entity)
 			require.NoError(t, err)
 
-			hp := world.Components.HP.Get(entity).(*gc.HP)
-			abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+			hp := world.Components.HP.MustGet(entity)
+			abils := world.Components.Abilities.MustGet(entity)
 
 			assert.Equal(t, tt.vitality, abils.Vitality.Total, "体力のTotal値が正しく初期化されていない")
 			assert.Equal(t, tt.strength, abils.Strength.Total, "力のTotal値が正しく初期化されていない")
@@ -128,8 +128,8 @@ func TestFullRecover(t *testing.T) {
 	err := FullRecover(world, entity)
 	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
-	hp := world.Components.HP.Get(entity).(*gc.HP)
-	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+	hp := world.Components.HP.MustGet(entity)
+	abils := world.Components.Abilities.MustGet(entity)
 
 	assert.Equal(t, 10, abils.Vitality.Total, "体力のTotal値が正しく設定されていない")
 	assert.Equal(t, 8, abils.Strength.Total, "力のTotal値が正しく設定されていない")
@@ -230,7 +230,7 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	// DropTableコンポーネントが付与されていることを確認
 	assert.True(t, enemy.HasComponent(world.Components.DropTable), "火の玉はDropTableコンポーネントを持つべき")
 
-	dropTable := world.Components.DropTable.Get(enemy).(*gc.DropTable)
+	dropTable := world.Components.DropTable.MustGet(enemy)
 	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
 }
 
@@ -250,7 +250,7 @@ func TestSpawnEnemy_AI(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.True(t, enemy.HasComponent(world.Components.AI))
-	ai := world.Components.AI.Get(enemy).(*gc.AI)
+	ai := world.Components.AI.MustGet(enemy)
 	solo := ai.Planner.(*gc.SoloAI)
 	assert.Equal(t, gc.CombatAttack, solo.CombatDefault)
 	assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
@@ -266,7 +266,7 @@ func TestSpawnItem(t *testing.T) {
 		item, err := SpawnBackpackItem(world, "回復薬", 5)
 		require.NoError(t, err)
 
-		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		stackableComp := world.Components.Stackable.MustGet(item)
 		assert.Equal(t, 5, stackableComp.Count)
 	})
 
@@ -330,14 +330,14 @@ func TestSpawnDoor(t *testing.T) {
 
 		// SpriteRenderを確認（entity=0は有効なエンティティIDなので、コンポーネントの存在でチェック）
 		require.True(t, door.HasComponent(world.Components.SpriteRender))
-		sprite := world.Components.SpriteRender.Get(door).(*gc.SpriteRender)
+		sprite := world.Components.SpriteRender.MustGet(door)
 		assert.Equal(t, "field", sprite.SpriteSheetName)
 		assert.Equal(t, "door_vertical_closed", sprite.SpriteKey)
 		assert.Equal(t, gc.DepthNumTaller, sprite.Depth)
 
 		// Doorコンポーネントを確認
 		require.True(t, door.HasComponent(world.Components.Door))
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(door)
 		assert.False(t, doorComp.IsOpen)
 		assert.Equal(t, gc.DoorOrientationVertical, doorComp.Orientation)
 
@@ -354,11 +354,11 @@ func TestSpawnDoor(t *testing.T) {
 		require.NoError(t, err)
 
 		// SpriteRenderを確認
-		sprite := world.Components.SpriteRender.Get(door).(*gc.SpriteRender)
+		sprite := world.Components.SpriteRender.MustGet(door)
 		assert.Equal(t, "door_horizontal_closed", sprite.SpriteKey)
 
 		// Doorコンポーネントを確認
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(door)
 		assert.Equal(t, gc.DoorOrientationHorizontal, doorComp.Orientation)
 	})
 }
@@ -385,7 +385,7 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 		// DoorLockTriggerは削除されている
 		count := 0
 		world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(entity ecs.Entity) {
-			interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+			interactable := world.Components.Interactable.MustGet(entity)
 			for _, interaction := range interactable.Interactions {
 				if _, ok := interaction.(gc.DoorLockInteraction); ok {
 					count++

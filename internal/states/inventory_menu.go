@@ -260,7 +260,7 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 	items := make([]inventoryItemData, len(entities))
 
 	for i, entity := range entities {
-		name := world.Components.Name.Get(entity).(*gc.Name).Name
+		name := world.Components.Name.MustGet(entity).Name
 
 		item := inventoryItemData{
 			Entity: entity,
@@ -269,13 +269,13 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 
 		// Stackableであれば個数を表示する
 		if entity.HasComponent(world.Components.Stackable) {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.MustGet(entity)
 			item.Count = fmt.Sprintf("%d", stackable.Count)
 		}
 
 		// 説明文
 		if entity.HasComponent(world.Components.Description) {
-			desc := world.Components.Description.Get(entity).(*gc.Description)
+			desc := world.Components.Description.MustGet(entity)
 			item.Desc = desc.Description
 		}
 
@@ -292,7 +292,7 @@ func (st *InventoryMenuState) queryByOwner(world w.World, owner ecs.Entity) []ec
 		world.Components.LocationInBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+		loc := world.Components.LocationInBackpack.MustGet(entity)
 		if loc.Owner == owner {
 			result = append(result, entity)
 		}
@@ -477,7 +477,7 @@ func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) [
 	}
 	if entity.HasComponent(world.Components.Book) {
 		item := actionItem{Kind: actionRead, Label: "読む", Enabled: true}
-		book := world.Components.Book.Get(entity).(*gc.Book)
+		book := world.Components.Book.MustGet(entity)
 
 		var skills *gc.Skills
 		if playerEntity, err := query.GetPlayerEntity(world); err == nil {
@@ -563,7 +563,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		// Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する
-		book := world.Components.Book.Get(entity).(*gc.Book)
+		book := world.Components.Book.MustGet(entity)
 		remaining := book.Effort.Max - book.Effort.Current
 		if remaining <= 0 {
 			remaining = 1
@@ -582,7 +582,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+		playerGrid := world.Components.GridElement.MustGet(playerEntity)
 		destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
 		_, err = activity.Execute(&activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)
 		if err != nil {

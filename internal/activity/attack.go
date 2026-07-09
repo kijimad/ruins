@@ -239,7 +239,7 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	if !entity.HasComponent(world.Components.CharModifiers) {
 		return 100
 	}
-	effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+	effects := world.Components.CharModifiers.MustGet(entity)
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
 		return 100
@@ -261,7 +261,7 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 	if !target.HasComponent(world.Components.CharModifiers) {
 		return damage
 	}
-	effects := world.Components.CharModifiers.Get(target).(*gc.CharModifiers)
+	effects := world.Components.CharModifiers.MustGet(target)
 	mult, ok := effects.ElementResist[element]
 	if !ok {
 		return damage

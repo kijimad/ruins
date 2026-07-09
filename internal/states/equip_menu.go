@@ -290,7 +290,7 @@ func (st *EquipMenuState) fetchEquipProps(world w.World) equipScreenProps {
 	items := make([]equipItemData, len(entities))
 
 	for i, entity := range entities {
-		name := world.Components.Name.Get(entity).(*gc.Name).Name
+		name := world.Components.Name.MustGet(entity).Name
 		items[i] = equipItemData{
 			ItemName:    name,
 			IsEquipItem: true,
@@ -350,7 +350,7 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) [
 	for i, weapon := range weapons {
 		itemName := ""
 		if weapon != nil {
-			itemName = world.Components.Name.Get(*weapon).(*gc.Name).Name
+			itemName = world.Components.Name.MustGet(*weapon).Name
 		}
 		items = append(items, equipItemData{
 			SlotLabel:  weaponLabels[i],
@@ -370,7 +370,7 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) [
 	for i, slot := range armorSlots {
 		itemName := ""
 		if slot != nil {
-			itemName = world.Components.Name.Get(*slot).(*gc.Name).Name
+			itemName = world.Components.Name.MustGet(*slot).Name
 		}
 		items = append(items, equipItemData{
 			SlotLabel:  armorLabels[i],
@@ -422,7 +422,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 			world.Components.LocationInBackpack,
 			world.Components.Wearable,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
+			wearable := world.Components.Wearable.MustGet(entity)
 			if wearable != nil && wearable.EquipmentCategory == targetCategory {
 				items = append(items, entity)
 			}
@@ -751,7 +751,7 @@ func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.C
 	columnWidths := []int{50, 30, 40}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
-	abils := world.Components.Abilities.Get(member).(*gc.Abilities)
+	abils := world.Components.Abilities.MustGet(member)
 
 	table := styled.NewTableContainer(columnWidths, res)
 	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", abils.Vitality.Total), fmt.Sprintf("(%+d)", abils.Vitality.Modifier)}, aligns, nil, res)
@@ -771,7 +771,7 @@ func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabD
 	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
 		item := tabs[tabIndex].Items[itemIndex]
 		if item.Entity != nil && item.Entity.HasComponent(world.Components.Description) {
-			descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)
+			descComp := world.Components.Description.MustGet(*item.Entity)
 			desc = descComp.Description
 		}
 	}
@@ -791,7 +791,7 @@ func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipIt
 	if itemIndex < len(items) {
 		item := items[itemIndex]
 		if item.EquipEntity.HasComponent(world.Components.Description) {
-			descComp := world.Components.Description.Get(item.EquipEntity).(*gc.Description)
+			descComp := world.Components.Description.MustGet(item.EquipEntity)
 			desc = descComp.Description
 		}
 	}

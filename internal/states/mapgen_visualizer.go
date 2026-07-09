@@ -132,7 +132,7 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 	world.Manager.Join(
 		world.Components.Camera,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera := world.Components.Camera.Get(entity).(*gc.Camera)
+		camera := world.Components.Camera.MustGet(entity)
 		camera.Scale = scale
 		camera.ScaleTo = scale
 		camera.X = centerX
@@ -207,7 +207,7 @@ func (st *MapGenVisualizerState) hidePlayer(world w.World) {
 		world.Components.Player,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ge := world.Components.GridElement.MustGet(entity)
 		ge.X = -100
 		ge.Y = -100
 	}))

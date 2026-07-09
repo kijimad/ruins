@@ -51,7 +51,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// エンティティから情報を取得
 		enemyEntity := enemies[0]
 		name := query.GetEntityName(enemyEntity, world)
-		grid := world.Components.GridElement.Get(enemyEntity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(enemyEntity)
 
 		assert.Equal(t, "ゴブリン", name)
 		assert.Equal(t, consts.Tile(12), grid.X)
@@ -152,7 +152,7 @@ func TestGetVisibleItems(t *testing.T) {
 		// エンティティから情報を取得
 		itemEntity := items[0]
 		name := query.GetEntityName(itemEntity, world)
-		grid := world.Components.GridElement.Get(itemEntity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(itemEntity)
 		desc := world.Components.Description.Get(itemEntity)
 
 		assert.Equal(t, "回復薬", name)

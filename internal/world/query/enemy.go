@@ -22,7 +22,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
@@ -32,7 +32,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 		world.Components.GridElement,
 		world.Components.FactionEnemy,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(entity)
 		enemyX := int(gridElement.X)
 		enemyY := int(gridElement.Y)
 
@@ -76,7 +76,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
@@ -86,7 +86,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 		world.Components.GridElement,
 		world.Components.LocationOnField,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(entity)
 		itemX := int(gridElement.X)
 		itemY := int(gridElement.Y)
 

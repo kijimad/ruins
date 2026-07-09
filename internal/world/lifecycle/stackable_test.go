@@ -24,7 +24,7 @@ func TestGetAmount(t *testing.T) {
 	// 素材の数量を取得
 	entity, found := query.FindStackableInInventory(world, "鉄")
 	require.True(t, found, "素材が見つからない")
-	stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+	stackable := world.Components.Stackable.MustGet(entity)
 	assert.Equal(t, 10, stackable.Count, "素材の数量が正しく取得できない")
 
 	// 存在しない素材の数量を取得
@@ -51,7 +51,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	require.NoError(t, err)
 	entity, found := query.FindStackableInInventory(world, "鉄")
 	require.True(t, found)
-	stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+	stackable := world.Components.Stackable.MustGet(entity)
 	assert.Equal(t, 15, stackable.Count, "数量増加が正しく動作しない")
 
 	// 数量を減少
@@ -59,7 +59,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	require.NoError(t, err)
 	entity, found = query.FindStackableInInventory(world, "鉄")
 	require.True(t, found)
-	stackable = world.Components.Stackable.Get(entity).(*gc.Stackable)
+	stackable = world.Components.Stackable.MustGet(entity)
 	assert.Equal(t, 12, stackable.Count, "数量減少が正しく動作しない")
 
 	// 大量追加テスト（制限なし）
@@ -67,7 +67,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	require.NoError(t, err)
 	entity, found = query.FindStackableInInventory(world, "鉄")
 	require.True(t, found)
-	stackable = world.Components.Stackable.Get(entity).(*gc.Stackable)
+	stackable = world.Components.Stackable.MustGet(entity)
 	assert.Equal(t, 1012, stackable.Count, "数量が正しく加算されない")
 
 	// 所持数を超えて減らそうとするとエラー
@@ -77,7 +77,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	// エンティティは残っている
 	entity, found = query.FindStackableInInventory(world, "鉄")
 	require.True(t, found)
-	stackable = world.Components.Stackable.Get(entity).(*gc.Stackable)
+	stackable = world.Components.Stackable.MustGet(entity)
 	assert.Equal(t, 1012, stackable.Count, "個数は変更されていないべき")
 }
 
@@ -115,10 +115,10 @@ func TestMergeStackableItems(t *testing.T) {
 			world.Components.LocationInBackpack,
 			world.Components.Name,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			name := world.Components.Name.Get(entity).(*gc.Name)
+			name := world.Components.Name.MustGet(entity)
 			if name.Name == "パン" {
 				breadCount++
-				stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+				stackable := world.Components.Stackable.MustGet(entity)
 				totalCount += stackable.Count
 			}
 		}))
@@ -146,7 +146,7 @@ func TestMergeStackableItems(t *testing.T) {
 
 		// アイテムがそのまま残っている
 		assert.True(t, item.HasComponent(world.Components.Name), "アイテムがそのまま残る")
-		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		stackableComp := world.Components.Stackable.MustGet(item)
 		assert.Equal(t, 2, stackableComp.Count, "個数は変わらない")
 	})
 

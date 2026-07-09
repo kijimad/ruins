@@ -4,7 +4,6 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -117,7 +116,7 @@ func TestConfirmName_ChangesPlayerName(t *testing.T) {
 
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
+	nameComp := world.Components.Name.MustGet(playerEntity)
 	assert.Equal(t, "NewName", nameComp.Name)
 }
 
@@ -137,7 +136,7 @@ func TestConfirmName_Japanese(t *testing.T) {
 
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
+	nameComp := world.Components.Name.MustGet(playerEntity)
 	assert.Equal(t, "太郎", nameComp.Name)
 }
 
@@ -162,7 +161,7 @@ func TestConfirmName_InvalidLength(t *testing.T) {
 	// 名前は変更されていない
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
+	nameComp := world.Components.Name.MustGet(playerEntity)
 	assert.Equal(t, "Ash", nameComp.Name)
 }
 
@@ -187,7 +186,7 @@ func TestConfirmName_TooLong(t *testing.T) {
 	// 名前は変更されていない
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
+	nameComp := world.Components.Name.MustGet(playerEntity)
 	assert.Equal(t, "Ash", nameComp.Name)
 }
 

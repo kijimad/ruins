@@ -56,8 +56,8 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			continue
 		}
 
-		dropTableComp := world.Components.DropTable.Get(entity).(*gc.DropTable)
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		dropTableComp := world.Components.DropTable.MustGet(entity)
+		gridElement := world.Components.GridElement.MustGet(entity)
 
 		dropTable, err := raw.GetDropTable(rawMaster, dropTableComp.Name)
 		if err != nil {
@@ -110,12 +110,12 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		if !entity.HasComponent(world.Components.GridElement) {
 			continue
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		owner := entity
 		world.Manager.Join(
 			world.Components.LocationInBackpack,
 		).Visit(ecs.Visit(func(item ecs.Entity) {
-			loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+			loc := world.Components.LocationInBackpack.MustGet(item)
 			if loc.Owner != owner {
 				return
 			}
@@ -128,8 +128,8 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	for _, entity := range toDelete {
 		// スプライトフェードアウトエフェクトを生成
 		if entity.HasComponent(world.Components.SpriteRender) && entity.HasComponent(world.Components.GridElement) {
-			spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
-			gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+			spriteRender := world.Components.SpriteRender.MustGet(entity)
+			gridElement := world.Components.GridElement.MustGet(entity)
 
 			effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
 			effectEntity := world.Manager.NewEntity()

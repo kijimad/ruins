@@ -502,7 +502,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		if !e.SpeakerEntity.HasComponent(world.Components.Name) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
 		}
-		nameComp := world.Components.Name.Get(e.SpeakerEntity).(*gc.Name)
+		nameComp := world.Components.Name.MustGet(e.SpeakerEntity)
 		speakerName := nameComp.Name
 
 		// NPCの種類に応じて専用ステートを返す

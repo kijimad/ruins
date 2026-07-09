@@ -232,7 +232,7 @@ func ProcessTurn(world w.World) {
 	var toRemove []ecs.Entity
 
 	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
-		comp := world.Components.Activity.Get(entity).(*gc.Activity)
+		comp := world.Components.Activity.MustGet(entity)
 
 		// アクティブなアクティビティのみ処理
 		if !IsActive(comp) {
@@ -331,9 +331,9 @@ func getPassCostAt(world w.World, x, y int) int {
 		world.Components.GridElement,
 		world.Components.PassCost,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		if int(grid.X) == x && int(grid.Y) == y {
-			mc := world.Components.PassCost.Get(entity).(*gc.PassCost)
+			mc := world.Components.PassCost.MustGet(entity)
 			total += mc.Value
 		}
 	}))
@@ -345,6 +345,6 @@ func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
 	if !entity.HasComponent(world.Components.TurnBased) {
 		return 0, fmt.Errorf("TurnBasedコンポーネントが見つからない: entity=%v", entity)
 	}
-	turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+	turnBased := world.Components.TurnBased.MustGet(entity)
 	return turnBased.AP.Max, nil
 }

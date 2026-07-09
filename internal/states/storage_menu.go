@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
@@ -156,7 +155,7 @@ type storageItemData struct {
 
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 	storageName := query.GetEntityName(st.storageEntity, world)
-	wc := world.Components.WeightCapacity.Get(st.storageEntity).(*gc.WeightCapacity)
+	wc := world.Components.WeightCapacity.MustGet(st.storageEntity)
 	weightText := fmt.Sprintf("%.1f / %.1f kg", wc.Current, wc.Max)
 
 	storeTabs := st.createBackpackItemData(world)
@@ -208,7 +207,7 @@ func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Enti
 			Name:   name,
 		}
 		if entity.HasComponent(world.Components.Stackable) {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.MustGet(entity)
 			item.Count = fmt.Sprintf("%d", stackable.Count)
 		}
 		items[i] = item

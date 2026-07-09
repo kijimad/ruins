@@ -53,7 +53,7 @@ func TestExecuteEndRun(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, ApplyProfession(world, player, prof))
 
-	walletBefore := world.Components.Wallet.Get(player).(*gc.Wallet).Currency
+	walletBefore := world.Components.Wallet.MustGet(player).Currency
 
 	// プレビュー → 実行
 	result, err := PreviewEndRun(world, player)
@@ -63,7 +63,7 @@ func TestExecuteEndRun(t *testing.T) {
 	require.NoError(t, err)
 
 	// 所持金が増えていることを確認する
-	walletAfter := world.Components.Wallet.Get(player).(*gc.Wallet).Currency
+	walletAfter := world.Components.Wallet.MustGet(player).Currency
 	assert.Equal(t, walletBefore+result.Total, walletAfter, "売却金額が所持金に加算されている")
 
 	// 職業が再適用されていることを確認する

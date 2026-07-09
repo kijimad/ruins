@@ -30,7 +30,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		world.Components.Abilities,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		entity.RemoveComponent(world.Components.StatsChanged)
-		abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+		abils := world.Components.Abilities.MustGet(entity)
 
 		// Abilities初期化
 		{
@@ -53,14 +53,14 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			world.Components.LocationEquipped,
 			world.Components.Wearable,
 		).Visit(ecs.Visit(func(item ecs.Entity) {
-			equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
+			equipped := world.Components.LocationEquipped.MustGet(item)
 
 			// このエンティティの装備のみ処理
 			if equipped.Owner != entity {
 				return
 			}
 
-			wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
+			wearable := world.Components.Wearable.MustGet(item)
 
 			abils.Defense.Modifier += wearable.Defense
 			abils.Vitality.Modifier += wearable.EquipBonus.Vitality
@@ -72,7 +72,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 
 		// 健康ペナルティを加算
 		if entity.HasComponent(world.Components.HealthStatus) {
-			hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+			hs := world.Components.HealthStatus.MustGet(entity)
 			abils.Vitality.Modifier += hs.GetStatModifier(gc.StatVitality)
 			abils.Strength.Modifier += hs.GetStatModifier(gc.StatStrength)
 			abils.Sensation.Modifier += hs.GetStatModifier(gc.StatSensation)
@@ -91,10 +91,10 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 
 		// スキル効果倍率を再計算する。能力値変更後に行う
 		if entity.HasComponent(world.Components.Skills) {
-			skills := world.Components.Skills.Get(entity).(*gc.Skills)
+			skills := world.Components.Skills.MustGet(entity)
 			var hs *gc.HealthStatus
 			if entity.HasComponent(world.Components.HealthStatus) {
-				hs = world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+				hs = world.Components.HealthStatus.MustGet(entity)
 			}
 			effects := gc.RecalculateCharModifiers(skills, abils, hs)
 			entity.AddComponent(world.Components.CharModifiers, effects)
@@ -102,7 +102,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 
 		// HP/Poolsを更新
 		if entity.HasComponent(world.Components.HP) {
-			hp := world.Components.HP.Get(entity).(*gc.HP)
+			hp := world.Components.HP.MustGet(entity)
 			hp.Max = maxHP(abils)
 			hp.Current = min(hp.Max, hp.Current)
 		}
@@ -118,7 +118,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 				updateErr = err
 				return
 			}
-			turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+			turnBased := world.Components.TurnBased.MustGet(entity)
 
 			// 最大APを更新
 			turnBased.AP.Max = maxAP

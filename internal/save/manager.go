@@ -185,7 +185,7 @@ func (sm *SerializationManager) extractMarkers(entity ecs.Entity, c *gc.Componen
 		comp.FactionAllyData = emptyMarker()
 	}
 	if entity.HasComponent(c.LocationInBackpack) {
-		backpack := c.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+		backpack := c.LocationInBackpack.MustGet(entity)
 		ownerStableID := sm.stableIDManager.GetStableID(backpack.Owner)
 		comp.LocationInBackpack = &oapi.SaveDataLocationInBackpackComponent{
 			OwnerRef: stableIDToSaveData(ownerStableID),
@@ -195,7 +195,7 @@ func (sm *SerializationManager) extractMarkers(entity ecs.Entity, c *gc.Componen
 		comp.StatsChanged = emptyMarker()
 	}
 	if entity.HasComponent(c.Stackable) {
-		stackable := c.Stackable.Get(entity).(*gc.Stackable)
+		stackable := c.Stackable.MustGet(entity)
 		m := oapi.SaveDataMarkerComponent{"Count": stackable.Count}
 		comp.Stackable = &m
 	}
@@ -211,122 +211,122 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 
 	// データコンポーネント
 	if entity.HasComponent(c.Name) {
-		name := c.Name.Get(entity).(*gc.Name)
+		name := c.Name.MustGet(entity)
 		comp.Name = &oapi.SaveDataNameComponent{Name: name.Name}
 	}
 	if entity.HasComponent(c.Description) {
-		desc := c.Description.Get(entity).(*gc.Description)
+		desc := c.Description.MustGet(entity)
 		comp.Description = &oapi.SaveDataDescriptionComponent{Description: desc.Description}
 	}
 	if entity.HasComponent(c.HP) {
-		sd := hpToSaveData(*c.HP.Get(entity).(*gc.HP))
+		sd := hpToSaveData(*c.HP.MustGet(entity))
 		comp.HP = &sd
 	}
 	if entity.HasComponent(c.WeightCapacity) {
-		sd := weightCapacityToSaveData(*c.WeightCapacity.Get(entity).(*gc.WeightCapacity))
+		sd := weightCapacityToSaveData(*c.WeightCapacity.MustGet(entity))
 		comp.WeightCapacity = &sd
 	}
 	if entity.HasComponent(c.TurnBased) {
-		tb := c.TurnBased.Get(entity).(*gc.TurnBased)
+		tb := c.TurnBased.MustGet(entity)
 		sd := turnBasedToSaveData(*tb)
 		comp.TurnBased = &sd
 	}
 	if entity.HasComponent(c.Abilities) {
-		ab := c.Abilities.Get(entity).(*gc.Abilities)
+		ab := c.Abilities.MustGet(entity)
 		sd := abilitiesToSaveData(*ab)
 		comp.Abilities = &sd
 	}
 	if entity.HasComponent(c.HealthStatus) {
-		hs := c.HealthStatus.Get(entity).(*gc.HealthStatus)
+		hs := c.HealthStatus.MustGet(entity)
 		sd := healthStatusToSaveData(*hs)
 		comp.HealthStatus = &sd
 	}
 	if entity.HasComponent(c.Skills) {
-		sk := c.Skills.Get(entity).(*gc.Skills)
+		sk := c.Skills.MustGet(entity)
 		sd := skillsToSaveData(*sk)
 		comp.Skills = &sd
 	}
 
 	// 表示コンポーネント
 	if entity.HasComponent(c.Camera) {
-		cam := c.Camera.Get(entity).(*gc.Camera)
+		cam := c.Camera.MustGet(entity)
 		sd := cameraToSaveData(*cam)
 		comp.Camera = &sd
 	}
 	if entity.HasComponent(c.GridElement) {
-		ge := c.GridElement.Get(entity).(*gc.GridElement)
+		ge := c.GridElement.MustGet(entity)
 		sd := gridElementToSaveData(*ge)
 		comp.GridElement = &sd
 	}
 	if entity.HasComponent(c.SpriteRender) {
-		sr := c.SpriteRender.Get(entity).(*gc.SpriteRender)
+		sr := c.SpriteRender.MustGet(entity)
 		sd := spriteRenderToSaveData(*sr)
 		comp.SpriteRender = &sd
 	}
 	if entity.HasComponent(c.LightSource) {
-		ls := c.LightSource.Get(entity).(*gc.LightSource)
+		ls := c.LightSource.MustGet(entity)
 		sd := lightSourceToSaveData(*ls)
 		comp.LightSource = &sd
 	}
 
 	// アイテム属性コンポーネント
 	if entity.HasComponent(c.Wearable) {
-		w := c.Wearable.Get(entity).(*gc.Wearable)
+		w := c.Wearable.MustGet(entity)
 		sd := wearableToSaveData(*w)
 		comp.Wearable = &sd
 	}
 	if entity.HasComponent(c.Value) {
-		v := c.Value.Get(entity).(*gc.Value)
+		v := c.Value.MustGet(entity)
 		comp.Value = &oapi.SaveDataValueComponent{Value: int32(v.Value)}
 	}
 	if entity.HasComponent(c.Melee) {
-		m := c.Melee.Get(entity).(*gc.Melee)
+		m := c.Melee.MustGet(entity)
 		sd := meleeToSaveData(*m)
 		comp.Melee = &sd
 	}
 	if entity.HasComponent(c.Fire) {
-		f := c.Fire.Get(entity).(*gc.Fire)
+		f := c.Fire.MustGet(entity)
 		sd := fireToSaveData(*f)
 		comp.Fire = &sd
 	}
 	if entity.HasComponent(c.Recipe) {
-		r := c.Recipe.Get(entity).(*gc.Recipe)
+		r := c.Recipe.MustGet(entity)
 		sd := recipeToSaveData(*r)
 		comp.Recipe = &sd
 	}
 	if entity.HasComponent(c.Ammo) {
-		a := c.Ammo.Get(entity).(*gc.Ammo)
+		a := c.Ammo.MustGet(entity)
 		sd := ammoToSaveData(*a)
 		comp.Ammo = &sd
 	}
 
 	// アイテム効果コンポーネント
 	if entity.HasComponent(c.Consumable) {
-		con := c.Consumable.Get(entity).(*gc.Consumable)
+		con := c.Consumable.MustGet(entity)
 		sd := consumableToSaveData(*con)
 		comp.Consumable = &sd
 	}
 	if entity.HasComponent(c.ProvidesHealing) {
-		ph := c.ProvidesHealing.Get(entity).(*gc.ProvidesHealing)
+		ph := c.ProvidesHealing.MustGet(entity)
 		sd := providesHealingToSaveData(*ph)
 		comp.ProvidesHealing = &sd
 	}
 	if entity.HasComponent(c.ProvidesNutrition) {
-		pn := c.ProvidesNutrition.Get(entity).(*gc.ProvidesNutrition)
+		pn := c.ProvidesNutrition.MustGet(entity)
 		comp.ProvidesNutrition = &oapi.SaveDataProvidesNutritionComponent{Amount: int32(pn.Amount)}
 	}
 	if entity.HasComponent(c.InflictsDamage) {
-		id := c.InflictsDamage.Get(entity).(*gc.InflictsDamage)
+		id := c.InflictsDamage.MustGet(entity)
 		comp.InflictsDamage = &oapi.SaveDataInflictsDamageComponent{Amount: int32(id.Amount)}
 	}
 	if entity.HasComponent(c.Wallet) {
-		wal := c.Wallet.Get(entity).(*gc.Wallet)
+		wal := c.Wallet.MustGet(entity)
 		comp.Wallet = &oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
 	}
 
 	// 戦闘コンポーネント
 	if entity.HasComponent(c.CommandTable) {
-		ct := c.CommandTable.Get(entity).(*gc.CommandTable)
+		ct := c.CommandTable.MustGet(entity)
 		comp.CommandTable = &oapi.SaveDataCommandTableComponent{Name: ct.Name}
 	}
 
@@ -335,13 +335,13 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{}
 	}
 	if entity.HasComponent(c.AI) {
-		ai := c.AI.Get(entity).(*gc.AI)
+		ai := c.AI.MustGet(entity)
 		sd := aiToSaveData(*ai)
 		comp.SquadPolicy = &sd
 	}
 	// エンティティ参照コンポーネント (LocationEquipped)
 	if entity.HasComponent(c.LocationEquipped) {
-		equipped := c.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		equipped := c.LocationEquipped.MustGet(entity)
 		ownerStableID := sm.stableIDManager.GetStableID(equipped.Owner)
 		comp.LocationEquipped = &oapi.SaveDataLocationEquippedComponent{
 			OwnerRef:      stableIDToSaveData(ownerStableID),
@@ -393,7 +393,7 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 			if !exists {
 				return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
 			}
-			backpack := c.LocationInBackpack.Get(entry.entity).(*gc.LocationInBackpack)
+			backpack := c.LocationInBackpack.MustGet(entry.entity)
 			backpack.Owner = ownerEntity
 		}
 
@@ -404,7 +404,7 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 			if !exists {
 				return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
 			}
-			equipped := c.LocationEquipped.Get(entry.entity).(*gc.LocationEquipped)
+			equipped := c.LocationEquipped.MustGet(entry.entity)
 			equipped.Owner = ownerEntity
 		}
 	}

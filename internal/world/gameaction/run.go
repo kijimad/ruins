@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sort"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -40,7 +39,7 @@ func PreviewEndRun(world w.World, playerEntity ecs.Entity) (AutoSellResult, erro
 // 通貨を加算し、バックパック内アイテムを全て削除し、職業を再適用する。
 func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 	if total > 0 {
-		wallet := world.Components.Wallet.Get(playerEntity).(*gc.Wallet)
+		wallet := world.Components.Wallet.MustGet(playerEntity)
 		wallet.Currency += total
 	}
 
@@ -65,7 +64,7 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult {
 	sellPriceMod := 100
 	if playerEntity.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+		mods := world.Components.CharModifiers.MustGet(playerEntity)
 		sellPriceMod = mods.SellPrice
 	}
 
@@ -76,13 +75,13 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := ""
 		if entity.HasComponent(world.Components.Name) {
-			name = world.Components.Name.Get(entity).(*gc.Name).Name
+			name = world.Components.Name.MustGet(entity).Name
 		}
 
 		price := 0
 		if entity.HasComponent(world.Components.Value) {
 			count := query.GetEntityCount(world, entity)
-			baseValue := world.Components.Value.Get(entity).(*gc.Value).Value
+			baseValue := world.Components.Value.MustGet(entity).Value
 			price = query.CalculateSellPrice(baseValue) * count * sellPriceMod / 100
 		}
 
@@ -102,7 +101,7 @@ func reapplyProfession(world w.World, playerEntity ecs.Entity) error {
 	if !playerEntity.HasComponent(world.Components.Profession) {
 		return fmt.Errorf("プレイヤーにProfessionコンポーネントがない")
 	}
-	profComp := world.Components.Profession.Get(playerEntity).(*gc.Profession)
+	profComp := world.Components.Profession.MustGet(playerEntity)
 
 	prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID)
 	if err != nil {

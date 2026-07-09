@@ -87,7 +87,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	playerCount := 0
 	newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
 		playerCount++
-		name := newWorld.Components.Name.Get(entity).(*gc.Name)
+		name := newWorld.Components.Name.MustGet(entity)
 		assert.Equal(t, "テストプレイヤー", name.Name)
 	}))
 

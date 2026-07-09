@@ -82,7 +82,7 @@ func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 	tileSize := float64(consts.TileSize)
 
 	// プレイヤーを移動させる
-	grid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(player)
 	grid.X = 8
 	grid.Y = 3
 

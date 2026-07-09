@@ -276,8 +276,8 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 
 	// エフェクトの内容を確認
 	world.Manager.Join(world.Components.VisualEffect, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ve := world.Components.VisualEffect.MustGet(entity)
+		ge := world.Components.GridElement.MustGet(entity)
 
 		require.Len(t, ve.Effects, 1)
 		effect, ok := ve.Effects[0].(*gc.SpriteFadeoutEffect)

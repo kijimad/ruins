@@ -24,11 +24,11 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		require.NoError(t, err)
 
 		// 初期Strengthを取得
-		abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+		abils := world.Components.Abilities.MustGet(player)
 		initialStrength := abils.Strength.Total
 
 		// 健康状態に低体温を追加（Strengthにペナルティ）
-		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.MustGet(player)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -47,7 +47,7 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		require.NoError(t, err)
 
 		// 能力値にペナルティが反映されていることを確認
-		abils = world.Components.Abilities.Get(player).(*gc.Abilities)
+		abils = world.Components.Abilities.MustGet(player)
 		assert.Less(t, abils.Strength.Total, initialStrength, "低体温でStrengthが減少するべき")
 	})
 }
@@ -64,7 +64,7 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		require.NoError(t, err)
 
 		// 現在APを非常に高い値に設定（通常ではありえない値）
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.MustGet(player)
 		turnBased.AP.Current = 9999
 		turnBased.AP.Max = 9999
 
@@ -77,7 +77,7 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		require.NoError(t, err)
 
 		// APが正しく切り詰められていることを確認
-		turnBased = world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased = world.Components.TurnBased.MustGet(player)
 		assert.Equal(t, turnBased.AP.Max, turnBased.AP.Current, "現在APは最大APに切り詰められるべき")
 		assert.Less(t, turnBased.AP.Current, 9999, "APが正しく再計算されるべき")
 	})
@@ -210,7 +210,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		require.NoError(t, err)
 
 		// APが再計算されていることを確認
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.MustGet(player)
 		assert.Greater(t, turnBased.AP.Max, initialAP, "装備追加でAP.Maxが増加するべき")
 
 		// 装備を外す（StatsChangedフラグが再度立つ）
@@ -227,8 +227,8 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		assert.False(t, player.HasComponent(world.Components.StatsChanged), "StatsChangedSystemの実行後、フラグが削除されるべき")
 
 		// APが元に戻っていることを確認
-		turnBased = world.Components.TurnBased.Get(player).(*gc.TurnBased)
-		abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+		turnBased = world.Components.TurnBased.MustGet(player)
+		abils := world.Components.Abilities.MustGet(player)
 		t.Logf("装備削除後: Agility.Total=%d, AP.Max=%d, 期待AP=%d", abils.Agility.Total, turnBased.AP.Max, initialAP)
 		assert.Equal(t, initialAP, turnBased.AP.Max, "装備削除でAP.Maxが元に戻るべき")
 	})
@@ -280,7 +280,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// HPが再計算されていることを確認
 		// 体力10→20で: HP = 30 + (20*8 + 5 + 5) = 200
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.MustGet(player)
 		assert.Greater(t, hp.Max, initialHP, "装備追加でHP.Maxが増加するべき")
 	})
 

@@ -27,14 +27,14 @@ func (sys *CameraSystem) Update(world w.World) error {
 		world.Components.Player,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
+		playerGridElement = world.Components.GridElement.MustGet(entity)
 	}))
 
 	// カメラのズーム処理と追従処理
 	world.Manager.Join(
 		world.Components.Camera,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera := world.Components.Camera.Get(entity).(*gc.Camera)
+		camera := world.Components.Camera.MustGet(entity)
 
 		// プレイヤー位置をピクセル座標に変換してカメラの目標位置に設定
 		if playerGridElement != nil {

@@ -1,7 +1,6 @@
 package query
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -27,6 +26,6 @@ func GetItemValue(world w.World, entity ecs.Entity) int {
 	if !entity.HasComponent(world.Components.Value) {
 		return 0
 	}
-	value := world.Components.Value.Get(entity).(*gc.Value)
+	value := world.Components.Value.MustGet(entity)
 	return value.Value
 }

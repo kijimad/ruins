@@ -119,7 +119,7 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		loaded := min(ammoCount, needed)
 
 		// 装填した弾薬の修正値を記録する
-		ammoComp := world.Components.Ammo.Get(ammoEntity).(*gc.Ammo)
+		ammoComp := world.Components.Ammo.MustGet(ammoEntity)
 		fire.LoadedDamageBonus = ammoComp.DamageBonus
 		fire.LoadedAccuracyBonus = ammoComp.AccuracyBonus
 

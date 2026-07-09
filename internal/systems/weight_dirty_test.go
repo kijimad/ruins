@@ -33,7 +33,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		require.NoError(t, err)
 
 		// Currentが再計算されている
-		wc := world.Components.WeightCapacity.Get(storage).(*gc.WeightCapacity)
+		wc := world.Components.WeightCapacity.MustGet(storage)
 		assert.Equal(t, 3.0, wc.Current)
 	})
 
@@ -79,11 +79,11 @@ func TestWeightDirtySystem(t *testing.T) {
 		err := sys.Update(world)
 		require.NoError(t, err)
 
-		playerWc := world.Components.WeightCapacity.Get(player).(*gc.WeightCapacity)
+		playerWc := world.Components.WeightCapacity.MustGet(player)
 		assert.Equal(t, 20.0, playerWc.Max)    // 10 + 5*2
 		assert.Equal(t, 2.0, playerWc.Current) // バックパック内2kg
 
-		storageWc := world.Components.WeightCapacity.Get(storage).(*gc.WeightCapacity)
+		storageWc := world.Components.WeightCapacity.MustGet(storage)
 		assert.Equal(t, 30.0, storageWc.Max)    // 変更されない
 		assert.Equal(t, 5.0, storageWc.Current) // 収納内5kg
 
@@ -103,7 +103,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		require.NoError(t, err)
 
 		// Currentは変わらない
-		wc := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)
+		wc := world.Components.WeightCapacity.MustGet(entity)
 		assert.Equal(t, 99.0, wc.Current, "マーカーがないので再計算されない")
 	})
 }

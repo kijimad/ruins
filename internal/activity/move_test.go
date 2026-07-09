@@ -111,7 +111,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 
 		// 移動していることを確認
-		gridElement := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, 11, int(gridElement.X))
 		assert.Equal(t, 10, int(gridElement.Y))
 	})
@@ -173,7 +173,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.MustGet(member)
 		origMemberX, origMemberY := int(memberGrid.X), int(memberGrid.Y)
 
 		comp := &gc.Activity{
@@ -187,12 +187,12 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// プレイヤーが隊員の元位置に移動している
-		playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+		playerGrid := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, origMemberX, int(playerGrid.X))
 		assert.Equal(t, origMemberY, int(playerGrid.Y))
 
 		// 隊員がプレイヤーの元位置に移動している
-		memberGrid = world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid = world.Components.GridElement.MustGet(member)
 		assert.Equal(t, playerX, int(memberGrid.X))
 		assert.Equal(t, playerY, int(memberGrid.Y))
 	})
@@ -391,7 +391,7 @@ func TestCanMoveTo(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.MustGet(member)
 		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
 
 		canMove := CanMoveTo(world, consts.Coord[int]{X: memberX, Y: memberY}, consts.Coord[int]{X: 10, Y: 10}, player)
@@ -413,7 +413,7 @@ func TestCanMoveTo(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.MustGet(member)
 		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
 
 		// AIエンティティを手動で作成する
@@ -447,10 +447,10 @@ func TestCanMoveTo(t *testing.T) {
 		member2, err := lifecycle.SpawnSquadMember(world, player, "隊員B", abilities, "player")
 		require.NoError(t, err)
 
-		member1Grid := world.Components.GridElement.Get(member1).(*gc.GridElement)
+		member1Grid := world.Components.GridElement.MustGet(member1)
 		member1Grid.X = consts.Tile(11)
 		member1Grid.Y = consts.Tile(10)
-		member2Grid := world.Components.GridElement.Get(member2).(*gc.GridElement)
+		member2Grid := world.Components.GridElement.MustGet(member2)
 		member2Grid.X = consts.Tile(12)
 		member2Grid.Y = consts.Tile(10)
 

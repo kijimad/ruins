@@ -57,7 +57,7 @@ func (st *LookAroundState) OnStart(world w.World) error {
 		return fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 	st.cursor.X = playerGrid.X
 	st.cursor.Y = playerGrid.Y
 
@@ -236,7 +236,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 	inVision := query.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursor.X), int(st.cursor.Y))
 
 	if !inVision {
@@ -290,7 +290,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 
 	// HPを持つエンティティはHP表示
 	if entity.HasComponent(world.Components.HP) {
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+		hp := world.Components.HP.MustGet(entity)
 		label := "HP"
 		if entity.HasComponent(world.Components.Prop) {
 			label = "耐久"
@@ -308,7 +308,7 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y 
 			blocked = true
 		}
 		if entity.HasComponent(world.Components.PassCost) {
-			mc := world.Components.PassCost.Get(entity).(*gc.PassCost)
+			mc := world.Components.PassCost.MustGet(entity)
 			totalAdd += mc.Value
 		}
 	}
@@ -325,7 +325,7 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y 
 func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, y *int, drawText func(string)) {
 	for _, entity := range entities {
 		if entity.HasComponent(world.Components.TileTemperature) {
-			temp := world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
+			temp := world.Components.TileTemperature.MustGet(entity)
 			*y += 5
 			drawText(fmt.Sprintf("気温修正: %+d", temp.Total()))
 			if temp.Shelter != 0 {

@@ -274,7 +274,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.StatsChanged), "StatsChangedフラグが付与される")
 
 		// AIの値が正しいことを確認
-		ai := newWorld.Components.AI.Get(memberEntity).(*gc.AI)
+		ai := newWorld.Components.AI.MustGet(memberEntity)
 		assert.Equal(t, gc.PlannerSquad, ai.Planner.Type())
 		assert.Equal(t, gc.CombatAttack, ai.Planner.(*gc.SquadAI).CombatCurrent)
 	})

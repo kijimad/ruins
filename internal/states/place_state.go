@@ -69,7 +69,7 @@ func (st *PlaceState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 	st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}
 	st.phase = placePhaseSelectItem
 	st.refreshBackpackItems(world)

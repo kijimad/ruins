@@ -40,7 +40,7 @@ func TestAISystem(t *testing.T) {
 	})
 
 	// システム実行前の位置を記録
-	initialGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
+	initialGrid := world.Components.GridElement.MustGet(aiEntity)
 	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
 
 	// AIシステムを実行（aiinputパッケージを使用）
@@ -48,7 +48,7 @@ func TestAISystem(t *testing.T) {
 	require.NoError(t, processor.ProcessAll(world))
 
 	// システム実行後の位置を記録
-	finalGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
+	finalGrid := world.Components.GridElement.MustGet(aiEntity)
 	finalX, finalY := int(finalGrid.X), int(finalGrid.Y)
 
 	// 位置が変わったかどうかを確認（ランダムな動きなので移動有無は不確定）
@@ -56,7 +56,7 @@ func TestAISystem(t *testing.T) {
 	t.Logf("AI移動: (%d,%d) -> (%d,%d), moved: %t", initialX, initialY, finalX, finalY, moved)
 
 	// 状態が適切に管理されているかチェック
-	aiState := world.Components.AI.Get(aiEntity).(*gc.AI)
+	aiState := world.Components.AI.MustGet(aiEntity)
 	validStates := []gc.AIStateSubState{gc.AIStateWaiting, gc.AIStateDriving, gc.AIStateChasing}
 	assert.Contains(t, validStates, aiState.Planner.(*gc.SoloAI).SubState, "AI状態が無効: %v", aiState.Planner.(*gc.SoloAI).SubState)
 }

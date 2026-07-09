@@ -156,7 +156,7 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 
 	envTemp := 0
 	if playerEntity.HasComponent(world.Components.GridElement) {
-		gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(playerEntity)
 		temp, err := systems.CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
 		if err == nil {
 			envTemp = temp
@@ -165,11 +165,11 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 
 	playerName := ""
 	if playerEntity.HasComponent(world.Components.Name) {
-		playerName = world.Components.Name.Get(playerEntity).(*gc.Name).Name
+		playerName = world.Components.Name.MustGet(playerEntity).Name
 	}
 	professionName := ""
 	if playerEntity.HasComponent(world.Components.Profession) {
-		profComp := world.Components.Profession.Get(playerEntity).(*gc.Profession)
+		profComp := world.Components.Profession.MustGet(playerEntity)
 		if prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID); err == nil {
 			professionName = prof.Name
 		}
@@ -208,20 +208,20 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 	}
 
 	if playerEntity.HasComponent(world.Components.HP) {
-		hp := world.Components.HP.Get(playerEntity).(*gc.HP)
+		hp := world.Components.HP.MustGet(playerEntity)
 		items = append(items,
 			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: "体力。0になると死亡する"},
 		)
 	}
 	if playerEntity.HasComponent(world.Components.WeightCapacity) {
-		cw := world.Components.WeightCapacity.Get(playerEntity).(*gc.WeightCapacity)
+		cw := world.Components.WeightCapacity.MustGet(playerEntity)
 		items = append(items,
 			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", cw.Max, consts.IconKg), Description: "所持可能な最大重量"},
 		)
 	}
 
 	if playerEntity.HasComponent(world.Components.Hunger) {
-		hunger := world.Components.Hunger.Get(playerEntity).(*gc.Hunger)
+		hunger := world.Components.Hunger.MustGet(playerEntity)
 		items = append(items,
 			statusItemData{Label: "空腹度", Value: hunger.GetLevel().String(), Description: "空腹度。高いと行動に支障が出る"},
 		)
@@ -239,7 +239,7 @@ func (st *StatusState) createAbilityItems(world w.World, playerEntity ecs.Entity
 	items := []statusItemData{}
 
 	if playerEntity.HasComponent(world.Components.Abilities) {
-		abils := world.Components.Abilities.Get(playerEntity).(*gc.Abilities)
+		abils := world.Components.Abilities.MustGet(playerEntity)
 		items = append(items,
 			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
 			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: "筋力。近接攻撃のダメージに影響する"},
@@ -259,7 +259,7 @@ func (st *StatusState) createSkillItems(world w.World, playerEntity ecs.Entity) 
 	if !playerEntity.HasComponent(world.Components.Skills) {
 		return items
 	}
-	skills := world.Components.Skills.Get(playerEntity).(*gc.Skills)
+	skills := world.Components.Skills.MustGet(playerEntity)
 
 	for _, cat := range gc.SkillCategories {
 		// カテゴリヘッダーをアイテムとして挿入する
@@ -297,7 +297,7 @@ func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity)
 	if !playerEntity.HasComponent(world.Components.CharModifiers) {
 		return items
 	}
-	e := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+	e := world.Components.CharModifiers.MustGet(playerEntity)
 
 	// 戦闘
 	items = append(items, statusItemData{Label: "戦闘", IsHeader: true, Description: "戦闘に関する効果"})
@@ -371,7 +371,7 @@ func (st *StatusState) createHealthItems(world w.World, playerEntity ecs.Entity)
 
 	var hs *gc.HealthStatus
 	if playerEntity.HasComponent(world.Components.HealthStatus) {
-		hs = world.Components.HealthStatus.Get(playerEntity).(*gc.HealthStatus)
+		hs = world.Components.HealthStatus.MustGet(playerEntity)
 	}
 
 	for i := range int(gc.BodyPartCount) {

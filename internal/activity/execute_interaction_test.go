@@ -98,7 +98,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		assert.True(t, result.Success, "扉相互作用が成功するべき")
 
 		// 扉が開いていることを確認
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(doorEntity)
 		assert.True(t, doorComp.IsOpen, "扉が開いているべき")
 	})
 
@@ -128,7 +128,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		assert.True(t, result.Success, "扉相互作用が成功するべき")
 
 		// 扉が閉じていることを確認
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(doorEntity)
 		assert.False(t, doorComp.IsOpen, "扉が閉じているべき")
 	})
 }
@@ -263,7 +263,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 
-	hp := world.Components.HP.Get(enemyEntity).(*gc.HP)
+	hp := world.Components.HP.MustGet(enemyEntity)
 	assert.Less(t, hp.Current, 10, "素手攻撃でダメージが入るべき")
 }
 
@@ -382,8 +382,8 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		assert.True(t, result.Success)
 
 		// 全扉がロックされていることを確認
-		doorComp1 := world.Components.Door.Get(door1).(*gc.Door)
-		doorComp2 := world.Components.Door.Get(door2).(*gc.Door)
+		doorComp1 := world.Components.Door.MustGet(door1)
+		doorComp2 := world.Components.Door.MustGet(door2)
 		assert.True(t, doorComp1.Locked, "扉1がロックされるべき")
 		assert.True(t, doorComp2.Locked, "扉2がロックされるべき")
 	})
@@ -430,7 +430,7 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, result.Success)
 
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(door)
 		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
 		assert.True(t, doorComp.Locked, "扉がロックされるべき")
 	})
@@ -463,7 +463,7 @@ func TestExecuteInteraction_Door_Locked(t *testing.T) {
 		require.NotNil(t, result)
 
 		// ロック済み扉は開かない
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(doorEntity)
 		assert.False(t, doorComp.IsOpen, "ロックされた扉は開かないべき")
 	})
 }
@@ -550,7 +550,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		assert.True(t, result.Success)
 		assert.Equal(t, gc.BehaviorAttack, result.ActivityName)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.MustGet(prop)
 		assert.Less(t, hp.Current, 30, "攻撃でダメージが入るべき")
 	})
 

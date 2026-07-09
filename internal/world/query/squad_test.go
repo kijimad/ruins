@@ -88,7 +88,7 @@ func TestSquadMemberAt(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.MustGet(member)
 		found, ok := query.SquadMemberAt(world, int(memberGrid.X), int(memberGrid.Y))
 		assert.True(t, ok)
 		assert.Equal(t, member, found)

@@ -19,7 +19,7 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 
 	if entity.HasComponent(world.Components.Stackable) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if err := mergeStackableItems(world, name.Name, mergeInBackpack, owner); err != nil {
 			return fmt.Errorf("バックパック内のアイテム統合に失敗: %w", err)
 		}
@@ -54,7 +54,7 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	storage.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 
 	if entity.HasComponent(world.Components.Stackable) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if err := mergeStackableItems(world, name.Name, mergeInStorage, storage); err != nil {
 			return fmt.Errorf("収納内のアイテム統合に失敗: %w", err)
 		}
@@ -68,7 +68,7 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 	world.Manager.Join(
 		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		loc := world.Components.LocationEquipped.MustGet(entity)
 		if loc.Owner == playerEntity {
 			equipped = append(equipped, entity)
 		}
@@ -88,15 +88,15 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 func setLocation(world w.World, entity ecs.Entity, data gc.Location) {
 	// 移動元のOwnerにWeightDirtyマーカーを付与する
 	if entity.HasComponent(world.Components.LocationInBackpack) {
-		loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+		loc := world.Components.LocationInBackpack.MustGet(entity)
 		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 	}
 	if entity.HasComponent(world.Components.LocationEquipped) {
-		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		loc := world.Components.LocationEquipped.MustGet(entity)
 		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 	}
 	if entity.HasComponent(world.Components.LocationInStorage) {
-		loc := world.Components.LocationInStorage.Get(entity).(*gc.LocationInStorage)
+		loc := world.Components.LocationInStorage.MustGet(entity)
 		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 	}
 
@@ -149,7 +149,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 		locationComp,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if name.Name != itemName {
 			return
 		}
@@ -240,12 +240,12 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	}
 
 	// プレイヤーの位置を更新する
-	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	gridElement := world.Components.GridElement.MustGet(playerEntity)
 	gridElement.X = consts.Tile(tileX)
 	gridElement.Y = consts.Tile(tileY)
 
 	// カメラ位置も同期する
-	camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)
+	camera := world.Components.Camera.MustGet(playerEntity)
 	tileSize := float64(consts.TileSize)
 	camera.X = float64(tileX)*tileSize + tileSize/2
 	camera.Y = float64(tileY)*tileSize + tileSize/2
@@ -255,7 +255,7 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	// Active隊員をプレイヤーの隣接タイルに配置する
 	exclude := map[gc.GridElement]bool{}
 	for _, member := range query.SquadMembers(world) {
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.MustGet(member)
 		x, y, err := findAdjacentEmptyTile(world, tileX, tileY, exclude)
 		if err != nil {
 			return fmt.Errorf("隊員の配置に失敗: %w", err)

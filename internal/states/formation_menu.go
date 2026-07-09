@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
@@ -125,7 +124,7 @@ func (st *FormationMenuState) fetchProps(world w.World) formationProps {
 	var members []formationMemberData
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member).(*gc.HP)
+		hp := world.Components.HP.MustGet(member)
 
 		members = append(members, formationMemberData{
 			Entity: member,

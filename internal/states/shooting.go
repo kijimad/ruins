@@ -234,7 +234,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	if !target.HasComponent(world.Components.GridElement) {
 		return
 	}
-	targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+	targetGrid := world.Components.GridElement.MustGet(target)
 
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(targetGrid.X) * tileSize)
@@ -371,7 +371,7 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
 
 	// HP
 	if target.HasComponent(world.Components.HP) {
-		hp := world.Components.HP.Get(target).(*gc.HP)
+		hp := world.Components.HP.MustGet(target)
 		drawText(fmt.Sprintf("HP: %d/%d", hp.Current, hp.Max))
 	}
 

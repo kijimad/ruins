@@ -26,7 +26,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	craftCostPct, smithQualityPct := 100, 100
 	player, playerErr := query.GetPlayerEntity(world)
 	if playerErr == nil && player.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(player).(*gc.CharModifiers)
+		mods := world.Components.CharModifiers.MustGet(player)
 		craftCostPct = mods.CraftCost
 		smithQualityPct = mods.SmithQuality
 	}
@@ -99,17 +99,17 @@ func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
 	qualityBonus := (smithQualityPct - 100) / 10
 
 	if entity.HasComponent(world.Components.Melee) {
-		melee := world.Components.Melee.Get(entity).(*gc.Melee)
+		melee := world.Components.Melee.MustGet(entity)
 		melee.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
 		melee.Damage += (-5 + rand.IntN(15)) + qualityBonus
 	}
 	if entity.HasComponent(world.Components.Fire) {
-		fire := world.Components.Fire.Get(entity).(*gc.Fire)
+		fire := world.Components.Fire.MustGet(entity)
 		fire.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
 		fire.Damage += (-5 + rand.IntN(15)) + qualityBonus
 	}
 	if entity.HasComponent(world.Components.Wearable) {
-		wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
+		wearable := world.Components.Wearable.MustGet(entity)
 		wearable.Defense += (-4 + rand.IntN(20)) + qualityBonus
 	}
 }

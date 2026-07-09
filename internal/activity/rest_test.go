@@ -137,7 +137,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.MustGet(player)
 		beforeHP := hp.Current
 		hp.Current = hp.Max / 2
 
@@ -163,7 +163,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを最大値付近に設定
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.MustGet(player)
 		hp.Current = hp.Max - 1
 
 		comp := &gc.Activity{
@@ -232,7 +232,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.MustGet(player)
 		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
@@ -304,7 +304,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.MustGet(player)
 		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
@@ -362,7 +362,7 @@ func TestRestActivity_Finish(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.MustGet(player)
 		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{

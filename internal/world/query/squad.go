@@ -30,7 +30,7 @@ func SquadMemberCount(world w.World) int {
 // 見つからなければ ok=false を返す
 func SquadMemberAt(world w.World, x, y int) (ecs.Entity, bool) {
 	for _, member := range SquadMembers(world) {
-		grid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(member)
 		if int(grid.X) == x && int(grid.Y) == y {
 			return member, true
 		}

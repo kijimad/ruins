@@ -90,7 +90,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
 		// マガジンを空にする
-		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire := world.Components.Fire.MustGet(weaponEntity)
 		fire.Magazine = 0
 
 		sa := &ShootActivity{}
@@ -206,7 +206,7 @@ func TestShootActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
-		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire := world.Components.Fire.MustGet(weaponEntity)
 		before := fire.Magazine
 
 		sa := &ShootActivity{}
@@ -242,7 +242,7 @@ func TestExecuteShootAction(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
-		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire := world.Components.Fire.MustGet(weaponEntity)
 		before := fire.Magazine
 
 		err := ExecuteShootAction(player, enemy, world)

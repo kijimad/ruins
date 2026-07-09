@@ -57,7 +57,7 @@ func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior
 
 // gatherSquadContext は隊員の行動に必要なコンテキストを収集する
 func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*squadContext, bool) {
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	aiComp := world.Components.AI.Get(entity)
 	if aiComp == nil {
@@ -81,7 +81,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 		Grid:         grid,
 		Squad:        aiComp.(*gc.AI).Planner.(*gc.SquadAI),
 		LeaderEntity: leader,
-		LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
+		LeaderGrid:   world.Components.GridElement.MustGet(leader),
 	}, true
 }
 
@@ -185,7 +185,7 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 		return nil, false
 	}
 
-	enemyGrid := world.Components.GridElement.Get(*nearestEnemy).(*gc.GridElement)
+	enemyGrid := world.Components.GridElement.MustGet(*nearestEnemy)
 	return sp.tryMoveAway(world, entity, ctx.Grid, enemyGrid)
 }
 
@@ -262,7 +262,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 		if !query.IsPickable(item, world) {
 			return
 		}
-		grid := world.Components.GridElement.Get(item).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(item)
 
 		if grid.X == ctx.Grid.X && grid.Y == ctx.Grid.Y {
 			hasPickableHere = true
@@ -312,7 +312,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 		if itemToTransfer != nil {
 			return
 		}
-		loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+		loc := world.Components.LocationInBackpack.MustGet(item)
 		if loc.Owner == entity {
 			e := item
 			itemToTransfer = &e

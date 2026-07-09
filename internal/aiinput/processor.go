@@ -46,7 +46,7 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 		world.Components.AI,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ai := world.Components.AI.Get(entity).(*gc.AI)
+		ai := world.Components.AI.MustGet(entity)
 		if ai.Planner.Type() != plannerType {
 			return
 		}

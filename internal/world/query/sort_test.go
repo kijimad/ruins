@@ -74,7 +74,7 @@ func TestSortEntities(t *testing.T) {
 			for i, entity := range sorted {
 				if len(tt.expected) > 0 {
 					if entity.HasComponent(world.Components.Name) {
-						name := world.Components.Name.Get(entity).(*gc.Name)
+						name := world.Components.Name.MustGet(entity)
 						assert.Equal(t, tt.expected[i], name.Name)
 					}
 				}
@@ -112,9 +112,9 @@ func TestSortEntitiesWithMixedComponents(t *testing.T) {
 	require.Len(t, sorted, 3, "Nameコンポーネントを持つエンティティのみが返されるべき")
 
 	// ソート順の確認
-	name1 := world.Components.Name.Get(sorted[0]).(*gc.Name)
-	name2 := world.Components.Name.Get(sorted[1]).(*gc.Name)
-	name3 := world.Components.Name.Get(sorted[2]).(*gc.Name)
+	name1 := world.Components.Name.MustGet(sorted[0])
+	name2 := world.Components.Name.MustGet(sorted[1])
+	name3 := world.Components.Name.MustGet(sorted[2])
 
 	assert.Equal(t, "Alice", name1.Name)
 	assert.Equal(t, "Bob", name2.Name)

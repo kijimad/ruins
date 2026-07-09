@@ -27,7 +27,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		return nil
 	}
 
-	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	gridElement := world.Components.GridElement.MustGet(playerEntity)
 
 	var interactionActions []InteractionAction
 
@@ -41,8 +41,8 @@ func GetInteractionActions(world w.World) []InteractionAction {
 			continue
 		}
 
-		interactableGrid := world.Components.GridElement.Get(interactableEntity).(*gc.GridElement)
-		interactable := world.Components.Interactable.Get(interactableEntity).(*gc.Interactable)
+		interactableGrid := world.Components.GridElement.MustGet(interactableEntity)
+		interactable := world.Components.Interactable.MustGet(interactableEntity)
 		dirLabel := activity.GetDirectionLabel(gridElement, interactableGrid)
 		actionsForEntity := getInteractionActions(world, interactable, interactableEntity, dirLabel)
 		interactionActions = append(interactionActions, actionsForEntity...)
@@ -60,7 +60,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	if !playerEntity.HasComponent(world.Components.GridElement) {
 		return nil
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 
 	var actions []InteractionAction
 	world.Manager.Join(
@@ -68,11 +68,11 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 		world.Components.Interactable,
 		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ge := world.Components.GridElement.MustGet(entity)
 		if ge.X != playerGrid.X || ge.Y != playerGrid.Y {
 			return
 		}
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		interactable := world.Components.Interactable.MustGet(entity)
 		// Manual+SameTileのインタラクションのみフィルタする
 		var filtered []gc.InteractionData
 		for _, interaction := range interactable.Interactions {
@@ -114,7 +114,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		switch data := interaction.(type) {
 		case gc.DoorInteraction:
 			if interactableEntity.HasComponent(world.Components.Door) {
-				door := world.Components.Door.Get(interactableEntity).(*gc.Door)
+				door := world.Components.Door.MustGet(interactableEntity)
 				var label string
 				if door.IsOpen {
 					label = "閉じる(" + dirLabel + ")"
@@ -129,7 +129,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			}
 		case gc.TalkInteraction:
 			if interactableEntity.HasComponent(world.Components.Name) {
-				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+				name := world.Components.Name.MustGet(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "話しかける(" + name.Name + ")",
 					Target:      interactableEntity,
@@ -164,7 +164,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			})
 		case gc.StorageInteraction:
 			if interactableEntity.HasComponent(world.Components.Name) {
-				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+				name := world.Components.Name.MustGet(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "調べる(" + name.Name + ")",
 					Target:      interactableEntity,
@@ -173,7 +173,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			}
 		case gc.MeleeInteraction:
 			if interactableEntity.HasComponent(world.Components.Name) {
-				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+				name := world.Components.Name.MustGet(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "攻撃する(" + name.Name + ")",
 					Target:      interactableEntity,

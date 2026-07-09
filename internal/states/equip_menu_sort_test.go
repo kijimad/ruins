@@ -36,9 +36,9 @@ func TestEquipMenuWearSortIntegration(t *testing.T) {
 	require.Len(t, wearables, 3, "防具が3つ見つかるべき")
 
 	// ソート順を確認（名前順）
-	name1 := world.Components.Name.Get(wearables[0]).(*gc.Name)
-	name2 := world.Components.Name.Get(wearables[1]).(*gc.Name)
-	name3 := world.Components.Name.Get(wearables[2]).(*gc.Name)
+	name1 := world.Components.Name.MustGet(wearables[0])
+	name2 := world.Components.Name.MustGet(wearables[1])
+	name3 := world.Components.Name.MustGet(wearables[2])
 
 	assert.Equal(t, "Armor", name1.Name, "1番目の防具名が正しくない")
 	assert.Equal(t, "Helmet", name2.Name, "2番目の防具名が正しくない")
@@ -77,9 +77,9 @@ func TestEquipMenuWeaponSortIntegration(t *testing.T) {
 	require.Len(t, weapons, 3, "武器が3つ見つかるべき")
 
 	// ソート順を確認（名前順）
-	name1 := world.Components.Name.Get(weapons[0]).(*gc.Name)
-	name2 := world.Components.Name.Get(weapons[1]).(*gc.Name)
-	name3 := world.Components.Name.Get(weapons[2]).(*gc.Name)
+	name1 := world.Components.Name.MustGet(weapons[0])
+	name2 := world.Components.Name.MustGet(weapons[1])
+	name3 := world.Components.Name.MustGet(weapons[2])
 
 	assert.Equal(t, "Fire Weapon", name1.Name, "1番目の武器名が正しくない")
 	assert.Equal(t, "Ice Weapon", name2.Name, "2番目の武器名が正しくない")

@@ -3,7 +3,6 @@ package gameaction
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -24,7 +23,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 
 	// 交渉スキルによる買値倍率を適用する
 	if playerEntity.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+		mods := world.Components.CharModifiers.MustGet(playerEntity)
 		price = price * mods.BuyPrice / 100
 	}
 
@@ -69,7 +68,7 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 
 	// 交渉スキルによる売値倍率を適用する
 	if playerEntity.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+		mods := world.Components.CharModifiers.MustGet(playerEntity)
 		price = price * mods.SellPrice / 100
 	}
 

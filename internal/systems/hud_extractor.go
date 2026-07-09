@@ -39,8 +39,8 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		world.Components.HP,
 		world.Components.WeightCapacity,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		hp := world.Components.HP.Get(entity).(*gc.HP)
-		cw := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)
+		hp := world.Components.HP.MustGet(entity)
+		cw := world.Components.WeightCapacity.MustGet(entity)
 		playerHP = hp.Current
 		playerMaxHP = hp.Max
 		playerWeight = cw.Current
@@ -76,7 +76,7 @@ func extractMinimapData(world w.World) hud.MinimapData {
 		world.Components.GridElement,
 		world.Components.Player,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
+		playerGridElement = world.Components.GridElement.MustGet(entity)
 	}))
 
 	if playerGridElement == nil {
@@ -101,7 +101,7 @@ func extractMinimapData(world w.World) hud.MinimapData {
 	if err == nil {
 		for _, member := range query.SquadMembers(world) {
 			if member.HasComponent(world.Components.GridElement) {
-				grid := world.Components.GridElement.Get(member).(*gc.GridElement)
+				grid := world.Components.GridElement.MustGet(member)
 				squadPositions = append(squadPositions, hud.MinimapMarker{
 					TileX: int(grid.X),
 					TileY: int(grid.Y),
@@ -141,13 +141,13 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		world.Components.Camera,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(camEntity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(camEntity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.MustGet(camEntity)
 		// GridElementからピクセル座標に変換
 		cameraPos = gc.Position{
 			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
 			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 		}
-		camera := world.Components.Camera.Get(camEntity).(*gc.Camera)
+		camera := world.Components.Camera.MustGet(camEntity)
 		cameraScale = camera.Scale
 	}))
 
@@ -163,8 +163,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		world.Components.GridElement,
 		world.Components.AI,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		ai := world.Components.AI.Get(entity).(*gc.AI)
+		gridElement := world.Components.GridElement.MustGet(entity)
+		ai := world.Components.AI.MustGet(entity)
 		solo, ok := ai.Planner.(*gc.SoloAI)
 		if !ok {
 			return
@@ -214,8 +214,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			return
 		}
 
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+		gridElement := world.Components.GridElement.MustGet(entity)
+		hp := world.Components.HP.MustGet(entity)
 
 		// エンティティ名を取得（デバッグ用）
 		var entityName string
@@ -300,7 +300,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 		world.Components.GridElement,
 		world.Components.SpriteRender,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		gridElement := gc.GridElement{X: grid.X, Y: grid.Y}
 		tileTypeMap[gridElement] = entity.HasComponent(world.Components.BlockView)
 	}))
@@ -439,7 +439,7 @@ func extractSquadHUDData(world w.World) hud.SquadHUDData {
 	var members []hud.SquadHUDMember
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member).(*gc.HP)
+		hp := world.Components.HP.MustGet(member)
 		members = append(members, hud.SquadHUDMember{
 			Name:      name,
 			CurrentHP: hp.Current,

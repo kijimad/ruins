@@ -3,7 +3,6 @@ package lifecycle
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -39,7 +38,7 @@ func TestMoveToStorage(t *testing.T) {
 	assert.False(t, item.HasComponent(world.Components.LocationInBackpack))
 	assert.False(t, item.HasComponent(world.Components.LocationOnField))
 
-	loc := world.Components.LocationInStorage.Get(item).(*gc.LocationInStorage)
+	loc := world.Components.LocationInStorage.MustGet(item)
 	assert.Equal(t, storageEntity, loc.Owner)
 }
 
@@ -110,7 +109,7 @@ func TestCanAddToStorage_OverWeight(t *testing.T) {
 	require.NoError(t, err)
 
 	// WeightCapacityの最大重量を超えるまでアイテムを追加する
-	wc := world.Components.WeightCapacity.Get(storageEntity).(*gc.WeightCapacity)
+	wc := world.Components.WeightCapacity.MustGet(storageEntity)
 	maxWeight := wc.Max
 
 	// 重量がmaxWeight+1kgのアイテムを作って追加不可を確認
@@ -259,10 +258,10 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 		world.Components.LocationInBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if name.Name == "回復薬" {
 			entityCount++
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.MustGet(entity)
 			totalCount += stackable.Count
 		}
 	}))
@@ -290,7 +289,7 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 		world.Components.LocationInBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if name.Name == "西洋鎧" {
 			entityCount++
 		}
@@ -322,10 +321,10 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	var entityCount int
 	var totalCount int
 	for _, entity := range query.GetStorageItems(world, storageEntity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if name.Name == "回復薬" {
 			entityCount++
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.MustGet(entity)
 			totalCount += stackable.Count
 		}
 	}
@@ -362,9 +361,9 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	// 木箱Aの回復薬は統合されて4個
 	var countA int
 	for _, entity := range query.GetStorageItems(world, storageA) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if name.Name == potion {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.MustGet(entity)
 			countA += stackable.Count
 		}
 	}
@@ -373,9 +372,9 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	// 木箱Bの回復薬は影響を受けず2個のまま
 	var countB int
 	for _, entity := range query.GetStorageItems(world, storageB) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.MustGet(entity)
 		if name.Name == potion {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.MustGet(entity)
 			countB += stackable.Count
 		}
 	}

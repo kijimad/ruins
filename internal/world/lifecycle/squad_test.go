@@ -57,7 +57,7 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.False(t, member.HasComponent(world.Components.Player), "Playerは持たない")
 
 	// デフォルトAIの確認
-	ai := world.Components.AI.Get(member).(*gc.AI)
+	ai := world.Components.AI.MustGet(member)
 	assert.Equal(t, gc.PlannerSquad, ai.Planner.Type(), "PlannerはSquad")
 	squad := ai.Planner.(*gc.SquadAI)
 	assert.Equal(t, gc.SquadEscort, squad.Movement, "デフォルト移動ポリシーは護衛")
@@ -66,11 +66,11 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.Equal(t, gc.PolicyDistribute, squad.ItemHandling, "デフォルトアイテム処理ポリシーは分配")
 
 	// 名前の確認
-	name := world.Components.Name.Get(member).(*gc.Name)
+	name := world.Components.Name.MustGet(member)
 	assert.Equal(t, "隊員A", name.Name)
 
 	// HPが全回復していることの確認
-	hp := world.Components.HP.Get(member).(*gc.HP)
+	hp := world.Components.HP.MustGet(member)
 	assert.Positive(t, hp.Max, "最大HPが設定されている")
 	assert.Equal(t, hp.Max, hp.Current, "HPが全回復している")
 }
@@ -85,8 +85,8 @@ func TestSpawnSquadMember_リーダーと異なる位置に配置される(t *te
 	member, err := SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
 	require.NoError(t, err)
 
-	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	leaderGrid := world.Components.GridElement.MustGet(leader)
+	memberGrid := world.Components.GridElement.MustGet(member)
 
 	// 隊員はリーダーと同じ位置に配置されない
 	assert.False(t,
@@ -152,7 +152,7 @@ func TestGetAI(t *testing.T) {
 	squad.ItemPickup = gc.PolicyIgnore
 	squad.ItemHandling = gc.PolicyDistribute
 
-	current := world.Components.AI.Get(member).(*gc.AI)
+	current := world.Components.AI.MustGet(member)
 	currentSquad := current.Planner.(*gc.SquadAI)
 	assert.Equal(t, gc.SquadVanguard, currentSquad.Movement)
 	assert.Equal(t, gc.CombatEvade, currentSquad.CombatCurrent)
@@ -175,7 +175,7 @@ func TestGetAI_移動だけ変更しても他のポリシーは変わらない(t
 	squad := ai.Planner.(*gc.SquadAI)
 	squad.Movement = gc.SquadPatrol
 
-	current := world.Components.AI.Get(member).(*gc.AI)
+	current := world.Components.AI.MustGet(member)
 	currentSquad := current.Planner.(*gc.SquadAI)
 	assert.Equal(t, gc.SquadPatrol, currentSquad.Movement, "移動ポリシーが変更された")
 	assert.Equal(t, gc.CombatAttack, currentSquad.CombatCurrent, "戦闘ポリシーは変わらない")
@@ -197,7 +197,7 @@ func TestSpawnDefaultSquadMember(t *testing.T) {
 	assert.True(t, member.HasComponent(world.Components.Name), "Nameを持つ")
 
 	// 名前が設定されている
-	name := world.Components.Name.Get(member).(*gc.Name)
+	name := world.Components.Name.MustGet(member)
 	assert.Equal(t, "Jim", name.Name)
 
 	// 隊員マーカーがある

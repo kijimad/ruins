@@ -128,7 +128,7 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	// OnCollisionトリガーは実行されず、扉は閉じたままのはず
-	doorComp := world.Components.Door.Get(triggerEntity).(*gc.Door)
+	doorComp := world.Components.Door.MustGet(triggerEntity)
 	assert.False(t, doorComp.IsOpen, "OnCollisionトリガーは自動実行されないべき")
 }
 

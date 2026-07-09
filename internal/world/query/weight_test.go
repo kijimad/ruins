@@ -179,7 +179,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 
 		UpdateWeightCapacity(world, player)
 
-		wc := world.Components.WeightCapacity.Get(player).(*gc.WeightCapacity)
+		wc := world.Components.WeightCapacity.MustGet(player)
 		assert.Equal(t, 30.0, wc.Max)    // 10 + 10*2
 		assert.Equal(t, 2.0, wc.Current) // 2kg
 	})
@@ -196,7 +196,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 
 		UpdateWeightCapacity(world, storage)
 
-		wc := world.Components.WeightCapacity.Get(storage).(*gc.WeightCapacity)
+		wc := world.Components.WeightCapacity.MustGet(storage)
 		assert.Equal(t, 20.0, wc.Max)    // 変更されない
 		assert.Equal(t, 3.0, wc.Current) // 3kg
 	})
@@ -216,7 +216,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 
 		UpdateWeightCapacity(world, player)
 
-		wc := world.Components.WeightCapacity.Get(player).(*gc.WeightCapacity)
+		wc := world.Components.WeightCapacity.MustGet(player)
 		assert.Equal(t, 45.0, wc.Max)
 	})
 

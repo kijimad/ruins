@@ -33,7 +33,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorMove, result.BehaviorName)
 		assert.True(t, result.Success)
-		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridAfter := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 9, int(gridAfter.Y))
 	})
@@ -86,7 +86,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 				require.NoError(t, ExecuteMoveAction(world, tt.direction))
 
-				grid := world.Components.GridElement.Get(player).(*gc.GridElement)
+				grid := world.Components.GridElement.MustGet(player)
 				assert.Equal(t, tt.expectedX, int(grid.X))
 				assert.Equal(t, tt.expectedY, int(grid.Y))
 			})
@@ -102,7 +102,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.MustGet(enemy)
 		initialEnemyHP := enemyHP.Current
 
 		// 移動（攻撃）を実行
@@ -114,7 +114,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
 		assert.True(t, result.Success)
-		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridAfter := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 10, int(gridAfter.Y))
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
@@ -314,7 +314,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.MustGet(enemy)
 		enemyHP.Current = 1
 
 		// 1回目: 攻撃で敵を倒す

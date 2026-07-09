@@ -33,7 +33,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorMove, result.BehaviorName)
 		assert.True(t, result.Success)
-		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridAfter := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 9, int(gridAfter.Y))
 	})
@@ -88,7 +88,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 				require.NoError(t, activity.ExecuteMoveAction(world, tt.direction))
 
-				gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+				gridAfter := world.Components.GridElement.MustGet(player)
 				assert.Equal(t, tt.expectedX, int(gridAfter.X), "X座標が正しく移動するべき")
 				assert.Equal(t, tt.expectedY, int(gridAfter.Y), "Y座標が正しく移動するべき")
 			})
@@ -112,12 +112,12 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NoError(t, err)
 
 		// プレイヤーは移動している
-		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridAfter := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 9, int(gridAfter.Y))
 
 		// APはマイナスになる
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.MustGet(player)
 		assert.Negative(t, turnBased.AP.Current, "移動コストでAPがマイナスになる")
 	})
 }
@@ -164,7 +164,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.MustGet(enemy)
 		initialEnemyHP := enemyHP.Current
 
 		// 移動（攻撃）を実行
@@ -176,7 +176,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
 		assert.True(t, result.Success)
-		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridAfter := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 10, int(gridAfter.Y))
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
@@ -191,7 +191,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.MustGet(player)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -201,9 +201,9 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		// APが0以上なら行動可能であることを確認
-		tb := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		tb := world.Components.TurnBased.MustGet(player)
 		assert.GreaterOrEqual(t, tb.AP.Current, 0, "冷えた状態でもAPが0以上なら行動可能")
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.MustGet(enemy)
 		initialEnemyHP := enemyHP.Current
 
 		// 攻撃を実行
@@ -226,7 +226,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.MustGet(player)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -235,9 +235,9 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.MustGet(player)
 		initialAP := turnBased.AP.Current
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.MustGet(enemy)
 		initialEnemyHP := enemyHP.Current
 
 		// 攻撃を実行
@@ -288,7 +288,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.MustGet(enemy)
 		enemyHP.Current = 1
 
 		// 1回目: 攻撃で敵を倒す
@@ -385,10 +385,10 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		require.NoError(t, err)
 
 		// Propに自動攻撃せず、移動もブロックされる
-		grid := world.Components.GridElement.Get(player).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(player)
 		assert.Equal(t, 10, int(grid.X))
 		assert.Equal(t, 10, int(grid.Y))
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.MustGet(prop)
 		assert.Equal(t, 30, hp.Current, "Propに自動攻撃しないのでHPは減らない")
 	})
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
@@ -198,7 +197,7 @@ func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	query.Player(world, func(playerEntity ecs.Entity) {
 		currency = query.GetCurrency(world, playerEntity)
 		if playerEntity.HasComponent(world.Components.CharModifiers) {
-			mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+			mods := world.Components.CharModifiers.MustGet(playerEntity)
 			buyPriceMod = mods.BuyPrice
 			sellPriceMod = mods.SellPrice
 		}
@@ -244,7 +243,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 			world.Components.Name,
 			world.Components.LocationInBackpack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			nameComp := world.Components.Name.Get(entity).(*gc.Name)
+			nameComp := world.Components.Name.MustGet(entity)
 			itemName := nameComp.Name
 
 			baseValue := query.GetItemValue(world, entity)

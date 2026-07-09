@@ -46,7 +46,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// 残り3個であることを確認
-		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		stackableComp := world.Components.Stackable.MustGet(item)
 		assert.Equal(t, 3, stackableComp.Count)
 		assert.True(t, item.HasComponent(world.Components.Name), "アイテムは残っているべき")
 	})
@@ -88,7 +88,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// エンティティは削除されていない
 		assert.True(t, item.HasComponent(world.Components.Name), "アイテムは残っているべき")
-		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		stackableComp := world.Components.Stackable.MustGet(item)
 		assert.Equal(t, 2, stackableComp.Count, "個数は変更されていないべき")
 	})
 
@@ -107,7 +107,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// 5個になっていることを確認
-		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		stackableComp := world.Components.Stackable.MustGet(item)
 		assert.Equal(t, 5, stackableComp.Count)
 	})
 

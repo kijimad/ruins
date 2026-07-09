@@ -91,7 +91,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 		if entity.HasComponent(world.Components.Dead) {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		si.BlockPass[*grid] = true
 	}))
 
@@ -108,7 +108,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 		if !isCharacter {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.MustGet(entity)
 		si.Characters[*grid] = entity
 		if entity.HasComponent(world.Components.Player) {
 			e := entity

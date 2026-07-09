@@ -42,7 +42,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior 
 		return nil
 	}
 	solo := aiComp.(*gc.AI).Planner.(*gc.SoloAI)
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 
 	target := rp.findNearestHostile(world, entity)
 	if target == nil {
@@ -70,7 +70,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior 
 // findNearestHostile は最寄りの敵対エンティティを探す。
 // 視界判定は含まない。Chasing状態で視界外の対象を追い続けるため
 func (rp *soloPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity {
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.MustGet(entity)
 	nearest, _, _ := query.FindNearestEntity(world, entity, grid, func(target ecs.Entity) bool {
 		return query.FactionRelation(world, entity, target) == query.RelationHostile
 	})
@@ -176,7 +176,7 @@ func (rp *soloPlanner) initializeToWaiting(solo *gc.SoloAI, currentTurn int) {
 // ========== アクション計画ロジック ==========
 
 func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 
 	if isAdjacent(aiGrid, playerGrid) {
 		return &activity.AttackActivity{Target: playerEntity}
@@ -194,7 +194,7 @@ func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs
 }
 
 func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.MustGet(playerEntity)
 
 	dx := int(aiGrid.X) - int(playerGrid.X)
 	dy := int(aiGrid.Y) - int(playerGrid.Y)

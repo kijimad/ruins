@@ -25,8 +25,8 @@ func TestLockAllDoors(t *testing.T) {
 		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 2, locked)
-		assert.True(t, world.Components.Door.Get(door1).(*gc.Door).Locked)
-		assert.True(t, world.Components.Door.Get(door2).(*gc.Door).Locked)
+		assert.True(t, world.Components.Door.MustGet(door1).Locked)
+		assert.True(t, world.Components.Door.MustGet(door2).Locked)
 	})
 
 	t.Run("開いた扉を閉じてからロックする", func(t *testing.T) {
@@ -37,7 +37,7 @@ func TestLockAllDoors(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.OpenDoor(world, door))
 
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(door)
 		assert.True(t, doorComp.IsOpen)
 
 		locked := lifecycle.LockAllDoors(world)
@@ -53,7 +53,7 @@ func TestLockAllDoors(t *testing.T) {
 
 		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
-		world.Components.Door.Get(door).(*gc.Door).Locked = true
+		world.Components.Door.MustGet(door).Locked = true
 
 		locked := lifecycle.LockAllDoors(world)
 
@@ -83,14 +83,14 @@ func TestUnlockAllDoors(t *testing.T) {
 		require.NoError(t, err)
 
 		// ロックする
-		world.Components.Door.Get(door1).(*gc.Door).Locked = true
-		world.Components.Door.Get(door2).(*gc.Door).Locked = true
+		world.Components.Door.MustGet(door1).Locked = true
+		world.Components.Door.MustGet(door2).Locked = true
 
 		opened := lifecycle.UnlockAllDoors(world)
 
 		assert.Equal(t, 2, opened)
-		doorComp1 := world.Components.Door.Get(door1).(*gc.Door)
-		doorComp2 := world.Components.Door.Get(door2).(*gc.Door)
+		doorComp1 := world.Components.Door.MustGet(door1)
+		doorComp2 := world.Components.Door.MustGet(door2)
 		assert.False(t, doorComp1.Locked)
 		assert.True(t, doorComp1.IsOpen)
 		assert.False(t, doorComp2.Locked)
@@ -104,12 +104,12 @@ func TestUnlockAllDoors(t *testing.T) {
 		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.OpenDoor(world, door))
-		world.Components.Door.Get(door).(*gc.Door).Locked = true
+		world.Components.Door.MustGet(door).Locked = true
 
 		opened := lifecycle.UnlockAllDoors(world)
 
 		assert.Equal(t, 0, opened)
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.MustGet(door)
 		assert.False(t, doorComp.Locked, "アンロックされるべき")
 		assert.True(t, doorComp.IsOpen, "開いたままであるべき")
 	})

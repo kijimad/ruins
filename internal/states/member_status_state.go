@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
@@ -128,12 +127,12 @@ func (st *MemberStatusState) fetchStatusTab(world w.World, member ecs.Entity) me
 	var items []memberStatusItem
 
 	if member.HasComponent(world.Components.HP) {
-		hp := world.Components.HP.Get(member).(*gc.HP)
+		hp := world.Components.HP.MustGet(member)
 		items = append(items, memberStatusItem{Label: "HP", Value: fmt.Sprintf("%d / %d", hp.Current, hp.Max)})
 	}
 
 	if member.HasComponent(world.Components.Abilities) {
-		abils := world.Components.Abilities.Get(member).(*gc.Abilities)
+		abils := world.Components.Abilities.MustGet(member)
 		items = append(items,
 			memberStatusItem{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Base)},
 			memberStatusItem{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Base)},
@@ -145,7 +144,7 @@ func (st *MemberStatusState) fetchStatusTab(world w.World, member ecs.Entity) me
 	}
 
 	if member.HasComponent(world.Components.WeightCapacity) {
-		wc := world.Components.WeightCapacity.Get(member).(*gc.WeightCapacity)
+		wc := world.Components.WeightCapacity.MustGet(member)
 		items = append(items, memberStatusItem{Label: "重量", Value: fmt.Sprintf("%.1f / %.1f", wc.Current, wc.Max)})
 	}
 

@@ -27,7 +27,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 	if newCount == 0 {
 		world.Manager.DeleteEntity(entity)
 	} else if entity.HasComponent(world.Components.Stackable) {
-		world.Components.Stackable.Get(entity).(*gc.Stackable).Count = newCount
+		world.Components.Stackable.MustGet(entity).Count = newCount
 	}
 
 	// インベントリ変動フラグを立てる
