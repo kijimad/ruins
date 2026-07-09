@@ -31,7 +31,7 @@ func TestPreviewEndRun(t *testing.T) {
 	result, err := PreviewEndRun(world, player)
 	require.NoError(t, err)
 
-	assert.Greater(t, result.Total, 0, "売却合計が0より大きい")
+	assert.Positive(t, result.Total, "売却合計が0より大きい")
 
 	// 回復薬はStackable統合により1エンティティになっている
 	healingCount := 0

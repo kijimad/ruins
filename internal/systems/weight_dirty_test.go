@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWeightDirtySystem(t *testing.T) {
@@ -29,7 +30,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		storage.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 
 		err := sys.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Currentが再計算されている
 		wc := world.Components.WeightCapacity.Get(storage).(*gc.WeightCapacity)
@@ -46,7 +47,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		entity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 
 		err := sys.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.False(t, entity.HasComponent(world.Components.WeightDirty), "マーカーはクリアされるべき")
 	})
@@ -76,7 +77,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		storageItem.AddComponent(world.Components.LocationInStorage, &gc.LocationInStorage{Owner: storage})
 
 		err := sys.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		playerWc := world.Components.WeightCapacity.Get(player).(*gc.WeightCapacity)
 		assert.Equal(t, 20.0, playerWc.Max)    // 10 + 5*2
@@ -99,7 +100,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 10.0, Current: 99.0})
 
 		err := sys.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Currentは変わらない
 		wc := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)

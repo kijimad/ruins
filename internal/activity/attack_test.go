@@ -212,7 +212,7 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 	growWeaponSkill(actor, world, fire)
 
 	// 小銃スキルに経験値が入る
-	assert.Greater(t, skills.Get(gc.SkillRifle).Exp.Current, 0, "小銃スキルに経験値が入る")
+	assert.Positive(t, skills.Get(gc.SkillRifle).Exp.Current, "小銃スキルに経験値が入る")
 	// 他のスキルには影響しない
 	assert.Equal(t, 0, skills.Get(gc.SkillSword).Exp.Current, "刀剣スキルは変わらない")
 	assert.Equal(t, 0, skills.Get(gc.SkillHandgun).Exp.Current, "拳銃スキルは変わらない")
@@ -237,7 +237,7 @@ func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 
 	growWeaponSkill(actor, world, melee)
 
-	assert.Greater(t, skills.Get(gc.SkillSpear).Exp.Current, 0, "長物スキルに経験値が入る")
+	assert.Positive(t, skills.Get(gc.SkillSpear).Exp.Current, "長物スキルに経験値が入る")
 	assert.Equal(t, 0, skills.Get(gc.SkillSword).Exp.Current, "刀剣スキルは変わらない")
 	assert.Equal(t, 0, skills.Get(gc.SkillFist).Exp.Current, "格闘スキルは変わらない")
 }

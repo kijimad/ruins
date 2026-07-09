@@ -26,6 +26,7 @@ linters:
     - wastedassign   # 使われない代入の検出
     - mirror         # string/[]byteの非効率なメソッド選択を検出（性能）
     - errname        # センチネルエラーの命名規約（errXxx）
+    - testifylint    # testifyの誤用検出（require-error, float-compare 等）
     # 現状と乖離が大きいので追加しない
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
@@ -40,6 +41,11 @@ linters:
       # commentedOutCode は日本語コメントを誤検知するため採用しない。
       enabled-checks:
         - rangeValCopy # rangeでの大きな値コピーを検出する（性能）
+    testifylint:
+      # デフォルトで大半のチェックが有効。合わない下位チェックのみ個別に無効化する。
+      # float-compare は厳密値/センチネル/0との比較が大半で、InDeltaの許容誤差付与が恣意的でノイズになるため無効化する。
+      disable:
+        - float-compare
     exhaustive:
       check:
         - switch

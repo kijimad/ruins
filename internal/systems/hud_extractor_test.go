@@ -160,7 +160,7 @@ func TestExtractMinimapData(t *testing.T) {
 	// 結果検証
 	assert.Equal(t, 10, minimapData.PlayerTileX, "プレイヤーのX座標が正しくない")
 	assert.Equal(t, 15, minimapData.PlayerTileY, "プレイヤーのY座標が正しくない")
-	assert.Equal(t, 3, len(minimapData.ExploredTiles), "探索済みタイル数が正しくない")
+	assert.Len(t, minimapData.ExploredTiles, 3, "探索済みタイル数が正しくない")
 	assert.Equal(t, 200, minimapData.MinimapConfig.Width, "ミニマップ幅が正しくない")
 	assert.Equal(t, 200, minimapData.MinimapConfig.Height, "ミニマップ高さが正しくない")
 	assert.Equal(t, 2, minimapData.MinimapConfig.Scale, "ミニマップスケールが正しくない")

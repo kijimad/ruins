@@ -39,8 +39,8 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 	}
 
 	// 確率的に両方のケースが発生しているはず（厳密には50%ずつ）
-	assert.Greater(t, emptyCount, 0, "空文字列が選択されるべき")
-	assert.Greater(t, itemCount, 0, "アイテムが選択されるべき")
+	assert.Positive(t, emptyCount, "空文字列が選択されるべき")
+	assert.Positive(t, itemCount, "アイテムが選択されるべき")
 
 	// 大体50%ずつになっているはず（誤差を考慮して30-70%の範囲で確認）
 	emptyRatio := float64(emptyCount) / float64(iterations)
@@ -65,7 +65,7 @@ func TestDropTable_SelectByWeight_AllEmptyWeight(t *testing.T) {
 	require.NoError(t, err)
 
 	// 重みが全て0の場合は空文字列を返すべき
-	assert.Equal(t, "", result, "重みが0の場合は空文字列を返すべき")
+	assert.Empty(t, result, "重みが0の場合は空文字列を返すべき")
 }
 
 func TestDropTable_SelectByWeight_SingleEntry(t *testing.T) {
@@ -101,7 +101,7 @@ func TestDropTable_SelectByWeight_OnlyEmpty(t *testing.T) {
 	result, err := SelectDropByWeight(dropTable, rng)
 	require.NoError(t, err)
 
-	assert.Equal(t, "", result, "空文字列エントリのみの場合は空文字列を返すべき")
+	assert.Empty(t, result, "空文字列エントリのみの場合は空文字列を返すべき")
 }
 
 func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
@@ -129,9 +129,9 @@ func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	}
 
 	// 全てのエントリが選択されているはず
-	assert.Greater(t, results["レアアイテム"], 0, "レアアイテムが選択されるべき")
-	assert.Greater(t, results["コモンアイテム"], 0, "コモンアイテムが選択されるべき")
-	assert.Greater(t, results[""], 0, "空文字列が選択されるべき")
+	assert.Positive(t, results["レアアイテム"], "レアアイテムが選択されるべき")
+	assert.Positive(t, results["コモンアイテム"], "コモンアイテムが選択されるべき")
+	assert.Positive(t, results[""], "空文字列が選択されるべき")
 
 	// 大体期待確率になっているはず（誤差を考慮）
 	rareRatio := float64(results["レアアイテム"]) / float64(iterations)

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddCurrency(t *testing.T) {
@@ -18,7 +19,7 @@ func TestAddCurrency(t *testing.T) {
 
 	// 通貨を追加
 	err := AddCurrency(world, player, 50)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 結果を検証
 	currency := GetCurrency(world, player)
@@ -103,7 +104,7 @@ func TestCurrencyOperationsWithoutWallet(t *testing.T) {
 
 	// 各操作がエラーを返すことを確認
 	err := AddCurrency(world, entity, 100)
-	assert.Error(t, err, "Walletがない場合はエラーを返すべき")
+	require.Error(t, err, "Walletがない場合はエラーを返すべき")
 	assert.Equal(t, 0, GetCurrency(world, entity), "Walletがないので0")
 
 	assert.False(t, HasCurrency(world, entity, 1), "Walletがないのでfalse")

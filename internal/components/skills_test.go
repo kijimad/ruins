@@ -45,7 +45,7 @@ func TestNewSkills(t *testing.T) {
 
 	skills := NewSkills()
 
-	assert.Equal(t, len(AllSkillIDs), len(skills.Data), "全スキルが初期化される")
+	assert.Len(t, skills.Data, len(AllSkillIDs), "全スキルが初期化される")
 	for _, id := range AllSkillIDs {
 		s := skills.Get(id)
 		assert.NotNil(t, s, "スキル %s が存在する", id)
@@ -98,7 +98,7 @@ func TestAllSkillIDs(t *testing.T) {
 	for _, cat := range SkillCategories {
 		total += len(cat.IDs)
 	}
-	assert.Equal(t, total, len(AllSkillIDs), "AllSkillIDsはカテゴリの合計と一致する")
+	assert.Len(t, AllSkillIDs, total, "AllSkillIDsはカテゴリの合計と一致する")
 }
 
 func TestSkillAbilityMapping(t *testing.T) {

@@ -34,7 +34,7 @@ func TestStatusState_FetchProps(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 5, len(props.Tabs), "タブは5つ（基本、能力、スキル、効果、健康）")
+	assert.Len(t, props.Tabs, 5, "タブは5つ（基本、能力、スキル、効果、健康）")
 	assert.Equal(t, "basic", props.Tabs[0].ID)
 	assert.Equal(t, "abilities", props.Tabs[1].ID)
 	assert.Equal(t, "skills", props.Tabs[2].ID)
@@ -187,7 +187,7 @@ func TestStatusState_SkillsTab(t *testing.T) {
 	// スキルタブ。カテゴリヘッダー6個 + スキル23個 = 29個
 	skillTab := props.Tabs[2]
 	assert.Equal(t, "skills", skillTab.ID)
-	assert.Equal(t, len(gc.AllSkillIDs)+len(gc.SkillCategories), len(skillTab.Items), "カテゴリヘッダーと全スキルが表示される")
+	assert.Len(t, skillTab.Items, len(gc.AllSkillIDs)+len(gc.SkillCategories), "カテゴリヘッダーと全スキルが表示される")
 	assert.True(t, skillTab.Items[0].IsHeader, "最初のアイテムはカテゴリヘッダーである")
 	assert.Equal(t, "近接", skillTab.Items[0].Label)
 	assert.Equal(t, "刀剣", skillTab.Items[1].Label)

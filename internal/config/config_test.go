@@ -52,9 +52,9 @@ func TestLoad(t *testing.T) {
 
 	assert.NotNil(t, cfg)
 	assert.NotNil(t, cfg.RNG)
-	assert.Greater(t, cfg.User.WindowWidth, 0)
-	assert.Greater(t, cfg.User.WindowHeight, 0)
-	assert.Greater(t, cfg.TargetFPS, 0)
+	assert.Positive(t, cfg.User.WindowWidth)
+	assert.Positive(t, cfg.User.WindowHeight)
+	assert.Positive(t, cfg.TargetFPS)
 }
 func TestValidate(t *testing.T) {
 	t.Parallel()

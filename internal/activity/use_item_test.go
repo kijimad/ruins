@@ -202,7 +202,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 		ua := &UseItemActivity{}
 		err := ua.DoTurn(comp, actor, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
@@ -246,7 +246,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		ua := &UseItemActivity{}
 		err := ua.Validate(comp, actor, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, ErrItemNotSet, err)
 	})
 
@@ -266,7 +266,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		ua := &UseItemActivity{}
 		err := ua.Validate(comp, actor, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, ErrItemNoEffect, err)
 	})
 
@@ -287,7 +287,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		ua := &UseItemActivity{}
 		err := ua.Validate(comp, actor, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, ErrItemNoEffect, err)
 	})
 
@@ -309,7 +309,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		ua := &UseItemActivity{}
 		err := ua.Validate(comp, actor, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, ErrActorNoHP, err)
 	})
 }

@@ -95,7 +95,7 @@ func TestRecipeInput(t *testing.T) {
 			Name:   "",
 			Amount: 1,
 		}
-		assert.Equal(t, "", input.Name, "空の素材名が正しく設定されない")
+		assert.Empty(t, input.Name, "空の素材名が正しく設定されない")
 		assert.Equal(t, 1, input.Amount, "必要量が正しく設定されない")
 	})
 }

@@ -126,6 +126,6 @@ func TestRestoreAllActionPoints(t *testing.T) {
 	require.NoError(t, err)
 
 	tb = world.Components.TurnBased.Get(player).(*gc.TurnBased)
-	assert.Greater(t, tb.AP.Current, 0, "APが回復している")
+	assert.Positive(t, tb.AP.Current, "APが回復している")
 	assert.LessOrEqual(t, tb.AP.Current, initialMax, "APは最大値を超えない")
 }

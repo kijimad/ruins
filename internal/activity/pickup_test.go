@@ -54,7 +54,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
@@ -71,7 +71,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
@@ -147,7 +147,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		pa := &PickupActivity{}
 		err = pa.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 
@@ -166,7 +166,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		pa := &PickupActivity{}
 		err = pa.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
@@ -252,7 +252,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 }
@@ -281,7 +281,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
@@ -340,7 +340,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		pa := &PickupActivity{}
 		err = pa.DoTurn(comp, player, world)
 
-		assert.Error(t, err, "Propは設置物なので拾えない")
+		require.Error(t, err, "Propは設置物なので拾えない")
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }

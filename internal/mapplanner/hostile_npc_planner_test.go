@@ -196,7 +196,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 				}
 			}
 		}
-		assert.Greater(t, nearPairs, 0, "クラスタ半径内のNPC対が1組も存在しない")
+		assert.Positive(t, nearPairs, "クラスタ半径内のNPC対が1組も存在しない")
 	})
 
 	t.Run("部屋内は同種クラスタになる", func(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadActivity_Validate_NoTarget(t *testing.T) {
@@ -47,7 +48,7 @@ func TestReadActivity_Validate_AlreadyCompleted(t *testing.T) {
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: &bookEntity}
 	err := ra.Validate(comp, actor, world)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "読了済み")
 }
 
@@ -69,7 +70,7 @@ func TestReadActivity_Validate_RequiredLevelNotMet(t *testing.T) {
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: &bookEntity}
 	err := ra.Validate(comp, actor, world)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "レベル3以上必要")
 }
 
@@ -141,7 +142,7 @@ func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
 	}
 
 	err := ra.DoTurn(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 10, book.Effort.Current, "基本工数10ぶん進んでいる")
 	assert.Equal(t, 99, comp.TurnsLeft, "ターンが1減っている")
 }
@@ -176,7 +177,7 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 
 	before := skills.Get(gc.SkillSword).Exp.Current
 	err := ra.DoTurn(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Greater(t, skills.Get(gc.SkillSword).Exp.Current, before, "経験値が増加する")
 }
 
@@ -208,7 +209,7 @@ func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
 	}
 
 	err := ra.DoTurn(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, skills.Get(gc.SkillSword).Exp.Current, "難しすぎて経験値を得られない")
 	assert.Equal(t, 10, book.Effort.Current, "工数は進む")
 }
@@ -239,7 +240,7 @@ func TestReadActivity_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 	}
 
 	err := ra.DoTurn(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, book.IsCompleted(), "読了している")
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State, "アクティビティが完了している")
 }
@@ -275,7 +276,7 @@ func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
 	}
 
 	err := ra.DoTurn(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "敵がいるのでキャンセルされる")
 	assert.Equal(t, 0, book.Effort.Current, "章は進んでいない")
 }
@@ -313,7 +314,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	}
 
 	err := ra.DoTurn(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
@@ -346,6 +347,6 @@ func TestReadActivity_NoSkillsComponent(t *testing.T) {
 	}
 
 	err := ra.DoTurn(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 10, book.Effort.Current, "工数は進む")
 }

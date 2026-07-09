@@ -332,7 +332,7 @@ func TestTemplateLoader_LoadFile(t *testing.T) {
 		templates, err := loader.LoadFile("levels/facilities/compound_building.toml")
 
 		require.NoError(t, err)
-		assert.True(t, len(templates) >= 2, "複合施設ファイルは複数テンプレートを含む")
+		assert.GreaterOrEqual(t, len(templates), 2, "複合施設ファイルは複数テンプレートを含む")
 	})
 
 	t.Run("存在しないファイルはエラー", func(t *testing.T) {

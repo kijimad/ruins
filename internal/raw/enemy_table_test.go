@@ -50,9 +50,9 @@ func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	}
 
 	// 全ての敵が選択されているはず
-	assert.Greater(t, results["スライム"], 0, "スライムが選択されるべき")
-	assert.Greater(t, results["火の玉"], 0, "火の玉が選択されるべき")
-	assert.Greater(t, results["軽戦車"], 0, "軽戦車が選択されるべき")
+	assert.Positive(t, results["スライム"], "スライムが選択されるべき")
+	assert.Positive(t, results["火の玉"], "火の玉が選択されるべき")
+	assert.Positive(t, results["軽戦車"], "軽戦車が選択されるべき")
 
 	// 重みに応じた確率になっているはず
 	totalWeight := 1.2 + 1.0 + 0.8
@@ -84,7 +84,7 @@ func TestEnemyTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	result, err := SelectEnemyByWeight(enemyTable, rng, 5)
 	require.NoError(t, err)
 
-	assert.Equal(t, "", result, "重みが全て0の場合は空文字列を返すべき")
+	assert.Empty(t, result, "重みが全て0の場合は空文字列を返すべき")
 }
 
 func TestEnemyTable_SelectByWeight_EmptyEntries(t *testing.T) {
@@ -99,7 +99,7 @@ func TestEnemyTable_SelectByWeight_EmptyEntries(t *testing.T) {
 	result, err := SelectEnemyByWeight(enemyTable, rng, 1)
 	require.NoError(t, err)
 
-	assert.Equal(t, "", result, "エントリが空の場合は空文字列を返すべき")
+	assert.Empty(t, result, "エントリが空の場合は空文字列を返すべき")
 }
 
 func TestEnemyTable_SelectByWeight_Reproducibility(t *testing.T) {
@@ -151,7 +151,7 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 			results[result]++
 		}
 	}
-	assert.Greater(t, results["弱い敵"], 0, "深度1では弱い敵が選択されるべき")
+	assert.Positive(t, results["弱い敵"], "深度1では弱い敵が選択されるべき")
 	assert.Equal(t, 0, results["中級の敵"], "深度1では中級の敵は選択されない")
 	assert.Equal(t, 0, results["強い敵"], "深度1では強い敵は選択されない")
 
@@ -164,8 +164,8 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 			results[result]++
 		}
 	}
-	assert.Greater(t, results["弱い敵"], 0, "深度5では弱い敵が選択されるべき")
-	assert.Greater(t, results["中級の敵"], 0, "深度5では中級の敵が選択されるべき")
+	assert.Positive(t, results["弱い敵"], "深度5では弱い敵が選択されるべき")
+	assert.Positive(t, results["中級の敵"], "深度5では中級の敵が選択されるべき")
 	assert.Equal(t, 0, results["強い敵"], "深度5では強い敵は選択されない")
 
 	// 深度15: 強い敵のみ選択可能
@@ -179,7 +179,7 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 	}
 	assert.Equal(t, 0, results["弱い敵"], "深度15では弱い敵は選択されない")
 	assert.Equal(t, 0, results["中級の敵"], "深度15では中級の敵は選択されない")
-	assert.Greater(t, results["強い敵"], 0, "深度15では強い敵が選択されるべき")
+	assert.Positive(t, results["強い敵"], "深度15では強い敵が選択されるべき")
 }
 
 func TestEnemyTable_SelectByWeight_DepthFiltering_NoMatch(t *testing.T) {
@@ -198,10 +198,10 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_NoMatch(t *testing.T) {
 	// 深度5: 全ての敵が範囲外
 	result, err := SelectEnemyByWeight(enemyTable, rng, 5)
 	require.NoError(t, err)
-	assert.Equal(t, "", result, "深度範囲外の場合は空文字列を返すべき")
+	assert.Empty(t, result, "深度範囲外の場合は空文字列を返すべき")
 
 	// 深度50: 全ての敵が範囲外
 	result, err = SelectEnemyByWeight(enemyTable, rng, 50)
 	require.NoError(t, err)
-	assert.Equal(t, "", result, "深度範囲外の場合は空文字列を返すべき")
+	assert.Empty(t, result, "深度範囲外の場合は空文字列を返すべき")
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -29,7 +30,7 @@ func TestInitComponents(t *testing.T) {
 
 		components, err := InitComponents(manager, gameComponents)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, components)
 		assert.NotNil(t, components.Game)
 		assert.NotNil(t, components.Game.TestSlice)
@@ -43,7 +44,7 @@ func TestInitComponents(t *testing.T) {
 
 		components, err := InitComponents(manager, gameComponents)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		// 型アサーションが不要で、直接アクセスできる
 		assert.IsType(t, &TestComponents{}, components.Game)
 		assert.IsType(t, &ecs.SliceComponent{}, components.Game.TestSlice)
@@ -64,7 +65,7 @@ func TestInitComponents_Error(t *testing.T) {
 	manager := ecs.NewManager()
 	components, err := InitComponents(manager, &FailingComponents{})
 
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Nil(t, components)
 	assert.Contains(t, err.Error(), "初期化エラー")
 }

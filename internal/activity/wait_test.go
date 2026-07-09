@@ -46,7 +46,7 @@ func TestWaitActivity_Validate(t *testing.T) {
 
 		wa := &WaitActivity{}
 		err = wa.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "待機時間が無効")
 	})
 }
@@ -136,7 +136,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 
 		wa := &WaitActivity{}
 		err = wa.Finish(comp, player, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		store := query.GetGameLog(world)
 		assert.Equal(t, 0, store.Count())
@@ -156,7 +156,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 
 		wa := &WaitActivity{}
 		err = wa.Finish(comp, player, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)

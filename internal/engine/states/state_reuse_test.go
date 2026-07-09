@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestStateNoReuse はステートが再利用されないことを確認するテスト
@@ -52,18 +53,18 @@ func TestStateNoReuse(t *testing.T) {
 		// StateMachineを初期化
 		initialState := &TestState{name: "Init"}
 		sm, err := Init(initialState, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		sm.lastTransition = transition
 
 		// 最初の実行
 		err = sm.Update(world)
-		assert.NoError(t, err, "最初のUpdate でエラーが発生")
+		require.NoError(t, err, "最初のUpdate でエラーが発生")
 		assert.Equal(t, 2, instanceCount, "2つのステートが作成されるべき")
 
 		// 同じTransitionで再実行
 		sm.lastTransition = transition
 		err = sm.Update(world)
-		assert.NoError(t, err, "2回目のUpdateでエラーが発生")
+		require.NoError(t, err, "2回目のUpdateでエラーが発生")
 		assert.Equal(t, 4, instanceCount, "さらに2つの新しいステートが作成されるべき")
 	})
 
@@ -87,7 +88,7 @@ func TestStateNoReuse(t *testing.T) {
 
 		// StateMachineを初期化
 		sm, err := Init(&TestState{name: "Init"}, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// 複数回同じStateFactory[TestWorld]でPush
 		for i := range 3 {
@@ -96,11 +97,11 @@ func TestStateNoReuse(t *testing.T) {
 				NewStateFuncs: []StateFactory[TestWorld]{factory},
 			}
 			err := sm.Update(world)
-			assert.NoError(t, err, "Update %d回目でエラーが発生", i+1)
+			require.NoError(t, err, "Update %d回目でエラーが発生", i+1)
 		}
 
 		// 3つの異なるインスタンスが作成されたことを確認
-		assert.Equal(t, 3, len(createdStates), "3つのステートが作成されるべき")
+		assert.Len(t, createdStates, 3, "3つのステートが作成されるべき")
 
 		// 各インスタンスのIDが異なることを確認
 		assert.Equal(t, 1, createdStates[0].ID)

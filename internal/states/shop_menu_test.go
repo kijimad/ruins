@@ -32,7 +32,7 @@ func TestShopMenuState_FetchProps(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 2, len(props.Tabs), "タブは2つ（購入、売却）")
+	assert.Len(t, props.Tabs, 2, "タブは2つ（購入、売却）")
 	assert.Equal(t, "buy", props.Tabs[0].ID)
 	assert.Equal(t, "sell", props.Tabs[1].ID)
 }

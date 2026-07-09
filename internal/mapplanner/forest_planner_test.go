@@ -41,8 +41,8 @@ func TestForestPlanner(t *testing.T) {
 				wallCount++
 			}
 		}
-		assert.Greater(t, floorCount, 0, "床タイルが存在しない")
-		assert.Greater(t, wallCount, 0, "壁タイルが存在しない")
+		assert.Positive(t, floorCount, "床タイルが存在しない")
+		assert.Positive(t, wallCount, "壁タイルが存在しない")
 	})
 
 	t.Run("生成された空き地が有効な範囲内にある", func(t *testing.T) {
@@ -95,7 +95,7 @@ func TestForestPlanner(t *testing.T) {
 				expectedCount := int(actualWidth) * int(actualHeight)
 				assert.Len(t, chain.PlanData.Tiles, expectedCount,
 					"%sのタイル数が正しくない", tc.name)
-				assert.Greater(t, len(chain.PlanData.Rooms), 0,
+				assert.NotEmpty(t, chain.PlanData.Rooms,
 					"%sで空き地が生成されていない", tc.name)
 			})
 		}

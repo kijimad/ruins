@@ -21,14 +21,14 @@ func TestSafeSliceMaxSize(t *testing.T) {
 		sl.Push("message3")
 
 		content := sl.GetHistory()
-		assert.Equal(t, 3, len(content))
+		assert.Len(t, content, 3)
 		assert.Equal(t, []string{"message1", "message2", "message3"}, content)
 
 		// 4つ目を追加（最古の要素が削除されるはず）
 		sl.Push("message4")
 
 		content = sl.GetHistory()
-		assert.Equal(t, 3, len(content))
+		assert.Len(t, content, 3)
 		// 最古の要素（message1）が削除され、message2, message3, message4が残るはず
 		assert.Equal(t, []string{"message2", "message3", "message4"}, content)
 	})
@@ -43,7 +43,7 @@ func TestSafeSliceMaxSize(t *testing.T) {
 		}
 
 		content := sl.GetHistory()
-		assert.Equal(t, DefaultMaxLogSize, len(content))
+		assert.Len(t, content, DefaultMaxLogSize)
 	})
 
 	t.Run("負の値指定時はデフォルトサイズが使用される", func(t *testing.T) {
@@ -56,7 +56,7 @@ func TestSafeSliceMaxSize(t *testing.T) {
 		}
 
 		content := sl.GetHistory()
-		assert.Equal(t, 20, len(content)) // デフォルトサイズ以下なので全部残る
+		assert.Len(t, content, 20) // デフォルトサイズ以下なので全部残る
 	})
 }
 
@@ -73,7 +73,7 @@ func TestSafeSliceMemoryLeak(t *testing.T) {
 
 		content := sl.GetHistory()
 		// 最大サイズを超えないことを確認
-		assert.Equal(t, 10, len(content))
+		assert.Len(t, content, 10)
 
 		// 最新の10個が保持されていることを確認
 		for i := range 10 {
@@ -259,7 +259,7 @@ func TestSafeSliceColoredEntries(t *testing.T) {
 
 		// 取得してテスト
 		entries := log.GetRecentEntries(1)
-		assert.Equal(t, 1, len(entries))
+		assert.Len(t, entries, 1)
 		assert.Equal(t, "Test message", entries[0].Text())
 	})
 
@@ -272,9 +272,9 @@ func TestSafeSliceColoredEntries(t *testing.T) {
 		log.pushColoredEntry(emptyEntry)
 
 		entries := log.GetRecentEntries(1)
-		assert.Equal(t, 1, len(entries))
+		assert.Len(t, entries, 1)
 		assert.True(t, entries[0].IsEmpty())
-		assert.Equal(t, "", entries[0].Text())
+		assert.Empty(t, entries[0].Text())
 	})
 
 	t.Run("色付きエントリの最大サイズ超過時の動作", func(t *testing.T) {
@@ -292,7 +292,7 @@ func TestSafeSliceColoredEntries(t *testing.T) {
 		}
 
 		entries := log.GetRecentEntries(5) // 全て取得を試行
-		assert.Equal(t, 2, len(entries))   // 最大サイズ分のみ
+		assert.Len(t, entries, 2)          // 最大サイズ分のみ
 
 		// 最新の2つが残っているかチェック
 		assert.Equal(t, "Message 2", entries[0].Text())
@@ -314,7 +314,7 @@ func TestSafeSliceColoredEntries(t *testing.T) {
 		}
 
 		allEntries := log.GetHistoryEntries()
-		assert.Equal(t, 3, len(allEntries))
+		assert.Len(t, allEntries, 3)
 
 		// 順序確認（古い順）
 		assert.Equal(t, "Entry 1", allEntries[0].Text())
@@ -331,10 +331,10 @@ func TestSafeSliceColoredEntries(t *testing.T) {
 
 		// 負の値
 		entries := log.GetRecentEntries(-1)
-		assert.Equal(t, 0, len(entries))
+		assert.Empty(t, entries)
 
 		// 0
 		entries = log.GetRecentEntries(0)
-		assert.Equal(t, 0, len(entries))
+		assert.Empty(t, entries)
 	})
 }

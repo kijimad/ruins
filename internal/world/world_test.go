@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInitWorld(t *testing.T) {
@@ -15,7 +16,7 @@ func TestInitWorld(t *testing.T) {
 
 		world, err := InitWorld(gameComponents)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, world.Manager)
 		assert.NotNil(t, world.Components)
 		assert.NotNil(t, world.Resources)
@@ -27,7 +28,7 @@ func TestWorld_GetManager(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
 	w, err := InitWorld(gameComponents)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, w.Manager, w.GetManager())
 }
@@ -36,7 +37,7 @@ func TestWorld_GetComponents(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
 	w, err := InitWorld(gameComponents)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, w.Components, w.GetComponents())
 }
@@ -45,7 +46,7 @@ func TestInitWorld_SingletonEntity(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
 	w, err := InitWorld(gameComponents)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// SingletonEntityが設定されていることを確認
 	singleton := w.Resources.SingletonEntity

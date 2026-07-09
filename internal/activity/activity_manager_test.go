@@ -52,7 +52,7 @@ func TestStartActivity(t *testing.T) {
 
 	// アクティビティ開始
 	err = StartActivity(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// アクティビティが登録されているかチェック
 	currentActivity := query.GetActivity(world, actor)
@@ -83,10 +83,10 @@ func TestMultipleActivities(t *testing.T) {
 	require.NoError(t, err)
 
 	err = StartActivity(comp1, actor1, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = StartActivity(comp2, actor2, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 両方のアクティビティが登録されているかチェック
 	assert.True(t, query.HasActivity(world, actor1), "Expected actor1 to have activity")
@@ -110,7 +110,7 @@ func TestReplaceActivity(t *testing.T) {
 	comp1, err := NewActivity(&WaitActivity{}, 10)
 	require.NoError(t, err)
 	err = StartActivity(comp1, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 最初のアクティビティが実行中であることを確認
 	assert.Equal(t, gc.ActivityStateRunning, comp1.State, "Expected first activity to be running")
@@ -119,7 +119,7 @@ func TestReplaceActivity(t *testing.T) {
 	comp2, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 	err = StartActivity(comp2, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 古いアクティビティが中断されているかチェック
 	assert.Equal(t, gc.ActivityStatePaused, comp1.State, "Expected first activity to be paused after replacement")
@@ -139,11 +139,11 @@ func TestInterruptAndResume(t *testing.T) {
 	comp, err := NewActivity(&WaitActivity{}, 10)
 	require.NoError(t, err)
 	err = StartActivity(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// アクティビティを中断
 	err = InterruptActivity(actor, "テスト中断", world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected activity to be paused after interrupt")
 
@@ -152,7 +152,7 @@ func TestInterruptAndResume(t *testing.T) {
 
 	// アクティビティを再開
 	err = ResumeActivity(actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected activity to be running after resume")
 
@@ -162,7 +162,7 @@ func TestInterruptAndResume(t *testing.T) {
 	// 存在しないアクティビティの中断・再開テスト
 	nonExistentActor := consts.InvalidEntity
 	err = InterruptActivity(nonExistentActor, "テスト", world)
-	assert.Error(t, err, "Expected error when interrupting non-existent activity")
+	require.Error(t, err, "Expected error when interrupting non-existent activity")
 
 	err = ResumeActivity(nonExistentActor, world)
 	assert.Error(t, err, "Expected error when resuming non-existent activity")
@@ -178,7 +178,7 @@ func TestCancelActivity(t *testing.T) {
 	comp, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 	err = StartActivity(comp, actor, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// アクティビティをキャンセル
 	CancelActivity(actor, "テストキャンセル", world)
@@ -210,9 +210,9 @@ func TestProcessTurn(t *testing.T) {
 	require.NoError(t, err)
 
 	err = StartActivity(shortComp, actor1, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = StartActivity(longComp, actor2, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 初期状態の確認
 	summary := getActivitySummary(t, world)
@@ -264,13 +264,13 @@ func TestActivitySummary(t *testing.T) {
 	require.NoError(t, err)
 
 	err = StartActivity(comp1, actor1, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = StartActivity(comp2, actor2, world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 1つを中断
 	err = InterruptActivity(actor1, "テスト", world)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// サマリーの確認
 	summary = getActivitySummary(t, world)

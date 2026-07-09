@@ -41,31 +41,36 @@ func TestRawMemberReference(t *testing.T) {
 	t.Parallel()
 	raws := loadTestRaws(t)
 
-	t.Run("メンバー名に対応するCommandTableが存在する場合は有効", func(t *testing.T) {
+	t.Run("メンバーが参照するCommandTableは中身を持つ", func(t *testing.T) {
 		t.Parallel()
+		// CommandTableは全メンバー必須ではないため、存在する場合のみ中身を検証する
 		for _, member := range PtrSlice(raws.Members) {
-			if _, err := GetCommandTable(raws, member.Name); err == nil {
-				assert.True(t, true)
+			ct, err := GetCommandTable(raws, member.Name)
+			if err != nil {
+				continue
 			}
+			assert.NotEmpty(t, ct.Entries, "メンバー '%s' のCommandTable '%s' が空です", member.Name, ct.Name)
 		}
 	})
 
-	t.Run("メンバー名に対応するDropTableが存在する場合は有効", func(t *testing.T) {
+	t.Run("メンバーが参照するDropTableは中身を持つ", func(t *testing.T) {
 		t.Parallel()
+		// DropTableは全メンバー必須ではないため、存在する場合のみ中身を検証する
 		for _, member := range PtrSlice(raws.Members) {
-			if _, err := GetDropTable(raws, member.Name); err == nil {
-				assert.True(t, true)
+			dt, err := GetDropTable(raws, member.Name)
+			if err != nil {
+				continue
 			}
+			assert.NotEmpty(t, dt.Entries, "メンバー '%s' のDropTable '%s' が空です", member.Name, dt.Name)
 		}
 	})
 
 	t.Run("メンバーのSpriteSheet参照が存在する", func(t *testing.T) {
 		t.Parallel()
 		for _, member := range PtrSlice(raws.Members) {
-			if _, err := FindSpriteSheet(raws, member.SpriteSheetName); err == nil {
-				assert.True(t, true, "メンバー '%s' が参照するSpriteSheet '%s' が存在しません",
-					member.Name, member.SpriteSheetName)
-			}
+			_, err := FindSpriteSheet(raws, member.SpriteSheetName)
+			assert.NoError(t, err, "メンバー '%s' が参照するSpriteSheet '%s' が存在しません",
+				member.Name, member.SpriteSheetName)
 		}
 	})
 }
@@ -351,7 +356,7 @@ func TestSpriteSheetFiles(t *testing.T) {
 		t.Parallel()
 		for _, sheet := range PtrSlice(raws.SpriteSheets) {
 			data, err := assets.FS.ReadFile(sheet.Path)
-			assert.NoError(t, err, "SpriteSheet '%s' のファイル '%s' が読み込めません", sheet.Name, sheet.Path)
+			require.NoError(t, err, "SpriteSheet '%s' のファイル '%s' が読み込めません", sheet.Name, sheet.Path)
 			assert.NotEmpty(t, data, "SpriteSheet '%s' のファイル '%s' が空です", sheet.Name, sheet.Path)
 		}
 	})

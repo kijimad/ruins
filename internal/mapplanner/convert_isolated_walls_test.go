@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
@@ -53,7 +54,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	// プランナーを実行（floorに変換）
 	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameFloor}
 	err := converter.PlanMeta(planData)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 検証1: 床に隣接する壁はそのまま壁として残る
 	// 中央の壁
@@ -110,7 +111,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	// プランナーを実行（voidに変換）
 	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 検証: 端の壁はwallのまま、内側の壁はvoidに変換される
 	for i, tile := range planData.Tiles {
@@ -149,7 +150,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	// プランナーを実行
 	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// 全て床のまま
 	for i, tile := range planData.Tiles {

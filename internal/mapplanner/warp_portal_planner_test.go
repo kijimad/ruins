@@ -131,7 +131,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
 		err := planner.PlanMeta(&chain.PlanData)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.ErrorIs(t, err, ErrConnectivity)
 	})
 
@@ -149,7 +149,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
 		err := planner.PlanMeta(&chain.PlanData)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.ErrorIs(t, err, ErrConnectivity)
 	})
 
@@ -166,7 +166,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
 		err = planner.PlanMeta(&chain.PlanData)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "Dungeonが初期化されていません")
 	})
 

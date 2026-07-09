@@ -169,7 +169,7 @@ func TestCategory(t *testing.T) {
 		entity.AddComponent(c.Name, &Name{Name: "何か"})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.False(t, ok)
-		assert.Equal(t, "", cat)
+		assert.Empty(t, cat)
 	})
 
 	t.Run("アイテム種別: 素材", func(t *testing.T) {
@@ -341,7 +341,7 @@ func TestCategoryOfSpec(t *testing.T) {
 		spec := EntitySpec{Name: &Name{Name: "何か"}}
 		cat, ok := c.CategoryOfSpec(ItemTypeCategoryKey, &spec)
 		assert.False(t, ok)
-		assert.Equal(t, "", cat)
+		assert.Empty(t, cat)
 	})
 }
 

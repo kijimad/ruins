@@ -152,7 +152,7 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 
 	// システム実行（エラーは返さず、警告ログを出してスキップする）
 	sys := &AutoInteractionSystem{}
-	assert.NoError(t, sys.Update(world), "無効なトリガーはスキップされ、エラーは返さない")
+	require.NoError(t, sys.Update(world), "無効なトリガーはスキップされ、エラーは返さない")
 
 	// トリガーは実行されず、残っているべき
 	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
@@ -181,7 +181,7 @@ func TestAutoInteractionSystem_InvalidWay(t *testing.T) {
 
 	// システム実行（エラーは返さず、警告ログを出してスキップする）
 	sys := &AutoInteractionSystem{}
-	assert.NoError(t, sys.Update(world), "無効なトリガーはスキップされ、エラーは返さない")
+	require.NoError(t, sys.Update(world), "無効なトリガーはスキップされ、エラーは返さない")
 
 	// トリガーは実行されず、残っているべき
 	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),

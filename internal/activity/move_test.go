@@ -46,7 +46,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 
 		ma := &MoveActivity{}
 		err = ma.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, ErrMoveTargetNotSet, err)
 	})
 
@@ -65,7 +65,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 
 		ma := &MoveActivity{}
 		err := ma.Validate(comp, player, world)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, ErrMoveNoGridElement, err)
 	})
 }
@@ -132,7 +132,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		ma := &MoveActivity{}
 		err = ma.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 
@@ -153,7 +153,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		ma := &MoveActivity{}
 		err := ma.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 

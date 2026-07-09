@@ -35,7 +35,7 @@ func TestEquipMenuState_FetchSlotProps(t *testing.T) {
 
 	props := state.fetchSlotProps(world)
 
-	assert.Equal(t, 1, len(props.Tabs), "タブは1つ（装備）")
+	assert.Len(t, props.Tabs, 1, "タブは1つ（装備）")
 	assert.Equal(t, "player_equipment", props.Tabs[0].ID)
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestWorld はテスト用のゲーム世界
@@ -67,7 +68,7 @@ func TestGetStatesMethods(t *testing.T) {
 
 		// StateMachineの初期化
 		stateMachine, err := Init(initialState, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// GetStatesのテスト
 		states := stateMachine.GetStates()
@@ -92,7 +93,7 @@ func TestGetStatesMethods(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		initialState := &TestState{name: "InitialState"}
 		stateMachine, err := Init(initialState, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// GetStatesで取得したスライスを変更しても元のスタックに影響しないことを確認
 		states := stateMachine.GetStates()
@@ -114,7 +115,7 @@ func TestGetStatesMethods(t *testing.T) {
 
 		// GetStatesのテスト
 		states := stateMachine.GetStates()
-		assert.Len(t, states, 0, "空のスタックの状態数が正しくない")
+		assert.Empty(t, states, "空のスタックの状態数が正しくない")
 
 		// GetCurrentStateのテスト
 		currentState := stateMachine.GetCurrentState()
@@ -135,11 +136,11 @@ func TestPushState(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		base := &TestState{name: "Base"}
 		sm, err := Init(base, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		pushed := &TestState{name: "Pushed"}
 		err = sm.PushState(world, pushed)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, 2, sm.GetStateCount())
 		assert.Equal(t, "Pushed", sm.GetCurrentState().(*TestState).name)
@@ -152,12 +153,12 @@ func TestPushState(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		base := &TestState{name: "Base"}
 		sm, err := Init(base, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		middle := &TestState{name: "Middle"}
 		top := &TestState{name: "Top"}
 		err = sm.PushState(world, middle, top)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, 3, sm.GetStateCount())
 		assert.Equal(t, "Top", sm.GetCurrentState().(*TestState).name)
@@ -175,10 +176,10 @@ func TestPushState(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		base := &TestState{name: "Base"}
 		sm, err := Init(base, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		err = sm.PushState(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, 1, sm.GetStateCount())
 	})
 }
@@ -192,24 +193,24 @@ func TestPushStateAndDraw(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		base := &TestState{name: "Base"}
 		sm, err := Init(base, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// ベースstateのUpdateを実行してシステムを初期化する
 		err = sm.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.True(t, base.updateCalled)
 
 		// メニューstateをpushする
 		menu := &TestState{name: "Menu"}
 		err = sm.PushState(world, menu)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// drawCalledをリセットして検証する
 		base.drawCalled = false
 		menu.drawCalled = false
 
 		err = sm.Draw(world, nil)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.True(t, base.drawCalled, "ベースstateのDrawが呼ばれていない")
 		assert.True(t, menu.drawCalled, "メニューstateのDrawが呼ばれていない")
@@ -220,14 +221,14 @@ func TestPushStateAndDraw(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		base := &TestState{name: "Base"}
 		sm, err := Init(base, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		err = sm.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		menu := &TestState{name: "Menu"}
 		err = sm.PushState(world, menu)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		states := sm.GetStates()
 		assert.Len(t, states, 2)
@@ -244,7 +245,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		initialState := &TestState{name: "InitialState"}
 		stateMachine, err := Init(initialState, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Push遷移を実行
 		newState := &TestState{name: "PushedState"}
@@ -253,7 +254,7 @@ func TestStateMachineTransitions(t *testing.T) {
 			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return newState, nil }},
 		}
 		err = stateMachine.Update(world)
-		assert.NoError(t, err, "Push遷移でエラーが発生")
+		require.NoError(t, err, "Push遷移でエラーが発生")
 
 		// 状態数の確認
 		assert.Equal(t, 2, stateMachine.GetStateCount(), "Push後の状態数が正しくない")
@@ -279,7 +280,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		initialState := &TestState{name: "InitialState"}
 		stateMachine, err := Init(initialState, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// まずPushして2つの状態にする
 		pushedState := &TestState{name: "PushedState"}
@@ -288,12 +289,12 @@ func TestStateMachineTransitions(t *testing.T) {
 			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return pushedState, nil }},
 		}
 		err = stateMachine.Update(world)
-		assert.NoError(t, err, "Push遷移でエラーが発生")
+		require.NoError(t, err, "Push遷移でエラーが発生")
 
 		// Pop遷移を実行
 		stateMachine.lastTransition = Transition[TestWorld]{Type: TransPop}
 		err = stateMachine.Update(world)
-		assert.NoError(t, err, "Pop遷移でエラーが発生")
+		require.NoError(t, err, "Pop遷移でエラーが発生")
 
 		// 状態数の確認
 		assert.Equal(t, 1, stateMachine.GetStateCount(), "Pop後の状態数が正しくない")
@@ -313,7 +314,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		initialState := &TestState{name: "InitialState"}
 		stateMachine, err := Init(initialState, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Switch遷移を実行
 		newState := &TestState{name: "SwitchedState"}
@@ -322,7 +323,7 @@ func TestStateMachineTransitions(t *testing.T) {
 			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return newState, nil }},
 		}
 		err = stateMachine.Update(world)
-		assert.NoError(t, err, "Switch遷移でエラーが発生")
+		require.NoError(t, err, "Switch遷移でエラーが発生")
 
 		// 状態数の確認（変わらず1つ）
 		assert.Equal(t, 1, stateMachine.GetStateCount(), "Switch後の状態数が正しくない")
@@ -342,7 +343,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		state1 := &TestState{name: "State1"}
 		sm, err := Init(state1, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// 2つ目をpush
 		state2 := &TestState{name: "State2"}
@@ -351,7 +352,7 @@ func TestStateMachineTransitions(t *testing.T) {
 			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return state2, nil }},
 		}
 		err = sm.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, 2, sm.GetStateCount())
 
 		// Replace遷移で全て置き換え
@@ -361,7 +362,7 @@ func TestStateMachineTransitions(t *testing.T) {
 			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return newState, nil }},
 		}
 		err = sm.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, 1, sm.GetStateCount())
 		assert.Equal(t, "Replaced", sm.GetCurrentState().(*TestState).name)
@@ -375,7 +376,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		world := TestWorld{Name: "TestWorld"}
 		state1 := &TestState{name: "State1"}
 		sm, err := Init(state1, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		state2 := &TestState{name: "State2"}
 		sm.lastTransition = Transition[TestWorld]{
@@ -383,12 +384,12 @@ func TestStateMachineTransitions(t *testing.T) {
 			NewStateFuncs: []StateFactory[TestWorld]{func() (State[TestWorld], error) { return state2, nil }},
 		}
 		err = sm.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Quit遷移で全状態を削除
 		sm.lastTransition = Transition[TestWorld]{Type: TransQuit}
 		err = sm.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, 0, sm.GetStateCount())
 		assert.Nil(t, sm.GetCurrentState())
@@ -400,7 +401,7 @@ func TestStateMachineTransitions(t *testing.T) {
 		t.Parallel()
 		world := TestWorld{Name: "TestWorld"}
 		sm, err := Init(&TestState{name: "Old"}, world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		bottom := &TestState{name: "Bottom"}
 		top := &TestState{name: "Top"}
@@ -412,7 +413,7 @@ func TestStateMachineTransitions(t *testing.T) {
 			},
 		}
 		err = sm.Update(world)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, 2, sm.GetStateCount())
 		assert.Equal(t, "Top", sm.GetCurrentState().(*TestState).name)

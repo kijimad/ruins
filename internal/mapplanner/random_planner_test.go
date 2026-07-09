@@ -72,11 +72,11 @@ func TestRandomPlannerTypes(t *testing.T) {
 
 		// タイル総数の確認
 		expectedTileCount := int(width) * int(height)
-		require.Equal(t, expectedTileCount, len(chain.PlanData.Tiles),
+		require.Len(t, chain.PlanData.Tiles, expectedTileCount,
 			"シード%dでタイル数が不正", seed)
 
 		// 部屋が生成されていることを確認
-		require.Greater(t, roomCount, 0,
+		require.Positive(t, roomCount,
 			"シード%dで部屋が生成されませんでした", seed)
 
 		// 床タイルと壁タイルの両方が存在することを確認
@@ -89,9 +89,9 @@ func TestRandomPlannerTypes(t *testing.T) {
 				wallCount++
 			}
 		}
-		require.Greater(t, floorCount, 0,
+		require.Positive(t, floorCount,
 			"シード%dで床タイルが生成されませんでした", seed)
-		require.Greater(t, wallCount, 0,
+		require.Positive(t, wallCount,
 			"シード%dで壁タイルが生成されませんでした", seed)
 
 		// 床と壁でタイル総数と一致することを確認

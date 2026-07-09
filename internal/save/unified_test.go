@@ -39,7 +39,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"同じワールドから生成されたJSON %d が一致しません", i+1)
 		}
 	})
@@ -60,7 +60,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"セッション %d のJSONが一致しません", i+1)
 		}
 	})
@@ -113,7 +113,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"コンポーネント追加順序による差異 (variant %d)", i+1)
 		}
 	})
@@ -152,7 +152,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		// 両方のバリアントが同じJSONを生成することを確認
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		normalizedJSON := normalizeJSONForComparison(jsonStrings[1])
-		assert.Equal(t, baseJSON, normalizedJSON,
+		assert.JSONEq(t, baseJSON, normalizedJSON,
 			"エンティティ作成順序による差異")
 	})
 
@@ -209,7 +209,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		// すべてのセッションで同一のJSONが生成されることを確認
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"プレイヤー生成セッション %d のJSONが初回と異なります", i+1)
 		}
 	})
@@ -232,7 +232,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
-			assert.Equal(t, baseJSON, normalizedJSON,
+			assert.JSONEq(t, baseJSON, normalizedJSON,
 				"決定的複雑データセッション %d のJSONが初回と異なります", i+1)
 		}
 	})

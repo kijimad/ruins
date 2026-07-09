@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSelectByWeightFunc_Empty(t *testing.T) {
@@ -17,7 +18,7 @@ func TestSelectByWeightFunc_Empty(t *testing.T) {
 		func(s string) string { return s },
 		rng,
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Empty(t, result)
 }
 
@@ -31,7 +32,7 @@ func TestSelectByWeightFunc_AllZeroWeight(t *testing.T) {
 		func(s string) string { return s },
 		rng,
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Empty(t, result)
 }
 
@@ -45,7 +46,7 @@ func TestSelectByWeightFunc_SingleItem(t *testing.T) {
 		func(s string) string { return s },
 		rng,
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "only", result)
 }
 
@@ -70,7 +71,7 @@ func TestSelectByWeightFunc_WeightedDistribution(t *testing.T) {
 			func(it item) string { return it.name },
 			rng,
 		)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		counts[result]++
 	}
 

@@ -83,7 +83,7 @@ func TestMainGameLifecycle(t *testing.T) {
 
 		// Update関数のテスト（エラーが発生しないことを確認）
 		err = game.Update()
-		assert.NoError(t, err, "Updateでエラーが発生")
+		require.NoError(t, err, "Updateでエラーが発生")
 
 		// Draw関数のテスト（パニックしないことを確認）
 		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
@@ -272,8 +272,8 @@ func validateMainGameInitialization(t *testing.T, world ew.World) {
 
 	// Layout関数の動作確認
 	width, height := game.Layout(0, 0)
-	assert.Greater(t, width, 0, "レイアウト幅が0以下")
-	assert.Greater(t, height, 0, "レイアウト高さが0以下")
+	assert.Positive(t, width, "レイアウト幅が0以下")
+	assert.Positive(t, height, "レイアウト高さが0以下")
 }
 
 // validateMemoryUsage はメモリ使用量の検証
