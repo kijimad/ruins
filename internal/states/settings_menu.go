@@ -198,7 +198,8 @@ func currentLanguageLabel(code string) string {
 // 選択した言語をユーザー設定に保存して設定画面へ戻る。実際の表示言語の切り替えは未実装。
 func NewLanguageMenuState() (es.State[w.World], error) {
 	messageState := &MessageState{}
-	messageData := messagedata.NewSystemMessage("言語")
+	// 本文を空にして選択肢のみを表示する。本文があるとメッセージ用の固定高さ領域が確保され、選択肢の上に大きな余白が生じるため
+	messageData := messagedata.NewSystemMessage("")
 	for _, l := range languagePresets {
 		messageData.WithChoice(l.Label, func(world w.World) error {
 			world.Config.User.Language = l.Code
