@@ -219,8 +219,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 
 		// エンティティ名を取得（デバッグ用）
 		var entityName string
-		if nameComp := world.Components.Name.Get(entity); nameComp != nil {
-			entityName = nameComp.(*gc.Name).Name
+		if nameComp, ok := world.Components.Name.TryGet(entity); ok {
+			entityName = nameComp.Name
 		} else {
 			entityName = "Unknown"
 		}
@@ -354,15 +354,14 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 
 			if weapon != nil {
 				// 武器名を取得
-				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-					weaponName = nameComp.(*gc.Name).Name
+				if nameComp, ok := world.Components.Name.TryGet(*weapon); ok {
+					weaponName = nameComp.Name
 				} else {
 					weaponName = "???"
 				}
 
 				// スプライト情報を取得
-				if spriteRender := world.Components.SpriteRender.Get(*weapon); spriteRender != nil {
-					sprite := spriteRender.(*gc.SpriteRender)
+				if sprite, ok := world.Components.SpriteRender.TryGet(*weapon); ok {
 					spriteSheet = sprite.SpriteSheetName
 					spriteName = sprite.SpriteKey
 				}
@@ -396,8 +395,7 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		world.Components.Player,
 		world.Components.Hunger,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
-			hunger := hungerComponent.(*gc.Hunger)
+		if hunger, ok := world.Components.Hunger.TryGet(entity); ok {
 			level := hunger.GetLevel()
 			if level != gc.HungerNormal {
 				badges = append(badges, hud.StatusBadge{

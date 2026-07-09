@@ -66,8 +66,8 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	var skills *gc.Skills
-	if skillsComp := world.Components.Skills.Get(actor); skillsComp != nil {
-		skills = skillsComp.(*gc.Skills)
+	if s, ok := world.Components.Skills.TryGet(actor); ok {
+		skills = s
 	}
 	if err := book.CanRead(skills); err != nil {
 		return err
@@ -184,11 +184,10 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 	effect := book.Skill
 
 	// プレイヤーのSkillsコンポーネントを取得
-	skillsComp := world.Components.Skills.Get(actor)
-	if skillsComp == nil {
+	skills, ok := world.Components.Skills.TryGet(actor)
+	if !ok {
 		return
 	}
-	skills := skillsComp.(*gc.Skills)
 
 	s := skills.Get(effect.TargetSkill)
 
@@ -226,20 +225,19 @@ func (ra *ReadActivity) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 	if book.Skill == nil {
 		return 0
 	}
-	abilsComp := world.Components.Abilities.Get(actor)
-	if abilsComp == nil {
+	abils, ok := world.Components.Abilities.TryGet(actor)
+	if !ok {
 		return 0
 	}
-	abils := abilsComp.(*gc.Abilities)
 	ablID := gc.SkillAbilityID(book.Skill.TargetSkill)
 	return abils.ValueOf(ablID)
 }
 
 // getBook は対象エンティティのBookコンポーネントを取得する
 func (ra *ReadActivity) getBook(entity ecs.Entity, world w.World) *gc.Book {
-	comp := world.Components.Book.Get(entity)
-	if comp == nil {
+	book, ok := world.Components.Book.TryGet(entity)
+	if !ok {
 		return nil
 	}
-	return comp.(*gc.Book)
+	return book
 }

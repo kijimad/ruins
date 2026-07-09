@@ -308,11 +308,10 @@ func TestColdPlayerCanAct(t *testing.T) {
 		if turnState == nil || turnState.Phase != gc.TurnPhasePlayer {
 			return false
 		}
-		tbComp := world.Components.TurnBased.Get(entity)
-		if tbComp == nil {
+		tb, ok := world.Components.TurnBased.TryGet(entity)
+		if !ok {
 			return false
 		}
-		tb := tbComp.(*gc.TurnBased)
 		return tb.AP.Current >= 0
 	}
 
@@ -325,10 +324,8 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// TurnBasedコンポーネントの存在確認
-		turnBased := world.Components.TurnBased.Get(playerEntity)
-		require.NotNil(t, turnBased, "プレイヤーはTurnBasedコンポーネントを持つべき")
-
-		tb := turnBased.(*gc.TurnBased)
+		tb, ok := world.Components.TurnBased.TryGet(playerEntity)
+		require.True(t, ok, "プレイヤーはTurnBasedコンポーネントを持つべき")
 		t.Logf("TurnBased AP: Current=%d, Max=%d", tb.AP.Current, tb.AP.Max)
 
 		// 行動可能かを確認

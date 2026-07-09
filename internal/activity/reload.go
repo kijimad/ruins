@@ -163,18 +163,14 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 	effort := BaseReloadEffort
 
 	// DEXを加算
-	abilsComp := world.Components.Abilities.Get(actor)
-	if abilsComp != nil {
-		abils := abilsComp.(*gc.Abilities)
+	if abils, ok := world.Components.Abilities.TryGet(actor); ok {
 		effort += abils.Dexterity.Total
 	}
 
 	// 武器スキルレベルを加算
 	skillID, ok := gc.WeaponSkillID(fire.AttackCategory)
 	if ok {
-		skillsComp := world.Components.Skills.Get(actor)
-		if skillsComp != nil {
-			skills := skillsComp.(*gc.Skills)
+		if skills, ok := world.Components.Skills.TryGet(actor); ok {
 			effort += skills.Get(skillID).Value
 		}
 	}

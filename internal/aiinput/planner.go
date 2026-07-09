@@ -38,8 +38,8 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 		}
 
 		actionCost := behavior.Info().ActionPointCost
-		tbComp := world.Components.TurnBased.Get(entity)
-		if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current < actionCost {
+		tbComp, ok := world.Components.TurnBased.TryGet(entity)
+		if !ok || tbComp.AP.Current < actionCost {
 			log.Debug("AP不足", "entity", entity, "activity", behavior.Name(), "cost", actionCost)
 			break
 		}

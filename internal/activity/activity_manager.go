@@ -110,11 +110,11 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
 func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
-	comp := world.Components.LastActivity.Get(actor)
-	if comp == nil {
+	last, ok := world.Components.LastActivity.TryGet(actor)
+	if !ok {
 		return nil
 	}
-	return comp.(*gc.LastActivity)
+	return last
 }
 
 // StartActivity は新しいアクティビティを開始する
@@ -307,13 +307,12 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 	}
 
 	// TurnBasedコンポーネントから直接APを消費
-	tbComp := world.Components.TurnBased.Get(actor)
-	if tbComp == nil {
+	tb, ok := world.Components.TurnBased.TryGet(actor)
+	if !ok {
 		log.Debug("TurnBasedコンポーネントがない", "actor", actor)
 		return
 	}
 
-	tb := tbComp.(*gc.TurnBased)
 	tb.AP.Current -= cost
 
 	log.Debug("移動コスト消費",

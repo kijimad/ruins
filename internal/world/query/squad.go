@@ -41,11 +41,11 @@ func SquadMemberAt(world w.World, x, y int) (ecs.Entity, bool) {
 // GetAI は隊員のAIコンポーネントを返す。
 // コンポーネントがない場合はnilを返す
 func GetAI(world w.World, member ecs.Entity) *gc.AI {
-	comp := world.Components.AI.Get(member)
-	if comp == nil {
+	ai, ok := world.Components.AI.TryGet(member)
+	if !ok {
 		return nil
 	}
-	return comp.(*gc.AI)
+	return ai
 }
 
 // IsSquadMember はエンティティが隊員かどうかを返す

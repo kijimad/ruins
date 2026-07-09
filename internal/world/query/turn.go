@@ -32,23 +32,21 @@ func CanPlayerAct(world w.World) bool {
 		return false
 	}
 
-	tbComp := world.Components.TurnBased.Get(playerEntity)
-	if tbComp == nil {
+	tb, ok := world.Components.TurnBased.TryGet(playerEntity)
+	if !ok {
 		return false
 	}
 
-	tb := tbComp.(*gc.TurnBased)
 	return tb.AP.Current >= 0
 }
 
 // ConsumeActionPoints はエンティティのアクションポイントを消費する
 func ConsumeActionPoints(world w.World, entity ecs.Entity, cost int) bool {
-	tbComp := world.Components.TurnBased.Get(entity)
-	if tbComp == nil {
+	tb, ok := world.Components.TurnBased.TryGet(entity)
+	if !ok {
 		return false
 	}
 
-	tb := tbComp.(*gc.TurnBased)
 	tb.AP.Current -= cost
 
 	log := logger.New(logger.CategoryTurn)
@@ -96,12 +94,10 @@ func RestoreAllActionPoints(world w.World) error {
 // CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
 // 敏捷性を重視したAP計算式
 func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
-	abilsComp := world.Components.Abilities.Get(entity)
-	if abilsComp == nil {
+	abils, ok := world.Components.Abilities.TryGet(entity)
+	if !ok {
 		return 0, fmt.Errorf("能力値が設定されていない")
 	}
-
-	abils := abilsComp.(*gc.Abilities)
 
 	baseAP := 100
 	agilityMultiplier := 3
@@ -118,8 +114,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed := speedBaseValue
 
 	// 能力値ボーナス
-	if abilsComp := world.Components.Abilities.Get(entity); abilsComp != nil {
-		abils := abilsComp.(*gc.Abilities)
+	if abils, ok := world.Components.Abilities.TryGet(entity); ok {
 		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
 	}
 
@@ -149,8 +144,7 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	penalty := 0
 
 	// 空腹ペナルティ
-	if hungerComp := world.Components.Hunger.Get(entity); hungerComp != nil {
-		hunger := hungerComp.(*gc.Hunger)
+	if hunger, ok := world.Components.Hunger.TryGet(entity); ok {
 		penalty += hungerSpeedPenalty(hunger.Current)
 	}
 
@@ -175,12 +169,11 @@ func hungerSpeedPenalty(current int) int {
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する
 func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
-	cwComp := world.Components.WeightCapacity.Get(entity)
-	if cwComp == nil {
+	cw, ok := world.Components.WeightCapacity.TryGet(entity)
+	if !ok {
 		return 0
 	}
 
-	cw := cwComp.(*gc.WeightCapacity)
 	if cw.Max == 0 {
 		return 0
 	}

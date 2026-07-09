@@ -59,8 +59,8 @@ func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior
 func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*squadContext, bool) {
 	grid := world.Components.GridElement.MustGet(entity)
 
-	aiComp := world.Components.AI.Get(entity)
-	if aiComp == nil {
+	aiComp, ok := world.Components.AI.TryGet(entity)
+	if !ok {
 		sp.logger.Warn("隊員にAIがない", "entity", entity)
 		return nil, false
 	}
@@ -79,7 +79,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 
 	return &squadContext{
 		Grid:         grid,
-		Squad:        aiComp.(*gc.AI).Planner.(*gc.SquadAI),
+		Squad:        aiComp.Planner.(*gc.SquadAI),
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.MustGet(leader),
 	}, true
@@ -117,11 +117,10 @@ func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadC
 
 // shouldRetreatLowHP はHP25%以下で後退すべきかを判定する
 func (sp *squadPlanner) shouldRetreatLowHP(world w.World, entity ecs.Entity) bool {
-	hpComp := world.Components.HP.Get(entity)
-	if hpComp == nil {
+	hp, ok := world.Components.HP.TryGet(entity)
+	if !ok {
 		return false
 	}
-	hp := hpComp.(*gc.HP)
 	if hp.Max == 0 {
 		return false
 	}

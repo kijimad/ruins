@@ -562,8 +562,8 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 
 		if weapon != nil {
 			// 武器が装備されている場合は武器名を表示
-			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-				weaponName := nameComp.(*gc.Name).Name
+			if nameComp, ok := world.Components.Name.TryGet(*weapon); ok {
+				weaponName := nameComp.Name
 				gamelog.New(query.GetGameLog(world)).
 					ItemName(weaponName).
 					Append("を構えた").

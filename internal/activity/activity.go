@@ -183,15 +183,14 @@ func progressHunger(actor ecs.Entity, world w.World) {
 	if !actor.HasComponent(world.Components.Player) {
 		return
 	}
-	hungerComp := world.Components.Hunger.Get(actor)
-	if hungerComp == nil {
+	hunger, ok := world.Components.Hunger.TryGet(actor)
+	if !ok {
 		return
 	}
-	hunger := hungerComp.(*gc.Hunger)
 
 	hungerPct := 100
-	if modsComp := world.Components.CharModifiers.Get(actor); modsComp != nil {
-		hungerPct = modsComp.(*gc.CharModifiers).HungerProgress
+	if mods, ok := world.Components.CharModifiers.TryGet(actor); ok {
+		hungerPct = mods.HungerProgress
 	}
 	if world.Config.RNG.IntN(100) < hungerPct {
 		hunger.Decrease(1)
@@ -200,12 +199,11 @@ func progressHunger(actor ecs.Entity, world w.World) {
 
 // isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする
 func isAreaSafe(actor ecs.Entity, world w.World) bool {
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	actorGrid, ok := world.Components.GridElement.TryGet(actor)
+	if !ok {
 		return false
 	}
 
-	actorGrid := gridElement.(*gc.GridElement)
 	actorX, actorY := int(actorGrid.X), int(actorGrid.Y)
 
 	safeRadius := 1

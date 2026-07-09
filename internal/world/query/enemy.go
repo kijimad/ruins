@@ -102,9 +102,8 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 
 // GetEntityName はエンティティの名前を取得する
 func GetEntityName(entity ecs.Entity, world w.World) string {
-	name := world.Components.Name.Get(entity)
-	if name != nil {
-		return name.(*gc.Name).Name
+	if name, ok := world.Components.Name.TryGet(entity); ok {
+		return name.Name
 	}
 	return "Unknown"
 }

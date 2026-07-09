@@ -19,9 +19,9 @@ func DismissSquadMember(world w.World, member ecs.Entity) error {
 
 // GetAI は隊員のAIコンポーネントを返す。コンポーネントがない場合はエラーを返す
 func GetAI(world w.World, member ecs.Entity) (*gc.AI, error) {
-	comp := world.Components.AI.Get(member)
-	if comp == nil {
+	ai, ok := world.Components.AI.TryGet(member)
+	if !ok {
 		return nil, fmt.Errorf("エンティティにAIがありません")
 	}
-	return comp.(*gc.AI), nil
+	return ai, nil
 }

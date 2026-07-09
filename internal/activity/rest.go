@@ -118,9 +118,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 	}
 
 	// 最終的なHP回復（ボーナス）
-	hpComponent := world.Components.HP.Get(actor)
-	if hpComponent != nil {
-		hp := hpComponent.(*gc.HP)
+	if hp, ok := world.Components.HP.TryGet(actor); ok {
 		if hp.Current < hp.Max {
 			bonusHealing := 2
 			hp.Current += bonusHealing
@@ -155,15 +153,11 @@ func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // performHealing はHP回復処理を実行する
 func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	hpComponent := world.Components.HP.Get(actor)
-	if hpComponent == nil {
+	hp, ok := world.Components.HP.TryGet(actor)
+	if !ok {
 		return nil
 	}
 
-	hp, ok := hpComponent.(*gc.HP)
-	if !ok {
-		return fmt.Errorf("HPコンポーネントの型変換に失敗しました")
-	}
 	if hp.Current >= hp.Max {
 		// 既に満タンの場合は早期完了
 		Complete(comp)

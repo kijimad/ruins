@@ -188,26 +188,22 @@ func calculateRangedHitModifier(actor, target ecs.Entity, attack gc.Attacker, wo
 
 // EntityDistance は2エンティティ間の距離を返す
 func EntityDistance(a, b ecs.Entity, world w.World) float64 {
-	aGrid := world.Components.GridElement.Get(a)
-	bGrid := world.Components.GridElement.Get(b)
-	if aGrid == nil || bGrid == nil {
+	aPos, aOK := world.Components.GridElement.TryGet(a)
+	bPos, bOK := world.Components.GridElement.TryGet(b)
+	if !aOK || !bOK {
 		return math.MaxFloat64
 	}
-	aPos := aGrid.(*gc.GridElement)
-	bPos := bGrid.(*gc.GridElement)
 	return geometry.Distance(float64(aPos.X), float64(aPos.Y), float64(bPos.X), float64(bPos.Y))
 }
 
 // checkLineOfSight は射線上の壁と遮蔽物を1パスでチェックする。
 // 壁（BlockView=true）があればblocked=true、遮蔽物（BlockPass=true, BlockView=false）の数をcoverCountで返す
 func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, coverCount int) {
-	aGrid := world.Components.GridElement.Get(actor)
-	tGrid := world.Components.GridElement.Get(target)
-	if aGrid == nil || tGrid == nil {
+	aPos, aOK := world.Components.GridElement.TryGet(actor)
+	tPos, tOK := world.Components.GridElement.TryGet(target)
+	if !aOK || !tOK {
 		return true, 0
 	}
-	aPos := aGrid.(*gc.GridElement)
-	tPos := tGrid.(*gc.GridElement)
 
 	points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
 	for _, p := range points {

@@ -152,18 +152,15 @@ func (aa *AttackActivity) canAttack(comp *gc.Activity, actor ecs.Entity, world w
 }
 
 func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) bool {
-	attackerGrid := world.Components.GridElement.Get(attacker)
-	if attackerGrid == nil {
+	attackerPos, ok := world.Components.GridElement.TryGet(attacker)
+	if !ok {
 		return false
 	}
 
-	targetGrid := world.Components.GridElement.Get(target)
-	if targetGrid == nil {
+	targetPos, ok := world.Components.GridElement.TryGet(target)
+	if !ok {
 		return false
 	}
-
-	attackerPos := attackerGrid.(*gc.GridElement)
-	targetPos := targetGrid.(*gc.GridElement)
 
 	distance := geometry.Distance(float64(attackerPos.X), float64(attackerPos.Y), float64(targetPos.X), float64(targetPos.Y))
 
@@ -173,8 +170,7 @@ func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) 
 
 func (aa *AttackActivity) canPerformAttack(attacker ecs.Entity, world w.World) bool {
 	// TODO: 装備武器のチェック
-	abils := world.Components.Abilities.Get(attacker)
-	return abils != nil
+	return attacker.HasComponent(world.Components.Abilities)
 }
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
@@ -301,16 +297,15 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
 func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int {
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	if attackerAbilsComp == nil {
+	attackerAbils, ok := world.Components.Abilities.TryGet(attacker)
+	if !ok {
 		return formula.BaseHitRate
 	}
-	attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
 	// Abilitiesを持たないターゲットには自動命中する
 	targetAgility := 0
-	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
-		targetAgility = targetAbilsComp.(*gc.Abilities).Agility.Total
+	if targetAbils, ok := world.Components.Abilities.TryGet(target); ok {
+		targetAgility = targetAbils.Agility.Total
 	}
 
 	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
@@ -346,11 +341,10 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 
 // calculateDamage はダメージ計算を行う
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	if attackerAbilsComp == nil {
+	attackerAbils, ok := world.Components.Abilities.TryGet(attacker)
+	if !ok {
 		return 0
 	}
-	attackerAbils := attackerAbilsComp.(*gc.Abilities)
 
 	baseAbil := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
@@ -358,8 +352,8 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	}
 
 	targetDefense := 0
-	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
-		targetDefense = targetAbilsComp.(*gc.Abilities).Defense.Total
+	if targetAbils, ok := world.Components.Abilities.TryGet(target); ok {
+		targetDefense = targetAbils.Defense.Total
 	}
 
 	baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1
@@ -383,11 +377,10 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
 func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
-	skillsComp := world.Components.Skills.Get(actor)
-	if skillsComp == nil {
+	skills, ok := world.Components.Skills.TryGet(actor)
+	if !ok {
 		return
 	}
-	skills := skillsComp.(*gc.Skills)
 
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
@@ -395,11 +388,10 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 	s := skills.Get(skillID)
 
-	abilsComp := world.Components.Abilities.Get(actor)
-	if abilsComp == nil {
+	abils, ok := world.Components.Abilities.TryGet(actor)
+	if !ok {
 		return
 	}
-	abils := abilsComp.(*gc.Abilities)
 	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {

@@ -8,7 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -157,11 +156,10 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
 		return "射撃武器が装備されていません"
 	}
-	fireComp := world.Components.Fire.Get(*weapons[weaponIndex])
-	if fireComp == nil {
+	fire, ok := world.Components.Fire.TryGet(*weapons[weaponIndex])
+	if !ok {
 		return "射撃武器が装備されていません"
 	}
-	fire := fireComp.(*gc.Fire)
 	if fire.Magazine <= 0 {
 		return "装填されていません"
 	}
@@ -354,9 +352,7 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
 	drawText(fmt.Sprintf("武器: %s", weaponName))
 
 	// 残弾表示
-	fireComp := world.Components.Fire.Get(*weaponEntity)
-	if fireComp != nil {
-		fire := fireComp.(*gc.Fire)
+	if fire, ok := world.Components.Fire.TryGet(*weaponEntity); ok {
 		drawText(fmt.Sprintf("残弾: %d/%d", fire.Magazine, fire.MagazineSize))
 	} else {
 		drawText("近接武器")

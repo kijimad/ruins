@@ -3,7 +3,6 @@ package query
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -68,8 +67,7 @@ func GetEntityCount(world w.World, entity ecs.Entity) int {
 // 個数が1以下の場合は名前のみ、2以上の場合は "名前(個数)" の形式で返す
 func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 	name := "Unknown Item"
-	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
-		n := nameComp.(*gc.Name)
+	if n, ok := world.Components.Name.TryGet(itemEntity); ok {
 		name = n.Name
 	}
 

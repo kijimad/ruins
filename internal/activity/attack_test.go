@@ -338,10 +338,8 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
 		// アクティビティがキャンセルされている（命中時）、または残っている（ミス時）
-		currentComp := world.Components.Activity.Get(target)
-		if currentComp != nil {
+		if activity, ok := world.Components.Activity.TryGet(target); ok {
 			// ミスした場合はアクティビティが残る。状態がRunningなら中断処理は正しく動作している
-			activity := currentComp.(*gc.Activity)
 			assert.Equal(t, gc.ActivityStateRunning, activity.State,
 				"ミス時はアクティビティがRunningのまま残る")
 		}

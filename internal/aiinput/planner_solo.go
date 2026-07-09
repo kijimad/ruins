@@ -36,12 +36,12 @@ func newSoloPlanner(rng *rand.Rand) *soloPlanner {
 // Plan は状態遷移の評価とアクション決定を一体的に行う。
 // APループ内で繰り返し呼ばれ、状態遷移は同一ターン内でべき等
 func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior {
-	aiComp := world.Components.AI.Get(entity)
-	if aiComp == nil {
+	aiComp, ok := world.Components.AI.TryGet(entity)
+	if !ok {
 		rp.logger.Warn("AIコンポーネントなし", "entity", entity)
 		return nil
 	}
-	solo := aiComp.(*gc.AI).Planner.(*gc.SoloAI)
+	solo := aiComp.Planner.(*gc.SoloAI)
 	grid := world.Components.GridElement.MustGet(entity)
 
 	target := rp.findNearestHostile(world, entity)
