@@ -83,9 +83,12 @@ type EntitySpec struct {
 	GameLog *GameLog
 }
 
+//go:generate go run ./gen
+
 // Components はECSコンポーネントストレージ
 // 各コンポーネント型のSliceComponent/NullComponentを保持し、
-// Manager.Join()でのクエリに使用される
+// Manager.Join()でのクエリに使用される。
+// 各SliceComponentの型付き取得は生成された GetX メソッドを使う（accessors_gen.go）
 type Components struct {
 	// general ================
 	Name        *ecs.SliceComponent `save:"true"`
