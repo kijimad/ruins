@@ -540,7 +540,7 @@ func TestPlanWanderAction(t *testing.T) {
 	gotWait := false
 	for range 50 {
 		behavior := rp.planWanderAction(world, entity, grid)
-		switch behavior.Name() { //nolint:exhaustive
+		switch behavior.Name() { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
 		case gc.BehaviorMove:
 			gotMove = true
 		case gc.BehaviorWait:
@@ -736,7 +736,7 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	gotWait := false
 	for range 50 {
 		behavior := rp.planRandomMoveAction(world, entity, grid)
-		switch behavior.Name() { //nolint:exhaustive
+		switch behavior.Name() { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
 		case gc.BehaviorMove:
 			gotMove = true
 		case gc.BehaviorWait:

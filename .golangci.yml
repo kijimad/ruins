@@ -33,6 +33,8 @@ linters:
     - gocheckcompilerdirectives # //go:embed 等のコンパイラディレクティブ誤記を検出
     - nilnesserr     # nilエラー判定の不備を検出（errorlint/nilerrを補完）
     - reassign       # 他パッケージの変数への再代入を検出
+    - nolintlint     # nolintディレクティブに理由と対象linterの明示を強制
+    - bidichk        # 不可視の危険なUnicode（トロイソース攻撃）を検出
     # 現状と乖離が大きいので追加しない
     # - forcetypeassert # ECSの .Get().(*T) が意図的な型アサーションのため不適合
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
@@ -43,16 +45,17 @@ linters:
 
   settings:
     gocritic:
-      # diagnostic/styleのデフォルトチェック（unlambda, ifElseChain, assignOp, underef 等）に加えて、性能系の rangeValCopy のみ追加で有効化する。
-      # hugeParam は値渡しを広くポインタ化させ、エイリアシングのリスクと大きな差分を招くため採用しない。
-      # commentedOutCode は日本語コメントを誤検知するため採用しない。
+      # 追加で有効化する
       enabled-checks:
+        # - hugeParam # 値渡しを広くポインタ化させ、エイリアシングのリスクと大きな差分を招くため採用しない
+        # - commentedOutCode # 日本語コメントを誤検知するため採用しない
         - rangeValCopy # rangeでの大きな値コピーを検出する（性能）
     testifylint:
-      # デフォルトで大半のチェックが有効。合わない下位チェックのみ個別に無効化する。
-      # float-compare は厳密値/センチネル/0との比較が大半で、InDeltaの許容誤差付与が恣意的でノイズになるため無効化する。
       disable:
-        - float-compare
+        - float-compare # 厳密値/センチネル/0との比較が大半で、InDeltaの許容誤差付与が恣意的でノイズになるため
+    nolintlint:
+      require-explanation: true # nolintには理由コメントを必須にする
+      require-specific: true # 対象linterを明示させる（//nolint単独を禁止）
     exhaustive:
       check:
         - switch

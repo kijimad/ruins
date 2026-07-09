@@ -372,7 +372,7 @@ func TestLoggerOutput(t *testing.T) {
 	}
 }
 
-//nolint:paralleltest
+//nolint:paralleltest // グローバルなロガー設定を変更するため並列化しない
 func TestIgnoreLevel(t *testing.T) {
 	// ignoreレベルではすべてのログが出力されない
 	SetConfig(Config{
