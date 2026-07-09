@@ -139,8 +139,8 @@ type jobMenuItem struct {
 func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	items := make([]jobMenuItem, len(professions))
-	for i, p := range professions {
-		items[i] = jobMenuItem{Profession: p}
+	for i := range professions {
+		items[i] = jobMenuItem{Profession: professions[i]}
 	}
 	return jobMenuProps{Items: items}
 }
@@ -234,9 +234,9 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 
 	// メインエリア: 左右分割
 	leftContainer := styled.NewVerticalContainer()
-	for i, item := range props.Items {
+	for i := range props.Items {
 		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Profession.Name, theme.TextSecondary, isSelected, res)
+		itemWidget := styled.NewListItemText(props.Items[i].Profession.Name, theme.TextSecondary, isSelected, res)
 		leftContainer.AddChild(itemWidget)
 	}
 	rightContainer := st.buildDetailPanel(props, itemIndex, res)

@@ -111,11 +111,12 @@ func GetEntityName(entity ecs.Entity, world w.World) string {
 
 // AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する
 func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) {
-	if entity.HasComponent(world.Components.Player) {
+	switch {
+	case entity.HasComponent(world.Components.Player):
 		logger.PlayerName(name)
-	} else if entity.HasComponent(world.Components.AI) {
+	case entity.HasComponent(world.Components.AI):
 		logger.NPCName(name)
-	} else {
+	default:
 		logger.Append(name)
 	}
 }

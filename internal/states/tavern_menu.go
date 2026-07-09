@@ -256,7 +256,8 @@ func (st *TavernMenuState) fetchProps(world w.World) tavernProps {
 	})
 
 	candidates := make([]tavernCandidateData, 0, len(st.candidates))
-	for i, c := range st.candidates {
+	for i := range st.candidates {
+		c := &st.candidates[i]
 		candidates = append(candidates, tavernCandidateData{
 			Index:     i,
 			Name:      c.Name,

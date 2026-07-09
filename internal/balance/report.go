@@ -214,7 +214,9 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
 		stats WeaponStats
 	}
 	var weapons []weaponEntry
-	for _, item := range raw.PtrSlice(master.Items) {
+	items := raw.PtrSlice(master.Items)
+	for i := range items {
+		item := &items[i]
 		w, err := LoadWeaponFromItem(master, item.Name)
 		if err != nil {
 			continue

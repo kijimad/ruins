@@ -97,11 +97,12 @@ func TestBigRoomVariations(t *testing.T) {
 		ratio := float64(wallCount) / float64(wallCount+floorCount)
 		variantType := ""
 
-		if ratio <= 0.25 {
+		switch {
+		case ratio <= 0.25:
 			variantType = "basic"
-		} else if ratio <= 0.35 {
+		case ratio <= 0.35:
 			variantType = "pillars_obstacles_platform"
-		} else {
+		default:
 			variantType = "maze"
 		}
 

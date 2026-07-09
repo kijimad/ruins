@@ -306,7 +306,9 @@ func collectPlannerTypes() []mapplanner.PlannerType {
 		ItemTableName  string
 	}
 	tableMap := map[string]tableInfo{}
-	for _, def := range dungeon.GetAllDungeons() {
+	dungeons := dungeon.GetAllDungeons()
+	for i := range dungeons {
+		def := &dungeons[i]
 		for _, pw := range def.PlannerPool {
 			if _, exists := tableMap[pw.PlannerType.Name]; !exists {
 				tableMap[pw.PlannerType.Name] = tableInfo{

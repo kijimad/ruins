@@ -435,11 +435,12 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 			query.AppendNameWithColor(l, target, targetName, world)
 		}).
 		Build(func(l *gamelog.Logger) {
-			if !hit {
+			switch {
+			case !hit:
 				l.Append(" を攻撃したが外れた。")
-			} else if critical {
+			case critical:
 				l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
-			} else {
+			default:
 				l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
 			}
 		}).

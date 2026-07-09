@@ -177,7 +177,8 @@ func (st *DungeonSelectState) fetchProps(world w.World) dungeonSelectProps {
 	allDungeons := dungeon.GetAllDungeons()
 	items := make([]dungeonSelectItem, 0, len(allDungeons)+1)
 
-	for _, d := range allDungeons {
+	for i := range allDungeons {
+		d := &allDungeons[i]
 		items = append(items, dungeonSelectItem{
 			Name:     d.Name,
 			Cleared:  gp.IsDungeonCleared(d.Name),

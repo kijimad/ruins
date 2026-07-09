@@ -50,11 +50,12 @@ func (sys *CameraSystem) Update(world w.World) error {
 		// ズーム率変更
 		// 参考: https://ebitengine.org/ja/examples/isometric.html
 		var scrollY float64
-		if ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown) {
+		switch {
+		case ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown):
 			scrollY = -0.25
-		} else if ebiten.IsKeyPressed(ebiten.KeyE) || ebiten.IsKeyPressed(ebiten.KeyPageUp) {
+		case ebiten.IsKeyPressed(ebiten.KeyE) || ebiten.IsKeyPressed(ebiten.KeyPageUp):
 			scrollY = 0.25
-		} else {
+		default:
 			_, scrollY = ebiten.Wheel()
 			if scrollY < -1 {
 				scrollY = -1

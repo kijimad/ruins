@@ -108,11 +108,12 @@ func TestLoggerBuildWithEntityLogic(t *testing.T) {
 
 	logger := New(store)
 	logger.Build(func(l *Logger) {
-		if isPlayer {
+		switch {
+		case isPlayer:
 			l.PlayerName("Ash")
-		} else if isNPC {
+		case isNPC:
 			l.NPCName("スライム")
-		} else {
+		default:
 			l.Append("Unknown")
 		}
 	}).
@@ -164,11 +165,12 @@ func TestComplexMethodChain(t *testing.T) {
 			l.NPCName("ゴブリン")
 		}).
 		Build(func(l *Logger) {
-			if !hit {
+			switch {
+			case !hit:
 				l.Append(" を攻撃したが外れた。")
-			} else if critical {
+			case critical:
 				l.Append(" にクリティカルヒット。").Damage(damage).Append("ダメージ")
-			} else {
+			default:
 				l.Append(" を攻撃した。").Damage(damage).Append("ダメージ")
 			}
 		}).

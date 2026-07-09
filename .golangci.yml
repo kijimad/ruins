@@ -19,6 +19,7 @@ linters:
     - tparallel      # t.Parallel()の不適切な使用検出
     - depguard       # 依存関係制御（禁止パッケージの使用防止）
     - exhaustive     # enum switch文の網羅性チェック（バグ防止）
+    - gocritic       # 意見の分かれない有用なチェックのみ個別有効化する
     # 現状と乖離が大きいので追加しない
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
@@ -27,6 +28,12 @@ linters:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
 
   settings:
+    gocritic:
+      # diagnostic/styleのデフォルトチェック（unlambda, ifElseChain, assignOp, underef 等）に加えて、性能系の rangeValCopy のみ追加で有効化する。
+      # hugeParam は値渡しを広くポインタ化させ、エイリアシングのリスクと大きな差分を招くため採用しない。
+      # commentedOutCode は日本語コメントを誤検知するため採用しない。
+      enabled-checks:
+        - rangeValCopy # rangeでの大きな値コピーを検出する（性能）
     exhaustive:
       check:
         - switch

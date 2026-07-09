@@ -150,13 +150,14 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
 	var textColor color.RGBA
 	if data.PlayerMaxWeight > 0 {
 		ratio := data.PlayerWeight / data.PlayerMaxWeight
-		if ratio > 1.0 {
+		switch {
+		case ratio > 1.0:
 			// 超過: 赤
 			textColor = theme.HUDWeightDanger
-		} else if ratio > 0.8 {
+		case ratio > 0.8:
 			// 80%以上: 黄色
 			textColor = theme.HUDWeightWarning
-		} else {
+		default:
 			// 通常: 白
 			textColor = theme.TextPrimary
 		}

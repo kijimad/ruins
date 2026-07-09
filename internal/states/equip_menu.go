@@ -770,7 +770,7 @@ func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabD
 
 	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
 		item := tabs[tabIndex].Items[itemIndex]
-		if item.Entity != nil && (*item.Entity).HasComponent(world.Components.Description) {
+		if item.Entity != nil && item.Entity.HasComponent(world.Components.Description) {
 			descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)
 			desc = descComp.Description
 		}
