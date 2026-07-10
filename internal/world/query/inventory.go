@@ -65,7 +65,7 @@ func GetEntityCount(world w.World, entity ecs.Entity) int {
 func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 	name := "Unknown Item"
 	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
-		n := nameComp.(*gc.Name)
+		n := nameComp
 		name = n.Name
 	}
 

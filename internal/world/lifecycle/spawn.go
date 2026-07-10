@@ -362,7 +362,7 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 	if hpComponent == nil {
 		return fmt.Errorf("HPコンポーネントがありません")
 	}
-	hp := hpComponent.(*gc.HP)
+	hp := hpComponent
 	hp.Current = hp.Max
 
 	if world.Components.TurnBased.Has(entity) {

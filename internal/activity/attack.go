@@ -65,11 +65,11 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return ErrAttackerDead
 	}
 
-	if !comp.world.Components.GridElement.Has(Target) {
+	if !world.Components.GridElement.Has(comp.Target) {
 		return ErrAttackTargetNotExists
 	}
 
-	if comp.world.Components.Dead.Has(Target) {
+	if world.Components.Dead.Has(comp.Target) {
 		return ErrAttackTargetDead
 	}
 
@@ -162,8 +162,8 @@ func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) 
 		return false
 	}
 
-	attackerPos := attackerGrid.(*gc.GridElement)
-	targetPos := targetGrid.(*gc.GridElement)
+	attackerPos := attackerGrid
+	targetPos := targetGrid
 
 	distance := geometry.Distance(float64(attackerPos.X), float64(attackerPos.Y), float64(targetPos.X), float64(targetPos.Y))
 
@@ -305,12 +305,12 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 	if attackerAbilsComp == nil {
 		return formula.BaseHitRate
 	}
-	attackerAbils := attackerAbilsComp.(*gc.Abilities)
+	attackerAbils := attackerAbilsComp
 
 	// Abilitiesを持たないターゲットには自動命中する
 	targetAgility := 0
 	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
-		targetAgility = targetAbilsComp.(*gc.Abilities).Agility.Total
+		targetAgility = targetAbilsComp.Agility.Total
 	}
 
 	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
@@ -350,7 +350,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	if attackerAbilsComp == nil {
 		return 0
 	}
-	attackerAbils := attackerAbilsComp.(*gc.Abilities)
+	attackerAbils := attackerAbilsComp
 
 	baseAbil := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
@@ -359,7 +359,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 	targetDefense := 0
 	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
-		targetDefense = targetAbilsComp.(*gc.Abilities).Defense.Total
+		targetDefense = targetAbilsComp.Defense.Total
 	}
 
 	baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1
@@ -387,7 +387,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	if skillsComp == nil {
 		return
 	}
-	skills := skillsComp.(*gc.Skills)
+	skills := skillsComp
 
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
@@ -399,7 +399,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	if abilsComp == nil {
 		return
 	}
-	abils := abilsComp.(*gc.Abilities)
+	abils := abilsComp
 	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {

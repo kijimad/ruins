@@ -187,11 +187,11 @@ func progressHunger(actor ecs.Entity, world w.World) {
 	if hungerComp == nil {
 		return
 	}
-	hunger := hungerComp.(*gc.Hunger)
+	hunger := hungerComp
 
 	hungerPct := 100
 	if modsComp := world.Components.CharModifiers.Get(actor); modsComp != nil {
-		hungerPct = modsComp.(*gc.CharModifiers).HungerProgress
+		hungerPct = modsComp.HungerProgress
 	}
 	if world.Config.RNG.IntN(100) < hungerPct {
 		hunger.Decrease(1)
@@ -205,7 +205,7 @@ func isAreaSafe(actor ecs.Entity, world w.World) bool {
 		return false
 	}
 
-	actorGrid := gridElement.(*gc.GridElement)
+	actorGrid := gridElement
 	actorX, actorY := int(actorGrid.X), int(actorGrid.Y)
 
 	safeRadius := 1

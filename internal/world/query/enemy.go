@@ -102,7 +102,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 func GetEntityName(entity ecs.Entity, world w.World) string {
 	name := world.Components.Name.Get(entity)
 	if name != nil {
-		return name.(*gc.Name).Name
+		return name.Name
 	}
 	return "Unknown"
 }

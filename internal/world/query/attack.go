@@ -16,7 +16,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 		return nil, "", fmt.Errorf("enemy has no CommandTable component")
 	}
 
-	commandTableName := commandTableComp.(*gc.CommandTable).Name
+	commandTableName := commandTableComp.Name
 	commandTable, err := raw.GetCommandTable(world.Resources.RawMaster, commandTableName)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get command table: %w", err)
@@ -47,13 +47,13 @@ func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, stri
 	if nameComp == nil {
 		return nil, "", fmt.Errorf("weapon has no Name component")
 	}
-	name := nameComp.(*gc.Name).Name
+	name := nameComp.Name
 
 	meleeComp := world.Components.Melee.Get(weaponEntity)
 	if meleeComp == nil {
 		return nil, "", fmt.Errorf("weapon %s has no Melee component", name)
 	}
-	return meleeComp.(*gc.Melee), name, nil
+	return meleeComp, name, nil
 }
 
 // GetFireFromWeapon は武器エンティティからFireコンポーネントを取得する
@@ -62,11 +62,11 @@ func GetFireFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Fire, string
 	if nameComp == nil {
 		return nil, "", fmt.Errorf("weapon has no Name component")
 	}
-	name := nameComp.(*gc.Name).Name
+	name := nameComp.Name
 
 	fireComp := world.Components.Fire.Get(weaponEntity)
 	if fireComp == nil {
 		return nil, "", fmt.Errorf("weapon %s has no Fire component", name)
 	}
-	return fireComp.(*gc.Fire), name, nil
+	return fireComp, name, nil
 }

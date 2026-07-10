@@ -76,7 +76,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
-	doorComp := raw.(*gc.Door)
+	doorComp := raw
 
 	if doorComp.Locked {
 		gamelog.New(query.GetGameLog(world)).
@@ -186,7 +186,7 @@ func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
-	doorComp := raw.(*gc.Door)
+	doorComp := raw
 
 	if doorComp.Locked {
 		Cancel(comp, "扉はロックされている")

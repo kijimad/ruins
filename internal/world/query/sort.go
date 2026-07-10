@@ -26,7 +26,7 @@ func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity {
 		if world.Components.Name.Has(entity) {
 			nameComp := world.Components.Name.Get(entity)
 			if nameComp != nil {
-				name := nameComp.(*gc.Name)
+				name := nameComp
 				withNames = append(withNames, entityWithName{
 					entity: entity,
 					name:   name.Name,

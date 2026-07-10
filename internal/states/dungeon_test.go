@@ -118,7 +118,7 @@ func TestDoActionMovementActions(t *testing.T) {
 			// 移動前の座標を確認
 			gridBeforeComponent := world.Components.GridElement.Get(playerEntity)
 			require.NotNil(t, gridBeforeComponent, "GridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-			gridBefore := gridBeforeComponent.(*gc.GridElement)
+			gridBefore := gridBeforeComponent
 			require.Equal(t, initialX, int(gridBefore.X), "初期X座標が不正")
 			require.Equal(t, initialY, int(gridBefore.Y), "初期Y座標が不正")
 
@@ -132,7 +132,7 @@ func TestDoActionMovementActions(t *testing.T) {
 			// 移動後の座標を確認
 			gridAfterComponent := world.Components.GridElement.Get(playerEntity)
 			require.NotNil(t, gridAfterComponent, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-			gridAfter := gridAfterComponent.(*gc.GridElement)
+			gridAfter := gridAfterComponent
 			expectedX := initialX + tt.expectedDeltaX
 			expectedY := initialY + tt.expectedDeltaY
 
@@ -221,7 +221,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 			if tt.isMoveAction {
 				gridAfterComponent := world.Components.GridElement.Get(playerEntity)
 				require.NotNil(t, gridAfterComponent, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-				gridAfter := gridAfterComponent.(*gc.GridElement)
+				gridAfter := gridAfterComponent
 				if tt.shouldMovePlayer {
 					// プレイヤーターン中は移動が実行される
 					expectedY := initialY - 1 // ActionMoveNorth

@@ -37,7 +37,7 @@ func CanPlayerAct(world w.World) bool {
 		return false
 	}
 
-	tb := tbComp.(*gc.TurnBased)
+	tb := tbComp
 	return tb.AP.Current >= 0
 }
 
@@ -48,7 +48,7 @@ func ConsumeActionPoints(world w.World, entity ecs.Entity, cost int) bool {
 		return false
 	}
 
-	tb := tbComp.(*gc.TurnBased)
+	tb := tbComp
 	tb.AP.Current -= cost
 
 	log := logger.New(logger.CategoryTurn)
@@ -103,7 +103,7 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 		return 0, fmt.Errorf("能力値が設定されていない")
 	}
 
-	abils := abilsComp.(*gc.Abilities)
+	abils := abilsComp
 
 	baseAP := 100
 	agilityMultiplier := 3
@@ -121,7 +121,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 
 	// 能力値ボーナス
 	if abilsComp := world.Components.Abilities.Get(entity); abilsComp != nil {
-		abils := abilsComp.(*gc.Abilities)
+		abils := abilsComp
 		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
 	}
 
@@ -152,7 +152,7 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 
 	// 空腹ペナルティ
 	if hungerComp := world.Components.Hunger.Get(entity); hungerComp != nil {
-		hunger := hungerComp.(*gc.Hunger)
+		hunger := hungerComp
 		penalty += hungerSpeedPenalty(hunger.Current)
 	}
 
@@ -182,7 +182,7 @@ func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
 		return 0
 	}
 
-	cw := cwComp.(*gc.WeightCapacity)
+	cw := cwComp
 	if cw.Max == 0 {
 		return 0
 	}

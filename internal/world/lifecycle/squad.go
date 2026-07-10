@@ -23,5 +23,5 @@ func GetAI(world w.World, member ecs.Entity) (*gc.SquadAI, error) {
 	if comp == nil {
 		return nil, fmt.Errorf("エンティティにAIがありません")
 	}
-	return comp.(*gc.SquadAI), nil
+	return comp, nil
 }

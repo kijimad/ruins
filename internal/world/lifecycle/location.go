@@ -89,15 +89,15 @@ func setLocation(world w.World, entity ecs.Entity, data gc.Location) {
 	// 移動元のOwnerにWeightDirtyマーカーを付与する
 	if world.Components.LocationInBackpack.Has(entity) {
 		loc := world.Components.LocationInBackpack.Get(entity)
-		loc.world.Components.WeightDirty.Add(Owner, &gc.WeightDirty{})
+		world.Components.WeightDirty.Add(loc.Owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationEquipped.Has(entity) {
 		loc := world.Components.LocationEquipped.Get(entity)
-		loc.world.Components.WeightDirty.Add(Owner, &gc.WeightDirty{})
+		world.Components.WeightDirty.Add(loc.Owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationInStorage.Has(entity) {
 		loc := world.Components.LocationInStorage.Get(entity)
-		loc.world.Components.WeightDirty.Add(Owner, &gc.WeightDirty{})
+		world.Components.WeightDirty.Add(loc.Owner, &gc.WeightDirty{})
 	}
 
 	// すべての位置コンポーネントを削除（排他制御）

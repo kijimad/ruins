@@ -158,7 +158,7 @@ func TestGetVisibleItems(t *testing.T) {
 		assert.Equal(t, "回復薬", name)
 		assert.NotNil(t, desc, "アイテムは説明を持つべき")
 		if desc != nil {
-			assert.NotEmpty(t, desc.(*gc.Description).Description)
+			assert.NotEmpty(t, desc.Description)
 		}
 		assert.Equal(t, consts.Tile(12), grid.X)
 		assert.Equal(t, consts.Tile(12), grid.Y)

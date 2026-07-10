@@ -12,7 +12,7 @@ func GetActivity(world w.World, entity ecs.Entity) *gc.Activity {
 	if comp == nil {
 		return nil
 	}
-	return comp.(*gc.Activity)
+	return comp
 }
 
 // HasActivity は指定されたエンティティがアクティビティを実行中かを返す

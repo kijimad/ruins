@@ -481,7 +481,7 @@ func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) [
 		var skills *gc.Skills
 		if playerEntity, err := query.GetPlayerEntity(world); err == nil {
 			if skillsComp := world.Components.Skills.Get(playerEntity); skillsComp != nil {
-				skills = skillsComp.(*gc.Skills)
+				skills = skillsComp
 			}
 		}
 		if err := book.CanRead(skills); err != nil {

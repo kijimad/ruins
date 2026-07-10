@@ -165,7 +165,7 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 	// DEXを加算
 	abilsComp := world.Components.Abilities.Get(actor)
 	if abilsComp != nil {
-		abils := abilsComp.(*gc.Abilities)
+		abils := abilsComp
 		effort += abils.Dexterity.Total
 	}
 
@@ -174,7 +174,7 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 	if ok {
 		skillsComp := world.Components.Skills.Get(actor)
 		if skillsComp != nil {
-			skills := skillsComp.(*gc.Skills)
+			skills := skillsComp
 			effort += skills.Get(skillID).Value
 		}
 	}

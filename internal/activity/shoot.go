@@ -57,10 +57,10 @@ func (sa *ShootActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
-	if !comp.world.Components.GridElement.Has(Target) {
+	if !world.Components.GridElement.Has(comp.Target) {
 		return ErrAttackTargetNotExists
 	}
-	if comp.world.Components.Dead.Has(Target) {
+	if world.Components.Dead.Has(comp.Target) {
 		return ErrAttackTargetDead
 	}
 
@@ -193,8 +193,8 @@ func EntityDistance(a, b ecs.Entity, world w.World) float64 {
 	if aGrid == nil || bGrid == nil {
 		return math.MaxFloat64
 	}
-	aPos := aGrid.(*gc.GridElement)
-	bPos := bGrid.(*gc.GridElement)
+	aPos := aGrid
+	bPos := bGrid
 	return geometry.Distance(float64(aPos.X), float64(aPos.Y), float64(bPos.X), float64(bPos.Y))
 }
 
@@ -206,8 +206,8 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 	if aGrid == nil || tGrid == nil {
 		return true, 0
 	}
-	aPos := aGrid.(*gc.GridElement)
-	tPos := tGrid.(*gc.GridElement)
+	aPos := aGrid
+	tPos := tGrid
 
 	points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
 	for _, p := range points {

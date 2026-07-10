@@ -120,7 +120,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 	// 最終的なHP回復（ボーナス）
 	hpComponent := world.Components.HP.Get(actor)
 	if hpComponent != nil {
-		hp := hpComponent.(*gc.HP)
+		hp := hpComponent
 		if hp.Current < hp.Max {
 			bonusHealing := 2
 			hp.Current += bonusHealing
@@ -160,7 +160,7 @@ func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 		return nil
 	}
 
-	hp, ok := hpComponent.(*gc.HP)
+	hp, ok := hpComponent
 	if !ok {
 		return fmt.Errorf("HPコンポーネントの型変換に失敗しました")
 	}

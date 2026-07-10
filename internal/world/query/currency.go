@@ -15,7 +15,7 @@ func AddCurrency(world w.World, entity ecs.Entity, amount int) error {
 	if wallet == nil {
 		return fmt.Errorf("エンティティにWalletコンポーネントがありません")
 	}
-	wl := wallet.(*gc.Wallet)
+	wl := wallet
 	wl.Currency += amount
 	return nil
 }
@@ -26,7 +26,7 @@ func GetCurrency(world w.World, entity ecs.Entity) int {
 	if wallet == nil {
 		return 0
 	}
-	return wallet.(*gc.Wallet).Currency
+	return wallet.Currency
 }
 
 // HasCurrency は指定額以上の所持金を持っているか確認
@@ -45,7 +45,7 @@ func ConsumeCurrency(world w.World, entity ecs.Entity, amount int) bool {
 	if wallet == nil {
 		return false
 	}
-	wl := wallet.(*gc.Wallet)
+	wl := wallet
 	wl.Currency -= amount
 	return true
 }

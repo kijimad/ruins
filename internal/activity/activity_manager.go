@@ -114,7 +114,7 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
 	if comp == nil {
 		return nil
 	}
-	return comp.(*gc.LastActivity)
+	return comp
 }
 
 // StartActivity は新しいアクティビティを開始する
@@ -315,7 +315,7 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 		return
 	}
 
-	tb := tbComp.(*gc.TurnBased)
+	tb := tbComp
 	tb.AP.Current -= cost
 
 	log.Debug("移動コスト消費",

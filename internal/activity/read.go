@@ -67,7 +67,7 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	var skills *gc.Skills
 	if skillsComp := world.Components.Skills.Get(actor); skillsComp != nil {
-		skills = skillsComp.(*gc.Skills)
+		skills = skillsComp
 	}
 	if err := book.CanRead(skills); err != nil {
 		return err
@@ -188,7 +188,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 	if skillsComp == nil {
 		return
 	}
-	skills := skillsComp.(*gc.Skills)
+	skills := skillsComp
 
 	s := skills.Get(effect.TargetSkill)
 
@@ -230,7 +230,7 @@ func (ra *ReadActivity) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 	if abilsComp == nil {
 		return 0
 	}
-	abils := abilsComp.(*gc.Abilities)
+	abils := abilsComp
 	ablID := gc.SkillAbilityID(book.Skill.TargetSkill)
 	return abils.ValueOf(ablID)
 }
@@ -241,5 +241,5 @@ func (ra *ReadActivity) getBook(entity ecs.Entity, world w.World) *gc.Book {
 	if comp == nil {
 		return nil
 	}
-	return comp.(*gc.Book)
+	return comp
 }

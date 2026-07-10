@@ -79,7 +79,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 
 	return &squadContext{
 		Grid:         grid,
-		Squad:        squadComp.(*gc.SquadAI),
+		Squad:        squadComp,
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.Get(leader),
 	}, true
@@ -121,7 +121,7 @@ func (sp *squadPlanner) shouldRetreatLowHP(world w.World, entity ecs.Entity) boo
 	if hpComp == nil {
 		return false
 	}
-	hp := hpComp.(*gc.HP)
+	hp := hpComp
 	if hp.Max == 0 {
 		return false
 	}

@@ -312,7 +312,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		if tbComp == nil {
 			return false
 		}
-		tb := tbComp.(*gc.TurnBased)
+		tb := tbComp
 		return tb.AP.Current >= 0
 	}
 
@@ -328,7 +328,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		turnBased := world.Components.TurnBased.Get(playerEntity)
 		require.NotNil(t, turnBased, "プレイヤーはTurnBasedコンポーネントを持つべき")
 
-		tb := turnBased.(*gc.TurnBased)
+		tb := turnBased
 		t.Logf("TurnBased AP: Current=%d, Max=%d", tb.AP.Current, tb.AP.Max)
 
 		// 行動可能かを確認

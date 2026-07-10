@@ -44,7 +44,7 @@ func GetSquadAI(world w.World, member ecs.Entity) *gc.SquadAI {
 	if comp == nil {
 		return nil
 	}
-	return comp.(*gc.SquadAI)
+	return comp
 }
 
 // IsSquadMember はエンティティが隊員かどうかを返す

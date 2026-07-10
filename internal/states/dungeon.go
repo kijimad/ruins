@@ -161,15 +161,22 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *DungeonState) OnStop(world w.World) error {
-	spriteRenderQuery := ecs.NewFilter5[gc.SpriteRender, gc.Player, gc.SquadMember, gc.LocationInBackpack, gc.LocationEquipped](world.World).Query()
+	// Ark はクエリ反復中ワールドをロックするため、削除対象を集めてから削除する
+	var toRemove []ecs.Entity
+	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.World).
+		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember](), ecs.C[gc.LocationInBackpack](), ecs.C[gc.LocationEquipped]()).Query()
 	for spriteRenderQuery.Next() {
-		entity := spriteRenderQuery.Entity()
-		world.World.RemoveEntity(entity)
+		toRemove = append(toRemove, spriteRenderQuery.Entity())
 	}
-	gridElementQuery := ecs.NewFilter3[gc.GridElement, gc.Player, gc.SquadMember](world.World).Query()
+	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.World).
+		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()
 	for gridElementQuery.Next() {
-		entity := gridElementQuery.Entity()
-		world.World.RemoveEntity(entity)
+		toRemove = append(toRemove, gridElementQuery.Entity())
+	}
+	for _, entity := range toRemove {
+		if world.World.Alive(entity) {
+			world.World.RemoveEntity(entity)
+		}
 	}
 
 	// 未消費のステート遷移リクエストを破棄
@@ -491,7 +498,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	switch req.Kind {
 	case gc.EventShowDialog:
 		// SpeakerEntityからNameを取得
-		if !req.world.Components.Name.Has(SpeakerEntity) {
+		if !world.Components.Name.Has(req.SpeakerEntity) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
 		}
 		nameComp := world.Components.Name.Get(req.SpeakerEntity)
@@ -556,7 +563,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 		if weapon != nil {
 			// 武器が装備されている場合は武器名を表示
 			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-				weaponName := nameComp.(*gc.Name).Name
+				weaponName := nameComp.Name
 				gamelog.New(query.GetGameLog(world)).
 					ItemName(weaponName).
 					Append("を構えた").
