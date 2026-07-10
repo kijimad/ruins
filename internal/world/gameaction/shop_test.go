@@ -60,8 +60,8 @@ func TestBuyItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 1000})
+		player := world.World.NewEntity()
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
 		err := BuyItem(world, player, "木刀")
 		require.NoError(t, err)
@@ -75,8 +75,8 @@ func TestBuyItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 10})
+		player := world.World.NewEntity()
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 10})
 
 		err := BuyItem(world, player, "木刀")
 		assert.Error(t, err)
@@ -87,8 +87,8 @@ func TestSellItem(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 0})
+	player := world.World.NewEntity()
+	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
 
 	item, _ := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 

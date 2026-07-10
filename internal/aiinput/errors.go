@@ -3,7 +3,7 @@ package aiinput
 import (
 	"fmt"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // AIError はAI処理に関するエラーを表す。

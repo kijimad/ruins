@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // UseItemActivity はBehaviorの実装
@@ -55,16 +55,16 @@ func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	item := *comp.Target
 
 	// 何らかの効果があるかチェック
-	hasEffect := item.HasComponent(world.Components.ProvidesHealing) ||
-		item.HasComponent(world.Components.ProvidesNutrition) ||
-		item.HasComponent(world.Components.InflictsDamage)
+	hasEffect := world.Components.ProvidesHealing.Has(item) ||
+		world.Components.ProvidesNutrition.Has(item) ||
+		world.Components.InflictsDamage.Has(item)
 
 	if !hasEffect {
 		return ErrItemNoEffect
 	}
 
 	// アクターがHPコンポーネントを持っているかチェック
-	if !actor.HasComponent(world.Components.HP) {
+	if !world.Components.HP.Has(actor) {
 		return ErrActorNoHP
 	}
 
@@ -112,7 +112,7 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	// 消費可能アイテムの場合は削除または個数を減らす
-	if item.HasComponent(world.Components.Consumable) {
+	if world.Components.Consumable.Has(item) {
 		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("アイテムの消費に失敗: %w", err)
 		}
@@ -143,15 +143,15 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 		amount = amt.Calc()
 	case gc.RatioAmount:
 		// 最大HPに対する割合で回復
-		hp := world.Components.HP.Get(actor).(*gc.HP)
+		hp := world.Components.HP.Get(actor)
 		amount = amt.Calc(hp.Max)
 	default:
 		return fmt.Errorf("未対応のAmounterタイプ: %T", amounter)
 	}
 
 	// 回復効果倍率を適用する
-	if actor.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+	if world.Components.CharModifiers.Has(actor) {
+		mods := world.Components.CharModifiers.Get(actor)
 		amount = amount * mods.HealingEffect / 100
 	}
 	if amount < 1 {
@@ -188,7 +188,7 @@ func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 // logItemUse はアイテム使用のログを出力する
 func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {
 	// プレイヤーが関わる場合のみログ出力
-	if !actor.HasComponent(world.Components.Player) {
+	if !world.Components.Player.Has(actor) {
 		return
 	}
 
@@ -212,7 +212,7 @@ func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 // logNutritionUse は空腹度回復のログを出力する
 func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
 	// プレイヤーが関わる場合のみログ出力
-	if !actor.HasComponent(world.Components.Player) {
+	if !world.Components.Player.Has(actor) {
 		return
 	}
 

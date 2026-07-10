@@ -24,7 +24,7 @@ func TestCanCraft(t *testing.T) {
 	require.NoError(t, err, "十分な素材があるときはエラーが発生してはいけない")
 
 	// 素材が不足している場合のテスト
-	materialComp := world.Components.Stackable.Get(material).(*gc.Stackable)
+	materialComp := world.Components.Stackable.Get(material)
 	materialComp.Count = 1 // 木の棒の量を1にする（2個必要なので不足）
 
 	canCraft, err = CanCraft(world, "木刀")
@@ -38,7 +38,7 @@ func TestCanCraft(t *testing.T) {
 	assert.Contains(t, err.Error(), "レシピが存在しません", "エラーメッセージにレシピ不存在の内容が含まれるべき")
 
 	// クリーンアップ
-	world.Manager.DeleteEntity(material)
+	world.World.RemoveEntity(material)
 }
 
 func TestCraft(t *testing.T) {

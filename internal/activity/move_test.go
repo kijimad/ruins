@@ -55,8 +55,8 @@ func TestMoveActivity_Validate(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
@@ -111,7 +111,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 
 		// 移動していることを確認
-		gridElement := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(player)
 		assert.Equal(t, 11, int(gridElement.X))
 		assert.Equal(t, 10, int(gridElement.Y))
 	})
@@ -141,8 +141,8 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
@@ -173,7 +173,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 		origMemberX, origMemberY := int(memberGrid.X), int(memberGrid.Y)
 
 		comp := &gc.Activity{
@@ -187,12 +187,12 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// プレイヤーが隊員の元位置に移動している
-		playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+		playerGrid := world.Components.GridElement.Get(player)
 		assert.Equal(t, origMemberX, int(playerGrid.X))
 		assert.Equal(t, origMemberY, int(playerGrid.Y))
 
 		// 隊員がプレイヤーの元位置に移動している
-		memberGrid = world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid = world.Components.GridElement.Get(member)
 		assert.Equal(t, playerX, int(memberGrid.X))
 		assert.Equal(t, playerY, int(memberGrid.Y))
 	})
@@ -205,11 +205,11 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
-		member := world.Manager.NewEntity()
-		member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		member := world.World.NewEntity()
+		world.Components.SquadMember.Add(member, &gc.SquadMember{})
 
 		assert.True(t, CanSwapPosition(world, player, member))
 	})
@@ -218,11 +218,11 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
+		enemy := world.World.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 
 		assert.False(t, CanSwapPosition(world, player, enemy))
 	})
@@ -231,11 +231,11 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		member1 := world.Manager.NewEntity()
-		member1.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		member1 := world.World.NewEntity()
+		world.Components.SquadMember.Add(member1, &gc.SquadMember{})
 
-		member2 := world.Manager.NewEntity()
-		member2.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		member2 := world.World.NewEntity()
+		world.Components.SquadMember.Add(member2, &gc.SquadMember{})
 
 		assert.False(t, CanSwapPosition(world, member1, member2))
 	})
@@ -244,11 +244,11 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		member := world.Manager.NewEntity()
-		member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		member := world.World.NewEntity()
+		world.Components.SquadMember.Add(member, &gc.SquadMember{})
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		assert.False(t, CanSwapPosition(world, member, player))
 	})
@@ -257,11 +257,11 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
+		enemy := world.World.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 
-		member := world.Manager.NewEntity()
-		member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		member := world.World.NewEntity()
+		world.Components.SquadMember.Add(member, &gc.SquadMember{})
 
 		assert.False(t, CanSwapPosition(world, enemy, member))
 	})
@@ -391,7 +391,7 @@ func TestCanMoveTo(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
 
 		canMove := CanMoveTo(world, consts.Coord[int]{X: memberX, Y: memberY}, consts.Coord[int]{X: 10, Y: 10}, player)
@@ -413,13 +413,13 @@ func TestCanMoveTo(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
 
 		// AIエンティティを手動で作成する
-		aiEntity := world.Manager.NewEntity()
-		aiEntity.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
-		aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
+		aiEntity := world.World.NewEntity()
+		world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{})
+		world.Components.GridElement.Add(aiEntity, &gc.GridElement{
 			X: consts.Tile(memberX + 1), Y: consts.Tile(memberY),
 		})
 
@@ -447,10 +447,10 @@ func TestCanMoveTo(t *testing.T) {
 		member2, err := lifecycle.SpawnSquadMember(world, player, "隊員B", abilities, "player")
 		require.NoError(t, err)
 
-		member1Grid := world.Components.GridElement.Get(member1).(*gc.GridElement)
+		member1Grid := world.Components.GridElement.Get(member1)
 		member1Grid.X = consts.Tile(11)
 		member1Grid.Y = consts.Tile(10)
-		member2Grid := world.Components.GridElement.Get(member2).(*gc.GridElement)
+		member2Grid := world.Components.GridElement.Get(member2)
 		member2Grid.X = consts.Tile(12)
 		member2Grid.Y = consts.Tile(10)
 

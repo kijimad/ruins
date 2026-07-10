@@ -10,7 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // DeadCleanupSystem はDeadコンポーネントを持つ敵エンティティを削除する
@@ -49,15 +49,15 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	for _, entity := range toDelete {
 		// ドロップに必要なコンポーネントをチェック
-		if !entity.HasComponent(world.Components.DropTable) {
+		if !world.Components.DropTable.Has(entity) {
 			continue
 		}
-		if !entity.HasComponent(world.Components.GridElement) {
+		if !world.Components.GridElement.Has(entity) {
 			continue
 		}
 
-		dropTableComp := world.Components.DropTable.Get(entity).(*gc.DropTable)
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		dropTableComp := world.Components.DropTable.Get(entity)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		dropTable, err := raw.GetDropTable(rawMaster, dropTableComp.Name)
 		if err != nil {
@@ -86,7 +86,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// ボス撃破時の処理: 扉アンロック + クリアフラグ
 	for _, entity := range toDelete {
-		if entity.HasComponent(world.Components.Boss) {
+		if world.Components.Boss.Has(entity) {
 			// 全扉をアンロックして開く
 			if lifecycle.UnlockAllDoors(world) > 0 {
 				gamelog.New(query.GetGameLog(world)).
@@ -107,19 +107,19 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// 死亡エンティティのバックパック内アイテムをフィールドにドロップする
 	for _, entity := range toDelete {
-		if !entity.HasComponent(world.Components.GridElement) {
+		if !world.Components.GridElement.Has(entity) {
 			continue
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		owner := entity
 		world.Manager.Join(
 			world.Components.LocationInBackpack,
 		).Visit(ecs.Visit(func(item ecs.Entity) {
-			loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+			loc := world.Components.LocationInBackpack.Get(item)
 			if loc.Owner != owner {
 				return
 			}
-			item.AddComponent(world.Components.GridElement, &gc.GridElement{X: grid.X, Y: grid.Y})
+			world.Components.GridElement.Add(item, &gc.GridElement{X: grid.X, Y: grid.Y})
 			lifecycle.MoveToField(world, item, &owner)
 		}))
 	}
@@ -127,22 +127,22 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	// エンティティを削除する
 	for _, entity := range toDelete {
 		// スプライトフェードアウトエフェクトを生成
-		if entity.HasComponent(world.Components.SpriteRender) && entity.HasComponent(world.Components.GridElement) {
-			spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
-			gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		if world.Components.SpriteRender.Has(entity) && world.Components.GridElement.Has(entity) {
+			spriteRender := world.Components.SpriteRender.Get(entity)
+			gridElement := world.Components.GridElement.Get(entity)
 
 			effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
-			effectEntity := world.Manager.NewEntity()
-			effectEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
+			effectEntity := world.World.NewEntity()
+			world.Components.GridElement.Add(effectEntity, &gc.GridElement{
 				X: gridElement.X,
 				Y: gridElement.Y,
 			})
-			effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+			world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
 				Effects: []gc.VisualEffect{effect},
 			})
 		}
 
-		world.Manager.DeleteEntity(entity)
+		world.World.RemoveEntity(entity)
 	}
 
 	if len(toDelete) > 0 {

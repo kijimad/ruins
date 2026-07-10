@@ -123,7 +123,7 @@ func TestActivityDoTurn(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.World.NewEntity()
 	behavior := &WaitActivity{}
 	comp, err := NewActivity(behavior, 3)
 	require.NoError(t, err)

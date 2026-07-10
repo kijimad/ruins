@@ -4,7 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Resources はゲーム固有のリソース管理を担当する

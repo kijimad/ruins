@@ -24,11 +24,11 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		require.NoError(t, err)
 
 		// 初期Strengthを取得
-		abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+		abils := world.Components.Abilities.Get(player)
 		initialStrength := abils.Strength.Total
 
 		// 健康状態に低体温を追加（Strengthにペナルティ）
-		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.Get(player)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -39,7 +39,7 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		})
 
 		// StatsChangedフラグを立てる
-		player.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
+		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
 
 		// システム実行
 		sys := &StatsChangedSystem{}
@@ -47,7 +47,7 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		require.NoError(t, err)
 
 		// 能力値にペナルティが反映されていることを確認
-		abils = world.Components.Abilities.Get(player).(*gc.Abilities)
+		abils = world.Components.Abilities.Get(player)
 		assert.Less(t, abils.Strength.Total, initialStrength, "低体温でStrengthが減少するべき")
 	})
 }
@@ -64,12 +64,12 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		require.NoError(t, err)
 
 		// 現在APを非常に高い値に設定（通常ではありえない値）
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		turnBased.AP.Current = 9999
 		turnBased.AP.Max = 9999
 
 		// StatsChangedフラグを立てる
-		player.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
+		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
 
 		// システム実行
 		sys := &StatsChangedSystem{}
@@ -77,7 +77,7 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		require.NoError(t, err)
 
 		// APが正しく切り詰められていることを確認
-		turnBased = world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased = world.Components.TurnBased.Get(player)
 		assert.Equal(t, turnBased.AP.Max, turnBased.AP.Current, "現在APは最大APに切り詰められるべき")
 		assert.Less(t, turnBased.AP.Current, 9999, "APが正しく再計算されるべき")
 	})
@@ -169,9 +169,9 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.Abilities.Add(player, &gc.Abilities{
 			Vitality:  gc.Ability{Base: 10, Total: 10},
 			Strength:  gc.Ability{Base: 5, Total: 5},
 			Sensation: gc.Ability{Base: 5, Total: 5},
@@ -185,16 +185,16 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		initialAP, err := query.CalculateMaxActionPoints(world, player)
 		require.NoError(t, err)
 
-		player.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
-		player.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		world.Components.HP.Add(player, &gc.HP{Current: 100, Max: 100})
+		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{
 			AP: gc.IntPool{Current: initialAP, Max: initialAP},
 		})
 
 		// 素早さを上げる装備を作成
-		equipment := world.Manager.NewEntity()
-		equipment.AddComponent(world.Components.Name, &gc.Name{Name: "素早さの指輪"})
-		equipment.AddComponent(world.Components.Wearable, &gc.Wearable{
+		equipment := world.World.NewEntity()
+		world.Components.Name.Add(equipment, &gc.Name{Name: "素早さの指輪"})
+		world.Components.Wearable.Add(equipment, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentJewelry,
 			EquipBonus: gc.EquipBonus{
 				Agility: 10, // 素早さ+10
@@ -210,25 +210,25 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		require.NoError(t, err)
 
 		// APが再計算されていることを確認
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		assert.Greater(t, turnBased.AP.Max, initialAP, "装備追加でAP.Maxが増加するべき")
 
 		// 装備を外す（StatsChangedフラグが再度立つ）
 		require.NoError(t, lifecycle.MoveToBackpack(world, equipment, player))
 
 		// StatsChangedフラグが立っているか確認
-		require.True(t, player.HasComponent(world.Components.StatsChanged), "装備を外した後、StatsChangedフラグが立っているべき")
+		require.True(t, world.Components.StatsChanged.Has(player), "装備を外した後、StatsChangedフラグが立っているべき")
 
 		// StatsChangedSystemを実行
 		err = sys.Update(world)
 		require.NoError(t, err)
 
 		// StatsChangedフラグが削除されたか確認
-		assert.False(t, player.HasComponent(world.Components.StatsChanged), "StatsChangedSystemの実行後、フラグが削除されるべき")
+		assert.False(t, world.Components.StatsChanged.Has(player), "StatsChangedSystemの実行後、フラグが削除されるべき")
 
 		// APが元に戻っていることを確認
-		turnBased = world.Components.TurnBased.Get(player).(*gc.TurnBased)
-		abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+		turnBased = world.Components.TurnBased.Get(player)
+		abils := world.Components.Abilities.Get(player)
 		t.Logf("装備削除後: Agility.Total=%d, AP.Max=%d, 期待AP=%d", abils.Agility.Total, turnBased.AP.Max, initialAP)
 		assert.Equal(t, initialAP, turnBased.AP.Max, "装備削除でAP.Maxが元に戻るべき")
 	})
@@ -238,8 +238,8 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 		abils := &gc.Abilities{
 			Vitality:  gc.Ability{Base: 10, Total: 10},
 			Strength:  gc.Ability{Base: 5, Total: 5},
@@ -248,22 +248,22 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 			Agility:   gc.Ability{Base: 5, Total: 5},
 			Defense:   gc.Ability{Base: 0, Total: 0},
 		}
-		player.AddComponent(world.Components.Abilities, abils)
+		world.Components.Abilities.Add(player, abils)
 
 		// 初期HPを計算式から算出
 		// maxHP: 30 + (体力*8 + 力 + 感覚) = 30 + (10*8 + 5 + 5) = 30 + 90 = 120
 		initialHP := maxHP(abils)
 
-		player.AddComponent(world.Components.HP, &gc.HP{Current: initialHP, Max: initialHP})
-		player.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		world.Components.HP.Add(player, &gc.HP{Current: initialHP, Max: initialHP})
+		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{
 			AP: gc.IntPool{Current: 100, Max: 100},
 		})
 
 		// 体力を上げる装備を作成
-		equipment := world.Manager.NewEntity()
-		equipment.AddComponent(world.Components.Name, &gc.Name{Name: "体力の鎧"})
-		equipment.AddComponent(world.Components.Wearable, &gc.Wearable{
+		equipment := world.World.NewEntity()
+		world.Components.Name.Add(equipment, &gc.Name{Name: "体力の鎧"})
+		world.Components.Wearable.Add(equipment, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentTorso,
 			EquipBonus: gc.EquipBonus{
 				Vitality: 10, // 体力+10
@@ -280,7 +280,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// HPが再計算されていることを確認
 		// 体力10→20で: HP = 30 + (20*8 + 5 + 5) = 200
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.Get(player)
 		assert.Greater(t, hp.Max, initialHP, "装備追加でHP.Maxが増加するべき")
 	})
 

@@ -7,7 +7,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // AutoInteractionSystem はプレイヤーが自動実行の相互作用に接触した際に自動実行する
@@ -29,10 +29,10 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 	}
 
 	// プレイヤーの位置を取得
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	// プレイヤーの範囲内にある相互作用を検索
 	var interactablesToProcess []ecs.Entity
@@ -41,8 +41,8 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 		world.Components.GridElement,
 		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-		interactableGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		interactable := world.Components.Interactable.Get(entity)
+		interactableGrid := world.Components.GridElement.Get(entity)
 
 		// いずれかのインタラクションが範囲内にあれば候補に追加する
 		for _, interaction := range interactable.Interactions {
@@ -60,7 +60,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 
 	// 検索した自動実行相互作用を処理する
 	for _, interactableEntity := range interactablesToProcess {
-		interactable := world.Components.Interactable.Get(interactableEntity).(*gc.Interactable)
+		interactable := world.Components.Interactable.Get(interactableEntity)
 
 		for _, interaction := range interactable.Interactions {
 			config := interaction.Config()

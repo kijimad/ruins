@@ -16,7 +16,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // LookAroundState はタイル情報確認モードのステート
@@ -53,11 +53,11 @@ func (st *LookAroundState) OnStart(world w.World) error {
 		return err
 	}
 
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	st.cursor.X = playerGrid.X
 	st.cursor.Y = playerGrid.Y
 
@@ -236,7 +236,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	inVision := query.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursor.X), int(st.cursor.Y))
 
 	if !inVision {
@@ -289,10 +289,10 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 	}
 
 	// HPを持つエンティティはHP表示
-	if entity.HasComponent(world.Components.HP) {
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+	if world.Components.HP.Has(entity) {
+		hp := world.Components.HP.Get(entity)
 		label := "HP"
-		if entity.HasComponent(world.Components.Prop) {
+		if world.Components.Prop.Has(entity) {
 			label = "耐久"
 		}
 		drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))
@@ -304,11 +304,11 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y 
 	blocked := false
 	totalAdd := 0
 	for _, entity := range entities {
-		if entity.HasComponent(world.Components.BlockPass) {
+		if world.Components.BlockPass.Has(entity) {
 			blocked = true
 		}
-		if entity.HasComponent(world.Components.PassCost) {
-			mc := world.Components.PassCost.Get(entity).(*gc.PassCost)
+		if world.Components.PassCost.Has(entity) {
+			mc := world.Components.PassCost.Get(entity)
 			totalAdd += mc.Value
 		}
 	}
@@ -324,8 +324,8 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y 
 // drawTileTemperature はタイル温度修正値を描画する
 func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, y *int, drawText func(string)) {
 	for _, entity := range entities {
-		if entity.HasComponent(world.Components.TileTemperature) {
-			temp := world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
+		if world.Components.TileTemperature.Has(entity) {
+			temp := world.Components.TileTemperature.Get(entity)
 			*y += 5
 			drawText(fmt.Sprintf("気温修正: %+d", temp.Total()))
 			if temp.Shelter != 0 {

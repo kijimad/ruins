@@ -15,7 +15,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // MapGenVisualizerState はマップ生成過程を可視化するVRT専用ステート
@@ -132,7 +132,7 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 	world.Manager.Join(
 		world.Components.Camera,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera := world.Components.Camera.Get(entity).(*gc.Camera)
+		camera := world.Components.Camera.Get(entity)
 		camera.Scale = scale
 		camera.ScaleTo = scale
 		camera.X = centerX
@@ -207,7 +207,7 @@ func (st *MapGenVisualizerState) hidePlayer(world w.World) {
 		world.Components.Player,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ge := world.Components.GridElement.Get(entity)
 		ge.X = -100
 		ge.Y = -100
 	}))
@@ -218,17 +218,17 @@ func (st *MapGenVisualizerState) clearEntities(world w.World) {
 	world.Manager.Join(
 		world.Components.SpriteRender,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if !entity.HasComponent(world.Components.Player) &&
-			!entity.HasComponent(world.Components.LocationInBackpack) &&
-			!entity.HasComponent(world.Components.LocationEquipped) {
-			world.Manager.DeleteEntity(entity)
+		if !world.Components.Player.Has(entity) &&
+			!world.Components.LocationInBackpack.Has(entity) &&
+			!world.Components.LocationEquipped.Has(entity) {
+			world.World.RemoveEntity(entity)
 		}
 	}))
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if !entity.HasComponent(world.Components.Player) {
-			world.Manager.DeleteEntity(entity)
+		if !world.Components.Player.Has(entity) {
+			world.World.RemoveEntity(entity)
 		}
 	}))
 

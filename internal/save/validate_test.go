@@ -101,10 +101,10 @@ func TestValidateSaveJSON_GeneratedData(t *testing.T) {
 	t.Run("プレイヤーのみ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Player, &gc.Player{})
-		entity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト"})
-		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 1, Y: 2})
+		entity := world.World.NewEntity()
+		world.Components.Player.Add(entity, &gc.Player{})
+		world.Components.Name.Add(entity, &gc.Name{Name: "テスト"})
+		world.Components.GridElement.Add(entity, &gc.GridElement{X: 1, Y: 2})
 
 		sm := createTestSerializationManager(t)
 		jsonStr, err := sm.GenerateWorldJSON(world)

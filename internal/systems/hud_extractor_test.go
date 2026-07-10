@@ -44,10 +44,10 @@ func TestBuildTileColors(t *testing.T) {
 		{
 			name: "壁タイルは灰色で描画される",
 			setupEntities: func(world w.World) {
-				entity := world.Manager.NewEntity()
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 3})
-				entity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
-				entity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+				entity := world.World.NewEntity()
+				world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 3})
+				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
+				world.Components.BlockView.Add(entity, &gc.BlockView{})
 				// 探索済みタイルに追加
 				query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 5, Y: 3}] = true
 			},
@@ -57,9 +57,9 @@ func TestBuildTileColors(t *testing.T) {
 		{
 			name: "床タイルは薄い灰色で描画される",
 			setupEntities: func(world w.World) {
-				entity := world.Manager.NewEntity()
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 15})
-				entity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
+				entity := world.World.NewEntity()
+				world.Components.GridElement.Add(entity, &gc.GridElement{X: 10, Y: 15})
+				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
 				// BlockViewコンポーネントなし = 床
 				// 探索済みタイルに追加
 				query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true
@@ -80,15 +80,15 @@ func TestBuildTileColors(t *testing.T) {
 			name: "同じタイルに壁と床が両方ある場合は壁が優先される",
 			setupEntities: func(world w.World) {
 				// 床エンティティ
-				floorEntity := world.Manager.NewEntity()
-				floorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 20, Y: 20})
-				floorEntity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
+				floorEntity := world.World.NewEntity()
+				world.Components.GridElement.Add(floorEntity, &gc.GridElement{X: 20, Y: 20})
+				world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
 
 				// 壁エンティティ
-				wallEntity := world.Manager.NewEntity()
-				wallEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 20, Y: 20})
-				wallEntity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
-				wallEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+				wallEntity := world.World.NewEntity()
+				world.Components.GridElement.Add(wallEntity, &gc.GridElement{X: 20, Y: 20})
+				world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
+				world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 				// 探索済みタイルに追加
 				query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 20, Y: 20}] = true
 			},
@@ -132,9 +132,9 @@ func TestExtractMinimapData(t *testing.T) {
 	}
 
 	// プレイヤーエンティティを作成
-	playerEntity := world.Manager.NewEntity()
-	playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 15})
-	playerEntity.AddComponent(world.Components.Player, &gc.Player{})
+	playerEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 15})
+	world.Components.Player.Add(playerEntity, &gc.Player{})
 
 	// 探索済みタイルを設定
 	query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true // プレイヤー位置
@@ -145,14 +145,14 @@ func TestExtractMinimapData(t *testing.T) {
 	world.Resources.SetScreenDimensions(800, 600)
 
 	// いくつかの壁と床エンティティを作成
-	wallEntity := world.Manager.NewEntity()
-	wallEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 9, Y: 15})
-	wallEntity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
-	wallEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+	wallEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(wallEntity, &gc.GridElement{X: 9, Y: 15})
+	world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
+	world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 
-	floorEntity := world.Manager.NewEntity()
-	floorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 15})
-	floorEntity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
+	floorEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(floorEntity, &gc.GridElement{X: 11, Y: 15})
+	world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
 
 	// テスト実行
 	minimapData := extractMinimapData(world)

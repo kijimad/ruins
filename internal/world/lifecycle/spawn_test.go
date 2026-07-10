@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestSetMaxStats(t *testing.T) {
@@ -62,8 +62,8 @@ func TestSetMaxStats(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
 
-			entity := world.Manager.NewEntity()
-			entity.AddComponent(world.Components.Abilities, &gc.Abilities{
+			entity := world.World.NewEntity()
+			world.Components.Abilities.Add(entity, &gc.Abilities{
 				Vitality:  gc.Ability{Base: tt.vitality, Total: 0},
 				Strength:  gc.Ability{Base: tt.strength, Total: 0},
 				Sensation: gc.Ability{Base: tt.sensation, Total: 0},
@@ -72,14 +72,14 @@ func TestSetMaxStats(t *testing.T) {
 				Defense:   gc.Ability{Base: 5, Total: 0},
 			})
 
-			entity.AddComponent(world.Components.HP, &gc.HP{Current: 0, Max: 0})
-			entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
+			world.Components.HP.Add(entity, &gc.HP{Current: 0, Max: 0})
+			world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{})
 
 			err := setMaxStats(world, entity)
 			require.NoError(t, err)
 
-			hp := world.Components.HP.Get(entity).(*gc.HP)
-			abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+			hp := world.Components.HP.Get(entity)
+			abils := world.Components.Abilities.Get(entity)
 
 			assert.Equal(t, tt.vitality, abils.Vitality.Total, "体力のTotal値が正しく初期化されていない")
 			assert.Equal(t, tt.strength, abils.Strength.Total, "力のTotal値が正しく初期化されていない")
@@ -90,7 +90,7 @@ func TestSetMaxStats(t *testing.T) {
 			assert.Equal(t, tt.expectedHP, hp.Max, "最大HPの計算が正しくない: %s", tt.description)
 			assert.Equal(t, tt.expectedHP, hp.Current, "現在HPが最大HPと同じでない: %s", tt.description)
 
-			world.Manager.DeleteEntity(entity)
+			world.World.RemoveEntity(entity)
 		})
 	}
 }
@@ -99,13 +99,13 @@ func TestSetMaxStats_WithoutComponents(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	entity := world.Manager.NewEntity()
+	entity := world.World.NewEntity()
 
 	err := setMaxStats(world, entity)
 	require.Error(t, err, "必要なコンポーネントがない場合はエラーを返すべき")
 	assert.Contains(t, err.Error(), "does not have required components", "エラーメッセージが適切であるべき")
 
-	world.Manager.DeleteEntity(entity)
+	world.World.RemoveEntity(entity)
 }
 
 func TestFullRecover(t *testing.T) {
@@ -113,8 +113,8 @@ func TestFullRecover(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// テスト用エンティティを作成
-	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Abilities, &gc.Abilities{
+	entity := world.World.NewEntity()
+	world.Components.Abilities.Add(entity, &gc.Abilities{
 		Vitality:  gc.Ability{Base: 10, Total: 0},
 		Strength:  gc.Ability{Base: 8, Total: 0},
 		Sensation: gc.Ability{Base: 7, Total: 0},
@@ -122,14 +122,14 @@ func TestFullRecover(t *testing.T) {
 		Agility:   gc.Ability{Base: 9, Total: 0},
 		Defense:   gc.Ability{Base: 5, Total: 0},
 	})
-	entity.AddComponent(world.Components.HP, &gc.HP{Current: 0, Max: 0})
-	entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
+	world.Components.HP.Add(entity, &gc.HP{Current: 0, Max: 0})
+	world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{})
 
 	err := FullRecover(world, entity)
 	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
-	hp := world.Components.HP.Get(entity).(*gc.HP)
-	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+	hp := world.Components.HP.Get(entity)
+	abils := world.Components.Abilities.Get(entity)
 
 	assert.Equal(t, 10, abils.Vitality.Total, "体力のTotal値が正しく設定されていない")
 	assert.Equal(t, 8, abils.Strength.Total, "力のTotal値が正しく設定されていない")
@@ -138,7 +138,7 @@ func TestFullRecover(t *testing.T) {
 	assert.Equal(t, expectedHP, hp.Max, "最大HPが正しく計算されていない")
 	assert.Equal(t, expectedHP, hp.Current, "現在HPが最大HPと一致していない")
 
-	world.Manager.DeleteEntity(entity)
+	world.World.RemoveEntity(entity)
 }
 
 func TestSpawnEnemyHasAI(t *testing.T) {
@@ -196,7 +196,7 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 		initSpriteSheets(world)
 		enemy, err := SpawnEnemy(world, 5, 5, "火の玉", WithBoss())
 		require.NoError(t, err)
-		assert.True(t, enemy.HasComponent(world.Components.Boss), "Bossコンポーネントを持つべき")
+		assert.True(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべき")
 	})
 
 	t.Run("オプションなしではBossコンポーネントが付与されない", func(t *testing.T) {
@@ -205,7 +205,7 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 		initSpriteSheets(world)
 		enemy, err := SpawnEnemy(world, 6, 6, "火の玉")
 		require.NoError(t, err)
-		assert.False(t, enemy.HasComponent(world.Components.Boss), "Bossコンポーネントを持つべきではない")
+		assert.False(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべきではない")
 	})
 }
 
@@ -228,9 +228,9 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	require.NoError(t, err, "火の玉の生成に失敗")
 
 	// DropTableコンポーネントが付与されていることを確認
-	assert.True(t, enemy.HasComponent(world.Components.DropTable), "火の玉はDropTableコンポーネントを持つべき")
+	assert.True(t, world.Components.DropTable.Has(enemy), "火の玉はDropTableコンポーネントを持つべき")
 
-	dropTable := world.Components.DropTable.Get(enemy).(*gc.DropTable)
+	dropTable := world.Components.DropTable.Get(enemy)
 	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
 }
 
@@ -249,8 +249,8 @@ func TestSpawnEnemy_AI(t *testing.T) {
 	enemy, err := SpawnEnemy(world, 5, 5, "火の玉")
 	require.NoError(t, err)
 
-	assert.True(t, enemy.HasComponent(world.Components.SoloAI))
-	solo := world.Components.SoloAI.Get(enemy).(*gc.SoloAI)
+	assert.True(t, world.Components.SoloAI.Has(enemy))
+	solo := world.Components.SoloAI.Get(enemy)
 	assert.Equal(t, gc.CombatAttack, solo.CombatDefault)
 	assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
 }
@@ -265,7 +265,7 @@ func TestSpawnItem(t *testing.T) {
 		item, err := SpawnBackpackItem(world, "回復薬", 5)
 		require.NoError(t, err)
 
-		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		stackableComp := world.Components.Stackable.Get(item)
 		assert.Equal(t, 5, stackableComp.Count)
 	})
 
@@ -328,21 +328,21 @@ func TestSpawnDoor(t *testing.T) {
 		require.NoError(t, err, "SpawnDoor should not return an error")
 
 		// SpriteRenderを確認（entity=0は有効なエンティティIDなので、コンポーネントの存在でチェック）
-		require.True(t, door.HasComponent(world.Components.SpriteRender))
-		sprite := world.Components.SpriteRender.Get(door).(*gc.SpriteRender)
+		require.True(t, world.Components.SpriteRender.Has(door))
+		sprite := world.Components.SpriteRender.Get(door)
 		assert.Equal(t, "field", sprite.SpriteSheetName)
 		assert.Equal(t, "door_vertical_closed", sprite.SpriteKey)
 		assert.Equal(t, gc.DepthNumTaller, sprite.Depth)
 
 		// Doorコンポーネントを確認
-		require.True(t, door.HasComponent(world.Components.Door))
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		require.True(t, world.Components.Door.Has(door))
+		doorComp := world.Components.Door.Get(door)
 		assert.False(t, doorComp.IsOpen)
 		assert.Equal(t, gc.DoorOrientationVertical, doorComp.Orientation)
 
 		// BlockPass/BlockViewを確認
-		assert.True(t, door.HasComponent(world.Components.BlockPass))
-		assert.True(t, door.HasComponent(world.Components.BlockView))
+		assert.True(t, world.Components.BlockPass.Has(door))
+		assert.True(t, world.Components.BlockView.Has(door))
 	})
 
 	t.Run("横向き扉のスポーン", func(t *testing.T) {
@@ -353,11 +353,11 @@ func TestSpawnDoor(t *testing.T) {
 		require.NoError(t, err)
 
 		// SpriteRenderを確認
-		sprite := world.Components.SpriteRender.Get(door).(*gc.SpriteRender)
+		sprite := world.Components.SpriteRender.Get(door)
 		assert.Equal(t, "door_horizontal_closed", sprite.SpriteKey)
 
 		// Doorコンポーネントを確認
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.Get(door)
 		assert.Equal(t, gc.DoorOrientationHorizontal, doorComp.Orientation)
 	})
 }
@@ -370,21 +370,21 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// DoorLockTriggerを2つ作成
-		trigger1 := world.Manager.NewEntity()
-		trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
-		trigger2 := world.Manager.NewEntity()
-		trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
+		trigger1 := world.World.NewEntity()
+		world.Components.Interactable.Add(trigger1, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
+		trigger2 := world.World.NewEntity()
+		world.Components.Interactable.Add(trigger2, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
 
 		// 他のInteractableも作成
-		other := world.Manager.NewEntity()
-		other.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorInteraction{}}})
+		other := world.World.NewEntity()
+		world.Components.Interactable.Add(other, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorInteraction{}}})
 
 		DeleteDoorLockTriggers(world)
 
 		// DoorLockTriggerは削除されている
 		count := 0
 		world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(entity ecs.Entity) {
-			interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+			interactable := world.Components.Interactable.Get(entity)
 			for _, interaction := range interactable.Interactions {
 				if _, ok := interaction.(gc.DoorLockInteraction); ok {
 					count++
@@ -394,7 +394,7 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 		assert.Equal(t, 0, count, "DoorLockTriggerは全削除されるべき")
 
 		// 他のInteractableは残っている
-		assert.True(t, other.HasComponent(world.Components.Interactable), "DoorInteractionは残るべき")
+		assert.True(t, world.Components.Interactable.Has(other), "DoorInteractionは残るべき")
 	})
 
 	t.Run("対象がない場合でもエラーにならない", func(t *testing.T) {
@@ -414,8 +414,8 @@ func TestSpawnVisualEffect(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		entity := world.World.NewEntity()
+		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
 		effect := gc.NewHealEffect(10)
 		SpawnVisualEffect(entity, effect, world)
@@ -432,7 +432,7 @@ func TestSpawnVisualEffect(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.World.NewEntity()
 
 		effect := gc.NewHealEffect(10)
 		SpawnVisualEffect(entity, effect, world)

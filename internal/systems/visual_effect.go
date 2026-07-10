@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // VisualEffectSystem はビジュアルエフェクトを管理するシステム
@@ -37,7 +37,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	// アニメーション無効時は即座に削除
 	if world.Config.DisableAnimation {
 		for _, entity := range entitiesToDelete {
-			world.Manager.DeleteEntity(entity)
+			world.World.RemoveEntity(entity)
 		}
 		return nil
 	}
@@ -49,7 +49,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	world.Manager.Join(
 		world.Components.VisualEffect,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
+		ve := world.Components.VisualEffect.Get(entity)
 
 		// エフェクトを更新
 		activeEffects := ve.Effects[:0]
@@ -69,7 +69,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 
 	// エフェクト専用エンティティを削除
 	for _, entity := range entitiesToDelete {
-		world.Manager.DeleteEntity(entity)
+		world.World.RemoveEntity(entity)
 	}
 
 	return nil
@@ -93,20 +93,20 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		if err != nil {
 			return
 		}
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
+		ve := world.Components.VisualEffect.Get(entity)
 
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
 			case *gc.SplashTextEffect:
 				sys.drawSplashText(world, screen, e)
 			case *gc.DamageTextEffect:
-				if entity.HasComponent(world.Components.GridElement) {
-					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+				if world.Components.GridElement.Has(entity) {
+					gridElement := world.Components.GridElement.Get(entity)
 					sys.drawDamageText(world, screen, smallFace, gridElement, e)
 				}
 			case *gc.SpriteFadeoutEffect:
-				if entity.HasComponent(world.Components.GridElement) {
-					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+				if world.Components.GridElement.Has(entity) {
+					gridElement := world.Components.GridElement.Get(entity)
 					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
 					if err != nil {
 						return

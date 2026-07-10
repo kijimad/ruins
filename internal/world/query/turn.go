@@ -6,7 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Speed計算係数
@@ -66,7 +66,7 @@ func RestoreAllActionPoints(world w.World) error {
 	var err error
 
 	world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {
-		tb := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+		tb := world.Components.TurnBased.Get(entity)
 
 		// MaxAPとSpeedを計算
 		maxAP, calcErr := CalculateMaxActionPoints(world, entity)
@@ -129,8 +129,8 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 
 	// MoveCost倍率を適用する。
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
-	if entity.HasComponent(world.Components.CharModifiers) {
-		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+	if world.Components.CharModifiers.Has(entity) {
+		effects := world.Components.CharModifiers.Get(entity)
 		moveCost := max(effects.MoveCost, 10)
 		speed = speed * 100 / moveCost
 	}

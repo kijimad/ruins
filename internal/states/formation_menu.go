@@ -16,7 +16,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // FormationMenuState は隊編成画面のゲームステート
@@ -125,7 +125,7 @@ func (st *FormationMenuState) fetchProps(world w.World) formationProps {
 	var members []formationMemberData
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member).(*gc.HP)
+		hp := world.Components.HP.Get(member)
 
 		members = append(members, formationMemberData{
 			Entity: member,

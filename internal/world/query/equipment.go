@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // GetWeapons は武器一覧を取得する（スロット1〜5）
@@ -20,7 +20,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 		if cat != gc.CategoryWeapon {
 			return
 		}
-		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
 			if equipped.EquipmentSlot >= gc.SlotWeapon1 && equipped.EquipmentSlot <= gc.SlotWeapon5 {
 				index := int(equipped.EquipmentSlot) - int(gc.SlotWeapon1)
@@ -41,7 +41,7 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 		world.Components.LocationEquipped,
 		world.Components.Wearable,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
 			switch equipped.EquipmentSlot {
 			case gc.SlotHead:

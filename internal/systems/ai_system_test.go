@@ -18,15 +18,15 @@ func TestAISystem(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーエンティティを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(10)})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(10)})
 
 	// AIエンティティを作成
-	aiEntity := world.Manager.NewEntity()
-	aiEntity.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
-	aiEntity.AddComponent(world.Components.SoloAI, &gc.SoloAI{
+	aiEntity := world.World.NewEntity()
+	world.Components.FactionEnemy.Add(aiEntity, &gc.FactionEnemyData{})
+	world.Components.GridElement.Add(aiEntity, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
+	world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
 		Movement:              gc.SoloRandom,
@@ -38,7 +38,7 @@ func TestAISystem(t *testing.T) {
 	})
 
 	// システム実行前の位置を記録
-	initialGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
+	initialGrid := world.Components.GridElement.Get(aiEntity)
 	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
 
 	// AIシステムを実行（aiinputパッケージを使用）
@@ -46,7 +46,7 @@ func TestAISystem(t *testing.T) {
 	require.NoError(t, processor.ProcessAll(world))
 
 	// システム実行後の位置を記録
-	finalGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
+	finalGrid := world.Components.GridElement.Get(aiEntity)
 	finalX, finalY := int(finalGrid.X), int(finalGrid.Y)
 
 	// 位置が変わったかどうかを確認（ランダムな動きなので移動有無は不確定）
@@ -54,7 +54,7 @@ func TestAISystem(t *testing.T) {
 	t.Logf("AI移動: (%d,%d) -> (%d,%d), moved: %t", initialX, initialY, finalX, finalY, moved)
 
 	// 状態が適切に管理されているかチェック
-	aiState := world.Components.SoloAI.Get(aiEntity).(*gc.SoloAI)
+	aiState := world.Components.SoloAI.Get(aiEntity)
 	validStates := []gc.AIStateSubState{gc.AIStateWaiting, gc.AIStateDriving, gc.AIStateChasing}
 	assert.Contains(t, validStates, aiState.SubState, "AI状態が無効: %v", aiState.SubState)
 }

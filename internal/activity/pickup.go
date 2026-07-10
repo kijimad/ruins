@@ -11,7 +11,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // PickupActivity はBehaviorの実装
@@ -74,7 +74,7 @@ func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 		if hasPickable {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
@@ -144,7 +144,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
@@ -173,7 +173,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 	log.Debug("拾得完了", "count", collectedCount)
 
-	if collectedCount > 1 && actor.HasComponent(world.Components.Player) {
+	if collectedCount > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("%d個を入手した", collectedCount)).
 			Log()

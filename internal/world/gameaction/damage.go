@@ -6,13 +6,13 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ApplyDamage は共通のダメージ処理を実行する
 // source から target へダメージを与え、死亡判定とログ出力を行う
 func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity) {
-	hp := world.Components.HP.Get(target).(*gc.HP)
+	hp := world.Components.HP.Get(target)
 
 	beforeHP := hp.Current
 	hp.Current -= damage
@@ -25,7 +25,7 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 
 	// 死亡チェック
 	if hp.Current <= 0 && beforeHP > 0 {
-		target.AddComponent(world.Components.Dead, &gc.Dead{})
+		world.Components.Dead.Add(target, &gc.Dead{})
 		logDeath(world, target, source)
 	}
 }
@@ -33,10 +33,10 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 // reactToHostileAction は被ダメージ時にAIの戦闘方針を変化させる。
 // CombatIgnore は反撃のため CombatAttack に遷移する
 func reactToHostileAction(world w.World, target ecs.Entity) {
-	if solo, ok := world.Components.SoloAI.Get(target).(*gc.SoloAI); ok {
+	if solo, ok := world.Components.SoloAI.Get(target); ok {
 		solo.ReactToHostile()
 	}
-	if squad, ok := world.Components.SquadAI.Get(target).(*gc.SquadAI); ok {
+	if squad, ok := world.Components.SquadAI.Get(target); ok {
 		squad.ReactToHostile()
 	}
 }
@@ -46,7 +46,7 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 // プレイヤーまたは隊員が関与する場合のみログを出力する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world) ||
-		target.HasComponent(world.Components.SquadMember) || source.HasComponent(world.Components.SquadMember)
+		world.Components.SquadMember.Has(target) || world.Components.SquadMember.Has(source)
 	if !isRelevant {
 		return
 	}
@@ -54,7 +54,7 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	targetName := query.GetEntityName(target, world)
 
 	suffix := " は倒れた。"
-	if target.HasComponent(world.Components.Prop) {
+	if world.Components.Prop.Has(target) {
 		suffix = " は壊れた。"
 	}
 
@@ -68,14 +68,14 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 
 // isPlayerEntity はエンティティがプレイヤーかを判定する
 func isPlayerEntity(entity ecs.Entity, world w.World) bool {
-	return entity.HasComponent(world.Components.Player)
+	return world.Components.Player.Has(entity)
 }
 
 // ApplyHealing は共通の回復処理を実行する
 // target に amount 分のHPを回復させる
 // 実際の回復量を返す
 func ApplyHealing(world w.World, target ecs.Entity, amount int) int {
-	hp := world.Components.HP.Get(target).(*gc.HP)
+	hp := world.Components.HP.Get(target)
 
 	beforeHP := hp.Current
 	hp.Current += amount

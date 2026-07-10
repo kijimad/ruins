@@ -38,9 +38,9 @@ func TestExecuteInteraction_InvalidRange(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	player := world.World.NewEntity()
+	triggerEntity := world.World.NewEntity()
+	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{InvalidRangeTrigger{}},
 	})
 
@@ -55,9 +55,9 @@ func TestExecuteInteraction_InvalidWay(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	player := world.World.NewEntity()
+	triggerEntity := world.World.NewEntity()
+	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{InvalidWayTrigger{}},
 	})
 
@@ -75,20 +75,20 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 		// 扉を作成（閉じている）
-		doorEntity := world.Manager.NewEntity()
-		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
-		doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		doorEntity := world.World.NewEntity()
+		world.Components.GridElement.Add(doorEntity, &gc.GridElement{X: 11, Y: 10})
+		world.Components.Door.Add(doorEntity, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
+		world.Components.Interactable.Add(doorEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 		})
-		doorEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+		world.Components.BlockPass.Add(doorEntity, &gc.BlockPass{})
+		world.Components.BlockView.Add(doorEntity, &gc.BlockView{})
 
 		// ExecuteInteractionを実行
 		result, err := ExecuteInteraction(player, doorEntity, gc.DoorInteraction{}, world)
@@ -98,7 +98,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		assert.True(t, result.Success, "扉相互作用が成功するべき")
 
 		// 扉が開いていることを確認
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.Get(doorEntity)
 		assert.True(t, doorComp.IsOpen, "扉が開いているべき")
 	})
 
@@ -107,16 +107,16 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 		// 扉を作成（開いている）
-		doorEntity := world.Manager.NewEntity()
-		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
-		doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		doorEntity := world.World.NewEntity()
+		world.Components.GridElement.Add(doorEntity, &gc.GridElement{X: 11, Y: 10})
+		world.Components.Door.Add(doorEntity, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
+		world.Components.Interactable.Add(doorEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 		})
 
@@ -128,7 +128,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		assert.True(t, result.Success, "扉相互作用が成功するべき")
 
 		// 扉が閉じていることを確認
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.Get(doorEntity)
 		assert.False(t, doorComp.IsOpen, "扉が閉じているべき")
 	})
 }
@@ -140,22 +140,22 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.TurnBased.Add(player, &gc.TurnBased{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 	// NPCを作成
-	npcEntity := world.Manager.NewEntity()
-	npcEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-	npcEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	npcEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(npcEntity, &gc.GridElement{X: 11, Y: 10})
+	world.Components.Interactable.Add(npcEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.TalkInteraction{}},
 	})
-	npcEntity.AddComponent(world.Components.Dialog, &gc.Dialog{
+	world.Components.Dialog.Add(npcEntity, &gc.Dialog{
 		MessageKey: "test_npc_greeting",
 	})
-	npcEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストNPC"})
-	npcEntity.AddComponent(world.Components.FactionNeutral, &gc.FactionNeutral)
+	world.Components.Name.Add(npcEntity, &gc.Name{Name: "テストNPC"})
+	world.Components.FactionNeutral.Add(npcEntity, &gc.FactionNeutralData{})
 
 	// ExecuteInteractionを実行
 	result, err := ExecuteInteraction(player, npcEntity, gc.TalkInteraction{}, world)
@@ -172,18 +172,18 @@ func TestExecuteInteraction_Item(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成（インベントリなし）
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 	// アイテムを作成
-	itemEntity := world.Manager.NewEntity()
-	itemEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	itemEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	itemEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(itemEntity, &gc.GridElement{X: 10, Y: 10})
+	world.Components.Interactable.Add(itemEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 	})
-	itemEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
-	itemEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
+	world.Components.Name.Add(itemEntity, &gc.Name{Name: "テストアイテム"})
+	world.Components.Consumable.Add(itemEntity, &gc.Consumable{})
 
 	// ExecuteInteractionを実行（拾えるアイテムが見つからないためエラー）
 	result, err := ExecuteInteraction(player, itemEntity, gc.ItemInteraction{}, world)
@@ -201,17 +201,17 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成（攻撃手段なし）
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 	// 敵を作成
-	enemyEntity := world.Manager.NewEntity()
-	enemyEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-	enemyEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	enemyEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(enemyEntity, &gc.GridElement{X: 11, Y: 10})
+	world.Components.Interactable.Add(enemyEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	})
-	enemyEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
+	world.Components.Name.Add(enemyEntity, &gc.Name{Name: "テスト敵"})
 
 	// ExecuteInteractionを実行（攻撃手段がないためエラー）
 	result, err := ExecuteInteraction(player, enemyEntity, gc.MeleeInteraction{}, world)
@@ -230,11 +230,11 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 	// プレイヤーを作成（武器なし、素手で攻撃）
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	player.AddComponent(world.Components.Abilities, &gc.Abilities{
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.TurnBased.Add(player, &gc.TurnBased{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+	world.Components.Abilities.Add(player, &gc.Abilities{
 		Strength:  gc.Ability{Base: 5, Total: 5},
 		Dexterity: gc.Ability{Base: 5, Total: 5},
 		Agility:   gc.Ability{Base: 5, Total: 5},
@@ -242,19 +242,19 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	})
 
 	// 敵を作成
-	enemyEntity := world.Manager.NewEntity()
-	enemyEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-	enemyEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	enemyEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(enemyEntity, &gc.GridElement{X: 11, Y: 10})
+	world.Components.Interactable.Add(enemyEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	})
-	enemyEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
-	enemyEntity.AddComponent(world.Components.Abilities, &gc.Abilities{
+	world.Components.Name.Add(enemyEntity, &gc.Name{Name: "テスト敵"})
+	world.Components.Abilities.Add(enemyEntity, &gc.Abilities{
 		Strength:  gc.Ability{Base: 1, Total: 1},
 		Dexterity: gc.Ability{Base: 1, Total: 1},
 		Agility:   gc.Ability{Base: 1, Total: 1},
 		Defense:   gc.Ability{Base: 0, Total: 0},
 	})
-	enemyEntity.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
+	world.Components.HP.Add(enemyEntity, &gc.HP{Max: 10, Current: 10})
 
 	// 武器スロット1を選択
 	query.GetDungeon(world).SelectedWeaponSlot = 1
@@ -263,7 +263,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 
-	hp := world.Components.HP.Get(enemyEntity).(*gc.HP)
+	hp := world.Components.HP.Get(enemyEntity)
 	assert.Less(t, hp.Current, 10, "素手攻撃でダメージが入るべき")
 }
 
@@ -275,11 +275,11 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
-		portalEntity := world.Manager.NewEntity()
-		portalEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		portalEntity := world.World.NewEntity()
+		world.Components.Interactable.Add(portalEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalTypeNext}},
 		})
 
@@ -295,11 +295,11 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
-		portalEntity := world.Manager.NewEntity()
-		portalEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		portalEntity := world.World.NewEntity()
+		world.Components.Interactable.Add(portalEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalTypeTown}},
 		})
 
@@ -315,11 +315,11 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
-		portalEntity := world.Manager.NewEntity()
-		portalEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		portalEntity := world.World.NewEntity()
+		world.Components.Interactable.Add(portalEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalType("UNKNOWN")}},
 		})
 
@@ -336,11 +336,11 @@ func TestExecuteInteraction_DungeonGate(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
 
-	gateEntity := world.Manager.NewEntity()
-	gateEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	gateEntity := world.World.NewEntity()
+	world.Components.Interactable.Add(gateEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.DungeonGateInteraction{}},
 	})
 
@@ -360,20 +360,20 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 		// 扉を2つ作成
-		door1 := world.Manager.NewEntity()
-		door1.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
-		door2 := world.Manager.NewEntity()
-		door2.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationVertical})
+		door1 := world.World.NewEntity()
+		world.Components.Door.Add(door1, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
+		door2 := world.World.NewEntity()
+		world.Components.Door.Add(door2, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationVertical})
 
 		// DoorLockTriggerエンティティを作成
-		trigger := world.Manager.NewEntity()
-		trigger.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
+		trigger := world.World.NewEntity()
+		world.Components.GridElement.Add(trigger, &gc.GridElement{X: 10, Y: 10})
+		world.Components.Interactable.Add(trigger, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.DoorLockInteraction{}},
 		})
 
@@ -382,8 +382,8 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		assert.True(t, result.Success)
 
 		// 全扉がロックされていることを確認
-		doorComp1 := world.Components.Door.Get(door1).(*gc.Door)
-		doorComp2 := world.Components.Door.Get(door2).(*gc.Door)
+		doorComp1 := world.Components.Door.Get(door1)
+		doorComp2 := world.Components.Door.Get(door2)
 		assert.True(t, doorComp1.Locked, "扉1がロックされるべき")
 		assert.True(t, doorComp2.Locked, "扉2がロックされるべき")
 	})
@@ -392,15 +392,15 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		// 既ロックの扉
-		door := world.Manager.NewEntity()
-		door.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Locked: true})
+		door := world.World.NewEntity()
+		world.Components.Door.Add(door, &gc.Door{IsOpen: false, Locked: true})
 
-		trigger := world.Manager.NewEntity()
-		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
+		trigger := world.World.NewEntity()
+		world.Components.Interactable.Add(trigger, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.DoorLockInteraction{}},
 		})
 
@@ -413,16 +413,16 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		// 開いた扉を作成
-		door := world.Manager.NewEntity()
-		door.AddComponent(world.Components.Door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
-		door.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "door_horizontal_open"})
+		door := world.World.NewEntity()
+		world.Components.Door.Add(door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
+		world.Components.SpriteRender.Add(door, &gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "door_horizontal_open"})
 
-		trigger := world.Manager.NewEntity()
-		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
+		trigger := world.World.NewEntity()
+		world.Components.Interactable.Add(trigger, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.DoorLockInteraction{}},
 		})
 
@@ -430,7 +430,7 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, result.Success)
 
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.Get(door)
 		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
 		assert.True(t, doorComp.Locked, "扉がロックされるべき")
 	})
@@ -444,26 +444,26 @@ func TestExecuteInteraction_Door_Locked(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
-		doorEntity := world.Manager.NewEntity()
-		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Locked: true, Orientation: gc.DoorOrientationHorizontal})
-		doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		doorEntity := world.World.NewEntity()
+		world.Components.GridElement.Add(doorEntity, &gc.GridElement{X: 11, Y: 10})
+		world.Components.Door.Add(doorEntity, &gc.Door{IsOpen: false, Locked: true, Orientation: gc.DoorOrientationHorizontal})
+		world.Components.Interactable.Add(doorEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 		})
-		doorEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+		world.Components.BlockPass.Add(doorEntity, &gc.BlockPass{})
+		world.Components.BlockView.Add(doorEntity, &gc.BlockView{})
 
 		result, err := ExecuteInteraction(player, doorEntity, gc.DoorInteraction{}, world)
 		require.NoError(t, err)
 		require.NotNil(t, result)
 
 		// ロック済み扉は開かない
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.Get(doorEntity)
 		assert.False(t, doorComp.IsOpen, "ロックされた扉は開かないべき")
 	})
 }
@@ -474,14 +474,14 @@ func TestExecuteInteraction_Door_NoDoorComponent(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 	// DoorInteractionを持つがDoorコンポーネントがないエンティティ
-	doorEntity := world.Manager.NewEntity()
-	doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-	doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	doorEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(doorEntity, &gc.GridElement{X: 11, Y: 10})
+	world.Components.Interactable.Add(doorEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 	})
 
@@ -497,17 +497,17 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 
 	// TalkInteractionを持つがDialogコンポーネントがないエンティティ
-	npcEntity := world.Manager.NewEntity()
-	npcEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-	npcEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	npcEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(npcEntity, &gc.GridElement{X: 11, Y: 10})
+	world.Components.Interactable.Add(npcEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.TalkInteraction{}},
 	})
-	npcEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストNPC"})
+	world.Components.Name.Add(npcEntity, &gc.Name{Name: "テストNPC"})
 
 	_, err := ExecuteInteraction(player, npcEntity, gc.TalkInteraction{}, world)
 
@@ -524,21 +524,21 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.Abilities.Add(player, &gc.Abilities{
 			Strength:  gc.Ability{Base: 5, Total: 5},
 			Dexterity: gc.Ability{Base: 5, Total: 5},
 		})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
-		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+		prop := world.World.NewEntity()
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 11, Y: 10})
+		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
+		world.Components.Prop.Add(prop, nil)
+		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
+		world.Components.Interactable.Add(prop, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
@@ -550,7 +550,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		assert.True(t, result.Success)
 		assert.Equal(t, gc.BehaviorAttack, result.ActivityName)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.Get(prop)
 		assert.Less(t, hp.Current, 30, "攻撃でダメージが入るべき")
 	})
 
@@ -558,21 +558,21 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.Abilities.Add(player, &gc.Abilities{
 			Strength:  gc.Ability{Base: 5, Total: 5},
 			Dexterity: gc.Ability{Base: 5, Total: 5},
 		})
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "壊れた木箱"})
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 0})
-		prop.AddComponent(world.Components.Dead, &gc.Dead{})
-		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+		prop := world.World.NewEntity()
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 11, Y: 10})
+		world.Components.Name.Add(prop, &gc.Name{Name: "壊れた木箱"})
+		world.Components.Prop.Add(prop, nil)
+		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 0})
+		world.Components.Dead.Add(prop, &gc.Dead{})
+		world.Components.Interactable.Add(prop, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
@@ -600,11 +600,11 @@ func TestExecuteInteraction_UnknownType(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
 
-	unknownEntity := world.Manager.NewEntity()
-	unknownEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	unknownEntity := world.World.NewEntity()
+	world.Components.Interactable.Add(unknownEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{UnknownInteraction{}},
 	})
 

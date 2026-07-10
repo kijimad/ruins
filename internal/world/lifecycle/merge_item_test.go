@@ -8,15 +8,15 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, nil)
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, nil)
 
 	// 既存のmaterialをバックパックに配置（初期数量5）
 	_, err := SpawnBackpackItem(world, "鉄くず", 5)
@@ -38,10 +38,10 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 		world.Components.LocationInBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.Get(entity)
 		if name.Name == "鉄くず" {
 			ironCount++
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count
 		}
 	}))
@@ -54,8 +54,8 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, nil)
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, nil)
 
 	// 新しいmaterialを作成（既存のものはなし）
 	_, err := SpawnBackpackItem(world, "緑ハーブ", 2)
@@ -92,8 +92,8 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, nil)
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, nil)
 
 	// 既存のアイテム（Stackableを持たない）をバックパックに配置
 	_, err := SpawnBackpackItem(world, "西洋鎧", 1)
@@ -132,8 +132,8 @@ func TestMergeMaterialIntoInventoryWithoutItemOrMaterialComponent(t *testing.T) 
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, nil)
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, nil)
 
 	// Stackableコンポーネントを持たないエンティティを作成（個別アイテムとして扱われる）
 	componentList := entities.ComponentList[gc.EntitySpec]{}

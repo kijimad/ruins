@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // TemperatureSystem は体温の更新を行うシステム
@@ -74,8 +74,8 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		world.Components.HealthStatus,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		hs := world.Components.HealthStatus.Get(entity)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		// 環境気温を計算
 		envTemp, err := CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
@@ -86,12 +86,12 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		// 装備から断熱値を計算する
 		insulation := CalculateEquippedInsulation(world, entity)
 
-		isPlayer := entity.HasComponent(world.Components.Player)
+		isPlayer := world.Components.Player.Has(entity)
 
 		// 体温進行倍率を取得する
 		coldProgressPct, heatProgressPct := 100, 100
-		if entity.HasComponent(world.Components.CharModifiers) {
-			mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+		if world.Components.CharModifiers.Has(entity) {
+			mods := world.Components.CharModifiers.Get(entity)
 			coldProgressPct = mods.ColdProgress
 			heatProgressPct = mods.HeatProgress
 		}
@@ -101,7 +101,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
-			entity.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
+			world.Components.StatsChanged.Add(entity, &gc.StatsChanged{})
 		}
 	}))
 
@@ -117,12 +117,12 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 		world.Components.LocationEquipped,
 		world.Components.Wearable,
 	).Visit(ecs.Visit(func(item ecs.Entity) {
-		equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.Get(item)
 		if equipped.Owner != owner {
 			return
 		}
 
-		wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
+		wearable := world.Components.Wearable.Get(item)
 		total.Cold += wearable.InsulationCold
 		total.Heat += wearable.InsulationHeat
 	}))
@@ -137,9 +137,9 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 		world.Components.GridElement,
 		world.Components.TileTemperature,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		if grid.X == x && grid.Y == y {
-			tileTemp := world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
+			tileTemp := world.Components.TileTemperature.Get(entity)
 			modifier = tileTemp.Total()
 		}
 	}))

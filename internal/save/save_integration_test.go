@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestSaveLoadIntegration(t *testing.T) {
@@ -23,13 +23,13 @@ func TestSaveLoadIntegration(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// テスト用エンティティを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
-	npc := world.Manager.NewEntity()
-	npc.AddComponent(world.Components.Name, &gc.Name{Name: "テストNPC"})
-	npc.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemyData{})
+	npc := world.World.NewEntity()
+	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
+	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
 
 	// セーブマネージャーを作成
 	saveManager, err := NewSerializationManager(WithSaveDir(testDir))
@@ -120,9 +120,9 @@ func TestSaveLoadInPlace(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
 	// GameProgressにデータを設定
 	query.GetGameProgress(world).MarkDungeonCleared("遺跡")
@@ -155,9 +155,9 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成（セーブ対象のエンティティが必要）
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
 		// ダンジョンクリアフラグを設定
 		query.GetGameProgress(world).MarkDungeonCleared("遺跡")
@@ -182,9 +182,9 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
 		// イベント状態を設定
 		query.GetGameProgress(world).SetEventActive("all_cleared")
@@ -209,9 +209,9 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
 		sm := createTestSerializationManager(t)
 		jsonStr, err := sm.GenerateWorldJSON(world)
@@ -264,17 +264,17 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		require.True(t, found, "隊員エンティティが復元されている")
 
 		// AI処理に必要なコンポーネント
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.SquadAI), "SquadAIが復元される")
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.GridElement), "GridElementが復元される")
+		assert.True(t, newWorld.Components.SquadAI.Has(memberEntity), "SquadAIが復元される")
+		assert.True(t, newWorld.Components.GridElement.Has(memberEntity), "GridElementが復元される")
 
 		// ステータス関連コンポーネント
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.HealthStatus), "HealthStatusが復元される")
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.Skills), "Skillsが復元される")
+		assert.True(t, newWorld.Components.HealthStatus.Has(memberEntity), "HealthStatusが復元される")
+		assert.True(t, newWorld.Components.Skills.Has(memberEntity), "Skillsが復元される")
 		// CharModifiersはStatsChangedSystemが再計算する。復元直後はダーティフラグのみ
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.StatsChanged), "StatsChangedフラグが付与される")
+		assert.True(t, newWorld.Components.StatsChanged.Has(memberEntity), "StatsChangedフラグが付与される")
 
 		// AIの値が正しいことを確認
-		ai := newWorld.Components.SquadAI.Get(memberEntity).(*gc.SquadAI)
+		ai := newWorld.Components.SquadAI.Get(memberEntity)
 		assert.Equal(t, gc.PlannerSquad, ai.Type())
 		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 	})

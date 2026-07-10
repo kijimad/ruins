@@ -9,7 +9,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // CanMoveTo は指定位置に移動可能かチェックする。
@@ -48,8 +48,8 @@ func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entit
 // CanSwapPosition はmoverがtargetと位置交換できるかを判定する。
 // プレイヤーだけが隊員と位置交換できる
 func CanSwapPosition(world w.World, mover, target ecs.Entity) bool {
-	if mover.HasComponent(world.Components.Player) {
-		return target.HasComponent(world.Components.SquadMember)
+	if world.Components.Player.Has(mover) {
+		return world.Components.SquadMember.Has(target)
 	}
 	// 隊員は他のキャラクターをブロックとして扱う。
 	// 隊員同士の位置交換を許可すると、互いに交換し続けて前進できなくなる
@@ -110,11 +110,11 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	// 所持重量が最大の1.5倍を超えていたら動けない
-	if actor.HasComponent(world.Components.WeightCapacity) {
-		cw := world.Components.WeightCapacity.Get(actor).(*gc.WeightCapacity)
+	if world.Components.WeightCapacity.Has(actor) {
+		cw := world.Components.WeightCapacity.Get(actor)
 		overweightLimit := cw.Max * 1.5
 		if cw.Current > overweightLimit {
-			if actor.HasComponent(world.Components.Player) {
+			if world.Components.Player.Has(actor) {
 				gamelog.New(query.GetGameLog(world)).
 					Warning("重すぎて動けない").
 					Log()
@@ -173,7 +173,7 @@ func (ma *MoveActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
-	if comp.Destination != nil && actor.HasComponent(world.Components.Player) {
+	if comp.Destination != nil && world.Components.Player.Has(actor) {
 		showTileInteractionMessage(world, comp.Destination)
 	}
 

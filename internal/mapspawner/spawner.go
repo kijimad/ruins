@@ -12,7 +12,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Spawn はMetaPlanからレベルを生成する
@@ -58,7 +58,7 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan) error {
 		}
 
 		// TileRaw の環境情報を TileTemperature に設定する
-		if tileTemp, ok := world.Components.TileTemperature.Get(tileEntity).(*gc.TileTemperature); ok && tileTemp != nil {
+		if tileTemp, ok := world.Components.TileTemperature.Get(tileEntity); ok && tileTemp != nil {
 			tileTemp.Shelter = gc.ShelterType(tile.Shelter)
 			tileTemp.Water = gc.WaterType(tile.Water)
 			tileTemp.Foliage = gc.FoliageType(tile.Foliage)
@@ -156,7 +156,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 
 		// Door componentがあれば向きを設定して閉じた状態で初期化
 		if propRaw.Door != nil {
-			doorComp := world.Components.Door.Get(propEntity).(*gc.Door)
+			doorComp := world.Components.Door.Get(propEntity)
 			doorComp.Orientation = detectPropDoorOrientation(metaPlan, prop.X, prop.Y)
 			if err := lifecycle.CloseDoor(world, propEntity); err != nil {
 				return fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)

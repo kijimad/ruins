@@ -5,7 +5,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // StatsChangedSystem はステータス再計算のダーティフラグが立ったら、ステータス補正まわりを再計算する
@@ -29,8 +29,8 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		world.Components.StatsChanged,
 		world.Components.Abilities,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		entity.RemoveComponent(world.Components.StatsChanged)
-		abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+		world.Components.StatsChanged.Remove(entity)
+		abils := world.Components.Abilities.Get(entity)
 
 		// Abilities初期化
 		{
@@ -53,14 +53,14 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			world.Components.LocationEquipped,
 			world.Components.Wearable,
 		).Visit(ecs.Visit(func(item ecs.Entity) {
-			equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
+			equipped := world.Components.LocationEquipped.Get(item)
 
 			// このエンティティの装備のみ処理
 			if equipped.Owner != entity {
 				return
 			}
 
-			wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
+			wearable := world.Components.Wearable.Get(item)
 
 			abils.Defense.Modifier += wearable.Defense
 			abils.Vitality.Modifier += wearable.EquipBonus.Vitality
@@ -71,8 +71,8 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}))
 
 		// 健康ペナルティを加算
-		if entity.HasComponent(world.Components.HealthStatus) {
-			hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+		if world.Components.HealthStatus.Has(entity) {
+			hs := world.Components.HealthStatus.Get(entity)
 			abils.Vitality.Modifier += hs.GetStatModifier(gc.StatVitality)
 			abils.Strength.Modifier += hs.GetStatModifier(gc.StatStrength)
 			abils.Sensation.Modifier += hs.GetStatModifier(gc.StatSensation)
@@ -90,35 +90,35 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		abils.Defense.Total = abils.Defense.Base + abils.Defense.Modifier
 
 		// スキル効果倍率を再計算する。能力値変更後に行う
-		if entity.HasComponent(world.Components.Skills) {
-			skills := world.Components.Skills.Get(entity).(*gc.Skills)
+		if world.Components.Skills.Has(entity) {
+			skills := world.Components.Skills.Get(entity)
 			var hs *gc.HealthStatus
-			if entity.HasComponent(world.Components.HealthStatus) {
-				hs = world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+			if world.Components.HealthStatus.Has(entity) {
+				hs = world.Components.HealthStatus.Get(entity)
 			}
 			effects := gc.RecalculateCharModifiers(skills, abils, hs)
-			entity.AddComponent(world.Components.CharModifiers, effects)
+			world.Components.CharModifiers.Add(entity, effects)
 		}
 
 		// HP/Poolsを更新
-		if entity.HasComponent(world.Components.HP) {
-			hp := world.Components.HP.Get(entity).(*gc.HP)
+		if world.Components.HP.Has(entity) {
+			hp := world.Components.HP.Get(entity)
 			hp.Max = maxHP(abils)
 			hp.Current = min(hp.Max, hp.Current)
 		}
-		if entity.HasComponent(world.Components.WeightCapacity) {
+		if world.Components.WeightCapacity.Has(entity) {
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
-			entity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+			world.Components.WeightDirty.Add(entity, &gc.WeightDirty{})
 		}
 
 		// APを再計算
-		if entity.HasComponent(world.Components.TurnBased) {
+		if world.Components.TurnBased.Has(entity) {
 			maxAP, err := query.CalculateMaxActionPoints(world, entity)
 			if err != nil {
 				updateErr = err
 				return
 			}
-			turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+			turnBased := world.Components.TurnBased.Get(entity)
 
 			// 最大APを更新
 			turnBased.AP.Max = maxAP

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // StableID は安定エンティティ識別子

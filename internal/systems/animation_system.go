@@ -3,7 +3,7 @@ package systems
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 const (
@@ -40,7 +40,7 @@ func (sys *AnimationSystem) Update(world w.World) error {
 	world.Manager.Join(
 		world.Components.SpriteRender,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// AnimKeysが空ならアニメーションなし
 		if len(spriteRender.AnimKeys) == 0 {

@@ -9,7 +9,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ExecuteMoveAction は移動アクションを実行する
@@ -19,11 +19,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		return err
 	}
 
-	if !entity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(entity) {
 		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
 	}
 
-	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	gridElement := world.Components.GridElement.Get(entity)
 	currentX := int(gridElement.X)
 	currentY := int(gridElement.Y)
 
@@ -43,8 +43,8 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 			switch interaction.(type) {
 			case gc.DoorInteraction:
 				// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
-				if interactableEntity.HasComponent(world.Components.Door) {
-					door := world.Components.Door.Get(interactableEntity).(*gc.Door)
+				if world.Components.Door.Has(interactableEntity) {
+					door := world.Components.Door.Get(interactableEntity)
 					if !door.IsOpen {
 						if door.Locked {
 							gamelog.New(query.GetGameLog(world)).Append("扉はロックされている。").Log()
@@ -101,10 +101,10 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 		if found != nil {
 			return // 既に見つかっている
 		}
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ge := world.Components.GridElement.Get(entity)
 		// 直上タイルのみ
 		if ge.X == targetGrid.X && ge.Y == targetGrid.Y {
-			found = world.Components.Interactable.Get(entity).(*gc.Interactable)
+			found = world.Components.Interactable.Get(entity)
 			foundEntity = entity
 		}
 	}))
@@ -120,8 +120,8 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 		world.Components.GridElement,
 		world.Components.Interactable,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		interactable := world.Components.Interactable.Get(entity)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		for _, interaction := range interactable.Interactions {
 			way := interaction.Config().ActivationWay
@@ -172,7 +172,7 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	entities := GetAllInteractiveInteractablesInRange(world, playerGrid)
 	for _, entity := range entities {
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		interactable := world.Components.Interactable.Get(entity)
 		for _, interaction := range interactable.Interactions {
 			if interaction.Config().ActivationWay != gc.ActivationWayManual {
 				continue

@@ -57,18 +57,18 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 	world := testutil.InitTestWorld(t)
 
 	// === プレイヤーエンティティ: マーカー + データコンポーネント ===
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.FactionAlly, &gc.FactionAllyData{})
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
-	player.AddComponent(world.Components.Description, &gc.Description{Description: "説明文"})
-	player.AddComponent(world.Components.HP, &gc.HP{Current: 80, Max: 100})
-	player.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Current: 12.5, Max: 50.0})
-	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
+	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
+	world.Components.Description.Add(player, &gc.Description{Description: "説明文"})
+	world.Components.HP.Add(player, &gc.HP{Current: 80, Max: 100})
+	world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{Current: 12.5, Max: 50.0})
+	world.Components.TurnBased.Add(player, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 3, Max: 5},
 		Speed: 12,
 	})
-	player.AddComponent(world.Components.Abilities, &gc.Abilities{
+	world.Components.Abilities.Add(player, &gc.Abilities{
 		Vitality:  gc.Ability{Base: 10, Modifier: 2, Total: 12},
 		Strength:  gc.Ability{Base: 15, Modifier: -1, Total: 14},
 		Sensation: gc.Ability{Base: 8, Modifier: 0, Total: 8},
@@ -76,31 +76,31 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 		Agility:   gc.Ability{Base: 9, Modifier: 1, Total: 10},
 		Defense:   gc.Ability{Base: 7, Modifier: 0, Total: 7},
 	})
-	player.AddComponent(world.Components.Camera, &gc.Camera{
+	world.Components.Camera.Add(player, &gc.Camera{
 		Scale: 2.0, ScaleTo: 2.5,
 		X: 100.0, Y: 200.0, TargetX: 150.0, TargetY: 250.0,
 	})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(10)})
-	player.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{
+	world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(10)})
+	world.Components.SpriteRender.Add(player, &gc.SpriteRender{
 		SpriteSheetName: "player_sheet",
 		SpriteKey:       "idle",
 		Depth:           gc.DepthNum(10),
 		AnimKeys:        []string{"walk_left", "walk_right"},
 	})
-	player.AddComponent(world.Components.LightSource, &gc.LightSource{
+	world.Components.LightSource.Add(player, &gc.LightSource{
 		Radius:  consts.Tile(3),
 		Enabled: true,
 		Color:   color.RGBA{R: 255, G: 200, B: 100, A: 128},
 	})
-	player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 9999})
+	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 9999})
 
 	// === 近接武器（バックパック内） ===
-	sword := world.Manager.NewEntity()
-	sword.AddComponent(world.Components.Name, &gc.Name{Name: "炎の剣"})
-	sword.AddComponent(world.Components.Description, &gc.Description{Description: "炎属性の剣"})
-	sword.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	sword.AddComponent(world.Components.Value, &gc.Value{Value: 500})
-	sword.AddComponent(world.Components.Melee, &gc.Melee{
+	sword := world.World.NewEntity()
+	world.Components.Name.Add(sword, &gc.Name{Name: "炎の剣"})
+	world.Components.Description.Add(sword, &gc.Description{Description: "炎属性の剣"})
+	world.Components.LocationInBackpack.Add(sword, &gc.LocationInBackpack{Owner: player})
+	world.Components.Value.Add(sword, &gc.Value{Value: 500})
+	world.Components.Melee.Add(sword, &gc.Melee{
 		Accuracy:    90,
 		Damage:      25,
 		AttackCount: 2,
@@ -118,10 +118,10 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 	})
 
 	// === 射撃武器（バックパック内） ===
-	gun := world.Manager.NewEntity()
-	gun.AddComponent(world.Components.Name, &gc.Name{Name: "ハンドガン"})
-	gun.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	gun.AddComponent(world.Components.Fire, &gc.Fire{
+	gun := world.World.NewEntity()
+	world.Components.Name.Add(gun, &gc.Name{Name: "ハンドガン"})
+	world.Components.LocationInBackpack.Add(gun, &gc.LocationInBackpack{Owner: player})
+	world.Components.Fire.Add(gun, &gc.Fire{
 		Accuracy:    80,
 		Damage:      15,
 		AttackCount: 1,
@@ -145,25 +145,25 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 	})
 
 	// === 弾薬（バックパック内、スタック可能） ===
-	ammo := world.Manager.NewEntity()
-	ammo.AddComponent(world.Components.Name, &gc.Name{Name: "9mm弾"})
-	ammo.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	ammo.AddComponent(world.Components.Stackable, &gc.Stackable{})
-	ammo.AddComponent(world.Components.Ammo, &gc.Ammo{
+	ammo := world.World.NewEntity()
+	world.Components.Name.Add(ammo, &gc.Name{Name: "9mm弾"})
+	world.Components.LocationInBackpack.Add(ammo, &gc.LocationInBackpack{Owner: player})
+	world.Components.Stackable.Add(ammo, &gc.Stackable{})
+	world.Components.Ammo.Add(ammo, &gc.Ammo{
 		AmmoTag:       "9mm",
 		DamageBonus:   5,
 		AccuracyBonus: 10,
 	})
 
 	// === 防具（装備中） ===
-	armor := world.Manager.NewEntity()
-	armor.AddComponent(world.Components.Name, &gc.Name{Name: "鋼の鎧"})
-	armor.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
+	armor := world.World.NewEntity()
+	world.Components.Name.Add(armor, &gc.Name{Name: "鋼の鎧"})
+	world.Components.LocationEquipped.Add(armor, &gc.LocationEquipped{
 		Owner:         player,
 		EquipmentSlot: gc.EquipmentSlotNumber(1),
 	})
-	armor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
-	armor.AddComponent(world.Components.Wearable, &gc.Wearable{
+	world.Components.StatsChanged.Add(armor, &gc.StatsChanged{})
+	world.Components.Wearable.Add(armor, &gc.Wearable{
 		Defense:           20,
 		EquipmentCategory: gc.EquipmentTorso,
 		EquipBonus: gc.EquipBonus{
@@ -174,58 +174,58 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 	})
 
 	// === 回復アイテム: RatioAmount（バックパック内） ===
-	potion := world.Manager.NewEntity()
-	potion.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
-	potion.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	potion.AddComponent(world.Components.Stackable, &gc.Stackable{})
-	potion.AddComponent(world.Components.Consumable, &gc.Consumable{
+	potion := world.World.NewEntity()
+	world.Components.Name.Add(potion, &gc.Name{Name: "回復薬"})
+	world.Components.LocationInBackpack.Add(potion, &gc.LocationInBackpack{Owner: player})
+	world.Components.Stackable.Add(potion, &gc.Stackable{})
+	world.Components.Consumable.Add(potion, &gc.Consumable{
 		UsableScene: gc.UsableSceneAny,
 		TargetType: gc.TargetType{
 			TargetGroup: gc.TargetGroupAlly,
 			TargetNum:   gc.TargetSingle,
 		},
 	})
-	potion.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{
+	world.Components.ProvidesHealing.Add(potion, &gc.ProvidesHealing{
 		Amount: gc.RatioAmount{Ratio: 0.5},
 	})
 
 	// === 回復アイテム: NumeralAmount（バックパック内） ===
-	herb := world.Manager.NewEntity()
-	herb.AddComponent(world.Components.Value, &gc.Value{})
-	herb.AddComponent(world.Components.Name, &gc.Name{Name: "薬草"})
-	herb.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	herb.AddComponent(world.Components.Stackable, &gc.Stackable{})
-	herb.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{
+	herb := world.World.NewEntity()
+	world.Components.Value.Add(herb, &gc.Value{})
+	world.Components.Name.Add(herb, &gc.Name{Name: "薬草"})
+	world.Components.LocationInBackpack.Add(herb, &gc.LocationInBackpack{Owner: player})
+	world.Components.Stackable.Add(herb, &gc.Stackable{})
+	world.Components.ProvidesHealing.Add(herb, &gc.ProvidesHealing{
 		Amount: gc.NumeralAmount{Numeral: 30},
 	})
 
 	// === 食料（バックパック内） ===
-	food := world.Manager.NewEntity()
-	food.AddComponent(world.Components.Value, &gc.Value{})
-	food.AddComponent(world.Components.Name, &gc.Name{Name: "携帯食料"})
-	food.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	food.AddComponent(world.Components.Stackable, &gc.Stackable{})
-	food.AddComponent(world.Components.ProvidesNutrition, &gc.ProvidesNutrition{Amount: 50})
+	food := world.World.NewEntity()
+	world.Components.Value.Add(food, &gc.Value{})
+	world.Components.Name.Add(food, &gc.Name{Name: "携帯食料"})
+	world.Components.LocationInBackpack.Add(food, &gc.LocationInBackpack{Owner: player})
+	world.Components.Stackable.Add(food, &gc.Stackable{})
+	world.Components.ProvidesNutrition.Add(food, &gc.ProvidesNutrition{Amount: 50})
 
 	// === ダメージアイテム（バックパック内） ===
-	grenade := world.Manager.NewEntity()
-	grenade.AddComponent(world.Components.Name, &gc.Name{Name: "手榴弾"})
-	grenade.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	grenade.AddComponent(world.Components.Consumable, &gc.Consumable{
+	grenade := world.World.NewEntity()
+	world.Components.Name.Add(grenade, &gc.Name{Name: "手榴弾"})
+	world.Components.LocationInBackpack.Add(grenade, &gc.LocationInBackpack{Owner: player})
+	world.Components.Consumable.Add(grenade, &gc.Consumable{
 		UsableScene: gc.UsableSceneBattle,
 		TargetType: gc.TargetType{
 			TargetGroup: gc.TargetGroupEnemy,
 			TargetNum:   gc.TargetAll,
 		},
 	})
-	grenade.AddComponent(world.Components.InflictsDamage, &gc.InflictsDamage{Amount: 40})
+	world.Components.InflictsDamage.Add(grenade, &gc.InflictsDamage{Amount: 40})
 
 	// === レシピ付きアイテム（バックパック内） ===
-	craftable := world.Manager.NewEntity()
-	craftable.AddComponent(world.Components.Value, &gc.Value{})
-	craftable.AddComponent(world.Components.Name, &gc.Name{Name: "合成武器"})
-	craftable.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	craftable.AddComponent(world.Components.Recipe, &gc.Recipe{
+	craftable := world.World.NewEntity()
+	world.Components.Value.Add(craftable, &gc.Value{})
+	world.Components.Name.Add(craftable, &gc.Name{Name: "合成武器"})
+	world.Components.LocationInBackpack.Add(craftable, &gc.LocationInBackpack{Owner: player})
+	world.Components.Recipe.Add(craftable, &gc.Recipe{
 		Inputs: []gc.RecipeInput{
 			{Name: "鉄", Amount: 3},
 			{Name: "木材", Amount: 1},
@@ -233,10 +233,10 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 	})
 
 	// === 隊員エンティティ ===
-	member := world.Manager.NewEntity()
-	member.AddComponent(world.Components.Name, &gc.Name{Name: "テスト隊員"})
-	member.AddComponent(world.Components.HP, &gc.HP{Current: 50, Max: 60})
-	member.AddComponent(world.Components.Abilities, &gc.Abilities{
+	member := world.World.NewEntity()
+	world.Components.Name.Add(member, &gc.Name{Name: "テスト隊員"})
+	world.Components.HP.Add(member, &gc.HP{Current: 50, Max: 60})
+	world.Components.Abilities.Add(member, &gc.Abilities{
 		Vitality:  gc.Ability{Base: 8, Modifier: 0, Total: 8},
 		Strength:  gc.Ability{Base: 10, Modifier: 0, Total: 10},
 		Sensation: gc.Ability{Base: 6, Modifier: 0, Total: 6},
@@ -244,21 +244,21 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 		Agility:   gc.Ability{Base: 9, Modifier: 0, Total: 9},
 		Defense:   gc.Ability{Base: 5, Modifier: 0, Total: 5},
 	})
-	member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
-	member.AddComponent(world.Components.SquadAI, &gc.SquadAI{
+	world.Components.SquadMember.Add(member, &gc.SquadMember{})
+	world.Components.SquadAI.Add(member, &gc.SquadAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
 		Movement:      gc.SquadEscort,
 		ItemPickup:    gc.PolicyPickup,
 		ItemHandling:  gc.PolicyKeep,
 	})
-	member.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(6), Y: consts.Tile(11)})
-	member.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{
+	world.Components.GridElement.Add(member, &gc.GridElement{X: consts.Tile(6), Y: consts.Tile(11)})
+	world.Components.SpriteRender.Add(member, &gc.SpriteRender{
 		SpriteSheetName: "npc_sheet",
 		SpriteKey:       "idle",
 		Depth:           gc.DepthNum(10),
 	})
-	member.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+	world.Components.TurnBased.Add(member, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 4, Max: 4},
 		Speed: 10,
 	})

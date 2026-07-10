@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Craft はアイテムをクラフトする
@@ -25,8 +25,8 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 
 	craftCostPct, smithQualityPct := 100, 100
 	player, playerErr := query.GetPlayerEntity(world)
-	if playerErr == nil && player.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(player).(*gc.CharModifiers)
+	if playerErr == nil && world.Components.CharModifiers.Has(player) {
+		mods := world.Components.CharModifiers.Get(player)
 		craftCostPct = mods.CraftCost
 		smithQualityPct = mods.SmithQuality
 	}
@@ -98,18 +98,18 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
 	qualityBonus := (smithQualityPct - 100) / 10
 
-	if entity.HasComponent(world.Components.Melee) {
-		melee := world.Components.Melee.Get(entity).(*gc.Melee)
+	if world.Components.Melee.Has(entity) {
+		melee := world.Components.Melee.Get(entity)
 		melee.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
 		melee.Damage += (-5 + rand.IntN(15)) + qualityBonus
 	}
-	if entity.HasComponent(world.Components.Fire) {
-		fire := world.Components.Fire.Get(entity).(*gc.Fire)
+	if world.Components.Fire.Has(entity) {
+		fire := world.Components.Fire.Get(entity)
 		fire.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
 		fire.Damage += (-5 + rand.IntN(15)) + qualityBonus
 	}
-	if entity.HasComponent(world.Components.Wearable) {
-		wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
+	if world.Components.Wearable.Has(entity) {
+		wearable := world.Components.Wearable.Get(entity)
 		wearable.Defense += (-4 + rand.IntN(20)) + qualityBonus
 	}
 }

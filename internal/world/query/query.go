@@ -7,7 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Player はプレイヤーエンティティをVisitする
@@ -40,10 +40,10 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 // LocationOnField を持つ非Propエンティティが対象。
 // Propは設置物なので拾えない。破壊や収納経由でアイテムを取得する
 func IsPickable(entity ecs.Entity, world w.World) bool {
-	if !entity.HasComponent(world.Components.LocationOnField) {
+	if !world.Components.LocationOnField.Has(entity) {
 		return false
 	}
-	if entity.HasComponent(world.Components.Prop) {
+	if world.Components.Prop.Has(entity) {
 		return false
 	}
 	return true
@@ -67,7 +67,7 @@ func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		if grid.X == x && grid.Y == y {
 			entities = append(entities, entity)
 		}

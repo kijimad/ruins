@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestPlayer(t *testing.T) {
@@ -16,15 +16,15 @@ func TestPlayer(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.FactionAlly, &gc.FactionAlly)
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "プレイヤー"})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
+	world.Components.Name.Add(player, &gc.Name{Name: "プレイヤー"})
 
 	// 敵を作成（除外されることを確認）
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "敵"})
+	enemy := world.World.NewEntity()
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.Name.Add(enemy, &gc.Name{Name: "敵"})
 
 	// クエリを実行
 	var foundEntities []ecs.Entity
@@ -37,8 +37,8 @@ func TestPlayer(t *testing.T) {
 	assert.Equal(t, player, foundEntities[0], "正しいプレイヤーが見つかるべき")
 
 	// クリーンアップ
-	world.Manager.DeleteEntity(player)
-	world.Manager.DeleteEntity(enemy)
+	world.World.RemoveEntity(player)
+	world.World.RemoveEntity(enemy)
 }
 
 func TestGetPlayerEntity(t *testing.T) {
@@ -48,14 +48,14 @@ func TestGetPlayerEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		entity, err := GetPlayerEntity(world)
 		require.NoError(t, err)
 		assert.Equal(t, player, entity)
 
-		world.Manager.DeleteEntity(player)
+		world.World.RemoveEntity(player)
 	})
 
 	t.Run("プレイヤーが0個の場合", func(t *testing.T) {
@@ -71,18 +71,18 @@ func TestGetPlayerEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player1 := world.Manager.NewEntity()
-		player1.AddComponent(world.Components.Player, &gc.Player{})
+		player1 := world.World.NewEntity()
+		world.Components.Player.Add(player1, &gc.Player{})
 
-		player2 := world.Manager.NewEntity()
-		player2.AddComponent(world.Components.Player, &gc.Player{})
+		player2 := world.World.NewEntity()
+		world.Components.Player.Add(player2, &gc.Player{})
 
 		_, err := GetPlayerEntity(world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "プレイヤーエンティティが複数存在します")
 
-		world.Manager.DeleteEntity(player1)
-		world.Manager.DeleteEntity(player2)
+		world.World.RemoveEntity(player1)
+		world.World.RemoveEntity(player2)
 	})
 }
 
@@ -93,8 +93,8 @@ func TestIsPickable(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+		entity := world.World.NewEntity()
+		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
 
 		assert.True(t, IsPickable(entity, world))
 	})
@@ -103,7 +103,7 @@ func TestIsPickable(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.World.NewEntity()
 
 		assert.False(t, IsPickable(entity, world))
 	})
@@ -112,9 +112,9 @@ func TestIsPickable(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
-		entity.AddComponent(world.Components.Prop, nil)
+		entity := world.World.NewEntity()
+		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
+		world.Components.Prop.Add(entity, nil)
 
 		assert.False(t, IsPickable(entity, world), "Propは設置物なので拾えない")
 	})
@@ -125,12 +125,12 @@ func TestGetEntitiesAt(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	e1 := world.Manager.NewEntity()
-	e1.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-	e2 := world.Manager.NewEntity()
-	e2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-	e3 := world.Manager.NewEntity()
-	e3.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	e1 := world.World.NewEntity()
+	world.Components.GridElement.Add(e1, &gc.GridElement{X: 5, Y: 5})
+	e2 := world.World.NewEntity()
+	world.Components.GridElement.Add(e2, &gc.GridElement{X: 5, Y: 5})
+	e3 := world.World.NewEntity()
+	world.Components.GridElement.Add(e3, &gc.GridElement{X: 10, Y: 10})
 
 	entities := GetEntitiesAt(world, consts.Tile(5), consts.Tile(5))
 	assert.Len(t, entities, 2)

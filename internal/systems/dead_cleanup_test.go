@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestDeadCleanupSystem(t *testing.T) {
@@ -21,26 +21,26 @@ func TestDeadCleanupSystem(t *testing.T) {
 	// テスト用エンティティを作成
 
 	// 1. 通常の敵（AI）エンティティ - 削除されるべき
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
-	enemy.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
-	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+	enemy := world.World.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
+	world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
+	world.Components.Dead.Add(enemy, &gc.Dead{})
 
 	// 2. プレイヤーエンティティ - 削除されないべき
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "プレイヤー"})
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.Dead, &gc.Dead{})
+	player := world.World.NewEntity()
+	world.Components.Name.Add(player, &gc.Name{Name: "プレイヤー"})
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Dead.Add(player, &gc.Dead{})
 
 	// 3. その他のDeadエンティティ - 削除されるべき
-	otherDead := world.Manager.NewEntity()
-	otherDead.AddComponent(world.Components.Name, &gc.Name{Name: "その他"})
-	otherDead.AddComponent(world.Components.Dead, &gc.Dead{})
+	otherDead := world.World.NewEntity()
+	world.Components.Name.Add(otherDead, &gc.Name{Name: "その他"})
+	world.Components.Dead.Add(otherDead, &gc.Dead{})
 
 	// 4. 生きているエンティティ - 削除されないべき
-	alive := world.Manager.NewEntity()
-	alive.AddComponent(world.Components.Name, &gc.Name{Name: "生きている敵"})
-	alive.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
+	alive := world.World.NewEntity()
+	world.Components.Name.Add(alive, &gc.Name{Name: "生きている敵"})
+	world.Components.SoloAI.Add(alive, &gc.SoloAI{})
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
@@ -49,22 +49,22 @@ func TestDeadCleanupSystem(t *testing.T) {
 	// 結果を検証
 
 	// 敵エンティティは削除されているべき（Nameコンポーネントも削除される）
-	assert.False(t, enemy.HasComponent(world.Components.Name), "敵エンティティは削除されるべき")
+	assert.False(t, world.Components.Name.Has(enemy), "敵エンティティは削除されるべき")
 
 	// プレイヤーエンティティは削除されていないべき
-	assert.True(t, player.HasComponent(world.Components.Name), "プレイヤーエンティティは削除されないべき")
-	assert.True(t, player.HasComponent(world.Components.Dead), "プレイヤーのDeadコンポーネントは残るべき")
+	assert.True(t, world.Components.Name.Has(player), "プレイヤーエンティティは削除されないべき")
+	assert.True(t, world.Components.Dead.Has(player), "プレイヤーのDeadコンポーネントは残るべき")
 
 	// その他のDeadエンティティは削除されているべき
-	assert.False(t, otherDead.HasComponent(world.Components.Name), "その他のDeadエンティティは削除されるべき")
+	assert.False(t, world.Components.Name.Has(otherDead), "その他のDeadエンティティは削除されるべき")
 
 	// 生きているエンティティは削除されていないべき
-	assert.True(t, alive.HasComponent(world.Components.Name), "生きているエンティティは削除されないべき")
-	assert.False(t, alive.HasComponent(world.Components.Dead), "生きているエンティティにDeadコンポーネントはないべき")
+	assert.True(t, world.Components.Name.Has(alive), "生きているエンティティは削除されないべき")
+	assert.False(t, world.Components.Dead.Has(alive), "生きているエンティティにDeadコンポーネントはないべき")
 
 	// クリーンアップ
-	world.Manager.DeleteEntity(player)
-	world.Manager.DeleteEntity(alive)
+	world.World.RemoveEntity(player)
+	world.World.RemoveEntity(alive)
 }
 
 func TestDeadCleanupSystem_NoDeadEntities(t *testing.T) {
@@ -73,24 +73,24 @@ func TestDeadCleanupSystem_NoDeadEntities(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// Deadエンティティが存在しない状態でテスト
-	alive1 := world.Manager.NewEntity()
-	alive1.AddComponent(world.Components.Name, &gc.Name{Name: "生きている1"})
+	alive1 := world.World.NewEntity()
+	world.Components.Name.Add(alive1, &gc.Name{Name: "生きている1"})
 
-	alive2 := world.Manager.NewEntity()
-	alive2.AddComponent(world.Components.Name, &gc.Name{Name: "生きている2"})
-	alive2.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
+	alive2 := world.World.NewEntity()
+	world.Components.Name.Add(alive2, &gc.Name{Name: "生きている2"})
+	world.Components.SoloAI.Add(alive2, &gc.SoloAI{})
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// すべてのエンティティが残っているべき
-	assert.True(t, alive1.HasComponent(world.Components.Name), "生きているエンティティ1は残るべき")
-	assert.True(t, alive2.HasComponent(world.Components.Name), "生きているエンティティ2は残るべき")
+	assert.True(t, world.Components.Name.Has(alive1), "生きているエンティティ1は残るべき")
+	assert.True(t, world.Components.Name.Has(alive2), "生きているエンティティ2は残るべき")
 
 	// クリーンアップ
-	world.Manager.DeleteEntity(alive1)
-	world.Manager.DeleteEntity(alive2)
+	world.World.RemoveEntity(alive1)
+	world.World.RemoveEntity(alive2)
 }
 
 func TestDeadCleanupSystem_EmptyWorld(t *testing.T) {
@@ -117,11 +117,11 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// ドロップテーブルを持つ敵エンティティを作成（灰の偶像は100%ドロップ）
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "灰の偶像"})
-	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
-	enemy.AddComponent(world.Components.DropTable, &gc.DropTable{Name: "灰の偶像"})
-	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	enemy := world.World.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "灰の偶像"})
+	world.Components.Dead.Add(enemy, &gc.Dead{})
+	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "灰の偶像"})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
 
 	// DeadCleanupSystem実行前のアイテムエンティティ数をカウント
 	itemCountBefore := 0
@@ -134,7 +134,7 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	// 敵エンティティは削除されているべき
-	assert.False(t, enemy.HasComponent(world.Components.Name), "敵エンティティは削除されるべき")
+	assert.False(t, world.Components.Name.Has(enemy), "敵エンティティは削除されるべき")
 
 	// ドロップアイテムが生成されているべき（"鉄くず"がドロップテーブルに定義されている）
 	itemCountAfter := 0
@@ -156,11 +156,11 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 	world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))
 
 	// 敵エンティティを作成
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "火の玉"})
-	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
-	enemy.AddComponent(world.Components.DropTable, &gc.DropTable{Name: "火の玉"})
-	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	enemy := world.World.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "火の玉"})
+	world.Components.Dead.Add(enemy, &gc.Dead{})
+	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "火の玉"})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
@@ -188,10 +188,10 @@ func TestDeadCleanupSystem_WithoutDropTable(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// ドロップテーブルを持たない敵はアイテムをドロップしない
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "火の玉"})
-	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
-	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	enemy := world.World.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "火の玉"})
+	world.Components.Dead.Add(enemy, &gc.Dead{})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
@@ -218,24 +218,24 @@ func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// アクティビティを持つ死亡エンティティを作成
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
-	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+	enemy := world.World.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
+	world.Components.Dead.Add(enemy, &gc.Dead{})
 
 	aa := &activity.AttackActivity{}
 	comp, err := activity.NewActivity(aa, 1)
 	require.NoError(t, err)
 	comp.State = gc.ActivityStateRunning
-	enemy.AddComponent(world.Components.Activity, comp)
+	world.Components.Activity.Add(enemy, comp)
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// エンティティが削除され、アクティビティも消えている
-	assert.False(t, enemy.HasComponent(world.Components.Activity),
+	assert.False(t, world.Components.Activity.Has(enemy),
 		"死亡エンティティのアクティビティはキャンセルされるべき")
-	assert.False(t, enemy.HasComponent(world.Components.Name),
+	assert.False(t, world.Components.Name.Has(enemy),
 		"死亡エンティティは削除されるべき")
 }
 
@@ -245,11 +245,11 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// SpriteRenderを持つ敵エンティティを作成
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "スライム"})
-	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
-	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-	enemy.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{
+	enemy := world.World.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "スライム"})
+	world.Components.Dead.Add(enemy, &gc.Dead{})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
+	world.Components.SpriteRender.Add(enemy, &gc.SpriteRender{
 		SpriteSheetName: "character",
 		SpriteKey:       "slime_0",
 	})
@@ -265,7 +265,7 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	// 敵エンティティは削除されているべき
-	assert.False(t, enemy.HasComponent(world.Components.Name), "敵エンティティは削除されるべき")
+	assert.False(t, world.Components.Name.Has(enemy), "敵エンティティは削除されるべき")
 
 	// スプライトフェードアウトエフェクトが生成されているべき
 	effectCountAfter := 0
@@ -276,8 +276,8 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 
 	// エフェクトの内容を確認
 	world.Manager.Join(world.Components.VisualEffect, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ve := world.Components.VisualEffect.Get(entity)
+		ge := world.Components.GridElement.Get(entity)
 
 		require.Len(t, ve.Effects, 1)
 		effect, ok := ve.Effects[0].(*gc.SpriteFadeoutEffect)

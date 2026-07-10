@@ -132,7 +132,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", memberGrid.X, memberGrid.Y, 1)
 		require.NoError(t, err)
@@ -142,7 +142,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
-			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
+			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
 		b, ok := sp.planItemPickupAction(world, member, ctx)
@@ -160,7 +160,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", memberGrid.X, memberGrid.Y, 1)
 		require.NoError(t, err)
@@ -170,7 +170,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyIgnore, ViewDistance: 5},
 			LeaderEntity: leader,
-			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
+			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
 		_, ok := sp.planItemPickupAction(world, member, ctx)
@@ -187,14 +187,14 @@ func TestPlanItemPickupAction(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
-			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
+			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
 		_, ok := sp.planItemPickupAction(world, member, ctx)
@@ -211,7 +211,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", memberGrid.X+10, memberGrid.Y+10, 1)
 		require.NoError(t, err)
@@ -221,7 +221,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
-			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
+			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
 		_, ok := sp.planItemPickupAction(world, member, ctx)
@@ -247,8 +247,8 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
+		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
@@ -280,8 +280,8 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
+		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
@@ -310,11 +310,11 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 20
 		memberGrid.Y = 20
 
-		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
@@ -338,8 +338,8 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
+		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{

@@ -4,7 +4,7 @@ import (
 	c "github.com/kijimaD/ruins/internal/engine/components"
 	r "github.com/kijimaD/ruins/internal/engine/resources"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Generic は型安全なワールド型

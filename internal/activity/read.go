@@ -11,7 +11,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ReadActivity は読書アクティビティの実装
@@ -166,7 +166,7 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	name := query.GetEntityName(*comp.Target, world)
 
-	if actor.HasComponent(world.Components.Player) {
+	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("「%s」の読書を中断した", name)).
 			Log()
@@ -202,7 +202,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 	// スキルアップした場合はCharModifiers再計算
 	if leveledUp {
-		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
+		world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
 
 		name := gc.SkillName(effect.TargetSkill)
 		gamelog.New(query.GetGameLog(world)).

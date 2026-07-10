@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // GetVisibleEnemies は視界内の敵エンティティをすべて取得して返す
@@ -18,11 +18,11 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 		return nil, err
 	}
 
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
@@ -32,7 +32,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 		world.Components.GridElement,
 		world.Components.FactionEnemy,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(entity)
 		enemyX := int(gridElement.X)
 		enemyY := int(gridElement.Y)
 
@@ -72,11 +72,11 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 		return nil, err
 	}
 
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
@@ -86,7 +86,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 		world.Components.GridElement,
 		world.Components.LocationOnField,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(entity)
 		itemX := int(gridElement.X)
 		itemY := int(gridElement.Y)
 
@@ -112,9 +112,9 @@ func GetEntityName(entity ecs.Entity, world w.World) string {
 // AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する
 func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) {
 	switch {
-	case entity.HasComponent(world.Components.Player):
+	case world.Components.Player.Has(entity):
 		logger.PlayerName(name)
-	case entity.HasComponent(world.Components.SoloAI) || entity.HasComponent(world.Components.SquadAI):
+	case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):
 		logger.NPCName(name)
 	default:
 		logger.Append(name)

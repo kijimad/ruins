@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // hpRetreatThreshold はHP割合がこの値以下のとき、ポリシーに関わらず後退する
@@ -57,7 +57,7 @@ func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior
 
 // gatherSquadContext は隊員の行動に必要なコンテキストを収集する
 func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*squadContext, bool) {
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.Get(entity)
 
 	squadComp := world.Components.SquadAI.Get(entity)
 	if squadComp == nil {
@@ -72,7 +72,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 	}
 	leader := *si.PlayerEntity
 
-	if !leader.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(leader) {
 		sp.logger.Warn("リーダーにGridElementがない", "entity", entity)
 		return nil, false
 	}
@@ -81,7 +81,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 		Grid:         grid,
 		Squad:        squadComp.(*gc.SquadAI),
 		LeaderEntity: leader,
-		LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
+		LeaderGrid:   world.Components.GridElement.Get(leader),
 	}, true
 }
 
@@ -185,7 +185,7 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 		return nil, false
 	}
 
-	enemyGrid := world.Components.GridElement.Get(*nearestEnemy).(*gc.GridElement)
+	enemyGrid := world.Components.GridElement.Get(*nearestEnemy)
 	return sp.tryMoveAway(world, entity, ctx.Grid, enemyGrid)
 }
 
@@ -262,7 +262,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 		if !query.IsPickable(item, world) {
 			return
 		}
-		grid := world.Components.GridElement.Get(item).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(item)
 
 		if grid.X == ctx.Grid.X && grid.Y == ctx.Grid.Y {
 			hasPickableHere = true
@@ -312,7 +312,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 		if itemToTransfer != nil {
 			return
 		}
-		loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+		loc := world.Components.LocationInBackpack.Get(item)
 		if loc.Owner == entity {
 			e := item
 			itemToTransfer = &e

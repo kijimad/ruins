@@ -15,14 +15,14 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.HP, &gc.HP{Max: 100, Current: 50})
-		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		entity := world.World.NewEntity()
+		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 50})
+		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
 		actual := ApplyHealing(world, entity, 30)
 		assert.Equal(t, 30, actual)
 
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+		hp := world.Components.HP.Get(entity)
 		assert.Equal(t, 80, hp.Current)
 	})
 
@@ -30,14 +30,14 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.HP, &gc.HP{Max: 100, Current: 90})
-		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		entity := world.World.NewEntity()
+		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 90})
+		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
 		actual := ApplyHealing(world, entity, 50)
 		assert.Equal(t, 10, actual, "実際の回復量は10のみ")
 
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+		hp := world.Components.HP.Get(entity)
 		assert.Equal(t, 100, hp.Current)
 	})
 
@@ -45,9 +45,9 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.HP, &gc.HP{Max: 100, Current: 100})
-		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		entity := world.World.NewEntity()
+		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 100})
+		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
 		actual := ApplyHealing(world, entity, 10)
 		assert.Equal(t, 0, actual)
@@ -61,9 +61,9 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.World.NewEntity()
 		solo := &gc.SoloAI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
-		entity.AddComponent(world.Components.SoloAI, solo)
+		world.Components.SoloAI.Add(entity, solo)
 
 		reactToHostileAction(world, entity)
 
@@ -75,9 +75,9 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.World.NewEntity()
 		solo := &gc.SoloAI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
-		entity.AddComponent(world.Components.SoloAI, solo)
+		world.Components.SoloAI.Add(entity, solo)
 
 		reactToHostileAction(world, entity)
 
@@ -89,9 +89,9 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.World.NewEntity()
 		solo := &gc.SoloAI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
-		entity.AddComponent(world.Components.SoloAI, solo)
+		world.Components.SoloAI.Add(entity, solo)
 
 		reactToHostileAction(world, entity)
 
@@ -102,7 +102,7 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.World.NewEntity()
 
 		assert.NotPanics(t, func() {
 			reactToHostileAction(world, entity)
@@ -117,56 +117,56 @@ func TestApplyDamage_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.Manager.NewEntity()
-		source.AddComponent(world.Components.Player, &gc.Player{})
+		source := world.World.NewEntity()
+		world.Components.Player.Add(source, &gc.Player{})
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
+		prop := world.World.NewEntity()
+		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
+		world.Components.Prop.Add(prop, nil)
+		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 
 		ApplyDamage(world, prop, 10, source)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.Get(prop)
 		assert.Equal(t, 20, hp.Current)
-		assert.False(t, prop.HasComponent(world.Components.Dead))
+		assert.False(t, world.Components.Dead.Has(prop))
 	})
 
 	t.Run("HPが0になるとDeadが付与される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.Manager.NewEntity()
-		source.AddComponent(world.Components.Player, &gc.Player{})
+		source := world.World.NewEntity()
+		world.Components.Player.Add(source, &gc.Player{})
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 10})
+		prop := world.World.NewEntity()
+		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
+		world.Components.Prop.Add(prop, nil)
+		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 10})
 
 		ApplyDamage(world, prop, 10, source)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.Get(prop)
 		assert.Equal(t, 0, hp.Current)
-		assert.True(t, prop.HasComponent(world.Components.Dead))
+		assert.True(t, world.Components.Dead.Has(prop))
 	})
 
 	t.Run("過剰ダメージでもHPは0で止まる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.Manager.NewEntity()
-		source.AddComponent(world.Components.Player, &gc.Player{})
+		source := world.World.NewEntity()
+		world.Components.Player.Add(source, &gc.Player{})
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 5})
+		prop := world.World.NewEntity()
+		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
+		world.Components.Prop.Add(prop, nil)
+		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 5})
 
 		ApplyDamage(world, prop, 100, source)
 
-		hp := world.Components.HP.Get(prop).(*gc.HP)
+		hp := world.Components.HP.Get(prop)
 		assert.Equal(t, 0, hp.Current)
-		assert.True(t, prop.HasComponent(world.Components.Dead))
+		assert.True(t, world.Components.Dead.Has(prop))
 	})
 }

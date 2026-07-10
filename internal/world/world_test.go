@@ -50,9 +50,9 @@ func TestInitWorld_SingletonEntity(t *testing.T) {
 
 	// SingletonEntityが設定されていることを確認
 	singleton := w.Resources.SingletonEntity
-	assert.True(t, singleton.HasComponent(w.Components.GameLog))
-	assert.True(t, singleton.HasComponent(w.Components.GameProgress))
-	assert.True(t, singleton.HasComponent(w.Components.DungeonState))
-	assert.True(t, singleton.HasComponent(w.Components.TurnState))
-	assert.True(t, singleton.HasComponent(w.Components.SpatialIndex))
+	assert.True(t, w.Components.GameLog.Has(singleton))
+	assert.True(t, w.Components.GameProgress.Has(singleton))
+	assert.True(t, w.Components.DungeonState.Has(singleton))
+	assert.True(t, w.Components.TurnState.Has(singleton))
+	assert.True(t, w.Components.SpatialIndex.Has(singleton))
 }

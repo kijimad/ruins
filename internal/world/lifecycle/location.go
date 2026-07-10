@@ -8,18 +8,18 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // MoveToBackpack はエンティティをバックパックに移動する。
 // Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
 func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	setLocation(world, entity, &gc.LocationInBackpack{Owner: owner})
-	owner.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
-	owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	world.Components.StatsChanged.Add(owner, &gc.StatsChanged{})
+	world.Components.WeightDirty.Add(owner, &gc.WeightDirty{})
 
-	if entity.HasComponent(world.Components.Stackable) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+	if world.Components.Stackable.Has(entity) {
+		name := world.Components.Name.Get(entity)
 		if err := mergeStackableItems(world, name.Name, mergeInBackpack, owner); err != nil {
 			return fmt.Errorf("バックパック内のアイテム統合に失敗: %w", err)
 		}
@@ -33,8 +33,8 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 		Owner:         owner,
 		EquipmentSlot: slot,
 	})
-	owner.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
-	owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	world.Components.StatsChanged.Add(owner, &gc.StatsChanged{})
+	world.Components.WeightDirty.Add(owner, &gc.WeightDirty{})
 }
 
 // MoveToField はエンティティをフィールドに移動する。
@@ -43,7 +43,7 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	setLocation(world, entity, &gc.LocationOnField{})
 	if previousOwner != nil {
-		previousOwner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+		world.Components.WeightDirty.Add(previousOwner, &gc.WeightDirty{})
 	}
 }
 
@@ -51,10 +51,10 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 // Stackableアイテムの場合、収納内の同名アイテムと自動的に統合する
 func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	setLocation(world, entity, &gc.LocationInStorage{Owner: storage})
-	storage.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	world.Components.WeightDirty.Add(storage, &gc.WeightDirty{})
 
-	if entity.HasComponent(world.Components.Stackable) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+	if world.Components.Stackable.Has(entity) {
+		name := world.Components.Name.Get(entity)
 		if err := mergeStackableItems(world, name.Name, mergeInStorage, storage); err != nil {
 			return fmt.Errorf("収納内のアイテム統合に失敗: %w", err)
 		}
@@ -68,7 +68,7 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 	world.Manager.Join(
 		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		loc := world.Components.LocationEquipped.Get(entity)
 		if loc.Owner == playerEntity {
 			equipped = append(equipped, entity)
 		}
@@ -87,40 +87,40 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 // 内部用関数なので直接呼び出さず、MoveToBackpack, MoveToField等を使用すること
 func setLocation(world w.World, entity ecs.Entity, data gc.Location) {
 	// 移動元のOwnerにWeightDirtyマーカーを付与する
-	if entity.HasComponent(world.Components.LocationInBackpack) {
-		loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
-		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	if world.Components.LocationInBackpack.Has(entity) {
+		loc := world.Components.LocationInBackpack.Get(entity)
+		loc.world.Components.WeightDirty.Add(Owner, &gc.WeightDirty{})
 	}
-	if entity.HasComponent(world.Components.LocationEquipped) {
-		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
-		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	if world.Components.LocationEquipped.Has(entity) {
+		loc := world.Components.LocationEquipped.Get(entity)
+		loc.world.Components.WeightDirty.Add(Owner, &gc.WeightDirty{})
 	}
-	if entity.HasComponent(world.Components.LocationInStorage) {
-		loc := world.Components.LocationInStorage.Get(entity).(*gc.LocationInStorage)
-		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	if world.Components.LocationInStorage.Has(entity) {
+		loc := world.Components.LocationInStorage.Get(entity)
+		loc.world.Components.WeightDirty.Add(Owner, &gc.WeightDirty{})
 	}
 
 	// すべての位置コンポーネントを削除（排他制御）
-	entity.RemoveComponent(world.Components.LocationInBackpack)
-	entity.RemoveComponent(world.Components.LocationEquipped)
-	entity.RemoveComponent(world.Components.LocationOnField)
-	entity.RemoveComponent(world.Components.LocationInStorage)
+	world.Components.LocationInBackpack.Remove(entity)
+	world.Components.LocationEquipped.Remove(entity)
+	world.Components.LocationOnField.Remove(entity)
+	world.Components.LocationInStorage.Remove(entity)
 
 	// dataの型に応じて位置コンポーネントを追加
 	switch v := data.(type) {
 	case *gc.LocationInBackpack:
-		entity.AddComponent(world.Components.LocationInBackpack, v)
+		world.Components.LocationInBackpack.Add(entity, v)
 	case *gc.LocationEquipped:
-		entity.AddComponent(world.Components.LocationEquipped, v)
+		world.Components.LocationEquipped.Add(entity, v)
 	case *gc.LocationOnField:
-		entity.AddComponent(world.Components.LocationOnField, v)
+		world.Components.LocationOnField.Add(entity, v)
 	case *gc.LocationInStorage:
-		entity.AddComponent(world.Components.LocationInStorage, v)
+		world.Components.LocationInStorage.Add(entity, v)
 	}
 
 	// フィールド以外に移動する場合はグリッド座標を除去する
 	if _, ok := data.(*gc.LocationOnField); !ok {
-		entity.RemoveComponent(world.Components.GridElement)
+		world.Components.GridElement.Remove(entity)
 	}
 }
 
@@ -149,7 +149,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 		locationComp,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.Get(entity)
 		if name.Name != itemName {
 			return
 		}
@@ -178,7 +178,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 			return fmt.Errorf("数量統合エラー: %w", err)
 		}
 
-		world.Manager.DeleteEntity(itemToMerge)
+		world.World.RemoveEntity(itemToMerge)
 	}
 
 	return nil
@@ -240,12 +240,12 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	}
 
 	// プレイヤーの位置を更新する
-	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	gridElement := world.Components.GridElement.Get(playerEntity)
 	gridElement.X = consts.Tile(tileX)
 	gridElement.Y = consts.Tile(tileY)
 
 	// カメラ位置も同期する
-	camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)
+	camera := world.Components.Camera.Get(playerEntity)
 	tileSize := float64(consts.TileSize)
 	camera.X = float64(tileX)*tileSize + tileSize/2
 	camera.Y = float64(tileY)*tileSize + tileSize/2
@@ -255,7 +255,7 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	// Active隊員をプレイヤーの隣接タイルに配置する
 	exclude := map[gc.GridElement]bool{}
 	for _, member := range query.SquadMembers(world) {
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 		x, y, err := findAdjacentEmptyTile(world, tileX, tileY, exclude)
 		if err != nil {
 			return fmt.Errorf("隊員の配置に失敗: %w", err)

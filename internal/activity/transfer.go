@@ -10,7 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // TransferActivity はエンティティ間でアイテムを転送するBehavior実装。
@@ -58,7 +58,7 @@ func (ta *TransferActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Wo
 	}
 
 	target := *comp.Target
-	if !target.HasComponent(world.Components.LocationInBackpack) {
+	if !world.Components.LocationInBackpack.Has(target) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
 

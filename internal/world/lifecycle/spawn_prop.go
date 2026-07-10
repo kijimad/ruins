@@ -8,26 +8,26 @@ import (
 	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // OpenDoor は扉を開く
 func OpenDoor(world w.World, doorEntity ecs.Entity) error {
-	if !doorEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(doorEntity) {
 		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
-	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+	doorComp := world.Components.Door.Get(doorEntity)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, true)
 }
 
 // CloseDoor は扉を閉じる
 func CloseDoor(world w.World, doorEntity ecs.Entity) error {
-	if !doorEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(doorEntity) {
 		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
-	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+	doorComp := world.Components.Door.Get(doorEntity)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, false)
 }
 
@@ -35,7 +35,7 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 func LockAllDoors(world w.World) int {
 	locked := 0
 	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.Get(doorEntity)
 		if doorComp.Locked {
 			return
 		}
@@ -52,7 +52,7 @@ func LockAllDoors(world w.World) int {
 func UnlockAllDoors(world w.World) int {
 	opened := 0
 	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp := world.Components.Door.Get(doorEntity)
 		doorComp.Locked = false
 		if !doorComp.IsOpen {
 			_ = OpenDoor(world, doorEntity)
@@ -64,13 +64,13 @@ func UnlockAllDoors(world w.World) int {
 
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
 func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error {
-	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+	doorComp := world.Components.Door.Get(doorEntity)
 	doorComp.Orientation = orientation
 	doorComp.IsOpen = isOpen
 
 	// スプライトキーを更新
-	if doorEntity.HasComponent(world.Components.SpriteRender) {
-		spriteRender := world.Components.SpriteRender.Get(doorEntity).(*gc.SpriteRender)
+	if world.Components.SpriteRender.Has(doorEntity) {
+		spriteRender := world.Components.SpriteRender.Get(doorEntity)
 
 		if isOpen {
 			if orientation == gc.DoorOrientationHorizontal {
@@ -89,18 +89,18 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 
 	// BlockPass / BlockView を更新
 	if isOpen {
-		if doorEntity.HasComponent(world.Components.BlockPass) {
-			doorEntity.RemoveComponent(world.Components.BlockPass)
+		if world.Components.BlockPass.Has(doorEntity) {
+			world.Components.BlockPass.Remove(doorEntity)
 		}
-		if doorEntity.HasComponent(world.Components.BlockView) {
-			doorEntity.RemoveComponent(world.Components.BlockView)
+		if world.Components.BlockView.Has(doorEntity) {
+			world.Components.BlockView.Remove(doorEntity)
 		}
 	} else {
-		if !doorEntity.HasComponent(world.Components.BlockPass) {
-			doorEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		if !world.Components.BlockPass.Has(doorEntity) {
+			world.Components.BlockPass.Add(doorEntity, &gc.BlockPass{})
 		}
-		if !doorEntity.HasComponent(world.Components.BlockView) {
-			doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+		if !world.Components.BlockView.Has(doorEntity) {
+			world.Components.BlockView.Add(doorEntity, &gc.BlockView{})
 		}
 	}
 
@@ -173,7 +173,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 func DeleteDoorLockTriggers(world w.World) {
 	var toDelete []ecs.Entity
 	world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
-		interactable := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
+		interactable := world.Components.Interactable.Get(triggerEntity)
 		for _, interaction := range interactable.Interactions {
 			if _, ok := interaction.(gc.DoorLockInteraction); ok {
 				toDelete = append(toDelete, triggerEntity)
@@ -182,6 +182,6 @@ func DeleteDoorLockTriggers(world w.World) {
 		}
 	}))
 	for _, entity := range toDelete {
-		world.Manager.DeleteEntity(entity)
+		world.World.RemoveEntity(entity)
 	}
 }

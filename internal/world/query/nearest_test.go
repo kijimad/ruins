@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestFindNearestEntity(t *testing.T) {
@@ -18,14 +18,14 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.Manager.NewEntity()
-		self.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		self := world.World.NewEntity()
+		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
-		near := world.Manager.NewEntity()
-		near.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 5})
+		near := world.World.NewEntity()
+		world.Components.GridElement.Add(near, &gc.GridElement{X: 6, Y: 5})
 
-		far := world.Manager.NewEntity()
-		far.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		far := world.World.NewEntity()
+		world.Components.GridElement.Add(far, &gc.GridElement{X: 10, Y: 10})
 
 		from := &gc.GridElement{X: 5, Y: 5}
 		found, grid, dist := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
@@ -42,15 +42,15 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.Manager.NewEntity()
-		self.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		self := world.World.NewEntity()
+		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
-		world.Manager.NewEntity().AddComponent(world.Components.GridElement, &gc.GridElement{X: 8, Y: 5})
+		world.Components.GridElement.NewEntity(&gc.GridElement{X: 8, Y: 5})
 
-		closest := world.Manager.NewEntity()
-		closest.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 6})
+		closest := world.World.NewEntity()
+		world.Components.GridElement.Add(closest, &gc.GridElement{X: 6, Y: 6})
 
-		world.Manager.NewEntity().AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.NewEntity(&gc.GridElement{X: 10, Y: 10})
 
 		from := &gc.GridElement{X: 5, Y: 5}
 		found, grid, dist := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
@@ -67,8 +67,8 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.Manager.NewEntity()
-		self.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		self := world.World.NewEntity()
+		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
 		from := &gc.GridElement{X: 5, Y: 5}
 		found, _, _ := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
@@ -82,12 +82,12 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.Manager.NewEntity()
-		self.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		self := world.World.NewEntity()
+		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
-		dead := world.Manager.NewEntity()
-		dead.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 5})
-		dead.AddComponent(world.Components.Dead, &gc.Dead{})
+		dead := world.World.NewEntity()
+		world.Components.GridElement.Add(dead, &gc.GridElement{X: 6, Y: 5})
+		world.Components.Dead.Add(dead, &gc.Dead{})
 
 		from := &gc.GridElement{X: 5, Y: 5}
 		found, _, _ := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
@@ -101,10 +101,10 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.Manager.NewEntity()
-		self.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		self := world.World.NewEntity()
+		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
-		world.Manager.NewEntity().AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 5})
+		world.Components.GridElement.NewEntity(&gc.GridElement{X: 6, Y: 5})
 
 		from := &gc.GridElement{X: 5, Y: 5}
 		found, grid, dist := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {

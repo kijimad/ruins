@@ -4,7 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // FindNearestEntity は条件を満たす最寄りのエンティティを探す。
@@ -21,13 +21,13 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 		if entity == self {
 			return
 		}
-		if entity.HasComponent(world.Components.Dead) {
+		if world.Components.Dead.Has(entity) {
 			return
 		}
 		if !match(entity) {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		dist := geometry.ChebyshevDistance(int(from.X), int(from.Y), int(grid.X), int(grid.Y))
 		if nearestDist < 0 || dist < nearestDist {
 			e := entity

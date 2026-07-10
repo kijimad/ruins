@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // log はactivityパッケージ用のロガー
@@ -180,7 +180,7 @@ func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 
 // progressHunger はターン経過による空腹進行を処理する
 func progressHunger(actor ecs.Entity, world w.World) {
-	if !actor.HasComponent(world.Components.Player) {
+	if !world.Components.Player.Has(actor) {
 		return
 	}
 	hungerComp := world.Components.Hunger.Get(actor)
@@ -220,7 +220,7 @@ func isAreaSafe(actor ecs.Entity, world w.World) bool {
 		if query.FactionRelation(world, actor, entity) != query.RelationHostile {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		dx, dy := int(grid.X)-actorX, int(grid.Y)-actorY
 		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
 			hasHostile = true

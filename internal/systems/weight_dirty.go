@@ -4,7 +4,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // WeightDirtySystem はWeightDirtyマーカーが付いたエンティティの重量を再計算する。
@@ -26,7 +26,7 @@ func (sys *WeightDirtySystem) Update(world w.World) error {
 		world.Components.WeightDirty,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		changedEntities = append(changedEntities, entity)
-		entity.RemoveComponent(world.Components.WeightDirty)
+		world.Components.WeightDirty.Remove(entity)
 	}))
 
 	// 変動のあったエンティティの重量を再計算する

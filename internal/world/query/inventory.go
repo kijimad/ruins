@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する
@@ -21,7 +21,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 		if found {
 			return
 		}
-		itemName := world.Components.Name.Get(entity).(*gc.Name)
+		itemName := world.Components.Name.Get(entity)
 		if itemName.Name == name {
 			foundEntity = entity
 			found = true
@@ -44,7 +44,7 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
 		if found {
 			return
 		}
-		ammo := world.Components.Ammo.Get(entity).(*gc.Ammo)
+		ammo := world.Components.Ammo.Get(entity)
 		if ammo.AmmoTag == ammoTag {
 			foundEntity = entity
 			found = true
@@ -57,8 +57,8 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
 // GetEntityCount はエンティティの個数を返す。
 // Stackableであれば Stackable.Count を返し、そうでなければ1を返す。
 func GetEntityCount(world w.World, entity ecs.Entity) int {
-	if entity.HasComponent(world.Components.Stackable) {
-		return world.Components.Stackable.Get(entity).(*gc.Stackable).Count
+	if world.Components.Stackable.Has(entity) {
+		return world.Components.Stackable.Get(entity).Count
 	}
 	return 1
 }

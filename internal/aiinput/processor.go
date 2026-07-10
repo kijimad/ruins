@@ -7,7 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Processor はAIエンティティの行動処理を管理する。
@@ -52,7 +52,7 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 		aiComp,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
+		if world.Components.Dead.Has(entity) {
 			return
 		}
 		runAPLoop(world, entity, planner, p.logger)

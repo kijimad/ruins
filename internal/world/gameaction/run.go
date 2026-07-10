@@ -9,7 +9,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // SoldItem は売却対象アイテム1件の情報
@@ -40,7 +40,7 @@ func PreviewEndRun(world w.World, playerEntity ecs.Entity) (AutoSellResult, erro
 // 通貨を加算し、バックパック内アイテムを全て削除し、職業を再適用する。
 func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 	if total > 0 {
-		wallet := world.Components.Wallet.Get(playerEntity).(*gc.Wallet)
+		wallet := world.Components.Wallet.Get(playerEntity)
 		wallet.Currency += total
 	}
 
@@ -51,7 +51,7 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 		toDelete = append(toDelete, entity)
 	}))
 	for _, e := range toDelete {
-		world.Manager.DeleteEntity(e)
+		world.World.RemoveEntity(e)
 	}
 
 	if err := reapplyProfession(world, playerEntity); err != nil {
@@ -64,8 +64,8 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 // エンティティは削除しない。
 func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult {
 	sellPriceMod := 100
-	if playerEntity.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+	if world.Components.CharModifiers.Has(playerEntity) {
+		mods := world.Components.CharModifiers.Get(playerEntity)
 		sellPriceMod = mods.SellPrice
 	}
 
@@ -75,14 +75,14 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := ""
-		if entity.HasComponent(world.Components.Name) {
-			name = world.Components.Name.Get(entity).(*gc.Name).Name
+		if world.Components.Name.Has(entity) {
+			name = world.Components.Name.Get(entity).Name
 		}
 
 		price := 0
-		if entity.HasComponent(world.Components.Value) {
+		if world.Components.Value.Has(entity) {
 			count := query.GetEntityCount(world, entity)
-			baseValue := world.Components.Value.Get(entity).(*gc.Value).Value
+			baseValue := world.Components.Value.Get(entity).Value
 			price = query.CalculateSellPrice(baseValue) * count * sellPriceMod / 100
 		}
 
@@ -99,10 +99,10 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
 // reapplyProfession はプレイヤーの職業を再適用する
 func reapplyProfession(world w.World, playerEntity ecs.Entity) error {
-	if !playerEntity.HasComponent(world.Components.Profession) {
+	if !world.Components.Profession.Has(playerEntity) {
 		return fmt.Errorf("プレイヤーにProfessionコンポーネントがない")
 	}
-	profComp := world.Components.Profession.Get(playerEntity).(*gc.Profession)
+	profComp := world.Components.Profession.Get(playerEntity)
 
 	prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID)
 	if err != nil {

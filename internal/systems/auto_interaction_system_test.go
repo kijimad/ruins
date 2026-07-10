@@ -41,8 +41,8 @@ func TestAutoInteractionSystem_NoGridElement(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// GridElementなしのプレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
 
 	// システム実行（エラーなしで完了するべき）
 	sys := &AutoInteractionSystem{}
@@ -60,19 +60,19 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	require.NoError(t, err)
 
 	// 範囲外にあるトリガーを作成（距離が2以上）
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	triggerEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 15, Y: 15})
+	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 	})
-	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
+	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// 範囲外のトリガーは処理されない
-	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
+	assert.True(t, world.Components.Interactable.Has(triggerEntity),
 		"範囲外のトリガーは処理されないべき")
 }
 
@@ -87,21 +87,21 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	require.NoError(t, err)
 
 	// Manual方式のトリガーを作成（プレイヤーと同じタイル）
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	triggerEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
+	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.ItemInteraction{}}, // Manual 方式
 	})
-	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
+	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// Manualトリガーは実行されず、残っているべき
-	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
+	assert.True(t, world.Components.Interactable.Has(triggerEntity),
 		"Manualトリガーは自動実行されないべき")
-	assert.True(t, triggerEntity.HasComponent(world.Components.Consumable),
+	assert.True(t, world.Components.Consumable.Has(triggerEntity),
 		"Manualトリガーは自動実行されないので削除されないべき")
 }
 
@@ -116,19 +116,19 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	require.NoError(t, err)
 
 	// OnCollision方式のトリガーを作成（プレイヤーと隣接）
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	triggerEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 11, Y: 10})
+	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.DoorInteraction{}}, // OnCollision 方式
 	})
-	triggerEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
+	world.Components.Door.Add(triggerEntity, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// OnCollisionトリガーは実行されず、扉は閉じたままのはず
-	doorComp := world.Components.Door.Get(triggerEntity).(*gc.Door)
+	doorComp := world.Components.Door.Get(triggerEntity)
 	assert.False(t, doorComp.IsOpen, "OnCollisionトリガーは自動実行されないべき")
 }
 
@@ -143,21 +143,21 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 	require.NoError(t, err)
 
 	// 無効なActivationRangeを持つトリガーを作成
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	triggerEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
+	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{InvalidAutoRangeTrigger{}},
 	})
-	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
+	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
 
 	// システム実行（エラーは返さず、警告ログを出してスキップする）
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world), "無効なトリガーはスキップされ、エラーは返さない")
 
 	// トリガーは実行されず、残っているべき
-	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
+	assert.True(t, world.Components.Interactable.Has(triggerEntity),
 		"無効なActivationRangeのトリガーはスキップされるべき")
-	assert.True(t, triggerEntity.HasComponent(world.Components.Consumable),
+	assert.True(t, world.Components.Consumable.Has(triggerEntity),
 		"無効なActivationRangeのトリガーは削除されないべき")
 }
 
@@ -172,20 +172,20 @@ func TestAutoInteractionSystem_InvalidWay(t *testing.T) {
 	require.NoError(t, err)
 
 	// 無効なActivationWayを持つトリガーを作成
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+	triggerEntity := world.World.NewEntity()
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
+	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{InvalidAutoWayTrigger{}},
 	})
-	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
+	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
 
 	// システム実行（エラーは返さず、警告ログを出してスキップする）
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world), "無効なトリガーはスキップされ、エラーは返さない")
 
 	// トリガーは実行されず、残っているべき
-	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
+	assert.True(t, world.Components.Interactable.Has(triggerEntity),
 		"無効なActivationWayのトリガーはスキップされるべき")
-	assert.True(t, triggerEntity.HasComponent(world.Components.Consumable),
+	assert.True(t, world.Components.Consumable.Has(triggerEntity),
 		"無効なActivationWayのトリガーは削除されないべき")
 }

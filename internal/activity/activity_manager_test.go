@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // getActivitySummary はテスト用にアクティビティの要約情報を取得する
@@ -25,7 +25,7 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 	}
 
 	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
-		comp := world.Components.Activity.Get(entity).(*gc.Activity)
+		comp := world.Components.Activity.Get(entity)
 		summary["total"]++
 		switch comp.State {
 		case gc.ActivityStateRunning:
@@ -43,8 +43,8 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 func TestStartActivity(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
-	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを作成
 	comp, err := NewActivity(&WaitActivity{}, 5)
@@ -71,10 +71,10 @@ func TestMultipleActivities(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	actor1 := world.Manager.NewEntity()
-	actor1.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-	actor2 := world.Manager.NewEntity()
-	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor1 := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor1, &gc.TurnBased{})
+	actor2 := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	// 複数のアクターでアクティビティを開始
 	comp1, err := NewActivity(&WaitActivity{}, 10)
@@ -103,8 +103,8 @@ func TestMultipleActivities(t *testing.T) {
 func TestReplaceActivity(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
-	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// 最初のアクティビティを開始
 	comp1, err := NewActivity(&WaitActivity{}, 10)
@@ -132,8 +132,8 @@ func TestReplaceActivity(t *testing.T) {
 func TestInterruptAndResume(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
-	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
 	comp, err := NewActivity(&WaitActivity{}, 10)
@@ -171,8 +171,8 @@ func TestInterruptAndResume(t *testing.T) {
 func TestCancelActivity(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
-	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
 	comp, err := NewActivity(&WaitActivity{}, 5)
@@ -198,10 +198,10 @@ func TestProcessTurn(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	actor1 := world.Manager.NewEntity()
-	actor1.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-	actor2 := world.Manager.NewEntity()
-	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor1 := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor1, &gc.TurnBased{})
+	actor2 := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	// 短いアクティビティと長いアクティビティを開始
 	shortComp, err := NewActivity(&WaitActivity{}, 2) // 2ターンで完了
@@ -253,10 +253,10 @@ func TestActivitySummary(t *testing.T) {
 	assert.Equal(t, 0, summary["paused"], "Expected 0 paused activities initially")
 
 	// アクティビティを追加
-	actor1 := world.Manager.NewEntity()
-	actor1.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-	actor2 := world.Manager.NewEntity()
-	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor1 := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor1, &gc.TurnBased{})
+	actor2 := world.World.NewEntity()
+	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	comp1, err := NewActivity(&WaitActivity{}, 10)
 	require.NoError(t, err)
@@ -294,9 +294,9 @@ func TestGetPassCostAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-		prop.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 50})
+		prop := world.World.NewEntity()
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
+		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 
 		cost := getPassCostAt(world, 5, 5)
 		assert.Equal(t, 50, cost)
@@ -306,13 +306,13 @@ func TestGetPassCostAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		prop1 := world.Manager.NewEntity()
-		prop1.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-		prop1.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 30})
+		prop1 := world.World.NewEntity()
+		world.Components.GridElement.Add(prop1, &gc.GridElement{X: 5, Y: 5})
+		world.Components.PassCost.Add(prop1, &gc.PassCost{Value: 30})
 
-		prop2 := world.Manager.NewEntity()
-		prop2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-		prop2.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 20})
+		prop2 := world.World.NewEntity()
+		world.Components.GridElement.Add(prop2, &gc.GridElement{X: 5, Y: 5})
+		world.Components.PassCost.Add(prop2, &gc.PassCost{Value: 20})
 
 		cost := getPassCostAt(world, 5, 5)
 		assert.Equal(t, 50, cost)
@@ -330,7 +330,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		require.NoError(t, err)
 
 		// 通常移動のAP消費を記録する
-		tbBefore := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		tbBefore := world.Components.TurnBased.Get(player)
 		apBefore := tbBefore.AP.Current
 
 		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 11, Y: 10}}, player, world)
@@ -342,9 +342,9 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		tbBefore.AP.Current = apBefore
 
 		// 移動先にPassCostを持つPropを配置
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 12, Y: 10})
-		prop.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 50})
+		prop := world.World.NewEntity()
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 12, Y: 10})
+		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 
 		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 12, Y: 10}}, player, world)
 		require.NoError(t, err)

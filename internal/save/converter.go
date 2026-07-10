@@ -10,7 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ================== StableID変換 ==================
@@ -409,7 +409,7 @@ func squadAIToSaveData(ai gc.SquadAI) oapi.SaveDataSquadPolicyComponent {
 func aiFromSaveData(entity ecs.Entity, c *gc.Components, sd oapi.SaveDataSquadPolicyComponent) {
 	switch gc.PlannerType(string(sd.Planner)) {
 	case gc.PlannerSquad:
-		entity.AddComponent(c.SquadAI, &gc.SquadAI{
+		c.SquadAI.Add(entity, &gc.SquadAI{
 			CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
 			CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
 			Movement:      gc.SquadMovement(sd.Movement),
@@ -418,7 +418,7 @@ func aiFromSaveData(entity ecs.Entity, c *gc.Components, sd oapi.SaveDataSquadPo
 			ViewDistance:  consts.AIVisionDistance,
 		})
 	case gc.PlannerSolo:
-		entity.AddComponent(c.SoloAI, &gc.SoloAI{
+		c.SoloAI.Add(entity, &gc.SoloAI{
 			CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
 			CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
 			Movement:      gc.SoloMovement(sd.Movement),

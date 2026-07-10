@@ -6,7 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択し、Meleeパラメータを返す

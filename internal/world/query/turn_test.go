@@ -22,7 +22,7 @@ func TestCanPlayerAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// TurnBasedコンポーネントを追加する
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		world.Components.TurnBased.Add(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
@@ -40,7 +40,7 @@ func TestCanPlayerAct(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		world.Components.TurnBased.Add(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
@@ -58,7 +58,7 @@ func TestCanPlayerAct(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		world.Components.TurnBased.Add(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: -1},
 		})
 
@@ -87,14 +87,14 @@ func TestConsumeActionPoints(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		world.Components.TurnBased.Add(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
 		ok := query.ConsumeActionPoints(world, player, 30)
 		assert.True(t, ok)
 
-		tb := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		tb := world.Components.TurnBased.Get(player)
 		assert.Equal(t, 70, tb.AP.Current)
 	})
 
@@ -103,7 +103,7 @@ func TestConsumeActionPoints(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// TurnBasedを持たないエンティティを直接作成する
-		entity := world.Manager.NewEntity().AddComponent(world.Components.Name, &gc.Name{Name: "dummy"})
+		entity := world.Components.Name.NewEntity(&gc.Name{Name: "dummy"})
 
 		ok := query.ConsumeActionPoints(world, entity, 10)
 		assert.False(t, ok)
@@ -118,14 +118,14 @@ func TestRestoreAllActionPoints(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	tb := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+	tb := world.Components.TurnBased.Get(player)
 	initialMax := tb.AP.Max
 	tb.AP.Current = 0
 
 	err = query.RestoreAllActionPoints(world)
 	require.NoError(t, err)
 
-	tb = world.Components.TurnBased.Get(player).(*gc.TurnBased)
+	tb = world.Components.TurnBased.Get(player)
 	assert.Positive(t, tb.AP.Current, "APが回復している")
 	assert.LessOrEqual(t, tb.AP.Current, initialMax, "APは最大値を超えない")
 }

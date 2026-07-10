@@ -3,7 +3,7 @@ package query
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // SquadMembers は生存している全隊員を返す
@@ -13,7 +13,7 @@ func SquadMembers(world w.World) []ecs.Entity {
 		world.Components.SquadMember,
 		world.Components.FactionAlly,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
+		if world.Components.Dead.Has(entity) {
 			return
 		}
 		members = append(members, entity)
@@ -30,7 +30,7 @@ func SquadMemberCount(world w.World) int {
 // 見つからなければ ok=false を返す
 func SquadMemberAt(world w.World, x, y int) (ecs.Entity, bool) {
 	for _, member := range SquadMembers(world) {
-		grid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(member)
 		if int(grid.X) == x && int(grid.Y) == y {
 			return member, true
 		}
@@ -50,5 +50,5 @@ func GetSquadAI(world w.World, member ecs.Entity) *gc.SquadAI {
 
 // IsSquadMember はエンティティが隊員かどうかを返す
 func IsSquadMember(world w.World, entity ecs.Entity) bool {
-	return entity.HasComponent(world.Components.SquadMember)
+	return world.Components.SquadMember.Has(entity)
 }

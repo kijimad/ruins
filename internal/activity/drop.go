@@ -10,7 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // DropActivity はBehaviorの実装
@@ -56,7 +56,7 @@ func (da *DropActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 	target := *comp.Target
 
 	// Targetがバックパック内にあることを確認する
-	if !target.HasComponent(world.Components.LocationInBackpack) {
+	if !world.Components.LocationInBackpack.Has(target) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
 
@@ -110,7 +110,7 @@ func (da *DropActivity) performDropActivity(comp *gc.Activity, actor ecs.Entity,
 	formattedName := query.FormatItemName(world, target)
 
 	lifecycle.MoveToField(world, target, &actor)
-	target.AddComponent(world.Components.GridElement, &gc.GridElement{
+	world.Components.GridElement.Add(target, &gc.GridElement{
 		X: targetTile.X,
 		Y: targetTile.Y,
 	})

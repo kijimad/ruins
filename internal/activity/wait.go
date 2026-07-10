@@ -9,7 +9,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // WaitActivity はBehaviorの実装
@@ -98,7 +98,7 @@ func (wa *WaitActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	log.Debug("待機完了", "actor", actor)
 
 	// 複数ターン待機の場合のみログを表示する
-	if comp.TurnsTotal > 1 && actor.HasComponent(world.Components.Player) {
+	if comp.TurnsTotal > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append("待機を終了した").
 			Log()

@@ -23,7 +23,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 var (
@@ -142,8 +142,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
-	titleEntity := world.Manager.NewEntity()
-	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+	titleEntity := world.World.NewEntity()
+	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
@@ -168,14 +168,14 @@ func (st *DungeonState) OnStop(world w.World) error {
 		world.Components.LocationInBackpack.Not(),
 		world.Components.LocationEquipped.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		world.Manager.DeleteEntity(entity)
+		world.World.RemoveEntity(entity)
 	}))
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.Player.Not(),
 		world.Components.SquadMember.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		world.Manager.DeleteEntity(entity)
+		world.World.RemoveEntity(entity)
 	}))
 
 	// 未消費のステート遷移リクエストを破棄
@@ -499,10 +499,10 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	switch req.Kind {
 	case gc.EventShowDialog:
 		// SpeakerEntityからNameを取得
-		if !req.SpeakerEntity.HasComponent(world.Components.Name) {
+		if !req.world.Components.Name.Has(SpeakerEntity) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
 		}
-		nameComp := world.Components.Name.Get(req.SpeakerEntity).(*gc.Name)
+		nameComp := world.Components.Name.Get(req.SpeakerEntity)
 		speakerName := nameComp.Name
 
 		// NPCの種類に応じて専用ステートを返す

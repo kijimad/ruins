@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // TestJSONDeterministicBehavior JSON出力の決定的動作を包括的にテスト
@@ -72,34 +72,34 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		for variant := range 3 {
 			world := testutil.InitTestWorld(t)
 
-			entity := world.Manager.NewEntity()
+			entity := world.World.NewEntity()
 
 			// バリアント毎に異なる順序でコンポーネントを追加
 			switch variant {
 			case 0:
 				// 順序: Name -> GridElement -> Attack
-				entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストエンティティ"})
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
-				entity.AddComponent(world.Components.Melee, &gc.Melee{
+				world.Components.Name.Add(entity, &gc.Name{Name: "テストエンティティ"})
+				world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
+				world.Components.Melee.Add(entity, &gc.Melee{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 				})
 			case 1:
 				// 順序: Attack -> Name -> GridElement
-				entity.AddComponent(world.Components.Melee, &gc.Melee{
+				world.Components.Melee.Add(entity, &gc.Melee{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 				})
-				entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストエンティティ"})
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
+				world.Components.Name.Add(entity, &gc.Name{Name: "テストエンティティ"})
+				world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
 			case 2:
 				// 順序: GridElement -> Attack -> Name
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
-				entity.AddComponent(world.Components.Melee, &gc.Melee{
+				world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
+				world.Components.Melee.Add(entity, &gc.Melee{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 				})
-				entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストエンティティ"})
+				world.Components.Name.Add(entity, &gc.Name{Name: "テストエンティティ"})
 			}
 
 			sm := createTestSerializationManager(t)
@@ -127,19 +127,19 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 
 			entities := make([]ecs.Entity, 0, 3)
 			for range 3 {
-				entities = append(entities, world.Manager.NewEntity())
+				entities = append(entities, world.World.NewEntity())
 			}
 
 			if variant == 0 {
 				// 通常順序
-				entities[0].AddComponent(world.Components.Name, &gc.Name{Name: "エンティティA"})
-				entities[1].AddComponent(world.Components.Name, &gc.Name{Name: "エンティティB"})
-				entities[2].AddComponent(world.Components.Name, &gc.Name{Name: "エンティティC"})
+				world.Components.Name.Add(entities[0], &gc.Name{Name: "エンティティA"})
+				world.Components.Name.Add(entities[1], &gc.Name{Name: "エンティティB"})
+				world.Components.Name.Add(entities[2], &gc.Name{Name: "エンティティC"})
 			} else {
 				// 逆順
-				entities[2].AddComponent(world.Components.Name, &gc.Name{Name: "エンティティC"})
-				entities[1].AddComponent(world.Components.Name, &gc.Name{Name: "エンティティB"})
-				entities[0].AddComponent(world.Components.Name, &gc.Name{Name: "エンティティA"})
+				world.Components.Name.Add(entities[2], &gc.Name{Name: "エンティティC"})
+				world.Components.Name.Add(entities[1], &gc.Name{Name: "エンティティB"})
+				world.Components.Name.Add(entities[0], &gc.Name{Name: "エンティティA"})
 			}
 
 			sm := createTestSerializationManager(t)
@@ -360,14 +360,14 @@ func createStandardTestWorld(t *testing.T) w.World {
 	world := testutil.InitTestWorld(t)
 
 	// 決定的なエンティティを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "プレイヤー"})
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(20)})
+	player := world.World.NewEntity()
+	world.Components.Name.Add(player, &gc.Name{Name: "プレイヤー"})
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(20)})
 
-	weapon := world.Manager.NewEntity()
-	weapon.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
-	weapon.AddComponent(world.Components.Melee, &gc.Melee{
+	weapon := world.World.NewEntity()
+	world.Components.Name.Add(weapon, &gc.Name{Name: "剣"})
+	world.Components.Melee.Add(weapon, &gc.Melee{
 		Accuracy: 90, Damage: 25, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 	})
@@ -390,12 +390,12 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world := testutil.InitTestWorld(t)
 
 	// 決定的なプレイヤー作成（手動でコンポーネント追加）
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.FactionAlly, gc.FactionAlly)
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(15)})
-	player.AddComponent(world.Components.Abilities, &gc.Abilities{
+	player := world.World.NewEntity()
+	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.FactionAlly.Add(player, gc.FactionAlly)
+	world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(15)})
+	world.Components.Abilities.Add(player, &gc.Abilities{
 		Vitality:  gc.Ability{Base: 10, Modifier: 0, Total: 10},
 		Strength:  gc.Ability{Base: 8, Modifier: 0, Total: 8},
 		Sensation: gc.Ability{Base: 6, Modifier: 0, Total: 6},
@@ -403,34 +403,34 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		Agility:   gc.Ability{Base: 9, Modifier: 0, Total: 9},
 		Defense:   gc.Ability{Base: 5, Modifier: 0, Total: 5},
 	})
-	player.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
-	player.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
+	world.Components.HP.Add(player, &gc.HP{Current: 100, Max: 100})
+	world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
 
 	// 決定的なアイテム作成（手動でコンポーネント追加）
 
 	// 武器1: 木刀
-	sword := world.Manager.NewEntity()
-	sword.AddComponent(world.Components.Name, &gc.Name{Name: "木刀"})
-	sword.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	sword.AddComponent(world.Components.Melee, &gc.Melee{
+	sword := world.World.NewEntity()
+	world.Components.Name.Add(sword, &gc.Name{Name: "木刀"})
+	world.Components.LocationInBackpack.Add(sword, &gc.LocationInBackpack{Owner: player})
+	world.Components.Melee.Add(sword, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 	})
 
 	// 武器2: ハンドガン
-	handgun := world.Manager.NewEntity()
-	handgun.AddComponent(world.Components.Name, &gc.Name{Name: "ハンドガン"})
-	handgun.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	handgun.AddComponent(world.Components.Melee, &gc.Melee{
+	handgun := world.World.NewEntity()
+	world.Components.Name.Add(handgun, &gc.Name{Name: "ハンドガン"})
+	world.Components.LocationInBackpack.Add(handgun, &gc.LocationInBackpack{Owner: player})
+	world.Components.Melee.Add(handgun, &gc.Melee{
 		Accuracy: 85, Damage: 12, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackHandgun,
 	})
 
 	// 防具: 西洋鎧
-	armor := world.Manager.NewEntity()
-	armor.AddComponent(world.Components.Name, &gc.Name{Name: "西洋鎧"})
-	armor.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	armor.AddComponent(world.Components.Wearable, &gc.Wearable{
+	armor := world.World.NewEntity()
+	world.Components.Name.Add(armor, &gc.Name{Name: "西洋鎧"})
+	world.Components.LocationInBackpack.Add(armor, &gc.LocationInBackpack{Owner: player})
+	world.Components.Wearable.Add(armor, &gc.Wearable{
 		Defense:           15,
 		EquipmentCategory: gc.EquipmentTorso,
 		EquipBonus: gc.EquipBonus{
@@ -439,31 +439,31 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	})
 
 	// 回復アイテム
-	potion := world.Manager.NewEntity()
-	potion.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
-	potion.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	potion.AddComponent(world.Components.Consumable, &gc.Consumable{
+	potion := world.World.NewEntity()
+	world.Components.Name.Add(potion, &gc.Name{Name: "回復薬"})
+	world.Components.LocationInBackpack.Add(potion, &gc.LocationInBackpack{Owner: player})
+	world.Components.Consumable.Add(potion, &gc.Consumable{
 		UsableScene: gc.UsableSceneAny,
 		TargetType: gc.TargetType{
 			TargetGroup: gc.TargetGroupAlly,
 			TargetNum:   gc.TargetSingle,
 		},
 	})
-	potion.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{
+	world.Components.ProvidesHealing.Add(potion, &gc.ProvidesHealing{
 		Amount: gc.RatioAmount{Ratio: 0.3},
 	})
 
 	// 決定的なNPC作成
 	for i := range 3 {
-		npc := world.Manager.NewEntity()
-		npc.AddComponent(world.Components.Name, &gc.Name{Name: "NPC" + string(rune('A'+i))})
-		npc.AddComponent(world.Components.GridElement, &gc.GridElement{
+		npc := world.World.NewEntity()
+		world.Components.Name.Add(npc, &gc.Name{Name: "NPC" + string(rune('A'+i))})
+		world.Components.GridElement.Add(npc, &gc.GridElement{
 			X: consts.Tile(20 + i*5),
 			Y: consts.Tile(25 + i*3),
 		})
-		npc.AddComponent(world.Components.SoloAI, &gc.SoloAI{ViewDistance: 5})
-		npc.AddComponent(world.Components.FactionEnemy, gc.FactionEnemy)
-		npc.AddComponent(world.Components.Abilities, &gc.Abilities{
+		world.Components.SoloAI.Add(npc, &gc.SoloAI{ViewDistance: 5})
+		world.Components.FactionEnemy.Add(npc, gc.FactionEnemy)
+		world.Components.Abilities.Add(npc, &gc.Abilities{
 			Vitality:  gc.Ability{Base: 10 + i, Modifier: 0, Total: 10 + i},
 			Strength:  gc.Ability{Base: 8 + i, Modifier: 0, Total: 8 + i},
 			Sensation: gc.Ability{Base: 6 + i, Modifier: 0, Total: 6 + i},
@@ -471,22 +471,22 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 			Agility:   gc.Ability{Base: 9 + i, Modifier: 0, Total: 9 + i},
 			Defense:   gc.Ability{Base: 5 + i, Modifier: 0, Total: 5 + i},
 		})
-		npc.AddComponent(world.Components.HP, &gc.HP{Current: 100 + i*10, Max: 100 + i*10})
-		npc.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
+		world.Components.HP.Add(npc, &gc.HP{Current: 100 + i*10, Max: 100 + i*10})
+		world.Components.WeightCapacity.Add(npc, &gc.WeightCapacity{})
 	}
 
 	// 決定的なマテリアル追加（手動で作成）
-	material1 := world.Manager.NewEntity()
-	material1.AddComponent(world.Components.Name, &gc.Name{Name: "鉄"})
-	material1.AddComponent(world.Components.Value, &gc.Value{})
-	material1.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	material1.AddComponent(world.Components.Stackable, &gc.Stackable{})
+	material1 := world.World.NewEntity()
+	world.Components.Name.Add(material1, &gc.Name{Name: "鉄"})
+	world.Components.Value.Add(material1, &gc.Value{})
+	world.Components.LocationInBackpack.Add(material1, &gc.LocationInBackpack{Owner: player})
+	world.Components.Stackable.Add(material1, &gc.Stackable{})
 
-	material2 := world.Manager.NewEntity()
-	material2.AddComponent(world.Components.Name, &gc.Name{Name: "緑ハーブ"})
-	material2.AddComponent(world.Components.Value, &gc.Value{})
-	material2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	material2.AddComponent(world.Components.Stackable, &gc.Stackable{})
+	material2 := world.World.NewEntity()
+	world.Components.Name.Add(material2, &gc.Name{Name: "緑ハーブ"})
+	world.Components.Value.Add(material2, &gc.Value{})
+	world.Components.LocationInBackpack.Add(material2, &gc.LocationInBackpack{Owner: player})
+	world.Components.Stackable.Add(material2, &gc.Stackable{})
 
 	return world
 }

@@ -14,7 +14,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 var (
@@ -61,7 +61,7 @@ func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 	world.Manager.Join(
 		world.Components.Camera,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera = world.Components.Camera.Get(entity).(*gc.Camera)
+		camera = world.Components.Camera.Get(entity)
 	}))
 
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
@@ -141,21 +141,21 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 	}))
 
 	sort.Slice(entities[:iSprite], func(i, j int) bool {
-		spriteRender1 := world.Components.SpriteRender.Get(entities[i]).(*gc.SpriteRender)
-		spriteRender2 := world.Components.SpriteRender.Get(entities[j]).(*gc.SpriteRender)
+		spriteRender1 := world.Components.SpriteRender.Get(entities[i])
+		spriteRender2 := world.Components.SpriteRender.Get(entities[j])
 		return spriteRender1.Depth < spriteRender2.Depth
 	})
 
 	for i := range iSprite {
 		entity := entities[i]
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		_, exists := tileRenderMap[*gridElement]
 		if !exists {
 			continue
 		}
 
-		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+		spriteRender := world.Components.SpriteRender.Get(entity)
 		pos := &gc.Position{
 			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)),
 			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2)),
@@ -163,8 +163,8 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		if err := sys.drawImage(world, screen, spriteRender, pos, 0); err != nil {
 			// エンティティ情報を追加してエラーを詳細化
 			var entityInfo string
-			if entity.HasComponent(world.Components.Name) {
-				name := world.Components.Name.Get(entity).(*gc.Name)
+			if world.Components.Name.Has(entity) {
+				name := world.Components.Name.Get(entity)
 				entityInfo = fmt.Sprintf("Name: %s", name.Name)
 			}
 			return fmt.Errorf("entity %d at (%d,%d), SpriteSheet: '%s', SpriteKey: '%s', %s: %w",
@@ -188,19 +188,19 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	}))
 
 	sort.Slice(entities, func(i, j int) bool {
-		spriteRender1 := world.Components.SpriteRender.Get(entities[i]).(*gc.SpriteRender)
-		spriteRender2 := world.Components.SpriteRender.Get(entities[j]).(*gc.SpriteRender)
+		spriteRender1 := world.Components.SpriteRender.Get(entities[i])
+		spriteRender2 := world.Components.SpriteRender.Get(entities[j])
 		return spriteRender1.Depth < spriteRender2.Depth
 	})
 
 	for _, entity := range entities {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {
 			continue
 		}
 
-		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+		spriteRender := world.Components.SpriteRender.Get(entity)
 		pos := &gc.Position{
 			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
 			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
@@ -220,18 +220,18 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		// TurnBased または Prop を持つエンティティのみ
-		if !entity.HasComponent(world.Components.TurnBased) && !entity.HasComponent(world.Components.Prop) {
+		if !world.Components.TurnBased.Has(entity) && !world.Components.Prop.Has(entity) {
 			return
 		}
 
-		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// 高さのあるものだけが影を落とす
 		if spriteRender.Depth <= gc.DepthNumRug {
 			return
 		}
 
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {
 			return
@@ -255,7 +255,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		world.Components.GridElement,
 		world.Components.SpriteRender,
 	).Visit(ecs.Visit(func(e ecs.Entity) {
-		ge := world.Components.GridElement.Get(e).(*gc.GridElement)
+		ge := world.Components.GridElement.Get(e)
 		tileMap[*ge] = e
 	}))
 
@@ -265,13 +265,13 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		world.Components.BlockView,
 		world.Components.BlockPass,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 
 		if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {
 			return
 		}
 
-		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// 高さのあるものだけが影を落とす
 		if spriteRender.Depth <= gc.DepthNumRug {
@@ -286,13 +286,13 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			return
 		}
 
-		belowSpriteRender, ok := world.Components.SpriteRender.Get(belowTileEntity).(*gc.SpriteRender)
+		belowSpriteRender, ok := world.Components.SpriteRender.Get(belowTileEntity)
 		if !ok || belowSpriteRender.Depth != gc.DepthNumFloor {
 			return // 下が床でなければ影を描画しない
 		}
 
 		// 下のタイルが壁でないことも確認（壁->床->壁の場合は影を描画しない）
-		if belowTileEntity.HasComponent(world.Components.BlockView) && belowTileEntity.HasComponent(world.Components.BlockPass) {
+		if world.Components.BlockView.Has(belowTileEntity) && world.Components.BlockPass.Has(belowTileEntity) {
 			return
 		}
 
@@ -413,7 +413,7 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	world.Manager.Join(
 		world.Components.Camera,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera := world.Components.Camera.Get(entity).(*gc.Camera)
+		camera := world.Components.Camera.Get(entity)
 		cameraX = camera.X
 		cameraY = camera.Y
 		cameraScale = camera.Scale

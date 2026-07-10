@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // 射撃システムの定数
@@ -54,13 +54,13 @@ func (sa *ShootActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if comp.Target == nil {
 		return ErrAttackTargetNotSet
 	}
-	if actor.HasComponent(world.Components.Dead) {
+	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
-	if !comp.Target.HasComponent(world.Components.GridElement) {
+	if !comp.world.Components.GridElement.Has(Target) {
 		return ErrAttackTargetNotExists
 	}
-	if comp.Target.HasComponent(world.Components.Dead) {
+	if comp.world.Components.Dead.Has(Target) {
 		return ErrAttackTargetDead
 	}
 
@@ -213,10 +213,10 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 	for _, p := range points {
 		entities := query.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
 		for _, e := range entities {
-			if e.HasComponent(world.Components.BlockView) {
+			if world.Components.BlockView.Has(e) {
 				return true, coverCount
 			}
-			if e.HasComponent(world.Components.BlockPass) {
+			if world.Components.BlockPass.Has(e) {
 				coverCount++
 			}
 		}

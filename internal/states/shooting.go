@@ -18,7 +18,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ShootingState は射撃ターゲット選択モードのステート
@@ -231,10 +231,10 @@ var shootingCursorCache *ebiten.Image
 // drawTargetCursor は選択中の敵にカーソルを描画する
 func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	target := st.enemies[st.targetIndex]
-	if !target.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(target) {
 		return
 	}
-	targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+	targetGrid := world.Components.GridElement.Get(target)
 
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(targetGrid.X) * tileSize)
@@ -370,8 +370,8 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
 		st.targetIndex+1, len(st.enemies)))
 
 	// HP
-	if target.HasComponent(world.Components.HP) {
-		hp := world.Components.HP.Get(target).(*gc.HP)
+	if world.Components.HP.Has(target) {
+		hp := world.Components.HP.Get(target)
 		drawText(fmt.Sprintf("HP: %d/%d", hp.Current, hp.Max))
 	}
 

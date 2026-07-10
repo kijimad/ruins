@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestStableIDManager(t *testing.T) {
@@ -20,8 +20,8 @@ func TestStableIDManager(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	manager := NewStableIDManager()
 
-	entity1 := world.Manager.NewEntity()
-	entity2 := world.Manager.NewEntity()
+	entity1 := world.World.NewEntity()
+	entity2 := world.World.NewEntity()
 
 	stableID1 := manager.GetStableID(entity1)
 	stableID2 := manager.GetStableID(entity2)
@@ -45,12 +45,12 @@ func TestStableIDGeneration(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	manager := NewStableIDManager()
 
-	entity1 := world.Manager.NewEntity()
+	entity1 := world.World.NewEntity()
 	stableID1 := manager.GetStableID(entity1)
 
 	manager.UnregisterEntity(entity1)
 
-	entity2 := world.Manager.NewEntity()
+	entity2 := world.World.NewEntity()
 	stableID2 := manager.GetStableID(entity2)
 
 	if stableID1.Index == stableID2.Index {
@@ -69,13 +69,13 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	require.NoError(t, err)
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+	player := world.World.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
-	npc := world.Manager.NewEntity()
-	npc.AddComponent(world.Components.Name, &gc.Name{Name: "テストNPC"})
-	npc.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemyData{})
+	npc := world.World.NewEntity()
+	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
+	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
 
 	err = manager.SaveWorld(world, "test_slot")
 	require.NoError(t, err)
@@ -87,7 +87,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	playerCount := 0
 	newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
 		playerCount++
-		name := newWorld.Components.Name.Get(entity).(*gc.Name)
+		name := newWorld.Components.Name.Get(entity)
 		assert.Equal(t, "テストプレイヤー", name.Name)
 	}))
 
@@ -158,7 +158,7 @@ func TestChecksumValidation(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
+	entity := world.World.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_checksum")
@@ -198,7 +198,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
+	entity := world.World.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_tampered")
@@ -232,9 +232,9 @@ func TestDeterministicHashCalculation(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity1 := world.Manager.NewEntity()
+	entity1 := world.World.NewEntity()
 	world.Components.Name.Set(entity1, &gc.Name{Name: "TestEntity1"})
-	entity2 := world.Manager.NewEntity()
+	entity2 := world.World.NewEntity()
 	world.Components.Name.Set(entity2, &gc.Name{Name: "TestEntity2"})
 
 	err = manager.SaveWorld(world, "test_deterministic_1")
@@ -274,7 +274,7 @@ func TestHashConsistencyAcrossRuns(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
+	entity := world.World.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "ConsistencyTest"})
 	world.Components.Player.Set(entity, &gc.Player{})
 
@@ -323,7 +323,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
+	entity := world.World.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
 
 	oldFormatData := map[string]any{
@@ -350,9 +350,9 @@ func TestListSaves(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
-	entity.AddComponent(world.Components.Player, &gc.Player{})
+	entity := world.World.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
+	world.Components.Player.Add(entity, &gc.Player{})
 
 	t.Run("空の場合は空リストを返す", func(t *testing.T) {
 		t.Parallel()
@@ -397,9 +397,9 @@ func TestAutoSaveRotation(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
-	entity.AddComponent(world.Components.Player, &gc.Player{})
+	entity := world.World.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
+	world.Components.Player.Add(entity, &gc.Player{})
 
 	// 先に2件作る
 	for range 2 {
@@ -430,9 +430,9 @@ func TestGetSavePlayerName(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
-	entity.AddComponent(world.Components.Player, &gc.Player{})
+	entity := world.World.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
+	world.Components.Player.Add(entity, &gc.Player{})
 
 	require.NoError(t, manager.SaveWorld(world, "slot1"))
 

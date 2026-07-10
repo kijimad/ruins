@@ -2,7 +2,7 @@ package query
 
 import (
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Relation はエンティティ間の派閥関係を表す
@@ -19,10 +19,10 @@ const (
 // FactionAlly同士はFriendly、FactionEnemy同士もFriendly、
 // FactionAllyとFactionEnemyはHostile、それ以外はNeutral
 func FactionRelation(world w.World, a, b ecs.Entity) Relation {
-	aEnemy := a.HasComponent(world.Components.FactionEnemy)
-	bEnemy := b.HasComponent(world.Components.FactionEnemy)
-	aAlly := a.HasComponent(world.Components.FactionAlly)
-	bAlly := b.HasComponent(world.Components.FactionAlly)
+	aEnemy := world.Components.FactionEnemy.Has(a)
+	bEnemy := world.Components.FactionEnemy.Has(b)
+	aAlly := world.Components.FactionAlly.Has(a)
+	bAlly := world.Components.FactionAlly.Has(b)
 
 	if aEnemy && bAlly || aAlly && bEnemy {
 		return RelationHostile

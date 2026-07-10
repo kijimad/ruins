@@ -22,7 +22,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // inventorySubState はインベントリメニュー内のサブステート
@@ -260,7 +260,7 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 	items := make([]inventoryItemData, len(entities))
 
 	for i, entity := range entities {
-		name := world.Components.Name.Get(entity).(*gc.Name).Name
+		name := world.Components.Name.Get(entity).Name
 
 		item := inventoryItemData{
 			Entity: entity,
@@ -268,14 +268,14 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 		}
 
 		// Stackableであれば個数を表示する
-		if entity.HasComponent(world.Components.Stackable) {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+		if world.Components.Stackable.Has(entity) {
+			stackable := world.Components.Stackable.Get(entity)
 			item.Count = fmt.Sprintf("%d", stackable.Count)
 		}
 
 		// 説明文
-		if entity.HasComponent(world.Components.Description) {
-			desc := world.Components.Description.Get(entity).(*gc.Description)
+		if world.Components.Description.Has(entity) {
+			desc := world.Components.Description.Get(entity)
 			item.Desc = desc.Description
 		}
 
@@ -292,7 +292,7 @@ func (st *InventoryMenuState) queryByOwner(world w.World, owner ecs.Entity) []ec
 		world.Components.LocationInBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+		loc := world.Components.LocationInBackpack.Get(entity)
 		if loc.Owner == owner {
 			result = append(result, entity)
 		}
@@ -472,12 +472,12 @@ func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) [
 
 	var actions []actionItem
 
-	if entity.HasComponent(world.Components.Consumable) {
+	if world.Components.Consumable.Has(entity) {
 		actions = append(actions, actionItem{Kind: actionUse, Label: "使う", Enabled: true})
 	}
-	if entity.HasComponent(world.Components.Book) {
+	if world.Components.Book.Has(entity) {
 		item := actionItem{Kind: actionRead, Label: "読む", Enabled: true}
-		book := world.Components.Book.Get(entity).(*gc.Book)
+		book := world.Components.Book.Get(entity)
 
 		var skills *gc.Skills
 		if playerEntity, err := query.GetPlayerEntity(world); err == nil {
@@ -563,7 +563,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		// Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する
-		book := world.Components.Book.Get(entity).(*gc.Book)
+		book := world.Components.Book.Get(entity)
 		remaining := book.Effort.Max - book.Effort.Current
 		if remaining <= 0 {
 			remaining = 1
@@ -582,7 +582,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+		playerGrid := world.Components.GridElement.Get(playerEntity)
 		destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
 		_, err = activity.Execute(&activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)
 		if err != nil {

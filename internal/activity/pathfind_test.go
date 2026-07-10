@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 func TestFindNextStep(t *testing.T) {
@@ -25,8 +25,8 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.Manager.NewEntity()
-		mover.AddComponent(world.Components.Player, &gc.Player{})
+		mover := world.World.NewEntity()
+		world.Components.Player.Add(mover, &gc.Player{})
 
 		nextX, nextY, ok := FindNextStep(world, mover, 0, 0, 3, 0)
 		require.True(t, ok)
@@ -44,8 +44,8 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.Manager.NewEntity()
-		mover.AddComponent(world.Components.Player, &gc.Player{})
+		mover := world.World.NewEntity()
+		world.Components.Player.Add(mover, &gc.Player{})
 
 		for y := range 4 {
 			si.BlockPass[gc.GridElement{X: consts.Tile(2), Y: consts.Tile(y)}] = true
@@ -66,8 +66,8 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.Manager.NewEntity()
-		mover.AddComponent(world.Components.Player, &gc.Player{})
+		mover := world.World.NewEntity()
+		world.Components.Player.Add(mover, &gc.Player{})
 
 		for dx := -1; dx <= 1; dx++ {
 			for dy := -1; dy <= 1; dy++ {
@@ -92,8 +92,8 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.Manager.NewEntity()
-		mover.AddComponent(world.Components.Player, &gc.Player{})
+		mover := world.World.NewEntity()
+		world.Components.Player.Add(mover, &gc.Player{})
 
 		_, _, ok := FindNextStep(world, mover, 3, 3, 3, 3)
 		assert.False(t, ok)
@@ -109,14 +109,14 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)})
 		si.Characters[gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)}] = player
 		si.PlayerEntity = &player
 
-		mover := world.Manager.NewEntity()
-		mover.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		mover := world.World.NewEntity()
+		world.Components.SquadMember.Add(mover, &gc.SquadMember{})
 
 		nextX, nextY, ok := FindNextStep(world, mover, 0, 0, 2, 0)
 		require.True(t, ok, "プレイヤーを迂回する経路が見つかるべき")
@@ -133,12 +133,12 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		otherMember := world.Manager.NewEntity()
-		otherMember.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		otherMember := world.World.NewEntity()
+		world.Components.SquadMember.Add(otherMember, &gc.SquadMember{})
 		si.Characters[gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)}] = otherMember
 
-		mover := world.Manager.NewEntity()
-		mover.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+		mover := world.World.NewEntity()
+		world.Components.SquadMember.Add(mover, &gc.SquadMember{})
 
 		nextX, nextY, ok := FindNextStep(world, mover, 0, 0, 2, 0)
 		require.True(t, ok, "隊員を迂回する経路が見つかるべき")
@@ -155,8 +155,8 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.Manager.NewEntity()
-		mover.AddComponent(world.Components.Player, &gc.Player{})
+		mover := world.World.NewEntity()
+		world.Components.Player.Add(mover, &gc.Player{})
 
 		si.BlockPass[gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)}] = true
 
@@ -175,12 +175,12 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.World.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 		si.Characters[gc.GridElement{X: consts.Tile(3), Y: consts.Tile(3)}] = player
 
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
+		enemy := world.World.NewEntity()
+		world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
 
 		_, _, ok := FindNextStep(world, enemy, 0, 0, 3, 3)
 		require.True(t, ok, "敵はプレイヤーの方向を見つけられる")

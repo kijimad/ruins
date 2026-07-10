@@ -19,7 +19,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // squadSubState はサブステート
@@ -184,7 +184,7 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member).(*gc.HP)
+		hp := world.Components.HP.Get(member)
 		squad := query.GetSquadAI(world, member)
 		if squad == nil {
 			continue
@@ -384,7 +384,7 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 
 func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 	name := query.GetEntityName(member, world)
-	hp := world.Components.HP.Get(member).(*gc.HP)
+	hp := world.Components.HP.Get(member)
 	squad := query.GetSquadAI(world, member)
 	if squad == nil {
 		return

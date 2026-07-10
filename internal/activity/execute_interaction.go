@@ -9,7 +9,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
@@ -72,11 +72,11 @@ func executeDungeonGate(world w.World) (*ActionResult, error) {
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
-	if !doorEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(doorEntity) {
 		return nil, fmt.Errorf("DoorInteractionだがDoorコンポーネントがない")
 	}
 
-	door := world.Components.Door.Get(doorEntity).(*gc.Door)
+	door := world.Components.Door.Get(doorEntity)
 
 	if door.IsOpen {
 		return Execute(&CloseDoorActivity{Target: doorEntity}, actor, world)
@@ -94,7 +94,7 @@ func executeDoorLock(world w.World) (*ActionResult, error) {
 }
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
-	if !npcEntity.HasComponent(world.Components.Dialog) {
+	if !world.Components.Dialog.Has(npcEntity) {
 		return nil, fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません")
 	}
 

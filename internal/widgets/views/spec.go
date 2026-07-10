@@ -12,7 +12,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // UpdateSpec は性能表示コンテナを更新する
@@ -25,37 +25,37 @@ func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Ent
 	}
 
 	// 各コンポーネントの情報を追加
-	if entity.HasComponent(world.Components.Melee) {
-		melee := world.Components.Melee.Get(entity).(*gc.Melee)
+	if world.Components.Melee.Has(entity) {
+		melee := world.Components.Melee.Get(entity)
 		addAttackerInfo(targetContainer, melee, world)
 	}
-	if entity.HasComponent(world.Components.Fire) {
-		fire := world.Components.Fire.Get(entity).(*gc.Fire)
+	if world.Components.Fire.Has(entity) {
+		fire := world.Components.Fire.Get(entity)
 		addAttackerInfo(targetContainer, fire, world)
 		addFireAmmoInfo(targetContainer, fire, world)
 	}
-	if entity.HasComponent(world.Components.Wearable) {
-		wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
+	if world.Components.Wearable.Has(entity) {
+		wearable := world.Components.Wearable.Get(entity)
 		addWearableInfo(targetContainer, wearable, world)
 	}
-	if entity.HasComponent(world.Components.ProvidesHealing) {
-		healing := world.Components.ProvidesHealing.Get(entity).(*gc.ProvidesHealing)
+	if world.Components.ProvidesHealing.Has(entity) {
+		healing := world.Components.ProvidesHealing.Get(entity)
 		addHealingInfo(targetContainer, healing, world)
 	}
-	if entity.HasComponent(world.Components.ProvidesNutrition) {
-		nutrition := world.Components.ProvidesNutrition.Get(entity).(*gc.ProvidesNutrition)
+	if world.Components.ProvidesNutrition.Has(entity) {
+		nutrition := world.Components.ProvidesNutrition.Get(entity)
 		addNutritionInfo(targetContainer, nutrition, world)
 	}
-	if entity.HasComponent(world.Components.Book) {
-		book := world.Components.Book.Get(entity).(*gc.Book)
+	if world.Components.Book.Has(entity) {
+		book := world.Components.Book.Get(entity)
 		addBookInfo(targetContainer, book, world)
 	}
-	if entity.HasComponent(world.Components.Value) {
-		v := world.Components.Value.Get(entity).(*gc.Value)
+	if world.Components.Value.Has(entity) {
+		v := world.Components.Value.Get(entity)
 		addValueInfo(targetContainer, v, world)
 	}
-	if entity.HasComponent(world.Components.Weight) {
-		w := world.Components.Weight.Get(entity).(*gc.Weight)
+	if world.Components.Weight.Has(entity) {
+		w := world.Components.Weight.Get(entity)
 		addWeightInfo(targetContainer, w, world)
 	}
 }

@@ -20,7 +20,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 const storageItemsPerPage = 20
@@ -156,7 +156,7 @@ type storageItemData struct {
 
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 	storageName := query.GetEntityName(st.storageEntity, world)
-	wc := world.Components.WeightCapacity.Get(st.storageEntity).(*gc.WeightCapacity)
+	wc := world.Components.WeightCapacity.Get(st.storageEntity)
 	weightText := fmt.Sprintf("%.1f / %.1f kg", wc.Current, wc.Max)
 
 	storeTabs := st.createBackpackItemData(world)
@@ -207,8 +207,8 @@ func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Enti
 			Entity: entity,
 			Name:   name,
 		}
-		if entity.HasComponent(world.Components.Stackable) {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+		if world.Components.Stackable.Has(entity) {
+			stackable := world.Components.Stackable.Get(entity)
 			item.Count = fmt.Sprintf("%d", stackable.Count)
 		}
 		items[i] = item

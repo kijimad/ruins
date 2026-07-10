@@ -7,7 +7,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ActionResult はアクション実行結果を表す
@@ -102,10 +102,10 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 		Message:      result.Message,
 	}
 
-	if actor.HasComponent(world.Components.LastActivity) {
-		actor.RemoveComponent(world.Components.LastActivity)
+	if world.Components.LastActivity.Has(actor) {
+		world.Components.LastActivity.Remove(actor)
 	}
-	actor.AddComponent(world.Components.LastActivity, lastResult)
+	world.Components.LastActivity.Add(actor, lastResult)
 }
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
@@ -232,7 +232,7 @@ func ProcessTurn(world w.World) {
 	var toRemove []ecs.Entity
 
 	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
-		comp := world.Components.Activity.Get(entity).(*gc.Activity)
+		comp := world.Components.Activity.Get(entity)
 
 		// アクティブなアクティビティのみ処理
 		if !IsActive(comp) {
@@ -321,7 +321,7 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 		"cost", cost,
 		"remaining", tb.AP.Current,
 		"actor", actor,
-		"isPlayer", actor.HasComponent(world.Components.Player))
+		"isPlayer", world.Components.Player.Has(actor))
 }
 
 // getPassCostAt は指定座標にあるPropのPassCostを合算して返す
@@ -331,9 +331,9 @@ func getPassCostAt(world w.World, x, y int) int {
 		world.Components.GridElement,
 		world.Components.PassCost,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		if int(grid.X) == x && int(grid.Y) == y {
-			mc := world.Components.PassCost.Get(entity).(*gc.PassCost)
+			mc := world.Components.PassCost.Get(entity)
 			total += mc.Value
 		}
 	}))
@@ -342,9 +342,9 @@ func getPassCostAt(world w.World, x, y int) int {
 
 // getEntityMaxAP はエンティティの最大AP値を取得する
 func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
-	if !entity.HasComponent(world.Components.TurnBased) {
+	if !world.Components.TurnBased.Has(entity) {
 		return 0, fmt.Errorf("TurnBasedコンポーネントが見つからない: entity=%v", entity)
 	}
-	turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+	turnBased := world.Components.TurnBased.Get(entity)
 	return turnBased.AP.Max, nil
 }

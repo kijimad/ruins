@@ -10,7 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // OpenDoorActivity はBehaviorの実装
@@ -54,7 +54,7 @@ func (oda *OpenDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 	targetEntity := *comp.Target
 
 	// Doorコンポーネントを持っているか確認
-	if !targetEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
 	}
 
@@ -108,7 +108,7 @@ func (oda *OpenDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 	log.Debug("扉開閉アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
-	if actor.HasComponent(world.Components.Player) {
+	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append("扉を開いた。").
 			Log()
@@ -164,7 +164,7 @@ func (cda *CloseDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 	targetEntity := *comp.Target
 
 	// Doorコンポーネントを持っているか確認
-	if !targetEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
 	}
 
@@ -215,7 +215,7 @@ func (cda *CloseDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 	log.Debug("扉閉鎖アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
-	if actor.HasComponent(world.Components.Player) {
+	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append("扉を閉じた。").
 			Log()

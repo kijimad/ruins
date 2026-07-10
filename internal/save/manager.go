@@ -14,7 +14,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 const saveDataVersion = "1.0.0"
@@ -161,7 +161,7 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 	world.Manager.Join(world.Components.LocationEquipped).Visit(ecs.Visit(collect))
 	// 4. 隊員エンティティ（死亡していないもの）
 	world.Manager.Join(world.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if !entity.HasComponent(world.Components.Dead) {
+		if !world.Components.Dead.Has(entity) {
 			collect(entity)
 		}
 	}))
@@ -178,24 +178,24 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 
 // extractMarkers はマーカーコンポーネントとStackableを抽出する
 func (sm *SerializationManager) extractMarkers(entity ecs.Entity, c *gc.Components, comp *oapi.SaveDataComponentsMap) {
-	if entity.HasComponent(c.Player) {
+	if c.Player.Has(entity) {
 		comp.Player = emptyMarker()
 	}
-	if entity.HasComponent(c.FactionAlly) {
+	if c.FactionAlly.Has(entity) {
 		comp.FactionAllyData = emptyMarker()
 	}
-	if entity.HasComponent(c.LocationInBackpack) {
-		backpack := c.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+	if c.LocationInBackpack.Has(entity) {
+		backpack := c.LocationInBackpack.Get(entity)
 		ownerStableID := sm.stableIDManager.GetStableID(backpack.Owner)
 		comp.LocationInBackpack = &oapi.SaveDataLocationInBackpackComponent{
 			OwnerRef: stableIDToSaveData(ownerStableID),
 		}
 	}
-	if entity.HasComponent(c.StatsChanged) {
+	if c.StatsChanged.Has(entity) {
 		comp.StatsChanged = emptyMarker()
 	}
-	if entity.HasComponent(c.Stackable) {
-		stackable := c.Stackable.Get(entity).(*gc.Stackable)
+	if c.Stackable.Has(entity) {
+		stackable := c.Stackable.Get(entity)
 		m := oapi.SaveDataMarkerComponent{"Count": stackable.Count}
 		comp.Stackable = &m
 	}
@@ -210,143 +210,143 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	sm.extractMarkers(entity, c, &comp)
 
 	// データコンポーネント
-	if entity.HasComponent(c.Name) {
-		name := c.Name.Get(entity).(*gc.Name)
+	if c.Name.Has(entity) {
+		name := c.Name.Get(entity)
 		comp.Name = &oapi.SaveDataNameComponent{Name: name.Name}
 	}
-	if entity.HasComponent(c.Description) {
-		desc := c.Description.Get(entity).(*gc.Description)
+	if c.Description.Has(entity) {
+		desc := c.Description.Get(entity)
 		comp.Description = &oapi.SaveDataDescriptionComponent{Description: desc.Description}
 	}
-	if entity.HasComponent(c.HP) {
-		sd := hpToSaveData(*c.HP.Get(entity).(*gc.HP))
+	if c.HP.Has(entity) {
+		sd := hpToSaveData(*c.HP.Get(entity))
 		comp.HP = &sd
 	}
-	if entity.HasComponent(c.WeightCapacity) {
-		sd := weightCapacityToSaveData(*c.WeightCapacity.Get(entity).(*gc.WeightCapacity))
+	if c.WeightCapacity.Has(entity) {
+		sd := weightCapacityToSaveData(*c.WeightCapacity.Get(entity))
 		comp.WeightCapacity = &sd
 	}
-	if entity.HasComponent(c.TurnBased) {
-		tb := c.TurnBased.Get(entity).(*gc.TurnBased)
+	if c.TurnBased.Has(entity) {
+		tb := c.TurnBased.Get(entity)
 		sd := turnBasedToSaveData(*tb)
 		comp.TurnBased = &sd
 	}
-	if entity.HasComponent(c.Abilities) {
-		ab := c.Abilities.Get(entity).(*gc.Abilities)
+	if c.Abilities.Has(entity) {
+		ab := c.Abilities.Get(entity)
 		sd := abilitiesToSaveData(*ab)
 		comp.Abilities = &sd
 	}
-	if entity.HasComponent(c.HealthStatus) {
-		hs := c.HealthStatus.Get(entity).(*gc.HealthStatus)
+	if c.HealthStatus.Has(entity) {
+		hs := c.HealthStatus.Get(entity)
 		sd := healthStatusToSaveData(*hs)
 		comp.HealthStatus = &sd
 	}
-	if entity.HasComponent(c.Skills) {
-		sk := c.Skills.Get(entity).(*gc.Skills)
+	if c.Skills.Has(entity) {
+		sk := c.Skills.Get(entity)
 		sd := skillsToSaveData(*sk)
 		comp.Skills = &sd
 	}
 
 	// 表示コンポーネント
-	if entity.HasComponent(c.Camera) {
-		cam := c.Camera.Get(entity).(*gc.Camera)
+	if c.Camera.Has(entity) {
+		cam := c.Camera.Get(entity)
 		sd := cameraToSaveData(*cam)
 		comp.Camera = &sd
 	}
-	if entity.HasComponent(c.GridElement) {
-		ge := c.GridElement.Get(entity).(*gc.GridElement)
+	if c.GridElement.Has(entity) {
+		ge := c.GridElement.Get(entity)
 		sd := gridElementToSaveData(*ge)
 		comp.GridElement = &sd
 	}
-	if entity.HasComponent(c.SpriteRender) {
-		sr := c.SpriteRender.Get(entity).(*gc.SpriteRender)
+	if c.SpriteRender.Has(entity) {
+		sr := c.SpriteRender.Get(entity)
 		sd := spriteRenderToSaveData(*sr)
 		comp.SpriteRender = &sd
 	}
-	if entity.HasComponent(c.LightSource) {
-		ls := c.LightSource.Get(entity).(*gc.LightSource)
+	if c.LightSource.Has(entity) {
+		ls := c.LightSource.Get(entity)
 		sd := lightSourceToSaveData(*ls)
 		comp.LightSource = &sd
 	}
 
 	// アイテム属性コンポーネント
-	if entity.HasComponent(c.Wearable) {
-		w := c.Wearable.Get(entity).(*gc.Wearable)
+	if c.Wearable.Has(entity) {
+		w := c.Wearable.Get(entity)
 		sd := wearableToSaveData(*w)
 		comp.Wearable = &sd
 	}
-	if entity.HasComponent(c.Value) {
-		v := c.Value.Get(entity).(*gc.Value)
+	if c.Value.Has(entity) {
+		v := c.Value.Get(entity)
 		comp.Value = &oapi.SaveDataValueComponent{Value: int32(v.Value)}
 	}
-	if entity.HasComponent(c.Melee) {
-		m := c.Melee.Get(entity).(*gc.Melee)
+	if c.Melee.Has(entity) {
+		m := c.Melee.Get(entity)
 		sd := meleeToSaveData(*m)
 		comp.Melee = &sd
 	}
-	if entity.HasComponent(c.Fire) {
-		f := c.Fire.Get(entity).(*gc.Fire)
+	if c.Fire.Has(entity) {
+		f := c.Fire.Get(entity)
 		sd := fireToSaveData(*f)
 		comp.Fire = &sd
 	}
-	if entity.HasComponent(c.Recipe) {
-		r := c.Recipe.Get(entity).(*gc.Recipe)
+	if c.Recipe.Has(entity) {
+		r := c.Recipe.Get(entity)
 		sd := recipeToSaveData(*r)
 		comp.Recipe = &sd
 	}
-	if entity.HasComponent(c.Ammo) {
-		a := c.Ammo.Get(entity).(*gc.Ammo)
+	if c.Ammo.Has(entity) {
+		a := c.Ammo.Get(entity)
 		sd := ammoToSaveData(*a)
 		comp.Ammo = &sd
 	}
 
 	// アイテム効果コンポーネント
-	if entity.HasComponent(c.Consumable) {
-		con := c.Consumable.Get(entity).(*gc.Consumable)
+	if c.Consumable.Has(entity) {
+		con := c.Consumable.Get(entity)
 		sd := consumableToSaveData(*con)
 		comp.Consumable = &sd
 	}
-	if entity.HasComponent(c.ProvidesHealing) {
-		ph := c.ProvidesHealing.Get(entity).(*gc.ProvidesHealing)
+	if c.ProvidesHealing.Has(entity) {
+		ph := c.ProvidesHealing.Get(entity)
 		sd := providesHealingToSaveData(*ph)
 		comp.ProvidesHealing = &sd
 	}
-	if entity.HasComponent(c.ProvidesNutrition) {
-		pn := c.ProvidesNutrition.Get(entity).(*gc.ProvidesNutrition)
+	if c.ProvidesNutrition.Has(entity) {
+		pn := c.ProvidesNutrition.Get(entity)
 		comp.ProvidesNutrition = &oapi.SaveDataProvidesNutritionComponent{Amount: int32(pn.Amount)}
 	}
-	if entity.HasComponent(c.InflictsDamage) {
-		id := c.InflictsDamage.Get(entity).(*gc.InflictsDamage)
+	if c.InflictsDamage.Has(entity) {
+		id := c.InflictsDamage.Get(entity)
 		comp.InflictsDamage = &oapi.SaveDataInflictsDamageComponent{Amount: int32(id.Amount)}
 	}
-	if entity.HasComponent(c.Wallet) {
-		wal := c.Wallet.Get(entity).(*gc.Wallet)
+	if c.Wallet.Has(entity) {
+		wal := c.Wallet.Get(entity)
 		comp.Wallet = &oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
 	}
 
 	// 戦闘コンポーネント
-	if entity.HasComponent(c.CommandTable) {
-		ct := c.CommandTable.Get(entity).(*gc.CommandTable)
+	if c.CommandTable.Has(entity) {
+		ct := c.CommandTable.Get(entity)
 		comp.CommandTable = &oapi.SaveDataCommandTableComponent{Name: ct.Name}
 	}
 
 	// 隊員コンポーネント
-	if entity.HasComponent(c.SquadMember) {
+	if c.SquadMember.Has(entity) {
 		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{}
 	}
-	if entity.HasComponent(c.SoloAI) {
-		ai := c.SoloAI.Get(entity).(*gc.SoloAI)
+	if c.SoloAI.Has(entity) {
+		ai := c.SoloAI.Get(entity)
 		sd := soloAIToSaveData(*ai)
 		comp.SquadPolicy = &sd
 	}
-	if entity.HasComponent(c.SquadAI) {
-		ai := c.SquadAI.Get(entity).(*gc.SquadAI)
+	if c.SquadAI.Has(entity) {
+		ai := c.SquadAI.Get(entity)
 		sd := squadAIToSaveData(*ai)
 		comp.SquadPolicy = &sd
 	}
 	// エンティティ参照コンポーネント (LocationEquipped)
-	if entity.HasComponent(c.LocationEquipped) {
-		equipped := c.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+	if c.LocationEquipped.Has(entity) {
+		equipped := c.LocationEquipped.Get(entity)
 		ownerStableID := sm.stableIDManager.GetStableID(equipped.Owner)
 		comp.LocationEquipped = &oapi.SaveDataLocationEquippedComponent{
 			OwnerRef:      stableIDToSaveData(ownerStableID),
@@ -373,7 +373,7 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 	entries := make([]entityEntry, 0, len(worldData.Entities))
 	for i := range worldData.Entities {
 		entityData := &worldData.Entities[i]
-		entity := world.Manager.NewEntity()
+		entity := world.World.NewEntity()
 		stableID := stableIDFromSaveData(entityData.StableId)
 		if err := sm.stableIDManager.RegisterEntity(entity, stableID); err != nil {
 			return fmt.Errorf("failed to register entity mapping: %w", err)
@@ -398,7 +398,7 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 			if !exists {
 				return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
 			}
-			backpack := c.LocationInBackpack.Get(entry.entity).(*gc.LocationInBackpack)
+			backpack := c.LocationInBackpack.Get(entry.entity)
 			backpack.Owner = ownerEntity
 		}
 
@@ -409,15 +409,15 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 			if !exists {
 				return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
 			}
-			equipped := c.LocationEquipped.Get(entry.entity).(*gc.LocationEquipped)
+			equipped := c.LocationEquipped.Get(entry.entity)
 			equipped.Owner = ownerEntity
 		}
 	}
 
 	// 第4段階: 派生コンポーネントの再計算をマークする
 	for _, entry := range entries {
-		if entry.entity.HasComponent(c.Skills) {
-			entry.entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
+		if entry.c.Skills.Has(entity) {
+			entry.c.StatsChanged.Add(entity, &gc.StatsChanged{})
 		}
 	}
 
@@ -433,17 +433,17 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	// マーカーコンポーネント (NullComponent)
 	if comp.Player != nil {
-		entity.AddComponent(c.Player, &gc.Player{})
+		c.Player.Add(entity, &gc.Player{})
 	}
 	if comp.FactionAllyData != nil {
-		entity.AddComponent(c.FactionAlly, &gc.FactionAllyData{})
+		c.FactionAlly.Add(entity, &gc.FactionAllyData{})
 	}
 	// LocationInBackpack（Ownerは第3段階で解決）
 	if comp.LocationInBackpack != nil {
-		entity.AddComponent(c.LocationInBackpack, &gc.LocationInBackpack{})
+		c.LocationInBackpack.Add(entity, &gc.LocationInBackpack{})
 	}
 	if comp.StatsChanged != nil {
-		entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
+		c.StatsChanged.Add(entity, &gc.StatsChanged{})
 	}
 
 	// Stackable (Countフィールドあり)
@@ -454,7 +454,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 				stackable.Count = int(countFloat)
 			}
 		}
-		entity.AddComponent(c.Stackable, &stackable)
+		c.Stackable.Add(entity, &stackable)
 	}
 
 	// データコンポーネント
@@ -468,12 +468,12 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 
 	// 戦闘コンポーネント
 	if comp.CommandTable != nil {
-		entity.AddComponent(c.CommandTable, &gc.CommandTable{Name: comp.CommandTable.Name})
+		c.CommandTable.Add(entity, &gc.CommandTable{Name: comp.CommandTable.Name})
 	}
 
 	// 隊員コンポーネント
 	if comp.SquadMember != nil {
-		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
+		c.SquadMember.Add(entity, &gc.SquadMember{})
 	}
 	if comp.SquadPolicy != nil {
 		aiFromSaveData(entity, c, *comp.SquadPolicy)
@@ -486,7 +486,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 				Owner:         0,
 				EquipmentSlot: slot,
 			}
-			entity.AddComponent(c.LocationEquipped, &equipped)
+			c.LocationEquipped.Add(entity, &equipped)
 		}
 	}
 }
@@ -494,50 +494,50 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 // restoreDataComponents はデータ/表示コンポーネントを復元する
 func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Name != nil {
-		entity.AddComponent(c.Name, &gc.Name{Name: comp.Name.Name})
+		c.Name.Add(entity, &gc.Name{Name: comp.Name.Name})
 	}
 	if comp.Description != nil {
-		entity.AddComponent(c.Description, &gc.Description{Description: comp.Description.Description})
+		c.Description.Add(entity, &gc.Description{Description: comp.Description.Description})
 	}
 	if comp.HP != nil {
 		hp := hpFromSaveData(*comp.HP)
-		entity.AddComponent(c.HP, &hp)
+		c.HP.Add(entity, &hp)
 	}
 	if comp.WeightCapacity != nil {
 		cw := weightCapacityFromSaveData(*comp.WeightCapacity)
-		entity.AddComponent(c.WeightCapacity, &cw)
+		c.WeightCapacity.Add(entity, &cw)
 	}
 	if comp.TurnBased != nil {
 		tb := turnBasedFromSaveData(*comp.TurnBased)
-		entity.AddComponent(c.TurnBased, &tb)
+		c.TurnBased.Add(entity, &tb)
 	}
 	if comp.Abilities != nil {
 		ab := abilitiesFromSaveData(*comp.Abilities)
-		entity.AddComponent(c.Abilities, &ab)
+		c.Abilities.Add(entity, &ab)
 	}
 	if comp.HealthStatus != nil {
 		hs := healthStatusFromSaveData(*comp.HealthStatus)
-		entity.AddComponent(c.HealthStatus, &hs)
+		c.HealthStatus.Add(entity, &hs)
 	}
 	if comp.Skills != nil {
 		skills := skillsFromSaveData(*comp.Skills)
-		entity.AddComponent(c.Skills, skills)
+		c.Skills.Add(entity, skills)
 	}
 	if comp.Camera != nil {
 		cam := cameraFromSaveData(*comp.Camera)
-		entity.AddComponent(c.Camera, &cam)
+		c.Camera.Add(entity, &cam)
 	}
 	if comp.GridElement != nil {
 		ge := gridElementFromSaveData(*comp.GridElement)
-		entity.AddComponent(c.GridElement, &ge)
+		c.GridElement.Add(entity, &ge)
 	}
 	if comp.SpriteRender != nil {
 		sr := spriteRenderFromSaveData(*comp.SpriteRender)
-		entity.AddComponent(c.SpriteRender, &sr)
+		c.SpriteRender.Add(entity, &sr)
 	}
 	if comp.LightSource != nil {
 		ls := lightSourceFromSaveData(*comp.LightSource)
-		entity.AddComponent(c.LightSource, &ls)
+		c.LightSource.Add(entity, &ls)
 	}
 }
 
@@ -545,26 +545,26 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Wearable != nil {
 		w := wearableFromSaveData(*comp.Wearable)
-		entity.AddComponent(c.Wearable, &w)
+		c.Wearable.Add(entity, &w)
 	}
 	if comp.Value != nil {
-		entity.AddComponent(c.Value, &gc.Value{Value: int(comp.Value.Value)})
+		c.Value.Add(entity, &gc.Value{Value: int(comp.Value.Value)})
 	}
 	if comp.Melee != nil {
 		m := meleeFromSaveData(*comp.Melee)
-		entity.AddComponent(c.Melee, &m)
+		c.Melee.Add(entity, &m)
 	}
 	if comp.Fire != nil {
 		f := fireFromSaveData(*comp.Fire)
-		entity.AddComponent(c.Fire, &f)
+		c.Fire.Add(entity, &f)
 	}
 	if comp.Recipe != nil {
 		r := recipeFromSaveData(*comp.Recipe)
-		entity.AddComponent(c.Recipe, &r)
+		c.Recipe.Add(entity, &r)
 	}
 	if comp.Ammo != nil {
 		a := ammoFromSaveData(*comp.Ammo)
-		entity.AddComponent(c.Ammo, &a)
+		c.Ammo.Add(entity, &a)
 	}
 }
 
@@ -572,20 +572,20 @@ func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 func restoreEffectComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Consumable != nil {
 		con := consumableFromSaveData(*comp.Consumable)
-		entity.AddComponent(c.Consumable, &con)
+		c.Consumable.Add(entity, &con)
 	}
 	if comp.ProvidesHealing != nil {
 		ph := providesHealingFromSaveData(*comp.ProvidesHealing)
-		entity.AddComponent(c.ProvidesHealing, &ph)
+		c.ProvidesHealing.Add(entity, &ph)
 	}
 	if comp.ProvidesNutrition != nil {
-		entity.AddComponent(c.ProvidesNutrition, &gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})
+		c.ProvidesNutrition.Add(entity, &gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})
 	}
 	if comp.InflictsDamage != nil {
-		entity.AddComponent(c.InflictsDamage, &gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})
+		c.InflictsDamage.Add(entity, &gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})
 	}
 	if comp.Wallet != nil {
-		entity.AddComponent(c.Wallet, &gc.Wallet{Currency: int(comp.Wallet.Currency)})
+		c.Wallet.Add(entity, &gc.Wallet{Currency: int(comp.Wallet.Currency)})
 	}
 }
 

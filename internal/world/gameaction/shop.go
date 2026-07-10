@@ -8,7 +8,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // BuyItem はプレイヤーがアイテムを購入する
@@ -23,8 +23,8 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	price := query.CalculateBuyPrice(int(baseValue))
 
 	// 交渉スキルによる買値倍率を適用する
-	if playerEntity.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+	if world.Components.CharModifiers.Has(playerEntity) {
+		mods := world.Components.CharModifiers.Get(playerEntity)
 		price = price * mods.BuyPrice / 100
 	}
 
@@ -68,8 +68,8 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 	price := query.CalculateSellPrice(baseValue)
 
 	// 交渉スキルによる売値倍率を適用する
-	if playerEntity.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+	if world.Components.CharModifiers.Has(playerEntity) {
+		mods := world.Components.CharModifiers.Get(playerEntity)
 		price = price * mods.SellPrice / 100
 	}
 

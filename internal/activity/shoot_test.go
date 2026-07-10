@@ -13,7 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // setupShootingWorld は射撃テスト用のWorldを構築する。
@@ -90,7 +90,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
 		// マガジンを空にする
-		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
 		sa := &ShootActivity{}
@@ -157,9 +157,9 @@ func TestShootActivity_Validate(t *testing.T) {
 		world, player, enemy, _ := setupShootingWorld(t)
 
 		// 射線上に壁を配置
-		wall := world.Manager.NewEntity()
-		wall.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		wall.AddComponent(world.Components.BlockView, &gc.BlockView{})
+		wall := world.World.NewEntity()
+		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
+		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		sa := &ShootActivity{}
 		activity, err := NewActivity(sa, 1)
@@ -173,7 +173,7 @@ func TestShootActivity_Validate(t *testing.T) {
 	t.Run("死亡した攻撃者はエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
-		player.AddComponent(world.Components.Dead, &gc.Dead{})
+		world.Components.Dead.Add(player, &gc.Dead{})
 
 		sa := &ShootActivity{}
 		activity, err := NewActivity(sa, 1)
@@ -187,7 +187,7 @@ func TestShootActivity_Validate(t *testing.T) {
 	t.Run("死亡したターゲットはエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
-		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+		world.Components.Dead.Add(enemy, &gc.Dead{})
 
 		sa := &ShootActivity{}
 		activity, err := NewActivity(sa, 1)
@@ -206,7 +206,7 @@ func TestShootActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
-		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire := world.Components.Fire.Get(weaponEntity)
 		before := fire.Magazine
 
 		sa := &ShootActivity{}
@@ -242,14 +242,14 @@ func TestExecuteShootAction(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
-		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire := world.Components.Fire.Get(weaponEntity)
 		before := fire.Magazine
 
 		err := ExecuteShootAction(player, enemy, world)
 		require.NoError(t, err)
 
 		// 1ターンアクションなので即時完了し、Activityは残らない
-		assert.False(t, player.HasComponent(world.Components.Activity))
+		assert.False(t, world.Components.Activity.Has(player))
 		// 弾薬が消費されている
 		assert.Equal(t, before-1, fire.Magazine)
 	})
@@ -272,7 +272,7 @@ func TestExecuteShootAction(t *testing.T) {
 		err = ExecuteShootAction(player, enemy, world)
 		require.Error(t, err)
 
-		assert.False(t, player.HasComponent(world.Components.Activity))
+		assert.False(t, world.Components.Activity.Has(player))
 	})
 }
 
@@ -310,9 +310,9 @@ func TestCanShootTarget(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 
-		wall := world.Manager.NewEntity()
-		wall.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		wall.AddComponent(world.Components.BlockView, &gc.BlockView{})
+		wall := world.World.NewEntity()
+		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
+		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		assert.False(t, CanShootTarget(player, enemy, world))
 	})
@@ -320,7 +320,7 @@ func TestCanShootTarget(t *testing.T) {
 	t.Run("死亡した敵は射撃不可", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
-		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+		world.Components.Dead.Add(enemy, &gc.Dead{})
 
 		assert.False(t, CanShootTarget(player, enemy, world))
 	})
@@ -335,10 +335,10 @@ func TestEntityDistance(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		a := world.Manager.NewEntity()
-		a.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-		b := world.Manager.NewEntity()
-		b.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		a := world.World.NewEntity()
+		world.Components.GridElement.Add(a, &gc.GridElement{X: 5, Y: 5})
+		b := world.World.NewEntity()
+		world.Components.GridElement.Add(b, &gc.GridElement{X: 5, Y: 5})
 
 		assert.Equal(t, 0.0, EntityDistance(a, b, world))
 	})
@@ -347,10 +347,10 @@ func TestEntityDistance(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		a := world.Manager.NewEntity()
-		a.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
-		b := world.Manager.NewEntity()
-		b.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 0})
+		a := world.World.NewEntity()
+		world.Components.GridElement.Add(a, &gc.GridElement{X: 0, Y: 0})
+		b := world.World.NewEntity()
+		world.Components.GridElement.Add(b, &gc.GridElement{X: 3, Y: 0})
 
 		assert.Equal(t, 3.0, EntityDistance(a, b, world))
 	})
@@ -359,10 +359,10 @@ func TestEntityDistance(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		a := world.Manager.NewEntity()
-		a.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
-		b := world.Manager.NewEntity()
-		b.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 4})
+		a := world.World.NewEntity()
+		world.Components.GridElement.Add(a, &gc.GridElement{X: 0, Y: 0})
+		b := world.World.NewEntity()
+		world.Components.GridElement.Add(b, &gc.GridElement{X: 3, Y: 4})
 
 		assert.Equal(t, 5.0, EntityDistance(a, b, world))
 	})
@@ -371,8 +371,8 @@ func TestEntityDistance(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		a := world.Manager.NewEntity()
-		b := world.Manager.NewEntity()
+		a := world.World.NewEntity()
+		b := world.World.NewEntity()
 
 		assert.Equal(t, math.MaxFloat64, EntityDistance(a, b, world))
 	})
@@ -387,10 +387,10 @@ func TestCheckLineOfSight(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 0})
+		actor := world.World.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		target := world.World.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -401,14 +401,14 @@ func TestCheckLineOfSight(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 0})
+		actor := world.World.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		target := world.World.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
 
-		wall := world.Manager.NewEntity()
-		wall.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 0})
-		wall.AddComponent(world.Components.BlockView, &gc.BlockView{})
+		wall := world.World.NewEntity()
+		world.Components.GridElement.Add(wall, &gc.GridElement{X: 3, Y: 0})
+		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		blocked, _ := checkLineOfSight(actor, target, world)
 		assert.True(t, blocked)
@@ -418,15 +418,15 @@ func TestCheckLineOfSight(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 0})
+		actor := world.World.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		target := world.World.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
 
 		// BlockPassだけ（BlockViewなし）→ 遮蔽物
-		cover := world.Manager.NewEntity()
-		cover.AddComponent(world.Components.GridElement, &gc.GridElement{X: 2, Y: 0})
-		cover.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		cover := world.World.NewEntity()
+		world.Components.GridElement.Add(cover, &gc.GridElement{X: 2, Y: 0})
+		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -443,10 +443,10 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 0})
+		actor := world.World.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		target := world.World.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{X: 3, Y: 0})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
@@ -457,11 +457,11 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
+		actor := world.World.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
 		// ハンドガン: 最適射程3, ペナルティ8%/tile → 距離6なら(6-3)*8=24%ペナルティ
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 0})
+		target := world.World.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{X: 6, Y: 0})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
@@ -472,14 +472,14 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 0, Y: 0})
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 0})
+		actor := world.World.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		target := world.World.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{X: 3, Y: 0})
 
-		cover := world.Manager.NewEntity()
-		cover.AddComponent(world.Components.GridElement, &gc.GridElement{X: 2, Y: 0})
-		cover.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		cover := world.World.NewEntity()
+		world.Components.GridElement.Add(cover, &gc.GridElement{X: 2, Y: 0})
+		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)

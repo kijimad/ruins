@@ -4,7 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す
@@ -43,7 +43,7 @@ func GetGameLog(world w.World) *gamelog.SafeSlice {
 
 // SetDungeon はシングルトンエンティティにDungeonを設定する
 func SetDungeon(world w.World, dungeon *gc.Dungeon) {
-	world.Resources.SingletonEntity.AddComponent(world.Components.DungeonState, dungeon)
+	world.Resources.world.Components.DungeonState.Add(SingletonEntity, dungeon)
 }
 
 // GetSpatialIndex はシングルトンから空間インデックスを取得する
@@ -87,10 +87,10 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 		world.Components.GridElement,
 		world.Components.BlockPass,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
+		if world.Components.Dead.Has(entity) {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		si.BlockPass[*grid] = true
 	}))
 
@@ -98,19 +98,19 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
+		if world.Components.Dead.Has(entity) {
 			return
 		}
-		isCharacter := entity.HasComponent(world.Components.Player) ||
-			entity.HasComponent(world.Components.SoloAI) ||
-			entity.HasComponent(world.Components.SquadAI) ||
-			entity.HasComponent(world.Components.SquadMember)
+		isCharacter := world.Components.Player.Has(entity) ||
+			world.Components.SoloAI.Has(entity) ||
+			world.Components.SquadAI.Has(entity) ||
+			world.Components.SquadMember.Has(entity)
 		if !isCharacter {
 			return
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		si.Characters[*grid] = entity
-		if entity.HasComponent(world.Components.Player) {
+		if world.Components.Player.Has(entity) {
 			e := entity
 			si.PlayerEntity = &e
 		}

@@ -19,7 +19,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // placePhase は置くモードのフェーズを表す
@@ -69,7 +69,7 @@ func (st *PlaceState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}
 	st.phase = placePhaseSelectItem
 	st.refreshBackpackItems(world)
