@@ -11,8 +11,8 @@ import (
 )
 
 // GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す。
-// compはComponent[T]と*ecs.SliceComponentの両方を受けられるようDataComponentで受ける
-func GetSingleton[T any](world w.World, comp ecs.DataComponent) *T {
+// comp Component[T] で受けることで、型引数 T とコンポーネントの取り違えをコンパイラが検出する。
+func GetSingleton[T any](world w.World, comp gc.Component[T]) *T {
 	data := comp.Get(world.Resources.SingletonEntity)
 	if data == nil {
 		return nil
