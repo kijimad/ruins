@@ -298,7 +298,6 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	// 再計算されたCharModifiersにHealthStatusのペナルティが反映されている
 	mods := world.Components.CharModifiers.MustGet(actor)
-	require.NotNil(t, mods)
 	// MoveCost = 100 + 走破Lv0*(-2) + AGI0*(-1) + 軽度低体温10 = 110
 	assert.Equal(t, 110, mods.MoveCost, "HealthStatusのペナルティがCharModifiers再計算に反映されている")
 }
