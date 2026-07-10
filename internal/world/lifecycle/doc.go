@@ -26,5 +26,5 @@
 //	lifecycle.MoveToField(world, entity, nil)
 //
 //	// ❌ 非推奨: 直接操作（排他制御なし）
-//	entity.AddComponent(world.Components.LocationInBackpack)
+//	gc.AddComponent(entity, world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 package lifecycle
