@@ -1,6 +1,8 @@
 package query
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -14,7 +16,11 @@ func GetSingleton[T any](world w.World, comp ecs.DataComponent) *T {
 	if data == nil {
 		return nil
 	}
-	return data.(*T)
+	v, ok := data.(*T)
+	if !ok {
+		panic(fmt.Sprintf("GetSingleton: シングルトンが %T を保持していない", *new(T)))
+	}
+	return v
 }
 
 // GetTurnState はシングルトンエンティティからターン状態を取得する

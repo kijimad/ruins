@@ -94,7 +94,11 @@ type Component[T any] struct {
 // MustGet はエンティティの当該コンポーネントを型付きで取得する。
 // 保持していない場合はpanicする（呼び出し側が保持を保証している場合に使う）。
 func (c Component[T]) MustGet(entity ecs.Entity) *T {
-	return c.Get(entity).(*T)
+	v, ok := c.Get(entity).(*T)
+	if !ok {
+		panic(fmt.Sprintf("MustGet: エンティティ %v が %T を保持していない", entity, *new(T)))
+	}
+	return v
 }
 
 // TryGet はエンティティの当該コンポーネントを型付きで取得する。

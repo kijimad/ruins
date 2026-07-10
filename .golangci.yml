@@ -36,13 +36,23 @@ linters:
     - nolintlint     # nolintディレクティブに理由と対象linterの明示を強制
     - bidichk        # 不可視の危険なUnicode（トロイソース攻撃）を検出
     - forbidigo      # t.Error/t.Fatal を禁止しtestifyの使用を強制する
-    # 現状と乖離が大きいので追加しない
-    # - forcetypeassert # ECSの .Get().(*T) が意図的な型アサーションのため不適合
+    - forcetypeassert # チェックなし型アサーションを禁止する（テストは exclusions で除外）
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
   exclusions:
     paths:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
+    rules:
+      # テストの型アサーションはパニックで即座に失敗が分かるため forcetypeassert の対象外にする
+      - linters:
+          - forcetypeassert
+        path: _test\.go
+      # forcetypeassert は ECS コンポーネントアクセスの中核パッケージにのみ適用する（部分適用）。
+      # rendering/reflect/generics 主体の systems・states・engine・hooks は正当な型アサーション
+      # イディオム（ebiten の SubImage 等）が大半のため対象外にする。
+      - linters:
+          - forcetypeassert
+        path-except: internal/(components|world|activity|aiinput)/
 
   settings:
     gocritic:

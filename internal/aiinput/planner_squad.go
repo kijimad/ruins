@@ -77,9 +77,15 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 		return nil, false
 	}
 
+	squad, ok := aiComp.Planner.(*gc.SquadAI)
+	if !ok {
+		sp.logger.Warn("PlannerがSquadAIではない", "entity", entity)
+		return nil, false
+	}
+
 	return &squadContext{
 		Grid:         grid,
-		Squad:        aiComp.Planner.(*gc.SquadAI),
+		Squad:        squad,
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.MustGet(leader),
 	}, true

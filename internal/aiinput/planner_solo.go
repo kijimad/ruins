@@ -41,7 +41,11 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior 
 		rp.logger.Warn("AIコンポーネントなし", "entity", entity)
 		return nil
 	}
-	solo := aiComp.Planner.(*gc.SoloAI)
+	solo, ok := aiComp.Planner.(*gc.SoloAI)
+	if !ok {
+		rp.logger.Warn("PlannerがSoloAIではない", "entity", entity)
+		return nil
+	}
 	grid := world.Components.GridElement.MustGet(entity)
 
 	target := rp.findNearestHostile(world, entity)

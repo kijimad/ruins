@@ -12,7 +12,10 @@ import (
 func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
 	var existing gc.StateChangeRequest
 	world.Manager.Join(world.Components.StateChangeRequest).Visit(ecs.Visit(func(entity ecs.Entity) {
-		existing = world.Components.StateChangeRequest.Get(entity).(gc.StateChangeRequest)
+		// StateChangeRequestはインターフェース値を格納する特殊コンポーネントのため型付きのMustGetが使えない
+		if req, ok := world.Components.StateChangeRequest.Get(entity).(gc.StateChangeRequest); ok {
+			existing = req
+		}
 	}))
 	if existing != nil {
 		return fmt.Errorf("リクエストがすでに設定されています: %T → %T を設定しようとしました",
@@ -28,8 +31,11 @@ func ConsumeStateChange(world w.World) gc.StateChangeRequest {
 	var event gc.StateChangeRequest
 	var eventEntity ecs.Entity
 	world.Manager.Join(world.Components.StateChangeRequest).Visit(ecs.Visit(func(entity ecs.Entity) {
-		event = world.Components.StateChangeRequest.Get(entity).(gc.StateChangeRequest)
-		eventEntity = entity
+		// StateChangeRequestはインターフェース値を格納する特殊コンポーネントのため型付きのMustGetが使えない
+		if req, ok := world.Components.StateChangeRequest.Get(entity).(gc.StateChangeRequest); ok {
+			event = req
+			eventEntity = entity
+		}
 	}))
 	if event == nil {
 		return nil
