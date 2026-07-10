@@ -4,27 +4,23 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-func TestStateChangeRequest_Implementations(t *testing.T) {
+func TestStateChangeRequest_Constructors(t *testing.T) {
 	t.Parallel()
 
-	// 全てのイベント型がStateChangeRequestインターフェースを実装していることを確認
-	var _ StateChangeRequest = WarpNextEvent{}
-	var _ StateChangeRequest = WarpEscapeEvent{}
-	var _ StateChangeRequest = GameClearEvent{}
-	var _ StateChangeRequest = ShowDialogEvent{}
-	var _ StateChangeRequest = OpenDungeonSelectEvent{}
-	var _ StateChangeRequest = OpenStorageEvent{}
+	// 各コンストラクタが正しい Kind のリクエストを生成することを確認
+	assert.Equal(t, EventWarpNext, WarpNextEvent().Kind)
+	assert.Equal(t, EventWarpEscape, WarpEscapeEvent().Kind)
+	assert.Equal(t, EventGameClear, GameClearEvent().Kind)
+	assert.Equal(t, EventOpenDungeonSelect, OpenDungeonSelectEvent().Kind)
 
-	// 型アサーションが機能することを確認
-	events := []StateChangeRequest{
-		WarpNextEvent{},
-		WarpEscapeEvent{},
-		GameClearEvent{},
-		ShowDialogEvent{MessageKey: "test"},
-		OpenDungeonSelectEvent{},
-		OpenStorageEvent{},
-	}
-	assert.Len(t, events, 6)
+	// ペイロード付きのイベントもフィールドが設定されることを確認
+	dialog := ShowDialogEvent("test", ecs.Entity(0))
+	assert.Equal(t, EventShowDialog, dialog.Kind)
+	assert.Equal(t, "test", dialog.MessageKey)
+
+	storage := OpenStorageEvent(ecs.Entity(0))
+	assert.Equal(t, EventOpenStorage, storage.Kind)
 }

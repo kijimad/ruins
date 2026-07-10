@@ -10,25 +10,26 @@ import (
 
 // RequestStateChange はステート遷移イベントエンティティを作成する。既にイベントが存在する場合はエラーを返す
 func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
-	var existing gc.StateChangeRequest
+	var existing *gc.StateChangeRequest
 	world.Manager.Join(world.Components.StateChangeRequest).Visit(ecs.Visit(func(entity ecs.Entity) {
-		existing = world.Components.StateChangeRequest.Get(entity).(gc.StateChangeRequest)
+		existing = world.Components.StateChangeRequest.Get(entity).(*gc.StateChangeRequest)
 	}))
 	if existing != nil {
-		return fmt.Errorf("リクエストがすでに設定されています: %T → %T を設定しようとしました",
-			existing, event)
+		return fmt.Errorf("リクエストがすでに設定されています: %s → %s を設定しようとしました",
+			existing.Kind, event.Kind)
 	}
 	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.StateChangeRequest, event)
+	entity.AddComponent(world.Components.StateChangeRequest, &event)
 	return nil
 }
 
-// ConsumeStateChange はステート遷移イベントを読み取り、エンティティを削除する
-func ConsumeStateChange(world w.World) gc.StateChangeRequest {
-	var event gc.StateChangeRequest
+// ConsumeStateChange はステート遷移イベントを読み取り、エンティティを削除する。
+// イベントが無い場合は nil を返す
+func ConsumeStateChange(world w.World) *gc.StateChangeRequest {
+	var event *gc.StateChangeRequest
 	var eventEntity ecs.Entity
 	world.Manager.Join(world.Components.StateChangeRequest).Visit(ecs.Visit(func(entity ecs.Entity) {
-		event = world.Components.StateChangeRequest.Get(entity).(gc.StateChangeRequest)
+		event = world.Components.StateChangeRequest.Get(entity).(*gc.StateChangeRequest)
 		eventEntity = entity
 	}))
 	if event == nil {

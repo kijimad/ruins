@@ -496,17 +496,17 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 
-	switch e := req.(type) {
-	case gc.ShowDialogEvent:
+	switch req.Kind {
+	case gc.EventShowDialog:
 		// SpeakerEntityからNameを取得
-		if !e.SpeakerEntity.HasComponent(world.Components.Name) {
+		if !req.SpeakerEntity.HasComponent(world.Components.Name) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
 		}
-		nameComp := world.Components.Name.Get(e.SpeakerEntity).(*gc.Name)
+		nameComp := world.Components.Name.Get(req.SpeakerEntity).(*gc.Name)
 		speakerName := nameComp.Name
 
 		// NPCの種類に応じて専用ステートを返す
-		switch e.MessageKey {
+		switch req.MessageKey {
 		case "merchant_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName) },
@@ -521,33 +521,34 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
-			dialogMessage := messagedata.GetDialogue(e.MessageKey, speakerName)
+			dialogMessage := messagedata.GetDialogue(req.MessageKey, speakerName)
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
 			}}, nil
 		}
-	case gc.WarpNextEvent:
+	case gc.EventWarpNext:
 		// 次のフロアへ遷移する
 		nextDepth := query.GetDungeon(world).Depth + 1
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
-	case gc.WarpEscapeEvent:
+	case gc.EventWarpEscape:
 		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewAutoSellState()),
 		}}, nil
-	case gc.OpenDungeonSelectEvent:
+	case gc.EventOpenDungeonSelect:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
-	case gc.OpenStorageEvent:
+	case gc.EventOpenStorage:
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return NewStorageMenuState(e.StorageEntity) },
+			func() (es.State[w.World], error) { return NewStorageMenuState(req.StorageEntity) },
 		}}, nil
+	default:
+		// EventGameClear 等、ここで扱わない種別
+		return es.Transition[w.World]{}, fmt.Errorf("未処理のStateChangeRequest: %s", req.Kind)
 	}
-
-	return es.Transition[w.World]{}, fmt.Errorf("未知のStateChangeRequest: %T", req)
 }
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える

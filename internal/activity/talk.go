@@ -121,10 +121,7 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		// 会話ダイアログを表示
 		if targetEntity.HasComponent(world.Components.Dialog) {
 			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-			if err := lifecycle.RequestStateChange(world, gc.ShowDialogEvent{
-				MessageKey:    dialog.MessageKey,
-				SpeakerEntity: targetEntity,
-			}); err != nil {
+			if err := lifecycle.RequestStateChange(world, gc.ShowDialogEvent(dialog.MessageKey, targetEntity)); err != nil {
 				return fmt.Errorf("会話状態変更要求エラー: %w", err)
 			}
 		}
