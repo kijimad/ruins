@@ -38,14 +38,14 @@ func SquadMemberAt(world w.World, x, y int) (ecs.Entity, bool) {
 	return ecs.Entity(0), false
 }
 
-// GetAI は隊員のAIコンポーネントを返す。
+// GetSquadAI は隊員のSquadAIコンポーネントを返す。
 // コンポーネントがない場合はnilを返す
-func GetAI(world w.World, member ecs.Entity) *gc.AI {
-	comp := world.Components.AI.Get(member)
+func GetSquadAI(world w.World, member ecs.Entity) *gc.SquadAI {
+	comp := world.Components.SquadAI.Get(member)
 	if comp == nil {
 		return nil
 	}
-	return comp.(*gc.AI)
+	return comp.(*gc.SquadAI)
 }
 
 // IsSquadMember はエンティティが隊員かどうかを返す

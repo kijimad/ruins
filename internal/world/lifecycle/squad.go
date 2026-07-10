@@ -17,11 +17,11 @@ func DismissSquadMember(world w.World, member ecs.Entity) error {
 	return nil
 }
 
-// GetAI は隊員のAIコンポーネントを返す。コンポーネントがない場合はエラーを返す
-func GetAI(world w.World, member ecs.Entity) (*gc.AI, error) {
-	comp := world.Components.AI.Get(member)
+// GetAI は隊員のSquadAIコンポーネントを返す。コンポーネントがない場合はエラーを返す
+func GetAI(world w.World, member ecs.Entity) (*gc.SquadAI, error) {
+	comp := world.Components.SquadAI.Get(member)
 	if comp == nil {
 		return nil, fmt.Errorf("エンティティにAIがありません")
 	}
-	return comp.(*gc.AI), nil
+	return comp.(*gc.SquadAI), nil
 }

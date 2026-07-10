@@ -10,6 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // ================== StableID変換 ==================
@@ -383,47 +384,46 @@ func providesHealingFromSaveData(sd oapi.SaveDataProvidesHealingComponent) gc.Pr
 
 // ================== AIポリシー変換 ==================
 
-func aiToSaveData(ai gc.AI) oapi.SaveDataSquadPolicyComponent {
-	sd := oapi.SaveDataSquadPolicyComponent{
-		Planner: oapi.SaveDataPlannerType(string(ai.Planner.Type())),
+func soloAIToSaveData(ai gc.SoloAI) oapi.SaveDataSquadPolicyComponent {
+	return oapi.SaveDataSquadPolicyComponent{
+		Planner:       oapi.SaveDataPlannerType(string(gc.PlannerSolo)),
+		Movement:      oapi.SaveDataMovementPolicyType(ai.Movement),
+		CombatDefault: oapi.SaveDataCombatPolicyType(string(ai.CombatDefault)),
+		CombatCurrent: oapi.SaveDataCombatPolicyType(string(ai.CombatCurrent)),
 	}
-	switch p := ai.Planner.(type) {
-	case *gc.SoloAI:
-		sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
-		sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
-		sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))
-	case *gc.SquadAI:
-		sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
-		sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
-		sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))
-		sd.ItemPickup = oapi.SaveDataItemPickupPolicyType(string(p.ItemPickup))
-		sd.ItemHandling = oapi.SaveDataItemHandlingPolicyType(string(p.ItemHandling))
-	}
-	return sd
 }
 
-func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
+func squadAIToSaveData(ai gc.SquadAI) oapi.SaveDataSquadPolicyComponent {
+	return oapi.SaveDataSquadPolicyComponent{
+		Planner:       oapi.SaveDataPlannerType(string(gc.PlannerSquad)),
+		Movement:      oapi.SaveDataMovementPolicyType(ai.Movement),
+		CombatDefault: oapi.SaveDataCombatPolicyType(string(ai.CombatDefault)),
+		CombatCurrent: oapi.SaveDataCombatPolicyType(string(ai.CombatCurrent)),
+		ItemPickup:    oapi.SaveDataItemPickupPolicyType(string(ai.ItemPickup)),
+		ItemHandling:  oapi.SaveDataItemHandlingPolicyType(string(ai.ItemHandling)),
+	}
+}
+
+// aiFromSaveData はセーブデータからSoloAI/SquadAIコンポーネントを復元してエンティティに付与する。
+// Planner種別に応じて付与するコンポーネントを切り替える。
+func aiFromSaveData(entity ecs.Entity, c *gc.Components, sd oapi.SaveDataSquadPolicyComponent) {
 	switch gc.PlannerType(string(sd.Planner)) {
 	case gc.PlannerSquad:
-		return gc.AI{
-			Planner: &gc.SquadAI{
-				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
-				CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
-				Movement:      gc.SquadMovement(sd.Movement),
-				ItemPickup:    gc.ItemPickupPolicy(string(sd.ItemPickup)),
-				ItemHandling:  gc.ItemHandlingPolicy(string(sd.ItemHandling)),
-				ViewDistance:  consts.AIVisionDistance,
-			},
-		}
+		entity.AddComponent(c.SquadAI, &gc.SquadAI{
+			CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
+			CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
+			Movement:      gc.SquadMovement(sd.Movement),
+			ItemPickup:    gc.ItemPickupPolicy(string(sd.ItemPickup)),
+			ItemHandling:  gc.ItemHandlingPolicy(string(sd.ItemHandling)),
+			ViewDistance:  consts.AIVisionDistance,
+		})
 	case gc.PlannerSolo:
-		return gc.AI{
-			Planner: &gc.SoloAI{
-				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
-				CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
-				Movement:      gc.SoloMovement(sd.Movement),
-				ViewDistance:  consts.AIVisionDistance,
-			},
-		}
+		entity.AddComponent(c.SoloAI, &gc.SoloAI{
+			CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
+			CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
+			Movement:      gc.SoloMovement(sd.Movement),
+			ViewDistance:  consts.AIVisionDistance,
+		})
 	default:
 		panic(fmt.Sprintf("未知のPlannerType: %q", sd.Planner))
 	}

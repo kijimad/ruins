@@ -19,21 +19,10 @@ const (
 	AIStateFleeing = AIStateSubState("FLEEING")
 )
 
-// AI はAIエンティティの統合コンポーネント。
-// Plannerフィールドに具体的な設定を保持する
-type AI struct {
-	Planner PlannerConfig
-}
-
-// PlannerConfig はプランナー種別ごとの設定を表すインターフェース
-type PlannerConfig interface {
-	// Type はプランナーの種別を返す
-	Type() PlannerType
-	// ReactToHostile は被ダメージ時に戦闘方針を変化させる
-	ReactToHostile()
-	// ResetCombat は戦闘方針をデフォルトに復帰させる
-	ResetCombat()
-}
+// SoloAI と SquadAI は独立したコンポーネント（プレーンデータ）。
+// 以前は AI{Planner PlannerConfig} でインターフェース多態にしていたが、
+// ECS のデータ指向（コンポーネントは振る舞いを持たないデータ）と serde 互換のため
+// 別コンポーネントに分割した。エンティティは片方だけを持つ。
 
 // SoloAI は単独行動NPC用の設定と状態を保持する
 type SoloAI struct {
@@ -95,16 +84,14 @@ func (s *SquadAI) ResetCombat() {
 	s.CombatCurrent = s.CombatDefault
 }
 
-// DefaultSquadAI は隊員のデフォルトAIを返す
-func DefaultSquadAI() AI {
-	return AI{
-		Planner: &SquadAI{
-			CombatDefault: CombatAttack,
-			CombatCurrent: CombatAttack,
-			Movement:      SquadEscort,
-			ViewDistance:  consts.AIVisionDistance,
-			ItemPickup:    PolicyPickup,
-			ItemHandling:  PolicyDistribute,
-		},
+// DefaultSquadAI は隊員のデフォルトSquadAIを返す
+func DefaultSquadAI() SquadAI {
+	return SquadAI{
+		CombatDefault: CombatAttack,
+		CombatCurrent: CombatAttack,
+		Movement:      SquadEscort,
+		ViewDistance:  consts.AIVisionDistance,
+		ItemPickup:    PolicyPickup,
+		ItemHandling:  PolicyDistribute,
 	}
 }

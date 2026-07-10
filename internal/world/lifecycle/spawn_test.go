@@ -169,7 +169,7 @@ func TestSpawnEnemyHasAI(t *testing.T) {
 	enemyFound := false
 	world.Manager.Join(
 		world.Components.GridElement,
-		world.Components.AI,
+		world.Components.SoloAI,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		enemyFound = true
 	}))
@@ -249,9 +249,8 @@ func TestSpawnEnemy_AI(t *testing.T) {
 	enemy, err := SpawnEnemy(world, 5, 5, "火の玉")
 	require.NoError(t, err)
 
-	assert.True(t, enemy.HasComponent(world.Components.AI))
-	ai := world.Components.AI.Get(enemy).(*gc.AI)
-	solo := ai.Planner.(*gc.SoloAI)
+	assert.True(t, enemy.HasComponent(world.Components.SoloAI))
+	solo := world.Components.SoloAI.Get(enemy).(*gc.SoloAI)
 	assert.Equal(t, gc.CombatAttack, solo.CombatDefault)
 	assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
 }

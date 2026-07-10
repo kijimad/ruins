@@ -20,12 +20,12 @@ import (
 var testRNG = rand.New(rand.NewPCG(0, 0))
 
 // setupTestAI はテスト用の敵AIエンティティを作成する
-func setupTestAI(t *testing.T, world w.World, x, y int, ai *gc.AI) ecs.Entity {
+func setupTestAI(t *testing.T, world w.World, x, y int, solo *gc.SoloAI) ecs.Entity {
 	t.Helper()
 	entity := world.Manager.NewEntity()
 	entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストAI"})
 	entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
-	entity.AddComponent(world.Components.AI, ai)
+	entity.AddComponent(world.Components.SoloAI, solo)
 	entity.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	entity.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
@@ -47,11 +47,10 @@ func TestPlanAction_WaitingState(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 
@@ -74,11 +73,10 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateChasing
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 6, 5, ai)
+	entity := setupTestAI(t, world, 6, 5, solo)
 
 	rp := newSoloPlanner(testRNG)
 
@@ -101,11 +99,10 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateChasing
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 10, 10, ai)
+	entity := setupTestAI(t, world, 10, 10, solo)
 
 	rp := newSoloPlanner(testRNG)
 
@@ -128,11 +125,10 @@ func TestPlanAction_FleeingState(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateFleeing
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 10, 10, ai)
+	entity := setupTestAI(t, world, 10, 10, solo)
 
 	rp := newSoloPlanner(testRNG)
 
@@ -155,11 +151,10 @@ func TestPlanAction_DrivingState(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 
@@ -182,11 +177,10 @@ func TestPlanAction_UnknownState(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateSubState("UNKNOWN")
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 
@@ -204,11 +198,10 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 		Movement:      gc.SoloStationary,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -227,11 +220,10 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 		Movement:      gc.SoloWander,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -251,11 +243,10 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 		Movement:      gc.SoloWallHug,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -275,11 +266,10 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -299,13 +289,12 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 		Movement:      gc.SoloTerritorial,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
 	solo.OriginX = 20
 	solo.OriginY = 20
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -324,11 +313,10 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -348,7 +336,6 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 		Movement:      gc.SoloPatrol,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
@@ -356,7 +343,7 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	solo.OriginY = 20
 	solo.PatrolDirX = 1
 	solo.PatrolDirY = 0
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -382,7 +369,6 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 		Movement:      gc.SoloPatrol,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
@@ -390,7 +376,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	solo.OriginY = 20
 	solo.PatrolDirX = 1
 	solo.PatrolDirY = 0
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -418,7 +404,6 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 		Movement:      gc.SoloPatrol,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
@@ -426,7 +411,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	solo.OriginY = 20
 	solo.PatrolDirX = 1
 	solo.PatrolDirY = 0
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -445,13 +430,12 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 		Movement:      gc.SoloTerritorial,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
 	solo.OriginX = 20
 	solo.OriginY = 20
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 
@@ -488,13 +472,12 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 		Movement:      gc.SoloTerritorial,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
 	solo.OriginX = 20
 	solo.OriginY = 20
-	entity := setupTestAI(t, world, 25, 25, ai)
+	entity := setupTestAI(t, world, 25, 25, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -529,11 +512,10 @@ func TestPlanWanderAction(t *testing.T) {
 		Movement:      gc.SoloWander,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	gotMove := false
@@ -570,11 +552,10 @@ func TestPlanWallHugAction(t *testing.T) {
 		Movement:      gc.SoloWallHug,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -600,11 +581,10 @@ func TestPlanSwarmAction_NoAllies(t *testing.T) {
 		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -625,21 +605,20 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
-	allyAI := &gc.AI{Planner: &gc.SoloAI{
+	allyAI := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
 		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
-	}}
+	}
 	ally := world.Manager.NewEntity()
 	ally.AddComponent(world.Components.GridElement, &gc.GridElement{X: 25, Y: 25})
-	ally.AddComponent(world.Components.AI, allyAI)
+	ally.AddComponent(world.Components.SoloAI, allyAI)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -723,11 +702,10 @@ func TestPlanRandomMoveAction(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 20, 20, ai)
+	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -757,13 +735,13 @@ func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	ai := &gc.AI{Planner: &gc.SoloAI{
+	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
-	}}
-	entity := setupTestAI(t, world, 6, 5, ai)
+	}
+	entity := setupTestAI(t, world, 6, 5, solo)
 
 	rp := newSoloPlanner(testRNG)
 	target := rp.findNearestHostile(world, entity)
@@ -789,13 +767,13 @@ func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
 	memberGrid.X = consts.Tile(6)
 	memberGrid.Y = consts.Tile(5)
 
-	ai := &gc.AI{Planner: &gc.SoloAI{
+	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
-	}}
-	entity := setupTestAI(t, world, 5, 5, ai)
+	}
+	entity := setupTestAI(t, world, 5, 5, solo)
 
 	rp := newSoloPlanner(testRNG)
 	target := rp.findNearestHostile(world, entity)
@@ -807,13 +785,13 @@ func TestFindNearestHostile_敵対対象がいない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	ai := &gc.AI{Planner: &gc.SoloAI{
+	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
-	}}
-	entity := setupTestAI(t, world, 5, 5, ai)
+	}
+	entity := setupTestAI(t, world, 5, 5, solo)
 
 	rp := newSoloPlanner(testRNG)
 	target := rp.findNearestHostile(world, entity)
@@ -844,11 +822,10 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateChasing
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 5, 5, ai)
+	entity := setupTestAI(t, world, 5, 5, solo)
 
 	rp := newSoloPlanner(testRNG)
 	behavior := rp.Plan(world, entity)
@@ -881,11 +858,10 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
-	ai := &gc.AI{Planner: solo}
 	solo.SubState = gc.AIStateChasing
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	entity := setupTestAI(t, world, 5, 5, ai)
+	entity := setupTestAI(t, world, 5, 5, solo)
 
 	rp := newSoloPlanner(testRNG)
 	behavior := rp.Plan(world, entity)

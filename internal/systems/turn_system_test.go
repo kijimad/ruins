@@ -597,16 +597,14 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
-	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner: &gc.SoloAI{
-			CombatDefault:         gc.CombatAttack,
-			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.SoloRandom,
-			SubState:              gc.AIStateDriving,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 100,
-			ViewDistance:          5,
-		},
+	enemy.AddComponent(world.Components.SoloAI, &gc.SoloAI{
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.SoloRandom,
+		SubState:              gc.AIStateDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		ViewDistance:          5,
 	})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
@@ -661,8 +659,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	t.Logf("初期位置: (%d,%d)", initialX, initialY)
 
 	// AI状態を確認
-	ai := world.Components.AI.Get(enemy).(*gc.AI)
-	solo := ai.Planner.(*gc.SoloAI)
+	solo := world.Components.SoloAI.Get(enemy).(*gc.SoloAI)
 	t.Logf("初期AI: SubState=%s, StartTurn=%d, Duration=%d",
 		solo.SubState, solo.StartSubStateTurn, solo.DurationSubStateTurns)
 
@@ -712,8 +709,7 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 	require.NoError(t, err)
 
 	// Waiting期間をスキップ
-	ai := world.Components.AI.Get(enemy).(*gc.AI)
-	solo := ai.Planner.(*gc.SoloAI)
+	solo := world.Components.SoloAI.Get(enemy).(*gc.SoloAI)
 	solo.SubState = gc.AIStateDriving
 	solo.DurationSubStateTurns = 100
 
@@ -774,20 +770,18 @@ func TestPatrolMovement(t *testing.T) {
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "パトロール敵"})
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
-	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner: &gc.SoloAI{
-			CombatDefault:         gc.CombatAttack,
-			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.SoloPatrol,
-			SubState:              gc.AIStateDriving,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 100,
-			OriginX:               enemyX,
-			OriginY:               enemyY,
-			PatrolDirX:            1,
-			PatrolDirY:            0,
-			ViewDistance:          5,
-		},
+	enemy.AddComponent(world.Components.SoloAI, &gc.SoloAI{
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.SoloPatrol,
+		SubState:              gc.AIStateDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		OriginX:               enemyX,
+		OriginY:               enemyY,
+		PatrolDirX:            1,
+		PatrolDirY:            0,
+		ViewDistance:          5,
 	})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
@@ -835,18 +829,16 @@ func TestTerritorialMovement(t *testing.T) {
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "縄張り敵"})
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
-	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner: &gc.SoloAI{
-			CombatDefault:         gc.CombatAttack,
-			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.SoloTerritorial,
-			SubState:              gc.AIStateDriving,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 100,
-			OriginX:               spawnX,
-			OriginY:               spawnY,
-			ViewDistance:          5,
-		},
+	enemy.AddComponent(world.Components.SoloAI, &gc.SoloAI{
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.SoloTerritorial,
+		SubState:              gc.AIStateDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		OriginX:               spawnX,
+		OriginY:               spawnY,
+		ViewDistance:          5,
 	})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},

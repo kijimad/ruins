@@ -245,14 +245,12 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 		Defense:   gc.Ability{Base: 5, Modifier: 0, Total: 5},
 	})
 	member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
-	member.AddComponent(world.Components.AI, &gc.AI{
-		Planner: &gc.SquadAI{
-			CombatDefault: gc.CombatAttack,
-			CombatCurrent: gc.CombatAttack,
-			Movement:      gc.SquadEscort,
-			ItemPickup:    gc.PolicyPickup,
-			ItemHandling:  gc.PolicyKeep,
-		},
+	member.AddComponent(world.Components.SquadAI, &gc.SquadAI{
+		CombatDefault: gc.CombatAttack,
+		CombatCurrent: gc.CombatAttack,
+		Movement:      gc.SquadEscort,
+		ItemPickup:    gc.PolicyPickup,
+		ItemHandling:  gc.PolicyKeep,
 	})
 	member.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(6), Y: consts.Tile(11)})
 	member.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{

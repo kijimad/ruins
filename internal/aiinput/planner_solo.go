@@ -36,12 +36,12 @@ func newSoloPlanner(rng *rand.Rand) *soloPlanner {
 // Plan は状態遷移の評価とアクション決定を一体的に行う。
 // APループ内で繰り返し呼ばれ、状態遷移は同一ターン内でべき等
 func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior {
-	aiComp := world.Components.AI.Get(entity)
-	if aiComp == nil {
-		rp.logger.Warn("AIコンポーネントなし", "entity", entity)
+	soloComp := world.Components.SoloAI.Get(entity)
+	if soloComp == nil {
+		rp.logger.Warn("SoloAIコンポーネントなし", "entity", entity)
 		return nil
 	}
-	solo := aiComp.(*gc.AI).Planner.(*gc.SoloAI)
+	solo := soloComp.(*gc.SoloAI)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	target := rp.findNearestHostile(world, entity)
@@ -302,7 +302,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 
 func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	_, nearestGrid, nearestDist := query.FindNearestEntity(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {
-		return entity.HasComponent(world.Components.AI)
+		return entity.HasComponent(world.Components.SoloAI) || entity.HasComponent(world.Components.SquadAI)
 	})
 
 	if nearestGrid == nil || nearestDist <= 1 {

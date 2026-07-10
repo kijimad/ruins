@@ -461,7 +461,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 			X: consts.Tile(20 + i*5),
 			Y: consts.Tile(25 + i*3),
 		})
-		npc.AddComponent(world.Components.AI, &gc.AI{Planner: &gc.SoloAI{ViewDistance: 5}})
+		npc.AddComponent(world.Components.SoloAI, &gc.SoloAI{ViewDistance: 5})
 		npc.AddComponent(world.Components.FactionEnemy, gc.FactionEnemy)
 		npc.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Vitality:  gc.Ability{Base: 10 + i, Modifier: 0, Total: 10 + i},

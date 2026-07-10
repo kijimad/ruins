@@ -161,14 +161,10 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	var visionRanges []hud.VisionRangeInfo
 	world.Manager.Join(
 		world.Components.GridElement,
-		world.Components.AI,
+		world.Components.SoloAI,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		ai := world.Components.AI.Get(entity).(*gc.AI)
-		solo, ok := ai.Planner.(*gc.SoloAI)
-		if !ok {
-			return
-		}
+		solo := world.Components.SoloAI.Get(entity).(*gc.SoloAI)
 
 		// グリッド座標をピクセル座標に変換
 		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)

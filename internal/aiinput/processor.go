@@ -38,18 +38,20 @@ func (p *Processor) ProcessAll(world w.World) error {
 	return p.processByPlanner(world, gc.PlannerSquad)
 }
 
-// processByPlanner は指定されたPlannerTypeを持つAIエンティティを処理する
+// processByPlanner は指定されたPlannerTypeを持つAIエンティティを処理する。
+// SoloAI/SquadAI は別コンポーネントのため、種別に対応するコンポーネントで絞り込む
 func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) error {
 	planner := p.planners[plannerType]
 
+	aiComp := world.Components.SoloAI
+	if plannerType == gc.PlannerSquad {
+		aiComp = world.Components.SquadAI
+	}
+
 	world.Manager.Join(
-		world.Components.AI,
+		aiComp,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ai := world.Components.AI.Get(entity).(*gc.AI)
-		if ai.Planner.Type() != plannerType {
-			return
-		}
 		if entity.HasComponent(world.Components.Dead) {
 			return
 		}

@@ -47,7 +47,7 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.True(t, member.HasComponent(world.Components.SquadMember), "SquadMemberを持つ")
 
 	// AIコンポーネントの確認
-	assert.True(t, member.HasComponent(world.Components.AI), "AIを持つ")
+	assert.True(t, member.HasComponent(world.Components.SquadAI), "AIを持つ")
 
 	// ファクションの確認
 	assert.True(t, member.HasComponent(world.Components.FactionAlly), "FactionAllyを持つ")
@@ -57,9 +57,8 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.False(t, member.HasComponent(world.Components.Player), "Playerは持たない")
 
 	// デフォルトAIの確認
-	ai := world.Components.AI.Get(member).(*gc.AI)
-	assert.Equal(t, gc.PlannerSquad, ai.Planner.Type(), "PlannerはSquad")
-	squad := ai.Planner.(*gc.SquadAI)
+	squad := world.Components.SquadAI.Get(member).(*gc.SquadAI)
+	assert.Equal(t, gc.PlannerSquad, squad.Type(), "PlannerはSquad")
 	assert.Equal(t, gc.SquadEscort, squad.Movement, "デフォルト移動ポリシーは護衛")
 	assert.Equal(t, gc.CombatAttack, squad.CombatCurrent, "デフォルト戦闘ポリシーは攻撃")
 	assert.Equal(t, gc.PolicyPickup, squad.ItemPickup, "デフォルトアイテムポリシーは回収")
@@ -142,18 +141,16 @@ func TestGetAI(t *testing.T) {
 	require.NoError(t, err)
 
 	// AIコンポーネントを取得して変更する
-	ai, err := GetAI(world, member)
+	squad, err := GetAI(world, member)
 	require.NoError(t, err)
 
-	squad := ai.Planner.(*gc.SquadAI)
 	squad.Movement = gc.SquadVanguard
 	squad.CombatDefault = gc.CombatEvade
 	squad.CombatCurrent = gc.CombatEvade
 	squad.ItemPickup = gc.PolicyIgnore
 	squad.ItemHandling = gc.PolicyDistribute
 
-	current := world.Components.AI.Get(member).(*gc.AI)
-	currentSquad := current.Planner.(*gc.SquadAI)
+	currentSquad := world.Components.SquadAI.Get(member).(*gc.SquadAI)
 	assert.Equal(t, gc.SquadVanguard, currentSquad.Movement)
 	assert.Equal(t, gc.CombatEvade, currentSquad.CombatCurrent)
 	assert.Equal(t, gc.PolicyIgnore, currentSquad.ItemPickup)
@@ -170,13 +167,11 @@ func TestGetAI_移動だけ変更しても他のポリシーは変わらない(t
 	member, err := SpawnSquadMember(world, leader, "隊員E", testAbilities(), "player")
 	require.NoError(t, err)
 
-	ai, err := GetAI(world, member)
+	squad, err := GetAI(world, member)
 	require.NoError(t, err)
-	squad := ai.Planner.(*gc.SquadAI)
 	squad.Movement = gc.SquadPatrol
 
-	current := world.Components.AI.Get(member).(*gc.AI)
-	currentSquad := current.Planner.(*gc.SquadAI)
+	currentSquad := world.Components.SquadAI.Get(member).(*gc.SquadAI)
 	assert.Equal(t, gc.SquadPatrol, currentSquad.Movement, "移動ポリシーが変更された")
 	assert.Equal(t, gc.CombatAttack, currentSquad.CombatCurrent, "戦闘ポリシーは変わらない")
 }
@@ -193,7 +188,7 @@ func TestSpawnDefaultSquadMember(t *testing.T) {
 
 	// 基本コンポーネントが設定されている
 	assert.True(t, member.HasComponent(world.Components.SquadMember), "SquadMemberを持つ")
-	assert.True(t, member.HasComponent(world.Components.AI), "AIを持つ")
+	assert.True(t, member.HasComponent(world.Components.SquadAI), "AIを持つ")
 	assert.True(t, member.HasComponent(world.Components.Name), "Nameを持つ")
 
 	// 名前が設定されている

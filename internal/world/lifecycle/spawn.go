@@ -120,11 +120,8 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
-	if entitySpec.AI != nil {
-		solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
-		if !ok {
-			return consts.InvalidEntity, fmt.Errorf("NPC %q のPlannerがSoloAIではありません: %T", name, entitySpec.AI.Planner)
-		}
+	if entitySpec.SoloAI != nil {
+		solo := entitySpec.SoloAI
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
 		solo.DurationSubStateTurns = 2 + rand.IntN(3)
@@ -171,13 +168,10 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	if entitySpec.AI == nil {
+	if entitySpec.SoloAI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
-	solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
-	if !ok {
-		return consts.InvalidEntity, fmt.Errorf("敵 %q のPlannerがSoloAIではありません: %T", entitySpec.Name, entitySpec.AI.Planner)
-	}
+	solo := entitySpec.SoloAI
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 2 + rand.IntN(3)
@@ -248,7 +242,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
 		FactionType:    &gc.FactionAlly,
-		AI: func() *gc.AI {
+		SquadAI: func() *gc.SquadAI {
 			ai := gc.DefaultSquadAI()
 			return &ai
 		}(),

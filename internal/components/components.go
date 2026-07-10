@@ -35,7 +35,8 @@ type EntitySpec struct {
 
 	// field ================
 	Tile            *Tile
-	AI              *AI
+	SoloAI          *SoloAI
+	SquadAI         *SquadAI
 	Camera          *Camera
 	Position        *Position
 	GridElement     *GridElement
@@ -112,7 +113,8 @@ type Components struct {
 
 	// field ================
 	Tile            *ecs.NullComponent
-	AI              *ecs.SliceComponent
+	SoloAI          *ecs.SliceComponent
+	SquadAI         *ecs.SliceComponent
 	Camera          *ecs.SliceComponent `save:"true"`
 	Position        *ecs.SliceComponent
 	GridElement     *ecs.SliceComponent `save:"true"`

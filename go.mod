@@ -9,6 +9,8 @@ require (
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
+	github.com/mlange-42/arche v0.15.3
+	github.com/mlange-42/arche-serde v0.2.1
 	github.com/oapi-codegen/runtime v1.4.2
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/profile v1.7.0
@@ -29,9 +31,12 @@ require (
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
 	github.com/go-openapi/swag/jsonname v0.25.5 // indirect
 	github.com/go-text/typesetting v0.3.0 // indirect
+	github.com/goccy/go-json v0.10.6 // indirect
 	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
+	github.com/mlange-42/ark v0.8.3 // indirect
+	github.com/mlange-42/ark-serde v0.3.2 // indirect
 	github.com/oasdiff/yaml v0.1.0 // indirect
 	github.com/oasdiff/yaml3 v0.0.13 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

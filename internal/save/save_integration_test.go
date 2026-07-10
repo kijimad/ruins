@@ -264,7 +264,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		require.True(t, found, "隊員エンティティが復元されている")
 
 		// AI処理に必要なコンポーネント
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.AI), "AIが復元される")
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.SquadAI), "SquadAIが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.GridElement), "GridElementが復元される")
 
 		// ステータス関連コンポーネント
@@ -274,9 +274,9 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.StatsChanged), "StatsChangedフラグが付与される")
 
 		// AIの値が正しいことを確認
-		ai := newWorld.Components.AI.Get(memberEntity).(*gc.AI)
-		assert.Equal(t, gc.PlannerSquad, ai.Planner.Type())
-		assert.Equal(t, gc.CombatAttack, ai.Planner.(*gc.SquadAI).CombatCurrent)
+		ai := newWorld.Components.SquadAI.Get(memberEntity).(*gc.SquadAI)
+		assert.Equal(t, gc.PlannerSquad, ai.Type())
+		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 	})
 
 	t.Run("隊員のリーダー参照が復元される", func(t *testing.T) {

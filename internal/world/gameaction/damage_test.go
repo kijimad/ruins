@@ -63,8 +63,7 @@ func TestReactToHostileAction(t *testing.T) {
 
 		entity := world.Manager.NewEntity()
 		solo := &gc.SoloAI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
-		ai := &gc.AI{Planner: solo}
-		entity.AddComponent(world.Components.AI, ai)
+		entity.AddComponent(world.Components.SoloAI, solo)
 
 		reactToHostileAction(world, entity)
 
@@ -78,8 +77,7 @@ func TestReactToHostileAction(t *testing.T) {
 
 		entity := world.Manager.NewEntity()
 		solo := &gc.SoloAI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
-		ai := &gc.AI{Planner: solo}
-		entity.AddComponent(world.Components.AI, ai)
+		entity.AddComponent(world.Components.SoloAI, solo)
 
 		reactToHostileAction(world, entity)
 
@@ -93,8 +91,7 @@ func TestReactToHostileAction(t *testing.T) {
 
 		entity := world.Manager.NewEntity()
 		solo := &gc.SoloAI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
-		ai := &gc.AI{Planner: solo}
-		entity.AddComponent(world.Components.AI, ai)
+		entity.AddComponent(world.Components.SoloAI, solo)
 
 		reactToHostileAction(world, entity)
 

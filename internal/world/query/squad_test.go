@@ -140,10 +140,8 @@ func TestGetAI(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		ai := query.GetAI(world, member)
-		require.NotNil(t, ai)
-		squadAI, ok := ai.Planner.(*gc.SquadAI)
-		require.True(t, ok)
+		squadAI := query.GetSquadAI(world, member)
+		require.NotNil(t, squadAI)
 		assert.Equal(t, gc.SquadEscort, squadAI.Movement)
 		assert.Equal(t, gc.CombatAttack, squadAI.CombatCurrent)
 	})
@@ -153,7 +151,7 @@ func TestGetAI(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		nonMember := world.Manager.NewEntity()
-		ai := query.GetAI(world, nonMember)
+		ai := query.GetSquadAI(world, nonMember)
 		assert.Nil(t, ai)
 	})
 }

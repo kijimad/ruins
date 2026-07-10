@@ -418,7 +418,7 @@ func TestCanMoveTo(t *testing.T) {
 
 		// AIエンティティを手動で作成する
 		aiEntity := world.Manager.NewEntity()
-		aiEntity.AddComponent(world.Components.AI, &gc.AI{})
+		aiEntity.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
 		aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
 			X: consts.Tile(memberX + 1), Y: consts.Tile(memberY),
 		})

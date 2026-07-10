@@ -59,9 +59,9 @@ func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior
 func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*squadContext, bool) {
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	aiComp := world.Components.AI.Get(entity)
-	if aiComp == nil {
-		sp.logger.Warn("隊員にAIがない", "entity", entity)
+	squadComp := world.Components.SquadAI.Get(entity)
+	if squadComp == nil {
+		sp.logger.Warn("隊員にSquadAIがない", "entity", entity)
 		return nil, false
 	}
 
@@ -79,7 +79,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 
 	return &squadContext{
 		Grid:         grid,
-		Squad:        aiComp.(*gc.AI).Planner.(*gc.SquadAI),
+		Squad:        squadComp.(*gc.SquadAI),
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 	}, true

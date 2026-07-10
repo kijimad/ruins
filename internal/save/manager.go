@@ -334,9 +334,14 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	if entity.HasComponent(c.SquadMember) {
 		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{}
 	}
-	if entity.HasComponent(c.AI) {
-		ai := c.AI.Get(entity).(*gc.AI)
-		sd := aiToSaveData(*ai)
+	if entity.HasComponent(c.SoloAI) {
+		ai := c.SoloAI.Get(entity).(*gc.SoloAI)
+		sd := soloAIToSaveData(*ai)
+		comp.SquadPolicy = &sd
+	}
+	if entity.HasComponent(c.SquadAI) {
+		ai := c.SquadAI.Get(entity).(*gc.SquadAI)
+		sd := squadAIToSaveData(*ai)
 		comp.SquadPolicy = &sd
 	}
 	// エンティティ参照コンポーネント (LocationEquipped)
@@ -471,8 +476,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
 	}
 	if comp.SquadPolicy != nil {
-		ai := aiFromSaveData(*comp.SquadPolicy)
-		entity.AddComponent(c.AI, &ai)
+		aiFromSaveData(entity, c, *comp.SquadPolicy)
 	}
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {

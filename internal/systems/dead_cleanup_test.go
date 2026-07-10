@@ -23,7 +23,7 @@ func TestDeadCleanupSystem(t *testing.T) {
 	// 1. 通常の敵（AI）エンティティ - 削除されるべき
 	enemy := world.Manager.NewEntity()
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
-	enemy.AddComponent(world.Components.AI, &gc.AI{})
+	enemy.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
 	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
 
 	// 2. プレイヤーエンティティ - 削除されないべき
@@ -40,7 +40,7 @@ func TestDeadCleanupSystem(t *testing.T) {
 	// 4. 生きているエンティティ - 削除されないべき
 	alive := world.Manager.NewEntity()
 	alive.AddComponent(world.Components.Name, &gc.Name{Name: "生きている敵"})
-	alive.AddComponent(world.Components.AI, &gc.AI{})
+	alive.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
@@ -78,7 +78,7 @@ func TestDeadCleanupSystem_NoDeadEntities(t *testing.T) {
 
 	alive2 := world.Manager.NewEntity()
 	alive2.AddComponent(world.Components.Name, &gc.Name{Name: "生きている2"})
-	alive2.AddComponent(world.Components.AI, &gc.AI{})
+	alive2.AddComponent(world.Components.SoloAI, &gc.SoloAI{})
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}

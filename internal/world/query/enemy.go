@@ -114,7 +114,7 @@ func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string,
 	switch {
 	case entity.HasComponent(world.Components.Player):
 		logger.PlayerName(name)
-	case entity.HasComponent(world.Components.AI):
+	case entity.HasComponent(world.Components.SoloAI) || entity.HasComponent(world.Components.SquadAI):
 		logger.NPCName(name)
 	default:
 		logger.Append(name)

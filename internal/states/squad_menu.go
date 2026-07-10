@@ -185,12 +185,8 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
-		ai := query.GetAI(world, member)
-		if ai == nil {
-			continue
-		}
-		squad, ok := ai.Planner.(*gc.SquadAI)
-		if !ok {
+		squad := query.GetSquadAI(world, member)
+		if squad == nil {
 			continue
 		}
 
@@ -286,18 +282,14 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
 	switch command {
 	case "集合":
 		for _, m := range members {
-			if ai := query.GetAI(world, m); ai != nil {
-				if squad, ok := ai.Planner.(*gc.SquadAI); ok {
-					squad.Movement = gc.SquadEscort
-				}
+			if squad := query.GetSquadAI(world, m); squad != nil {
+				squad.Movement = gc.SquadEscort
 			}
 		}
 	case "全員待機":
 		for _, m := range members {
-			if ai := query.GetAI(world, m); ai != nil {
-				if squad, ok := ai.Planner.(*gc.SquadAI); ok {
-					squad.Movement = gc.SquadStationary
-				}
+			if squad := query.GetSquadAI(world, m); squad != nil {
+				squad.Movement = gc.SquadStationary
 			}
 		}
 	}
@@ -317,12 +309,8 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	member := windowProps.Member.Entity
 	selectedAction := actionItems[actionIndex]
 
-	ai := query.GetAI(world, member)
-	if ai == nil {
-		return nil
-	}
-	squad, ok := ai.Planner.(*gc.SquadAI)
-	if !ok {
+	squad := query.GetSquadAI(world, member)
+	if squad == nil {
 		return nil
 	}
 
@@ -397,12 +385,8 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 	name := query.GetEntityName(member, world)
 	hp := world.Components.HP.Get(member).(*gc.HP)
-	ai := query.GetAI(world, member)
-	if ai == nil {
-		return
-	}
-	squad, ok := ai.Planner.(*gc.SquadAI)
-	if !ok {
+	squad := query.GetSquadAI(world, member)
+	if squad == nil {
 		return
 	}
 

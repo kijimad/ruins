@@ -472,7 +472,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
 			solo.Movement = gc.SoloMovement(*member.MovementPattern)
 		}
-		entitySpec.AI = &gc.AI{Planner: &solo}
+		entitySpec.SoloAI = &solo
 	}
 
 	if member.Dialog != nil {
@@ -494,7 +494,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.FactionType = &gc.FactionAlly
 	entitySpec.Player = &gc.Player{}
 	entitySpec.Hunger = gc.NewHunger()
-	entitySpec.AI = nil
+	entitySpec.SoloAI = nil
 	return entitySpec, nil
 }
 
