@@ -97,10 +97,10 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 		}
 	} else {
 		if !doorEntity.HasComponent(world.Components.BlockPass) {
-			doorEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+			gc.AddComponent(doorEntity, world.Components.BlockPass, &gc.BlockPass{})
 		}
 		if !doorEntity.HasComponent(world.Components.BlockView) {
-			doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+			gc.AddComponent(doorEntity, world.Components.BlockView, &gc.BlockView{})
 		}
 	}
 

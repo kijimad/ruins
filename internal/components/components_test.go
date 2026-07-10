@@ -32,16 +32,11 @@ func TestInitializeComponents(t *testing.T) {
 			field := val.Field(i)
 			fieldName := typ.Field(i).Name
 
-			switch field.Addr().Interface().(type) {
-			case sliceComponentIniter:
-				// Component[T] の埋め込み SliceComponent が初期化されているか
-				embedded := field.FieldByName("SliceComponent")
-				assert.False(t, embedded.IsNil(), "Component %s は初期化されている必要がある", fieldName)
-			case **ecs.NullComponent:
-				assert.NotNil(t, field.Interface(), "NullComponent %s は初期化されている必要がある", fieldName)
-			default:
-				assert.Fail(t, "未対応の型", "フィールド %s の型 %v", fieldName, field.Type())
-			}
+			// 全フィールドが Component[T]。埋め込み SliceComponent が初期化されているか確認する
+			_, ok := field.Addr().Interface().(sliceComponentIniter)
+			require.True(t, ok, "フィールド %s は Component[T] である必要がある（型 %v）", fieldName, field.Type())
+			embedded := field.FieldByName("SliceComponent")
+			assert.False(t, embedded.IsNil(), "Component %s は初期化されている必要がある", fieldName)
 		}
 	})
 
@@ -62,9 +57,9 @@ func TestInitializeComponents(t *testing.T) {
 		assert.NotNil(t, components.Position.SliceComponent, "Position コンポーネントが初期化されている")
 		assert.NotNil(t, components.Abilities.SliceComponent, "Abilities コンポーネントが初期化されている")
 
-		// NullComponentのサンプルチェック
-		assert.NotNil(t, components.Player, "Player NullComponentが初期化されている")
-		assert.NotNil(t, components.Dead, "Dead NullComponentが初期化されている")
+		// マーカー（空構造体の Component[T]）も同様に初期化されている
+		assert.NotNil(t, components.Player.SliceComponent, "Player コンポーネントが初期化されている")
+		assert.NotNil(t, components.Dead.SliceComponent, "Dead コンポーネントが初期化されている")
 	})
 
 	t.Run("nil manager でエラー", func(t *testing.T) {
@@ -80,7 +75,7 @@ func TestInitializeComponents(t *testing.T) {
 
 	t.Run("未対応型はエラーを返す", func(t *testing.T) {
 		t.Parallel()
-		// initComponentField は Component[T]/NullComponent 以外の型でエラーを返す
+		// initComponentField は Component[T] 以外の型でエラーを返す
 		manager := ecs.NewManager()
 		field := reflect.New(reflect.TypeFor[*string]()).Elem() // サポートされていない *string 型
 
@@ -135,13 +130,11 @@ func TestComponentsStructure(t *testing.T) {
 			field := val.Field(i)
 			fieldName := typ.Field(i).Name
 
-			// InitializeComponentsが扱えるのは Component[T]（sliceComponentIniter）
-			// または *ecs.NullComponent のいずれか
+			// 全フィールドが Component[T]（sliceComponentIniter）である
 			_, isSlice := field.Addr().Interface().(sliceComponentIniter)
-			_, isNull := field.Addr().Interface().(**ecs.NullComponent)
 
-			assert.True(t, isSlice || isNull,
-				"フィールド %s の型 %v はサポートされている必要がある",
+			assert.True(t, isSlice,
+				"フィールド %s の型 %v は Component[T] である必要がある",
 				fieldName, field.Type())
 		}
 	})

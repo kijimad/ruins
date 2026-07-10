@@ -11,8 +11,9 @@
 // - 各構造体: 個別のコンポーネントデータ
 //
 // 仕様:
-// - NullComponent: 状態マーカー（Player, Dead等）
-// - SliceComponent: データ保持（HP, WeightCapacity, Abilities, Attack等）
+// - 全コンポーネントを Component[T] で表す
+// - マーカー: 空構造体を型引数にした Component[T]（Player, Dead, Boss等）
+// - データ保持: データ構造体を型引数にした Component[T]（HP, WeightCapacity, Abilities等）
 // - 死亡状態はDeadコンポーネントで明示的に管理
 // - HP.Current == 0 での死亡判定とDeadコンポーネント付与を併用
 //

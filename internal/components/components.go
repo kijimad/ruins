@@ -133,8 +133,8 @@ type sliceComponentIniter interface {
 }
 
 // Components はECSコンポーネントストレージ
-// 各コンポーネント型のComponent[T]/NullComponentを保持し、
-// Manager.Join()でのクエリに使用される。
+// 全コンポーネントを Component[T] として保持し、Manager.Join()でのクエリに使用される。
+// マーカー（データを持たないコンポーネント）も空構造体を型引数にした Component[T] で表す。
 // 各コンポーネントの型付き取得は Component[T] の MustGet/TryGet を使う
 type Components struct {
 	// general ================
@@ -154,40 +154,40 @@ type Components struct {
 	Abilities          Component[Abilities]
 	Ammo               Component[Ammo]
 	Stackable          Component[Stackable]
-	Material           *ecs.NullComponent
+	Material           Component[Material]
 	LocationInBackpack Component[LocationInBackpack]
 	LocationEquipped   Component[LocationEquipped]
-	LocationOnField    *ecs.NullComponent
+	LocationOnField    Component[LocationOnField]
 	LocationInStorage  Component[LocationInStorage]
 
 	// field ================
-	Tile            *ecs.NullComponent
+	Tile            Component[Tile]
 	AI              Component[AI]
 	Camera          Component[Camera]
 	Position        Component[Position]
 	GridElement     Component[GridElement]
 	SpriteRender    Component[SpriteRender]
-	BlockView       *ecs.NullComponent
-	BlockPass       *ecs.NullComponent
+	BlockView       Component[BlockView]
+	BlockPass       Component[BlockPass]
 	PassCost        Component[PassCost]
 	Door            Component[Door]
-	Prop            *ecs.NullComponent
+	Prop            Component[Prop]
 	LightSource     Component[LightSource]
 	Interactable    Component[Interactable]
 	VisualEffect    Component[VisualEffects]
 	TileTemperature Component[TileTemperature]
 
 	// member ================
-	Player         *ecs.NullComponent
+	Player         Component[Player]
 	Profession     Component[Profession]
 	Hunger         Component[Hunger]
 	Wallet         Component[Wallet]
-	FactionAlly    *ecs.NullComponent
-	FactionEnemy   *ecs.NullComponent
-	FactionNeutral *ecs.NullComponent
-	Boss           *ecs.NullComponent // ボスエンティティのマーカー
+	FactionAlly    Component[FactionAllyData]
+	FactionEnemy   Component[FactionEnemyData]
+	FactionNeutral Component[FactionNeutralData]
+	Boss           Component[Boss] // ボスエンティティのマーカー
 	Dialog         Component[Dialog]
-	Dead           *ecs.NullComponent
+	Dead           Component[Dead]
 	TurnBased      Component[TurnBased]
 	HealthStatus   Component[HealthStatus]
 	Skills         Component[Skills]
@@ -195,8 +195,8 @@ type Components struct {
 
 	// event ================
 	StateChangeRequest Component[StateChangeRequest] // ステート遷移リクエスト
-	StatsChanged       *ecs.NullComponent
-	WeightDirty        *ecs.NullComponent
+	StatsChanged       Component[StatsChanged]
+	WeightDirty        Component[WeightDirty]
 	ProvidesHealing    Component[ProvidesHealing]
 	ProvidesNutrition  Component[ProvidesNutrition]
 	InflictsDamage     Component[InflictsDamage]
@@ -247,20 +247,13 @@ func initComponentField(field reflect.Value, fieldName string, manager *ecs.Mana
 		return fmt.Errorf("field %s is not settable", fieldName)
 	}
 
-	// フィールドの種類に応じて初期化する。
-	// Component[T] はジェネリックで各インスタンスが別型のため、型switchではなく
-	// マーカーインターフェース経由で初期化する。
-	switch f := field.Addr().Interface().(type) {
-	case sliceComponentIniter:
-		// Component[T] の内部 SliceComponent を初期化
-		f.initSlice(manager)
-	case **ecs.NullComponent:
-		// NullComponent の初期化
-		*f = manager.NewNullComponent()
-	default:
-		// 未対応の型はエラーとして扱う
+	// 全コンポーネントは Component[T]。ジェネリックで各インスタンスが別型のため、
+	// 型switchではなくマーカーインターフェース経由で内部 SliceComponent を初期化する。
+	f, ok := field.Addr().Interface().(sliceComponentIniter)
+	if !ok {
 		return fmt.Errorf("unsupported component type %v for field %s", field.Type(), fieldName)
 	}
+	f.initSlice(manager)
 
 	return nil
 }
@@ -319,6 +312,9 @@ type Profession struct {
 // Dead はキャラクターが死亡している状態を示すマーカーコンポーネント
 // 死亡時の処理(ドロップ/統計処理/ゲームログ...)を共通化するために使う
 type Dead struct{}
+
+// Boss はボスエンティティを示すマーカーコンポーネント
+type Boss struct{}
 
 // Wallet はプレイヤーの資金を管理する
 type Wallet struct {

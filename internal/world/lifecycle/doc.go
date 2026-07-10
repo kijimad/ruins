@@ -11,7 +11,7 @@
 //
 // # Enum Component パターン
 //
-// 複数のNullComponent/SliceComponentでenum的な状態を表現する場合、
+// 複数のマーカー Component[T] でenum的な状態を表現する場合、
 // 必ずこのパッケージのhelper関数を使用する。
 // 直接Component操作すると排他制御が保証されない。
 //

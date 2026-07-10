@@ -126,7 +126,7 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 		field := val.Field(i)
 		fieldName := typ.Field(i).Name
 
-		// Component[T]・NullComponent はいずれも DataComponent を満たす。
+		// Component[T] は DataComponent を満たす。
 		// 初期化済み前提のためnilチェックは不要（field.IsNilはstructにpanicする）
 		var count int
 		if comp, ok := field.Interface().(ecs.DataComponent); ok {

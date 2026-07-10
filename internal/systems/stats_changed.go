@@ -108,7 +108,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 		if entity.HasComponent(world.Components.WeightCapacity) {
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
-			entity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+			gc.AddComponent(entity, world.Components.WeightDirty, &gc.WeightDirty{})
 		}
 
 		// APを再計算

@@ -97,7 +97,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err := FullRecover(world, playerEntity); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
 	}
-	playerEntity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	gc.AddComponent(playerEntity, world.Components.WeightDirty, &gc.WeightDirty{})
 
 	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil
@@ -158,7 +158,7 @@ type SpawnEnemyOption func(ecs.Entity, w.World)
 // WithBoss はボスコンポーネントを付与するオプション
 func WithBoss() SpawnEnemyOption {
 	return func(entity ecs.Entity, world w.World) {
-		entity.AddComponent(world.Components.Boss, &ecs.NullComponent{})
+		gc.AddComponent(entity, world.Components.Boss, &gc.Boss{})
 	}
 }
 

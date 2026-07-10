@@ -25,7 +25,7 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 
 	// 死亡チェック
 	if hp.Current <= 0 && beforeHP > 0 {
-		target.AddComponent(world.Components.Dead, &gc.Dead{})
+		gc.AddComponent(target, world.Components.Dead, &gc.Dead{})
 		logDeath(world, target, source)
 	}
 }

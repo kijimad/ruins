@@ -412,7 +412,7 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 	// 第4段階: 派生コンポーネントの再計算をマークする
 	for _, entry := range entries {
 		if entry.entity.HasComponent(c.Skills) {
-			entry.entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
+			gc.AddComponent(entry.entity, c.StatsChanged, &gc.StatsChanged{})
 		}
 	}
 
@@ -426,19 +426,19 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 
 // restoreComponents はComponentsMapから全コンポーネントをエンティティに復元する
 func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
-	// マーカーコンポーネント (NullComponent)
+	// マーカーコンポーネント（空構造体の Component[T]）
 	if comp.Player != nil {
-		entity.AddComponent(c.Player, &gc.Player{})
+		gc.AddComponent(entity, c.Player, &gc.Player{})
 	}
 	if comp.FactionAllyData != nil {
-		entity.AddComponent(c.FactionAlly, &gc.FactionAllyData{})
+		gc.AddComponent(entity, c.FactionAlly, &gc.FactionAllyData{})
 	}
 	// LocationInBackpack（Ownerは第3段階で解決）
 	if comp.LocationInBackpack != nil {
 		gc.AddComponent(entity, c.LocationInBackpack, &gc.LocationInBackpack{})
 	}
 	if comp.StatsChanged != nil {
-		entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
+		gc.AddComponent(entity, c.StatsChanged, &gc.StatsChanged{})
 	}
 
 	// Stackable (Countフィールドあり)
