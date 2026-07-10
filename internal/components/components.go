@@ -3,10 +3,9 @@ package components
 import (
 	"fmt"
 	"image/color"
-	"reflect"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // EntitySpec はエンティティ作成用の仕様定義
@@ -89,123 +88,163 @@ type EntitySpec struct {
 // Manager.Join()でのクエリに使用される
 type Components struct {
 	// general ================
-	Name        *ecs.SliceComponent `save:"true"`
-	Description *ecs.SliceComponent `save:"true"`
+	Name        *ecs.Map[Name] `save:"true"`
+	Description *ecs.Map[Description] `save:"true"`
 
 	// item ================
-	HP                 *ecs.SliceComponent `save:"true"`
-	Consumable         *ecs.SliceComponent `save:"true"`
-	WeightCapacity     *ecs.SliceComponent `save:"true"`
-	Melee              *ecs.SliceComponent `save:"true"`
-	Fire               *ecs.SliceComponent `save:"true"`
-	Value              *ecs.SliceComponent `save:"true"`
-	Weight             *ecs.SliceComponent `save:"true"`
-	Recipe             *ecs.SliceComponent `save:"true"`
-	Wearable           *ecs.SliceComponent `save:"true"`
-	Abilities          *ecs.SliceComponent `save:"true"`
-	Ammo               *ecs.SliceComponent `save:"true"`
-	Stackable          *ecs.SliceComponent `save:"true"`
-	Material           *ecs.NullComponent  `save:"true"`
-	LocationInBackpack *ecs.SliceComponent `save:"true"`
-	LocationEquipped   *ecs.SliceComponent `save:"true"`
-	LocationOnField    *ecs.NullComponent
-	LocationInStorage  *ecs.SliceComponent
+	HP                 *ecs.Map[HP] `save:"true"`
+	Consumable         *ecs.Map[Consumable] `save:"true"`
+	WeightCapacity     *ecs.Map[WeightCapacity] `save:"true"`
+	Melee              *ecs.Map[Melee] `save:"true"`
+	Fire               *ecs.Map[Fire] `save:"true"`
+	Value              *ecs.Map[Value] `save:"true"`
+	Weight             *ecs.Map[Weight] `save:"true"`
+	Recipe             *ecs.Map[Recipe] `save:"true"`
+	Wearable           *ecs.Map[Wearable] `save:"true"`
+	Abilities          *ecs.Map[Abilities] `save:"true"`
+	Ammo               *ecs.Map[Ammo] `save:"true"`
+	Stackable          *ecs.Map[Stackable] `save:"true"`
+	Material           *ecs.Map[Material]  `save:"true"`
+	LocationInBackpack *ecs.Map[LocationInBackpack] `save:"true"`
+	LocationEquipped   *ecs.Map[LocationEquipped] `save:"true"`
+	LocationOnField    *ecs.Map[LocationOnField]
+	LocationInStorage  *ecs.Map[LocationInStorage]
 
 	// field ================
-	Tile            *ecs.NullComponent
-	SoloAI          *ecs.SliceComponent
-	SquadAI         *ecs.SliceComponent
-	Camera          *ecs.SliceComponent `save:"true"`
-	Position        *ecs.SliceComponent
-	GridElement     *ecs.SliceComponent `save:"true"`
-	SpriteRender    *ecs.SliceComponent `save:"true"`
-	BlockView       *ecs.NullComponent
-	BlockPass       *ecs.NullComponent
-	PassCost        *ecs.SliceComponent
-	Door            *ecs.SliceComponent
-	Prop            *ecs.NullComponent
-	LightSource     *ecs.SliceComponent `save:"true"`
-	Interactable    *ecs.SliceComponent
-	VisualEffect    *ecs.SliceComponent
-	TileTemperature *ecs.SliceComponent
+	Tile            *ecs.Map[Tile]
+	SoloAI          *ecs.Map[SoloAI]
+	SquadAI         *ecs.Map[SquadAI]
+	Camera          *ecs.Map[Camera] `save:"true"`
+	Position        *ecs.Map[Position]
+	GridElement     *ecs.Map[GridElement] `save:"true"`
+	SpriteRender    *ecs.Map[SpriteRender] `save:"true"`
+	BlockView       *ecs.Map[BlockView]
+	BlockPass       *ecs.Map[BlockPass]
+	PassCost        *ecs.Map[PassCost]
+	Door            *ecs.Map[Door]
+	Prop            *ecs.Map[Prop]
+	LightSource     *ecs.Map[LightSource] `save:"true"`
+	Interactable    *ecs.Map[Interactable]
+	VisualEffect    *ecs.Map[VisualEffects]
+	TileTemperature *ecs.Map[TileTemperature]
 
 	// member ================
-	Player         *ecs.NullComponent  `save:"true"`
-	Profession     *ecs.SliceComponent `save:"true"`
-	Hunger         *ecs.SliceComponent
-	Wallet         *ecs.SliceComponent `save:"true"`
-	FactionAlly    *ecs.NullComponent  `save:"true"`
-	FactionEnemy   *ecs.NullComponent
-	FactionNeutral *ecs.NullComponent `save:"true"`
-	Boss           *ecs.NullComponent // ボスエンティティのマーカー
-	Dialog         *ecs.SliceComponent
-	Dead           *ecs.NullComponent
-	TurnBased      *ecs.SliceComponent `save:"true"`
-	HealthStatus   *ecs.SliceComponent `save:"true"`
-	Skills         *ecs.SliceComponent `save:"true"`
-	CharModifiers  *ecs.SliceComponent `save:"true"`
+	Player         *ecs.Map[Player]  `save:"true"`
+	Profession     *ecs.Map[Profession] `save:"true"`
+	Hunger         *ecs.Map[Hunger]
+	Wallet         *ecs.Map[Wallet] `save:"true"`
+	FactionAlly    *ecs.Map[FactionAllyData]  `save:"true"`
+	FactionEnemy   *ecs.Map[FactionEnemyData]
+	FactionNeutral *ecs.Map[FactionNeutralData] `save:"true"`
+	Boss           *ecs.Map[Boss] // ボスエンティティのマーカー
+	Dialog         *ecs.Map[Dialog]
+	Dead           *ecs.Map[Dead]
+	TurnBased      *ecs.Map[TurnBased] `save:"true"`
+	HealthStatus   *ecs.Map[HealthStatus] `save:"true"`
+	Skills         *ecs.Map[Skills] `save:"true"`
+	CharModifiers  *ecs.Map[CharModifiers] `save:"true"`
 
 	// event ================
-	StateChangeRequest *ecs.SliceComponent // ステート遷移リクエスト
-	StatsChanged       *ecs.NullComponent
-	WeightDirty        *ecs.NullComponent
-	ProvidesHealing    *ecs.SliceComponent `save:"true"`
-	ProvidesNutrition  *ecs.SliceComponent `save:"true"`
-	InflictsDamage     *ecs.SliceComponent `save:"true"`
+	StateChangeRequest *ecs.Map[StateChangeRequest] // ステート遷移リクエスト
+	StatsChanged       *ecs.Map[StatsChanged]
+	WeightDirty        *ecs.Map[WeightDirty]
+	ProvidesHealing    *ecs.Map[ProvidesHealing] `save:"true"`
+	ProvidesNutrition  *ecs.Map[ProvidesNutrition] `save:"true"`
+	InflictsDamage     *ecs.Map[InflictsDamage] `save:"true"`
 
 	// book ================
-	Book *ecs.SliceComponent `save:"true"`
+	Book *ecs.Map[Book] `save:"true"`
 
 	// battle ================
-	CommandTable *ecs.SliceComponent `save:"true"`
-	DropTable    *ecs.SliceComponent
+	CommandTable *ecs.Map[CommandTable] `save:"true"`
+	DropTable    *ecs.Map[DropTable]
 
 	// squad ================
-	SquadMember *ecs.SliceComponent `save:"true"`
+	SquadMember *ecs.Map[SquadMember] `save:"true"`
 
 	// activity ================
-	Activity     *ecs.SliceComponent // 実行中のアクティビティ
-	LastActivity *ecs.SliceComponent // 直近のアクティビティ実行結果
+	Activity     *ecs.Map[Activity] // 実行中のアクティビティ
+	LastActivity *ecs.Map[LastActivity] // 直近のアクティビティ実行結果
 
 	// singleton ================
-	GameLog      *ecs.SliceComponent // フィールドログストレージ
-	DungeonState *ecs.SliceComponent // ダンジョン状態
-	GameProgress *ecs.SliceComponent // ゲーム進行データ
-	TurnState    *ecs.SliceComponent // ターン状態
-	SpatialIndex *ecs.SliceComponent // 空間インデックス
+	GameLog      *ecs.Map[GameLog] // フィールドログストレージ
+	DungeonState *ecs.Map[Dungeon] // ダンジョン状態
+	GameProgress *ecs.Map[GameProgress] // ゲーム進行データ
+	TurnState    *ecs.Map[TurnState] // ターン状態
+	SpatialIndex *ecs.Map[SpatialIndex] // 空間インデックス
 }
 
-// InitializeComponents はComponentInitializerインターフェースを実装する
-// リフレクションを使用して自動的に全コンポーネントを初期化する
-// コンポーネント追加時の手動更新が不要
-func (c *Components) InitializeComponents(manager *ecs.Manager) error {
-	val := reflect.ValueOf(c).Elem() // *Components から Components へ
-	typ := val.Type()
-
-	for i := range val.NumField() {
-		field := val.Field(i)
-		fieldType := typ.Field(i)
-		fieldName := fieldType.Name
-
-		// フィールドが設定可能かチェック
-		if !field.CanSet() {
-			return fmt.Errorf("field %s is not settable", fieldName)
-		}
-
-		// フィールドの型に基づいて適切なコンポーネントを作成
-		switch field.Type() {
-		case reflect.TypeFor[*ecs.SliceComponent]():
-			// SliceComponent の初期化
-			field.Set(reflect.ValueOf(manager.NewSliceComponent()))
-		case reflect.TypeFor[*ecs.NullComponent]():
-			// NullComponent の初期化
-			field.Set(reflect.ValueOf(manager.NewNullComponent()))
-		default:
-			// 未対応の型はエラーとして扱う
-			return fmt.Errorf("unsupported component type %v for field %s", field.Type(), fieldName)
-		}
-	}
-
+// InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
+// 各フィールドに型付き Map ハンドルを割り当てる。
+// Ark は generics で型を実体化するためリフレクションは使えず、明示的に列挙する。
+// コンポーネント追加時はこの関数と Components 構造体の両方を更新する。
+func (c *Components) InitializeComponents(world *ecs.World) error {
+	c.Name = ecs.NewMap[Name](world)
+	c.Description = ecs.NewMap[Description](world)
+	c.HP = ecs.NewMap[HP](world)
+	c.Consumable = ecs.NewMap[Consumable](world)
+	c.WeightCapacity = ecs.NewMap[WeightCapacity](world)
+	c.Melee = ecs.NewMap[Melee](world)
+	c.Fire = ecs.NewMap[Fire](world)
+	c.Value = ecs.NewMap[Value](world)
+	c.Weight = ecs.NewMap[Weight](world)
+	c.Recipe = ecs.NewMap[Recipe](world)
+	c.Wearable = ecs.NewMap[Wearable](world)
+	c.Abilities = ecs.NewMap[Abilities](world)
+	c.Ammo = ecs.NewMap[Ammo](world)
+	c.Stackable = ecs.NewMap[Stackable](world)
+	c.Material = ecs.NewMap[Material](world)
+	c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)
+	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
+	c.LocationOnField = ecs.NewMap[LocationOnField](world)
+	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
+	c.Tile = ecs.NewMap[Tile](world)
+	c.SoloAI = ecs.NewMap[SoloAI](world)
+	c.SquadAI = ecs.NewMap[SquadAI](world)
+	c.Camera = ecs.NewMap[Camera](world)
+	c.Position = ecs.NewMap[Position](world)
+	c.GridElement = ecs.NewMap[GridElement](world)
+	c.SpriteRender = ecs.NewMap[SpriteRender](world)
+	c.BlockView = ecs.NewMap[BlockView](world)
+	c.BlockPass = ecs.NewMap[BlockPass](world)
+	c.PassCost = ecs.NewMap[PassCost](world)
+	c.Door = ecs.NewMap[Door](world)
+	c.Prop = ecs.NewMap[Prop](world)
+	c.LightSource = ecs.NewMap[LightSource](world)
+	c.Interactable = ecs.NewMap[Interactable](world)
+	c.VisualEffect = ecs.NewMap[VisualEffects](world)
+	c.TileTemperature = ecs.NewMap[TileTemperature](world)
+	c.Player = ecs.NewMap[Player](world)
+	c.Profession = ecs.NewMap[Profession](world)
+	c.Hunger = ecs.NewMap[Hunger](world)
+	c.Wallet = ecs.NewMap[Wallet](world)
+	c.FactionAlly = ecs.NewMap[FactionAllyData](world)
+	c.FactionEnemy = ecs.NewMap[FactionEnemyData](world)
+	c.FactionNeutral = ecs.NewMap[FactionNeutralData](world)
+	c.Boss = ecs.NewMap[Boss](world)
+	c.Dialog = ecs.NewMap[Dialog](world)
+	c.Dead = ecs.NewMap[Dead](world)
+	c.TurnBased = ecs.NewMap[TurnBased](world)
+	c.HealthStatus = ecs.NewMap[HealthStatus](world)
+	c.Skills = ecs.NewMap[Skills](world)
+	c.CharModifiers = ecs.NewMap[CharModifiers](world)
+	c.StateChangeRequest = ecs.NewMap[StateChangeRequest](world)
+	c.StatsChanged = ecs.NewMap[StatsChanged](world)
+	c.WeightDirty = ecs.NewMap[WeightDirty](world)
+	c.ProvidesHealing = ecs.NewMap[ProvidesHealing](world)
+	c.ProvidesNutrition = ecs.NewMap[ProvidesNutrition](world)
+	c.InflictsDamage = ecs.NewMap[InflictsDamage](world)
+	c.Book = ecs.NewMap[Book](world)
+	c.CommandTable = ecs.NewMap[CommandTable](world)
+	c.DropTable = ecs.NewMap[DropTable](world)
+	c.SquadMember = ecs.NewMap[SquadMember](world)
+	c.Activity = ecs.NewMap[Activity](world)
+	c.LastActivity = ecs.NewMap[LastActivity](world)
+	c.GameLog = ecs.NewMap[GameLog](world)
+	c.DungeonState = ecs.NewMap[Dungeon](world)
+	c.GameProgress = ecs.NewMap[GameProgress](world)
+	c.TurnState = ecs.NewMap[TurnState](world)
+	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
 	return nil
 }
 
@@ -254,6 +293,9 @@ type Wearable struct {
 
 // Player は操作対象の主人公キャラクター
 type Player struct{}
+
+// Boss はボスエンティティを示すマーカーコンポーネント
+type Boss struct{}
 
 // Profession はプレイヤーが選択した職業を保持する。ラン終了時の再適用に使う
 type Profession struct {

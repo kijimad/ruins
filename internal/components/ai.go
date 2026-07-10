@@ -2,7 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // AIStateSubState はAI行動のサブ状態を表す

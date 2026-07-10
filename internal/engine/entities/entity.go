@@ -1,10 +1,9 @@
 package entities
 
 import (
-	"fmt"
 	"reflect"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ComponentList はエンティティ作成用のコンポーネントリスト
@@ -13,85 +12,50 @@ type ComponentList[T any] struct {
 	Entities []T // 作成するエンティティのリスト
 }
 
-// World represents the required interface for entity creation
-// 依存性逆転のためのメソッドを定義する
+// World はエンティティ作成に必要なインターフェース
+// 依存性逆転のため Ark ワールドへのアクセスだけを要求する
 type World interface {
-	GetManager() *ecs.Manager
-	GetComponents() any
+	GetWorld() *ecs.World
 }
 
 // AddEntities はComponentListからECSエンティティを作成する
 // EntitySpecをECSエンティティに変換し、ワールドに追加する
 func AddEntities[W World, C any](world W, entityComponentList ComponentList[C]) ([]ecs.Entity, error) {
-	// Create new entities and add engine components
+	w := world.GetWorld()
 	entities := make([]ecs.Entity, len(entityComponentList.Entities))
 	for iEntity := range entityComponentList.Entities {
-		entities[iEntity] = world.GetManager().NewEntity()
-		if err := AddEntityComponents(entities[iEntity], world.GetComponents(), entityComponentList.Entities[iEntity]); err != nil {
+		entity := w.NewEntity()
+		if err := AddEntityComponents(w, entity, entityComponentList.Entities[iEntity]); err != nil {
 			return nil, err
 		}
-	}
-
-	// Add game components
-	if entityComponentList.Entities != nil {
-		if len(entityComponentList.Entities) != len(entities) {
-			return nil, fmt.Errorf("incorrect size for game component list")
-		}
-		for iEntity := range entities {
-			if err := AddEntityComponents(entities[iEntity], world.GetComponents(), entityComponentList.Entities[iEntity]); err != nil {
-				return nil, err
-			}
-		}
+		entities[iEntity] = entity
 	}
 	return entities, nil
 }
 
-// AddEntityComponents はエンティティにコンポーネントを追加する
-// EntitySpec の各フィールドを対応する ECS コンポーネントに変換して追加する
-func AddEntityComponents(entity ecs.Entity, ecsComponentList any, components any) error {
-	// 追加先のコンポーネントリスト。コンポーネントのスライス群
-	ecv := reflect.ValueOf(ecsComponentList).Elem()
-	// 追加するコンポーネント
-	cv := reflect.ValueOf(components)
+// AddEntityComponents はエンティティにコンポーネントを追加する。
+// EntitySpec の各ポインタフィールドを走査し、非nilなら対応するコンポーネントを付与する。
+// Ark の型なしAPI（TypeID + Unsafe）を使い、コンポーネント型を実行時に解決する。
+// interface フィールド（FactionType/LocationType）は具体型へ剥がして扱うため、
+// struct・文字列エイリアス・interface のいずれも型名マッチ無しで統一的に処理できる。
+func AddEntityComponents(w *ecs.World, entity ecs.Entity, spec any) error {
+	u := w.Unsafe()
+	cv := reflect.ValueOf(spec)
 	for iField := range cv.NumField() {
-		if !cv.Field(iField).IsNil() {
-			component := cv.Field(iField).Elem()
-			value := reflect.New(reflect.TypeOf(component.Interface()))
-
-			switch component.Kind() {
-			case reflect.Struct:
-				// 追加対象コンポーネントの型名を使って、追加先コンポーネントのフィールドを対応付けて値を設定する
-				value.Elem().Set(component)
-				ecsComponent := ecv.FieldByName(component.Type().Name()).Interface().(ecs.DataComponent)
-				entity.AddComponent(ecsComponent, value.Interface())
-			case reflect.Interface:
-				// Stringer インターフェースだけ対応している。Componentsに対応するフィールド名が必須なため
-				if component.Type().Implements(reflect.TypeFor[fmt.Stringer]()) {
-					method := component.MethodByName("String")
-					if !method.IsValid() {
-						return fmt.Errorf("String() に失敗した")
-					}
-					results := method.Call(nil)
-					if len(results) != 1 {
-						return fmt.Errorf("String() の返り値の取得に失敗した")
-					}
-					v := component.Elem().Interface()
-					value.Elem().Set(reflect.ValueOf(v))
-
-					result := results[0].Interface().(string)
-					ecsComponent := ecv.FieldByName(result).Interface().(ecs.DataComponent)
-					entity.AddComponent(ecsComponent, value.Interface())
-				}
-			case reflect.String:
-				// 文字列ベースの型エイリアス（PropType等）を処理
-				// 型名を使ってコンポーネントを特定する
-				value.Elem().Set(component)
-				ecsComponent := ecv.FieldByName(component.Type().Name()).Interface().(ecs.DataComponent)
-				entity.AddComponent(ecsComponent, value.Interface())
-			default:
-				return fmt.Errorf("EntitySpecフィールドに指定された型の処理は定義されていない: %s", component.Kind())
-			}
+		field := cv.Field(iField)
+		if field.Kind() != reflect.Pointer || field.IsNil() {
+			continue
 		}
+		// ポインタを剥がしてコンポーネント値を得る。interface ならさらに具体型へ剥がす
+		value := field.Elem()
+		if value.Kind() == reflect.Interface {
+			value = value.Elem()
+		}
+		compType := value.Type()
+		id := ecs.TypeID(w, compType)
+		u.Add(entity, id)
+		dst := u.Get(entity, id)
+		reflect.NewAt(compType, dst).Elem().Set(value)
 	}
 	return nil
 }

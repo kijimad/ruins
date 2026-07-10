@@ -1,7 +1,7 @@
 package components
 
 import (
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ActivityState はアクティビティの実行状態を表す

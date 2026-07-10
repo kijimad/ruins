@@ -4,8 +4,14 @@ import (
 	"reflect"
 	"strings"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
+
+// hasser はエンティティが特定コンポーネントを持つか判定できる型。
+// Ark の *ecs.Map[T] はいずれも Has(ecs.Entity) bool を満たす
+type hasser interface {
+	Has(ecs.Entity) bool
+}
 
 // Pred はエンティティに対する述語を表すインターフェース。
 // Has, And, Or, Not を組み合わせてコンポーネント間の関係を宣言的に記述する
@@ -17,12 +23,12 @@ type Pred interface {
 // Has は指定コンポーネントの存在を検査する述語
 type Has struct {
 	Label string
-	Comp  ecs.DataComponent
+	Comp  hasser
 }
 
 // Eval はPredインターフェースを実装する
 func (h Has) Eval(entity ecs.Entity) bool {
-	return entity.HasComponent(h.Comp)
+	return h.Comp.Has(entity)
 }
 
 func (h Has) String() string {
@@ -139,8 +145,9 @@ const (
 	CategoryTile   = "タイル"
 )
 
-// has は Components のフィールド名を自動解決して Has を生成する
-func (c *Components) has(comp ecs.DataComponent) Has {
+// has は Components のフィールド名を自動解決して Has を生成する。
+// Map ハンドルのポインタ同一性でフィールドを特定する
+func (c *Components) has(comp hasser) Has {
 	val := reflect.ValueOf(c).Elem()
 	typ := val.Type()
 	for i := range val.NumField() {
