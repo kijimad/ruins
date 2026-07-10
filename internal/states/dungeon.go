@@ -143,7 +143,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
 	titleEntity := world.Manager.NewEntity()
-	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 

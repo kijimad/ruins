@@ -27,7 +27,7 @@ func SetActivity(world w.World, entity ecs.Entity, activity *gc.Activity) {
 		// 既存のアクティビティを上書き
 		entity.RemoveComponent(world.Components.Activity)
 	}
-	entity.AddComponent(world.Components.Activity, activity)
+	world.Components.Activity.Add(entity, activity)
 }
 
 // RemoveActivity はエンティティからアクティビティを削除する

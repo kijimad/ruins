@@ -108,6 +108,12 @@ func (c Component[T]) TryGet(entity ecs.Entity) (*T, bool) {
 	return comp, ok
 }
 
+// Add はエンティティに型付きでコンポーネントを付与する。
+// data の型が *T に縛られるため、フィールドとデータ型の取り違えをコンパイラが検出する。
+func (c Component[T]) Add(entity ecs.Entity, data *T) {
+	entity.AddComponent(c, data)
+}
+
 // initSlice は内部の SliceComponent を初期化する。InitializeComponents から reflect 経由で呼ばれる
 func (c *Component[T]) initSlice(manager *ecs.Manager) {
 	c.SliceComponent = manager.NewSliceComponent()

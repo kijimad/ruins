@@ -14,7 +14,7 @@ import (
 // 職業選択時とラン終了時の再適用で使う。
 func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) error {
 	// 職業IDを保持する
-	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.Id})
+	world.Components.Profession.Add(player, &gc.Profession{ID: prof.Id})
 
 	// 職業の属性値で上書き
 	abils := world.Components.Abilities.MustGet(player)
@@ -34,7 +34,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 		}
 	}
 	modifiers := gc.RecalculateCharModifiers(playerSkills, abils, nil)
-	player.AddComponent(world.Components.CharModifiers, modifiers)
+	world.Components.CharModifiers.Add(player, modifiers)
 
 	// 属性値変更後にHP/APを再計算
 	_ = lifecycle.FullRecover(world, player)

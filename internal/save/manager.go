@@ -435,7 +435,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	}
 	// LocationInBackpack（Ownerは第3段階で解決）
 	if comp.LocationInBackpack != nil {
-		entity.AddComponent(c.LocationInBackpack, &gc.LocationInBackpack{})
+		c.LocationInBackpack.Add(entity, &gc.LocationInBackpack{})
 	}
 	if comp.StatsChanged != nil {
 		entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
@@ -449,7 +449,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 				stackable.Count = int(countFloat)
 			}
 		}
-		entity.AddComponent(c.Stackable, &stackable)
+		c.Stackable.Add(entity, &stackable)
 	}
 
 	// データコンポーネント
@@ -463,16 +463,16 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 
 	// 戦闘コンポーネント
 	if comp.CommandTable != nil {
-		entity.AddComponent(c.CommandTable, &gc.CommandTable{Name: comp.CommandTable.Name})
+		c.CommandTable.Add(entity, &gc.CommandTable{Name: comp.CommandTable.Name})
 	}
 
 	// 隊員コンポーネント
 	if comp.SquadMember != nil {
-		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
+		c.SquadMember.Add(entity, &gc.SquadMember{})
 	}
 	if comp.SquadPolicy != nil {
 		ai := aiFromSaveData(*comp.SquadPolicy)
-		entity.AddComponent(c.AI, &ai)
+		c.AI.Add(entity, &ai)
 	}
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {
@@ -482,7 +482,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 				Owner:         0,
 				EquipmentSlot: slot,
 			}
-			entity.AddComponent(c.LocationEquipped, &equipped)
+			c.LocationEquipped.Add(entity, &equipped)
 		}
 	}
 }
@@ -490,50 +490,50 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 // restoreDataComponents はデータ/表示コンポーネントを復元する
 func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Name != nil {
-		entity.AddComponent(c.Name, &gc.Name{Name: comp.Name.Name})
+		c.Name.Add(entity, &gc.Name{Name: comp.Name.Name})
 	}
 	if comp.Description != nil {
-		entity.AddComponent(c.Description, &gc.Description{Description: comp.Description.Description})
+		c.Description.Add(entity, &gc.Description{Description: comp.Description.Description})
 	}
 	if comp.HP != nil {
 		hp := hpFromSaveData(*comp.HP)
-		entity.AddComponent(c.HP, &hp)
+		c.HP.Add(entity, &hp)
 	}
 	if comp.WeightCapacity != nil {
 		cw := weightCapacityFromSaveData(*comp.WeightCapacity)
-		entity.AddComponent(c.WeightCapacity, &cw)
+		c.WeightCapacity.Add(entity, &cw)
 	}
 	if comp.TurnBased != nil {
 		tb := turnBasedFromSaveData(*comp.TurnBased)
-		entity.AddComponent(c.TurnBased, &tb)
+		c.TurnBased.Add(entity, &tb)
 	}
 	if comp.Abilities != nil {
 		ab := abilitiesFromSaveData(*comp.Abilities)
-		entity.AddComponent(c.Abilities, &ab)
+		c.Abilities.Add(entity, &ab)
 	}
 	if comp.HealthStatus != nil {
 		hs := healthStatusFromSaveData(*comp.HealthStatus)
-		entity.AddComponent(c.HealthStatus, &hs)
+		c.HealthStatus.Add(entity, &hs)
 	}
 	if comp.Skills != nil {
 		skills := skillsFromSaveData(*comp.Skills)
-		entity.AddComponent(c.Skills, skills)
+		c.Skills.Add(entity, skills)
 	}
 	if comp.Camera != nil {
 		cam := cameraFromSaveData(*comp.Camera)
-		entity.AddComponent(c.Camera, &cam)
+		c.Camera.Add(entity, &cam)
 	}
 	if comp.GridElement != nil {
 		ge := gridElementFromSaveData(*comp.GridElement)
-		entity.AddComponent(c.GridElement, &ge)
+		c.GridElement.Add(entity, &ge)
 	}
 	if comp.SpriteRender != nil {
 		sr := spriteRenderFromSaveData(*comp.SpriteRender)
-		entity.AddComponent(c.SpriteRender, &sr)
+		c.SpriteRender.Add(entity, &sr)
 	}
 	if comp.LightSource != nil {
 		ls := lightSourceFromSaveData(*comp.LightSource)
-		entity.AddComponent(c.LightSource, &ls)
+		c.LightSource.Add(entity, &ls)
 	}
 }
 
@@ -541,26 +541,26 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Wearable != nil {
 		w := wearableFromSaveData(*comp.Wearable)
-		entity.AddComponent(c.Wearable, &w)
+		c.Wearable.Add(entity, &w)
 	}
 	if comp.Value != nil {
-		entity.AddComponent(c.Value, &gc.Value{Value: int(comp.Value.Value)})
+		c.Value.Add(entity, &gc.Value{Value: int(comp.Value.Value)})
 	}
 	if comp.Melee != nil {
 		m := meleeFromSaveData(*comp.Melee)
-		entity.AddComponent(c.Melee, &m)
+		c.Melee.Add(entity, &m)
 	}
 	if comp.Fire != nil {
 		f := fireFromSaveData(*comp.Fire)
-		entity.AddComponent(c.Fire, &f)
+		c.Fire.Add(entity, &f)
 	}
 	if comp.Recipe != nil {
 		r := recipeFromSaveData(*comp.Recipe)
-		entity.AddComponent(c.Recipe, &r)
+		c.Recipe.Add(entity, &r)
 	}
 	if comp.Ammo != nil {
 		a := ammoFromSaveData(*comp.Ammo)
-		entity.AddComponent(c.Ammo, &a)
+		c.Ammo.Add(entity, &a)
 	}
 }
 
@@ -568,20 +568,20 @@ func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 func restoreEffectComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Consumable != nil {
 		con := consumableFromSaveData(*comp.Consumable)
-		entity.AddComponent(c.Consumable, &con)
+		c.Consumable.Add(entity, &con)
 	}
 	if comp.ProvidesHealing != nil {
 		ph := providesHealingFromSaveData(*comp.ProvidesHealing)
-		entity.AddComponent(c.ProvidesHealing, &ph)
+		c.ProvidesHealing.Add(entity, &ph)
 	}
 	if comp.ProvidesNutrition != nil {
-		entity.AddComponent(c.ProvidesNutrition, &gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})
+		c.ProvidesNutrition.Add(entity, &gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})
 	}
 	if comp.InflictsDamage != nil {
-		entity.AddComponent(c.InflictsDamage, &gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})
+		c.InflictsDamage.Add(entity, &gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})
 	}
 	if comp.Wallet != nil {
-		entity.AddComponent(c.Wallet, &gc.Wallet{Currency: int(comp.Wallet.Currency)})
+		c.Wallet.Add(entity, &gc.Wallet{Currency: int(comp.Wallet.Currency)})
 	}
 }
 

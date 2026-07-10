@@ -63,13 +63,13 @@ func InitWorld(c *gc.Components) (World, error) {
 // InitSingleton はシングルトンエンティティを新規作成してIDを保存する
 func (world World) InitSingleton() {
 	singleton := world.Manager.NewEntity()
-	singleton.AddComponent(world.Components.GameLog, &gc.GameLog{
+	world.Components.GameLog.Add(singleton, &gc.GameLog{
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
-	singleton.AddComponent(world.Components.GameProgress, gc.NewGameProgress())
-	singleton.AddComponent(world.Components.DungeonState, gc.NewDungeon())
-	singleton.AddComponent(world.Components.TurnState, gc.NewTurnState())
-	singleton.AddComponent(world.Components.SpatialIndex, gc.NewSpatialIndex())
+	world.Components.GameProgress.Add(singleton, gc.NewGameProgress())
+	world.Components.DungeonState.Add(singleton, gc.NewDungeon())
+	world.Components.TurnState.Add(singleton, gc.NewTurnState())
+	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Resources.SingletonEntity = singleton
 }
 

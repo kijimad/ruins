@@ -97,7 +97,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 				hs = world.Components.HealthStatus.MustGet(entity)
 			}
 			effects := gc.RecalculateCharModifiers(skills, abils, hs)
-			entity.AddComponent(world.Components.CharModifiers, effects)
+			world.Components.CharModifiers.Add(entity, effects)
 		}
 
 		// HP/Poolsを更新
