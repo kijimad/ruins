@@ -13,8 +13,8 @@ import (
 // ApplyProfession はプレイヤーエンティティに職業の属性値・スキル・装備を適用する。
 // 職業選択時とラン終了時の再適用で使う。
 func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) error {
-	// 職業IDを保持する
-	world.Components.Profession.Add(player, &gc.Profession{ID: prof.Id})
+	// 職業IDを保持する。再適用時は既存を更新する
+	gc.Upsert(world.Components.Profession, player, &gc.Profession{ID: prof.Id})
 
 	// 職業の属性値で上書き
 	abils := world.Components.Abilities.Get(player)
@@ -34,7 +34,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 		}
 	}
 	modifiers := gc.RecalculateCharModifiers(playerSkills, abils, nil)
-	world.Components.CharModifiers.Add(player, modifiers)
+	gc.Upsert(world.Components.CharModifiers, player, modifiers)
 
 	// 属性値変更後にHP/APを再計算
 	_ = lifecycle.FullRecover(world, player)

@@ -178,6 +178,17 @@ type Components struct {
 // 各フィールドに型付き Map ハンドルを割り当てる。
 // Ark は generics で型を実体化するためリフレクションは使えず、明示的に列挙する。
 // コンポーネント追加時はこの関数と Components 構造体の両方を更新する。
+// Upsert はコンポーネントを追加または更新する。
+// Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。
+// 生存するエンティティにのみ使うこと
+func Upsert[T any](comp *ecs.Map[T], entity ecs.Entity, data *T) {
+	if comp.Has(entity) {
+		comp.Set(entity, data)
+	} else {
+		comp.Add(entity, data)
+	}
+}
+
 func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Name = ecs.NewMap[Name](world)
 	c.Description = ecs.NewMap[Description](world)

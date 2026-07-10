@@ -35,7 +35,7 @@ func TestInitializeComponents(t *testing.T) {
 			fieldName := fieldType.Name
 
 			// Ark ではコンポーネントハンドルは全て *ecs.Map[T] ポインタになる
-			require.Equal(t, reflect.Ptr, field.Kind(),
+			require.Equal(t, reflect.Pointer, field.Kind(),
 				"フィールド %s はポインタ型である必要がある", fieldName)
 			assert.False(t, field.IsNil(),
 				"コンポーネントハンドル %s は初期化されている必要がある", fieldName)
@@ -110,7 +110,7 @@ func TestComponentsStructure(t *testing.T) {
 			fieldName := fieldType.Name
 
 			// Ark のコンポーネントハンドルは全て ecs.Map[T] へのポインタになる
-			assert.Equal(t, reflect.Ptr, field.Kind(),
+			assert.Equal(t, reflect.Pointer, field.Kind(),
 				"フィールド %s はポインタ型である必要がある", fieldName)
 			assert.True(t, strings.HasPrefix(field.Type().Elem().Name(), "Map["),
 				"フィールド %s の型 %v は ecs.Map ハンドルである必要がある",

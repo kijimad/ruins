@@ -62,11 +62,11 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.World.NewEntity()
-		solo := &gc.SoloAI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
-		world.Components.SoloAI.Add(entity, solo)
+		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore})
 
 		reactToHostileAction(world, entity)
 
+		solo := world.Components.SoloAI.Get(entity)
 		assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
 		assert.Equal(t, gc.CombatIgnore, solo.CombatDefault)
 	})
@@ -76,11 +76,11 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.World.NewEntity()
-		solo := &gc.SoloAI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
-		world.Components.SoloAI.Add(entity, solo)
+		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade})
 
 		reactToHostileAction(world, entity)
 
+		solo := world.Components.SoloAI.Get(entity)
 		assert.Equal(t, gc.CombatEvade, solo.CombatCurrent)
 		assert.Equal(t, gc.CombatEvade, solo.CombatDefault)
 	})
@@ -90,11 +90,11 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.World.NewEntity()
-		solo := &gc.SoloAI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
-		world.Components.SoloAI.Add(entity, solo)
+		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack})
 
 		reactToHostileAction(world, entity)
 
+		solo := world.Components.SoloAI.Get(entity)
 		assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
 	})
 
