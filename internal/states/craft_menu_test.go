@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -170,7 +171,7 @@ func TestCraftMenuState_DoAction_ResultMode(t *testing.T) {
 	// 結果ウィンドウを開く
 	state.subState = craftSubStateResult
 	state.resultMount.SetProps(craftResultProps{
-		ResultEntity: 1,
+		ResultEntity: ecs.Entity{},
 	})
 
 	// 結果ウィンドウモードでのキャンセル

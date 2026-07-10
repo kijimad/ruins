@@ -17,29 +17,29 @@ func TestInitWorld(t *testing.T) {
 		world, err := InitWorld(gameComponents)
 
 		require.NoError(t, err)
-		assert.NotNil(t, world.Manager)
+		assert.NotNil(t, world.World)
 		assert.NotNil(t, world.Components)
 		assert.NotNil(t, world.Resources)
 		assert.NotNil(t, world.Components)
 	})
 }
 
-func TestWorld_GetManager(t *testing.T) {
+func TestWorld_GetWorld(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
 	w, err := InitWorld(gameComponents)
 	require.NoError(t, err)
 
-	assert.Equal(t, w.Manager, w.GetManager())
+	assert.Equal(t, w.World, w.GetWorld())
 }
 
-func TestWorld_GetComponents(t *testing.T) {
+func TestWorld_Components(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
 	w, err := InitWorld(gameComponents)
 	require.NoError(t, err)
 
-	assert.Equal(t, w.Components, w.GetComponents())
+	assert.Equal(t, gameComponents, w.Components)
 }
 
 func TestInitWorld_SingletonEntity(t *testing.T) {

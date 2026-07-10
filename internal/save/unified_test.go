@@ -393,7 +393,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	player := world.World.NewEntity()
 	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.FactionAlly.Add(player, gc.FactionAlly)
+	world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
 	world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(15)})
 	world.Components.Abilities.Add(player, &gc.Abilities{
 		Vitality:  gc.Ability{Base: 10, Modifier: 0, Total: 10},
@@ -462,7 +462,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 			Y: consts.Tile(25 + i*3),
 		})
 		world.Components.SoloAI.Add(npc, &gc.SoloAI{ViewDistance: 5})
-		world.Components.FactionEnemy.Add(npc, gc.FactionEnemy)
+		world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
 		world.Components.Abilities.Add(npc, &gc.Abilities{
 			Vitality:  gc.Ability{Base: 10 + i, Modifier: 0, Total: 10 + i},
 			Strength:  gc.Ability{Base: 8 + i, Modifier: 0, Total: 8 + i},

@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -133,9 +134,9 @@ func TestInventoryMenuState_GetActionItems(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// エンティティが0の場合は空のリスト
-	actions := state.getActionItems(world, 0)
-	assert.Empty(t, actions, "エンティティが0の場合は空")
+	// 無効なエンティティの場合は空のリスト
+	actions := state.getActionItems(world, ecs.Entity{})
+	assert.Empty(t, actions, "無効なエンティティの場合は空")
 }
 
 func TestInventoryMenuState_DoAction_WindowMode(t *testing.T) {
@@ -148,7 +149,7 @@ func TestInventoryMenuState_DoAction_WindowMode(t *testing.T) {
 	// ウィンドウを開く
 	state.subState = invSubStateWindow
 	state.windowMount.SetProps(windowProps{
-		SelectedEntity: 1, // ダミーエンティティ
+		SelectedEntity: ecs.Entity{}, // ダミーエンティティ
 	})
 
 	// ウィンドウモードでのキャンセル
@@ -170,7 +171,7 @@ func TestInventoryMenuState_DoAction_WindowNavigation(t *testing.T) {
 	// ウィンドウを開く
 	state.subState = invSubStateWindow
 	state.windowMount.SetProps(windowProps{
-		SelectedEntity: 1,
+		SelectedEntity: ecs.Entity{},
 	})
 
 	// ウィンドウ用のUseStateを登録

@@ -19,7 +19,7 @@ func TestInitGeneric(t *testing.T) {
 		world, err := InitGeneric(gameComponents, gameResources)
 
 		require.NoError(t, err)
-		assert.NotNil(t, world.Manager)
+		assert.NotNil(t, world.World)
 		assert.NotNil(t, world.Components)
 		assert.NotNil(t, world.Resources)
 

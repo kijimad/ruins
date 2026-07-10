@@ -746,7 +746,7 @@ func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
 	rp := newSoloPlanner(testRNG)
 	target := rp.findNearestHostile(world, entity)
 	require.NotNil(t, target, "プレイヤーが見つかるべき")
-	assert.True(t, world.Components.Player.Has(target))
+	assert.True(t, world.Components.Player.Has(*target))
 }
 
 func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
@@ -778,7 +778,7 @@ func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
 	rp := newSoloPlanner(testRNG)
 	target := rp.findNearestHostile(world, entity)
 	require.NotNil(t, target, "隊員が見つかるべき")
-	assert.True(t, world.Components.SquadMember.Has(target), "最寄りの隊員が選ばれるべき")
+	assert.True(t, world.Components.SquadMember.Has(*target), "最寄りの隊員が選ばれるべき")
 }
 
 func TestFindNearestHostile_敵対対象がいない(t *testing.T) {

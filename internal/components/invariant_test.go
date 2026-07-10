@@ -10,12 +10,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupComponents(t *testing.T) (*ecs.Manager, *Components) {
+func setupComponents(t *testing.T) (*ecs.World, *Components) {
 	t.Helper()
-	manager := ecs.NewManager()
+	world := ecs.NewWorld()
 	c := &Components{}
-	require.NoError(t, c.InitializeComponents(manager))
-	return manager, c
+	require.NoError(t, c.InitializeComponents(world))
+	return world, c
 }
 
 func TestPred_Has(t *testing.T) {
@@ -156,7 +156,7 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Prop.Add(entity, nil)
+		c.Prop.Add(entity, &Prop{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "道具", cat)
@@ -176,7 +176,7 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Material.Add(entity, nil)
+		c.Material.Add(entity, &Material{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "素材", cat)
@@ -227,8 +227,8 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Player.Add(entity, nil)
-		c.FactionAlly.Add(entity, nil)
+		c.Player.Add(entity, &Player{})
+		c.FactionAlly.Add(entity, &FactionAllyData{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "自分", cat)
@@ -238,7 +238,7 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.FactionEnemy.Add(entity, nil)
+		c.FactionEnemy.Add(entity, &FactionEnemyData{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "敵", cat)
@@ -248,7 +248,7 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.FactionAlly.Add(entity, nil)
+		c.FactionAlly.Add(entity, &FactionAllyData{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "NPC", cat)
@@ -258,7 +258,7 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.FactionNeutral.Add(entity, nil)
+		c.FactionNeutral.Add(entity, &FactionNeutralData{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "NPC", cat)
@@ -268,7 +268,7 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Prop.Add(entity, nil)
+		c.Prop.Add(entity, &Prop{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "置物", cat)
@@ -278,7 +278,7 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Tile.Add(entity, nil)
+		c.Tile.Add(entity, &Tile{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "タイル", cat)
@@ -288,8 +288,8 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Player.Add(entity, nil)
-		c.FactionAlly.Add(entity, nil)
+		c.Player.Add(entity, &Player{})
+		c.FactionAlly.Add(entity, &FactionAllyData{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
 		assert.Equal(t, "自分", cat)
