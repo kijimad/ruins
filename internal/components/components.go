@@ -96,20 +96,24 @@ type Component[T any] struct {
 func (c Component[T]) MustGet(entity ecs.Entity) *T {
 	v, ok := c.Get(entity).(*T)
 	if !ok {
-		panic(fmt.Sprintf("MustGet: エンティティ %v が %T を保持していない", entity, *new(T)))
+		panic(fmt.Sprintf("MustGet: エンティティ %v が %s を保持していない", entity, reflect.TypeFor[T]()))
 	}
 	return v
 }
 
 // TryGet はエンティティの当該コンポーネントを型付きで取得する。
 // 保持していない場合は (nil, false) を返す。
+// 保持しているが型が異なる場合はプログラミングエラーのため panic する。
 func (c Component[T]) TryGet(entity ecs.Entity) (*T, bool) {
 	v := c.Get(entity)
 	if v == nil {
 		return nil, false
 	}
 	comp, ok := v.(*T)
-	return comp, ok
+	if !ok {
+		panic(fmt.Sprintf("TryGet: エンティティ %v が保持する値が %s ではない", entity, reflect.TypeFor[T]()))
+	}
+	return comp, true
 }
 
 // Add はエンティティに型付きでコンポーネントを付与する。
@@ -227,29 +231,35 @@ func (c *Components) InitializeComponents(manager *ecs.Manager) error {
 	typ := val.Type()
 
 	for i := range val.NumField() {
-		field := val.Field(i)
-		fieldType := typ.Field(i)
-		fieldName := fieldType.Name
-
-		// フィールドが設定可能かチェック
-		if !field.CanSet() {
-			return fmt.Errorf("field %s is not settable", fieldName)
+		if err := initComponentField(val.Field(i), typ.Field(i).Name, manager); err != nil {
+			return err
 		}
+	}
 
-		// フィールドの種類に応じて初期化する。
-		// Component[T] はジェネリックで各インスタンスが別型のため、型switchではなく
-		// マーカーインターフェース経由で初期化する。
-		switch f := field.Addr().Interface().(type) {
-		case sliceComponentIniter:
-			// Component[T] の内部 SliceComponent を初期化
-			f.initSlice(manager)
-		case **ecs.NullComponent:
-			// NullComponent の初期化
-			*f = manager.NewNullComponent()
-		default:
-			// 未対応の型はエラーとして扱う
-			return fmt.Errorf("unsupported component type %v for field %s", field.Type(), fieldName)
-		}
+	return nil
+}
+
+// initComponentField は1つのコンポーネントフィールドを型に応じて初期化する。
+// エラーパスを単体テストできるよう、フィールド単位の処理を切り出している。
+func initComponentField(field reflect.Value, fieldName string, manager *ecs.Manager) error {
+	// フィールドが設定可能かチェック
+	if !field.CanSet() {
+		return fmt.Errorf("field %s is not settable", fieldName)
+	}
+
+	// フィールドの種類に応じて初期化する。
+	// Component[T] はジェネリックで各インスタンスが別型のため、型switchではなく
+	// マーカーインターフェース経由で初期化する。
+	switch f := field.Addr().Interface().(type) {
+	case sliceComponentIniter:
+		// Component[T] の内部 SliceComponent を初期化
+		f.initSlice(manager)
+	case **ecs.NullComponent:
+		// NullComponent の初期化
+		*f = manager.NewNullComponent()
+	default:
+		// 未対応の型はエラーとして扱う
+		return fmt.Errorf("unsupported component type %v for field %s", field.Type(), fieldName)
 	}
 
 	return nil

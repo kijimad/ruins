@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"reflect"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -18,7 +19,7 @@ func GetSingleton[T any](world w.World, comp ecs.DataComponent) *T {
 	}
 	v, ok := data.(*T)
 	if !ok {
-		panic(fmt.Sprintf("GetSingleton: シングルトンが %T を保持していない", *new(T)))
+		panic(fmt.Sprintf("GetSingleton: シングルトンが %s を保持していない", reflect.TypeFor[T]()))
 	}
 	return v
 }

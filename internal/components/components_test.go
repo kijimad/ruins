@@ -78,99 +78,35 @@ func TestInitializeComponents(t *testing.T) {
 		}, "nil managerの場合パニックが発生する")
 	})
 
-	t.Run("未対応型エラーテスト", func(t *testing.T) {
+	t.Run("未対応型はエラーを返す", func(t *testing.T) {
 		t.Parallel()
-		// テスト用の構造体（未対応の型を含む）
-		type TestComponentsWithUnsupportedType struct {
-			ValidSliceComponent *ecs.SliceComponent
-			ValidNullComponent  *ecs.NullComponent
-			UnsupportedType     *string // サポートされていない型
-		}
-
-		// Arrange
+		// initComponentField は Component[T]/NullComponent 以外の型でエラーを返す
 		manager := ecs.NewManager()
-		testComponents := &TestComponentsWithUnsupportedType{}
+		field := reflect.New(reflect.TypeFor[*string]()).Elem() // サポートされていない *string 型
 
-		// InitializeComponentsと同じロジックを実行
-		val := reflect.ValueOf(testComponents).Elem()
-		typ := val.Type()
+		err := initComponentField(field, "Unsupported", manager)
 
-		hasUnsupportedType := false
-		for i := range val.NumField() {
-			field := val.Field(i)
-			fieldType := typ.Field(i)
-			fieldName := fieldType.Name
-
-			require.True(t, field.CanSet(), "field %s is not settable", fieldName)
-
-			switch field.Type() {
-			case reflect.TypeFor[*ecs.SliceComponent]():
-				field.Set(reflect.ValueOf(manager.NewSliceComponent()))
-			case reflect.TypeFor[*ecs.NullComponent]():
-				field.Set(reflect.ValueOf(manager.NewNullComponent()))
-			default:
-				// 未対応の型が検出された
-				hasUnsupportedType = true
-				t.Logf("未対応の型を検出: %v", fieldType.Type)
-			}
-		}
-
-		assert.True(t, hasUnsupportedType, "未対応の型が検出されるべき")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "unsupported component type")
 	})
 
-	t.Run("設定不可能フィールドエラーテスト", func(t *testing.T) {
+	t.Run("設定不可能フィールドはエラーを返す", func(t *testing.T) {
 		t.Parallel()
-		// 設定不可能フィールドのテストは、実際のstruct fieldがprivateの場合に発生
-		// 通常の使用では発生しないが、将来の拡張に備えてテストケースを用意
-
-		// テスト用の構造体（非公開フィールドを含む）
-		type TestComponentsWithPrivateField struct {
-			ValidSliceComponent *ecs.SliceComponent
-			_                   *ecs.SliceComponent // 非公開フィールド（設定不可能）
+		// ブランク（設定不可能）フィールドに対しては not settable エラーを返す
+		var s struct {
+			_ *ecs.SliceComponent
 		}
+		manager := ecs.NewManager()
+		field := reflect.ValueOf(&s).Elem().Field(0)
 
-		// Arrange
-		testComponents := &TestComponentsWithPrivateField{}
+		err := initComponentField(field, "_", manager)
 
-		// InitializeComponentsと同じロジックを実行
-		val := reflect.ValueOf(testComponents).Elem()
-
-		hasUnsettableField := false
-		for i := range val.NumField() {
-			field := val.Field(i)
-			if !field.CanSet() {
-				hasUnsettableField = true
-				break
-			}
-		}
-
-		// Assert
-		assert.True(t, hasUnsettableField, "非公開フィールドは設定不可能である")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "not settable")
 	})
 
-	t.Run("空のComponentsでも正常動作", func(t *testing.T) {
+	t.Run("実際のComponentsを初期化できる", func(t *testing.T) {
 		t.Parallel()
-		// 空のComponents構造体での動作確認
-		type EmptyComponents struct{}
-
-		// Arrange
-		emptyComponents := &EmptyComponents{}
-
-		// InitializeComponentsと同じロジックを実行
-		val := reflect.ValueOf(emptyComponents).Elem()
-
-		// フィールドが0個でもエラーにならないことを確認
-		assert.Equal(t, 0, val.NumField(), "空の構造体はフィールド数が0")
-
-		// 実際には何も処理されないが、エラーは発生しない想定
-		// Act & Assert（エラーが発生しないことを確認）
-		// この場合、実際のInitializeComponentsメソッドは存在しないので、
-		// ロジックのチェックのみ行う
-	})
-
-	t.Run("大量フィールドでのパフォーマンステスト", func(t *testing.T) {
-		t.Parallel()
-		// パフォーマンステストとして、現在のComponentsで十分な数のフィールドがある
 		// Arrange
 		manager := ecs.NewManager()
 		components := &Components{}
@@ -179,12 +115,10 @@ func TestInitializeComponents(t *testing.T) {
 		err := components.InitializeComponents(manager)
 
 		// Assert
-		require.NoError(t, err, "大量フィールドでも正常に処理される")
+		require.NoError(t, err, "全フィールドが対応済み型のため正常に初期化される")
 
-		// フィールド数の確認
 		val := reflect.ValueOf(components).Elem()
-		fieldCount := val.NumField()
-		assert.Greater(t, fieldCount, 20, "十分な数のフィールドがテストされている")
+		assert.Greater(t, val.NumField(), 20, "十分な数のフィールドがテストされている")
 	})
 }
 
