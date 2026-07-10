@@ -875,7 +875,7 @@ Defense = 2
 
 	spec, err := NewEnemySpec(raws, "テスト敵")
 	require.NoError(t, err)
-	assert.Equal(t, &gc.FactionEnemyData{}, spec.FactionType, "敵は敵派閥に属する")
+	assert.Equal(t, &gc.FactionEnemy, spec.FactionType, "敵は敵派閥に属する")
 	assert.Nil(t, spec.Player, "敵はPlayerではない")
 }
 

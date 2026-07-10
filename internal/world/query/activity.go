@@ -8,11 +8,10 @@ import (
 
 // GetActivity は指定されたエンティティの現在のアクティビティを取得する
 func GetActivity(world w.World, entity ecs.Entity) *gc.Activity {
-	comp := world.Components.Activity.Get(entity)
-	if comp == nil {
+	if !world.Components.Activity.Has(entity) {
 		return nil
 	}
-	return comp
+	return world.Components.Activity.Get(entity)
 }
 
 // HasActivity は指定されたエンティティがアクティビティを実行中かを返す
@@ -21,18 +20,14 @@ func HasActivity(world w.World, entity ecs.Entity) bool {
 	return activity != nil && activity.State == gc.ActivityStateRunning
 }
 
-// SetActivity はエンティティにアクティビティを設定する
+// SetActivity はエンティティにアクティビティを設定する。既存があれば上書きする
 func SetActivity(world w.World, entity ecs.Entity, activity *gc.Activity) {
-	if world.Components.Activity.Get(entity) != nil {
-		// 既存のアクティビティを上書き
-		world.Components.Activity.Remove(entity)
-	}
-	world.Components.Activity.Add(entity, activity)
+	gc.Upsert(world.Components.Activity, entity, activity)
 }
 
 // RemoveActivity はエンティティからアクティビティを削除する
 func RemoveActivity(world w.World, entity ecs.Entity) {
-	if world.Components.Activity.Get(entity) != nil {
+	if world.Components.Activity.Has(entity) {
 		world.Components.Activity.Remove(entity)
 	}
 }

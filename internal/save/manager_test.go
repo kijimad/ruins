@@ -164,7 +164,7 @@ func TestChecksumValidation(t *testing.T) {
 	require.NoError(t, err)
 
 	entity := world.World.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
+	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_checksum")
 	require.NoError(t, err)
@@ -204,7 +204,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	require.NoError(t, err)
 
 	entity := world.World.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
+	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_tampered")
 	require.NoError(t, err)
@@ -238,9 +238,9 @@ func TestDeterministicHashCalculation(t *testing.T) {
 	require.NoError(t, err)
 
 	entity1 := world.World.NewEntity()
-	world.Components.Name.Set(entity1, &gc.Name{Name: "TestEntity1"})
+	world.Components.Name.Add(entity1, &gc.Name{Name: "TestEntity1"})
 	entity2 := world.World.NewEntity()
-	world.Components.Name.Set(entity2, &gc.Name{Name: "TestEntity2"})
+	world.Components.Name.Add(entity2, &gc.Name{Name: "TestEntity2"})
 
 	err = manager.SaveWorld(world, "test_deterministic_1")
 	require.NoError(t, err)
@@ -280,8 +280,8 @@ func TestHashConsistencyAcrossRuns(t *testing.T) {
 	require.NoError(t, err)
 
 	entity := world.World.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "ConsistencyTest"})
-	world.Components.Player.Set(entity, &gc.Player{})
+	world.Components.Name.Add(entity, &gc.Name{Name: "ConsistencyTest"})
+	world.Components.Player.Add(entity, &gc.Player{})
 
 	worldData := manager.extractWorldData(world)
 
@@ -329,7 +329,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	require.NoError(t, err)
 
 	entity := world.World.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
+	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	oldFormatData := map[string]any{
 		"version":   "1.0.0",
