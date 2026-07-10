@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -24,7 +25,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	})
 
 	// エフェクトが作成されたことを確認
-	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	count := ecs.NewFilter1[gc.VisualEffects](world.World).Query().Count()
 	assert.Equal(t, 1, count, "VisualEffectエンティティが1つ存在するべき")
 
 	// エフェクトの初期値を確認
@@ -67,7 +68,7 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 	})
 
 	// エフェクトが作成されたことを確認
-	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	count := ecs.NewFilter1[gc.VisualEffects](world.World).Query().Count()
 	assert.Equal(t, 1, count)
 
 	// エフェクトの初期値を確認
@@ -110,7 +111,7 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 	})
 
 	// エフェクトが存在することを確認
-	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	count := ecs.NewFilter1[gc.VisualEffects](world.World).Query().Count()
 	assert.Equal(t, 1, count)
 
 	// Update実行（アニメーション無効時は即座に削除される）
@@ -119,7 +120,7 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 	require.NoError(t, err)
 
 	// エフェクトエンティティが削除されたことを確認
-	count = world.Manager.Join(world.Components.VisualEffect).Size()
+	count = ecs.NewFilter1[gc.VisualEffects](world.World).Query().Count()
 	assert.Equal(t, 0, count, "アニメーション無効時はエフェクトが即座に削除される")
 }
 
@@ -259,7 +260,7 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	count := ecs.NewFilter1[gc.VisualEffects](world.World).Query().Count()
 	assert.Equal(t, 0, count, "完了したダメージエフェクトのエンティティは削除される")
 }
 
@@ -295,6 +296,6 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 	}
 
 	// エフェクトエンティティが削除されたことを確認
-	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	count := ecs.NewFilter1[gc.VisualEffects](world.World).Query().Count()
 	assert.Equal(t, 0, count, "完了したエフェクトのエンティティは削除される")
 }

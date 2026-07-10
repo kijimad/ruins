@@ -255,29 +255,28 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 	var nearestItemGrid *gc.GridElement
 	nearestDist := -1
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.LocationOnField,
-	).Visit(ecs.Visit(func(item ecs.Entity) {
+	itemQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.World).Query()
+	for itemQuery.Next() {
+		item := itemQuery.Entity()
 		if !query.IsPickable(item, world) {
-			return
+			continue
 		}
 		grid := world.Components.GridElement.Get(item)
 
 		if grid.X == ctx.Grid.X && grid.Y == ctx.Grid.Y {
 			hasPickableHere = true
-			return
+			continue
 		}
 
 		dist := gridDistance(ctx.Grid, grid)
 		if dist > int(ctx.Squad.ViewDistance) {
-			return
+			continue
 		}
 		if nearestDist < 0 || dist < nearestDist {
 			nearestItemGrid = grid
 			nearestDist = dist
 		}
-	}))
+	}
 
 	if hasPickableHere {
 		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", ctx.Grid.X, "y", ctx.Grid.Y)
@@ -306,18 +305,18 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 	}
 
 	var itemToTransfer *ecs.Entity
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(item ecs.Entity) {
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for backpackQuery.Next() {
+		item := backpackQuery.Entity()
 		if itemToTransfer != nil {
-			return
+			continue
 		}
 		loc := world.Components.LocationInBackpack.Get(item)
 		if loc.Owner == entity {
 			e := item
 			itemToTransfer = &e
 		}
-	}))
+	}
 
 	if itemToTransfer == nil {
 		return nil, false

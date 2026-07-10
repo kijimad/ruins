@@ -297,10 +297,12 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 
 	var playerEntity ecs.Entity
 	var found bool
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
+	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
+	for playerQuery.Next() {
+		e := playerQuery.Entity()
 		playerEntity = e
 		found = true
-	}))
+	}
 	if !found {
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 		return item, nil

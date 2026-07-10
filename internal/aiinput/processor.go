@@ -43,20 +43,25 @@ func (p *Processor) ProcessAll(world w.World) error {
 func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) error {
 	planner := p.planners[plannerType]
 
-	aiComp := world.Components.SoloAI
-	if plannerType == gc.PlannerSquad {
-		aiComp = world.Components.SquadAI
-	}
-
-	world.Manager.Join(
-		aiComp,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	process := func(entity ecs.Entity) {
 		if world.Components.Dead.Has(entity) {
 			return
 		}
 		runAPLoop(world, entity, planner, p.logger)
-	}))
+	}
+
+	// SoloAI/SquadAI は別コンポーネントのため、種別に対応する型で絞り込む
+	if plannerType == gc.PlannerSquad {
+		squadQuery := ecs.NewFilter2[gc.SquadAI, gc.GridElement](world.World).Query()
+		for squadQuery.Next() {
+			process(squadQuery.Entity())
+		}
+	} else {
+		soloQuery := ecs.NewFilter2[gc.SoloAI, gc.GridElement](world.World).Query()
+		for soloQuery.Next() {
+			process(soloQuery.Entity())
+		}
+	}
 
 	return nil
 }

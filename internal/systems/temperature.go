@@ -70,17 +70,16 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	}
 
 	// HealthStatusとGridElementを持つエンティティを処理
-	world.Manager.Join(
-		world.Components.HealthStatus,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	healthQuery := ecs.NewFilter2[gc.HealthStatus, gc.GridElement](world.World).Query()
+	for healthQuery.Next() {
+		entity := healthQuery.Entity()
 		hs := world.Components.HealthStatus.Get(entity)
 		gridElement := world.Components.GridElement.Get(entity)
 
 		// 環境気温を計算
 		envTemp, err := CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
 		if err != nil {
-			return
+			continue
 		}
 
 		// 装備から断熱値を計算する
@@ -103,7 +102,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		if isPlayer && hasChange {
 			world.Components.StatsChanged.Add(entity, &gc.StatsChanged{})
 		}
-	}))
+	}
 
 	return nil
 }
@@ -113,19 +112,18 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 	var total Insulation
 
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-		world.Components.Wearable,
-	).Visit(ecs.Visit(func(item ecs.Entity) {
+	equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.World).Query()
+	for equipQuery.Next() {
+		item := equipQuery.Entity()
 		equipped := world.Components.LocationEquipped.Get(item)
 		if equipped.Owner != owner {
-			return
+			continue
 		}
 
 		wearable := world.Components.Wearable.Get(item)
 		total.Cold += wearable.InsulationCold
 		total.Heat += wearable.InsulationHeat
-	}))
+	}
 
 	return total
 }
@@ -133,16 +131,15 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 // getTileTemperatureAt は指定座標のタイル気温修正値を取得する
 func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	var modifier int
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.TileTemperature,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	tileTempQuery := ecs.NewFilter2[gc.GridElement, gc.TileTemperature](world.World).Query()
+	for tileTempQuery.Next() {
+		entity := tileTempQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if grid.X == x && grid.Y == y {
 			tileTemp := world.Components.TileTemperature.Get(entity)
 			modifier = tileTemp.Total()
 		}
-	}))
+	}
 	return modifier
 }
 

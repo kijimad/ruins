@@ -240,10 +240,9 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 	var items []shopItemData
 
 	query.Player(world, func(_ ecs.Entity) {
-		world.Manager.Join(
-			world.Components.Name,
-			world.Components.LocationInBackpack,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
+		sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.World).Query()
+		for sellQuery.Next() {
+			entity := sellQuery.Entity()
 			nameComp := world.Components.Name.Get(entity)
 			itemName := nameComp.Name
 
@@ -259,7 +258,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 				Entity: entity,
 				IsBuy:  false,
 			})
-		}))
+		}
 	})
 
 	return items

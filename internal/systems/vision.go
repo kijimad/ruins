@@ -68,12 +68,11 @@ func (sys VisionSystem) String() string {
 func (sys *VisionSystem) Update(world w.World) error {
 	// プレイヤー位置を取得
 	var playerGridElement *gc.GridElement
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Player,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.World).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
 		playerGridElement = world.Components.GridElement.Get(entity)
-	}))
+	}
 
 	if playerGridElement == nil {
 		return nil
@@ -355,15 +354,14 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 	var totalWeight float64
 
 	// 全ての光源をチェック
-	world.Manager.Join(
-		world.Components.LightSource,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(lightEntity ecs.Entity) {
+	lightQuery := ecs.NewFilter2[gc.LightSource, gc.GridElement](world.World).Query()
+	for lightQuery.Next() {
+		lightEntity := lightQuery.Entity()
 		lightSource := world.Components.LightSource.Get(lightEntity)
 
 		// 無効な光源はスキップ
 		if !lightSource.Enabled {
-			return
+			continue
 		}
 
 		lightGrid := world.Components.GridElement.Get(lightEntity)
@@ -399,7 +397,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 			totalB += float64(lightSource.Color.B) * weight
 			totalWeight += weight
 		}
-	}))
+	}
 
 	// 加重平均を計算
 	var finalR, finalG, finalB uint8
@@ -424,12 +422,11 @@ const (
 // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 	index := make(map[gc.GridElement]bool)
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.BlockView,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.World).Query()
+	for blockViewQuery.Next() {
+		entity := blockViewQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		index[*grid] = true
-	}))
+	}
 	return index
 }

@@ -167,12 +167,10 @@ func TestSpawnEnemyHasAI(t *testing.T) {
 
 	// AIコンポーネントを持つエンティティが存在することを確認
 	enemyFound := false
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.SoloAI,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	enemyQuery := ecs.NewFilter2[gc.GridElement, gc.SoloAI](world.World).Query()
+	for enemyQuery.Next() {
 		enemyFound = true
-	}))
+	}
 
 	assert.True(t, enemyFound, "SpawnEnemyで生成されたエンティティはAIコンポーネントを持つべき")
 }
@@ -383,14 +381,16 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 
 		// DoorLockTriggerは削除されている
 		count := 0
-		world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(entity ecs.Entity) {
+		interactableQuery := ecs.NewFilter1[gc.Interactable](world.World).Query()
+		for interactableQuery.Next() {
+			entity := interactableQuery.Entity()
 			interactable := world.Components.Interactable.Get(entity)
 			for _, interaction := range interactable.Interactions {
 				if _, ok := interaction.(gc.DoorLockInteraction); ok {
 					count++
 				}
 			}
-		}))
+		}
 		assert.Equal(t, 0, count, "DoorLockTriggerは全削除されるべき")
 
 		// 他のInteractableは残っている
@@ -422,9 +422,10 @@ func TestSpawnVisualEffect(t *testing.T) {
 
 		// エフェクトエンティティが生成されたことを確認
 		var foundEffect bool
-		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+		effectQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+		for effectQuery.Next() {
 			foundEffect = true
-		}))
+		}
 		assert.True(t, foundEffect)
 	})
 
@@ -438,9 +439,10 @@ func TestSpawnVisualEffect(t *testing.T) {
 		SpawnVisualEffect(entity, effect, world)
 
 		var foundEffect bool
-		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+		effectQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+		for effectQuery.Next() {
 			foundEffect = true
-		}))
+		}
 		assert.False(t, foundEffect)
 	})
 }

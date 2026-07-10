@@ -65,14 +65,14 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 // UnequipAll はプレイヤーの装備中アイテムを全てバックパックに移動する
 func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 	var equipped []ecs.Entity
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.World).Query()
+	for equippedQuery.Next() {
+		entity := equippedQuery.Entity()
 		loc := world.Components.LocationEquipped.Get(entity)
 		if loc.Owner == playerEntity {
 			equipped = append(equipped, entity)
 		}
-	}))
+	}
 
 	for _, item := range equipped {
 		if err := MoveToBackpack(world, item, playerEntity); err != nil {
@@ -144,14 +144,12 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 	}
 
 	var stackableItems []ecs.Entity
-	world.Manager.Join(
-		world.Components.Stackable,
-		locationComp,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	stackableQuery := ecs.NewFilter3[gc.Stackable, locationComp, gc.Name](world.World).Query()
+	for stackableQuery.Next() {
+		entity := stackableQuery.Entity()
 		name := world.Components.Name.Get(entity)
 		if name.Name != itemName {
-			return
+			continue
 		}
 		switch l := locationComp.Get(entity).(type) {
 		case *gc.LocationInBackpack:
@@ -163,7 +161,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 				stackableItems = append(stackableItems, entity)
 			}
 		}
-	}))
+	}
 
 	if len(stackableItems) <= 1 {
 		return nil
@@ -224,17 +222,14 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	var playerEntity ecs.Entity
 	var found bool
 
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.GridElement,
-		world.Components.SpriteRender,
-		world.Components.Camera,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.World).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
 		if !found {
 			playerEntity = entity
 			found = true
 		}
-	}))
+	}
 	if !found {
 		return errors.New("必須コンポーネントを持つプレイヤーエンティティが見つかりません")
 	}

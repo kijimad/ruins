@@ -254,18 +254,16 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	// バックパック内の回復薬エンティティは1つだけになっている
 	var entityCount int
 	var totalCount int
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	potionQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+	for potionQuery.Next() {
+		entity := potionQuery.Entity()
 		name := world.Components.Name.Get(entity)
 		if name.Name == "回復薬" {
 			entityCount++
 			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count
 		}
-	}))
+	}
 
 	assert.Equal(t, 1, entityCount, "回復薬は1つのエンティティに統合されるべき")
 	assert.Equal(t, 5, totalCount, "合計個数は5個")
@@ -286,15 +284,14 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 
 	// 非Stackableアイテムは統合されず2つ存在する
 	var entityCount int
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	armorQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.World).Query()
+	for armorQuery.Next() {
+		entity := armorQuery.Entity()
 		name := world.Components.Name.Get(entity)
 		if name.Name == "西洋鎧" {
 			entityCount++
 		}
-	}))
+	}
 
 	assert.Equal(t, 2, entityCount, "非Stackableアイテムは統合されない")
 }

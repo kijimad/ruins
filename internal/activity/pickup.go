@@ -68,20 +68,20 @@ func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 	}
 
 	hasPickable := false
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	pickableQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	for pickableQuery.Next() {
+		entity := pickableQuery.Entity()
 		if hasPickable {
-			return
+			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
 		if grid.X != target.X || grid.Y != target.Y {
-			return
+			continue
 		}
 		if query.IsPickable(entity, world) {
 			hasPickable = true
 		}
-	}))
+	}
 
 	if !hasPickable {
 		return fmt.Errorf("拾えるものがありません")
@@ -141,17 +141,17 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 	// 対象タイルの拾得可能なエンティティを検索
 	var toCollect []ecs.Entity
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	collectQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	for collectQuery.Next() {
+		entity := collectQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if grid.X != target.X || grid.Y != target.Y {
-			return
+			continue
 		}
 		if query.IsPickable(entity, world) {
 			toCollect = append(toCollect, entity)
 		}
-	}))
+	}
 
 	if len(toCollect) == 0 {
 		return fmt.Errorf("拾えるものがありません")

@@ -65,14 +65,16 @@ func RestoreAllActionPoints(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
 	var err error
 
-	world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {
+	turnBasedQuery := ecs.NewFilter1[gc.TurnBased](world.World).Query()
+	for turnBasedQuery.Next() {
+		entity := turnBasedQuery.Entity()
 		tb := world.Components.TurnBased.Get(entity)
 
 		// MaxAPとSpeedを計算
 		maxAP, calcErr := CalculateMaxActionPoints(world, entity)
 		if calcErr != nil {
 			err = calcErr
-			return
+			continue
 		}
 
 		speed := CalculateSpeed(world, entity)
@@ -88,7 +90,7 @@ func RestoreAllActionPoints(world w.World) error {
 			"speed", speed,
 			"current", tb.AP.Current,
 			"max", maxAP)
-	}))
+	}
 
 	return err
 }

@@ -28,20 +28,19 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 
 	var enemies []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.FactionEnemy,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	enemiesQuery := ecs.NewFilter2[gc.GridElement, gc.FactionEnemyData](world.World).Query()
+	for enemiesQuery.Next() {
+		entity := enemiesQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
 		enemyX := int(gridElement.X)
 		enemyY := int(gridElement.Y)
 
 		if !IsInVision(world, playerX, playerY, enemyX, enemyY) {
-			return
+			continue
 		}
 
 		enemies = append(enemies, entity)
-	}))
+	}
 
 	return enemies, nil
 }
@@ -82,20 +81,19 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 
 	var items []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.LocationOnField,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	itemsQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.World).Query()
+	for itemsQuery.Next() {
+		entity := itemsQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
 		itemX := int(gridElement.X)
 		itemY := int(gridElement.Y)
 
 		if !IsInVision(world, playerX, playerY, itemX, itemY) {
-			return
+			continue
 		}
 
 		items = append(items, entity)
-	}))
+	}
 
 	return items, nil
 }

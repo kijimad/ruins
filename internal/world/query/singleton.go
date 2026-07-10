@@ -83,30 +83,29 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.PlayerEntity = nil
 
 	// 静的障害物のインデックス構築
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.BlockPass,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	blockPassQuery := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.World).Query()
+	for blockPassQuery.Next() {
+		entity := blockPassQuery.Entity()
 		if world.Components.Dead.Has(entity) {
-			return
+			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
 		si.BlockPass[*grid] = true
-	}))
+	}
 
 	// キャラクター位置のインデックス構築
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	characterQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	for characterQuery.Next() {
+		entity := characterQuery.Entity()
 		if world.Components.Dead.Has(entity) {
-			return
+			continue
 		}
 		isCharacter := world.Components.Player.Has(entity) ||
 			world.Components.SoloAI.Has(entity) ||
 			world.Components.SquadAI.Has(entity) ||
 			world.Components.SquadMember.Has(entity)
 		if !isCharacter {
-			return
+			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
 		si.Characters[*grid] = entity
@@ -114,7 +113,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 			e := entity
 			si.PlayerEntity = &e
 		}
-	}))
+	}
 
 	si.Built = true
 }

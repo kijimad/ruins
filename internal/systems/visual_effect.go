@@ -28,11 +28,11 @@ func (sys VisualEffectSystem) String() string {
 func (sys *VisualEffectSystem) Update(world w.World) error {
 	var entitiesToDelete []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.VisualEffect,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	collectQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	for collectQuery.Next() {
+		entity := collectQuery.Entity()
 		entitiesToDelete = append(entitiesToDelete, entity)
-	}))
+	}
 
 	// アニメーション無効時は即座に削除
 	if world.Config.DisableAnimation {
@@ -46,9 +46,9 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	const deltaMs = 1000.0 / 60.0 // 1フレームあたりの時間（60FPS想定）
 	entitiesToDelete = entitiesToDelete[:0]
 
-	world.Manager.Join(
-		world.Components.VisualEffect,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	updateQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	for updateQuery.Next() {
+		entity := updateQuery.Entity()
 		ve := world.Components.VisualEffect.Get(entity)
 
 		// エフェクトを更新
@@ -65,7 +65,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 		if len(ve.Effects) == 0 {
 			entitiesToDelete = append(entitiesToDelete, entity)
 		}
-	}))
+	}
 
 	// エフェクト専用エンティティを削除
 	for _, entity := range entitiesToDelete {
@@ -87,14 +87,15 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	var err error
-	world.Manager.Join(
-		world.Components.VisualEffect,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	drawQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	for drawQuery.Next() {
+		entity := drawQuery.Entity()
 		if err != nil {
-			return
+			continue
 		}
 		ve := world.Components.VisualEffect.Get(entity)
 
+	effectLoop:
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
 			case *gc.SplashTextEffect:
@@ -109,12 +110,12 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 					gridElement := world.Components.GridElement.Get(entity)
 					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
 					if err != nil {
-						return
+						break effectLoop
 					}
 				}
 			}
 		}
-	}))
+	}
 
 	return err
 }

@@ -211,21 +211,21 @@ func isAreaSafe(actor ecs.Entity, world w.World) bool {
 	safeRadius := 1
 	hasHostile := false
 
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	areaQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	for areaQuery.Next() {
+		entity := areaQuery.Entity()
 		if hasHostile {
-			return
+			continue
 		}
 		if query.FactionRelation(world, actor, entity) != query.RelationHostile {
-			return
+			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
 		dx, dy := int(grid.X)-actorX, int(grid.Y)-actorY
 		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
 			hasHostile = true
 		}
-	}))
+	}
 
 	return !hasHostile
 }

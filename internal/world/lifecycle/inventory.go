@@ -31,9 +31,11 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 	}
 
 	// インベントリ変動フラグを立てる
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) {
+	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
+	for playerQuery.Next() {
+		playerEntity := playerQuery.Entity()
 		world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
-	}))
+	}
 
 	return nil
 }

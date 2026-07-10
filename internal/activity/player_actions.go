@@ -93,13 +93,12 @@ func ExecuteWaitAction(world w.World) error {
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
 	var found *gc.Interactable
 	var foundEntity ecs.Entity
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	interactableQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.World).
+		Without(ecs.C[gc.Dead]()).Query()
+	for interactableQuery.Next() {
+		entity := interactableQuery.Entity()
 		if found != nil {
-			return // 既に見つかっている
+			continue // 既に見つかっている
 		}
 		ge := world.Components.GridElement.Get(entity)
 		// 直上タイルのみ
@@ -107,7 +106,7 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 			found = world.Components.Interactable.Get(entity)
 			foundEntity = entity
 		}
-	}))
+	}
 	return found, foundEntity
 }
 
@@ -116,10 +115,9 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
 	var results []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	rangeQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.World).Query()
+	for rangeQuery.Next() {
+		entity := rangeQuery.Entity()
 		interactable := world.Components.Interactable.Get(entity)
 		gridElement := world.Components.GridElement.Get(entity)
 
@@ -128,10 +126,10 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 			if (way == gc.ActivationWayManual || way == gc.ActivationWayOnCollision) &&
 				query.IsInActivationRange(targetGrid, gridElement, interaction.Config().ActivationRange) {
 				results = append(results, entity)
-				return // 同じエンティティを重複追加しない
+				break // 同じエンティティを重複追加しない
 			}
 		}
-	}))
+	}
 
 	return results
 }

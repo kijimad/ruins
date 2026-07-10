@@ -63,14 +63,12 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	var actions []InteractionAction
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	sameTileQuery := ecs.NewFilter3[gc.GridElement, gc.Interactable, gc.Dead](world.World).Query()
+	for sameTileQuery.Next() {
+		entity := sameTileQuery.Entity()
 		ge := world.Components.GridElement.Get(entity)
 		if ge.X != playerGrid.X || ge.Y != playerGrid.Y {
-			return
+			continue
 		}
 		interactable := world.Components.Interactable.Get(entity)
 		// Manual+SameTileのインタラクションのみフィルタする
@@ -86,7 +84,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 			entityActions := getInteractionActions(world, filteredInteractable, entity, "直上")
 			actions = append(actions, entityActions...)
 		}
-	}))
+	}
 
 	// アイテム拾得アクションが2個以上ある場合、「すべて拾う」を先頭に追加する
 	itemCount := 0

@@ -154,17 +154,28 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 	}
 
 	// 1. プレイヤーエンティティ
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(collect))
+	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
+	for playerQuery.Next() {
+		collect(playerQuery.Entity())
+	}
 	// 2. バックパック内アイテム
-	world.Manager.Join(world.Components.LocationInBackpack).Visit(ecs.Visit(collect))
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for backpackQuery.Next() {
+		collect(backpackQuery.Entity())
+	}
 	// 3. 装備中アイテム
-	world.Manager.Join(world.Components.LocationEquipped).Visit(ecs.Visit(collect))
+	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.World).Query()
+	for equippedQuery.Next() {
+		collect(equippedQuery.Entity())
+	}
 	// 4. 隊員エンティティ（死亡していないもの）
-	world.Manager.Join(world.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
+	squadQuery := ecs.NewFilter1[gc.SquadMember](world.World).Query()
+	for squadQuery.Next() {
+		entity := squadQuery.Entity()
 		if !world.Components.Dead.Has(entity) {
 			collect(entity)
 		}
-	}))
+	}
 
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].StableId.Index < entities[j].StableId.Index

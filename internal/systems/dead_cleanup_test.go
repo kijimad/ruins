@@ -105,9 +105,10 @@ func TestDeadCleanupSystem_EmptyWorld(t *testing.T) {
 
 	// Deadコンポーネントを持つエンティティが存在しないことを確認
 	deadCount := 0
-	world.Manager.Join(world.Components.Dead).Visit(ecs.Visit(func(_ ecs.Entity) {
+	deadQuery := ecs.NewFilter1[gc.Dead](world.World).Query()
+	for deadQuery.Next() {
 		deadCount++
-	}))
+	}
 	assert.Equal(t, 0, deadCount, "Deadコンポーネントを持つエンティティは存在しない")
 }
 
@@ -125,9 +126,10 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 
 	// DeadCleanupSystem実行前のアイテムエンティティ数をカウント
 	itemCountBefore := 0
-	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemBeforeQuery := ecs.NewFilter1[gc.LocationOnField](world.World).Query()
+	for itemBeforeQuery.Next() {
 		itemCountBefore++
-	}))
+	}
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
@@ -138,9 +140,10 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 
 	// ドロップアイテムが生成されているべき（"鉄くず"がドロップテーブルに定義されている）
 	itemCountAfter := 0
-	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemAfterQuery := ecs.NewFilter1[gc.LocationOnField](world.World).Query()
+	for itemAfterQuery.Next() {
 		itemCountAfter++
-	}))
+	}
 
 	assert.Greater(t, itemCountAfter, itemCountBefore, "ドロップアイテムが生成されているべき")
 	assert.Equal(t, itemCountBefore+1, itemCountAfter, "1つのアイテムがドロップされるべき")
@@ -164,9 +167,10 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
-	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemBeforeQuery := ecs.NewFilter1[gc.LocationOnField](world.World).Query()
+	for itemBeforeQuery.Next() {
 		itemCountBefore++
-	}))
+	}
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
@@ -174,9 +178,10 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 
 	// 実行後のアイテム数
 	itemCountAfter := 0
-	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemAfterQuery := ecs.NewFilter1[gc.LocationOnField](world.World).Query()
+	for itemAfterQuery.Next() {
 		itemCountAfter++
-	}))
+	}
 
 	// シード2ではドロップする
 	assert.Equal(t, itemCountBefore+1, itemCountAfter, "シード2ではドロップするはず")
@@ -195,9 +200,10 @@ func TestDeadCleanupSystem_WithoutDropTable(t *testing.T) {
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
-	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemBeforeQuery := ecs.NewFilter1[gc.LocationOnField](world.World).Query()
+	for itemBeforeQuery.Next() {
 		itemCountBefore++
-	}))
+	}
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
@@ -205,9 +211,10 @@ func TestDeadCleanupSystem_WithoutDropTable(t *testing.T) {
 
 	// 実行後のアイテム数
 	itemCountAfter := 0
-	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemAfterQuery := ecs.NewFilter1[gc.LocationOnField](world.World).Query()
+	for itemAfterQuery.Next() {
 		itemCountAfter++
-	}))
+	}
 
 	assert.Equal(t, itemCountBefore, itemCountAfter, "ドロップテーブルなしではドロップしない")
 }
@@ -256,9 +263,10 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 
 	// 実行前のVisualEffectエンティティ数
 	effectCountBefore := 0
-	world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+	effectBeforeQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	for effectBeforeQuery.Next() {
 		effectCountBefore++
-	}))
+	}
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
@@ -269,13 +277,16 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 
 	// スプライトフェードアウトエフェクトが生成されているべき
 	effectCountAfter := 0
-	world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+	effectAfterQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	for effectAfterQuery.Next() {
 		effectCountAfter++
-	}))
+	}
 	assert.Equal(t, effectCountBefore+1, effectCountAfter, "スプライトフェードアウトエフェクトが生成されているべき")
 
 	// エフェクトの内容を確認
-	world.Manager.Join(world.Components.VisualEffect, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {
+	effectQuery := ecs.NewFilter2[gc.VisualEffects, gc.GridElement](world.World).Query()
+	for effectQuery.Next() {
+		entity := effectQuery.Entity()
 		ve := world.Components.VisualEffect.Get(entity)
 		ge := world.Components.GridElement.Get(entity)
 
@@ -287,5 +298,5 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 		assert.Equal(t, "slime_0", effect.SpriteKey)
 		assert.Equal(t, consts.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
 		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
-	}))
+	}
 }

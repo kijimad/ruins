@@ -24,7 +24,9 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 		"paused": 0,
 	}
 
-	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
+	activityQuery := ecs.NewFilter1[gc.Activity](world.World).Query()
+	for activityQuery.Next() {
+		entity := activityQuery.Entity()
 		comp := world.Components.Activity.Get(entity)
 		summary["total"]++
 		switch comp.State {
@@ -35,7 +37,7 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 		case gc.ActivityStateCompleted, gc.ActivityStateCanceled:
 			// 完了/キャンセル状態はカウントしない
 		}
-	}))
+	}
 
 	return summary
 }

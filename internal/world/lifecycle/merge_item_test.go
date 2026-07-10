@@ -33,18 +33,16 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	// バックパック内の鉄くずは1つだけになっている
 	var ironCount int
 	var totalCount int
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	ironQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+	for ironQuery.Next() {
+		entity := ironQuery.Entity()
 		name := world.Components.Name.Get(entity)
 		if name.Name == "鉄くず" {
 			ironCount++
 			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count
 		}
-	}))
+	}
 
 	assert.Equal(t, 1, ironCount, "鉄くずは1つにまとめられる")
 	assert.Equal(t, 8, totalCount, "合計個数は8個")
@@ -63,12 +61,10 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 
 	// バックパック内のmaterial数をカウント（統合前）
 	materialCountBefore := 0
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	materialBeforeQuery := ecs.NewFilter2[gc.Stackable, gc.LocationInBackpack](world.World).Query()
+	for materialBeforeQuery.Next() {
 		materialCountBefore++
-	}))
+	}
 
 	// mergeStackableItemsを実行（1個しかないので統合されない）
 	err = mergeStackableItems(world, "緑ハーブ", mergeInBackpack, player)
@@ -76,12 +72,10 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 
 	// バックパック内のmaterial数をカウント（統合後）
 	materialCountAfter := 0
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	materialAfterQuery := ecs.NewFilter2[gc.Stackable, gc.LocationInBackpack](world.World).Query()
+	for materialAfterQuery.Next() {
 		materialCountAfter++
-	}))
+	}
 
 	// 数は変わっていない（1個だけなので統合不要）
 	assert.Equal(t, materialCountBefore, materialCountAfter, "material数は変わらない")
@@ -105,11 +99,10 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 
 	// バックパック内のアイテム数をカウント（統合前）
 	itemCountBefore := 0
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemBeforeQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for itemBeforeQuery.Next() {
 		itemCountBefore++
-	}))
+	}
 
 	// mergeStackableItemsを実行（Stackableを持たないので統合されない）
 	err = mergeStackableItems(world, "西洋鎧", mergeInBackpack, player)
@@ -117,11 +110,10 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 
 	// バックパック内のアイテム数をカウント（統合後）
 	itemCountAfter := 0
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	itemAfterQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for itemAfterQuery.Next() {
 		itemCountAfter++
-	}))
+	}
 
 	// Stackableを持たないアイテムは統合されず、2つのアイテムが存在することを確認
 	assert.Equal(t, itemCountBefore, itemCountAfter, "Stackableを持たないアイテムは統合されないべき")

@@ -110,18 +110,16 @@ func TestMergeStackableItems(t *testing.T) {
 		// バックパック内のパンは1つだけになっている
 		var breadCount int
 		var totalCount int
-		world.Manager.Join(
-			world.Components.Stackable,
-			world.Components.LocationInBackpack,
-			world.Components.Name,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
+		breadQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+		for breadQuery.Next() {
+			entity := breadQuery.Entity()
 			name := world.Components.Name.Get(entity)
 			if name.Name == "パン" {
 				breadCount++
 				stackable := world.Components.Stackable.Get(entity)
 				totalCount += stackable.Count
 			}
-		}))
+		}
 
 		assert.Equal(t, 1, breadCount, "パンは1つにまとめられる")
 		assert.Equal(t, 5, totalCount, "合計個数は5個")

@@ -189,11 +189,11 @@ func (st *StorageMenuState) createStorageItemData(world w.World) []storageItemDa
 
 func (st *StorageMenuState) createBackpackItemData(world w.World) []storageItemData {
 	var entities []ecs.Entity
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for backpackQuery.Next() {
+		entity := backpackQuery.Entity()
 		entities = append(entities, entity)
-	}))
+	}
 
 	sorted := query.SortEntities(world, entities)
 	return st.toStorageItemData(world, sorted)

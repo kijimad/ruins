@@ -37,14 +37,14 @@ func (sys *AnimationSystem) Update(world w.World) error {
 
 	sys.animationCounter++
 
-	world.Manager.Join(
-		world.Components.SpriteRender,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	spriteQuery := ecs.NewFilter1[gc.SpriteRender](world.World).Query()
+	for spriteQuery.Next() {
+		entity := spriteQuery.Entity()
 		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// AnimKeysが空ならアニメーションなし
 		if len(spriteRender.AnimKeys) == 0 {
-			return
+			continue
 		}
 
 		// アニメーション速度を計算（総時間を固定してフレーム数で割る）
@@ -56,6 +56,6 @@ func (sys *AnimationSystem) Update(world w.World) error {
 
 		// SpriteKeyを更新
 		spriteRender.SpriteKey = spriteRender.AnimKeys[frameIndex]
-	}))
+	}
 	return nil
 }

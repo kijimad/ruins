@@ -75,12 +75,10 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 
 	// フィールド上のアイテム数を確認
 	fieldItemCount := 0
-	world.Manager.Join(
-		world.Components.LocationOnField,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	fieldItemQuery := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.World).Query()
+	for fieldItemQuery.Next() {
 		fieldItemCount++
-	}))
+	}
 
 	assert.Equal(t, len(items), fieldItemCount, "フィールド上のアイテム数が正しくない")
 

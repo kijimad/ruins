@@ -185,11 +185,11 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 func (st *PlaceState) refreshBackpackItems(world w.World) {
 	st.backpackItems = nil
 
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for backpackQuery.Next() {
+		entity := backpackQuery.Entity()
 		st.backpackItems = append(st.backpackItems, entity)
-	}))
+	}
 
 	if st.selectedIndex >= len(st.backpackItems) {
 		st.selectedIndex = 0

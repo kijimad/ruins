@@ -13,12 +13,12 @@ import (
 func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 	weapons := make([]*ecs.Entity, 5)
 
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.World).Query()
+	for weaponsQuery.Next() {
+		entity := weaponsQuery.Entity()
 		cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
 		if cat != gc.CategoryWeapon {
-			return
+			continue
 		}
 		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
@@ -27,7 +27,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 				weapons[index] = &entity
 			}
 		}
-	}))
+	}
 
 	return weapons
 }
@@ -37,10 +37,9 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 	entities := make([]*ecs.Entity, 7)
 
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-		world.Components.Wearable,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	armorQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.World).Query()
+	for armorQuery.Next() {
+		entity := armorQuery.Entity()
 		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
 			switch equipped.EquipmentSlot {
@@ -62,7 +61,7 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 				panic(fmt.Sprintf("不正な装備スロット: %v", equipped.EquipmentSlot))
 			}
 		}
-	}))
+	}
 
 	return entities
 }

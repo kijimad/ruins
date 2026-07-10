@@ -54,9 +54,9 @@ func calculateMaxCarryingWeight(abilities *gc.Abilities) float64 {
 func calculateOwnedWeight(world w.World, entity ecs.Entity) float64 {
 	var totalWeight float64
 
-	world.Manager.Join(
-		world.Components.Weight,
-	).Visit(ecs.Visit(func(itemEntity ecs.Entity) {
+	weightQuery := ecs.NewFilter1[gc.Weight](world.World).Query()
+	for weightQuery.Next() {
+		itemEntity := weightQuery.Entity()
 		if world.Components.LocationInBackpack.Has(itemEntity) {
 			loc := world.Components.LocationInBackpack.Get(itemEntity)
 			if loc.Owner == entity {
@@ -77,7 +77,7 @@ func calculateOwnedWeight(world w.World, entity ecs.Entity) float64 {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
-	}))
+	}
 
 	return totalWeight
 }

@@ -129,9 +129,9 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 	centerX := mapPixelW / 2
 	centerY := mapPixelH / 2
 
-	world.Manager.Join(
-		world.Components.Camera,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.World).Query()
+	for cameraQuery.Next() {
+		entity := cameraQuery.Entity()
 		camera := world.Components.Camera.Get(entity)
 		camera.Scale = scale
 		camera.ScaleTo = scale
@@ -139,7 +139,7 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 		camera.Y = centerY
 		camera.TargetX = centerX
 		camera.TargetY = centerY
-	}))
+	}
 }
 
 // spawnSnapshot は現在のスナップショットからエンティティを生成する
@@ -203,34 +203,33 @@ func (st *MapGenVisualizerState) revealAllTiles(world w.World) {
 
 // hidePlayer はプレイヤーを画面外に移動して描画されないようにする
 func (st *MapGenVisualizerState) hidePlayer(world w.World) {
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.World).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
 		ge := world.Components.GridElement.Get(entity)
 		ge.X = -100
 		ge.Y = -100
-	}))
+	}
 }
 
 // clearEntities はスポーンしたエンティティを削除する
 func (st *MapGenVisualizerState) clearEntities(world w.World) {
-	world.Manager.Join(
-		world.Components.SpriteRender,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.World).Query()
+	for spriteRenderQuery.Next() {
+		entity := spriteRenderQuery.Entity()
 		if !world.Components.Player.Has(entity) &&
 			!world.Components.LocationInBackpack.Has(entity) &&
 			!world.Components.LocationEquipped.Has(entity) {
 			world.World.RemoveEntity(entity)
 		}
-	}))
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	}
+	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	for gridElementQuery.Next() {
+		entity := gridElementQuery.Entity()
 		if !world.Components.Player.Has(entity) {
 			world.World.RemoveEntity(entity)
 		}
-	}))
+	}
 
 	query.InvalidateSpatialIndex(world)
 }

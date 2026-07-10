@@ -13,20 +13,18 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+	for stackableQuery.Next() {
+		entity := stackableQuery.Entity()
 		if found {
-			return
+			continue
 		}
 		itemName := world.Components.Name.Get(entity)
 		if itemName.Name == name {
 			foundEntity = entity
 			found = true
 		}
-	}))
+	}
 
 	return foundEntity, found
 }
@@ -36,20 +34,18 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-		world.Components.Ammo,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.World).Query()
+	for ammoQuery.Next() {
+		entity := ammoQuery.Entity()
 		if found {
-			return
+			continue
 		}
 		ammo := world.Components.Ammo.Get(entity)
 		if ammo.AmmoTag == ammoTag {
 			foundEntity = entity
 			found = true
 		}
-	}))
+	}
 
 	return foundEntity, found
 }

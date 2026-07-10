@@ -12,19 +12,22 @@ import (
 
 // Player はプレイヤーエンティティをVisitする
 func Player(world w.World, f func(entity ecs.Entity)) {
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.FactionAlly,
-	).Visit(ecs.Visit(f))
+	playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAllyData](world.World).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
+		f(entity)
+	}
 }
 
 // GetPlayerEntity はプレイヤーエンティティを返す
 // プレイヤーが0個または2個以上の場合はエラーを返す
 func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	var entities []ecs.Entity
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
+	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
 		entities = append(entities, entity)
-	}))
+	}
 
 	if len(entities) == 0 {
 		return consts.InvalidEntity, fmt.Errorf("プレイヤーエンティティが存在しません")
@@ -64,13 +67,13 @@ func IsInActivationRange(playerGrid, triggerGrid *gc.GridElement, activationRang
 // GetEntitiesAt は指定座標にあるすべてのエンティティを返す
 func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
 	var entities []ecs.Entity
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	entitiesQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	for entitiesQuery.Next() {
+		entity := entitiesQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if grid.X == x && grid.Y == y {
 			entities = append(entities, entity)
 		}
-	}))
+	}
 	return entities
 }

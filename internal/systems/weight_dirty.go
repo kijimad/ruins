@@ -1,6 +1,7 @@
 package systems
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -22,12 +23,12 @@ func (sys WeightDirtySystem) String() string {
 func (sys *WeightDirtySystem) Update(world w.World) error {
 	// WeightDirtyマーカーが付いたエンティティを収集してフラグをクリアする
 	var changedEntities []ecs.Entity
-	world.Manager.Join(
-		world.Components.WeightDirty,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.World).Query()
+	for weightDirtyQuery.Next() {
+		entity := weightDirtyQuery.Entity()
 		changedEntities = append(changedEntities, entity)
 		world.Components.WeightDirty.Remove(entity)
-	}))
+	}
 
 	// 変動のあったエンティティの重量を再計算する
 	for _, entity := range changedEntities {

@@ -34,31 +34,35 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 // LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
 func LockAllDoors(world w.World) int {
 	locked := 0
-	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+	doorQuery := ecs.NewFilter1[gc.Door](world.World).Query()
+	for doorQuery.Next() {
+		doorEntity := doorQuery.Entity()
 		doorComp := world.Components.Door.Get(doorEntity)
 		if doorComp.Locked {
-			return
+			continue
 		}
 		if doorComp.IsOpen {
 			_ = CloseDoor(world, doorEntity)
 		}
 		doorComp.Locked = true
 		locked++
-	}))
+	}
 	return locked
 }
 
 // UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
 func UnlockAllDoors(world w.World) int {
 	opened := 0
-	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+	doorQuery := ecs.NewFilter1[gc.Door](world.World).Query()
+	for doorQuery.Next() {
+		doorEntity := doorQuery.Entity()
 		doorComp := world.Components.Door.Get(doorEntity)
 		doorComp.Locked = false
 		if !doorComp.IsOpen {
 			_ = OpenDoor(world, doorEntity)
 			opened++
 		}
-	}))
+	}
 	return opened
 }
 
@@ -172,15 +176,17 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
 func DeleteDoorLockTriggers(world w.World) {
 	var toDelete []ecs.Entity
-	world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
+	interactableQuery := ecs.NewFilter1[gc.Interactable](world.World).Query()
+	for interactableQuery.Next() {
+		triggerEntity := interactableQuery.Entity()
 		interactable := world.Components.Interactable.Get(triggerEntity)
 		for _, interaction := range interactable.Interactions {
 			if _, ok := interaction.(gc.DoorLockInteraction); ok {
 				toDelete = append(toDelete, triggerEntity)
-				return
+				break
 			}
 		}
-	}))
+	}
 	for _, entity := range toDelete {
 		world.World.RemoveEntity(entity)
 	}

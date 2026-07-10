@@ -161,22 +161,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *DungeonState) OnStop(world w.World) error {
-	world.Manager.Join(
-		world.Components.SpriteRender,
-		world.Components.Player.Not(),
-		world.Components.SquadMember.Not(),
-		world.Components.LocationInBackpack.Not(),
-		world.Components.LocationEquipped.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	spriteRenderQuery := ecs.NewFilter5[gc.SpriteRender, gc.Player, gc.SquadMember, gc.LocationInBackpack, gc.LocationEquipped](world.World).Query()
+	for spriteRenderQuery.Next() {
+		entity := spriteRenderQuery.Entity()
 		world.World.RemoveEntity(entity)
-	}))
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Player.Not(),
-		world.Components.SquadMember.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	}
+	gridElementQuery := ecs.NewFilter3[gc.GridElement, gc.Player, gc.SquadMember](world.World).Query()
+	for gridElementQuery.Next() {
+		entity := gridElementQuery.Entity()
 		world.World.RemoveEntity(entity)
-	}))
+	}
 
 	// 未消費のステート遷移リクエストを破棄
 	lifecycle.ConsumeStateChange(world)
@@ -480,12 +474,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.Dead,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.World).Query()
+	for playerDeadQuery.Next() {
 		playerDead = true
-	}))
+	}
 	return playerDead
 }
 

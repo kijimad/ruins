@@ -36,11 +36,10 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 
 	// プレイヤーの範囲内にある相互作用を検索
 	var interactablesToProcess []ecs.Entity
-	world.Manager.Join(
-		world.Components.Interactable,
-		world.Components.GridElement,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	interactableQuery := ecs.NewFilter2[gc.Interactable, gc.GridElement](world.World).
+		Without(ecs.C[gc.Dead]()).Query()
+	for interactableQuery.Next() {
+		entity := interactableQuery.Entity()
 		interactable := world.Components.Interactable.Get(entity)
 		interactableGrid := world.Components.GridElement.Get(entity)
 
@@ -53,10 +52,10 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 					"interactablePos", interactableGrid,
 					"range", interaction.Config().ActivationRange)
 				interactablesToProcess = append(interactablesToProcess, entity)
-				return
+				break
 			}
 		}
-	}))
+	}
 
 	// 検索した自動実行相互作用を処理する
 	for _, interactableEntity := range interactablesToProcess {

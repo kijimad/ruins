@@ -68,11 +68,10 @@ func TestExecuteEndRun(t *testing.T) {
 
 	// 職業が再適用されていることを確認する
 	hasEquipped := false
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.World).Query()
+	for equippedQuery.Next() {
 		hasEquipped = true
-	}))
+	}
 	if len(prof.Equips) > 0 {
 		assert.True(t, hasEquipped, "職業の初期装備が再適用されている")
 	}

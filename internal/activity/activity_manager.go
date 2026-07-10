@@ -231,7 +231,9 @@ func ProcessTurn(world w.World) {
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
 	var toRemove []ecs.Entity
 
-	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
+	activityQuery := ecs.NewFilter1[gc.Activity](world.World).Query()
+	for activityQuery.Next() {
+		entity := activityQuery.Entity()
 		comp := world.Components.Activity.Get(entity)
 
 		// アクティブなアクティビティのみ処理
@@ -239,14 +241,14 @@ func ProcessTurn(world w.World) {
 			if IsCompleted(comp) || IsCanceled(comp) {
 				toRemove = append(toRemove, entity)
 			}
-			return
+			continue
 		}
 
 		behavior, err := GetBehavior(comp.BehaviorName)
 		if err != nil {
 			log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
 			toRemove = append(toRemove, entity)
-			return
+			continue
 		}
 
 		// ターン処理を実行
@@ -259,7 +261,7 @@ func ProcessTurn(world w.World) {
 			// エラーが発生した場合はキャンセル
 			CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
 			toRemove = append(toRemove, entity)
-			return
+			continue
 		}
 
 		// 完了したアクティビティの処理
@@ -286,7 +288,7 @@ func ProcessTurn(world w.World) {
 				"type", comp.BehaviorName)
 			toRemove = append(toRemove, entity)
 		}
-	}))
+	}
 
 	// 完了・キャンセルされたアクティビティを削除
 	for _, entity := range toRemove {
@@ -327,16 +329,15 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 // getPassCostAt は指定座標にあるPropのPassCostを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
 	total := 0
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.PassCost,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	passCostQuery := ecs.NewFilter2[gc.GridElement, gc.PassCost](world.World).Query()
+	for passCostQuery.Next() {
+		entity := passCostQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if int(grid.X) == x && int(grid.Y) == y {
 			mc := world.Components.PassCost.Get(entity)
 			total += mc.Value
 		}
-	}))
+	}
 	return total
 }
 

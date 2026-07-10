@@ -85,16 +85,19 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	require.NoError(t, err)
 
 	playerCount := 0
-	newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
+	playerQuery := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
 		playerCount++
 		name := newWorld.Components.Name.Get(entity)
 		assert.Equal(t, "テストプレイヤー", name.Name)
-	}))
+	}
 
 	npcCount := 0
-	newWorld.Manager.Join(newWorld.Components.FactionEnemy).Visit(ecs.Visit(func(_ ecs.Entity) {
+	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.World).Query()
+	for npcQuery.Next() {
 		npcCount++
-	}))
+	}
 
 	assert.Equal(t, 1, playerCount, "プレイヤーが正しくロードされる")
 	assert.Equal(t, 0, npcCount, "NPCは保存されない（プレイヤーとアイテムのみ保存）")
@@ -117,11 +120,13 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 
 	entityCount := 0
 	singleton := newWorld.Resources.SingletonEntity
-	newWorld.Manager.Join().Visit(ecs.Visit(func(entity ecs.Entity) {
+	entityQuery := ecs.NewFilter0(newWorld.World).Query()
+	for entityQuery.Next() {
+		entity := entityQuery.Entity()
 		if entity != singleton {
 			entityCount++
 		}
-	}))
+	}
 
 	assert.Equal(t, 0, entityCount)
 }

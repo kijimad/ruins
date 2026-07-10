@@ -25,10 +25,9 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 	var updateErr error
 
 	// StatsChangedが付与されたエンティティを処理
-	world.Manager.Join(
-		world.Components.StatsChanged,
-		world.Components.Abilities,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	statsQuery := ecs.NewFilter2[gc.StatsChanged, gc.Abilities](world.World).Query()
+	for statsQuery.Next() {
+		entity := statsQuery.Entity()
 		world.Components.StatsChanged.Remove(entity)
 		abils := world.Components.Abilities.Get(entity)
 
@@ -49,15 +48,14 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 
 		// 装備効果を加算
-		world.Manager.Join(
-			world.Components.LocationEquipped,
-			world.Components.Wearable,
-		).Visit(ecs.Visit(func(item ecs.Entity) {
+		equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.World).Query()
+		for equipQuery.Next() {
+			item := equipQuery.Entity()
 			equipped := world.Components.LocationEquipped.Get(item)
 
 			// このエンティティの装備のみ処理
 			if equipped.Owner != entity {
-				return
+				continue
 			}
 
 			wearable := world.Components.Wearable.Get(item)
@@ -68,7 +66,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			abils.Sensation.Modifier += wearable.EquipBonus.Sensation
 			abils.Dexterity.Modifier += wearable.EquipBonus.Dexterity
 			abils.Agility.Modifier += wearable.EquipBonus.Agility
-		}))
+		}
 
 		// 健康ペナルティを加算
 		if world.Components.HealthStatus.Has(entity) {
@@ -116,7 +114,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			maxAP, err := query.CalculateMaxActionPoints(world, entity)
 			if err != nil {
 				updateErr = err
-				return
+				continue
 			}
 			turnBased := world.Components.TurnBased.Get(entity)
 
@@ -128,7 +126,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 				turnBased.AP.Current = maxAP
 			}
 		}
-	}))
+	}
 
 	return updateErr
 }

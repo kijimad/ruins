@@ -55,13 +55,15 @@ func TestSaveLoadIntegration(t *testing.T) {
 	playerCount := 0
 	npcCount := 0
 
-	newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(_ ecs.Entity) {
+	playerQuery := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+	for playerQuery.Next() {
 		playerCount++
-	}))
+	}
 
-	newWorld.Manager.Join(newWorld.Components.FactionEnemy).Visit(ecs.Visit(func(_ ecs.Entity) {
+	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.World).Query()
+	for npcQuery.Next() {
 		npcCount++
-	}))
+	}
 
 	assert.Equal(t, 1, playerCount, "プレイヤーが1個存在する")
 	assert.Equal(t, 0, npcCount, "NPCは保存されない（プレイヤーとアイテムのみ保存）")
@@ -257,10 +259,11 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		// 復元後の隊員を検索する
 		var memberEntity ecs.Entity
 		var found bool
-		newWorld.Manager.Join(newWorld.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
-			memberEntity = entity
+		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.World).Query()
+		for memberQuery.Next() {
+			memberEntity = memberQuery.Entity()
 			found = true
-		}))
+		}
 		require.True(t, found, "隊員エンティティが復元されている")
 
 		// AI処理に必要なコンポーネント
@@ -299,16 +302,18 @@ func TestSaveLoadSquadMember(t *testing.T) {
 
 		// プレイヤーが復元されていること
 		var playerFound bool
-		newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(_ ecs.Entity) {
+		playerQuery := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+		for playerQuery.Next() {
 			playerFound = true
-		}))
+		}
 		assert.True(t, playerFound, "プレイヤーが復元されている")
 
 		// 隊員マーカーが復元されていること
 		var memberFound bool
-		newWorld.Manager.Join(newWorld.Components.SquadMember).Visit(ecs.Visit(func(_ ecs.Entity) {
+		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.World).Query()
+		for memberQuery.Next() {
 			memberFound = true
-		}))
+		}
 		assert.True(t, memberFound, "隊員マーカーが復元されている")
 	})
 }

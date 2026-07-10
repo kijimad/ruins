@@ -23,17 +23,16 @@ func (sys *CameraSystem) Update(world w.World) error {
 	var playerGridElement *gc.GridElement
 
 	// プレイヤー位置を取得
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.World).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
 		playerGridElement = world.Components.GridElement.Get(entity)
-	}))
+	}
 
 	// カメラのズーム処理と追従処理
-	world.Manager.Join(
-		world.Components.Camera,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.World).Query()
+	for cameraQuery.Next() {
+		entity := cameraQuery.Entity()
 		camera := world.Components.Camera.Get(entity)
 
 		// プレイヤー位置をピクセル座標に変換してカメラの目標位置に設定

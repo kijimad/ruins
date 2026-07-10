@@ -45,11 +45,11 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 	}
 
 	var toDelete []ecs.Entity
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for backpackQuery.Next() {
+		entity := backpackQuery.Entity()
 		toDelete = append(toDelete, entity)
-	}))
+	}
 	for _, e := range toDelete {
 		world.World.RemoveEntity(e)
 	}
@@ -71,9 +71,9 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
 	var items []SoldItem
 	total := 0
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for backpackQuery.Next() {
+		entity := backpackQuery.Entity()
 		name := ""
 		if world.Components.Name.Has(entity) {
 			name = world.Components.Name.Get(entity).Name
@@ -88,7 +88,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
 		items = append(items, SoldItem{Entity: entity, Name: name, Price: price})
 		total += price
-	}))
+	}
 
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].Name < items[j].Name

@@ -288,15 +288,14 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 func (st *InventoryMenuState) queryByOwner(world w.World, owner ecs.Entity) []ecs.Entity {
 	var result []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	ownerQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.World).Query()
+	for ownerQuery.Next() {
+		entity := ownerQuery.Entity()
 		loc := world.Components.LocationInBackpack.Get(entity)
 		if loc.Owner == owner {
 			result = append(result, entity)
 		}
-	}))
+	}
 
 	return query.SortEntities(world, result)
 }

@@ -9,15 +9,14 @@ import (
 // SquadMembers は生存している全隊員を返す
 func SquadMembers(world w.World) []ecs.Entity {
 	var members []ecs.Entity
-	world.Manager.Join(
-		world.Components.SquadMember,
-		world.Components.FactionAlly,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	membersQuery := ecs.NewFilter2[gc.SquadMember, gc.FactionAllyData](world.World).Query()
+	for membersQuery.Next() {
+		entity := membersQuery.Entity()
 		if world.Components.Dead.Has(entity) {
-			return
+			continue
 		}
 		members = append(members, entity)
-	}))
+	}
 	return members
 }
 

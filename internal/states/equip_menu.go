@@ -388,15 +388,15 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	items := []ecs.Entity{}
 
 	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
-		world.Manager.Join(
-			world.Components.LocationInBackpack,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
+		weaponQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+		for weaponQuery.Next() {
+			entity := weaponQuery.Entity()
 			cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
 			if cat != gc.CategoryWeapon {
-				return
+				continue
 			}
 			items = append(items, entity)
-		}))
+		}
 	} else {
 		var targetCategory gc.EquipmentType
 		switch slotNumber {
@@ -418,15 +418,14 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 			return query.SortEntities(world, items)
 		}
 
-		world.Manager.Join(
-			world.Components.LocationInBackpack,
-			world.Components.Wearable,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
+		wearableQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Wearable](world.World).Query()
+		for wearableQuery.Next() {
+			entity := wearableQuery.Entity()
 			wearable := world.Components.Wearable.Get(entity)
 			if wearable != nil && wearable.EquipmentCategory == targetCategory {
 				items = append(items, entity)
 			}
-		}))
+		}
 	}
 
 	return query.SortEntities(world, items)

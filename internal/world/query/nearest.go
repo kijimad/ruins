@@ -15,17 +15,17 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 	var nearestGrid *gc.GridElement
 	nearestDist := -1
 
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	nearestQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	for nearestQuery.Next() {
+		entity := nearestQuery.Entity()
 		if entity == self {
-			return
+			continue
 		}
 		if world.Components.Dead.Has(entity) {
-			return
+			continue
 		}
 		if !match(entity) {
-			return
+			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
 		dist := geometry.ChebyshevDistance(int(from.X), int(from.Y), int(grid.X), int(grid.Y))
@@ -35,7 +35,7 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 			nearestGrid = grid
 			nearestDist = dist
 		}
-	}))
+	}
 
 	return nearestEntity, nearestGrid, nearestDist
 }

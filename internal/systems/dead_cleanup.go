@@ -30,12 +30,12 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// Deadコンポーネントを持つエンティティを検索
 	var toDelete []ecs.Entity
-	world.Manager.Join(
-		world.Components.Dead,
-		world.Components.Player.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	deadQuery := ecs.NewFilter1[gc.Dead](world.World).
+		Without(ecs.C[gc.Player]()).Query()
+	for deadQuery.Next() {
+		entity := deadQuery.Entity()
 		toDelete = append(toDelete, entity)
-	}))
+	}
 
 	// 死亡エンティティのアクティビティをキャンセルする
 	for _, entity := range toDelete {
@@ -112,16 +112,16 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 		grid := world.Components.GridElement.Get(entity)
 		owner := entity
-		world.Manager.Join(
-			world.Components.LocationInBackpack,
-		).Visit(ecs.Visit(func(item ecs.Entity) {
+		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+		for backpackQuery.Next() {
+			item := backpackQuery.Entity()
 			loc := world.Components.LocationInBackpack.Get(item)
 			if loc.Owner != owner {
-				return
+				continue
 			}
 			world.Components.GridElement.Add(item, &gc.GridElement{X: grid.X, Y: grid.Y})
 			lifecycle.MoveToField(world, item, &owner)
-		}))
+		}
 	}
 
 	// エンティティを削除する
