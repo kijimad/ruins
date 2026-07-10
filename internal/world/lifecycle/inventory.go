@@ -30,11 +30,15 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 		world.Components.Stackable.Get(entity).Count = newCount
 	}
 
-	// インベントリ変動フラグを立てる
+	// インベントリ変動フラグを立てる。
+	// クエリ反復中の構造変更はワールドをロックするため、対象を集めてから付与する
+	var players []ecs.Entity
 	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
 	for playerQuery.Next() {
-		playerEntity := playerQuery.Entity()
-		world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
+		players = append(players, playerQuery.Entity())
+	}
+	for _, playerEntity := range players {
+		ensureMarker(world, world.Components.WeightDirty, playerEntity, &gc.WeightDirty{})
 	}
 
 	return nil

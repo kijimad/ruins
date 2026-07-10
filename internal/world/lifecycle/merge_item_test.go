@@ -16,7 +16,7 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	player := world.World.NewEntity()
-	world.Components.Player.Add(player, nil)
+	world.Components.Player.Add(player, &gc.Player{})
 
 	// 既存のmaterialをバックパックに配置（初期数量5）
 	_, err := SpawnBackpackItem(world, "鉄くず", 5)
@@ -53,7 +53,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	player := world.World.NewEntity()
-	world.Components.Player.Add(player, nil)
+	world.Components.Player.Add(player, &gc.Player{})
 
 	// 新しいmaterialを作成（既存のものはなし）
 	_, err := SpawnBackpackItem(world, "緑ハーブ", 2)
@@ -87,7 +87,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	player := world.World.NewEntity()
-	world.Components.Player.Add(player, nil)
+	world.Components.Player.Add(player, &gc.Player{})
 
 	// 既存のアイテム（Stackableを持たない）をバックパックに配置
 	_, err := SpawnBackpackItem(world, "西洋鎧", 1)
@@ -125,7 +125,7 @@ func TestMergeMaterialIntoInventoryWithoutItemOrMaterialComponent(t *testing.T) 
 	world := testutil.InitTestWorld(t)
 
 	player := world.World.NewEntity()
-	world.Components.Player.Add(player, nil)
+	world.Components.Player.Add(player, &gc.Player{})
 
 	// Stackableコンポーネントを持たないエンティティを作成（個別アイテムとして扱われる）
 	componentList := entities.ComponentList[gc.EntitySpec]{}

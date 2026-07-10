@@ -33,7 +33,9 @@ func ConsumeStateChange(world w.World) *gc.StateChangeRequest {
 	eventQuery := ecs.NewFilter1[gc.StateChangeRequest](world.World).Query()
 	for eventQuery.Next() {
 		entity := eventQuery.Entity()
-		event = world.Components.StateChangeRequest.Get(entity)
+		// Getはストレージへのポインタを返し、RemoveEntityで失効するため値をコピーする
+		copied := *world.Components.StateChangeRequest.Get(entity)
+		event = &copied
 		eventEntity = entity
 	}
 	if event == nil {

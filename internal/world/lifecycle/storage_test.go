@@ -137,7 +137,9 @@ func TestMoveToStorage_SetsWeightDirtyOnStorage(t *testing.T) {
 	require.NoError(t, err)
 
 	// マーカーを事前にクリア
-	world.Components.WeightDirty.Remove(storageEntity)
+	if world.Components.WeightDirty.Has(storageEntity) {
+		world.Components.WeightDirty.Remove(storageEntity)
+	}
 	assert.False(t, world.Components.WeightDirty.Has(storageEntity))
 
 	require.NoError(t, MoveToStorage(world, item, storageEntity))

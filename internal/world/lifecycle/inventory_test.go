@@ -27,7 +27,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
-		assert.False(t, world.Components.Name.Has(item), "アイテムが削除されているべき")
+		assert.False(t, world.World.Alive(item), "アイテムが削除されているべき")
 	})
 
 	t.Run("Stackableアイテムの一部を消費", func(t *testing.T) {
@@ -67,7 +67,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
-		assert.False(t, world.Components.Name.Has(item), "アイテムが削除されているべき")
+		assert.False(t, world.World.Alive(item), "アイテムが削除されているべき")
 	})
 
 	t.Run("所持数を超えて消費しようとするとエラー", func(t *testing.T) {

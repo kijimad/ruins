@@ -36,7 +36,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// 視界内に敵を配置
 		enemy, err := lifecycle.SpawnEnemy(world, 12, 12, "火の玉")
 		require.NoError(t, err)
-		world.Components.Name.Add(enemy, &gc.Name{Name: "ゴブリン"})
+		world.Components.Name.Set(enemy, &gc.Name{Name: "ゴブリン"})
 
 		// 可視タイルに設定
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{

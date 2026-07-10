@@ -303,7 +303,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 
 		// Propを拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
 		prop := world.World.NewEntity()
-		world.Components.Prop.Add(prop, nil)
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.BlockPass.Add(prop, &gc.BlockPass{})
 		require.NoError(t, lifecycle.MoveToBackpack(world, prop, player))

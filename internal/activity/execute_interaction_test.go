@@ -536,7 +536,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		prop := world.World.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 11, Y: 10})
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, nil)
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
@@ -569,7 +569,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		prop := world.World.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 11, Y: 10})
 		world.Components.Name.Add(prop, &gc.Name{Name: "壊れた木箱"})
-		world.Components.Prop.Add(prop, nil)
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 0})
 		world.Components.Dead.Add(prop, &gc.Dead{})
 		world.Components.Interactable.Add(prop, &gc.Interactable{

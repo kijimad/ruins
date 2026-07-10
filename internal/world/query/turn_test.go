@@ -22,7 +22,7 @@ func TestCanPlayerAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// TurnBasedコンポーネントを追加する
-		world.Components.TurnBased.Add(player, &gc.TurnBased{
+		world.Components.TurnBased.Set(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
@@ -40,7 +40,7 @@ func TestCanPlayerAct(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		world.Components.TurnBased.Add(player, &gc.TurnBased{
+		world.Components.TurnBased.Set(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
@@ -58,7 +58,7 @@ func TestCanPlayerAct(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		world.Components.TurnBased.Add(player, &gc.TurnBased{
+		world.Components.TurnBased.Set(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: -1},
 		})
 
@@ -87,7 +87,7 @@ func TestConsumeActionPoints(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		world.Components.TurnBased.Add(player, &gc.TurnBased{
+		world.Components.TurnBased.Set(player, &gc.TurnBased{
 			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 

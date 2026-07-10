@@ -287,7 +287,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	actor := world.World.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
-	world.Components.Player.Add(actor, nil)
+	world.Components.Player.Add(actor, &gc.Player{})
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Exp.Current = 95 // スキルアップ直前

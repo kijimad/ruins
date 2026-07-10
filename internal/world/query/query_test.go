@@ -114,7 +114,7 @@ func TestIsPickable(t *testing.T) {
 
 		entity := world.World.NewEntity()
 		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
-		world.Components.Prop.Add(entity, nil)
+		world.Components.Prop.Add(entity, &gc.Prop{})
 
 		assert.False(t, IsPickable(entity, world), "Propは設置物なので拾えない")
 	})

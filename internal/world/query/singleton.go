@@ -40,9 +40,22 @@ func GetGameLog(world w.World) *gamelog.SafeSlice {
 	return gl.Store
 }
 
-// SetDungeon はシングルトンエンティティにDungeonを設定する
+// SetDungeon はシングルトンエンティティにDungeonを設定する。
+// nilを渡すとダンジョン未開始として扱い、コンポーネントを取り除く
 func SetDungeon(world w.World, dungeon *gc.Dungeon) {
-	world.Components.DungeonState.Add(world.Resources.SingletonEntity, dungeon)
+	entity := world.Resources.SingletonEntity
+	comp := world.Components.DungeonState
+	if dungeon == nil {
+		if comp.Has(entity) {
+			comp.Remove(entity)
+		}
+		return
+	}
+	if comp.Has(entity) {
+		comp.Set(entity, dungeon)
+	} else {
+		comp.Add(entity, dungeon)
+	}
 }
 
 // GetSpatialIndex はシングルトンから空間インデックスを取得する

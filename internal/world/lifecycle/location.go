@@ -15,8 +15,8 @@ import (
 // Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
 func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	setLocation(world, entity, &gc.LocationInBackpack{Owner: owner})
-	world.Components.StatsChanged.Add(owner, &gc.StatsChanged{})
-	world.Components.WeightDirty.Add(owner, &gc.WeightDirty{})
+	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
 		name := world.Components.Name.Get(entity)
@@ -33,8 +33,8 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 		Owner:         owner,
 		EquipmentSlot: slot,
 	})
-	world.Components.StatsChanged.Add(owner, &gc.StatsChanged{})
-	world.Components.WeightDirty.Add(owner, &gc.WeightDirty{})
+	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 }
 
 // MoveToField はエンティティをフィールドに移動する。
@@ -43,7 +43,7 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	setLocation(world, entity, &gc.LocationOnField{})
 	if previousOwner != nil {
-		world.Components.WeightDirty.Add(*previousOwner, &gc.WeightDirty{})
+		ensureMarker(world, world.Components.WeightDirty, *previousOwner, &gc.WeightDirty{})
 	}
 }
 
@@ -51,7 +51,7 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 // Stackableアイテムの場合、収納内の同名アイテムと自動的に統合する
 func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	setLocation(world, entity, &gc.LocationInStorage{Owner: storage})
-	world.Components.WeightDirty.Add(storage, &gc.WeightDirty{})
+	ensureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
 		name := world.Components.Name.Get(entity)
@@ -82,6 +82,26 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 	return nil
 }
 
+// ensureMarker はマーカーコンポーネントを冪等に付与する。
+// エンティティが死亡している場合や既に付与済みの場合は何もしない。
+// Arkは死亡エンティティへの付与と二重付与でパニックするため、ここで吸収する
+func ensureMarker[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity, data *T) {
+	if !world.World.Alive(entity) {
+		return
+	}
+	if !comp.Has(entity) {
+		comp.Add(entity, data)
+	}
+}
+
+// ensureRemoved はコンポーネントを保持している場合のみ取り除く。
+// Arkは不在コンポーネントのRemoveでパニックするため、ここで吸収する
+func ensureRemoved[T any](comp *ecs.Map[T], entity ecs.Entity) {
+	if comp.Has(entity) {
+		comp.Remove(entity)
+	}
+}
+
 // setLocation はエンティティの位置を設定する。排他制御を保証する。
 // 既存の位置コンポーネントをすべて削除してから、新しい位置を設定する。
 // 内部用関数なので直接呼び出さず、MoveToBackpack, MoveToField等を使用すること
@@ -89,22 +109,22 @@ func setLocation(world w.World, entity ecs.Entity, data gc.Location) {
 	// 移動元のOwnerにWeightDirtyマーカーを付与する
 	if world.Components.LocationInBackpack.Has(entity) {
 		loc := world.Components.LocationInBackpack.Get(entity)
-		world.Components.WeightDirty.Add(loc.Owner, &gc.WeightDirty{})
+		ensureMarker(world, world.Components.WeightDirty, loc.Owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationEquipped.Has(entity) {
 		loc := world.Components.LocationEquipped.Get(entity)
-		world.Components.WeightDirty.Add(loc.Owner, &gc.WeightDirty{})
+		ensureMarker(world, world.Components.WeightDirty, loc.Owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationInStorage.Has(entity) {
 		loc := world.Components.LocationInStorage.Get(entity)
-		world.Components.WeightDirty.Add(loc.Owner, &gc.WeightDirty{})
+		ensureMarker(world, world.Components.WeightDirty, loc.Owner, &gc.WeightDirty{})
 	}
 
 	// すべての位置コンポーネントを削除（排他制御）
-	world.Components.LocationInBackpack.Remove(entity)
-	world.Components.LocationEquipped.Remove(entity)
-	world.Components.LocationOnField.Remove(entity)
-	world.Components.LocationInStorage.Remove(entity)
+	ensureRemoved(world.Components.LocationInBackpack, entity)
+	ensureRemoved(world.Components.LocationEquipped, entity)
+	ensureRemoved(world.Components.LocationOnField, entity)
+	ensureRemoved(world.Components.LocationInStorage, entity)
 
 	// dataの型に応じて位置コンポーネントを追加
 	switch v := data.(type) {
@@ -120,7 +140,7 @@ func setLocation(world w.World, entity ecs.Entity, data gc.Location) {
 
 	// フィールド以外に移動する場合はグリッド座標を除去する
 	if _, ok := data.(*gc.LocationOnField); !ok {
-		world.Components.GridElement.Remove(entity)
+		ensureRemoved(world.Components.GridElement, entity)
 	}
 }
 

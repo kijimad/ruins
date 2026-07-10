@@ -240,7 +240,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		require.NoError(t, err)
 
 		prop := world.World.NewEntity()
-		world.Components.Prop.Add(prop, nil)
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
@@ -268,7 +268,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		require.NoError(t, err)
 
 		prop := world.World.NewEntity()
-		world.Components.Prop.Add(prop, nil)
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
@@ -296,7 +296,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		require.NoError(t, err)
 		// Interactableを持つPropも同じタイルにある
 		prop := world.World.NewEntity()
-		world.Components.Prop.Add(prop, nil)
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
 		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionData{gc.MeleeInteraction{}}})
@@ -324,7 +324,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		require.NoError(t, err)
 
 		prop := world.World.NewEntity()
-		world.Components.Prop.Add(prop, nil)
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.HP.Add(prop, &gc.HP{Max: 10, Current: 10})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 8, Y: 6})

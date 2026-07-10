@@ -93,7 +93,7 @@ func TestCalculateSpeed(t *testing.T) {
 			Severity: gc.SeverityMedium,
 		})
 		mods := gc.RecalculateCharModifiers(skills, abils, hs)
-		world.Components.CharModifiers.Add(entity, mods)
+		world.Components.CharModifiers.Set(entity, mods)
 
 		coldSpeed := CalculateSpeed(world, entity)
 		t.Logf("normalSpeed=%d coldSpeed=%d hasMods=%v moveCost=%d", normalSpeed, coldSpeed, world.Components.CharModifiers.Has(entity), mods.MoveCost)
