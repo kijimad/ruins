@@ -5,9 +5,9 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/mlange-42/ark/ecs"
 )
 
 func TestInitializeComponents(t *testing.T) {

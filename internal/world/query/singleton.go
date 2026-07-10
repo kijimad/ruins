@@ -8,12 +8,11 @@ import (
 )
 
 // GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す
-func GetSingleton[T any](world w.World, comp *ecs.SliceComponent) *T {
-	data := comp.Get(world.Resources.SingletonEntity)
-	if data == nil {
+func GetSingleton[T any](world w.World, comp *ecs.Map[T]) *T {
+	if !comp.Has(world.Resources.SingletonEntity) {
 		return nil
 	}
-	return data.(*T)
+	return comp.Get(world.Resources.SingletonEntity)
 }
 
 // GetTurnState はシングルトンエンティティからターン状態を取得する

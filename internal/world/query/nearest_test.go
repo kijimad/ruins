@@ -7,8 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/stretchr/testify/assert"
 	"github.com/mlange-42/ark/ecs"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFindNearestEntity(t *testing.T) {

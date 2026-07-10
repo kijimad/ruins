@@ -65,11 +65,11 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return ErrAttackerDead
 	}
 
-	if !world.Components.GridElement.Has(comp.Target) {
+	if !world.Components.GridElement.Has(*comp.Target) {
 		return ErrAttackTargetNotExists
 	}
 
-	if world.Components.Dead.Has(comp.Target) {
+	if world.Components.Dead.Has(*comp.Target) {
 		return ErrAttackTargetDead
 	}
 

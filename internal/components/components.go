@@ -88,25 +88,25 @@ type EntitySpec struct {
 // Manager.Join()でのクエリに使用される
 type Components struct {
 	// general ================
-	Name        *ecs.Map[Name] `save:"true"`
+	Name        *ecs.Map[Name]        `save:"true"`
 	Description *ecs.Map[Description] `save:"true"`
 
 	// item ================
-	HP                 *ecs.Map[HP] `save:"true"`
-	Consumable         *ecs.Map[Consumable] `save:"true"`
-	WeightCapacity     *ecs.Map[WeightCapacity] `save:"true"`
-	Melee              *ecs.Map[Melee] `save:"true"`
-	Fire               *ecs.Map[Fire] `save:"true"`
-	Value              *ecs.Map[Value] `save:"true"`
-	Weight             *ecs.Map[Weight] `save:"true"`
-	Recipe             *ecs.Map[Recipe] `save:"true"`
-	Wearable           *ecs.Map[Wearable] `save:"true"`
-	Abilities          *ecs.Map[Abilities] `save:"true"`
-	Ammo               *ecs.Map[Ammo] `save:"true"`
-	Stackable          *ecs.Map[Stackable] `save:"true"`
-	Material           *ecs.Map[Material]  `save:"true"`
+	HP                 *ecs.Map[HP]                 `save:"true"`
+	Consumable         *ecs.Map[Consumable]         `save:"true"`
+	WeightCapacity     *ecs.Map[WeightCapacity]     `save:"true"`
+	Melee              *ecs.Map[Melee]              `save:"true"`
+	Fire               *ecs.Map[Fire]               `save:"true"`
+	Value              *ecs.Map[Value]              `save:"true"`
+	Weight             *ecs.Map[Weight]             `save:"true"`
+	Recipe             *ecs.Map[Recipe]             `save:"true"`
+	Wearable           *ecs.Map[Wearable]           `save:"true"`
+	Abilities          *ecs.Map[Abilities]          `save:"true"`
+	Ammo               *ecs.Map[Ammo]               `save:"true"`
+	Stackable          *ecs.Map[Stackable]          `save:"true"`
+	Material           *ecs.Map[Material]           `save:"true"`
 	LocationInBackpack *ecs.Map[LocationInBackpack] `save:"true"`
-	LocationEquipped   *ecs.Map[LocationEquipped] `save:"true"`
+	LocationEquipped   *ecs.Map[LocationEquipped]   `save:"true"`
 	LocationOnField    *ecs.Map[LocationOnField]
 	LocationInStorage  *ecs.Map[LocationInStorage]
 
@@ -116,7 +116,7 @@ type Components struct {
 	SquadAI         *ecs.Map[SquadAI]
 	Camera          *ecs.Map[Camera] `save:"true"`
 	Position        *ecs.Map[Position]
-	GridElement     *ecs.Map[GridElement] `save:"true"`
+	GridElement     *ecs.Map[GridElement]  `save:"true"`
 	SpriteRender    *ecs.Map[SpriteRender] `save:"true"`
 	BlockView       *ecs.Map[BlockView]
 	BlockPass       *ecs.Map[BlockPass]
@@ -129,28 +129,28 @@ type Components struct {
 	TileTemperature *ecs.Map[TileTemperature]
 
 	// member ================
-	Player         *ecs.Map[Player]  `save:"true"`
+	Player         *ecs.Map[Player]     `save:"true"`
 	Profession     *ecs.Map[Profession] `save:"true"`
 	Hunger         *ecs.Map[Hunger]
-	Wallet         *ecs.Map[Wallet] `save:"true"`
-	FactionAlly    *ecs.Map[FactionAllyData]  `save:"true"`
+	Wallet         *ecs.Map[Wallet]          `save:"true"`
+	FactionAlly    *ecs.Map[FactionAllyData] `save:"true"`
 	FactionEnemy   *ecs.Map[FactionEnemyData]
 	FactionNeutral *ecs.Map[FactionNeutralData] `save:"true"`
-	Boss           *ecs.Map[Boss] // ボスエンティティのマーカー
+	Boss           *ecs.Map[Boss]               // ボスエンティティのマーカー
 	Dialog         *ecs.Map[Dialog]
 	Dead           *ecs.Map[Dead]
-	TurnBased      *ecs.Map[TurnBased] `save:"true"`
-	HealthStatus   *ecs.Map[HealthStatus] `save:"true"`
-	Skills         *ecs.Map[Skills] `save:"true"`
+	TurnBased      *ecs.Map[TurnBased]     `save:"true"`
+	HealthStatus   *ecs.Map[HealthStatus]  `save:"true"`
+	Skills         *ecs.Map[Skills]        `save:"true"`
 	CharModifiers  *ecs.Map[CharModifiers] `save:"true"`
 
 	// event ================
 	StateChangeRequest *ecs.Map[StateChangeRequest] // ステート遷移リクエスト
 	StatsChanged       *ecs.Map[StatsChanged]
 	WeightDirty        *ecs.Map[WeightDirty]
-	ProvidesHealing    *ecs.Map[ProvidesHealing] `save:"true"`
+	ProvidesHealing    *ecs.Map[ProvidesHealing]   `save:"true"`
 	ProvidesNutrition  *ecs.Map[ProvidesNutrition] `save:"true"`
-	InflictsDamage     *ecs.Map[InflictsDamage] `save:"true"`
+	InflictsDamage     *ecs.Map[InflictsDamage]    `save:"true"`
 
 	// book ================
 	Book *ecs.Map[Book] `save:"true"`
@@ -163,14 +163,14 @@ type Components struct {
 	SquadMember *ecs.Map[SquadMember] `save:"true"`
 
 	// activity ================
-	Activity     *ecs.Map[Activity] // 実行中のアクティビティ
+	Activity     *ecs.Map[Activity]     // 実行中のアクティビティ
 	LastActivity *ecs.Map[LastActivity] // 直近のアクティビティ実行結果
 
 	// singleton ================
-	GameLog      *ecs.Map[GameLog] // フィールドログストレージ
-	DungeonState *ecs.Map[Dungeon] // ダンジョン状態
+	GameLog      *ecs.Map[GameLog]      // フィールドログストレージ
+	DungeonState *ecs.Map[Dungeon]      // ダンジョン状態
 	GameProgress *ecs.Map[GameProgress] // ゲーム進行データ
-	TurnState    *ecs.Map[TurnState] // ターン状態
+	TurnState    *ecs.Map[TurnState]    // ターン状態
 	SpatialIndex *ecs.Map[SpatialIndex] // 空間インデックス
 }
 

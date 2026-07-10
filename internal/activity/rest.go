@@ -160,10 +160,7 @@ func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 		return nil
 	}
 
-	hp, ok := hpComponent
-	if !ok {
-		return fmt.Errorf("HPコンポーネントの型変換に失敗しました")
-	}
+	hp := hpComponent
 	if hp.Current >= hp.Max {
 		// 既に満タンの場合は早期完了
 		Complete(comp)

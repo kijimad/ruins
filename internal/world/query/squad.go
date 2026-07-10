@@ -34,7 +34,7 @@ func SquadMemberAt(world w.World, x, y int) (ecs.Entity, bool) {
 			return member, true
 		}
 	}
-	return ecs.Entity(0), false
+	return ecs.Entity{}, false
 }
 
 // GetSquadAI は隊員のSquadAIコンポーネントを返す。

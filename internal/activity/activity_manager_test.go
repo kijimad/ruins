@@ -10,9 +10,9 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/mlange-42/ark/ecs"
 )
 
 // getActivitySummary はテスト用にアクティビティの要約情報を取得する

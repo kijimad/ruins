@@ -3,8 +3,8 @@ package components
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/mlange-42/ark/ecs"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStateChangeRequest_Constructors(t *testing.T) {
@@ -17,10 +17,10 @@ func TestStateChangeRequest_Constructors(t *testing.T) {
 	assert.Equal(t, EventOpenDungeonSelect, OpenDungeonSelectEvent().Kind)
 
 	// ペイロード付きのイベントもフィールドが設定されることを確認
-	dialog := ShowDialogEvent("test", ecs.Entity(0))
+	dialog := ShowDialogEvent("test", ecs.Entity{})
 	assert.Equal(t, EventShowDialog, dialog.Kind)
 	assert.Equal(t, "test", dialog.MessageKey)
 
-	storage := OpenStorageEvent(ecs.Entity(0))
+	storage := OpenStorageEvent(ecs.Entity{})
 	assert.Equal(t, EventOpenStorage, storage.Kind)
 }

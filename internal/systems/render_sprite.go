@@ -130,7 +130,9 @@ func initializeShadowImages() {
 // renderFloorLayer は床レイヤー（タイル）を描画する
 func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
 	iSprite := 0
-	entities := make([]ecs.Entity, ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.World).Query().Count())
+	countQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.World).Query()
+	entities := make([]ecs.Entity, countQuery.Count())
+	countQuery.Close()
 	tileQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.World).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
@@ -278,8 +280,11 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			continue
 		}
 
-		belowSpriteRender, ok := world.Components.SpriteRender.Get(belowTileEntity)
-		if !ok || belowSpriteRender.Depth != gc.DepthNumFloor {
+		if !world.Components.SpriteRender.Has(belowTileEntity) {
+			continue // 下が床でなければ影を描画しない
+		}
+		belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)
+		if belowSpriteRender.Depth != gc.DepthNumFloor {
 			continue // 下が床でなければ影を描画しない
 		}
 

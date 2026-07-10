@@ -43,7 +43,7 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	setLocation(world, entity, &gc.LocationOnField{})
 	if previousOwner != nil {
-		world.Components.WeightDirty.Add(previousOwner, &gc.WeightDirty{})
+		world.Components.WeightDirty.Add(*previousOwner, &gc.WeightDirty{})
 	}
 }
 
@@ -133,34 +133,33 @@ const (
 
 // mergeStackableItems は指定ロケーション内の同一Owner配下にある同名Stackableアイテムを1つに統合する
 func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owner ecs.Entity) error {
-	var locationComp ecs.DataComponent
+	// Ark のフィルタは静的な型引数を要求するため、ロケーション種別ごとに分岐する
+	var stackableItems []ecs.Entity
 	switch loc {
 	case mergeInBackpack:
-		locationComp = world.Components.LocationInBackpack
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+		for q.Next() {
+			entity := q.Entity()
+			if world.Components.Name.Get(entity).Name != itemName {
+				continue
+			}
+			if world.Components.LocationInBackpack.Get(entity).Owner == owner {
+				stackableItems = append(stackableItems, entity)
+			}
+		}
 	case mergeInStorage:
-		locationComp = world.Components.LocationInStorage
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.Name](world.World).Query()
+		for q.Next() {
+			entity := q.Entity()
+			if world.Components.Name.Get(entity).Name != itemName {
+				continue
+			}
+			if world.Components.LocationInStorage.Get(entity).Owner == owner {
+				stackableItems = append(stackableItems, entity)
+			}
+		}
 	default:
 		return fmt.Errorf("未対応のmergeLocation: %d", loc)
-	}
-
-	var stackableItems []ecs.Entity
-	stackableQuery := ecs.NewFilter3[gc.Stackable, locationComp, gc.Name](world.World).Query()
-	for stackableQuery.Next() {
-		entity := stackableQuery.Entity()
-		name := world.Components.Name.Get(entity)
-		if name.Name != itemName {
-			continue
-		}
-		switch l := locationComp.Get(entity).(type) {
-		case *gc.LocationInBackpack:
-			if l.Owner == owner {
-				stackableItems = append(stackableItems, entity)
-			}
-		case *gc.LocationInStorage:
-			if l.Owner == owner {
-				stackableItems = append(stackableItems, entity)
-			}
-		}
 	}
 
 	if len(stackableItems) <= 1 {

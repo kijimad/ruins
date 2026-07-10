@@ -57,10 +57,10 @@ func (sa *ShootActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
-	if !world.Components.GridElement.Has(comp.Target) {
+	if !world.Components.GridElement.Has(*comp.Target) {
 		return ErrAttackTargetNotExists
 	}
-	if world.Components.Dead.Has(comp.Target) {
+	if world.Components.Dead.Has(*comp.Target) {
 		return ErrAttackTargetDead
 	}
 

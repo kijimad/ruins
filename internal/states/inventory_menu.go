@@ -465,7 +465,7 @@ type actionItem struct {
 
 // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す
 func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []actionItem {
-	if entity == 0 {
+	if entity.IsZero() {
 		return nil
 	}
 

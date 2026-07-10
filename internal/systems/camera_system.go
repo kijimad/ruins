@@ -73,6 +73,6 @@ func (sys *CameraSystem) Update(world w.World) error {
 
 		// ズームも滑らかに追従
 		camera.Scale = camera.ScaleTo
-	}))
+	}
 	return nil
 }

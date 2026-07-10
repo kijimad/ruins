@@ -118,7 +118,15 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 		return fmt.Errorf("unsupported save data version: %s", saveData.Version)
 	}
 
-	world.Manager.DeleteAllEntities()
+	// 全エンティティを削除する。クエリ反復中はロックされるため集めてから削除する
+	var allEntities []ecs.Entity
+	allQuery := ecs.NewUnsafeFilter(world.World).Query()
+	for allQuery.Next() {
+		allEntities = append(allEntities, allQuery.Entity())
+	}
+	for _, e := range allEntities {
+		world.World.RemoveEntity(e)
+	}
 	world.InitSingleton()
 	sm.stableIDManager.Clear()
 
@@ -427,8 +435,8 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 
 	// 第4段階: 派生コンポーネントの再計算をマークする
 	for _, entry := range entries {
-		if entry.c.Skills.Has(entity) {
-			entry.c.StatsChanged.Add(entity, &gc.StatsChanged{})
+		if c.Skills.Has(entry.entity) {
+			c.StatsChanged.Add(entry.entity, &gc.StatsChanged{})
 		}
 	}
 
@@ -494,7 +502,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 		slot := gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot)
 		if slot >= gc.SlotHead && slot <= gc.SlotWeapon5 {
 			equipped := gc.LocationEquipped{
-				Owner:         0,
+				Owner:         ecs.Entity{},
 				EquipmentSlot: slot,
 			}
 			c.LocationEquipped.Add(entity, &equipped)

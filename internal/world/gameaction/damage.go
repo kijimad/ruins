@@ -33,11 +33,11 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 // reactToHostileAction は被ダメージ時にAIの戦闘方針を変化させる。
 // CombatIgnore は反撃のため CombatAttack に遷移する
 func reactToHostileAction(world w.World, target ecs.Entity) {
-	if solo, ok := world.Components.SoloAI.Get(target); ok {
-		solo.ReactToHostile()
+	if world.Components.SoloAI.Has(target) {
+		world.Components.SoloAI.Get(target).ReactToHostile()
 	}
-	if squad, ok := world.Components.SquadAI.Get(target); ok {
-		squad.ReactToHostile()
+	if world.Components.SquadAI.Has(target) {
+		world.Components.SquadAI.Get(target).ReactToHostile()
 	}
 }
 
