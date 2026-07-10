@@ -227,9 +227,8 @@ type Components struct {
 	SpatialIndex Component[SpatialIndex] // 空間インデックス
 }
 
-// InitializeComponents はComponentInitializerインターフェースを実装する
-// リフレクションを使用して自動的に全コンポーネントを初期化する
-// コンポーネント追加時の手動更新が不要
+// InitializeComponents は全コンポーネントを初期化する
+// リフレクションを使用して自動的に初期化するため、コンポーネント追加時の手動更新が不要
 func (c *Components) InitializeComponents(manager *ecs.Manager) error {
 	val := reflect.ValueOf(c).Elem() // *Components から Components へ
 	typ := val.Type()

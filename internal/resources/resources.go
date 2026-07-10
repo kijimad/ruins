@@ -8,7 +8,6 @@ import (
 )
 
 // Resources はゲーム固有のリソース管理を担当する
-// engine/resources.ResourceProviderインターフェースを実装する
 // 初期化時のみセットされ、あとから変更はされない
 type Resources struct {
 	// 静的
@@ -36,12 +35,6 @@ func (r *Resources) GetScreenDimensions() (width, height int) {
 func (r *Resources) SetScreenDimensions(width, height int) {
 	r.ScreenDimensions.Width = width
 	r.ScreenDimensions.Height = height
-}
-
-// InitializeResources は engine/resources.ResourceInitializer インターフェースを実装する
-func (r *Resources) InitializeResources() error {
-	*r = *InitGameResources()
-	return nil
 }
 
 // InitGameResources はゲームリソースを初期化する
