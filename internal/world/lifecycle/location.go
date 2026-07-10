@@ -109,13 +109,13 @@ func setLocation(world w.World, entity ecs.Entity, data gc.Location) {
 	// dataの型に応じて位置コンポーネントを追加
 	switch v := data.(type) {
 	case *gc.LocationInBackpack:
-		world.Components.LocationInBackpack.Add(entity, v)
+		gc.AddComponent(entity, world.Components.LocationInBackpack, v)
 	case *gc.LocationEquipped:
-		world.Components.LocationEquipped.Add(entity, v)
+		gc.AddComponent(entity, world.Components.LocationEquipped, v)
 	case *gc.LocationOnField:
 		entity.AddComponent(world.Components.LocationOnField, v)
 	case *gc.LocationInStorage:
-		world.Components.LocationInStorage.Add(entity, v)
+		gc.AddComponent(entity, world.Components.LocationInStorage, v)
 	}
 
 	// フィールド以外に移動する場合はグリッド座標を除去する

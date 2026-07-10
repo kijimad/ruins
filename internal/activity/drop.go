@@ -110,7 +110,7 @@ func (da *DropActivity) performDropActivity(comp *gc.Activity, actor ecs.Entity,
 	formattedName := query.FormatItemName(world, target)
 
 	lifecycle.MoveToField(world, target, &actor)
-	world.Components.GridElement.Add(target, &gc.GridElement{
+	gc.AddComponent(target, world.Components.GridElement, &gc.GridElement{
 		X: targetTile.X,
 		Y: targetTile.Y,
 	})

@@ -308,7 +308,7 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 		found = true
 	}))
 	if !found {
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
+		gc.AddComponent(item, world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		return item, nil
 	}
 	if err := MoveToBackpack(world, item, playerEntity); err != nil {
@@ -437,7 +437,7 @@ func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile
 	}
 
 	MoveToField(world, item, nil)
-	world.Components.GridElement.Add(item, &gc.GridElement{X: x, Y: y})
+	gc.AddComponent(item, world.Components.GridElement, &gc.GridElement{X: x, Y: y})
 
 	return item, nil
 }
@@ -451,11 +451,11 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	gridElement := world.Components.GridElement.MustGet(target)
 
 	effectEntity := world.Manager.NewEntity()
-	world.Components.GridElement.Add(effectEntity, &gc.GridElement{
+	gc.AddComponent(effectEntity, world.Components.GridElement, &gc.GridElement{
 		X: gridElement.X,
 		Y: gridElement.Y,
 	})
-	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
+	gc.AddComponent(effectEntity, world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
 }

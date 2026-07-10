@@ -119,7 +119,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			if loc.Owner != owner {
 				return
 			}
-			world.Components.GridElement.Add(item, &gc.GridElement{X: grid.X, Y: grid.Y})
+			gc.AddComponent(item, world.Components.GridElement, &gc.GridElement{X: grid.X, Y: grid.Y})
 			lifecycle.MoveToField(world, item, &owner)
 		}))
 	}
@@ -133,11 +133,11 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 			effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
 			effectEntity := world.Manager.NewEntity()
-			world.Components.GridElement.Add(effectEntity, &gc.GridElement{
+			gc.AddComponent(effectEntity, world.Components.GridElement, &gc.GridElement{
 				X: gridElement.X,
 				Y: gridElement.Y,
 			})
-			world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
+			gc.AddComponent(effectEntity, world.Components.VisualEffect, &gc.VisualEffects{
 				Effects: []gc.VisualEffect{effect},
 			})
 		}

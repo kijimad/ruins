@@ -435,7 +435,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	}
 	// LocationInBackpack（Ownerは第3段階で解決）
 	if comp.LocationInBackpack != nil {
-		c.LocationInBackpack.Add(entity, &gc.LocationInBackpack{})
+		gc.AddComponent(entity, c.LocationInBackpack, &gc.LocationInBackpack{})
 	}
 	if comp.StatsChanged != nil {
 		entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
@@ -449,7 +449,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 				stackable.Count = int(countFloat)
 			}
 		}
-		c.Stackable.Add(entity, &stackable)
+		gc.AddComponent(entity, c.Stackable, &stackable)
 	}
 
 	// データコンポーネント
@@ -463,16 +463,16 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 
 	// 戦闘コンポーネント
 	if comp.CommandTable != nil {
-		c.CommandTable.Add(entity, &gc.CommandTable{Name: comp.CommandTable.Name})
+		gc.AddComponent(entity, c.CommandTable, &gc.CommandTable{Name: comp.CommandTable.Name})
 	}
 
 	// 隊員コンポーネント
 	if comp.SquadMember != nil {
-		c.SquadMember.Add(entity, &gc.SquadMember{})
+		gc.AddComponent(entity, c.SquadMember, &gc.SquadMember{})
 	}
 	if comp.SquadPolicy != nil {
 		ai := aiFromSaveData(*comp.SquadPolicy)
-		c.AI.Add(entity, &ai)
+		gc.AddComponent(entity, c.AI, &ai)
 	}
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {
@@ -482,7 +482,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 				Owner:         0,
 				EquipmentSlot: slot,
 			}
-			c.LocationEquipped.Add(entity, &equipped)
+			gc.AddComponent(entity, c.LocationEquipped, &equipped)
 		}
 	}
 }
@@ -490,50 +490,50 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 // restoreDataComponents はデータ/表示コンポーネントを復元する
 func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Name != nil {
-		c.Name.Add(entity, &gc.Name{Name: comp.Name.Name})
+		gc.AddComponent(entity, c.Name, &gc.Name{Name: comp.Name.Name})
 	}
 	if comp.Description != nil {
-		c.Description.Add(entity, &gc.Description{Description: comp.Description.Description})
+		gc.AddComponent(entity, c.Description, &gc.Description{Description: comp.Description.Description})
 	}
 	if comp.HP != nil {
 		hp := hpFromSaveData(*comp.HP)
-		c.HP.Add(entity, &hp)
+		gc.AddComponent(entity, c.HP, &hp)
 	}
 	if comp.WeightCapacity != nil {
 		cw := weightCapacityFromSaveData(*comp.WeightCapacity)
-		c.WeightCapacity.Add(entity, &cw)
+		gc.AddComponent(entity, c.WeightCapacity, &cw)
 	}
 	if comp.TurnBased != nil {
 		tb := turnBasedFromSaveData(*comp.TurnBased)
-		c.TurnBased.Add(entity, &tb)
+		gc.AddComponent(entity, c.TurnBased, &tb)
 	}
 	if comp.Abilities != nil {
 		ab := abilitiesFromSaveData(*comp.Abilities)
-		c.Abilities.Add(entity, &ab)
+		gc.AddComponent(entity, c.Abilities, &ab)
 	}
 	if comp.HealthStatus != nil {
 		hs := healthStatusFromSaveData(*comp.HealthStatus)
-		c.HealthStatus.Add(entity, &hs)
+		gc.AddComponent(entity, c.HealthStatus, &hs)
 	}
 	if comp.Skills != nil {
 		skills := skillsFromSaveData(*comp.Skills)
-		c.Skills.Add(entity, skills)
+		gc.AddComponent(entity, c.Skills, skills)
 	}
 	if comp.Camera != nil {
 		cam := cameraFromSaveData(*comp.Camera)
-		c.Camera.Add(entity, &cam)
+		gc.AddComponent(entity, c.Camera, &cam)
 	}
 	if comp.GridElement != nil {
 		ge := gridElementFromSaveData(*comp.GridElement)
-		c.GridElement.Add(entity, &ge)
+		gc.AddComponent(entity, c.GridElement, &ge)
 	}
 	if comp.SpriteRender != nil {
 		sr := spriteRenderFromSaveData(*comp.SpriteRender)
-		c.SpriteRender.Add(entity, &sr)
+		gc.AddComponent(entity, c.SpriteRender, &sr)
 	}
 	if comp.LightSource != nil {
 		ls := lightSourceFromSaveData(*comp.LightSource)
-		c.LightSource.Add(entity, &ls)
+		gc.AddComponent(entity, c.LightSource, &ls)
 	}
 }
 
@@ -541,26 +541,26 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Wearable != nil {
 		w := wearableFromSaveData(*comp.Wearable)
-		c.Wearable.Add(entity, &w)
+		gc.AddComponent(entity, c.Wearable, &w)
 	}
 	if comp.Value != nil {
-		c.Value.Add(entity, &gc.Value{Value: int(comp.Value.Value)})
+		gc.AddComponent(entity, c.Value, &gc.Value{Value: int(comp.Value.Value)})
 	}
 	if comp.Melee != nil {
 		m := meleeFromSaveData(*comp.Melee)
-		c.Melee.Add(entity, &m)
+		gc.AddComponent(entity, c.Melee, &m)
 	}
 	if comp.Fire != nil {
 		f := fireFromSaveData(*comp.Fire)
-		c.Fire.Add(entity, &f)
+		gc.AddComponent(entity, c.Fire, &f)
 	}
 	if comp.Recipe != nil {
 		r := recipeFromSaveData(*comp.Recipe)
-		c.Recipe.Add(entity, &r)
+		gc.AddComponent(entity, c.Recipe, &r)
 	}
 	if comp.Ammo != nil {
 		a := ammoFromSaveData(*comp.Ammo)
-		c.Ammo.Add(entity, &a)
+		gc.AddComponent(entity, c.Ammo, &a)
 	}
 }
 
@@ -568,20 +568,20 @@ func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 func restoreEffectComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
 	if comp.Consumable != nil {
 		con := consumableFromSaveData(*comp.Consumable)
-		c.Consumable.Add(entity, &con)
+		gc.AddComponent(entity, c.Consumable, &con)
 	}
 	if comp.ProvidesHealing != nil {
 		ph := providesHealingFromSaveData(*comp.ProvidesHealing)
-		c.ProvidesHealing.Add(entity, &ph)
+		gc.AddComponent(entity, c.ProvidesHealing, &ph)
 	}
 	if comp.ProvidesNutrition != nil {
-		c.ProvidesNutrition.Add(entity, &gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})
+		gc.AddComponent(entity, c.ProvidesNutrition, &gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})
 	}
 	if comp.InflictsDamage != nil {
-		c.InflictsDamage.Add(entity, &gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})
+		gc.AddComponent(entity, c.InflictsDamage, &gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})
 	}
 	if comp.Wallet != nil {
-		c.Wallet.Add(entity, &gc.Wallet{Currency: int(comp.Wallet.Currency)})
+		gc.AddComponent(entity, c.Wallet, &gc.Wallet{Currency: int(comp.Wallet.Currency)})
 	}
 }
 

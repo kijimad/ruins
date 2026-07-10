@@ -51,7 +51,7 @@ func GetGameLog(world w.World) *gamelog.SafeSlice {
 
 // SetDungeon はシングルトンエンティティにDungeonを設定する
 func SetDungeon(world w.World, dungeon *gc.Dungeon) {
-	world.Components.DungeonState.Add(world.Resources.SingletonEntity, dungeon)
+	gc.AddComponent(world.Resources.SingletonEntity, world.Components.DungeonState, dungeon)
 }
 
 // GetSpatialIndex はシングルトンから空間インデックスを取得する

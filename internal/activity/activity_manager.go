@@ -105,7 +105,7 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 	if actor.HasComponent(world.Components.LastActivity) {
 		actor.RemoveComponent(world.Components.LastActivity)
 	}
-	world.Components.LastActivity.Add(actor, lastResult)
+	gc.AddComponent(actor, world.Components.LastActivity, lastResult)
 }
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
