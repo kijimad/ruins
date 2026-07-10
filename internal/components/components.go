@@ -124,78 +124,78 @@ type sliceComponentIniter interface {
 // 各コンポーネントの型付き取得は Component[T] の MustGet/TryGet を使う
 type Components struct {
 	// general ================
-	Name        Component[Name]        `save:"true"`
-	Description Component[Description] `save:"true"`
+	Name        Component[Name]
+	Description Component[Description]
 
 	// item ================
-	HP                 Component[HP]                 `save:"true"`
-	Consumable         Component[Consumable]         `save:"true"`
-	WeightCapacity     Component[WeightCapacity]     `save:"true"`
-	Melee              Component[Melee]              `save:"true"`
-	Fire               Component[Fire]               `save:"true"`
-	Value              Component[Value]              `save:"true"`
-	Weight             Component[Weight]             `save:"true"`
-	Recipe             Component[Recipe]             `save:"true"`
-	Wearable           Component[Wearable]           `save:"true"`
-	Abilities          Component[Abilities]          `save:"true"`
-	Ammo               Component[Ammo]               `save:"true"`
-	Stackable          Component[Stackable]          `save:"true"`
-	Material           *ecs.NullComponent            `save:"true"`
-	LocationInBackpack Component[LocationInBackpack] `save:"true"`
-	LocationEquipped   Component[LocationEquipped]   `save:"true"`
+	HP                 Component[HP]
+	Consumable         Component[Consumable]
+	WeightCapacity     Component[WeightCapacity]
+	Melee              Component[Melee]
+	Fire               Component[Fire]
+	Value              Component[Value]
+	Weight             Component[Weight]
+	Recipe             Component[Recipe]
+	Wearable           Component[Wearable]
+	Abilities          Component[Abilities]
+	Ammo               Component[Ammo]
+	Stackable          Component[Stackable]
+	Material           *ecs.NullComponent
+	LocationInBackpack Component[LocationInBackpack]
+	LocationEquipped   Component[LocationEquipped]
 	LocationOnField    *ecs.NullComponent
 	LocationInStorage  Component[LocationInStorage]
 
 	// field ================
 	Tile            *ecs.NullComponent
 	AI              Component[AI]
-	Camera          Component[Camera] `save:"true"`
+	Camera          Component[Camera]
 	Position        Component[Position]
-	GridElement     Component[GridElement]  `save:"true"`
-	SpriteRender    Component[SpriteRender] `save:"true"`
+	GridElement     Component[GridElement]
+	SpriteRender    Component[SpriteRender]
 	BlockView       *ecs.NullComponent
 	BlockPass       *ecs.NullComponent
 	PassCost        Component[PassCost]
 	Door            Component[Door]
 	Prop            *ecs.NullComponent
-	LightSource     Component[LightSource] `save:"true"`
+	LightSource     Component[LightSource]
 	Interactable    Component[Interactable]
 	VisualEffect    Component[VisualEffects]
 	TileTemperature Component[TileTemperature]
 
 	// member ================
-	Player         *ecs.NullComponent    `save:"true"`
-	Profession     Component[Profession] `save:"true"`
+	Player         *ecs.NullComponent
+	Profession     Component[Profession]
 	Hunger         Component[Hunger]
-	Wallet         Component[Wallet]  `save:"true"`
-	FactionAlly    *ecs.NullComponent `save:"true"`
+	Wallet         Component[Wallet]
+	FactionAlly    *ecs.NullComponent
 	FactionEnemy   *ecs.NullComponent
-	FactionNeutral *ecs.NullComponent `save:"true"`
+	FactionNeutral *ecs.NullComponent
 	Boss           *ecs.NullComponent // ボスエンティティのマーカー
 	Dialog         Component[Dialog]
 	Dead           *ecs.NullComponent
-	TurnBased      Component[TurnBased]     `save:"true"`
-	HealthStatus   Component[HealthStatus]  `save:"true"`
-	Skills         Component[Skills]        `save:"true"`
-	CharModifiers  Component[CharModifiers] `save:"true"`
+	TurnBased      Component[TurnBased]
+	HealthStatus   Component[HealthStatus]
+	Skills         Component[Skills]
+	CharModifiers  Component[CharModifiers]
 
 	// event ================
 	StateChangeRequest Component[StateChangeRequest] // ステート遷移リクエスト
 	StatsChanged       *ecs.NullComponent
 	WeightDirty        *ecs.NullComponent
-	ProvidesHealing    Component[ProvidesHealing]   `save:"true"`
-	ProvidesNutrition  Component[ProvidesNutrition] `save:"true"`
-	InflictsDamage     Component[InflictsDamage]    `save:"true"`
+	ProvidesHealing    Component[ProvidesHealing]
+	ProvidesNutrition  Component[ProvidesNutrition]
+	InflictsDamage     Component[InflictsDamage]
 
 	// book ================
-	Book Component[Book] `save:"true"`
+	Book Component[Book]
 
 	// battle ================
-	CommandTable Component[CommandTable] `save:"true"`
+	CommandTable Component[CommandTable]
 	DropTable    Component[DropTable]
 
 	// squad ================
-	SquadMember Component[SquadMember] `save:"true"`
+	SquadMember Component[SquadMember]
 
 	// activity ================
 	Activity     Component[Activity]     // 実行中のアクティビティ
