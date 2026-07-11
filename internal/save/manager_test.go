@@ -344,3 +344,57 @@ func TestGetSavePlayerName(t *testing.T) {
 	_, err = manager.GetSavePlayerName("nonexistent")
 	assert.Error(t, err)
 }
+
+// TestRestoreWorldFromJSON_VersionMismatch はサポート外バージョンのセーブを拒否することを検証する。
+// バージョン検証はチェックサム検証の後に行われるため、改ざん後に正しいチェックサムを再計算する。
+func TestRestoreWorldFromJSON_VersionMismatch(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	jsonData, err := manager.GenerateWorldJSON(world)
+	require.NoError(t, err)
+
+	var env saveEnvelope
+	require.NoError(t, json.Unmarshal([]byte(jsonData), &env))
+	env.Version = "0.0.0-unsupported"
+	env.Checksum = checksumOf(&env)
+	tampered, err := json.Marshal(env)
+	require.NoError(t, err)
+
+	newWorld := testutil.InitTestWorld(t)
+	err = manager.RestoreWorldFromJSON(newWorld, string(tampered))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "unsupported save data version")
+}
+
+// TestRestoreWorldFromJSON_InvalidJSON は壊れたJSONを拒否することを検証する。
+func TestRestoreWorldFromJSON_InvalidJSON(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	err = manager.RestoreWorldFromJSON(world, "{ 壊れたJSON ")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "unmarshal")
+}
+
+// TestRestoreWorldFromJSON_MissingSingleton は復元データにシングルトン（GameProgress保持
+// エンティティ）が無い場合にエラーを返すことを検証する。
+func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	// シングルトンからGameProgressを取り除くと、復元時にシングルトンを特定できない
+	world.Components.GameProgress.Remove(world.Resources.SingletonEntity)
+	require.NoError(t, manager.SaveWorld(world, "no_singleton"))
+
+	newWorld := testutil.InitTestWorld(t)
+	err = manager.LoadWorld(newWorld, "no_singleton")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "シングルトン")
+}

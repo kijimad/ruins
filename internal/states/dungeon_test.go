@@ -404,3 +404,32 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 		})
 	}
 }
+
+// TestNewDungeonState_WithResume はセーブ復帰用のDungeonStateが正しく構築されることを検証する。
+// ロードコールバックは復元済みDungeon.Depth/DefinitionNameからこの経路で復帰する。
+func TestNewDungeonState_WithResume(t *testing.T) {
+	t.Parallel()
+
+	factory := NewDungeonState(3, WithDefinitionName("遺跡"), WithResume())
+	state, err := factory()
+	require.NoError(t, err)
+
+	ds, ok := state.(*DungeonState)
+	require.True(t, ok, "DungeonStateが生成される")
+	assert.True(t, ds.Resume, "WithResumeでResumeフラグが立つ")
+	assert.Equal(t, 3, ds.Depth, "階層が設定される")
+	assert.Equal(t, "遺跡", ds.DefinitionName, "ダンジョン定義名が設定される")
+}
+
+// TestNewDungeonState_DefaultNotResume は通常生成では復帰モードにならないことを検証する。
+func TestNewDungeonState_DefaultNotResume(t *testing.T) {
+	t.Parallel()
+
+	factory := NewDungeonState(1)
+	state, err := factory()
+	require.NoError(t, err)
+
+	ds, ok := state.(*DungeonState)
+	require.True(t, ok)
+	assert.False(t, ds.Resume, "通常生成はResumeフラグが立たない（再生成される）")
+}
