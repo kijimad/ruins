@@ -22,7 +22,6 @@ func (sys WeightDirtySystem) String() string {
 // w.Updater interfaceを実装する
 func (sys *WeightDirtySystem) Update(world w.World) error {
 	// WeightDirtyマーカーが付いたエンティティを収集する。
-	// 反復中の構造変更はワールドをロックするため、収集後にフラグをクリアする
 	var changedEntities []ecs.Entity
 	weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.World).Query()
 	for weightDirtyQuery.Next() {

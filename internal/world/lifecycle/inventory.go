@@ -31,7 +31,6 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 	}
 
 	// インベントリ変動フラグを立てる。
-	// クエリ反復中の構造変更はワールドをロックするため、対象を集めてから付与する
 	var players []ecs.Entity
 	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
 	for playerQuery.Next() {

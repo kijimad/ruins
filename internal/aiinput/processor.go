@@ -43,7 +43,6 @@ func (p *Processor) ProcessAll(world w.World) error {
 func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) error {
 	planner := p.planners[plannerType]
 
-	// runAPLoopがSetActivity等の構造変更を行うため、対象を集めてから反復後に処理する
 	var targets []ecs.Entity
 	if plannerType == gc.PlannerSquad {
 		squadQuery := ecs.NewFilter2[gc.SquadAI, gc.GridElement](world.World).Query()

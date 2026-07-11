@@ -113,7 +113,6 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		grid := world.Components.GridElement.Get(entity)
 		gridX, gridY := grid.X, grid.Y
 		owner := entity
-		// 反復中の構造変更を避けるため、対象アイテムを集めてから処理する
 		var items []ecs.Entity
 		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
 		for backpackQuery.Next() {

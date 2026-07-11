@@ -167,7 +167,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *DungeonState) OnStop(world w.World) error {
-	// Ark はクエリ反復中ワールドをロックするため、削除対象を集めてから削除する
 	var toRemove []ecs.Entity
 	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.World).
 		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember](), ecs.C[gc.LocationInBackpack](), ecs.C[gc.LocationEquipped]()).Query()

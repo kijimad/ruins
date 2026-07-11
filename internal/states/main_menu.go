@@ -43,7 +43,6 @@ func (st *MainMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステート開始時の処理を行う
 func (st *MainMenuState) OnStart(world w.World) error {
 	// ワールドをクリアする。前のゲーム状態を削除する
-	// 全エンティティを削除する。クエリ反復中はロックされるため集めてから削除する
 	var clearEntities []ecs.Entity
 	clearQuery := ecs.NewUnsafeFilter(world.World).Query()
 	for clearQuery.Next() {

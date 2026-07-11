@@ -24,7 +24,6 @@ func (sys StatsChangedSystem) String() string {
 func (sys *StatsChangedSystem) Update(world w.World) error {
 	var updateErr error
 
-	// Remove/Addの構造変更を行うため、対象を集めてから反復後に処理する
 	var targets []ecs.Entity
 	statsQuery := ecs.NewFilter2[gc.StatsChanged, gc.Abilities](world.World).Query()
 	for statsQuery.Next() {

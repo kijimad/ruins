@@ -70,7 +70,6 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	}
 
 	// HealthStatusとGridElementを持つエンティティを処理。
-	// StatsChanged付与は構造変更のため、対象を集めてから反復後に付与する
 	var toMark []ecs.Entity
 	healthQuery := ecs.NewFilter2[gc.HealthStatus, gc.GridElement](world.World).Query()
 	for healthQuery.Next() {

@@ -33,7 +33,6 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 
 // LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
 func LockAllDoors(world w.World) int {
-	// CloseDoorが構造変更（BlockPass付与）を行うため、対象を集めてから処理する
 	var doors []ecs.Entity
 	doorQuery := ecs.NewFilter1[gc.Door](world.World).Query()
 	for doorQuery.Next() {
@@ -56,7 +55,6 @@ func LockAllDoors(world w.World) int {
 
 // UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
 func UnlockAllDoors(world w.World) int {
-	// OpenDoorが構造変更（BlockPass除去）を行うため、対象を集めてから処理する
 	var doors []ecs.Entity
 	doorQuery := ecs.NewFilter1[gc.Door](world.World).Query()
 	for doorQuery.Next() {

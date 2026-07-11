@@ -110,8 +110,7 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
 	if !world.Components.LastActivity.Has(actor) {
 		return nil
 	}
-	comp := world.Components.LastActivity.Get(actor)
-	return comp
+	return world.Components.LastActivity.Get(actor)
 }
 
 // StartActivity は新しいアクティビティを開始する
@@ -137,8 +136,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 		return fmt.Errorf("アクティビティ検証失敗: %w", err)
 	}
 
-	// アクティビティをコンポーネントとして登録する。
-	// Arkは値をコピーして格納するため、以降は格納側のポインタを操作する
+	// アクティビティをコンポーネントとして登録する
 	query.SetActivity(world, actor, comp)
 	stored := query.GetActivity(world, actor)
 	stored.State = gc.ActivityStateRunning
@@ -230,7 +228,6 @@ func ProcessTurn(world w.World) {
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
 	var toRemove []ecs.Entity
 
-	// DoTurn/Finishが構造変更を行うため、対象を集めてから処理する（反復中の変更はロックを招く）
 	var entities []ecs.Entity
 	activityQuery := ecs.NewFilter1[gc.Activity](world.World).Query()
 	for activityQuery.Next() {
@@ -315,7 +312,6 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 		cost += getPassCostAt(world, int(destination.X), int(destination.Y))
 	}
 
-	// AP消費ロジックは query.ConsumeActionPoints に一元化する
 	if !query.ConsumeActionPoints(world, actor, cost) {
 		log.Debug("TurnBasedコンポーネントがない", "actor", actor)
 	}
