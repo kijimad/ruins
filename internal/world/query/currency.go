@@ -14,8 +14,7 @@ func AddCurrency(world w.World, entity ecs.Entity, amount int) error {
 	if wallet == nil {
 		return fmt.Errorf("エンティティにWalletコンポーネントがありません")
 	}
-	wl := wallet
-	wl.Currency += amount
+	wallet.Currency += amount
 	return nil
 }
 
@@ -44,8 +43,7 @@ func ConsumeCurrency(world w.World, entity ecs.Entity, amount int) bool {
 	if wallet == nil {
 		return false
 	}
-	wl := wallet
-	wl.Currency -= amount
+	wallet.Currency -= amount
 	return true
 }
 

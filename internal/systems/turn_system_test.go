@@ -327,8 +327,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		turnBased := world.Components.TurnBased.Get(playerEntity)
 		require.NotNil(t, turnBased, "プレイヤーはTurnBasedコンポーネントを持つべき")
 
-		tb := turnBased
-		t.Logf("TurnBased AP: Current=%d, Max=%d", tb.AP.Current, tb.AP.Max)
+		t.Logf("TurnBased AP: Current=%d, Max=%d", turnBased.AP.Current, turnBased.AP.Max)
 
 		// 行動可能かを確認
 		turnState := query.GetTurnState(world)
