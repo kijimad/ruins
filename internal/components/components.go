@@ -270,10 +270,8 @@ type Camera struct {
 	Scale   float64
 	ScaleTo float64
 	// カメラ位置。ピクセル単位
-	X       float64
-	Y       float64
-	TargetX float64
-	TargetY float64
+	Pos    consts.Coord[float64]
+	Target consts.Coord[float64]
 }
 
 // Consumable は消耗品。一度使うとなくなる

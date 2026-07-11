@@ -38,13 +38,13 @@ func (sys *CameraSystem) Update(world w.World) error {
 		// プレイヤー位置をピクセル座標に変換してカメラの目標位置に設定
 		if playerGridElement != nil {
 			tileSize := float64(consts.TileSize)
-			camera.TargetX = float64(playerGridElement.X)*tileSize + tileSize/2
-			camera.TargetY = float64(playerGridElement.Y)*tileSize + tileSize/2
+			camera.Target.X = float64(playerGridElement.X)*tileSize + tileSize/2
+			camera.Target.Y = float64(playerGridElement.Y)*tileSize + tileSize/2
 		}
 
 		// カメラ位置を目標位置に即座にスナップする
-		camera.X = camera.TargetX
-		camera.Y = camera.TargetY
+		camera.Pos.X = camera.Target.X
+		camera.Pos.Y = camera.Target.Y
 
 		// ズーム率変更
 		// 参考: https://ebitengine.org/ja/examples/isometric.html

@@ -77,10 +77,8 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	entitySpec.Camera = &gc.Camera{
 		Scale:   cameraNormalScale,
 		ScaleTo: cameraNormalScale,
-		X:       initialX,
-		Y:       initialY,
-		TargetX: initialX,
-		TargetY: initialY,
+		Pos:     consts.Coord[float64]{X: initialX, Y: initialY},
+		Target:  consts.Coord[float64]{X: initialX, Y: initialY},
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}

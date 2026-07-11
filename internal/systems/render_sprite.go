@@ -68,7 +68,7 @@ func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 
 	// カメラ位置の設定
 	if camera != nil {
-		op.GeoM.Translate(-camera.X, -camera.Y)
+		op.GeoM.Translate(-camera.Pos.X, -camera.Pos.Y)
 		op.GeoM.Scale(camera.Scale, camera.Scale)
 	}
 	// 画面の中央
@@ -411,8 +411,8 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	for cameraQuery.Next() {
 		entity := cameraQuery.Entity()
 		camera := world.Components.Camera.Get(entity)
-		cameraX = camera.X
-		cameraY = camera.Y
+		cameraX = camera.Pos.X
+		cameraY = camera.Pos.Y
 		cameraScale = camera.Scale
 	}
 

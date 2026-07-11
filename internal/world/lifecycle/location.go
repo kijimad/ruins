@@ -261,10 +261,10 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	// カメラ位置も同期する
 	camera := world.Components.Camera.Get(playerEntity)
 	tileSize := float64(consts.TileSize)
-	camera.X = float64(tileX)*tileSize + tileSize/2
-	camera.Y = float64(tileY)*tileSize + tileSize/2
-	camera.TargetX = camera.X
-	camera.TargetY = camera.Y
+	camera.Pos.X = float64(tileX)*tileSize + tileSize/2
+	camera.Pos.Y = float64(tileY)*tileSize + tileSize/2
+	camera.Target.X = camera.Pos.X
+	camera.Target.Y = camera.Pos.Y
 
 	// Active隊員をプレイヤーの隣接タイルに配置する
 	exclude := map[gc.GridElement]bool{}
