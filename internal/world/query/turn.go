@@ -41,14 +41,13 @@ func CanPlayerAct(world w.World) bool {
 	return tb.AP.Current >= 0
 }
 
-// ConsumeActionPoints はエンティティのアクションポイントを消費する
+// ConsumeActionPoints はエンティティのアクションポイントを消費する。
+// TurnBasedを持たないエンティティにはfalseを返す
 func ConsumeActionPoints(world w.World, entity ecs.Entity, cost int) bool {
-	tbComp := world.Components.TurnBased.Get(entity)
-	if tbComp == nil {
+	if !world.Components.TurnBased.Has(entity) {
 		return false
 	}
-
-	tb := tbComp
+	tb := world.Components.TurnBased.Get(entity)
 	tb.AP.Current -= cost
 
 	log := logger.New(logger.CategoryTurn)

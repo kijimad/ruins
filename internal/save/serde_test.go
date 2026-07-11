@@ -107,4 +107,9 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	require.NotNil(t, restored)
 	assert.Equal(t, 3, restored.Depth, "階層が復元される")
 	assert.Equal(t, "遺跡", restored.DefinitionName, "ダンジョン定義名が復元される")
+
+	// 視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
+	// nilのままだと視界処理で書き込み時にpanicするため非nilであること
+	assert.NotNil(t, restored.ExploredTiles, "探索済みマップが空mapで初期化される")
+	assert.NotNil(t, restored.VisibleTiles, "可視マップが空mapで初期化される")
 }

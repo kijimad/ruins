@@ -102,10 +102,7 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 		Message:      result.Message,
 	}
 
-	if world.Components.LastActivity.Has(actor) {
-		world.Components.LastActivity.Remove(actor)
-	}
-	world.Components.LastActivity.Add(actor, lastResult)
+	gc.Upsert(world.Components.LastActivity, actor, lastResult)
 }
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
@@ -318,22 +315,10 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 		cost += getPassCostAt(world, int(destination.X), int(destination.Y))
 	}
 
-	// TurnBasedコンポーネントから直接APを消費
-	if !world.Components.TurnBased.Has(actor) {
+	// AP消費ロジックは query.ConsumeActionPoints に一元化する
+	if !query.ConsumeActionPoints(world, actor, cost) {
 		log.Debug("TurnBasedコンポーネントがない", "actor", actor)
-		return
 	}
-	tbComp := world.Components.TurnBased.Get(actor)
-
-	tb := tbComp
-	tb.AP.Current -= cost
-
-	log.Debug("移動コスト消費",
-		"activity", behavior.Name(),
-		"cost", cost,
-		"remaining", tb.AP.Current,
-		"actor", actor,
-		"isPlayer", world.Components.Player.Has(actor))
 }
 
 // getPassCostAt は指定座標にあるPropのPassCostを合算して返す
