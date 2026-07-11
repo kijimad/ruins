@@ -43,6 +43,8 @@ func TestLockAllDoors(t *testing.T) {
 		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 1, locked)
+		// LockAllDoors内のCloseDoorがarchetypeを変えるため取り直して検証する
+		doorComp = world.Components.Door.Get(door)
 		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
 		assert.True(t, doorComp.Locked, "扉がロックされるべき")
 	})

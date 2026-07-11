@@ -110,10 +110,10 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
 func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
-	comp := world.Components.LastActivity.Get(actor)
-	if comp == nil {
+	if !world.Components.LastActivity.Has(actor) {
 		return nil
 	}
+	comp := world.Components.LastActivity.Get(actor)
 	return comp
 }
 
@@ -140,12 +140,14 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 		return fmt.Errorf("アクティビティ検証失敗: %w", err)
 	}
 
-	// アクティビティをコンポーネントとして登録
+	// アクティビティをコンポーネントとして登録する。
+	// Arkは値をコピーして格納するため、以降は格納側のポインタを操作する
 	query.SetActivity(world, actor, comp)
-	comp.State = gc.ActivityStateRunning
+	stored := query.GetActivity(world, actor)
+	stored.State = gc.ActivityStateRunning
 
 	// BehaviorのStart処理を実行
-	if err := behavior.Start(comp, actor, world); err != nil {
+	if err := behavior.Start(stored, actor, world); err != nil {
 		// 開始に失敗した場合はクリーンアップ
 		query.RemoveActivity(world, actor)
 		return fmt.Errorf("アクティビティ開始失敗: %w", err)
@@ -154,7 +156,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("アクティビティ開始",
 		"entity", actor,
 		"type", behavior.Name(),
-		"duration", comp.TurnsTotal)
+		"duration", stored.TurnsTotal)
 
 	return nil
 }
@@ -231,9 +233,17 @@ func ProcessTurn(world w.World) {
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
 	var toRemove []ecs.Entity
 
+	// DoTurn/Finishが構造変更を行うため、対象を集めてから処理する（反復中の変更はロックを招く）
+	var entities []ecs.Entity
 	activityQuery := ecs.NewFilter1[gc.Activity](world.World).Query()
 	for activityQuery.Next() {
-		entity := activityQuery.Entity()
+		entities = append(entities, activityQuery.Entity())
+	}
+
+	for _, entity := range entities {
+		if !world.World.Alive(entity) || !world.Components.Activity.Has(entity) {
+			continue
+		}
 		comp := world.Components.Activity.Get(entity)
 
 		// アクティブなアクティビティのみ処理
@@ -309,11 +319,11 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 	}
 
 	// TurnBasedコンポーネントから直接APを消費
-	tbComp := world.Components.TurnBased.Get(actor)
-	if tbComp == nil {
+	if !world.Components.TurnBased.Has(actor) {
 		log.Debug("TurnBasedコンポーネントがない", "actor", actor)
 		return
 	}
+	tbComp := world.Components.TurnBased.Get(actor)
 
 	tb := tbComp
 	tb.AP.Current -= cost

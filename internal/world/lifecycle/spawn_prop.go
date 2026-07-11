@@ -41,14 +41,14 @@ func LockAllDoors(world w.World) int {
 	}
 	locked := 0
 	for _, doorEntity := range doors {
-		doorComp := world.Components.Door.Get(doorEntity)
-		if doorComp.Locked {
+		if world.Components.Door.Get(doorEntity).Locked {
 			continue
 		}
-		if doorComp.IsOpen {
+		if world.Components.Door.Get(doorEntity).IsOpen {
 			_ = CloseDoor(world, doorEntity)
 		}
-		doorComp.Locked = true
+		// CloseDoorがarchetypeを変えGetポインタを失効させるため、取り直してから書き込む
+		world.Components.Door.Get(doorEntity).Locked = true
 		locked++
 	}
 	return locked

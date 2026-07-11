@@ -76,11 +76,11 @@ func (ta *TalkActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	dialogComp := world.Components.Dialog.Get(targetEntity)
-	if dialogComp == nil {
+	if !world.Components.Dialog.Has(targetEntity) {
 		Cancel(comp, "会話データが取得できません")
 		return fmt.Errorf("会話データが取得できません")
 	}
+	dialogComp := world.Components.Dialog.Get(targetEntity)
 
 	// Nameコンポーネントから話者名を取得
 	if !world.Components.Name.Has(targetEntity) {

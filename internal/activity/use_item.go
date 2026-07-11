@@ -87,7 +87,8 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	item := *comp.Target
 
 	// 回復効果があるかチェック
-	if healing := world.Components.ProvidesHealing.Get(item); healing != nil {
+	if world.Components.ProvidesHealing.Has(item) {
+		healing := world.Components.ProvidesHealing.Get(item)
 		healingComponent := healing
 		if err := u.applyHealing(comp, actor, world, healingComponent.Amount, item); err != nil {
 			Cancel(comp, fmt.Sprintf("回復処理エラー: %s", err.Error()))
@@ -96,7 +97,8 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	// 空腹度回復効果があるかチェック
-	if nutrition := world.Components.ProvidesNutrition.Get(item); nutrition != nil {
+	if world.Components.ProvidesNutrition.Has(item) {
+		nutrition := world.Components.ProvidesNutrition.Get(item)
 		nutritionComponent := nutrition
 		if err := u.applyNutrition(comp, actor, world, nutritionComponent.Amount, item); err != nil {
 			Cancel(comp, fmt.Sprintf("空腹度回復処理エラー: %s", err.Error()))
@@ -105,7 +107,8 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	// ダメージ効果があるかチェック
-	if damage := world.Components.InflictsDamage.Get(item); damage != nil {
+	if world.Components.InflictsDamage.Has(item) {
+		damage := world.Components.InflictsDamage.Get(item)
 		damageComponent := damage
 		// 共通のダメージ処理を使用
 		gameaction.ApplyDamage(world, actor, damageComponent.Amount, actor)
@@ -167,10 +170,10 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 
 // applyNutrition は空腹度回復処理を適用する
 func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
-	hungerComp := world.Components.Hunger.Get(actor)
-	if hungerComp == nil {
+	if !world.Components.Hunger.Has(actor) {
 		return nil
 	}
+	hungerComp := world.Components.Hunger.Get(actor)
 
 	hunger := hungerComp
 
@@ -233,9 +236,8 @@ func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item 
 
 // getItemName はアイテムの名前を取得する
 func (u *UseItemActivity) getItemName(item ecs.Entity, world w.World) string {
-	name := world.Components.Name.Get(item)
-	if name != nil {
-		return name.Name
+	if world.Components.Name.Has(item) {
+		return world.Components.Name.Get(item).Name
 	}
 	return "アイテム"
 }

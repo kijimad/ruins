@@ -99,10 +99,10 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveTargetCoordInvalid
 	}
 
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		return ErrMoveNoGridElement
 	}
+	gridElement := world.Components.GridElement.Get(actor)
 
 	actorGrid := gridElement
 	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(actorGrid.X), Y: int(actorGrid.Y)}, actor) {
@@ -140,11 +140,11 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// GridElementの存在確認
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		Cancel(comp, "移動できません（位置情報なし）")
 		return ErrMoveTargetInvalid
 	}
+	gridElement := world.Components.GridElement.Get(actor)
 
 	// 移動可能かチェック
 	grid := gridElement
@@ -187,10 +187,10 @@ func (ma *MoveActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		return ErrGridElementNotFound
 	}
+	gridElement := world.Components.GridElement.Get(actor)
 
 	grid := gridElement
 	oldX, oldY := int(grid.X), int(grid.Y)
@@ -225,10 +225,10 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 	if !CanSwapPosition(world, actor, target) {
 		return
 	}
-	targetGridComp := world.Components.GridElement.Get(target)
-	if targetGridComp == nil {
+	if !world.Components.GridElement.Has(target) {
 		return
 	}
+	targetGridComp := world.Components.GridElement.Get(target)
 	targetGrid := targetGridComp
 	targetGrid.X = consts.Tile(fromX)
 	targetGrid.Y = consts.Tile(fromY)

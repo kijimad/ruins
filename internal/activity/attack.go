@@ -65,6 +65,11 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return ErrAttackerDead
 	}
 
+	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
+	if !world.World.Alive(*comp.Target) {
+		return ErrAttackTargetNotExists
+	}
+
 	if !world.Components.GridElement.Has(*comp.Target) {
 		return ErrAttackTargetNotExists
 	}
@@ -152,15 +157,15 @@ func (aa *AttackActivity) canAttack(comp *gc.Activity, actor ecs.Entity, world w
 }
 
 func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) bool {
+	if !world.Components.GridElement.Has(attacker) {
+		return false
+	}
 	attackerGrid := world.Components.GridElement.Get(attacker)
-	if attackerGrid == nil {
-		return false
-	}
 
-	targetGrid := world.Components.GridElement.Get(target)
-	if targetGrid == nil {
+	if !world.Components.GridElement.Has(target) {
 		return false
 	}
+	targetGrid := world.Components.GridElement.Get(target)
 
 	attackerPos := attackerGrid
 	targetPos := targetGrid
@@ -301,15 +306,16 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
 func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int {
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	if attackerAbilsComp == nil {
+	if !world.Components.Abilities.Has(attacker) {
 		return formula.BaseHitRate
 	}
+	attackerAbilsComp := world.Components.Abilities.Get(attacker)
 	attackerAbils := attackerAbilsComp
 
 	// Abilitiesを持たないターゲットには自動命中する
 	targetAgility := 0
-	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
+	if world.Components.Abilities.Has(target) {
+		targetAbilsComp := world.Components.Abilities.Get(target)
 		targetAgility = targetAbilsComp.Agility.Total
 	}
 
@@ -346,10 +352,10 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 
 // calculateDamage はダメージ計算を行う
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	if attackerAbilsComp == nil {
+	if !world.Components.Abilities.Has(attacker) {
 		return 0
 	}
+	attackerAbilsComp := world.Components.Abilities.Get(attacker)
 	attackerAbils := attackerAbilsComp
 
 	baseAbil := attackerAbils.Strength.Total
@@ -358,7 +364,8 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	}
 
 	targetDefense := 0
-	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
+	if world.Components.Abilities.Has(target) {
+		targetAbilsComp := world.Components.Abilities.Get(target)
 		targetDefense = targetAbilsComp.Defense.Total
 	}
 
@@ -383,10 +390,10 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
 func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
-	skillsComp := world.Components.Skills.Get(actor)
-	if skillsComp == nil {
+	if !world.Components.Skills.Has(actor) {
 		return
 	}
+	skillsComp := world.Components.Skills.Get(actor)
 	skills := skillsComp
 
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
@@ -395,10 +402,10 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 	s := skills.Get(skillID)
 
-	abilsComp := world.Components.Abilities.Get(actor)
-	if abilsComp == nil {
+	if !world.Components.Abilities.Has(actor) {
 		return
 	}
+	abilsComp := world.Components.Abilities.Get(actor)
 	abils := abilsComp
 	ablID := gc.SkillAbilityID(skillID)
 

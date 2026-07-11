@@ -123,12 +123,12 @@ func TestReplaceActivity(t *testing.T) {
 	err = StartActivity(comp2, actor, world)
 	require.NoError(t, err)
 
-	// 古いアクティビティが中断されているかチェック
-	assert.Equal(t, gc.ActivityStatePaused, comp1.State, "Expected first activity to be paused after replacement")
-
-	// 新しいアクティビティが現在のアクティビティになっているかチェック
+	// 置き換え後は現在のアクティビティが2つ目になっている。
+	// Arkは値で格納しアクティビティスタックを持たないため、中断された1つ目は破棄される
 	currentActivity := query.GetActivity(world, actor)
-	assert.Equal(t, comp2, currentActivity, "Expected current activity to be the second activity")
+	require.NotNil(t, currentActivity)
+	assert.Equal(t, gc.ActivityStateRunning, currentActivity.State, "Expected replaced activity to be running")
+	assert.Equal(t, comp2.TurnsTotal, currentActivity.TurnsTotal, "Expected current activity to be the second activity")
 }
 
 func TestInterruptAndResume(t *testing.T) {
@@ -147,7 +147,7 @@ func TestInterruptAndResume(t *testing.T) {
 	err = InterruptActivity(actor, "テスト中断", world)
 	require.NoError(t, err)
 
-	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected activity to be paused after interrupt")
+	assert.Equal(t, gc.ActivityStatePaused, query.GetActivity(world, actor).State, "Expected activity to be paused after interrupt")
 
 	// 中断されたアクティビティはアクティブではない
 	assert.False(t, query.HasActivity(world, actor), "Expected HasActivity to return false for paused activity")
@@ -156,7 +156,7 @@ func TestInterruptAndResume(t *testing.T) {
 	err = ResumeActivity(actor, world)
 	require.NoError(t, err)
 
-	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected activity to be running after resume")
+	assert.Equal(t, gc.ActivityStateRunning, query.GetActivity(world, actor).State, "Expected activity to be running after resume")
 
 	// 再開されたアクティビティはアクティブ
 	assert.True(t, query.HasActivity(world, actor), "Expected HasActivity to return true for resumed activity")
@@ -185,7 +185,8 @@ func TestCancelActivity(t *testing.T) {
 	// アクティビティをキャンセル
 	CancelActivity(actor, "テストキャンセル", world)
 
-	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "Expected activity to be canceled")
+	// キャンセル時は削除されるため結果コンポーネントで状態を確認する
+	assert.Equal(t, gc.ActivityStateCanceled, GetLastResult(actor, world).State, "Expected activity to be canceled")
 
 	// キャンセルされたアクティビティは管理対象から削除される
 	currentActivity := query.GetActivity(world, actor)
@@ -224,16 +225,16 @@ func TestProcessTurn(t *testing.T) {
 	// 1ターン目処理
 	ProcessTurn(world)
 
-	// 両方まだ実行中
-	assert.Equal(t, 1, shortComp.TurnsLeft, "Expected short activity to have 1 turn left")
-	assert.Equal(t, 4, longComp.TurnsLeft, "Expected long activity to have 4 turns left")
+	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する
+	assert.Equal(t, 1, query.GetActivity(world, actor1).TurnsLeft, "Expected short activity to have 1 turn left")
+	assert.Equal(t, 4, query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 4 turns left")
 
 	// 2ターン目処理
 	ProcessTurn(world)
 
-	// 短いアクティビティが完了
-	assert.True(t, IsCompleted(shortComp), "Expected short activity to be completed")
-	assert.Equal(t, 3, longComp.TurnsLeft, "Expected long activity to have 3 turns left")
+	// 短いアクティビティが完了。完了時は削除されるため結果コンポーネントで確認する
+	assert.Equal(t, gc.ActivityStateCompleted, GetLastResult(actor1, world).State, "Expected short activity to be completed")
+	assert.Equal(t, 3, query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 3 turns left")
 
 	// 完了したアクティビティは管理対象から削除される
 	assert.Nil(t, query.GetActivity(world, actor1), "Expected completed activity to be removed")
@@ -331,17 +332,17 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		// 通常移動のAP消費を記録する
-		tbBefore := world.Components.TurnBased.Get(player)
-		apBefore := tbBefore.AP.Current
+		// 通常移動のAP消費を記録する。
+		// ExecuteはArchetypeを変える構造変更を伴うため、TurnBasedは都度取り直す
+		apBefore := world.Components.TurnBased.Get(player).AP.Current
 
 		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 11, Y: 10}}, player, world)
 		require.NoError(t, err)
 
-		normalCost := apBefore - tbBefore.AP.Current
+		normalCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
 
 		// APをリセットしてPassCostありの移動をテスト
-		tbBefore.AP.Current = apBefore
+		world.Components.TurnBased.Get(player).AP.Current = apBefore
 
 		// 移動先にPassCostを持つPropを配置
 		prop := world.World.NewEntity()
@@ -351,7 +352,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 12, Y: 10}}, player, world)
 		require.NoError(t, err)
 
-		modCost := apBefore - tbBefore.AP.Current
+		modCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
 		// PassCost 50加算: normalCost + 50
 		assert.Equal(t, normalCost+50, modCost)
 	})

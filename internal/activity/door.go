@@ -53,6 +53,11 @@ func (oda *OpenDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 
 	targetEntity := *comp.Target
 
+	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
+	if !world.World.Alive(targetEntity) {
+		return fmt.Errorf("対象エンティティは扉ではありません")
+	}
+
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
@@ -71,11 +76,11 @@ func (oda *OpenDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	raw := world.Components.Door.Get(targetEntity)
-	if raw == nil {
+	if !world.Components.Door.Has(targetEntity) {
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
+	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
 
 	if doorComp.Locked {
@@ -163,6 +168,11 @@ func (cda *CloseDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 
 	targetEntity := *comp.Target
 
+	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
+	if !world.World.Alive(targetEntity) {
+		return fmt.Errorf("対象エンティティは扉ではありません")
+	}
+
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
@@ -181,11 +191,11 @@ func (cda *CloseDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	raw := world.Components.Door.Get(targetEntity)
-	if raw == nil {
+	if !world.Components.Door.Has(targetEntity) {
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
+	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
 
 	if doorComp.Locked {

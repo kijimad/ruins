@@ -111,10 +111,10 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 }
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		return nil, fmt.Errorf("位置情報が見つかりません")
 	}
+	gridElement := world.Components.GridElement.Get(actor)
 	playerGrid := gridElement
 	destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
 	return Execute(&PickupActivity{Destination: &destination}, actor, world)
