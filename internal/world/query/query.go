@@ -12,7 +12,7 @@ import (
 
 // Player はプレイヤーエンティティをVisitする。
 // f はエンティティ生成などの構造変更を行うことがあるため、
-// クエリを閉じてから呼び出す（反復中はワールドがロックされる）
+// クエリを閉じてから呼び出す。反復中はワールドがロックされる
 func Player(world w.World, f func(entity ecs.Entity)) {
 	var players []ecs.Entity
 	playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAllyData](world.World).Query()
