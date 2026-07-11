@@ -9,7 +9,7 @@ import (
 // GetActivity は指定されたエンティティの現在のアクティビティを取得する。
 // 死亡・未保持のエンティティにはnilを返す
 func GetActivity(world w.World, entity ecs.Entity) *gc.Activity {
-	if !world.World.Alive(entity) || !world.Components.Activity.Has(entity) {
+	if !world.ECS.Alive(entity) || !world.Components.Activity.Has(entity) {
 		return nil
 	}
 	return world.Components.Activity.Get(entity)

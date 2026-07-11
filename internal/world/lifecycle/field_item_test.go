@@ -42,7 +42,7 @@ func TestSpawnFieldItem(t *testing.T) {
 	assert.True(t, world.Components.LocationOnField.Has(item), "LocationOnFieldコンポーネントが必要")
 
 	// クリーンアップ
-	world.World.RemoveEntity(item)
+	world.ECS.RemoveEntity(item)
 }
 
 func TestSpawnMultipleFieldItems(t *testing.T) {
@@ -75,7 +75,7 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 
 	// フィールド上のアイテム数を確認
 	fieldItemCount := 0
-	fieldItemQuery := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.World).Query()
+	fieldItemQuery := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.ECS).Query()
 	for fieldItemQuery.Next() {
 		fieldItemCount++
 	}
@@ -84,6 +84,6 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 
 	// クリーンアップ
 	for _, item := range createdItems {
-		world.World.RemoveEntity(item)
+		world.ECS.RemoveEntity(item)
 	}
 }

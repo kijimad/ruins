@@ -68,7 +68,7 @@ func TestExecuteEndRun(t *testing.T) {
 
 	// 職業が再適用されていることを確認する
 	hasEquipped := false
-	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.World).Query()
+	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
 	for equippedQuery.Next() {
 		hasEquipped = true
 	}

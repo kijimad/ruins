@@ -17,7 +17,7 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Count=1のアイテムを作成
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 		world.Components.Name.Add(item, &gc.Name{Name: "テストアイテム"})
@@ -27,7 +27,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
-		assert.False(t, world.World.Alive(item), "アイテムが削除されているべき")
+		assert.False(t, world.ECS.Alive(item), "アイテムが削除されているべき")
 	})
 
 	t.Run("Stackableアイテムの一部を消費", func(t *testing.T) {
@@ -35,7 +35,7 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Count=5のStackableアイテムを作成
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
@@ -56,7 +56,7 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Count=3のStackableアイテムを作成
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
@@ -67,7 +67,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
-		assert.False(t, world.World.Alive(item), "アイテムが削除されているべき")
+		assert.False(t, world.ECS.Alive(item), "アイテムが削除されているべき")
 	})
 
 	t.Run("所持数を超えて消費しようとするとエラー", func(t *testing.T) {
@@ -75,7 +75,7 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Count=2のStackableアイテムを作成
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 2})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
@@ -97,7 +97,7 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Count=3のStackableアイテムを作成
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
@@ -115,7 +115,7 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		err := ChangeItemCount(world, item, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "must not be zero")
@@ -126,7 +126,7 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
 		world.Components.Abilities.Add(player, &gc.Abilities{
@@ -134,7 +134,7 @@ func TestChangeItemCount(t *testing.T) {
 		})
 
 		// アイテムを作成
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 

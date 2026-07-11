@@ -30,7 +30,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// Deadコンポーネントを持つエンティティを検索
 	var toDelete []ecs.Entity
-	deadQuery := ecs.NewFilter1[gc.Dead](world.World).
+	deadQuery := ecs.NewFilter1[gc.Dead](world.ECS).
 		Without(ecs.C[gc.Player]()).Query()
 	for deadQuery.Next() {
 		entity := deadQuery.Entity()
@@ -114,7 +114,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		gridX, gridY := grid.X, grid.Y
 		owner := entity
 		var items []ecs.Entity
-		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 		for backpackQuery.Next() {
 			item := backpackQuery.Entity()
 			if world.Components.LocationInBackpack.Get(item).Owner == owner {
@@ -135,7 +135,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			gridElement := world.Components.GridElement.Get(entity)
 
 			effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
-			effectEntity := world.World.NewEntity()
+			effectEntity := world.ECS.NewEntity()
 			world.Components.GridElement.Add(effectEntity, &gc.GridElement{
 				X: gridElement.X,
 				Y: gridElement.Y,
@@ -145,7 +145,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			})
 		}
 
-		world.World.RemoveEntity(entity)
+		world.ECS.RemoveEntity(entity)
 	}
 
 	if len(toDelete) > 0 {

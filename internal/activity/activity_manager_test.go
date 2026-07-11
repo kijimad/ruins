@@ -24,7 +24,7 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 		"paused": 0,
 	}
 
-	activityQuery := ecs.NewFilter1[gc.Activity](world.World).Query()
+	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
 	for activityQuery.Next() {
 		entity := activityQuery.Entity()
 		comp := world.Components.Activity.Get(entity)
@@ -45,7 +45,7 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 func TestStartActivity(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを作成
@@ -73,9 +73,9 @@ func TestMultipleActivities(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	actor1 := world.World.NewEntity()
+	actor1 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor1, &gc.TurnBased{})
-	actor2 := world.World.NewEntity()
+	actor2 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	// 複数のアクターでアクティビティを開始
@@ -105,7 +105,7 @@ func TestMultipleActivities(t *testing.T) {
 func TestReplaceActivity(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// 最初のアクティビティを開始
@@ -134,7 +134,7 @@ func TestReplaceActivity(t *testing.T) {
 func TestInterruptAndResume(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
@@ -173,7 +173,7 @@ func TestInterruptAndResume(t *testing.T) {
 func TestCancelActivity(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
@@ -201,9 +201,9 @@ func TestProcessTurn(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	actor1 := world.World.NewEntity()
+	actor1 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor1, &gc.TurnBased{})
-	actor2 := world.World.NewEntity()
+	actor2 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	// 短いアクティビティと長いアクティビティを開始
@@ -256,9 +256,9 @@ func TestActivitySummary(t *testing.T) {
 	assert.Equal(t, 0, summary["paused"], "Expected 0 paused activities initially")
 
 	// アクティビティを追加
-	actor1 := world.World.NewEntity()
+	actor1 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor1, &gc.TurnBased{})
-	actor2 := world.World.NewEntity()
+	actor2 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	comp1, err := NewActivity(&WaitActivity{}, 10)
@@ -297,7 +297,7 @@ func TestGetPassCostAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
 		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 
@@ -309,11 +309,11 @@ func TestGetPassCostAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		prop1 := world.World.NewEntity()
+		prop1 := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop1, &gc.GridElement{X: 5, Y: 5})
 		world.Components.PassCost.Add(prop1, &gc.PassCost{Value: 30})
 
-		prop2 := world.World.NewEntity()
+		prop2 := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop2, &gc.GridElement{X: 5, Y: 5})
 		world.Components.PassCost.Add(prop2, &gc.PassCost{Value: 20})
 
@@ -345,7 +345,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		world.Components.TurnBased.Get(player).AP.Current = apBefore
 
 		// 移動先にPassCostを持つPropを配置
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 12, Y: 10})
 		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 

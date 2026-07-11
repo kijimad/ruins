@@ -28,7 +28,7 @@ func (sys VisualEffectSystem) String() string {
 func (sys *VisualEffectSystem) Update(world w.World) error {
 	var entitiesToDelete []ecs.Entity
 
-	collectQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	collectQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
 	for collectQuery.Next() {
 		entity := collectQuery.Entity()
 		entitiesToDelete = append(entitiesToDelete, entity)
@@ -37,7 +37,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	// アニメーション無効時は即座に削除
 	if world.Config.DisableAnimation {
 		for _, entity := range entitiesToDelete {
-			world.World.RemoveEntity(entity)
+			world.ECS.RemoveEntity(entity)
 		}
 		return nil
 	}
@@ -46,7 +46,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	const deltaMs = 1000.0 / 60.0 // 1フレームあたりの時間（60FPS想定）
 	entitiesToDelete = entitiesToDelete[:0]
 
-	updateQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	updateQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
 	for updateQuery.Next() {
 		entity := updateQuery.Entity()
 		ve := world.Components.VisualEffect.Get(entity)
@@ -69,7 +69,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 
 	// エフェクト専用エンティティを削除
 	for _, entity := range entitiesToDelete {
-		world.World.RemoveEntity(entity)
+		world.ECS.RemoveEntity(entity)
 	}
 
 	return nil
@@ -87,7 +87,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	var err error
-	drawQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+	drawQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
 	for drawQuery.Next() {
 		entity := drawQuery.Entity()
 		if err != nil {

@@ -25,7 +25,7 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.World.NewEntity()
+		mover := world.ECS.NewEntity()
 		world.Components.Player.Add(mover, &gc.Player{})
 
 		nextX, nextY, ok := FindNextStep(world, mover, 0, 0, 3, 0)
@@ -44,7 +44,7 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.World.NewEntity()
+		mover := world.ECS.NewEntity()
 		world.Components.Player.Add(mover, &gc.Player{})
 
 		for y := range 4 {
@@ -66,7 +66,7 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.World.NewEntity()
+		mover := world.ECS.NewEntity()
 		world.Components.Player.Add(mover, &gc.Player{})
 
 		for dx := -1; dx <= 1; dx++ {
@@ -92,7 +92,7 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.World.NewEntity()
+		mover := world.ECS.NewEntity()
 		world.Components.Player.Add(mover, &gc.Player{})
 
 		_, _, ok := FindNextStep(world, mover, 3, 3, 3, 3)
@@ -109,13 +109,13 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)})
 		si.Characters[gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)}] = player
 		si.PlayerEntity = &player
 
-		mover := world.World.NewEntity()
+		mover := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(mover, &gc.SquadMember{})
 
 		nextX, nextY, ok := FindNextStep(world, mover, 0, 0, 2, 0)
@@ -133,11 +133,11 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		otherMember := world.World.NewEntity()
+		otherMember := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(otherMember, &gc.SquadMember{})
 		si.Characters[gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)}] = otherMember
 
-		mover := world.World.NewEntity()
+		mover := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(mover, &gc.SquadMember{})
 
 		nextX, nextY, ok := FindNextStep(world, mover, 0, 0, 2, 0)
@@ -155,7 +155,7 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		mover := world.World.NewEntity()
+		mover := world.ECS.NewEntity()
 		world.Components.Player.Add(mover, &gc.Player{})
 
 		si.BlockPass[gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)}] = true
@@ -175,11 +175,11 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		si.Characters[gc.GridElement{X: consts.Tile(3), Y: consts.Tile(3)}] = player
 
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
 
 		_, _, ok := FindNextStep(world, enemy, 0, 0, 3, 3)

@@ -31,7 +31,7 @@ type Renderer interface {
 
 // World はゲーム全体に必要な情報を保持する
 type World struct {
-	World      *ecs.World
+	ECS        *ecs.World
 	Components *gc.Components
 	Resources  *resources.Resources
 	Config     *config.Config
@@ -47,7 +47,7 @@ func InitWorld(c *gc.Components) (World, error) {
 	}
 
 	world := World{
-		World:      arkWorld,
+		ECS:        arkWorld,
 		Components: c,
 		Resources:  resources.InitGameResources(),
 		Updaters:   make(map[string]Updater),
@@ -61,7 +61,7 @@ func InitWorld(c *gc.Components) (World, error) {
 
 // InitSingleton はシングルトンエンティティを新規作成してIDを保存する
 func (world World) InitSingleton() {
-	singleton := world.World.NewEntity()
+	singleton := world.ECS.NewEntity()
 	world.Components.GameLog.Add(singleton, &gc.GameLog{
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
@@ -74,5 +74,5 @@ func (world World) InitSingleton() {
 
 // GetWorld は entities.World インターフェースを満たすためのメソッド
 func (world World) GetWorld() *ecs.World {
-	return world.World
+	return world.ECS
 }

@@ -44,7 +44,7 @@ func TestFormatItemName(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 
 			// アイテムエンティティを作成
-			itemEntity := world.World.NewEntity()
+			itemEntity := world.ECS.NewEntity()
 			world.Components.Name.Add(itemEntity, &gc.Name{
 				Name: tt.itemName,
 			})
@@ -63,7 +63,7 @@ func TestFormatItemName(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Nameコンポーネントなしのエンティティ
-		itemEntity := world.World.NewEntity()
+		itemEntity := world.ECS.NewEntity()
 		world.Components.Stackable.Add(itemEntity, &gc.Stackable{Count: 5})
 
 		got := FormatItemName(world, itemEntity)
@@ -76,7 +76,7 @@ func TestFormatItemName(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// コンポーネントなしのエンティティ
-		itemEntity := world.World.NewEntity()
+		itemEntity := world.ECS.NewEntity()
 
 		got := FormatItemName(world, itemEntity)
 		assert.Equal(t, "Unknown Item", got)

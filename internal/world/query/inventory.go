@@ -13,7 +13,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
 	for stackableQuery.Next() {
 		entity := stackableQuery.Entity()
 		if found {
@@ -34,7 +34,7 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.World).Query()
+	ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
 	for ammoQuery.Next() {
 		entity := ammoQuery.Entity()
 		if found {

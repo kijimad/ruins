@@ -32,7 +32,7 @@ func TestIsAreaSafe(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
@@ -46,7 +46,7 @@ func TestIsAreaSafe(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 15, Y: 15})
 
@@ -57,7 +57,7 @@ func TestIsAreaSafe(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		assert.False(t, isAreaSafe(player, world))
@@ -92,7 +92,7 @@ func TestRestActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		// 敵を手動で作成
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
@@ -206,7 +206,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Poolsなしのプレイヤーを手動で作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		comp := &gc.Activity{
@@ -257,7 +257,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// 敵を手動で作成
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 

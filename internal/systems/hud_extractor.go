@@ -34,7 +34,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int
 	var playerWeight, playerMaxWeight float64
-	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.World).Query()
+	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		hp := world.Components.HP.Get(entity)
@@ -70,7 +70,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 func extractMinimapData(world w.World) hud.MinimapData {
 	// プレイヤー位置を取得
 	var playerGridElement *gc.GridElement
-	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.World).Query()
+	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		playerGridElement = world.Components.GridElement.Get(entity)
@@ -134,7 +134,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	// カメラ情報を取得
 	var cameraPos gc.Position
 	var cameraScale float64
-	cameraQuery := ecs.NewFilter2[gc.Camera, gc.GridElement](world.World).Query()
+	cameraQuery := ecs.NewFilter2[gc.Camera, gc.GridElement](world.ECS).Query()
 	for cameraQuery.Next() {
 		camEntity := cameraQuery.Entity()
 		gridElement := world.Components.GridElement.Get(camEntity)
@@ -155,7 +155,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	// AI状態情報と視界範囲情報を抽出
 	var aiStates []hud.AIStateInfo
 	var visionRanges []hud.VisionRangeInfo
-	soloAIQuery := ecs.NewFilter2[gc.GridElement, gc.SoloAI](world.World).Query()
+	soloAIQuery := ecs.NewFilter2[gc.GridElement, gc.SoloAI](world.ECS).Query()
 	for soloAIQuery.Next() {
 		entity := soloAIQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
@@ -196,7 +196,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 
 	// HP表示情報を抽出（プレイヤー以外のHPを持つエンティティ）
 	var hpDisplays []hud.HPDisplayInfo
-	hpDisplayQuery := ecs.NewFilter2[gc.GridElement, gc.HP](world.World).Query()
+	hpDisplayQuery := ecs.NewFilter2[gc.GridElement, gc.HP](world.ECS).Query()
 	for hpDisplayQuery.Next() {
 		entity := hpDisplayQuery.Entity()
 		// プレイヤーは除外
@@ -286,7 +286,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 	// 全エンティティをスキャンしてタイル情報をマップに格納
 	tileTypeMap := make(map[gc.GridElement]bool) // true=壁, false=床
 
-	tileQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.World).Query()
+	tileQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
@@ -381,7 +381,7 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 	var badges []hud.StatusBadge
 
 	// プレイヤーの空腹度を取得
-	hungerQuery := ecs.NewFilter2[gc.Player, gc.Hunger](world.World).Query()
+	hungerQuery := ecs.NewFilter2[gc.Player, gc.Hunger](world.ECS).Query()
 	for hungerQuery.Next() {
 		entity := hungerQuery.Entity()
 		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {

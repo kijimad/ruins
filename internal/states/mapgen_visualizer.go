@@ -129,7 +129,7 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 	centerX := mapPixelW / 2
 	centerY := mapPixelH / 2
 
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.World).Query()
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
 	for cameraQuery.Next() {
 		entity := cameraQuery.Entity()
 		camera := world.Components.Camera.Get(entity)
@@ -203,7 +203,7 @@ func (st *MapGenVisualizerState) revealAllTiles(world w.World) {
 
 // hidePlayer はプレイヤーを画面外に移動して描画されないようにする
 func (st *MapGenVisualizerState) hidePlayer(world w.World) {
-	playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.World).Query()
+	playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		ge := world.Components.GridElement.Get(entity)
@@ -214,20 +214,20 @@ func (st *MapGenVisualizerState) hidePlayer(world w.World) {
 
 // clearEntities はスポーンしたエンティティを削除する
 func (st *MapGenVisualizerState) clearEntities(world w.World) {
-	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.World).Query()
+	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()
 	for spriteRenderQuery.Next() {
 		entity := spriteRenderQuery.Entity()
 		if !world.Components.Player.Has(entity) &&
 			!world.Components.LocationInBackpack.Has(entity) &&
 			!world.Components.LocationEquipped.Has(entity) {
-			world.World.RemoveEntity(entity)
+			world.ECS.RemoveEntity(entity)
 		}
 	}
-	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for gridElementQuery.Next() {
 		entity := gridElementQuery.Entity()
 		if !world.Components.Player.Has(entity) {
-			world.World.RemoveEntity(entity)
+			world.ECS.RemoveEntity(entity)
 		}
 	}
 

@@ -148,7 +148,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
-	titleEntity := world.World.NewEntity()
+	titleEntity := world.ECS.NewEntity()
 	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
@@ -168,19 +168,19 @@ func (st *DungeonState) OnStart(world w.World) error {
 // OnStop はステートが停止される際に呼ばれる
 func (st *DungeonState) OnStop(world w.World) error {
 	var toRemove []ecs.Entity
-	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.World).
+	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).
 		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember](), ecs.C[gc.LocationInBackpack](), ecs.C[gc.LocationEquipped]()).Query()
 	for spriteRenderQuery.Next() {
 		toRemove = append(toRemove, spriteRenderQuery.Entity())
 	}
-	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.World).
+	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).
 		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()
 	for gridElementQuery.Next() {
 		toRemove = append(toRemove, gridElementQuery.Entity())
 	}
 	for _, entity := range toRemove {
-		if world.World.Alive(entity) {
-			world.World.RemoveEntity(entity)
+		if world.ECS.Alive(entity) {
+			world.ECS.RemoveEntity(entity)
 		}
 	}
 
@@ -486,7 +486,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
-	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.World).Query()
+	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
 	for playerDeadQuery.Next() {
 		playerDead = true
 	}

@@ -13,7 +13,7 @@ import (
 func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 	weapons := make([]*ecs.Entity, 5)
 
-	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.World).Query()
+	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
 	for weaponsQuery.Next() {
 		entity := weaponsQuery.Entity()
 		cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
@@ -37,7 +37,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 	entities := make([]*ecs.Entity, 7)
 
-	armorQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.World).Query()
+	armorQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()
 	for armorQuery.Next() {
 		entity := armorQuery.Entity()
 		equipped := world.Components.LocationEquipped.Get(entity)

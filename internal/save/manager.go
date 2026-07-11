@@ -104,7 +104,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	}
 
 	// ark-serdeのDeserializeはリセット済みワールドを要求する
-	world.World.Reset()
+	world.ECS.Reset()
 
 	if err := deserializeWorld(world, env.World); err != nil {
 		return fmt.Errorf("failed to restore world data: %w", err)

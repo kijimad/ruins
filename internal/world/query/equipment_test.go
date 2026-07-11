@@ -38,7 +38,7 @@ func TestGetArmorEquipments(t *testing.T) {
 	assert.Len(t, armors, 7)
 
 	// 防具を装備する
-	armor := world.World.NewEntity()
+	armor := world.ECS.NewEntity()
 	world.Components.Name.Add(armor, &gc.Name{Name: "テスト鎧"})
 	world.Components.Wearable.Add(armor, &gc.Wearable{
 		EquipmentCategory: gc.EquipmentTorso,
@@ -56,11 +56,11 @@ func TestEquipDisarm(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// アイテムエンティティを作成
-	item := world.World.NewEntity()
+	item := world.ECS.NewEntity()
 	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 
 	// オーナーエンティティを作成
-	owner := world.World.NewEntity()
+	owner := world.ECS.NewEntity()
 
 	// 装備する
 	lifecycle.MoveToEquip(world, item, owner, gc.EquipmentSlotNumber(0))
@@ -83,6 +83,6 @@ func TestEquipDisarm(t *testing.T) {
 	assert.True(t, world.Components.StatsChanged.Has(owner), "オーナーにステータス再計算フラグが設定されていない")
 
 	// クリーンアップ
-	world.World.RemoveEntity(item)
-	world.World.RemoveEntity(owner)
+	world.ECS.RemoveEntity(item)
+	world.ECS.RemoveEntity(owner)
 }

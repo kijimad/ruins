@@ -25,14 +25,14 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 	}
 
 	if newCount == 0 {
-		world.World.RemoveEntity(entity)
+		world.ECS.RemoveEntity(entity)
 	} else if world.Components.Stackable.Has(entity) {
 		world.Components.Stackable.Get(entity).Count = newCount
 	}
 
 	// インベントリ変動フラグを立てる。
 	var players []ecs.Entity
-	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
+	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
 	for playerQuery.Next() {
 		players = append(players, playerQuery.Entity())
 	}

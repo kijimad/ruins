@@ -29,7 +29,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Resources.SpriteSheets = spriteSheets
 
 		// プレイヤーを配置
-		playerEntity := world.World.NewEntity()
+		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
@@ -63,7 +63,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.World.NewEntity()
+		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
@@ -100,7 +100,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.World.NewEntity()
+		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
@@ -131,7 +131,7 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.World.NewEntity()
+		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
@@ -169,7 +169,7 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.World.NewEntity()
+		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
@@ -190,7 +190,7 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.World.NewEntity()
+		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 

@@ -240,7 +240,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 	var items []shopItemData
 
 	query.Player(world, func(_ ecs.Entity) {
-		sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.World).Query()
+		sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
 		for sellQuery.Next() {
 			entity := sellQuery.Entity()
 			nameComp := world.Components.Name.Get(entity)

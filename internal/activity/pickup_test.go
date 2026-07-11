@@ -239,7 +239,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
@@ -267,7 +267,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
@@ -295,7 +295,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		// Interactableを持つPropも同じタイルにある
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
@@ -323,7 +323,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 8, 6, "Ash")
 		require.NoError(t, err)
 
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.HP.Add(prop, &gc.HP{Max: 10, Current: 10})

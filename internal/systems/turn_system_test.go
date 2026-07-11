@@ -131,7 +131,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 敵を作成してDeadコンポーネントを付与（射撃で倒された状態を模擬）
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.Name.Add(enemy, &gc.Name{Name: "スライム"})
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
@@ -140,7 +140,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase)
 		assert.Equal(t, 200, turnBased.AP.Current, "APは消費されていない")
-		assert.False(t, world.World.Alive(enemy),
+		assert.False(t, world.ECS.Alive(enemy),
 			"PlayerPhase中でもDeadエンティティは削除されるべき")
 	})
 
@@ -159,7 +159,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 1回目の行動: 敵1を倒す
-		enemy1 := world.World.NewEntity()
+		enemy1 := world.ECS.NewEntity()
 		world.Components.Name.Add(enemy1, &gc.Name{Name: "スライム1"})
 		world.Components.Dead.Add(enemy1, &gc.Dead{})
 
@@ -168,13 +168,13 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		err = runFrame(world)
 		require.NoError(t, err)
 
-		assert.False(t, world.World.Alive(enemy1),
+		assert.False(t, world.ECS.Alive(enemy1),
 			"1回目の行動後にDeadエンティティが削除されるべき")
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
 			"APが残っているのでPlayerPhaseのまま")
 
 		// 2回目の行動: 敵2を倒す
-		enemy2 := world.World.NewEntity()
+		enemy2 := world.ECS.NewEntity()
 		world.Components.Name.Add(enemy2, &gc.Name{Name: "スライム2"})
 		world.Components.Dead.Add(enemy2, &gc.Dead{})
 
@@ -183,7 +183,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		err = runFrame(world)
 		require.NoError(t, err)
 
-		assert.False(t, world.World.Alive(enemy2),
+		assert.False(t, world.ECS.Alive(enemy2),
 			"2回目の行動後にDeadエンティティが削除されるべき")
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
 			"APが残っているのでPlayerPhaseのまま")
@@ -242,7 +242,7 @@ func TestShouldAutoEndTurn(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// TurnBasedなしのプレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		result := shouldAutoEndTurn(world)
@@ -593,7 +593,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 
 	// AIエンティティを手動で作成（Driving状態で即座に移動するように設定）
 	enemyX, enemyY := 20, 20
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
@@ -766,7 +766,7 @@ func TestPatrolMovement(t *testing.T) {
 
 	// Patrol移動のAIエンティティを作成する。PatrolDirX=1で右に進む
 	enemyX, enemyY := 20, 20
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "パトロール敵"})
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
@@ -825,7 +825,7 @@ func TestTerritorialMovement(t *testing.T) {
 
 	// Territorial移動のAIエンティティを作成する
 	spawnX, spawnY := 20, 20
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "縄張り敵"})
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})

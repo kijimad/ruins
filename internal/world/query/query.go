@@ -15,7 +15,7 @@ import (
 // クエリを閉じてから呼び出す。反復中はワールドがロックされる
 func Player(world w.World, f func(entity ecs.Entity)) {
 	var players []ecs.Entity
-	playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAllyData](world.World).Query()
+	playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAllyData](world.ECS).Query()
 	for playerQuery.Next() {
 		players = append(players, playerQuery.Entity())
 	}
@@ -28,7 +28,7 @@ func Player(world w.World, f func(entity ecs.Entity)) {
 // プレイヤーが0個または2個以上の場合はエラーを返す
 func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	var entities []ecs.Entity
-	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
+	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		entities = append(entities, entity)
@@ -72,7 +72,7 @@ func IsInActivationRange(playerGrid, triggerGrid *gc.GridElement, activationRang
 // GetEntitiesAt は指定座標にあるすべてのエンティティを返す
 func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
 	var entities []ecs.Entity
-	entitiesQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	entitiesQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for entitiesQuery.Next() {
 		entity := entitiesQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

@@ -15,7 +15,7 @@ func TestGetAttackFromCommandTable(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 既存の「スライム」コマンドテーブルを使用する
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 	world.Components.CommandTable.Add(enemy, &gc.CommandTable{
 		Name: "スライム",
 	})
@@ -36,7 +36,7 @@ func TestGetAttackFromCommandTable_NoCommandTable(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// CommandTableを持たないエンティティ
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 
 	// テスト実行
 	_, _, err := GetAttackFromCommandTable(world, enemy)
@@ -51,7 +51,7 @@ func TestGetFireFromWeapon(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	weapon := world.World.NewEntity()
+	weapon := world.ECS.NewEntity()
 	world.Components.Name.Add(weapon, &gc.Name{Name: "火炎放射器"})
 	world.Components.Fire.Add(weapon, &gc.Fire{
 		Damage:      5,
@@ -72,7 +72,7 @@ func TestGetFireFromWeapon_NoFireComponent(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	weapon := world.World.NewEntity()
+	weapon := world.ECS.NewEntity()
 	world.Components.Name.Add(weapon, &gc.Name{Name: "近接武器"})
 
 	_, _, err := GetFireFromWeapon(world, weapon)
@@ -85,7 +85,7 @@ func TestGetFireFromWeapon_NoName(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	weapon := world.World.NewEntity()
+	weapon := world.ECS.NewEntity()
 
 	_, _, err := GetFireFromWeapon(world, weapon)
 	require.Error(t, err)
@@ -97,7 +97,7 @@ func TestGetMeleeFromWeapon_NoName(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	weapon := world.World.NewEntity()
+	weapon := world.ECS.NewEntity()
 
 	_, _, err := GetMeleeFromWeapon(world, weapon)
 	require.Error(t, err)
@@ -109,7 +109,7 @@ func TestGetMeleeFromWeapon_NoMelee(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	weapon := world.World.NewEntity()
+	weapon := world.ECS.NewEntity()
 	world.Components.Name.Add(weapon, &gc.Name{Name: "防具"})
 
 	_, _, err := GetMeleeFromWeapon(world, weapon)
@@ -124,7 +124,7 @@ func TestAttackUnification(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 敵の攻撃取得
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "スライム"})
 	enemyAttack, enemyWeaponName, err := GetAttackFromCommandTable(world, enemy)
 	require.NoError(t, err)
@@ -135,7 +135,7 @@ func TestAttackUnification(t *testing.T) {
 	assert.Positive(t, enemyAttack.GetDamage())
 
 	// プレイヤーの武器攻撃取得も同じインターフェースで動作することを確認
-	playerWeapon := world.World.NewEntity()
+	playerWeapon := world.ECS.NewEntity()
 	world.Components.Name.Add(playerWeapon, &gc.Name{Name: "体当たり"})
 	world.Components.Melee.Add(playerWeapon, &gc.Melee{
 		Damage:         1,

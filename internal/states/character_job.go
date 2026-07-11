@@ -161,7 +161,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 
 	// 既存プレイヤーがいれば削除する
 	if existing, err := query.GetPlayerEntity(world); err == nil {
-		world.World.RemoveEntity(existing)
+		world.ECS.RemoveEntity(existing)
 	}
 
 	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")

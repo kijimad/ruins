@@ -22,7 +22,7 @@ var testRNG = rand.New(rand.NewPCG(0, 0))
 // setupTestAI はテスト用の敵AIエンティティを作成する
 func setupTestAI(t *testing.T, world w.World, x, y int, solo *gc.SoloAI) ecs.Entity {
 	t.Helper()
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "テストAI"})
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
 	world.Components.SoloAI.Add(entity, solo)
@@ -359,7 +359,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	wall := world.World.NewEntity()
+	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{X: 21, Y: 20})
 	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
@@ -393,7 +393,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	for _, x := range []int{19, 21} {
-		wall := world.World.NewEntity()
+		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{X: consts.Tile(x), Y: 20})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 	}
@@ -541,7 +541,7 @@ func TestPlanWallHugAction(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	for x := 19; x <= 21; x++ {
-		wall := world.World.NewEntity()
+		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{X: consts.Tile(x), Y: 19})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 	}
@@ -616,7 +616,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}
-	ally := world.World.NewEntity()
+	ally := world.ECS.NewEntity()
 	world.Components.GridElement.Add(ally, &gc.GridElement{X: 25, Y: 25})
 	world.Components.SoloAI.Add(ally, allyAI)
 

@@ -23,11 +23,11 @@ func TestSaveLoadIntegration(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// テスト用エンティティを作成
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
-	npc := world.World.NewEntity()
+	npc := world.ECS.NewEntity()
 	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
 	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
 
@@ -55,12 +55,12 @@ func TestSaveLoadIntegration(t *testing.T) {
 	playerCount := 0
 	npcCount := 0
 
-	playerQuery := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+	playerQuery := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
 	for playerQuery.Next() {
 		playerCount++
 	}
 
-	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.World).Query()
+	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.ECS).Query()
 	for npcQuery.Next() {
 		npcCount++
 	}
@@ -122,7 +122,7 @@ func TestSaveLoadInPlace(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
@@ -157,7 +157,7 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成（セーブ対象のエンティティが必要）
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
@@ -184,7 +184,7 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
@@ -211,7 +211,7 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
@@ -259,7 +259,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		// 復元後の隊員を検索する
 		var memberEntity ecs.Entity
 		var found bool
-		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.World).Query()
+		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.ECS).Query()
 		for memberQuery.Next() {
 			memberEntity = memberQuery.Entity()
 			found = true
@@ -303,7 +303,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 
 		// プレイヤーが復元されていること
 		var playerFound bool
-		playerQuery := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+		playerQuery := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
 		for playerQuery.Next() {
 			playerFound = true
 		}
@@ -311,7 +311,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 
 		// 隊員マーカーが復元されていること
 		var memberFound bool
-		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.World).Query()
+		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.ECS).Query()
 		for memberQuery.Next() {
 			memberFound = true
 		}

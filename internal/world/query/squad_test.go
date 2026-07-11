@@ -150,7 +150,7 @@ func TestGetAI(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		nonMember := world.World.NewEntity()
+		nonMember := world.ECS.NewEntity()
 		ai := query.GetSquadAI(world, nonMember)
 		assert.Nil(t, ai)
 	})
@@ -169,6 +169,6 @@ func TestIsSquadMember(t *testing.T) {
 	assert.True(t, query.IsSquadMember(world, member))
 	assert.False(t, query.IsSquadMember(world, leader))
 
-	nonMember := world.World.NewEntity()
+	nonMember := world.ECS.NewEntity()
 	assert.False(t, query.IsSquadMember(world, nonMember))
 }

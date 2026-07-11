@@ -459,11 +459,11 @@ func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
 	require.NoError(t, state.OnStart(world))
 
 	// プレイヤーが再配置されず、元の位置(5,5)を保つ
-	require.True(t, world.World.Alive(player), "プレイヤーが生存している")
+	require.True(t, world.ECS.Alive(player), "プレイヤーが生存している")
 	grid := world.Components.GridElement.Get(player)
 	assert.Equal(t, 5, int(grid.X), "復帰モードではプレイヤーが再配置されない")
 	assert.Equal(t, 5, int(grid.Y), "復帰モードではプレイヤーが再配置されない")
 
 	// 復元済みの地形（Prop）が再生成で破棄されずに残る
-	assert.True(t, world.World.Alive(prop), "復元済みエンティティが保持される")
+	assert.True(t, world.ECS.Alive(prop), "復元済みエンティティが保持される")
 }

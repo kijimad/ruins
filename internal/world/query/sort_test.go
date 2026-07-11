@@ -22,13 +22,13 @@ func TestSortEntities(t *testing.T) {
 		{
 			name: "アイテムのソート",
 			entities: func(world w.World) []ecs.Entity {
-				item1 := world.World.NewEntity()
+				item1 := world.ECS.NewEntity()
 				world.Components.Name.Add(item1, &gc.Name{Name: "Zebra Item"})
 
-				item2 := world.World.NewEntity()
+				item2 := world.ECS.NewEntity()
 				world.Components.Name.Add(item2, &gc.Name{Name: "Alpha Item"})
 
-				item3 := world.World.NewEntity()
+				item3 := world.ECS.NewEntity()
 				world.Components.Name.Add(item3, &gc.Name{Name: "Beta Item"})
 
 				return []ecs.Entity{item1, item2, item3}
@@ -45,13 +45,13 @@ func TestSortEntities(t *testing.T) {
 		{
 			name: "日本語名のソート",
 			entities: func(world w.World) []ecs.Entity {
-				item1 := world.World.NewEntity()
+				item1 := world.ECS.NewEntity()
 				world.Components.Name.Add(item1, &gc.Name{Name: "剣"})
 
-				item2 := world.World.NewEntity()
+				item2 := world.ECS.NewEntity()
 				world.Components.Name.Add(item2, &gc.Name{Name: "盾"})
 
-				item3 := world.World.NewEntity()
+				item3 := world.ECS.NewEntity()
 				world.Components.Name.Add(item3, &gc.Name{Name: "鎧"})
 
 				return []ecs.Entity{item1, item2, item3}
@@ -88,19 +88,19 @@ func TestSortEntitiesWithMixedComponents(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// Nameコンポーネントを持つエンティティと持たないエンティティの混在
-	entity1 := world.World.NewEntity()
+	entity1 := world.ECS.NewEntity()
 	world.Components.Name.Add(entity1, &gc.Name{Name: "Charlie"})
 
-	entity2 := world.World.NewEntity()
+	entity2 := world.ECS.NewEntity()
 	// Nameコンポーネントなし
 
-	entity3 := world.World.NewEntity()
+	entity3 := world.ECS.NewEntity()
 	world.Components.Name.Add(entity3, &gc.Name{Name: "Alice"})
 
-	entity4 := world.World.NewEntity()
+	entity4 := world.ECS.NewEntity()
 	// Nameコンポーネントなし
 
-	entity5 := world.World.NewEntity()
+	entity5 := world.ECS.NewEntity()
 	world.Components.Name.Add(entity5, &gc.Name{Name: "Bob"})
 
 	entities := []ecs.Entity{entity1, entity2, entity3, entity4, entity5}

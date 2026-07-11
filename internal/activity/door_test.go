@@ -19,13 +19,13 @@ func TestOpenDoorActivity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		// 扉を作成（閉じている）
-		door := world.World.NewEntity()
+		door := world.ECS.NewEntity()
 		world.Components.Door.Add(door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
 		world.Components.GridElement.Add(door, &gc.GridElement{X: 11, Y: 10})
 		world.Components.BlockPass.Add(door, &gc.BlockPass{})
@@ -46,8 +46,8 @@ func TestOpenDoorActivity(t *testing.T) {
 		assert.False(t, world.Components.BlockPass.Has(door), "BlockPassが削除されているべき")
 		assert.False(t, world.Components.BlockView.Has(door), "BlockViewが削除されているべき")
 
-		world.World.RemoveEntity(player)
-		world.World.RemoveEntity(door)
+		world.ECS.RemoveEntity(player)
+		world.ECS.RemoveEntity(door)
 	})
 
 	t.Run("Doorコンポーネントがない場合はエラー", func(t *testing.T) {
@@ -55,12 +55,12 @@ func TestOpenDoorActivity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		// 普通の壁を作成（Doorコンポーネントなし）
-		wall := world.World.NewEntity()
+		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
@@ -72,20 +72,20 @@ func TestOpenDoorActivity(t *testing.T) {
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
 		assert.Contains(t, err.Error(), "対象エンティティは扉ではありません")
 
-		world.World.RemoveEntity(player)
-		world.World.RemoveEntity(wall)
+		world.ECS.RemoveEntity(player)
+		world.ECS.RemoveEntity(wall)
 	})
 
 	t.Run("ロック済み扉を開こうとするとキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
-		door := world.World.NewEntity()
+		door := world.ECS.NewEntity()
 		world.Components.Door.Add(door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal, Locked: true})
 		world.Components.GridElement.Add(door, &gc.GridElement{X: 11, Y: 10})
 		world.Components.BlockPass.Add(door, &gc.BlockPass{})
@@ -109,8 +109,8 @@ func TestOpenDoorActivity(t *testing.T) {
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "扉はロックされている")
 
-		world.World.RemoveEntity(player)
-		world.World.RemoveEntity(door)
+		world.ECS.RemoveEntity(player)
+		world.ECS.RemoveEntity(door)
 	})
 
 	t.Run("Targetがnilの場合はエラー", func(t *testing.T) {
@@ -118,7 +118,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
@@ -130,6 +130,6 @@ func TestOpenDoorActivity(t *testing.T) {
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
 		assert.Contains(t, result.Message, "対象エンティティは扉ではありません")
 
-		world.World.RemoveEntity(player)
+		world.ECS.RemoveEntity(player)
 	})
 }

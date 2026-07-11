@@ -11,7 +11,7 @@ import (
 // RequestStateChange はステート遷移イベントエンティティを作成する。既にイベントが存在する場合はエラーを返す
 func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
 	var existing *gc.StateChangeRequest
-	existingQuery := ecs.NewFilter1[gc.StateChangeRequest](world.World).Query()
+	existingQuery := ecs.NewFilter1[gc.StateChangeRequest](world.ECS).Query()
 	for existingQuery.Next() {
 		entity := existingQuery.Entity()
 		existing = world.Components.StateChangeRequest.Get(entity)
@@ -20,7 +20,7 @@ func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
 		return fmt.Errorf("リクエストがすでに設定されています: %s → %s を設定しようとしました",
 			existing.Kind, event.Kind)
 	}
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.StateChangeRequest.Add(entity, &event)
 	return nil
 }
@@ -30,7 +30,7 @@ func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
 func ConsumeStateChange(world w.World) *gc.StateChangeRequest {
 	var event *gc.StateChangeRequest
 	var eventEntity ecs.Entity
-	eventQuery := ecs.NewFilter1[gc.StateChangeRequest](world.World).Query()
+	eventQuery := ecs.NewFilter1[gc.StateChangeRequest](world.ECS).Query()
 	for eventQuery.Next() {
 		entity := eventQuery.Entity()
 		// Getはストレージへのポインタを返し、RemoveEntityで失効するため値をコピーする
@@ -41,6 +41,6 @@ func ConsumeStateChange(world w.World) *gc.StateChangeRequest {
 	if event == nil {
 		return nil
 	}
-	world.World.RemoveEntity(eventEntity)
+	world.ECS.RemoveEntity(eventEntity)
 	return event
 }

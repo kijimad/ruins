@@ -45,13 +45,13 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 	}
 
 	var toDelete []ecs.Entity
-	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for backpackQuery.Next() {
 		entity := backpackQuery.Entity()
 		toDelete = append(toDelete, entity)
 	}
 	for _, e := range toDelete {
-		world.World.RemoveEntity(e)
+		world.ECS.RemoveEntity(e)
 	}
 
 	if err := reapplyProfession(world, playerEntity); err != nil {
@@ -71,7 +71,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
 	var items []SoldItem
 	total := 0
-	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for backpackQuery.Next() {
 		entity := backpackQuery.Entity()
 		name := ""

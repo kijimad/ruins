@@ -9,7 +9,7 @@ import (
 // GetStorageItems は収納内のアイテムを取得する
 func GetStorageItems(world w.World, storage ecs.Entity) []ecs.Entity {
 	var items []ecs.Entity
-	itemsQuery := ecs.NewFilter1[gc.LocationInStorage](world.World).Query()
+	itemsQuery := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
 	for itemsQuery.Next() {
 		entity := itemsQuery.Entity()
 		loc := world.Components.LocationInStorage.Get(entity)

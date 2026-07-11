@@ -62,7 +62,7 @@ func TestSetMaxStats(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
 
-			entity := world.World.NewEntity()
+			entity := world.ECS.NewEntity()
 			world.Components.Abilities.Add(entity, &gc.Abilities{
 				Vitality:  gc.Ability{Base: tt.vitality, Total: 0},
 				Strength:  gc.Ability{Base: tt.strength, Total: 0},
@@ -90,7 +90,7 @@ func TestSetMaxStats(t *testing.T) {
 			assert.Equal(t, tt.expectedHP, hp.Max, "最大HPの計算が正しくない: %s", tt.description)
 			assert.Equal(t, tt.expectedHP, hp.Current, "現在HPが最大HPと同じでない: %s", tt.description)
 
-			world.World.RemoveEntity(entity)
+			world.ECS.RemoveEntity(entity)
 		})
 	}
 }
@@ -99,13 +99,13 @@ func TestSetMaxStats_WithoutComponents(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 
 	err := setMaxStats(world, entity)
 	require.Error(t, err, "必要なコンポーネントがない場合はエラーを返すべき")
 	assert.Contains(t, err.Error(), "does not have required components", "エラーメッセージが適切であるべき")
 
-	world.World.RemoveEntity(entity)
+	world.ECS.RemoveEntity(entity)
 }
 
 func TestFullRecover(t *testing.T) {
@@ -113,7 +113,7 @@ func TestFullRecover(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// テスト用エンティティを作成
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Abilities.Add(entity, &gc.Abilities{
 		Vitality:  gc.Ability{Base: 10, Total: 0},
 		Strength:  gc.Ability{Base: 8, Total: 0},
@@ -138,7 +138,7 @@ func TestFullRecover(t *testing.T) {
 	assert.Equal(t, expectedHP, hp.Max, "最大HPが正しく計算されていない")
 	assert.Equal(t, expectedHP, hp.Current, "現在HPが最大HPと一致していない")
 
-	world.World.RemoveEntity(entity)
+	world.ECS.RemoveEntity(entity)
 }
 
 func TestSpawnEnemyHasAI(t *testing.T) {
@@ -167,7 +167,7 @@ func TestSpawnEnemyHasAI(t *testing.T) {
 
 	// AIコンポーネントを持つエンティティが存在することを確認
 	enemyFound := false
-	enemyQuery := ecs.NewFilter2[gc.GridElement, gc.SoloAI](world.World).Query()
+	enemyQuery := ecs.NewFilter2[gc.GridElement, gc.SoloAI](world.ECS).Query()
 	for enemyQuery.Next() {
 		enemyFound = true
 	}
@@ -368,20 +368,20 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// DoorLockTriggerを2つ作成
-		trigger1 := world.World.NewEntity()
+		trigger1 := world.ECS.NewEntity()
 		world.Components.Interactable.Add(trigger1, &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoorLock}}})
-		trigger2 := world.World.NewEntity()
+		trigger2 := world.ECS.NewEntity()
 		world.Components.Interactable.Add(trigger2, &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoorLock}}})
 
 		// 他のInteractableも作成
-		other := world.World.NewEntity()
+		other := world.ECS.NewEntity()
 		world.Components.Interactable.Add(other, &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoor}}})
 
 		DeleteDoorLockTriggers(world)
 
 		// DoorLockTriggerは削除されている
 		count := 0
-		interactableQuery := ecs.NewFilter1[gc.Interactable](world.World).Query()
+		interactableQuery := ecs.NewFilter1[gc.Interactable](world.ECS).Query()
 		for interactableQuery.Next() {
 			entity := interactableQuery.Entity()
 			interactable := world.Components.Interactable.Get(entity)
@@ -414,7 +414,7 @@ func TestSpawnVisualEffect(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
 		effect := gc.NewHealEffect(10)
@@ -422,7 +422,7 @@ func TestSpawnVisualEffect(t *testing.T) {
 
 		// エフェクトエンティティが生成されたことを確認
 		var foundEffect bool
-		effectQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+		effectQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
 		for effectQuery.Next() {
 			foundEffect = true
 		}
@@ -433,13 +433,13 @@ func TestSpawnVisualEffect(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 
 		effect := gc.NewHealEffect(10)
 		SpawnVisualEffect(entity, effect, world)
 
 		var foundEffect bool
-		effectQuery := ecs.NewFilter1[gc.VisualEffects](world.World).Query()
+		effectQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
 		for effectQuery.Next() {
 			foundEffect = true
 		}

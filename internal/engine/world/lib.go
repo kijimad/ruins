@@ -9,7 +9,7 @@ import (
 
 // Generic は型安全なワールド型
 type Generic[C c.ComponentInitializer, R r.ResourceInitializer] struct {
-	World      *ecs.World
+	ECS        *ecs.World
 	Components *c.Components[C]
 	Resources  *r.Resources[R]
 }
@@ -28,7 +28,7 @@ func InitGeneric[C c.ComponentInitializer, R r.ResourceInitializer](gameComponen
 	}
 
 	return Generic[C, R]{
-		World:      world,
+		ECS:        world,
 		Components: components,
 		Resources:  resources,
 	}, nil

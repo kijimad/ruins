@@ -72,20 +72,20 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 	// プレイヤーを取得し、基本値まで復元されることを検証する
 	var playerEntity ecs.Entity
 	playerCount := 0
-	pq := ecs.NewFilter1[gc.Player](world.World).Query()
+	pq := ecs.NewFilter1[gc.Player](world.ECS).Query()
 	for pq.Next() {
 		playerCount++
 		playerEntity = pq.Entity()
 	}
 	require.Equal(t, 1, playerCount, "プレイヤーが1体復元される")
-	require.True(t, world.World.Alive(playerEntity), "復元後のプレイヤーが生存している")
+	require.True(t, world.ECS.Alive(playerEntity), "復元後のプレイヤーが生存している")
 	assert.Equal(t, "テストプレイヤー", world.Components.Name.Get(playerEntity).Name)
 	assert.Equal(t, 100, world.Components.HP.Get(playerEntity).Max, "HPが値まで復元される")
 	assert.Equal(t, 9, world.Components.Abilities.Get(playerEntity).Agility.Total, "能力値が復元される")
 
 	// 敵NPCが3体（丸ごと保存で復元される）
 	npcCount := 0
-	nq := ecs.NewFilter1[gc.FactionEnemyData](world.World).Query()
+	nq := ecs.NewFilter1[gc.FactionEnemyData](world.ECS).Query()
 	for nq.Next() {
 		npcCount++
 	}
@@ -95,11 +95,11 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 	// ark-serde は復元時にエンティティ参照を張り替えるため、全アイテムの Owner が
 	// 復元後プレイヤーを指す（かつ生存する）ことを確認する。ここが壊れると所有関係が静かに崩壊する
 	items := map[string]ecs.Entity{}
-	iq := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	iq := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for iq.Next() {
 		e := iq.Entity()
 		owner := world.Components.LocationInBackpack.Get(e).Owner
-		require.True(t, world.World.Alive(owner), "アイテムのOwnerが生存エンティティを指す")
+		require.True(t, world.ECS.Alive(owner), "アイテムのOwnerが生存エンティティを指す")
 		assert.Equal(t, playerEntity, owner, "アイテムのOwnerが復元後プレイヤーへ再マッピングされる")
 		if world.Components.Name.Has(e) {
 			items[world.Components.Name.Get(e).Name] = e
@@ -121,7 +121,7 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 
 	// 回復薬（ProvidesHealing 倍率0.3）が値まで復元される
 	healRatioFound := false
-	hq := ecs.NewFilter1[gc.ProvidesHealing](world.World).Query()
+	hq := ecs.NewFilter1[gc.ProvidesHealing](world.ECS).Query()
 	for hq.Next() {
 		ph := world.Components.ProvidesHealing.Get(hq.Entity())
 		if ph.Kind == gc.HealRatio && ph.Ratio == 0.3 {
@@ -146,7 +146,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤー作成（手動でコンポーネント追加）
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
@@ -163,7 +163,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
 
 	// 武器1: 木刀
-	sword := world.World.NewEntity()
+	sword := world.ECS.NewEntity()
 	world.Components.Name.Add(sword, &gc.Name{Name: "木刀"})
 	world.Components.LocationInBackpack.Add(sword, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(sword, &gc.Melee{
@@ -172,7 +172,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	})
 
 	// 武器2: ハンドガン
-	handgun := world.World.NewEntity()
+	handgun := world.ECS.NewEntity()
 	world.Components.Name.Add(handgun, &gc.Name{Name: "ハンドガン"})
 	world.Components.LocationInBackpack.Add(handgun, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(handgun, &gc.Melee{
@@ -181,7 +181,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	})
 
 	// 防具: 西洋鎧
-	armor := world.World.NewEntity()
+	armor := world.ECS.NewEntity()
 	world.Components.Name.Add(armor, &gc.Name{Name: "西洋鎧"})
 	world.Components.LocationInBackpack.Add(armor, &gc.LocationInBackpack{Owner: player})
 	world.Components.Wearable.Add(armor, &gc.Wearable{
@@ -193,7 +193,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	})
 
 	// 回復アイテム
-	potion := world.World.NewEntity()
+	potion := world.ECS.NewEntity()
 	world.Components.Name.Add(potion, &gc.Name{Name: "回復薬"})
 	world.Components.LocationInBackpack.Add(potion, &gc.LocationInBackpack{Owner: player})
 	world.Components.Consumable.Add(potion, &gc.Consumable{
@@ -210,7 +210,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 
 	// NPC作成
 	for i := range 3 {
-		npc := world.World.NewEntity()
+		npc := world.ECS.NewEntity()
 		world.Components.Name.Add(npc, &gc.Name{Name: "NPC" + string(rune('A'+i))})
 		world.Components.GridElement.Add(npc, &gc.GridElement{
 			X: consts.Tile(20 + i*5),
@@ -231,13 +231,13 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	}
 
 	// マテリアル
-	material1 := world.World.NewEntity()
+	material1 := world.ECS.NewEntity()
 	world.Components.Name.Add(material1, &gc.Name{Name: "鉄"})
 	world.Components.Value.Add(material1, &gc.Value{})
 	world.Components.LocationInBackpack.Add(material1, &gc.LocationInBackpack{Owner: player})
 	world.Components.Stackable.Add(material1, &gc.Stackable{})
 
-	material2 := world.World.NewEntity()
+	material2 := world.ECS.NewEntity()
 	world.Components.Name.Add(material2, &gc.Name{Name: "緑ハーブ"})
 	world.Components.Value.Add(material2, &gc.Value{})
 	world.Components.LocationInBackpack.Add(material2, &gc.LocationInBackpack{Owner: player})

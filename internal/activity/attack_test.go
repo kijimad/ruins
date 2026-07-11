@@ -14,7 +14,7 @@ func TestGetSkillMult_NoCharModifiers(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	// CharModifiersコンポーネントなし → 100を返す
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 	assert.Equal(t, 100, getSkillMult(entity, melee, world, true))
@@ -25,7 +25,7 @@ func TestGetSkillMult_NilAttack(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	assert.Equal(t, 100, getSkillMult(entity, nil, world, true))
 }
 
@@ -33,7 +33,7 @@ func TestGetSkillMult_WithCharModifiers(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Value = 3
@@ -51,7 +51,7 @@ func TestGetSkillMult_UnmappedWeapon(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	mods := gc.RecalculateCharModifiers(skills, nil, nil)
@@ -66,7 +66,7 @@ func TestApplyElementResist_NoCharModifiers(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	target := world.World.NewEntity()
+	target := world.ECS.NewEntity()
 
 	// CharModifiersなし → ダメージそのまま
 	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeFire, world))
@@ -76,7 +76,7 @@ func TestApplyElementResist_WithResist(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	target := world.World.NewEntity()
+	target := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFireResist).Value = 5
@@ -92,7 +92,7 @@ func TestApplyElementResist_MinimumDamage(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	target := world.World.NewEntity()
+	target := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFireResist).Value = 40 // 高い耐性値
@@ -108,7 +108,7 @@ func TestGrowWeaponSkill_NoSkillsComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	// Skillsコンポーネントなし → panicしない
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
@@ -119,7 +119,7 @@ func TestGrowWeaponSkill_NilAttack(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	growWeaponSkill(actor, world, nil)
 }
@@ -128,7 +128,7 @@ func TestGrowWeaponSkill_GainsExp(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
@@ -152,7 +152,7 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	// スキルアップ直前まで経験値を溜める
@@ -179,7 +179,7 @@ func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
@@ -196,7 +196,7 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
@@ -222,7 +222,7 @@ func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
@@ -246,7 +246,7 @@ func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Value = 100 // 最大レベル
@@ -271,7 +271,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Exp.Current = 95
@@ -310,7 +310,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		target := world.World.NewEntity()
+		target := world.ECS.NewEntity()
 		world.Components.HP.Add(target, &gc.HP{Current: 100, Max: 100})
 		world.Components.Abilities.Add(target, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
@@ -324,7 +324,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		world.Components.Activity.Add(target, comp)
 
 		// 攻撃者をセットアップ（命中率を最大にするため高い器用度）
-		attacker := world.World.NewEntity()
+		attacker := world.ECS.NewEntity()
 		world.Components.Abilities.Add(attacker, &gc.Abilities{
 			Strength:  gc.Ability{Total: 50},
 			Dexterity: gc.Ability{Total: 99},
@@ -352,7 +352,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		target := world.World.NewEntity()
+		target := world.ECS.NewEntity()
 		world.Components.HP.Add(target, &gc.HP{Current: 10000, Max: 10000})
 		world.Components.Abilities.Add(target, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
@@ -365,7 +365,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		comp.State = gc.ActivityStateRunning
 		world.Components.Activity.Add(target, comp)
 
-		attacker := world.World.NewEntity()
+		attacker := world.ECS.NewEntity()
 		world.Components.Abilities.Add(attacker, &gc.Abilities{
 			Strength:  gc.Ability{Total: 50},
 			Dexterity: gc.Ability{Total: 99},
@@ -389,7 +389,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		target := world.World.NewEntity()
+		target := world.ECS.NewEntity()
 		world.Components.HP.Add(target, &gc.HP{Current: 1, Max: 100})
 		world.Components.Abilities.Add(target, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
@@ -402,7 +402,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		comp.State = gc.ActivityStateRunning
 		world.Components.Activity.Add(target, comp)
 
-		attacker := world.World.NewEntity()
+		attacker := world.ECS.NewEntity()
 		world.Components.Abilities.Add(attacker, &gc.Abilities{
 			Strength:  gc.Ability{Total: 50},
 			Dexterity: gc.Ability{Total: 99},
@@ -428,7 +428,7 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)

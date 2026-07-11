@@ -58,7 +58,7 @@ func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 	var camera *gc.Camera
 
 	// カメラコンポーネントを取得
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.World).Query()
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
 	for cameraQuery.Next() {
 		entity := cameraQuery.Entity()
 		camera = world.Components.Camera.Get(entity)
@@ -130,10 +130,10 @@ func initializeShadowImages() {
 // renderFloorLayer は床レイヤー（タイル）を描画する
 func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
 	iSprite := 0
-	countQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.World).Query()
+	countQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).Query()
 	entities := make([]ecs.Entity, countQuery.Count())
 	countQuery.Close()
-	tileQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.World).Query()
+	tileQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
 		entities[iSprite] = entity
@@ -179,7 +179,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	var entities []ecs.Entity
 
 	// タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む
-	objectQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.World).
+	objectQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).
 		Without(ecs.C[gc.Tile]()).Query()
 	for objectQuery.Next() {
 		entity := objectQuery.Entity()
@@ -214,7 +214,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 // renderShadows は物体と壁の影を描画する
 func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) {
 	// 物体の影
-	moverShadowQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.World).Query()
+	moverShadowQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).Query()
 	for moverShadowQuery.Next() {
 		entity := moverShadowQuery.Entity()
 		// TurnBased または Prop を持つエンティティのみ
@@ -249,14 +249,14 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 
 	// 壁の影（下タイルが床の場合のみ）
 	tileMap := make(map[gc.GridElement]ecs.Entity)
-	tileMapQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.World).Query()
+	tileMapQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
 	for tileMapQuery.Next() {
 		e := tileMapQuery.Entity()
 		ge := world.Components.GridElement.Get(e)
 		tileMap[*ge] = e
 	}
 
-	wallShadowQuery := ecs.NewFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world.World).Query()
+	wallShadowQuery := ecs.NewFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world.ECS).Query()
 	for wallShadowQuery.Next() {
 		entity := wallShadowQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
@@ -407,7 +407,7 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	var cameraX, cameraY float64
 	cameraScale := 1.0
 
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.World).Query()
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
 	for cameraQuery.Next() {
 		entity := cameraQuery.Entity()
 		camera := world.Components.Camera.Get(entity)

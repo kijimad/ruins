@@ -13,7 +13,7 @@ func DismissSquadMember(world w.World, member ecs.Entity) error {
 	if !world.Components.SquadMember.Has(member) {
 		return fmt.Errorf("エンティティは隊員ではありません")
 	}
-	world.World.RemoveEntity(member)
+	world.ECS.RemoveEntity(member)
 	return nil
 }
 

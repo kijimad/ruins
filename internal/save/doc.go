@@ -32,7 +32,7 @@ ark-serde でワールド全体をJSON化して保存し、ロード時にその
 ## ロード時の復元
 
 Deserialize はリセット済みワールドを要求するため、RestoreWorldFromJSON は先に
-world.World.Reset() を行う。復元後、reestablishSingleton がスキップした一時コンポーネント
+world.ECS.Reset() を行う。復元後、reestablishSingleton がスキップした一時コンポーネント
 （GameLog・SpatialIndex）を再付与し、視界マップを初期化し、Resources.SingletonEntity の
 参照を張り直す。
 

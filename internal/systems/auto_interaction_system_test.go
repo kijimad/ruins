@@ -17,7 +17,7 @@ func TestAutoInteractionSystem_NoGridElement(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// GridElementなしのプレイヤーを作成
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// システム実行（エラーなしで完了するべき）
@@ -36,7 +36,7 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	require.NoError(t, err)
 
 	// 範囲外にあるトリガーを作成（距離が2以上）
-	triggerEntity := world.World.NewEntity()
+	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 15, Y: 15})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
@@ -63,7 +63,7 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	require.NoError(t, err)
 
 	// Manual方式のトリガーを作成（プレイヤーと同じタイル）
-	triggerEntity := world.World.NewEntity()
+	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}}, // Manual 方式
@@ -92,7 +92,7 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	require.NoError(t, err)
 
 	// OnCollision方式のトリガーを作成（プレイヤーと隣接）
-	triggerEntity := world.World.NewEntity()
+	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 11, Y: 10})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{{Kind: gc.InteractionDoor}}, // OnCollision 方式
@@ -119,7 +119,7 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 	require.NoError(t, err)
 
 	// 未知の種類（平坦化によりゼロ値=無効なConfigになる）のトリガーを作成
-	triggerEntity := world.World.NewEntity()
+	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionData{{Kind: "UNKNOWN"}},

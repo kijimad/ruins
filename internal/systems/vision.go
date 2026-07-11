@@ -68,7 +68,7 @@ func (sys VisionSystem) String() string {
 func (sys *VisionSystem) Update(world w.World) error {
 	// プレイヤー位置を取得
 	var playerGridElement *gc.GridElement
-	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.World).Query()
+	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		playerGridElement = world.Components.GridElement.Get(entity)
@@ -354,7 +354,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 	var totalWeight float64
 
 	// 全ての光源をチェック
-	lightQuery := ecs.NewFilter2[gc.LightSource, gc.GridElement](world.World).Query()
+	lightQuery := ecs.NewFilter2[gc.LightSource, gc.GridElement](world.ECS).Query()
 	for lightQuery.Next() {
 		lightEntity := lightQuery.Entity()
 		lightSource := world.Components.LightSource.Get(lightEntity)
@@ -422,7 +422,7 @@ const (
 // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 	index := make(map[gc.GridElement]bool)
-	blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.World).Query()
+	blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.ECS).Query()
 	for blockViewQuery.Next() {
 		entity := blockViewQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

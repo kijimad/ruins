@@ -65,7 +65,7 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 // UnequipAll はプレイヤーの装備中アイテムを全てバックパックに移動する
 func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 	var equipped []ecs.Entity
-	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.World).Query()
+	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
 	for equippedQuery.Next() {
 		entity := equippedQuery.Entity()
 		loc := world.Components.LocationEquipped.Get(entity)
@@ -86,7 +86,7 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 // エンティティが死亡している場合や既に付与済みの場合は何もしない。
 // Arkは死亡エンティティへの付与と二重付与でパニックするため、ここで吸収する
 func ensureMarker[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity, data *T) {
-	if !world.World.Alive(entity) {
+	if !world.ECS.Alive(entity) {
 		return
 	}
 	if !comp.Has(entity) {
@@ -157,7 +157,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 	var stackableItems []ecs.Entity
 	switch loc {
 	case mergeInBackpack:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
 			if world.Components.Name.Get(entity).Name != itemName {
@@ -168,7 +168,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 			}
 		}
 	case mergeInStorage:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.Name](world.World).Query()
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.Name](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
 			if world.Components.Name.Get(entity).Name != itemName {
@@ -195,7 +195,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 			return fmt.Errorf("数量統合エラー: %w", err)
 		}
 
-		world.World.RemoveEntity(itemToMerge)
+		world.ECS.RemoveEntity(itemToMerge)
 	}
 
 	return nil
@@ -241,7 +241,7 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	var playerEntity ecs.Entity
 	var found bool
 
-	playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.World).Query()
+	playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		if !found {

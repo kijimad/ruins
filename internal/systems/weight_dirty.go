@@ -23,7 +23,7 @@ func (sys WeightDirtySystem) String() string {
 func (sys *WeightDirtySystem) Update(world w.World) error {
 	// WeightDirtyマーカーが付いたエンティティを収集する。
 	var changedEntities []ecs.Entity
-	weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.World).Query()
+	weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.ECS).Query()
 	for weightDirtyQuery.Next() {
 		changedEntities = append(changedEntities, weightDirtyQuery.Entity())
 	}

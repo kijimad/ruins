@@ -98,7 +98,7 @@ func TestSpawnSquadMember_リーダーにGridElementがないとエラー(t *tes
 	world := testutil.InitTestWorld(t)
 
 	// GridElementなしのエンティティ
-	fakeLeader := world.World.NewEntity()
+	fakeLeader := world.ECS.NewEntity()
 
 	_, err := SpawnSquadMember(world, fakeLeader, "隊員B", testAbilities(), "player")
 	assert.Error(t, err, "GridElementなしのリーダーでスポーンするとエラー")
@@ -125,7 +125,7 @@ func TestDismissSquadMember_隊員でないエンティティはエラー(t *tes
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	nonMember := world.World.NewEntity()
+	nonMember := world.ECS.NewEntity()
 	err := DismissSquadMember(world, nonMember)
 	assert.Error(t, err)
 }
@@ -203,7 +203,7 @@ func TestSpawnDefaultSquadMember_リーダーにGridElementがないとエラー
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	fakeLeader := world.World.NewEntity()
+	fakeLeader := world.ECS.NewEntity()
 	_, err := SpawnDefaultSquadMember(world, fakeLeader)
 	assert.Error(t, err)
 }

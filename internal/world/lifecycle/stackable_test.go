@@ -16,7 +16,7 @@ func TestGetAmount(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// テスト用素材エンティティを作成
-	materialEntity := world.World.NewEntity()
+	materialEntity := world.ECS.NewEntity()
 	world.Components.Stackable.Add(materialEntity, &gc.Stackable{Count: 10})
 	world.Components.LocationInBackpack.Add(materialEntity, &gc.LocationInBackpack{})
 	world.Components.Name.Add(materialEntity, &gc.Name{Name: "鉄"})
@@ -32,7 +32,7 @@ func TestGetAmount(t *testing.T) {
 	assert.False(t, found, "存在しない素材が見つかってはいけない")
 
 	// クリーンアップ
-	world.World.RemoveEntity(materialEntity)
+	world.ECS.RemoveEntity(materialEntity)
 }
 
 func TestPlusMinusAmount(t *testing.T) {
@@ -40,7 +40,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// テスト用素材エンティティを作成
-	materialEntity := world.World.NewEntity()
+	materialEntity := world.ECS.NewEntity()
 	world.Components.Material.Add(materialEntity, &gc.Material{})
 	world.Components.Stackable.Add(materialEntity, &gc.Stackable{Count: 10})
 	world.Components.LocationInBackpack.Add(materialEntity, &gc.LocationInBackpack{})
@@ -87,17 +87,17 @@ func TestMergeStackableItems(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		owner := world.World.NewEntity()
+		owner := world.ECS.NewEntity()
 
 		// バックパック内にパンを3個追加
-		item1 := world.World.NewEntity()
+		item1 := world.ECS.NewEntity()
 		world.Components.Material.Add(item1, &gc.Material{})
 		world.Components.Name.Add(item1, &gc.Name{Name: "パン"})
 		world.Components.Stackable.Add(item1, &gc.Stackable{Count: 3})
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: owner})
 
 		// バックパック内にパンを2個追加
-		item2 := world.World.NewEntity()
+		item2 := world.ECS.NewEntity()
 		world.Components.Material.Add(item2, &gc.Material{})
 		world.Components.Name.Add(item2, &gc.Name{Name: "パン"})
 		world.Components.Stackable.Add(item2, &gc.Stackable{Count: 2})
@@ -110,7 +110,7 @@ func TestMergeStackableItems(t *testing.T) {
 		// バックパック内のパンは1つだけになっている
 		var breadCount int
 		var totalCount int
-		breadQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+		breadQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
 		for breadQuery.Next() {
 			entity := breadQuery.Entity()
 			name := world.Components.Name.Get(entity)
@@ -129,10 +129,10 @@ func TestMergeStackableItems(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		owner := world.World.NewEntity()
+		owner := world.ECS.NewEntity()
 
 		// バックパック内にパンを1個だけ追加
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 2})
@@ -152,15 +152,15 @@ func TestMergeStackableItems(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		owner := world.World.NewEntity()
+		owner := world.ECS.NewEntity()
 
 		// バックパック内に剣を2つ追加（Stackableなし）
-		item1 := world.World.NewEntity()
+		item1 := world.ECS.NewEntity()
 		world.Components.Melee.Add(item1, &gc.Melee{})
 		world.Components.Name.Add(item1, &gc.Name{Name: "剣"})
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: owner})
 
-		item2 := world.World.NewEntity()
+		item2 := world.ECS.NewEntity()
 		world.Components.Melee.Add(item2, &gc.Melee{})
 		world.Components.Name.Add(item2, &gc.Name{Name: "剣"})
 		world.Components.LocationInBackpack.Add(item2, &gc.LocationInBackpack{Owner: owner})

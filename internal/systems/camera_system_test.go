@@ -21,7 +21,7 @@ func TestCameraSystem_SnapsToPlayerPosition(t *testing.T) {
 	require.NoError(t, err)
 
 	// カメラの初期位置は原点
-	cameraEntity := world.World.NewEntity()
+	cameraEntity := world.ECS.NewEntity()
 	camera := &gc.Camera{
 		Scale:   1.0,
 		ScaleTo: 1.0,
@@ -47,7 +47,7 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 
 	initialX := 100.0
 	initialY := 200.0
-	cameraEntity := world.World.NewEntity()
+	cameraEntity := world.ECS.NewEntity()
 	camera := &gc.Camera{
 		Scale:   1.0,
 		ScaleTo: 1.0,
@@ -74,7 +74,7 @@ func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	cameraEntity := world.World.NewEntity()
+	cameraEntity := world.ECS.NewEntity()
 	camera := &gc.Camera{Scale: 1.0, ScaleTo: 1.0}
 	world.Components.Camera.Add(cameraEntity, camera)
 

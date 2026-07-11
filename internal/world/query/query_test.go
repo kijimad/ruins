@@ -16,13 +16,13 @@ func TestPlayer(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
 	world.Components.Name.Add(player, &gc.Name{Name: "プレイヤー"})
 
 	// 敵を作成（除外されることを確認）
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 	world.Components.Name.Add(enemy, &gc.Name{Name: "敵"})
 
@@ -37,8 +37,8 @@ func TestPlayer(t *testing.T) {
 	assert.Equal(t, player, foundEntities[0], "正しいプレイヤーが見つかるべき")
 
 	// クリーンアップ
-	world.World.RemoveEntity(player)
-	world.World.RemoveEntity(enemy)
+	world.ECS.RemoveEntity(player)
+	world.ECS.RemoveEntity(enemy)
 }
 
 func TestGetPlayerEntity(t *testing.T) {
@@ -48,14 +48,14 @@ func TestGetPlayerEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		entity, err := GetPlayerEntity(world)
 		require.NoError(t, err)
 		assert.Equal(t, player, entity)
 
-		world.World.RemoveEntity(player)
+		world.ECS.RemoveEntity(player)
 	})
 
 	t.Run("プレイヤーが0個の場合", func(t *testing.T) {
@@ -71,18 +71,18 @@ func TestGetPlayerEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player1 := world.World.NewEntity()
+		player1 := world.ECS.NewEntity()
 		world.Components.Player.Add(player1, &gc.Player{})
 
-		player2 := world.World.NewEntity()
+		player2 := world.ECS.NewEntity()
 		world.Components.Player.Add(player2, &gc.Player{})
 
 		_, err := GetPlayerEntity(world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "プレイヤーエンティティが複数存在します")
 
-		world.World.RemoveEntity(player1)
-		world.World.RemoveEntity(player2)
+		world.ECS.RemoveEntity(player1)
+		world.ECS.RemoveEntity(player2)
 	})
 }
 
@@ -93,7 +93,7 @@ func TestIsPickable(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
 
 		assert.True(t, IsPickable(entity, world))
@@ -103,7 +103,7 @@ func TestIsPickable(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 
 		assert.False(t, IsPickable(entity, world))
 	})
@@ -112,7 +112,7 @@ func TestIsPickable(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
 		world.Components.Prop.Add(entity, &gc.Prop{})
 
@@ -125,11 +125,11 @@ func TestGetEntitiesAt(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	e1 := world.World.NewEntity()
+	e1 := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e1, &gc.GridElement{X: 5, Y: 5})
-	e2 := world.World.NewEntity()
+	e2 := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e2, &gc.GridElement{X: 5, Y: 5})
-	e3 := world.World.NewEntity()
+	e3 := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e3, &gc.GridElement{X: 10, Y: 10})
 
 	entities := GetEntitiesAt(world, consts.Tile(5), consts.Tile(5))

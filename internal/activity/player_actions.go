@@ -95,7 +95,7 @@ func ExecuteWaitAction(world w.World) error {
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
 	var found *gc.Interactable
 	var foundEntity ecs.Entity
-	interactableQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.World).
+	interactableQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).
 		Without(ecs.C[gc.Dead]()).Query()
 	for interactableQuery.Next() {
 		entity := interactableQuery.Entity()
@@ -117,7 +117,7 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
 	var results []ecs.Entity
 
-	rangeQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.World).Query()
+	rangeQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).Query()
 	for rangeQuery.Next() {
 		entity := rangeQuery.Entity()
 		interactable := world.Components.Interactable.Get(entity)

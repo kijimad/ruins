@@ -388,7 +388,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	items := []ecs.Entity{}
 
 	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
-		weaponQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+		weaponQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 		for weaponQuery.Next() {
 			entity := weaponQuery.Entity()
 			cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
@@ -418,7 +418,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 			return query.SortEntities(world, items)
 		}
 
-		wearableQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Wearable](world.World).Query()
+		wearableQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Wearable](world.ECS).Query()
 		for wearableQuery.Next() {
 			entity := wearableQuery.Entity()
 			wearable := world.Components.Wearable.Get(entity)

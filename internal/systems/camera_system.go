@@ -23,14 +23,14 @@ func (sys *CameraSystem) Update(world w.World) error {
 	var playerGridElement *gc.GridElement
 
 	// プレイヤー位置を取得
-	playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.World).Query()
+	playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		playerGridElement = world.Components.GridElement.Get(entity)
 	}
 
 	// カメラのズーム処理と追従処理
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.World).Query()
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
 	for cameraQuery.Next() {
 		entity := cameraQuery.Entity()
 		camera := world.Components.Camera.Get(entity)

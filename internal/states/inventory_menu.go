@@ -234,7 +234,7 @@ func (st *InventoryMenuState) fetchProps(world w.World) inventoryProps {
 
 	// プレイヤー不在時はGetEntityNameが死亡エンティティでパニックするため生存確認する
 	playerName := ""
-	if world.World.Alive(player) {
+	if world.ECS.Alive(player) {
 		playerName = query.GetEntityName(player, world)
 	}
 	members := query.SquadMembers(world)
@@ -292,7 +292,7 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 func (st *InventoryMenuState) queryByOwner(world w.World, owner ecs.Entity) []ecs.Entity {
 	var result []ecs.Entity
 
-	ownerQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.World).Query()
+	ownerQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.ECS).Query()
 	for ownerQuery.Next() {
 		entity := ownerQuery.Entity()
 		loc := world.Components.LocationInBackpack.Get(entity)

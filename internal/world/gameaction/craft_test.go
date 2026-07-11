@@ -38,7 +38,7 @@ func TestCanCraft(t *testing.T) {
 	assert.Contains(t, err.Error(), "レシピが存在しません", "エラーメッセージにレシピ不存在の内容が含まれるべき")
 
 	// クリーンアップ
-	world.World.RemoveEntity(material)
+	world.ECS.RemoveEntity(material)
 }
 
 func TestCraft(t *testing.T) {
@@ -79,11 +79,11 @@ func TestCraft_StackableTwice(t *testing.T) {
 
 	first, err := Craft(world, "回復薬")
 	require.NoError(t, err, "1回目の合成は成功するべき")
-	assert.True(t, world.World.Alive(first), "1回目の結果エンティティは生存しているべき")
+	assert.True(t, world.ECS.Alive(first), "1回目の結果エンティティは生存しているべき")
 
 	// 2回目: 新エンティティが既存スタックへ統合されるが、統合先を結果として返すべき
 	second, err := Craft(world, "回復薬")
 	require.NoError(t, err, "2回目の合成もパニックせず成功するべき")
-	assert.True(t, world.World.Alive(second), "統合されても生存する結果エンティティが返るべき")
+	assert.True(t, world.ECS.Alive(second), "統合されても生存する結果エンティティが返るべき")
 	assert.Equal(t, 2, query.GetEntityCount(world, second), "回復薬が2個に統合されているべき")
 }

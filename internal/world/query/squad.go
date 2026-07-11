@@ -9,7 +9,7 @@ import (
 // SquadMembers は生存している全隊員を返す
 func SquadMembers(world w.World) []ecs.Entity {
 	var members []ecs.Entity
-	membersQuery := ecs.NewFilter2[gc.SquadMember, gc.FactionAllyData](world.World).Query()
+	membersQuery := ecs.NewFilter2[gc.SquadMember, gc.FactionAllyData](world.ECS).Query()
 	for membersQuery.Next() {
 		entity := membersQuery.Entity()
 		if world.Components.Dead.Has(entity) {

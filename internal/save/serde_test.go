@@ -41,7 +41,7 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 
 	// プレイヤーが復元される
 	playerCount := 0
-	pq := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+	pq := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
 	for pq.Next() {
 		playerCount++
 	}
@@ -49,7 +49,7 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 
 	// 敵（丸ごと保存のため復元される）
 	enemyCount := 0
-	eq := ecs.NewFilter1[gc.SoloAI](newWorld.World).Query()
+	eq := ecs.NewFilter1[gc.SoloAI](newWorld.ECS).Query()
 	for eq.Next() {
 		enemyCount++
 	}
@@ -58,7 +58,7 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 	// 扉（地形も丸ごと保存される）。Interactableも復元され、復帰後に操作できる
 	doorCount := 0
 	doorHasInteraction := false
-	dq := ecs.NewFilter1[gc.Door](newWorld.World).Query()
+	dq := ecs.NewFilter1[gc.Door](newWorld.ECS).Query()
 	for dq.Next() {
 		doorCount++
 		e := dq.Entity()
@@ -75,7 +75,7 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 
 	// ProvidesHealing が復元される（平坦化により serde 可能になった）
 	healingFound := false
-	hq := ecs.NewFilter1[gc.ProvidesHealing](newWorld.World).Query()
+	hq := ecs.NewFilter1[gc.ProvidesHealing](newWorld.ECS).Query()
 	for hq.Next() {
 		healingFound = true
 	}
@@ -142,12 +142,12 @@ func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 
 	// 復元後のプレイヤーと敵を特定する
 	var restoredPlayer ecs.Entity
-	pq := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+	pq := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
 	for pq.Next() {
 		restoredPlayer = pq.Entity()
 	}
 	var restoredEnemy ecs.Entity
-	eq := ecs.NewFilter1[gc.SoloAI](newWorld.World).Query()
+	eq := ecs.NewFilter1[gc.SoloAI](newWorld.ECS).Query()
 	for eq.Next() {
 		restoredEnemy = eq.Entity()
 	}
@@ -155,6 +155,6 @@ func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 	// TargetEntity が復元され、生存する復元後プレイヤーを指す
 	ai := newWorld.Components.SoloAI.Get(restoredEnemy)
 	require.NotNil(t, ai.TargetEntity, "TargetEntityが復元される")
-	require.True(t, newWorld.World.Alive(*ai.TargetEntity), "TargetEntityが生存エンティティを指す")
+	require.True(t, newWorld.ECS.Alive(*ai.TargetEntity), "TargetEntityが生存エンティティを指す")
 	assert.Equal(t, restoredPlayer, *ai.TargetEntity, "TargetEntityが復元後プレイヤーへ整合する")
 }

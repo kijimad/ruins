@@ -198,7 +198,7 @@ func validateWorldInitialization(t *testing.T, world ew.World) {
 	assert.NotNil(t, world.Resources.ScreenDimensions, "画面サイズがnil")
 	assert.Equal(t, consts.GameWidth, world.Resources.ScreenDimensions.Width, "画面幅が正しくない")
 	assert.Equal(t, consts.GameHeight, world.Resources.ScreenDimensions.Height, "画面高さが正しくない")
-	assert.NotNil(t, world.World, "ECSワールドがnil")
+	assert.NotNil(t, world.ECS, "ECSワールドがnil")
 	assert.NotNil(t, world.Components, "コンポーネントがnil")
 }
 

@@ -185,7 +185,7 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 func (st *PlaceState) refreshBackpackItems(world w.World) {
 	st.backpackItems = nil
 
-	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for backpackQuery.Next() {
 		entity := backpackQuery.Entity()
 		st.backpackItems = append(st.backpackItems, entity)

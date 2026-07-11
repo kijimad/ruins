@@ -169,7 +169,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.Abilities.Add(player, &gc.Abilities{
 			Vitality:  gc.Ability{Base: 10, Total: 10},
@@ -192,7 +192,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		})
 
 		// 素早さを上げる装備を作成
-		equipment := world.World.NewEntity()
+		equipment := world.ECS.NewEntity()
 		world.Components.Name.Add(equipment, &gc.Name{Name: "素早さの指輪"})
 		world.Components.Wearable.Add(equipment, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentJewelry,
@@ -238,7 +238,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		abils := &gc.Abilities{
 			Vitality:  gc.Ability{Base: 10, Total: 10},
@@ -261,7 +261,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		})
 
 		// 体力を上げる装備を作成
-		equipment := world.World.NewEntity()
+		equipment := world.ECS.NewEntity()
 		world.Components.Name.Add(equipment, &gc.Name{Name: "体力の鎧"})
 		world.Components.Wearable.Add(equipment, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentTorso,

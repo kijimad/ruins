@@ -255,7 +255,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 	var nearestItemGrid *gc.GridElement
 	nearestDist := -1
 
-	itemQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.World).Query()
+	itemQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()
 	for itemQuery.Next() {
 		item := itemQuery.Entity()
 		if !query.IsPickable(item, world) {
@@ -305,7 +305,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 	}
 
 	var itemToTransfer *ecs.Entity
-	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for backpackQuery.Next() {
 		item := backpackQuery.Entity()
 		if itemToTransfer != nil {

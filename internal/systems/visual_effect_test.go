@@ -28,13 +28,13 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 
 	// ダンジョンタイトルエフェクトを作成
 	titleEffect := gc.NewSplashTextEffect("テストダンジョン 1F", nil, 800, 600)
-	titleEntity := world.World.NewEntity()
+	titleEntity := world.ECS.NewEntity()
 	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
 	// エフェクトが作成されたことを確認
-	count := countVisualEffects(world.World)
+	count := countVisualEffects(world.ECS)
 	assert.Equal(t, 1, count, "VisualEffectエンティティが1つ存在するべき")
 
 	// エフェクトの初期値を確認
@@ -70,14 +70,14 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 
 	// シルエットエフェクトを作成
 	spriteFadeoutEffect := gc.NewSpriteFadeoutEffect("character", "slime_0")
-	effectEntity := world.World.NewEntity()
+	effectEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(effectEntity, &gc.GridElement{X: 5, Y: 5})
 	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{spriteFadeoutEffect},
 	})
 
 	// エフェクトが作成されたことを確認
-	count := countVisualEffects(world.World)
+	count := countVisualEffects(world.ECS)
 	assert.Equal(t, 1, count)
 
 	// エフェクトの初期値を確認
@@ -114,13 +114,13 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 
 	// エフェクトを作成
 	titleEffect := gc.NewSplashTextEffect("テストダンジョン 1F", nil, 800, 600)
-	titleEntity := world.World.NewEntity()
+	titleEntity := world.ECS.NewEntity()
 	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
 	// エフェクトが存在することを確認
-	count := countVisualEffects(world.World)
+	count := countVisualEffects(world.ECS)
 	assert.Equal(t, 1, count)
 
 	// Update実行（アニメーション無効時は即座に削除される）
@@ -129,7 +129,7 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 	require.NoError(t, err)
 
 	// エフェクトエンティティが削除されたことを確認
-	count = countVisualEffects(world.World)
+	count = countVisualEffects(world.ECS)
 	assert.Equal(t, 0, count, "アニメーション無効時はエフェクトが即座に削除される")
 }
 
@@ -139,7 +139,7 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 
 	// ダメージエフェクトをGridElement付きで作成
 	damageEffect := gc.NewDamageEffect(99)
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 4})
 	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{damageEffect},
@@ -172,7 +172,7 @@ func TestVisualEffectSystem_MissEffect(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	missEffect := gc.NewMissEffect()
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{missEffect},
@@ -198,7 +198,7 @@ func TestVisualEffectSystem_HealEffect(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	healEffect := gc.NewHealEffect(30)
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 2, Y: 3})
 	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{healEffect},
@@ -221,7 +221,7 @@ func TestVisualEffectSystem_MultipleEffectsOnEntity(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 1つのエンティティに複数エフェクトを付与
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 3})
 	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{
@@ -257,7 +257,7 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 		},
 		VelocityY: -0.5,
 	}
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 1, Y: 1})
 	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
@@ -269,7 +269,7 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	count := countVisualEffects(world.World)
+	count := countVisualEffects(world.ECS)
 	assert.Equal(t, 0, count, "完了したダメージエフェクトのエンティティは削除される")
 }
 
@@ -290,7 +290,7 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 			OffsetY: 100,
 		},
 	}
-	effectEntity := world.World.NewEntity()
+	effectEntity := world.ECS.NewEntity()
 	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
@@ -305,6 +305,6 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 	}
 
 	// エフェクトエンティティが削除されたことを確認
-	count := countVisualEffects(world.World)
+	count := countVisualEffects(world.ECS)
 	assert.Equal(t, 0, count, "完了したエフェクトのエンティティは削除される")
 }

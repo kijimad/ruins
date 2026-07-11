@@ -25,7 +25,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 	var updateErr error
 
 	var targets []ecs.Entity
-	statsQuery := ecs.NewFilter2[gc.StatsChanged, gc.Abilities](world.World).Query()
+	statsQuery := ecs.NewFilter2[gc.StatsChanged, gc.Abilities](world.ECS).Query()
 	for statsQuery.Next() {
 		targets = append(targets, statsQuery.Entity())
 	}
@@ -52,7 +52,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 
 		// 装備効果を加算
-		equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.World).Query()
+		equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()
 		for equipQuery.Next() {
 			item := equipQuery.Entity()
 			equipped := world.Components.LocationEquipped.Get(item)

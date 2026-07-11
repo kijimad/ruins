@@ -115,16 +115,16 @@ type componentDebugItem struct {
 
 func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 	// Ark に登録された全コンポーネントを走査し、種類ごとの保有エンティティ数を集計する
-	ids := ecs.ComponentIDs(world.World)
+	ids := ecs.ComponentIDs(world.ECS)
 	items := make([]componentDebugItem, 0, len(ids))
 	total := 0
 
 	for _, id := range ids {
-		info, ok := ecs.ComponentInfo(world.World, id)
+		info, ok := ecs.ComponentInfo(world.ECS, id)
 		if !ok {
 			continue
 		}
-		q := ecs.NewUnsafeFilter(world.World, id).Query()
+		q := ecs.NewUnsafeFilter(world.ECS, id).Query()
 		count := q.Count()
 		// Countは反復を完了しないためワールドロックが残る。明示的に閉じる
 		q.Close()

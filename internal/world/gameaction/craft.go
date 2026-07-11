@@ -38,7 +38,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	// Stackableアイテムの合成では、SpawnBackpackItem内の統合処理で
 	// resultEntityが既存スタックへ統合されて削除されることがある。
 	// その場合は統合先の生存エンティティを結果として扱う
-	if !world.World.Alive(resultEntity) {
+	if !world.ECS.Alive(resultEntity) {
 		if survivor, found := query.FindStackableInInventory(world, name); found {
 			resultEntity = survivor
 		}
@@ -107,7 +107,7 @@ func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
 	// Stackableなアイテムを合成した場合、SpawnBackpackItem内の統合処理で
 	// このエンティティが既存スタックに統合されて削除されていることがある。
 	// 統合済みStackableに武器/防具の乱数化は不要なので、死亡していれば何もしない
-	if !world.World.Alive(entity) {
+	if !world.ECS.Alive(entity) {
 		return
 	}
 

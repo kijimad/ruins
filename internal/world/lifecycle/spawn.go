@@ -297,7 +297,7 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 
 	var playerEntity ecs.Entity
 	var found bool
-	playerQuery := ecs.NewFilter1[gc.Player](world.World).Query()
+	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
 	for playerQuery.Next() {
 		e := playerQuery.Entity()
 		playerEntity = e
@@ -447,7 +447,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 
 	gridElement := world.Components.GridElement.Get(target)
 
-	effectEntity := world.World.NewEntity()
+	effectEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(effectEntity, &gc.GridElement{
 		X: gridElement.X,
 		Y: gridElement.Y,

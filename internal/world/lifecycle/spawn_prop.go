@@ -35,7 +35,7 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 // LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
 func LockAllDoors(world w.World) int {
 	var doors []ecs.Entity
-	doorQuery := ecs.NewFilter1[gc.Door](world.World).Query()
+	doorQuery := ecs.NewFilter1[gc.Door](world.ECS).Query()
 	for doorQuery.Next() {
 		doors = append(doors, doorQuery.Entity())
 	}
@@ -61,7 +61,7 @@ func LockAllDoors(world w.World) int {
 // UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
 func UnlockAllDoors(world w.World) int {
 	var doors []ecs.Entity
-	doorQuery := ecs.NewFilter1[gc.Door](world.World).Query()
+	doorQuery := ecs.NewFilter1[gc.Door](world.ECS).Query()
 	for doorQuery.Next() {
 		doors = append(doors, doorQuery.Entity())
 	}
@@ -191,7 +191,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
 func DeleteDoorLockTriggers(world w.World) {
 	var toDelete []ecs.Entity
-	interactableQuery := ecs.NewFilter1[gc.Interactable](world.World).Query()
+	interactableQuery := ecs.NewFilter1[gc.Interactable](world.ECS).Query()
 	for interactableQuery.Next() {
 		triggerEntity := interactableQuery.Entity()
 		interactable := world.Components.Interactable.Get(triggerEntity)
@@ -203,6 +203,6 @@ func DeleteDoorLockTriggers(world w.World) {
 		}
 	}
 	for _, entity := range toDelete {
-		world.World.RemoveEntity(entity)
+		world.ECS.RemoveEntity(entity)
 	}
 }

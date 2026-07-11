@@ -54,7 +54,7 @@ func (oda *OpenDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 	targetEntity := *comp.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
-	if !world.World.Alive(targetEntity) {
+	if !world.ECS.Alive(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
 	}
 
@@ -169,7 +169,7 @@ func (cda *CloseDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 	targetEntity := *comp.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
-	if !world.World.Alive(targetEntity) {
+	if !world.ECS.Alive(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
 	}
 

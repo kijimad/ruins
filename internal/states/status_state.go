@@ -151,7 +151,7 @@ type statusDetailRow struct {
 // aliveHas はエンティティが生存しコンポーネントを保持する場合のみtrueを返す。
 // Arkは死亡エンティティのHasでパニックするため、生存確認と組み合わせる
 func aliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {
-	return world.World.Alive(entity) && comp.Has(entity)
+	return world.ECS.Alive(entity) && comp.Has(entity)
 }
 
 func (st *StatusState) fetchProps(world w.World) statusProps {

@@ -229,13 +229,13 @@ func ProcessTurn(world w.World) {
 	var toRemove []ecs.Entity
 
 	var entities []ecs.Entity
-	activityQuery := ecs.NewFilter1[gc.Activity](world.World).Query()
+	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
 	for activityQuery.Next() {
 		entities = append(entities, activityQuery.Entity())
 	}
 
 	for _, entity := range entities {
-		if !world.World.Alive(entity) || !world.Components.Activity.Has(entity) {
+		if !world.ECS.Alive(entity) || !world.Components.Activity.Has(entity) {
 			continue
 		}
 		comp := world.Components.Activity.Get(entity)
@@ -320,7 +320,7 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 // getPassCostAt は指定座標にあるPropのPassCostを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
 	total := 0
-	passCostQuery := ecs.NewFilter2[gc.GridElement, gc.PassCost](world.World).Query()
+	passCostQuery := ecs.NewFilter2[gc.GridElement, gc.PassCost](world.ECS).Query()
 	for passCostQuery.Next() {
 		entity := passCostQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

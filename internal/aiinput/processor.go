@@ -45,12 +45,12 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 
 	var targets []ecs.Entity
 	if plannerType == gc.PlannerSquad {
-		squadQuery := ecs.NewFilter2[gc.SquadAI, gc.GridElement](world.World).Query()
+		squadQuery := ecs.NewFilter2[gc.SquadAI, gc.GridElement](world.ECS).Query()
 		for squadQuery.Next() {
 			targets = append(targets, squadQuery.Entity())
 		}
 	} else {
-		soloQuery := ecs.NewFilter2[gc.SoloAI, gc.GridElement](world.World).Query()
+		soloQuery := ecs.NewFilter2[gc.SoloAI, gc.GridElement](world.ECS).Query()
 		for soloQuery.Next() {
 			targets = append(targets, soloQuery.Entity())
 		}

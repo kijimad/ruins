@@ -44,7 +44,7 @@ func TestBuildTileColors(t *testing.T) {
 		{
 			name: "壁タイルは灰色で描画される",
 			setupEntities: func(world w.World) {
-				entity := world.World.NewEntity()
+				entity := world.ECS.NewEntity()
 				world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 3})
 				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
 				world.Components.BlockView.Add(entity, &gc.BlockView{})
@@ -57,7 +57,7 @@ func TestBuildTileColors(t *testing.T) {
 		{
 			name: "床タイルは薄い灰色で描画される",
 			setupEntities: func(world w.World) {
-				entity := world.World.NewEntity()
+				entity := world.ECS.NewEntity()
 				world.Components.GridElement.Add(entity, &gc.GridElement{X: 10, Y: 15})
 				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
 				// BlockViewコンポーネントなし = 床
@@ -80,12 +80,12 @@ func TestBuildTileColors(t *testing.T) {
 			name: "同じタイルに壁と床が両方ある場合は壁が優先される",
 			setupEntities: func(world w.World) {
 				// 床エンティティ
-				floorEntity := world.World.NewEntity()
+				floorEntity := world.ECS.NewEntity()
 				world.Components.GridElement.Add(floorEntity, &gc.GridElement{X: 20, Y: 20})
 				world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
 
 				// 壁エンティティ
-				wallEntity := world.World.NewEntity()
+				wallEntity := world.ECS.NewEntity()
 				world.Components.GridElement.Add(wallEntity, &gc.GridElement{X: 20, Y: 20})
 				world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
 				world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
@@ -132,7 +132,7 @@ func TestExtractMinimapData(t *testing.T) {
 	}
 
 	// プレイヤーエンティティを作成
-	playerEntity := world.World.NewEntity()
+	playerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 15})
 	world.Components.Player.Add(playerEntity, &gc.Player{})
 
@@ -145,12 +145,12 @@ func TestExtractMinimapData(t *testing.T) {
 	world.Resources.SetScreenDimensions(800, 600)
 
 	// いくつかの壁と床エンティティを作成
-	wallEntity := world.World.NewEntity()
+	wallEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wallEntity, &gc.GridElement{X: 9, Y: 15})
 	world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
 	world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 
-	floorEntity := world.World.NewEntity()
+	floorEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(floorEntity, &gc.GridElement{X: 11, Y: 15})
 	world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
 

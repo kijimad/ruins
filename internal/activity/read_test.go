@@ -13,7 +13,7 @@ func TestReadActivity_Validate_NoTarget(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: nil}
@@ -24,8 +24,8 @@ func TestReadActivity_Validate_NotABook(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
-	item := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
+	item := world.ECS.NewEntity()
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: &item}
@@ -36,8 +36,8 @@ func TestReadActivity_Validate_AlreadyCompleted(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
-	bookEntity := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10, Current: 10},
@@ -56,11 +56,11 @@ func TestReadActivity_Validate_RequiredLevelNotMet(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 	world.Components.Skills.Add(actor, gc.NewSkills())
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 5, RequiredLevel: 3},
@@ -78,14 +78,14 @@ func TestReadActivity_Validate_RequiredLevelMet(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Value = 3
 	world.Components.Skills.Add(actor, skills)
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 5, RequiredLevel: 3},
@@ -101,10 +101,10 @@ func TestReadActivity_Validate_Success(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 1},
@@ -120,12 +120,12 @@ func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 	world.Components.Skills.Add(actor, gc.NewSkills())
 	world.Components.Abilities.Add(actor, &gc.Abilities{})
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 100},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
@@ -152,7 +152,7 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 
 	skills := gc.NewSkills()
@@ -160,7 +160,7 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 	world.Components.Abilities.Add(actor, &gc.Abilities{Strength: gc.Ability{Total: 5}})
 	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, nil, nil))
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
@@ -186,14 +186,14 @@ func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
 	world.Components.Abilities.Add(actor, &gc.Abilities{})
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 10}, // プレイヤーLv0, 本Lv10 → diff=10 → 0%
@@ -220,12 +220,12 @@ func TestReadActivity_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 	world.Components.Skills.Add(actor, gc.NewSkills())
 	world.Components.Abilities.Add(actor, &gc.Abilities{})
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 15, Current: 8},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
@@ -252,17 +252,17 @@ func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.Player.Add(actor, &gc.Player{})
 	world.Components.FactionAlly.Add(actor, &gc.FactionAllyData{})
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 
 	// 隣に敵を配置
-	enemy := world.World.NewEntity()
+	enemy := world.ECS.NewEntity()
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 6, Y: 5})
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
@@ -289,7 +289,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 	world.Components.Player.Add(actor, &gc.Player{})
 
@@ -301,7 +301,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	world.Components.Abilities.Add(actor, abils)
 	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
@@ -330,11 +330,11 @@ func TestReadActivity_NoSkillsComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.World.NewEntity()
+	actor := world.ECS.NewEntity()
 	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
 	// Skillsコンポーネントなし → panicしない
 
-	bookEntity := world.World.NewEntity()
+	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},

@@ -15,7 +15,7 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 50})
 		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
@@ -30,7 +30,7 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 90})
 		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
@@ -45,7 +45,7 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 100})
 		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
 
@@ -61,7 +61,7 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore})
 
 		reactToHostileAction(world, entity)
@@ -75,7 +75,7 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade})
 
 		reactToHostileAction(world, entity)
@@ -89,7 +89,7 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack})
 
 		reactToHostileAction(world, entity)
@@ -102,7 +102,7 @@ func TestReactToHostileAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 
 		assert.NotPanics(t, func() {
 			reactToHostileAction(world, entity)
@@ -117,10 +117,10 @@ func TestApplyDamage_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.World.NewEntity()
+		source := world.ECS.NewEntity()
 		world.Components.Player.Add(source, &gc.Player{})
 
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
@@ -136,10 +136,10 @@ func TestApplyDamage_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.World.NewEntity()
+		source := world.ECS.NewEntity()
 		world.Components.Player.Add(source, &gc.Player{})
 
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 10})
@@ -155,10 +155,10 @@ func TestApplyDamage_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.World.NewEntity()
+		source := world.ECS.NewEntity()
 		world.Components.Player.Add(source, &gc.Player{})
 
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 5})

@@ -45,7 +45,7 @@ func skipComponents() []ecs.Comp {
 
 // serializeWorld はワールドをark-serdeでJSON化する。一時状態とリソースは除外する
 func serializeWorld(world w.World) ([]byte, error) {
-	return arkserde.Serialize(world.World,
+	return arkserde.Serialize(world.ECS,
 		arkserde.Opts.SkipComponents(skipComponents()...),
 		arkserde.Opts.SkipAllResources(),
 	)
@@ -53,7 +53,7 @@ func serializeWorld(world w.World) ([]byte, error) {
 
 // deserializeWorld はJSONからワールドを復元する。呼び出し前にworldはReset済みであること
 func deserializeWorld(world w.World, worldJSON []byte) error {
-	return arkserde.Deserialize(worldJSON, world.World,
+	return arkserde.Deserialize(worldJSON, world.ECS,
 		arkserde.Opts.SkipComponents(skipComponents()...),
 		arkserde.Opts.SkipAllResources(),
 	)
@@ -67,7 +67,7 @@ func reestablishSingleton(world w.World) error {
 	// 途中returnはワールドをロックしたまま残すため、クエリは最後まで反復する
 	var singleton ecs.Entity
 	found := false
-	q := ecs.NewFilter1[gc.GameProgress](world.World).Query()
+	q := ecs.NewFilter1[gc.GameProgress](world.ECS).Query()
 	for q.Next() {
 		if !found {
 			singleton = q.Entity()
@@ -101,7 +101,7 @@ func reestablishSingleton(world w.World) error {
 // クエリを途中でreturnするとワールドがロックされたままになるため、必ず最後まで反復する
 func extractPlayerName(world w.World) string {
 	name := ""
-	q := ecs.NewFilter1[gc.Player](world.World).Query()
+	q := ecs.NewFilter1[gc.Player](world.ECS).Query()
 	for q.Next() {
 		entity := q.Entity()
 		if name == "" && world.Components.Name.Has(entity) {

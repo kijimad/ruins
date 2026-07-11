@@ -20,7 +20,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
@@ -49,7 +49,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		assert.Error(t, ExecuteMoveAction(world, gc.DirectionUp))
@@ -79,7 +79,7 @@ func TestExecuteMoveAction(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
 
-				player := world.World.NewEntity()
+				player := world.ECS.NewEntity()
 				world.Components.Player.Add(player, &gc.Player{})
 				world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 				world.Components.TurnBased.Add(player, &gc.TurnBased{})
@@ -128,7 +128,7 @@ func TestExecuteWaitAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
@@ -157,7 +157,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Interactableエンティティを作成
-		interactableEntity := world.World.NewEntity()
+		interactableEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
@@ -175,7 +175,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Interactableエンティティを作成（異なる位置）
-		interactableEntity := world.World.NewEntity()
+		interactableEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 15, Y: 15})
 		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
@@ -192,7 +192,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 死亡したInteractableエンティティを作成
-		deadEntity := world.World.NewEntity()
+		deadEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(deadEntity, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(deadEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
@@ -214,7 +214,7 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Manual方式のInteractableを作成
-		manualEntity := world.World.NewEntity()
+		manualEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(manualEntity, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(manualEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}}, // Manual + SameTile
@@ -232,7 +232,7 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// OnCollision方式のInteractableを作成
-		collisionEntity := world.World.NewEntity()
+		collisionEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(collisionEntity, &gc.GridElement{X: 11, Y: 10})
 		world.Components.Interactable.Add(collisionEntity, &gc.Interactable{
 			Interactions: []gc.InteractionData{{Kind: gc.InteractionMelee}}, // OnCollision + Adjacent

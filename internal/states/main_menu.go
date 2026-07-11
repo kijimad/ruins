@@ -44,12 +44,12 @@ func (st *MainMenuState) OnResume(_ w.World) error { return nil }
 func (st *MainMenuState) OnStart(world w.World) error {
 	// ワールドをクリアする。前のゲーム状態を削除する
 	var clearEntities []ecs.Entity
-	clearQuery := ecs.NewUnsafeFilter(world.World).Query()
+	clearQuery := ecs.NewUnsafeFilter(world.ECS).Query()
 	for clearQuery.Next() {
 		clearEntities = append(clearEntities, clearQuery.Entity())
 	}
 	for _, e := range clearEntities {
-		world.World.RemoveEntity(e)
+		world.ECS.RemoveEntity(e)
 	}
 	// シングルトンエンティティを再構築する
 	world.InitSingleton()

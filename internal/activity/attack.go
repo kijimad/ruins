@@ -66,7 +66,7 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	}
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
-	if !world.World.Alive(*comp.Target) {
+	if !world.ECS.Alive(*comp.Target) {
 		return ErrAttackTargetNotExists
 	}
 

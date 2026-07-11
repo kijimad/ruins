@@ -37,7 +37,7 @@ func (sys *AnimationSystem) Update(world w.World) error {
 
 	sys.animationCounter++
 
-	spriteQuery := ecs.NewFilter1[gc.SpriteRender](world.World).Query()
+	spriteQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()
 	for spriteQuery.Next() {
 		entity := spriteQuery.Entity()
 		spriteRender := world.Components.SpriteRender.Get(entity)

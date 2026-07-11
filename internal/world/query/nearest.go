@@ -15,7 +15,7 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 	var nearestGrid *gc.GridElement
 	nearestDist := -1
 
-	nearestQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	nearestQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for nearestQuery.Next() {
 		entity := nearestQuery.Entity()
 		if entity == self {

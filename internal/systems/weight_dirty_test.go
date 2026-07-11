@@ -18,11 +18,11 @@ func TestWeightDirtySystem(t *testing.T) {
 		sys := &WeightDirtySystem{}
 
 		// WeightCapacityを持つStorageエンティティを作成
-		storage := world.World.NewEntity()
+		storage := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(storage, &gc.WeightCapacity{Max: 50.0})
 
 		// アイテムを収納に入れる
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 3.0})
 		world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: storage})
 
@@ -42,7 +42,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		sys := &WeightDirtySystem{}
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 10.0})
 		world.Components.WeightDirty.Add(entity, &gc.WeightDirty{})
 
@@ -58,21 +58,21 @@ func TestWeightDirtySystem(t *testing.T) {
 		sys := &WeightDirtySystem{}
 
 		// Player
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
 		world.Components.Abilities.Add(player, &gc.Abilities{Strength: gc.Ability{Base: 5}})
 		world.Components.WeightDirty.Add(player, &gc.WeightDirty{})
 
-		backpackItem := world.World.NewEntity()
+		backpackItem := world.ECS.NewEntity()
 		world.Components.Weight.Add(backpackItem, &gc.Weight{Kg: 2.0})
 		world.Components.LocationInBackpack.Add(backpackItem, &gc.LocationInBackpack{Owner: player})
 
 		// Storage
-		storage := world.World.NewEntity()
+		storage := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(storage, &gc.WeightCapacity{Max: 30.0})
 		world.Components.WeightDirty.Add(storage, &gc.WeightDirty{})
 
-		storageItem := world.World.NewEntity()
+		storageItem := world.ECS.NewEntity()
 		world.Components.Weight.Add(storageItem, &gc.Weight{Kg: 5.0})
 		world.Components.LocationInStorage.Add(storageItem, &gc.LocationInStorage{Owner: storage})
 
@@ -96,7 +96,7 @@ func TestWeightDirtySystem(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		sys := &WeightDirtySystem{}
 
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 10.0, Current: 99.0})
 
 		err := sys.Update(world)

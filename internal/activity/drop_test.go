@@ -63,7 +63,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		// バックパック外のアイテムを手動で作成
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
@@ -302,7 +302,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		require.NoError(t, err)
 
 		// Propを拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
-		prop := world.World.NewEntity()
+		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.BlockPass.Add(prop, &gc.BlockPass{})

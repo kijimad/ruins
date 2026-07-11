@@ -19,7 +19,7 @@ func TestGetTileTemperatureAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		tile := world.World.NewEntity()
+		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{X: 5, Y: 5})
 		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{
 			Shelter: gc.ShelterFull,
@@ -279,7 +279,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 		require.NoError(t, err)
 
 		// 胴体装備（耐寒10, 耐熱5）
-		armor := world.World.NewEntity()
+		armor := world.ECS.NewEntity()
 		world.Components.Wearable.Add(armor, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentTorso,
 			InsulationCold:    10,
@@ -290,7 +290,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 		})
 
 		// 頭装備（耐寒3, 耐熱2）
-		helmet := world.World.NewEntity()
+		helmet := world.ECS.NewEntity()
 		world.Components.Wearable.Add(helmet, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentHead,
 			InsulationCold:    3,

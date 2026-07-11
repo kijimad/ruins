@@ -16,14 +16,14 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 
 		// Hungerコンポーネントを追加（DefaultMaxHunger = 500）
 		hunger := gc.NewHunger()
 		hunger.Current = 250 // 半分の満腹度
 		world.Components.Hunger.Add(actor, hunger)
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		comp, err := NewActivity(&UseItemActivity{}, 1)
 		require.NoError(t, err)
 
@@ -44,13 +44,13 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 
 		hunger := gc.NewHunger()
 		hunger.Current = 475 // ほぼ満腹（500の95%）
 		world.Components.Hunger.Add(actor, hunger)
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		comp, err := NewActivity(&UseItemActivity{}, 1)
 		require.NoError(t, err)
 
@@ -70,14 +70,14 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		world.Components.Player.Add(actor, &gc.Player{})
 
 		hunger := gc.NewHunger()
 		hunger.Current = 425 // 85%（500の85%）
 		world.Components.Hunger.Add(actor, hunger)
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 
 		comp, err := NewActivity(&UseItemActivity{}, 1)
@@ -100,10 +100,10 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		// Hungerコンポーネントを追加しない
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		comp, err := NewActivity(&UseItemActivity{}, 1)
 		require.NoError(t, err)
 
@@ -118,13 +118,13 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 
 		hunger := gc.NewHunger()
 		hunger.Current = 50 // 10%（500の10%）- 飢餓状態
 		world.Components.Hunger.Add(actor, hunger)
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		comp, err := NewActivity(&UseItemActivity{}, 1)
 		require.NoError(t, err)
 
@@ -151,14 +151,14 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		world.Components.Player.Add(actor, &gc.Player{})
 		world.Components.HP.Add(actor, &gc.HP{Current: 100, Max: 100})
 		hunger := gc.NewHunger()
 		hunger.Current = 250
 		world.Components.Hunger.Add(actor, hunger)
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 		world.Components.ProvidesNutrition.Add(item, &gc.ProvidesNutrition{Amount: 100})
 		world.Components.Consumable.Add(item, &gc.Consumable{})
@@ -189,7 +189,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		world.Components.Player.Add(actor, &gc.Player{})
 		world.Components.HP.Add(actor, &gc.HP{Current: 100, Max: 100})
 
@@ -214,11 +214,11 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		world.Components.Player.Add(actor, &gc.Player{})
 		world.Components.HP.Add(actor, &gc.HP{Current: 100, Max: 100})
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Consumable.Add(item, &gc.Consumable{})
 		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Numeral: 50})
 
@@ -236,7 +236,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		world.Components.HP.Add(actor, &gc.HP{})
 
 		comp := &gc.Activity{
@@ -254,10 +254,10 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		world.Components.HP.Add(actor, &gc.HP{})
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -274,10 +274,10 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		world.Components.HP.Add(actor, &gc.HP{})
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 
 		comp := &gc.Activity{
@@ -295,10 +295,10 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		actor := world.World.NewEntity()
+		actor := world.ECS.NewEntity()
 		// HPなし
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Consumable.Add(item, &gc.Consumable{})
 		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Numeral: 50})
 

@@ -18,7 +18,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{X: 5, Y: 5})
 		world.Components.SpriteRender.Add(player, &gc.SpriteRender{})
@@ -49,7 +49,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// GridElementなしのプレイヤーを作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.SpriteRender.Add(player, &gc.SpriteRender{})
 		world.Components.Camera.Add(player, &gc.Camera{})
@@ -123,18 +123,18 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		// 装備アイテムを2つ作成
-		item1 := world.World.NewEntity()
+		item1 := world.ECS.NewEntity()
 		world.Components.Name.Add(item1, &gc.Name{Name: "武器A"})
 		world.Components.LocationEquipped.Add(item1, &gc.LocationEquipped{
 			Owner:         player,
 			EquipmentSlot: gc.SlotWeapon1,
 		})
 
-		item2 := world.World.NewEntity()
+		item2 := world.ECS.NewEntity()
 		world.Components.Name.Add(item2, &gc.Name{Name: "防具A"})
 		world.Components.LocationEquipped.Add(item2, &gc.LocationEquipped{
 			Owner:         player,
@@ -157,7 +157,7 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		err := UnequipAll(world, player)
@@ -168,13 +168,13 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player1 := world.World.NewEntity()
+		player1 := world.ECS.NewEntity()
 		world.Components.Player.Add(player1, &gc.Player{})
 
-		player2 := world.World.NewEntity()
+		player2 := world.ECS.NewEntity()
 
 		// player2の装備
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Name.Add(item, &gc.Name{Name: "他人の武器"})
 		world.Components.LocationEquipped.Add(item, &gc.LocationEquipped{
 			Owner:         player2,

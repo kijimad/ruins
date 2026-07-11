@@ -18,13 +18,13 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.World.NewEntity()
+		self := world.ECS.NewEntity()
 		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
-		near := world.World.NewEntity()
+		near := world.ECS.NewEntity()
 		world.Components.GridElement.Add(near, &gc.GridElement{X: 6, Y: 5})
 
-		far := world.World.NewEntity()
+		far := world.ECS.NewEntity()
 		world.Components.GridElement.Add(far, &gc.GridElement{X: 10, Y: 10})
 
 		from := &gc.GridElement{X: 5, Y: 5}
@@ -42,12 +42,12 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.World.NewEntity()
+		self := world.ECS.NewEntity()
 		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
 		world.Components.GridElement.NewEntity(&gc.GridElement{X: 8, Y: 5})
 
-		closest := world.World.NewEntity()
+		closest := world.ECS.NewEntity()
 		world.Components.GridElement.Add(closest, &gc.GridElement{X: 6, Y: 6})
 
 		world.Components.GridElement.NewEntity(&gc.GridElement{X: 10, Y: 10})
@@ -67,7 +67,7 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.World.NewEntity()
+		self := world.ECS.NewEntity()
 		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
 		from := &gc.GridElement{X: 5, Y: 5}
@@ -82,10 +82,10 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.World.NewEntity()
+		self := world.ECS.NewEntity()
 		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
-		dead := world.World.NewEntity()
+		dead := world.ECS.NewEntity()
 		world.Components.GridElement.Add(dead, &gc.GridElement{X: 6, Y: 5})
 		world.Components.Dead.Add(dead, &gc.Dead{})
 
@@ -101,7 +101,7 @@ func TestFindNearestEntity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		self := world.World.NewEntity()
+		self := world.ECS.NewEntity()
 		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
 
 		world.Components.GridElement.NewEntity(&gc.GridElement{X: 6, Y: 5})

@@ -28,7 +28,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 
 	var enemies []ecs.Entity
 
-	enemiesQuery := ecs.NewFilter2[gc.GridElement, gc.FactionEnemyData](world.World).Query()
+	enemiesQuery := ecs.NewFilter2[gc.GridElement, gc.FactionEnemyData](world.ECS).Query()
 	for enemiesQuery.Next() {
 		entity := enemiesQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
@@ -81,7 +81,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 
 	var items []ecs.Entity
 
-	itemsQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.World).Query()
+	itemsQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()
 	for itemsQuery.Next() {
 		entity := itemsQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
@@ -100,7 +100,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 
 // GetEntityName はエンティティの名前を取得する
 func GetEntityName(entity ecs.Entity, world w.World) string {
-	if !world.World.Alive(entity) || !world.Components.Name.Has(entity) {
+	if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {
 		return "Unknown"
 	}
 	return world.Components.Name.Get(entity).Name

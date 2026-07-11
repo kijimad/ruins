@@ -256,7 +256,7 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	// バックパック内の回復薬エンティティは1つだけになっている
 	var entityCount int
 	var totalCount int
-	potionQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+	potionQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
 	for potionQuery.Next() {
 		entity := potionQuery.Entity()
 		name := world.Components.Name.Get(entity)
@@ -286,7 +286,7 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 
 	// 非Stackableアイテムは統合されず2つ存在する
 	var entityCount int
-	armorQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.World).Query()
+	armorQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.ECS).Query()
 	for armorQuery.Next() {
 		entity := armorQuery.Entity()
 		name := world.Components.Name.Get(entity)

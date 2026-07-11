@@ -14,14 +14,14 @@ func TestGetEntityWeight(t *testing.T) {
 	t.Run("Weightなしのエンティティは0", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		e := world.World.NewEntity()
+		e := world.ECS.NewEntity()
 		assert.Equal(t, 0.0, GetEntityWeight(world, e))
 	})
 
 	t.Run("単体アイテム", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		e := world.World.NewEntity()
+		e := world.ECS.NewEntity()
 		world.Components.Weight.Add(e, &gc.Weight{Kg: 1.5})
 		assert.Equal(t, 1.5, GetEntityWeight(world, e))
 	})
@@ -29,7 +29,7 @@ func TestGetEntityWeight(t *testing.T) {
 	t.Run("スタックアイテム", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		e := world.World.NewEntity()
+		e := world.ECS.NewEntity()
 		world.Components.Weight.Add(e, &gc.Weight{Kg: 0.5})
 		world.Components.Stackable.Add(e, &gc.Stackable{Count: 3})
 		assert.Equal(t, 1.5, GetEntityWeight(world, e))
@@ -41,9 +41,9 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("バックパック内の単一アイテム", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 1.0})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: player})
 
@@ -54,13 +54,13 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("バックパック内の複数アイテム", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 
-		item1 := world.World.NewEntity()
+		item1 := world.ECS.NewEntity()
 		world.Components.Weight.Add(item1, &gc.Weight{Kg: 1.0})
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: player})
 
-		item2 := world.World.NewEntity()
+		item2 := world.ECS.NewEntity()
 		world.Components.Weight.Add(item2, &gc.Weight{Kg: 2.0})
 		world.Components.LocationInBackpack.Add(item2, &gc.LocationInBackpack{Owner: player})
 
@@ -71,9 +71,9 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("スタック可能アイテム", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 0.5})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: player})
@@ -85,9 +85,9 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("装備中のアイテム", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 3.0})
 		world.Components.LocationEquipped.Add(item, &gc.LocationEquipped{
 			Owner:         player,
@@ -101,13 +101,13 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("バックパックと装備の合計", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 
-		item1 := world.World.NewEntity()
+		item1 := world.ECS.NewEntity()
 		world.Components.Weight.Add(item1, &gc.Weight{Kg: 1.0})
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: player})
 
-		item2 := world.World.NewEntity()
+		item2 := world.ECS.NewEntity()
 		world.Components.Weight.Add(item2, &gc.Weight{Kg: 3.0})
 		world.Components.LocationEquipped.Add(item2, &gc.LocationEquipped{
 			Owner:         player,
@@ -121,10 +121,10 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("他のプレイヤーの装備は含まない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player1 := world.World.NewEntity()
-		player2 := world.World.NewEntity()
+		player1 := world.ECS.NewEntity()
+		player2 := world.ECS.NewEntity()
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 3.0})
 		world.Components.LocationEquipped.Add(item, &gc.LocationEquipped{
 			Owner:         player2,
@@ -138,9 +138,9 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("フィールド上のアイテムは含まない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 5.0})
 		world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
 
@@ -151,9 +151,9 @@ func TestCalculateOwnedWeight(t *testing.T) {
 	t.Run("収納内のアイテム", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		storage := world.World.NewEntity()
+		storage := world.ECS.NewEntity()
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 2.0})
 		world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: storage})
 
@@ -167,13 +167,13 @@ func TestUpdateWeightCapacity(t *testing.T) {
 	t.Run("Playerの場合はAbilitiesからMaxを計算する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
 		world.Components.Abilities.Add(player, &gc.Abilities{
 			Strength: gc.Ability{Base: 10},
 		})
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 2.0})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: player})
 
@@ -187,10 +187,10 @@ func TestUpdateWeightCapacity(t *testing.T) {
 	t.Run("Storageの場合はMaxを変更しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		storage := world.World.NewEntity()
+		storage := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(storage, &gc.WeightCapacity{Max: 20.0})
 
-		item := world.World.NewEntity()
+		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Kg: 3.0})
 		world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: storage})
 
@@ -204,7 +204,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 	t.Run("CharModifiersによるMax倍率が適用される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
 		world.Components.Abilities.Add(player, &gc.Abilities{
 			Strength: gc.Ability{Base: 10},
@@ -223,7 +223,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 	t.Run("WeightCapacityがない場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		entity := world.World.NewEntity()
+		entity := world.ECS.NewEntity()
 		world.Components.Abilities.Add(entity, &gc.Abilities{})
 
 		UpdateWeightCapacity(world, entity)

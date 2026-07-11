@@ -61,7 +61,7 @@ func TestBuyItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
 		err := BuyItem(world, player, "木刀")
@@ -76,7 +76,7 @@ func TestBuyItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 10})
 
 		err := BuyItem(world, player, "木刀")
@@ -89,7 +89,7 @@ func TestBuyItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
@@ -111,7 +111,7 @@ func TestSellItem(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
 
 	item, _ := lifecycle.SpawnBackpackItem(world, "木刀", 1)

@@ -12,7 +12,7 @@ func TestAIError_WithEntity(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	err := &AIError{
 		Type:    "planning",
 		Message: "行動計画に失敗した",

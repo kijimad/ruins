@@ -22,11 +22,11 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	require.NoError(t, err)
 	world := testutil.InitTestWorld(t)
 
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
-	npc := world.World.NewEntity()
+	npc := world.ECS.NewEntity()
 	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
 	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
 
@@ -38,7 +38,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	require.NoError(t, err)
 
 	playerCount := 0
-	playerQuery := ecs.NewFilter1[gc.Player](newWorld.World).Query()
+	playerQuery := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		playerCount++
@@ -47,7 +47,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	}
 
 	npcCount := 0
-	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.World).Query()
+	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.ECS).Query()
 	for npcQuery.Next() {
 		npcCount++
 	}
@@ -74,7 +74,7 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 	// シングルトン以外のエンティティは存在しない
 	entityCount := 0
 	singleton := newWorld.Resources.SingletonEntity
-	entityQuery := ecs.NewFilter0(newWorld.World).Query()
+	entityQuery := ecs.NewFilter0(newWorld.ECS).Query()
 	for entityQuery.Next() {
 		entity := entityQuery.Entity()
 		if entity != singleton {
@@ -114,7 +114,7 @@ func TestChecksumValidation(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_checksum")
@@ -154,7 +154,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_tampered")
@@ -185,7 +185,7 @@ func TestHashConsistencyAcrossRuns(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "ConsistencyTest"})
 	world.Components.Player.Add(entity, &gc.Player{})
 
@@ -227,7 +227,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	oldFormatData := map[string]any{
@@ -251,7 +251,7 @@ func TestListSaves(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
 	world.Components.Player.Add(entity, &gc.Player{})
 
@@ -298,7 +298,7 @@ func TestAutoSaveRotation(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
 	world.Components.Player.Add(entity, &gc.Player{})
 
@@ -331,7 +331,7 @@ func TestGetSavePlayerName(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.World.NewEntity()
+	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
 	world.Components.Player.Add(entity, &gc.Player{})
 

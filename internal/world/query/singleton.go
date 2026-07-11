@@ -95,7 +95,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.PlayerEntity = nil
 
 	// 静的障害物のインデックス構築
-	blockPassQuery := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.World).Query()
+	blockPassQuery := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.ECS).Query()
 	for blockPassQuery.Next() {
 		entity := blockPassQuery.Entity()
 		if world.Components.Dead.Has(entity) {
@@ -106,7 +106,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	}
 
 	// キャラクター位置のインデックス構築
-	characterQuery := ecs.NewFilter1[gc.GridElement](world.World).Query()
+	characterQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for characterQuery.Next() {
 		entity := characterQuery.Entity()
 		if world.Components.Dead.Has(entity) {

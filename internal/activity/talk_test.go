@@ -60,7 +60,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		// Dialogなしのエンティティを手動で作成
-		npc := world.World.NewEntity()
+		npc := world.ECS.NewEntity()
 		world.Components.FactionNeutral.Add(npc, &gc.FactionNeutralData{})
 
 		comp := &gc.Activity{
@@ -82,7 +82,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		// FactionNeutralなしのエンティティを手動で作成
-		npc := world.World.NewEntity()
+		npc := world.ECS.NewEntity()
 		world.Components.Dialog.Add(npc, &gc.Dialog{MessageKey: "test"})
 
 		comp := &gc.Activity{
@@ -149,7 +149,7 @@ func TestTalkActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// Nameなしのエンティティを手動で作成
-		npc := world.World.NewEntity()
+		npc := world.ECS.NewEntity()
 		world.Components.Dialog.Add(npc, &gc.Dialog{MessageKey: "test"})
 		world.Components.FactionNeutral.Add(npc, &gc.FactionNeutralData{})
 

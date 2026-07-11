@@ -15,7 +15,7 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// 既存のmaterialをバックパックに配置（初期数量5）
@@ -33,7 +33,7 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	// バックパック内の鉄くずは1つだけになっている
 	var ironCount int
 	var totalCount int
-	ironQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.World).Query()
+	ironQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
 	for ironQuery.Next() {
 		entity := ironQuery.Entity()
 		name := world.Components.Name.Get(entity)
@@ -52,7 +52,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// 新しいmaterialを作成（既存のものはなし）
@@ -61,7 +61,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 
 	// バックパック内のmaterial数をカウント（統合前）
 	materialCountBefore := 0
-	materialBeforeQuery := ecs.NewFilter2[gc.Stackable, gc.LocationInBackpack](world.World).Query()
+	materialBeforeQuery := ecs.NewFilter2[gc.Stackable, gc.LocationInBackpack](world.ECS).Query()
 	for materialBeforeQuery.Next() {
 		materialCountBefore++
 	}
@@ -72,7 +72,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 
 	// バックパック内のmaterial数をカウント（統合後）
 	materialCountAfter := 0
-	materialAfterQuery := ecs.NewFilter2[gc.Stackable, gc.LocationInBackpack](world.World).Query()
+	materialAfterQuery := ecs.NewFilter2[gc.Stackable, gc.LocationInBackpack](world.ECS).Query()
 	for materialAfterQuery.Next() {
 		materialCountAfter++
 	}
@@ -86,7 +86,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// 既存のアイテム（Stackableを持たない）をバックパックに配置
@@ -99,7 +99,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 
 	// バックパック内のアイテム数をカウント（統合前）
 	itemCountBefore := 0
-	itemBeforeQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	itemBeforeQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for itemBeforeQuery.Next() {
 		itemCountBefore++
 	}
@@ -110,7 +110,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 
 	// バックパック内のアイテム数をカウント（統合後）
 	itemCountAfter := 0
-	itemAfterQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	itemAfterQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for itemAfterQuery.Next() {
 		itemCountAfter++
 	}
@@ -124,7 +124,7 @@ func TestMergeMaterialIntoInventoryWithoutItemOrMaterialComponent(t *testing.T) 
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.World.NewEntity()
+	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// Stackableコンポーネントを持たないエンティティを作成（個別アイテムとして扱われる）

@@ -55,7 +55,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 位置情報なしのプレイヤーを手動で作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		comp := &gc.Activity{
@@ -141,7 +141,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 位置情報なしのプレイヤーを手動で作成
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		comp := &gc.Activity{
@@ -205,10 +205,10 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
-		member := world.World.NewEntity()
+		member := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(member, &gc.SquadMember{})
 
 		assert.True(t, CanSwapPosition(world, player, member))
@@ -218,10 +218,10 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 
 		assert.False(t, CanSwapPosition(world, player, enemy))
@@ -231,10 +231,10 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		member1 := world.World.NewEntity()
+		member1 := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(member1, &gc.SquadMember{})
 
-		member2 := world.World.NewEntity()
+		member2 := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(member2, &gc.SquadMember{})
 
 		assert.False(t, CanSwapPosition(world, member1, member2))
@@ -244,10 +244,10 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		member := world.World.NewEntity()
+		member := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(member, &gc.SquadMember{})
 
-		player := world.World.NewEntity()
+		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
 		assert.False(t, CanSwapPosition(world, member, player))
@@ -257,10 +257,10 @@ func TestCanSwapPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		enemy := world.World.NewEntity()
+		enemy := world.ECS.NewEntity()
 		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 
-		member := world.World.NewEntity()
+		member := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(member, &gc.SquadMember{})
 
 		assert.False(t, CanSwapPosition(world, enemy, member))
@@ -417,7 +417,7 @@ func TestCanMoveTo(t *testing.T) {
 		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
 
 		// AIエンティティを手動で作成する
-		aiEntity := world.World.NewEntity()
+		aiEntity := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{})
 		world.Components.GridElement.Add(aiEntity, &gc.GridElement{
 			X: consts.Tile(memberX + 1), Y: consts.Tile(memberY),
