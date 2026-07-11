@@ -156,11 +156,10 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
 		return "射撃武器が装備されていません"
 	}
-	fireComp := world.Components.Fire.Get(*weapons[weaponIndex])
-	if fireComp == nil {
+	fire := world.Components.Fire.Get(*weapons[weaponIndex])
+	if fire == nil {
 		return "射撃武器が装備されていません"
 	}
-	fire := fireComp
 	if fire.Magazine <= 0 {
 		return "装填されていません"
 	}
@@ -355,8 +354,7 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
 	// 残弾表示
 	fireComp := world.Components.Fire.Get(*weaponEntity)
 	if fireComp != nil {
-		fire := fireComp
-		drawText(fmt.Sprintf("残弾: %d/%d", fire.Magazine, fire.MagazineSize))
+		drawText(fmt.Sprintf("残弾: %d/%d", fireComp.Magazine, fireComp.MagazineSize))
 	} else {
 		drawText("近接武器")
 	}

@@ -157,9 +157,7 @@ func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 	if !world.Components.HP.Has(actor) {
 		return nil
 	}
-	hpComponent := world.Components.HP.Get(actor)
-
-	hp := hpComponent
+	hp := world.Components.HP.Get(actor)
 	if hp.Current >= hp.Max {
 		// 既に満タンの場合は早期完了
 		Complete(comp)

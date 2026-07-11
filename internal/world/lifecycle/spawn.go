@@ -356,11 +356,10 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 		return fmt.Errorf("最大HP設定エラー: %w", err)
 	}
 
-	hpComponent := world.Components.HP.Get(entity)
-	if hpComponent == nil {
+	hp := world.Components.HP.Get(entity)
+	if hp == nil {
 		return fmt.Errorf("HPコンポーネントがありません")
 	}
-	hp := hpComponent
 	hp.Current = hp.Max
 
 	if world.Components.TurnBased.Has(entity) {

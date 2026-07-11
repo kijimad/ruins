@@ -117,11 +117,10 @@ func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadC
 
 // shouldRetreatLowHP はHP25%以下で後退すべきかを判定する
 func (sp *squadPlanner) shouldRetreatLowHP(world w.World, entity ecs.Entity) bool {
-	hpComp := world.Components.HP.Get(entity)
-	if hpComp == nil {
+	hp := world.Components.HP.Get(entity)
+	if hp == nil {
 		return false
 	}
-	hp := hpComp
 	if hp.Max == 0 {
 		return false
 	}

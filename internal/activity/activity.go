@@ -203,9 +203,7 @@ func isAreaSafe(actor ecs.Entity, world w.World) bool {
 		return false
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-
-	actorGrid := gridElement
-	actorX, actorY := int(actorGrid.X), int(actorGrid.Y)
+	actorX, actorY := int(gridElement.X), int(gridElement.Y)
 
 	safeRadius := 1
 	hasHostile := false

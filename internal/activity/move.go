@@ -103,9 +103,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveNoGridElement
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-
-	actorGrid := gridElement
-	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(actorGrid.X), Y: int(actorGrid.Y)}, actor) {
+	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(gridElement.X), Y: int(gridElement.Y)}, actor) {
 		return ErrMoveTargetInvalid
 	}
 
@@ -228,8 +226,7 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 	if !world.Components.GridElement.Has(target) {
 		return
 	}
-	targetGridComp := world.Components.GridElement.Get(target)
-	targetGrid := targetGridComp
+	targetGrid := world.Components.GridElement.Get(target)
 	targetGrid.X = consts.Tile(fromX)
 	targetGrid.Y = consts.Tile(fromY)
 
