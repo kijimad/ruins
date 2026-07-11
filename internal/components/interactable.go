@@ -23,7 +23,11 @@ type InteractionConfig struct {
 	ActivationWay   ActivationWay   // 発動方式
 }
 
-// InteractionKind は相互作用の種類を表す
+// InteractionKind は相互作用の種類を表す。
+// 種別ごとに Config() で発動プロトコル（発動範囲・発動方式）を持つ点が本質で、
+// これは domain コンポーネント（Door の開閉状態、Dialog のメッセージキー等）とは
+// 別レイヤの情報。例えば「扉の状態」は Door コンポーネントが、「扉としてどう発動
+// する相互作用か」は InteractionDoor が担うため、両者は冗長ではない。
 type InteractionKind string
 
 const (
