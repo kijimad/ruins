@@ -464,13 +464,13 @@ func TestSquadProcessor_CombatIgnoreで戦闘しない(t *testing.T) {
 		}
 	}
 
-	enemyHP := world.Components.HP.Get(enemy)
-	initialHP := enemyHP.Current
+	initialHP := world.Components.HP.Get(enemy).Current
 
 	processor := aiinput.NewProcessor(world.Config.RNG)
 	require.NoError(t, processor.ProcessAll(world))
 
-	assert.Equal(t, initialHP, enemyHP.Current, "CombatIgnoreでは敵を攻撃しない")
+	// Getのポインタは構造変更で失効するため、検証時に再取得する
+	assert.Equal(t, initialHP, world.Components.HP.Get(enemy).Current, "CombatIgnoreでは敵を攻撃しない")
 }
 
 func abs(x int) int {

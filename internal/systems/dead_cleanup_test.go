@@ -49,14 +49,14 @@ func TestDeadCleanupSystem(t *testing.T) {
 	// 結果を検証
 
 	// 敵エンティティは削除されているべき（Nameコンポーネントも削除される）
-	assert.False(t, world.Components.Name.Has(enemy), "敵エンティティは削除されるべき")
+	assert.False(t, world.World.Alive(enemy), "敵エンティティは削除されるべき")
 
 	// プレイヤーエンティティは削除されていないべき
 	assert.True(t, world.Components.Name.Has(player), "プレイヤーエンティティは削除されないべき")
 	assert.True(t, world.Components.Dead.Has(player), "プレイヤーのDeadコンポーネントは残るべき")
 
 	// その他のDeadエンティティは削除されているべき
-	assert.False(t, world.Components.Name.Has(otherDead), "その他のDeadエンティティは削除されるべき")
+	assert.False(t, world.World.Alive(otherDead), "その他のDeadエンティティは削除されるべき")
 
 	// 生きているエンティティは削除されていないべき
 	assert.True(t, world.Components.Name.Has(alive), "生きているエンティティは削除されないべき")
@@ -136,7 +136,7 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	// 敵エンティティは削除されているべき
-	assert.False(t, world.Components.Name.Has(enemy), "敵エンティティは削除されるべき")
+	assert.False(t, world.World.Alive(enemy), "敵エンティティは削除されるべき")
 
 	// ドロップアイテムが生成されているべき（"鉄くず"がドロップテーブルに定義されている）
 	itemCountAfter := 0
@@ -240,9 +240,7 @@ func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	// エンティティが削除され、アクティビティも消えている
-	assert.False(t, world.Components.Activity.Has(enemy),
-		"死亡エンティティのアクティビティはキャンセルされるべき")
-	assert.False(t, world.Components.Name.Has(enemy),
+	assert.False(t, world.World.Alive(enemy),
 		"死亡エンティティは削除されるべき")
 }
 
@@ -273,7 +271,7 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	// 敵エンティティは削除されているべき
-	assert.False(t, world.Components.Name.Has(enemy), "敵エンティティは削除されるべき")
+	assert.False(t, world.World.Alive(enemy), "敵エンティティは削除されるべき")
 
 	// スプライトフェードアウトエフェクトが生成されているべき
 	effectCountAfter := 0

@@ -24,10 +24,15 @@ func (sys StatsChangedSystem) String() string {
 func (sys *StatsChangedSystem) Update(world w.World) error {
 	var updateErr error
 
-	// StatsChangedが付与されたエンティティを処理
+	// Remove/Addの構造変更を行うため、対象を集めてから反復後に処理する
+	var targets []ecs.Entity
 	statsQuery := ecs.NewFilter2[gc.StatsChanged, gc.Abilities](world.World).Query()
 	for statsQuery.Next() {
-		entity := statsQuery.Entity()
+		targets = append(targets, statsQuery.Entity())
+	}
+
+	// StatsChangedが付与されたエンティティを処理
+	for _, entity := range targets {
 		world.Components.StatsChanged.Remove(entity)
 		abils := world.Components.Abilities.Get(entity)
 
@@ -95,7 +100,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 				hs = world.Components.HealthStatus.Get(entity)
 			}
 			effects := gc.RecalculateCharModifiers(skills, abils, hs)
-			world.Components.CharModifiers.Add(entity, effects)
+			gc.Upsert(world.Components.CharModifiers, entity, effects)
 		}
 
 		// HP/Poolsを更新
@@ -106,7 +111,9 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 		if world.Components.WeightCapacity.Has(entity) {
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
-			world.Components.WeightDirty.Add(entity, &gc.WeightDirty{})
+			if !world.Components.WeightDirty.Has(entity) {
+				world.Components.WeightDirty.Add(entity, &gc.WeightDirty{})
+			}
 		}
 
 		// APを再計算

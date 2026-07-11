@@ -111,15 +111,19 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
+		gridX, gridY := grid.X, grid.Y
 		owner := entity
+		// 反復中の構造変更を避けるため、対象アイテムを集めてから処理する
+		var items []ecs.Entity
 		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
 		for backpackQuery.Next() {
 			item := backpackQuery.Entity()
-			loc := world.Components.LocationInBackpack.Get(item)
-			if loc.Owner != owner {
-				continue
+			if world.Components.LocationInBackpack.Get(item).Owner == owner {
+				items = append(items, item)
 			}
-			world.Components.GridElement.Add(item, &gc.GridElement{X: grid.X, Y: grid.Y})
+		}
+		for _, item := range items {
+			world.Components.GridElement.Add(item, &gc.GridElement{X: gridX, Y: gridY})
 			lifecycle.MoveToField(world, item, &owner)
 		}
 	}

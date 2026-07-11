@@ -35,6 +35,7 @@ func TestCameraSystem_SnapsToPlayerPosition(t *testing.T) {
 	expectedX := float64(10)*tileSize + tileSize/2
 	expectedY := float64(10)*tileSize + tileSize/2
 
+	camera = world.Components.Camera.Get(cameraEntity)
 	assert.Equal(t, expectedX, camera.X, "1回のUpdateでカメラがプレイヤー位置にスナップする")
 	assert.Equal(t, expectedY, camera.Y, "1回のUpdateでカメラがプレイヤー位置にスナップする")
 }
@@ -60,6 +61,7 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 	sys := &CameraSystem{}
 	require.NoError(t, sys.Update(world))
 
+	camera = world.Components.Camera.Get(cameraEntity)
 	assert.Equal(t, initialX, camera.X, "プレイヤーがいない場合、カメラ位置は変わらない")
 	assert.Equal(t, initialY, camera.Y, "プレイヤーがいない場合、カメラ位置は変わらない")
 }
@@ -90,6 +92,7 @@ func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 
 	expectedX := float64(8)*tileSize + tileSize/2
 	expectedY := float64(3)*tileSize + tileSize/2
+	camera = world.Components.Camera.Get(cameraEntity)
 	assert.Equal(t, expectedX, camera.X, "移動後にカメラが即座に追従する")
 	assert.Equal(t, expectedY, camera.Y, "移動後にカメラが即座に追従する")
 }

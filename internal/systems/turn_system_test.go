@@ -140,7 +140,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase)
 		assert.Equal(t, 200, turnBased.AP.Current, "APは消費されていない")
-		assert.False(t, world.Components.Name.Has(enemy),
+		assert.False(t, world.World.Alive(enemy),
 			"PlayerPhase中でもDeadエンティティは削除されるべき")
 	})
 
@@ -168,7 +168,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		err = runFrame(world)
 		require.NoError(t, err)
 
-		assert.False(t, world.Components.Name.Has(enemy1),
+		assert.False(t, world.World.Alive(enemy1),
 			"1回目の行動後にDeadエンティティが削除されるべき")
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
 			"APが残っているのでPlayerPhaseのまま")
@@ -183,7 +183,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		err = runFrame(world)
 		require.NoError(t, err)
 
-		assert.False(t, world.Components.Name.Has(enemy2),
+		assert.False(t, world.World.Alive(enemy2),
 			"2回目の行動後にDeadエンティティが削除されるべき")
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
 			"APが残っているのでPlayerPhaseのまま")
@@ -448,7 +448,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		skills := world.Components.Skills.Get(playerEntity)
 		abils := world.Components.Abilities.Get(playerEntity)
 		effects := gc.RecalculateCharModifiers(skills, abils, hs)
-		world.Components.CharModifiers.Add(playerEntity, effects)
+		gc.Upsert(world.Components.CharModifiers, playerEntity, effects)
 
 		// 低体温時のSpeedを計算
 		coldSpeed := query.CalculateSpeed(world, playerEntity)

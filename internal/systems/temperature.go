@@ -69,7 +69,9 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		return errors.New("ダンジョンリソースが設定されていない")
 	}
 
-	// HealthStatusとGridElementを持つエンティティを処理
+	// HealthStatusとGridElementを持つエンティティを処理。
+	// StatsChanged付与は構造変更のため、対象を集めてから反復後に付与する
+	var toMark []ecs.Entity
 	healthQuery := ecs.NewFilter2[gc.HealthStatus, gc.GridElement](world.World).Query()
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
@@ -100,6 +102,12 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
+			toMark = append(toMark, entity)
+		}
+	}
+
+	for _, entity := range toMark {
+		if !world.Components.StatsChanged.Has(entity) {
 			world.Components.StatsChanged.Add(entity, &gc.StatsChanged{})
 		}
 	}
