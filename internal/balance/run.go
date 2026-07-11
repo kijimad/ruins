@@ -182,7 +182,7 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 		}
 
 		if spec.ProvidesHealing != nil {
-			result.healing += calcHealing(spec.ProvidesHealing, playerMaxHP)
+			result.healing += spec.ProvidesHealing.Calc(playerMaxHP)
 		}
 		if spec.ProvidesNutrition != nil {
 			result.nutrition += spec.ProvidesNutrition.Amount
@@ -196,11 +196,6 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 	}
 
 	return result
-}
-
-// calcHealing はProvidesHealingコンポーネントから回復量を計算する
-func calcHealing(ph *gc.ProvidesHealing, playerMaxHP int) int {
-	return ph.Calc(playerMaxHP)
 }
 
 // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す

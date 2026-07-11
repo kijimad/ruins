@@ -3,23 +3,8 @@ package balance
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestCalcHealing_Numeral(t *testing.T) {
-	t.Parallel()
-
-	ph := &gc.ProvidesHealing{Kind: gc.HealNumeral, Numeral: 50}
-	assert.Equal(t, 50, calcHealing(ph, 100))
-}
-
-func TestCalcHealing_Ratio(t *testing.T) {
-	t.Parallel()
-
-	ph := &gc.ProvidesHealing{Kind: gc.HealRatio, Ratio: 0.5}
-	assert.Equal(t, 50, calcHealing(ph, 100))
-}
 
 func TestBattleStats_DPS(t *testing.T) {
 	t.Parallel()
