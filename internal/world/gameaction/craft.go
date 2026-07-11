@@ -35,6 +35,14 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("アイテム生成に失敗: %w", err)
 	}
+	// Stackableアイテムの合成では、SpawnBackpackItem内の統合処理で
+	// resultEntityが既存スタックへ統合されて削除されることがある。
+	// その場合は統合先の生存エンティティを結果として扱う
+	if !world.World.Alive(resultEntity) {
+		if survivor, found := query.FindStackableInInventory(world, name); found {
+			resultEntity = survivor
+		}
+	}
 	randomize(world, resultEntity, smithQualityPct)
 	if err := consumeMaterials(world, name, craftCostPct); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("素材消費に失敗: %w", err)
@@ -96,6 +104,13 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 // randomize はアイテムにランダム値を設定する。
 // smithQualityPctは品質倍率%で、100が基準。高いほどボーナスが大きくなる。
 func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
+	// Stackableなアイテムを合成した場合、SpawnBackpackItem内の統合処理で
+	// このエンティティが既存スタックに統合されて削除されていることがある。
+	// 統合済みStackableに武器/防具の乱数化は不要なので、死亡していれば何もしない
+	if !world.World.Alive(entity) {
+		return
+	}
+
 	qualityBonus := (smithQualityPct - 100) / 10
 
 	if world.Components.Melee.Has(entity) {

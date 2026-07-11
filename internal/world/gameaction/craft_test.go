@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -59,4 +60,30 @@ func TestCraft(t *testing.T) {
 	result, err := Craft(world, "木刀")
 	assert.NotEqual(t, consts.InvalidEntity, result, "素材が十分ならば有効なエンティティが返されるべき")
 	assert.NoError(t, err, "素材が十分ならばエラーは発生しないべき")
+}
+
+// TestCraft_StackableTwice はStackableアイテムを連続で合成しても
+// パニックせず、統合先の生存エンティティが返ることを検証する。
+// 2回目の合成で新エンティティが既存スタックへ統合されて削除される回帰ケース。
+func TestCraft_StackableTwice(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 統合はowner(プレイヤー)配下でのみ行われるため、プレイヤーを用意する
+	_, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
+	require.NoError(t, err)
+
+	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるStackableアイテム
+	_, _ = lifecycle.SpawnBackpackItem(world, "緑ハーブ", 2)
+	_, _ = lifecycle.SpawnBackpackItem(world, "黄ハーブ", 2)
+
+	first, err := Craft(world, "回復薬")
+	require.NoError(t, err, "1回目の合成は成功するべき")
+	assert.True(t, world.World.Alive(first), "1回目の結果エンティティは生存しているべき")
+
+	// 2回目: 新エンティティが既存スタックへ統合されるが、統合先を結果として返すべき
+	second, err := Craft(world, "回復薬")
+	require.NoError(t, err, "2回目の合成もパニックせず成功するべき")
+	assert.True(t, world.World.Alive(second), "統合されても生存する結果エンティティが返るべき")
+	assert.Equal(t, 2, query.GetEntityCount(world, second), "回復薬が2個に統合されているべき")
 }
