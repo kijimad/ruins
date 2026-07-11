@@ -100,11 +100,10 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 
 // GetEntityName はエンティティの名前を取得する
 func GetEntityName(entity ecs.Entity, world w.World) string {
-	name := world.Components.Name.Get(entity)
-	if name != nil {
-		return name.Name
+	if !world.World.Alive(entity) || !world.Components.Name.Has(entity) {
+		return "Unknown"
 	}
-	return "Unknown"
+	return world.Components.Name.Get(entity).Name
 }
 
 // AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する
