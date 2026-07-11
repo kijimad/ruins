@@ -44,7 +44,6 @@ func TestReadActivity_Validate_AlreadyCompleted(t *testing.T) {
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 1},
 	}
 	world.Components.Book.Add(bookEntity, book)
-	book = world.Components.Book.Get(bookEntity)
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: &bookEntity}
@@ -67,7 +66,6 @@ func TestReadActivity_Validate_RequiredLevelNotMet(t *testing.T) {
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 5, RequiredLevel: 3},
 	}
 	world.Components.Book.Add(bookEntity, book)
-	book = world.Components.Book.Get(bookEntity)
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: &bookEntity}
@@ -93,7 +91,6 @@ func TestReadActivity_Validate_RequiredLevelMet(t *testing.T) {
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 5, RequiredLevel: 3},
 	}
 	world.Components.Book.Add(bookEntity, book)
-	book = world.Components.Book.Get(bookEntity)
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: &bookEntity}
@@ -113,7 +110,6 @@ func TestReadActivity_Validate_Success(t *testing.T) {
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 1},
 	}
 	world.Components.Book.Add(bookEntity, book)
-	book = world.Components.Book.Get(bookEntity)
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{Target: &bookEntity}
@@ -170,7 +166,6 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
-	book = world.Components.Book.Get(bookEntity)
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{
@@ -312,7 +307,6 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
-	book = world.Components.Book.Get(bookEntity)
 
 	ra := &ReadActivity{}
 	comp := &gc.Activity{
