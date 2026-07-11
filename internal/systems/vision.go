@@ -11,7 +11,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // raycastCacheKey はレイキャスト結果のキャッシュキー
@@ -68,12 +68,11 @@ func (sys VisionSystem) String() string {
 func (sys *VisionSystem) Update(world w.World) error {
 	// プレイヤー位置を取得
 	var playerGridElement *gc.GridElement
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Player,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
-	}))
+	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.ECS).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
+		playerGridElement = world.Components.GridElement.Get(entity)
+	}
 
 	if playerGridElement == nil {
 		return nil
@@ -355,18 +354,17 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 	var totalWeight float64
 
 	// 全ての光源をチェック
-	world.Manager.Join(
-		world.Components.LightSource,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(lightEntity ecs.Entity) {
-		lightSource := world.Components.LightSource.Get(lightEntity).(*gc.LightSource)
+	lightQuery := ecs.NewFilter2[gc.LightSource, gc.GridElement](world.ECS).Query()
+	for lightQuery.Next() {
+		lightEntity := lightQuery.Entity()
+		lightSource := world.Components.LightSource.Get(lightEntity)
 
 		// 無効な光源はスキップ
 		if !lightSource.Enabled {
-			return
+			continue
 		}
 
-		lightGrid := world.Components.GridElement.Get(lightEntity).(*gc.GridElement)
+		lightGrid := world.Components.GridElement.Get(lightEntity)
 
 		// 距離計算（タイル単位）
 		distance := geometry.Distance(float64(tileX), float64(tileY), float64(lightGrid.X), float64(lightGrid.Y))
@@ -399,7 +397,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 			totalB += float64(lightSource.Color.B) * weight
 			totalWeight += weight
 		}
-	}))
+	}
 
 	// 加重平均を計算
 	var finalR, finalG, finalB uint8
@@ -424,12 +422,11 @@ const (
 // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 	index := make(map[gc.GridElement]bool)
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.BlockView,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.ECS).Query()
+	for blockViewQuery.Next() {
+		entity := blockViewQuery.Entity()
+		grid := world.Components.GridElement.Get(entity)
 		index[*grid] = true
-	}))
+	}
 	return index
 }

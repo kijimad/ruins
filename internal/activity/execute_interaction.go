@@ -9,12 +9,11 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
-// interactionには実行すべき具体的なInteractionDataを渡す
-func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.InteractionData, world w.World) (*ActionResult, error) {
+func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.InteractionKind, world w.World) (*ActionResult, error) {
 	config := interaction.Config()
 
 	if err := config.ActivationRange.Valid(); err != nil {
@@ -24,59 +23,52 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return nil, fmt.Errorf("無効なActivationWay: %w", err)
 	}
 
-	switch content := interaction.(type) {
-	case gc.PortalInteraction:
-		return executePortal(world, content)
-	case gc.DungeonGateInteraction:
+	switch interaction {
+	case gc.InteractionPortalNext:
+		return executePortal(world, gc.WarpNextEvent(), "次フロアワープ状態変更要求エラー")
+	case gc.InteractionPortalTown:
+		return executePortal(world, gc.WarpEscapeEvent(), "街帰還状態変更要求エラー")
+	case gc.InteractionDungeonGate:
 		return executeDungeonGate(world)
-	case gc.DoorInteraction:
+	case gc.InteractionDoor:
 		return executeDoor(actor, target, world)
-	case gc.DoorLockInteraction:
+	case gc.InteractionDoorLock:
 		return executeDoorLock(world)
-	case gc.TalkInteraction:
+	case gc.InteractionTalk:
 		return executeTalk(actor, target, world)
-	case gc.ItemInteraction:
+	case gc.InteractionItem:
 		return executeItem(actor, target, world)
-	case gc.ItemAllInteraction:
+	case gc.InteractionItemAll:
 		return executeItemAll(actor, world)
-	case gc.StorageInteraction:
+	case gc.InteractionStorage:
 		return executeStorage(target, world)
-	case gc.MeleeInteraction:
+	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
 	default:
-		return nil, fmt.Errorf("未知の相互作用タイプ: %T", interaction)
+		return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 	}
 }
 
-func executePortal(world w.World, portal gc.PortalInteraction) (*ActionResult, error) {
-	switch portal.PortalType {
-	case gc.PortalTypeNext:
-		if err := lifecycle.RequestStateChange(world, gc.WarpNextEvent{}); err != nil {
-			return nil, fmt.Errorf("次フロアワープ状態変更要求エラー: %w", err)
-		}
-	case gc.PortalTypeTown:
-		if err := lifecycle.RequestStateChange(world, gc.WarpEscapeEvent{}); err != nil {
-			return nil, fmt.Errorf("街帰還状態変更要求エラー: %w", err)
-		}
-	default:
-		return nil, fmt.Errorf("未知のポータルタイプ: %s", portal.PortalType)
+func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*ActionResult, error) {
+	if err := lifecycle.RequestStateChange(world, event); err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsg, err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "ポータル移動"}, nil
 }
 
 func executeDungeonGate(world w.World) (*ActionResult, error) {
-	if err := lifecycle.RequestStateChange(world, gc.OpenDungeonSelectEvent{}); err != nil {
+	if err := lifecycle.RequestStateChange(world, gc.OpenDungeonSelectEvent()); err != nil {
 		return nil, fmt.Errorf("ダンジョン選択状態変更要求エラー: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "ダンジョンゲート発動"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
-	if !doorEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(doorEntity) {
 		return nil, fmt.Errorf("DoorInteractionだがDoorコンポーネントがない")
 	}
 
-	door := world.Components.Door.Get(doorEntity).(*gc.Door)
+	door := world.Components.Door.Get(doorEntity)
 
 	if door.IsOpen {
 		return Execute(&CloseDoorActivity{Target: doorEntity}, actor, world)
@@ -94,7 +86,7 @@ func executeDoorLock(world w.World) (*ActionResult, error) {
 }
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
-	if !npcEntity.HasComponent(world.Components.Dialog) {
+	if !world.Components.Dialog.Has(npcEntity) {
 		return nil, fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません")
 	}
 
@@ -111,17 +103,16 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 }
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		return nil, fmt.Errorf("位置情報が見つかりません")
 	}
-	playerGrid := gridElement.(*gc.GridElement)
-	destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
+	gridElement := world.Components.GridElement.Get(actor)
+	destination := gc.GridElement{X: gridElement.X, Y: gridElement.Y}
 	return Execute(&PickupActivity{Destination: &destination}, actor, world)
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
-	if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent{StorageEntity: storageEntity}); err != nil {
+	if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(storageEntity)); err != nil {
 		return nil, fmt.Errorf("収納メニュー状態変更要求エラー: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorStorage, Message: "収納を開いた"}, nil

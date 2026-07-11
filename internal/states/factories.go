@@ -14,7 +14,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // 各ステートのファクトリー関数を集約したファイル
@@ -465,7 +465,7 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(player)
 	_, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
 }
@@ -476,7 +476,7 @@ func spawnStorageWithItems(world w.World) error {
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(player)
 	storageEntity, err := lifecycle.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
 	if err != nil {
 		return err
@@ -505,7 +505,7 @@ func spawnEnemyNearPlayer(world w.World, name string) error {
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(player)
 	_, err = lifecycle.SpawnEnemy(world, int(playerGrid.X)+8, int(playerGrid.Y), name)
 	return err
 }
@@ -524,6 +524,14 @@ func WithBuilderType(builderType mapplanner.PlannerType) DungeonStateOption {
 func WithDefinitionName(name string) DungeonStateOption {
 	return func(ds *DungeonState) {
 		ds.DefinitionName = name
+	}
+}
+
+// WithResume はセーブから復帰するモードにするオプション。
+// マップの再生成・プレイヤー再配置を行わず、復元済みのワールドをそのまま使う
+func WithResume() DungeonStateOption {
+	return func(ds *DungeonState) {
+		ds.Resume = true
 	}
 }
 
@@ -700,9 +708,17 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return err
 		}
+		// 復元済みの現在地（ダンジョン定義名・深度。町も深度0のダンジョンとして扱う）から
+		// 再生成せずに復帰する
+		dungeonState := query.GetDungeon(world)
+		resume := NewDungeonState(
+			dungeonState.Depth,
+			WithDefinitionName(dungeonState.DefinitionName),
+			WithResume(),
+		)
 		messageState.SetTransition(es.Transition[w.World]{
 			Type:          es.TransReplace,
-			NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
+			NewStateFuncs: []es.StateFactory[w.World]{resume}})
 		return nil
 	})
 }

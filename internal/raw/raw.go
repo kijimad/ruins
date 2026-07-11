@@ -174,9 +174,9 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {
 	switch h.ValueType {
 	case oapi.PERCENTAGE:
-		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}
+		return &gc.ProvidesHealing{Kind: gc.HealRatio, Amount: h.Ratio}
 	default:
-		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}
+		return &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: float64(h.Amount)}
 	}
 }
 
@@ -321,7 +321,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
-	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionData{gc.ItemInteraction{}}}
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 
 	return entitySpec, nil
 }
@@ -472,14 +472,14 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
 			solo.Movement = gc.SoloMovement(*member.MovementPattern)
 		}
-		entitySpec.AI = &gc.AI{Planner: &solo}
+		entitySpec.SoloAI = &solo
 	}
 
 	if member.Dialog != nil {
 		entitySpec.Dialog = &gc.Dialog{
 			MessageKey: member.Dialog.MessageKey,
 		}
-		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionData{gc.TalkInteraction{}}}
+		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionTalk}}
 	}
 
 	return entitySpec, nil
@@ -494,7 +494,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.FactionType = &gc.FactionAlly
 	entitySpec.Player = &gc.Player{}
 	entitySpec.Hunger = gc.NewHunger()
-	entitySpec.AI = nil
+	entitySpec.SoloAI = nil
 	return entitySpec, nil
 }
 
@@ -645,12 +645,12 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	// 各条件に対応するインタラクションを蓄積する。
 	// 1つのPropが複数のインタラクションを持てる
-	var interactions []gc.InteractionData
+	var interactions []gc.InteractionKind
 
 	if propRaw.Hp != nil {
 		hp := int(*propRaw.Hp)
 		entitySpec.HP = &gc.HP{Max: hp, Current: hp}
-		interactions = append(interactions, gc.MeleeInteraction{})
+		interactions = append(interactions, gc.InteractionMelee)
 	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
@@ -660,30 +660,30 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 			IsOpen:      false,
 			Orientation: gc.DoorOrientationHorizontal,
 		}
-		interactions = append(interactions, gc.DoorInteraction{})
+		interactions = append(interactions, gc.InteractionDoor)
 	}
 
 	if propRaw.DoorLockTrigger != nil {
-		interactions = append(interactions, gc.DoorLockInteraction{})
+		interactions = append(interactions, gc.InteractionDoorLock)
 	}
 
 	if propRaw.WarpNextTrigger != nil {
-		interactions = append(interactions, gc.PortalInteraction{PortalType: gc.PortalTypeNext})
+		interactions = append(interactions, gc.InteractionPortalNext)
 	}
 
 	if propRaw.WarpEscapeTrigger != nil {
-		interactions = append(interactions, gc.PortalInteraction{PortalType: gc.PortalTypeTown})
+		interactions = append(interactions, gc.InteractionPortalTown)
 	}
 
 	if propRaw.DungeonGateTrigger != nil {
-		interactions = append(interactions, gc.DungeonGateInteraction{})
+		interactions = append(interactions, gc.InteractionDungeonGate)
 	}
 
 	if propRaw.Storage != nil {
 		entitySpec.WeightCapacity = &gc.WeightCapacity{
 			Max: propRaw.Storage.MaxWeight,
 		}
-		interactions = append(interactions, gc.StorageInteraction{})
+		interactions = append(interactions, gc.InteractionStorage)
 	}
 
 	if len(interactions) > 0 {

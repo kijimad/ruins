@@ -97,7 +97,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
 
-		loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+		loc := world.Components.LocationInBackpack.Get(item)
 		assert.Equal(t, member, loc.Owner)
 
 		comp := &gc.Activity{
@@ -113,7 +113,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 		err = ta.DoTurn(comp, member, world)
 		require.NoError(t, err)
 
-		loc = world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+		loc = world.Components.LocationInBackpack.Get(item)
 		assert.Equal(t, leader, loc.Owner)
 	})
 }

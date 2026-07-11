@@ -32,9 +32,9 @@ func TestIsAreaSafe(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		enemy := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
 		assert.False(t, isAreaSafe(player, world))
 	})
@@ -46,9 +46,9 @@ func TestIsAreaSafe(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
+		enemy := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 15, Y: 15})
 
 		assert.True(t, isAreaSafe(player, world))
 	})
@@ -57,8 +57,8 @@ func TestIsAreaSafe(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		assert.False(t, isAreaSafe(player, world))
 	})
@@ -92,9 +92,9 @@ func TestRestActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		// 敵を手動で作成
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		enemy := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
@@ -137,7 +137,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.Get(player)
 		beforeHP := hp.Current
 		hp.Current = hp.Max / 2
 
@@ -163,7 +163,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを最大値付近に設定
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.Get(player)
 		hp.Current = hp.Max - 1
 
 		comp := &gc.Activity{
@@ -206,8 +206,8 @@ func TestRestActivity_performHealing(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Poolsなしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
@@ -232,7 +232,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.Get(player)
 		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
@@ -257,9 +257,9 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// 敵を手動で作成
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		enemy := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
@@ -304,7 +304,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.Get(player)
 		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
@@ -362,7 +362,7 @@ func TestRestActivity_Finish(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp := world.Components.HP.Get(player)
 		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{

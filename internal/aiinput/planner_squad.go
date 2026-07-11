@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // hpRetreatThreshold はHP割合がこの値以下のとき、ポリシーに関わらず後退する
@@ -57,11 +57,11 @@ func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior
 
 // gatherSquadContext は隊員の行動に必要なコンテキストを収集する
 func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*squadContext, bool) {
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := world.Components.GridElement.Get(entity)
 
-	aiComp := world.Components.AI.Get(entity)
-	if aiComp == nil {
-		sp.logger.Warn("隊員にAIがない", "entity", entity)
+	squadComp := world.Components.SquadAI.Get(entity)
+	if squadComp == nil {
+		sp.logger.Warn("隊員にSquadAIがない", "entity", entity)
 		return nil, false
 	}
 
@@ -72,16 +72,16 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 	}
 	leader := *si.PlayerEntity
 
-	if !leader.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(leader) {
 		sp.logger.Warn("リーダーにGridElementがない", "entity", entity)
 		return nil, false
 	}
 
 	return &squadContext{
 		Grid:         grid,
-		Squad:        aiComp.(*gc.AI).Planner.(*gc.SquadAI),
+		Squad:        squadComp,
 		LeaderEntity: leader,
-		LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
+		LeaderGrid:   world.Components.GridElement.Get(leader),
 	}, true
 }
 
@@ -117,11 +117,10 @@ func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadC
 
 // shouldRetreatLowHP はHP25%以下で後退すべきかを判定する
 func (sp *squadPlanner) shouldRetreatLowHP(world w.World, entity ecs.Entity) bool {
-	hpComp := world.Components.HP.Get(entity)
-	if hpComp == nil {
+	hp := world.Components.HP.Get(entity)
+	if hp == nil {
 		return false
 	}
-	hp := hpComp.(*gc.HP)
 	if hp.Max == 0 {
 		return false
 	}
@@ -185,7 +184,7 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 		return nil, false
 	}
 
-	enemyGrid := world.Components.GridElement.Get(*nearestEnemy).(*gc.GridElement)
+	enemyGrid := world.Components.GridElement.Get(*nearestEnemy)
 	return sp.tryMoveAway(world, entity, ctx.Grid, enemyGrid)
 }
 
@@ -255,29 +254,28 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 	var nearestItemGrid *gc.GridElement
 	nearestDist := -1
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.LocationOnField,
-	).Visit(ecs.Visit(func(item ecs.Entity) {
+	itemQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()
+	for itemQuery.Next() {
+		item := itemQuery.Entity()
 		if !query.IsPickable(item, world) {
-			return
+			continue
 		}
-		grid := world.Components.GridElement.Get(item).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(item)
 
 		if grid.X == ctx.Grid.X && grid.Y == ctx.Grid.Y {
 			hasPickableHere = true
-			return
+			continue
 		}
 
 		dist := gridDistance(ctx.Grid, grid)
 		if dist > int(ctx.Squad.ViewDistance) {
-			return
+			continue
 		}
 		if nearestDist < 0 || dist < nearestDist {
 			nearestItemGrid = grid
 			nearestDist = dist
 		}
-	}))
+	}
 
 	if hasPickableHere {
 		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", ctx.Grid.X, "y", ctx.Grid.Y)
@@ -306,18 +304,18 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 	}
 
 	var itemToTransfer *ecs.Entity
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(item ecs.Entity) {
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for backpackQuery.Next() {
+		item := backpackQuery.Entity()
 		if itemToTransfer != nil {
-			return
+			continue
 		}
-		loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+		loc := world.Components.LocationInBackpack.Get(item)
 		if loc.Owner == entity {
 			e := item
 			itemToTransfer = &e
 		}
-	}))
+	}
 
 	if itemToTransfer == nil {
 		return nil, false

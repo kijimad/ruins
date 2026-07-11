@@ -21,7 +21,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // shopSubState はショップメニュー内のサブステート
@@ -197,8 +197,8 @@ func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	buyPriceMod, sellPriceMod := 100, 100
 	query.Player(world, func(playerEntity ecs.Entity) {
 		currency = query.GetCurrency(world, playerEntity)
-		if playerEntity.HasComponent(world.Components.CharModifiers) {
-			mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+		if world.Components.CharModifiers.Has(playerEntity) {
+			mods := world.Components.CharModifiers.Get(playerEntity)
 			buyPriceMod = mods.BuyPrice
 			sellPriceMod = mods.SellPrice
 		}
@@ -240,11 +240,10 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 	var items []shopItemData
 
 	query.Player(world, func(_ ecs.Entity) {
-		world.Manager.Join(
-			world.Components.Name,
-			world.Components.LocationInBackpack,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			nameComp := world.Components.Name.Get(entity).(*gc.Name)
+		sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
+		for sellQuery.Next() {
+			entity := sellQuery.Entity()
+			nameComp := world.Components.Name.Get(entity)
 			itemName := nameComp.Name
 
 			baseValue := query.GetItemValue(world, entity)
@@ -259,7 +258,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 				Entity: entity,
 				IsBuy:  false,
 			})
-		}))
+		}
 	})
 
 	return items

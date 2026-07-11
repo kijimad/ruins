@@ -3,10 +3,9 @@ package query
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // AddCurrency はエンティティに所持金を追加する
@@ -15,8 +14,7 @@ func AddCurrency(world w.World, entity ecs.Entity, amount int) error {
 	if wallet == nil {
 		return fmt.Errorf("エンティティにWalletコンポーネントがありません")
 	}
-	wl := wallet.(*gc.Wallet)
-	wl.Currency += amount
+	wallet.Currency += amount
 	return nil
 }
 
@@ -26,7 +24,7 @@ func GetCurrency(world w.World, entity ecs.Entity) int {
 	if wallet == nil {
 		return 0
 	}
-	return wallet.(*gc.Wallet).Currency
+	return wallet.Currency
 }
 
 // HasCurrency は指定額以上の所持金を持っているか確認
@@ -45,8 +43,7 @@ func ConsumeCurrency(world w.World, entity ecs.Entity, amount int) bool {
 	if wallet == nil {
 		return false
 	}
-	wl := wallet.(*gc.Wallet)
-	wl.Currency -= amount
+	wallet.Currency -= amount
 	return true
 }
 

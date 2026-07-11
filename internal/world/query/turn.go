@@ -6,7 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Speed計算係数
@@ -32,23 +32,21 @@ func CanPlayerAct(world w.World) bool {
 		return false
 	}
 
-	tbComp := world.Components.TurnBased.Get(playerEntity)
-	if tbComp == nil {
+	tb := world.Components.TurnBased.Get(playerEntity)
+	if tb == nil {
 		return false
 	}
-
-	tb := tbComp.(*gc.TurnBased)
 	return tb.AP.Current >= 0
 }
 
-// ConsumeActionPoints はエンティティのアクションポイントを消費する
+// ConsumeActionPoints はエンティティのアクションポイントを消費する。
+// TurnBasedを持たない（生存）エンティティには false を返す。
+// entity の生存は呼び出し側が保証すること。Ark の Has/Get は死亡エンティティで panic する
 func ConsumeActionPoints(world w.World, entity ecs.Entity, cost int) bool {
-	tbComp := world.Components.TurnBased.Get(entity)
-	if tbComp == nil {
+	if !world.Components.TurnBased.Has(entity) {
 		return false
 	}
-
-	tb := tbComp.(*gc.TurnBased)
+	tb := world.Components.TurnBased.Get(entity)
 	tb.AP.Current -= cost
 
 	log := logger.New(logger.CategoryTurn)
@@ -65,14 +63,16 @@ func RestoreAllActionPoints(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
 	var err error
 
-	world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {
-		tb := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+	turnBasedQuery := ecs.NewFilter1[gc.TurnBased](world.ECS).Query()
+	for turnBasedQuery.Next() {
+		entity := turnBasedQuery.Entity()
+		tb := world.Components.TurnBased.Get(entity)
 
 		// MaxAPとSpeedを計算
 		maxAP, calcErr := CalculateMaxActionPoints(world, entity)
 		if calcErr != nil {
 			err = calcErr
-			return
+			continue
 		}
 
 		speed := CalculateSpeed(world, entity)
@@ -88,7 +88,7 @@ func RestoreAllActionPoints(world w.World) error {
 			"speed", speed,
 			"current", tb.AP.Current,
 			"max", maxAP)
-	}))
+	}
 
 	return err
 }
@@ -96,12 +96,10 @@ func RestoreAllActionPoints(world w.World) error {
 // CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
 // 敏捷性を重視したAP計算式
 func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
-	abilsComp := world.Components.Abilities.Get(entity)
-	if abilsComp == nil {
+	abils := world.Components.Abilities.Get(entity)
+	if abils == nil {
 		return 0, fmt.Errorf("能力値が設定されていない")
 	}
-
-	abils := abilsComp.(*gc.Abilities)
 
 	baseAP := 100
 	agilityMultiplier := 3
@@ -118,8 +116,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed := speedBaseValue
 
 	// 能力値ボーナス
-	if abilsComp := world.Components.Abilities.Get(entity); abilsComp != nil {
-		abils := abilsComp.(*gc.Abilities)
+	if abils := world.Components.Abilities.Get(entity); abils != nil {
 		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
 	}
 
@@ -129,8 +126,8 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 
 	// MoveCost倍率を適用する。
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
-	if entity.HasComponent(world.Components.CharModifiers) {
-		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+	if world.Components.CharModifiers.Has(entity) {
+		effects := world.Components.CharModifiers.Get(entity)
 		moveCost := max(effects.MoveCost, 10)
 		speed = speed * 100 / moveCost
 	}
@@ -149,8 +146,7 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	penalty := 0
 
 	// 空腹ペナルティ
-	if hungerComp := world.Components.Hunger.Get(entity); hungerComp != nil {
-		hunger := hungerComp.(*gc.Hunger)
+	if hunger := world.Components.Hunger.Get(entity); hunger != nil {
 		penalty += hungerSpeedPenalty(hunger.Current)
 	}
 
@@ -175,12 +171,10 @@ func hungerSpeedPenalty(current int) int {
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する
 func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
-	cwComp := world.Components.WeightCapacity.Get(entity)
-	if cwComp == nil {
+	cw := world.Components.WeightCapacity.Get(entity)
+	if cw == nil {
 		return 0
 	}
-
-	cw := cwComp.(*gc.WeightCapacity)
 	if cw.Max == 0 {
 		return 0
 	}

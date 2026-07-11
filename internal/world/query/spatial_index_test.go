@@ -25,8 +25,8 @@ func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *tes
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
 
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+	memberGrid := world.Components.GridElement.Get(member)
+	leaderGrid := world.Components.GridElement.Get(leader)
 
 	assert.False(t, si.BlockPass[*leaderGrid], "プレイヤーはBlockPassに含まれない")
 	assert.False(t, si.BlockPass[*memberGrid], "隊員はBlockPassに含まれない")

@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // TemperatureSystem は体温の更新を行うシステム
@@ -69,29 +69,29 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		return errors.New("ダンジョンリソースが設定されていない")
 	}
 
-	// HealthStatusとGridElementを持つエンティティを処理
-	world.Manager.Join(
-		world.Components.HealthStatus,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	// HealthStatusとGridElementを持つエンティティを処理。
+	var toMark []ecs.Entity
+	healthQuery := ecs.NewFilter2[gc.HealthStatus, gc.GridElement](world.ECS).Query()
+	for healthQuery.Next() {
+		entity := healthQuery.Entity()
+		hs := world.Components.HealthStatus.Get(entity)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		// 環境気温を計算
 		envTemp, err := CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
 		if err != nil {
-			return
+			continue
 		}
 
 		// 装備から断熱値を計算する
 		insulation := CalculateEquippedInsulation(world, entity)
 
-		isPlayer := entity.HasComponent(world.Components.Player)
+		isPlayer := world.Components.Player.Has(entity)
 
 		// 体温進行倍率を取得する
 		coldProgressPct, heatProgressPct := 100, 100
-		if entity.HasComponent(world.Components.CharModifiers) {
-			mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+		if world.Components.CharModifiers.Has(entity) {
+			mods := world.Components.CharModifiers.Get(entity)
 			coldProgressPct = mods.ColdProgress
 			heatProgressPct = mods.HeatProgress
 		}
@@ -101,9 +101,15 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
-			entity.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
+			toMark = append(toMark, entity)
 		}
-	}))
+	}
+
+	for _, entity := range toMark {
+		if !world.Components.StatsChanged.Has(entity) {
+			world.Components.StatsChanged.Add(entity, &gc.StatsChanged{})
+		}
+	}
 
 	return nil
 }
@@ -113,19 +119,18 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 	var total Insulation
 
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-		world.Components.Wearable,
-	).Visit(ecs.Visit(func(item ecs.Entity) {
-		equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
+	equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()
+	for equipQuery.Next() {
+		item := equipQuery.Entity()
+		equipped := world.Components.LocationEquipped.Get(item)
 		if equipped.Owner != owner {
-			return
+			continue
 		}
 
-		wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
+		wearable := world.Components.Wearable.Get(item)
 		total.Cold += wearable.InsulationCold
 		total.Heat += wearable.InsulationHeat
-	}))
+	}
 
 	return total
 }
@@ -133,16 +138,15 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 // getTileTemperatureAt は指定座標のタイル気温修正値を取得する
 func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	var modifier int
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.TileTemperature,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	tileTempQuery := ecs.NewFilter2[gc.GridElement, gc.TileTemperature](world.ECS).Query()
+	for tileTempQuery.Next() {
+		entity := tileTempQuery.Entity()
+		grid := world.Components.GridElement.Get(entity)
 		if grid.X == x && grid.Y == y {
-			tileTemp := world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
+			tileTemp := world.Components.TileTemperature.Get(entity)
 			modifier = tileTemp.Total()
 		}
-	}))
+	}
 	return modifier
 }
 

@@ -8,58 +8,11 @@ import (
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
-
-func TestStableIDManager(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	manager := NewStableIDManager()
-
-	entity1 := world.Manager.NewEntity()
-	entity2 := world.Manager.NewEntity()
-
-	stableID1 := manager.GetStableID(entity1)
-	stableID2 := manager.GetStableID(entity2)
-
-	assert.NotEqual(t, stableID1, stableID2)
-
-	stableID1Again := manager.GetStableID(entity1)
-	assert.Equal(t, stableID1, stableID1Again)
-
-	retrievedEntity1, exists1 := manager.GetEntity(stableID1)
-	assert.True(t, exists1)
-	assert.Equal(t, entity1, retrievedEntity1)
-
-	retrievedEntity2, exists2 := manager.GetEntity(stableID2)
-	assert.True(t, exists2)
-	assert.Equal(t, entity2, retrievedEntity2)
-}
-
-func TestStableIDGeneration(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	manager := NewStableIDManager()
-
-	entity1 := world.Manager.NewEntity()
-	stableID1 := manager.GetStableID(entity1)
-
-	manager.UnregisterEntity(entity1)
-
-	entity2 := world.Manager.NewEntity()
-	stableID2 := manager.GetStableID(entity2)
-
-	if stableID1.Index == stableID2.Index {
-		assert.NotEqual(t, stableID1.Generation, stableID2.Generation)
-	}
-
-	assert.False(t, manager.IsValid(stableID1))
-	assert.True(t, manager.IsValid(stableID2))
-}
 
 func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	t.Parallel()
@@ -69,13 +22,13 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	require.NoError(t, err)
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
-	npc := world.Manager.NewEntity()
-	npc.AddComponent(world.Components.Name, &gc.Name{Name: "テストNPC"})
-	npc.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemyData{})
+	npc := world.ECS.NewEntity()
+	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
+	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
 
 	err = manager.SaveWorld(world, "test_slot")
 	require.NoError(t, err)
@@ -85,19 +38,22 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	require.NoError(t, err)
 
 	playerCount := 0
-	newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
+	playerQuery := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
 		playerCount++
-		name := newWorld.Components.Name.Get(entity).(*gc.Name)
+		name := newWorld.Components.Name.Get(entity)
 		assert.Equal(t, "テストプレイヤー", name.Name)
-	}))
+	}
 
 	npcCount := 0
-	newWorld.Manager.Join(newWorld.Components.FactionEnemy).Visit(ecs.Visit(func(_ ecs.Entity) {
+	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.ECS).Query()
+	for npcQuery.Next() {
 		npcCount++
-	}))
+	}
 
 	assert.Equal(t, 1, playerCount, "プレイヤーが正しくロードされる")
-	assert.Equal(t, 0, npcCount, "NPCは保存されない（プレイヤーとアイテムのみ保存）")
+	assert.Equal(t, 1, npcCount, "丸ごと保存のためNPCも保存・復元される")
 }
 
 func TestSerializationManager_EmptyWorld(t *testing.T) {
@@ -115,13 +71,16 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 	err = manager.LoadWorld(newWorld, "empty_slot")
 	require.NoError(t, err)
 
+	// シングルトン以外のエンティティは存在しない
 	entityCount := 0
 	singleton := newWorld.Resources.SingletonEntity
-	newWorld.Manager.Join().Visit(ecs.Visit(func(entity ecs.Entity) {
+	entityQuery := ecs.NewFilter0(newWorld.ECS).Query()
+	for entityQuery.Next() {
+		entity := entityQuery.Entity()
 		if entity != singleton {
 			entityCount++
 		}
-	}))
+	}
 
 	assert.Equal(t, 0, entityCount)
 }
@@ -133,9 +92,7 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 	validJSONNoChecksum := `{
 		"version": "1.0.0",
 		"timestamp": "2024-01-01T00:00:00Z",
-		"world": {
-			"entities": []
-		}
+		"world": {}
 	}`
 	err := os.WriteFile(testDir+"/valid_no_checksum.json", []byte(validJSONNoChecksum), 0644)
 	require.NoError(t, err)
@@ -146,7 +103,6 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 
 	err = manager.LoadWorld(world, "valid_no_checksum")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "バリデーションエラー")
 	assert.Contains(t, err.Error(), "checksum")
 }
 
@@ -158,8 +114,8 @@ func TestChecksumValidation(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
+	entity := world.ECS.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_checksum")
 	require.NoError(t, err)
@@ -167,25 +123,25 @@ func TestChecksumValidation(t *testing.T) {
 	data, err := manager.loadDataImpl("test_checksum")
 	require.NoError(t, err)
 
-	var saveData oapi.SaveDataSaveData
-	err = json.Unmarshal(data, &saveData)
+	var env saveEnvelope
+	err = json.Unmarshal(data, &env)
 	require.NoError(t, err)
 
 	// 正常なチェックサム検証
-	err = manager.validateChecksum(&saveData)
+	err = validateChecksum(&env)
 	require.NoError(t, err)
 
 	// チェックサムを改ざん
-	originalChecksum := saveData.Checksum
-	saveData.Checksum = "invalid_checksum"
-	err = manager.validateChecksum(&saveData)
+	originalChecksum := env.Checksum
+	env.Checksum = "invalid_checksum"
+	err = validateChecksum(&env)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "checksum mismatch")
 
 	// データを改ざん（チェックサムは元に戻す）
-	saveData.Checksum = originalChecksum
-	saveData.Version = "tampered_version"
-	err = manager.validateChecksum(&saveData)
+	env.Checksum = originalChecksum
+	env.Version = "tampered_version"
+	err = validateChecksum(&env)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "checksum mismatch")
 }
@@ -198,8 +154,8 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
+	entity := world.ECS.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	err = manager.SaveWorld(world, "test_tampered")
 	require.NoError(t, err)
@@ -207,13 +163,14 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	data, err := manager.loadDataImpl("test_tampered")
 	require.NoError(t, err)
 
-	var saveData oapi.SaveDataSaveData
-	err = json.Unmarshal(data, &saveData)
+	var env saveEnvelope
+	err = json.Unmarshal(data, &env)
 	require.NoError(t, err)
 
-	saveData.Version = "hacked_version"
+	// バージョンを改ざんするとチェックサムが合わなくなる
+	env.Version = "hacked_version"
 
-	tamperedData, err := json.MarshalIndent(saveData, "", "  ")
+	tamperedData, err := json.MarshalIndent(env, "", "  ")
 	require.NoError(t, err)
 
 	err = manager.saveDataImpl("test_tampered", tamperedData)
@@ -221,76 +178,28 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 
 	err = manager.LoadWorld(world, "test_tampered")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "バリデーションエラー")
-}
-
-func TestDeterministicHashCalculation(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	tempDir := t.TempDir()
-	manager, err := NewSerializationManager(WithSaveDir(tempDir))
-	require.NoError(t, err)
-
-	entity1 := world.Manager.NewEntity()
-	world.Components.Name.Set(entity1, &gc.Name{Name: "TestEntity1"})
-	entity2 := world.Manager.NewEntity()
-	world.Components.Name.Set(entity2, &gc.Name{Name: "TestEntity2"})
-
-	err = manager.SaveWorld(world, "test_deterministic_1")
-	require.NoError(t, err)
-
-	err = manager.SaveWorld(world, "test_deterministic_2")
-	require.NoError(t, err)
-
-	data1, err := manager.loadDataImpl("test_deterministic_1")
-	require.NoError(t, err)
-
-	data2, err := manager.loadDataImpl("test_deterministic_2")
-	require.NoError(t, err)
-
-	var saveData1, saveData2 oapi.SaveDataSaveData
-	err = json.Unmarshal(data1, &saveData1)
-	require.NoError(t, err)
-	err = json.Unmarshal(data2, &saveData2)
-	require.NoError(t, err)
-
-	// タイムスタンプを同一にしてチェックサムを再計算
-	saveData1.Timestamp = saveData2.Timestamp
-
-	checksum1, err := manager.calculateChecksum(&saveData1)
-	require.NoError(t, err)
-	checksum2, err := manager.calculateChecksum(&saveData2)
-	require.NoError(t, err)
-
-	assert.Equal(t, checksum1, checksum2, "同じワールド状態からは同じチェックサムが生成されるべき")
+	assert.Contains(t, err.Error(), "checksum mismatch")
 }
 
 func TestHashConsistencyAcrossRuns(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	tempDir := t.TempDir()
-	manager, err := NewSerializationManager(WithSaveDir(tempDir))
+	entity := world.ECS.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "ConsistencyTest"})
+	world.Components.Player.Add(entity, &gc.Player{})
+
+	worldJSON, err := serializeWorld(world)
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "ConsistencyTest"})
-	world.Components.Player.Set(entity, &gc.Player{})
-
-	worldData := manager.extractWorldData(world)
-
-	saveData := oapi.SaveDataSaveData{
+	env := saveEnvelope{
 		Version: "1.0.0",
-		World:   worldData,
+		World:   worldJSON,
 	}
 
-	hash1, err := manager.calculateChecksum(&saveData)
-	require.NoError(t, err)
-	hash2, err := manager.calculateChecksum(&saveData)
-	require.NoError(t, err)
-	hash3, err := manager.calculateChecksum(&saveData)
-	require.NoError(t, err)
+	hash1 := checksumOf(&env)
+	hash2 := checksumOf(&env)
+	hash3 := checksumOf(&env)
 
 	assert.Equal(t, hash1, hash2, "同一データから生成されるハッシュは一致するべき")
 	assert.Equal(t, hash2, hash3, "同一データから生成されるハッシュは一致するべき")
@@ -299,19 +208,14 @@ func TestHashConsistencyAcrossRuns(t *testing.T) {
 
 func TestMissingChecksumValidation(t *testing.T) {
 	t.Parallel()
-	tempDir := t.TempDir()
-	manager, err := NewSerializationManager(WithSaveDir(tempDir))
-	require.NoError(t, err)
 
-	saveDataWithoutChecksum := oapi.SaveDataSaveData{
+	envWithoutChecksum := saveEnvelope{
 		Version:   "1.0.0",
 		Timestamp: time.Now(),
-		World: oapi.SaveDataWorldSaveData{
-			Entities: []oapi.SaveDataEntitySaveData{},
-		},
+		World:     json.RawMessage(`{}`),
 	}
 
-	err = manager.validateChecksum(&saveDataWithoutChecksum)
+	err := validateChecksum(&envWithoutChecksum)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "checksum field is missing")
 }
@@ -323,15 +227,13 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
+	entity := world.ECS.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "TestEntity"})
 
 	oldFormatData := map[string]any{
 		"version":   "1.0.0",
 		"timestamp": time.Now().Format(time.RFC3339),
-		"world": map[string]any{
-			"entities": []any{},
-		},
+		"world":     map[string]any{},
 	}
 
 	oldFormatJSON, err := json.MarshalIndent(oldFormatData, "", "  ")
@@ -342,7 +244,6 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 
 	err = manager.LoadWorld(world, "old_format_test")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "バリデーションエラー")
 	assert.Contains(t, err.Error(), "checksum")
 }
 
@@ -350,9 +251,9 @@ func TestListSaves(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
-	entity.AddComponent(world.Components.Player, &gc.Player{})
+	entity := world.ECS.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
+	world.Components.Player.Add(entity, &gc.Player{})
 
 	t.Run("空の場合は空リストを返す", func(t *testing.T) {
 		t.Parallel()
@@ -397,9 +298,9 @@ func TestAutoSaveRotation(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
-	entity.AddComponent(world.Components.Player, &gc.Player{})
+	entity := world.ECS.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
+	world.Components.Player.Add(entity, &gc.Player{})
 
 	// 先に2件作る
 	for range 2 {
@@ -430,9 +331,9 @@ func TestGetSavePlayerName(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 
-	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
-	entity.AddComponent(world.Components.Player, &gc.Player{})
+	entity := world.ECS.NewEntity()
+	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
+	world.Components.Player.Add(entity, &gc.Player{})
 
 	require.NoError(t, manager.SaveWorld(world, "slot1"))
 
@@ -442,4 +343,58 @@ func TestGetSavePlayerName(t *testing.T) {
 
 	_, err = manager.GetSavePlayerName("nonexistent")
 	assert.Error(t, err)
+}
+
+// TestRestoreWorldFromJSON_VersionMismatch はサポート外バージョンのセーブを拒否することを検証する。
+// バージョン検証はチェックサム検証の後に行われるため、改ざん後に正しいチェックサムを再計算する。
+func TestRestoreWorldFromJSON_VersionMismatch(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	jsonData, err := manager.GenerateWorldJSON(world)
+	require.NoError(t, err)
+
+	var env saveEnvelope
+	require.NoError(t, json.Unmarshal([]byte(jsonData), &env))
+	env.Version = "0.0.0-unsupported"
+	env.Checksum = checksumOf(&env)
+	tampered, err := json.Marshal(env)
+	require.NoError(t, err)
+
+	newWorld := testutil.InitTestWorld(t)
+	err = manager.RestoreWorldFromJSON(newWorld, string(tampered))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "unsupported save data version")
+}
+
+// TestRestoreWorldFromJSON_InvalidJSON は壊れたJSONを拒否することを検証する。
+func TestRestoreWorldFromJSON_InvalidJSON(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	err = manager.RestoreWorldFromJSON(world, "{ 壊れたJSON ")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "unmarshal")
+}
+
+// TestRestoreWorldFromJSON_MissingSingleton は復元データにシングルトン（GameProgress保持
+// エンティティ）が無い場合にエラーを返すことを検証する。
+func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	// シングルトンからGameProgressを取り除くと、復元時にシングルトンを特定できない
+	world.Components.GameProgress.Remove(world.Resources.SingletonEntity)
+	require.NoError(t, manager.SaveWorld(world, "no_singleton"))
+
+	newWorld := testutil.InitTestWorld(t)
+	err = manager.LoadWorld(newWorld, "no_singleton")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "シングルトン")
 }

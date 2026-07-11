@@ -7,7 +7,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ActionResult はアクション実行結果を表す
@@ -102,19 +102,17 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 		Message:      result.Message,
 	}
 
-	if actor.HasComponent(world.Components.LastActivity) {
-		actor.RemoveComponent(world.Components.LastActivity)
+	if err := gc.Upsert(world.ECS, world.Components.LastActivity, actor, lastResult); err != nil {
+		log.Warn("直近アクティビティ結果の記録に失敗", "actor", actor, "error", err.Error())
 	}
-	actor.AddComponent(world.Components.LastActivity, lastResult)
 }
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
 func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
-	comp := world.Components.LastActivity.Get(actor)
-	if comp == nil {
+	if !world.Components.LastActivity.Has(actor) {
 		return nil
 	}
-	return comp.(*gc.LastActivity)
+	return world.Components.LastActivity.Get(actor)
 }
 
 // StartActivity は新しいアクティビティを開始する
@@ -140,12 +138,15 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 		return fmt.Errorf("アクティビティ検証失敗: %w", err)
 	}
 
-	// アクティビティをコンポーネントとして登録
-	query.SetActivity(world, actor, comp)
-	comp.State = gc.ActivityStateRunning
+	// アクティビティをコンポーネントとして登録する
+	if err := query.SetActivity(world, actor, comp); err != nil {
+		return fmt.Errorf("アクティビティ登録失敗: %w", err)
+	}
+	stored := query.GetActivity(world, actor)
+	stored.State = gc.ActivityStateRunning
 
 	// BehaviorのStart処理を実行
-	if err := behavior.Start(comp, actor, world); err != nil {
+	if err := behavior.Start(stored, actor, world); err != nil {
 		// 開始に失敗した場合はクリーンアップ
 		query.RemoveActivity(world, actor)
 		return fmt.Errorf("アクティビティ開始失敗: %w", err)
@@ -154,7 +155,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("アクティビティ開始",
 		"entity", actor,
 		"type", behavior.Name(),
-		"duration", comp.TurnsTotal)
+		"duration", stored.TurnsTotal)
 
 	return nil
 }
@@ -231,22 +232,31 @@ func ProcessTurn(world w.World) {
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
 	var toRemove []ecs.Entity
 
-	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
-		comp := world.Components.Activity.Get(entity).(*gc.Activity)
+	var entities []ecs.Entity
+	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
+	for activityQuery.Next() {
+		entities = append(entities, activityQuery.Entity())
+	}
+
+	for _, entity := range entities {
+		if !world.ECS.Alive(entity) || !world.Components.Activity.Has(entity) {
+			continue
+		}
+		comp := world.Components.Activity.Get(entity)
 
 		// アクティブなアクティビティのみ処理
 		if !IsActive(comp) {
 			if IsCompleted(comp) || IsCanceled(comp) {
 				toRemove = append(toRemove, entity)
 			}
-			return
+			continue
 		}
 
 		behavior, err := GetBehavior(comp.BehaviorName)
 		if err != nil {
 			log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
 			toRemove = append(toRemove, entity)
-			return
+			continue
 		}
 
 		// ターン処理を実行
@@ -259,7 +269,7 @@ func ProcessTurn(world w.World) {
 			// エラーが発生した場合はキャンセル
 			CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
 			toRemove = append(toRemove, entity)
-			return
+			continue
 		}
 
 		// 完了したアクティビティの処理
@@ -286,7 +296,7 @@ func ProcessTurn(world w.World) {
 				"type", comp.BehaviorName)
 			toRemove = append(toRemove, entity)
 		}
-	}))
+	}
 
 	// 完了・キャンセルされたアクティビティを削除
 	for _, entity := range toRemove {
@@ -306,45 +316,30 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 		cost += getPassCostAt(world, int(destination.X), int(destination.Y))
 	}
 
-	// TurnBasedコンポーネントから直接APを消費
-	tbComp := world.Components.TurnBased.Get(actor)
-	if tbComp == nil {
+	if !query.ConsumeActionPoints(world, actor, cost) {
 		log.Debug("TurnBasedコンポーネントがない", "actor", actor)
-		return
 	}
-
-	tb := tbComp.(*gc.TurnBased)
-	tb.AP.Current -= cost
-
-	log.Debug("移動コスト消費",
-		"activity", behavior.Name(),
-		"cost", cost,
-		"remaining", tb.AP.Current,
-		"actor", actor,
-		"isPlayer", actor.HasComponent(world.Components.Player))
 }
 
 // getPassCostAt は指定座標にあるPropのPassCostを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
 	total := 0
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.PassCost,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	passCostQuery := ecs.NewFilter2[gc.GridElement, gc.PassCost](world.ECS).Query()
+	for passCostQuery.Next() {
+		entity := passCostQuery.Entity()
+		grid := world.Components.GridElement.Get(entity)
 		if int(grid.X) == x && int(grid.Y) == y {
-			mc := world.Components.PassCost.Get(entity).(*gc.PassCost)
+			mc := world.Components.PassCost.Get(entity)
 			total += mc.Value
 		}
-	}))
+	}
 	return total
 }
 
 // getEntityMaxAP はエンティティの最大AP値を取得する
 func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
-	if !entity.HasComponent(world.Components.TurnBased) {
+	if !world.Components.TurnBased.Has(entity) {
 		return 0, fmt.Errorf("TurnBasedコンポーネントが見つからない: entity=%v", entity)
 	}
-	turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
-	return turnBased.AP.Max, nil
+	return world.Components.TurnBased.Get(entity).AP.Max, nil
 }

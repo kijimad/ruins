@@ -10,7 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // リロードシステムの定数
@@ -119,7 +119,7 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		loaded := min(ammoCount, needed)
 
 		// 装填した弾薬の修正値を記録する
-		ammoComp := world.Components.Ammo.Get(ammoEntity).(*gc.Ammo)
+		ammoComp := world.Components.Ammo.Get(ammoEntity)
 		fire.LoadedDamageBonus = ammoComp.DamageBonus
 		fire.LoadedAccuracyBonus = ammoComp.AccuracyBonus
 
@@ -163,19 +163,15 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 	effort := BaseReloadEffort
 
 	// DEXを加算
-	abilsComp := world.Components.Abilities.Get(actor)
-	if abilsComp != nil {
-		abils := abilsComp.(*gc.Abilities)
-		effort += abils.Dexterity.Total
+	if world.Components.Abilities.Has(actor) {
+		effort += world.Components.Abilities.Get(actor).Dexterity.Total
 	}
 
 	// 武器スキルレベルを加算
 	skillID, ok := gc.WeaponSkillID(fire.AttackCategory)
 	if ok {
-		skillsComp := world.Components.Skills.Get(actor)
-		if skillsComp != nil {
-			skills := skillsComp.(*gc.Skills)
-			effort += skills.Get(skillID).Value
+		if world.Components.Skills.Has(actor) {
+			effort += world.Components.Skills.Get(actor).Get(skillID).Value
 		}
 	}
 

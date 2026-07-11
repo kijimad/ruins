@@ -20,10 +20,10 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		// 移動を実行
 		require.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
@@ -33,7 +33,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorMove, result.BehaviorName)
 		assert.True(t, result.Success)
-		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridAfter := world.Components.GridElement.Get(player)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 9, int(gridAfter.Y))
 	})
@@ -49,8 +49,8 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		assert.Error(t, ExecuteMoveAction(world, gc.DirectionUp))
 	})
@@ -79,14 +79,14 @@ func TestExecuteMoveAction(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
 
-				player := world.Manager.NewEntity()
-				player.AddComponent(world.Components.Player, &gc.Player{})
-				player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-				player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+				player := world.ECS.NewEntity()
+				world.Components.Player.Add(player, &gc.Player{})
+				world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+				world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 				require.NoError(t, ExecuteMoveAction(world, tt.direction))
 
-				grid := world.Components.GridElement.Get(player).(*gc.GridElement)
+				grid := world.Components.GridElement.Get(player)
 				assert.Equal(t, tt.expectedX, int(grid.X))
 				assert.Equal(t, tt.expectedY, int(grid.Y))
 			})
@@ -102,7 +102,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.Get(enemy)
 		initialEnemyHP := enemyHP.Current
 
 		// 移動（攻撃）を実行
@@ -114,7 +114,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
 		assert.True(t, result.Success)
-		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridAfter := world.Components.GridElement.Get(player)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 10, int(gridAfter.Y))
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
@@ -128,10 +128,10 @@ func TestExecuteWaitAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		require.NoError(t, ExecuteWaitAction(world))
 
@@ -157,10 +157,10 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Interactableエンティティを作成
-		interactableEntity := world.Manager.NewEntity()
-		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		interactableEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -175,10 +175,10 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Interactableエンティティを作成（異なる位置）
-		interactableEntity := world.Manager.NewEntity()
-		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
-		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		interactableEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 15, Y: 15})
+		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -192,12 +192,12 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 死亡したInteractableエンティティを作成
-		deadEntity := world.Manager.NewEntity()
-		deadEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		deadEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		deadEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(deadEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.Interactable.Add(deadEntity, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
-		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
+		world.Components.Dead.Add(deadEntity, &gc.Dead{})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
 		interactable, _ := getInteractableAtSameTile(world, targetGrid)
@@ -214,10 +214,10 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// Manual方式のInteractableを作成
-		manualEntity := world.Manager.NewEntity()
-		manualEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		manualEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}}, // Manual + SameTile
+		manualEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(manualEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.Interactable.Add(manualEntity, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionItem}, // Manual + SameTile
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -232,10 +232,10 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// OnCollision方式のInteractableを作成
-		collisionEntity := world.Manager.NewEntity()
-		collisionEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		collisionEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.MeleeInteraction{}}, // OnCollision + Adjacent
+		collisionEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(collisionEntity, &gc.GridElement{X: 11, Y: 10})
+		world.Components.Interactable.Add(collisionEntity, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionMelee}, // OnCollision + Adjacent
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -292,7 +292,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+		world.Components.Dead.Add(enemy, &gc.Dead{})
 
 		// 移動を実行
 		err = ExecuteMoveAction(world, gc.DirectionUp)
@@ -314,13 +314,13 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP := world.Components.HP.Get(enemy)
 		enemyHP.Current = 1
 
 		// 1回目: 攻撃で敵を倒す
 		err = ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
-		assert.True(t, enemy.HasComponent(world.Components.Dead))
+		assert.True(t, world.Components.Dead.Has(enemy))
 		result := GetLastResult(player, world)
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)

@@ -66,7 +66,7 @@ func TestSquadMembers(t *testing.T) {
 		dead, err := lifecycle.SpawnSquadMember(world, leader, "死亡者", testAbilities(), "player")
 		require.NoError(t, err)
 
-		dead.AddComponent(world.Components.Dead, &gc.Dead{})
+		world.Components.Dead.Add(dead, &gc.Dead{})
 
 		members := query.SquadMembers(world)
 		assert.Len(t, members, 1)
@@ -88,7 +88,7 @@ func TestSquadMemberAt(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid := world.Components.GridElement.Get(member)
 		found, ok := query.SquadMemberAt(world, int(memberGrid.X), int(memberGrid.Y))
 		assert.True(t, ok)
 		assert.Equal(t, member, found)
@@ -140,10 +140,8 @@ func TestGetAI(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		ai := query.GetAI(world, member)
-		require.NotNil(t, ai)
-		squadAI, ok := ai.Planner.(*gc.SquadAI)
-		require.True(t, ok)
+		squadAI := query.GetSquadAI(world, member)
+		require.NotNil(t, squadAI)
 		assert.Equal(t, gc.SquadEscort, squadAI.Movement)
 		assert.Equal(t, gc.CombatAttack, squadAI.CombatCurrent)
 	})
@@ -152,8 +150,8 @@ func TestGetAI(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		nonMember := world.Manager.NewEntity()
-		ai := query.GetAI(world, nonMember)
+		nonMember := world.ECS.NewEntity()
+		ai := query.GetSquadAI(world, nonMember)
 		assert.Nil(t, ai)
 	})
 }
@@ -171,6 +169,6 @@ func TestIsSquadMember(t *testing.T) {
 	assert.True(t, query.IsSquadMember(world, member))
 	assert.False(t, query.IsSquadMember(world, leader))
 
-	nonMember := world.Manager.NewEntity()
+	nonMember := world.ECS.NewEntity()
 	assert.False(t, query.IsSquadMember(world, nonMember))
 }

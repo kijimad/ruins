@@ -38,9 +38,9 @@ func TestGetArmorEquipments(t *testing.T) {
 	assert.Len(t, armors, 7)
 
 	// 防具を装備する
-	armor := world.Manager.NewEntity()
-	armor.AddComponent(world.Components.Name, &gc.Name{Name: "テスト鎧"})
-	armor.AddComponent(world.Components.Wearable, &gc.Wearable{
+	armor := world.ECS.NewEntity()
+	world.Components.Name.Add(armor, &gc.Name{Name: "テスト鎧"})
+	world.Components.Wearable.Add(armor, &gc.Wearable{
 		EquipmentCategory: gc.EquipmentTorso,
 		Defense:           5,
 	})
@@ -56,21 +56,21 @@ func TestEquipDisarm(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// アイテムエンティティを作成
-	item := world.Manager.NewEntity()
-	item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+	item := world.ECS.NewEntity()
+	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 
 	// オーナーエンティティを作成
-	owner := world.Manager.NewEntity()
+	owner := world.ECS.NewEntity()
 
 	// 装備する
 	lifecycle.MoveToEquip(world, item, owner, gc.EquipmentSlotNumber(0))
 
 	// 装備されたことを確認
-	assert.True(t, item.HasComponent(world.Components.LocationEquipped), "アイテムが装備されていない")
-	assert.False(t, item.HasComponent(world.Components.LocationInBackpack), "アイテムがまだバックパックにある")
-	assert.True(t, owner.HasComponent(world.Components.StatsChanged), "オーナーにステータス再計算フラグが設定されていない")
+	assert.True(t, world.Components.LocationEquipped.Has(item), "アイテムが装備されていない")
+	assert.False(t, world.Components.LocationInBackpack.Has(item), "アイテムがまだバックパックにある")
+	assert.True(t, world.Components.StatsChanged.Has(owner), "オーナーにステータス再計算フラグが設定されていない")
 
-	equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
+	equipped := world.Components.LocationEquipped.Get(item)
 	assert.Equal(t, owner, equipped.Owner, "オーナーが正しく設定されていない")
 	assert.Equal(t, gc.EquipmentSlotNumber(0), equipped.EquipmentSlot, "スロット番号が正しく設定されていない")
 
@@ -78,11 +78,11 @@ func TestEquipDisarm(t *testing.T) {
 	require.NoError(t, lifecycle.MoveToBackpack(world, item, owner))
 
 	// 装備が外されたことを確認
-	assert.False(t, item.HasComponent(world.Components.LocationEquipped), "アイテムがまだ装備されている")
-	assert.True(t, item.HasComponent(world.Components.LocationInBackpack), "アイテムがバックパックに戻っていない")
-	assert.True(t, owner.HasComponent(world.Components.StatsChanged), "オーナーにステータス再計算フラグが設定されていない")
+	assert.False(t, world.Components.LocationEquipped.Has(item), "アイテムがまだ装備されている")
+	assert.True(t, world.Components.LocationInBackpack.Has(item), "アイテムがバックパックに戻っていない")
+	assert.True(t, world.Components.StatsChanged.Has(owner), "オーナーにステータス再計算フラグが設定されていない")
 
 	// クリーンアップ
-	world.Manager.DeleteEntity(item)
-	world.Manager.DeleteEntity(owner)
+	world.ECS.RemoveEntity(item)
+	world.ECS.RemoveEntity(owner)
 }

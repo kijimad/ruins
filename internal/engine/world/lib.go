@@ -4,20 +4,20 @@ import (
 	c "github.com/kijimaD/ruins/internal/engine/components"
 	r "github.com/kijimaD/ruins/internal/engine/resources"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Generic は型安全なワールド型
 type Generic[C c.ComponentInitializer, R r.ResourceInitializer] struct {
-	Manager    *ecs.Manager
+	ECS        *ecs.World
 	Components *c.Components[C]
 	Resources  *r.Resources[R]
 }
 
 // InitGeneric は型安全なワールド初期化
 func InitGeneric[C c.ComponentInitializer, R r.ResourceInitializer](gameComponents C, gameResources R) (Generic[C, R], error) {
-	manager := ecs.NewManager()
-	components, err := c.InitComponents(manager, gameComponents)
+	world := ecs.NewWorld()
+	components, err := c.InitComponents(world, gameComponents)
 	if err != nil {
 		return Generic[C, R]{}, err
 	}
@@ -28,7 +28,7 @@ func InitGeneric[C c.ComponentInitializer, R r.ResourceInitializer](gameComponen
 	}
 
 	return Generic[C, R]{
-		Manager:    manager,
+		ECS:        world,
 		Components: components,
 		Resources:  resources,
 	}, nil

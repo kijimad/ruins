@@ -1,9 +1,8 @@
 package query
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // 価格倍率
@@ -24,9 +23,8 @@ func CalculateSellPrice(baseValue int) int {
 
 // GetItemValue はアイテムの基本価値を取得する
 func GetItemValue(world w.World, entity ecs.Entity) int {
-	if !entity.HasComponent(world.Components.Value) {
+	if !world.Components.Value.Has(entity) {
 		return 0
 	}
-	value := world.Components.Value.Get(entity).(*gc.Value)
-	return value.Value
+	return world.Components.Value.Get(entity).Value
 }

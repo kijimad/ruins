@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // VisualEffectSystem はビジュアルエフェクトを管理するシステム
@@ -28,16 +28,16 @@ func (sys VisualEffectSystem) String() string {
 func (sys *VisualEffectSystem) Update(world w.World) error {
 	var entitiesToDelete []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.VisualEffect,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	collectQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	for collectQuery.Next() {
+		entity := collectQuery.Entity()
 		entitiesToDelete = append(entitiesToDelete, entity)
-	}))
+	}
 
 	// アニメーション無効時は即座に削除
 	if world.Config.DisableAnimation {
 		for _, entity := range entitiesToDelete {
-			world.Manager.DeleteEntity(entity)
+			world.ECS.RemoveEntity(entity)
 		}
 		return nil
 	}
@@ -46,10 +46,10 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	const deltaMs = 1000.0 / 60.0 // 1フレームあたりの時間（60FPS想定）
 	entitiesToDelete = entitiesToDelete[:0]
 
-	world.Manager.Join(
-		world.Components.VisualEffect,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
+	updateQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	for updateQuery.Next() {
+		entity := updateQuery.Entity()
+		ve := world.Components.VisualEffect.Get(entity)
 
 		// エフェクトを更新
 		activeEffects := ve.Effects[:0]
@@ -65,11 +65,11 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 		if len(ve.Effects) == 0 {
 			entitiesToDelete = append(entitiesToDelete, entity)
 		}
-	}))
+	}
 
 	// エフェクト専用エンティティを削除
 	for _, entity := range entitiesToDelete {
-		world.Manager.DeleteEntity(entity)
+		world.ECS.RemoveEntity(entity)
 	}
 
 	return nil
@@ -87,34 +87,35 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	var err error
-	world.Manager.Join(
-		world.Components.VisualEffect,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	drawQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	for drawQuery.Next() {
+		entity := drawQuery.Entity()
 		if err != nil {
-			return
+			continue
 		}
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
+		ve := world.Components.VisualEffect.Get(entity)
 
+	effectLoop:
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
 			case *gc.SplashTextEffect:
 				sys.drawSplashText(world, screen, e)
 			case *gc.DamageTextEffect:
-				if entity.HasComponent(world.Components.GridElement) {
-					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+				if world.Components.GridElement.Has(entity) {
+					gridElement := world.Components.GridElement.Get(entity)
 					sys.drawDamageText(world, screen, smallFace, gridElement, e)
 				}
 			case *gc.SpriteFadeoutEffect:
-				if entity.HasComponent(world.Components.GridElement) {
-					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+				if world.Components.GridElement.Has(entity) {
+					gridElement := world.Components.GridElement.Get(entity)
 					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
 					if err != nil {
-						return
+						break effectLoop
 					}
 				}
 			}
 		}
-	}))
+	}
 
 	return err
 }

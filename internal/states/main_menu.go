@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // MainMenuState はメインメニューのゲームステート
@@ -42,7 +43,14 @@ func (st *MainMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステート開始時の処理を行う
 func (st *MainMenuState) OnStart(world w.World) error {
 	// ワールドをクリアする。前のゲーム状態を削除する
-	world.Manager.DeleteAllEntities()
+	var clearEntities []ecs.Entity
+	clearQuery := ecs.NewUnsafeFilter(world.ECS).Query()
+	for clearQuery.Next() {
+		clearEntities = append(clearEntities, clearQuery.Entity())
+	}
+	for _, e := range clearEntities {
+		world.ECS.RemoveEntity(e)
+	}
 	// シングルトンエンティティを再構築する
 	world.InitSingleton()
 

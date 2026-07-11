@@ -4,16 +4,15 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す
-func GetSingleton[T any](world w.World, comp *ecs.SliceComponent) *T {
-	data := comp.Get(world.Resources.SingletonEntity)
-	if data == nil {
+func GetSingleton[T any](world w.World, comp *ecs.Map[T]) *T {
+	if !comp.Has(world.Resources.SingletonEntity) {
 		return nil
 	}
-	return data.(*T)
+	return comp.Get(world.Resources.SingletonEntity)
 }
 
 // GetTurnState はシングルトンエンティティからターン状態を取得する
@@ -41,9 +40,22 @@ func GetGameLog(world w.World) *gamelog.SafeSlice {
 	return gl.Store
 }
 
-// SetDungeon はシングルトンエンティティにDungeonを設定する
+// SetDungeon はシングルトンエンティティにDungeonを設定する。
+// nilを渡すとダンジョン未開始として扱い、コンポーネントを取り除く
 func SetDungeon(world w.World, dungeon *gc.Dungeon) {
-	world.Resources.SingletonEntity.AddComponent(world.Components.DungeonState, dungeon)
+	entity := world.Resources.SingletonEntity
+	comp := world.Components.DungeonState
+	if dungeon == nil {
+		if comp.Has(entity) {
+			comp.Remove(entity)
+		}
+		return
+	}
+	if comp.Has(entity) {
+		comp.Set(entity, dungeon)
+	} else {
+		comp.Add(entity, dungeon)
+	}
 }
 
 // GetSpatialIndex はシングルトンから空間インデックスを取得する
@@ -83,37 +95,37 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.PlayerEntity = nil
 
 	// 静的障害物のインデックス構築
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.BlockPass,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
-			return
+	blockPassQuery := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.ECS).Query()
+	for blockPassQuery.Next() {
+		entity := blockPassQuery.Entity()
+		if world.Components.Dead.Has(entity) {
+			continue
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		si.BlockPass[*grid] = true
-	}))
+	}
 
 	// キャラクター位置のインデックス構築
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
-			return
+	characterQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for characterQuery.Next() {
+		entity := characterQuery.Entity()
+		if world.Components.Dead.Has(entity) {
+			continue
 		}
-		isCharacter := entity.HasComponent(world.Components.Player) ||
-			entity.HasComponent(world.Components.AI) ||
-			entity.HasComponent(world.Components.SquadMember)
+		isCharacter := world.Components.Player.Has(entity) ||
+			world.Components.SoloAI.Has(entity) ||
+			world.Components.SquadAI.Has(entity) ||
+			world.Components.SquadMember.Has(entity)
 		if !isCharacter {
-			return
+			continue
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		si.Characters[*grid] = entity
-		if entity.HasComponent(world.Components.Player) {
+		if world.Components.Player.Has(entity) {
 			e := entity
 			si.PlayerEntity = &e
 		}
-	}))
+	}
 
 	si.Built = true
 }

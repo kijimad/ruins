@@ -22,7 +22,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 const (
@@ -290,7 +290,7 @@ func (st *EquipMenuState) fetchEquipProps(world w.World) equipScreenProps {
 	items := make([]equipItemData, len(entities))
 
 	for i, entity := range entities {
-		name := world.Components.Name.Get(entity).(*gc.Name).Name
+		name := world.Components.Name.Get(entity).Name
 		items[i] = equipItemData{
 			ItemName:    name,
 			IsEquipItem: true,
@@ -350,7 +350,7 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) [
 	for i, weapon := range weapons {
 		itemName := ""
 		if weapon != nil {
-			itemName = world.Components.Name.Get(*weapon).(*gc.Name).Name
+			itemName = world.Components.Name.Get(*weapon).Name
 		}
 		items = append(items, equipItemData{
 			SlotLabel:  weaponLabels[i],
@@ -370,7 +370,7 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) [
 	for i, slot := range armorSlots {
 		itemName := ""
 		if slot != nil {
-			itemName = world.Components.Name.Get(*slot).(*gc.Name).Name
+			itemName = world.Components.Name.Get(*slot).Name
 		}
 		items = append(items, equipItemData{
 			SlotLabel:  armorLabels[i],
@@ -388,15 +388,15 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	items := []ecs.Entity{}
 
 	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
-		world.Manager.Join(
-			world.Components.LocationInBackpack,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
+		weaponQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+		for weaponQuery.Next() {
+			entity := weaponQuery.Entity()
 			cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
 			if cat != gc.CategoryWeapon {
-				return
+				continue
 			}
 			items = append(items, entity)
-		}))
+		}
 	} else {
 		var targetCategory gc.EquipmentType
 		switch slotNumber {
@@ -418,15 +418,14 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 			return query.SortEntities(world, items)
 		}
 
-		world.Manager.Join(
-			world.Components.LocationInBackpack,
-			world.Components.Wearable,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
+		wearableQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Wearable](world.ECS).Query()
+		for wearableQuery.Next() {
+			entity := wearableQuery.Entity()
+			wearable := world.Components.Wearable.Get(entity)
 			if wearable != nil && wearable.EquipmentCategory == targetCategory {
 				items = append(items, entity)
 			}
-		}))
+		}
 	}
 
 	return query.SortEntities(world, items)
@@ -744,14 +743,14 @@ func (st *EquipMenuState) buildEquipDetailContainer(world w.World, props equipSc
 }
 
 func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.Container, member ecs.Entity, res resources.UIResources) {
-	if !member.HasComponent(world.Components.Abilities) {
+	if !world.Components.Abilities.Has(member) {
 		return
 	}
 
 	columnWidths := []int{50, 30, 40}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
-	abils := world.Components.Abilities.Get(member).(*gc.Abilities)
+	abils := world.Components.Abilities.Get(member)
 
 	table := styled.NewTableContainer(columnWidths, res)
 	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", abils.Vitality.Total), fmt.Sprintf("(%+d)", abils.Vitality.Modifier)}, aligns, nil, res)
@@ -770,8 +769,8 @@ func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabD
 
 	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
 		item := tabs[tabIndex].Items[itemIndex]
-		if item.Entity != nil && item.Entity.HasComponent(world.Components.Description) {
-			descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)
+		if item.Entity != nil && world.Components.Description.Has(*item.Entity) {
+			descComp := world.Components.Description.Get(*item.Entity)
 			desc = descComp.Description
 		}
 	}
@@ -790,8 +789,8 @@ func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipIt
 
 	if itemIndex < len(items) {
 		item := items[itemIndex]
-		if item.EquipEntity.HasComponent(world.Components.Description) {
-			descComp := world.Components.Description.Get(item.EquipEntity).(*gc.Description)
+		if world.Components.Description.Has(item.EquipEntity) {
+			descComp := world.Components.Description.Get(item.EquipEntity)
 			desc = descComp.Description
 		}
 	}

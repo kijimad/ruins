@@ -7,9 +7,9 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestMoveToStorage(t *testing.T) {
@@ -28,18 +28,18 @@ func TestMoveToStorage(t *testing.T) {
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
 	// バックパック内にあることを確認
-	assert.True(t, item.HasComponent(world.Components.LocationInBackpack))
-	assert.False(t, item.HasComponent(world.Components.LocationInStorage))
+	assert.True(t, world.Components.LocationInBackpack.Has(item))
+	assert.False(t, world.Components.LocationInStorage.Has(item))
 
 	// 収納に移動
 	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
 	// 収納内にあることを確認（排他制御）
-	assert.True(t, item.HasComponent(world.Components.LocationInStorage))
-	assert.False(t, item.HasComponent(world.Components.LocationInBackpack))
-	assert.False(t, item.HasComponent(world.Components.LocationOnField))
+	assert.True(t, world.Components.LocationInStorage.Has(item))
+	assert.False(t, world.Components.LocationInBackpack.Has(item))
+	assert.False(t, world.Components.LocationOnField.Has(item))
 
-	loc := world.Components.LocationInStorage.Get(item).(*gc.LocationInStorage)
+	loc := world.Components.LocationInStorage.Get(item)
 	assert.Equal(t, storageEntity, loc.Owner)
 }
 
@@ -110,7 +110,7 @@ func TestCanAddToStorage_OverWeight(t *testing.T) {
 	require.NoError(t, err)
 
 	// WeightCapacityの最大重量を超えるまでアイテムを追加する
-	wc := world.Components.WeightCapacity.Get(storageEntity).(*gc.WeightCapacity)
+	wc := world.Components.WeightCapacity.Get(storageEntity)
 	maxWeight := wc.Max
 
 	// 重量がmaxWeight+1kgのアイテムを作って追加不可を確認
@@ -137,12 +137,14 @@ func TestMoveToStorage_SetsWeightDirtyOnStorage(t *testing.T) {
 	require.NoError(t, err)
 
 	// マーカーを事前にクリア
-	storageEntity.RemoveComponent(world.Components.WeightDirty)
-	assert.False(t, storageEntity.HasComponent(world.Components.WeightDirty))
+	if world.Components.WeightDirty.Has(storageEntity) {
+		world.Components.WeightDirty.Remove(storageEntity)
+	}
+	assert.False(t, world.Components.WeightDirty.Has(storageEntity))
 
 	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
-	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "MoveToStorageは収納エンティティにWeightDirtyを付与するべき")
+	assert.True(t, world.Components.WeightDirty.Has(storageEntity), "MoveToStorageは収納エンティティにWeightDirtyを付与するべき")
 }
 
 func TestMoveToStorage_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
@@ -159,13 +161,13 @@ func TestMoveToStorage_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
 	// マーカーをクリア
-	playerEntity.RemoveComponent(world.Components.WeightDirty)
+	world.Components.WeightDirty.Remove(playerEntity)
 
 	// バックパック→収納に移動すると、元のOwner（Player）にもWeightDirtyが付与される
 	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
-	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "移動元のOwnerにWeightDirtyが付与されるべき")
-	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "移動先の収納にWeightDirtyが付与されるべき")
+	assert.True(t, world.Components.WeightDirty.Has(playerEntity), "移動元のOwnerにWeightDirtyが付与されるべき")
+	assert.True(t, world.Components.WeightDirty.Has(storageEntity), "移動先の収納にWeightDirtyが付与されるべき")
 }
 
 func TestMoveToBackpack_SetsWeightDirtyOnPreviousStorage(t *testing.T) {
@@ -182,13 +184,13 @@ func TestMoveToBackpack_SetsWeightDirtyOnPreviousStorage(t *testing.T) {
 	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
 	// マーカーをクリア
-	storageEntity.RemoveComponent(world.Components.WeightDirty)
+	world.Components.WeightDirty.Remove(storageEntity)
 
 	// 収納→バックパックに移動すると、元のOwner（Storage）にWeightDirtyが付与される
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
-	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "移動元の収納にWeightDirtyが付与されるべき")
-	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "移動先のPlayerにWeightDirtyが付与されるべき")
+	assert.True(t, world.Components.WeightDirty.Has(storageEntity), "移動元の収納にWeightDirtyが付与されるべき")
+	assert.True(t, world.Components.WeightDirty.Has(playerEntity), "移動先のPlayerにWeightDirtyが付与されるべき")
 }
 
 func TestMoveToField_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
@@ -202,11 +204,11 @@ func TestMoveToField_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
 	// マーカーをクリア
-	playerEntity.RemoveComponent(world.Components.WeightDirty)
+	world.Components.WeightDirty.Remove(playerEntity)
 
 	MoveToField(world, item, &playerEntity)
 
-	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "MoveToFieldは元のOwnerにWeightDirtyを付与するべき")
+	assert.True(t, world.Components.WeightDirty.Has(playerEntity), "MoveToFieldは元のOwnerにWeightDirtyを付与するべき")
 }
 
 func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {
@@ -223,11 +225,11 @@ func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {
 
 	// 収納に入れて、バックパックに戻す
 	require.NoError(t, MoveToStorage(world, item, storageEntity))
-	assert.True(t, item.HasComponent(world.Components.LocationInStorage))
+	assert.True(t, world.Components.LocationInStorage.Has(item))
 
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
-	assert.True(t, item.HasComponent(world.Components.LocationInBackpack))
-	assert.False(t, item.HasComponent(world.Components.LocationInStorage))
+	assert.True(t, world.Components.LocationInBackpack.Has(item))
+	assert.False(t, world.Components.LocationInStorage.Has(item))
 }
 
 func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
@@ -254,18 +256,16 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	// バックパック内の回復薬エンティティは1つだけになっている
 	var entityCount int
 	var totalCount int
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+	potionQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+	for potionQuery.Next() {
+		entity := potionQuery.Entity()
+		name := world.Components.Name.Get(entity)
 		if name.Name == "回復薬" {
 			entityCount++
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count
 		}
-	}))
+	}
 
 	assert.Equal(t, 1, entityCount, "回復薬は1つのエンティティに統合されるべき")
 	assert.Equal(t, 5, totalCount, "合計個数は5個")
@@ -286,15 +286,14 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 
 	// 非Stackableアイテムは統合されず2つ存在する
 	var entityCount int
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+	armorQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.ECS).Query()
+	for armorQuery.Next() {
+		entity := armorQuery.Entity()
+		name := world.Components.Name.Get(entity)
 		if name.Name == "西洋鎧" {
 			entityCount++
 		}
-	}))
+	}
 
 	assert.Equal(t, 2, entityCount, "非Stackableアイテムは統合されない")
 }
@@ -322,10 +321,10 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	var entityCount int
 	var totalCount int
 	for _, entity := range query.GetStorageItems(world, storageEntity) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.Get(entity)
 		if name.Name == "回復薬" {
 			entityCount++
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count
 		}
 	}
@@ -362,9 +361,9 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	// 木箱Aの回復薬は統合されて4個
 	var countA int
 	for _, entity := range query.GetStorageItems(world, storageA) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.Get(entity)
 		if name.Name == potion {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.Get(entity)
 			countA += stackable.Count
 		}
 	}
@@ -373,9 +372,9 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	// 木箱Bの回復薬は影響を受けず2個のまま
 	var countB int
 	for _, entity := range query.GetStorageItems(world, storageB) {
-		name := world.Components.Name.Get(entity).(*gc.Name)
+		name := world.Components.Name.Get(entity)
 		if name.Name == potion {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			stackable := world.Components.Stackable.Get(entity)
 			countB += stackable.Count
 		}
 	}

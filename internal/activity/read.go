@@ -11,7 +11,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ReadActivity は読書アクティビティの実装
@@ -66,8 +66,9 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	var skills *gc.Skills
-	if skillsComp := world.Components.Skills.Get(actor); skillsComp != nil {
-		skills = skillsComp.(*gc.Skills)
+	if world.Components.Skills.Has(actor) {
+		skillsComp := world.Components.Skills.Get(actor)
+		skills = skillsComp
 	}
 	if err := book.CanRead(skills); err != nil {
 		return err
@@ -166,7 +167,7 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	name := query.GetEntityName(*comp.Target, world)
 
-	if actor.HasComponent(world.Components.Player) {
+	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("「%s」の読書を中断した", name)).
 			Log()
@@ -184,11 +185,10 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 	effect := book.Skill
 
 	// プレイヤーのSkillsコンポーネントを取得
-	skillsComp := world.Components.Skills.Get(actor)
-	if skillsComp == nil {
+	if !world.Components.Skills.Has(actor) {
 		return
 	}
-	skills := skillsComp.(*gc.Skills)
+	skills := world.Components.Skills.Get(actor)
 
 	s := skills.Get(effect.TargetSkill)
 
@@ -202,7 +202,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 	// スキルアップした場合はCharModifiers再計算
 	if leveledUp {
-		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
+		world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
 
 		name := gc.SkillName(effect.TargetSkill)
 		gamelog.New(query.GetGameLog(world)).
@@ -226,20 +226,18 @@ func (ra *ReadActivity) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 	if book.Skill == nil {
 		return 0
 	}
-	abilsComp := world.Components.Abilities.Get(actor)
-	if abilsComp == nil {
+	if !world.Components.Abilities.Has(actor) {
 		return 0
 	}
-	abils := abilsComp.(*gc.Abilities)
+	abils := world.Components.Abilities.Get(actor)
 	ablID := gc.SkillAbilityID(book.Skill.TargetSkill)
 	return abils.ValueOf(ablID)
 }
 
 // getBook は対象エンティティのBookコンポーネントを取得する
 func (ra *ReadActivity) getBook(entity ecs.Entity, world w.World) *gc.Book {
-	comp := world.Components.Book.Get(entity)
-	if comp == nil {
+	if !world.Components.Book.Has(entity) {
 		return nil
 	}
-	return comp.(*gc.Book)
+	return world.Components.Book.Get(entity)
 }

@@ -29,14 +29,14 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Resources.SpriteSheets = spriteSheets
 
 		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		playerEntity := world.ECS.NewEntity()
+		world.Components.Player.Add(playerEntity, &gc.Player{})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界内に敵を配置
 		enemy, err := lifecycle.SpawnEnemy(world, 12, 12, "火の玉")
 		require.NoError(t, err)
-		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "ゴブリン"})
+		world.Components.Name.Set(enemy, &gc.Name{Name: "ゴブリン"})
 
 		// 可視タイルに設定
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
@@ -51,7 +51,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// エンティティから情報を取得
 		enemyEntity := enemies[0]
 		name := query.GetEntityName(enemyEntity, world)
-		grid := world.Components.GridElement.Get(enemyEntity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(enemyEntity)
 
 		assert.Equal(t, "ゴブリン", name)
 		assert.Equal(t, consts.Tile(12), grid.X)
@@ -63,9 +63,9 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		playerEntity := world.ECS.NewEntity()
+		world.Components.Player.Add(playerEntity, &gc.Player{})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界外に敵を配置（探索済みでない）
 		_, err := lifecycle.SpawnEnemy(world, 50, 50, "火の玉")
@@ -100,9 +100,9 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		playerEntity := world.ECS.NewEntity()
+		world.Components.Player.Add(playerEntity, &gc.Player{})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 敵を配置
 		_, err := lifecycle.SpawnEnemy(world, 11, 10, "火の玉")
@@ -131,9 +131,9 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		playerEntity := world.ECS.NewEntity()
+		world.Components.Player.Add(playerEntity, &gc.Player{})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界内にアイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(12), consts.Tile(12), 1)
@@ -152,13 +152,13 @@ func TestGetVisibleItems(t *testing.T) {
 		// エンティティから情報を取得
 		itemEntity := items[0]
 		name := query.GetEntityName(itemEntity, world)
-		grid := world.Components.GridElement.Get(itemEntity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(itemEntity)
 		desc := world.Components.Description.Get(itemEntity)
 
 		assert.Equal(t, "回復薬", name)
 		assert.NotNil(t, desc, "アイテムは説明を持つべき")
 		if desc != nil {
-			assert.NotEmpty(t, desc.(*gc.Description).Description)
+			assert.NotEmpty(t, desc.Description)
 		}
 		assert.Equal(t, consts.Tile(12), grid.X)
 		assert.Equal(t, consts.Tile(12), grid.Y)
@@ -169,9 +169,9 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		playerEntity := world.ECS.NewEntity()
+		world.Components.Player.Add(playerEntity, &gc.Player{})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界外にアイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50), 1)
@@ -190,9 +190,9 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		playerEntity := world.ECS.NewEntity()
+		world.Components.Player.Add(playerEntity, &gc.Player{})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// アイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10), 1)

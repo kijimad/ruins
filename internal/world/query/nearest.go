@@ -4,7 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // FindNearestEntity は条件を満たす最寄りのエンティティを探す。
@@ -15,19 +15,19 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 	var nearestGrid *gc.GridElement
 	nearestDist := -1
 
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	nearestQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for nearestQuery.Next() {
+		entity := nearestQuery.Entity()
 		if entity == self {
-			return
+			continue
 		}
-		if entity.HasComponent(world.Components.Dead) {
-			return
+		if world.Components.Dead.Has(entity) {
+			continue
 		}
 		if !match(entity) {
-			return
+			continue
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		dist := geometry.ChebyshevDistance(int(from.X), int(from.Y), int(grid.X), int(grid.Y))
 		if nearestDist < 0 || dist < nearestDist {
 			e := entity
@@ -35,7 +35,7 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 			nearestGrid = grid
 			nearestDist = dist
 		}
-	}))
+	}
 
 	return nearestEntity, nearestGrid, nearestDist
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // UseItemActivity はBehaviorの実装
@@ -55,16 +55,16 @@ func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	item := *comp.Target
 
 	// 何らかの効果があるかチェック
-	hasEffect := item.HasComponent(world.Components.ProvidesHealing) ||
-		item.HasComponent(world.Components.ProvidesNutrition) ||
-		item.HasComponent(world.Components.InflictsDamage)
+	hasEffect := world.Components.ProvidesHealing.Has(item) ||
+		world.Components.ProvidesNutrition.Has(item) ||
+		world.Components.InflictsDamage.Has(item)
 
 	if !hasEffect {
 		return ErrItemNoEffect
 	}
 
 	// アクターがHPコンポーネントを持っているかチェック
-	if !actor.HasComponent(world.Components.HP) {
+	if !world.Components.HP.Has(actor) {
 		return ErrActorNoHP
 	}
 
@@ -87,32 +87,32 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	item := *comp.Target
 
 	// 回復効果があるかチェック
-	if healing := world.Components.ProvidesHealing.Get(item); healing != nil {
-		healingComponent := healing.(*gc.ProvidesHealing)
-		if err := u.applyHealing(comp, actor, world, healingComponent.Amount, item); err != nil {
+	if world.Components.ProvidesHealing.Has(item) {
+		healing := world.Components.ProvidesHealing.Get(item)
+		if err := u.applyHealing(comp, actor, world, healing, item); err != nil {
 			Cancel(comp, fmt.Sprintf("回復処理エラー: %s", err.Error()))
 			return err
 		}
 	}
 
 	// 空腹度回復効果があるかチェック
-	if nutrition := world.Components.ProvidesNutrition.Get(item); nutrition != nil {
-		nutritionComponent := nutrition.(*gc.ProvidesNutrition)
-		if err := u.applyNutrition(comp, actor, world, nutritionComponent.Amount, item); err != nil {
+	if world.Components.ProvidesNutrition.Has(item) {
+		nutrition := world.Components.ProvidesNutrition.Get(item)
+		if err := u.applyNutrition(comp, actor, world, nutrition.Amount, item); err != nil {
 			Cancel(comp, fmt.Sprintf("空腹度回復処理エラー: %s", err.Error()))
 			return err
 		}
 	}
 
 	// ダメージ効果があるかチェック
-	if damage := world.Components.InflictsDamage.Get(item); damage != nil {
-		damageComponent := damage.(*gc.InflictsDamage)
+	if world.Components.InflictsDamage.Has(item) {
+		damage := world.Components.InflictsDamage.Get(item)
 		// 共通のダメージ処理を使用
-		gameaction.ApplyDamage(world, actor, damageComponent.Amount, actor)
+		gameaction.ApplyDamage(world, actor, damage.Amount, actor)
 	}
 
 	// 消費可能アイテムの場合は削除または個数を減らす
-	if item.HasComponent(world.Components.Consumable) {
+	if world.Components.Consumable.Has(item) {
 		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("アイテムの消費に失敗: %w", err)
 		}
@@ -135,23 +135,14 @@ func (u *UseItemActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 }
 
 // applyHealing は回復処理を適用する
-func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, amounter gc.Amounter, item ecs.Entity) error {
-	// Amounterから実際の回復量を取得
-	var amount int
-	switch amt := amounter.(type) {
-	case gc.NumeralAmount:
-		amount = amt.Calc()
-	case gc.RatioAmount:
-		// 最大HPに対する割合で回復
-		hp := world.Components.HP.Get(actor).(*gc.HP)
-		amount = amt.Calc(hp.Max)
-	default:
-		return fmt.Errorf("未対応のAmounterタイプ: %T", amounter)
-	}
+func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {
+	// 最大HPを基準に実際の回復量を計算する（絶対量指定の場合は基準値は無視される）
+	hp := world.Components.HP.Get(actor)
+	amount := healing.Calc(hp.Max)
 
 	// 回復効果倍率を適用する
-	if actor.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+	if world.Components.CharModifiers.Has(actor) {
+		mods := world.Components.CharModifiers.Get(actor)
 		amount = amount * mods.HealingEffect / 100
 	}
 	if amount < 1 {
@@ -167,12 +158,10 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 
 // applyNutrition は空腹度回復処理を適用する
 func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
-	hungerComp := world.Components.Hunger.Get(actor)
-	if hungerComp == nil {
+	if !world.Components.Hunger.Has(actor) {
 		return nil
 	}
-
-	hunger := hungerComp.(*gc.Hunger)
+	hunger := world.Components.Hunger.Get(actor)
 
 	// 満腹度を増加させる（値が大きいほど満腹）
 	hunger.Increase(amount)
@@ -188,7 +177,7 @@ func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 // logItemUse はアイテム使用のログを出力する
 func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {
 	// プレイヤーが関わる場合のみログ出力
-	if !actor.HasComponent(world.Components.Player) {
+	if !world.Components.Player.Has(actor) {
 		return
 	}
 
@@ -212,7 +201,7 @@ func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 // logNutritionUse は空腹度回復のログを出力する
 func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
 	// プレイヤーが関わる場合のみログ出力
-	if !actor.HasComponent(world.Components.Player) {
+	if !world.Components.Player.Has(actor) {
 		return
 	}
 
@@ -233,9 +222,8 @@ func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item 
 
 // getItemName はアイテムの名前を取得する
 func (u *UseItemActivity) getItemName(item ecs.Entity, world w.World) string {
-	name := world.Components.Name.Get(item)
-	if name != nil {
-		return name.(*gc.Name).Name
+	if world.Components.Name.Has(item) {
+		return world.Components.Name.Get(item).Name
 	}
 	return "アイテム"
 }

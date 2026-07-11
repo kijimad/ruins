@@ -57,8 +57,8 @@ func TestGetItemValue(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Value, &gc.Value{Value: 80})
+		entity := world.ECS.NewEntity()
+		world.Components.Value.Add(entity, &gc.Value{Value: 80})
 
 		assert.Equal(t, 80, GetItemValue(world, entity))
 	})
@@ -67,7 +67,7 @@ func TestGetItemValue(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.ECS.NewEntity()
 
 		assert.Equal(t, 0, GetItemValue(world, entity))
 	})

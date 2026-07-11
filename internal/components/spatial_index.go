@@ -2,7 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // SpatialIndex はターン内で再利用可能な空間インデックスを保持する。

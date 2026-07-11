@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // GetVisibleEnemies は視界内の敵エンティティをすべて取得して返す
@@ -18,30 +18,29 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 		return nil, err
 	}
 
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
 	var enemies []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.FactionEnemy,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	enemiesQuery := ecs.NewFilter2[gc.GridElement, gc.FactionEnemyData](world.ECS).Query()
+	for enemiesQuery.Next() {
+		entity := enemiesQuery.Entity()
+		gridElement := world.Components.GridElement.Get(entity)
 		enemyX := int(gridElement.X)
 		enemyY := int(gridElement.Y)
 
 		if !IsInVision(world, playerX, playerY, enemyX, enemyY) {
-			return
+			continue
 		}
 
 		enemies = append(enemies, entity)
-	}))
+	}
 
 	return enemies, nil
 }
@@ -72,49 +71,47 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 		return nil, err
 	}
 
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
 	var items []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.LocationOnField,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	itemsQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()
+	for itemsQuery.Next() {
+		entity := itemsQuery.Entity()
+		gridElement := world.Components.GridElement.Get(entity)
 		itemX := int(gridElement.X)
 		itemY := int(gridElement.Y)
 
 		if !IsInVision(world, playerX, playerY, itemX, itemY) {
-			return
+			continue
 		}
 
 		items = append(items, entity)
-	}))
+	}
 
 	return items, nil
 }
 
 // GetEntityName はエンティティの名前を取得する
 func GetEntityName(entity ecs.Entity, world w.World) string {
-	name := world.Components.Name.Get(entity)
-	if name != nil {
-		return name.(*gc.Name).Name
+	if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {
+		return "Unknown"
 	}
-	return "Unknown"
+	return world.Components.Name.Get(entity).Name
 }
 
 // AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する
 func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) {
 	switch {
-	case entity.HasComponent(world.Components.Player):
+	case world.Components.Player.Has(entity):
 		logger.PlayerName(name)
-	case entity.HasComponent(world.Components.AI):
+	case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):
 		logger.NPCName(name)
 	default:
 		logger.Append(name)

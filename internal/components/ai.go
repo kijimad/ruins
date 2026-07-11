@@ -2,7 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // AIStateSubState はAI行動のサブ状態を表す
@@ -19,21 +19,7 @@ const (
 	AIStateFleeing = AIStateSubState("FLEEING")
 )
 
-// AI はAIエンティティの統合コンポーネント。
-// Plannerフィールドに具体的な設定を保持する
-type AI struct {
-	Planner PlannerConfig
-}
-
-// PlannerConfig はプランナー種別ごとの設定を表すインターフェース
-type PlannerConfig interface {
-	// Type はプランナーの種別を返す
-	Type() PlannerType
-	// ReactToHostile は被ダメージ時に戦闘方針を変化させる
-	ReactToHostile()
-	// ResetCombat は戦闘方針をデフォルトに復帰させる
-	ResetCombat()
-}
+// SoloAI と SquadAI は独立したコンポーネントで、エンティティは片方だけを持つ。
 
 // SoloAI は単独行動NPC用の設定と状態を保持する
 type SoloAI struct {
@@ -95,16 +81,14 @@ func (s *SquadAI) ResetCombat() {
 	s.CombatCurrent = s.CombatDefault
 }
 
-// DefaultSquadAI は隊員のデフォルトAIを返す
-func DefaultSquadAI() AI {
-	return AI{
-		Planner: &SquadAI{
-			CombatDefault: CombatAttack,
-			CombatCurrent: CombatAttack,
-			Movement:      SquadEscort,
-			ViewDistance:  consts.AIVisionDistance,
-			ItemPickup:    PolicyPickup,
-			ItemHandling:  PolicyDistribute,
-		},
+// DefaultSquadAI は隊員のデフォルトSquadAIを返す
+func DefaultSquadAI() SquadAI {
+	return SquadAI{
+		CombatDefault: CombatAttack,
+		CombatCurrent: CombatAttack,
+		Movement:      SquadEscort,
+		ViewDistance:  consts.AIVisionDistance,
+		ItemPickup:    PolicyPickup,
+		ItemHandling:  PolicyDistribute,
 	}
 }

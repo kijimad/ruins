@@ -7,7 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Updater はロジック更新を行うシステム
@@ -31,7 +31,7 @@ type Renderer interface {
 
 // World はゲーム全体に必要な情報を保持する
 type World struct {
-	Manager    *ecs.Manager
+	ECS        *ecs.World
 	Components *gc.Components
 	Resources  *resources.Resources
 	Config     *config.Config
@@ -41,14 +41,13 @@ type World struct {
 
 // InitWorld は初期化する
 func InitWorld(c *gc.Components) (World, error) {
-	manager := ecs.NewManager()
-	err := c.InitializeComponents(manager)
-	if err != nil {
+	arkWorld := ecs.NewWorld()
+	if err := c.InitializeComponents(arkWorld); err != nil {
 		return World{}, err
 	}
 
 	world := World{
-		Manager:    manager,
+		ECS:        arkWorld,
 		Components: c,
 		Resources:  resources.InitGameResources(),
 		Updaters:   make(map[string]Updater),
@@ -62,23 +61,18 @@ func InitWorld(c *gc.Components) (World, error) {
 
 // InitSingleton はシングルトンエンティティを新規作成してIDを保存する
 func (world World) InitSingleton() {
-	singleton := world.Manager.NewEntity()
-	singleton.AddComponent(world.Components.GameLog, &gc.GameLog{
+	singleton := world.ECS.NewEntity()
+	world.Components.GameLog.Add(singleton, &gc.GameLog{
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
-	singleton.AddComponent(world.Components.GameProgress, gc.NewGameProgress())
-	singleton.AddComponent(world.Components.DungeonState, gc.NewDungeon())
-	singleton.AddComponent(world.Components.TurnState, gc.NewTurnState())
-	singleton.AddComponent(world.Components.SpatialIndex, gc.NewSpatialIndex())
+	world.Components.GameProgress.Add(singleton, gc.NewGameProgress())
+	world.Components.DungeonState.Add(singleton, gc.NewDungeon())
+	world.Components.TurnState.Add(singleton, gc.NewTurnState())
+	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Resources.SingletonEntity = singleton
 }
 
-// GetManager は World interfaceを満たすためのメソッド
-func (world World) GetManager() *ecs.Manager {
-	return world.Manager
-}
-
-// GetComponents は World interfaceを満たすためのメソッド
-func (world World) GetComponents() any {
-	return world.Components
+// GetWorld は entities.World インターフェースを満たすためのメソッド
+func (world World) GetWorld() *ecs.World {
+	return world.ECS
 }

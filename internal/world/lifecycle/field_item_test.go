@@ -6,9 +6,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestSpawnFieldItem(t *testing.T) {
@@ -21,28 +21,28 @@ func TestSpawnFieldItem(t *testing.T) {
 	require.NotNil(t, item, "アイテムエンティティが生成されるべき")
 
 	// Nameコンポーネントの確認
-	require.True(t, item.HasComponent(world.Components.Name), "Nameコンポーネントが必要")
-	name := world.Components.Name.Get(item).(*gc.Name)
+	require.True(t, world.Components.Name.Has(item), "Nameコンポーネントが必要")
+	name := world.Components.Name.Get(item)
 	assert.Equal(t, "回復薬", name.Name, "アイテム名が正しくない")
 
 	// GridElementコンポーネントの確認
-	require.True(t, item.HasComponent(world.Components.GridElement), "GridElementコンポーネントが必要")
-	gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+	require.True(t, world.Components.GridElement.Has(item), "GridElementコンポーネントが必要")
+	gridElement := world.Components.GridElement.Get(item)
 	assert.Equal(t, consts.Tile(5), gridElement.X, "行位置が正しくない")
 	assert.Equal(t, consts.Tile(10), gridElement.Y, "列位置が正しくない")
 
 	// SpriteRenderコンポーネントの確認
-	require.True(t, item.HasComponent(world.Components.SpriteRender), "SpriteRenderコンポーネントが必要")
-	sprite := world.Components.SpriteRender.Get(item).(*gc.SpriteRender)
+	require.True(t, world.Components.SpriteRender.Has(item), "SpriteRenderコンポーネントが必要")
+	sprite := world.Components.SpriteRender.Get(item)
 	assert.Equal(t, "field", sprite.SpriteSheetName, "スプライトシート名が正しくない")
 	assert.Equal(t, "healing_potion", sprite.SpriteKey, "スプライトキーが正しくない")
 	assert.Equal(t, gc.DepthNumRug, sprite.Depth, "描画深度が正しくない")
 
 	// LocationOnFieldコンポーネントの確認
-	assert.True(t, item.HasComponent(world.Components.LocationOnField), "LocationOnFieldコンポーネントが必要")
+	assert.True(t, world.Components.LocationOnField.Has(item), "LocationOnFieldコンポーネントが必要")
 
 	// クリーンアップ
-	world.Manager.DeleteEntity(item)
+	world.ECS.RemoveEntity(item)
 }
 
 func TestSpawnMultipleFieldItems(t *testing.T) {
@@ -68,24 +68,22 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 		createdItems = append(createdItems, item)
 
 		// 位置の確認
-		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(item)
 		assert.Equal(t, itemData.row, gridElement.X, "行位置が正しくない")
 		assert.Equal(t, itemData.col, gridElement.Y, "列位置が正しくない")
 	}
 
 	// フィールド上のアイテム数を確認
 	fieldItemCount := 0
-	world.Manager.Join(
-		world.Components.LocationOnField,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	fieldItemQuery := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.ECS).Query()
+	for fieldItemQuery.Next() {
 		fieldItemCount++
-	}))
+	}
 
 	assert.Equal(t, len(items), fieldItemCount, "フィールド上のアイテム数が正しくない")
 
 	// クリーンアップ
 	for _, item := range createdItems {
-		world.Manager.DeleteEntity(item)
+		world.ECS.RemoveEntity(item)
 	}
 }

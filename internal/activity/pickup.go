@@ -11,7 +11,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // PickupActivity はBehaviorの実装
@@ -68,20 +68,20 @@ func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 	}
 
 	hasPickable := false
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	pickableQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for pickableQuery.Next() {
+		entity := pickableQuery.Entity()
 		if hasPickable {
-			return
+			continue
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		if grid.X != target.X || grid.Y != target.Y {
-			return
+			continue
 		}
 		if query.IsPickable(entity, world) {
 			hasPickable = true
 		}
-	}))
+	}
 
 	if !hasPickable {
 		return fmt.Errorf("拾えるものがありません")
@@ -141,17 +141,17 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 	// 対象タイルの拾得可能なエンティティを検索
 	var toCollect []ecs.Entity
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	collectQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for collectQuery.Next() {
+		entity := collectQuery.Entity()
+		grid := world.Components.GridElement.Get(entity)
 		if grid.X != target.X || grid.Y != target.Y {
-			return
+			continue
 		}
 		if query.IsPickable(entity, world) {
 			toCollect = append(toCollect, entity)
 		}
-	}))
+	}
 
 	if len(toCollect) == 0 {
 		return fmt.Errorf("拾えるものがありません")
@@ -173,7 +173,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 	log.Debug("拾得完了", "count", collectedCount)
 
-	if collectedCount > 1 && actor.HasComponent(world.Components.Player) {
+	if collectedCount > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("%d個を入手した", collectedCount)).
 			Log()

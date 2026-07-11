@@ -18,18 +18,18 @@ func TestMovePlayerToPosition(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-		player.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
-		player.AddComponent(world.Components.Camera, &gc.Camera{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{X: 5, Y: 5})
+		world.Components.SpriteRender.Add(player, &gc.SpriteRender{})
+		world.Components.Camera.Add(player, &gc.Camera{})
 
 		// プレイヤーを移動
 		err := MovePlayerToPosition(world, 10, 15)
 		require.NoError(t, err)
 
 		// 位置が更新されていることを確認
-		gridElement := world.Components.GridElement.Get(player).(*gc.GridElement)
+		gridElement := world.Components.GridElement.Get(player)
 		assert.Equal(t, consts.Tile(10), gridElement.X)
 		assert.Equal(t, consts.Tile(15), gridElement.Y)
 	})
@@ -49,10 +49,10 @@ func TestMovePlayerToPosition(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// GridElementなしのプレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
-		player.AddComponent(world.Components.Camera, &gc.Camera{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.SpriteRender.Add(player, &gc.SpriteRender{})
+		world.Components.Camera.Add(player, &gc.Camera{})
 
 		err := MovePlayerToPosition(world, 10, 15)
 		require.Error(t, err)
@@ -74,12 +74,12 @@ func TestMovePlayerToPosition_隊員も隣接位置に再配置される(t *test
 	require.NoError(t, err)
 
 	// プレイヤーが移動している
-	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(player)
 	assert.Equal(t, consts.Tile(20), playerGrid.X)
 	assert.Equal(t, consts.Tile(20), playerGrid.Y)
 
 	// 隊員がプレイヤーの隣接タイルに配置されている
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid := world.Components.GridElement.Get(member)
 	dx := int(memberGrid.X) - int(playerGrid.X)
 	dy := int(memberGrid.Y) - int(playerGrid.Y)
 	if dx < 0 {
@@ -108,8 +108,8 @@ func TestMovePlayerToPosition_複数隊員が重複しない位置に配置さ�
 	err = MovePlayerToPosition(world, 20, 20)
 	require.NoError(t, err)
 
-	m1Grid := world.Components.GridElement.Get(member1).(*gc.GridElement)
-	m2Grid := world.Components.GridElement.Get(member2).(*gc.GridElement)
+	m1Grid := world.Components.GridElement.Get(member1)
+	m2Grid := world.Components.GridElement.Get(member2)
 
 	// 2人の隊員が異なる位置に配置されている
 	assert.False(t, m1Grid.X == m2Grid.X && m1Grid.Y == m2Grid.Y,
@@ -123,20 +123,20 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		// 装備アイテムを2つ作成
-		item1 := world.Manager.NewEntity()
-		item1.AddComponent(world.Components.Name, &gc.Name{Name: "武器A"})
-		item1.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
+		item1 := world.ECS.NewEntity()
+		world.Components.Name.Add(item1, &gc.Name{Name: "武器A"})
+		world.Components.LocationEquipped.Add(item1, &gc.LocationEquipped{
 			Owner:         player,
 			EquipmentSlot: gc.SlotWeapon1,
 		})
 
-		item2 := world.Manager.NewEntity()
-		item2.AddComponent(world.Components.Name, &gc.Name{Name: "防具A"})
-		item2.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
+		item2 := world.ECS.NewEntity()
+		world.Components.Name.Add(item2, &gc.Name{Name: "防具A"})
+		world.Components.LocationEquipped.Add(item2, &gc.LocationEquipped{
 			Owner:         player,
 			EquipmentSlot: gc.SlotTorso,
 		})
@@ -145,20 +145,20 @@ func TestUnequipAll(t *testing.T) {
 		require.NoError(t, err)
 
 		// 装備が外れている
-		assert.False(t, item1.HasComponent(world.Components.LocationEquipped))
-		assert.False(t, item2.HasComponent(world.Components.LocationEquipped))
+		assert.False(t, world.Components.LocationEquipped.Has(item1))
+		assert.False(t, world.Components.LocationEquipped.Has(item2))
 
 		// バックパックに移動している
-		assert.True(t, item1.HasComponent(world.Components.LocationInBackpack))
-		assert.True(t, item2.HasComponent(world.Components.LocationInBackpack))
+		assert.True(t, world.Components.LocationInBackpack.Has(item1))
+		assert.True(t, world.Components.LocationInBackpack.Has(item2))
 	})
 
 	t.Run("装備なしでもエラーにならない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		err := UnequipAll(world, player)
 		require.NoError(t, err)
@@ -168,15 +168,15 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player1 := world.Manager.NewEntity()
-		player1.AddComponent(world.Components.Player, &gc.Player{})
+		player1 := world.ECS.NewEntity()
+		world.Components.Player.Add(player1, &gc.Player{})
 
-		player2 := world.Manager.NewEntity()
+		player2 := world.ECS.NewEntity()
 
 		// player2の装備
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Name, &gc.Name{Name: "他人の武器"})
-		item.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "他人の武器"})
+		world.Components.LocationEquipped.Add(item, &gc.LocationEquipped{
 			Owner:         player2,
 			EquipmentSlot: gc.SlotWeapon1,
 		})
@@ -186,6 +186,6 @@ func TestUnequipAll(t *testing.T) {
 		require.NoError(t, err)
 
 		// player2の装備は残っている
-		assert.True(t, item.HasComponent(world.Components.LocationEquipped))
+		assert.True(t, world.Components.LocationEquipped.Has(item))
 	})
 }

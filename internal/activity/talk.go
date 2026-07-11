@@ -10,7 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // TalkActivity は会話アクティビティ
@@ -54,12 +54,12 @@ func (ta *TalkActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 	targetEntity := *comp.Target
 
 	// Dialogコンポーネントを持っているか確認
-	if !targetEntity.HasComponent(world.Components.Dialog) {
+	if !world.Components.Dialog.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは会話できません")
 	}
 
 	// FactionNeutralを持っているか確認
-	if !targetEntity.HasComponent(world.Components.FactionNeutral) {
+	if !world.Components.FactionNeutral.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは中立派閥ではありません")
 	}
 
@@ -76,18 +76,18 @@ func (ta *TalkActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	dialogComp := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-	if dialogComp == nil {
+	if !world.Components.Dialog.Has(targetEntity) {
 		Cancel(comp, "会話データが取得できません")
 		return fmt.Errorf("会話データが取得できません")
 	}
+	dialogComp := world.Components.Dialog.Get(targetEntity)
 
 	// Nameコンポーネントから話者名を取得
-	if !targetEntity.HasComponent(world.Components.Name) {
+	if !world.Components.Name.Has(targetEntity) {
 		Cancel(comp, "対象エンティティにNameコンポーネントがありません")
 		return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
 	}
-	nameComp := world.Components.Name.Get(targetEntity).(*gc.Name)
+	nameComp := world.Components.Name.Get(targetEntity)
 	speakerName := nameComp.Name
 
 	log.Debug("会話実行", "messageKey", dialogComp.MessageKey, "speaker", speakerName)
@@ -108,23 +108,20 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	targetEntity := *comp.Target
 
 	// プレイヤーの場合のみメッセージを表示
-	if actor.HasComponent(world.Components.Player) {
-		if !targetEntity.HasComponent(world.Components.Name) {
+	if world.Components.Player.Has(actor) {
+		if !world.Components.Name.Has(targetEntity) {
 			return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
 		}
-		nameComp := world.Components.Name.Get(targetEntity).(*gc.Name)
+		nameComp := world.Components.Name.Get(targetEntity)
 
 		gamelog.New(query.GetGameLog(world)).
 			Append(nameComp.Name + "と話した。").
 			Log()
 
 		// 会話ダイアログを表示
-		if targetEntity.HasComponent(world.Components.Dialog) {
-			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-			if err := lifecycle.RequestStateChange(world, gc.ShowDialogEvent{
-				MessageKey:    dialog.MessageKey,
-				SpeakerEntity: targetEntity,
-			}); err != nil {
+		if world.Components.Dialog.Has(targetEntity) {
+			dialog := world.Components.Dialog.Get(targetEntity)
+			if err := lifecycle.RequestStateChange(world, gc.ShowDialogEvent(dialog.MessageKey, targetEntity)); err != nil {
 				return fmt.Errorf("会話状態変更要求エラー: %w", err)
 			}
 		}

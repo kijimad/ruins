@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // 射撃システムの定数
@@ -54,13 +54,13 @@ func (sa *ShootActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if comp.Target == nil {
 		return ErrAttackTargetNotSet
 	}
-	if actor.HasComponent(world.Components.Dead) {
+	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
-	if !comp.Target.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(*comp.Target) {
 		return ErrAttackTargetNotExists
 	}
-	if comp.Target.HasComponent(world.Components.Dead) {
+	if world.Components.Dead.Has(*comp.Target) {
 		return ErrAttackTargetDead
 	}
 
@@ -188,35 +188,31 @@ func calculateRangedHitModifier(actor, target ecs.Entity, attack gc.Attacker, wo
 
 // EntityDistance は2エンティティ間の距離を返す
 func EntityDistance(a, b ecs.Entity, world w.World) float64 {
-	aGrid := world.Components.GridElement.Get(a)
-	bGrid := world.Components.GridElement.Get(b)
-	if aGrid == nil || bGrid == nil {
+	if !world.Components.GridElement.Has(a) || !world.Components.GridElement.Has(b) {
 		return math.MaxFloat64
 	}
-	aPos := aGrid.(*gc.GridElement)
-	bPos := bGrid.(*gc.GridElement)
+	aPos := world.Components.GridElement.Get(a)
+	bPos := world.Components.GridElement.Get(b)
 	return geometry.Distance(float64(aPos.X), float64(aPos.Y), float64(bPos.X), float64(bPos.Y))
 }
 
 // checkLineOfSight は射線上の壁と遮蔽物を1パスでチェックする。
 // 壁（BlockView=true）があればblocked=true、遮蔽物（BlockPass=true, BlockView=false）の数をcoverCountで返す
 func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, coverCount int) {
-	aGrid := world.Components.GridElement.Get(actor)
-	tGrid := world.Components.GridElement.Get(target)
-	if aGrid == nil || tGrid == nil {
+	if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(target) {
 		return true, 0
 	}
-	aPos := aGrid.(*gc.GridElement)
-	tPos := tGrid.(*gc.GridElement)
+	aPos := world.Components.GridElement.Get(actor)
+	tPos := world.Components.GridElement.Get(target)
 
 	points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
 	for _, p := range points {
 		entities := query.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
 		for _, e := range entities {
-			if e.HasComponent(world.Components.BlockView) {
+			if world.Components.BlockView.Has(e) {
 				return true, coverCount
 			}
-			if e.HasComponent(world.Components.BlockPass) {
+			if world.Components.BlockPass.Has(e) {
 				coverCount++
 			}
 		}

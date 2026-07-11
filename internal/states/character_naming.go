@@ -8,7 +8,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -63,7 +62,7 @@ func (st *CharacterNamingState) OnStart(world w.World) error {
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err == nil {
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
-			initialName = nameComp.(*gc.Name).Name
+			initialName = nameComp.Name
 		}
 	}
 
@@ -183,7 +182,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
 	if err == nil {
 		// 既存プレイヤーの名前を変更した
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
-			nameComp.(*gc.Name).Name = name
+			nameComp.Name = name
 		}
 		return es.Transition[w.World]{Type: es.TransPop}
 	}

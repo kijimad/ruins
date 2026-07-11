@@ -33,44 +33,43 @@ func TestSpawnSquadMember(t *testing.T) {
 	require.NoError(t, err)
 
 	// 基本コンポーネントの確認
-	assert.True(t, member.HasComponent(world.Components.Name), "Nameを持つ")
-	assert.True(t, member.HasComponent(world.Components.Abilities), "Abilitiesを持つ")
-	assert.True(t, member.HasComponent(world.Components.HP), "HPを持つ")
-	assert.True(t, member.HasComponent(world.Components.Skills), "Skillsを持つ")
-	assert.True(t, member.HasComponent(world.Components.CharModifiers), "CharModifiersを持つ")
-	assert.True(t, member.HasComponent(world.Components.TurnBased), "TurnBasedを持つ")
-	assert.True(t, member.HasComponent(world.Components.HealthStatus), "HealthStatusを持つ")
-	assert.True(t, member.HasComponent(world.Components.GridElement), "GridElementを持つ")
-	assert.False(t, member.HasComponent(world.Components.BlockPass), "キャラクターはBlockPassを持たない")
+	assert.True(t, world.Components.Name.Has(member), "Nameを持つ")
+	assert.True(t, world.Components.Abilities.Has(member), "Abilitiesを持つ")
+	assert.True(t, world.Components.HP.Has(member), "HPを持つ")
+	assert.True(t, world.Components.Skills.Has(member), "Skillsを持つ")
+	assert.True(t, world.Components.CharModifiers.Has(member), "CharModifiersを持つ")
+	assert.True(t, world.Components.TurnBased.Has(member), "TurnBasedを持つ")
+	assert.True(t, world.Components.HealthStatus.Has(member), "HealthStatusを持つ")
+	assert.True(t, world.Components.GridElement.Has(member), "GridElementを持つ")
+	assert.False(t, world.Components.BlockPass.Has(member), "キャラクターはBlockPassを持たない")
 
 	// 隊員固有コンポーネントの確認
-	assert.True(t, member.HasComponent(world.Components.SquadMember), "SquadMemberを持つ")
+	assert.True(t, world.Components.SquadMember.Has(member), "SquadMemberを持つ")
 
 	// AIコンポーネントの確認
-	assert.True(t, member.HasComponent(world.Components.AI), "AIを持つ")
+	assert.True(t, world.Components.SquadAI.Has(member), "AIを持つ")
 
 	// ファクションの確認
-	assert.True(t, member.HasComponent(world.Components.FactionAlly), "FactionAllyを持つ")
-	assert.False(t, member.HasComponent(world.Components.FactionEnemy), "FactionEnemyは持たない")
+	assert.True(t, world.Components.FactionAlly.Has(member), "FactionAllyを持つ")
+	assert.False(t, world.Components.FactionEnemy.Has(member), "FactionEnemyは持たない")
 
 	// プレイヤーマーカーは持たない
-	assert.False(t, member.HasComponent(world.Components.Player), "Playerは持たない")
+	assert.False(t, world.Components.Player.Has(member), "Playerは持たない")
 
 	// デフォルトAIの確認
-	ai := world.Components.AI.Get(member).(*gc.AI)
-	assert.Equal(t, gc.PlannerSquad, ai.Planner.Type(), "PlannerはSquad")
-	squad := ai.Planner.(*gc.SquadAI)
+	squad := world.Components.SquadAI.Get(member)
+	assert.Equal(t, gc.PlannerSquad, squad.Type(), "PlannerはSquad")
 	assert.Equal(t, gc.SquadEscort, squad.Movement, "デフォルト移動ポリシーは護衛")
 	assert.Equal(t, gc.CombatAttack, squad.CombatCurrent, "デフォルト戦闘ポリシーは攻撃")
 	assert.Equal(t, gc.PolicyPickup, squad.ItemPickup, "デフォルトアイテムポリシーは回収")
 	assert.Equal(t, gc.PolicyDistribute, squad.ItemHandling, "デフォルトアイテム処理ポリシーは分配")
 
 	// 名前の確認
-	name := world.Components.Name.Get(member).(*gc.Name)
+	name := world.Components.Name.Get(member)
 	assert.Equal(t, "隊員A", name.Name)
 
 	// HPが全回復していることの確認
-	hp := world.Components.HP.Get(member).(*gc.HP)
+	hp := world.Components.HP.Get(member)
 	assert.Positive(t, hp.Max, "最大HPが設定されている")
 	assert.Equal(t, hp.Max, hp.Current, "HPが全回復している")
 }
@@ -85,8 +84,8 @@ func TestSpawnSquadMember_リーダーと異なる位置に配置される(t *te
 	member, err := SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
 	require.NoError(t, err)
 
-	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	leaderGrid := world.Components.GridElement.Get(leader)
+	memberGrid := world.Components.GridElement.Get(member)
 
 	// 隊員はリーダーと同じ位置に配置されない
 	assert.False(t,
@@ -99,7 +98,7 @@ func TestSpawnSquadMember_リーダーにGridElementがないとエラー(t *tes
 	world := testutil.InitTestWorld(t)
 
 	// GridElementなしのエンティティ
-	fakeLeader := world.Manager.NewEntity()
+	fakeLeader := world.ECS.NewEntity()
 
 	_, err := SpawnSquadMember(world, fakeLeader, "隊員B", testAbilities(), "player")
 	assert.Error(t, err, "GridElementなしのリーダーでスポーンするとエラー")
@@ -116,7 +115,7 @@ func TestDismissSquadMember(t *testing.T) {
 	require.NoError(t, err)
 
 	// 解雇前は存在する
-	assert.True(t, member.HasComponent(world.Components.SquadMember))
+	assert.True(t, world.Components.SquadMember.Has(member))
 
 	err = DismissSquadMember(world, member)
 	require.NoError(t, err)
@@ -126,7 +125,7 @@ func TestDismissSquadMember_隊員でないエンティティはエラー(t *tes
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	nonMember := world.Manager.NewEntity()
+	nonMember := world.ECS.NewEntity()
 	err := DismissSquadMember(world, nonMember)
 	assert.Error(t, err)
 }
@@ -142,18 +141,16 @@ func TestGetAI(t *testing.T) {
 	require.NoError(t, err)
 
 	// AIコンポーネントを取得して変更する
-	ai, err := GetAI(world, member)
+	squad, err := GetAI(world, member)
 	require.NoError(t, err)
 
-	squad := ai.Planner.(*gc.SquadAI)
 	squad.Movement = gc.SquadVanguard
 	squad.CombatDefault = gc.CombatEvade
 	squad.CombatCurrent = gc.CombatEvade
 	squad.ItemPickup = gc.PolicyIgnore
 	squad.ItemHandling = gc.PolicyDistribute
 
-	current := world.Components.AI.Get(member).(*gc.AI)
-	currentSquad := current.Planner.(*gc.SquadAI)
+	currentSquad := world.Components.SquadAI.Get(member)
 	assert.Equal(t, gc.SquadVanguard, currentSquad.Movement)
 	assert.Equal(t, gc.CombatEvade, currentSquad.CombatCurrent)
 	assert.Equal(t, gc.PolicyIgnore, currentSquad.ItemPickup)
@@ -170,13 +167,11 @@ func TestGetAI_移動だけ変更しても他のポリシーは変わらない(t
 	member, err := SpawnSquadMember(world, leader, "隊員E", testAbilities(), "player")
 	require.NoError(t, err)
 
-	ai, err := GetAI(world, member)
+	squad, err := GetAI(world, member)
 	require.NoError(t, err)
-	squad := ai.Planner.(*gc.SquadAI)
 	squad.Movement = gc.SquadPatrol
 
-	current := world.Components.AI.Get(member).(*gc.AI)
-	currentSquad := current.Planner.(*gc.SquadAI)
+	currentSquad := world.Components.SquadAI.Get(member)
 	assert.Equal(t, gc.SquadPatrol, currentSquad.Movement, "移動ポリシーが変更された")
 	assert.Equal(t, gc.CombatAttack, currentSquad.CombatCurrent, "戦闘ポリシーは変わらない")
 }
@@ -192,23 +187,23 @@ func TestSpawnDefaultSquadMember(t *testing.T) {
 	require.NoError(t, err)
 
 	// 基本コンポーネントが設定されている
-	assert.True(t, member.HasComponent(world.Components.SquadMember), "SquadMemberを持つ")
-	assert.True(t, member.HasComponent(world.Components.AI), "AIを持つ")
-	assert.True(t, member.HasComponent(world.Components.Name), "Nameを持つ")
+	assert.True(t, world.Components.SquadMember.Has(member), "SquadMemberを持つ")
+	assert.True(t, world.Components.SquadAI.Has(member), "AIを持つ")
+	assert.True(t, world.Components.Name.Has(member), "Nameを持つ")
 
 	// 名前が設定されている
-	name := world.Components.Name.Get(member).(*gc.Name)
+	name := world.Components.Name.Get(member)
 	assert.Equal(t, "Jim", name.Name)
 
 	// 隊員マーカーがある
-	assert.True(t, member.HasComponent(world.Components.SquadMember))
+	assert.True(t, world.Components.SquadMember.Has(member))
 }
 
 func TestSpawnDefaultSquadMember_リーダーにGridElementがないとエラー(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	fakeLeader := world.Manager.NewEntity()
+	fakeLeader := world.ECS.NewEntity()
 	_, err := SpawnDefaultSquadMember(world, fakeLeader)
 	assert.Error(t, err)
 }

@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する
@@ -13,20 +13,18 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+	for stackableQuery.Next() {
+		entity := stackableQuery.Entity()
 		if found {
-			return
+			continue
 		}
-		itemName := world.Components.Name.Get(entity).(*gc.Name)
+		itemName := world.Components.Name.Get(entity)
 		if itemName.Name == name {
 			foundEntity = entity
 			found = true
 		}
-	}))
+	}
 
 	return foundEntity, found
 }
@@ -36,20 +34,18 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.LocationInBackpack,
-		world.Components.Ammo,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
+	for ammoQuery.Next() {
+		entity := ammoQuery.Entity()
 		if found {
-			return
+			continue
 		}
-		ammo := world.Components.Ammo.Get(entity).(*gc.Ammo)
+		ammo := world.Components.Ammo.Get(entity)
 		if ammo.AmmoTag == ammoTag {
 			foundEntity = entity
 			found = true
 		}
-	}))
+	}
 
 	return foundEntity, found
 }
@@ -57,8 +53,8 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
 // GetEntityCount はエンティティの個数を返す。
 // Stackableであれば Stackable.Count を返し、そうでなければ1を返す。
 func GetEntityCount(world w.World, entity ecs.Entity) int {
-	if entity.HasComponent(world.Components.Stackable) {
-		return world.Components.Stackable.Get(entity).(*gc.Stackable).Count
+	if world.Components.Stackable.Has(entity) {
+		return world.Components.Stackable.Get(entity).Count
 	}
 	return 1
 }
@@ -69,8 +65,7 @@ func GetEntityCount(world w.World, entity ecs.Entity) int {
 func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 	name := "Unknown Item"
 	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
-		n := nameComp.(*gc.Name)
-		name = n.Name
+		name = nameComp.Name
 	}
 
 	count := GetEntityCount(world, itemEntity)

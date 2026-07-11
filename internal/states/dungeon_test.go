@@ -6,17 +6,19 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // TestDoActionUIActions はUI系アクションのテスト
@@ -116,9 +118,8 @@ func TestDoActionMovementActions(t *testing.T) {
 			state := &DungeonState{}
 
 			// 移動前の座標を確認
-			gridBeforeComponent := world.Components.GridElement.Get(playerEntity)
-			require.NotNil(t, gridBeforeComponent, "GridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-			gridBefore := gridBeforeComponent.(*gc.GridElement)
+			gridBefore := world.Components.GridElement.Get(playerEntity)
+			require.NotNil(t, gridBefore, "GridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
 			require.Equal(t, initialX, int(gridBefore.X), "初期X座標が不正")
 			require.Equal(t, initialY, int(gridBefore.Y), "初期Y座標が不正")
 
@@ -130,9 +131,8 @@ func TestDoActionMovementActions(t *testing.T) {
 			assert.Equal(t, es.TransNone, transition.Type, "トランジションタイプが不正")
 
 			// 移動後の座標を確認
-			gridAfterComponent := world.Components.GridElement.Get(playerEntity)
-			require.NotNil(t, gridAfterComponent, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-			gridAfter := gridAfterComponent.(*gc.GridElement)
+			gridAfter := world.Components.GridElement.Get(playerEntity)
+			require.NotNil(t, gridAfter, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
 			expectedX := initialX + tt.expectedDeltaX
 			expectedY := initialY + tt.expectedDeltaY
 
@@ -219,9 +219,8 @@ func TestDoActionTurnManagement(t *testing.T) {
 
 			// 移動アクションの場合、座標変化を検証
 			if tt.isMoveAction {
-				gridAfterComponent := world.Components.GridElement.Get(playerEntity)
-				require.NotNil(t, gridAfterComponent, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-				gridAfter := gridAfterComponent.(*gc.GridElement)
+				gridAfter := world.Components.GridElement.Get(playerEntity)
+				require.NotNil(t, gridAfter, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
 				if tt.shouldMovePlayer {
 					// プレイヤーターン中は移動が実行される
 					expectedY := initialY - 1 // ActionMoveNorth
@@ -403,4 +402,65 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			assert.IsType(t, &PersistentMessageState{}, newState, "期待するステート型と異なります")
 		})
 	}
+}
+
+// TestNewDungeonState_WithResume はセーブ復帰用のDungeonStateが正しく構築されることを検証する。
+// ロードコールバックは復元済みDungeon.Depth/DefinitionNameからこの経路で復帰する。
+func TestNewDungeonState_WithResume(t *testing.T) {
+	t.Parallel()
+
+	factory := NewDungeonState(3, WithDefinitionName("遺跡"), WithResume())
+	state, err := factory()
+	require.NoError(t, err)
+
+	ds, ok := state.(*DungeonState)
+	require.True(t, ok, "DungeonStateが生成される")
+	assert.True(t, ds.Resume, "WithResumeでResumeフラグが立つ")
+	assert.Equal(t, 3, ds.Depth, "階層が設定される")
+	assert.Equal(t, "遺跡", ds.DefinitionName, "ダンジョン定義名が設定される")
+}
+
+// TestNewDungeonState_DefaultNotResume は通常生成では復帰モードにならないことを検証する。
+func TestNewDungeonState_DefaultNotResume(t *testing.T) {
+	t.Parallel()
+
+	factory := NewDungeonState(1)
+	state, err := factory()
+	require.NoError(t, err)
+
+	ds, ok := state.(*DungeonState)
+	require.True(t, ok)
+	assert.False(t, ds.Resume, "通常生成はResumeフラグが立たない（再生成される）")
+}
+
+// TestDungeonState_OnStartResume_PreservesWorld は復帰モードの OnStart が
+// マップ再生成・プレイヤー再配置を行わず、復元済みワールドをそのまま使うことを検証する。
+// フラグの有無だけでなく、再生成スキップという中核挙動を確認する。
+func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// OnStart はタイトル演出でUIリソースを参照するため、空のTextResourcesを用意する。
+	// SplashFontFace は nil のままで良い（NewSplashTextEffect は face を保持するだけ）
+	world.Resources.UIResources.Text = &resources.TextResources{}
+
+	// 復元済みワールドを模す。プレイヤーを既知の位置に置き、地形代わりの Prop を配置する
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+	prop, err := lifecycle.SpawnProp(world, "木箱", 6, 6)
+	require.NoError(t, err)
+
+	factory := NewDungeonState(0, WithDefinitionName(dungeon.DungeonTown.Name), WithResume())
+	state, err := factory()
+	require.NoError(t, err)
+	require.NoError(t, state.OnStart(world))
+
+	// プレイヤーが再配置されず、元の位置(5,5)を保つ
+	require.True(t, world.ECS.Alive(player), "プレイヤーが生存している")
+	grid := world.Components.GridElement.Get(player)
+	assert.Equal(t, 5, int(grid.X), "復帰モードではプレイヤーが再配置されない")
+	assert.Equal(t, 5, int(grid.Y), "復帰モードではプレイヤーが再配置されない")
+
+	// 復元済みの地形（Prop）が再生成で破棄されずに残る
+	assert.True(t, world.ECS.Alive(prop), "復元済みエンティティが保持される")
 }

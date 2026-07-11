@@ -121,9 +121,9 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 
 		// アイテムがバックパックに移動していることを確認
-		assert.True(t, item.HasComponent(world.Components.LocationInBackpack))
+		assert.True(t, world.Components.LocationInBackpack.Has(item))
 		// フィールドから消えていることを確認
-		assert.False(t, item.HasComponent(world.Components.GridElement))
+		assert.False(t, world.Components.GridElement.Has(item))
 	})
 
 	t.Run("対象タイルにアイテムがない場合はキャンセルされる", func(t *testing.T) {
@@ -200,12 +200,12 @@ func TestPickupActivity_DoTurn_Target(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 
 		// 指定したアイテムだけがバックパックに移動する
-		assert.True(t, item1.HasComponent(world.Components.LocationInBackpack))
-		assert.False(t, item1.HasComponent(world.Components.GridElement))
+		assert.True(t, world.Components.LocationInBackpack.Has(item1))
+		assert.False(t, world.Components.GridElement.Has(item1))
 
 		// 指定していないアイテムはフィールドに残る
-		assert.False(t, item2.HasComponent(world.Components.LocationInBackpack))
-		assert.True(t, item2.HasComponent(world.Components.GridElement))
+		assert.False(t, world.Components.LocationInBackpack.Has(item2))
+		assert.True(t, world.Components.GridElement.Has(item2))
 	})
 }
 
@@ -239,11 +239,11 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+		prop := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
+		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
@@ -267,11 +267,11 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+		prop := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
+		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
@@ -295,11 +295,11 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		// Interactableを持つPropも同じタイルにある
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-		prop.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.MeleeInteraction{}}})
+		prop := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
+		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}})
 
 		destination := gc.GridElement{X: 5, Y: 5}
 		comp := &gc.Activity{
@@ -323,12 +323,12 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 8, 6, "Ash")
 		require.NoError(t, err)
 
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 8, Y: 6})
-		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+		prop := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.HP.Add(prop, &gc.HP{Max: 10, Current: 10})
+		world.Components.GridElement.Add(prop, &gc.GridElement{X: 8, Y: 6})
+		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 8, Y: 6}
 		comp := &gc.Activity{

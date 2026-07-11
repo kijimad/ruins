@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -60,8 +61,8 @@ func TestBuyItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 1000})
+		player := world.ECS.NewEntity()
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
 		err := BuyItem(world, player, "木刀")
 		require.NoError(t, err)
@@ -75,11 +76,34 @@ func TestBuyItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 10})
+		player := world.ECS.NewEntity()
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 10})
 
 		err := BuyItem(world, player, "木刀")
 		assert.Error(t, err)
+	})
+
+	// query.Player のコールバック内で購入するとエンティティ生成が
+	// クエリ反復中に走りワールドロック違反でパニックしていた回帰ケース
+	t.Run("query.Player経由の購入でパニックしない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
+
+		var buyErr error
+		require.NotPanics(t, func() {
+			query.Player(world, func(p ecs.Entity) {
+				buyErr = BuyItem(world, p, "木刀")
+			})
+		})
+		require.NoError(t, buyErr)
+
+		currency := query.GetCurrency(world, player)
+		assert.Equal(t, 1000-query.CalculateBuyPrice(80), currency, "購入後は通貨が減っているべき")
 	})
 }
 
@@ -87,8 +111,8 @@ func TestSellItem(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 0})
+	player := world.ECS.NewEntity()
+	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
 
 	item, _ := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 

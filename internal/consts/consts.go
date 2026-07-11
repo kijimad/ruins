@@ -1,10 +1,10 @@
 package consts
 
-import ecs "github.com/x-hgg-x/goecs/v2"
+import "github.com/mlange-42/ark/ecs"
 
 // InvalidEntity はエラー時の戻り値として使うセンチネル値。
-// ECSマネージャは0以上のIDしか発行しないので、-1は常に無効である。
-const InvalidEntity = ecs.Entity(-1)
+// Ark のゼロ値 Entity は無効なエンティティを表す。
+var InvalidEntity = ecs.Entity{}
 
 // ========== 基本型 ==========
 

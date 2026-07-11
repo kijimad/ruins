@@ -19,7 +19,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // placePhase は置くモードのフェーズを表す
@@ -69,7 +69,7 @@ func (st *PlaceState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 	st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}
 	st.phase = placePhaseSelectItem
 	st.refreshBackpackItems(world)
@@ -185,11 +185,11 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 func (st *PlaceState) refreshBackpackItems(world w.World) {
 	st.backpackItems = nil
 
-	world.Manager.Join(
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for backpackQuery.Next() {
+		entity := backpackQuery.Entity()
 		st.backpackItems = append(st.backpackItems, entity)
-	}))
+	}
 
 	if st.selectedIndex >= len(st.backpackItems) {
 		st.selectedIndex = 0

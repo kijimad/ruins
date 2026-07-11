@@ -15,7 +15,7 @@ func TestCalculateSpeed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
+		entity := world.ECS.NewEntity()
 
 		speed := CalculateSpeed(world, entity)
 		// 基本値100、能力値なし
@@ -26,8 +26,8 @@ func TestCalculateSpeed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Abilities, &gc.Abilities{
+		entity := world.ECS.NewEntity()
+		world.Components.Abilities.Add(entity, &gc.Abilities{
 			Agility:   gc.Ability{Total: 10},
 			Dexterity: gc.Ability{Total: 5},
 		})
@@ -41,8 +41,8 @@ func TestCalculateSpeed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Current: 20, Max: 100}) // 飢餓状態
+		entity := world.ECS.NewEntity()
+		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100}) // 飢餓状態
 
 		speed := CalculateSpeed(world, entity)
 		// 基本100 - 飢餓ペナルティ50 = 50
@@ -53,8 +53,8 @@ func TestCalculateSpeed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 150}) // 50%超過
+		entity := world.ECS.NewEntity()
+		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 100, Current: 150}) // 50%超過
 
 		speed := CalculateSpeed(world, entity)
 		// 基本100 - 超過ペナルティ(50*25/100=12) = 88
@@ -77,12 +77,12 @@ func TestCalculateSpeed(t *testing.T) {
 		skills := gc.NewSkills()
 		hs := &gc.HealthStatus{}
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Player, &gc.Player{})
-		entity.AddComponent(world.Components.Abilities, abils)
-		entity.AddComponent(world.Components.Skills, skills)
-		entity.AddComponent(world.Components.HealthStatus, hs)
-		entity.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, hs))
+		entity := world.ECS.NewEntity()
+		world.Components.Player.Add(entity, &gc.Player{})
+		world.Components.Abilities.Add(entity, abils)
+		world.Components.Skills.Add(entity, skills)
+		world.Components.HealthStatus.Add(entity, hs)
+		world.Components.CharModifiers.Add(entity, gc.RecalculateCharModifiers(skills, abils, hs))
 
 		// 通常時のSpeedを記録
 		normalSpeed := CalculateSpeed(world, entity)
@@ -93,10 +93,10 @@ func TestCalculateSpeed(t *testing.T) {
 			Severity: gc.SeverityMedium,
 		})
 		mods := gc.RecalculateCharModifiers(skills, abils, hs)
-		entity.AddComponent(world.Components.CharModifiers, mods)
+		world.Components.CharModifiers.Set(entity, mods)
 
 		coldSpeed := CalculateSpeed(world, entity)
-		t.Logf("normalSpeed=%d coldSpeed=%d hasMods=%v moveCost=%d", normalSpeed, coldSpeed, entity.HasComponent(world.Components.CharModifiers), mods.MoveCost)
+		t.Logf("normalSpeed=%d coldSpeed=%d hasMods=%v moveCost=%d", normalSpeed, coldSpeed, world.Components.CharModifiers.Has(entity), mods.MoveCost)
 		assert.Less(t, coldSpeed, normalSpeed, "低体温によりSpeedが低下するべき")
 	})
 
@@ -104,9 +104,9 @@ func TestCalculateSpeed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Current: 5, Max: 100})                   // 餓死寸前(-75)
-		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 400}) // 大幅超過（最大-75）
+		entity := world.ECS.NewEntity()
+		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 5, Max: 100})                   // 餓死寸前(-75)
+		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 100, Current: 400}) // 大幅超過（最大-75）
 
 		speed := CalculateSpeed(world, entity)
 		// ペナルティが大きくても最小値25を下回らない
@@ -145,8 +145,8 @@ func TestOverweightPenalty(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 80})
+		entity := world.ECS.NewEntity()
+		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 100, Current: 80})
 
 		penalty := calculateOverweightPenalty(world, entity)
 		assert.Equal(t, 0, penalty)
@@ -156,8 +156,8 @@ func TestOverweightPenalty(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 150})
+		entity := world.ECS.NewEntity()
+		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 100, Current: 150})
 
 		penalty := calculateOverweightPenalty(world, entity)
 		// 50 * 25 / 100 = 12.5 -> -12
@@ -168,8 +168,8 @@ func TestOverweightPenalty(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 500}) // 400%超過
+		entity := world.ECS.NewEntity()
+		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 100, Current: 500}) // 400%超過
 
 		penalty := calculateOverweightPenalty(world, entity)
 		// 最大-75

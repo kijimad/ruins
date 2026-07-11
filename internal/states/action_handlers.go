@@ -6,14 +6,14 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // InteractionAction はインタラクション可能なアクション情報
 type InteractionAction struct {
 	Label       string             // 表示ラベル（例："開く(上)"）
 	Target      ecs.Entity         // ターゲットエンティティ
-	Interaction gc.InteractionData // 実行するインタラクション
+	Interaction gc.InteractionKind // 実行するインタラクション
 }
 
 // GetInteractionActions はプレイヤー周辺の実行可能なアクションを取得する
@@ -23,26 +23,26 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		return nil
 	}
 
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil
 	}
 
-	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	gridElement := world.Components.GridElement.Get(playerEntity)
 
 	var interactionActions []InteractionAction
 
 	// インタラクティブな相互作用を全て取得してアクションを生成
 	interactableEntities := activity.GetAllInteractiveInteractablesInRange(world, gridElement)
 	for _, interactableEntity := range interactableEntities {
-		if !interactableEntity.HasComponent(world.Components.GridElement) {
+		if !world.Components.GridElement.Has(interactableEntity) {
 			continue
 		}
-		if !interactableEntity.HasComponent(world.Components.Interactable) {
+		if !world.Components.Interactable.Has(interactableEntity) {
 			continue
 		}
 
-		interactableGrid := world.Components.GridElement.Get(interactableEntity).(*gc.GridElement)
-		interactable := world.Components.Interactable.Get(interactableEntity).(*gc.Interactable)
+		interactableGrid := world.Components.GridElement.Get(interactableEntity)
+		interactable := world.Components.Interactable.Get(interactableEntity)
 		dirLabel := activity.GetDirectionLabel(gridElement, interactableGrid)
 		actionsForEntity := getInteractionActions(world, interactable, interactableEntity, dirLabel)
 		interactionActions = append(interactionActions, actionsForEntity...)
@@ -57,24 +57,25 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	if err != nil {
 		return nil
 	}
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	var actions []InteractionAction
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		if ge.X != playerGrid.X || ge.Y != playerGrid.Y {
-			return
+	sameTileQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).Query()
+	for sameTileQuery.Next() {
+		entity := sameTileQuery.Entity()
+		if world.Components.Dead.Has(entity) {
+			continue
 		}
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		ge := world.Components.GridElement.Get(entity)
+		if ge.X != playerGrid.X || ge.Y != playerGrid.Y {
+			continue
+		}
+		interactable := world.Components.Interactable.Get(entity)
 		// Manual+SameTileのインタラクションのみフィルタする
-		var filtered []gc.InteractionData
+		var filtered []gc.InteractionKind
 		for _, interaction := range interactable.Interactions {
 			config := interaction.Config()
 			if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
@@ -86,19 +87,19 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 			entityActions := getInteractionActions(world, filteredInteractable, entity, "直上")
 			actions = append(actions, entityActions...)
 		}
-	}))
+	}
 
 	// アイテム拾得アクションが2個以上ある場合、「すべて拾う」を先頭に追加する
 	itemCount := 0
 	for _, action := range actions {
-		if _, ok := action.Interaction.(gc.ItemInteraction); ok {
+		if action.Interaction == gc.InteractionItem {
 			itemCount++
 		}
 	}
 	if itemCount >= 2 {
 		pickupAll := InteractionAction{
 			Label:       "すべて拾う",
-			Interaction: gc.ItemAllInteraction{},
+			Interaction: gc.InteractionItemAll,
 		}
 		actions = append([]InteractionAction{pickupAll}, actions...)
 	}
@@ -111,10 +112,10 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 	var result []InteractionAction
 
 	for _, interaction := range interactable.Interactions {
-		switch data := interaction.(type) {
-		case gc.DoorInteraction:
-			if interactableEntity.HasComponent(world.Components.Door) {
-				door := world.Components.Door.Get(interactableEntity).(*gc.Door)
+		switch interaction {
+		case gc.InteractionDoor:
+			if world.Components.Door.Has(interactableEntity) {
+				door := world.Components.Door.Get(interactableEntity)
 				var label string
 				if door.IsOpen {
 					label = "閉じる(" + dirLabel + ")"
@@ -124,62 +125,63 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				result = append(result, InteractionAction{
 					Label:       label,
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
-		case gc.TalkInteraction:
-			if interactableEntity.HasComponent(world.Components.Name) {
-				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+		case gc.InteractionTalk:
+			if world.Components.Name.Has(interactableEntity) {
+				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "話しかける(" + name.Name + ")",
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
-		case gc.ItemInteraction:
+		case gc.InteractionItem:
 			formattedName := query.FormatItemName(world, interactableEntity)
 			result = append(result, InteractionAction{
 				Label:       "拾う(" + formattedName + ")",
 				Target:      interactableEntity,
-				Interaction: data,
+				Interaction: interaction,
 			})
-		case gc.PortalInteraction:
-			var label string
-			switch data.PortalType {
-			case gc.PortalTypeNext:
-				label = "転移する(次階)"
-			case gc.PortalTypeTown:
-				label = "転移する(帰還)"
-			}
+		case gc.InteractionPortalNext:
 			result = append(result, InteractionAction{
-				Label:       label,
+				Label:       "転移する(次階)",
 				Target:      interactableEntity,
-				Interaction: data,
+				Interaction: interaction,
 			})
-		case gc.DungeonGateInteraction:
+		case gc.InteractionPortalTown:
+			result = append(result, InteractionAction{
+				Label:       "転移する(帰還)",
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
+		case gc.InteractionDungeonGate:
 			result = append(result, InteractionAction{
 				Label:       "ダンジョンを選ぶ",
 				Target:      interactableEntity,
-				Interaction: data,
+				Interaction: interaction,
 			})
-		case gc.StorageInteraction:
-			if interactableEntity.HasComponent(world.Components.Name) {
-				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+		case gc.InteractionStorage:
+			if world.Components.Name.Has(interactableEntity) {
+				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "調べる(" + name.Name + ")",
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
-		case gc.MeleeInteraction:
-			if interactableEntity.HasComponent(world.Components.Name) {
-				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+		case gc.InteractionMelee:
+			if world.Components.Name.Has(interactableEntity) {
+				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "攻撃する(" + name.Name + ")",
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
+		default:
+			// アクションメニューに出さない種類は無視する
 		}
 	}
 

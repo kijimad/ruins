@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // log はactivityパッケージ用のロガー
@@ -180,18 +180,17 @@ func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 
 // progressHunger はターン経過による空腹進行を処理する
 func progressHunger(actor ecs.Entity, world w.World) {
-	if !actor.HasComponent(world.Components.Player) {
+	if !world.Components.Player.Has(actor) {
 		return
 	}
-	hungerComp := world.Components.Hunger.Get(actor)
-	if hungerComp == nil {
+	if !world.Components.Hunger.Has(actor) {
 		return
 	}
-	hunger := hungerComp.(*gc.Hunger)
+	hunger := world.Components.Hunger.Get(actor)
 
 	hungerPct := 100
-	if modsComp := world.Components.CharModifiers.Get(actor); modsComp != nil {
-		hungerPct = modsComp.(*gc.CharModifiers).HungerProgress
+	if world.Components.CharModifiers.Has(actor) {
+		hungerPct = world.Components.CharModifiers.Get(actor).HungerProgress
 	}
 	if world.Config.RNG.IntN(100) < hungerPct {
 		hunger.Decrease(1)
@@ -200,32 +199,30 @@ func progressHunger(actor ecs.Entity, world w.World) {
 
 // isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする
 func isAreaSafe(actor ecs.Entity, world w.World) bool {
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		return false
 	}
-
-	actorGrid := gridElement.(*gc.GridElement)
-	actorX, actorY := int(actorGrid.X), int(actorGrid.Y)
+	gridElement := world.Components.GridElement.Get(actor)
+	actorX, actorY := int(gridElement.X), int(gridElement.Y)
 
 	safeRadius := 1
 	hasHostile := false
 
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	areaQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for areaQuery.Next() {
+		entity := areaQuery.Entity()
 		if hasHostile {
-			return
+			continue
 		}
 		if query.FactionRelation(world, actor, entity) != query.RelationHostile {
-			return
+			continue
 		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(entity)
 		dx, dy := int(grid.X)-actorX, int(grid.Y)-actorY
 		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
 			hasHostile = true
 		}
-	}))
+	}
 
 	return !hasHostile
 }

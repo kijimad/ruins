@@ -7,7 +7,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // AutoInteractionSystem はプレイヤーが自動実行の相互作用に接触した際に自動実行する
@@ -29,20 +29,19 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 	}
 
 	// プレイヤーの位置を取得
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(playerEntity) {
 		return nil
 	}
-	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	// プレイヤーの範囲内にある相互作用を検索
 	var interactablesToProcess []ecs.Entity
-	world.Manager.Join(
-		world.Components.Interactable,
-		world.Components.GridElement,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-		interactableGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	interactableQuery := ecs.NewFilter2[gc.Interactable, gc.GridElement](world.ECS).
+		Without(ecs.C[gc.Dead]()).Query()
+	for interactableQuery.Next() {
+		entity := interactableQuery.Entity()
+		interactable := world.Components.Interactable.Get(entity)
+		interactableGrid := world.Components.GridElement.Get(entity)
 
 		// いずれかのインタラクションが範囲内にあれば候補に追加する
 		for _, interaction := range interactable.Interactions {
@@ -53,14 +52,14 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 					"interactablePos", interactableGrid,
 					"range", interaction.Config().ActivationRange)
 				interactablesToProcess = append(interactablesToProcess, entity)
-				return
+				break
 			}
 		}
-	}))
+	}
 
 	// 検索した自動実行相互作用を処理する
 	for _, interactableEntity := range interactablesToProcess {
-		interactable := world.Components.Interactable.Get(interactableEntity).(*gc.Interactable)
+		interactable := world.Components.Interactable.Get(interactableEntity)
 
 		for _, interaction := range interactable.Interactions {
 			config := interaction.Config()

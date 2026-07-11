@@ -23,7 +23,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 var (
@@ -38,6 +38,9 @@ type DungeonState struct {
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
 	DefinitionName string
+	// Resume はセーブからの復帰モード。trueならマップ再生成とプレイヤー再配置を行わず、
+	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
+	Resume bool
 }
 
 func (st DungeonState) String() string {
@@ -75,61 +78,64 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if !found {
 		return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
 	}
-	// ステージ用シードを生成する
-	stageSeed := world.Config.RNG.Uint64()
-	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
+	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
+	if !st.Resume {
+		// ステージ用シードを生成する
+		stageSeed := world.Config.RNG.Uint64()
+		stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
-	// ビルダータイプを決定
-	var builderType mapplanner.PlannerType
-	// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
-	switch {
-	case def.BossPlannerType != nil && st.Depth == def.TotalFloors:
-		builderType = *def.BossPlannerType
-	case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
-		var err error
-		builderType, err = dungeon.SelectPlanner(def, stageRNG)
+		// ビルダータイプを決定
+		var builderType mapplanner.PlannerType
+		// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
+		switch {
+		case def.BossPlannerType != nil && st.Depth == def.TotalFloors:
+			builderType = *def.BossPlannerType
+		case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
+			var err error
+			builderType, err = dungeon.SelectPlanner(def, stageRNG)
+			if err != nil {
+				return err
+			}
+		default:
+			builderType = st.BuilderType
+		}
+
+		// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+		builderType.EnemyTableName = def.EnemyTableName
+		builderType.ItemTableName = def.ItemTableName
+		builderType.Depth = st.Depth
+
+		// 計画作成する
+		plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 		if err != nil {
 			return err
 		}
-	default:
-		builderType = st.BuilderType
+		// スポーンする
+		level, err := mapspawner.Spawn(world, plan)
+		if err != nil {
+			return err
+		}
+		query.GetDungeon(world).Level = level
+
+		// プレイヤーを配置する
+		playerPos, err := plan.GetPlayerStartPosition()
+		if err != nil {
+			return err
+		}
+		if err := lifecycle.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
+			return err
+		}
+
+		// フロア移動時に探索済みマップをリセット
+		query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
 	}
 
-	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
-	builderType.EnemyTableName = def.EnemyTableName
-	builderType.ItemTableName = def.ItemTableName
-	builderType.Depth = st.Depth
-
-	// 計画作成する
-	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
-	if err != nil {
-		return err
-	}
-	// スポーンする
-	level, err := mapspawner.Spawn(world, plan)
-	if err != nil {
-		return err
-	}
-	query.GetDungeon(world).Level = level
-
-	// 前フロアのSpatialIndexが残っている可能性があるため無効化する
+	// 前フロア・復元前のSpatialIndexが残っている可能性があるため無効化して作り直す。
 	// SpatialIndexはTurnPhaseEndでのみ無効化されるが、フロア遷移はTurnPhasePlayer中に
-	// 発生するため、古いフロアのデータが残り移動不能になることがある
+	// 発生するため、古いデータが残り移動不能になることがある
 	query.InvalidateSpatialIndex(world)
 
-	// プレイヤーを配置する
-	playerPos, err := plan.GetPlayerStartPosition()
-	if err != nil {
-		return err
-	}
-	if err := lifecycle.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
-		return err
-	}
-
-	// フロア移動時に探索済みマップをリセット
-	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
-
-	// 新しい階のために視界キャッシュをクリアする
+	// 視界キャッシュをクリアする
 	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
 		vs.(*gs.VisionSystem).ClearCaches()
 	}
@@ -142,8 +148,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
-	titleEntity := world.Manager.NewEntity()
-	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+	titleEntity := world.ECS.NewEntity()
+	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
@@ -161,22 +167,22 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *DungeonState) OnStop(world w.World) error {
-	world.Manager.Join(
-		world.Components.SpriteRender,
-		world.Components.Player.Not(),
-		world.Components.SquadMember.Not(),
-		world.Components.LocationInBackpack.Not(),
-		world.Components.LocationEquipped.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		world.Manager.DeleteEntity(entity)
-	}))
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Player.Not(),
-		world.Components.SquadMember.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		world.Manager.DeleteEntity(entity)
-	}))
+	var toRemove []ecs.Entity
+	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).
+		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember](), ecs.C[gc.LocationInBackpack](), ecs.C[gc.LocationEquipped]()).Query()
+	for spriteRenderQuery.Next() {
+		toRemove = append(toRemove, spriteRenderQuery.Entity())
+	}
+	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).
+		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()
+	for gridElementQuery.Next() {
+		toRemove = append(toRemove, gridElementQuery.Entity())
+	}
+	for _, entity := range toRemove {
+		if world.ECS.Alive(entity) {
+			world.ECS.RemoveEntity(entity)
+		}
+	}
 
 	// 未消費のステート遷移リクエストを破棄
 	lifecycle.ConsumeStateChange(world)
@@ -480,12 +486,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.Dead,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
+	for playerDeadQuery.Next() {
 		playerDead = true
-	}))
+	}
 	return playerDead
 }
 
@@ -496,17 +500,17 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 
-	switch e := req.(type) {
-	case gc.ShowDialogEvent:
+	switch p := req.Payload.(type) {
+	case gc.ShowDialog:
 		// SpeakerEntityからNameを取得
-		if !e.SpeakerEntity.HasComponent(world.Components.Name) {
+		if !world.Components.Name.Has(p.SpeakerEntity) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
 		}
-		nameComp := world.Components.Name.Get(e.SpeakerEntity).(*gc.Name)
+		nameComp := world.Components.Name.Get(p.SpeakerEntity)
 		speakerName := nameComp.Name
 
 		// NPCの種類に応じて専用ステートを返す
-		switch e.MessageKey {
+		switch p.MessageKey {
 		case "merchant_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName) },
@@ -521,33 +525,34 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
-			dialogMessage := messagedata.GetDialogue(e.MessageKey, speakerName)
+			dialogMessage := messagedata.GetDialogue(p.MessageKey, speakerName)
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
 			}}, nil
 		}
-	case gc.WarpNextEvent:
+	case gc.WarpNext:
 		// 次のフロアへ遷移する
 		nextDepth := query.GetDungeon(world).Depth + 1
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
-	case gc.WarpEscapeEvent:
+	case gc.WarpEscape:
 		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewAutoSellState()),
 		}}, nil
-	case gc.OpenDungeonSelectEvent:
+	case gc.OpenDungeonSelect:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
-	case gc.OpenStorageEvent:
+	case gc.OpenStorage:
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return NewStorageMenuState(e.StorageEntity) },
+			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
 		}}, nil
+	default:
+		// GameClear 等、ここで扱わない種別
+		return es.Transition[w.World]{}, fmt.Errorf("未処理のStateChangeRequest: %T", req.Payload)
 	}
-
-	return es.Transition[w.World]{}, fmt.Errorf("未知のStateChangeRequest: %T", req)
 }
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
@@ -563,7 +568,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 		if weapon != nil {
 			// 武器が装備されている場合は武器名を表示
 			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-				weaponName := nameComp.(*gc.Name).Name
+				weaponName := nameComp.Name
 				gamelog.New(query.GetGameLog(world)).
 					ItemName(weaponName).
 					Append("を構えた").

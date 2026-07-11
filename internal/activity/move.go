@@ -9,7 +9,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // CanMoveTo は指定位置に移動可能かチェックする。
@@ -48,8 +48,8 @@ func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entit
 // CanSwapPosition はmoverがtargetと位置交換できるかを判定する。
 // プレイヤーだけが隊員と位置交換できる
 func CanSwapPosition(world w.World, mover, target ecs.Entity) bool {
-	if mover.HasComponent(world.Components.Player) {
-		return target.HasComponent(world.Components.SquadMember)
+	if world.Components.Player.Has(mover) {
+		return world.Components.SquadMember.Has(target)
 	}
 	// 隊員は他のキャラクターをブロックとして扱う。
 	// 隊員同士の位置交換を許可すると、互いに交換し続けて前進できなくなる
@@ -99,22 +99,20 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveTargetCoordInvalid
 	}
 
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		return ErrMoveNoGridElement
 	}
-
-	actorGrid := gridElement.(*gc.GridElement)
-	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(actorGrid.X), Y: int(actorGrid.Y)}, actor) {
+	gridElement := world.Components.GridElement.Get(actor)
+	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(gridElement.X), Y: int(gridElement.Y)}, actor) {
 		return ErrMoveTargetInvalid
 	}
 
 	// 所持重量が最大の1.5倍を超えていたら動けない
-	if actor.HasComponent(world.Components.WeightCapacity) {
-		cw := world.Components.WeightCapacity.Get(actor).(*gc.WeightCapacity)
+	if world.Components.WeightCapacity.Has(actor) {
+		cw := world.Components.WeightCapacity.Get(actor)
 		overweightLimit := cw.Max * 1.5
 		if cw.Current > overweightLimit {
-			if actor.HasComponent(world.Components.Player) {
+			if world.Components.Player.Has(actor) {
 				gamelog.New(query.GetGameLog(world)).
 					Warning("重すぎて動けない").
 					Log()
@@ -140,14 +138,14 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// GridElementの存在確認
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		Cancel(comp, "移動できません（位置情報なし）")
 		return ErrMoveTargetInvalid
 	}
+	gridElement := world.Components.GridElement.Get(actor)
 
 	// 移動可能かチェック
-	grid := gridElement.(*gc.GridElement)
+	grid := gridElement
 	to := consts.Coord[int]{X: int(comp.Destination.X), Y: int(comp.Destination.Y)}
 	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 	if !CanMoveTo(world, to, from, actor) {
@@ -173,7 +171,7 @@ func (ma *MoveActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
-	if comp.Destination != nil && actor.HasComponent(world.Components.Player) {
+	if comp.Destination != nil && world.Components.Player.Has(actor) {
 		showTileInteractionMessage(world, comp.Destination)
 	}
 
@@ -187,12 +185,12 @@ func (ma *MoveActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
+	if !world.Components.GridElement.Has(actor) {
 		return ErrGridElementNotFound
 	}
+	gridElement := world.Components.GridElement.Get(actor)
 
-	grid := gridElement.(*gc.GridElement)
+	grid := gridElement
 	oldX, oldY := int(grid.X), int(grid.Y)
 	destX, destY := int(comp.Destination.X), int(comp.Destination.Y)
 
@@ -225,11 +223,10 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 	if !CanSwapPosition(world, actor, target) {
 		return
 	}
-	targetGridComp := world.Components.GridElement.Get(target)
-	if targetGridComp == nil {
+	if !world.Components.GridElement.Has(target) {
 		return
 	}
-	targetGrid := targetGridComp.(*gc.GridElement)
+	targetGrid := world.Components.GridElement.Get(target)
 	targetGrid.X = consts.Tile(fromX)
 	targetGrid.Y = consts.Tile(fromY)
 

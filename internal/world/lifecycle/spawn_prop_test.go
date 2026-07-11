@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,8 +26,8 @@ func TestLockAllDoors(t *testing.T) {
 		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 2, locked)
-		assert.True(t, world.Components.Door.Get(door1).(*gc.Door).Locked)
-		assert.True(t, world.Components.Door.Get(door2).(*gc.Door).Locked)
+		assert.True(t, world.Components.Door.Get(door1).Locked)
+		assert.True(t, world.Components.Door.Get(door2).Locked)
 	})
 
 	t.Run("開いた扉を閉じてからロックする", func(t *testing.T) {
@@ -37,14 +38,20 @@ func TestLockAllDoors(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.OpenDoor(world, door))
 
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.Get(door)
 		assert.True(t, doorComp.IsOpen)
 
 		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 1, locked)
+		// LockAllDoors内のCloseDoorがarchetypeを変えるため取り直して検証する
+		doorComp = world.Components.Door.Get(door)
 		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
 		assert.True(t, doorComp.Locked, "扉がロックされるべき")
+		// ロックした閉扉は視線を遮る（BlockView）べき。ボス部屋の扉が視線を通す不具合の回帰
+		assert.True(t, world.Components.BlockView.Has(door), "ロックした閉扉はBlockViewを持つべき")
+		// BlockView変化を視界システムへ通知するため視界更新フラグが立つべき
+		assert.True(t, query.GetDungeon(world).NeedsForceUpdate, "視界の再計算が要求されるべき")
 	})
 
 	t.Run("既にロック済みの扉はスキップする", func(t *testing.T) {
@@ -53,7 +60,7 @@ func TestLockAllDoors(t *testing.T) {
 
 		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
-		world.Components.Door.Get(door).(*gc.Door).Locked = true
+		world.Components.Door.Get(door).Locked = true
 
 		locked := lifecycle.LockAllDoors(world)
 
@@ -83,14 +90,14 @@ func TestUnlockAllDoors(t *testing.T) {
 		require.NoError(t, err)
 
 		// ロックする
-		world.Components.Door.Get(door1).(*gc.Door).Locked = true
-		world.Components.Door.Get(door2).(*gc.Door).Locked = true
+		world.Components.Door.Get(door1).Locked = true
+		world.Components.Door.Get(door2).Locked = true
 
 		opened := lifecycle.UnlockAllDoors(world)
 
 		assert.Equal(t, 2, opened)
-		doorComp1 := world.Components.Door.Get(door1).(*gc.Door)
-		doorComp2 := world.Components.Door.Get(door2).(*gc.Door)
+		doorComp1 := world.Components.Door.Get(door1)
+		doorComp2 := world.Components.Door.Get(door2)
 		assert.False(t, doorComp1.Locked)
 		assert.True(t, doorComp1.IsOpen)
 		assert.False(t, doorComp2.Locked)
@@ -104,12 +111,12 @@ func TestUnlockAllDoors(t *testing.T) {
 		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.OpenDoor(world, door))
-		world.Components.Door.Get(door).(*gc.Door).Locked = true
+		world.Components.Door.Get(door).Locked = true
 
 		opened := lifecycle.UnlockAllDoors(world)
 
 		assert.Equal(t, 0, opened)
-		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		doorComp := world.Components.Door.Get(door)
 		assert.False(t, doorComp.Locked, "アンロックされるべき")
 		assert.True(t, doorComp.IsOpen, "開いたままであるべき")
 	})

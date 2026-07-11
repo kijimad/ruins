@@ -19,9 +19,9 @@ func TestGetTileTemperatureAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		tile := world.Manager.NewEntity()
-		tile.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-		tile.AddComponent(world.Components.TileTemperature, &gc.TileTemperature{
+		tile := world.ECS.NewEntity()
+		world.Components.GridElement.Add(tile, &gc.GridElement{X: 5, Y: 5})
+		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{
 			Shelter: gc.ShelterFull,
 		})
 
@@ -208,7 +208,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		require.NoError(t, err)
 
 		// 寒い環境なので低体温のタイマーが増加しているはず
-		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.Get(player)
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		require.NotNil(t, cond)
 		assert.Greater(t, cond.Timer, 0.0)
@@ -279,24 +279,24 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 		require.NoError(t, err)
 
 		// 胴体装備（耐寒10, 耐熱5）
-		armor := world.Manager.NewEntity()
-		armor.AddComponent(world.Components.Wearable, &gc.Wearable{
+		armor := world.ECS.NewEntity()
+		world.Components.Wearable.Add(armor, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentTorso,
 			InsulationCold:    10,
 			InsulationHeat:    5,
 		})
-		armor.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
+		world.Components.LocationEquipped.Add(armor, &gc.LocationEquipped{
 			Owner: player,
 		})
 
 		// 頭装備（耐寒3, 耐熱2）
-		helmet := world.Manager.NewEntity()
-		helmet.AddComponent(world.Components.Wearable, &gc.Wearable{
+		helmet := world.ECS.NewEntity()
+		world.Components.Wearable.Add(helmet, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentHead,
 			InsulationCold:    3,
 			InsulationHeat:    2,
 		})
-		helmet.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
+		world.Components.LocationEquipped.Add(helmet, &gc.LocationEquipped{
 			Owner: player,
 		})
 

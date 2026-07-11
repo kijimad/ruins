@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ExtractHUDData はworldから全てのHUDデータを抽出する
@@ -34,18 +34,16 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int
 	var playerWeight, playerMaxWeight float64
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.HP,
-		world.Components.WeightCapacity,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		hp := world.Components.HP.Get(entity).(*gc.HP)
-		cw := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)
+	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
+		hp := world.Components.HP.Get(entity)
+		cw := world.Components.WeightCapacity.Get(entity)
 		playerHP = hp.Current
 		playerMaxHP = hp.Max
 		playerWeight = cw.Current
 		playerMaxWeight = cw.Max
-	}))
+	}
 
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
@@ -72,12 +70,11 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 func extractMinimapData(world w.World) hud.MinimapData {
 	// プレイヤー位置を取得
 	var playerGridElement *gc.GridElement
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Player,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
-	}))
+	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.ECS).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
+		playerGridElement = world.Components.GridElement.Get(entity)
+	}
 
 	if playerGridElement == nil {
 		return hud.MinimapData{} // プレイヤーが見つからない場合は空データ
@@ -100,8 +97,8 @@ func extractMinimapData(world w.World) hud.MinimapData {
 	_, err := query.GetPlayerEntity(world)
 	if err == nil {
 		for _, member := range query.SquadMembers(world) {
-			if member.HasComponent(world.Components.GridElement) {
-				grid := world.Components.GridElement.Get(member).(*gc.GridElement)
+			if world.Components.GridElement.Has(member) {
+				grid := world.Components.GridElement.Get(member)
 				squadPositions = append(squadPositions, hud.MinimapMarker{
 					TileX: int(grid.X),
 					TileY: int(grid.Y),
@@ -137,19 +134,18 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	// カメラ情報を取得
 	var cameraPos gc.Position
 	var cameraScale float64
-	world.Manager.Join(
-		world.Components.Camera,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(camEntity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(camEntity).(*gc.GridElement)
+	cameraQuery := ecs.NewFilter2[gc.Camera, gc.GridElement](world.ECS).Query()
+	for cameraQuery.Next() {
+		camEntity := cameraQuery.Entity()
+		gridElement := world.Components.GridElement.Get(camEntity)
 		// GridElementからピクセル座標に変換
 		cameraPos = gc.Position{
 			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
 			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 		}
-		camera := world.Components.Camera.Get(camEntity).(*gc.Camera)
+		camera := world.Components.Camera.Get(camEntity)
 		cameraScale = camera.Scale
-	}))
+	}
 
 	screenDimensions := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,
@@ -159,16 +155,11 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	// AI状態情報と視界範囲情報を抽出
 	var aiStates []hud.AIStateInfo
 	var visionRanges []hud.VisionRangeInfo
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.AI,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		ai := world.Components.AI.Get(entity).(*gc.AI)
-		solo, ok := ai.Planner.(*gc.SoloAI)
-		if !ok {
-			return
-		}
+	soloAIQuery := ecs.NewFilter2[gc.GridElement, gc.SoloAI](world.ECS).Query()
+	for soloAIQuery.Next() {
+		entity := soloAIQuery.Entity()
+		gridElement := world.Components.GridElement.Get(entity)
+		solo := world.Components.SoloAI.Get(entity)
 
 		// グリッド座標をピクセル座標に変換
 		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
@@ -201,26 +192,25 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			ScreenY:      screenY,
 			ScaledRadius: scaledRadius,
 		})
-	}))
+	}
 
 	// HP表示情報を抽出（プレイヤー以外のHPを持つエンティティ）
 	var hpDisplays []hud.HPDisplayInfo
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.HP,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	hpDisplayQuery := ecs.NewFilter2[gc.GridElement, gc.HP](world.ECS).Query()
+	for hpDisplayQuery.Next() {
+		entity := hpDisplayQuery.Entity()
 		// プレイヤーは除外
-		if entity.HasComponent(world.Components.Player) {
-			return
+		if world.Components.Player.Has(entity) {
+			continue
 		}
 
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		hp := world.Components.HP.Get(entity).(*gc.HP)
+		gridElement := world.Components.GridElement.Get(entity)
+		hp := world.Components.HP.Get(entity)
 
 		// エンティティ名を取得（デバッグ用）
 		var entityName string
 		if nameComp := world.Components.Name.Get(entity); nameComp != nil {
-			entityName = nameComp.(*gc.Name).Name
+			entityName = nameComp.Name
 		} else {
 			entityName = "Unknown"
 		}
@@ -240,7 +230,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			MaxHP:      hp.Max,
 			EntityName: entityName,
 		})
-	}))
+	}
 
 	return hud.DebugOverlayData{
 		Enabled:          true,
@@ -296,14 +286,13 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 	// 全エンティティをスキャンしてタイル情報をマップに格納
 	tileTypeMap := make(map[gc.GridElement]bool) // true=壁, false=床
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.SpriteRender,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	tileQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
+	for tileQuery.Next() {
+		entity := tileQuery.Entity()
+		grid := world.Components.GridElement.Get(entity)
 		gridElement := gc.GridElement{X: grid.X, Y: grid.Y}
-		tileTypeMap[gridElement] = entity.HasComponent(world.Components.BlockView)
-	}))
+		tileTypeMap[gridElement] = world.Components.BlockView.Has(entity)
+	}
 
 	// 探索済みタイルの色情報を一括生成
 	tileColors := make(map[gc.GridElement]TileColorInfo)
@@ -355,16 +344,15 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 			if weapon != nil {
 				// 武器名を取得
 				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-					weaponName = nameComp.(*gc.Name).Name
+					weaponName = nameComp.Name
 				} else {
 					weaponName = "???"
 				}
 
 				// スプライト情報を取得
 				if spriteRender := world.Components.SpriteRender.Get(*weapon); spriteRender != nil {
-					sprite := spriteRender.(*gc.SpriteRender)
-					spriteSheet = sprite.SpriteSheetName
-					spriteName = sprite.SpriteKey
+					spriteSheet = spriteRender.SpriteSheetName
+					spriteName = spriteRender.SpriteKey
 				}
 			}
 
@@ -392,12 +380,10 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 	var badges []hud.StatusBadge
 
 	// プレイヤーの空腹度を取得
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.Hunger,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
-			hunger := hungerComponent.(*gc.Hunger)
+	hungerQuery := ecs.NewFilter2[gc.Player, gc.Hunger](world.ECS).Query()
+	for hungerQuery.Next() {
+		entity := hungerQuery.Entity()
+		if hunger := world.Components.Hunger.Get(entity); hunger != nil {
 			level := hunger.GetLevel()
 			if level != gc.HungerNormal {
 				badges = append(badges, hud.StatusBadge{
@@ -406,7 +392,7 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 				})
 			}
 		}
-	}))
+	}
 
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
@@ -439,7 +425,7 @@ func extractSquadHUDData(world w.World) hud.SquadHUDData {
 	var members []hud.SquadHUDMember
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member).(*gc.HP)
+		hp := world.Components.HP.Get(member)
 		members = append(members, hud.SquadHUDMember{
 			Name:      name,
 			CurrentHP: hp.Current,

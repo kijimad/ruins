@@ -15,7 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // 攻撃システムの定数
@@ -61,15 +61,20 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return ErrAttackTargetNotSet
 	}
 
-	if actor.HasComponent(world.Components.Dead) {
+	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
 
-	if !comp.Target.HasComponent(world.Components.GridElement) {
+	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
+	if !world.ECS.Alive(*comp.Target) {
 		return ErrAttackTargetNotExists
 	}
 
-	if comp.Target.HasComponent(world.Components.Dead) {
+	if !world.Components.GridElement.Has(*comp.Target) {
+		return ErrAttackTargetNotExists
+	}
+
+	if world.Components.Dead.Has(*comp.Target) {
 		return ErrAttackTargetDead
 	}
 
@@ -152,20 +157,17 @@ func (aa *AttackActivity) canAttack(comp *gc.Activity, actor ecs.Entity, world w
 }
 
 func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) bool {
+	if !world.Components.GridElement.Has(attacker) {
+		return false
+	}
 	attackerGrid := world.Components.GridElement.Get(attacker)
-	if attackerGrid == nil {
+
+	if !world.Components.GridElement.Has(target) {
 		return false
 	}
-
 	targetGrid := world.Components.GridElement.Get(target)
-	if targetGrid == nil {
-		return false
-	}
 
-	attackerPos := attackerGrid.(*gc.GridElement)
-	targetPos := targetGrid.(*gc.GridElement)
-
-	distance := geometry.Distance(float64(attackerPos.X), float64(attackerPos.Y), float64(targetPos.X), float64(targetPos.Y))
+	distance := geometry.Distance(float64(attackerGrid.X), float64(attackerGrid.Y), float64(targetGrid.X), float64(targetGrid.Y))
 
 	// TODO: 遠距離武器の場合は射程を武器から取得
 	return distance <= MeleeAttackRange
@@ -193,7 +195,7 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
-	if attacker.HasComponent(world.Components.Player) {
+	if world.Components.Player.Has(attacker) {
 		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
 		selectedSlot := query.GetDungeon(world).SelectedWeaponSlot
 		weaponIndex := selectedSlot - 1 // 1-based to 0-based
@@ -216,7 +218,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 	}
 
 	// 敵の場合: CommandTableから攻撃パラメータを取得
-	if attacker.HasComponent(world.Components.CommandTable) {
+	if world.Components.CommandTable.Has(attacker) {
 		attack, weaponName, err := query.GetAttackFromCommandTable(world, attacker)
 		if err == nil && attack != nil {
 			return attack, weaponName, nil
@@ -236,10 +238,10 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	if attack == nil {
 		return 100
 	}
-	if !entity.HasComponent(world.Components.CharModifiers) {
+	if !world.Components.CharModifiers.Has(entity) {
 		return 100
 	}
-	effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+	effects := world.Components.CharModifiers.Get(entity)
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
 		return 100
@@ -258,10 +260,10 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 
 // applyElementResist は事前計算済みの元素耐性倍率でダメージを軽減する
 func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, world w.World) int {
-	if !target.HasComponent(world.Components.CharModifiers) {
+	if !world.Components.CharModifiers.Has(target) {
 		return damage
 	}
-	effects := world.Components.CharModifiers.Get(target).(*gc.CharModifiers)
+	effects := world.Components.CharModifiers.Get(target)
 	mult, ok := effects.ElementResist[element]
 	if !ok {
 		return damage
@@ -301,16 +303,16 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
 func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int {
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	if attackerAbilsComp == nil {
+	if !world.Components.Abilities.Has(attacker) {
 		return formula.BaseHitRate
 	}
-	attackerAbils := attackerAbilsComp.(*gc.Abilities)
+	attackerAbils := world.Components.Abilities.Get(attacker)
 
 	// Abilitiesを持たないターゲットには自動命中する
 	targetAgility := 0
-	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
-		targetAgility = targetAbilsComp.(*gc.Abilities).Agility.Total
+	if world.Components.Abilities.Has(target) {
+		targetAbilsComp := world.Components.Abilities.Get(target)
+		targetAgility = targetAbilsComp.Agility.Total
 	}
 
 	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
@@ -346,11 +348,10 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 
 // calculateDamage はダメージ計算を行う
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	if attackerAbilsComp == nil {
+	if !world.Components.Abilities.Has(attacker) {
 		return 0
 	}
-	attackerAbils := attackerAbilsComp.(*gc.Abilities)
+	attackerAbils := world.Components.Abilities.Get(attacker)
 
 	baseAbil := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
@@ -358,8 +359,9 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	}
 
 	targetDefense := 0
-	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
-		targetDefense = targetAbilsComp.(*gc.Abilities).Defense.Total
+	if world.Components.Abilities.Has(target) {
+		targetAbilsComp := world.Components.Abilities.Get(target)
+		targetDefense = targetAbilsComp.Defense.Total
 	}
 
 	baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1
@@ -383,11 +385,10 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
 func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
-	skillsComp := world.Components.Skills.Get(actor)
-	if skillsComp == nil {
+	if !world.Components.Skills.Has(actor) {
 		return
 	}
-	skills := skillsComp.(*gc.Skills)
+	skills := world.Components.Skills.Get(actor)
 
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
@@ -395,15 +396,14 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 	s := skills.Get(skillID)
 
-	abilsComp := world.Components.Abilities.Get(actor)
-	if abilsComp == nil {
+	if !world.Components.Abilities.Has(actor) {
 		return
 	}
-	abils := abilsComp.(*gc.Abilities)
+	abils := world.Components.Abilities.Get(actor)
 	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
-		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
+		world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
 
 		actorName := query.GetEntityName(actor, world)
 		gamelog.New(query.GetGameLog(world)).
@@ -414,8 +414,8 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 
 // logAttackResult は攻撃結果をログに出力する
 func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {
-	attackerRelevant := attacker.HasComponent(world.Components.FactionAlly)
-	targetRelevant := target.HasComponent(world.Components.FactionAlly)
+	attackerRelevant := world.Components.FactionAlly.Has(attacker)
+	targetRelevant := world.Components.FactionAlly.Has(target)
 	if !attackerRelevant && !targetRelevant {
 		return
 	}

@@ -8,7 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -18,7 +17,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ShootingState は射撃ターゲット選択モードのステート
@@ -157,11 +156,10 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
 		return "射撃武器が装備されていません"
 	}
-	fireComp := world.Components.Fire.Get(*weapons[weaponIndex])
-	if fireComp == nil {
+	fire := world.Components.Fire.Get(*weapons[weaponIndex])
+	if fire == nil {
 		return "射撃武器が装備されていません"
 	}
-	fire := fireComp.(*gc.Fire)
 	if fire.Magazine <= 0 {
 		return "装填されていません"
 	}
@@ -231,10 +229,10 @@ var shootingCursorCache *ebiten.Image
 // drawTargetCursor は選択中の敵にカーソルを描画する
 func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	target := st.enemies[st.targetIndex]
-	if !target.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(target) {
 		return
 	}
-	targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+	targetGrid := world.Components.GridElement.Get(target)
 
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(targetGrid.X) * tileSize)
@@ -356,8 +354,7 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
 	// 残弾表示
 	fireComp := world.Components.Fire.Get(*weaponEntity)
 	if fireComp != nil {
-		fire := fireComp.(*gc.Fire)
-		drawText(fmt.Sprintf("残弾: %d/%d", fire.Magazine, fire.MagazineSize))
+		drawText(fmt.Sprintf("残弾: %d/%d", fireComp.Magazine, fireComp.MagazineSize))
 	} else {
 		drawText("近接武器")
 	}
@@ -370,8 +367,8 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
 		st.targetIndex+1, len(st.enemies)))
 
 	// HP
-	if target.HasComponent(world.Components.HP) {
-		hp := world.Components.HP.Get(target).(*gc.HP)
+	if world.Components.HP.Has(target) {
+		hp := world.Components.HP.Get(target)
 		drawText(fmt.Sprintf("HP: %d/%d", hp.Current, hp.Max))
 	}
 

@@ -7,7 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Processor はAIエンティティの行動処理を管理する。
@@ -38,23 +38,31 @@ func (p *Processor) ProcessAll(world w.World) error {
 	return p.processByPlanner(world, gc.PlannerSquad)
 }
 
-// processByPlanner は指定されたPlannerTypeを持つAIエンティティを処理する
+// processByPlanner は指定されたPlannerTypeを持つAIエンティティを処理する。
+// SoloAI/SquadAI は別コンポーネントのため、種別に対応するコンポーネントで絞り込む
 func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) error {
 	planner := p.planners[plannerType]
 
-	world.Manager.Join(
-		world.Components.AI,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ai := world.Components.AI.Get(entity).(*gc.AI)
-		if ai.Planner.Type() != plannerType {
-			return
+	var targets []ecs.Entity
+	switch plannerType {
+	case gc.PlannerSquad:
+		squadQuery := ecs.NewFilter2[gc.SquadAI, gc.GridElement](world.ECS).Query()
+		for squadQuery.Next() {
+			targets = append(targets, squadQuery.Entity())
 		}
-		if entity.HasComponent(world.Components.Dead) {
-			return
+	case gc.PlannerSolo:
+		soloQuery := ecs.NewFilter2[gc.SoloAI, gc.GridElement](world.ECS).Query()
+		for soloQuery.Next() {
+			targets = append(targets, soloQuery.Entity())
+		}
+	}
+
+	for _, entity := range targets {
+		if world.Components.Dead.Has(entity) {
+			continue
 		}
 		runAPLoop(world, entity, planner, p.logger)
-	}))
+	}
 
 	return nil
 }

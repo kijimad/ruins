@@ -236,14 +236,14 @@ func TestBuildBlockViewIndex(t *testing.T) {
 
 		// BlockView付きの壁タイルを生成する
 		wallGrid := gc.GridElement{X: 3, Y: 4}
-		world.Manager.NewEntity().
-			AddComponent(world.Components.GridElement, &wallGrid).
-			AddComponent(world.Components.BlockView, &gc.BlockView{})
+		wallEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(wallEntity, &wallGrid)
+		world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 
 		// BlockViewなしの床タイルを生成する
 		floorGrid := gc.GridElement{X: 5, Y: 6}
-		world.Manager.NewEntity().
-			AddComponent(world.Components.GridElement, &floorGrid)
+		floorEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(floorEntity, &floorGrid)
 
 		index := buildBlockViewIndex(world)
 

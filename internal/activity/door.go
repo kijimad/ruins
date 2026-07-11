@@ -10,7 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // OpenDoorActivity はBehaviorの実装
@@ -53,8 +53,13 @@ func (oda *OpenDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 
 	targetEntity := *comp.Target
 
+	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
+	if !world.ECS.Alive(targetEntity) {
+		return fmt.Errorf("対象エンティティは扉ではありません")
+	}
+
 	// Doorコンポーネントを持っているか確認
-	if !targetEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
 	}
 
@@ -71,12 +76,12 @@ func (oda *OpenDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	raw := world.Components.Door.Get(targetEntity)
-	if raw == nil {
+	if !world.Components.Door.Has(targetEntity) {
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
-	doorComp := raw.(*gc.Door)
+	raw := world.Components.Door.Get(targetEntity)
+	doorComp := raw
 
 	if doorComp.Locked {
 		gamelog.New(query.GetGameLog(world)).
@@ -108,7 +113,7 @@ func (oda *OpenDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 	log.Debug("扉開閉アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
-	if actor.HasComponent(world.Components.Player) {
+	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append("扉を開いた。").
 			Log()
@@ -163,8 +168,13 @@ func (cda *CloseDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 
 	targetEntity := *comp.Target
 
+	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
+	if !world.ECS.Alive(targetEntity) {
+		return fmt.Errorf("対象エンティティは扉ではありません")
+	}
+
 	// Doorコンポーネントを持っているか確認
-	if !targetEntity.HasComponent(world.Components.Door) {
+	if !world.Components.Door.Has(targetEntity) {
 		return fmt.Errorf("対象エンティティは扉ではありません")
 	}
 
@@ -181,12 +191,12 @@ func (cda *CloseDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
-	raw := world.Components.Door.Get(targetEntity)
-	if raw == nil {
+	if !world.Components.Door.Has(targetEntity) {
 		Cancel(comp, "扉コンポーネントが取得できません")
 		return fmt.Errorf("扉コンポーネントが取得できません")
 	}
-	doorComp := raw.(*gc.Door)
+	raw := world.Components.Door.Get(targetEntity)
+	doorComp := raw
 
 	if doorComp.Locked {
 		Cancel(comp, "扉はロックされている")
@@ -215,7 +225,7 @@ func (cda *CloseDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 	log.Debug("扉閉鎖アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
-	if actor.HasComponent(world.Components.Player) {
+	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append("扉を閉じた。").
 			Log()

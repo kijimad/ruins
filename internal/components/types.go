@@ -124,37 +124,12 @@ func ParseEquipmentSlot(s string) (EquipmentSlotNumber, bool) {
 	return 0, false
 }
 
-// Amounter は量を計算するためのインターフェース
-type Amounter interface {
-	Amount() // 量計算を識別するマーカーメソッド
-}
+// HealAmountKind は回復量の指定方法を表す判別子
+type HealAmountKind int
 
-var _ Amounter = RatioAmount{}
-
-// RatioAmount は倍率指定
-type RatioAmount struct {
-	Ratio float64 // 倍率
-}
-
-// Amount はAmounterインターフェースの実装
-func (ra RatioAmount) Amount() {}
-
-// Calc は倍率と基準値から実際の量を計算する
-func (ra RatioAmount) Calc(base int) int {
-	return int(float64(base) * ra.Ratio)
-}
-
-var _ Amounter = NumeralAmount{}
-
-// NumeralAmount は絶対量指定
-type NumeralAmount struct {
-	Numeral int // 絶対量
-}
-
-// Amount はAmounterインターフェースの実装
-func (na NumeralAmount) Amount() {}
-
-// Calc は固定の数値量を返す
-func (na NumeralAmount) Calc() int {
-	return na.Numeral
-}
+const (
+	// HealNumeral は絶対量指定
+	HealNumeral HealAmountKind = iota
+	// HealRatio は最大値に対する倍率指定
+	HealRatio
+)

@@ -3,28 +3,25 @@ package components
 import (
 	"testing"
 
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestStateChangeRequest_Implementations(t *testing.T) {
+func TestStateChangeRequest_Constructors(t *testing.T) {
 	t.Parallel()
 
-	// 全てのイベント型がStateChangeRequestインターフェースを実装していることを確認
-	var _ StateChangeRequest = WarpNextEvent{}
-	var _ StateChangeRequest = WarpEscapeEvent{}
-	var _ StateChangeRequest = GameClearEvent{}
-	var _ StateChangeRequest = ShowDialogEvent{}
-	var _ StateChangeRequest = OpenDungeonSelectEvent{}
-	var _ StateChangeRequest = OpenStorageEvent{}
+	// 各コンストラクタが正しい種別のペイロードを生成することを確認
+	assert.IsType(t, WarpNext{}, WarpNextEvent().Payload)
+	assert.IsType(t, WarpEscape{}, WarpEscapeEvent().Payload)
+	assert.IsType(t, GameClear{}, GameClearEvent().Payload)
+	assert.IsType(t, OpenDungeonSelect{}, OpenDungeonSelectEvent().Payload)
 
-	// 型アサーションが機能することを確認
-	events := []StateChangeRequest{
-		WarpNextEvent{},
-		WarpEscapeEvent{},
-		GameClearEvent{},
-		ShowDialogEvent{MessageKey: "test"},
-		OpenDungeonSelectEvent{},
-		OpenStorageEvent{},
-	}
-	assert.Len(t, events, 6)
+	// ペイロード付きのイベントもフィールドが設定されることを確認
+	dialog := ShowDialogEvent("test", ecs.Entity{})
+	require.IsType(t, ShowDialog{}, dialog.Payload)
+	assert.Equal(t, "test", dialog.Payload.(ShowDialog).MessageKey)
+
+	storage := OpenStorageEvent(ecs.Entity{})
+	assert.IsType(t, OpenStorage{}, storage.Payload)
 }

@@ -6,7 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ChangeItemCount は対象エンティティの個数を変更する。
@@ -25,15 +25,20 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 	}
 
 	if newCount == 0 {
-		world.Manager.DeleteEntity(entity)
-	} else if entity.HasComponent(world.Components.Stackable) {
-		world.Components.Stackable.Get(entity).(*gc.Stackable).Count = newCount
+		world.ECS.RemoveEntity(entity)
+	} else if world.Components.Stackable.Has(entity) {
+		world.Components.Stackable.Get(entity).Count = newCount
 	}
 
-	// インベントリ変動フラグを立てる
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) {
-		playerEntity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
-	}))
+	// インベントリ変動フラグを立てる。
+	var players []ecs.Entity
+	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
+	for playerQuery.Next() {
+		players = append(players, playerQuery.Entity())
+	}
+	for _, playerEntity := range players {
+		ensureMarker(world, world.Components.WeightDirty, playerEntity, &gc.WeightDirty{})
+	}
 
 	return nil
 }

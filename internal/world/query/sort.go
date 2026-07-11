@@ -3,9 +3,8 @@ package query
 import (
 	"sort"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // SortEntities はエンティティリストをソートする汎用関数
@@ -23,13 +22,12 @@ func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity {
 
 	withNames := make([]entityWithName, 0, len(entities))
 	for _, entity := range entities {
-		if entity.HasComponent(world.Components.Name) {
+		if world.Components.Name.Has(entity) {
 			nameComp := world.Components.Name.Get(entity)
 			if nameComp != nil {
-				name := nameComp.(*gc.Name)
 				withNames = append(withNames, entityWithName{
 					entity: entity,
-					name:   name.Name,
+					name:   nameComp.Name,
 				})
 			}
 		}

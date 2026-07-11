@@ -7,17 +7,19 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ApplyProfession はプレイヤーエンティティに職業の属性値・スキル・装備を適用する。
 // 職業選択時とラン終了時の再適用で使う。
 func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) error {
-	// 職業IDを保持する
-	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.Id})
+	// 職業IDを保持する。再適用時は既存を更新する
+	if err := gc.Upsert(world.ECS, world.Components.Profession, player, &gc.Profession{ID: prof.Id}); err != nil {
+		return err
+	}
 
 	// 職業の属性値で上書き
-	abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+	abils := world.Components.Abilities.Get(player)
 	abils.Strength = gc.Ability{Base: int(prof.Abilities.Strength)}
 	abils.Sensation = gc.Ability{Base: int(prof.Abilities.Sensation)}
 	abils.Dexterity = gc.Ability{Base: int(prof.Abilities.Dexterity)}
@@ -26,7 +28,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	abils.Defense = gc.Ability{Base: int(prof.Abilities.Defense)}
 
 	// 職業のスキル初期値を設定
-	playerSkills := world.Components.Skills.Get(player).(*gc.Skills)
+	playerSkills := world.Components.Skills.Get(player)
 	*playerSkills = *gc.NewSkills()
 	if prof.Skills != nil {
 		for _, ps := range *prof.Skills {
@@ -34,7 +36,9 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 		}
 	}
 	modifiers := gc.RecalculateCharModifiers(playerSkills, abils, nil)
-	player.AddComponent(world.Components.CharModifiers, modifiers)
+	if err := gc.Upsert(world.ECS, world.Components.CharModifiers, player, modifiers); err != nil {
+		return err
+	}
 
 	// 属性値変更後にHP/APを再計算
 	_ = lifecycle.FullRecover(world, player)

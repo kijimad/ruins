@@ -5,7 +5,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // CameraSystem はカメラの追従とズーム処理を行う
@@ -23,29 +23,28 @@ func (sys *CameraSystem) Update(world w.World) error {
 	var playerGridElement *gc.GridElement
 
 	// プレイヤー位置を取得
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
-	}))
+	playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.ECS).Query()
+	for playerQuery.Next() {
+		entity := playerQuery.Entity()
+		playerGridElement = world.Components.GridElement.Get(entity)
+	}
 
 	// カメラのズーム処理と追従処理
-	world.Manager.Join(
-		world.Components.Camera,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera := world.Components.Camera.Get(entity).(*gc.Camera)
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
+	for cameraQuery.Next() {
+		entity := cameraQuery.Entity()
+		camera := world.Components.Camera.Get(entity)
 
 		// プレイヤー位置をピクセル座標に変換してカメラの目標位置に設定
 		if playerGridElement != nil {
 			tileSize := float64(consts.TileSize)
-			camera.TargetX = float64(playerGridElement.X)*tileSize + tileSize/2
-			camera.TargetY = float64(playerGridElement.Y)*tileSize + tileSize/2
+			camera.Target.X = float64(playerGridElement.X)*tileSize + tileSize/2
+			camera.Target.Y = float64(playerGridElement.Y)*tileSize + tileSize/2
 		}
 
 		// カメラ位置を目標位置に即座にスナップする
-		camera.X = camera.TargetX
-		camera.Y = camera.TargetY
+		camera.Pos.X = camera.Target.X
+		camera.Pos.Y = camera.Target.Y
 
 		// ズーム率変更
 		// 参考: https://ebitengine.org/ja/examples/isometric.html
@@ -74,6 +73,6 @@ func (sys *CameraSystem) Update(world w.World) error {
 
 		// ズームも滑らかに追従
 		camera.Scale = camera.ScaleTo
-	}))
+	}
 	return nil
 }

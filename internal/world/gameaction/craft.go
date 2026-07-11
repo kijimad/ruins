@@ -10,7 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Craft はアイテムをクラフトする
@@ -25,8 +25,8 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 
 	craftCostPct, smithQualityPct := 100, 100
 	player, playerErr := query.GetPlayerEntity(world)
-	if playerErr == nil && player.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(player).(*gc.CharModifiers)
+	if playerErr == nil && world.Components.CharModifiers.Has(player) {
+		mods := world.Components.CharModifiers.Get(player)
 		craftCostPct = mods.CraftCost
 		smithQualityPct = mods.SmithQuality
 	}
@@ -34,6 +34,14 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	resultEntity, err := lifecycle.SpawnBackpackItem(world, name, 1)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("アイテム生成に失敗: %w", err)
+	}
+	// Stackableアイテムの合成では、SpawnBackpackItem内の統合処理で
+	// resultEntityが既存スタックへ統合されて削除されることがある。
+	// その場合は統合先の生存エンティティを結果として扱う
+	if !world.ECS.Alive(resultEntity) {
+		if survivor, found := query.FindStackableInInventory(world, name); found {
+			resultEntity = survivor
+		}
 	}
 	randomize(world, resultEntity, smithQualityPct)
 	if err := consumeMaterials(world, name, craftCostPct); err != nil {
@@ -96,20 +104,27 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 // randomize はアイテムにランダム値を設定する。
 // smithQualityPctは品質倍率%で、100が基準。高いほどボーナスが大きくなる。
 func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
+	// Stackableなアイテムを合成した場合、SpawnBackpackItem内の統合処理で
+	// このエンティティが既存スタックに統合されて削除されていることがある。
+	// 統合済みStackableに武器/防具の乱数化は不要なので、死亡していれば何もしない
+	if !world.ECS.Alive(entity) {
+		return
+	}
+
 	qualityBonus := (smithQualityPct - 100) / 10
 
-	if entity.HasComponent(world.Components.Melee) {
-		melee := world.Components.Melee.Get(entity).(*gc.Melee)
+	if world.Components.Melee.Has(entity) {
+		melee := world.Components.Melee.Get(entity)
 		melee.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
 		melee.Damage += (-5 + rand.IntN(15)) + qualityBonus
 	}
-	if entity.HasComponent(world.Components.Fire) {
-		fire := world.Components.Fire.Get(entity).(*gc.Fire)
+	if world.Components.Fire.Has(entity) {
+		fire := world.Components.Fire.Get(entity)
 		fire.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
 		fire.Damage += (-5 + rand.IntN(15)) + qualityBonus
 	}
-	if entity.HasComponent(world.Components.Wearable) {
-		wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
+	if world.Components.Wearable.Has(entity) {
+		wearable := world.Components.Wearable.Get(entity)
 		wearable.Defense += (-4 + rand.IntN(20)) + qualityBonus
 	}
 }

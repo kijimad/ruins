@@ -14,7 +14,7 @@ func TestGetSkillMult_NoCharModifiers(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.Manager.NewEntity()
+	entity := world.ECS.NewEntity()
 	// CharModifiersコンポーネントなし → 100を返す
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 	assert.Equal(t, 100, getSkillMult(entity, melee, world, true))
@@ -25,7 +25,7 @@ func TestGetSkillMult_NilAttack(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.Manager.NewEntity()
+	entity := world.ECS.NewEntity()
 	assert.Equal(t, 100, getSkillMult(entity, nil, world, true))
 }
 
@@ -33,12 +33,12 @@ func TestGetSkillMult_WithCharModifiers(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.Manager.NewEntity()
+	entity := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Value = 3
 	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	entity.AddComponent(world.Components.CharModifiers, mods)
+	world.Components.CharModifiers.Add(entity, mods)
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 	// 刀剣Lv3: ダメージ倍率 = 100 + 3*5 = 115
@@ -51,11 +51,11 @@ func TestGetSkillMult_UnmappedWeapon(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	entity := world.Manager.NewEntity()
+	entity := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	entity.AddComponent(world.Components.CharModifiers, mods)
+	world.Components.CharModifiers.Add(entity, mods)
 
 	// 未登録の武器種 → 100
 	melee := &gc.Melee{AttackCategory: gc.AttackType{Type: "unknown"}}
@@ -66,7 +66,7 @@ func TestApplyElementResist_NoCharModifiers(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	target := world.Manager.NewEntity()
+	target := world.ECS.NewEntity()
 
 	// CharModifiersなし → ダメージそのまま
 	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeFire, world))
@@ -76,12 +76,12 @@ func TestApplyElementResist_WithResist(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	target := world.Manager.NewEntity()
+	target := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFireResist).Value = 5
 	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	target.AddComponent(world.Components.CharModifiers, mods)
+	world.Components.CharModifiers.Add(target, mods)
 
 	// 耐火Lv5: 耐性 = 100 + 5*(-3) = 85
 	// 50 * 85 / 100 = 42
@@ -92,12 +92,12 @@ func TestApplyElementResist_MinimumDamage(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	target := world.Manager.NewEntity()
+	target := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFireResist).Value = 40 // 高い耐性値
 	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	target.AddComponent(world.Components.CharModifiers, mods)
+	world.Components.CharModifiers.Add(target, mods)
 
 	// 耐火Lv40: 耐性 = 100 + 40*(-3) = -20
 	// ダメージ = 5 * -20 / 100 = -1 → 最低保証1
@@ -108,7 +108,7 @@ func TestGrowWeaponSkill_NoSkillsComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 	// Skillsコンポーネントなし → panicしない
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
@@ -119,7 +119,7 @@ func TestGrowWeaponSkill_NilAttack(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	growWeaponSkill(actor, world, nil)
 }
@@ -128,16 +128,16 @@ func TestGrowWeaponSkill_GainsExp(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
 		Strength: gc.Ability{Total: 0},
 	}
-	actor.AddComponent(world.Components.Abilities, abils)
-	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+	world.Components.Abilities.Add(actor, abils)
+	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
@@ -152,18 +152,18 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	// スキルアップ直前まで経験値を溜める
 	skills.Get(gc.SkillSword).Exp.Current = 95
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
 		Strength: gc.Ability{Total: 5},
 	}
-	actor.AddComponent(world.Components.Abilities, abils)
-	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+	world.Components.Abilities.Add(actor, abils)
+	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
@@ -172,17 +172,17 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
 	// StatsChangedフラグが立っている
-	assert.True(t, actor.HasComponent(world.Components.StatsChanged), "再計算フラグが立っている")
+	assert.True(t, world.Components.StatsChanged.Has(actor), "再計算フラグが立っている")
 }
 
 func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 	// Abilitiesコンポーネントなし → スキップされpanicしない
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
@@ -196,16 +196,16 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
 		Sensation: gc.Ability{Total: 10},
 	}
-	actor.AddComponent(world.Components.Abilities, abils)
-	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+	world.Components.Abilities.Add(actor, abils)
+	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	fire := &gc.Fire{AttackCategory: gc.AttackRifle}
 
@@ -222,16 +222,16 @@ func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
 		Strength: gc.Ability{Total: 5},
 	}
-	actor.AddComponent(world.Components.Abilities, abils)
-	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+	world.Components.Abilities.Add(actor, abils)
+	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSpear}
 
@@ -246,18 +246,18 @@ func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Value = 100 // 最大レベル
 	skills.Get(gc.SkillSword).Exp.Current = 99
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
 		Strength: gc.Ability{Total: 10},
 	}
-	actor.AddComponent(world.Components.Abilities, abils)
-	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+	world.Components.Abilities.Add(actor, abils)
+	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
@@ -271,24 +271,24 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Exp.Current = 95
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
 		Strength: gc.Ability{Total: 5},
 	}
-	actor.AddComponent(world.Components.Abilities, abils)
+	world.Components.Abilities.Add(actor, abils)
 
 	hs := &gc.HealthStatus{}
 	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 		Type:     gc.ConditionHypothermia,
 		Severity: gc.SeverityMinor,
 	})
-	actor.AddComponent(world.Components.HealthStatus, hs)
-	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, hs))
+	world.Components.HealthStatus.Add(actor, hs)
+	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, hs))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
@@ -297,7 +297,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
 	// 再計算されたCharModifiersにHealthStatusのペナルティが反映されている
-	mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+	mods := world.Components.CharModifiers.Get(actor)
 	require.NotNil(t, mods)
 	// MoveCost = 100 + 走破Lv0*(-2) + AGI0*(-1) + 軽度低体温10 = 110
 	assert.Equal(t, 110, mods.MoveCost, "HealthStatusのペナルティがCharModifiers再計算に反映されている")
@@ -310,9 +310,9 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
-		target.AddComponent(world.Components.Abilities, &gc.Abilities{
+		target := world.ECS.NewEntity()
+		world.Components.HP.Add(target, &gc.HP{Current: 100, Max: 100})
+		world.Components.Abilities.Add(target, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
 		})
 
@@ -321,11 +321,11 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		comp, err := NewActivity(ra, 10)
 		require.NoError(t, err)
 		comp.State = gc.ActivityStateRunning
-		target.AddComponent(world.Components.Activity, comp)
+		world.Components.Activity.Add(target, comp)
 
 		// 攻撃者をセットアップ（命中率を最大にするため高い器用度）
-		attacker := world.Manager.NewEntity()
-		attacker.AddComponent(world.Components.Abilities, &gc.Abilities{
+		attacker := world.ECS.NewEntity()
+		world.Components.Abilities.Add(attacker, &gc.Abilities{
 			Strength:  gc.Ability{Total: 50},
 			Dexterity: gc.Ability{Total: 99},
 		})
@@ -341,8 +341,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		currentComp := world.Components.Activity.Get(target)
 		if currentComp != nil {
 			// ミスした場合はアクティビティが残る。状態がRunningなら中断処理は正しく動作している
-			activity := currentComp.(*gc.Activity)
-			assert.Equal(t, gc.ActivityStateRunning, activity.State,
+			assert.Equal(t, gc.ActivityStateRunning, currentComp.State,
 				"ミス時はアクティビティがRunningのまま残る")
 		}
 		// 命中時はRemoveActivityで削除されているのでcurrentCompはnil
@@ -352,9 +351,9 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.HP, &gc.HP{Current: 10000, Max: 10000})
-		target.AddComponent(world.Components.Abilities, &gc.Abilities{
+		target := world.ECS.NewEntity()
+		world.Components.HP.Add(target, &gc.HP{Current: 10000, Max: 10000})
+		world.Components.Abilities.Add(target, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
 		})
 
@@ -363,10 +362,10 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		comp, err := NewActivity(aa, 1)
 		require.NoError(t, err)
 		comp.State = gc.ActivityStateRunning
-		target.AddComponent(world.Components.Activity, comp)
+		world.Components.Activity.Add(target, comp)
 
-		attacker := world.Manager.NewEntity()
-		attacker.AddComponent(world.Components.Abilities, &gc.Abilities{
+		attacker := world.ECS.NewEntity()
+		world.Components.Abilities.Add(attacker, &gc.Abilities{
 			Strength:  gc.Ability{Total: 50},
 			Dexterity: gc.Ability{Total: 99},
 		})
@@ -379,9 +378,9 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
 		// 中断不可なので生存中はアクティビティが残る
-		assert.True(t, target.HasComponent(world.Components.Activity),
+		assert.True(t, world.Components.Activity.Has(target),
 			"中断不可のアクティビティは被ダメージでも残る")
-		activityComp := world.Components.Activity.Get(target).(*gc.Activity)
+		activityComp := world.Components.Activity.Get(target)
 		assert.Equal(t, gc.ActivityStateRunning, activityComp.State)
 	})
 
@@ -389,9 +388,9 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.HP, &gc.HP{Current: 1, Max: 100})
-		target.AddComponent(world.Components.Abilities, &gc.Abilities{
+		target := world.ECS.NewEntity()
+		world.Components.HP.Add(target, &gc.HP{Current: 1, Max: 100})
+		world.Components.Abilities.Add(target, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
 		})
 
@@ -400,10 +399,10 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		comp, err := NewActivity(aa, 1)
 		require.NoError(t, err)
 		comp.State = gc.ActivityStateRunning
-		target.AddComponent(world.Components.Activity, comp)
+		world.Components.Activity.Add(target, comp)
 
-		attacker := world.Manager.NewEntity()
-		attacker.AddComponent(world.Components.Abilities, &gc.Abilities{
+		attacker := world.ECS.NewEntity()
+		world.Components.Abilities.Add(attacker, &gc.Abilities{
 			Strength:  gc.Ability{Total: 50},
 			Dexterity: gc.Ability{Total: 99},
 		})
@@ -417,8 +416,8 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 
 		// 死亡時のアクティビティキャンセルはDeadCleanupSystemが担当する
 		// applyAttackDamage時点ではアクティビティはまだ残っている
-		if target.HasComponent(world.Components.Dead) {
-			assert.True(t, target.HasComponent(world.Components.Activity),
+		if world.Components.Dead.Has(target) {
+			assert.True(t, world.Components.Activity.Has(target),
 				"applyAttackDamage時点ではアクティビティは削除されない")
 		}
 	})
@@ -428,15 +427,15 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	actor := world.Manager.NewEntity()
+	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	actor.AddComponent(world.Components.Skills, skills)
+	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
 		Strength: gc.Ability{Total: 5},
 	}
-	actor.AddComponent(world.Components.Abilities, abils)
+	world.Components.Abilities.Add(actor, abils)
 
 	melee := &gc.Melee{AttackCategory: gc.AttackType{Type: "unknown"}}
 

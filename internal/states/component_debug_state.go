@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"reflect"
 	"sort"
 
 	"github.com/ebitenui/ebitenui"
@@ -15,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 const componentDebugItemsPerPage = 20
@@ -115,26 +114,23 @@ type componentDebugItem struct {
 }
 
 func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
-	comps := world.Components
-	val := reflect.ValueOf(comps).Elem()
-	typ := val.Type()
-
-	items := make([]componentDebugItem, 0, val.NumField())
+	// Ark に登録された全コンポーネントを走査し、種類ごとの保有エンティティ数を集計する
+	ids := ecs.ComponentIDs(world.ECS)
+	items := make([]componentDebugItem, 0, len(ids))
 	total := 0
 
-	for i := range val.NumField() {
-		field := val.Field(i)
-		fieldName := typ.Field(i).Name
-
-		var count int
-		if !field.IsNil() {
-			if comp, ok := field.Interface().(ecs.DataComponent); ok {
-				count = world.Manager.Join(comp).Size()
-			}
+	for _, id := range ids {
+		info, ok := ecs.ComponentInfo(world.ECS, id)
+		if !ok {
+			continue
 		}
+		q := ecs.NewUnsafeFilter(world.ECS, id).Query()
+		count := q.Count()
+		// Countは反復を完了しないためワールドロックが残る。明示的に閉じる
+		q.Close()
 
 		items = append(items, componentDebugItem{
-			Name:  fieldName,
+			Name:  info.Type.Name(),
 			Count: count,
 		})
 		total += count

@@ -6,9 +6,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestPreviewEndRun(t *testing.T) {
@@ -53,7 +53,7 @@ func TestExecuteEndRun(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, ApplyProfession(world, player, prof))
 
-	walletBefore := world.Components.Wallet.Get(player).(*gc.Wallet).Currency
+	walletBefore := world.Components.Wallet.Get(player).Currency
 
 	// プレビュー → 実行
 	result, err := PreviewEndRun(world, player)
@@ -63,16 +63,15 @@ func TestExecuteEndRun(t *testing.T) {
 	require.NoError(t, err)
 
 	// 所持金が増えていることを確認する
-	walletAfter := world.Components.Wallet.Get(player).(*gc.Wallet).Currency
+	walletAfter := world.Components.Wallet.Get(player).Currency
 	assert.Equal(t, walletBefore+result.Total, walletAfter, "売却金額が所持金に加算されている")
 
 	// 職業が再適用されていることを確認する
 	hasEquipped := false
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
+	equippedQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
+	for equippedQuery.Next() {
 		hasEquipped = true
-	}))
+	}
 	if len(prof.Equips) > 0 {
 		assert.True(t, hasEquipped, "職業の初期装備が再適用されている")
 	}
@@ -85,7 +84,7 @@ func TestExecuteEndRunNoItems(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 	prof := (*world.Resources.RawMaster.Professions)[0]
-	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.Id})
+	world.Components.Profession.Add(player, &gc.Profession{ID: prof.Id})
 
 	result, err := PreviewEndRun(world, player)
 	require.NoError(t, err)

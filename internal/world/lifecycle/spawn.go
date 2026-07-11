@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // 定数定義
@@ -77,10 +77,8 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	entitySpec.Camera = &gc.Camera{
 		Scale:   cameraNormalScale,
 		ScaleTo: cameraNormalScale,
-		X:       initialX,
-		Y:       initialY,
-		TargetX: initialX,
-		TargetY: initialY,
+		Pos:     consts.Coord[float64]{X: initialX, Y: initialY},
+		Target:  consts.Coord[float64]{X: initialX, Y: initialY},
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}
@@ -97,7 +95,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err := FullRecover(world, playerEntity); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
 	}
-	playerEntity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
 
 	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil
@@ -120,11 +118,8 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
-	if entitySpec.AI != nil {
-		solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
-		if !ok {
-			return consts.InvalidEntity, fmt.Errorf("NPC %q のPlannerがSoloAIではありません: %T", name, entitySpec.AI.Planner)
-		}
+	if entitySpec.SoloAI != nil {
+		solo := entitySpec.SoloAI
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
 		solo.DurationSubStateTurns = 2 + rand.IntN(3)
@@ -158,7 +153,7 @@ type SpawnEnemyOption func(ecs.Entity, w.World)
 // WithBoss はボスコンポーネントを付与するオプション
 func WithBoss() SpawnEnemyOption {
 	return func(entity ecs.Entity, world w.World) {
-		entity.AddComponent(world.Components.Boss, &ecs.NullComponent{})
+		world.Components.Boss.Add(entity, &gc.Boss{})
 	}
 }
 
@@ -171,13 +166,10 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	if entitySpec.AI == nil {
+	if entitySpec.SoloAI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
-	solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
-	if !ok {
-		return consts.InvalidEntity, fmt.Errorf("敵 %q のPlannerがSoloAIではありません: %T", entitySpec.Name, entitySpec.AI.Planner)
-	}
+	solo := entitySpec.SoloAI
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 2 + rand.IntN(3)
@@ -186,7 +178,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	solo.PatrolDirX = initialPatrolDir()
 	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
-		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
+		Interactions: []gc.InteractionKind{gc.InteractionMelee},
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -203,8 +195,8 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		return consts.InvalidEntity, fmt.Errorf("敵の回復処理エラー: %w", err)
 	}
 
-	if npcEntity.HasComponent(world.Components.TurnBased) {
-		actionPoints := world.Components.TurnBased.Get(npcEntity).(*gc.TurnBased)
+	if world.Components.TurnBased.Has(npcEntity) {
+		actionPoints := world.Components.TurnBased.Get(npcEntity)
 		maxAP, err := query.CalculateMaxActionPoints(world, npcEntity)
 		if err != nil {
 			return consts.InvalidEntity, fmt.Errorf("AP計算エラー: %w", err)
@@ -224,10 +216,10 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 // SpawnSquadMember は隊員エンティティを生成する。
 // リーダーの隣接空きタイルに配置され、ポリシーに基づいて自律行動する
 func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
-	if !leader.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(leader) {
 		return consts.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
 	}
-	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+	leaderGrid := world.Components.GridElement.Get(leader)
 
 	// リーダーの隣接空きタイルを探す
 	spawnX, spawnY, err := findAdjacentEmptyTile(world, int(leaderGrid.X), int(leaderGrid.Y), nil)
@@ -248,7 +240,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
 		FactionType:    &gc.FactionAlly,
-		AI: func() *gc.AI {
+		SquadAI: func() *gc.SquadAI {
 			ai := gc.DefaultSquadAI()
 			return &ai
 		}(),
@@ -303,12 +295,14 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 
 	var playerEntity ecs.Entity
 	var found bool
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
+	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
+	for playerQuery.Next() {
+		e := playerQuery.Entity()
 		playerEntity = e
 		found = true
-	}))
+	}
 	if !found {
-		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 		return item, nil
 	}
 	if err := MoveToBackpack(world, item, playerEntity); err != nil {
@@ -362,19 +356,18 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 		return fmt.Errorf("最大HP設定エラー: %w", err)
 	}
 
-	hpComponent := world.Components.HP.Get(entity)
-	if hpComponent == nil {
+	hp := world.Components.HP.Get(entity)
+	if hp == nil {
 		return fmt.Errorf("HPコンポーネントがありません")
 	}
-	hp := hpComponent.(*gc.HP)
 	hp.Current = hp.Max
 
-	if entity.HasComponent(world.Components.TurnBased) {
+	if world.Components.TurnBased.Has(entity) {
 		maxAP, err := query.CalculateMaxActionPoints(world, entity)
 		if err != nil {
 			return fmt.Errorf("AP計算エラー: %w", err)
 		}
-		turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(entity)
 		turnBased.AP.Current = maxAP
 		turnBased.AP.Max = maxAP
 	}
@@ -384,12 +377,12 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 
 // setMaxStats はエンティティの最大HPを設定する
 func setMaxStats(world w.World, entity ecs.Entity) error {
-	if !entity.HasComponent(world.Components.HP) || !entity.HasComponent(world.Components.Abilities) {
+	if !world.Components.HP.Has(entity) || !world.Components.Abilities.Has(entity) {
 		return fmt.Errorf("entity %v does not have required components (HP or Abilities)", entity)
 	}
 
-	hp := world.Components.HP.Get(entity).(*gc.HP)
-	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+	hp := world.Components.HP.Get(entity)
+	abils := world.Components.Abilities.Get(entity)
 
 	if abils.Vitality.Total == 0 {
 		abils.Vitality.Total = abils.Vitality.Base
@@ -438,25 +431,25 @@ func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile
 	}
 
 	MoveToField(world, item, nil)
-	item.AddComponent(world.Components.GridElement, &gc.GridElement{X: x, Y: y})
+	world.Components.GridElement.Add(item, &gc.GridElement{X: x, Y: y})
 
 	return item, nil
 }
 
 // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する
 func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {
-	if !target.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(target) {
 		return
 	}
 
-	gridElement := world.Components.GridElement.Get(target).(*gc.GridElement)
+	gridElement := world.Components.GridElement.Get(target)
 
-	effectEntity := world.Manager.NewEntity()
-	effectEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
+	effectEntity := world.ECS.NewEntity()
+	world.Components.GridElement.Add(effectEntity, &gc.GridElement{
 		X: gridElement.X,
 		Y: gridElement.Y,
 	})
-	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
 }

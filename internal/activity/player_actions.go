@@ -9,7 +9,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // ExecuteMoveAction は移動アクションを実行する
@@ -19,11 +19,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		return err
 	}
 
-	if !entity.HasComponent(world.Components.GridElement) {
+	if !world.Components.GridElement.Has(entity) {
 		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
 	}
 
-	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	gridElement := world.Components.GridElement.Get(entity)
 	currentX := int(gridElement.X)
 	currentY := int(gridElement.Y)
 
@@ -40,11 +40,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 			if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {
 				continue
 			}
-			switch interaction.(type) {
-			case gc.DoorInteraction:
-				// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
-				if interactableEntity.HasComponent(world.Components.Door) {
-					door := world.Components.Door.Get(interactableEntity).(*gc.Door)
+			switch interaction {
+			case gc.InteractionDoor:
+				// 扉は閉じている場合のみ実行（開いている場合は通過）
+				if world.Components.Door.Has(interactableEntity) {
+					door := world.Components.Door.Get(interactableEntity)
 					if !door.IsOpen {
 						if door.Locked {
 							gamelog.New(query.GetGameLog(world)).Append("扉はロックされている。").Log()
@@ -54,14 +54,16 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 						return err
 					}
 				}
-			case gc.MeleeInteraction:
+			case gc.InteractionMelee:
 				if query.FactionRelation(world, entity, interactableEntity) == query.RelationHostile {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-			case gc.TalkInteraction:
+			case gc.InteractionTalk:
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
+			default:
+				// 衝突時に自動発動しない種類はここでは扱わない
 			}
 		}
 	}
@@ -93,21 +95,20 @@ func ExecuteWaitAction(world w.World) error {
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
 	var found *gc.Interactable
 	var foundEntity ecs.Entity
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
+	interactableQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).
+		Without(ecs.C[gc.Dead]()).Query()
+	for interactableQuery.Next() {
+		entity := interactableQuery.Entity()
 		if found != nil {
-			return // 既に見つかっている
+			continue // 既に見つかっている
 		}
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ge := world.Components.GridElement.Get(entity)
 		// 直上タイルのみ
 		if ge.X == targetGrid.X && ge.Y == targetGrid.Y {
-			found = world.Components.Interactable.Get(entity).(*gc.Interactable)
+			found = world.Components.Interactable.Get(entity)
 			foundEntity = entity
 		}
-	}))
+	}
 	return found, foundEntity
 }
 
@@ -116,22 +117,21 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
 	var results []ecs.Entity
 
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	rangeQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).Query()
+	for rangeQuery.Next() {
+		entity := rangeQuery.Entity()
+		interactable := world.Components.Interactable.Get(entity)
+		gridElement := world.Components.GridElement.Get(entity)
 
 		for _, interaction := range interactable.Interactions {
 			way := interaction.Config().ActivationWay
 			if (way == gc.ActivationWayManual || way == gc.ActivationWayOnCollision) &&
 				query.IsInActivationRange(targetGrid, gridElement, interaction.Config().ActivationRange) {
 				results = append(results, entity)
-				return // 同じエンティティを重複追加しない
+				break // 同じエンティティを重複追加しない
 			}
 		}
-	}))
+	}
 
 	return results
 }
@@ -172,33 +172,32 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	entities := GetAllInteractiveInteractablesInRange(world, playerGrid)
 	for _, entity := range entities {
-		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		interactable := world.Components.Interactable.Get(entity)
 		for _, interaction := range interactable.Interactions {
 			if interaction.Config().ActivationWay != gc.ActivationWayManual {
 				continue
 			}
-			switch data := interaction.(type) {
-			case gc.ItemInteraction:
+			switch interaction {
+			case gc.InteractionItem:
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
 					ItemName(formattedName).
 					Append(" がある。").
 					Log()
-			case gc.PortalInteraction:
-				switch data.PortalType {
-				case gc.PortalTypeNext:
-					gamelog.New(query.GetGameLog(world)).
-						Append("転移ゲートがある。Enterキーで移動。").
-						Log()
-				case gc.PortalTypeTown:
-					gamelog.New(query.GetGameLog(world)).
-						Append("帰還ゲートがある。Enterキーで脱出。").
-						Log()
-				}
-			case gc.DungeonGateInteraction:
+			case gc.InteractionPortalNext:
+				gamelog.New(query.GetGameLog(world)).
+					Append("転移ゲートがある。Enterキーで移動。").
+					Log()
+			case gc.InteractionPortalTown:
+				gamelog.New(query.GetGameLog(world)).
+					Append("帰還ゲートがある。Enterキーで脱出。").
+					Log()
+			case gc.InteractionDungeonGate:
 				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").
 					Log()
+			default:
+				// ログ表示対象外の種類は何もしない
 			}
 		}
 	}

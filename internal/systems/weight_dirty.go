@@ -1,10 +1,11 @@
 package systems
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // WeightDirtySystem はWeightDirtyマーカーが付いたエンティティの重量を再計算する。
@@ -20,17 +21,16 @@ func (sys WeightDirtySystem) String() string {
 // Update はWeightDirtyフラグをチェックし、対象エンティティの重量を再計算する
 // w.Updater interfaceを実装する
 func (sys *WeightDirtySystem) Update(world w.World) error {
-	// WeightDirtyマーカーが付いたエンティティを収集してフラグをクリアする
+	// WeightDirtyマーカーが付いたエンティティを収集する。
 	var changedEntities []ecs.Entity
-	world.Manager.Join(
-		world.Components.WeightDirty,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		changedEntities = append(changedEntities, entity)
-		entity.RemoveComponent(world.Components.WeightDirty)
-	}))
+	weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.ECS).Query()
+	for weightDirtyQuery.Next() {
+		changedEntities = append(changedEntities, weightDirtyQuery.Entity())
+	}
 
-	// 変動のあったエンティティの重量を再計算する
+	// 変動のあったエンティティのフラグをクリアして重量を再計算する
 	for _, entity := range changedEntities {
+		world.Components.WeightDirty.Remove(entity)
 		query.UpdateWeightCapacity(world, entity)
 	}
 

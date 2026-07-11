@@ -5,23 +5,23 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // DismissSquadMember は隊員を解雇する。エンティティを削除する
 func DismissSquadMember(world w.World, member ecs.Entity) error {
-	if !member.HasComponent(world.Components.SquadMember) {
+	if !world.Components.SquadMember.Has(member) {
 		return fmt.Errorf("エンティティは隊員ではありません")
 	}
-	world.Manager.DeleteEntity(member)
+	world.ECS.RemoveEntity(member)
 	return nil
 }
 
-// GetAI は隊員のAIコンポーネントを返す。コンポーネントがない場合はエラーを返す
-func GetAI(world w.World, member ecs.Entity) (*gc.AI, error) {
-	comp := world.Components.AI.Get(member)
+// GetAI は隊員のSquadAIコンポーネントを返す。コンポーネントがない場合はエラーを返す
+func GetAI(world w.World, member ecs.Entity) (*gc.SquadAI, error) {
+	comp := world.Components.SquadAI.Get(member)
 	if comp == nil {
 		return nil, fmt.Errorf("エンティティにAIがありません")
 	}
-	return comp.(*gc.AI), nil
+	return comp, nil
 }

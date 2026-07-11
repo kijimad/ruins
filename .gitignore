@@ -14,3 +14,10 @@ wasm/game.wasm
 balance.json
 
 .claude-task-state
+# 参照用の外部リポジトリ（コミット対象外）
+Cataclysm-DDA/
+_ebitenui/
+digger_rs/
+cdda/
+.claude/
+docs/design/20260705_45.md

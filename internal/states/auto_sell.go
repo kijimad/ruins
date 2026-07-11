@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -205,8 +204,8 @@ func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, 
 		isSelected := pg.IsSelectedInPage(entry.Index)
 		countStr := ""
 		entity := entry.Item.Entity
-		if entity.HasComponent(world.Components.Stackable) {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+		if world.Components.Stackable.Has(entity) {
+			stackable := world.Components.Stackable.Get(entity)
 			countStr = fmt.Sprintf("%d", stackable.Count)
 		}
 		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, countStr, query.FormatCurrency(entry.Item.Price)}, aligns, &isSelected, res)

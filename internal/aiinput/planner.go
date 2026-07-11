@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Planner はエンティティの行動計画を担うインターフェースを表す。
@@ -27,7 +27,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 	executed := 0
 
 	for executed < maxActivitiesPerTurn {
-		if entity.HasComponent(world.Components.Dead) {
+		if world.Components.Dead.Has(entity) {
 			log.Debug("エンティティが死亡したため処理中断", "entity", entity)
 			break
 		}
@@ -39,7 +39,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
 		actionCost := behavior.Info().ActionPointCost
 		tbComp := world.Components.TurnBased.Get(entity)
-		if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current < actionCost {
+		if tbComp == nil || tbComp.AP.Current < actionCost {
 			log.Debug("AP不足", "entity", entity, "activity", behavior.Name(), "cost", actionCost)
 			break
 		}

@@ -11,9 +11,9 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestTurnSystem_Update(t *testing.T) {
@@ -32,7 +32,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// APをマイナスに設定
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		turnBased.AP.Current = -50
 
 		sys := &TurnSystem{}
@@ -55,7 +55,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// APを正の値に設定
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		turnBased.AP.Current = 100
 
 		sys := &TurnSystem{}
@@ -123,7 +123,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		turnBased.AP.Current = 200
 
 		turnState := query.GetTurnState(world)
@@ -131,16 +131,16 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 敵を作成してDeadコンポーネントを付与（射撃で倒された状態を模擬）
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "スライム"})
-		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+		enemy := world.ECS.NewEntity()
+		world.Components.Name.Add(enemy, &gc.Name{Name: "スライム"})
+		world.Components.Dead.Add(enemy, &gc.Dead{})
 
 		err = runFrame(world)
 		require.NoError(t, err)
 
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase)
 		assert.Equal(t, 200, turnBased.AP.Current, "APは消費されていない")
-		assert.False(t, enemy.HasComponent(world.Components.Name),
+		assert.False(t, world.ECS.Alive(enemy),
 			"PlayerPhase中でもDeadエンティティは削除されるべき")
 	})
 
@@ -151,7 +151,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		turnBased.AP.Current = 300
 
 		turnState := query.GetTurnState(world)
@@ -159,31 +159,31 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 1回目の行動: 敵1を倒す
-		enemy1 := world.Manager.NewEntity()
-		enemy1.AddComponent(world.Components.Name, &gc.Name{Name: "スライム1"})
-		enemy1.AddComponent(world.Components.Dead, &gc.Dead{})
+		enemy1 := world.ECS.NewEntity()
+		world.Components.Name.Add(enemy1, &gc.Name{Name: "スライム1"})
+		world.Components.Dead.Add(enemy1, &gc.Dead{})
 
 		query.ConsumeActionPoints(world, player, 100) // AP: 300 -> 200
 
 		err = runFrame(world)
 		require.NoError(t, err)
 
-		assert.False(t, enemy1.HasComponent(world.Components.Name),
+		assert.False(t, world.ECS.Alive(enemy1),
 			"1回目の行動後にDeadエンティティが削除されるべき")
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
 			"APが残っているのでPlayerPhaseのまま")
 
 		// 2回目の行動: 敵2を倒す
-		enemy2 := world.Manager.NewEntity()
-		enemy2.AddComponent(world.Components.Name, &gc.Name{Name: "スライム2"})
-		enemy2.AddComponent(world.Components.Dead, &gc.Dead{})
+		enemy2 := world.ECS.NewEntity()
+		world.Components.Name.Add(enemy2, &gc.Name{Name: "スライム2"})
+		world.Components.Dead.Add(enemy2, &gc.Dead{})
 
 		query.ConsumeActionPoints(world, player, 100) // AP: 200 -> 100
 
 		err = runFrame(world)
 		require.NoError(t, err)
 
-		assert.False(t, enemy2.HasComponent(world.Components.Name),
+		assert.False(t, world.ECS.Alive(enemy2),
 			"2回目の行動後にDeadエンティティが削除されるべき")
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
 			"APが残っているのでPlayerPhaseのまま")
@@ -202,7 +202,7 @@ func TestProcessTurnEnd(t *testing.T) {
 		require.NoError(t, err)
 
 		// APをマイナスに設定
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		turnBased.AP.Current = -100
 
 		err = processTurnEnd(world)
@@ -242,8 +242,8 @@ func TestShouldAutoEndTurn(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// TurnBasedなしのプレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
 
 		result := shouldAutoEndTurn(world)
 		assert.False(t, result, "TurnBasedがない場合はfalse")
@@ -282,13 +282,13 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		require.NoError(t, err)
 
 		// 継続アクションを設定
-		player.AddComponent(world.Components.Activity, &gc.Activity{
+		world.Components.Activity.Add(player, &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
 		})
 
 		// 初期APを確認
-		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(player)
 		initialAP := turnBased.AP.Current
 
 		result := processPlayerContinuousActivity(world)
@@ -312,8 +312,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		if tbComp == nil {
 			return false
 		}
-		tb := tbComp.(*gc.TurnBased)
-		return tb.AP.Current >= 0
+		return tbComp.AP.Current >= 0
 	}
 
 	t.Run("行動可能かの判定を確認", func(t *testing.T) {
@@ -328,8 +327,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		turnBased := world.Components.TurnBased.Get(playerEntity)
 		require.NotNil(t, turnBased, "プレイヤーはTurnBasedコンポーネントを持つべき")
 
-		tb := turnBased.(*gc.TurnBased)
-		t.Logf("TurnBased AP: Current=%d, Max=%d", tb.AP.Current, tb.AP.Max)
+		t.Logf("TurnBased AP: Current=%d, Max=%d", turnBased.AP.Current, turnBased.AP.Max)
 
 		// 行動可能かを確認
 		turnState := query.GetTurnState(world)
@@ -348,7 +346,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(playerEntity).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -360,7 +358,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		t.Logf("低体温時のSpeed: %d", speed)
 
 		// TurnBasedのAPを確認
-		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(playerEntity)
 		t.Logf("現在のAP: %d, 最大AP: %d", turnBased.AP.Current, turnBased.AP.Max)
 
 		// APが0以上なら行動可能であることを確認
@@ -377,7 +375,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// APをマイナスに設定
-		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(playerEntity)
 		turnBased.AP.Current = -50
 
 		// shouldAutoEndTurnがtrueを返すことを確認
@@ -394,7 +392,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// APを0に設定
-		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(playerEntity)
 		turnBased.AP.Current = 0
 
 		// shouldAutoEndTurnがfalseを返すことを確認
@@ -411,7 +409,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// 初期APを確認
-		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(playerEntity)
 		initialAP := turnBased.AP.Current
 		t.Logf("初期AP: %d", initialAP)
 
@@ -437,7 +435,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		t.Logf("通常時のSpeed: %d", normalSpeed)
 
 		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(playerEntity).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -445,10 +443,10 @@ func TestColdPlayerCanAct(t *testing.T) {
 		})
 
 		// Effectsコンポーネントに低体温ペナルティを反映する
-		skills := world.Components.Skills.Get(playerEntity).(*gc.Skills)
-		abils := world.Components.Abilities.Get(playerEntity).(*gc.Abilities)
+		skills := world.Components.Skills.Get(playerEntity)
+		abils := world.Components.Abilities.Get(playerEntity)
 		effects := gc.RecalculateCharModifiers(skills, abils, hs)
-		playerEntity.AddComponent(world.Components.CharModifiers, effects)
+		require.NoError(t, gc.Upsert(world.ECS, world.Components.CharModifiers, playerEntity, effects))
 
 		// 低体温時のSpeedを計算
 		coldSpeed := query.CalculateSpeed(world, playerEntity)
@@ -467,14 +465,14 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(playerEntity).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
 			Timer:    90,
 		})
 
-		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(playerEntity)
 		turnState := query.GetTurnState(world)
 
 		// 1. プレイヤーターンで行動可能
@@ -529,7 +527,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// 重度の低体温 + 飢餓
-		hs := world.Components.HealthStatus.Get(playerEntity).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -537,7 +535,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		})
 
 		// 飢餓状態を設定
-		hunger := world.Components.Hunger.Get(playerEntity).(*gc.Hunger)
+		hunger := world.Components.Hunger.Get(playerEntity)
 		hunger.Current = 5 // 餓死寸前
 
 		speed := query.CalculateSpeed(world, playerEntity)
@@ -556,7 +554,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(playerEntity).(*gc.HealthStatus)
+		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
@@ -564,7 +562,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		})
 
 		// APを確認
-		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
+		turnBased := world.Components.TurnBased.Get(playerEntity)
 		turnState := query.GetTurnState(world)
 		t.Logf("冷えた状態のAP: Current=%d, Max=%d", turnBased.AP.Current, turnBased.AP.Max)
 
@@ -593,22 +591,20 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 
 	// AIエンティティを手動で作成（Driving状態で即座に移動するように設定）
 	enemyX, enemyY := 20, 20
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
-	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
-	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner: &gc.SoloAI{
-			CombatDefault:         gc.CombatAttack,
-			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.SoloRandom,
-			SubState:              gc.AIStateDriving,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 100,
-			ViewDistance:          5,
-		},
+	enemy := world.ECS.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
+	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.SoloRandom,
+		SubState:              gc.AIStateDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		ViewDistance:          5,
 	})
-	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+	world.Components.TurnBased.Add(enemy, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
 	})
@@ -618,7 +614,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	moved := false
 	for turn := range 50 {
 		// AP回復
-		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb := world.Components.TurnBased.Get(enemy)
 		tb.AP.Current = 200
 
 		turnState := query.GetTurnState(world)
@@ -628,7 +624,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 		err := processAITurn(world)
 		require.NoError(t, err)
 
-		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(enemy)
 		if int(grid.X) != enemyX || int(grid.Y) != enemyY {
 			moved = true
 			t.Logf("AIエンティティが移動した: (%d,%d) → (%d,%d) at turn %d", enemyX, enemyY, grid.X, grid.Y, turn+1)
@@ -656,13 +652,12 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	enemy, err := lifecycle.SpawnEnemy(world, 20, 20, "苔亀")
 	require.NoError(t, err)
 
-	initialGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+	initialGrid := world.Components.GridElement.Get(enemy)
 	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
 	t.Logf("初期位置: (%d,%d)", initialX, initialY)
 
 	// AI状態を確認
-	ai := world.Components.AI.Get(enemy).(*gc.AI)
-	solo := ai.Planner.(*gc.SoloAI)
+	solo := world.Components.SoloAI.Get(enemy)
 	t.Logf("初期AI: SubState=%s, StartTurn=%d, Duration=%d",
 		solo.SubState, solo.StartSubStateTurn, solo.DurationSubStateTurns)
 
@@ -673,7 +668,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	moved := false
 	for turn := range 50 {
 		// AP回復
-		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb := world.Components.TurnBased.Get(enemy)
 		tb.AP.Current = tb.AP.Max
 
 		turnState := query.GetTurnState(world)
@@ -683,7 +678,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 		err := processAITurn(world)
 		require.NoError(t, err)
 
-		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(enemy)
 		if int(grid.X) != initialX || int(grid.Y) != initialY {
 			moved = true
 			t.Logf("SpawnEnemyの敵が移動した: (%d,%d) → (%d,%d) at turn %d",
@@ -712,12 +707,11 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 	require.NoError(t, err)
 
 	// Waiting期間をスキップ
-	ai := world.Components.AI.Get(enemy).(*gc.AI)
-	solo := ai.Planner.(*gc.SoloAI)
+	solo := world.Components.SoloAI.Get(enemy)
 	solo.SubState = gc.AIStateDriving
 	solo.DurationSubStateTurns = 100
 
-	initialGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+	initialGrid := world.Components.GridElement.Get(enemy)
 	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
 
 	sys := &TurnSystem{}
@@ -728,7 +722,7 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 
 		// PlayerTurn: APをマイナスにして自動でAIターンへ遷移させる
 		turnState.Phase = gc.TurnPhasePlayer
-		playerTB := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		playerTB := world.Components.TurnBased.Get(player)
 		playerTB.AP.Current = -1
 
 		// PlayerTurn → AITurnへの自動遷移
@@ -746,7 +740,7 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "cycle %d: PlayerTurnへ遷移するべき", cycle)
 
-		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(enemy)
 		if int(grid.X) != initialX || int(grid.Y) != initialY {
 			moved = true
 			t.Logf("フルサイクルで敵が移動: (%d,%d) → (%d,%d) at cycle %d",
@@ -770,26 +764,24 @@ func TestPatrolMovement(t *testing.T) {
 
 	// Patrol移動のAIエンティティを作成する。PatrolDirX=1で右に進む
 	enemyX, enemyY := 20, 20
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "パトロール敵"})
-	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
-	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner: &gc.SoloAI{
-			CombatDefault:         gc.CombatAttack,
-			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.SoloPatrol,
-			SubState:              gc.AIStateDriving,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 100,
-			OriginX:               enemyX,
-			OriginY:               enemyY,
-			PatrolDirX:            1,
-			PatrolDirY:            0,
-			ViewDistance:          5,
-		},
+	enemy := world.ECS.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "パトロール敵"})
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
+	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.SoloPatrol,
+		SubState:              gc.AIStateDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		OriginX:               enemyX,
+		OriginY:               enemyY,
+		PatrolDirX:            1,
+		PatrolDirY:            0,
+		ViewDistance:          5,
 	})
-	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+	world.Components.TurnBased.Add(enemy, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
 	})
@@ -797,7 +789,7 @@ func TestPatrolMovement(t *testing.T) {
 	// 複数ターン実行して移動を確認する
 	moved := false
 	for turn := range 10 {
-		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb := world.Components.TurnBased.Get(enemy)
 		tb.AP.Current = 200
 
 		turnState := query.GetTurnState(world)
@@ -807,7 +799,7 @@ func TestPatrolMovement(t *testing.T) {
 		err := processAITurn(world)
 		require.NoError(t, err)
 
-		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(enemy)
 		if int(grid.X) != enemyX || int(grid.Y) != enemyY {
 			moved = true
 			// Patrol移動なのでX座標が変化するはず
@@ -831,24 +823,22 @@ func TestTerritorialMovement(t *testing.T) {
 
 	// Territorial移動のAIエンティティを作成する
 	spawnX, spawnY := 20, 20
-	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "縄張り敵"})
-	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
-	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner: &gc.SoloAI{
-			CombatDefault:         gc.CombatAttack,
-			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.SoloTerritorial,
-			SubState:              gc.AIStateDriving,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 100,
-			OriginX:               spawnX,
-			OriginY:               spawnY,
-			ViewDistance:          5,
-		},
+	enemy := world.ECS.NewEntity()
+	world.Components.Name.Add(enemy, &gc.Name{Name: "縄張り敵"})
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
+	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.SoloTerritorial,
+		SubState:              gc.AIStateDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		OriginX:               spawnX,
+		OriginY:               spawnY,
+		ViewDistance:          5,
 	})
-	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+	world.Components.TurnBased.Add(enemy, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
 	})
@@ -856,7 +846,7 @@ func TestTerritorialMovement(t *testing.T) {
 	// 多数のターンを実行して範囲内に留まることを検証する
 	territorialRadius := 5
 	for turn := range 100 {
-		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb := world.Components.TurnBased.Get(enemy)
 		tb.AP.Current = 200
 
 		turnState := query.GetTurnState(world)
@@ -866,7 +856,7 @@ func TestTerritorialMovement(t *testing.T) {
 		err := processAITurn(world)
 		require.NoError(t, err)
 
-		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		grid := world.Components.GridElement.Get(enemy)
 		dx := int(grid.X) - spawnX
 		dy := int(grid.Y) - spawnY
 		if dx < 0 {

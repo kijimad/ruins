@@ -161,7 +161,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 
 	// 既存プレイヤーがいれば削除する
 	if existing, err := query.GetPlayerEntity(world); err == nil {
-		world.Manager.DeleteEntity(existing)
+		world.ECS.RemoveEntity(existing)
 	}
 
 	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
@@ -177,7 +177,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	}
 
 	// プレイヤー名を上書き
-	name := world.Components.Name.Get(player).(*gc.Name)
+	name := world.Components.Name.Get(player)
 	name.Name = st.playerName
 
 	// 操作ガイドを表示する

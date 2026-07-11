@@ -3,7 +3,7 @@ package query
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
+	"github.com/mlange-42/ark/ecs"
 )
 
 const (
@@ -17,19 +17,19 @@ const (
 // PlayerはAbilitiesからMaxを計算し、Backpack+Equippedの重量をCurrentに設定する。
 // StorageはMaxを変更せず、LocationInStorageの重量をCurrentに設定する
 func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
-	if !entity.HasComponent(world.Components.WeightCapacity) {
+	if !world.Components.WeightCapacity.Has(entity) {
 		return
 	}
 
-	wc := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)
+	wc := world.Components.WeightCapacity.Get(entity)
 
 	// Abilitiesを持つエンティティはMaxを再計算する（Player用）
-	if entity.HasComponent(world.Components.Abilities) {
-		abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)
+	if world.Components.Abilities.Has(entity) {
+		abilities := world.Components.Abilities.Get(entity)
 		maxWeight := calculateMaxCarryingWeight(abilities)
 
-		if entity.HasComponent(world.Components.CharModifiers) {
-			mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+		if world.Components.CharModifiers.Has(entity) {
+			mods := world.Components.CharModifiers.Get(entity)
 			maxWeight = maxWeight * float64(mods.MaxWeight) / 100
 		}
 
@@ -54,30 +54,30 @@ func calculateMaxCarryingWeight(abilities *gc.Abilities) float64 {
 func calculateOwnedWeight(world w.World, entity ecs.Entity) float64 {
 	var totalWeight float64
 
-	world.Manager.Join(
-		world.Components.Weight,
-	).Visit(ecs.Visit(func(itemEntity ecs.Entity) {
-		if itemEntity.HasComponent(world.Components.LocationInBackpack) {
-			loc := world.Components.LocationInBackpack.Get(itemEntity).(*gc.LocationInBackpack)
+	weightQuery := ecs.NewFilter1[gc.Weight](world.ECS).Query()
+	for weightQuery.Next() {
+		itemEntity := weightQuery.Entity()
+		if world.Components.LocationInBackpack.Has(itemEntity) {
+			loc := world.Components.LocationInBackpack.Get(itemEntity)
 			if loc.Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
 
-		if itemEntity.HasComponent(world.Components.LocationEquipped) {
-			loc := world.Components.LocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
+		if world.Components.LocationEquipped.Has(itemEntity) {
+			loc := world.Components.LocationEquipped.Get(itemEntity)
 			if loc.Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
 
-		if itemEntity.HasComponent(world.Components.LocationInStorage) {
-			loc := world.Components.LocationInStorage.Get(itemEntity).(*gc.LocationInStorage)
+		if world.Components.LocationInStorage.Has(itemEntity) {
+			loc := world.Components.LocationInStorage.Get(itemEntity)
 			if loc.Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
-	}))
+	}
 
 	return totalWeight
 }

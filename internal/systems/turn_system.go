@@ -72,9 +72,8 @@ func shouldAutoEndTurn(world w.World) bool {
 		return false
 	}
 
-	ap := turnBased.(*gc.TurnBased)
 	// APが最小閾値未満の場合は自動でターンを終了
-	return ap.AP.Current < consts.MinActionThreshold
+	return turnBased.AP.Current < consts.MinActionThreshold
 }
 
 // processAITurn はAIターンの処理を行う
