@@ -118,9 +118,8 @@ func TestDoActionMovementActions(t *testing.T) {
 			state := &DungeonState{}
 
 			// 移動前の座標を確認
-			gridBeforeComponent := world.Components.GridElement.Get(playerEntity)
-			require.NotNil(t, gridBeforeComponent, "GridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-			gridBefore := gridBeforeComponent
+			gridBefore := world.Components.GridElement.Get(playerEntity)
+			require.NotNil(t, gridBefore, "GridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
 			require.Equal(t, initialX, int(gridBefore.X), "初期X座標が不正")
 			require.Equal(t, initialY, int(gridBefore.Y), "初期Y座標が不正")
 
@@ -132,9 +131,8 @@ func TestDoActionMovementActions(t *testing.T) {
 			assert.Equal(t, es.TransNone, transition.Type, "トランジションタイプが不正")
 
 			// 移動後の座標を確認
-			gridAfterComponent := world.Components.GridElement.Get(playerEntity)
-			require.NotNil(t, gridAfterComponent, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-			gridAfter := gridAfterComponent
+			gridAfter := world.Components.GridElement.Get(playerEntity)
+			require.NotNil(t, gridAfter, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
 			expectedX := initialX + tt.expectedDeltaX
 			expectedY := initialY + tt.expectedDeltaY
 
@@ -221,9 +219,8 @@ func TestDoActionTurnManagement(t *testing.T) {
 
 			// 移動アクションの場合、座標変化を検証
 			if tt.isMoveAction {
-				gridAfterComponent := world.Components.GridElement.Get(playerEntity)
-				require.NotNil(t, gridAfterComponent, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
-				gridAfter := gridAfterComponent
+				gridAfter := world.Components.GridElement.Get(playerEntity)
+				require.NotNil(t, gridAfter, "移動後にGridElementコンポーネントが取得できません: エンティティID=%v", playerEntity)
 				if tt.shouldMovePlayer {
 					// プレイヤーターン中は移動が実行される
 					expectedY := initialY - 1 // ActionMoveNorth

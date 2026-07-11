@@ -36,8 +36,7 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		// 満腹度が250 + 100 = 350になっているはず
 		hungerComp := world.Components.Hunger.Get(actor)
 		require.NotNil(t, hungerComp)
-		updatedHunger := hungerComp
-		assert.Equal(t, 350, updatedHunger.Current, "満腹度が正しく増加していない")
+		assert.Equal(t, 350, hungerComp.Current, "満腹度が正しく増加していない")
 	})
 
 	t.Run("満腹度が上限を超えない", func(t *testing.T) {
@@ -62,8 +61,7 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 
 		hungerComp := world.Components.Hunger.Get(actor)
 		require.NotNil(t, hungerComp)
-		updatedHunger := hungerComp
-		assert.Equal(t, gc.DefaultMaxHunger, updatedHunger.Current, "満腹度が上限を超えている")
+		assert.Equal(t, gc.DefaultMaxHunger, hungerComp.Current, "満腹度が上限を超えている")
 	})
 
 	t.Run("満腹状態になった場合", func(t *testing.T) {
@@ -91,9 +89,8 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 
 		hungerComp := world.Components.Hunger.Get(actor)
 		require.NotNil(t, hungerComp)
-		updatedHunger := hungerComp
-		assert.Equal(t, 475, updatedHunger.Current)
-		assert.Equal(t, gc.HungerSatiated, updatedHunger.GetLevel(), "満腹状態になっているはず")
+		assert.Equal(t, 475, hungerComp.Current)
+		assert.Equal(t, gc.HungerSatiated, hungerComp.GetLevel(), "満腹状態になっているはず")
 	})
 
 	t.Run("Hungerコンポーネントがない場合は何もしない", func(t *testing.T) {
@@ -138,9 +135,8 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 
 		hungerComp := world.Components.Hunger.Get(actor)
 		require.NotNil(t, hungerComp)
-		updatedHunger := hungerComp
-		assert.Equal(t, 350, updatedHunger.Current)
-		assert.Equal(t, gc.HungerNormal, updatedHunger.GetLevel(), "普通状態に回復しているはず")
+		assert.Equal(t, 350, hungerComp.Current)
+		assert.Equal(t, gc.HungerNormal, hungerComp.GetLevel(), "普通状態に回復しているはず")
 	})
 }
 

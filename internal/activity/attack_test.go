@@ -341,8 +341,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		currentComp := world.Components.Activity.Get(target)
 		if currentComp != nil {
 			// ミスした場合はアクティビティが残る。状態がRunningなら中断処理は正しく動作している
-			activity := currentComp
-			assert.Equal(t, gc.ActivityStateRunning, activity.State,
+			assert.Equal(t, gc.ActivityStateRunning, currentComp.State,
 				"ミス時はアクティビティがRunningのまま残る")
 		}
 		// 命中時はRemoveActivityで削除されているのでcurrentCompはnil

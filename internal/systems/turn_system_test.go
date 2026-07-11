@@ -312,8 +312,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		if tbComp == nil {
 			return false
 		}
-		tb := tbComp
-		return tb.AP.Current >= 0
+		return tbComp.AP.Current >= 0
 	}
 
 	t.Run("行動可能かの判定を確認", func(t *testing.T) {
