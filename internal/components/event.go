@@ -4,57 +4,68 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// EventKind はステート遷移リクエストの種別を表す
-type EventKind string
+// StatePayload はステート遷移リクエストのペイロード。
+// 種別ごとに専用の型を持ち、DungeonState が型スイッチで処理する。
+// 非公開メソッドで実装先をこのパッケージ内に限定する。
+type StatePayload interface{ isStatePayload() }
 
-const (
-	// EventWarpNext は次の階層への移動
-	EventWarpNext EventKind = "WarpNext"
-	// EventWarpEscape は脱出ポータルによる帰還
-	EventWarpEscape EventKind = "WarpEscape"
-	// EventGameClear はゲームクリア
-	EventGameClear EventKind = "GameClear"
-	// EventShowDialog は会話メッセージの表示
-	EventShowDialog EventKind = "ShowDialog"
-	// EventOpenDungeonSelect はダンジョン選択メニューを開く
-	EventOpenDungeonSelect EventKind = "OpenDungeonSelect"
-	// EventOpenStorage は収納メニューを開く
-	EventOpenStorage EventKind = "OpenStorage"
-)
+// WarpNext は次の階層への移動
+type WarpNext struct{}
 
-// StateChangeRequest はステート遷移リクエストを表すコンポーネント。
-// Kind 判別子を持つタグ付きユニオンで、DungeonState が Kind により処理する。
-type StateChangeRequest struct {
-	Kind EventKind
+// WarpEscape は脱出ポータルによる帰還
+type WarpEscape struct{}
 
-	// EventShowDialog 用
+// GameClear はゲームクリア
+type GameClear struct{}
+
+// OpenDungeonSelect はダンジョン選択メニューを開く
+type OpenDungeonSelect struct{}
+
+// ShowDialog は会話メッセージの表示
+type ShowDialog struct {
 	MessageKey    string
 	SpeakerEntity ecs.Entity
+}
 
-	// EventOpenStorage 用
+// OpenStorage は収納メニューを開く
+type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納Propのエンティティ
 }
 
+func (WarpNext) isStatePayload()          {}
+func (WarpEscape) isStatePayload()        {}
+func (GameClear) isStatePayload()         {}
+func (OpenDungeonSelect) isStatePayload() {}
+func (ShowDialog) isStatePayload()        {}
+func (OpenStorage) isStatePayload()       {}
+
+// StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
+// Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
+// 一時イベントで保存対象外（skipComponents）のため interface フィールドを持てる。
+type StateChangeRequest struct {
+	Payload StatePayload
+}
+
 // WarpNextEvent は次の階層への移動リクエストを生成する
-func WarpNextEvent() StateChangeRequest { return StateChangeRequest{Kind: EventWarpNext} }
+func WarpNextEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpNext{}} }
 
 // WarpEscapeEvent は脱出ポータルによる帰還リクエストを生成する
-func WarpEscapeEvent() StateChangeRequest { return StateChangeRequest{Kind: EventWarpEscape} }
+func WarpEscapeEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpEscape{}} }
 
 // GameClearEvent はゲームクリアリクエストを生成する
-func GameClearEvent() StateChangeRequest { return StateChangeRequest{Kind: EventGameClear} }
+func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }
 
 // ShowDialogEvent は会話メッセージ表示リクエストを生成する
 func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
-	return StateChangeRequest{Kind: EventShowDialog, MessageKey: messageKey, SpeakerEntity: speaker}
+	return StateChangeRequest{Payload: ShowDialog{MessageKey: messageKey, SpeakerEntity: speaker}}
 }
 
 // OpenDungeonSelectEvent はダンジョン選択メニューを開くリクエストを生成する
 func OpenDungeonSelectEvent() StateChangeRequest {
-	return StateChangeRequest{Kind: EventOpenDungeonSelect}
+	return StateChangeRequest{Payload: OpenDungeonSelect{}}
 }
 
 // OpenStorageEvent は収納メニューを開くリクエストを生成する
 func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
-	return StateChangeRequest{Kind: EventOpenStorage, StorageEntity: storage}
+	return StateChangeRequest{Payload: OpenStorage{StorageEntity: storage}}
 }

@@ -17,8 +17,8 @@ func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
 		existing = world.Components.StateChangeRequest.Get(entity)
 	}
 	if existing != nil {
-		return fmt.Errorf("リクエストがすでに設定されています: %s → %s を設定しようとしました",
-			existing.Kind, event.Kind)
+		return fmt.Errorf("リクエストがすでに設定されています: %T → %T を設定しようとしました",
+			existing.Payload, event.Payload)
 	}
 	entity := world.ECS.NewEntity()
 	world.Components.StateChangeRequest.Add(entity, &event)

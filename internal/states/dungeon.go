@@ -500,17 +500,17 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 
-	switch req.Kind {
-	case gc.EventShowDialog:
+	switch p := req.Payload.(type) {
+	case gc.ShowDialog:
 		// SpeakerEntityからNameを取得
-		if !world.Components.Name.Has(req.SpeakerEntity) {
+		if !world.Components.Name.Has(p.SpeakerEntity) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
 		}
-		nameComp := world.Components.Name.Get(req.SpeakerEntity)
+		nameComp := world.Components.Name.Get(p.SpeakerEntity)
 		speakerName := nameComp.Name
 
 		// NPCの種類に応じて専用ステートを返す
-		switch req.MessageKey {
+		switch p.MessageKey {
 		case "merchant_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName) },
@@ -525,33 +525,33 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
-			dialogMessage := messagedata.GetDialogue(req.MessageKey, speakerName)
+			dialogMessage := messagedata.GetDialogue(p.MessageKey, speakerName)
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
 			}}, nil
 		}
-	case gc.EventWarpNext:
+	case gc.WarpNext:
 		// 次のフロアへ遷移する
 		nextDepth := query.GetDungeon(world).Depth + 1
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
-	case gc.EventWarpEscape:
+	case gc.WarpEscape:
 		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewAutoSellState()),
 		}}, nil
-	case gc.EventOpenDungeonSelect:
+	case gc.OpenDungeonSelect:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
-	case gc.EventOpenStorage:
+	case gc.OpenStorage:
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return NewStorageMenuState(req.StorageEntity) },
+			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
 		}}, nil
 	default:
-		// EventGameClear 等、ここで扱わない種別
-		return es.Transition[w.World]{}, fmt.Errorf("未処理のStateChangeRequest: %s", req.Kind)
+		// GameClear 等、ここで扱わない種別
+		return es.Transition[w.World]{}, fmt.Errorf("未処理のStateChangeRequest: %T", req.Payload)
 	}
 }
 

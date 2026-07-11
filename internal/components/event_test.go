@@ -5,22 +5,23 @@ import (
 
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStateChangeRequest_Constructors(t *testing.T) {
 	t.Parallel()
 
-	// 各コンストラクタが正しい Kind のリクエストを生成することを確認
-	assert.Equal(t, EventWarpNext, WarpNextEvent().Kind)
-	assert.Equal(t, EventWarpEscape, WarpEscapeEvent().Kind)
-	assert.Equal(t, EventGameClear, GameClearEvent().Kind)
-	assert.Equal(t, EventOpenDungeonSelect, OpenDungeonSelectEvent().Kind)
+	// 各コンストラクタが正しい種別のペイロードを生成することを確認
+	assert.IsType(t, WarpNext{}, WarpNextEvent().Payload)
+	assert.IsType(t, WarpEscape{}, WarpEscapeEvent().Payload)
+	assert.IsType(t, GameClear{}, GameClearEvent().Payload)
+	assert.IsType(t, OpenDungeonSelect{}, OpenDungeonSelectEvent().Payload)
 
 	// ペイロード付きのイベントもフィールドが設定されることを確認
 	dialog := ShowDialogEvent("test", ecs.Entity{})
-	assert.Equal(t, EventShowDialog, dialog.Kind)
-	assert.Equal(t, "test", dialog.MessageKey)
+	require.IsType(t, ShowDialog{}, dialog.Payload)
+	assert.Equal(t, "test", dialog.Payload.(ShowDialog).MessageKey)
 
 	storage := OpenStorageEvent(ecs.Entity{})
-	assert.Equal(t, EventOpenStorage, storage.Kind)
+	assert.IsType(t, OpenStorage{}, storage.Payload)
 }

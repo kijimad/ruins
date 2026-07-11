@@ -20,7 +20,7 @@ func TestRequestStateChange(t *testing.T) {
 		require.NoError(t, err)
 
 		req := ConsumeStateChange(world)
-		assert.Equal(t, gc.EventWarpNext, req.Kind)
+		assert.IsType(t, gc.WarpNext{}, req.Payload)
 	})
 
 	t.Run("既にリクエストが設定されている場合はエラーを返す", func(t *testing.T) {
@@ -51,12 +51,12 @@ func TestRequestStateChange(t *testing.T) {
 		require.NoError(t, err)
 
 		req := ConsumeStateChange(world)
-		assert.Equal(t, gc.EventGameClear, req.Kind)
+		assert.IsType(t, gc.GameClear{}, req.Payload)
 
 		err = RequestStateChange(world, gc.WarpEscapeEvent())
 		require.NoError(t, err)
 
 		req = ConsumeStateChange(world)
-		assert.Equal(t, gc.EventWarpEscape, req.Kind)
+		assert.IsType(t, gc.WarpEscape{}, req.Payload)
 	})
 }
