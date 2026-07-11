@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -47,6 +48,10 @@ func TestLockAllDoors(t *testing.T) {
 		doorComp = world.Components.Door.Get(door)
 		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
 		assert.True(t, doorComp.Locked, "扉がロックされるべき")
+		// ロックした閉扉は視線を遮る（BlockView）べき。ボス部屋の扉が視線を通す不具合の回帰
+		assert.True(t, world.Components.BlockView.Has(door), "ロックした閉扉はBlockViewを持つべき")
+		// BlockView変化を視界システムへ通知するため視界更新フラグが立つべき
+		assert.True(t, query.GetDungeon(world).NeedsForceUpdate, "視界の再計算が要求されるべき")
 	})
 
 	t.Run("既にロック済みの扉はスキップする", func(t *testing.T) {

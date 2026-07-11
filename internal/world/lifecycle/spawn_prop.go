@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -50,6 +51,10 @@ func LockAllDoors(world w.World) int {
 		world.Components.Door.Get(doorEntity).Locked = true
 		locked++
 	}
+	if locked > 0 {
+		// BlockView が変化したので視界を再計算させる
+		query.GetDungeon(world).NeedsForceUpdate = true
+	}
 	return locked
 }
 
@@ -68,6 +73,10 @@ func UnlockAllDoors(world w.World) int {
 			_ = OpenDoor(world, doorEntity)
 			opened++
 		}
+	}
+	if opened > 0 {
+		// BlockView が変化したので視界を再計算させる
+		query.GetDungeon(world).NeedsForceUpdate = true
 	}
 	return opened
 }
