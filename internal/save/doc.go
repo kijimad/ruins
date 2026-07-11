@@ -1,40 +1,44 @@
 /*
-Package save は安定ID + 静的型ベースのECSシリアライゼーションシステムを提供する。
+Package save は ark-serde によるECSワールドのセーブ・ロードを提供する。
 
 ## 概要
 
-ECSワールドの状態をJSON形式でセーブ・ロードする。
-OpenAPIスキーマ (TypeSpec → oapi-codegen) で生成された型を使い、
-コンパイル時に型安全性を保証する。
+ark-serde でワールド全体をJSON化して保存し、ロード時にそのまま復元する（丸ごと保存）。
+以前の「プレイヤー/隊員/インベントリのみ保存し、ロード時にダンジョンを再生成する」
+選択的保存から、保存時の全状態を復元する方式へ移行した。
 
-## 主要な特徴
+## 保存形式
 
-### 1. 安定ID システム
-  - エンティティIDは世代管理により安定性を保証する
-  - エンティティの削除・再作成時も参照の整合性を維持する
-  - セーブファイル間でのエンティティ参照が安全になる
+セーブファイルは saveEnvelope（外枠）に ark-serde のワールドJSONを包んだ構造を持つ。
 
-### 2. OpenAPI生成型による静的シリアライゼーション
-  - oas/typespec/save.tsp で定義されたスキーマから Go 型を自動生成する
-  - gc型 ↔ SaveData型の明示的な変換関数で型安全に変換する
-  - ランタイムバリデーション (ValidateSaveJSON) でデータ整合性を検証する
+  - Version:    セーブ形式バージョン
+  - Timestamp:  保存日時
+  - Checksum:   改ざん検知用のSHA-256（Checksum自身を除いた封筒に対して計算）
+  - PlayerName: 一覧表示用にプレイヤー名をメタとして保持（ワールド全体を展開せず参照できる）
+  - World:      ark-serde が出力するワールドJSON
 
-### 3. エンティティ参照の解決
-  - LocationEquipped.Owner のエンティティ参照を StableID 経由で処理する
-  - セーブ時は安定IDに変換、ロード時は実エンティティに復元する
+## シリアライズの方針
 
-## 新しいコンポーネントの追加手順
+  - エンティティ参照（コンポーネント内の ecs.Entity）は ark-serde が自動で再マッピングする。
+    以前の手書き安定ID再マップは不要になった。
+  - 一時状態コンポーネント（SpatialIndex・視界・各種ダーティフラグ・Activity 等）は
+    skipComponents() で除外する。ロード時に再生成・再構築される。
+  - serde 非互換なフィールド（struct をキーにした map、ebiten実行時オプション、派生データ）は
+    json:"-" で除外する。
+  - ark-serde の出力はマップ反復順により非決定的だが、checksum は保存バイト列に対して
+    計算・検証するため整合性は保たれる。
 
-1. oas/typespec/save.tsp にコンポーネントモデルを追加する
-2. TypeSpecコンパイル → oapi-codegen で Go 型を再生成する
-3. converter.go に変換関数ペアを追加する
-4. manager.go の extractEntity と restoreWorldData に変換処理を追加する
+## ロード時の復元
+
+Deserialize はリセット済みワールドを要求するため、RestoreWorldFromJSON は先に
+world.World.Reset() を行う。復元後、reestablishSingleton がスキップした一時コンポーネント
+（GameLog・SpatialIndex）を再付与し、視界マップを初期化し、Resources.SingletonEntity の
+参照を張り直す。
 
 ## パッケージ責務
 
-  - stable_id.go: 安定ID管理システム
-  - converter.go: gc型 ↔ SaveData生成型の変換関数
-  - manager.go: セーブ・ロード処理の統合管理
-  - validate.go: OpenAPIスキーマによるバリデーション
+  - serde.go:   ark-serde ラッパー、skipリスト、封筒、シングルトン再確立
+  - manager.go: セーブ・ロード処理とスロット/オートセーブ管理
+  - desktop.go / wasm.go: プラットフォーム別のファイルI/O
 */
 package save

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -69,4 +70,31 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 		healingFound = true
 	}
 	assert.True(t, healingFound, "回復効果コンポーネントが復元される")
+}
+
+// TestSerde_DungeonLocationPersists は現在地（Dungeonの階層・定義名）が保存・復元されることを検証する。
+// ロード時の復帰先ステート再構築はこの2フィールドに依存する。
+func TestSerde_DungeonLocationPersists(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	dungeonState := query.GetDungeon(world)
+	dungeonState.Depth = 3
+	dungeonState.DefinitionName = "遺跡"
+
+	require.NoError(t, manager.SaveWorld(world, "location"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "location"))
+
+	restored := query.GetDungeon(newWorld)
+	require.NotNil(t, restored)
+	assert.Equal(t, 3, restored.Depth, "階層が復元される")
+	assert.Equal(t, "遺跡", restored.DefinitionName, "ダンジョン定義名が復元される")
 }

@@ -38,6 +38,9 @@ type DungeonState struct {
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
 	DefinitionName string
+	// Resume はセーブからの復帰モード。trueならマップ再生成とプレイヤー再配置を行わず、
+	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
+	Resume bool
 }
 
 func (st DungeonState) String() string {
@@ -75,61 +78,64 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if !found {
 		return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
 	}
-	// ステージ用シードを生成する
-	stageSeed := world.Config.RNG.Uint64()
-	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
+	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
+	if !st.Resume {
+		// ステージ用シードを生成する
+		stageSeed := world.Config.RNG.Uint64()
+		stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
-	// ビルダータイプを決定
-	var builderType mapplanner.PlannerType
-	// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
-	switch {
-	case def.BossPlannerType != nil && st.Depth == def.TotalFloors:
-		builderType = *def.BossPlannerType
-	case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
-		var err error
-		builderType, err = dungeon.SelectPlanner(def, stageRNG)
+		// ビルダータイプを決定
+		var builderType mapplanner.PlannerType
+		// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
+		switch {
+		case def.BossPlannerType != nil && st.Depth == def.TotalFloors:
+			builderType = *def.BossPlannerType
+		case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
+			var err error
+			builderType, err = dungeon.SelectPlanner(def, stageRNG)
+			if err != nil {
+				return err
+			}
+		default:
+			builderType = st.BuilderType
+		}
+
+		// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+		builderType.EnemyTableName = def.EnemyTableName
+		builderType.ItemTableName = def.ItemTableName
+		builderType.Depth = st.Depth
+
+		// 計画作成する
+		plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 		if err != nil {
 			return err
 		}
-	default:
-		builderType = st.BuilderType
+		// スポーンする
+		level, err := mapspawner.Spawn(world, plan)
+		if err != nil {
+			return err
+		}
+		query.GetDungeon(world).Level = level
+
+		// プレイヤーを配置する
+		playerPos, err := plan.GetPlayerStartPosition()
+		if err != nil {
+			return err
+		}
+		if err := lifecycle.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
+			return err
+		}
+
+		// フロア移動時に探索済みマップをリセット
+		query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
 	}
 
-	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
-	builderType.EnemyTableName = def.EnemyTableName
-	builderType.ItemTableName = def.ItemTableName
-	builderType.Depth = st.Depth
-
-	// 計画作成する
-	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
-	if err != nil {
-		return err
-	}
-	// スポーンする
-	level, err := mapspawner.Spawn(world, plan)
-	if err != nil {
-		return err
-	}
-	query.GetDungeon(world).Level = level
-
-	// 前フロアのSpatialIndexが残っている可能性があるため無効化する
+	// 前フロア・復元前のSpatialIndexが残っている可能性があるため無効化して作り直す。
 	// SpatialIndexはTurnPhaseEndでのみ無効化されるが、フロア遷移はTurnPhasePlayer中に
-	// 発生するため、古いフロアのデータが残り移動不能になることがある
+	// 発生するため、古いデータが残り移動不能になることがある
 	query.InvalidateSpatialIndex(world)
 
-	// プレイヤーを配置する
-	playerPos, err := plan.GetPlayerStartPosition()
-	if err != nil {
-		return err
-	}
-	if err := lifecycle.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
-		return err
-	}
-
-	// フロア移動時に探索済みマップをリセット
-	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
-
-	// 新しい階のために視界キャッシュをクリアする
+	// 視界キャッシュをクリアする
 	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
 		vs.(*gs.VisionSystem).ClearCaches()
 	}

@@ -527,6 +527,14 @@ func WithDefinitionName(name string) DungeonStateOption {
 	}
 }
 
+// WithResume はセーブから復帰するモードにするオプション。
+// マップの再生成・プレイヤー再配置を行わず、復元済みのワールドをそのまま使う
+func WithResume() DungeonStateOption {
+	return func(ds *DungeonState) {
+		ds.Resume = true
+	}
+}
+
 // NewDungeonState はDungeonStateインスタンスを作成するファクトリー関数
 // デフォルトではBuilderTypeはPlannerTypeRandomになる
 func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.World] {
@@ -700,9 +708,17 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return err
 		}
+		// 復元済みの現在地（ダンジョン定義名・深度。町も深度0のダンジョンとして扱う）から
+		// 再生成せずに復帰する
+		dungeonState := query.GetDungeon(world)
+		resume := NewDungeonState(
+			dungeonState.Depth,
+			WithDefinitionName(dungeonState.DefinitionName),
+			WithResume(),
+		)
 		messageState.SetTransition(es.Transition[w.World]{
 			Type:          es.TransReplace,
-			NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
+			NewStateFuncs: []es.StateFactory[w.World]{resume}})
 		return nil
 	})
 }
