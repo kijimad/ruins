@@ -86,10 +86,8 @@ func (sys RenderSpriteSystem) String() string {
 func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	// VisionSystemが計算した光源情報を取得する
 	var lights map[gc.GridElement]LightInfo
-	if vs, ok := world.Updaters[(&VisionSystem{}).String()]; ok {
-		if vision, ok := vs.(*VisionSystem); ok {
-			lights = vision.lightSourceCache
-		}
+	if vision, ok := VisionSystemFrom(world); ok {
+		lights = vision.lightSourceCache
 	}
 
 	// タイルごとの描画情報を一括計算する

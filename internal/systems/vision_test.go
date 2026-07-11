@@ -68,7 +68,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		result := computeTileRenderMap(world, lights)
 
 		v, ok := result[grid].(TileRenderVisible)
-		assert.True(t, ok)
+		require.True(t, ok, "型が TileRenderVisible であるべき")
 		assert.Equal(t, color.RGBA{R: 255, G: 200, B: 100, A: 255}, v.LightColor)
 	})
 
@@ -139,7 +139,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		result := computeTileRenderMap(world, lights)
 
 		v, ok := result[grid].(TileRenderVisible)
-		assert.True(t, ok)
+		require.True(t, ok, "型が TileRenderVisible であるべき")
 		assert.Equal(t, color.RGBA{}, v.LightColor,
 			"Darkness=1.0の光源では光源色が設定されない")
 	})
@@ -160,7 +160,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		result := computeTileRenderMap(world, lights)
 
 		v, ok := result[grid].(TileRenderVisible)
-		assert.True(t, ok)
+		require.True(t, ok, "型が TileRenderVisible であるべき")
 		assert.Equal(t, color.RGBA{R: 200, G: 150, B: 100, A: 255}, v.LightColor)
 	})
 }

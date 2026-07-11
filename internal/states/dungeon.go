@@ -136,10 +136,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 	query.InvalidateSpatialIndex(world)
 
 	// 視界キャッシュをクリアする
-	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
-		if vision, ok := vs.(*gs.VisionSystem); ok {
-			vision.ClearCaches()
-		}
+	if vision, ok := gs.VisionSystemFrom(world); ok {
+		vision.ClearCaches()
 	}
 
 	// ダンジョンタイトルエフェクト用エンティティを作成する
@@ -190,10 +188,8 @@ func (st *DungeonState) OnStop(world w.World) error {
 	lifecycle.ConsumeStateChange(world)
 
 	// 視界キャッシュをクリア
-	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
-		if vision, ok := vs.(*gs.VisionSystem); ok {
-			vision.ClearCaches()
-		}
+	if vision, ok := gs.VisionSystemFrom(world); ok {
+		vision.ClearCaches()
 	}
 	return nil
 }

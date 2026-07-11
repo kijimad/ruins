@@ -49,6 +49,20 @@ func NewVisionSystem() *VisionSystem {
 	}
 }
 
+// VisionSystemFrom は登録済みのVisionSystemを返す。
+// 未登録なら ok=false を返す。登録値の型が一致しない場合は不変条件違反なのでpanicする
+func VisionSystemFrom(world w.World) (*VisionSystem, bool) {
+	updater, ok := world.Updaters[VisionSystem{}.String()]
+	if !ok {
+		return nil, false
+	}
+	vision, ok := updater.(*VisionSystem)
+	if !ok {
+		panic("Updaters に登録された VisionSystem が *VisionSystem 型でない")
+	}
+	return vision, true
+}
+
 // ClearCaches は全ての視界関連キャッシュをクリアする（階移動時などに使用）
 func (sys *VisionSystem) ClearCaches() {
 	sys.isInitialized = false
