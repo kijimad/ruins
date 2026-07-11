@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -124,8 +124,8 @@
 <span id="L62"><span class="lineNum">      62</span>              :         AnimKeys []string</span>
 <span id="L63"><span class="lineNum">      63</span>              :         // 描画順。小さい順に先に(下に)描画する</span>
 <span id="L64"><span class="lineNum">      64</span>              :         Depth DepthNum</span>
-<span id="L65"><span class="lineNum">      65</span>              :         // Draw options</span>
-<span id="L66"><span class="lineNum">      66</span>              :         Options ebiten.DrawImageOptions</span>
+<span id="L65"><span class="lineNum">      65</span>              :         // Draw options（実行時の描画オプション。serde対象外）</span>
+<span id="L66"><span class="lineNum">      66</span>              :         Options ebiten.DrawImageOptions `json:&quot;-&quot;`</span>
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : // DepthNum はオブジェクトの描画順。小さい値を先に描画する</span>

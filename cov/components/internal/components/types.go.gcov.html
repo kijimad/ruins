@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">54</td>
-            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">46</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -186,40 +186,15 @@
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         return 0, false</span></span>
 <span id="L125"><span class="lineNum">     125</span>              : }</span>
 <span id="L126"><span class="lineNum">     126</span>              : </span>
-<span id="L127"><span class="lineNum">     127</span>              : // Amounter は量を計算するためのインターフェース</span>
-<span id="L128"><span class="lineNum">     128</span>              : type Amounter interface {</span>
-<span id="L129"><span class="lineNum">     129</span>              :         Amount() // 量計算を識別するマーカーメソッド</span>
-<span id="L130"><span class="lineNum">     130</span>              : }</span>
-<span id="L131"><span class="lineNum">     131</span>              : </span>
-<span id="L132"><span class="lineNum">     132</span>              : var _ Amounter = RatioAmount{}</span>
-<span id="L133"><span class="lineNum">     133</span>              : </span>
-<span id="L134"><span class="lineNum">     134</span>              : // RatioAmount は倍率指定</span>
-<span id="L135"><span class="lineNum">     135</span>              : type RatioAmount struct {</span>
-<span id="L136"><span class="lineNum">     136</span>              :         Ratio float64 // 倍率</span>
-<span id="L137"><span class="lineNum">     137</span>              : }</span>
-<span id="L138"><span class="lineNum">     138</span>              : </span>
-<span id="L139"><span class="lineNum">     139</span>              : // Amount はAmounterインターフェースの実装</span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : func (ra RatioAmount) Amount() {}</span></span>
-<span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span>              : // Calc は倍率と基準値から実際の量を計算する</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : func (ra RatioAmount) Calc(base int) int {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         return int(float64(base) * ra.Ratio)</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L146"><span class="lineNum">     146</span>              : </span>
-<span id="L147"><span class="lineNum">     147</span>              : var _ Amounter = NumeralAmount{}</span>
-<span id="L148"><span class="lineNum">     148</span>              : </span>
-<span id="L149"><span class="lineNum">     149</span>              : // NumeralAmount は絶対量指定</span>
-<span id="L150"><span class="lineNum">     150</span>              : type NumeralAmount struct {</span>
-<span id="L151"><span class="lineNum">     151</span>              :         Numeral int // 絶対量</span>
-<span id="L152"><span class="lineNum">     152</span>              : }</span>
-<span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : // Amount はAmounterインターフェースの実装</span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 : func (na NumeralAmount) Amount() {}</span></span>
-<span id="L156"><span class="lineNum">     156</span>              : </span>
-<span id="L157"><span class="lineNum">     157</span>              : // Calc は固定の数値量を返す</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : func (na NumeralAmount) Calc() int {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return na.Numeral</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L127"><span class="lineNum">     127</span>              : // HealAmountKind は回復量の指定方法を表す判別子</span>
+<span id="L128"><span class="lineNum">     128</span>              : type HealAmountKind int</span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span>              : const (</span>
+<span id="L131"><span class="lineNum">     131</span>              :         // HealNumeral は絶対量指定</span>
+<span id="L132"><span class="lineNum">     132</span>              :         HealNumeral HealAmountKind = iota</span>
+<span id="L133"><span class="lineNum">     133</span>              :         // HealRatio は最大値に対する倍率指定</span>
+<span id="L134"><span class="lineNum">     134</span>              :         HealRatio</span>
+<span id="L135"><span class="lineNum">     135</span>              : )</span>
         </pre>
               </td>
             </tr>

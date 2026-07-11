@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -236,9 +236,9 @@
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 : func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         switch h.ValueType {</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         case oapi.PERCENTAGE:</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return &amp;gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return &amp;gc.ProvidesHealing{Kind: gc.HealRatio, Amount: h.Ratio}</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 return &amp;gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 return &amp;gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: float64(h.Amount)}</span></span>
 <span id="L180"><span class="lineNum">     180</span>              :         }</span>
 <span id="L181"><span class="lineNum">     181</span>              : }</span>
 <span id="L182"><span class="lineNum">     182</span>              : </span>
@@ -383,7 +383,7 @@
 <span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L322"><span class="lineNum">     322</span>              : </span>
 <span id="L323"><span class="lineNum">     323</span>              :         // すべてのアイテムにInteractableを追加（所持状態に関わらず）</span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC tlaBgGNC">           1 :         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionData{gc.ItemInteraction{}}}</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC tlaBgGNC">           1 :         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}</span></span>
 <span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
 <span id="L327"><span class="lineNum">     327</span>              : }</span>
@@ -534,14 +534,14 @@
 <span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC tlaBgGNC">           2 :                 if member.MovementPattern != nil &amp;&amp; string(*member.MovementPattern) != &quot;&quot; {</span></span>
 <span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                         solo.Movement = gc.SoloMovement(*member.MovementPattern)</span></span>
 <span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                 entitySpec.AI = &amp;gc.AI{Planner: &amp;solo}</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                 entitySpec.SoloAI = &amp;solo</span></span>
 <span id="L476"><span class="lineNum">     476</span>              :         }</span>
 <span id="L477"><span class="lineNum">     477</span>              : </span>
 <span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :         if member.Dialog != nil {</span></span>
 <span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC tlaBgUNC">           0 :                 entitySpec.Dialog = &amp;gc.Dialog{</span></span>
 <span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :                         MessageKey: member.Dialog.MessageKey,</span></span>
 <span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionData{gc.TalkInteraction{}}}</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionTalk}}</span></span>
 <span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L484"><span class="lineNum">     484</span>              : </span>
 <span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC tlaBgGNC">           1 :         return entitySpec, nil</span></span>
@@ -556,7 +556,7 @@
 <span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC tlaBgGNC">           1 :         entitySpec.FactionType = &amp;gc.FactionAlly</span></span>
 <span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :         entitySpec.Player = &amp;gc.Player{}</span></span>
 <span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :         entitySpec.Hunger = gc.NewHunger()</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         entitySpec.AI = nil</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         entitySpec.SoloAI = nil</span></span>
 <span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
 <span id="L499"><span class="lineNum">     499</span>              : }</span>
 <span id="L500"><span class="lineNum">     500</span>              : </span>
@@ -707,12 +707,12 @@
 <span id="L645"><span class="lineNum">     645</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L646"><span class="lineNum">     646</span>              :         // 各条件に対応するインタラクションを蓄積する。</span>
 <span id="L647"><span class="lineNum">     647</span>              :         // 1つのPropが複数のインタラクションを持てる</span>
-<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC tlaBgGNC">           1 :         var interactions []gc.InteractionData</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC tlaBgGNC">           1 :         var interactions []gc.InteractionKind</span></span>
 <span id="L649"><span class="lineNum">     649</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L650"><span class="lineNum">     650</span> <span class="tlaGNC">           2 :         if propRaw.Hp != nil {</span></span>
 <span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">           1 :                 hp := int(*propRaw.Hp)</span></span>
 <span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           1 :                 entitySpec.HP = &amp;gc.HP{Max: hp, Current: hp}</span></span>
-<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.MeleeInteraction{})</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionMelee)</span></span>
 <span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L655"><span class="lineNum">     655</span>              : </span>
 <span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :         entitySpec.LightSource = toGCLightSource(propRaw.LightSource)</span></span>
@@ -722,30 +722,30 @@
 <span id="L660"><span class="lineNum">     660</span> <span class="tlaUNC">           0 :                         IsOpen:      false,</span></span>
 <span id="L661"><span class="lineNum">     661</span> <span class="tlaUNC">           0 :                         Orientation: gc.DoorOrientationHorizontal,</span></span>
 <span id="L662"><span class="lineNum">     662</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L663"><span class="lineNum">     663</span> <span class="tlaUNC">           0 :                 interactions = append(interactions, gc.DoorInteraction{})</span></span>
+<span id="L663"><span class="lineNum">     663</span> <span class="tlaUNC">           0 :                 interactions = append(interactions, gc.InteractionDoor)</span></span>
 <span id="L664"><span class="lineNum">     664</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L665"><span class="lineNum">     665</span>              : </span>
 <span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC tlaBgGNC">           1 :         if propRaw.DoorLockTrigger != nil {</span></span>
-<span id="L667"><span class="lineNum">     667</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.DoorLockInteraction{})</span></span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.InteractionDoorLock)</span></span>
 <span id="L668"><span class="lineNum">     668</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L669"><span class="lineNum">     669</span>              : </span>
 <span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC tlaBgGNC">           1 :         if propRaw.WarpNextTrigger != nil {</span></span>
-<span id="L671"><span class="lineNum">     671</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.PortalInteraction{PortalType: gc.PortalTypeNext})</span></span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.InteractionPortalNext)</span></span>
 <span id="L672"><span class="lineNum">     672</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L673"><span class="lineNum">     673</span>              : </span>
 <span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC tlaBgGNC">           1 :         if propRaw.WarpEscapeTrigger != nil {</span></span>
-<span id="L675"><span class="lineNum">     675</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.PortalInteraction{PortalType: gc.PortalTypeTown})</span></span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.InteractionPortalTown)</span></span>
 <span id="L676"><span class="lineNum">     676</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L677"><span class="lineNum">     677</span>              : </span>
 <span id="L678"><span class="lineNum">     678</span> <span class="tlaGNC tlaBgGNC">           1 :         if propRaw.DungeonGateTrigger != nil {</span></span>
-<span id="L679"><span class="lineNum">     679</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.DungeonGateInteraction{})</span></span>
+<span id="L679"><span class="lineNum">     679</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactions = append(interactions, gc.InteractionDungeonGate)</span></span>
 <span id="L680"><span class="lineNum">     680</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L681"><span class="lineNum">     681</span>              : </span>
 <span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC tlaBgGNC">           2 :         if propRaw.Storage != nil {</span></span>
 <span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :                 entitySpec.WeightCapacity = &amp;gc.WeightCapacity{</span></span>
 <span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           1 :                         Max: propRaw.Storage.MaxWeight,</span></span>
 <span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.StorageInteraction{})</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionStorage)</span></span>
 <span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L688"><span class="lineNum">     688</span>              : </span>
 <span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           2 :         if len(interactions) &gt; 0 {</span></span>

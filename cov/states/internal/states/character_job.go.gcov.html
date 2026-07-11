@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -223,7 +223,7 @@
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         // 既存プレイヤーがいれば削除する</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         if existing, err := query.GetPlayerEntity(world); err == nil {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 world.Manager.DeleteEntity(existing)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 world.ECS.RemoveEntity(existing)</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L166"><span class="lineNum">     166</span>              : </span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         player, err := lifecycle.SpawnPlayer(world, 5, 5, &quot;Ash&quot;)</span></span>
@@ -239,7 +239,7 @@
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L178"><span class="lineNum">     178</span>              : </span>
 <span id="L179"><span class="lineNum">     179</span>              :         // プレイヤー名を上書き</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         name := world.Components.Name.Get(player).(*gc.Name)</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         name := world.Components.Name.Get(player)</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         name.Name = st.playerName</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         // 操作ガイドを表示する</span></span>

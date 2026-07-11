@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L22"><span class="lineNum">      22</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L23"><span class="lineNum">      23</span>              : )</span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span>              : // placePhase は置くモードのフェーズを表す</span>
@@ -131,7 +131,7 @@
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         st.phase = placePhaseSelectItem</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         st.refreshBackpackItems(world)</span></span>
@@ -247,11 +247,11 @@
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) refreshBackpackItems(world w.World) {</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         st.backpackItems = nil</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 world.Components.LocationInBackpack,</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         for backpackQuery.Next() {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 entity := backpackQuery.Entity()</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 st.backpackItems = append(st.backpackItems, entity)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }))</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L193"><span class="lineNum">     193</span>              : </span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           2 :         if st.selectedIndex &gt;= len(st.backpackItems) {</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 st.selectedIndex = 0</span></span>

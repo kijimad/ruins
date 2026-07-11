@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.2&nbsp;%</td>
-            <td class="headerCovTableEntry">126</td>
-            <td class="headerCovTableEntry">101</td>
+            <td class="headerCovTableEntryMed">79.5&nbsp;%</td>
+            <td class="headerCovTableEntry">122</td>
+            <td class="headerCovTableEntry">97</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,7 +72,7 @@
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // リロードシステムの定数</span>
@@ -181,7 +181,7 @@
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 loaded := min(ammoCount, needed)</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 // 装填した弾薬の修正値を記録する</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 ammoComp := world.Components.Ammo.Get(ammoEntity).(*gc.Ammo)</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 ammoComp := world.Components.Ammo.Get(ammoEntity)</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 fire.LoadedDamageBonus = ammoComp.DamageBonus</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 fire.LoadedAccuracyBonus = ammoComp.AccuracyBonus</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 : </span></span>
@@ -225,33 +225,29 @@
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         effort := BaseReloadEffort</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         // DEXを加算</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         abilsComp := world.Components.Abilities.Get(actor)</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :         if abilsComp != nil {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 abils := abilsComp.(*gc.Abilities)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 effort += abils.Dexterity.Total</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L171"><span class="lineNum">     171</span>              : </span>
-<span id="L172"><span class="lineNum">     172</span>              :         // 武器スキルレベルを加算</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         skillID, ok := gc.WeaponSkillID(fire.AttackCategory)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           2 :         if ok {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 skillsComp := world.Components.Skills.Get(actor)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :                 if skillsComp != nil {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                         skills := skillsComp.(*gc.Skills)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                         effort += skills.Get(skillID).Value</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L180"><span class="lineNum">     180</span>              :         }</span>
-<span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         return effort</span></span>
-<span id="L183"><span class="lineNum">     183</span>              : }</span>
-<span id="L184"><span class="lineNum">     184</span>              : </span>
-<span id="L185"><span class="lineNum">     185</span>              : // ExecuteReloadAction はリロードアクションを実行する</span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 : func ExecuteReloadAction(actor ecs.Entity, world w.World) error {</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         _, err := Execute(&amp;ReloadActivity{}, actor, world)</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 return err</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L192"><span class="lineNum">     192</span>              : }</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           2 :         if world.Components.Abilities.Has(actor) {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 effort += world.Components.Abilities.Get(actor).Dexterity.Total</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span>              :         // 武器スキルレベルを加算</span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         skillID, ok := gc.WeaponSkillID(fire.AttackCategory)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           2 :         if ok {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           2 :                 if world.Components.Skills.Has(actor) {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                         effort += world.Components.Skills.Get(actor).Get(skillID).Value</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :         }</span>
+<span id="L177"><span class="lineNum">     177</span>              : </span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         return effort</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : }</span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span>              : // ExecuteReloadAction はリロードアクションを実行する</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 : func ExecuteReloadAction(actor ecs.Entity, world w.World) error {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         _, err := Execute(&amp;ReloadActivity{}, actor, world)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 return err</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L188"><span class="lineNum">     188</span>              : }</span>
         </pre>
               </td>
             </tr>

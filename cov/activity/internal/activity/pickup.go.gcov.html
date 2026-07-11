@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.3&nbsp;%</td>
-            <td class="headerCovTableEntry">138</td>
-            <td class="headerCovTableEntry">108</td>
+            <td class="headerCovTableEntryMed">77.8&nbsp;%</td>
+            <td class="headerCovTableEntry">135</td>
+            <td class="headerCovTableEntry">105</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,7 +73,7 @@
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              : )</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // PickupActivity はBehaviorの実装</span>
@@ -130,20 +130,20 @@
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         hasPickable := false</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 world.Components.GridElement,</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         pickableQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           2 :         for pickableQuery.Next() {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 entity := pickableQuery.Entity()</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :                 if hasPickable {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         return</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L76"><span class="lineNum">      76</span>              :                 }</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :                 if grid.X != target.X || grid.Y != target.Y {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         return</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L80"><span class="lineNum">      80</span>              :                 }</span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           2 :                 if query.IsPickable(entity, world) {</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                         hasPickable = true</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L84"><span class="lineNum">      84</span>              :         }))</span>
+<span id="L84"><span class="lineNum">      84</span>              :         }</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           2 :         if !hasPickable {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;拾えるものがありません&quot;)</span></span>
@@ -203,17 +203,17 @@
 <span id="L141"><span class="lineNum">     141</span>              : </span>
 <span id="L142"><span class="lineNum">     142</span>              :         // 対象タイルの拾得可能なエンティティを検索</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         var toCollect []ecs.Entity</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 world.Components.GridElement,</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         collectQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           2 :         for collectQuery.Next() {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 entity := collectQuery.Entity()</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           2 :                 if grid.X != target.X || grid.Y != target.Y {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                         return</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :                 }</span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :                 if query.IsPickable(entity, world) {</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         toCollect = append(toCollect, entity)</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L154"><span class="lineNum">     154</span>              :         }))</span>
+<span id="L154"><span class="lineNum">     154</span>              :         }</span>
 <span id="L155"><span class="lineNum">     155</span>              : </span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           2 :         if len(toCollect) == 0 {</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;拾えるものがありません&quot;)</span></span>
@@ -235,7 +235,7 @@
 <span id="L173"><span class="lineNum">     173</span>              : </span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC tlaBgGNC">           1 :         log.Debug(&quot;拾得完了&quot;, &quot;count&quot;, collectedCount)</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         if collectedCount &gt; 1 &amp;&amp; actor.HasComponent(world.Components.Player) {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         if collectedCount &gt; 1 &amp;&amp; world.Components.Player.Has(actor) {</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC tlaBgUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                         Append(fmt.Sprintf(&quot;%d個を入手した&quot;, collectedCount)).</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                         Log()</span></span>

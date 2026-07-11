@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,12 +65,12 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // ComponentInitializer はコンポーネントの初期化を行うインターフェース</span>
 <span id="L10"><span class="lineNum">      10</span>              : type ComponentInitializer interface {</span>
-<span id="L11"><span class="lineNum">      11</span>              :         InitializeComponents(manager *ecs.Manager) error</span>
+<span id="L11"><span class="lineNum">      11</span>              :         InitializeComponents(world *ecs.World) error</span>
 <span id="L12"><span class="lineNum">      12</span>              : }</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
 <span id="L14"><span class="lineNum">      14</span>              : // Components はジェネリクス型を使用した型安全な実装</span>
@@ -79,8 +79,8 @@
 <span id="L17"><span class="lineNum">      17</span>              : }</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // InitComponents はジェネリクス型を使用した型安全な実装</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func InitComponents[T ComponentInitializer](manager *ecs.Manager, gameComponents T) (*Components[T], error) {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :         if err := gameComponents.InitializeComponents(manager); err != nil {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func InitComponents[T ComponentInitializer](world *ecs.World, gameComponents T) (*Components[T], error) {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :         if err := gameComponents.InitializeComponents(world); err != nil {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to initialize components: %w&quot;, err)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,7 +82,7 @@
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L23"><span class="lineNum">      23</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L24"><span class="lineNum">      24</span>              : )</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : const storageItemsPerPage = 20</span>
@@ -218,7 +218,7 @@
 <span id="L156"><span class="lineNum">     156</span>              : </span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) fetchProps(world w.World) storageProps {</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         storageName := query.GetEntityName(st.storageEntity, world)</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         wc := world.Components.WeightCapacity.Get(st.storageEntity).(*gc.WeightCapacity)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         wc := world.Components.WeightCapacity.Get(st.storageEntity)</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         weightText := fmt.Sprintf(&quot;%.1f / %.1f kg&quot;, wc.Current, wc.Max)</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         storeTabs := st.createBackpackItemData(world)</span></span>
@@ -251,11 +251,11 @@
 <span id="L189"><span class="lineNum">     189</span>              : </span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : func (st *StorageMenuState) createBackpackItemData(world w.World) []storageItemData {</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         var entities []ecs.Entity</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 world.Components.LocationInBackpack,</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           2 :         for backpackQuery.Next() {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 entity := backpackQuery.Entity()</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 entities = append(entities, entity)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }))</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L197"><span class="lineNum">     197</span>              : </span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         sorted := query.SortEntities(world, entities)</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         return st.toStorageItemData(world, sorted)</span></span>
@@ -269,8 +269,8 @@
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                         Entity: entity,</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                         Name:   name,</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           2 :                 if entity.HasComponent(world.Components.Stackable) {</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                         stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           2 :                 if world.Components.Stackable.Has(entity) {</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                         stackable := world.Components.Stackable.Get(entity)</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                         item.Count = fmt.Sprintf(&quot;%d&quot;, stackable.Count)</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 items[i] = item</span></span>

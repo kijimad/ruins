@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,7 +71,7 @@
 <span id="L9"><span class="lineNum">       9</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              : )</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // WaitActivity はBehaviorの実装</span>
@@ -160,7 +160,7 @@
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         log.Debug(&quot;待機完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         // 複数ターン待機の場合のみログを表示する</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           2 :         if comp.TurnsTotal &gt; 1 &amp;&amp; actor.HasComponent(world.Components.Player) {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           2 :         if comp.TurnsTotal &gt; 1 &amp;&amp; world.Components.Player.Has(actor) {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                         Append(&quot;待機を終了した&quot;).</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                         Log()</span></span>

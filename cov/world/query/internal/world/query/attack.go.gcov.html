@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,7 +68,7 @@
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              : // GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択し、Meleeパラメータを返す</span>
@@ -78,7 +78,7 @@
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;enemy has no CommandTable component&quot;)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         commandTableName := commandTableComp.(*gc.CommandTable).Name</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         commandTableName := commandTableComp.Name</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         commandTable, err := raw.GetCommandTable(world.Resources.RawMaster, commandTableName)</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;failed to get command table: %w&quot;, err)</span></span>
@@ -109,13 +109,13 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           2 :         if nameComp == nil {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon has no Name component&quot;)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         name := nameComp.(*gc.Name).Name</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         name := nameComp.Name</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         meleeComp := world.Components.Melee.Get(weaponEntity)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         if meleeComp == nil {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon %s has no Melee component&quot;, name)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return meleeComp.(*gc.Melee), name, nil</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return meleeComp, name, nil</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : }</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              : // GetFireFromWeapon は武器エンティティからFireコンポーネントを取得する</span>
@@ -124,13 +124,13 @@
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :         if nameComp == nil {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon has no Name component&quot;)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         name := nameComp.(*gc.Name).Name</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         name := nameComp.Name</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         fireComp := world.Components.Fire.Get(weaponEntity)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :         if fireComp == nil {</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon %s has no Fire component&quot;, name)</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return fireComp.(*gc.Fire), name, nil</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return fireComp, name, nil</span></span>
 <span id="L72"><span class="lineNum">      72</span>              : }</span>
         </pre>
               </td>

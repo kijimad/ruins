@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">151</td>
+            <td class="headerCovTableEntry">150</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,7 +77,7 @@
 <span id="L15"><span class="lineNum">      15</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              : )</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // MapGenVisualizerState はマップ生成過程を可視化するVRT専用ステート</span>
@@ -191,17 +191,17 @@
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         centerX := mapPixelW / 2</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         centerY := mapPixelH / 2</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 world.Components.Camera,</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 camera := world.Components.Camera.Get(entity).(*gc.Camera)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         for cameraQuery.Next() {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 entity := cameraQuery.Entity()</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 camera := world.Components.Camera.Get(entity)</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 camera.Scale = scale</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 camera.ScaleTo = scale</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 camera.X = centerX</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 camera.Y = centerY</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 camera.TargetX = centerX</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 camera.TargetY = centerY</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         }))</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 camera.Pos.X = centerX</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 camera.Pos.Y = centerY</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 camera.Target.X = centerX</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 camera.Target.Y = centerY</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L143"><span class="lineNum">     143</span>              : }</span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
 <span id="L145"><span class="lineNum">     145</span>              : // spawnSnapshot は現在のスナップショットからエンティティを生成する</span>
@@ -265,37 +265,36 @@
 <span id="L203"><span class="lineNum">     203</span>              : </span>
 <span id="L204"><span class="lineNum">     204</span>              : // hidePlayer はプレイヤーを画面外に移動して描画されないようにする</span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 : func (st *MapGenVisualizerState) hidePlayer(world w.World) {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 world.Components.Player,</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 ge := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 ge.X = -100</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 ge.Y = -100</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         }))</span></span>
-<span id="L214"><span class="lineNum">     214</span>              : }</span>
-<span id="L215"><span class="lineNum">     215</span>              : </span>
-<span id="L216"><span class="lineNum">     216</span>              : // clearEntities はスポーンしたエンティティを削除する</span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 : func (st *MapGenVisualizerState) clearEntities(world w.World) {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 world.Components.SpriteRender,</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 if !entity.HasComponent(world.Components.Player) &amp;&amp;</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                         !entity.HasComponent(world.Components.LocationInBackpack) &amp;&amp;</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                         !entity.HasComponent(world.Components.LocationEquipped) {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                         world.Manager.DeleteEntity(entity)</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L226"><span class="lineNum">     226</span>              :         }))</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 if !entity.HasComponent(world.Components.Player) {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                         world.Manager.DeleteEntity(entity)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L233"><span class="lineNum">     233</span>              :         }))</span>
-<span id="L234"><span class="lineNum">     234</span>              : </span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L236"><span class="lineNum">     236</span>              : }</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         playerQuery := ecs.NewFilter2[gc.Player, gc.GridElement](world.ECS).Query()</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         for playerQuery.Next() {</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 entity := playerQuery.Entity()</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 ge := world.Components.GridElement.Get(entity)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 ge.X = -100</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 ge.Y = -100</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : }</span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span>              : // clearEntities はスポーンしたエンティティを削除する</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 : func (st *MapGenVisualizerState) clearEntities(world w.World) {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         for spriteRenderQuery.Next() {</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 entity := spriteRenderQuery.Entity()</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 if !world.Components.Player.Has(entity) &amp;&amp;</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                         !world.Components.LocationInBackpack.Has(entity) &amp;&amp;</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                         !world.Components.LocationEquipped.Has(entity) {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                         world.ECS.RemoveEntity(entity)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L225"><span class="lineNum">     225</span>              :         }</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         for gridElementQuery.Next() {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 entity := gridElementQuery.Entity()</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 if !world.Components.Player.Has(entity) {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                         world.ECS.RemoveEntity(entity)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :         }</span>
+<span id="L233"><span class="lineNum">     233</span>              : </span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : }</span>
         </pre>
               </td>
             </tr>

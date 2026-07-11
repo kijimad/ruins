@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">16</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-09 13:21:56</td>
+            <td class="headerValue">2026-07-11 15:38:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,16 +65,16 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // GetActivity は指定されたエンティティの現在のアクティビティを取得する</span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC tlaBgGNC">           1 : func GetActivity(world w.World, entity ecs.Entity) *gc.Activity {</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 :         comp := world.Components.Activity.Get(entity)</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           2 :         if comp == nil {</span></span>
+<span id="L9"><span class="lineNum">       9</span>              : // GetActivity は指定されたエンティティの現在のアクティビティを取得する。</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 死亡・未保持のエンティティにはnilを返す</span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">           1 : func GetActivity(world w.World, entity ecs.Entity) *gc.Activity {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           2 :         if !world.ECS.Alive(entity) || !world.Components.Activity.Has(entity) {</span></span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         return comp.(*gc.Activity)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         return world.Components.Activity.Get(entity)</span></span>
 <span id="L16"><span class="lineNum">      16</span>              : }</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // HasActivity は指定されたエンティティがアクティビティを実行中かを返す</span>
@@ -83,21 +83,17 @@
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return activity != nil &amp;&amp; activity.State == gc.ActivityStateRunning</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              : // SetActivity はエンティティにアクティビティを設定する</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func SetActivity(world w.World, entity ecs.Entity, activity *gc.Activity) {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :         if world.Components.Activity.Get(entity) != nil {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 // 既存のアクティビティを上書き</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 entity.RemoveComponent(world.Components.Activity)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         entity.AddComponent(world.Components.Activity, activity)</span></span>
-<span id="L31"><span class="lineNum">      31</span>              : }</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // RemoveActivity はエンティティからアクティビティを削除する</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func RemoveActivity(world w.World, entity ecs.Entity) {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :         if world.Components.Activity.Get(entity) != nil {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 entity.RemoveComponent(world.Components.Activity)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L38"><span class="lineNum">      38</span>              : }</span>
+<span id="L24"><span class="lineNum">      24</span>              : // SetActivity はエンティティにアクティビティを設定する。既存があれば上書きする</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func SetActivity(world w.World, entity ecs.Entity, activity *gc.Activity) error {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return gc.Upsert(world.ECS, world.Components.Activity, entity, activity)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : // RemoveActivity はエンティティからアクティビティを削除する</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : func RemoveActivity(world w.World, entity ecs.Entity) {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           2 :         if world.Components.Activity.Has(entity) {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 world.Components.Activity.Remove(entity)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : }</span>
         </pre>
               </td>
             </tr>
