@@ -9,15 +9,14 @@ require (
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
-	github.com/mlange-42/arche v0.15.3
-	github.com/mlange-42/arche-serde v0.2.1
+	github.com/mlange-42/ark v0.8.3
+	github.com/mlange-42/ark-serde v0.3.2
 	github.com/oapi-codegen/runtime v1.4.2
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/profile v1.7.0
 	github.com/sebdah/goldie/v2 v2.8.0
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v3 v3.10.1
-	github.com/x-hgg-x/goecs/v2 v2.0.5
 )
 
 require (
@@ -35,8 +34,6 @@ require (
 	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
-	github.com/mlange-42/ark v0.8.3 // indirect
-	github.com/mlange-42/ark-serde v0.3.2 // indirect
 	github.com/oasdiff/yaml v0.1.0 // indirect
 	github.com/oasdiff/yaml3 v0.0.13 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -44,7 +41,6 @@ require (
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
-	github.com/yourbasic/bit v0.0.0-20180313074424-45a4409f4082 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/image v0.41.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect

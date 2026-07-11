@@ -152,7 +152,8 @@ type CharModifiers struct {
 
 	// Sources は各効果の算出元を保持する。
 	// 1つの効果に複数の要因が影響しうるためスライスにしている。
-	Sources map[ModifierKey][]ModifierSource
+	// 派生データのためserde対象外とし、ロード時は再計算する
+	Sources map[ModifierKey][]ModifierSource `json:"-"`
 }
 
 // RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。

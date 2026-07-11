@@ -66,7 +66,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, playerCount, "プレイヤーが1個存在する")
-	assert.Equal(t, 0, npcCount, "NPCは保存されない（プレイヤーとアイテムのみ保存）")
+	assert.Equal(t, 1, npcCount, "丸ごと保存のためNPCも保存・復元される")
 }
 
 func TestSaveSlotInfo(t *testing.T) {
@@ -143,7 +143,7 @@ func TestSaveLoadInPlace(t *testing.T) {
 	require.NotNil(t, gp, "GameProgressがnilであってはならない")
 	assert.True(t, gp.IsDungeonCleared("遺跡"))
 
-	// DungeonはInitSingletonで再作成されるのでnilにならない
+	// Dungeonは丸ごと保存で復元されるのでnilにならない
 	d := query.GetDungeon(world)
 	assert.NotNil(t, d, "Dungeonが存在する")
 }
@@ -273,8 +273,6 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		// ステータス関連コンポーネント
 		assert.True(t, newWorld.Components.HealthStatus.Has(memberEntity), "HealthStatusが復元される")
 		assert.True(t, newWorld.Components.Skills.Has(memberEntity), "Skillsが復元される")
-		// CharModifiersはStatsChangedSystemが再計算する。復元直後はダーティフラグのみ
-		assert.True(t, newWorld.Components.StatsChanged.Has(memberEntity), "StatsChangedフラグが付与される")
 
 		// AIの値が正しいことを確認
 		ai := newWorld.Components.SquadAI.Get(memberEntity)

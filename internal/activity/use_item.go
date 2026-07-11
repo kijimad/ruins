@@ -89,8 +89,7 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// 回復効果があるかチェック
 	if world.Components.ProvidesHealing.Has(item) {
 		healing := world.Components.ProvidesHealing.Get(item)
-		healingComponent := healing
-		if err := u.applyHealing(comp, actor, world, healingComponent.Amount, item); err != nil {
+		if err := u.applyHealing(comp, actor, world, healing, item); err != nil {
 			Cancel(comp, fmt.Sprintf("回復処理エラー: %s", err.Error()))
 			return err
 		}
@@ -138,19 +137,10 @@ func (u *UseItemActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 }
 
 // applyHealing は回復処理を適用する
-func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, amounter gc.Amounter, item ecs.Entity) error {
-	// Amounterから実際の回復量を取得
-	var amount int
-	switch amt := amounter.(type) {
-	case gc.NumeralAmount:
-		amount = amt.Calc()
-	case gc.RatioAmount:
-		// 最大HPに対する割合で回復
-		hp := world.Components.HP.Get(actor)
-		amount = amt.Calc(hp.Max)
-	default:
-		return fmt.Errorf("未対応のAmounterタイプ: %T", amounter)
-	}
+func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {
+	// 最大HPを基準に実際の回復量を計算する（絶対量指定の場合は基準値は無視される）
+	hp := world.Components.HP.Get(actor)
+	amount := healing.Calc(hp.Max)
 
 	// 回復効果倍率を適用する
 	if world.Components.CharModifiers.Has(actor) {

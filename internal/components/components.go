@@ -331,10 +331,20 @@ type HP Pool[int]
 // Maxは最大容量、Currentは現在の重量を表す
 type WeightCapacity Pool[float64]
 
-// ProvidesHealing は回復する性質
-// 直接的な数値が作用し、ステータスなどは考慮されない
+// ProvidesHealing は回復する性質。
+// Kindで絶対量/倍率を判別するタグ付きデータ。serde互換のためinterfaceを排する
 type ProvidesHealing struct {
-	Amount Amounter
+	Kind    HealAmountKind
+	Numeral int     // Kind==HealNumeral: 絶対回復量
+	Ratio   float64 // Kind==HealRatio: 最大HPに対する倍率
+}
+
+// Calc は基準値(最大HP)から実際の回復量を計算する。絶対量指定の場合baseは無視される
+func (ph ProvidesHealing) Calc(base int) int {
+	if ph.Kind == HealRatio {
+		return int(float64(base) * ph.Ratio)
+	}
+	return ph.Numeral
 }
 
 // ProvidesNutrition は空腹度を回復する性質

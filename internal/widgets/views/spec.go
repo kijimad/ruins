@@ -186,11 +186,11 @@ func addHealingInfo(targetContainer *widget.Container, healing *gc.ProvidesHeali
 	columnWidths := []int{70, 80}
 
 	var healValue string
-	switch amt := healing.Amount.(type) {
-	case gc.NumeralAmount:
-		healValue = strconv.Itoa(amt.Numeral)
-	case gc.RatioAmount:
-		healValue = fmt.Sprintf("%.0f%%", amt.Ratio*100)
+	switch healing.Kind {
+	case gc.HealNumeral:
+		healValue = strconv.Itoa(healing.Numeral)
+	case gc.HealRatio:
+		healValue = fmt.Sprintf("%.0f%%", healing.Ratio*100)
 	default:
 		healValue = "-"
 	}

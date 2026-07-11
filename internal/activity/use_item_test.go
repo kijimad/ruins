@@ -220,7 +220,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		item := world.World.NewEntity()
 		world.Components.Consumable.Add(item, &gc.Consumable{})
-		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
+		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Numeral: 50})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -300,7 +300,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		item := world.World.NewEntity()
 		world.Components.Consumable.Add(item, &gc.Consumable{})
-		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
+		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Numeral: 50})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,

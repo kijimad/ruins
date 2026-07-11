@@ -200,14 +200,7 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 
 // calcHealing はProvidesHealingコンポーネントから回復量を計算する
 func calcHealing(ph *gc.ProvidesHealing, playerMaxHP int) int {
-	switch a := ph.Amount.(type) {
-	case gc.NumeralAmount:
-		return a.Calc()
-	case gc.RatioAmount:
-		return a.Calc(playerMaxHP)
-	default:
-		return 0
-	}
+	return ph.Calc(playerMaxHP)
 }
 
 // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す

@@ -62,8 +62,8 @@ type SpriteRender struct {
 	AnimKeys []string
 	// 描画順。小さい順に先に(下に)描画する
 	Depth DepthNum
-	// Draw options
-	Options ebiten.DrawImageOptions
+	// Draw options（実行時の描画オプション。serde対象外）
+	Options ebiten.DrawImageOptions `json:"-"`
 }
 
 // DepthNum はオブジェクトの描画順。小さい値を先に描画する

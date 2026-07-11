@@ -7,32 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCalcHealing_NumeralAmount(t *testing.T) {
+func TestCalcHealing_Numeral(t *testing.T) {
 	t.Parallel()
 
-	ph := &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}}
+	ph := &gc.ProvidesHealing{Kind: gc.HealNumeral, Numeral: 50}
 	assert.Equal(t, 50, calcHealing(ph, 100))
 }
 
-func TestCalcHealing_RatioAmount(t *testing.T) {
+func TestCalcHealing_Ratio(t *testing.T) {
 	t.Parallel()
 
-	ph := &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: 0.5}}
+	ph := &gc.ProvidesHealing{Kind: gc.HealRatio, Ratio: 0.5}
 	assert.Equal(t, 50, calcHealing(ph, 100))
 }
-
-func TestCalcHealing_UnknownAmount(t *testing.T) {
-	t.Parallel()
-
-	// Amounterインターフェースを実装するがNumeralでもRatioでもない型
-	ph := &gc.ProvidesHealing{Amount: unknownAmount{}}
-	assert.Equal(t, 0, calcHealing(ph, 100))
-}
-
-// unknownAmount はテスト用のAmounter実装
-type unknownAmount struct{}
-
-func (unknownAmount) Amount() {}
 
 func TestBattleStats_DPS(t *testing.T) {
 	t.Parallel()

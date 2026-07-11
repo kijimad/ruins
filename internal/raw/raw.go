@@ -174,9 +174,9 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {
 	switch h.ValueType {
 	case oapi.PERCENTAGE:
-		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}
+		return &gc.ProvidesHealing{Kind: gc.HealRatio, Ratio: h.Ratio}
 	default:
-		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}
+		return &gc.ProvidesHealing{Kind: gc.HealNumeral, Numeral: int(h.Amount)}
 	}
 }
 

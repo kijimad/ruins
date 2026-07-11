@@ -14,8 +14,9 @@ type Dungeon struct {
 	Level Level
 	// 階層数
 	Depth int
-	// 探索済みタイルのマップ。座標をキーとして使用
-	ExploredTiles map[GridElement]bool
+	// 探索済みタイルのマップ。座標をキーとして使用。
+	// GridElement(struct)キーのためserde不可、ロード時に再構築する
+	ExploredTiles map[GridElement]bool `json:"-"`
 	// ミニマップの設定
 	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
@@ -26,8 +27,9 @@ type Dungeon struct {
 	GameTime GameTime
 	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
 	SelectedWeaponSlot int
-	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される
-	VisibleTiles map[GridElement]bool
+	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される。
+	// GridElement(struct)キーのためserde不可、毎フレーム再構築される
+	VisibleTiles map[GridElement]bool `json:"-"`
 }
 
 // NewDungeon は初期化されたDungeonを返す
