@@ -280,7 +280,10 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 	})
 
-	t.Run("隊員のリーダー参照が復元される", func(t *testing.T) {
+	// SquadMember は空マーカーでリーダー参照フィールドを持たない（leader は配置位置の
+	// 決定にのみ使う）。ここではプレイヤーと隊員の両エンティティが独立に復元されることを検証する。
+	// エンティティ参照の再マッピング自体は unified_test の assertComplexWorldRestored で検証する
+	t.Run("プレイヤーと隊員の両エンティティが復元される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

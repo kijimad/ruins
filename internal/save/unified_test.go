@@ -69,18 +69,19 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 func assertComplexWorldRestored(t *testing.T, world w.World) {
 	t.Helper()
 
+	// プレイヤーを取得し、基本値まで復元されることを検証する
+	var playerEntity ecs.Entity
 	playerCount := 0
-	playerName := ""
 	pq := ecs.NewFilter1[gc.Player](world.World).Query()
 	for pq.Next() {
 		playerCount++
-		e := pq.Entity()
-		if world.Components.Name.Has(e) {
-			playerName = world.Components.Name.Get(e).Name
-		}
+		playerEntity = pq.Entity()
 	}
-	assert.Equal(t, 1, playerCount, "プレイヤーが1体復元される")
-	assert.Equal(t, "テストプレイヤー", playerName)
+	require.Equal(t, 1, playerCount, "プレイヤーが1体復元される")
+	require.True(t, world.World.Alive(playerEntity), "復元後のプレイヤーが生存している")
+	assert.Equal(t, "テストプレイヤー", world.Components.Name.Get(playerEntity).Name)
+	assert.Equal(t, 100, world.Components.HP.Get(playerEntity).Max, "HPが値まで復元される")
+	assert.Equal(t, 9, world.Components.Abilities.Get(playerEntity).Agility.Total, "能力値が復元される")
 
 	// 敵NPCが3体（丸ごと保存で復元される）
 	npcCount := 0
@@ -89,6 +90,34 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 		npcCount++
 	}
 	assert.Equal(t, 3, npcCount, "敵NPCが3体復元される")
+
+	// バックパック内アイテムを名前で引きつつ、エンティティ参照(Owner)の再マッピングを検証する。
+	// ark-serde は復元時にエンティティ参照を張り替えるため、全アイテムの Owner が
+	// 復元後プレイヤーを指す（かつ生存する）ことを確認する。ここが壊れると所有関係が静かに崩壊する
+	items := map[string]ecs.Entity{}
+	iq := ecs.NewFilter1[gc.LocationInBackpack](world.World).Query()
+	for iq.Next() {
+		e := iq.Entity()
+		owner := world.Components.LocationInBackpack.Get(e).Owner
+		require.True(t, world.World.Alive(owner), "アイテムのOwnerが生存エンティティを指す")
+		assert.Equal(t, playerEntity, owner, "アイテムのOwnerが復元後プレイヤーへ再マッピングされる")
+		if world.Components.Name.Has(e) {
+			items[world.Components.Name.Get(e).Name] = e
+		}
+	}
+
+	// 武器・防具・スタック可能アイテムが値まで復元される
+	sword, ok := items["木刀"]
+	require.True(t, ok, "木刀が復元される")
+	assert.Equal(t, 8, world.Components.Melee.Get(sword).Damage, "近接武器のダメージが復元される")
+
+	armor, ok := items["西洋鎧"]
+	require.True(t, ok, "西洋鎧が復元される")
+	assert.Equal(t, 15, world.Components.Wearable.Get(armor).Defense, "防具の防御力が復元される")
+
+	iron, ok := items["鉄"]
+	require.True(t, ok, "マテリアルが復元される")
+	assert.True(t, world.Components.Stackable.Has(iron), "Stackableが復元される")
 
 	// 回復薬（ProvidesHealing 倍率0.3）が値まで復元される
 	healRatioFound := false

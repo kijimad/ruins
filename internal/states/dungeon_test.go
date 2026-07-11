@@ -6,9 +6,11 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -432,4 +434,36 @@ func TestNewDungeonState_DefaultNotResume(t *testing.T) {
 	ds, ok := state.(*DungeonState)
 	require.True(t, ok)
 	assert.False(t, ds.Resume, "通常生成はResumeフラグが立たない（再生成される）")
+}
+
+// TestDungeonState_OnStartResume_PreservesWorld は復帰モードの OnStart が
+// マップ再生成・プレイヤー再配置を行わず、復元済みワールドをそのまま使うことを検証する。
+// フラグの有無だけでなく、再生成スキップという中核挙動を確認する。
+func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// OnStart はタイトル演出でUIリソースを参照するため、空のTextResourcesを用意する。
+	// SplashFontFace は nil のままで良い（NewSplashTextEffect は face を保持するだけ）
+	world.Resources.UIResources.Text = &resources.TextResources{}
+
+	// 復元済みワールドを模す。プレイヤーを既知の位置に置き、地形代わりの Prop を配置する
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+	prop, err := lifecycle.SpawnProp(world, "木箱", 6, 6)
+	require.NoError(t, err)
+
+	factory := NewDungeonState(0, WithDefinitionName(dungeon.DungeonTown.Name), WithResume())
+	state, err := factory()
+	require.NoError(t, err)
+	require.NoError(t, state.OnStart(world))
+
+	// プレイヤーが再配置されず、元の位置(5,5)を保つ
+	require.True(t, world.World.Alive(player), "プレイヤーが生存している")
+	grid := world.Components.GridElement.Get(player)
+	assert.Equal(t, 5, int(grid.X), "復帰モードではプレイヤーが再配置されない")
+	assert.Equal(t, 5, int(grid.Y), "復帰モードではプレイヤーが再配置されない")
+
+	// 復元済みの地形（Prop）が再生成で破棄されずに残る
+	assert.True(t, world.World.Alive(prop), "復元済みエンティティが保持される")
 }

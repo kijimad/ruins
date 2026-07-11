@@ -188,8 +188,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 	if !world.Components.Skills.Has(actor) {
 		return
 	}
-	skillsComp := world.Components.Skills.Get(actor)
-	skills := skillsComp
+	skills := world.Components.Skills.Get(actor)
 
 	s := skills.Get(effect.TargetSkill)
 
@@ -230,8 +229,7 @@ func (ra *ReadActivity) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 	if !world.Components.Abilities.Has(actor) {
 		return 0
 	}
-	abilsComp := world.Components.Abilities.Get(actor)
-	abils := abilsComp
+	abils := world.Components.Abilities.Get(actor)
 	ablID := gc.SkillAbilityID(book.Skill.TargetSkill)
 	return abils.ValueOf(ablID)
 }

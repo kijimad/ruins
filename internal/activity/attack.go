@@ -309,8 +309,7 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 	if !world.Components.Abilities.Has(attacker) {
 		return formula.BaseHitRate
 	}
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	attackerAbils := attackerAbilsComp
+	attackerAbils := world.Components.Abilities.Get(attacker)
 
 	// Abilitiesを持たないターゲットには自動命中する
 	targetAgility := 0
@@ -355,8 +354,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	if !world.Components.Abilities.Has(attacker) {
 		return 0
 	}
-	attackerAbilsComp := world.Components.Abilities.Get(attacker)
-	attackerAbils := attackerAbilsComp
+	attackerAbils := world.Components.Abilities.Get(attacker)
 
 	baseAbil := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
@@ -393,8 +391,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	if !world.Components.Skills.Has(actor) {
 		return
 	}
-	skillsComp := world.Components.Skills.Get(actor)
-	skills := skillsComp
+	skills := world.Components.Skills.Get(actor)
 
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
@@ -405,8 +402,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	if !world.Components.Abilities.Has(actor) {
 		return
 	}
-	abilsComp := world.Components.Abilities.Get(actor)
-	abils := abilsComp
+	abils := world.Components.Abilities.Get(actor)
 	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {

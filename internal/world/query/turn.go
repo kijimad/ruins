@@ -32,17 +32,16 @@ func CanPlayerAct(world w.World) bool {
 		return false
 	}
 
-	tbComp := world.Components.TurnBased.Get(playerEntity)
-	if tbComp == nil {
+	tb := world.Components.TurnBased.Get(playerEntity)
+	if tb == nil {
 		return false
 	}
-
-	tb := tbComp
 	return tb.AP.Current >= 0
 }
 
 // ConsumeActionPoints はエンティティのアクションポイントを消費する。
-// TurnBasedを持たないエンティティにはfalseを返す
+// TurnBasedを持たない（生存）エンティティには false を返す。
+// entity の生存は呼び出し側が保証すること。Ark の Has/Get は死亡エンティティで panic する
 func ConsumeActionPoints(world w.World, entity ecs.Entity, cost int) bool {
 	if !world.Components.TurnBased.Has(entity) {
 		return false
@@ -97,12 +96,10 @@ func RestoreAllActionPoints(world w.World) error {
 // CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
 // 敏捷性を重視したAP計算式
 func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
-	abilsComp := world.Components.Abilities.Get(entity)
-	if abilsComp == nil {
+	abils := world.Components.Abilities.Get(entity)
+	if abils == nil {
 		return 0, fmt.Errorf("能力値が設定されていない")
 	}
-
-	abils := abilsComp
 
 	baseAP := 100
 	agilityMultiplier := 3

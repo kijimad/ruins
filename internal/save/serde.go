@@ -16,8 +16,10 @@ import (
 
 // saveEnvelope はセーブファイルの外枠。ark-serde のワールドJSONをメタ情報で包む
 type saveEnvelope struct {
-	Version    string          `json:"version"`
-	Timestamp  time.Time       `json:"timestamp"`
+	Version   string    `json:"version"`
+	Timestamp time.Time `json:"timestamp"`
+	// Checksum はキーレスSHA-256による破損検知用の値。改ざん検知（攻撃者が
+	// world改変後にchecksumを再計算できる）は目的としない
 	Checksum   string          `json:"checksum"`
 	PlayerName string          `json:"playerName"`
 	World      json.RawMessage `json:"world"`
@@ -109,7 +111,9 @@ func extractPlayerName(world w.World) string {
 	return name
 }
 
-// checksumOf は改ざん検知用にチェックサムを除いた封筒のSHA-256を計算する。
+// checksumOf は破損検知用にチェックサムを除いた封筒のSHA-256を計算する。
+// json.Marshal は json.RawMessage を compact するため、保存ファイルが
+// MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。
 // 封筒は全てJSON互換型のためMarshalは失敗しないが、万一失敗した場合はpanicする
 func checksumOf(env *saveEnvelope) string {
 	target := saveEnvelope{

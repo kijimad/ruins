@@ -13,7 +13,8 @@ ark-serde でワールド全体をJSON化して保存し、ロード時にその
 
   - Version:    セーブ形式バージョン
   - Timestamp:  保存日時
-  - Checksum:   改ざん検知用のSHA-256（Checksum自身を除いた封筒に対して計算）
+  - Checksum:   破損検知用のキーレスSHA-256（Checksum自身を除いた封筒に対して計算）。
+    キーを持たないため攻撃者による改ざん検知は目的とせず、あくまで破損検知に用いる
   - PlayerName: 一覧表示用にプレイヤー名をメタとして保持（ワールド全体を展開せず参照できる）
   - World:      ark-serde が出力するワールドJSON
 

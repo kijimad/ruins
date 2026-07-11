@@ -36,6 +36,7 @@ type Dungeon struct {
 func NewDungeon() *Dungeon {
 	return &Dungeon{
 		ExploredTiles: make(map[GridElement]bool),
+		VisibleTiles:  make(map[GridElement]bool),
 		MinimapSettings: MinimapSettings{
 			Width:   150,
 			Height:  150,
