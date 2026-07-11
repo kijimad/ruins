@@ -162,7 +162,8 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 
 	ve = world.Components.VisualEffect.Get(entity)
 	require.Len(t, ve.Effects, 1)
-	effect = ve.Effects[0].(*gc.DamageTextEffect)
+	effect, ok = ve.Effects[0].(*gc.DamageTextEffect)
+	require.True(t, ok, "型が *gc.DamageTextEffect であるべき")
 	assert.Less(t, effect.OffsetY, initialY, "VelocityYが負なのでY座標が減少する")
 	assert.Greater(t, effect.Alpha, 0.0, "フェードインが始まる")
 }
@@ -205,7 +206,8 @@ func TestVisualEffectSystem_HealEffect(t *testing.T) {
 	})
 
 	ve := world.Components.VisualEffect.Get(entity)
-	effect := ve.Effects[0].(*gc.DamageTextEffect)
+	effect, ok := ve.Effects[0].(*gc.DamageTextEffect)
+	require.True(t, ok, "型が *gc.DamageTextEffect であるべき")
 	assert.Equal(t, "+30", effect.Text)
 
 	sys := &VisualEffectSystem{}

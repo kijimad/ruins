@@ -9,6 +9,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestComputeTileRenderMap(t *testing.T) {
@@ -84,7 +85,8 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 
 		result := computeTileRenderMap(world, nil)
 
-		v := result[grid].(TileRenderVisible)
+		v, ok := result[grid].(TileRenderVisible)
+		require.True(t, ok, "型が TileRenderVisible であるべき")
 		assert.Equal(t, DarknessVisible, v.Darkness)
 	})
 
@@ -97,7 +99,8 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 
 		result := computeTileRenderMap(world, nil)
 
-		v := result[grid].(TileRenderRemembered)
+		v, ok := result[grid].(TileRenderRemembered)
+		require.True(t, ok, "型が TileRenderRemembered であるべき")
 		assert.Equal(t, DarknessRemembered, v.Darkness)
 	})
 }

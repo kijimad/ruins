@@ -36,8 +36,8 @@ linters:
     - nolintlint     # nolintディレクティブに理由と対象linterの明示を強制
     - bidichk        # 不可視の危険なUnicode（トロイソース攻撃）を検出
     - forbidigo      # t.Error/t.Fatal を禁止しtestifyの使用を強制する
+    - forcetypeassert # 未チェックの型アサーションを禁止する（Ark移行で.Get().(*T)が解消され有効化可能に）
     # 現状と乖離が大きいので追加しない
-    # - forcetypeassert # ECSの .Get().(*T) が意図的な型アサーションのため不適合
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
   exclusions:

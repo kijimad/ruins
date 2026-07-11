@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -102,7 +103,7 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 			return fmt.Errorf("スプライトが見つかりません: %s", item.ImageKey)
 		}
 		rect := image.Rect(sprite.X, sprite.Y, sprite.X+sprite.Width, sprite.Y+sprite.Height)
-		bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
+		bgImage := gc.SubImage(bgSheet.Texture.Image, rect)
 
 		scaleX := float64(dungeonSelectImageWidth) / float64(sprite.Width)
 		scaleY := float64(dungeonSelectImageHeight) / float64(sprite.Height)

@@ -20,7 +20,9 @@ func TestStateChangeRequest_Constructors(t *testing.T) {
 	// ペイロード付きのイベントもフィールドが設定されることを確認
 	dialog := ShowDialogEvent("test", ecs.Entity{})
 	require.IsType(t, ShowDialog{}, dialog.Payload)
-	assert.Equal(t, "test", dialog.Payload.(ShowDialog).MessageKey)
+	showDialog, ok := dialog.Payload.(ShowDialog)
+	require.True(t, ok, "型が ShowDialog であるべき")
+	assert.Equal(t, "test", showDialog.MessageKey)
 
 	storage := OpenStorageEvent(ecs.Entity{})
 	assert.IsType(t, OpenStorage{}, storage.Payload)

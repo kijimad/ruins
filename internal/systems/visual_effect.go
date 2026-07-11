@@ -264,7 +264,7 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	right := min(textureWidth, sprite.X+sprite.Width)
 	top := max(0, sprite.Y)
 	bottom := min(textureHeight, sprite.Y+sprite.Height)
-	img := texture.Image.SubImage(image.Rect(left, top, right, bottom)).(*ebiten.Image)
+	img := gc.SubImage(texture.Image, image.Rect(left, top, right, bottom))
 
 	// グリッド座標をピクセル座標に変換
 	pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)

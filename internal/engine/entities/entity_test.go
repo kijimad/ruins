@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestComponentList(t *testing.T) {
@@ -49,7 +50,8 @@ func TestAddEntities(t *testing.T) {
 		assert.Len(t, entityComponentList.Entities, 1, "エンティティリストの長さが正しくない")
 
 		// EntitySpecの中身を確認
-		entityComponent := entityComponentList.Entities[0].(gc.EntitySpec)
+		entityComponent, ok := entityComponentList.Entities[0].(gc.EntitySpec)
+		require.True(t, ok, "型が gc.EntitySpec であるべき")
 		assert.NotNil(t, entityComponent.Name, "Nameコンポーネントが設定されていない")
 		assert.Equal(t, "テストエンティティ", entityComponent.Name.Name, "名前が正しく設定されていない")
 	})

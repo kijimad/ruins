@@ -87,7 +87,9 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	// VisionSystemが計算した光源情報を取得する
 	var lights map[gc.GridElement]LightInfo
 	if vs, ok := world.Updaters[(&VisionSystem{}).String()]; ok {
-		lights = vs.(*VisionSystem).lightSourceCache
+		if vision, ok := vs.(*VisionSystem); ok {
+			lights = vision.lightSourceCache
+		}
 	}
 
 	// タイルごとの描画情報を一括計算する
@@ -335,7 +337,7 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 		top := max(0, sprite.Y)
 		bottom := min(textureHeight, sprite.Y+sprite.Height)
 
-		result = texture.Image.SubImage(image.Rect(left, top, right, bottom)).(*ebiten.Image)
+		result = gc.SubImage(texture.Image, image.Rect(left, top, right, bottom))
 		sys.spriteImageCache[key] = result
 	}
 

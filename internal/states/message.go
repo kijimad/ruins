@@ -5,6 +5,7 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/messagewindow"
@@ -67,7 +68,7 @@ func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error)
 		sprite.X+sprite.Width,
 		sprite.Y+sprite.Height,
 	)
-	return sheet.Texture.Image.SubImage(rect).(*ebiten.Image), nil
+	return gc.SubImage(sheet.Texture.Image, rect), nil
 }
 
 // Update はゲームステートの更新処理を行う

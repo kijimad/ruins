@@ -31,9 +31,17 @@ func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapp
 	}
 	// 毎回reducerを再登録して最新のクロージャを反映する
 	store.reducers[key] = func(s any, a inputmapper.ActionID) any {
-		return reducer(s.(T), a)
+		typed, ok := s.(T)
+		if !ok {
+			panic("hooks: 状態の型がreducerの型引数と一致しません: key=" + key)
+		}
+		return reducer(typed, a)
 	}
-	return store.states[key].(T)
+	v, ok := store.states[key].(T)
+	if !ok {
+		panic("hooks: 状態の型が登録時と一致しません: key=" + key)
+	}
+	return v
 }
 
 // Dispatch は全てのStateにActionを送る
