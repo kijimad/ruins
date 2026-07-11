@@ -24,7 +24,7 @@ func TestAISystem(t *testing.T) {
 
 	// AIエンティティを作成
 	aiEntity := world.ECS.NewEntity()
-	world.Components.Faction.Add(aiEntity, &gc.Faction{Kind: gc.FactionEnemy})
+	world.Components.FactionEnemy.Add(aiEntity, &gc.FactionEnemyData{})
 	world.Components.GridElement.Add(aiEntity, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
 	world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,

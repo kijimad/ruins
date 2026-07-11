@@ -61,7 +61,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 
 		// Dialogなしのエンティティを手動で作成
 		npc := world.ECS.NewEntity()
-		world.Components.Faction.Add(npc, &gc.Faction{Kind: gc.FactionNeutral})
+		world.Components.FactionNeutral.Add(npc, &gc.FactionNeutralData{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,
@@ -151,7 +151,7 @@ func TestTalkActivity_DoTurn(t *testing.T) {
 		// Nameなしのエンティティを手動で作成
 		npc := world.ECS.NewEntity()
 		world.Components.Dialog.Add(npc, &gc.Dialog{MessageKey: "test"})
-		world.Components.Faction.Add(npc, &gc.Faction{Kind: gc.FactionNeutral})
+		world.Components.FactionNeutral.Add(npc, &gc.FactionNeutralData{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,

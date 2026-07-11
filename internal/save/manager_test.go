@@ -28,7 +28,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 
 	npc := world.ECS.NewEntity()
 	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
-	world.Components.Faction.Add(npc, &gc.Faction{Kind: gc.FactionEnemy})
+	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
 
 	err = manager.SaveWorld(world, "test_slot")
 	require.NoError(t, err)
@@ -47,11 +47,9 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	}
 
 	npcCount := 0
-	npcQuery := ecs.NewFilter1[gc.Faction](newWorld.ECS).Query()
+	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.ECS).Query()
 	for npcQuery.Next() {
-		if npcQuery.Get().Kind == gc.FactionEnemy {
-			npcCount++
-		}
+		npcCount++
 	}
 
 	assert.Equal(t, 1, playerCount, "プレイヤーが正しくロードされる")

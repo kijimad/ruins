@@ -106,7 +106,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan) error {
 			return fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
 		}
 
-		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutral.String() {
+		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutralName {
 			_, err := lifecycle.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)
 			if err != nil {
 				return fmt.Errorf("中立NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)

@@ -1,7 +1,6 @@
 package query
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -16,30 +15,19 @@ const (
 	RelationNeutral  Relation = "neutral"
 )
 
-// GetFactionKind はエンティティの派閥種別を返す。派閥を持たない場合は ok=false
-func GetFactionKind(world w.World, e ecs.Entity) (gc.FactionKind, bool) {
-	if !world.Components.Faction.Has(e) {
-		return 0, false
-	}
-	return world.Components.Faction.Get(e).Kind, true
-}
-
 // IsEnemy はエンティティが敵性派閥かを返す
 func IsEnemy(world w.World, e ecs.Entity) bool {
-	k, ok := GetFactionKind(world, e)
-	return ok && k == gc.FactionEnemy
+	return world.Components.FactionEnemy.Has(e)
 }
 
 // IsAlly はエンティティが味方派閥かを返す
 func IsAlly(world w.World, e ecs.Entity) bool {
-	k, ok := GetFactionKind(world, e)
-	return ok && k == gc.FactionAlly
+	return world.Components.FactionAlly.Has(e)
 }
 
 // IsNeutral はエンティティが中立派閥かを返す
 func IsNeutral(world w.World, e ecs.Entity) bool {
-	k, ok := GetFactionKind(world, e)
-	return ok && k == gc.FactionNeutral
+	return world.Components.FactionNeutral.Has(e)
 }
 
 // FactionRelation は2つのエンティティ間の派閥関係を返す。

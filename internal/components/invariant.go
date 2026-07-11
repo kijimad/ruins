@@ -35,26 +35,6 @@ func (h Has) String() string {
 	return h.Label
 }
 
-// factionPred は指定した派閥種別かを判定する述語。
-// Factionは単一コンポーネントにKindを持つため、種別判定はKind比較で行う
-type factionPred struct {
-	comp *ecs.Map[Faction]
-	kind FactionKind
-}
-
-func (p factionPred) Eval(entity ecs.Entity) bool {
-	return p.comp.Has(entity) && p.comp.Get(entity).Kind == p.kind
-}
-
-func (p factionPred) String() string {
-	return p.kind.String()
-}
-
-// factionIs は指定派閥種別の述語を返す
-func (c *Components) factionIs(kind FactionKind) Pred {
-	return factionPred{comp: c.Faction, kind: kind}
-}
-
 // And はすべての条件を満たすことを要求する述語
 type And []Pred
 
@@ -200,8 +180,8 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 		FieldLookCategoryKey: {
 			// Player を先に判定する。Player は FactionAlly も持つため
 			{Name: CategoryPlayer, Pred: c.has(c.Player)},
-			{Name: CategoryEnemy, Pred: c.factionIs(FactionEnemy)},
-			{Name: CategoryNPC, Pred: Or{c.factionIs(FactionAlly), c.factionIs(FactionNeutral)}},
+			{Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},
+			{Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},
 			{Name: CategoryProp, Pred: c.has(c.Prop)},
 			{Name: CategoryTile, Pred: c.has(c.Tile)},
 		},

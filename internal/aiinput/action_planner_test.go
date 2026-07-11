@@ -26,7 +26,7 @@ func setupTestAI(t *testing.T, world w.World, x, y int, solo *gc.SoloAI) ecs.Ent
 	world.Components.Name.Add(entity, &gc.Name{Name: "テストAI"})
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
 	world.Components.SoloAI.Add(entity, solo)
-	world.Components.Faction.Add(entity, &gc.Faction{Kind: gc.FactionEnemy})
+	world.Components.FactionEnemy.Add(entity, &gc.FactionEnemyData{})
 	world.Components.TurnBased.Add(entity, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,

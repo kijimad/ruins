@@ -89,7 +89,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		return consts.InvalidEntity, fmt.Errorf("中立NPC生成エラー: %w", err)
 	}
 
-	if entitySpec.Faction == nil || entitySpec.Faction.Kind != gc.FactionNeutral {
+	if entitySpec.FactionNeutral == nil {
 		return consts.InvalidEntity, fmt.Errorf("'%s' は中立NPCではありません", name)
 	}
 	if entitySpec.Dialog == nil {
@@ -200,7 +200,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		CharModifiers:  charMods,
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
-		Faction:        &gc.Faction{Kind: gc.FactionAlly},
+		FactionAlly:    &gc.FactionAllyData{},
 		SquadAI: func() *gc.SquadAI {
 			ai := gc.DefaultSquadAI()
 			return &ai

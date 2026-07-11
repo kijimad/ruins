@@ -222,7 +222,7 @@ func TestCanSwapPosition(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 
 		enemy := world.ECS.NewEntity()
-		world.Components.Faction.Add(enemy, &gc.Faction{Kind: gc.FactionEnemy})
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 
 		assert.False(t, CanSwapPosition(world, player, enemy))
 	})
@@ -258,7 +258,7 @@ func TestCanSwapPosition(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		enemy := world.ECS.NewEntity()
-		world.Components.Faction.Add(enemy, &gc.Faction{Kind: gc.FactionEnemy})
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
 
 		member := world.ECS.NewEntity()
 		world.Components.SquadMember.Add(member, &gc.SquadMember{})
