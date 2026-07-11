@@ -63,9 +63,12 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	var actions []InteractionAction
-	sameTileQuery := ecs.NewFilter3[gc.GridElement, gc.Interactable, gc.Dead](world.World).Query()
+	sameTileQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.World).Query()
 	for sameTileQuery.Next() {
 		entity := sameTileQuery.Entity()
+		if world.Components.Dead.Has(entity) {
+			continue
+		}
 		ge := world.Components.GridElement.Get(entity)
 		if ge.X != playerGrid.X || ge.Y != playerGrid.Y {
 			continue

@@ -126,6 +126,8 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 		}
 		q := ecs.NewUnsafeFilter(world.World, id).Query()
 		count := q.Count()
+		// Countは反復を完了しないためワールドロックが残る。明示的に閉じる
+		q.Close()
 
 		items = append(items, componentDebugItem{
 			Name:  info.Type.Name(),

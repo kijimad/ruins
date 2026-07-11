@@ -232,7 +232,11 @@ func (st *InventoryMenuState) fetchProps(world w.World) inventoryProps {
 		player = entity
 	})
 
-	playerName := query.GetEntityName(player, world)
+	// プレイヤー不在時はGetEntityNameが死亡エンティティでパニックするため生存確認する
+	playerName := ""
+	if world.World.Alive(player) {
+		playerName = query.GetEntityName(player, world)
+	}
 	members := query.SquadMembers(world)
 	tabs := make([]inventoryTabData, 0, 1+len(members))
 	tabs = append(tabs, inventoryTabData{

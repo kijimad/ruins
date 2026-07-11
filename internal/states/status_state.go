@@ -148,6 +148,12 @@ type statusDetailRow struct {
 	Value string
 }
 
+// aliveHas はエンティティが生存しコンポーネントを保持する場合のみtrueを返す。
+// Arkは死亡エンティティのHasでパニックするため、生存確認と組み合わせる
+func aliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {
+	return world.World.Alive(entity) && comp.Has(entity)
+}
+
 func (st *StatusState) fetchProps(world w.World) statusProps {
 	var playerEntity ecs.Entity
 	query.Player(world, func(entity ecs.Entity) {
@@ -155,7 +161,7 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 	})
 
 	envTemp := 0
-	if world.Components.GridElement.Has(playerEntity) {
+	if aliveHas(world, world.Components.GridElement, playerEntity) {
 		gridElement := world.Components.GridElement.Get(playerEntity)
 		temp, err := systems.CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
 		if err == nil {
@@ -164,11 +170,11 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 	}
 
 	playerName := ""
-	if world.Components.Name.Has(playerEntity) {
+	if aliveHas(world, world.Components.Name, playerEntity) {
 		playerName = world.Components.Name.Get(playerEntity).Name
 	}
 	professionName := ""
-	if world.Components.Profession.Has(playerEntity) {
+	if aliveHas(world, world.Components.Profession, playerEntity) {
 		profComp := world.Components.Profession.Get(playerEntity)
 		if prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID); err == nil {
 			professionName = prof.Name
@@ -207,20 +213,20 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 		items = append(items, statusItemData{Label: "職業", Value: professionName, Description: "職業"})
 	}
 
-	if world.Components.HP.Has(playerEntity) {
+	if aliveHas(world, world.Components.HP, playerEntity) {
 		hp := world.Components.HP.Get(playerEntity)
 		items = append(items,
 			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: "体力。0になると死亡する"},
 		)
 	}
-	if world.Components.WeightCapacity.Has(playerEntity) {
+	if aliveHas(world, world.Components.WeightCapacity, playerEntity) {
 		cw := world.Components.WeightCapacity.Get(playerEntity)
 		items = append(items,
 			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", cw.Max, consts.IconKg), Description: "所持可能な最大重量"},
 		)
 	}
 
-	if world.Components.Hunger.Has(playerEntity) {
+	if aliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
 		items = append(items,
 			statusItemData{Label: "空腹度", Value: hunger.GetLevel().String(), Description: "空腹度。高いと行動に支障が出る"},
@@ -238,7 +244,7 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 func (st *StatusState) createAbilityItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
 
-	if world.Components.Abilities.Has(playerEntity) {
+	if aliveHas(world, world.Components.Abilities, playerEntity) {
 		abils := world.Components.Abilities.Get(playerEntity)
 		items = append(items,
 			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
@@ -256,7 +262,7 @@ func (st *StatusState) createAbilityItems(world w.World, playerEntity ecs.Entity
 func (st *StatusState) createSkillItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
 
-	if !world.Components.Skills.Has(playerEntity) {
+	if !aliveHas(world, world.Components.Skills, playerEntity) {
 		return items
 	}
 	skills := world.Components.Skills.Get(playerEntity)
@@ -294,7 +300,7 @@ func (st *StatusState) createSkillItems(world w.World, playerEntity ecs.Entity) 
 func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
 
-	if !world.Components.CharModifiers.Has(playerEntity) {
+	if !aliveHas(world, world.Components.CharModifiers, playerEntity) {
 		return items
 	}
 	e := world.Components.CharModifiers.Get(playerEntity)
@@ -370,7 +376,7 @@ func (st *StatusState) createHealthItems(world w.World, playerEntity ecs.Entity)
 	items := make([]statusItemData, 0, int(gc.BodyPartCount))
 
 	var hs *gc.HealthStatus
-	if world.Components.HealthStatus.Has(playerEntity) {
+	if aliveHas(world, world.Components.HealthStatus, playerEntity) {
 		hs = world.Components.HealthStatus.Get(playerEntity)
 	}
 
