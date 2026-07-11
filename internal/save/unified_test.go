@@ -124,7 +124,7 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 	hq := ecs.NewFilter1[gc.ProvidesHealing](world.ECS).Query()
 	for hq.Next() {
 		ph := world.Components.ProvidesHealing.Get(hq.Entity())
-		if ph.Kind == gc.HealRatio && ph.Ratio == 0.3 {
+		if ph.Kind == gc.HealRatio && ph.Amount == 0.3 {
 			healRatioFound = true
 		}
 	}
@@ -204,8 +204,8 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		},
 	})
 	world.Components.ProvidesHealing.Add(potion, &gc.ProvidesHealing{
-		Kind:  gc.HealRatio,
-		Ratio: 0.3,
+		Kind:   gc.HealRatio,
+		Amount: 0.3,
 	})
 
 	// NPC作成

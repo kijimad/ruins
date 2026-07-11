@@ -132,7 +132,7 @@ func TestNewProvidesHealingFromAPI(t *testing.T) {
 		}
 		result := newProvidesHealingFromAPI(h)
 		assert.Equal(t, gc.HealRatio, result.Kind)
-		assert.Equal(t, 0.5, result.Ratio)
+		assert.Equal(t, 0.5, result.Amount)
 	})
 
 	t.Run("デフォルトは絶対量で変換する", func(t *testing.T) {
@@ -142,7 +142,7 @@ func TestNewProvidesHealingFromAPI(t *testing.T) {
 		}
 		result := newProvidesHealingFromAPI(h)
 		assert.Equal(t, gc.HealNumeral, result.Kind)
-		assert.Equal(t, 50, result.Numeral)
+		assert.Equal(t, 50.0, result.Amount)
 	})
 }
 
