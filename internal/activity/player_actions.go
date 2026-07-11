@@ -40,7 +40,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 			if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {
 				continue
 			}
-			switch interaction.Kind {
+			switch interaction {
 			case gc.InteractionDoor:
 				// 扉は閉じている場合のみ実行（開いている場合は通過）
 				if world.Components.Door.Has(interactableEntity) {
@@ -177,24 +177,21 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			if interaction.Config().ActivationWay != gc.ActivationWayManual {
 				continue
 			}
-			switch interaction.Kind {
+			switch interaction {
 			case gc.InteractionItem:
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
 					ItemName(formattedName).
 					Append(" がある。").
 					Log()
-			case gc.InteractionPortal:
-				switch interaction.PortalType {
-				case gc.PortalTypeNext:
-					gamelog.New(query.GetGameLog(world)).
-						Append("転移ゲートがある。Enterキーで移動。").
-						Log()
-				case gc.PortalTypeTown:
-					gamelog.New(query.GetGameLog(world)).
-						Append("帰還ゲートがある。Enterキーで脱出。").
-						Log()
-				}
+			case gc.InteractionPortalNext:
+				gamelog.New(query.GetGameLog(world)).
+					Append("転移ゲートがある。Enterキーで移動。").
+					Log()
+			case gc.InteractionPortalTown:
+				gamelog.New(query.GetGameLog(world)).
+					Append("帰還ゲートがある。Enterキーで脱出。").
+					Log()
 			case gc.InteractionDungeonGate:
 				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").

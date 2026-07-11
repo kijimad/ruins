@@ -160,7 +160,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		interactableEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
-			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
+			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -178,7 +178,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		interactableEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 15, Y: 15})
 		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
-			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
+			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -195,7 +195,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		deadEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(deadEntity, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(deadEntity, &gc.Interactable{
-			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
+			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 		world.Components.Dead.Add(deadEntity, &gc.Dead{})
 
@@ -217,7 +217,7 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		manualEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(manualEntity, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(manualEntity, &gc.Interactable{
-			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}}, // Manual + SameTile
+			Interactions: []gc.InteractionKind{gc.InteractionItem}, // Manual + SameTile
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -235,7 +235,7 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		collisionEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(collisionEntity, &gc.GridElement{X: 11, Y: 10})
 		world.Components.Interactable.Add(collisionEntity, &gc.Interactable{
-			Interactions: []gc.InteractionData{{Kind: gc.InteractionMelee}}, // OnCollision + Adjacent
+			Interactions: []gc.InteractionKind{gc.InteractionMelee}, // OnCollision + Adjacent
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}

@@ -64,7 +64,7 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 		e := dq.Entity()
 		if newWorld.Components.Interactable.Has(e) {
 			for _, in := range newWorld.Components.Interactable.Get(e).Interactions {
-				if in.Kind == gc.InteractionDoor {
+				if in == gc.InteractionDoor {
 					doorHasInteraction = true
 				}
 			}

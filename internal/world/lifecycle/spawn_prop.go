@@ -2,6 +2,7 @@ package lifecycle
 
 import (
 	"fmt"
+	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -173,7 +174,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 			IsOpen:      false,
 			Orientation: orientation,
 		},
-		Interactable: &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoor}}},
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}},
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}
@@ -195,11 +196,8 @@ func DeleteDoorLockTriggers(world w.World) {
 	for interactableQuery.Next() {
 		triggerEntity := interactableQuery.Entity()
 		interactable := world.Components.Interactable.Get(triggerEntity)
-		for _, interaction := range interactable.Interactions {
-			if interaction.Kind == gc.InteractionDoorLock {
-				toDelete = append(toDelete, triggerEntity)
-				break
-			}
+		if slices.Contains(interactable.Interactions, gc.InteractionDoorLock) {
+			toDelete = append(toDelete, triggerEntity)
 		}
 	}
 	for _, entity := range toDelete {

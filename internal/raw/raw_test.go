@@ -597,7 +597,7 @@ Depth = 1
 	assert.Equal(t, 20, entitySpec.HP.Current)
 	assert.NotNil(t, entitySpec.Interactable)
 	assert.NotEmpty(t, entitySpec.Interactable.Interactions, "HPを持つPropにはInteractionsが設定されるべき")
-	ok := entitySpec.Interactable.Interactions[0].Kind == gc.InteractionMelee
+	ok := entitySpec.Interactable.Interactions[0] == gc.InteractionMelee
 	assert.True(t, ok, "HPを持つPropにはMeleeInteractionが設定されるべき")
 }
 
@@ -652,7 +652,7 @@ MaxWeight = 20.0
 
 	require.NotNil(t, entitySpec.Interactable, "Storage付きPropにはInteractableが設定されるべき")
 	assert.NotEmpty(t, entitySpec.Interactable.Interactions, "Storage付きPropにはInteractionsが設定されるべき")
-	ok := entitySpec.Interactable.Interactions[0].Kind == gc.InteractionStorage
+	ok := entitySpec.Interactable.Interactions[0] == gc.InteractionStorage
 	assert.True(t, ok, "Storage付きPropにはStorageInteractionが設定されるべき")
 }
 

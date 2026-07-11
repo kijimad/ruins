@@ -7,7 +7,7 @@ import (
 // Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー。
 // 1つのエンティティが複数のインタラクションを持てる（例: 攻撃可能かつ収納を開ける木箱）
 type Interactable struct {
-	Interactions []InteractionData
+	Interactions []InteractionKind
 }
 
 // InteractionConfig は相互作用の設定
@@ -16,12 +16,14 @@ type InteractionConfig struct {
 	ActivationWay   ActivationWay   // 発動方式
 }
 
-// InteractionKind は相互作用の種類を表す判別子
+// InteractionKind は相互作用の種類を表す
 type InteractionKind string
 
 const (
-	// InteractionPortal はポータルを通る相互作用
-	InteractionPortal InteractionKind = "PORTAL"
+	// InteractionPortalNext は次の階層へ進むポータル
+	InteractionPortalNext InteractionKind = "PORTAL_NEXT"
+	// InteractionPortalTown は街へ帰還するポータル
+	InteractionPortalTown InteractionKind = "PORTAL_TOWN"
 	// InteractionDungeonGate はダンジョン選択門の相互作用（発動でダンジョン選択メニューを開く）
 	InteractionDungeonGate InteractionKind = "DUNGEON_GATE"
 	// InteractionDoor は扉の相互作用
@@ -40,28 +42,10 @@ const (
 	InteractionMelee InteractionKind = "MELEE"
 )
 
-// PortalType はポータルの種類を表す
-type PortalType string
-
-const (
-	// PortalTypeNext は次の階層へのポータル
-	PortalTypeNext PortalType = "NEXT"
-	// PortalTypeTown は街への帰還ポータル
-	PortalTypeTown PortalType = "TOWN"
-)
-
-// InteractionData は相互作用のデータ。
-// Kindで種類を判別するタグ付きデータ。serde互換のためinterfaceを排する
-type InteractionData struct {
-	Kind InteractionKind
-	// PortalType は Kind==InteractionPortal のときのみ有効
-	PortalType PortalType
-}
-
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値を返す
-func (d InteractionData) Config() InteractionConfig {
-	switch d.Kind {
-	case InteractionPortal, InteractionDungeonGate, InteractionItem, InteractionItemAll:
+func (k InteractionKind) Config() InteractionConfig {
+	switch k {
+	case InteractionPortalNext, InteractionPortalTown, InteractionDungeonGate, InteractionItem, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}

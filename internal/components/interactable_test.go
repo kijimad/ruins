@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestInteractionData_Config は各種類のConfigが正しいことを確認
-func TestInteractionData_Config(t *testing.T) {
+// TestInteractionKind_Config は各種類のConfigが正しいことを確認
+func TestInteractionKind_Config(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -21,7 +21,7 @@ func TestInteractionData_Config(t *testing.T) {
 		{InteractionMelee, ActivationRangeAdjacent, ActivationWayOnCollision},
 		{InteractionItem, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionItemAll, ActivationRangeSameTile, ActivationWayManual},
-		{InteractionPortal, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionDungeonGate, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
 		{InteractionDoorLock, ActivationRangeSameTile, ActivationWayAuto},
@@ -30,18 +30,18 @@ func TestInteractionData_Config(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(string(tt.kind), func(t *testing.T) {
 			t.Parallel()
-			config := InteractionData{Kind: tt.kind}.Config()
+			config := tt.kind.Config()
 			assert.Equal(t, tt.wantRange, config.ActivationRange)
 			assert.Equal(t, tt.wantWay, config.ActivationWay)
 		})
 	}
 }
 
-// TestInteractionData_Config_Unknown は未知の種類がゼロ値（無効）のConfigを返すことを確認
-func TestInteractionData_Config_Unknown(t *testing.T) {
+// TestInteractionKind_Config_Unknown は未知の種類がゼロ値（無効）のConfigを返すことを確認
+func TestInteractionKind_Config_Unknown(t *testing.T) {
 	t.Parallel()
 
-	config := InteractionData{Kind: "UNKNOWN"}.Config()
+	config := InteractionKind("UNKNOWN").Config()
 	require.Error(t, config.ActivationRange.Valid(), "未知の種類は無効なConfigを返す")
 	require.Error(t, config.ActivationWay.Valid(), "未知の種類は無効なConfigを返す")
 }
@@ -139,19 +139,19 @@ func TestActivationWay_Valid(t *testing.T) {
 	}
 }
 
-// TestInteractionData_ConfigConsistency は既知の全種類のConfigが有効な値を返すことを確認
-func TestInteractionData_ConfigConsistency(t *testing.T) {
+// TestInteractionKind_ConfigConsistency は既知の全種類のConfigが有効な値を返すことを確認
+func TestInteractionKind_ConfigConsistency(t *testing.T) {
 	t.Parallel()
 
 	kinds := []InteractionKind{
-		InteractionPortal, InteractionDungeonGate, InteractionDoor, InteractionDoorLock,
+		InteractionPortalNext, InteractionPortalTown, InteractionDungeonGate, InteractionDoor, InteractionDoorLock,
 		InteractionTalk, InteractionItem, InteractionItemAll, InteractionStorage, InteractionMelee,
 	}
 
 	for _, kind := range kinds {
 		t.Run(string(kind), func(t *testing.T) {
 			t.Parallel()
-			config := InteractionData{Kind: kind}.Config()
+			config := kind.Config()
 			require.NoError(t, config.ActivationRange.Valid(), "%s のActivationRangeは有効でなければならない", kind)
 			require.NoError(t, config.ActivationWay.Valid(), "%s のActivationWayは有効でなければならない", kind)
 		})

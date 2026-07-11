@@ -178,7 +178,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	solo.PatrolDirX = initialPatrolDir()
 	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
-		Interactions: []gc.InteractionData{{Kind: gc.InteractionMelee}},
+		Interactions: []gc.InteractionKind{gc.InteractionMelee},
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)

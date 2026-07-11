@@ -39,7 +39,7 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 15, Y: 15})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
-		Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
+		Interactions: []gc.InteractionKind{gc.InteractionItem},
 	})
 	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
 
@@ -66,7 +66,7 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
-		Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}}, // Manual 方式
+		Interactions: []gc.InteractionKind{gc.InteractionItem}, // Manual 方式
 	})
 	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
 
@@ -95,7 +95,7 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 11, Y: 10})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
-		Interactions: []gc.InteractionData{{Kind: gc.InteractionDoor}}, // OnCollision 方式
+		Interactions: []gc.InteractionKind{gc.InteractionDoor}, // OnCollision 方式
 	})
 	world.Components.Door.Add(triggerEntity, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
 
@@ -122,7 +122,7 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 	triggerEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
-		Interactions: []gc.InteractionData{{Kind: "UNKNOWN"}},
+		Interactions: []gc.InteractionKind{gc.InteractionKind("UNKNOWN")},
 	})
 	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
 

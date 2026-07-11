@@ -13,8 +13,7 @@ import (
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
-// interactionには実行すべき具体的なInteractionDataを渡す
-func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.InteractionData, world w.World) (*ActionResult, error) {
+func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.InteractionKind, world w.World) (*ActionResult, error) {
 	config := interaction.Config()
 
 	if err := config.ActivationRange.Valid(); err != nil {
@@ -24,9 +23,11 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return nil, fmt.Errorf("無効なActivationWay: %w", err)
 	}
 
-	switch interaction.Kind {
-	case gc.InteractionPortal:
-		return executePortal(world, interaction)
+	switch interaction {
+	case gc.InteractionPortalNext:
+		return executePortal(world, gc.WarpNextEvent(), "次フロアワープ状態変更要求エラー")
+	case gc.InteractionPortalTown:
+		return executePortal(world, gc.WarpEscapeEvent(), "街帰還状態変更要求エラー")
 	case gc.InteractionDungeonGate:
 		return executeDungeonGate(world)
 	case gc.InteractionDoor:
@@ -44,22 +45,13 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
 	default:
-		return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction.Kind)
+		return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 	}
 }
 
-func executePortal(world w.World, portal gc.InteractionData) (*ActionResult, error) {
-	switch portal.PortalType {
-	case gc.PortalTypeNext:
-		if err := lifecycle.RequestStateChange(world, gc.WarpNextEvent()); err != nil {
-			return nil, fmt.Errorf("次フロアワープ状態変更要求エラー: %w", err)
-		}
-	case gc.PortalTypeTown:
-		if err := lifecycle.RequestStateChange(world, gc.WarpEscapeEvent()); err != nil {
-			return nil, fmt.Errorf("街帰還状態変更要求エラー: %w", err)
-		}
-	default:
-		return nil, fmt.Errorf("未知のポータルタイプ: %s", portal.PortalType)
+func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*ActionResult, error) {
+	if err := lifecycle.RequestStateChange(world, event); err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsg, err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "ポータル移動"}, nil
 }

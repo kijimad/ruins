@@ -13,7 +13,7 @@ import (
 type InteractionAction struct {
 	Label       string             // 表示ラベル（例："開く(上)"）
 	Target      ecs.Entity         // ターゲットエンティティ
-	Interaction gc.InteractionData // 実行するインタラクション
+	Interaction gc.InteractionKind // 実行するインタラクション
 }
 
 // GetInteractionActions はプレイヤー周辺の実行可能なアクションを取得する
@@ -75,7 +75,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 		}
 		interactable := world.Components.Interactable.Get(entity)
 		// Manual+SameTileのインタラクションのみフィルタする
-		var filtered []gc.InteractionData
+		var filtered []gc.InteractionKind
 		for _, interaction := range interactable.Interactions {
 			config := interaction.Config()
 			if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
@@ -92,14 +92,14 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	// アイテム拾得アクションが2個以上ある場合、「すべて拾う」を先頭に追加する
 	itemCount := 0
 	for _, action := range actions {
-		if action.Interaction.Kind == gc.InteractionItem {
+		if action.Interaction == gc.InteractionItem {
 			itemCount++
 		}
 	}
 	if itemCount >= 2 {
 		pickupAll := InteractionAction{
 			Label:       "すべて拾う",
-			Interaction: gc.InteractionData{Kind: gc.InteractionItemAll},
+			Interaction: gc.InteractionItemAll,
 		}
 		actions = append([]InteractionAction{pickupAll}, actions...)
 	}
@@ -112,7 +112,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 	var result []InteractionAction
 
 	for _, interaction := range interactable.Interactions {
-		switch interaction.Kind {
+		switch interaction {
 		case gc.InteractionDoor:
 			if world.Components.Door.Has(interactableEntity) {
 				door := world.Components.Door.Get(interactableEntity)
@@ -144,16 +144,15 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionPortal:
-			var label string
-			switch interaction.PortalType {
-			case gc.PortalTypeNext:
-				label = "転移する(次階)"
-			case gc.PortalTypeTown:
-				label = "転移する(帰還)"
-			}
+		case gc.InteractionPortalNext:
 			result = append(result, InteractionAction{
-				Label:       label,
+				Label:       "転移する(次階)",
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
+		case gc.InteractionPortalTown:
+			result = append(result, InteractionAction{
+				Label:       "転移する(帰還)",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})

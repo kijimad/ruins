@@ -321,7 +321,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
-	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}}}
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 
 	return entitySpec, nil
 }
@@ -479,7 +479,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Dialog = &gc.Dialog{
 			MessageKey: member.Dialog.MessageKey,
 		}
-		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionTalk}}}
+		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionTalk}}
 	}
 
 	return entitySpec, nil
@@ -645,12 +645,12 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	// 各条件に対応するインタラクションを蓄積する。
 	// 1つのPropが複数のインタラクションを持てる
-	var interactions []gc.InteractionData
+	var interactions []gc.InteractionKind
 
 	if propRaw.Hp != nil {
 		hp := int(*propRaw.Hp)
 		entitySpec.HP = &gc.HP{Max: hp, Current: hp}
-		interactions = append(interactions, gc.InteractionData{Kind: gc.InteractionMelee})
+		interactions = append(interactions, gc.InteractionMelee)
 	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
@@ -660,30 +660,30 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 			IsOpen:      false,
 			Orientation: gc.DoorOrientationHorizontal,
 		}
-		interactions = append(interactions, gc.InteractionData{Kind: gc.InteractionDoor})
+		interactions = append(interactions, gc.InteractionDoor)
 	}
 
 	if propRaw.DoorLockTrigger != nil {
-		interactions = append(interactions, gc.InteractionData{Kind: gc.InteractionDoorLock})
+		interactions = append(interactions, gc.InteractionDoorLock)
 	}
 
 	if propRaw.WarpNextTrigger != nil {
-		interactions = append(interactions, gc.InteractionData{Kind: gc.InteractionPortal, PortalType: gc.PortalTypeNext})
+		interactions = append(interactions, gc.InteractionPortalNext)
 	}
 
 	if propRaw.WarpEscapeTrigger != nil {
-		interactions = append(interactions, gc.InteractionData{Kind: gc.InteractionPortal, PortalType: gc.PortalTypeTown})
+		interactions = append(interactions, gc.InteractionPortalTown)
 	}
 
 	if propRaw.DungeonGateTrigger != nil {
-		interactions = append(interactions, gc.InteractionData{Kind: gc.InteractionDungeonGate})
+		interactions = append(interactions, gc.InteractionDungeonGate)
 	}
 
 	if propRaw.Storage != nil {
 		entitySpec.WeightCapacity = &gc.WeightCapacity{
 			Max: propRaw.Storage.MaxWeight,
 		}
-		interactions = append(interactions, gc.InteractionData{Kind: gc.InteractionStorage})
+		interactions = append(interactions, gc.InteractionStorage)
 	}
 
 	if len(interactions) > 0 {
