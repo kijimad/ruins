@@ -23,9 +23,7 @@ const (
 )
 
 // StateChangeRequest はステート遷移リクエストを表すコンポーネント。
-// 以前はマーカーインターフェースと各イベント構造体だったが、Ark(archetype格納)と
-// serde 互換のため Kind 判別子を持つプレーンデータのタグ付きユニオンに平坦化した。
-// DungeonState で Kind により処理される。
+// Kind 判別子を持つタグ付きユニオンで、DungeonState が Kind により処理する。
 type StateChangeRequest struct {
 	Kind EventKind
 

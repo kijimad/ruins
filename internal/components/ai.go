@@ -19,10 +19,7 @@ const (
 	AIStateFleeing = AIStateSubState("FLEEING")
 )
 
-// SoloAI と SquadAI は独立したコンポーネント（プレーンデータ）。
-// 以前は AI{Planner PlannerConfig} でインターフェース多態にしていたが、
-// ECS のデータ指向（コンポーネントは振る舞いを持たないデータ）と serde 互換のため
-// 別コンポーネントに分割した。エンティティは片方だけを持つ。
+// SoloAI と SquadAI は独立したコンポーネントで、エンティティは片方だけを持つ。
 
 // SoloAI は単独行動NPC用の設定と状態を保持する
 type SoloAI struct {
