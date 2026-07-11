@@ -166,7 +166,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 			IsOpen:      false,
 			Orientation: orientation,
 		},
-		Interactable: &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorInteraction{}}},
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoor}}},
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}
@@ -189,7 +189,7 @@ func DeleteDoorLockTriggers(world w.World) {
 		triggerEntity := interactableQuery.Entity()
 		interactable := world.Components.Interactable.Get(triggerEntity)
 		for _, interaction := range interactable.Interactions {
-			if _, ok := interaction.(gc.DoorLockInteraction); ok {
+			if interaction.Kind == gc.InteractionDoorLock {
 				toDelete = append(toDelete, triggerEntity)
 				break
 			}

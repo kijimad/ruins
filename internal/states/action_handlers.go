@@ -92,14 +92,14 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	// アイテム拾得アクションが2個以上ある場合、「すべて拾う」を先頭に追加する
 	itemCount := 0
 	for _, action := range actions {
-		if _, ok := action.Interaction.(gc.ItemInteraction); ok {
+		if action.Interaction.Kind == gc.InteractionItem {
 			itemCount++
 		}
 	}
 	if itemCount >= 2 {
 		pickupAll := InteractionAction{
 			Label:       "すべて拾う",
-			Interaction: gc.ItemAllInteraction{},
+			Interaction: gc.InteractionData{Kind: gc.InteractionItemAll},
 		}
 		actions = append([]InteractionAction{pickupAll}, actions...)
 	}
@@ -112,8 +112,8 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 	var result []InteractionAction
 
 	for _, interaction := range interactable.Interactions {
-		switch data := interaction.(type) {
-		case gc.DoorInteraction:
+		switch interaction.Kind {
+		case gc.InteractionDoor:
 			if world.Components.Door.Has(interactableEntity) {
 				door := world.Components.Door.Get(interactableEntity)
 				var label string
@@ -125,28 +125,28 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				result = append(result, InteractionAction{
 					Label:       label,
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
-		case gc.TalkInteraction:
+		case gc.InteractionTalk:
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "話しかける(" + name.Name + ")",
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
-		case gc.ItemInteraction:
+		case gc.InteractionItem:
 			formattedName := query.FormatItemName(world, interactableEntity)
 			result = append(result, InteractionAction{
 				Label:       "拾う(" + formattedName + ")",
 				Target:      interactableEntity,
-				Interaction: data,
+				Interaction: interaction,
 			})
-		case gc.PortalInteraction:
+		case gc.InteractionPortal:
 			var label string
-			switch data.PortalType {
+			switch interaction.PortalType {
 			case gc.PortalTypeNext:
 				label = "転移する(次階)"
 			case gc.PortalTypeTown:
@@ -155,32 +155,34 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			result = append(result, InteractionAction{
 				Label:       label,
 				Target:      interactableEntity,
-				Interaction: data,
+				Interaction: interaction,
 			})
-		case gc.DungeonGateInteraction:
+		case gc.InteractionDungeonGate:
 			result = append(result, InteractionAction{
 				Label:       "ダンジョンを選ぶ",
 				Target:      interactableEntity,
-				Interaction: data,
+				Interaction: interaction,
 			})
-		case gc.StorageInteraction:
+		case gc.InteractionStorage:
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "調べる(" + name.Name + ")",
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
-		case gc.MeleeInteraction:
+		case gc.InteractionMelee:
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
 					Label:       "攻撃する(" + name.Name + ")",
 					Target:      interactableEntity,
-					Interaction: data,
+					Interaction: interaction,
 				})
 			}
+		default:
+			// アクションメニューに出さない種類は無視する
 		}
 	}
 

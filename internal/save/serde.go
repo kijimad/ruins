@@ -30,7 +30,6 @@ func skipComponents() []ecs.Comp {
 	return []ecs.Comp{
 		ecs.C[gc.SpatialIndex](),       // struct-keyed map。ロード時に再構築
 		ecs.C[gc.GameLog](),            // sync.Mutex を含むため不可。毎ロード初期化
-		ecs.C[gc.Interactable](),       // interfaceスライス。ロード時に再付与
 		ecs.C[gc.VisualEffects](),      // interfaceスライス・毎フレーム再生成
 		ecs.C[gc.Position](),           // GridElementから毎フレーム算出
 		ecs.C[gc.StateChangeRequest](), // イベント・毎ターン消費

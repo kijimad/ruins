@@ -326,7 +326,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionMelee}},
 		})
 
 		actions := GetInteractionActions(world)
@@ -351,7 +351,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 			Movement:      gc.SoloRandom,
 		})
 		world.Components.Interactable.Add(enemy, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionMelee}},
 		})
 
 		actions := GetInteractionActions(world)
@@ -375,7 +375,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 		world.Components.BlockPass.Add(prop, &gc.BlockPass{})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionMelee}},
 		})
 
 		// 上に移動しようとする
@@ -406,7 +406,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 		item := world.World.NewEntity()
 		world.Components.GridElement.Add(item, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
 		})
 		world.Components.Name.Add(item, &gc.Name{Name: "テストアイテム"})
 
@@ -427,7 +427,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 		item := world.World.NewEntity()
 		world.Components.GridElement.Add(item, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
 		})
 		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
 
@@ -435,7 +435,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 		portal := world.World.NewEntity()
 		world.Components.GridElement.Add(portal, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(portal, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalTypeNext}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionPortal, PortalType: gc.PortalTypeNext}},
 		})
 
 		actions := GetSameTileManualActions(world)
@@ -454,7 +454,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 		item := world.World.NewEntity()
 		world.Components.GridElement.Add(item, &gc.GridElement{X: 11, Y: 10})
 		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
 		})
 		world.Components.Name.Add(item, &gc.Name{Name: "遠いアイテム"})
 
@@ -474,7 +474,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 		door := world.World.NewEntity()
 		world.Components.GridElement.Add(door, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(door, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionDoor}},
 		})
 		world.Components.Door.Add(door, &gc.Door{})
 
@@ -493,21 +493,21 @@ func TestGetSameTileManualActions(t *testing.T) {
 		item1 := world.World.NewEntity()
 		world.Components.GridElement.Add(item1, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(item1, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
 		})
 		world.Components.Name.Add(item1, &gc.Name{Name: "木刀"})
 
 		item2 := world.World.NewEntity()
 		world.Components.GridElement.Add(item2, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(item2, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
 		})
 		world.Components.Name.Add(item2, &gc.Name{Name: "回復薬"})
 
 		actions := GetSameTileManualActions(world)
 		require.Len(t, actions, 3, "すべて拾う + 個別2つ")
 		assert.Equal(t, "すべて拾う", actions[0].Label)
-		_, ok := actions[0].Interaction.(gc.ItemAllInteraction)
+		ok := actions[0].Interaction.Kind == gc.InteractionItemAll
 		assert.True(t, ok)
 	})
 
@@ -522,7 +522,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 		item := world.World.NewEntity()
 		world.Components.GridElement.Add(item, &gc.GridElement{X: 10, Y: 10})
 		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+			Interactions: []gc.InteractionData{{Kind: gc.InteractionItem}},
 		})
 		world.Components.Name.Add(item, &gc.Name{Name: "木刀"})
 

@@ -7,56 +7,43 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestDoorInteraction_Config はDoorInteractionの設定が正しいことを確認
-func TestDoorInteraction_Config(t *testing.T) {
+// TestInteractionData_Config は各種類のConfigが正しいことを確認
+func TestInteractionData_Config(t *testing.T) {
 	t.Parallel()
 
-	trigger := DoorInteraction{}
-	config := trigger.Config()
+	tests := []struct {
+		kind      InteractionKind
+		wantRange ActivationRange
+		wantWay   ActivationWay
+	}{
+		{InteractionDoor, ActivationRangeAdjacent, ActivationWayOnCollision},
+		{InteractionTalk, ActivationRangeAdjacent, ActivationWayOnCollision},
+		{InteractionMelee, ActivationRangeAdjacent, ActivationWayOnCollision},
+		{InteractionItem, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionItemAll, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionPortal, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionDungeonGate, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
+		{InteractionDoorLock, ActivationRangeSameTile, ActivationWayAuto},
+	}
 
-	assert.Equal(t, ActivationRangeAdjacent, config.ActivationRange,
-		"Doorは隣接タイルで発動する")
-	assert.Equal(t, ActivationWayOnCollision, config.ActivationWay,
-		"Doorは衝突時に自動発動する")
+	for _, tt := range tests {
+		t.Run(string(tt.kind), func(t *testing.T) {
+			t.Parallel()
+			config := InteractionData{Kind: tt.kind}.Config()
+			assert.Equal(t, tt.wantRange, config.ActivationRange)
+			assert.Equal(t, tt.wantWay, config.ActivationWay)
+		})
+	}
 }
 
-// TestTalkInteraction_Config はTalkInteractionの設定が正しいことを確認
-func TestTalkInteraction_Config(t *testing.T) {
+// TestInteractionData_Config_Unknown は未知の種類がゼロ値（無効）のConfigを返すことを確認
+func TestInteractionData_Config_Unknown(t *testing.T) {
 	t.Parallel()
 
-	trigger := TalkInteraction{}
-	config := trigger.Config()
-
-	assert.Equal(t, ActivationRangeAdjacent, config.ActivationRange,
-		"Talkは隣接タイルで発動する")
-	assert.Equal(t, ActivationWayOnCollision, config.ActivationWay,
-		"Talkは衝突時に自動発動する")
-}
-
-// TestItemInteraction_Config はItemInteractionの設定が正しいことを確認
-func TestItemInteraction_Config(t *testing.T) {
-	t.Parallel()
-
-	trigger := ItemInteraction{}
-	config := trigger.Config()
-
-	assert.Equal(t, ActivationRangeSameTile, config.ActivationRange,
-		"Itemは直上タイルで発動する")
-	assert.Equal(t, ActivationWayManual, config.ActivationWay,
-		"Itemは手動発動する")
-}
-
-// TestMeleeInteraction_Config はMeleeInteractionの設定が正しいことを確認
-func TestMeleeInteraction_Config(t *testing.T) {
-	t.Parallel()
-
-	trigger := MeleeInteraction{}
-	config := trigger.Config()
-
-	assert.Equal(t, ActivationRangeAdjacent, config.ActivationRange,
-		"Meleeは隣接タイルで発動する")
-	assert.Equal(t, ActivationWayOnCollision, config.ActivationWay,
-		"Meleeは衝突時に自動発動する")
+	config := InteractionData{Kind: "UNKNOWN"}.Config()
+	require.Error(t, config.ActivationRange.Valid(), "未知の種類は無効なConfigを返す")
+	require.Error(t, config.ActivationWay.Valid(), "未知の種類は無効なConfigを返す")
 }
 
 // TestActivationRange_Valid は有効なActivationRangeの検証
@@ -152,94 +139,21 @@ func TestActivationWay_Valid(t *testing.T) {
 	}
 }
 
-// TestTriggerInterfaceImplementation は全てのトリガーがInteractionDataインターフェースを実装していることを確認
-func TestTriggerInterfaceImplementation(t *testing.T) {
+// TestInteractionData_ConfigConsistency は既知の全種類のConfigが有効な値を返すことを確認
+func TestInteractionData_ConfigConsistency(t *testing.T) {
 	t.Parallel()
 
-	// 全てのトリガータイプがInteractionDataインターフェースを実装していることを確認
-	var _ InteractionData = DoorInteraction{}
-	var _ InteractionData = TalkInteraction{}
-	var _ InteractionData = ItemInteraction{}
-	var _ InteractionData = ItemAllInteraction{}
-	var _ InteractionData = MeleeInteraction{}
-}
-
-// TestTriggerConfigConsistency は全トリガーの設定が一貫していることを確認
-func TestTriggerConfigConsistency(t *testing.T) {
-	t.Parallel()
-
-	// 全トリガータイプ
-	triggers := []struct {
-		name    string
-		trigger InteractionData
-	}{
-		{"Door", DoorInteraction{}},
-		{"Talk", TalkInteraction{}},
-		{"Item", ItemInteraction{}},
-		{"ItemAll", ItemAllInteraction{}},
-		{"Melee", MeleeInteraction{}},
+	kinds := []InteractionKind{
+		InteractionPortal, InteractionDungeonGate, InteractionDoor, InteractionDoorLock,
+		InteractionTalk, InteractionItem, InteractionItemAll, InteractionStorage, InteractionMelee,
 	}
 
-	for _, tt := range triggers {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, kind := range kinds {
+		t.Run(string(kind), func(t *testing.T) {
 			t.Parallel()
-			config := tt.trigger.Config()
-
-			// ActivationRangeが有効な値であることを確認
-			err := config.ActivationRange.Valid()
-			require.NoError(t, err, "%s のActivationRangeは有効でなければならない", tt.name)
-
-			// ActivationWayが有効な値であることを確認
-			err = config.ActivationWay.Valid()
-			require.NoError(t, err, "%s のActivationWayは有効でなければならない", tt.name)
+			config := InteractionData{Kind: kind}.Config()
+			require.NoError(t, config.ActivationRange.Valid(), "%s のActivationRangeは有効でなければならない", kind)
+			require.NoError(t, config.ActivationWay.Valid(), "%s のActivationWayは有効でなければならない", kind)
 		})
 	}
-}
-
-// TestTriggerDesignConstraints は設計上の制約をテスト（仕様確認）
-func TestTriggerDesignConstraints(t *testing.T) {
-	t.Parallel()
-
-	t.Run("SameTileトリガーはManual方式", func(t *testing.T) {
-		t.Parallel()
-		// 仕様: 直上タイルトリガー（Item）は手動発動
-		sameTileTriggers := []InteractionData{
-			ItemInteraction{},
-			ItemAllInteraction{},
-		}
-
-		for _, trigger := range sameTileTriggers {
-			config := trigger.Config()
-			assert.Equal(t, ActivationRangeSameTile, config.ActivationRange)
-			assert.Equal(t, ActivationWayManual, config.ActivationWay,
-				"直上タイルトリガーは手動発動である")
-		}
-	})
-
-	t.Run("AdjacentトリガーはOnCollision方式", func(t *testing.T) {
-		t.Parallel()
-		// 仕様: 隣接タイルトリガー（Door, Talk）は衝突時自動発動
-		adjacentTriggers := []InteractionData{
-			DoorInteraction{},
-			TalkInteraction{},
-		}
-
-		for _, trigger := range adjacentTriggers {
-			config := trigger.Config()
-			assert.Equal(t, ActivationRangeAdjacent, config.ActivationRange)
-			assert.Equal(t, ActivationWayOnCollision, config.ActivationWay,
-				"隣接タイルトリガーは衝突時自動発動である")
-		}
-	})
-
-	t.Run("MeleeトリガーはAdjacent+OnCollision方式", func(t *testing.T) {
-		t.Parallel()
-		// 仕様: 近接攻撃トリガーは隣接タイルで衝突時自動発動
-		trigger := MeleeInteraction{}
-		config := trigger.Config()
-		assert.Equal(t, ActivationRangeAdjacent, config.ActivationRange,
-			"Meleeは隣接タイルで発動する")
-		assert.Equal(t, ActivationWayOnCollision, config.ActivationWay,
-			"Meleeは衝突時自動発動する")
-	})
 }

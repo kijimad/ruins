@@ -88,7 +88,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		}
 
 		// 最終レベル
-		loader.chunkCache["level11"] = []*ChunkTemplate{&ChunkTemplate{
+		loader.chunkCache["level11"] = []*ChunkTemplate{{
 			Name:   "level11",
 			Size:   Size{W: 2, H: 2},
 			Weight: 100,

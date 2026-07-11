@@ -299,7 +299,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
-		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionData{gc.MeleeInteraction{}}})
+		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionMelee}}})
 
 		destination := gc.GridElement{X: 5, Y: 5}
 		comp := &gc.Activity{

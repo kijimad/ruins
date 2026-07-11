@@ -55,13 +55,23 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 	}
 	assert.GreaterOrEqual(t, enemyCount, 1, "敵が復元される")
 
-	// 扉（地形も丸ごと保存される）
+	// 扉（地形も丸ごと保存される）。Interactableも復元され、復帰後に操作できる
 	doorCount := 0
+	doorHasInteraction := false
 	dq := ecs.NewFilter1[gc.Door](newWorld.World).Query()
 	for dq.Next() {
 		doorCount++
+		e := dq.Entity()
+		if newWorld.Components.Interactable.Has(e) {
+			for _, in := range newWorld.Components.Interactable.Get(e).Interactions {
+				if in.Kind == gc.InteractionDoor {
+					doorHasInteraction = true
+				}
+			}
+		}
 	}
 	assert.Equal(t, 1, doorCount, "扉が復元される")
+	assert.True(t, doorHasInteraction, "扉のInteractionが復元され、復帰後に開閉できる")
 
 	// ProvidesHealing が復元される（平坦化により serde 可能になった）
 	healingFound := false

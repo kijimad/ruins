@@ -369,13 +369,13 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 
 		// DoorLockTriggerを2つ作成
 		trigger1 := world.World.NewEntity()
-		world.Components.Interactable.Add(trigger1, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
+		world.Components.Interactable.Add(trigger1, &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoorLock}}})
 		trigger2 := world.World.NewEntity()
-		world.Components.Interactable.Add(trigger2, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
+		world.Components.Interactable.Add(trigger2, &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoorLock}}})
 
 		// 他のInteractableも作成
 		other := world.World.NewEntity()
-		world.Components.Interactable.Add(other, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorInteraction{}}})
+		world.Components.Interactable.Add(other, &gc.Interactable{Interactions: []gc.InteractionData{{Kind: gc.InteractionDoor}}})
 
 		DeleteDoorLockTriggers(world)
 
@@ -386,7 +386,7 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 			entity := interactableQuery.Entity()
 			interactable := world.Components.Interactable.Get(entity)
 			for _, interaction := range interactable.Interactions {
-				if _, ok := interaction.(gc.DoorLockInteraction); ok {
+				if interaction.Kind == gc.InteractionDoorLock {
 					count++
 				}
 			}

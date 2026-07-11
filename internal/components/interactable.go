@@ -16,10 +16,29 @@ type InteractionConfig struct {
 	ActivationWay   ActivationWay   // 発動方式
 }
 
-// InteractionData は相互作用のデータインターフェース
-type InteractionData interface {
-	Config() InteractionConfig
-}
+// InteractionKind は相互作用の種類を表す判別子
+type InteractionKind string
+
+const (
+	// InteractionPortal はポータルを通る相互作用
+	InteractionPortal InteractionKind = "PORTAL"
+	// InteractionDungeonGate はダンジョン選択門の相互作用（発動でダンジョン選択メニューを開く）
+	InteractionDungeonGate InteractionKind = "DUNGEON_GATE"
+	// InteractionDoor は扉の相互作用
+	InteractionDoor InteractionKind = "DOOR"
+	// InteractionDoorLock はプレイヤーが踏むと全扉をロックする相互作用
+	InteractionDoorLock InteractionKind = "DOOR_LOCK"
+	// InteractionTalk は会話の相互作用
+	InteractionTalk InteractionKind = "TALK"
+	// InteractionItem はアイテム拾得の相互作用
+	InteractionItem InteractionKind = "ITEM"
+	// InteractionItemAll は同一タイル上の全アイテム拾得の相互作用
+	InteractionItemAll InteractionKind = "ITEM_ALL"
+	// InteractionStorage は収納の相互作用
+	InteractionStorage InteractionKind = "STORAGE"
+	// InteractionMelee は近接攻撃の相互作用
+	InteractionMelee InteractionKind = "MELEE"
+)
 
 // PortalType はポータルの種類を表す
 type PortalType string
@@ -31,105 +50,27 @@ const (
 	PortalTypeTown PortalType = "TOWN"
 )
 
-// PortalInteraction はポータルを通る相互作用
-type PortalInteraction struct {
-	PortalType PortalType // ポータルの種類
+// InteractionData は相互作用のデータ。
+// Kindで種類を判別するタグ付きデータ。serde互換のためinterfaceを排する
+type InteractionData struct {
+	Kind InteractionKind
+	// PortalType は Kind==InteractionPortal のときのみ有効
+	PortalType PortalType
 }
 
-// Config は相互作用設定を返す
-func (p PortalInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
-	}
-}
-
-// DungeonGateInteraction はダンジョン選択門の相互作用
-// 発動するとダンジョン選択メニューを開く
-type DungeonGateInteraction struct{}
-
-// Config は相互作用設定を返す
-func (d DungeonGateInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
-	}
-}
-
-// DoorInteraction は扉の相互作用
-type DoorInteraction struct{}
-
-// Config は相互作用設定を返す
-func (t DoorInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeAdjacent,
-		ActivationWay:   ActivationWayOnCollision,
-	}
-}
-
-// DoorLockInteraction はプレイヤーが踏むと全扉をロックする相互作用
-type DoorLockInteraction struct{}
-
-// Config は相互作用設定を返す
-func (d DoorLockInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayAuto,
-	}
-}
-
-// TalkInteraction は会話の相互作用
-type TalkInteraction struct{}
-
-// Config は相互作用設定を返す
-func (t TalkInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeAdjacent,
-		ActivationWay:   ActivationWayOnCollision,
-	}
-}
-
-// ItemInteraction はアイテム拾得の相互作用
-type ItemInteraction struct{}
-
-// Config は相互作用設定を返す
-func (t ItemInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
-	}
-}
-
-// ItemAllInteraction は同一タイル上の全アイテム拾得の相互作用
-type ItemAllInteraction struct{}
-
-// Config は相互作用設定を返す
-func (t ItemAllInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
-	}
-}
-
-// StorageInteraction は収納の相互作用
-type StorageInteraction struct{}
-
-// Config は相互作用設定を返す
-func (s StorageInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeAdjacent,
-		ActivationWay:   ActivationWayManual,
-	}
-}
-
-// MeleeInteraction は近接攻撃の相互作用
-type MeleeInteraction struct{}
-
-// Config は相互作用設定を返す
-func (t MeleeInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeAdjacent,
-		ActivationWay:   ActivationWayOnCollision,
+// Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値を返す
+func (d InteractionData) Config() InteractionConfig {
+	switch d.Kind {
+	case InteractionPortal, InteractionDungeonGate, InteractionItem, InteractionItemAll:
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
+	case InteractionDoor, InteractionTalk, InteractionMelee:
+		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
+	case InteractionDoorLock:
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}
+	case InteractionStorage:
+		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
+	default:
+		return InteractionConfig{}
 	}
 }
 

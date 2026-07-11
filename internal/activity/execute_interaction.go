@@ -24,31 +24,31 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return nil, fmt.Errorf("無効なActivationWay: %w", err)
 	}
 
-	switch content := interaction.(type) {
-	case gc.PortalInteraction:
-		return executePortal(world, content)
-	case gc.DungeonGateInteraction:
+	switch interaction.Kind {
+	case gc.InteractionPortal:
+		return executePortal(world, interaction)
+	case gc.InteractionDungeonGate:
 		return executeDungeonGate(world)
-	case gc.DoorInteraction:
+	case gc.InteractionDoor:
 		return executeDoor(actor, target, world)
-	case gc.DoorLockInteraction:
+	case gc.InteractionDoorLock:
 		return executeDoorLock(world)
-	case gc.TalkInteraction:
+	case gc.InteractionTalk:
 		return executeTalk(actor, target, world)
-	case gc.ItemInteraction:
+	case gc.InteractionItem:
 		return executeItem(actor, target, world)
-	case gc.ItemAllInteraction:
+	case gc.InteractionItemAll:
 		return executeItemAll(actor, world)
-	case gc.StorageInteraction:
+	case gc.InteractionStorage:
 		return executeStorage(target, world)
-	case gc.MeleeInteraction:
+	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
 	default:
-		return nil, fmt.Errorf("未知の相互作用タイプ: %T", interaction)
+		return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction.Kind)
 	}
 }
 
-func executePortal(world w.World, portal gc.PortalInteraction) (*ActionResult, error) {
+func executePortal(world w.World, portal gc.InteractionData) (*ActionResult, error) {
 	switch portal.PortalType {
 	case gc.PortalTypeNext:
 		if err := lifecycle.RequestStateChange(world, gc.WarpNextEvent()); err != nil {

@@ -40,9 +40,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 			if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {
 				continue
 			}
-			switch interaction.(type) {
-			case gc.DoorInteraction:
-				// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
+			switch interaction.Kind {
+			case gc.InteractionDoor:
+				// 扉は閉じている場合のみ実行（開いている場合は通過）
 				if world.Components.Door.Has(interactableEntity) {
 					door := world.Components.Door.Get(interactableEntity)
 					if !door.IsOpen {
@@ -54,14 +54,16 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 						return err
 					}
 				}
-			case gc.MeleeInteraction:
+			case gc.InteractionMelee:
 				if query.FactionRelation(world, entity, interactableEntity) == query.RelationHostile {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-			case gc.TalkInteraction:
+			case gc.InteractionTalk:
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
+			default:
+				// 衝突時に自動発動しない種類はここでは扱わない
 			}
 		}
 	}
@@ -175,15 +177,15 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			if interaction.Config().ActivationWay != gc.ActivationWayManual {
 				continue
 			}
-			switch data := interaction.(type) {
-			case gc.ItemInteraction:
+			switch interaction.Kind {
+			case gc.InteractionItem:
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
 					ItemName(formattedName).
 					Append(" がある。").
 					Log()
-			case gc.PortalInteraction:
-				switch data.PortalType {
+			case gc.InteractionPortal:
+				switch interaction.PortalType {
 				case gc.PortalTypeNext:
 					gamelog.New(query.GetGameLog(world)).
 						Append("転移ゲートがある。Enterキーで移動。").
@@ -193,10 +195,12 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 						Append("帰還ゲートがある。Enterキーで脱出。").
 						Log()
 				}
-			case gc.DungeonGateInteraction:
+			case gc.InteractionDungeonGate:
 				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").
 					Log()
+			default:
+				// ログ表示対象外の種類は何もしない
 			}
 		}
 	}
