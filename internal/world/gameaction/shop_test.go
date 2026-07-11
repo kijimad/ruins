@@ -91,7 +91,7 @@ func TestBuyItem(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
+		world.Components.Faction.Add(player, &gc.Faction{Kind: gc.FactionAlly})
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
 		var buyErr error

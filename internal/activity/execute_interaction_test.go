@@ -120,7 +120,7 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 		MessageKey: "test_npc_greeting",
 	})
 	world.Components.Name.Add(npcEntity, &gc.Name{Name: "テストNPC"})
-	world.Components.FactionNeutral.Add(npcEntity, &gc.FactionNeutralData{})
+	world.Components.Faction.Add(npcEntity, &gc.Faction{Kind: gc.FactionNeutral})
 
 	// ExecuteInteractionを実行
 	result, err := ExecuteInteraction(player, npcEntity, gc.InteractionTalk, world)

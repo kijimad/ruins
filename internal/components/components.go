@@ -56,7 +56,7 @@ type EntitySpec struct {
 	Profession    *Profession
 	Hunger        *Hunger
 	Wallet        *Wallet
-	FactionType   *FactionType
+	Faction       *Faction
 	Dead          *Dead
 	Dialog        *Dialog
 	HealthStatus  *HealthStatus
@@ -129,20 +129,18 @@ type Components struct {
 	TileTemperature *ecs.Map[TileTemperature]
 
 	// member ================
-	Player         *ecs.Map[Player]
-	Profession     *ecs.Map[Profession]
-	Hunger         *ecs.Map[Hunger]
-	Wallet         *ecs.Map[Wallet]
-	FactionAlly    *ecs.Map[FactionAllyData]
-	FactionEnemy   *ecs.Map[FactionEnemyData]
-	FactionNeutral *ecs.Map[FactionNeutralData]
-	Boss           *ecs.Map[Boss] // ボスエンティティのマーカー
-	Dialog         *ecs.Map[Dialog]
-	Dead           *ecs.Map[Dead]
-	TurnBased      *ecs.Map[TurnBased]
-	HealthStatus   *ecs.Map[HealthStatus]
-	Skills         *ecs.Map[Skills]
-	CharModifiers  *ecs.Map[CharModifiers]
+	Player        *ecs.Map[Player]
+	Profession    *ecs.Map[Profession]
+	Hunger        *ecs.Map[Hunger]
+	Wallet        *ecs.Map[Wallet]
+	Faction       *ecs.Map[Faction]
+	Boss          *ecs.Map[Boss] // ボスエンティティのマーカー
+	Dialog        *ecs.Map[Dialog]
+	Dead          *ecs.Map[Dead]
+	TurnBased     *ecs.Map[TurnBased]
+	HealthStatus  *ecs.Map[HealthStatus]
+	Skills        *ecs.Map[Skills]
+	CharModifiers *ecs.Map[CharModifiers]
 
 	// event ================
 	StateChangeRequest *ecs.Map[StateChangeRequest] // ステート遷移リクエスト
@@ -253,10 +251,10 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.DropTable, entity, spec.DropTable)
 	addComp(c.SquadMember, entity, spec.SquadMember)
 	addComp(c.GameLog, entity, spec.GameLog)
+	addComp(c.Faction, entity, spec.Faction)
 
 	// interface フィールドは具体型へ振り分ける
 	c.addLocation(entity, spec.LocationType)
-	c.addFaction(entity, spec.FactionType)
 
 	return entity
 }
@@ -275,21 +273,6 @@ func (c *Components) addLocation(entity ecs.Entity, loc *LocationType) {
 		c.LocationOnField.Add(entity, &v)
 	case LocationInStorage:
 		c.LocationInStorage.Add(entity, &v)
-	}
-}
-
-// addFaction はFactionType（interface）を具体型に応じたMapへ付与する
-func (c *Components) addFaction(entity ecs.Entity, f *FactionType) {
-	if f == nil {
-		return
-	}
-	switch v := (*f).(type) {
-	case FactionAllyData:
-		c.FactionAlly.Add(entity, &v)
-	case FactionEnemyData:
-		c.FactionEnemy.Add(entity, &v)
-	case FactionNeutralData:
-		c.FactionNeutral.Add(entity, &v)
 	}
 }
 
@@ -337,9 +320,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Profession = ecs.NewMap[Profession](world)
 	c.Hunger = ecs.NewMap[Hunger](world)
 	c.Wallet = ecs.NewMap[Wallet](world)
-	c.FactionAlly = ecs.NewMap[FactionAllyData](world)
-	c.FactionEnemy = ecs.NewMap[FactionEnemyData](world)
-	c.FactionNeutral = ecs.NewMap[FactionNeutralData](world)
+	c.Faction = ecs.NewMap[Faction](world)
 	c.Boss = ecs.NewMap[Boss](world)
 	c.Dialog = ecs.NewMap[Dialog](world)
 	c.Dead = ecs.NewMap[Dead](world)
@@ -601,37 +582,35 @@ type SheetImage struct {
 	SheetNumber *int
 }
 
-// FactionType は所属派閥。絶対的な指定
-type FactionType fmt.Stringer
+// FactionKind は所属派閥の種別。絶対的な指定
+type FactionKind int
 
-var (
+const (
 	// FactionAlly は味方(プレイヤー側)
-	FactionAlly FactionType = FactionAllyData{}
+	FactionAlly FactionKind = iota
 	// FactionEnemy は敵性(プレイヤーと敵対)
-	FactionEnemy FactionType = FactionEnemyData{}
+	FactionEnemy
 	// FactionNeutral は中立(会話可能NPC)
-	FactionNeutral FactionType = FactionNeutralData{}
+	FactionNeutral
 )
 
-// FactionAllyData は味方派閥データ
-type FactionAllyData struct{}
-
-func (c FactionAllyData) String() string {
-	return "FactionAlly"
+// String は派閥種別の文字列表現を返す。oapiのenum文字列と一致させる
+func (k FactionKind) String() string {
+	switch k {
+	case FactionAlly:
+		return "FactionAlly"
+	case FactionEnemy:
+		return "FactionEnemy"
+	case FactionNeutral:
+		return "FactionNeutral"
+	default:
+		return "Unknown"
+	}
 }
 
-// FactionEnemyData は敵性派閥データ
-type FactionEnemyData struct{}
-
-func (c FactionEnemyData) String() string {
-	return "FactionEnemy"
-}
-
-// FactionNeutralData は中立派閥データ
-type FactionNeutralData struct{}
-
-func (c FactionNeutralData) String() string {
-	return "FactionNeutral"
+// Faction は所属派閥を表すコンポーネント。Kindで種別を判別するタグ付きデータ
+type Faction struct {
+	Kind FactionKind
 }
 
 // LocationType はエンティティの場所

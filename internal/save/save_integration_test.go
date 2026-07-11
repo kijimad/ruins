@@ -29,7 +29,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 
 	npc := world.ECS.NewEntity()
 	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
-	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
+	world.Components.Faction.Add(npc, &gc.Faction{Kind: gc.FactionEnemy})
 
 	// セーブマネージャーを作成
 	saveManager, err := NewSerializationManager(WithSaveDir(testDir))
@@ -60,9 +60,11 @@ func TestSaveLoadIntegration(t *testing.T) {
 		playerCount++
 	}
 
-	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.ECS).Query()
+	npcQuery := ecs.NewFilter1[gc.Faction](newWorld.ECS).Query()
 	for npcQuery.Next() {
-		npcCount++
+		if npcQuery.Get().Kind == gc.FactionEnemy {
+			npcCount++
+		}
 	}
 
 	assert.Equal(t, 1, playerCount, "プレイヤーが1個存在する")

@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -50,8 +51,8 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.True(t, world.Components.SquadAI.Has(member), "AIを持つ")
 
 	// ファクションの確認
-	assert.True(t, world.Components.FactionAlly.Has(member), "FactionAllyを持つ")
-	assert.False(t, world.Components.FactionEnemy.Has(member), "FactionEnemyは持たない")
+	assert.True(t, query.IsAlly(world, member), "味方派閥に属する")
+	assert.False(t, query.IsEnemy(world, member), "敵派閥には属さない")
 
 	// プレイヤーマーカーは持たない
 	assert.False(t, world.Components.Player.Has(member), "Playerは持たない")

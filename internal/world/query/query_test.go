@@ -18,12 +18,12 @@ func TestPlayer(t *testing.T) {
 	// プレイヤーを作成
 	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.FactionAlly.Add(player, &gc.FactionAllyData{})
+	world.Components.Faction.Add(player, &gc.Faction{Kind: gc.FactionAlly})
 	world.Components.Name.Add(player, &gc.Name{Name: "プレイヤー"})
 
 	// 敵を作成（除外されることを確認）
 	enemy := world.ECS.NewEntity()
-	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.Faction.Add(enemy, &gc.Faction{Kind: gc.FactionEnemy})
 	world.Components.Name.Add(enemy, &gc.Name{Name: "敵"})
 
 	// クエリを実行

@@ -31,7 +31,7 @@ func TestAddEntity_AllFields(t *testing.T) {
 			spec := EntitySpec{}
 			fv := reflect.ValueOf(&spec).Elem().Field(i)
 			if elem := field.Type.Elem(); elem.Kind() == reflect.Interface {
-				// *FactionType / *LocationType は具体型を割り当てる
+				// *LocationType は具体型を割り当てる
 				fv.Set(reflect.ValueOf(concreteForInterfaceField(field.Name)))
 			} else {
 				fv.Set(reflect.New(elem))
@@ -56,14 +56,10 @@ func countComponents(world *ecs.World, e ecs.Entity) int {
 	return n
 }
 
-// concreteForInterfaceField は interfaceフィールド（*FactionType/*LocationType）に
+// concreteForInterfaceField は interfaceフィールド（*LocationType）に
 // 割り当てる具体値のポインタを返す
 func concreteForInterfaceField(fieldName string) any {
-	switch fieldName {
-	case "FactionType":
-		f := FactionType(FactionEnemyData{})
-		return &f
-	case "LocationType":
+	if fieldName == "LocationType" {
 		l := LocationType(LocationOnField{})
 		return &l
 	}
