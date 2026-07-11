@@ -6,7 +6,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -138,13 +137,7 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	loc := gc.LocationTypeOnField
 	entitySpec.LocationType = &loc
 
-	componentList := entities.ComponentList[gc.EntitySpec]{}
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	ents, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, err
-	}
-	return ents[len(ents)-1], nil
+	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
 // SpawnDoor は扉を生成する
@@ -177,16 +170,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}},
 	}
 
-	componentList := entities.ComponentList[gc.EntitySpec]{}
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	ents, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, err
-	}
-	if len(ents) == 0 {
-		return consts.InvalidEntity, fmt.Errorf("エンティティが生成されませんでした")
-	}
-	return ents[len(ents)-1], nil
+	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
 // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する

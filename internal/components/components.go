@@ -189,6 +189,110 @@ func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *
 	return nil
 }
 
+// addComp は非nilなら対応するMapにコンポーネントを付与する
+func addComp[T any](m *ecs.Map[T], entity ecs.Entity, v *T) {
+	if v != nil {
+		m.Add(entity, v)
+	}
+}
+
+// AddEntity は EntitySpec から新しいエンティティを生成し、非nilな各フィールドを
+// 対応するコンポーネントとして付与する。リフレクションを使わず型安全に列挙する。
+// EntitySpec にフィールドを追加したら本メソッドも更新すること
+// （TestAddEntity_AllFields が全フィールドの網羅を検証する）。
+func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
+	entity := world.NewEntity()
+
+	addComp(c.Name, entity, spec.Name)
+	addComp(c.Description, entity, spec.Description)
+	addComp(c.HP, entity, spec.HP)
+	addComp(c.Consumable, entity, spec.Consumable)
+	addComp(c.WeightCapacity, entity, spec.WeightCapacity)
+	addComp(c.Melee, entity, spec.Melee)
+	addComp(c.Fire, entity, spec.Fire)
+	addComp(c.Value, entity, spec.Value)
+	addComp(c.Weight, entity, spec.Weight)
+	addComp(c.Recipe, entity, spec.Recipe)
+	addComp(c.Wearable, entity, spec.Wearable)
+	addComp(c.Abilities, entity, spec.Abilities)
+	addComp(c.Ammo, entity, spec.Ammo)
+	addComp(c.Stackable, entity, spec.Stackable)
+	addComp(c.Material, entity, spec.Material)
+	addComp(c.Tile, entity, spec.Tile)
+	addComp(c.SoloAI, entity, spec.SoloAI)
+	addComp(c.SquadAI, entity, spec.SquadAI)
+	addComp(c.Camera, entity, spec.Camera)
+	addComp(c.Position, entity, spec.Position)
+	addComp(c.GridElement, entity, spec.GridElement)
+	addComp(c.SpriteRender, entity, spec.SpriteRender)
+	addComp(c.BlockView, entity, spec.BlockView)
+	addComp(c.BlockPass, entity, spec.BlockPass)
+	addComp(c.PassCost, entity, spec.PassCost)
+	addComp(c.TurnBased, entity, spec.TurnBased)
+	addComp(c.Prop, entity, spec.Prop)
+	addComp(c.LightSource, entity, spec.LightSource)
+	addComp(c.Door, entity, spec.Door)
+	addComp(c.Interactable, entity, spec.Interactable)
+	addComp(c.VisualEffect, entity, spec.VisualEffect)
+	addComp(c.TileTemperature, entity, spec.TileTemperature)
+	addComp(c.Player, entity, spec.Player)
+	addComp(c.Profession, entity, spec.Profession)
+	addComp(c.Hunger, entity, spec.Hunger)
+	addComp(c.Wallet, entity, spec.Wallet)
+	addComp(c.Dead, entity, spec.Dead)
+	addComp(c.Dialog, entity, spec.Dialog)
+	addComp(c.HealthStatus, entity, spec.HealthStatus)
+	addComp(c.Skills, entity, spec.Skills)
+	addComp(c.CharModifiers, entity, spec.CharModifiers)
+	addComp(c.StatsChanged, entity, spec.StatsChanged)
+	addComp(c.ProvidesHealing, entity, spec.ProvidesHealing)
+	addComp(c.ProvidesNutrition, entity, spec.ProvidesNutrition)
+	addComp(c.InflictsDamage, entity, spec.InflictsDamage)
+	addComp(c.Book, entity, spec.Book)
+	addComp(c.CommandTable, entity, spec.CommandTable)
+	addComp(c.DropTable, entity, spec.DropTable)
+	addComp(c.SquadMember, entity, spec.SquadMember)
+	addComp(c.GameLog, entity, spec.GameLog)
+
+	// interface フィールドは具体型へ振り分ける
+	c.addLocation(entity, spec.LocationType)
+	c.addFaction(entity, spec.FactionType)
+
+	return entity
+}
+
+// addLocation はLocationType（interface）を具体型に応じたMapへ付与する
+func (c *Components) addLocation(entity ecs.Entity, loc *LocationType) {
+	if loc == nil {
+		return
+	}
+	switch v := (*loc).(type) {
+	case LocationInBackpack:
+		c.LocationInBackpack.Add(entity, &v)
+	case LocationEquipped:
+		c.LocationEquipped.Add(entity, &v)
+	case LocationOnField:
+		c.LocationOnField.Add(entity, &v)
+	case LocationInStorage:
+		c.LocationInStorage.Add(entity, &v)
+	}
+}
+
+// addFaction はFactionType（interface）を具体型に応じたMapへ付与する
+func (c *Components) addFaction(entity ecs.Entity, f *FactionType) {
+	if f == nil {
+		return
+	}
+	switch v := (*f).(type) {
+	case FactionAllyData:
+		c.FactionAlly.Add(entity, &v)
+	case FactionEnemyData:
+		c.FactionEnemy.Add(entity, &v)
+	case FactionNeutralData:
+		c.FactionNeutral.Add(entity, &v)
+	}
+}
+
 // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
 // 各フィールドに型付き Map ハンドルを割り当てる。
 // Ark は generics で型を実体化するためリフレクションは使えず、明示的に列挙する。
