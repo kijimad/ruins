@@ -239,6 +239,5 @@ func (ra *ReadActivity) getBook(entity ecs.Entity, world w.World) *gc.Book {
 	if !world.Components.Book.Has(entity) {
 		return nil
 	}
-	comp := world.Components.Book.Get(entity)
-	return comp
+	return world.Components.Book.Get(entity)
 }

@@ -26,6 +26,5 @@ func GetItemValue(world w.World, entity ecs.Entity) int {
 	if !world.Components.Value.Has(entity) {
 		return 0
 	}
-	value := world.Components.Value.Get(entity)
-	return value.Value
+	return world.Components.Value.Get(entity).Value
 }

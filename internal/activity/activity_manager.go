@@ -337,6 +337,5 @@ func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
 	if !world.Components.TurnBased.Has(entity) {
 		return 0, fmt.Errorf("TurnBasedコンポーネントが見つからない: entity=%v", entity)
 	}
-	turnBased := world.Components.TurnBased.Get(entity)
-	return turnBased.AP.Max, nil
+	return world.Components.TurnBased.Get(entity).AP.Max, nil
 }

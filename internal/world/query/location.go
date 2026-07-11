@@ -35,8 +35,7 @@ func GetStorageCurrentWeight(world w.World, storage ecs.Entity) float64 {
 	if !world.Components.WeightCapacity.Has(storage) {
 		return 0
 	}
-	wc := world.Components.WeightCapacity.Get(storage)
-	return wc.Current
+	return world.Components.WeightCapacity.Get(storage).Current
 }
 
 // CanAddToStorage は収納にアイテムを追加できるか判定する
