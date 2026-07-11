@@ -98,8 +98,7 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// 空腹度回復効果があるかチェック
 	if world.Components.ProvidesNutrition.Has(item) {
 		nutrition := world.Components.ProvidesNutrition.Get(item)
-		nutritionComponent := nutrition
-		if err := u.applyNutrition(comp, actor, world, nutritionComponent.Amount, item); err != nil {
+		if err := u.applyNutrition(comp, actor, world, nutrition.Amount, item); err != nil {
 			Cancel(comp, fmt.Sprintf("空腹度回復処理エラー: %s", err.Error()))
 			return err
 		}
@@ -108,9 +107,8 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// ダメージ効果があるかチェック
 	if world.Components.InflictsDamage.Has(item) {
 		damage := world.Components.InflictsDamage.Get(item)
-		damageComponent := damage
 		// 共通のダメージ処理を使用
-		gameaction.ApplyDamage(world, actor, damageComponent.Amount, actor)
+		gameaction.ApplyDamage(world, actor, damage.Amount, actor)
 	}
 
 	// 消費可能アイテムの場合は削除または個数を減らす
@@ -163,9 +161,7 @@ func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	if !world.Components.Hunger.Has(actor) {
 		return nil
 	}
-	hungerComp := world.Components.Hunger.Get(actor)
-
-	hunger := hungerComp
+	hunger := world.Components.Hunger.Get(actor)
 
 	// 満腹度を増加させる（値が大きいほど満腹）
 	hunger.Increase(amount)

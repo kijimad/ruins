@@ -351,9 +351,8 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 
 				// スプライト情報を取得
 				if spriteRender := world.Components.SpriteRender.Get(*weapon); spriteRender != nil {
-					sprite := spriteRender
-					spriteSheet = sprite.SpriteSheetName
-					spriteName = sprite.SpriteKey
+					spriteSheet = spriteRender.SpriteSheetName
+					spriteName = spriteRender.SpriteKey
 				}
 			}
 
@@ -384,8 +383,7 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 	hungerQuery := ecs.NewFilter2[gc.Player, gc.Hunger](world.ECS).Query()
 	for hungerQuery.Next() {
 		entity := hungerQuery.Entity()
-		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
-			hunger := hungerComponent
+		if hunger := world.Components.Hunger.Get(entity); hunger != nil {
 			level := hunger.GetLevel()
 			if level != gc.HungerNormal {
 				badges = append(badges, hud.StatusBadge{

@@ -116,8 +116,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed := speedBaseValue
 
 	// 能力値ボーナス
-	if abilsComp := world.Components.Abilities.Get(entity); abilsComp != nil {
-		abils := abilsComp
+	if abils := world.Components.Abilities.Get(entity); abils != nil {
 		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
 	}
 
@@ -147,8 +146,7 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	penalty := 0
 
 	// 空腹ペナルティ
-	if hungerComp := world.Components.Hunger.Get(entity); hungerComp != nil {
-		hunger := hungerComp
+	if hunger := world.Components.Hunger.Get(entity); hunger != nil {
 		penalty += hungerSpeedPenalty(hunger.Current)
 	}
 
@@ -173,12 +171,10 @@ func hungerSpeedPenalty(current int) int {
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する
 func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
-	cwComp := world.Components.WeightCapacity.Get(entity)
-	if cwComp == nil {
+	cw := world.Components.WeightCapacity.Get(entity)
+	if cw == nil {
 		return 0
 	}
-
-	cw := cwComp
 	if cw.Max == 0 {
 		return 0
 	}

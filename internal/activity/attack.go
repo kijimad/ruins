@@ -167,10 +167,7 @@ func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) 
 	}
 	targetGrid := world.Components.GridElement.Get(target)
 
-	attackerPos := attackerGrid
-	targetPos := targetGrid
-
-	distance := geometry.Distance(float64(attackerPos.X), float64(attackerPos.Y), float64(targetPos.X), float64(targetPos.Y))
+	distance := geometry.Distance(float64(attackerGrid.X), float64(attackerGrid.Y), float64(targetGrid.X), float64(targetGrid.Y))
 
 	// TODO: 遠距離武器の場合は射程を武器から取得
 	return distance <= MeleeAttackRange

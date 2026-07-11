@@ -116,8 +116,8 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 
 // TestSerde_SoloAITargetEntityRemaps は SoloAI.TargetEntity（*ecs.Entity）が
 // セーブ・ロード往復でエンティティ参照として整合することを検証する。
-// ark-serde はエンティティプール（ID・世代）を丸ごと保存・再構築するため、
-// 値型・ポインタ型どちらの参照も同一IDのエンティティを指し続ける。
+// ark-serde はエンティティプール（ID・世代）ごと保存・再構築し、参照を再マッピングするため、
+// 保存前後でエンティティIDが変わっても相互参照の整合性が保たれる。
 // 戦闘中（TargetEntity が非nil）のセーブ→ロードで参照が壊れないことを保証する。
 func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 	t.Parallel()
