@@ -99,7 +99,9 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 				hs = world.Components.HealthStatus.Get(entity)
 			}
 			effects := gc.RecalculateCharModifiers(skills, abils, hs)
-			gc.Upsert(world.Components.CharModifiers, entity, effects)
+			if err := gc.Upsert(world.ECS, world.Components.CharModifiers, entity, effects); err != nil {
+				return err
+			}
 		}
 
 		// HP/Poolsを更新

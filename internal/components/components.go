@@ -176,13 +176,17 @@ type Components struct {
 
 // Upsert はコンポーネントを追加または更新する。
 // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。
-// 生存するエンティティにのみ使うこと
-func Upsert[T any](comp *ecs.Map[T], entity ecs.Entity, data *T) {
+// 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。
+func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *T) error {
+	if !world.Alive(entity) {
+		return fmt.Errorf("死亡エンティティにコンポーネントを設定できない: entity=%v", entity)
+	}
 	if comp.Has(entity) {
 		comp.Set(entity, data)
 	} else {
 		comp.Add(entity, data)
 	}
+	return nil
 }
 
 // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、

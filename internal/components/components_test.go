@@ -154,3 +154,23 @@ func TestAllAttackTypesCovered(t *testing.T) {
 		}
 	})
 }
+
+func TestUpsert(t *testing.T) {
+	t.Parallel()
+	world := ecs.NewWorld()
+	c := &Components{}
+	require.NoError(t, c.InitializeComponents(world))
+
+	e := world.NewEntity()
+
+	// 不在なら追加する
+	require.NoError(t, Upsert(world, c.Player, e, &Player{}))
+	assert.True(t, c.Player.Has(e))
+
+	// 既存なら更新する（二重追加のパニックを起こさない）
+	require.NoError(t, Upsert(world, c.Player, e, &Player{}))
+
+	// 死亡エンティティにはパニックせずエラーを返す
+	world.RemoveEntity(e)
+	assert.Error(t, Upsert(world, c.Player, e, &Player{}))
+}

@@ -102,7 +102,9 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 		Message:      result.Message,
 	}
 
-	gc.Upsert(world.Components.LastActivity, actor, lastResult)
+	if err := gc.Upsert(world.ECS, world.Components.LastActivity, actor, lastResult); err != nil {
+		log.Warn("直近アクティビティ結果の記録に失敗", "actor", actor, "error", err.Error())
+	}
 }
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
@@ -137,7 +139,9 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	}
 
 	// アクティビティをコンポーネントとして登録する
-	query.SetActivity(world, actor, comp)
+	if err := query.SetActivity(world, actor, comp); err != nil {
+		return fmt.Errorf("アクティビティ登録失敗: %w", err)
+	}
 	stored := query.GetActivity(world, actor)
 	stored.State = gc.ActivityStateRunning
 

@@ -22,8 +22,8 @@ func HasActivity(world w.World, entity ecs.Entity) bool {
 }
 
 // SetActivity はエンティティにアクティビティを設定する。既存があれば上書きする
-func SetActivity(world w.World, entity ecs.Entity, activity *gc.Activity) {
-	gc.Upsert(world.Components.Activity, entity, activity)
+func SetActivity(world w.World, entity ecs.Entity, activity *gc.Activity) error {
+	return gc.Upsert(world.ECS, world.Components.Activity, entity, activity)
 }
 
 // RemoveActivity はエンティティからアクティビティを削除する

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetActivity(t *testing.T) {
@@ -91,7 +92,7 @@ func TestSetActivity(t *testing.T) {
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
 		}
-		SetActivity(world, entity, activity)
+		require.NoError(t, SetActivity(world, entity, activity))
 
 		result := GetActivity(world, entity)
 		assert.NotNil(t, result)
@@ -115,7 +116,7 @@ func TestSetActivity(t *testing.T) {
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
 		}
-		SetActivity(world, entity, activity2)
+		require.NoError(t, SetActivity(world, entity, activity2))
 
 		result := GetActivity(world, entity)
 		assert.NotNil(t, result)

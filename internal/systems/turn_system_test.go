@@ -448,7 +448,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		skills := world.Components.Skills.Get(playerEntity)
 		abils := world.Components.Abilities.Get(playerEntity)
 		effects := gc.RecalculateCharModifiers(skills, abils, hs)
-		gc.Upsert(world.Components.CharModifiers, playerEntity, effects)
+		require.NoError(t, gc.Upsert(world.ECS, world.Components.CharModifiers, playerEntity, effects))
 
 		// 低体温時のSpeedを計算
 		coldSpeed := query.CalculateSpeed(world, playerEntity)
