@@ -40,8 +40,6 @@ SpriteKey = "repair_item"
 	require.NoError(t, err)
 	entitySpec, err := NewItemSpec(raws, "リペア")
 	require.NoError(t, err)
-	loc := gc.LocationTypeInBackpack
-	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.Name)
 	assert.NotNil(t, entitySpec.Description)
 	assert.NotNil(t, entitySpec.SpriteRender)
@@ -60,8 +58,6 @@ Description = "スプライトなしアイテム"
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := NewItemSpec(raws, "テストアイテム")
 	assert.NoError(t, err)
-	loc := gc.LocationTypeInBackpack
-	entitySpec.LocationType = &loc
 	assert.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
@@ -139,8 +135,6 @@ Stackable = true
 	require.NoError(t, err)
 	entitySpec, err := NewItemSpec(raws, "テスト素材")
 	require.NoError(t, err)
-	loc := gc.LocationTypeInBackpack
-	entitySpec.LocationType = &loc
 
 	// 基本コンポーネントの確認
 	assert.NotNil(t, entitySpec.Name)
@@ -168,8 +162,6 @@ Description = "スプライトなし素材"
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := NewItemSpec(raws, "スプライトなし素材")
 	require.NoError(t, err)
-	loc := gc.LocationTypeInBackpack
-	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey)
@@ -396,8 +388,6 @@ AnimKeys = ["item_0", "item_1"]
 	// NewItemSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := NewItemSpec(raws, "アニメーションアイテム")
 	require.NoError(t, err)
-	loc := gc.LocationTypeInBackpack
-	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, []string{"item_0", "item_1"}, entitySpec.SpriteRender.AnimKeys)
 }
@@ -421,8 +411,6 @@ SpriteKey = "static_item"
 	// NewItemSpecでもAnimKeysはnil
 	entitySpec, err := NewItemSpec(raws, "静的アイテム")
 	require.NoError(t, err)
-	loc := gc.LocationTypeInBackpack
-	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }

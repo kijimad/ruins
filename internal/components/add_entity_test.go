@@ -27,15 +27,11 @@ func TestAddEntity_AllFields(t *testing.T) {
 			c := &Components{}
 			require.NoError(t, c.InitializeComponents(world))
 
-			// 対象フィールドだけを非nilにする
+			// 対象フィールドだけを非nilにする。EntitySpecの全フィールドは *具体型 なので
+			// ゼロ値のポインタを割り当てれば十分（interfaceフィールドは存在しない）
 			spec := EntitySpec{}
 			fv := reflect.ValueOf(&spec).Elem().Field(i)
-			if elem := field.Type.Elem(); elem.Kind() == reflect.Interface {
-				// *LocationType は具体型を割り当てる
-				fv.Set(reflect.ValueOf(concreteForInterfaceField(field.Name)))
-			} else {
-				fv.Set(reflect.New(elem))
-			}
+			fv.Set(reflect.New(field.Type.Elem()))
 
 			entity := c.AddEntity(world, &spec)
 			assert.Positive(t, countComponents(world, entity),
@@ -54,14 +50,4 @@ func countComponents(world *ecs.World, e ecs.Entity) int {
 		}
 	}
 	return n
-}
-
-// concreteForInterfaceField は interfaceフィールド（*LocationType）に
-// 割り当てる具体値のポインタを返す
-func concreteForInterfaceField(fieldName string) any {
-	if fieldName == "LocationType" {
-		l := LocationType(LocationOnField{})
-		return &l
-	}
-	panic("未知のinterfaceフィールド: " + fieldName)
 }

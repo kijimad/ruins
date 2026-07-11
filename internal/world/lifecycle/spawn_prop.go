@@ -134,8 +134,7 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: x, Y: y}
-	loc := gc.LocationTypeOnField
-	entitySpec.LocationType = &loc
+	entitySpec.LocationOnField = &gc.LocationOnField{}
 
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
@@ -149,7 +148,6 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 		spriteKey = "door_vertical_closed"
 	}
 
-	loc := gc.LocationTypeOnField
 	entitySpec := gc.EntitySpec{
 		Name:        &gc.Name{Name: "扉"},
 		Description: &gc.Description{Description: "開閉できる扉"},
@@ -159,10 +157,10 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumTaller,
 		},
-		Prop:         &gc.Prop{},
-		BlockPass:    &gc.BlockPass{},
-		BlockView:    &gc.BlockView{},
-		LocationType: &loc,
+		Prop:            &gc.Prop{},
+		BlockPass:       &gc.BlockPass{},
+		BlockView:       &gc.BlockView{},
+		LocationOnField: &gc.LocationOnField{},
 		Door: &gc.Door{
 			IsOpen:      false,
 			Orientation: orientation,

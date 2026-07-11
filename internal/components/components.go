@@ -17,20 +17,20 @@ type EntitySpec struct {
 	Description *Description
 
 	// item ================
-	HP             *HP
-	Consumable     *Consumable
-	WeightCapacity *WeightCapacity
-	Melee          *Melee
-	Fire           *Fire
-	Value          *Value
-	Weight         *Weight
-	Recipe         *Recipe
-	Wearable       *Wearable
-	Abilities      *Abilities
-	Ammo           *Ammo
-	Stackable      *Stackable
-	Material       *Material
-	LocationType   *LocationType
+	HP              *HP
+	Consumable      *Consumable
+	WeightCapacity  *WeightCapacity
+	Melee           *Melee
+	Fire            *Fire
+	Value           *Value
+	Weight          *Weight
+	Recipe          *Recipe
+	Wearable        *Wearable
+	Abilities       *Abilities
+	Ammo            *Ammo
+	Stackable       *Stackable
+	Material        *Material
+	LocationOnField *LocationOnField
 
 	// field ================
 	Tile            *Tile
@@ -252,28 +252,10 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.SquadMember, entity, spec.SquadMember)
 	addComp(c.GameLog, entity, spec.GameLog)
 	addComp(c.Faction, entity, spec.Faction)
-
-	// interface フィールドは具体型へ振り分ける
-	c.addLocation(entity, spec.LocationType)
+	// 位置は生成時にはフィールド配置のみ。backpack/equipped/storage は MoveToX 経由で設定する
+	addComp(c.LocationOnField, entity, spec.LocationOnField)
 
 	return entity
-}
-
-// addLocation はLocationType（interface）を具体型に応じたMapへ付与する
-func (c *Components) addLocation(entity ecs.Entity, loc *LocationType) {
-	if loc == nil {
-		return
-	}
-	switch v := (*loc).(type) {
-	case LocationInBackpack:
-		c.LocationInBackpack.Add(entity, &v)
-	case LocationEquipped:
-		c.LocationEquipped.Add(entity, &v)
-	case LocationOnField:
-		c.LocationOnField.Add(entity, &v)
-	case LocationInStorage:
-		c.LocationInStorage.Add(entity, &v)
-	}
 }
 
 // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
@@ -613,33 +595,15 @@ type Faction struct {
 	Kind FactionKind
 }
 
-// LocationType はエンティティの場所
-type LocationType fmt.Stringer
-
-var (
-	// LocationTypeInBackpack はバックパック内
-	LocationTypeInBackpack LocationType = LocationInBackpack{}
-	// LocationTypeEquipped は装備中
-	LocationTypeEquipped LocationType = LocationEquipped{}
-	// LocationTypeOnField はフィールド上
-	LocationTypeOnField LocationType = LocationOnField{}
-	// LocationTypeInStorage は収納内
-	LocationTypeInStorage LocationType = LocationInStorage{}
-)
-
-// Location はエンティティの位置を表すインターフェース。
-// setLocationの引数を型安全にするためのマーカー
-type Location interface {
-	isLocation()
-}
+// 位置は種別ごとに独立したコンポーネントとして表現する。
+// archetypeクエリ（「全装備品」「全バックパックアイテム」）が効くため、
+// タグ付き単一コンポーネントより archetype ECS に適している。
+// 排他（1エンティティは高々1つの位置）は lifecycle の MoveToX 関数で保証する。
 
 // LocationInBackpack はバックパック内位置
 type LocationInBackpack struct {
 	Owner ecs.Entity // バックパックの所有者
 }
-
-func (c LocationInBackpack) String() string { return "LocationInBackpack" }
-func (c LocationInBackpack) isLocation()    {}
 
 // LocationEquipped は装備中位置
 type LocationEquipped struct {
@@ -647,22 +611,13 @@ type LocationEquipped struct {
 	EquipmentSlot EquipmentSlotNumber
 }
 
-func (c LocationEquipped) String() string { return "LocationEquipped" }
-func (c LocationEquipped) isLocation()    {}
-
 // LocationOnField はフィールド上位置
 type LocationOnField struct{}
-
-func (c LocationOnField) String() string { return "LocationOnField" }
-func (c LocationOnField) isLocation()    {}
 
 // LocationInStorage は収納内位置
 type LocationInStorage struct {
 	Owner ecs.Entity // 収納Propのエンティティ
 }
-
-func (c LocationInStorage) String() string { return "LocationInStorage" }
-func (c LocationInStorage) isLocation()    {}
 
 // Material は素材を表すマーカーコンポーネント。
 // 合成や売却の材料となるアイテムに付与される
