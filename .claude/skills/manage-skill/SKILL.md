@@ -32,8 +32,7 @@ description: フィードバックや学びから skill を新規作成・更新
    ```
    - `description` は**いつ使うか**を明記する（自動で呼び出される判断材料になる）。例:「〜するときに使う」。
 3. 本文は簡潔な手順・チェックリストにする。ロジック・説明は日本語。
-4. `.gitignore` は `.claude/skills/` 配下を自動で追跡する（`agent-memory` のみローカル除外）ので、通常は編集不要。`git check-ignore .claude/skills/<name>/SKILL.md` で追跡対象（何も出力されない）を確認する。ローカル専用にしたい skill だけ `.gitignore` に個別除外を足す。
-5. CLAUDE.md の「skill（詳細手順・知見）」インデックスに1行追加する。
+4. CLAUDE.md の「skill（詳細手順・知見）」インデックスに1行追加する。
 
 ## 4. 更新・整理する
 
