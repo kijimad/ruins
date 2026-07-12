@@ -65,22 +65,22 @@
   <div class="sec">
     <div class="steplabel"><span class="num">1</span>メインクエストを選ぶ<span class="hint">＝ 目標地点が決まる（run の背骨）</span></div>
     <div class="quests">
-      <div class="q sel">
-        <div class="badge">✓ 選択中</div>
+      <div class="q dim">
         <div class="kind">深層ヴォールト</div>
         <div class="name">沈んだ書庫</div>
-        <div class="row"><span class="k">目標地点</span><span class="v gold">書庫の最深部（深淵）</span></div>
-        <div class="row"><span class="k">目的/報酬</span><span class="v">反応炉コアを持ち帰る</span></div>
-        <div class="row"><span class="k">距離/難度</span><span class="v"><span class="cold">遠い・極寒</span> / <span class="up">高</span></span></div>
-        <div class="foot">重心：潜行。ダンジョン踏破が中心になる遠征</div>
+        <div class="row"><span class="k">目標地点</span><span class="v">古学都市アーカ（NPCの街）</span></div>
+        <div class="row"><span class="k">目的/報酬</span><span class="v">沈んだ書庫で反応炉コアを得て、アーカへ届ける</span></div>
+        <div class="row"><span class="k">距離/難度</span><span class="v">遠い・極寒 / 高</span></div>
+        <div class="foot">重心：潜行。最奥の遺物を回収し、NPCの街へ納品して達成</div>
       </div>
-      <div class="q dim">
+      <div class="q sel">
+        <div class="badge">✓ 選択中</div>
         <div class="kind">交易都市</div>
         <div class="name">氷都リーゲン</div>
-        <div class="row"><span class="k">目標地点</span><span class="v">氷都リーゲン</span></div>
+        <div class="row"><span class="k">目標地点</span><span class="v gold">氷都リーゲン（NPCの街）</span></div>
         <div class="row"><span class="k">目的/報酬</span><span class="v">希少財を持ち込み一山当てる</span></div>
-        <div class="row"><span class="k">距離/難度</span><span class="v">中 / 中</span></div>
-        <div class="foot">重心：交易。裁定で稼ぐ遠征</div>
+        <div class="row"><span class="k">距離/難度</span><span class="v"><span class="cold">中・寒冷</span> / 中</span></div>
+        <div class="foot">重心：交易。ゴールは大きなNPCの街</div>
       </div>
       <div class="q dim">
         <div class="kind">庇護者依頼</div>
@@ -91,7 +91,7 @@
         <div class="foot">重心：護送。荷を守り切る遠征</div>
       </div>
     </div>
-    <div class="banner">→ <b>目標地点が決定：</b><span class="goal">沈んだ書庫（深淵）</span> ── 「反応炉コアを持ち帰れ」。凍原にルート網が生成された。</div>
+    <div class="banner">→ <b>目標地点が決定：</b><span class="goal">氷都リーゲン（NPCの街・交易都市）</span> ── 「希少財を持ち込み一山当てろ」。凍原にルート網が生成された。</div>
   </div>
 
   <div class="connector">▼</div>
@@ -112,7 +112,7 @@
     <div class="lg"><div class="h"><span class="g g-shop">⚙</span>専門店</div><div class="d">身体改造・特殊装備の仕入れ</div></div>
     <div class="lg"><div class="h"><span class="g g-ruin">☗</span>ダンジョン</div><div class="d">潜行して採取・戦利品</div></div>
     <div class="lg"><div class="h"><span class="g g-wp">△</span>途中地点</div><div class="d">移動・野営（休息・暖・加工）</div></div>
-    <div class="lg"><div class="h"><span class="g g-goal">✦</span>目標地点</div><div class="d">クエストのゴール</div></div>
+    <div class="lg"><div class="h"><span class="g g-goal">都</span>目標地点</div><div class="d">クエストのゴール＝NPCの街（交易都市など）</div></div>
   </div>
 
 </div>
@@ -135,11 +135,11 @@ const N={
   junction:{x:54,y:50, t:'vil',  g:'✪', label:'隊商宿（合流）', merit:'+交易・全ルート合流', risk:''},
   // after junction, 2-way
   shopB   :{x:66,y:26, t:'shop', g:'⚙', label:'工廠',         merit:'+特殊装備', risk:'⚠高額'},
-  ruinC   :{x:66,y:74, t:'ruin', g:'☗', label:'書庫外縁',     merit:'+希少財', risk:'⚠古代機構'},
+  ruinC   :{x:66,y:74, t:'ruin', g:'☗', label:'旧研究所',     merit:'+希少財', risk:'⚠古代機構'},
   vilC    :{x:78,y:30, t:'vil',  g:'✿', label:'氷上集落',     merit:'+雇用・噂', risk:''},
   wpFar   :{x:78,y:70, t:'wp',   g:'△', label:'凍河渡り',     merit:'+近道', risk:'⚠寒波接近'},
   outpost :{x:88,y:50, t:'vil',  g:'⛺', label:'前哨',         merit:'+最終補給', risk:''},
-  goal    :{x:96,y:50, t:'goal', g:'✦', label:'沈んだ書庫',   merit:'', risk:''},
+  goal    :{x:96,y:50, t:'goal', g:'都', label:'氷都リーゲン', merit:'目標地点：NPCの街', risk:''},
 };
 const E=[
   ['home','vilA'],
