@@ -90,7 +90,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Flaky check
-        run: make test COUNT=20
+        # -race を常時付与しているため COUNT を抑えて実行時間の膨張を防ぐ
+        run: make test COUNT=10
 
   check-ui:
     runs-on: ubuntu-latest
