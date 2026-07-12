@@ -146,5 +146,5 @@ func drawWeaponSprite(screen *ebiten.Image, x, y, slotSize int, slot WeaponSlotI
 	op.GeoM.Translate(offsetX, offsetY)
 
 	// スプライトをそのまま描画
-	screen.DrawImage(spriteImage.SubImage(spriteRect).(*ebiten.Image), op)
+	screen.DrawImage(gc.SubImage(spriteImage, spriteRect), op)
 }

@@ -140,7 +140,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 				X: gridElement.X,
 				Y: gridElement.Y,
 			})
-			world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
+			world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 				Effects: []gc.VisualEffect{effect},
 			})
 		}

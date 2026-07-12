@@ -28,7 +28,7 @@ func GetGameProgress(world w.World) *gc.GameProgress {
 // GetDungeon はシングルトンエンティティからDungeonを取得する
 // ダンジョン未開始の場合はnilを返す
 func GetDungeon(world w.World) *gc.Dungeon {
-	return GetSingleton[gc.Dungeon](world, world.Components.DungeonState)
+	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
 // GetGameLog はシングルトンエンティティからGameLogストアを取得する
@@ -44,7 +44,7 @@ func GetGameLog(world w.World) *gamelog.SafeSlice {
 // nilを渡すとダンジョン未開始として扱い、コンポーネントを取り除く
 func SetDungeon(world w.World, dungeon *gc.Dungeon) {
 	entity := world.Resources.SingletonEntity
-	comp := world.Components.DungeonState
+	comp := world.Components.Dungeon
 	if dungeon == nil {
 		if comp.Has(entity) {
 			comp.Remove(entity)

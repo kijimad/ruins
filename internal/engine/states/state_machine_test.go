@@ -73,12 +73,16 @@ func TestGetStatesMethods(t *testing.T) {
 		// GetStatesのテスト
 		states := stateMachine.GetStates()
 		assert.Len(t, states, 1, "初期状態の数が正しくない")
-		assert.Equal(t, "InitialState", states[0].(*TestState).name, "初期状態の名前が正しくない")
+		ts, ok := states[0].(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "InitialState", ts.name, "初期状態の名前が正しくない")
 
 		// GetCurrentStateのテスト
 		currentState := stateMachine.GetCurrentState()
 		assert.NotNil(t, currentState, "現在の状態がnil")
-		assert.Equal(t, "InitialState", currentState.(*TestState).name, "現在の状態の名前が正しくない")
+		cs, ok := currentState.(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "InitialState", cs.name, "現在の状態の名前が正しくない")
 
 		// GetStateCountのテスト
 		stateCount := stateMachine.GetStateCount()
@@ -105,7 +109,9 @@ func TestGetStatesMethods(t *testing.T) {
 		// 元のスタックは変更されていないことを確認
 		newStates := stateMachine.GetStates()
 		assert.Len(t, newStates, originalLength, "元の状態スタックが変更されている")
-		assert.Equal(t, "InitialState", newStates[0].(*TestState).name, "元の状態が変更されている")
+		ts, ok := newStates[0].(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "InitialState", ts.name, "元の状態が変更されている")
 	})
 
 	t.Run("空の状態スタックでの動作", func(t *testing.T) {
@@ -143,7 +149,9 @@ func TestPushState(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, 2, sm.GetStateCount())
-		assert.Equal(t, "Pushed", sm.GetCurrentState().(*TestState).name)
+		cs, ok := sm.GetCurrentState().(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "Pushed", cs.name)
 		assert.True(t, base.onPauseCalled)
 		assert.True(t, pushed.onStartCalled)
 	})
@@ -161,7 +169,9 @@ func TestPushState(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, 3, sm.GetStateCount())
-		assert.Equal(t, "Top", sm.GetCurrentState().(*TestState).name)
+		cs, ok := sm.GetCurrentState().(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "Top", cs.name)
 
 		// 中間stateはStart後にPauseされる
 		assert.True(t, middle.onStartCalled)
@@ -232,8 +242,12 @@ func TestPushStateAndDraw(t *testing.T) {
 
 		states := sm.GetStates()
 		assert.Len(t, states, 2)
-		assert.Equal(t, "Base", states[0].(*TestState).name, "スタックの底がベースstateであること")
-		assert.Equal(t, "Menu", states[1].(*TestState).name, "スタックの上がメニューstateであること")
+		bottom, ok := states[0].(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "Base", bottom.name, "スタックの底がベースstateであること")
+		top, ok := states[1].(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "Menu", top.name, "スタックの上がメニューstateであること")
 	})
 }
 
@@ -261,13 +275,19 @@ func TestStateMachineTransitions(t *testing.T) {
 
 		// 現在の状態の確認
 		currentState := stateMachine.GetCurrentState()
-		assert.Equal(t, "PushedState", currentState.(*TestState).name, "Push後の現在状態が正しくない")
+		cs, ok := currentState.(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "PushedState", cs.name, "Push後の現在状態が正しくない")
 
 		// 状態スタックの確認
 		states := stateMachine.GetStates()
 		assert.Len(t, states, 2, "Push後の状態スタック数が正しくない")
-		assert.Equal(t, "InitialState", states[0].(*TestState).name, "Push後の最初の状態が正しくない")
-		assert.Equal(t, "PushedState", states[1].(*TestState).name, "Push後の最後の状態が正しくない")
+		first, ok := states[0].(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "InitialState", first.name, "Push後の最初の状態が正しくない")
+		last, ok := states[1].(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "PushedState", last.name, "Push後の最後の状態が正しくない")
 
 		// 初期状態がPauseされていることを確認
 		assert.True(t, initialState.onPauseCalled, "初期状態のOnPauseが呼ばれていない")
@@ -301,7 +321,9 @@ func TestStateMachineTransitions(t *testing.T) {
 
 		// 現在の状態の確認
 		currentState := stateMachine.GetCurrentState()
-		assert.Equal(t, "InitialState", currentState.(*TestState).name, "Pop後の現在状態が正しくない")
+		cs, ok := currentState.(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "InitialState", cs.name, "Pop後の現在状態が正しくない")
 
 		// Popされた状態のOnStopが呼ばれていることを確認
 		assert.True(t, pushedState.onStopCalled, "Popされた状態のOnStopが呼ばれていない")
@@ -330,7 +352,9 @@ func TestStateMachineTransitions(t *testing.T) {
 
 		// 現在の状態の確認
 		currentState := stateMachine.GetCurrentState()
-		assert.Equal(t, "SwitchedState", currentState.(*TestState).name, "Switch後の現在状態が正しくない")
+		cs, ok := currentState.(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "SwitchedState", cs.name, "Switch後の現在状態が正しくない")
 
 		// 初期状態のOnStopが呼ばれていることを確認
 		assert.True(t, initialState.onStopCalled, "初期状態のOnStopが呼ばれていない")
@@ -365,7 +389,9 @@ func TestStateMachineTransitions(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, 1, sm.GetStateCount())
-		assert.Equal(t, "Replaced", sm.GetCurrentState().(*TestState).name)
+		cs, ok := sm.GetCurrentState().(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "Replaced", cs.name)
 		assert.True(t, state1.onStopCalled)
 		assert.True(t, state2.onStopCalled)
 		assert.True(t, newState.onStartCalled)
@@ -416,7 +442,9 @@ func TestStateMachineTransitions(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, 2, sm.GetStateCount())
-		assert.Equal(t, "Top", sm.GetCurrentState().(*TestState).name)
+		cs, ok := sm.GetCurrentState().(*TestState)
+		require.True(t, ok, "型が *TestState であるべき")
+		assert.Equal(t, "Top", cs.name)
 		assert.True(t, bottom.onStartCalled)
 		assert.True(t, bottom.onPauseCalled)
 		assert.True(t, top.onStartCalled)

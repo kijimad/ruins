@@ -285,7 +285,7 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 	effectQuery := ecs.NewFilter2[gc.VisualEffects, gc.GridElement](world.ECS).Query()
 	for effectQuery.Next() {
 		entity := effectQuery.Entity()
-		ve := world.Components.VisualEffect.Get(entity)
+		ve := world.Components.VisualEffects.Get(entity)
 		ge := world.Components.GridElement.Get(entity)
 
 		require.Len(t, ve.Effects, 1)

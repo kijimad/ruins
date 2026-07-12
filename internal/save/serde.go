@@ -85,8 +85,8 @@ func reestablishSingleton(world w.World) error {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 
 	// json:"-"で除外された視界マップを初期化する
-	if world.Components.DungeonState.Has(singleton) {
-		d := world.Components.DungeonState.Get(singleton)
+	if world.Components.Dungeon.Has(singleton) {
+		d := world.Components.Dungeon.Get(singleton)
 		if d.ExploredTiles == nil {
 			d.ExploredTiles = make(map[gc.GridElement]bool)
 		}

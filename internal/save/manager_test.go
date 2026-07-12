@@ -28,7 +28,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 
 	npc := world.ECS.NewEntity()
 	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
-	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
+	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemy{})
 
 	err = manager.SaveWorld(world, "test_slot")
 	require.NoError(t, err)
@@ -47,7 +47,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	}
 
 	npcCount := 0
-	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.ECS).Query()
+	npcQuery := ecs.NewFilter1[gc.FactionEnemy](newWorld.ECS).Query()
 	for npcQuery.Next() {
 		npcCount++
 	}

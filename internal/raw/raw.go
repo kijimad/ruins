@@ -437,12 +437,12 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 派閥タイプの処理
 	if member.FactionType != nil && string(*member.FactionType) != "" {
 		switch string(*member.FactionType) {
-		case gc.FactionAlly.String():
-			entitySpec.FactionType = &gc.FactionAlly
-		case gc.FactionEnemy.String():
-			entitySpec.FactionType = &gc.FactionEnemy
-		case gc.FactionNeutral.String():
-			entitySpec.FactionType = &gc.FactionNeutral
+		case gc.FactionAllyName:
+			entitySpec.FactionAlly = &gc.FactionAlly{}
+		case gc.FactionEnemyName:
+			entitySpec.FactionEnemy = &gc.FactionEnemy{}
+		case gc.FactionNeutralName:
+			entitySpec.FactionNeutral = &gc.FactionNeutral{}
 		default:
 			return gc.EntitySpec{}, fmt.Errorf("無効な派閥タイプ '%s' が指定されています: %s", *member.FactionType, name)
 		}
@@ -491,7 +491,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if err != nil {
 		return gc.EntitySpec{}, err
 	}
-	entitySpec.FactionType = &gc.FactionAlly
+	entitySpec.FactionAlly = &gc.FactionAlly{}
 	entitySpec.Player = &gc.Player{}
 	entitySpec.Hunger = gc.NewHunger()
 	entitySpec.SoloAI = nil
@@ -504,7 +504,7 @@ func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if err != nil {
 		return gc.EntitySpec{}, err
 	}
-	entitySpec.FactionType = &gc.FactionEnemy
+	entitySpec.FactionEnemy = &gc.FactionEnemy{}
 
 	return entitySpec, nil
 }

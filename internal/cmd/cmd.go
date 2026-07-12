@@ -28,6 +28,7 @@ func NewMainApp() *cli.Command {
 			CmdPlay,
 			CmdSimulateBalance,
 			CmdGenReadme,
+			CmdGenComponents,
 		},
 	}
 

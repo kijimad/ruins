@@ -261,7 +261,8 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		b, ok := sp.planItemHandlingAction(world, member, ctx)
 		assert.True(t, ok, "転送アクションが返る")
 		assert.NotNil(t, b)
-		transfer := b.(*activity.TransferActivity)
+		transfer, ok := b.(*activity.TransferActivity)
+		require.True(t, ok, "型が *activity.TransferActivity であるべき")
 		assert.NotZero(t, transfer.Target)
 	})
 

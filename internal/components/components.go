@@ -8,172 +8,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// EntitySpec はエンティティ作成用の仕様定義
-// エンティティに付与するコンポーネントのセットを定義し、
-// AddEntities関数でECSエンティティに変換される
-type EntitySpec struct {
-	// general ================
-	Name        *Name
-	Description *Description
-
-	// item ================
-	HP             *HP
-	Consumable     *Consumable
-	WeightCapacity *WeightCapacity
-	Melee          *Melee
-	Fire           *Fire
-	Value          *Value
-	Weight         *Weight
-	Recipe         *Recipe
-	Wearable       *Wearable
-	Abilities      *Abilities
-	Ammo           *Ammo
-	Stackable      *Stackable
-	Material       *Material
-	LocationType   *LocationType
-
-	// field ================
-	Tile            *Tile
-	SoloAI          *SoloAI
-	SquadAI         *SquadAI
-	Camera          *Camera
-	Position        *Position
-	GridElement     *GridElement
-	SpriteRender    *SpriteRender
-	BlockView       *BlockView
-	BlockPass       *BlockPass
-	PassCost        *PassCost
-	TurnBased       *TurnBased
-	Prop            *Prop
-	LightSource     *LightSource
-	Door            *Door
-	Interactable    *Interactable
-	VisualEffect    *VisualEffects
-	TileTemperature *TileTemperature
-
-	// member ================
-	Player        *Player
-	Profession    *Profession
-	Hunger        *Hunger
-	Wallet        *Wallet
-	FactionType   *FactionType
-	Dead          *Dead
-	Dialog        *Dialog
-	HealthStatus  *HealthStatus
-	Skills        *Skills
-	CharModifiers *CharModifiers
-
-	// event ================
-	StatsChanged      *StatsChanged
-	ProvidesHealing   *ProvidesHealing
-	ProvidesNutrition *ProvidesNutrition
-	InflictsDamage    *InflictsDamage
-
-	// book ================
-	Book *Book
-
-	// battle ================
-	CommandTable *CommandTable
-	DropTable    *DropTable
-
-	// squad ================
-	SquadMember *SquadMember
-
-	// singleton ================
-	GameLog *GameLog
-}
-
-// Components はECSコンポーネントのハンドル束。
-// 各コンポーネント型の型付き *ecs.Map[T] を保持し、Add/Has/Get やクエリに使用される。
-// コンポーネント追加時は InitializeComponents と本構造体の両方を更新する
-type Components struct {
-	// general ================
-	Name        *ecs.Map[Name]
-	Description *ecs.Map[Description]
-
-	// item ================
-	HP                 *ecs.Map[HP]
-	Consumable         *ecs.Map[Consumable]
-	WeightCapacity     *ecs.Map[WeightCapacity]
-	Melee              *ecs.Map[Melee]
-	Fire               *ecs.Map[Fire]
-	Value              *ecs.Map[Value]
-	Weight             *ecs.Map[Weight]
-	Recipe             *ecs.Map[Recipe]
-	Wearable           *ecs.Map[Wearable]
-	Abilities          *ecs.Map[Abilities]
-	Ammo               *ecs.Map[Ammo]
-	Stackable          *ecs.Map[Stackable]
-	Material           *ecs.Map[Material]
-	LocationInBackpack *ecs.Map[LocationInBackpack]
-	LocationEquipped   *ecs.Map[LocationEquipped]
-	LocationOnField    *ecs.Map[LocationOnField]
-	LocationInStorage  *ecs.Map[LocationInStorage]
-
-	// field ================
-	Tile            *ecs.Map[Tile]
-	SoloAI          *ecs.Map[SoloAI]
-	SquadAI         *ecs.Map[SquadAI]
-	Camera          *ecs.Map[Camera]
-	Position        *ecs.Map[Position]
-	GridElement     *ecs.Map[GridElement]
-	SpriteRender    *ecs.Map[SpriteRender]
-	BlockView       *ecs.Map[BlockView]
-	BlockPass       *ecs.Map[BlockPass]
-	PassCost        *ecs.Map[PassCost]
-	Door            *ecs.Map[Door]
-	Prop            *ecs.Map[Prop]
-	LightSource     *ecs.Map[LightSource]
-	Interactable    *ecs.Map[Interactable]
-	VisualEffect    *ecs.Map[VisualEffects]
-	TileTemperature *ecs.Map[TileTemperature]
-
-	// member ================
-	Player         *ecs.Map[Player]
-	Profession     *ecs.Map[Profession]
-	Hunger         *ecs.Map[Hunger]
-	Wallet         *ecs.Map[Wallet]
-	FactionAlly    *ecs.Map[FactionAllyData]
-	FactionEnemy   *ecs.Map[FactionEnemyData]
-	FactionNeutral *ecs.Map[FactionNeutralData]
-	Boss           *ecs.Map[Boss] // ボスエンティティのマーカー
-	Dialog         *ecs.Map[Dialog]
-	Dead           *ecs.Map[Dead]
-	TurnBased      *ecs.Map[TurnBased]
-	HealthStatus   *ecs.Map[HealthStatus]
-	Skills         *ecs.Map[Skills]
-	CharModifiers  *ecs.Map[CharModifiers]
-
-	// event ================
-	StateChangeRequest *ecs.Map[StateChangeRequest] // ステート遷移リクエスト
-	StatsChanged       *ecs.Map[StatsChanged]
-	WeightDirty        *ecs.Map[WeightDirty]
-	ProvidesHealing    *ecs.Map[ProvidesHealing]
-	ProvidesNutrition  *ecs.Map[ProvidesNutrition]
-	InflictsDamage     *ecs.Map[InflictsDamage]
-
-	// book ================
-	Book *ecs.Map[Book]
-
-	// battle ================
-	CommandTable *ecs.Map[CommandTable]
-	DropTable    *ecs.Map[DropTable]
-
-	// squad ================
-	SquadMember *ecs.Map[SquadMember]
-
-	// activity ================
-	Activity     *ecs.Map[Activity]     // 実行中のアクティビティ
-	LastActivity *ecs.Map[LastActivity] // 直近のアクティビティ実行結果
-
-	// singleton ================
-	GameLog      *ecs.Map[GameLog]      // フィールドログストレージ
-	DungeonState *ecs.Map[Dungeon]      // ダンジョン状態
-	GameProgress *ecs.Map[GameProgress] // ゲーム進行データ
-	TurnState    *ecs.Map[TurnState]    // ターン状態
-	SpatialIndex *ecs.Map[SpatialIndex] // 空間インデックス
-}
-
 // Upsert はコンポーネントを追加または更新する。
 // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。
 // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。
@@ -189,78 +23,11 @@ func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *
 	return nil
 }
 
-// InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
-// 各フィールドに型付き Map ハンドルを割り当てる。
-// Ark は generics で型を実体化するためリフレクションは使えず、明示的に列挙する。
-// コンポーネント追加時はこの関数と Components 構造体の両方を更新する。
-func (c *Components) InitializeComponents(world *ecs.World) error {
-	c.Name = ecs.NewMap[Name](world)
-	c.Description = ecs.NewMap[Description](world)
-	c.HP = ecs.NewMap[HP](world)
-	c.Consumable = ecs.NewMap[Consumable](world)
-	c.WeightCapacity = ecs.NewMap[WeightCapacity](world)
-	c.Melee = ecs.NewMap[Melee](world)
-	c.Fire = ecs.NewMap[Fire](world)
-	c.Value = ecs.NewMap[Value](world)
-	c.Weight = ecs.NewMap[Weight](world)
-	c.Recipe = ecs.NewMap[Recipe](world)
-	c.Wearable = ecs.NewMap[Wearable](world)
-	c.Abilities = ecs.NewMap[Abilities](world)
-	c.Ammo = ecs.NewMap[Ammo](world)
-	c.Stackable = ecs.NewMap[Stackable](world)
-	c.Material = ecs.NewMap[Material](world)
-	c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)
-	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
-	c.LocationOnField = ecs.NewMap[LocationOnField](world)
-	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
-	c.Tile = ecs.NewMap[Tile](world)
-	c.SoloAI = ecs.NewMap[SoloAI](world)
-	c.SquadAI = ecs.NewMap[SquadAI](world)
-	c.Camera = ecs.NewMap[Camera](world)
-	c.Position = ecs.NewMap[Position](world)
-	c.GridElement = ecs.NewMap[GridElement](world)
-	c.SpriteRender = ecs.NewMap[SpriteRender](world)
-	c.BlockView = ecs.NewMap[BlockView](world)
-	c.BlockPass = ecs.NewMap[BlockPass](world)
-	c.PassCost = ecs.NewMap[PassCost](world)
-	c.Door = ecs.NewMap[Door](world)
-	c.Prop = ecs.NewMap[Prop](world)
-	c.LightSource = ecs.NewMap[LightSource](world)
-	c.Interactable = ecs.NewMap[Interactable](world)
-	c.VisualEffect = ecs.NewMap[VisualEffects](world)
-	c.TileTemperature = ecs.NewMap[TileTemperature](world)
-	c.Player = ecs.NewMap[Player](world)
-	c.Profession = ecs.NewMap[Profession](world)
-	c.Hunger = ecs.NewMap[Hunger](world)
-	c.Wallet = ecs.NewMap[Wallet](world)
-	c.FactionAlly = ecs.NewMap[FactionAllyData](world)
-	c.FactionEnemy = ecs.NewMap[FactionEnemyData](world)
-	c.FactionNeutral = ecs.NewMap[FactionNeutralData](world)
-	c.Boss = ecs.NewMap[Boss](world)
-	c.Dialog = ecs.NewMap[Dialog](world)
-	c.Dead = ecs.NewMap[Dead](world)
-	c.TurnBased = ecs.NewMap[TurnBased](world)
-	c.HealthStatus = ecs.NewMap[HealthStatus](world)
-	c.Skills = ecs.NewMap[Skills](world)
-	c.CharModifiers = ecs.NewMap[CharModifiers](world)
-	c.StateChangeRequest = ecs.NewMap[StateChangeRequest](world)
-	c.StatsChanged = ecs.NewMap[StatsChanged](world)
-	c.WeightDirty = ecs.NewMap[WeightDirty](world)
-	c.ProvidesHealing = ecs.NewMap[ProvidesHealing](world)
-	c.ProvidesNutrition = ecs.NewMap[ProvidesNutrition](world)
-	c.InflictsDamage = ecs.NewMap[InflictsDamage](world)
-	c.Book = ecs.NewMap[Book](world)
-	c.CommandTable = ecs.NewMap[CommandTable](world)
-	c.DropTable = ecs.NewMap[DropTable](world)
-	c.SquadMember = ecs.NewMap[SquadMember](world)
-	c.Activity = ecs.NewMap[Activity](world)
-	c.LastActivity = ecs.NewMap[LastActivity](world)
-	c.GameLog = ecs.NewMap[GameLog](world)
-	c.DungeonState = ecs.NewMap[Dungeon](world)
-	c.GameProgress = ecs.NewMap[GameProgress](world)
-	c.TurnState = ecs.NewMap[TurnState](world)
-	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
-	return nil
+// addComp は非nilなら対応するMapにコンポーネントを付与する
+func addComp[T any](m *ecs.Map[T], entity ecs.Entity, v *T) {
+	if v != nil {
+		m.Add(entity, v)
+	}
 }
 
 // Camera はカメラ
@@ -497,66 +264,35 @@ type SheetImage struct {
 	SheetNumber *int
 }
 
-// FactionType は所属派閥。絶対的な指定
-type FactionType fmt.Stringer
+// 派閥は種別ごとに独立したマーカーコンポーネントとして表現する。
+// archetypeクエリ（「全敵」「全味方」）が効くため archetype ECS に適している。
+// 派閥は排他（1エンティティは高々1つ）で、生成時に EntitySpec で1つだけ指定する。
 
-var (
-	// FactionAlly は味方(プレイヤー側)
-	FactionAlly FactionType = FactionAllyData{}
-	// FactionEnemy は敵性(プレイヤーと敵対)
-	FactionEnemy FactionType = FactionEnemyData{}
-	// FactionNeutral は中立(会話可能NPC)
-	FactionNeutral FactionType = FactionNeutralData{}
+// 派閥のenum文字列（oapiのFactionType enumと一致させる）
+const (
+	FactionAllyName    = "FactionAlly"
+	FactionEnemyName   = "FactionEnemy"
+	FactionNeutralName = "FactionNeutral"
 )
 
-// FactionAllyData は味方派閥データ
-type FactionAllyData struct{}
+// FactionAlly は味方派閥(プレイヤー側)のマーカー
+type FactionAlly struct{}
 
-func (c FactionAllyData) String() string {
-	return "FactionAlly"
-}
+// FactionEnemy は敵性派閥(プレイヤーと敵対)のマーカー
+type FactionEnemy struct{}
 
-// FactionEnemyData は敵性派閥データ
-type FactionEnemyData struct{}
+// FactionNeutral は中立派閥(会話可能NPC)のマーカー
+type FactionNeutral struct{}
 
-func (c FactionEnemyData) String() string {
-	return "FactionEnemy"
-}
-
-// FactionNeutralData は中立派閥データ
-type FactionNeutralData struct{}
-
-func (c FactionNeutralData) String() string {
-	return "FactionNeutral"
-}
-
-// LocationType はエンティティの場所
-type LocationType fmt.Stringer
-
-var (
-	// LocationTypeInBackpack はバックパック内
-	LocationTypeInBackpack LocationType = LocationInBackpack{}
-	// LocationTypeEquipped は装備中
-	LocationTypeEquipped LocationType = LocationEquipped{}
-	// LocationTypeOnField はフィールド上
-	LocationTypeOnField LocationType = LocationOnField{}
-	// LocationTypeInStorage は収納内
-	LocationTypeInStorage LocationType = LocationInStorage{}
-)
-
-// Location はエンティティの位置を表すインターフェース。
-// setLocationの引数を型安全にするためのマーカー
-type Location interface {
-	isLocation()
-}
+// 位置は種別ごとに独立したコンポーネントとして表現する。
+// archetypeクエリ（「全装備品」「全バックパックアイテム」）が効くため、
+// タグ付き単一コンポーネントより archetype ECS に適している。
+// 排他（1エンティティは高々1つの位置）は lifecycle の MoveToX 関数で保証する。
 
 // LocationInBackpack はバックパック内位置
 type LocationInBackpack struct {
 	Owner ecs.Entity // バックパックの所有者
 }
-
-func (c LocationInBackpack) String() string { return "LocationInBackpack" }
-func (c LocationInBackpack) isLocation()    {}
 
 // LocationEquipped は装備中位置
 type LocationEquipped struct {
@@ -564,22 +300,13 @@ type LocationEquipped struct {
 	EquipmentSlot EquipmentSlotNumber
 }
 
-func (c LocationEquipped) String() string { return "LocationEquipped" }
-func (c LocationEquipped) isLocation()    {}
-
 // LocationOnField はフィールド上位置
 type LocationOnField struct{}
-
-func (c LocationOnField) String() string { return "LocationOnField" }
-func (c LocationOnField) isLocation()    {}
 
 // LocationInStorage は収納内位置
 type LocationInStorage struct {
 	Owner ecs.Entity // 収納Propのエンティティ
 }
-
-func (c LocationInStorage) String() string { return "LocationInStorage" }
-func (c LocationInStorage) isLocation()    {}
 
 // Material は素材を表すマーカーコンポーネント。
 // 合成や売却の材料となるアイテムに付与される

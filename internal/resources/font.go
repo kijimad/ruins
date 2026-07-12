@@ -1,6 +1,8 @@
 package resources
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/assets"
@@ -14,7 +16,15 @@ type Font struct {
 
 // UnmarshalTOML fills structure fields from TOML data
 func (f *Font) UnmarshalTOML(i any) error {
-	fontFile, err := assets.FS.Open(i.(map[string]any)["font"].(string))
+	m, ok := i.(map[string]any)
+	if !ok {
+		return fmt.Errorf("fontのデコードに失敗: mapではありません: %T", i)
+	}
+	fontPath, ok := m["font"].(string)
+	if !ok {
+		return fmt.Errorf("fontのデコードに失敗: fontフィールドが文字列ではありません")
+	}
+	fontFile, err := assets.FS.Open(fontPath)
 	if err != nil {
 		return err
 	}

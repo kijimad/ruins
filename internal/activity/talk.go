@@ -58,8 +58,8 @@ func (ta *TalkActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 		return fmt.Errorf("対象エンティティは会話できません")
 	}
 
-	// FactionNeutralを持っているか確認
-	if !world.Components.FactionNeutral.Has(targetEntity) {
+	// 中立派閥か確認
+	if !query.IsNeutral(world, targetEntity) {
 		return fmt.Errorf("対象エンティティは中立派閥ではありません")
 	}
 

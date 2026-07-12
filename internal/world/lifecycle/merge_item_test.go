@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -128,14 +127,11 @@ func TestMergeMaterialIntoInventoryWithoutItemOrMaterialComponent(t *testing.T) 
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// Stackableコンポーネントを持たないエンティティを作成（個別アイテムとして扱われる）
-	componentList := entities.ComponentList[gc.EntitySpec]{}
-	componentList.Entities = append(componentList.Entities, gc.EntitySpec{
+	world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name: &gc.Name{Name: "テスト"},
 	})
-	_, err := entities.AddEntities(world, componentList)
-	require.NoError(t, err)
 
 	// mergeStackableItemsを実行しても何もしない（エラーなし）
-	err = mergeStackableItems(world, "テスト", mergeInBackpack, player)
+	err := mergeStackableItems(world, "テスト", mergeInBackpack, player)
 	require.NoError(t, err, "Stackableコンポーネントを持たないエンティティは個別アイテムとして扱われ、マージ不要")
 }

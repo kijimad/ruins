@@ -2,11 +2,23 @@ package components
 
 import (
 	"bytes"
+	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kijimaD/ruins/assets"
 )
+
+// SubImage は画像の部分矩形を切り出す。
+// ebiten.Image.SubImage は image.Image を返すが実体は常に *ebiten.Image であり、
+// 各所での未チェック型アサーションを避けるためここに集約する
+func SubImage(img *ebiten.Image, r image.Rectangle) *ebiten.Image {
+	sub, ok := img.SubImage(r).(*ebiten.Image)
+	if !ok {
+		panic("ebiten.Image.SubImage が *ebiten.Image を返さなかった")
+	}
+	return sub
+}
 
 // Sprite は1つ1つの意味をなす画像の位置を示す情報
 // 1ファイルに対して複数のスプライトが定義されている

@@ -7,14 +7,20 @@ func UseRef[T any](store *Store, key string, init func() T) T {
 	if _, ok := store.refs[key]; !ok {
 		store.refs[key] = init()
 	}
-	return store.refs[key].(T)
+	v, ok := store.refs[key].(T)
+	if !ok {
+		panic("hooks: 参照の型が登録時と一致しません: key=" + key)
+	}
+	return v
 }
 
 // GetRef は登録済みの参照を取得する
-// 存在しない場合はゼロ値と false を返す
+// 存在しない場合や型が一致しない場合はゼロ値と false を返す
 func GetRef[T any](store *Store, key string) (T, bool) {
 	if val, ok := store.refs[key]; ok {
-		return val.(T), true
+		if typed, ok := val.(T); ok {
+			return typed, true
+		}
 	}
 	var zero T
 	return zero, false

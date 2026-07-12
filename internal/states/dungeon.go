@@ -135,11 +135,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 発生するため、古いデータが残り移動不能になることがある
 	query.InvalidateSpatialIndex(world)
 
-	// 視界キャッシュをクリアする
-	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
-		vs.(*gs.VisionSystem).ClearCaches()
-	}
-
 	// ダンジョンタイトルエフェクト用エンティティを作成する
 	screenW, screenH := world.Resources.GetScreenDimensions()
 	titleText := def.Name
@@ -149,7 +144,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
 	titleEntity := world.ECS.NewEntity()
-	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
@@ -187,10 +182,6 @@ func (st *DungeonState) OnStop(world w.World) error {
 	// 未消費のステート遷移リクエストを破棄
 	lifecycle.ConsumeStateChange(world)
 
-	// 視界キャッシュをクリア
-	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
-		vs.(*gs.VisionSystem).ClearCaches()
-	}
 	return nil
 }
 

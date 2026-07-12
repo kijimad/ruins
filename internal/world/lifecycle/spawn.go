@@ -7,7 +7,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -45,22 +44,12 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 		return consts.InvalidEntity, err
 	}
 
-	componentList := entities.ComponentList[gc.EntitySpec]{}
-	componentList.Entities = append(componentList.Entities, entitySpec)
-
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, err
-	}
-	if len(entitiesSlice) == 0 {
-		return consts.InvalidEntity, fmt.Errorf("エンティティの生成に失敗しました")
-	}
-	return entitiesSlice[0], nil
+	entity := world.Components.AddEntity(world.ECS, &entitySpec)
+	return entity, nil
 }
 
 // SpawnPlayer はプレイヤーキャラクターを生成する
 func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
-	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
@@ -82,15 +71,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, err
-	}
-	if len(entitiesSlice) != 1 {
-		return consts.InvalidEntity, fmt.Errorf("プレイヤーエンティティの生成に失敗しました: 予期しないエンティティ数=%d", len(entitiesSlice))
-	}
-	playerEntity := entitiesSlice[0]
+	playerEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 
 	if err := FullRecover(world, playerEntity); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
@@ -103,13 +84,12 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
 func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
-	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := raw.NewMemberSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("中立NPC生成エラー: %w", err)
 	}
 
-	if entitySpec.FactionType == nil || *entitySpec.FactionType != gc.FactionNeutral {
+	if entitySpec.FactionNeutral == nil {
 		return consts.InvalidEntity, fmt.Errorf("'%s' は中立NPCではありません", name)
 	}
 	if entitySpec.Dialog == nil {
@@ -129,16 +109,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		solo.ViewDistance = consts.AIVisionDistance
 	}
 
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, err
-	}
-	if len(entitiesSlice) == 0 {
-		return consts.InvalidEntity, fmt.Errorf("NPCエンティティの生成に失敗しました")
-	}
-
-	npcEntity := entitiesSlice[len(entitiesSlice)-1]
+	npcEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, npcEntity); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("NPCの回復処理エラー: %w", err)
 	}
@@ -159,7 +130,6 @@ func WithBoss() SpawnEnemyOption {
 
 // SpawnEnemy はフィールド上に敵キャラクターを生成する
 func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
-	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
@@ -181,16 +151,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		Interactions: []gc.InteractionKind{gc.InteractionMelee},
 	}
 
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, err
-	}
-	if len(entitiesSlice) == 0 {
-		return consts.InvalidEntity, fmt.Errorf("敵エンティティの生成に失敗しました")
-	}
-
-	npcEntity := entitiesSlice[len(entitiesSlice)-1]
+	npcEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, npcEntity); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("敵の回復処理エラー: %w", err)
 	}
@@ -239,7 +200,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		CharModifiers:  charMods,
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
-		FactionType:    &gc.FactionAlly,
+		FactionAlly:    &gc.FactionAlly{},
 		SquadAI: func() *gc.SquadAI {
 			ai := gc.DefaultSquadAI()
 			return &ai
@@ -254,17 +215,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		SquadMember:  &gc.SquadMember{},
 	}
 
-	componentList := entities.ComponentList[gc.EntitySpec]{}
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
-	}
-	if len(entitiesSlice) != 1 {
-		return consts.InvalidEntity, fmt.Errorf("隊員エンティティの生成に失敗しました: エンティティ数=%d", len(entitiesSlice))
-	}
-
-	memberEntity := entitiesSlice[0]
+	memberEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, memberEntity); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
 	}
@@ -330,7 +281,6 @@ func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
 		}
 	}
 
-	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrItemGeneration, err)
@@ -338,16 +288,8 @@ func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
 	if entitySpec.Stackable != nil {
 		entitySpec.Stackable.Count = count
 	}
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return consts.InvalidEntity, err
-	}
-	if len(entitiesSlice) == 0 {
-		return consts.InvalidEntity, fmt.Errorf("アイテムエンティティの生成に失敗しました")
-	}
 
-	return entitiesSlice[len(entitiesSlice)-1], nil
+	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
 // FullRecover はエンティティのHP/APを全回復する
@@ -449,7 +391,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 		X: gridElement.X,
 		Y: gridElement.Y,
 	})
-	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
 }

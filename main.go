@@ -10,6 +10,9 @@ import (
 	"github.com/kijimaD/ruins/internal/cmd"
 )
 
+//go:generate go run . gencomponents
+//go:generate go run . genreadme
+
 func main() {
 	app := cmd.NewMainApp()
 	err := cmd.RunMainApp(app, os.Args...)

@@ -22,39 +22,41 @@ type raycastCacheKey struct {
 	TargetY int
 }
 
-// VisionSystem はタイルごとの視界を管理するUpdaterシステム
+// VisionSystem はタイルごとの視界を計算するUpdaterシステム。
+// 計算結果の光源情報は Dungeon シングルトンに書き込み、描画側はそこから参照する。
+// レイキャストキャッシュなどの内部メモは本システムが保持し、フロア変化時に自身で破棄する
 type VisionSystem struct {
 	// プレイヤー位置キャッシュ（タイル移動ごとに更新）
-	lastPlayerX    consts.Pixel
-	lastPlayerY    consts.Pixel
-	visibilityData map[string]TileVisibility
-	isInitialized  bool
+	lastPlayerX   consts.Pixel
+	lastPlayerY   consts.Pixel
+	isInitialized bool
 
 	// レイキャスト結果のキャッシュ
 	raycastCache map[raycastCacheKey]bool
 
-	// 光源情報キャッシュ（タイル座標 -> 光源情報）
-	lightSourceCache map[gc.GridElement]LightInfo
-
-	// 視界遮断エンティティの座標インデックス。BlockView を持つ全エンティティを含む。視界更新時に1回構築して使う
-	// レイキャストで大量に参照するのでキャッシュする
-	blockViewIndex map[gc.GridElement]bool
+	// キャッシュが対象とするフロアの識別情報。変化を検知して内部キャッシュを破棄する
+	lastDepth          int
+	lastDefinitionName string
 }
 
 // NewVisionSystem はVisionSystemを初期化する
 func NewVisionSystem() *VisionSystem {
 	return &VisionSystem{
-		raycastCache:     make(map[raycastCacheKey]bool),
-		lightSourceCache: make(map[gc.GridElement]LightInfo),
+		raycastCache: make(map[raycastCacheKey]bool),
 	}
 }
 
-// ClearCaches は全ての視界関連キャッシュをクリアする（階移動時などに使用）
-func (sys *VisionSystem) ClearCaches() {
+// invalidateOnFloorChange はフロアが切り替わっていれば内部キャッシュを破棄する。
+// レイキャスト結果は壁配置に依存するため、フロアをまたいで再利用すると誤った視界になる
+func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon) {
+	if dungeon.Depth == sys.lastDepth && dungeon.DefinitionName == sys.lastDefinitionName {
+		return
+	}
+	sys.lastDepth = dungeon.Depth
+	sys.lastDefinitionName = dungeon.DefinitionName
 	sys.isInitialized = false
-	sys.visibilityData = nil
 	sys.raycastCache = make(map[raycastCacheKey]bool)
-	sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
+	dungeon.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 }
 
 // String はシステム名を返す
@@ -84,6 +86,14 @@ func (sys *VisionSystem) Update(world w.World) error {
 		Y: consts.Pixel(int(playerGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 	}
 
+	dungeon := query.GetDungeon(world)
+	if dungeon == nil {
+		return nil
+	}
+
+	// フロアが切り替わっていれば壁配置依存の内部キャッシュを破棄する
+	sys.invalidateOnFloorChange(dungeon)
+
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
 	needsUpdate := !sys.isInitialized ||
@@ -91,48 +101,46 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.Y-sys.lastPlayerY)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
-	if query.GetDungeon(world) != nil && query.GetDungeon(world).NeedsForceUpdate {
+	if dungeon.NeedsForceUpdate {
 		needsUpdate = true
-		query.GetDungeon(world).NeedsForceUpdate = false
+		dungeon.NeedsForceUpdate = false
 	}
 
-	if needsUpdate {
-		// 視界遮断タイルのインデックスを構築する
-		sys.blockViewIndex = buildBlockViewIndex(world)
+	if !needsUpdate {
+		return nil
+	}
 
-		// タイルの可視性マップを更新
-		visionRadius := consts.Pixel(consts.VisionRadiusTiles) * consts.TileSize
-		visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, sys.blockViewIndex)
+	// 視界遮断タイルのインデックスを構築する
+	blockViewIndex := buildBlockViewIndex(world)
 
-		// 光源情報キャッシュをクリア（更新前）
-		sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
+	// タイルの可視性マップを更新
+	visionRadius := consts.Pixel(consts.VisionRadiusTiles) * consts.TileSize
+	visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, blockViewIndex)
 
-		// 視界内タイルの光源情報を計算し、探索済みマークを行う。
-		// マップ外座標はデータに含めない
-		dungeon := query.GetDungeon(world)
-		visibleTiles := make(map[gc.GridElement]bool)
-		for _, tileData := range visibilityData {
-			if !tileData.Visible {
-				continue
-			}
-			gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
-			if !isInMapBounds(gridElement, dungeon.Level) {
-				continue
-			}
+	// 光源情報を更新前にクリアする
+	dungeon.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 
-			lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
-			sys.lightSourceCache[gridElement] = lightInfo
-			dungeon.ExploredTiles[gridElement] = true
-			visibleTiles[gridElement] = true
+	// 視界内タイルの光源情報を計算し、探索済みマークを行う。
+	// マップ外座標はデータに含めない
+	visibleTiles := make(map[gc.GridElement]bool)
+	for _, tileData := range visibilityData {
+		if !tileData.Visible {
+			continue
 		}
-		dungeon.VisibleTiles = visibleTiles
+		gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
+		if !isInMapBounds(gridElement, dungeon.Level) {
+			continue
+		}
 
-		// キャッシュ更新
-		sys.lastPlayerX = playerPos.X
-		sys.lastPlayerY = playerPos.Y
-		sys.visibilityData = visibilityData
-		sys.isInitialized = true
+		dungeon.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
+		dungeon.ExploredTiles[gridElement] = true
+		visibleTiles[gridElement] = true
 	}
+	dungeon.VisibleTiles = visibleTiles
+
+	sys.lastPlayerX = playerPos.X
+	sys.lastPlayerY = playerPos.Y
+	sys.isInitialized = true
 
 	return nil
 }
@@ -174,7 +182,7 @@ func (TileRenderRemembered) tileRenderInfo() {}
 // computeTileRenderMap はタイルごとの描画情報を一括計算する。
 // VisibleTiles・ExploredTiles・光源情報を統合して、
 // 各描画関数が参照するだけで済む描画情報マップを返す
-func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) map[gc.GridElement]TileRenderInfo {
+func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
 	dungeon := query.GetDungeon(world)
 
@@ -339,14 +347,8 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 	}
 }
 
-// LightInfo は光源情報を保持する
-type LightInfo struct {
-	Darkness float64
-	Color    color.RGBA
-}
-
 // calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する
-func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
+func calculateLightSourceDarkness(world w.World, tileX, tileY int) gc.LightInfo {
 	minDarkness := 1.0 // 完全に暗い状態からスタート
 
 	// 加重平均用の累積値
@@ -407,7 +409,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 		finalB = uint8(math.Min(255, totalB/totalWeight))
 	}
 
-	return LightInfo{
+	return gc.LightInfo{
 		Darkness: minDarkness,
 		Color:    color.RGBA{R: finalR, G: finalG, B: finalB, A: 255},
 	}

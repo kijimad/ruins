@@ -15,7 +15,7 @@ import (
 // クエリを閉じてから呼び出す。反復中はワールドがロックされる
 func Player(world w.World, f func(entity ecs.Entity)) {
 	var players []ecs.Entity
-	playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAllyData](world.ECS).Query()
+	playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAlly](world.ECS).Query()
 	for playerQuery.Next() {
 		players = append(players, playerQuery.Entity())
 	}

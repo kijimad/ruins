@@ -26,7 +26,7 @@ func setupTestAI(t *testing.T, world w.World, x, y int, solo *gc.SoloAI) ecs.Ent
 	world.Components.Name.Add(entity, &gc.Name{Name: "テストAI"})
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
 	world.Components.SoloAI.Add(entity, solo)
-	world.Components.FactionEnemy.Add(entity, &gc.FactionEnemyData{})
+	world.Components.FactionEnemy.Add(entity, &gc.FactionEnemy{})
 	world.Components.TurnBased.Add(entity, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
@@ -82,7 +82,8 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorAttack, behavior.Name())
-	attack := behavior.(*activity.AttackActivity)
+	attack, ok := behavior.(*activity.AttackActivity)
+	require.True(t, ok, "型が *activity.AttackActivity であるべき")
 	assert.NotZero(t, attack.Target)
 }
 
@@ -108,7 +109,8 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
-	move := behavior.(*activity.MoveActivity)
+	move, ok := behavior.(*activity.MoveActivity)
+	require.True(t, ok, "型が *activity.MoveActivity であるべき")
 	assert.NotZero(t, move.Destination)
 }
 
@@ -350,7 +352,8 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
-	move := behavior.(*activity.MoveActivity)
+	move, ok := behavior.(*activity.MoveActivity)
+	require.True(t, ok, "型が *activity.MoveActivity であるべき")
 	assert.Equal(t, consts.Tile(21), move.Destination.X)
 	assert.Equal(t, consts.Tile(20), move.Destination.Y)
 }
@@ -383,7 +386,8 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 
 	behavior := rp.planPatrolAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
-	move := behavior.(*activity.MoveActivity)
+	move, ok := behavior.(*activity.MoveActivity)
+	require.True(t, ok, "型が *activity.MoveActivity であるべき")
 	assert.Equal(t, consts.Tile(19), move.Destination.X)
 	assert.Equal(t, -1, solo.PatrolDirX)
 }
@@ -444,7 +448,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
 		if behavior.Name() == gc.BehaviorMove {
-			move := behavior.(*activity.MoveActivity)
+			move, ok := behavior.(*activity.MoveActivity)
+			require.True(t, ok, "型が *activity.MoveActivity であるべき")
 			grid.X = move.Destination.X
 			grid.Y = move.Destination.Y
 		}
@@ -485,7 +490,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	for i := range 50 {
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
 		if behavior.Name() == gc.BehaviorMove {
-			move := behavior.(*activity.MoveActivity)
+			move, ok := behavior.(*activity.MoveActivity)
+			require.True(t, ok, "型が *activity.MoveActivity であるべき")
 			dx := int(move.Destination.X) - solo.OriginX
 			dy := int(move.Destination.Y) - solo.OriginY
 			if dx < 0 {
@@ -627,7 +633,8 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	for range 50 {
 		behavior := rp.planSwarmAction(world, entity, grid)
 		if behavior.Name() == gc.BehaviorMove {
-			move := behavior.(*activity.MoveActivity)
+			move, ok := behavior.(*activity.MoveActivity)
+			require.True(t, ok, "型が *activity.MoveActivity であるべき")
 			if move.Destination.X > grid.X || move.Destination.Y > grid.Y {
 				moved = true
 				break
@@ -830,7 +837,8 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 	rp := newSoloPlanner(testRNG)
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorAttack, behavior.Name(), "隣接する隊員を攻撃すべき")
-	attack := behavior.(*activity.AttackActivity)
+	attack, ok := behavior.(*activity.AttackActivity)
+	require.True(t, ok, "型が *activity.AttackActivity であるべき")
 	assert.NotZero(t, attack.Target)
 }
 
@@ -866,6 +874,7 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 	rp := newSoloPlanner(testRNG)
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name(), "離れた隊員に向かって移動すべき")
-	move := behavior.(*activity.MoveActivity)
+	move, ok := behavior.(*activity.MoveActivity)
+	require.True(t, ok, "型が *activity.MoveActivity であるべき")
 	assert.Greater(t, int(move.Destination.X), 5, "隊員方向に移動すべき")
 }

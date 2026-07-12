@@ -33,7 +33,7 @@ func TestIsAreaSafe(t *testing.T) {
 		require.NoError(t, err)
 
 		enemy := world.ECS.NewEntity()
-		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
 		assert.False(t, isAreaSafe(player, world))
@@ -47,7 +47,7 @@ func TestIsAreaSafe(t *testing.T) {
 		require.NoError(t, err)
 
 		enemy := world.ECS.NewEntity()
-		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 15, Y: 15})
 
 		assert.True(t, isAreaSafe(player, world))
@@ -93,7 +93,7 @@ func TestRestActivity_Validate(t *testing.T) {
 
 		// 敵を手動で作成
 		enemy := world.ECS.NewEntity()
-		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
 		comp := &gc.Activity{
@@ -258,7 +258,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 
 		// 敵を手動で作成
 		enemy := world.ECS.NewEntity()
-		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
 
 		comp := &gc.Activity{

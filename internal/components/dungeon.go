@@ -1,11 +1,19 @@
 package components
 
 import (
+	"image/color"
+
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // TileIdx はタイル番号
 type TileIdx int
+
+// LightInfo は視界内タイルの光源情報を保持する
+type LightInfo struct {
+	Darkness float64
+	Color    color.RGBA
+}
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
 // 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
@@ -30,13 +38,17 @@ type Dungeon struct {
 	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される。
 	// GridElement(struct)キーのためserde不可、毎フレーム再構築される
 	VisibleTiles map[GridElement]bool `json:"-"`
+	// LightSourceCache は視界内タイルの光源情報。VisionSystemが計算し描画側が参照する。
+	// 視界更新のたびに再構築されるためserde不可
+	LightSourceCache map[GridElement]LightInfo `json:"-"`
 }
 
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
 	return &Dungeon{
-		ExploredTiles: make(map[GridElement]bool),
-		VisibleTiles:  make(map[GridElement]bool),
+		ExploredTiles:    make(map[GridElement]bool),
+		VisibleTiles:     make(map[GridElement]bool),
+		LightSourceCache: make(map[GridElement]LightInfo),
 		MinimapSettings: MinimapSettings{
 			Width:   150,
 			Height:  150,
