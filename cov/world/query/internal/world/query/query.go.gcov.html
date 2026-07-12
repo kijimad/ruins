@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-11 15:38:17</td>
+            <td class="headerValue">2026-07-12 02:53:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,7 +77,7 @@
 <span id="L15"><span class="lineNum">      15</span>              : // クエリを閉じてから呼び出す。反復中はワールドがロックされる</span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 : func Player(world w.World, f func(entity ecs.Entity)) {</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         var players []ecs.Entity</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAllyData](world.ECS).Query()</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter2[gc.Player, gc.FactionAlly](world.ECS).Query()</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         for playerQuery.Next() {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 players = append(players, playerQuery.Entity())</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>

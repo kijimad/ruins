@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">26</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-11 15:38:17</td>
+            <td class="headerValue">2026-07-12 02:53:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,38 +63,48 @@
 <span id="L1"><span class="lineNum">       1</span>              : package resources</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/assets&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              : )</span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // Font structure</span>
-<span id="L10"><span class="lineNum">      10</span>              : type Font struct {</span>
-<span id="L11"><span class="lineNum">      11</span>              :         Font       text.Face</span>
-<span id="L12"><span class="lineNum">      12</span>              :         FaceSource *text.GoTextFaceSource // コピーが禁止されていて参照渡ししかできない</span>
-<span id="L13"><span class="lineNum">      13</span>              : }</span>
-<span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span>              : // UnmarshalTOML fills structure fields from TOML data</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC tlaBgUNC">           0 : func (f *Font) UnmarshalTOML(i any) error {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         fontFile, err := assets.FS.Open(i.(map[string]any)[&quot;font&quot;].(string))</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         s, err := text.NewGoTextFaceSource(fontFile)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         f.FaceSource = s</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         font := &amp;text.GoTextFace{</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                 Source: s,</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 Size:   24,</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         f.Font = font</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/assets&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // Font structure</span>
+<span id="L12"><span class="lineNum">      12</span>              : type Font struct {</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Font       text.Face</span>
+<span id="L14"><span class="lineNum">      14</span>              :         FaceSource *text.GoTextFaceSource // コピーが禁止されていて参照渡ししかできない</span>
+<span id="L15"><span class="lineNum">      15</span>              : }</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // UnmarshalTOML fills structure fields from TOML data</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 : func (f *Font) UnmarshalTOML(i any) error {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         m, ok := i.(map[string]any)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;fontのデコードに失敗: mapではありません: %T&quot;, i)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         fontPath, ok := m[&quot;font&quot;].(string)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;fontのデコードに失敗: fontフィールドが文字列ではありません&quot;)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         fontFile, err := assets.FS.Open(fontPath)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         s, err := text.NewGoTextFaceSource(fontFile)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         f.FaceSource = s</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         font := &amp;text.GoTextFace{</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 Source: s,</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 Size:   24,</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         f.Font = font</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : }</span>
         </pre>
               </td>
             </tr>

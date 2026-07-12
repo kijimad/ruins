@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-11 15:38:17</td>
+            <td class="headerValue">2026-07-12 02:53:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -168,7 +168,7 @@
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;NPC '%s' が見つかりません&quot;, npc.Name)</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L108"><span class="lineNum">     108</span>              : </span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 if member.FactionType != nil &amp;&amp; string(*member.FactionType) == gc.FactionNeutral.String() {</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 if member.FactionType != nil &amp;&amp; string(*member.FactionType) == gc.FactionNeutralName {</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                         _, err := lifecycle.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :                         if err != nil {</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;中立NPC生成エラー (%d, %d): %w&quot;, npc.X, npc.Y, err)</span></span>
