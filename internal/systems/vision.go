@@ -16,10 +16,8 @@ import (
 
 // raycastCacheKey はレイキャスト結果のキャッシュキー
 type raycastCacheKey struct {
-	PlayerX int
-	PlayerY int
-	TargetX int
-	TargetY int
+	Player consts.Coord[int]
+	Target consts.Coord[int]
 }
 
 // VisionSystem はタイルごとの視界を計算するUpdaterシステム。
@@ -27,8 +25,7 @@ type raycastCacheKey struct {
 // レイキャストキャッシュなどの内部メモは本システムが保持し、フロア変化時に自身で破棄する
 type VisionSystem struct {
 	// プレイヤー位置キャッシュ（タイル移動ごとに更新）
-	lastPlayerX   consts.Pixel
-	lastPlayerY   consts.Pixel
+	lastPlayer    consts.Coord[consts.Pixel]
 	isInitialized bool
 
 	// レイキャスト結果のキャッシュ
@@ -81,7 +78,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	}
 
 	// タイル座標をピクセル座標に変換
-	playerPos := &gc.Position{
+	playerPos := consts.Coord[consts.Pixel]{
 		X: consts.Pixel(int(playerGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
 		Y: consts.Pixel(int(playerGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 	}
@@ -97,8 +94,8 @@ func (sys *VisionSystem) Update(world w.World) error {
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
 	needsUpdate := !sys.isInitialized ||
-		geometry.Abs(int(playerPos.X-sys.lastPlayerX)) >= updateThreshold ||
-		geometry.Abs(int(playerPos.Y-sys.lastPlayerY)) >= updateThreshold
+		geometry.Abs(int(playerPos.X-sys.lastPlayer.X)) >= updateThreshold ||
+		geometry.Abs(int(playerPos.Y-sys.lastPlayer.Y)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
 	if dungeon.NeedsForceUpdate {
@@ -115,7 +112,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 
 	// タイルの可視性マップを更新
 	visionRadius := consts.Pixel(consts.VisionRadiusTiles) * consts.TileSize
-	visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, blockViewIndex)
+	visibilityData := calculateTileVisibilityWithDistance(playerPos, visionRadius, sys.raycastCache, blockViewIndex)
 
 	// 光源情報を更新前にクリアする
 	dungeon.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
@@ -132,14 +129,13 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 
-		dungeon.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
+		dungeon.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
 		dungeon.ExploredTiles[gridElement] = true
 		visibleTiles[gridElement] = true
 	}
 	dungeon.VisibleTiles = visibleTiles
 
-	sys.lastPlayerX = playerPos.X
-	sys.lastPlayerY = playerPos.Y
+	sys.lastPlayer = playerPos
 	sys.isInitialized = true
 
 	return nil
@@ -211,12 +207,12 @@ func isInMapBounds(grid gc.GridElement, level gc.Level) bool {
 }
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
-func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility {
+func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.Pixel], radius consts.Pixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility {
 	visibilityMap := make(map[string]TileVisibility)
 
 	// プレイヤーの位置からタイル座標を計算
-	playerTileX := int(playerX) / int(consts.TileSize)
-	playerTileY := int(playerY) / int(consts.TileSize)
+	playerTileX := int(playerPos.X) / int(consts.TileSize)
+	playerTileY := int(playerPos.Y) / int(consts.TileSize)
 
 	// 視界範囲を分割して段階的処理（視界範囲最適化）
 	maxTileDistance := int(radius)/int(consts.TileSize) + 2
@@ -228,18 +224,13 @@ func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, 
 			tileX := playerTileX + dx
 			tileY := playerTileY + dy
 
-			// 早期距離チェック（枝払い）
-			if geometry.Abs(dx) > maxTileDistance || geometry.Abs(dy) > maxTileDistance {
-				continue
-			}
-
 			// タイルの中心座標を計算
 			tileCenterX := float64(tileX*int(consts.TileSize) + int(consts.TileSize)/2)
 			tileCenterY := float64(tileY*int(consts.TileSize) + int(consts.TileSize)/2)
 
 			// プレイヤーからタイル中心への距離をチェック（平方根計算の最適化）
-			dxF := tileCenterX - float64(playerX)
-			dyF := tileCenterY - float64(playerY)
+			dxF := tileCenterX - float64(playerPos.X)
+			dyF := tileCenterY - float64(playerPos.Y)
 			distanceSquared := dxF*dxF + dyF*dyF
 			radiusSquared := float64(radius) * float64(radius)
 
@@ -247,7 +238,10 @@ func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, 
 
 			// 視界範囲内のタイルのみ処理
 			if distanceSquared <= radiusSquared {
-				visible := isTileVisibleByRaycast(float64(playerX), float64(playerY), tileCenterX, tileCenterY, rcCache, blockIndex)
+				visible := isTileVisibleByRaycast(
+					consts.Coord[float64]{X: float64(playerPos.X), Y: float64(playerPos.Y)},
+					consts.Coord[float64]{X: tileCenterX, Y: tileCenterY},
+					rcCache, blockIndex)
 
 				visibilityMap[tileKey] = TileVisibility{
 					Row:     tileY,
@@ -263,17 +257,11 @@ func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, 
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
-func isTileVisibleByRaycast(playerX, playerY, targetX, targetY float64, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
-	// キャッシュキーを生成
-	px := int(playerX/4) * 4
-	py := int(playerY/4) * 4
-	tx := int(targetX/4) * 4
-	ty := int(targetY/4) * 4
+func isTileVisibleByRaycast(player, target consts.Coord[float64], rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
+	// キャッシュキーを生成（4刻みに丸めて近い視線を共有する）
 	cacheKey := raycastCacheKey{
-		PlayerX: px,
-		PlayerY: py,
-		TargetX: tx,
-		TargetY: ty,
+		Player: consts.Coord[int]{X: int(player.X/4) * 4, Y: int(player.Y/4) * 4},
+		Target: consts.Coord[int]{X: int(target.X/4) * 4, Y: int(target.Y/4) * 4},
 	}
 
 	// キャッシュから結果をチェック
@@ -282,10 +270,10 @@ func isTileVisibleByRaycast(playerX, playerY, targetX, targetY float64, rcCache 
 	}
 
 	// タイル座標に変換
-	playerTileX := int(playerX / float64(consts.TileSize))
-	playerTileY := int(playerY / float64(consts.TileSize))
-	targetTileX := int(targetX / float64(consts.TileSize))
-	targetTileY := int(targetY / float64(consts.TileSize))
+	playerTileX := int(player.X / float64(consts.TileSize))
+	playerTileY := int(player.Y / float64(consts.TileSize))
+	targetTileX := int(target.X / float64(consts.TileSize))
+	targetTileY := int(target.Y / float64(consts.TileSize))
 
 	// 同じタイルまたは隣接タイルは常に見える
 	if geometry.Abs(targetTileX-playerTileX) <= 1 && geometry.Abs(targetTileY-playerTileY) <= 1 {
@@ -348,7 +336,7 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 }
 
 // calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する
-func calculateLightSourceDarkness(world w.World, tileX, tileY int) gc.LightInfo {
+func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.LightInfo {
 	minDarkness := 1.0 // 完全に暗い状態からスタート
 
 	// 加重平均用の累積値
@@ -369,7 +357,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) gc.LightInfo 
 		lightGrid := world.Components.GridElement.Get(lightEntity)
 
 		// 距離計算（タイル単位）
-		distance := geometry.Distance(float64(tileX), float64(tileY), float64(lightGrid.X), float64(lightGrid.Y))
+		distance := geometry.Distance(float64(tile.X), float64(tile.Y), float64(lightGrid.X), float64(lightGrid.Y))
 
 		// 光源範囲内かチェック
 		if distance <= float64(lightSource.Radius) {

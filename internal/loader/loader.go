@@ -19,8 +19,12 @@ const (
 
 // LoadFonts はフォントリソースを読み込む
 func LoadFonts() (map[string]resources.Font, error) {
+	// TOML にはフォントパスのみが入る。ロード済みの resources.Font はパスから構築する
+	type fontEntry struct {
+		Font string `toml:"font"`
+	}
 	type fontMetadata struct {
-		Fonts map[string]resources.Font `toml:"font"`
+		Fonts map[string]fontEntry `toml:"font"`
 	}
 
 	var metadata fontMetadata
@@ -39,7 +43,16 @@ func LoadFonts() (map[string]resources.Font, error) {
 		return nil, fmt.Errorf("unknown keys found in fonts TOML: %v", undecoded)
 	}
 
-	return metadata.Fonts, nil
+	fonts := make(map[string]resources.Font, len(metadata.Fonts))
+	for name, entry := range metadata.Fonts {
+		font, err := resources.NewFont(entry.Font)
+		if err != nil {
+			return nil, fmt.Errorf("フォント %q の読み込みに失敗: %w", name, err)
+		}
+		fonts[name] = font
+	}
+
+	return fonts, nil
 }
 
 // LoadSpriteSheets はoapi.RawsのSpriteSheet定義に基づいてスプライトシートを読み込む
