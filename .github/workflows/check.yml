@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@master
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
         uses: docker/build-push-action@v7
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-go-with-x
       - name: Cache Go modules
-        uses: actions/cache@main
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -83,14 +83,15 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-go-with-x
       - name: Cache Go modules
-        uses: actions/cache@main
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Flaky check
-        run: make test COUNT=20
+        # -race を常時付与しているため COUNT を抑えて実行時間の膨張を防ぐ
+        run: make test COUNT=10
 
   check-ui:
     runs-on: ubuntu-latest
@@ -116,7 +117,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-go-with-x
       - name: Cache Go modules
-        uses: actions/cache@main
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -133,7 +134,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-go-with-x
       - name: Cache Go modules
-        uses: actions/cache@main
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -158,11 +159,11 @@ jobs:
         id: git-tag
         run: |
           GIT_TAG=$(git rev-parse --short HEAD)
-          echo "::set-output name=git-tag::$GIT_TAG"
+          echo "git-tag=$GIT_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@master
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v4

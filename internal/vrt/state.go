@@ -48,16 +48,15 @@ func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World])
 func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
 
-	// World初期化はebitenui非依存なのでmutex外で並列実行できる
+	// World初期化(UIリソース/フォント/画像=ebitenのグローバル描画状態)も
+	// ebitenui内部の入力ハンドラも並行アクセス安全でないため、初期化から描画まで直列化する。
+	// mutex待機中にebitenui内部の時間ベースアニメーション（Caretブリンク等）が進行するのも防ぐ
+	renderMu.Lock()
+	defer renderMu.Unlock()
+
 	world := InitVRTWorld(t)
 	states := buildStates(world)
 	require.NotEmpty(t, states, "ステートが1つ以上必要")
-
-	// ebitenui内部の入力ハンドラが並行アクセス安全でないため直列化する。
-	// ステート初期化もここで行うことで、mutex待機中にebitenui内部の
-	// 時間ベースアニメーション（Caretブリンク等）が進行するのを防ぐ
-	renderMu.Lock()
-	defer renderMu.Unlock()
 
 	stateMachine, err := es.Init(states[0], world)
 	require.NoError(t, err)
