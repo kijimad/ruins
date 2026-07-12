@@ -19,5 +19,6 @@ Cataclysm-DDA/
 _ebitenui/
 digger_rs/
 cdda/
-.claude/
-docs/design/20260705_45.md
+
+.claude/*
+!.claude/skills/
