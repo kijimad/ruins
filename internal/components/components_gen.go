@@ -40,15 +40,15 @@ type EntitySpec struct {
 	Prop               *Prop               // 置物であることを示す
 	LightSource        *LightSource        // 光源であることを表す
 	Interactable       *Interactable       // 相互作用可能であることを示す
-	VisualEffect       *VisualEffects      // 紐づくビジュアルエフェクトを管理する
+	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *TileTemperature    // タイルの気温修正値を保持する
 	Player             *Player             // 操作対象の主人公であることを示す
 	Profession         *Profession         // 選択した職業を保持する
 	Hunger             *Hunger             // プレイヤーの空腹度を保持する
 	Wallet             *Wallet             // プレイヤーの資金を保持する
-	FactionAlly        *FactionAllyData    // 味方派閥であることを示す
-	FactionEnemy       *FactionEnemyData   // 敵性派閥であることを示す
-	FactionNeutral     *FactionNeutralData // 中立派閥であることを示す
+	FactionAlly        *FactionAlly        // 味方派閥であることを示す
+	FactionEnemy       *FactionEnemy       // 敵性派閥であることを示す
+	FactionNeutral     *FactionNeutral     // 中立派閥であることを示す
 	Boss               *Boss               // ボスエンティティであることを示す
 	Dialog             *Dialog             // 会話データを保持する
 	Dead               *Dead               // 死亡状態であることを示す
@@ -69,7 +69,7 @@ type EntitySpec struct {
 	Activity           *Activity           // 実行中のアクティビティを保持する
 	LastActivity       *LastActivity       // 直近のアクティビティ実行結果を保持する
 	GameLog            *GameLog            // ゲームログストレージを保持するシングルトン
-	DungeonState       *Dungeon            // ダンジョン状態を保持するシングルトン
+	Dungeon            *Dungeon            // ダンジョン状態を保持するシングルトン
 	GameProgress       *GameProgress       // ゲーム進行データを保持するシングルトン
 	TurnState          *TurnState          // ターン状態を保持するシングルトン
 	SpatialIndex       *SpatialIndex       // 空間インデックスを保持するシングルトン
@@ -111,15 +111,15 @@ type Components struct {
 	Prop               *ecs.Map[Prop]               // 置物であることを示す
 	LightSource        *ecs.Map[LightSource]        // 光源であることを表す
 	Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す
-	VisualEffect       *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
+	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *ecs.Map[TileTemperature]    // タイルの気温修正値を保持する
 	Player             *ecs.Map[Player]             // 操作対象の主人公であることを示す
 	Profession         *ecs.Map[Profession]         // 選択した職業を保持する
 	Hunger             *ecs.Map[Hunger]             // プレイヤーの空腹度を保持する
 	Wallet             *ecs.Map[Wallet]             // プレイヤーの資金を保持する
-	FactionAlly        *ecs.Map[FactionAllyData]    // 味方派閥であることを示す
-	FactionEnemy       *ecs.Map[FactionEnemyData]   // 敵性派閥であることを示す
-	FactionNeutral     *ecs.Map[FactionNeutralData] // 中立派閥であることを示す
+	FactionAlly        *ecs.Map[FactionAlly]        // 味方派閥であることを示す
+	FactionEnemy       *ecs.Map[FactionEnemy]       // 敵性派閥であることを示す
+	FactionNeutral     *ecs.Map[FactionNeutral]     // 中立派閥であることを示す
 	Boss               *ecs.Map[Boss]               // ボスエンティティであることを示す
 	Dialog             *ecs.Map[Dialog]             // 会話データを保持する
 	Dead               *ecs.Map[Dead]               // 死亡状態であることを示す
@@ -140,7 +140,7 @@ type Components struct {
 	Activity           *ecs.Map[Activity]           // 実行中のアクティビティを保持する
 	LastActivity       *ecs.Map[LastActivity]       // 直近のアクティビティ実行結果を保持する
 	GameLog            *ecs.Map[GameLog]            // ゲームログストレージを保持するシングルトン
-	DungeonState       *ecs.Map[Dungeon]            // ダンジョン状態を保持するシングルトン
+	Dungeon            *ecs.Map[Dungeon]            // ダンジョン状態を保持するシングルトン
 	GameProgress       *ecs.Map[GameProgress]       // ゲーム進行データを保持するシングルトン
 	TurnState          *ecs.Map[TurnState]          // ターン状態を保持するシングルトン
 	SpatialIndex       *ecs.Map[SpatialIndex]       // 空間インデックスを保持するシングルトン
@@ -182,15 +182,15 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Prop = ecs.NewMap[Prop](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
-	c.VisualEffect = ecs.NewMap[VisualEffects](world)
+	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileTemperature = ecs.NewMap[TileTemperature](world)
 	c.Player = ecs.NewMap[Player](world)
 	c.Profession = ecs.NewMap[Profession](world)
 	c.Hunger = ecs.NewMap[Hunger](world)
 	c.Wallet = ecs.NewMap[Wallet](world)
-	c.FactionAlly = ecs.NewMap[FactionAllyData](world)
-	c.FactionEnemy = ecs.NewMap[FactionEnemyData](world)
-	c.FactionNeutral = ecs.NewMap[FactionNeutralData](world)
+	c.FactionAlly = ecs.NewMap[FactionAlly](world)
+	c.FactionEnemy = ecs.NewMap[FactionEnemy](world)
+	c.FactionNeutral = ecs.NewMap[FactionNeutral](world)
 	c.Boss = ecs.NewMap[Boss](world)
 	c.Dialog = ecs.NewMap[Dialog](world)
 	c.Dead = ecs.NewMap[Dead](world)
@@ -211,7 +211,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Activity = ecs.NewMap[Activity](world)
 	c.LastActivity = ecs.NewMap[LastActivity](world)
 	c.GameLog = ecs.NewMap[GameLog](world)
-	c.DungeonState = ecs.NewMap[Dungeon](world)
+	c.Dungeon = ecs.NewMap[Dungeon](world)
 	c.GameProgress = ecs.NewMap[GameProgress](world)
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
@@ -255,7 +255,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Prop, entity, spec.Prop)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)
-	addComp(c.VisualEffect, entity, spec.VisualEffect)
+	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileTemperature, entity, spec.TileTemperature)
 	addComp(c.Player, entity, spec.Player)
 	addComp(c.Profession, entity, spec.Profession)
@@ -284,7 +284,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Activity, entity, spec.Activity)
 	addComp(c.LastActivity, entity, spec.LastActivity)
 	addComp(c.GameLog, entity, spec.GameLog)
-	addComp(c.DungeonState, entity, spec.DungeonState)
+	addComp(c.Dungeon, entity, spec.Dungeon)
 	addComp(c.GameProgress, entity, spec.GameProgress)
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)

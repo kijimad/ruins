@@ -28,7 +28,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 
 	var enemies []ecs.Entity
 
-	enemiesQuery := ecs.NewFilter2[gc.GridElement, gc.FactionEnemyData](world.ECS).Query()
+	enemiesQuery := ecs.NewFilter2[gc.GridElement, gc.FactionEnemy](world.ECS).Query()
 	for enemiesQuery.Next() {
 		entity := enemiesQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)

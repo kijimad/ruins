@@ -275,14 +275,14 @@ const (
 	FactionNeutralName = "FactionNeutral"
 )
 
-// FactionAllyData は味方派閥(プレイヤー側)のマーカー
-type FactionAllyData struct{}
+// FactionAlly は味方派閥(プレイヤー側)のマーカー
+type FactionAlly struct{}
 
-// FactionEnemyData は敵性派閥(プレイヤーと敵対)のマーカー
-type FactionEnemyData struct{}
+// FactionEnemy は敵性派閥(プレイヤーと敵対)のマーカー
+type FactionEnemy struct{}
 
-// FactionNeutralData は中立派閥(会話可能NPC)のマーカー
-type FactionNeutralData struct{}
+// FactionNeutral は中立派閥(会話可能NPC)のマーカー
+type FactionNeutral struct{}
 
 // 位置は種別ごとに独立したコンポーネントとして表現する。
 // archetypeクエリ（「全装備品」「全バックパックアイテム」）が効くため、

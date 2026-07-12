@@ -29,7 +29,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	// ダンジョンタイトルエフェクトを作成
 	titleEffect := gc.NewSplashTextEffect("テストダンジョン 1F", nil, 800, 600)
 	titleEntity := world.ECS.NewEntity()
-	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
@@ -38,7 +38,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	assert.Equal(t, 1, count, "VisualEffectエンティティが1つ存在するべき")
 
 	// エフェクトの初期値を確認
-	ve := world.Components.VisualEffect.Get(titleEntity)
+	ve := world.Components.VisualEffects.Get(titleEntity)
 	require.Len(t, ve.Effects, 1)
 	effect, ok := ve.Effects[0].(*gc.SplashTextEffect)
 	require.True(t, ok, "SplashTextEffectであるべき")
@@ -55,7 +55,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	err := sys.Update(world)
 	require.NoError(t, err)
 
-	ve = world.Components.VisualEffect.Get(titleEntity)
+	ve = world.Components.VisualEffects.Get(titleEntity)
 	require.Len(t, ve.Effects, 1)
 	effect, ok = ve.Effects[0].(*gc.SplashTextEffect)
 	require.True(t, ok, "SplashTextEffectであるべき")
@@ -72,7 +72,7 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 	spriteFadeoutEffect := gc.NewSpriteFadeoutEffect("character", "slime_0")
 	effectEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(effectEntity, &gc.GridElement{X: 5, Y: 5})
-	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{spriteFadeoutEffect},
 	})
 
@@ -81,7 +81,7 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 	assert.Equal(t, 1, count)
 
 	// エフェクトの初期値を確認
-	ve := world.Components.VisualEffect.Get(effectEntity)
+	ve := world.Components.VisualEffects.Get(effectEntity)
 	require.Len(t, ve.Effects, 1)
 	effect, ok := ve.Effects[0].(*gc.SpriteFadeoutEffect)
 	require.True(t, ok, "SpriteFadeoutEffectであるべき")
@@ -96,7 +96,7 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 	err := sys.Update(world)
 	require.NoError(t, err)
 
-	ve = world.Components.VisualEffect.Get(effectEntity)
+	ve = world.Components.VisualEffects.Get(effectEntity)
 	require.Len(t, ve.Effects, 1)
 	effect, ok = ve.Effects[0].(*gc.SpriteFadeoutEffect)
 	require.True(t, ok, "SpriteFadeoutEffectであるべき")
@@ -115,7 +115,7 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 	// エフェクトを作成
 	titleEffect := gc.NewSplashTextEffect("テストダンジョン 1F", nil, 800, 600)
 	titleEntity := world.ECS.NewEntity()
-	world.Components.VisualEffect.Add(titleEntity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(titleEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
@@ -141,12 +141,12 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 	damageEffect := gc.NewDamageEffect(99)
 	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 4})
-	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{damageEffect},
 	})
 
 	// 初期値を確認
-	ve := world.Components.VisualEffect.Get(entity)
+	ve := world.Components.VisualEffects.Get(entity)
 	require.Len(t, ve.Effects, 1)
 	effect, ok := ve.Effects[0].(*gc.DamageTextEffect)
 	require.True(t, ok)
@@ -160,7 +160,7 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 	err := sys.Update(world)
 	require.NoError(t, err)
 
-	ve = world.Components.VisualEffect.Get(entity)
+	ve = world.Components.VisualEffects.Get(entity)
 	require.Len(t, ve.Effects, 1)
 	effect, ok = ve.Effects[0].(*gc.DamageTextEffect)
 	require.True(t, ok, "型が *gc.DamageTextEffect であるべき")
@@ -175,11 +175,11 @@ func TestVisualEffectSystem_MissEffect(t *testing.T) {
 	missEffect := gc.NewMissEffect()
 	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
-	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{missEffect},
 	})
 
-	ve := world.Components.VisualEffect.Get(entity)
+	ve := world.Components.VisualEffects.Get(entity)
 	require.Len(t, ve.Effects, 1)
 	effect, ok := ve.Effects[0].(*gc.DamageTextEffect)
 	require.True(t, ok, "MissEffectはDamageTextEffect型")
@@ -190,7 +190,7 @@ func TestVisualEffectSystem_MissEffect(t *testing.T) {
 	err := sys.Update(world)
 	require.NoError(t, err)
 
-	ve = world.Components.VisualEffect.Get(entity)
+	ve = world.Components.VisualEffects.Get(entity)
 	assert.Len(t, ve.Effects, 1, "1フレーム目ではまだアクティブ")
 }
 
@@ -201,11 +201,11 @@ func TestVisualEffectSystem_HealEffect(t *testing.T) {
 	healEffect := gc.NewHealEffect(30)
 	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 2, Y: 3})
-	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{healEffect},
 	})
 
-	ve := world.Components.VisualEffect.Get(entity)
+	ve := world.Components.VisualEffects.Get(entity)
 	effect, ok := ve.Effects[0].(*gc.DamageTextEffect)
 	require.True(t, ok, "型が *gc.DamageTextEffect であるべき")
 	assert.Equal(t, "+30", effect.Text)
@@ -214,7 +214,7 @@ func TestVisualEffectSystem_HealEffect(t *testing.T) {
 	err := sys.Update(world)
 	require.NoError(t, err)
 
-	ve = world.Components.VisualEffect.Get(entity)
+	ve = world.Components.VisualEffects.Get(entity)
 	assert.Len(t, ve.Effects, 1, "1フレーム目ではまだアクティブ")
 }
 
@@ -225,14 +225,14 @@ func TestVisualEffectSystem_MultipleEffectsOnEntity(t *testing.T) {
 	// 1つのエンティティに複数エフェクトを付与
 	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 3})
-	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{
 			gc.NewDamageEffect(50),
 			gc.NewMissEffect(),
 		},
 	})
 
-	ve := world.Components.VisualEffect.Get(entity)
+	ve := world.Components.VisualEffects.Get(entity)
 	assert.Len(t, ve.Effects, 2)
 
 	// Update後も両方アクティブ
@@ -240,7 +240,7 @@ func TestVisualEffectSystem_MultipleEffectsOnEntity(t *testing.T) {
 	err := sys.Update(world)
 	require.NoError(t, err)
 
-	ve = world.Components.VisualEffect.Get(entity)
+	ve = world.Components.VisualEffects.Get(entity)
 	assert.Len(t, ve.Effects, 2, "両エフェクトがまだアクティブ")
 }
 
@@ -261,7 +261,7 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 	}
 	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{X: 1, Y: 1})
-	world.Components.VisualEffect.Add(entity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
 
@@ -293,7 +293,7 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 		},
 	}
 	effectEntity := world.ECS.NewEntity()
-	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
 

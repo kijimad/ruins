@@ -593,7 +593,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	enemyX, enemyY := 20, 20
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
-	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,
@@ -766,7 +766,7 @@ func TestPatrolMovement(t *testing.T) {
 	enemyX, enemyY := 20, 20
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "パトロール敵"})
-	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,
@@ -825,7 +825,7 @@ func TestTerritorialMovement(t *testing.T) {
 	spawnX, spawnY := 20, 20
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "縄張り敵"})
-	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemyData{})
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,

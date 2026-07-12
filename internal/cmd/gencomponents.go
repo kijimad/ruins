@@ -65,7 +65,7 @@ import "github.com/mlange-42/ark/ecs"
 // 付与するコンポーネントのセットを定義し、AddEntity でECSエンティティに変換される。
 type EntitySpec struct {
 {{- range .}}
-	{{.Field}} *{{.Type}} // {{.Comment}}
+	{{.Field}} *{{.Field}} // {{.Comment}}
 {{- end}}
 }
 
@@ -73,7 +73,7 @@ type EntitySpec struct {
 // 各コンポーネント型の型付き *ecs.Map[T] を保持し、Add/Has/Get やクエリに使用される。
 type Components struct {
 {{- range .}}
-	{{.Field}} *ecs.Map[{{.Type}}] // {{.Comment}}
+	{{.Field}} *ecs.Map[{{.Field}}] // {{.Comment}}
 {{- end}}
 }
 
@@ -81,7 +81,7 @@ type Components struct {
 // 各フィールドに型付き Map ハンドルを割り当てる。
 func (c *Components) InitializeComponents(world *ecs.World) error {
 {{- range .}}
-	c.{{.Field}} = ecs.NewMap[{{.Type}}](world)
+	c.{{.Field}} = ecs.NewMap[{{.Field}}](world)
 {{- end}}
 	return nil
 }

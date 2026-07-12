@@ -29,7 +29,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 
 	npc := world.ECS.NewEntity()
 	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
-	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemyData{})
+	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemy{})
 
 	// セーブマネージャーを作成
 	saveManager, err := NewSerializationManager(WithSaveDir(testDir))
@@ -60,7 +60,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 		playerCount++
 	}
 
-	npcQuery := ecs.NewFilter1[gc.FactionEnemyData](newWorld.ECS).Query()
+	npcQuery := ecs.NewFilter1[gc.FactionEnemy](newWorld.ECS).Query()
 	for npcQuery.Next() {
 		npcCount++
 	}

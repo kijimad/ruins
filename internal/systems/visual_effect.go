@@ -49,7 +49,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	updateQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
 	for updateQuery.Next() {
 		entity := updateQuery.Entity()
-		ve := world.Components.VisualEffect.Get(entity)
+		ve := world.Components.VisualEffects.Get(entity)
 
 		// エフェクトを更新
 		activeEffects := ve.Effects[:0]
@@ -93,7 +93,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		if err != nil {
 			continue
 		}
-		ve := world.Components.VisualEffect.Get(entity)
+		ve := world.Components.VisualEffects.Get(entity)
 
 	effectLoop:
 		for _, effect := range ve.Effects {

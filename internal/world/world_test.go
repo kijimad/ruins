@@ -52,7 +52,7 @@ func TestInitWorld_SingletonEntity(t *testing.T) {
 	singleton := w.Resources.SingletonEntity
 	assert.True(t, w.Components.GameLog.Has(singleton))
 	assert.True(t, w.Components.GameProgress.Has(singleton))
-	assert.True(t, w.Components.DungeonState.Has(singleton))
+	assert.True(t, w.Components.Dungeon.Has(singleton))
 	assert.True(t, w.Components.TurnState.Has(singleton))
 	assert.True(t, w.Components.SpatialIndex.Has(singleton))
 }

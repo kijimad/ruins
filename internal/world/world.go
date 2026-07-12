@@ -66,7 +66,7 @@ func (world World) InitSingleton() {
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
 	world.Components.GameProgress.Add(singleton, gc.NewGameProgress())
-	world.Components.DungeonState.Add(singleton, gc.NewDungeon())
+	world.Components.Dungeon.Add(singleton, gc.NewDungeon())
 	world.Components.TurnState.Add(singleton, gc.NewTurnState())
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Resources.SingletonEntity = singleton

@@ -200,7 +200,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		CharModifiers:  charMods,
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
-		FactionAlly:    &gc.FactionAllyData{},
+		FactionAlly:    &gc.FactionAlly{},
 		SquadAI: func() *gc.SquadAI {
 			ai := gc.DefaultSquadAI()
 			return &ai
@@ -391,7 +391,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 		X: gridElement.X,
 		Y: gridElement.Y,
 	})
-	world.Components.VisualEffect.Add(effectEntity, &gc.VisualEffects{
+	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
 }
