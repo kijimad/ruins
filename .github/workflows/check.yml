@@ -125,6 +125,27 @@ jobs:
       - name: lint
         run: make toolsinstall lint
 
+  generate-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-go-with-x
+      - name: Cache Go modules
+        uses: actions/cache@main
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: generate
+        run: make generate
+      - name: check diff
+        run: |
+          git status # ジョブが失敗したとき、どこで失敗したか人が確認する用
+          test -z "$(git status -s)"
+
   image:
     runs-on: ubuntu-latest
     permissions:

@@ -67,8 +67,9 @@ toolsinstall: ## 開発ツールをインストールする
 	@npm install
 	@./scripts/setup-hooks.sh
 
-.PHONY: genreadme
-genreadme: ## README.tmpl.mdからREADME.mdを生成する
+.PHONY: generate
+generate: ## コードを生成する
+	go generate ./...
 	go run . genreadme
 
 .PHONY: check
