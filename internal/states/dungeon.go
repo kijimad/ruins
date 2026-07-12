@@ -135,11 +135,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 発生するため、古いデータが残り移動不能になることがある
 	query.InvalidateSpatialIndex(world)
 
-	// 視界キャッシュをクリアする
-	if vision, ok := gs.VisionSystemFrom(world); ok {
-		vision.ClearCaches()
-	}
-
 	// ダンジョンタイトルエフェクト用エンティティを作成する
 	screenW, screenH := world.Resources.GetScreenDimensions()
 	titleText := def.Name
@@ -187,10 +182,6 @@ func (st *DungeonState) OnStop(world w.World) error {
 	// 未消費のステート遷移リクエストを破棄
 	lifecycle.ConsumeStateChange(world)
 
-	// 視界キャッシュをクリア
-	if vision, ok := gs.VisionSystemFrom(world); ok {
-		vision.ClearCaches()
-	}
 	return nil
 }
 

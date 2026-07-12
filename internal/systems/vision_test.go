@@ -58,7 +58,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		grid := gc.GridElement{X: 5, Y: 5}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
-		lights := map[gc.GridElement]LightInfo{
+		lights := map[gc.GridElement]gc.LightInfo{
 			grid: {
 				Darkness: 0.5,
 				Color:    color.RGBA{R: 255, G: 200, B: 100, A: 255},
@@ -129,7 +129,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		grid := gc.GridElement{X: 5, Y: 5}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
-		lights := map[gc.GridElement]LightInfo{
+		lights := map[gc.GridElement]gc.LightInfo{
 			grid: {
 				Darkness: 1.0,
 				Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
@@ -150,7 +150,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		grid := gc.GridElement{X: 7, Y: 7}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
-		lights := map[gc.GridElement]LightInfo{
+		lights := map[gc.GridElement]gc.LightInfo{
 			grid: {
 				Darkness: 0.99,
 				Color:    color.RGBA{R: 200, G: 150, B: 100, A: 255},
@@ -303,20 +303,46 @@ func TestBresenhamLineOfSight(t *testing.T) {
 	})
 }
 
-func TestClearCaches(t *testing.T) {
+func TestInvalidateOnFloorChange(t *testing.T) {
 	t.Parallel()
 
-	vs := NewVisionSystem()
-	vs.isInitialized = true
-	vs.visibilityData = map[string]TileVisibility{
-		"0,0": {Row: 0, Col: 0, Visible: true},
-	}
-	grid := gc.GridElement{X: 99, Y: 99}
-	vs.lightSourceCache[grid] = LightInfo{Darkness: 0.5}
+	t.Run("フロアが変わると壁依存の内部キャッシュを破棄する", func(t *testing.T) {
+		t.Parallel()
+		vs := NewVisionSystem()
+		vs.isInitialized = true
+		vs.raycastCache[raycastCacheKey{PlayerX: 1}] = true
+		vs.lastDepth = 1
+		vs.lastDefinitionName = "old"
 
-	vs.ClearCaches()
+		dungeon := gc.NewDungeon()
+		dungeon.Depth = 2
+		dungeon.DefinitionName = "new"
+		dungeon.LightSourceCache[gc.GridElement{X: 99, Y: 99}] = gc.LightInfo{Darkness: 0.5}
 
-	assert.False(t, vs.isInitialized)
-	assert.Nil(t, vs.visibilityData)
-	assert.Empty(t, vs.lightSourceCache)
+		vs.invalidateOnFloorChange(dungeon)
+
+		assert.False(t, vs.isInitialized)
+		assert.Empty(t, vs.raycastCache)
+		assert.Empty(t, dungeon.LightSourceCache)
+		assert.Equal(t, 2, vs.lastDepth)
+		assert.Equal(t, "new", vs.lastDefinitionName)
+	})
+
+	t.Run("同一フロアではキャッシュを保持する", func(t *testing.T) {
+		t.Parallel()
+		vs := NewVisionSystem()
+		vs.isInitialized = true
+		vs.raycastCache[raycastCacheKey{PlayerX: 1}] = true
+		vs.lastDepth = 3
+		vs.lastDefinitionName = "same"
+
+		dungeon := gc.NewDungeon()
+		dungeon.Depth = 3
+		dungeon.DefinitionName = "same"
+
+		vs.invalidateOnFloorChange(dungeon)
+
+		assert.True(t, vs.isInitialized)
+		assert.NotEmpty(t, vs.raycastCache)
+	})
 }
