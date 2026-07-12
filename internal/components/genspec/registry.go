@@ -1,4 +1,4 @@
-package main
+package genspec
 
 // Def はコンポーネント1種の登録エントリを表す。
 type Def struct {

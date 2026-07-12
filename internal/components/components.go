@@ -8,8 +8,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-//go:generate go run github.com/kijimaD/ruins/internal/components/genspec
-
 // Upsert はコンポーネントを追加または更新する。
 // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。
 // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。

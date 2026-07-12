@@ -70,7 +70,6 @@ toolsinstall: ## 開発ツールをインストールする
 .PHONY: generate
 generate: ## コードを生成する
 	go generate ./...
-	go run . genreadme
 
 .PHONY: check
 check: fmt build test lint ## 一気にチェックする
