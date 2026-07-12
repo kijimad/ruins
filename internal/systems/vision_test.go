@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -310,7 +311,7 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		t.Parallel()
 		vs := NewVisionSystem()
 		vs.isInitialized = true
-		vs.raycastCache[raycastCacheKey{PlayerX: 1}] = true
+		vs.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
 		vs.lastDepth = 1
 		vs.lastDefinitionName = "old"
 
@@ -332,7 +333,7 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		t.Parallel()
 		vs := NewVisionSystem()
 		vs.isInitialized = true
-		vs.raycastCache[raycastCacheKey{PlayerX: 1}] = true
+		vs.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
 		vs.lastDepth = 3
 		vs.lastDefinitionName = "same"
 
