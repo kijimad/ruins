@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,8 +73,8 @@
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
 <span id="L13"><span class="lineNum">      13</span>              : // String は日本語表示名を返す</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func (p PlannerType) String() string {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         switch p {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           2 : func (p PlannerType) String() string {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           2 :         switch p {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         case PlannerSolo:</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return &quot;単独&quot;</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         case PlannerSquad:</span></span>
@@ -97,8 +97,8 @@
 <span id="L35"><span class="lineNum">      35</span>              : )</span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // String は日本語表示名を返す</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 : func (p CombatPolicy) String() string {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         switch p {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           3 : func (p CombatPolicy) String() string {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           3 :         switch p {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         case CombatAttack:</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return &quot;攻撃&quot;</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         case CombatEvade:</span></span>
@@ -137,8 +137,8 @@
 <span id="L75"><span class="lineNum">      75</span>              : )</span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // String は日本語表示名を返す</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : func (p SoloMovement) String() string {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         switch p {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           7 : func (p SoloMovement) String() string {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           7 :         switch p {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         case SoloRandom:</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 return &quot;ランダム&quot;</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         case SoloPatrol:</span></span>
@@ -175,8 +175,8 @@
 <span id="L113"><span class="lineNum">     113</span>              : )</span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
 <span id="L115"><span class="lineNum">     115</span>              : // String は日本語表示名を返す</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">           1 : func (p SquadMovement) String() string {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         switch p {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">           5 : func (p SquadMovement) String() string {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           5 :         switch p {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         case SquadEscort:</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 return &quot;護衛&quot;</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         case SquadVanguard:</span></span>
@@ -211,8 +211,8 @@
 <span id="L149"><span class="lineNum">     149</span>              : )</span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
 <span id="L151"><span class="lineNum">     151</span>              : // String は日本語表示名を返す</span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : func (p ItemPickupPolicy) String() string {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         switch p {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           2 : func (p ItemPickupPolicy) String() string {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           2 :         switch p {</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         case PolicyPickup:</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 return &quot;回収&quot;</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         case PolicyIgnore:</span></span>
@@ -238,8 +238,8 @@
 <span id="L176"><span class="lineNum">     176</span>              : )</span>
 <span id="L177"><span class="lineNum">     177</span>              : </span>
 <span id="L178"><span class="lineNum">     178</span>              : // String は日本語表示名を返す</span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : func (p ItemHandlingPolicy) String() string {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         switch p {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           2 : func (p ItemHandlingPolicy) String() string {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           2 :         switch p {</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         case PolicyKeep:</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 return &quot;保持&quot;</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         case PolicyDistribute:</span></span>

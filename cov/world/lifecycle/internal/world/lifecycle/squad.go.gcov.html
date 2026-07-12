@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,8 +71,8 @@
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // DismissSquadMember は隊員を解雇する。エンティティを削除する</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 : func DismissSquadMember(world w.World, member ecs.Entity) error {</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           2 :         if !world.Components.SquadMember.Has(member) {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           2 : func DismissSquadMember(world w.World, member ecs.Entity) error {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           3 :         if !world.Components.SquadMember.Has(member) {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;エンティティは隊員ではありません&quot;)</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         world.ECS.RemoveEntity(member)</span></span>
@@ -80,12 +80,12 @@
 <span id="L18"><span class="lineNum">      18</span>              : }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // GetAI は隊員のSquadAIコンポーネントを返す。コンポーネントがない場合はエラーを返す</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : func GetAI(world w.World, member ecs.Entity) (*gc.SquadAI, error) {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         comp := world.Components.SquadAI.Get(member)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if comp == nil {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 : func GetAI(world w.World, member ecs.Entity) (*gc.SquadAI, error) {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :         comp := world.Components.SquadAI.Get(member)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         if comp == nil {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;エンティティにAIがありません&quot;)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         return comp, nil</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           2 :         return comp, nil</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
         </pre>
               </td>

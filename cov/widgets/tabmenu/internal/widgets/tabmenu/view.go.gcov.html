@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,22 +75,22 @@
 <span id="L13"><span class="lineNum">      13</span>              : }</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // NewView は View を作成する</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 : func NewView(config Config, world w.World) *View {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return &amp;View{</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 config:    config,</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 uiBuilder: newUIBuilder(world),</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           7 : func NewView(config Config, world w.World) *View {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           7 :         return &amp;View{</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           7 :                 config:    config,</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           7 :                 uiBuilder: newUIBuilder(world),</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           7 :         }</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           7 : }</span></span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // SetState は外部から描画状態を設定する</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : func (v *View) SetState(state ViewState) {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         v.state = state</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           6 : func (v *View) SetState(state ViewState) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           6 :         v.state = state</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           6 : }</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // BuildUI はメニューのUIを構築する</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : func (v *View) BuildUI() *widget.Container {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return v.uiBuilder.BuildUI(v.config, v.state)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           7 : func (v *View) BuildUI() *widget.Container {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           7 :         return v.uiBuilder.BuildUI(v.config, v.state)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           7 : }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // UpdateFocus はフォーカス表示を更新する</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 : func (v *View) UpdateFocus() {</span></span>

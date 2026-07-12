@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,48 +74,48 @@
 <span id="L12"><span class="lineNum">      12</span>              : // ChangeItemCount は対象エンティティの個数を変更する。</span>
 <span id="L13"><span class="lineNum">      13</span>              : // Stackableならカウントを増減し、非Stackableなら delta=-1 でエンティティを削除する。</span>
 <span id="L14"><span class="lineNum">      14</span>              : // 個数が0以下になった場合はエンティティを削除する。</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 : func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           2 :         if delta == 0 {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">          16 : func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          17 :         if delta == 0 {</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;delta must not be zero&quot;)</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         currentCount := query.GetEntityCount(world, entity)</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         newCount := currentCount + delta</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         if newCount &lt; 0 {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;アイテム数が不足しています: 現在=%d, 変更=%d, 結果=%d&quot;, currentCount, delta, newCount)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          15 :         currentCount := query.GetEntityCount(world, entity)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          15 :         newCount := currentCount + delta</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          15 : </span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          17 :         if newCount &lt; 0 {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :                 return fmt.Errorf(&quot;アイテム数が不足しています: 現在=%d, 変更=%d, 結果=%d&quot;, currentCount, delta, newCount)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         if newCount == 0 {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(entity)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           3 :         } else if world.Components.Stackable.Has(entity) {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 world.Components.Stackable.Get(entity).Count = newCount</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          16 :         if newCount == 0 {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           3 :                 world.ECS.RemoveEntity(entity)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          23 :         } else if world.Components.Stackable.Has(entity) {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          10 :                 world.Components.Stackable.Get(entity).Count = newCount</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          10 :         }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              :         // インベントリ変動フラグを立てる。</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         var players []ecs.Entity</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :         for playerQuery.Next() {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 players = append(players, playerQuery.Entity())</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           2 :         for _, playerEntity := range players {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 ensureMarker(world, world.Components.WeightDirty, playerEntity, &amp;gc.WeightDirty{})</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          13 :         var players []ecs.Entity</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          13 :         playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          18 :         for playerQuery.Next() {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           5 :                 players = append(players, playerQuery.Entity())</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           5 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          18 :         for _, playerEntity := range players {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           5 :                 ensureMarker(world, world.Components.WeightDirty, playerEntity, &amp;gc.WeightDirty{})</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           5 :         }</span></span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          13 :         return nil</span></span>
 <span id="L44"><span class="lineNum">      44</span>              : }</span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // ChangeStackableCount は指定した名前のStackableアイテムの数量を変更する。</span>
 <span id="L47"><span class="lineNum">      47</span>              : // amount が正の場合は増加、負の場合は減少する</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func ChangeStackableCount(world w.World, name string, amount int) error {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         if amount == 0 {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           4 : func ChangeStackableCount(world w.World, name string, amount int) error {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           4 :         if amount == 0 {</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;amount must not be zero&quot;)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 :         entity, found := query.FindStackableInInventory(world, name)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         if found {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 return ChangeItemCount(world, entity, amount)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           4 :         entity, found := query.FindStackableInInventory(world, name)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           8 :         if found {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           4 :                 return ChangeItemCount(world, entity, amount)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : </span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :         if amount &lt; 0 {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;stackable item not found: %s&quot;, name)</span></span>

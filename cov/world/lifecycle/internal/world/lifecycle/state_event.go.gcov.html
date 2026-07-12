@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,40 +71,40 @@
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // RequestStateChange はステート遷移イベントエンティティを作成する。既にイベントが存在する場合はエラーを返す</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 : func RequestStateChange(world w.World, event gc.StateChangeRequest) error {</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         var existing *gc.StateChangeRequest</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         existingQuery := ecs.NewFilter1[gc.StateChangeRequest](world.ECS).Query()</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           2 :         for existingQuery.Next() {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           5 : func RequestStateChange(world w.World, event gc.StateChangeRequest) error {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           5 :         var existing *gc.StateChangeRequest</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           5 :         existingQuery := ecs.NewFilter1[gc.StateChangeRequest](world.ECS).Query()</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           6 :         for existingQuery.Next() {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 entity := existingQuery.Entity()</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 existing = world.Components.StateChangeRequest.Get(entity)</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if existing != nil {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           6 :         if existing != nil {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;リクエストがすでに設定されています: %T → %T を設定しようとしました&quot;,</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                         existing.Payload, event.Payload)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         entity := world.ECS.NewEntity()</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         world.Components.StateChangeRequest.Add(entity, &amp;event)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           4 :         entity := world.ECS.NewEntity()</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           4 :         world.Components.StateChangeRequest.Add(entity, &amp;event)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           4 :         return nil</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // ConsumeStateChange はステート遷移イベントを読み取り、エンティティを削除する。</span>
 <span id="L29"><span class="lineNum">      29</span>              : // イベントが無い場合は nil を返す</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : func ConsumeStateChange(world w.World) *gc.StateChangeRequest {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         var event *gc.StateChangeRequest</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         var eventEntity ecs.Entity</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         eventQuery := ecs.NewFilter1[gc.StateChangeRequest](world.ECS).Query()</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :         for eventQuery.Next() {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 entity := eventQuery.Entity()</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 // Getはストレージへのポインタを返し、RemoveEntityで失効するため値をコピーする</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 copied := *world.Components.StateChangeRequest.Get(entity)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 event = &amp;copied</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 eventEntity = entity</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         if event == nil {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           4 : func ConsumeStateChange(world w.World) *gc.StateChangeRequest {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           4 :         var event *gc.StateChangeRequest</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           4 :         var eventEntity ecs.Entity</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           4 :         eventQuery := ecs.NewFilter1[gc.StateChangeRequest](world.ECS).Query()</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           7 :         for eventQuery.Next() {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           3 :                 entity := eventQuery.Entity()</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           3 :                 // Getはストレージへのポインタを返し、RemoveEntityで失効するため値をコピーする</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           3 :                 copied := *world.Components.StateChangeRequest.Get(entity)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           3 :                 event = &amp;copied</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           3 :                 eventEntity = entity</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           3 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           5 :         if event == nil {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         world.ECS.RemoveEntity(eventEntity)</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return event</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           3 :         world.ECS.RemoveEntity(eventEntity)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           3 :         return event</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : }</span>
         </pre>
               </td>

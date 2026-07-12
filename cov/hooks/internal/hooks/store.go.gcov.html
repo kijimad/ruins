@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,42 +75,42 @@
 <span id="L13"><span class="lineNum">      13</span>              : }</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // NewStore は新しいStoreを生成する</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 : func NewStore() *Store {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return &amp;Store{</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 states:   make(map[string]any),</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 reducers: make(map[string]Reducer),</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 refs:     make(map[string]any),</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">          53 : func NewStore() *Store {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">          53 :         return &amp;Store{</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          53 :                 states:   make(map[string]any),</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          53 :                 reducers: make(map[string]Reducer),</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          53 :                 refs:     make(map[string]any),</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          53 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          53 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // UseState は状態を取得・登録する</span>
 <span id="L25"><span class="lineNum">      25</span>              : // keyで状態を識別し、初回呼び出し時にinitで初期化する</span>
 <span id="L26"><span class="lineNum">      26</span>              : // reducer関数はDispatch時に呼ばれ、状態を更新する</span>
 <span id="L27"><span class="lineNum">      27</span>              : // reducerは毎回再登録される。これによりProps変化時に最新のクロージャが使われる</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapper.ActionID) T) T {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :         if _, ok := store.states[key]; !ok {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 store.states[key] = init</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         116 : func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapper.ActionID) T) T {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         164 :         if _, ok := store.states[key]; !ok {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          48 :                 store.states[key] = init</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          48 :         }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              :         // 毎回reducerを再登録して最新のクロージャを反映する</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         store.reducers[key] = func(s any, a inputmapper.ActionID) any {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 typed, ok := s.(T)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">         199 :         store.reducers[key] = func(s any, a inputmapper.ActionID) any {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          83 :                 typed, ok := s.(T)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          83 :                 if !ok {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 :                         panic(&quot;hooks: 状態の型がreducerの型引数と一致しません: key=&quot; + key)</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :                 }</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 :                 return reducer(typed, a)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">          83 :                 return reducer(typed, a)</span></span>
 <span id="L39"><span class="lineNum">      39</span>              :         }</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         v, ok := store.states[key].(T)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">         116 :         v, ok := store.states[key].(T)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">         116 :         if !ok {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(&quot;hooks: 状態の型が登録時と一致しません: key=&quot; + key)</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         }</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         return v</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">         116 :         return v</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : }</span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // Dispatch は全てのStateにActionを送る</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func (store *Store) Dispatch(action inputmapper.ActionID) {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 :         for key, reducer := range store.reducers {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 store.states[key] = reducer(store.states[key], action)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">          81 : func (store *Store) Dispatch(action inputmapper.ActionID) {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">         164 :         for key, reducer := range store.reducers {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">          83 :                 store.states[key] = reducer(store.states[key], action)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          83 :         }</span></span>
 <span id="L52"><span class="lineNum">      52</span>              : }</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span>              : // GetStoreState は指定キーの状態を取得する。Mount を経由せずに直接取得できる</span>

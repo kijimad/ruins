@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -344,41 +344,41 @@
 <span id="L282"><span class="lineNum">     282</span>              : }</span>
 <span id="L283"><span class="lineNum">     283</span>              : </span>
 <span id="L284"><span class="lineNum">     284</span>              : // buildTileColors はタイル色マップを構築する</span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC tlaBgGNC">           1 : func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         // 全エンティティをスキャンしてタイル情報をマップに格納</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         tileTypeMap := make(map[gc.GridElement]bool) // true=壁, false=床</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         tileQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           2 :         for tileQuery.Next() {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 entity := tileQuery.Entity()</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                 gridElement := gc.GridElement{X: grid.X, Y: grid.Y}</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 tileTypeMap[gridElement] = world.Components.BlockView.Has(entity)</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC tlaBgGNC">           5 : func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           5 :         // 全エンティティをスキャンしてタイル情報をマップに格納</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           5 :         tileTypeMap := make(map[gc.GridElement]bool) // true=壁, false=床</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           5 :         tileQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">          11 :         for tileQuery.Next() {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           6 :                 entity := tileQuery.Entity()</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           6 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           6 :                 gridElement := gc.GridElement{X: grid.X, Y: grid.Y}</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           6 :                 tileTypeMap[gridElement] = world.Components.BlockView.Has(entity)</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           6 :         }</span></span>
 <span id="L296"><span class="lineNum">     296</span>              : </span>
 <span id="L297"><span class="lineNum">     297</span>              :         // 探索済みタイルの色情報を一括生成</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         tileColors := make(map[gc.GridElement]TileColorInfo)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           2 :         for gridElement := range query.GetDungeon(world).ExploredTiles {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                 var tileColor color.RGBA</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           2 :                 if isWall, exists := tileTypeMap[gridElement]; exists {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :                         if isWall {</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                                 tileColor = color.RGBA{100, 100, 100, 255} // 壁は灰色</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           2 :                         } else {</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                                 tileColor = color.RGBA{200, 200, 200, 128} // 床は薄い灰色</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 } else {</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                         tileColor = color.RGBA{0, 0, 0, 0} // 透明</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           5 :         tileColors := make(map[gc.GridElement]TileColorInfo)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">          12 :         for gridElement := range query.GetDungeon(world).ExploredTiles {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           7 :                 var tileColor color.RGBA</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">          12 :                 if isWall, exists := tileTypeMap[gridElement]; exists {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           8 :                         if isWall {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           3 :                                 tileColor = color.RGBA{100, 100, 100, 255} // 壁は灰色</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           5 :                         } else {</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           2 :                                 tileColor = color.RGBA{200, 200, 200, 128} // 床は薄い灰色</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           2 :                         }</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           2 :                 } else {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           2 :                         tileColor = color.RGBA{0, 0, 0, 0} // 透明</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           2 :                 }</span></span>
 <span id="L310"><span class="lineNum">     310</span>              : </span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 tileColors[gridElement] = TileColorInfo{</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                         R: tileColor.R,</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                         G: tileColor.G,</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                         B: tileColor.B,</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                         A: tileColor.A,</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           7 :                 tileColors[gridElement] = TileColorInfo{</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           7 :                         R: tileColor.R,</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           7 :                         G: tileColor.G,</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           7 :                         B: tileColor.B,</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           7 :                         A: tileColor.A,</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           7 :                 }</span></span>
 <span id="L317"><span class="lineNum">     317</span>              :         }</span>
 <span id="L318"><span class="lineNum">     318</span>              : </span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         return tileColors</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           5 :         return tileColors</span></span>
 <span id="L320"><span class="lineNum">     320</span>              : }</span>
 <span id="L321"><span class="lineNum">     321</span>              : </span>
 <span id="L322"><span class="lineNum">     322</span>              : // extractWeaponSlotsData は武器スロットデータを抽出する</span>

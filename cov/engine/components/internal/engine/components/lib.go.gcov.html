@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,12 +79,12 @@
 <span id="L17"><span class="lineNum">      17</span>              : }</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // InitComponents はジェネリクス型を使用した型安全な実装</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func InitComponents[T ComponentInitializer](world *ecs.World, gameComponents T) (*Components[T], error) {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :         if err := gameComponents.InitializeComponents(world); err != nil {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           3 : func InitComponents[T ComponentInitializer](world *ecs.World, gameComponents T) (*Components[T], error) {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           4 :         if err := gameComponents.InitializeComponents(world); err != nil {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to initialize components: %w&quot;, err)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return &amp;Components[T]{Game: gameComponents}, nil</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         return &amp;Components[T]{Game: gameComponents}, nil</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
         </pre>
               </td>

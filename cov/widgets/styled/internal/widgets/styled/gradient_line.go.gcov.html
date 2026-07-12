@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,64 +80,64 @@
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // NewGradientLine はグラデーション線ウィジェットを作成する。</span>
 <span id="L20"><span class="lineNum">      20</span>              : // src はグラデーションパターンの画像アセットで、描画時に幅に合わせてスケーリングされる</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func NewGradientLine(src *ebiten.Image, clr color.RGBA, height int) *GradientLine {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         w := widget.NewWidget(</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                         Stretch: true,</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 }),</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 widget.WidgetOpts.MinSize(0, height),</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return &amp;GradientLine{</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 widget: w,</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 color:  clr,</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 height: height,</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 src:    src,</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">          26 : func NewGradientLine(src *ebiten.Image, clr color.RGBA, height int) *GradientLine {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          26 :         w := widget.NewWidget(</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          26 :                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          26 :                         Stretch: true,</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          26 :                 }),</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">          26 :                 widget.WidgetOpts.MinSize(0, height),</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          26 :         )</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          26 :         return &amp;GradientLine{</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          26 :                 widget: w,</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          26 :                 color:  clr,</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          26 :                 height: height,</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          26 :                 src:    src,</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          26 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          26 : }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // GetWidget はwidget.PreferredSizeLocateableWidget インターフェースを満たす</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : func (g *GradientLine) GetWidget() *widget.Widget {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return g.widget</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         264 : func (g *GradientLine) GetWidget() *widget.Widget {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">         264 :         return g.widget</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">         264 : }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // SetLocation はwidget.PreferredSizeLocateableWidget インターフェースを満たす</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : func (g *GradientLine) SetLocation(rect image.Rectangle) {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         g.widget.Rect = rect</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">          26 : func (g *GradientLine) SetLocation(rect image.Rectangle) {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          26 :         g.widget.Rect = rect</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          26 : }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // PreferredSize はwidget.PreferredSizeLocateableWidget インターフェースを満たす</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : func (g *GradientLine) PreferredSize() (int, int) {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         return 0, g.height</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          41 : func (g *GradientLine) PreferredSize() (int, int) {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">          41 :         return 0, g.height</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">          41 : }</span></span>
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span>              : // Render はグラデーション線を描画する</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : func (g *GradientLine) Render(screen *ebiten.Image) {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         if !g.widget.IsVisible() || g.src == nil {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          26 : func (g *GradientLine) Render(screen *ebiten.Image) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          26 :         if !g.widget.IsVisible() || g.src == nil {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 :         g.widget.Render(screen)</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         rect := g.widget.Rect</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         w := rect.Dx()</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         if w &lt;= 0 {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">          26 :         g.widget.Render(screen)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">          26 : </span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">          26 :         rect := g.widget.Rect</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          26 :         w := rect.Dx()</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">          26 :         if w &lt;= 0 {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L63"><span class="lineNum">      63</span>              : </span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC tlaBgGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         srcWidth := float64(g.src.Bounds().Dx())</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         op.GeoM.Scale(float64(w)/srcWidth, float64(g.height))</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(float64(rect.Min.X), float64(rect.Min.Y))</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         op.ColorScale.ScaleWithColor(color.NRGBA(g.color))</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         screen.DrawImage(g.src, op)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC tlaBgGNC">          26 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">          26 :         srcWidth := float64(g.src.Bounds().Dx())</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          26 :         op.GeoM.Scale(float64(w)/srcWidth, float64(g.height))</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">          26 :         op.GeoM.Translate(float64(rect.Min.X), float64(rect.Min.Y))</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">          26 :         op.ColorScale.ScaleWithColor(color.NRGBA(g.color))</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">          26 :         screen.DrawImage(g.src, op)</span></span>
 <span id="L70"><span class="lineNum">      70</span>              : }</span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // Update はwidget.PreferredSizeLocateableWidget インターフェースを満たす</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : func (g *GradientLine) Update(updateObj *widget.UpdateObject) {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         g.widget.Update(updateObj)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">          78 : func (g *GradientLine) Update(updateObj *widget.UpdateObject) {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          78 :         g.widget.Update(updateObj)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">          78 : }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // Validate はwidget.PreferredSizeLocateableWidget インターフェースを満たす</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : func (g *GradientLine) Validate() {}</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          26 : func (g *GradientLine) Validate() {}</span></span>
 <span id="L79"><span class="lineNum">      79</span>              : </span>
 <span id="L80"><span class="lineNum">      80</span>              : // IsValidated はwidget.PreferredSizeLocateableWidget インターフェースを満たす</span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC tlaBgUNC">           0 : func (g *GradientLine) IsValidated() bool { return true }</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,28 +85,28 @@
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // UseTimerAt は指定した時刻を基準にタイマー状態を管理する</span>
 <span id="L25"><span class="lineNum">      25</span>              : // テスト用に時刻を注入可能にするためのバージョン</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 : func UseTimerAt(store *Store, key string, duration time.Duration, now time.Time) (expired bool, start func(), reset func()) {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         state := UseState(store, key, timerState{}, func(v timerState, _ inputmapper.ActionID) timerState {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">          16 : func UseTimerAt(store *Store, key string, duration time.Duration, now time.Time) (expired bool, start func(), reset func()) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          16 :         state := UseState(store, key, timerState{}, func(v timerState, _ inputmapper.ActionID) timerState {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                 return v // アクションでは変更しない</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         })</span></span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 :         expired = state.Active &amp;&amp; !state.StartedAt.IsZero() &amp;&amp; now.Sub(state.StartedAt) &gt;= duration</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         start = func() {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 store.states[key] = timerState{</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         StartedAt: now,</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         Active:    true,</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">          16 :         expired = state.Active &amp;&amp; !state.StartedAt.IsZero() &amp;&amp; now.Sub(state.StartedAt) &gt;= duration</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          16 : </span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          23 :         start = func() {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           7 :                 store.states[key] = timerState{</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           7 :                         StartedAt: now,</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           7 :                         Active:    true,</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           7 :                 }</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           7 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           2 :         reset = func() {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">          17 :         reset = func() {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 store.states[key] = timerState{</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                         StartedAt: time.Time{},</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                         Active:    false,</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          16 :         return</span></span>
 <span id="L48"><span class="lineNum">      48</span>              : }</span>
         </pre>
               </td>

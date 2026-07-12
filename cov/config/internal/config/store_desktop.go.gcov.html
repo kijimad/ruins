@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,11 +98,11 @@
 <span id="L36"><span class="lineNum">      36</span>              : }</span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // readSettingsFrom は指定パスから設定を読み込む。パスを引数に取ることでテストできる。</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func readSettingsFrom(path string) ([]byte, bool, error) {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         data, err := os.ReadFile(path)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         if errors.Is(err, os.ErrNotExist) {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return nil, false, nil</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           3 : func readSettingsFrom(path string) ([]byte, bool, error) {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           3 :         data, err := os.ReadFile(path)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           5 :         if errors.Is(err, os.ErrNotExist) {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :                 return nil, false, nil</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, false, fmt.Errorf(&quot;設定ファイルの読み込みに失敗しました: %w&quot;, err)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -120,19 +120,19 @@
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              : // writeSettingsTo は指定パスへ書き込む。一時ファイルへ書いてから rename することで、</span>
 <span id="L60"><span class="lineNum">      60</span>              : // 書き込み途中のクラッシュによる破損を防ぐ。パスを引数に取ることでテストできる。</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 : func writeSettingsTo(path string, data []byte) error {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           3 : func writeSettingsTo(path string, data []byte) error {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           3 :         if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;設定ディレクトリの作成に失敗しました: %w&quot;, err)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         tmp := path + &quot;.tmp&quot;</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         if err := os.WriteFile(tmp, data, 0o644); err != nil {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           3 :         tmp := path + &quot;.tmp&quot;</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           3 :         if err := os.WriteFile(tmp, data, 0o644); err != nil {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;設定ファイルの書き込みに失敗しました: %w&quot;, err)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := os.Rename(tmp, path); err != nil {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           3 :         if err := os.Rename(tmp, path); err != nil {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                 _ = os.Remove(tmp)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;設定ファイルの置き換えに失敗しました: %w&quot;, err)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">           3 :         return nil</span></span>
 <span id="L74"><span class="lineNum">      74</span>              : }</span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // settingsExist は設定ファイルが存在するかを返す。</span>
@@ -145,9 +145,9 @@
 <span id="L83"><span class="lineNum">      83</span>              : }</span>
 <span id="L84"><span class="lineNum">      84</span>              : </span>
 <span id="L85"><span class="lineNum">      85</span>              : // settingsExistAt は指定パスにファイルが存在するかを返す。パスを引数に取ることでテストできる。</span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC tlaBgGNC">           1 : func settingsExistAt(path string) (bool, error) {</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         _, err := os.Stat(path)</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC tlaBgGNC">           2 : func settingsExistAt(path string) (bool, error) {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           2 :         _, err := os.Stat(path)</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           3 :         if err == nil {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 return true, nil</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           2 :         if errors.Is(err, os.ErrNotExist) {</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,11 +82,11 @@
 <span id="L20"><span class="lineNum">      20</span>              : // 各ステートのファクトリー関数を集約したファイル</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // NewDungeonMenuState は新しいDungeonMenuStateインスタンスを作成するファクトリー関数</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func NewDungeonMenuState() (es.State[w.World], error) {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         persistentState := NewPersistentMessageState(nil)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         persistentState.messageData = messagedata.NewSystemMessage(&quot;&quot;).</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 WithChoice(&quot;状態&quot;, func(_ w.World) error {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           4 : func NewDungeonMenuState() (es.State[w.World], error) {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           4 :         persistentState := NewPersistentMessageState(nil)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           4 : </span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           4 :         persistentState.messageData = messagedata.NewSystemMessage(&quot;&quot;).</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           4 :                 WithChoice(&quot;状態&quot;, func(_ w.World) error {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                                 Type:          es.TransPush,</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewStatusState},</span></span>
@@ -142,7 +142,7 @@
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                 })</span></span>
 <span id="L82"><span class="lineNum">      82</span>              : </span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">           1 :         return persistentState, nil</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">           4 :         return persistentState, nil</span></span>
 <span id="L84"><span class="lineNum">      84</span>              : }</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
 <span id="L86"><span class="lineNum">      86</span>              : // NewCraftMenuState は新しいCraftMenuStateインスタンスを作成するファクトリー関数</span>
@@ -151,9 +151,9 @@
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L90"><span class="lineNum">      90</span>              : </span>
 <span id="L91"><span class="lineNum">      91</span>              : // NewInventoryMenuState は新しいInventoryMenuStateインスタンスを作成するファクトリー関数</span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 : func NewInventoryMenuState() (es.State[w.World], error) {</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         return &amp;InventoryMenuState{}, nil</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           2 : func NewInventoryMenuState() (es.State[w.World], error) {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           2 :         return &amp;InventoryMenuState{}, nil</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           2 : }</span></span>
 <span id="L95"><span class="lineNum">      95</span>              : </span>
 <span id="L96"><span class="lineNum">      96</span>              : // NewEquipMenuState は新しいEquipMenuStateインスタンスを作成するファクトリー関数</span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 : func NewEquipMenuState() (es.State[w.World], error) {</span></span>
@@ -576,58 +576,58 @@
 <span id="L514"><span class="lineNum">     514</span>              : type DungeonStateOption func(*DungeonState)</span>
 <span id="L515"><span class="lineNum">     515</span>              : </span>
 <span id="L516"><span class="lineNum">     516</span>              : // WithBuilderType はマップビルダータイプを設定するオプション</span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC tlaBgGNC">           1 : func WithBuilderType(builderType mapplanner.PlannerType) DungeonStateOption {</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           2 :         return func(ds *DungeonState) {</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                 ds.BuilderType = builderType</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC tlaBgGNC">          21 : func WithBuilderType(builderType mapplanner.PlannerType) DungeonStateOption {</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">          39 :         return func(ds *DungeonState) {</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">          18 :                 ds.BuilderType = builderType</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">          18 :         }</span></span>
 <span id="L521"><span class="lineNum">     521</span>              : }</span>
 <span id="L522"><span class="lineNum">     522</span>              : </span>
 <span id="L523"><span class="lineNum">     523</span>              : // WithDefinitionName はダンジョン定義名を設定するオプション</span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 : func WithDefinitionName(name string) DungeonStateOption {</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           2 :         return func(ds *DungeonState) {</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :                 ds.DefinitionName = name</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">          23 : func WithDefinitionName(name string) DungeonStateOption {</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">          43 :         return func(ds *DungeonState) {</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">          20 :                 ds.DefinitionName = name</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">          20 :         }</span></span>
 <span id="L528"><span class="lineNum">     528</span>              : }</span>
 <span id="L529"><span class="lineNum">     529</span>              : </span>
 <span id="L530"><span class="lineNum">     530</span>              : // WithResume はセーブから復帰するモードにするオプション。</span>
 <span id="L531"><span class="lineNum">     531</span>              : // マップの再生成・プレイヤー再配置を行わず、復元済みのワールドをそのまま使う</span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 : func WithResume() DungeonStateOption {</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           2 :         return func(ds *DungeonState) {</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 :                 ds.Resume = true</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           2 : func WithResume() DungeonStateOption {</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           4 :         return func(ds *DungeonState) {</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           2 :                 ds.Resume = true</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L536"><span class="lineNum">     536</span>              : }</span>
 <span id="L537"><span class="lineNum">     537</span>              : </span>
 <span id="L538"><span class="lineNum">     538</span>              : // NewDungeonState はDungeonStateインスタンスを作成するファクトリー関数</span>
 <span id="L539"><span class="lineNum">     539</span>              : // デフォルトではBuilderTypeはPlannerTypeRandomになる</span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 : func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.World] {</span></span>
-<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           2 :         return func() (es.State[w.World], error) {</span></span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 :                 ds := &amp;DungeonState{</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :                         Depth:       depth,</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :                         BuilderType: mapplanner.PlannerTypeRandom,</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           2 :                 for _, opt := range opts {</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :                         opt(ds)</span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           1 :                 return ds, nil</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">          24 : func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.World] {</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">          45 :         return func() (es.State[w.World], error) {</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">          21 :                 ds := &amp;DungeonState{</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">          21 :                         Depth:       depth,</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">          21 :                         BuilderType: mapplanner.PlannerTypeRandom,</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">          21 :                 }</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">          61 :                 for _, opt := range opts {</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">          40 :                         opt(ds)</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">          40 :                 }</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">          21 :                 return ds, nil</span></span>
 <span id="L550"><span class="lineNum">     550</span>              :         }</span>
 <span id="L551"><span class="lineNum">     551</span>              : }</span>
 <span id="L552"><span class="lineNum">     552</span>              : </span>
 <span id="L553"><span class="lineNum">     553</span>              : // NewDemoStartState はデモ用の初期化ステートを作成するファクトリー関数</span>
 <span id="L554"><span class="lineNum">     554</span>              : // キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する</span>
-<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 : func NewDemoStartState() (es.State[w.World], error) {</span></span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :         return &amp;DemoStartState{}, nil</span></span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           3 : func NewDemoStartState() (es.State[w.World], error) {</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           3 :         return &amp;DemoStartState{}, nil</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           3 : }</span></span>
 <span id="L558"><span class="lineNum">     558</span>              : </span>
 <span id="L559"><span class="lineNum">     559</span>              : // NewTownState は街のステートを作成するファクトリー関数</span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 : func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {</span></span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :         allOpts := make([]DungeonStateOption, 0, 2+len(opts))</span></span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :         allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeTown))</span></span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :         allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonTown.Name))</span></span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">           1 :         allOpts = append(allOpts, opts...)</span></span>
-<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">           1 :         // 街は常に深度0</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 :         return NewDungeonState(0, allOpts...)</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">          21 : func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">          21 :         allOpts := make([]DungeonStateOption, 0, 2+len(opts))</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">          21 :         allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeTown))</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">          21 :         allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonTown.Name))</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">          21 :         allOpts = append(allOpts, opts...)</span></span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">          21 : </span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">          21 :         // 街は常に深度0</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">          21 :         return NewDungeonState(0, allOpts...)</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">          21 : }</span></span>
 <span id="L569"><span class="lineNum">     569</span>              : </span>
 <span id="L570"><span class="lineNum">     570</span>              : // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数</span>
 <span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           1 : func NewDungeonSelectState() (es.State[w.World], error) {</span></span>
@@ -688,11 +688,11 @@
 <span id="L626"><span class="lineNum">     626</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC tlaBgGNC">           1 :         messageData := messagedata.NewSystemMessage(&quot;&quot;)</span></span>
 <span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           2 :         for i := 1; i &lt;= 4; i++ {</span></span>
-<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :                 slotName := fmt.Sprintf(&quot;slot%d&quot;, i)</span></span>
-<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           1 :                 label := formatSaveSlotLabel(saveManager, slotName)</span></span>
-<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           1 :                 messageData.WithChoice(label, func(world w.World) error {</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           5 :         for i := 1; i &lt;= 4; i++ {</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           4 :                 slotName := fmt.Sprintf(&quot;slot%d&quot;, i)</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           4 :                 label := formatSaveSlotLabel(saveManager, slotName)</span></span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           4 : </span></span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           4 :                 messageData.WithChoice(label, func(world w.World) error {</span></span>
 <span id="L634"><span class="lineNum">     634</span> <span class="tlaUNC tlaBgUNC">           0 :                         if err := saveManager.SaveWorld(world, slotName); err != nil {</span></span>
 <span id="L635"><span class="lineNum">     635</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;save failed: %w&quot;, err)</span></span>
 <span id="L636"><span class="lineNum">     636</span> <span class="tlaUNC">           0 :                         }</span></span>
@@ -724,10 +724,10 @@
 <span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L663"><span class="lineNum">     663</span> <span class="tlaGNC">           1 :         // 手動セーブセクション</span></span>
 <span id="L664"><span class="lineNum">     664</span> <span class="tlaGNC">           1 :         messageData.WithChoice(&quot;手動セーブ&quot;, nil)</span></span>
-<span id="L665"><span class="lineNum">     665</span> <span class="tlaGNC">           2 :         for i := 1; i &lt;= 4; i++ {</span></span>
-<span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC">           1 :                 slotName := fmt.Sprintf(&quot;slot%d&quot;, i)</span></span>
-<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           1 :                 addLoadSlot(messageData, messageState, saveManager, slotName)</span></span>
-<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L665"><span class="lineNum">     665</span> <span class="tlaGNC">           5 :         for i := 1; i &lt;= 4; i++ {</span></span>
+<span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC">           4 :                 slotName := fmt.Sprintf(&quot;slot%d&quot;, i)</span></span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           4 :                 addLoadSlot(messageData, messageState, saveManager, slotName)</span></span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L669"><span class="lineNum">     669</span>              : </span>
 <span id="L670"><span class="lineNum">     670</span>              :         // オートセーブセクション</span>
 <span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC">           1 :         messageData.WithChoice(&quot;オートセーブ&quot;, nil)</span></span>
@@ -738,12 +738,12 @@
 <span id="L676"><span class="lineNum">     676</span> <span class="tlaGNC tlaBgGNC">           1 :         if len(autoSaves) &gt; 4 {</span></span>
 <span id="L677"><span class="lineNum">     677</span> <span class="tlaUNC tlaBgUNC">           0 :                 autoSaves = autoSaves[:4]</span></span>
 <span id="L678"><span class="lineNum">     678</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L679"><span class="lineNum">     679</span> <span class="tlaGNC tlaBgGNC">           2 :         for i := range 4 {</span></span>
-<span id="L680"><span class="lineNum">     680</span> <span class="tlaGNC">           1 :                 if i &lt; len(autoSaves) {</span></span>
+<span id="L679"><span class="lineNum">     679</span> <span class="tlaGNC tlaBgGNC">           5 :         for i := range 4 {</span></span>
+<span id="L680"><span class="lineNum">     680</span> <span class="tlaGNC">           4 :                 if i &lt; len(autoSaves) {</span></span>
 <span id="L681"><span class="lineNum">     681</span> <span class="tlaUNC tlaBgUNC">           0 :                         addLoadSlot(messageData, messageState, saveManager, autoSaves[i])</span></span>
-<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else {</span></span>
-<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :                         messageData.WithChoice(&quot;  ---&quot;, nil)</span></span>
-<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC tlaBgGNC">           4 :                 } else {</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           4 :                         messageData.WithChoice(&quot;  ---&quot;, nil)</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           4 :                 }</span></span>
 <span id="L685"><span class="lineNum">     685</span>              :         }</span>
 <span id="L686"><span class="lineNum">     686</span>              : </span>
 <span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :         messageData.WithChoice(&quot;戻る&quot;, func(_ w.World) error {</span></span>
@@ -757,11 +757,11 @@
 <span id="L695"><span class="lineNum">     695</span>              : </span>
 <span id="L696"><span class="lineNum">     696</span>              : // addLoadSlot はロードメニューにスロットを追加する。</span>
 <span id="L697"><span class="lineNum">     697</span>              : // データが存在するスロットは選択可能、存在しないスロットは &quot;---&quot; で選択不可にする。</span>
-<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">           1 : func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageState, saveManager *save.SerializationManager, slotName string) {</span></span>
-<span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC">           2 :         if !saveManager.SaveFileExists(slotName) {</span></span>
-<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">           1 :                 messageData.WithChoice(&quot;  ---&quot;, nil)</span></span>
-<span id="L701"><span class="lineNum">     701</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L702"><span class="lineNum">     702</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">           4 : func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageState, saveManager *save.SerializationManager, slotName string) {</span></span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC">           8 :         if !saveManager.SaveFileExists(slotName) {</span></span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">           4 :                 messageData.WithChoice(&quot;  ---&quot;, nil)</span></span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaGNC">           4 :                 return</span></span>
+<span id="L702"><span class="lineNum">     702</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L703"><span class="lineNum">     703</span>              : </span>
 <span id="L704"><span class="lineNum">     704</span> <span class="tlaUNC tlaBgUNC">           0 :         label := formatSaveSlotLabel(saveManager, slotName)</span></span>
 <span id="L705"><span class="lineNum">     705</span> <span class="tlaUNC">           0 :         messageData.WithChoice(label, func(world w.World) error {</span></span>
@@ -787,10 +787,10 @@
 <span id="L725"><span class="lineNum">     725</span>              : </span>
 <span id="L726"><span class="lineNum">     726</span>              : // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。</span>
 <span id="L727"><span class="lineNum">     727</span>              : // データがある場合は &quot;プレイヤー名  日時&quot; 、ない場合は &quot;---&quot; を返す。</span>
-<span id="L728"><span class="lineNum">     728</span> <span class="tlaGNC tlaBgGNC">           1 : func formatSaveSlotLabel(saveManager *save.SerializationManager, slotName string) string {</span></span>
-<span id="L729"><span class="lineNum">     729</span> <span class="tlaGNC">           2 :         if !saveManager.SaveFileExists(slotName) {</span></span>
-<span id="L730"><span class="lineNum">     730</span> <span class="tlaGNC">           1 :                 return &quot;---&quot;</span></span>
-<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaGNC tlaBgGNC">           4 : func formatSaveSlotLabel(saveManager *save.SerializationManager, slotName string) string {</span></span>
+<span id="L729"><span class="lineNum">     729</span> <span class="tlaGNC">           8 :         if !saveManager.SaveFileExists(slotName) {</span></span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaGNC">           4 :                 return &quot;---&quot;</span></span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L732"><span class="lineNum">     732</span>              : </span>
 <span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC tlaBgUNC">           0 :         playerName, nameErr := saveManager.GetSavePlayerName(slotName)</span></span>
 <span id="L734"><span class="lineNum">     734</span> <span class="tlaUNC">           0 :         timestamp, tsErr := saveManager.GetSaveFileTimestamp(slotName)</span></span>
@@ -802,11 +802,11 @@
 <span id="L740"><span class="lineNum">     740</span>              : }</span>
 <span id="L741"><span class="lineNum">     741</span>              : </span>
 <span id="L742"><span class="lineNum">     742</span>              : // NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数</span>
-<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC tlaBgGNC">           1 : func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], error) {</span></span>
-<span id="L744"><span class="lineNum">     744</span> <span class="tlaGNC">           1 :         return &amp;MessageState{</span></span>
-<span id="L745"><span class="lineNum">     745</span> <span class="tlaGNC">           1 :                 messageData: messageData,</span></span>
-<span id="L746"><span class="lineNum">     746</span> <span class="tlaGNC">           1 :         }, nil</span></span>
-<span id="L747"><span class="lineNum">     747</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC tlaBgGNC">           2 : func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], error) {</span></span>
+<span id="L744"><span class="lineNum">     744</span> <span class="tlaGNC">           2 :         return &amp;MessageState{</span></span>
+<span id="L745"><span class="lineNum">     745</span> <span class="tlaGNC">           2 :                 messageData: messageData,</span></span>
+<span id="L746"><span class="lineNum">     746</span> <span class="tlaGNC">           2 :         }, nil</span></span>
+<span id="L747"><span class="lineNum">     747</span> <span class="tlaGNC">           2 : }</span></span>
 <span id="L748"><span class="lineNum">     748</span>              : </span>
 <span id="L749"><span class="lineNum">     749</span>              : // NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数</span>
 <span id="L750"><span class="lineNum">     750</span> <span class="tlaGNC">           1 : func NewSquadMenuState() (es.State[w.World], error) {</span></span>

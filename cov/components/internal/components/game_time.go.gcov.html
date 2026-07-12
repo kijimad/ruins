@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -107,14 +107,14 @@
 <span id="L45"><span class="lineNum">      45</span>              : }</span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // GetTimeOfDay は現在の時間帯を返す</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 : func (gt *GameTime) GetTimeOfDay() TimeOfDay {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         turnInDay := gt.TotalTurns % turnsPerDay</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         return TimeOfDay(turnInDay / turnsPerTimeOfDay)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">          20 : func (gt *GameTime) GetTimeOfDay() TimeOfDay {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">          20 :         turnInDay := gt.TotalTurns % turnsPerDay</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">          20 :         return TimeOfDay(turnInDay / turnsPerTimeOfDay)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          20 : }</span></span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // GetTemperatureModifier は時間帯による気温修正値を返す</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func (gt *GameTime) GetTemperatureModifier() int {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         switch gt.GetTimeOfDay() {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           6 : func (gt *GameTime) GetTemperatureModifier() int {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           6 :         switch gt.GetTimeOfDay() {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         case TimeDawn:</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return 0 // 夜明け: +0°C</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         case TimeMorning:</span></span>
@@ -133,14 +133,14 @@
 <span id="L71"><span class="lineNum">      71</span>              : }</span>
 <span id="L72"><span class="lineNum">      72</span>              : </span>
 <span id="L73"><span class="lineNum">      73</span>              : // Advance はターンを進める</span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC tlaBgGNC">           1 : func (gt *GameTime) Advance() {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         gt.TotalTurns++</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC tlaBgGNC">           2 : func (gt *GameTime) Advance() {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :         gt.TotalTurns++</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 : }</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span>              : // GetDayNumber は経過日数を返す（1日目から始まる）</span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (gt *GameTime) GetDayNumber() int {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         return gt.TotalTurns/turnsPerDay + 1</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           4 : func (gt *GameTime) GetDayNumber() int {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           4 :         return gt.TotalTurns/turnsPerDay + 1</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           4 : }</span></span>
         </pre>
               </td>
             </tr>

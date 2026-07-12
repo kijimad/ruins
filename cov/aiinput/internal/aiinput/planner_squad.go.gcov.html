@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,13 +92,13 @@
 <span id="L30"><span class="lineNum">      30</span>              :         rng          *rand.Rand</span>
 <span id="L31"><span class="lineNum">      31</span>              : }</span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 : func newSquadPlanner(rng *rand.Rand) *squadPlanner {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return &amp;squadPlanner{</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 visionSystem: NewVisionSystem(),</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 logger:       logger.New(logger.CategoryTurn),</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 rng:          rng,</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">          10 : func newSquadPlanner(rng *rand.Rand) *squadPlanner {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          10 :         return &amp;squadPlanner{</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          10 :                 visionSystem: NewVisionSystem(),</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          10 :                 logger:       logger.New(logger.CategoryTurn),</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          10 :                 rng:          rng,</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          10 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          10 : }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // squadContext は隊員AIに必要な情報をまとめる</span>
 <span id="L42"><span class="lineNum">      42</span>              : type squadContext struct {</span>
@@ -307,24 +307,24 @@
 <span id="L245"><span class="lineNum">     245</span>              : // planItemPickupAction は拾得可能アイテムを拾うアクションを計画する。</span>
 <span id="L246"><span class="lineNum">     246</span>              : // 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。</span>
 <span id="L247"><span class="lineNum">     247</span>              : // PolicyIgnoreの場合は何もしない</span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC tlaBgGNC">           1 : func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           2 :         if ctx.Squad.ItemPickup == gc.PolicyIgnore {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC tlaBgGNC">           4 : func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           5 :         if ctx.Squad.ItemPickup == gc.PolicyIgnore {</span></span>
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L252"><span class="lineNum">     252</span>              : </span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         hasPickableHere := false</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         var nearestItemGrid *gc.GridElement</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         nearestDist := -1</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         itemQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           2 :         for itemQuery.Next() {</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 item := itemQuery.Entity()</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 if !query.IsPickable(item, world) {</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           3 :         hasPickableHere := false</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           3 :         var nearestItemGrid *gc.GridElement</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           3 :         nearestDist := -1</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           3 : </span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           3 :         itemQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           5 :         for itemQuery.Next() {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           2 :                 item := itemQuery.Entity()</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           2 :                 if !query.IsPickable(item, world) {</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L262"><span class="lineNum">     262</span>              :                 }</span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC tlaBgGNC">           1 :                 grid := world.Components.GridElement.Get(item)</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           2 :                 if grid.X == ctx.Grid.X &amp;&amp; grid.Y == ctx.Grid.Y {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC tlaBgGNC">           2 :                 grid := world.Components.GridElement.Get(item)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           2 : </span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           3 :                 if grid.X == ctx.Grid.X &amp;&amp; grid.Y == ctx.Grid.Y {</span></span>
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                         hasPickableHere = true</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L268"><span class="lineNum">     268</span>              :                 }</span>
@@ -339,35 +339,35 @@
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L278"><span class="lineNum">     278</span>              :         }</span>
 <span id="L279"><span class="lineNum">     279</span>              : </span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC tlaBgGNC">           2 :         if hasPickableHere {</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC tlaBgGNC">           4 :         if hasPickableHere {</span></span>
 <span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                 sp.logger.Debug(&quot;隊員アイテム拾得&quot;, &quot;entity&quot;, entity, &quot;x&quot;, ctx.Grid.X, &quot;y&quot;, ctx.Grid.Y)</span></span>
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 dest := *ctx.Grid</span></span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 return &amp;activity.PickupActivity{Destination: &amp;dest}, true</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L285"><span class="lineNum">     285</span>              : </span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         if nearestItemGrid != nil {</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           2 :         if nearestItemGrid != nil {</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC tlaBgUNC">           0 :                 sp.logger.Debug(&quot;隊員アイテムへ移動&quot;, &quot;entity&quot;, entity, &quot;dist&quot;, nearestDist)</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 return sp.tryMoveToward(world, entity, ctx.Grid, nearestItemGrid)</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L290"><span class="lineNum">     290</span>              : </span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil, false</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC tlaBgGNC">           2 :         return nil, false</span></span>
 <span id="L292"><span class="lineNum">     292</span>              : }</span>
 <span id="L293"><span class="lineNum">     293</span>              : </span>
 <span id="L294"><span class="lineNum">     294</span>              : // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。</span>
 <span id="L295"><span class="lineNum">     295</span>              : // PolicyDistributeの場合はリーダーにアイテムを転送する</span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           2 :         if ctx.Squad.ItemHandling != gc.PolicyDistribute {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           4 : func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           5 :         if ctx.Squad.ItemHandling != gc.PolicyDistribute {</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L300"><span class="lineNum">     300</span>              : </span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         dist := gridDistance(ctx.Grid, ctx.LeaderGrid)</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :         if dist &gt; 1 {</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           3 :         dist := gridDistance(ctx.Grid, ctx.LeaderGrid)</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           4 :         if dist &gt; 1 {</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L305"><span class="lineNum">     305</span>              : </span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         var itemToTransfer *ecs.Entity</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           2 :         for backpackQuery.Next() {</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           2 :         var itemToTransfer *ecs.Entity</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           2 :         backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           3 :         for backpackQuery.Next() {</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 item := backpackQuery.Entity()</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 if itemToTransfer != nil {</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
@@ -379,7 +379,7 @@
 <span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L318"><span class="lineNum">     318</span>              :         }</span>
 <span id="L319"><span class="lineNum">     319</span>              : </span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           2 :         if itemToTransfer == nil {</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           3 :         if itemToTransfer == nil {</span></span>
 <span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L323"><span class="lineNum">     323</span>              : </span>

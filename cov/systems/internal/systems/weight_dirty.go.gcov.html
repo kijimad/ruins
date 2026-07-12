@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,21 +82,21 @@
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // Update はWeightDirtyフラグをチェックし、対象エンティティの重量を再計算する</span>
 <span id="L22"><span class="lineNum">      22</span>              : // w.Updater interfaceを実装する</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys *WeightDirtySystem) Update(world w.World) error {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         // WeightDirtyマーカーが付いたエンティティを収集する。</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         var changedEntities []ecs.Entity</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.ECS).Query()</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         for weightDirtyQuery.Next() {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 changedEntities = append(changedEntities, weightDirtyQuery.Entity())</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           4 : func (sys *WeightDirtySystem) Update(world w.World) error {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           4 :         // WeightDirtyマーカーが付いたエンティティを収集する。</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           4 :         var changedEntities []ecs.Entity</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           4 :         weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.ECS).Query()</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           8 :         for weightDirtyQuery.Next() {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           4 :                 changedEntities = append(changedEntities, weightDirtyQuery.Entity())</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              :         // 変動のあったエンティティのフラグをクリアして重量を再計算する</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         for _, entity := range changedEntities {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 world.Components.WeightDirty.Remove(entity)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 query.UpdateWeightCapacity(world, entity)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           8 :         for _, entity := range changedEntities {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           4 :                 world.Components.WeightDirty.Remove(entity)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           4 :                 query.UpdateWeightCapacity(world, entity)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           4 :         return nil</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
         </pre>
               </td>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -114,28 +114,28 @@
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // GetEntityCount はエンティティの個数を返す。</span>
 <span id="L54"><span class="lineNum">      54</span>              : // Stackableであれば Stackable.Count を返し、そうでなければ1を返す。</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func GetEntityCount(world w.World, entity ecs.Entity) int {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return world.Components.Stackable.Get(entity).Count</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         return 1</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">          17 : func GetEntityCount(world w.World, entity ecs.Entity) int {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">          22 :         if world.Components.Stackable.Has(entity) {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           5 :                 return world.Components.Stackable.Get(entity).Count</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           5 :         }</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          12 :         return 1</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : }</span>
 <span id="L61"><span class="lineNum">      61</span>              : </span>
 <span id="L62"><span class="lineNum">      62</span>              : // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。</span>
 <span id="L63"><span class="lineNum">      63</span>              : // 名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す。</span>
 <span id="L64"><span class="lineNum">      64</span>              : // 個数が1以下の場合は名前のみ、2以上の場合は &quot;名前(個数)&quot; の形式で返す</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         name := &quot;Unknown Item&quot;</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           2 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 name = nameComp.Name</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           5 : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           5 :         name := &quot;Unknown Item&quot;</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           8 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           3 :                 name = nameComp.Name</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           3 :         }</span></span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         count := GetEntityCount(world, itemEntity)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :         if count &lt;= 1 {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return name</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;%s(%d個)&quot;, name, count)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           5 :         count := GetEntityCount(world, itemEntity)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           7 :         if count &lt;= 1 {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :                 return name</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :         }</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           3 :         return fmt.Sprintf(&quot;%s(%d個)&quot;, name, count)</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : }</span>
         </pre>
               </td>

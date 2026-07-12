@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,18 +74,18 @@
 <span id="L12"><span class="lineNum">      12</span>              : )</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
 <span id="L14"><span class="lineNum">      14</span>              : // CalculateBuyPrice は購入価格を計算する（価値の2倍）</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 : func CalculateBuyPrice(baseValue int) int {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         return int(float64(baseValue) * BuyPriceMultiplier)</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           4 : func CalculateBuyPrice(baseValue int) int {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           4 :         return int(float64(baseValue) * BuyPriceMultiplier)</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           4 : }</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // CalculateSellPrice は売却価格を計算する（価値の半分）</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : func CalculateSellPrice(baseValue int) int {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return int(float64(baseValue) * SellPriceMultiplier)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           4 : func CalculateSellPrice(baseValue int) int {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           4 :         return int(float64(baseValue) * SellPriceMultiplier)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           4 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // GetItemValue はアイテムの基本価値を取得する</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func GetItemValue(world w.World, entity ecs.Entity) int {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :         if !world.Components.Value.Has(entity) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 : func GetItemValue(world w.World, entity ecs.Entity) int {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           3 :         if !world.Components.Value.Has(entity) {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return world.Components.Value.Get(entity).Value</span></span>

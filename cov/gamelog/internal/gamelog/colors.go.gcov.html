@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,14 +65,14 @@
 <span id="L3"><span class="lineNum">       3</span>              : import &quot;image/color&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : // rgb はRGB値からcolor.RGBAを作成する</span>
-<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC tlaBgGNC">           1 : func rgb(v uint64) color.RGBA {</span></span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">           1 :         return color.RGBA{</span></span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           1 :                 R: uint8((v &gt;&gt; 16) &amp; 0xFF),</span></span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 :                 G: uint8((v &gt;&gt; 8) &amp; 0xFF),</span></span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           1 :                 B: uint8(v &amp; 0xFF),</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 :                 A: 0xFF,</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC tlaBgGNC">          10 : func rgb(v uint64) color.RGBA {</span></span>
+<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">          10 :         return color.RGBA{</span></span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">          10 :                 R: uint8((v &gt;&gt; 16) &amp; 0xFF),</span></span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">          10 :                 G: uint8((v &gt;&gt; 8) &amp; 0xFF),</span></span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">          10 :                 B: uint8(v &amp; 0xFF),</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">          10 :                 A: 0xFF,</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">          10 :         }</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">          10 : }</span></span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // ゲームログで使用するパレット色</span>
 <span id="L16"><span class="lineNum">      16</span>              : var (</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,38 +109,38 @@
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span>              : // spawnTiles はタイルからエンティティを生成する</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan) error {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           2 :         for _i, tile := range metaPlan.Tiles {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 i := gc.TileIdx(_i)</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 x, y := metaPlan.Level.XYTileCoord(i)</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 tileX, tileY := consts.Tile(x), consts.Tile(y)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">         101 :         for _i, tile := range metaPlan.Tiles {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">         100 :                 i := gc.TileIdx(_i)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">         100 :                 x, y := metaPlan.Level.XYTileCoord(i)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">         100 :                 tileX, tileY := consts.Tile(x), consts.Tile(y)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">         100 : </span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">         100 :                 tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">         100 :                 if err != nil {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;タイルエンティティ生成エラー (%d, %d): %w&quot;, int(x), int(y), err)</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span>              :                 // TileRaw の環境情報を TileTemperature に設定する</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           2 :                 if world.Components.TileTemperature.Has(tileEntity) {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         tileTemp := world.Components.TileTemperature.Get(tileEntity)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         tileTemp.Shelter = gc.ShelterType(tile.Shelter)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                         tileTemp.Water = gc.WaterType(tile.Water)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         tileTemp.Foliage = gc.FoliageType(tile.Foliage)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">         200 :                 if world.Components.TileTemperature.Has(tileEntity) {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         100 :                         tileTemp := world.Components.TileTemperature.Get(tileEntity)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">         100 :                         tileTemp.Shelter = gc.ShelterType(tile.Shelter)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">         100 :                         tileTemp.Water = gc.WaterType(tile.Water)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         100 :                         tileTemp.Foliage = gc.FoliageType(tile.Foliage)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">         100 :                 }</span></span>
 <span id="L67"><span class="lineNum">      67</span>              :         }</span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : }</span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
 <span id="L71"><span class="lineNum">      71</span>              : // spawnTile は1タイルを生成する</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         // TODO: タイル名直判定だと忘れやすいので直したい</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :         if !tile.BlockPass {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 switch tile.Name {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">         100 : func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">         100 :         // TODO: タイル名直判定だと忘れやすいので直したい</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">         200 :         if !tile.BlockPass {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         100 :                 switch tile.Name {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 :                 case &quot;dirt&quot;:</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                         index := int(metaPlan.CalculateAutoTileIndex(i, &quot;dirt&quot;))</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                         return lifecycle.SpawnTile(world, &quot;dirt&quot;, tileX, tileY, &amp;index)</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC tlaBgGNC">           1 :                 case &quot;floor&quot;:</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                         index := int(metaPlan.CalculateAutoTileIndex(i, &quot;floor&quot;))</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                         return lifecycle.SpawnTile(world, &quot;floor&quot;, tileX, tileY, &amp;index)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC tlaBgGNC">         100 :                 case &quot;floor&quot;:</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">         100 :                         index := int(metaPlan.CalculateAutoTileIndex(i, &quot;floor&quot;))</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">         100 :                         return lifecycle.SpawnTile(world, &quot;floor&quot;, tileX, tileY, &amp;index)</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC tlaBgUNC">           0 :                 case &quot;bridge_a&quot;, &quot;bridge_b&quot;, &quot;bridge_c&quot;, &quot;bridge_d&quot;:</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                         index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :                         return lifecycle.SpawnTile(world, tile.Name, tileX, tileY, &amp;index)</span></span>
@@ -204,21 +204,21 @@
 <span id="L142"><span class="lineNum">     142</span>              : </span>
 <span id="L143"><span class="lineNum">     143</span>              : // spawnProps はPropsを生成する</span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           2 :         for _, prop := range metaPlan.Props {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 tileX, tileY := consts.Tile(prop.X), consts.Tile(prop.Y)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           6 :         for _, prop := range metaPlan.Props {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           5 :                 tileX, tileY := consts.Tile(prop.X), consts.Tile(prop.Y)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           5 :                 propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           5 :                 if err != nil {</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;props取得エラー (%s): %w&quot;, prop.Name, err)</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L152"><span class="lineNum">     152</span>              : </span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           1 :                 propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           5 :                 propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           5 :                 if err != nil {</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;props生成エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
 <span id="L158"><span class="lineNum">     158</span>              :                 // Door componentがあれば向きを設定して閉じた状態で初期化</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC tlaBgGNC">           1 :                 if propRaw.Door != nil {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC tlaBgGNC">           5 :                 if propRaw.Door != nil {</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :                         doorComp := world.Components.Door.Get(propEntity)</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                         doorComp.Orientation = detectPropDoorOrientation(metaPlan, prop.X, prop.Y)</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                         if err := lifecycle.CloseDoor(world, propEntity); err != nil {</span></span>
@@ -227,7 +227,7 @@
 <span id="L165"><span class="lineNum">     165</span>              :                 }</span>
 <span id="L166"><span class="lineNum">     166</span>              : </span>
 <span id="L167"><span class="lineNum">     167</span>              :                 // Storage propにルートアイテムを格納する</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 :                 if propRaw.Storage != nil &amp;&amp; propRaw.Storage.LootTableName != nil &amp;&amp; *propRaw.Storage.LootTableName != &quot;&quot; {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           5 :                 if propRaw.Storage != nil &amp;&amp; propRaw.Storage.LootTableName != nil &amp;&amp; *propRaw.Storage.LootTableName != &quot;&quot; {</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC tlaBgUNC">           0 :                         if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;収納アイテム生成エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :                         }</span></span>
@@ -270,16 +270,16 @@
 <span id="L208"><span class="lineNum">     208</span>              : </span>
 <span id="L209"><span class="lineNum">     209</span>              : // detectPropDoorOrientation はpropsの扉の向きを隣接タイルから判定する。</span>
 <span id="L210"><span class="lineNum">     210</span>              : // DoorSpecを持たないprops扉専用で、左右が壁なら縦向き、それ以外は横向きを返す</span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         width := int(metaPlan.Level.TileWidth)</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         height := int(metaPlan.Level.TileHeight)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           2 :         if x &lt;= 0 || x &gt;= width-1 || y &lt;= 0 || y &gt;= height-1 {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 return gc.DoorOrientationHorizontal</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           6 : func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           6 :         width := int(metaPlan.Level.TileWidth)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           6 :         height := int(metaPlan.Level.TileHeight)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           6 : </span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          10 :         if x &lt;= 0 || x &gt;= width-1 || y &lt;= 0 || y &gt;= height-1 {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           4 :                 return gc.DoorOrientationHorizontal</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L218"><span class="lineNum">     218</span>              : </span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         idx := y*width + x</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           2 :         if metaPlan.Tiles[idx-1].BlockPass &amp;&amp; metaPlan.Tiles[idx+1].BlockPass {</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :         idx := y*width + x</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           3 :         if metaPlan.Tiles[idx-1].BlockPass &amp;&amp; metaPlan.Tiles[idx+1].BlockPass {</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 return gc.DoorOrientationVertical</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L223"><span class="lineNum">     223</span>              : </span>

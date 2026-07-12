@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -96,12 +96,12 @@
 <span id="L34"><span class="lineNum">      34</span>              : }</span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // NewCharacterJobState は職業選択ステートのファクトリを返す</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           1 : func NewCharacterJobState(playerName string) es.StateFactory[w.World] {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :         return func() (es.State[w.World], error) {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return &amp;CharacterJobState{</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                         playerName: playerName,</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 }, nil</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           3 : func NewCharacterJobState(playerName string) es.StateFactory[w.World] {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           5 :         return func() (es.State[w.World], error) {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           2 :                 return &amp;CharacterJobState{</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           2 :                         playerName: playerName,</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :                 }, nil</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : }</span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 : func (st CharacterJobState) String() string {</span></span>
@@ -120,19 +120,19 @@
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 : func (st *CharacterJobState) OnResume(_ w.World) error { return nil }</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span>              : // OnStart はステート開始時の処理を行う</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterJobState) OnStart(world w.World) error {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         st.menuMount = hooks.NewMount[jobMenuProps]()</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         st.menuMount.SetProps(st.fetchProps(world))</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           9 : func (st *CharacterJobState) OnStart(world w.World) error {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           9 :         st.menuMount = hooks.NewMount[jobMenuProps]()</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           9 :         st.menuMount.SetProps(st.fetchProps(world))</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           9 :         return nil</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           9 : }</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              : // OnStop はステートが停止される際に呼ばれる</span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *CharacterJobState) OnStop(_ w.World) error { return nil }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              : // Update はゲームステートの更新処理を行う</span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         // 入力処理</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         if action, ok := st.HandleInput(world.Config); ok {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">          11 : func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">          11 :         // 入力処理</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">          11 :         if action, ok := st.HandleInput(world.Config); ok {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC tlaBgUNC">           0 :                 if transition, err := st.DoAction(world, action); err != nil {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 } else if transition.Type != es.TransNone {</span></span>
@@ -142,19 +142,19 @@
 <span id="L80"><span class="lineNum">      80</span>              :         }</span>
 <span id="L81"><span class="lineNum">      81</span>              : </span>
 <span id="L82"><span class="lineNum">      82</span>              :         // Props更新。職業データは静的なのでOnStartでセット済み</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">           1 :         props := st.menuMount.GetProps()</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         hooks.UseTabMenu(st.menuMount.Store(), &quot;job&quot;, hooks.TabMenuConfig{</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 TabCount:   1,</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 ItemCounts: []int{len(props.Items)},</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         // dirty判定とUI再構築</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :         if st.menuMount.Update() || st.widget == nil {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">          11 :         props := st.menuMount.GetProps()</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">          11 :         hooks.UseTabMenu(st.menuMount.Store(), &quot;job&quot;, hooks.TabMenuConfig{</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">          11 :                 TabCount:   1,</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">          11 :                 ItemCounts: []int{len(props.Items)},</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">          11 :         })</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">          11 : </span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">          11 :         // dirty判定とUI再構築</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">          12 :         if st.menuMount.Update() || st.widget == nil {</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 st.widget = st.buildUI(world)</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L93"><span class="lineNum">      93</span>              : </span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         st.widget.Update()</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return st.ConsumeTransition(), nil</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">          11 :         st.widget.Update()</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">          11 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L96"><span class="lineNum">      96</span>              : }</span>
 <span id="L97"><span class="lineNum">      97</span>              : </span>
 <span id="L98"><span class="lineNum">      98</span>              : // Draw はスクリーンに描画する</span>
@@ -165,23 +165,23 @@
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L104"><span class="lineNum">     104</span>              : </span>
 <span id="L105"><span class="lineNum">     105</span>              : // HandleInput はキー入力をActionに変換する</span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : func (st *CharacterJobState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         return HandleMenuInput()</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">          12 : func (st *CharacterJobState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">          12 :         return HandleMenuInput()</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">          12 : }</span></span>
 <span id="L109"><span class="lineNum">     109</span>              : </span>
 <span id="L110"><span class="lineNum">     110</span>              : // DoAction はActionを実行する</span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 : func (st *CharacterJobState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         switch action {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           8 : func (st *CharacterJobState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           8 :         switch action {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           2 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 return st.handleSelection(world)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           1 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           6 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:</span></span>
 <span id="L118"><span class="lineNum">     118</span>              :                 // Dispatchで処理される</span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;characterJob: 未対応のアクション: %s&quot;, action)</span></span>
 <span id="L121"><span class="lineNum">     121</span>              :         }</span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC tlaBgGNC">           1 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC tlaBgGNC">           6 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L123"><span class="lineNum">     123</span>              : }</span>
 <span id="L124"><span class="lineNum">     124</span>              : </span>
 <span id="L125"><span class="lineNum">     125</span>              : // ================</span>
@@ -198,13 +198,13 @@
 <span id="L136"><span class="lineNum">     136</span>              :         Profession oapi.Profession</span>
 <span id="L137"><span class="lineNum">     137</span>              : }</span>
 <span id="L138"><span class="lineNum">     138</span>              : </span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 : func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         professions := raw.PtrSlice(world.Resources.RawMaster.Professions)</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         items := make([]jobMenuItem, len(professions))</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :         for i := range professions {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 items[i] = jobMenuItem{Profession: professions[i]}</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return jobMenuProps{Items: items}</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">          12 : func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">          12 :         professions := raw.PtrSlice(world.Resources.RawMaster.Professions)</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">          12 :         items := make([]jobMenuItem, len(professions))</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">          84 :         for i := range professions {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">          72 :                 items[i] = jobMenuItem{Profession: professions[i]}</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">          72 :         }</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">          12 :         return jobMenuProps{Items: items}</span></span>
 <span id="L146"><span class="lineNum">     146</span>              : }</span>
 <span id="L147"><span class="lineNum">     147</span>              : </span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {</span></span>
@@ -296,11 +296,11 @@
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         // メインエリア: 左右分割</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         leftContainer := styled.NewVerticalContainer()</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           2 :         for i := range props.Items {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 isSelected := i == itemIndex</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 itemWidget := styled.NewListItemText(props.Items[i].Profession.Name, theme.TextSecondary, isSelected, res)</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 leftContainer.AddChild(itemWidget)</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           7 :         for i := range props.Items {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           6 :                 isSelected := i == itemIndex</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           6 :                 itemWidget := styled.NewListItemText(props.Items[i].Profession.Name, theme.TextSecondary, isSelected, res)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           6 :                 leftContainer.AddChild(itemWidget)</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           6 :         }</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         rightContainer := st.buildDetailPanel(props, itemIndex, res)</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : </span></span>
@@ -356,21 +356,21 @@
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         // 装備</span></span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           2 :         if len(prof.Equips) &gt; 0 {</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 container.AddChild(styled.NewDescriptionText(&quot;装備&quot;, res))</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           2 :                 for _, equip := range prof.Equips {</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                         slotLabel := string(equip.Slot)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           2 :                         if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                                 slotLabel = slot.String()</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                         container.AddChild(styled.NewMenuText(fmt.Sprintf(&quot; %s %s&quot;, slotLabel, equip.Name), res))</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           7 :                 for _, equip := range prof.Equips {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           6 :                         slotLabel := string(equip.Slot)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">          12 :                         if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           6 :                                 slotLabel = slot.String()</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           6 :                         }</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           6 :                         container.AddChild(styled.NewMenuText(fmt.Sprintf(&quot; %s %s&quot;, slotLabel, equip.Name), res))</span></span>
 <span id="L303"><span class="lineNum">     303</span>              :                 }</span>
 <span id="L304"><span class="lineNum">     304</span>              :         }</span>
 <span id="L305"><span class="lineNum">     305</span>              : </span>
 <span id="L306"><span class="lineNum">     306</span>              :         // 所持品</span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           2 :         if len(prof.Items) &gt; 0 {</span></span>
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 container.AddChild(styled.NewDescriptionText(&quot;所持品&quot;, res))</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           2 :                 for _, item := range prof.Items {</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                         container.AddChild(styled.NewMenuText(fmt.Sprintf(&quot; %s x%d&quot;, item.Name, item.Count), res))</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           4 :                 for _, item := range prof.Items {</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           3 :                         container.AddChild(styled.NewMenuText(fmt.Sprintf(&quot; %s x%d&quot;, item.Name, item.Count), res))</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           3 :                 }</span></span>
 <span id="L312"><span class="lineNum">     312</span>              :         }</span>
 <span id="L313"><span class="lineNum">     313</span>              : </span>
 <span id="L314"><span class="lineNum">     314</span>              :         // スキル</span>

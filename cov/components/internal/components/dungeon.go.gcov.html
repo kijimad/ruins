@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -132,17 +132,17 @@
 <span id="L70"><span class="lineNum">      70</span>              : }</span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // XYTileIndex はタイル座標から、タイルスライスのインデックスを求める</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         return TileIdx(int(ty)*int(l.TileWidth) + int(tx))</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">          54 : func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          54 :         return TileIdx(int(ty)*int(l.TileWidth) + int(tx))</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">          54 : }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // XYTileCoord はタイルスライスのインデックスからタイル座標を求める</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         x := int(idx) % int(l.TileWidth)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         y := int(idx) / int(l.TileWidth)</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         return consts.Pixel(x), consts.Pixel(y)</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          54 : func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">          54 :         x := int(idx) % int(l.TileWidth)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">          54 :         y := int(idx) / int(l.TileWidth)</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">          54 : </span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">          54 :         return consts.Pixel(x), consts.Pixel(y)</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">          54 : }</span></span>
 <span id="L84"><span class="lineNum">      84</span>              : </span>
 <span id="L85"><span class="lineNum">      85</span>              : // Width はステージ幅。横の全体ピクセル数</span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 : func (l *Level) Width() consts.Pixel {</span></span>

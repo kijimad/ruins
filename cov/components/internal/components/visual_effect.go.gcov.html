@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,29 +88,29 @@
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // Update はフェードアニメーションを進め、継続中ならtrueを返す</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 : func (a *FadeAnimation) Update(deltaMs float64) bool {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         a.RemainingMs -= deltaMs</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         elapsed := a.TotalMs - a.RemainingMs</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         a.Alpha = calculateFadeAlpha(elapsed, a.FadeInMs, a.HoldMs, a.FadeOutMs)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         return a.RemainingMs &gt; 0</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">          56 : func (a *FadeAnimation) Update(deltaMs float64) bool {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          56 :         a.RemainingMs -= deltaMs</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          56 :         elapsed := a.TotalMs - a.RemainingMs</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          56 :         a.Alpha = calculateFadeAlpha(elapsed, a.FadeInMs, a.HoldMs, a.FadeOutMs)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          56 :         return a.RemainingMs &gt; 0</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          56 : }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // calculateFadeAlpha はフェードシーケンスのAlpha値を計算する</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : func calculateFadeAlpha(elapsed, fadeInMs, holdMs, fadeOutMs float64) float64 {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :         if elapsed &lt; fadeInMs {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 if fadeInMs == 0 {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          56 : func calculateFadeAlpha(elapsed, fadeInMs, holdMs, fadeOutMs float64) float64 {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          66 :         if elapsed &lt; fadeInMs {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          10 :                 if fadeInMs == 0 {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 1.0</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :                 return elapsed / fadeInMs</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">          10 :                 return elapsed / fadeInMs</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         }</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :         if elapsed &lt; fadeInMs+holdMs {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 return 1.0</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if fadeOutMs == 0 {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          77 :         if elapsed &lt; fadeInMs+holdMs {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">          31 :                 return 1.0</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">          31 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          15 :         if fadeOutMs == 0 {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0.0</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 :         fadeOutElapsed := elapsed - fadeInMs - holdMs</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return 1.0 - (fadeOutElapsed / fadeOutMs)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">          15 :         fadeOutElapsed := elapsed - fadeInMs - holdMs</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          15 :         return 1.0 - (fadeOutElapsed / fadeOutMs)</span></span>
 <span id="L52"><span class="lineNum">      52</span>              : }</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span>              : // TextProperties はテキスト表示に共通するプロパティをまとめる</span>

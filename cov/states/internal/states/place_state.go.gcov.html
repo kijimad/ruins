@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -126,56 +126,56 @@
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : func (st *PlaceState) OnResume(_ w.World) error { return nil }</span></span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              : // OnStart はステートが開始される際に呼ばれる</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) OnStart(world w.World) error {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           2 : func (st *PlaceState) OnStart(world w.World) error {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         st.phase = placePhaseSelectItem</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         st.refreshBackpackItems(world)</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           2 :         playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :         st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :         st.phase = placePhaseSelectItem</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :         st.refreshBackpackItems(world)</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 :         return nil</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : }</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              : // OnStop はステートが終了する際に呼ばれる</span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *PlaceState) OnStop(_ w.World) error { return nil }</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : </span>
 <span id="L82"><span class="lineNum">      82</span>              : // Update はステートの更新処理</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         st.blinkCounter++</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         if action, ok := st.handleInput(); ok {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">          10 : func (st *PlaceState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">          10 :         st.blinkCounter++</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">          10 : </span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">          10 :         if action, ok := st.handleInput(); ok {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC tlaBgUNC">           0 :                 return st.doAction(world, action)</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L89"><span class="lineNum">      89</span>              : </span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.ConsumeTransition(), nil</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">          10 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L91"><span class="lineNum">      91</span>              : }</span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 : func (st *PlaceState) handleInput() (inputmapper.ActionID, bool) {</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">          10 : func (st *PlaceState) handleInput() (inputmapper.ActionID, bool) {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">          10 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">          10 : </span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">          10 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionCloseMenu, true</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC tlaBgGNC">          10 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionPlace, true</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L102"><span class="lineNum">     102</span>              : </span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyW) || keyboardInput.IsKeyJustPressed(ebiten.KeyUp) {</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC tlaBgGNC">          10 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyW) || keyboardInput.IsKeyJustPressed(ebiten.KeyUp) {</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMoveNorth, true</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyS) || keyboardInput.IsKeyJustPressed(ebiten.KeyDown) {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC tlaBgGNC">          10 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyS) || keyboardInput.IsKeyJustPressed(ebiten.KeyDown) {</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMoveSouth, true</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyA) || keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) {</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC tlaBgGNC">          10 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyA) || keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) {</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMoveWest, true</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyD) || keyboardInput.IsKeyJustPressed(ebiten.KeyRight) {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC tlaBgGNC">          10 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyD) || keyboardInput.IsKeyJustPressed(ebiten.KeyRight) {</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMoveEast, true</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L115"><span class="lineNum">     115</span>              : </span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">           1 :         return &quot;&quot;, false</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">          10 :         return &quot;&quot;, false</span></span>
 <span id="L117"><span class="lineNum">     117</span>              : }</span>
 <span id="L118"><span class="lineNum">     118</span>              : </span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *PlaceState) doAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
@@ -244,16 +244,16 @@
 <span id="L182"><span class="lineNum">     182</span>              : }</span>
 <span id="L183"><span class="lineNum">     183</span>              : </span>
 <span id="L184"><span class="lineNum">     184</span>              : // refreshBackpackItems はバックパック内の全エンティティを取得する</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) refreshBackpackItems(world w.World) {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         st.backpackItems = nil</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         for backpackQuery.Next() {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 entity := backpackQuery.Entity()</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 st.backpackItems = append(st.backpackItems, entity)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">           2 : func (st *PlaceState) refreshBackpackItems(world w.World) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           2 :         st.backpackItems = nil</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           2 : </span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           2 :         backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           5 :         for backpackQuery.Next() {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           3 :                 entity := backpackQuery.Entity()</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           3 :                 st.backpackItems = append(st.backpackItems, entity)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           3 :         }</span></span>
 <span id="L193"><span class="lineNum">     193</span>              : </span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           2 :         if st.selectedIndex &gt;= len(st.backpackItems) {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           3 :         if st.selectedIndex &gt;= len(st.backpackItems) {</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 st.selectedIndex = 0</span></span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L197"><span class="lineNum">     197</span>              : }</span>
@@ -332,14 +332,14 @@
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         textX := float64(panelX + 12)</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         y := panelY + 12</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 :         drawColorText := func(str string, c color.RGBA) {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 op := &amp;text.DrawOptions{}</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 op.GeoM.Translate(textX, float64(y))</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 op.ColorScale.ScaleWithColor(c)</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 text.Draw(screen, str, face, op)</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 y += lineHeight</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           2 :         drawText := func(str string) { drawColorText(str, theme.TextPrimary) }</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           6 :         drawColorText := func(str string, c color.RGBA) {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           5 :                 op := &amp;text.DrawOptions{}</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           5 :                 op.GeoM.Translate(textX, float64(y))</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           5 :                 op.ColorScale.ScaleWithColor(c)</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           5 :                 text.Draw(screen, str, face, op)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           5 :                 y += lineHeight</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           5 :         }</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           4 :         drawText := func(str string) { drawColorText(str, theme.TextPrimary) }</span></span>
 <span id="L281"><span class="lineNum">     281</span>              : </span>
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         switch st.phase {</span></span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         case placePhaseSelectItem:</span></span>
@@ -349,17 +349,17 @@
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                 if len(st.backpackItems) == 0 {</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC tlaBgUNC">           0 :                         drawColorText(&quot;置けるアイテムがありません&quot;, theme.TextSecondary)</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else {</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           2 :                         for i, entity := range st.backpackItems {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                                 if i &gt;= 7 {</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           4 :                         for i, entity := range st.backpackItems {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           3 :                                 if i &gt;= 7 {</span></span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                                         drawColorText(&quot;...&quot;, theme.TextSecondary)</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                                         break</span></span>
 <span id="L294"><span class="lineNum">     294</span>              :                                 }</span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC tlaBgGNC">           1 :                                 name := query.GetEntityName(entity, world)</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                                 prefix := &quot;  &quot;</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           2 :                                 if i == st.selectedIndex {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC tlaBgGNC">           3 :                                 name := query.GetEntityName(entity, world)</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           3 :                                 prefix := &quot;  &quot;</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           4 :                                 if i == st.selectedIndex {</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                                         prefix = &quot;&gt; &quot;</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                                 drawText(fmt.Sprintf(&quot;%s%s&quot;, prefix, name))</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           3 :                                 drawText(fmt.Sprintf(&quot;%s%s&quot;, prefix, name))</span></span>
 <span id="L301"><span class="lineNum">     301</span>              :                         }</span>
 <span id="L302"><span class="lineNum">     302</span>              :                 }</span>
 <span id="L303"><span class="lineNum">     303</span>              : </span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,11 +111,11 @@
 <span id="L49"><span class="lineNum">      49</span>              : }</span>
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span>              : // Validate はアイテム転送アクティビティの検証を行う</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 : func (ta *TransferActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         if comp.Target == nil {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           3 : func (ta *TransferActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           4 :         if comp.Target == nil {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;転送対象が指定されていません&quot;)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         if comp.Recipient == nil {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           3 :         if comp.Recipient == nil {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;受取人が指定されていません&quot;)</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>

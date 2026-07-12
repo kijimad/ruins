@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,11 +77,11 @@
 <span id="L15"><span class="lineNum">      15</span>              : }</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // Error はerrorインターフェースを実装する</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func (e *AIError) Error() string {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if e.Entity != nil {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;AI Error [%s] Entity=%d: %s&quot;, e.Type, *e.Entity, e.Message)</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;AI Error [%s]: %s&quot;, e.Type, e.Message)</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           8 : func (e *AIError) Error() string {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          11 :         if e.Entity != nil {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           3 :                 return fmt.Sprintf(&quot;AI Error [%s] Entity=%d: %s&quot;, e.Type, *e.Entity, e.Message)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           3 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           5 :         return fmt.Sprintf(&quot;AI Error [%s]: %s&quot;, e.Type, e.Message)</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : }</span>
         </pre>
               </td>

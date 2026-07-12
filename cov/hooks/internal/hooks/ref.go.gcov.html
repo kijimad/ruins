@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,27 +65,27 @@
 <span id="L3"><span class="lineNum">       3</span>              : // UseRef は再レンダリングしても値が保持される参照を提供する</span>
 <span id="L4"><span class="lineNum">       4</span>              : // React の useRef に相当する</span>
 <span id="L5"><span class="lineNum">       5</span>              : // init は初回のみ呼ばれ、以降はキャッシュされた値を返す</span>
-<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC tlaBgGNC">           1 : func UseRef[T any](store *Store, key string, init func() T) T {</span></span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">           2 :         if _, ok := store.refs[key]; !ok {</span></span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           1 :                 store.refs[key] = init()</span></span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           1 :         v, ok := store.refs[key].(T)</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC tlaBgGNC">           9 : func UseRef[T any](store *Store, key string, init func() T) T {</span></span>
+<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">          16 :         if _, ok := store.refs[key]; !ok {</span></span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           7 :                 store.refs[key] = init()</span></span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           7 :         }</span></span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           9 :         v, ok := store.refs[key].(T)</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           9 :         if !ok {</span></span>
 <span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(&quot;hooks: 参照の型が登録時と一致しません: key=&quot; + key)</span></span>
 <span id="L13"><span class="lineNum">      13</span>              :         }</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 :         return v</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           9 :         return v</span></span>
 <span id="L15"><span class="lineNum">      15</span>              : }</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // GetRef は登録済みの参照を取得する</span>
 <span id="L18"><span class="lineNum">      18</span>              : // 存在しない場合や型が一致しない場合はゼロ値と false を返す</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 : func GetRef[T any](store *Store, key string) (T, bool) {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         if val, ok := store.refs[key]; ok {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :                 if typed, ok := val.(T); ok {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         return typed, true</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           4 : func GetRef[T any](store *Store, key string) (T, bool) {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           6 :         if val, ok := store.refs[key]; ok {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           4 :                 if typed, ok := val.(T); ok {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :                         return typed, true</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :                 }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              :         }</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         var zero T</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return zero, false</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         var zero T</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :         return zero, false</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
         </pre>
               </td>

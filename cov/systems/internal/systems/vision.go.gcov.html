@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -102,16 +102,16 @@
 <span id="L40"><span class="lineNum">      40</span>              : }</span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // NewVisionSystem はVisionSystemを初期化する</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 : func NewVisionSystem() *VisionSystem {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         return &amp;VisionSystem{</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 raycastCache: make(map[raycastCacheKey]bool),</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           2 : func NewVisionSystem() *VisionSystem {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :         return &amp;VisionSystem{</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :                 raycastCache: make(map[raycastCacheKey]bool),</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           2 : }</span></span>
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // invalidateOnFloorChange はフロアが切り替わっていれば内部キャッシュを破棄する。</span>
 <span id="L50"><span class="lineNum">      50</span>              : // レイキャスト結果は壁配置に依存するため、フロアをまたいで再利用すると誤った視界になる</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon) {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           2 :         if dungeon.Depth == sys.lastDepth &amp;&amp; dungeon.DefinitionName == sys.lastDefinitionName {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 : func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon) {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           3 :         if dungeon.Depth == sys.lastDepth &amp;&amp; dungeon.DefinitionName == sys.lastDefinitionName {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         sys.lastDepth = dungeon.Depth</span></span>
@@ -244,33 +244,33 @@
 <span id="L182"><span class="lineNum">     182</span>              : // computeTileRenderMap はタイルごとの描画情報を一括計算する。</span>
 <span id="L183"><span class="lineNum">     183</span>              : // VisibleTiles・ExploredTiles・光源情報を統合して、</span>
 <span id="L184"><span class="lineNum">     184</span>              : // 各描画関数が参照するだけで済む描画情報マップを返す</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">           1 : func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         result := make(map[gc.GridElement]TileRenderInfo)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         dungeon := query.GetDungeon(world)</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         // 現在見えているタイルを設定する</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           2 :         for grid := range dungeon.VisibleTiles {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 visible := TileRenderVisible{Darkness: DarknessVisible}</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           2 :                 if li, ok := lights[grid]; ok &amp;&amp; li.Darkness &lt; 1.0 {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                         visible.LightColor = li.Color</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 result[grid] = visible</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">          12 : func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">          12 :         result := make(map[gc.GridElement]TileRenderInfo)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">          12 :         dungeon := query.GetDungeon(world)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          12 : </span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">          12 :         // 現在見えているタイルを設定する</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">          21 :         for grid := range dungeon.VisibleTiles {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           9 :                 visible := TileRenderVisible{Darkness: DarknessVisible}</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          11 :                 if li, ok := lights[grid]; ok &amp;&amp; li.Darkness &lt; 1.0 {</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           2 :                         visible.LightColor = li.Color</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           2 :                 }</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           9 :                 result[grid] = visible</span></span>
 <span id="L196"><span class="lineNum">     196</span>              :         }</span>
 <span id="L197"><span class="lineNum">     197</span>              : </span>
 <span id="L198"><span class="lineNum">     198</span>              :         // 視界外だが記憶済みのタイルを設定する</span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           2 :         for grid := range dungeon.ExploredTiles {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           2 :                 if _, exists := result[grid]; !exists {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                         result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">          18 :         for grid := range dungeon.ExploredTiles {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           9 :                 if _, exists := result[grid]; !exists {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           3 :                         result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           3 :                 }</span></span>
 <span id="L203"><span class="lineNum">     203</span>              :         }</span>
 <span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">          12 :         return result</span></span>
 <span id="L206"><span class="lineNum">     206</span>              : }</span>
 <span id="L207"><span class="lineNum">     207</span>              : </span>
 <span id="L208"><span class="lineNum">     208</span>              : // isInMapBounds は座標がマップの有効範囲内かを判定する</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 : func isInMapBounds(grid gc.GridElement, level gc.Level) bool {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         return grid.X &gt;= 0 &amp;&amp; grid.X &lt; level.TileWidth &amp;&amp; grid.Y &gt;= 0 &amp;&amp; grid.Y &lt; level.TileHeight</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           5 : func isInMapBounds(grid gc.GridElement, level gc.Level) bool {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           5 :         return grid.X &gt;= 0 &amp;&amp; grid.X &lt; level.TileWidth &amp;&amp; grid.Y &gt;= 0 &amp;&amp; grid.Y &lt; level.TileHeight</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           5 : }</span></span>
 <span id="L212"><span class="lineNum">     212</span>              : </span>
 <span id="L213"><span class="lineNum">     213</span>              : // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する</span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC tlaBgUNC">           0 : func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility {</span></span>
@@ -367,45 +367,45 @@
 <span id="L305"><span class="lineNum">     305</span>              : }</span>
 <span id="L306"><span class="lineNum">     306</span>              : </span>
 <span id="L307"><span class="lineNum">     307</span>              : // bresenhamLineOfSight はブレゼンハムアルゴリズムを使用したタイルベース視線判定</span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC tlaBgGNC">           1 : func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool) bool {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         dx := geometry.Abs(x1 - x0)</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         dy := geometry.Abs(y1 - y0)</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         var sx, sy int</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           2 :         if x0 &lt; x1 {</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 sx = 1</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           2 :         } else {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC tlaBgGNC">           5 : func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool) bool {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           5 :         dx := geometry.Abs(x1 - x0)</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           5 :         dy := geometry.Abs(y1 - y0)</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           5 :         var sx, sy int</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           9 :         if x0 &lt; x1 {</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           4 :                 sx = 1</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           5 :         } else {</span></span>
 <span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 sx = -1</span></span>
 <span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           2 :         if y0 &lt; y1 {</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                 sy = 1</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           2 :         } else {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           9 :         if y0 &lt; y1 {</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           4 :                 sy = 1</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           5 :         } else {</span></span>
 <span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 sy = -1</span></span>
 <span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L323"><span class="lineNum">     323</span>              : </span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         err := dx - dy</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         x, y := x0, y0</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           2 :         for {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 // ターゲットに到達したら見える</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           2 :                 if x == x1 &amp;&amp; y == y1 {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                         return true</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           5 :         err := dx - dy</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           5 :         x, y := x0, y0</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">          22 :         for {</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">          17 :                 // ターゲットに到達したら見える</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">          21 :                 if x == x1 &amp;&amp; y == y1 {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           4 :                         return true</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           4 :                 }</span></span>
 <span id="L332"><span class="lineNum">     332</span>              : </span>
 <span id="L333"><span class="lineNum">     333</span>              :                 // 現在のタイルが視界を遮るかチェック</span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           2 :                 if blockIndex[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] {</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">          14 :                 if blockIndex[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] {</span></span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                         return false</span></span>
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L337"><span class="lineNum">     337</span>              : </span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                 e2 := 2 * err</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           2 :                 if e2 &gt; -dy {</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :                         err -= dy</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                         x += sx</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           2 :                 if e2 &lt; dx {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                         err += dx</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :                         y += sy</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">          12 :                 e2 := 2 * err</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">          23 :                 if e2 &gt; -dy {</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">          11 :                         err -= dy</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">          11 :                         x += sx</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">          11 :                 }</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">          23 :                 if e2 &lt; dx {</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">          11 :                         err += dx</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">          11 :                         y += sy</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">          11 :                 }</span></span>
 <span id="L347"><span class="lineNum">     347</span>              :         }</span>
 <span id="L348"><span class="lineNum">     348</span>              : }</span>
 <span id="L349"><span class="lineNum">     349</span>              : </span>
@@ -484,15 +484,15 @@
 <span id="L422"><span class="lineNum">     422</span>              : )</span>
 <span id="L423"><span class="lineNum">     423</span>              : </span>
 <span id="L424"><span class="lineNum">     424</span>              : // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する</span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC tlaBgGNC">           1 : func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :         index := make(map[gc.GridElement]bool)</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.ECS).Query()</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           2 :         for blockViewQuery.Next() {</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC tlaBgGNC">           2 : func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           2 :         index := make(map[gc.GridElement]bool)</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           2 :         blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.ECS).Query()</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           3 :         for blockViewQuery.Next() {</span></span>
 <span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                 entity := blockViewQuery.Entity()</span></span>
 <span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
 <span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 index[*grid] = true</span></span>
 <span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :         return index</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           2 :         return index</span></span>
 <span id="L434"><span class="lineNum">     434</span>              : }</span>
         </pre>
               </td>

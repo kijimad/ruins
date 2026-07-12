@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 02:53:30</td>
+            <td class="headerValue">2026-07-12 10:21:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,73 +77,73 @@
 <span id="L15"><span class="lineNum">      15</span>              : // New は指定されたストアでLoggerを作成</span>
 <span id="L16"><span class="lineNum">      16</span>              : // 本番: New(GameLog) など、グローバルストアを渡す</span>
 <span id="L17"><span class="lineNum">      17</span>              : // テスト: New(testStore) など、ローカルストアを渡す</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func New(store *SafeSlice) *Logger {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         return &amp;Logger{</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 currentColor: ColorWhite,</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 fragments:    make([]LogFragment, 0),</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 store:        store,</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">          24 : func New(store *SafeSlice) *Logger {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          24 :         return &amp;Logger{</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          24 :                 currentColor: ColorWhite,</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          24 :                 fragments:    make([]LogFragment, 0),</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          24 :                 store:        store,</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          24 :         }</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          24 : }</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // ColorRGBA は直接color.RGBAを設定</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : func (l *Logger) ColorRGBA(c color.RGBA) *Logger {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         l.currentColor = c</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return l</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           9 : func (l *Logger) ColorRGBA(c color.RGBA) *Logger {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           9 :         l.currentColor = c</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           9 :         return l</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           9 : }</span></span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // Append は現在の色でテキストを追加</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func (l *Logger) Append(text any) *Logger {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         textStr := fmt.Sprintf(&quot;%v&quot;, text)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         l.fragments = append(l.fragments, LogFragment{</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 Color: l.currentColor,</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 Text:  textStr,</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return l</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          48 : func (l *Logger) Append(text any) *Logger {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          48 :         textStr := fmt.Sprintf(&quot;%v&quot;, text)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          48 :         l.fragments = append(l.fragments, LogFragment{</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          48 :                 Color: l.currentColor,</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          48 :                 Text:  textStr,</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          48 :         })</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          48 :         return l</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">          48 : }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // Log はログを出力（ストアは初期化時に指定済み）</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func (l *Logger) Log() {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         l.appendToLog(l.store)</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          29 : func (l *Logger) Log() {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          29 :         l.appendToLog(l.store)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">          29 : }</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // NPCName はNPC名を黄色で追加</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func (l *Logger) NPCName(name any) *Logger {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         nameStr := fmt.Sprintf(&quot;%v&quot;, name)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         l.fragments = append(l.fragments, LogFragment{</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 Color: ColorYellow,</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 Text:  nameStr,</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         return l</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">          10 : func (l *Logger) NPCName(name any) *Logger {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">          10 :         nameStr := fmt.Sprintf(&quot;%v&quot;, name)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">          10 :         l.fragments = append(l.fragments, LogFragment{</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          10 :                 Color: ColorYellow,</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          10 :                 Text:  nameStr,</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          10 :         })</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">          10 :         return l</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">          10 : }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // ItemName はアイテム名をシアン色で追加</span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : func (l *Logger) ItemName(item any) *Logger {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         itemStr := fmt.Sprintf(&quot;%v&quot;, item)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         l.fragments = append(l.fragments, LogFragment{</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 Color: ColorCyan,</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 Text:  itemStr,</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         return l</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           3 : func (l *Logger) ItemName(item any) *Logger {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           3 :         itemStr := fmt.Sprintf(&quot;%v&quot;, item)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           3 :         l.fragments = append(l.fragments, LogFragment{</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           3 :                 Color: ColorCyan,</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           3 :                 Text:  itemStr,</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           3 :         })</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           3 :         return l</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           3 : }</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              : // Damage はダメージ数値を赤色で追加</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : func (l *Logger) Damage(damage int) *Logger {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         l.fragments = append(l.fragments, LogFragment{</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 Color: ColorRed,</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 Text:  fmt.Sprintf(&quot;%d&quot;, damage),</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         return l</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           6 : func (l *Logger) Damage(damage int) *Logger {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           6 :         l.fragments = append(l.fragments, LogFragment{</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           6 :                 Color: ColorRed,</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           6 :                 Text:  fmt.Sprintf(&quot;%d&quot;, damage),</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           6 :         })</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           6 :         return l</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           6 : }</span></span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // PlayerName はプレイヤー名を緑色で追加</span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : func (l *Logger) PlayerName(name any) *Logger {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         nameStr := fmt.Sprintf(&quot;%v&quot;, name)</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         l.fragments = append(l.fragments, LogFragment{</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 Color: ColorGreen,</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 Text:  nameStr,</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return l</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           7 : func (l *Logger) PlayerName(name any) *Logger {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           7 :         nameStr := fmt.Sprintf(&quot;%v&quot;, name)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           7 :         l.fragments = append(l.fragments, LogFragment{</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           7 :                 Color: ColorGreen,</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           7 :                 Text:  nameStr,</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           7 :         })</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           7 :         return l</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           7 : }</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
 <span id="L86"><span class="lineNum">      86</span>              : // === ゲーム固有プリセット関数群 ===</span>
 <span id="L87"><span class="lineNum">      87</span>              : </span>
@@ -235,25 +235,25 @@
 <span id="L173"><span class="lineNum">     173</span>              : //             }).</span>
 <span id="L174"><span class="lineNum">     174</span>              : //             Append(&quot; を攻撃した。&quot;).</span>
 <span id="L175"><span class="lineNum">     175</span>              : //             Log()</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 : func (l *Logger) Build(builder func(*Logger)) *Logger {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         builder(l)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         return l</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           7 : func (l *Logger) Build(builder func(*Logger)) *Logger {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           7 :         builder(l)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           7 :         return l</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           7 : }</span></span>
 <span id="L180"><span class="lineNum">     180</span>              : </span>
 <span id="L181"><span class="lineNum">     181</span>              : // 内部ヘルパーメソッド</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 : func (l *Logger) appendToLog(log *SafeSlice) {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         // 複数のフラグメントをログに追加</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :         if len(l.fragments) == 0 {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">          29 : func (l *Logger) appendToLog(log *SafeSlice) {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">          29 :         // 複数のフラグメントをログに追加</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">          32 :         if len(l.fragments) == 0 {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           3 :                 return</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           3 :         }</span></span>
 <span id="L187"><span class="lineNum">     187</span>              : </span>
 <span id="L188"><span class="lineNum">     188</span>              :         // フラグメントのコピーを作成してLogEntryに追加</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         fragmentsCopy := make([]LogFragment, len(l.fragments))</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         copy(fragmentsCopy, l.fragments)</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         log.pushColoredEntry(LogEntry{Fragments: fragmentsCopy})</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         // ログ出力後にフラグメントをクリア</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         l.fragments = l.fragments[:0]</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">          26 :         fragmentsCopy := make([]LogFragment, len(l.fragments))</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">          26 :         copy(fragmentsCopy, l.fragments)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">          26 :         log.pushColoredEntry(LogEntry{Fragments: fragmentsCopy})</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          26 : </span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">          26 :         // ログ出力後にフラグメントをクリア</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">          26 :         l.fragments = l.fragments[:0]</span></span>
 <span id="L195"><span class="lineNum">     195</span>              : }</span>
         </pre>
               </td>
