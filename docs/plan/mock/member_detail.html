@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 隊員詳細UI（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --power:#ffd35c;
+    --hp:#57c06a; --hpmid:#e5c675; --hplow:#e0574a; --ally:#7fd6ff;
+    --str:#e07a6a; --sen:#c79cf0; --dex:#6fd0c0; --agi:#8fd14f; --vit:#e0a85a; --def:#7fa8d6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace; color:var(--ink);}
+  .screen{width:1280px; min-height:800px; margin:0 auto; background:var(--bg); position:relative;
+    display:grid; grid-template-columns:24px 1fr 24px; grid-template-rows:26px 1fr 24px;}
+  .titlebar{grid-column:1/4; grid-row:1; background:var(--panel2); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; padding:0 12px; font-size:12px;}
+  .titlebar .b{color:var(--gold);} .titlebar .s{color:var(--ink2);}
+  .titlebar .right{margin-left:auto; color:var(--ink2);}
+  .wrap{grid-column:2; grid-row:2; padding:14px 0; display:grid; grid-template-columns:300px 1fr 340px; gap:14px;}
+  .col{display:flex; flex-direction:column; gap:12px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .ch{font-size:11px; letter-spacing:2px; color:var(--ink2); padding:8px 12px; border-bottom:1px solid var(--line); text-transform:uppercase; display:flex; justify-content:space-between;}
+  .ch .r{color:var(--dim); letter-spacing:0;}
+  .cb{padding:11px 12px;}
+  /* identity */
+  .idcard{display:flex; gap:12px; padding:12px;}
+  .portrait{width:96px;height:110px;flex:none;border-radius:5px;background:
+    radial-gradient(circle at 50% 34%, #2a3947 0%, #16202b 62%, #0d141b 100%);
+    border:1px solid #2c3d4b; position:relative; overflow:hidden;}
+  .portrait .fig{position:absolute; left:50%; bottom:0; transform:translateX(-50%); font-size:64px; filter:drop-shadow(0 2px 3px #000);}
+  .portrait .helm{position:absolute; top:8px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--crystal);}
+  .idmeta .nm{font-size:20px; color:#eaf3fb; letter-spacing:1px;}
+  .idmeta .cl{font-size:12px; color:var(--gold); margin-top:2px;}
+  .idmeta .sub{font-size:11px; color:var(--ink2); margin-top:8px; line-height:1.7;}
+  .idmeta .tags{margin-top:8px; display:flex; gap:5px; flex-wrap:wrap;}
+  .tag{font-size:10px; background:#1e2a35; color:#9fd0e6; border-radius:3px; padding:2px 7px;}
+  .tag.g{background:#20302a; color:#a8e0b8;} .tag.w{background:#3a2320; color:#ffb0a6;}
+  /* bars */
+  .bar{height:8px;border-radius:2px;background:#0a1119;overflow:hidden;box-shadow:inset 0 0 0 1px #05090d;}
+  .bar > i{display:block;height:100%;}
+  .row{display:flex; align-items:center; gap:8px; font-size:12px; margin:9px 0;}
+  .row .lab{width:74px; color:var(--ink2); font-size:11px;}
+  .row .val{width:78px; text-align:right; color:#dce7f0; font-size:11px;}
+  .row .barwrap{flex:1;}
+  /* needs */
+  .need{margin:10px 0;}
+  .need .top{display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;}
+  .need .top b{color:#dce7f0; font-weight:normal;} .need .top span{color:var(--ink2);}
+  .need.crit .top span{color:var(--hplow);}
+  /* attributes */
+  .attr{display:flex; align-items:center; gap:9px; margin:11px 0;}
+  .attr .ab{width:34px;height:34px;flex:none;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#08111a;}
+  .attr .nm{width:78px; font-size:12px; color:#dce7f0;}
+  .attr .track{flex:1; height:8px; background:#0a1119; border-radius:2px; overflow:hidden; position:relative; box-shadow:inset 0 0 0 1px #05090d;}
+  .attr .track i{position:absolute; left:0; top:0; height:100%;}
+  .attr .track .mod{position:absolute; top:0; height:100%; opacity:.55; background:repeating-linear-gradient(45deg,rgba(255,255,255,.25) 0 3px, transparent 3px 6px);}
+  .attr .num{width:96px; text-align:right; font-size:11px; color:var(--ink2);}
+  .attr .num b{color:#eaf3fb;}
+  /* skills */
+  .sk{display:flex; align-items:center; gap:8px; margin:8px 0; font-size:12px;}
+  .sk .snm{width:96px; color:#cdd9e3;}
+  .sk .lv{width:30px; text-align:right; color:var(--gold);}
+  .sk .exp{flex:1; height:6px; background:#0a1119; border-radius:2px; overflow:hidden; box-shadow:inset 0 0 0 1px #05090d;}
+  .sk .exp i{display:block; height:100%; background:linear-gradient(90deg,#3a6a80,var(--crystal));}
+  .sk .pa{width:30px; text-align:center; font-size:11px;}
+  .pa.hi{color:var(--fire);} .pa.mid{color:var(--gold);} .pa.lo{color:var(--dim);}
+  /* implants / body */
+  .power{padding:11px 12px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(255,211,92,.05), transparent);}
+  .power .top{display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;}
+  .power .top b{color:var(--power);} .power .top span{color:var(--hplow);}
+  .power .bar > i{background:linear-gradient(90deg,#b07d1e,var(--power));}
+  .power .note{font-size:10px; color:var(--ink2); margin-top:6px;}
+  .slotline{display:flex; align-items:center; gap:8px; margin:8px 0; font-size:12px;}
+  .slotline .bp{width:52px; color:var(--ink2); font-size:11px;}
+  .slotline .it{flex:1; background:var(--card); border:1px solid #223140; border-radius:4px; padding:5px 8px; color:#dce7f0; display:flex; justify-content:space-between; align-items:center;}
+  .slotline .it.empty{color:var(--dim); border-style:dashed;}
+  .slotline .it .pw{font-size:10px; color:var(--power);}
+  .slotline .it .pw.free{color:var(--dim);}
+  /* equipment */
+  .eq{display:flex; align-items:center; gap:8px; margin:8px 0; font-size:12px;}
+  .eq .bp{width:52px; color:var(--ink2); font-size:11px;}
+  .eq .it{flex:1; background:var(--card); border:1px solid #223140; border-radius:4px; padding:5px 8px; color:#dce7f0; display:flex; justify-content:space-between;}
+  .eq .it .q{font-size:10px;} .q.rare{color:var(--crystal);} .q.norm{color:var(--ink2);}
+  .hotrow{display:flex; gap:6px; margin-top:4px;}
+  .hslot{flex:1; aspect-ratio:1/1; background:#0d141c; border:1px solid #233240; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:18px; position:relative;}
+  .hslot .n{position:absolute; top:1px; left:3px; font-size:9px; color:var(--ink2);}
+  /* upkeep */
+  .up{display:flex; justify-content:space-between; font-size:12px; margin:7px 0;}
+  .up .k{color:var(--ink2);} .up .v{color:#dce7f0;} .up .v.bad{color:var(--fire);}
+  .foot{grid-column:2; grid-row:3; color:var(--dim); font-size:10px; padding-top:2px;}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="titlebar">
+    <span class="b">◆ RUINS</span><span>隊員詳細 &nbsp;MEMBER</span>
+    <span class="s">|</span><span class="s">◀ Ash</span><span style="color:#dce7f0">Bran</span><span class="s">Cira ▶</span>
+    <span class="right">B4F · ターン 128 · ハブで改造/装備を編集</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- LEFT: identity + needs + derived + upkeep -->
+    <div class="col">
+      <div class="card">
+        <div class="idcard">
+          <div class="portrait"><div class="helm">⛑</div><div class="fig">🧍</div></div>
+          <div class="idmeta">
+            <div class="nm">Bran</div>
+            <div class="cl">重装 / 近接ベテラン</div>
+            <div class="sub">雇用: 12ラン前<br>生還: 41 · 撃破: 187<br>改造投資: <span style="color:var(--gold)">高</span></div>
+            <div class="tags"><span class="tag g">前衛</span><span class="tag g">交戦</span><span class="tag">受け特化</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">状態 <span class="r">NEEDS</span></div>
+        <div class="cb">
+          <div class="need"><div class="top"><b>体力 HP</b><span>64 / 90</span></div><div class="bar"><i style="width:71%;background:var(--hp)"></i></div></div>
+          <div class="need"><div class="top"><b>体温 Temp</b><span>36.1℃ 平常</span></div><div class="bar"><i style="width:60%;background:var(--crystal)"></i></div></div>
+          <div class="need crit"><div class="top"><b>空腹 Food</b><span>やや空腹</span></div><div class="bar"><i style="width:38%;background:var(--vit)"></i></div></div>
+          <div class="need"><div class="top"><b>負傷</b><span>右腕 打撲 (軽)</span></div><div class="bar"><i style="width:88%;background:var(--hpmid)"></i></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">派生値 <span class="r">DERIVED</span></div>
+        <div class="cb">
+          <div class="up"><span class="k">移動APコスト</span><span class="v">100</span></div>
+          <div class="up"><span class="k">攻撃速度</span><span class="v">中速</span></div>
+          <div class="up"><span class="k">最大所持重量</span><span class="v">120</span></div>
+          <div class="up"><span class="k">視界距離</span><span class="v">6</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">維持コスト <span class="r">UPKEEP / ターン</span></div>
+        <div class="cb">
+          <div class="up"><span class="k">食料消費</span><span class="v bad">2.4 /T（重装ゆえ多い）</span></div>
+          <div class="up"><span class="k">動力炉 燃料</span><span class="v bad">1.8 /T（高出力炉）</span></div>
+          <div class="up"><span class="k">雇用/改造の累積投資</span><span class="v" style="color:var(--gold)">高（死ぬと大損害）</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: attributes + skills -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">能力値 <span class="r">Base + 改造/装備 補正 = Total</span></div>
+        <div class="cb" id="attrs"></div>
+      </div>
+      <div class="card">
+        <div class="ch">スキル <span class="r">使用ベース成長 · ◆得意</span></div>
+        <div class="cb" id="skills"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: implants (power budget) + equipment -->
+    <div class="col">
+      <div class="card">
+        <div class="power">
+          <div class="top"><span>動力 POWER BUDGET</span><b>7.2 / 8.0 kW</b></div>
+          <div class="bar"><i style="width:90%"></i></div>
+          <div class="note">◈ 内蔵パーツは動力を共有する。全部は積めない ―― これが改造ビルドの核。</div>
+        </div>
+        <div class="ch">身体改造（内蔵） <span class="r">IMPLANTS</span></div>
+        <div class="cb" id="implants"></div>
+      </div>
+
+      <div class="card">
+        <div class="ch">装備（外付け） <span class="r">EQUIPMENT</span></div>
+        <div class="cb">
+          <div class="eq"><span class="bp">頭</span><div class="it"><span>耐寒フード</span><span class="q norm">並</span></div></div>
+          <div class="eq"><span class="bp">胴</span><div class="it"><span>重装甲板 +DEF</span><span class="q rare">精良</span></div></div>
+          <div class="eq"><span class="bp">脚</span><div class="it"><span>踏破ブーツ</span><span class="q norm">並</span></div></div>
+          <div class="eq"><span class="bp">装飾</span><div class="it"><span>熱耐性の指輪</span><span class="q rare">精良</span></div></div>
+          <div style="font-size:11px;color:var(--ink2);margin:10px 0 4px;">武器ホットバー（5枠）</div>
+          <div class="hotrow">
+            <div class="hslot"><span class="n">1</span>🗡️</div>
+            <div class="hslot"><span class="n">2</span>🛡️</div>
+            <div class="hslot"><span class="n">3</span>—</div>
+            <div class="hslot"><span class="n">4</span>—</div>
+            <div class="hslot"><span class="n">5</span>—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot">※ 完成形の方向性モック（RimWorld のポーン詳細を参照）。実装中のUIとは異なる。</div>
+</div>
+
+<script>
+// attributes: STR/SEN/DEX/AGI/VIT/DEF  (base, mod)
+const attrs=[
+  {k:"STR", nm:"筋力", base:62, mod:14, col:"var(--str)"},
+  {k:"SEN", nm:"感覚", base:28, mod:2, col:"var(--sen)"},
+  {k:"DEX", nm:"器用", base:35, mod:-4, col:"var(--dex)"},
+  {k:"AGI", nm:"敏捷", base:30, mod:-8, col:"var(--agi)"},
+  {k:"VIT", nm:"耐久", base:58, mod:10, col:"var(--vit)"},
+  {k:"DEF", nm:"防御", base:22, mod:20, col:"var(--def)"},
+];
+const A=document.getElementById('attrs'); const AMAX=100;
+attrs.forEach(a=>{
+  const total=a.base+a.mod; const bw=Math.min(100,a.base/AMAX*100); const mw=Math.min(100-bw, Math.abs(a.mod)/AMAX*100);
+  const modtxt=(a.mod>=0?"+":"")+a.mod;
+  A.insertAdjacentHTML('beforeend',`
+    <div class="attr">
+      <span class="ab" style="background:${a.col}">${a.k}</span>
+      <span class="nm">${a.nm}</span>
+      <span class="track"><i style="width:${bw}%;background:${a.col}"></i>
+        <span class="mod" style="left:${bw}%;width:${mw}%;background:${a.col}"></span></span>
+      <span class="num">${a.base} <span style="color:${a.mod>=0?'var(--agi)':'var(--hplow)'}">${modtxt}</span> = <b>${total}</b></span>
+    </div>`);
+});
+// skills: name, lv, exp%, passion (2 hi,1 mid,0 lo)
+const skills=[
+  ["剣術",12,72,2],["受け / 盾",11,40,2],["重装",9,88,1],["格闘",6,20,1],
+  ["射撃",2,10,0],["回避",4,55,0],["応急手当",3,30,1],["運搬",5,60,0],
+  ["探索",4,15,0],["解体",2,45,0],
+];
+const S=document.getElementById('skills');
+skills.forEach(([nm,lv,ex,pa])=>{
+  const pc=pa===2?'<span class="pa hi">◆◆</span>':pa===1?'<span class="pa mid">◆</span>':'<span class="pa lo">·</span>';
+  S.insertAdjacentHTML('beforeend',`
+    <div class="sk"><span class="snm">${nm}</span><span class="lv">Lv${lv}</span>
+      <span class="exp"><i style="width:${ex}%"></i></span>${pc}</div>`);
+});
+// implants: body part, name, power draw (kW), or empty
+const imp=[
+  ["頭","戦術演算コア","0.9"],
+  ["胸","高出力動力炉 II","—炉—"],
+  ["両腕","油圧補強アーム","2.4"],
+  ["背","排熱・冷却機構","1.6"],
+  ["脚","緩衝サスペンション","1.2"],
+  ["神経","痛覚遮断ユニット","1.1"],
+  ["予備","",""],
+];
+const I=document.getElementById('implants');
+imp.forEach(([bp,nm,pw])=>{
+  if(!nm){ I.insertAdjacentHTML('beforeend',`<div class="slotline"><span class="bp">${bp}</span><div class="it empty"><span>空き（動力に余裕なし）</span><span class="pw free">—</span></div></div>`); return;}
+  const isReactor = pw==="—炉—";
+  I.insertAdjacentHTML('beforeend',`
+    <div class="slotline"><span class="bp">${bp}</span>
+      <div class="it"><span>${nm}</span><span class="pw ${isReactor?'free':''}">${isReactor?'供給源':pw+' kW'}</span></div></div>`);
+});
+</script>
+</body>
+</html>

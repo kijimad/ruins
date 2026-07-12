@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 完成形ゲーム画面（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675;
+    --hp:#57c06a; --hplow:#e0574a; --ap:#5fd0ff;
+    --ally:#7fd6ff; --leader:#ffd35c; --enemy:#ff5b57; --neutral:#b98cff;
+    --food:#8fd14f; --power:#ffd35c; --weight:#c08a5a; --temp:#5fb6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace; color:var(--ink); -webkit-font-smoothing:antialiased;}
+  .screen{width:1280px; height:800px; margin:0 auto; background:var(--bg); position:relative; overflow:hidden;
+    display:grid; grid-template-columns:236px 1fr 236px; grid-template-rows:26px 1fr 150px;
+    grid-template-areas:"top top top" "left map right" "left log right";}
+  /* top status strip */
+  .top{grid-area:top; display:flex; align-items:center; gap:16px; padding:0 12px; background:var(--panel2); border-bottom:1px solid var(--line); font-size:12px;}
+  .top .b{color:var(--gold);} .top .s{color:var(--ink2);}
+  .top .depth{color:var(--crystal); font-weight:bold;}
+  .top .right{margin-left:auto; color:var(--ink2);}
+  /* panels */
+  .panel{background:var(--panel); overflow:hidden;}
+  .left{grid-area:left; border-right:1px solid var(--line); display:flex; flex-direction:column;}
+  .right{grid-area:right; border-left:1px solid var(--line); display:flex; flex-direction:column;}
+  .ph{font-size:11px; letter-spacing:2px; color:var(--ink2); padding:8px 10px 6px; border-bottom:1px solid var(--line); text-transform:uppercase;}
+  /* squad */
+  .squad{overflow:auto;}
+  .mem{padding:8px 10px; border-bottom:1px solid #1b232c; position:relative;}
+  .mem.leader{background:linear-gradient(90deg, rgba(255,211,92,.09), transparent);}
+  .mem .top2{display:flex; align-items:center; gap:7px;}
+  .tok{width:16px;height:16px;border-radius:3px;flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;color:#08111a;}
+  .mem .nm{font-size:12px;color:#dce7f0;} .mem .cl{font-size:10px;color:var(--ink2);margin-left:auto;}
+  .bar{height:7px;border-radius:2px;background:#0a1119;margin-top:6px;overflow:hidden;box-shadow:inset 0 0 0 1px #05090d;}
+  .bar > i{display:block;height:100%;}
+  .mem .stat{font-size:10px;color:var(--ink2);margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;}
+  .pill{background:#1e2a35;color:#9fd0e6;border-radius:2px;padding:1px 5px;font-size:9px;}
+  .pill.warn{background:#3a2320;color:#ffb0a6;} .pill.pol{background:#20302a;color:#a8e0b8;}
+  /* right: logistics */
+  .gauge{padding:9px 10px;border-bottom:1px solid #1b232c;}
+  .gauge .lab{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;}
+  .gauge .lab b{color:#dce7f0;font-weight:normal;} .gauge .lab span{color:var(--ink2);}
+  .gauge.crit .lab span{color:var(--hplow);}
+  .mini{padding:10px;border-bottom:1px solid var(--line);}
+  .mini .box{width:100%;aspect-ratio:1/1;background:#070b10;border:1px solid #223140;border-radius:3px;position:relative;overflow:hidden;}
+  .dot{position:absolute;width:5px;height:5px;border-radius:50%;transform:translate(-50%,-50%);}
+  .mini .exp{position:absolute;background:rgba(95,208,255,.06);}
+  .legend{padding:8px 10px;font-size:10px;color:var(--ink2);line-height:1.7;}
+  .legend .k{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
+  /* map */
+  .map{grid-area:map; position:relative; background:#070a0e; overflow:hidden;}
+  #grid{position:absolute; inset:0;}
+  .cell{position:absolute;}
+  .ent{position:absolute; display:flex; align-items:center; justify-content:center; font-size:15px; transform:translate(-50%,-50%); z-index:5; text-shadow:0 1px 2px #000;}
+  .ent .ring{position:absolute; width:26px;height:26px;border-radius:50%;}
+  .name-tag{position:absolute; transform:translate(-50%,-140%); font-size:9px; color:#dfeaf2; background:rgba(6,10,14,.75); padding:0 3px; border-radius:2px; white-space:nowrap; z-index:6;}
+  .fog{position:absolute; inset:0; z-index:8; pointer-events:none;}
+  .maplabel{position:absolute; left:12px; bottom:10px; z-index:9; font-size:11px; color:var(--ink2); background:rgba(6,10,14,.6); padding:3px 8px; border-radius:3px;}
+  .turnpill{position:absolute; right:12px; top:10px; z-index:9; background:rgba(6,10,14,.72); border:1px solid var(--line); border-radius:4px; padding:5px 10px; font-size:11px;}
+  .turnpill b{color:var(--gold);} .turnpill .ap{color:var(--ap);}
+  /* bottom: log + hotbar */
+  .log{grid-area:log; background:var(--panel2); border-top:1px solid var(--line); display:grid; grid-template-columns:1fr 360px;}
+  .msg{padding:8px 12px; overflow:hidden; font-size:12px; line-height:1.55;}
+  .msg .l{color:var(--ink2);} .msg .a{color:var(--ally);} .msg .e{color:var(--enemy);} .msg .g{color:var(--gold);} .msg .c{color:var(--crystal);}
+  .hot{border-left:1px solid var(--line); padding:8px 10px;}
+  .hot .row{display:flex; gap:6px;}
+  .slot{flex:1; aspect-ratio:1/1; background:#0d141c; border:1px solid #233240; border-radius:4px; position:relative; display:flex; align-items:center; justify-content:center; font-size:18px;}
+  .slot.sel{border-color:var(--gold); box-shadow:0 0 0 1px var(--gold), 0 0 10px rgba(229,198,117,.35);}
+  .slot .n{position:absolute; top:1px; left:3px; font-size:9px; color:var(--ink2);}
+  .slot .ammo{position:absolute; bottom:1px; right:3px; font-size:9px; color:var(--crystal);}
+  .apbar{margin-top:8px;}
+  .apbar .lab{display:flex; justify-content:space-between; font-size:10px; color:var(--ink2); margin-bottom:4px;}
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <!-- TOP STATUS -->
+  <div class="top">
+    <span class="b">◆ RUINS</span>
+    <span class="depth">遺跡: 凍晶洞 &nbsp;B4F</span>
+    <span class="s">|</span>
+    <span>ターン <b style="color:#dce7f0">128</b></span>
+    <span class="s">経過時間 03:12</span>
+    <span class="right">隊 5 / 生存 5 &nbsp;·&nbsp; 所持金 <span style="color:var(--gold)">1,240</span></span>
+  </div>
+
+  <!-- LEFT: SQUAD -->
+  <div class="panel left">
+    <div class="ph">隊員 &nbsp;SQUAD</div>
+    <div class="squad" id="squad"></div>
+  </div>
+
+  <!-- CENTER: MAP -->
+  <div class="map">
+    <div id="grid"></div>
+    <div class="fog" id="fog"></div>
+    <div class="turnpill">PLAYER PHASE &nbsp;· AP <b class="ap">240</b>/300</div>
+    <div class="maplabel">▲ リーダーが未踏の闇を拓く。拓地では隊員が自律行動する</div>
+  </div>
+
+  <!-- RIGHT: LOGISTICS + MINIMAP -->
+  <div class="panel right">
+    <div class="ph">兵站 &nbsp;LOGISTICS</div>
+    <div id="gauges"></div>
+    <div class="ph">ミニマップ</div>
+    <div class="mini">
+      <div class="box" id="mini"></div>
+    </div>
+    <div class="legend">
+      <div><span class="k" style="background:var(--leader)"></span>リーダー &nbsp; <span class="k" style="background:var(--ally)"></span>隊員</div>
+      <div><span class="k" style="background:var(--enemy)"></span>敵 &nbsp; <span class="k" style="background:var(--neutral)"></span>中立 &nbsp; <span class="k" style="background:var(--crystal)"></span>資源</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: LOG + HOTBAR -->
+  <div class="log">
+    <div class="msg" id="msg"></div>
+    <div class="hot">
+      <div class="row">
+        <div class="slot sel"><span class="n">1</span>🗡️</div>
+        <div class="slot"><span class="n">2</span>🔫<span class="ammo">6</span></div>
+        <div class="slot"><span class="n">3</span>💥<span class="ammo">2</span></div>
+        <div class="slot"><span class="n">4</span>🔥<span class="ammo">3</span></div>
+        <div class="slot"><span class="n">5</span>💨<span class="ammo">1</span></div>
+      </div>
+      <div class="apbar">
+        <div class="lab"><span>行動ポイント (AP)</span><span>240 / 300</span></div>
+        <div class="bar"><i style="width:80%;background:linear-gradient(90deg,#2f7fa8,var(--ap))"></i></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- squad ----
+const squad = [
+  {n:"Ash", c:"リーダー", col:"var(--leader)", g:"◆", hp:78, max:100, leader:true, pol:["最前線","開拓"], st:[]},
+  {n:"Bran", c:"重装/近接", col:"var(--ally)", g:"B", hp:64, max:90, pol:["前衛","交戦"], st:["改造:動力炉"]},
+  {n:"Cira", c:"射撃手", col:"var(--ally)", g:"C", hp:52, max:70, pol:["後衛","回避"], st:[]},
+  {n:"Doe", c:"偵察/運搬", col:"var(--ally)", g:"D", hp:41, max:60, pol:["回収","分配"], st:["過積載"], warn:true},
+  {n:"Ell", c:"新兵", col:"var(--ally)", g:"E", hp:33, max:45, pol:["後衛","運搬"], st:["低体温"], warn:true},
+];
+const sq = document.getElementById('squad');
+squad.forEach(m=>{
+  const pct = Math.round(m.hp/m.max*100);
+  const hpcol = pct>50?"var(--hp)":(pct>25?"var(--gold)":"var(--hplow)");
+  const pills = (m.st||[]).map(s=>`<span class="pill warn">${s}</span>`).join("") +
+                (m.pol||[]).map(s=>`<span class="pill pol">${s}</span>`).join("");
+  sq.insertAdjacentHTML('beforeend', `
+   <div class="mem ${m.leader?'leader':''}">
+     <div class="top2"><span class="tok" style="background:${m.col}">${m.g}</span>
+       <span class="nm">${m.n}</span><span class="cl">${m.c}</span></div>
+     <div class="bar"><i style="width:${pct}%;background:${hpcol}"></i></div>
+     <div class="stat"><span style="color:${hpcol}">HP ${m.hp}/${m.max}</span> ${pills}</div>
+   </div>`);
+});
+
+// ---- logistics gauges ----
+const gauges = [
+  {k:"食料 Food", v:62, txt:"62%  (残 8ターン分)", col:"var(--food)"},
+  {k:"電力 Power", v:45, txt:"45%  炉出力 過負荷", col:"var(--power)", crit:true},
+  {k:"積載 Weight", v:88, txt:"88%  352 / 400", col:"var(--weight)", crit:true},
+  {k:"体温 Temp", v:34, txt:"低下中  焚火まで遠い", col:"var(--temp)", crit:true},
+];
+const gv = document.getElementById('gauges');
+gauges.forEach(g=>{
+  gv.insertAdjacentHTML('beforeend', `
+   <div class="gauge ${g.crit?'crit':''}">
+     <div class="lab"><b>${g.k}</b><span>${g.txt}</span></div>
+     <div class="bar"><i style="width:${g.v}%;background:${g.col}"></i></div>
+   </div>`);
+});
+
+// ---- map ----
+const COLS=26, ROWS=17, T=32;
+const grid=document.getElementById('grid');
+const W=COLS*T, H=ROWS*T;
+grid.style.width=W+"px"; grid.style.height=H+"px";
+// tiles: 0 floor, 1 wall
+function mk(){const m=[];for(let y=0;y<ROWS;y++){m.push([]);for(let x=0;x<COLS;x++){
+  let wall = (x===0||y===0||x===COLS-1||y===ROWS-1)?1:0;
+  m[y][x]=wall;}}return m;}
+const map=mk();
+// a couple interior wall chunks
+[[6,4,3,2],[16,10,4,3],[10,12,2,2],[20,3,2,4]].forEach(([x,y,w,h])=>{
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++) if(map[y+j]&&map[y+j][x+i]!==undefined) map[y+j][x+i]=1;});
+// render tiles
+for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+  const wall=map[y][x];
+  const c=document.createElement('div'); c.className='cell';
+  c.style.left=x*T+'px'; c.style.top=y*T+'px'; c.style.width=T+'px'; c.style.height=T+'px';
+  if(wall){ c.style.background='#232c36'; c.style.boxShadow='inset 0 0 0 1px #2d3944, inset 0 -4px 6px rgba(0,0,0,.5)'; }
+  else { const shade = ((x*7+y*13)%5); c.style.background = ['#141b22','#161d25','#131a21','#171e26','#151c23'][shade];
+    c.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,.015)'; }
+  grid.appendChild(c);
+}
+// entities
+const leader={x:12,y:9};
+const ents=[
+  {...leader, g:"◆", col:"var(--leader)", nm:"Ash", ring:"rgba(255,211,92,.18)"},
+  {x:11,y:8, g:"B", col:"var(--ally)", nm:"Bran"},
+  {x:13,y:10, g:"C", col:"var(--ally)"},
+  {x:10,y:10, g:"D", col:"var(--ally)", nm:"Doe▪運搬"},
+  {x:11,y:11, g:"E", col:"var(--ally)"},
+  {x:18,y:6, g:"e", col:"var(--enemy)", nm:"火の玉"},
+  {x:19,y:8, g:"e", col:"var(--enemy)"},
+  {x:8,y:13, g:"e", col:"var(--enemy)"},
+  {x:22,y:12, g:"☻", col:"var(--neutral)", nm:"行商人"},
+  // resources / props
+  {x:15,y:9, g:"❄", col:"var(--crystal)", nm:"凍晶×3"},
+  {x:9,y:6, g:"❄", col:"var(--crystal)"},
+  {x:20,y:14, g:"❄", col:"var(--crystal)"},
+  {x:14,y:12, g:"▮", col:"#c08a5a", nm:"物資箱"},
+  {x:7,y:11, g:"▮", col:"#c08a5a"},
+  {x:12,y:13, g:"🔥", col:"var(--fire)", nm:"焚火"},
+  {x:13,y:6, g:"◘", col:"#9fb0bd"},
+  {x:24,y:2, g:"⌂", col:"var(--crystal)", nm:"次階ポータル"},
+];
+function place(e){
+  const el=document.createElement('div'); el.className='ent';
+  el.style.left=(e.x*T+T/2)+'px'; el.style.top=(e.y*T+T/2)+'px';
+  el.style.color=e.col;
+  if(e.ring){const r=document.createElement('div');r.className='ring';r.style.background=e.ring;el.appendChild(r);}
+  el.insertAdjacentHTML('beforeend', `<span>${e.g}</span>`);
+  grid.appendChild(el);
+  if(e.nm){const t=document.createElement('div');t.className='name-tag';
+    t.style.left=(e.x*T+T/2)+'px'; t.style.top=(e.y*T+T/2)+'px'; t.textContent=e.nm; grid.appendChild(t);}
+}
+ents.forEach(place);
+// fog of war: bright around leader, dim explored, black unknown
+const fog=document.getElementById('fog');
+const cx=leader.x*T+T/2, cy=leader.y*T+T/2;
+fog.style.background =
+  `radial-gradient(circle 150px at ${cx}px ${cy}px, rgba(0,0,0,0) 55%, rgba(4,7,10,.55) 100%),`+
+  `radial-gradient(circle 300px at ${cx}px ${cy}px, rgba(4,7,10,0) 60%, rgba(3,5,8,.9) 100%)`;
+// a soft warm light from campfire
+const fx=12*T+T/2, fy=13*T+T/2;
+const warm=document.createElement('div'); warm.className='fog';
+warm.style.zIndex=2; warm.style.background=`radial-gradient(circle 90px at ${fx}px ${fy}px, rgba(255,157,60,.16), rgba(255,157,60,0) 70%)`;
+grid.appendChild(warm);
+
+// ---- minimap ----
+const mini=document.getElementById('mini');
+setTimeout(()=>{ // after layout
+  const bw=mini.clientWidth, bh=mini.clientHeight;
+  // explored patch
+  const ex=document.createElement('div'); ex.className='exp';
+  ex.style.left=(6/COLS*bw)+'px'; ex.style.top=(4/ROWS*bh)+'px';
+  ex.style.width=(15/COLS*bw)+'px'; ex.style.height=(10/ROWS*bh)+'px'; ex.style.borderRadius='40%';
+  mini.appendChild(ex);
+  const md=[[12,9,"var(--leader)"],[11,8,"var(--ally)"],[13,10,"var(--ally)"],[10,10,"var(--ally)"],[11,11,"var(--ally)"],
+    [18,6,"var(--enemy)"],[19,8,"var(--enemy)"],[8,13,"var(--enemy)"],[22,12,"var(--neutral)"],
+    [15,9,"var(--crystal)"],[9,6,"var(--crystal)"],[24,2,"var(--crystal)"]];
+  md.forEach(([x,y,c])=>{const d=document.createElement('div');d.className='dot';
+    d.style.left=(x/COLS*bw)+'px'; d.style.top=(y/ROWS*bh)+'px'; d.style.background=c; mini.appendChild(d);});
+},0);
+
+// ---- message log ----
+const msgs=[
+  ['l','[T128] '],['c','Cira が 火の玉 に射撃。'],['l','命中 24。'],['\n'],
+  ['l','[T128] '],['a','Doe'],['l',' が 凍晶×3 を回収し、'],['a','Ash'],['l',' のバックパックへ運搬。'],['\n'],
+  ['l','[T127] '],['e','火の玉'],['l',' が接近。'],['a','Bran'],['l',' が前衛で受け止めた。'],['\n'],
+  ['l','[T127] '],['g','警告: '],['l','積載 88% — これ以上は移動APが増加する。'],['\n'],
+  ['l','[T126] '],['g','警告: '],['l','Ell が低体温。焚火で暖を取るか装備を見直せ。'],['\n'],
+];
+const msg=document.getElementById('msg');
+msgs.forEach(([c,t])=>{ if(c==='\n'){msg.appendChild(document.createElement('br'));return;}
+  const s=document.createElement('span'); s.className=c; s.textContent=t; msg.appendChild(s);});
+</script>
+</body>
+</html>

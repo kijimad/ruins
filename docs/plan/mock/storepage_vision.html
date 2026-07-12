@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — Store Page (Vision)</title>
+<style>
+  :root{
+    --bg:#1b2838; --bg2:#16202d; --panel:#16202d; --ink:#c7d5e0; --ink2:#8f98a0;
+    --accent:#66c0f4; --accent2:#417a9b; --green:#5c7e10; --greenl:#a4d007;
+    --chip:#2a3f5a; --gold:#e5c675;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:#0e1620; color:var(--ink); font-family:"Motiva Sans","Segoe UI","Hiragino Sans","Noto Sans JP",Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .page{width:1000px; margin:0 auto; background:linear-gradient(180deg,#1b2838 0%, #16202d 100%);}
+  /* top identity bar */
+  .breadcrumb{font-size:12px; color:var(--ink2); padding:14px 24px 4px;}
+  .breadcrumb a{color:var(--accent2); text-decoration:none;}
+  .title{font-size:30px; font-weight:700; color:#fff; padding:2px 24px 12px; letter-spacing:.5px;}
+  /* hero split */
+  .hero{display:flex; gap:14px; padding:0 24px 18px;}
+  .hero-main{width:616px;}
+  .hero-shot{width:616px; height:346px; border-radius:4px; overflow:hidden; position:relative; box-shadow:0 0 0 1px #000;}
+  .hero-shot img{width:100%; height:100%; object-fit:cover; display:block;}
+  .hero-logo{position:absolute; left:0; bottom:0; right:0; padding:22px 20px 16px;
+    background:linear-gradient(0deg, rgba(8,12,18,.92) 0%, rgba(8,12,18,0) 100%);}
+  .hero-logo h1{font-size:52px; font-weight:800; color:#eaf3fb; letter-spacing:8px; text-shadow:0 2px 14px #000, 0 0 26px rgba(102,192,244,.35);}
+  .hero-logo .sub{font-size:15px; color:var(--gold); margin-top:4px; letter-spacing:.5px;}
+  .thumbs{display:flex; gap:7px; margin-top:8px;}
+  .thumbs img{width:118px; height:66px; object-fit:cover; border-radius:2px; opacity:.7; box-shadow:0 0 0 1px #000;}
+  .thumbs img.active{opacity:1; outline:2px solid var(--accent);}
+  /* right column */
+  .aside{width:324px;}
+  .cap{width:100%; height:150px; object-fit:cover; border-radius:3px; box-shadow:0 0 0 1px #000;}
+  .short{font-size:13px; line-height:1.5; color:var(--ink); margin:12px 2px;}
+  .meta{font-size:12px; color:var(--ink2); border-top:1px solid #000; margin-top:10px;}
+  .meta .row{display:flex; padding:7px 2px; border-bottom:1px solid rgba(0,0,0,.35);}
+  .meta .k{width:96px; color:var(--ink2);} .meta .v{color:var(--accent2);}
+  .tags{margin:14px 0 2px;}
+  .tags .lbl{font-size:12px; color:var(--ink2); margin-bottom:7px;}
+  .chip{display:inline-block; background:var(--chip); color:#cfe0f0; font-size:11px; padding:5px 10px; border-radius:3px; margin:0 5px 6px 0;}
+  .chip.hot{background:#3a5a2a; color:#cfe9a8;}
+  /* section */
+  .sec{padding:20px 24px;}
+  .sec + .sec{border-top:1px solid rgba(0,0,0,.4);}
+  .sec h2{font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); border-bottom:1px solid var(--accent2); padding-bottom:8px; margin-bottom:14px;}
+  .lede{font-size:16px; line-height:1.7; color:#dfe9f2;}
+  .lede b{color:#fff;}
+  /* pillars */
+  .pillars{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;}
+  .pillar{background:#0f1a26; border:1px solid #24384f; border-radius:6px; padding:16px;}
+  .pillar .no{font-size:12px; color:var(--accent2); letter-spacing:1px;}
+  .pillar h3{font-size:16px; color:#eaf3fb; margin:4px 0 8px;}
+  .pillar p{font-size:13px; line-height:1.6; color:var(--ink);}
+  .pillar .dna{margin-top:9px; font-size:11px; color:var(--gold); letter-spacing:.3px;}
+  /* loop diagram */
+  .loop{display:flex; align-items:stretch; gap:0; margin-top:16px; background:#0f1a26; border:1px solid #24384f; border-radius:6px; overflow:hidden;}
+  .loop .step{flex:1; padding:14px 12px; text-align:center; position:relative;}
+  .loop .step + .step{border-left:1px solid #1c2c40;}
+  .loop .ic{font-size:22px;}
+  .loop .st{font-size:12px; color:#eaf3fb; margin-top:6px; font-weight:600;}
+  .loop .ds{font-size:11px; color:var(--ink2); margin-top:3px; line-height:1.4;}
+  /* features */
+  .feat{columns:2; column-gap:26px; margin-top:4px;}
+  .feat li{list-style:none; font-size:13px; line-height:1.5; color:var(--ink); padding:6px 0 6px 20px; position:relative; break-inside:avoid;}
+  .feat li::before{content:"▸"; color:var(--accent); position:absolute; left:0;}
+  .feat li b{color:#eaf3fb;}
+  /* screenshots row */
+  .shots{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;}
+  .shots figure{border:1px solid #000; border-radius:4px; overflow:hidden; background:#000;}
+  .shots img{width:100%; height:196px; object-fit:cover; display:block;}
+  .shots figcaption{font-size:11px; color:var(--ink2); padding:7px 10px; background:#0f1a26;}
+  /* references */
+  .refs{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;}
+  .ref{background:#0f1a26; border:1px solid #24384f; border-radius:5px; padding:9px 12px; font-size:12px; color:var(--ink);}
+  .ref b{color:var(--accent);}
+  .foot{padding:16px 24px 30px; font-size:11px; color:var(--ink2);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="breadcrumb"><a href="#">All Games</a> › <a href="#">Roguelike</a> › <a href="#">Colony Sim</a> › <a href="#">RUINS</a></div>
+  <div class="title">RUINS</div>
+
+  <div class="hero">
+    <div class="hero-main">
+      <div class="hero-shot">
+        <img src="file:///home/violet/Project/ruins/docs/steam/generated/master_3840x2560.png" alt="hero">
+        <div class="hero-logo">
+          <h1>RUINS</h1>
+          <div class="sub">隊を率いる兵站ローグライク ―― 先頭で闇を拓き、後方が戦利品を運ぶ</div>
+        </div>
+      </div>
+      <div class="thumbs">
+        <img class="active" src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_fp_0_seed7.png">
+        <img src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_topdown_2_seed55.png">
+        <img src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_forest_0_seed88.png">
+        <img src="file:///home/violet/Project/ruins/docs/steam/generated/master_cand0_seed123.png">
+        <img src="file:///home/violet/Project/ruins/docs/steam/generated/master_3840x2560.png">
+      </div>
+    </div>
+
+    <div class="aside">
+      <img class="cap" src="file:///home/violet/Project/ruins/docs/steam/generated/main_capsule.png" alt="capsule">
+      <div class="short">
+        古代遺跡に<b>隊</b>を率いて潜る、ターン制の<b>兵站ローグライク</b>。
+        あなたは先頭で未踏の闇を切り拓き、隊員は拓かれた領域で自律的に戦い・回収し・運ぶ。
+        <b>1人増やすたびに火力も、養う口も増える。</b>
+      </div>
+      <div class="meta">
+        <div class="row"><span class="k">ジャンル</span><span class="v">Roguelike, Colony Sim, 兵站/資源管理</span></div>
+        <div class="row"><span class="k">プレイ人数</span><span class="k" style="color:var(--ink)">シングルプレイ</span></div>
+        <div class="row"><span class="k">視点</span><span class="k" style="color:var(--ink)">1人称探索 + ミニマップ指揮</span></div>
+        <div class="row"><span class="k">系譜</span><span class="v">RimWorld × Factorio × Kenshi</span></div>
+      </div>
+      <div class="tags">
+        <div class="lbl">このゲームの人気タグ</div>
+        <span class="chip hot">Roguelike</span><span class="chip hot">Colony Sim</span><span class="chip hot">Party-Based</span>
+        <span class="chip">Resource Management</span><span class="chip">Logistics</span><span class="chip">Turn-Based Tactics</span>
+        <span class="chip">Permadeath</span><span class="chip">Base Building</span><span class="chip">Automation</span>
+        <span class="chip">Survival</span><span class="chip">Pixel Graphics</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>About This Game</h2>
+    <p class="lede">
+      <b>RUINS は「英雄」ではなく「隊」を動かすローグライクだ。</b>
+      あなたはリーダーとして最前線に立ち、誰も見たことのない暗闇を一歩ずつ拓く。
+      背後では、あなたが拓いた領域だけを、雇った隊員たちがポリシーに従って自律的に動く ――
+      敵を討ち、資源を剥ぎ、戦利品を担いで運ぶ。<br><br>
+      ゲームの本当の敵は、モンスターではなく<b>兵站</b>だ。食料、動力炉の燃料、そして運べる重量。
+      10人を連れれば火力は増すが物資は尽き、3人の精鋭は1人の死で崩壊する。
+      <b>「何人連れていくか」そのものが、最大のビルド判断になる。</b>
+    </p>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="no">PILLAR 01</div>
+        <h3>隊を指揮する、直接操作しない</h3>
+        <p>先頭で闇を拓くのはあなた。拓かれた領域では隊員がポリシー（前衛/後衛・交戦/回避・回収/運搬/分解）に従って自律行動する。命令は方針で与え、群れとして機能させる。</p>
+        <div class="dna">◈ RimWorld の間接指揮 DNA</div>
+      </div>
+      <div class="pillar">
+        <div class="no">PILLAR 02</div>
+        <h3>兵站がゲームになる</h3>
+        <p>食料・燃料・重量が本当の上限。深く潜るほど帰り道の物資が細る。運搬役に戦利品を託し、重量制約が持ち帰り量の自然な壁になる。補給線の設計そのものが遊び。</p>
+        <div class="dna">◈ Factorio / Kenshi の補給線 DNA</div>
+      </div>
+      <div class="pillar">
+        <div class="no">PILLAR 03</div>
+        <h3>全パーツが同じ電力を奪い合う</h3>
+        <p>サイボーグ内蔵パーツは一つの動力を共有する。全部は積めない。内蔵（強化）と装備（外付け）の2層で、近接特化・射撃手・偵察・荷物持ちと役割を設計する。</p>
+        <div class="dna">◈ トレードオフ設計 / Kerbal 的リソース配分</div>
+      </div>
+      <div class="pillar">
+        <div class="no">PILLAR 04</div>
+        <h3>死は永続、判断はあなたの</h3>
+        <p>失った隊員は、積み上げた改造投資とスキルの歴史ごと消える。もう1階潜れば報酬は増える ―― 物資が保つうちに引くか、火力を信じて押すか。毎ランのこの一手が核心。</p>
+        <div class="dna">◈ Darkest Dungeon / Risk of Rain の喪失と加速</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>The Core Loop</h2>
+    <div class="loop">
+      <div class="step"><div class="ic">🏚️</div><div class="st">編成</div><div class="ds">酒場で雇い、改造と装備で役割を設計</div></div>
+      <div class="step"><div class="ic">🔦</div><div class="st">開拓</div><div class="ds">リーダーが先頭で未踏の闇を拓く</div></div>
+      <div class="step"><div class="ic">⚙️</div><div class="st">自律作業</div><div class="ds">隊員が拓地で戦闘・回収・運搬</div></div>
+      <div class="step"><div class="ic">📦</div><div class="st">兵站判断</div><div class="ds">食料・燃料・重量を睨み進退を決める</div></div>
+      <div class="step"><div class="ic">🏛️</div><div class="st">帰還と蓄積</div><div class="ds">売却・保管・強化。スキルは永続成長</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Features</h2>
+    <ul class="feat">
+      <li><b>ターン制の隊ローグライク</b> ―― 2〜10人の自律NPCを率いる</li>
+      <li><b>兵站サバイバル</b> ―― 食料・動力炉燃料・重量が本当の制約</li>
+      <li><b>間接指揮AI</b> ―― 前衛/後衛・交戦/回避・回収/運搬/分解のポリシー</li>
+      <li><b>2層ビルド</b> ―― サイボーグ内蔵（電力共有）＋外付け装備</li>
+      <li><b>使用ベース成長</b> ―― 隊員ごとにスキルが永続的に育つ</li>
+      <li><b>維持コストの葛藤</b> ―― 多ければ火力、多ければ物資が尽きる</li>
+      <li><b>永続死</b> ―― 育てた隊員と改造投資を失う緊張</li>
+      <li><b>手続き生成の多層遺跡</b> ―― 1人称の開拓＋ミニマップ指揮</li>
+      <li><b>拠点経済</b> ―― 雇用・売買・保管・強化をランの合間に</li>
+      <li><b>ピクセルアートの凍てつく遺跡</b> ―― 青き氷晶と焚き火の温度</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2>Screenshots — 完成形イメージ</h2>
+    <div class="shots">
+      <figure><img src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_fp_0_seed7.png"><figcaption>リーダーの探索視点 ―― 松明の届く先だけが安全。奥の扉が次階への入口</figcaption></figure>
+      <figure><img src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_topdown_2_seed55.png"><figcaption>戦術ビュー ―― 拓地で隊員が自律行動。氷晶の脈が地形を分断する</figcaption></figure>
+      <figure><img src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_fp_1_seed42.png"><figcaption>凍てつく回廊 ―― 体温と灯りを管理しながら前進する</figcaption></figure>
+      <figure><img src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_forest_0_seed88.png"><figcaption>バイオーム差 ―― 森の遺跡では補給と危険の設計が変わる</figcaption></figure>
+      <figure><img src="file:///home/violet/Project/ruins/docs/steam/generated/gameplay_topdown_0_seed11.png"><figcaption>回収と運搬 ―― 散在する物資を隊員が拾い、担いで運ぶ</figcaption></figure>
+      <figure><img src="file:///home/violet/Project/ruins/docs/steam/generated/master_cand0_seed123.png"><figcaption>前線キャンプ ―― 焚き火・物資箱・背嚢で兵站の拠点を築く</figcaption></figure>
+    </div>
+    <p class="foot" style="padding:12px 0 0;">※ 上記は完成形の方向性を示すイメージ（AI生成コンセプト）。実装中の描画とは異なる。</p>
+  </div>
+
+  <div class="sec">
+    <h2>Design DNA — 系譜</h2>
+    <div class="refs">
+      <div class="ref"><b>RimWorld</b> — 複数キャラの間接指揮・使用ベース成長・喪失の重み</div>
+      <div class="ref"><b>Factorio</b> — 補給線と物流こそが遊びの核</div>
+      <div class="ref"><b>Kenshi</b> — 英雄なき隊の生存、非情な世界</div>
+      <div class="ref"><b>Kerbal Space Program</b> — 制約下のリソース配分の手触り</div>
+      <div class="ref"><b>Risk of Rain 2</b> — 潜るほど強大化するリスクと加速</div>
+      <div class="ref"><b>Cities: Skylines II</b> — 系としてのシミュレーション</div>
+    </div>
+    <p class="foot">Vision board — 複数NPCローグライク × シミュレーション × 資源管理 × 兵站。方向性確定用モック。既存キービジュアル・実ゲーム描画frameを使用。</p>
+  </div>
+
+</div>
+</body>
+</html>
