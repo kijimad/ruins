@@ -224,11 +224,6 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.Pixel], r
 			tileX := playerTileX + dx
 			tileY := playerTileY + dy
 
-			// 早期距離チェック（枝払い）
-			if geometry.Abs(dx) > maxTileDistance || geometry.Abs(dy) > maxTileDistance {
-				continue
-			}
-
 			// タイルの中心座標を計算
 			tileCenterX := float64(tileX*int(consts.TileSize) + int(consts.TileSize)/2)
 			tileCenterY := float64(tileY*int(consts.TileSize) + int(consts.TileSize)/2)
