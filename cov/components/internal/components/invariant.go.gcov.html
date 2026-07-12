@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 10:21:22</td>
+            <td class="headerValue">2026-07-12 14:37:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -209,13 +209,13 @@
 <span id="L147"><span class="lineNum">     147</span>              : </span>
 <span id="L148"><span class="lineNum">     148</span>              : // has は Components のフィールド名を自動解決して Has を生成する。</span>
 <span id="L149"><span class="lineNum">     149</span>              : // Map ハンドルのポインタ同一性でフィールドを特定する</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         724 : func (c *Components) has(comp hasser) Has {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         724 :         val := reflect.ValueOf(c).Elem()</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         724 :         typ := val.Type()</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       15841 :         for i := range val.NumField() {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       15842 :                 if val.Field(i).Interface() == comp {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         725 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">         725 :                 }</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         726 : func (c *Components) has(comp hasser) Has {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         726 :         val := reflect.ValueOf(c).Elem()</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         726 :         typ := val.Type()</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       17094 :         for i := range val.NumField() {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       17094 :                 if val.Field(i).Interface() == comp {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         726 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">         726 :                 }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              :         }</span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;component not found in Components&quot;)</span></span>
 <span id="L159"><span class="lineNum">     159</span>              : }</span>
@@ -266,8 +266,8 @@
 <span id="L204"><span class="lineNum">     204</span>              : // リフレクションでフィールドの nil 判定を行う</span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">          10 : func (c *Components) CategoryOfSpec(key CategoryGroupKey, spec *EntitySpec) (string, bool) {</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          10 :         specVal := reflect.ValueOf(spec).Elem()</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          59 :         for _, cat := range c.Categories()[key] {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          58 :                 if evalPredSpec(cat.Pred, specVal) {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          60 :         for _, cat := range c.Categories()[key] {</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          59 :                 if evalPredSpec(cat.Pred, specVal) {</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           9 :                         return cat.Name, true</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           9 :                 }</span></span>
 <span id="L211"><span class="lineNum">     211</span>              :         }</span>
@@ -275,11 +275,11 @@
 <span id="L213"><span class="lineNum">     213</span>              : }</span>
 <span id="L214"><span class="lineNum">     214</span>              : </span>
 <span id="L215"><span class="lineNum">     215</span>              : // evalPredSpec は Pred を EntitySpec のリフレクション値に対して評価する</span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          49 : func evalPredSpec(pred Pred, specVal reflect.Value) bool {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          49 :         switch p := pred.(type) {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          49 :         case Has:</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          49 :                 field := specVal.FieldByName(p.Label)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">          49 :                 if !field.IsValid() {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          50 : func evalPredSpec(pred Pred, specVal reflect.Value) bool {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          50 :         switch p := pred.(type) {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          50 :         case Has:</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          50 :                 field := specVal.FieldByName(p.Label)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">          50 :                 if !field.IsValid() {</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                         return false</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L223"><span class="lineNum">     223</span>              :                 // ポインタ型のフィールドのみ nil 判定する。値型フィールドは常に「存在する」とみなす</span>

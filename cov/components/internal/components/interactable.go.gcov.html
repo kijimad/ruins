@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 10:21:22</td>
+            <td class="headerValue">2026-07-12 14:37:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -116,8 +116,8 @@
 <span id="L54"><span class="lineNum">      54</span>              : )</span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
 <span id="L56"><span class="lineNum">      56</span>              : // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値を返す</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">          19 : func (k InteractionKind) Config() InteractionConfig {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">          19 :         switch k {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">          20 : func (k InteractionKind) Config() InteractionConfig {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">          20 :         switch k {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           9 :         case InteractionPortalNext, InteractionPortalTown, InteractionDungeonGate, InteractionItem, InteractionItemAll:</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           9 :                 return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           6 :         case InteractionDoor, InteractionTalk, InteractionMelee:</span></span>

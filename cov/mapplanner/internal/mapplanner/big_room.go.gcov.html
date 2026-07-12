@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 10:21:22</td>
+            <td class="headerValue">2026-07-12 14:37:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -128,10 +128,10 @@
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          88 :         for _, room := range planData.Rooms {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">          44 :                 // 部屋の内部を床タイルで埋める</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">        1844 :                 for x := room.X1; x &lt;= room.X2; x++ {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">       83313 :                         for y := room.Y1; y &lt;= room.Y2; y++ {</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">       81513 :                                 idx := planData.Level.XYTileIndex(x, y)</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">       81513 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">       81513 :                         }</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">       83593 :                         for y := room.Y1; y &lt;= room.Y2; y++ {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">       81793 :                                 idx := planData.Level.XYTileIndex(x, y)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">       81793 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">       81793 :                         }</span></span>
 <span id="L73"><span class="lineNum">      73</span>              :                 }</span>
 <span id="L74"><span class="lineNum">      74</span>              : </span>
 <span id="L75"><span class="lineNum">      75</span>              :                 // 部屋の境界を壁で囲む</span>
@@ -252,19 +252,19 @@
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">          11 :                 platformSize := 2 + planData.RNG.IntN(3) // 2-4タイルの台座</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">          11 : </span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          11 :                 // 円形の台座を作成</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">          92 :                 for dx := -platformSize; dx &lt;= platformSize; dx++ {</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">         716 :                         for dy := -platformSize; dy &lt;= platformSize; dy++ {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">         635 :                                 distance := dx*dx + dy*dy</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">        1010 :                                 if distance &lt;= platformSize*platformSize {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">         375 :                                         x := centerX + dx</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">         375 :                                         y := centerY + dy</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">         375 :                                         if x &gt;= int(room.X1) &amp;&amp; x &lt;= int(room.X2) &amp;&amp;</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">         750 :                                                 y &gt;= int(room.Y1) &amp;&amp; y &lt;= int(room.Y2) {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         375 :                                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">         375 :                                                 // 外周は壁、内部は床のまま</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">         587 :                                                 if distance &gt;= (platformSize-1)*(platformSize-1) {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">         212 :                                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">         212 :                                                 }</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">          90 :                 for dx := -platformSize; dx &lt;= platformSize; dx++ {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">         682 :                         for dy := -platformSize; dy &lt;= platformSize; dy++ {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">         603 :                                 distance := dx*dx + dy*dy</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">         958 :                                 if distance &lt;= platformSize*platformSize {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">         355 :                                         x := centerX + dx</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">         355 :                                         y := centerY + dy</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">         355 :                                         if x &gt;= int(room.X1) &amp;&amp; x &lt;= int(room.X2) &amp;&amp;</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">         710 :                                                 y &gt;= int(room.Y1) &amp;&amp; y &lt;= int(room.Y2) {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         355 :                                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">         355 :                                                 // 外周は壁、内部は床のまま</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">         563 :                                                 if distance &gt;= (platformSize-1)*(platformSize-1) {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">         208 :                                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">         208 :                                                 }</span></span>
 <span id="L206"><span class="lineNum">     206</span>              :                                         }</span>
 <span id="L207"><span class="lineNum">     207</span>              :                                 }</span>
 <span id="L208"><span class="lineNum">     208</span>              :                         }</span>

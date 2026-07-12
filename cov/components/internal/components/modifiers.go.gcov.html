@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 10:21:22</td>
+            <td class="headerValue">2026-07-12 14:37:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -224,16 +224,16 @@
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">          13 :         e := &amp;CharModifiers{}</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">          13 :         src := make(map[ModifierKey][]ModifierSource)</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">          13 : </span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">         427 :         calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">         414 :                 v := skills.Get(skillID).Value</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">         414 :                 bonus := v * coeff</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">         414 :                 src[key] = append(src[key], ModifierSource{</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">         414 :                         Label: fmt.Sprintf(&quot;%s Lv%d&quot;, SkillName(skillID), v),</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">         414 :                         Value: bonus,</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">         414 :                 })</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">         414 : </span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">         414 :                 // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">         606 :                 if abils != nil {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">         429 :         calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">         416 :                 v := skills.Get(skillID).Value</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">         416 :                 bonus := v * coeff</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">         416 :                 src[key] = append(src[key], ModifierSource{</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">         416 :                         Label: fmt.Sprintf(&quot;%s Lv%d&quot;, SkillName(skillID), v),</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">         416 :                         Value: bonus,</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">         416 :                 })</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">         416 : </span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">         416 :                 // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">         608 :                 if abils != nil {</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">         192 :                         ablID := SkillAbilityID(skillID)</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">         192 :                         ablVal := abils.ValueOf(ablID)</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">         192 :                         ablCoeff := 1</span></span>
