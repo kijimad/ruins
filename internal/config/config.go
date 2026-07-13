@@ -41,8 +41,6 @@ type Config struct {
 	ShowAIDebug bool `env:"RUINS_SHOW_AI_DEBUG"`
 	// マップのデバッグ表示を有効にするかどうか
 	ShowMapDebug bool `env:"RUINS_SHOW_MAP_DEBUG"`
-	// マクロ移動(仮)のデバッグ入口をメインメニューに表示するかどうか
-	DebugMacroMap bool `env:"RUINS_DEBUG_MACROMAP"`
 	// エンカウントを無効化するかどうか
 	NoEncounter bool `env:"RUINS_NO_ENCOUNTER"`
 

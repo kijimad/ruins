@@ -133,6 +133,13 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
+		WithChoice("マクロ移動", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewMacroMapState},
+			})
+			return nil
+		}).
 		WithChoice("全ダンジョン踏破", func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
 				query.GetGameProgress(world).MarkDungeonCleared(name)
