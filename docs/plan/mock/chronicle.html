@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 年代記UI（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --power:#ffd35c;
+    --hp:#57c06a; --hpmid:#e5c675; --hplow:#e0574a; --ally:#7fd6ff;
+    --str:#e07a6a; --sen:#c79cf0; --dex:#6fd0c0; --agi:#8fd14f; --vit:#e0a85a; --def:#7fa8d6;
+    --grave:#5a6672; --living:#7fd6ff; --line-heir:#4a6a52;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace; color:var(--ink);}
+  .screen{width:1280px; min-height:800px; margin:0 auto; background:var(--bg); position:relative;
+    display:grid; grid-template-columns:24px 1fr 24px; grid-template-rows:26px 1fr 24px;}
+  .titlebar{grid-column:1/4; grid-row:1; background:var(--panel2); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; padding:0 12px; font-size:12px;}
+  .titlebar .b{color:var(--gold);} .titlebar .s{color:var(--ink2);}
+  .titlebar .right{margin-left:auto; color:var(--ink2);}
+  .wrap{grid-column:2; grid-row:2; padding:14px 0; display:grid; grid-template-columns:270px 1fr 330px; gap:14px;}
+  .col{display:flex; flex-direction:column; gap:12px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .ch{font-size:11px; letter-spacing:2px; color:var(--ink2); padding:8px 12px; border-bottom:1px solid var(--line); text-transform:uppercase; display:flex; justify-content:space-between;}
+  .ch .r{color:var(--dim); letter-spacing:0;}
+  .cb{padding:11px 12px;}
+  .tag{font-size:10px; background:#1e2a35; color:#9fd0e6; border-radius:3px; padding:2px 7px;}
+  .tag.g{background:#20302a; color:#a8e0b8;} .tag.w{background:#3a2320; color:#ffb0a6;}
+  .tag.d{background:#1a2028; color:var(--grave);}
+
+  /* ---- 一座の来歴（銘板） ---- */
+  .crest{display:flex; gap:12px; padding:12px;}
+  .seal{width:70px;height:82px;flex:none;border-radius:5px;background:
+    radial-gradient(circle at 50% 30%, #33404c 0%, #182430 62%, #0d141b 100%);
+    border:1px solid #2c3d4b; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:38px;}
+  .crest .nm{font-size:19px; color:#eaf3fb; letter-spacing:1px;}
+  .crest .cl{font-size:12px; color:var(--gold); margin-top:2px;}
+  .crest .sub{font-size:11px; color:var(--ink2); margin-top:8px; line-height:1.7;}
+  .crest .gen{color:var(--gold);}
+  .crest .tags{margin-top:8px; display:flex; gap:5px; flex-wrap:wrap;}
+
+  /* ---- 統計サマリ ---- */
+  .up{display:flex; justify-content:space-between; font-size:12px; margin:7px 0;}
+  .up .k{color:var(--ink2);} .up .v{color:#dce7f0;}
+  .up .v.gold{color:var(--gold);} .up .v.grave{color:var(--grave);} .up .v.live{color:var(--living);}
+
+  /* ---- 継承の一文（要の情緒） ---- */
+  .legacyquote{background:linear-gradient(180deg, rgba(229,198,117,.06), transparent);
+    border:1px solid #2f3a2f; border-radius:6px; padding:13px 14px; font-size:12px; line-height:1.85; color:#cdd9c8;}
+  .legacyquote .em{color:var(--gold);}
+  .legacyquote .gr{color:var(--grave);}
+  .legacyquote .li{color:var(--living);}
+  .legacyquote .sig{display:block; margin-top:8px; font-size:10px; color:var(--ink2); text-align:right;}
+
+  /* ---- 師弟の系譜ツリー ---- */
+  .tree{padding:6px 4px 14px;}
+  .gennode{margin-left:0;}
+  .lineage{position:relative; padding-left:20px;}
+  /* 縦の伝承線 */
+  .lineage::before{content:""; position:absolute; left:7px; top:0; bottom:14px; width:2px;
+    background:linear-gradient(180deg, var(--line-heir), #2a3540);}
+  .person{position:relative; display:flex; align-items:center; gap:10px; margin:9px 0; padding:6px 8px;
+    background:var(--card); border:1px solid #223140; border-radius:5px;}
+  /* 分岐線（横） */
+  .lineage > .person::before{content:""; position:absolute; left:-13px; top:50%; width:13px; height:2px; background:var(--line-heir);}
+  .lineage > .person.dead::before{background:#2f3a45;}
+  .person.dead{border-color:#232a31; background:#0f141a;}
+  .person .av{width:32px;height:32px;flex:none;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;
+    background:radial-gradient(circle at 50% 35%, #2a3947, #0d141b); border:1px solid #2c3d4b;}
+  .person.dead .av{filter:grayscale(1) brightness(.6); border-color:#2a323a;}
+  .person .who{flex:1; min-width:0;}
+  .person .who .pn{font-size:13px; color:#eaf3fb;}
+  .person.dead .who .pn{color:var(--grave);}
+  .person .who .pr{font-size:10px; color:var(--ink2); margin-top:1px;}
+  .person .badge{font-size:9px; padding:2px 6px; border-radius:3px; white-space:nowrap;}
+  .badge.live{background:#173042; color:var(--living);}
+  .badge.dead{background:#1a2028; color:var(--grave);}
+  .badge.founder{background:#3a3320; color:var(--gold);}
+  .gen-label{font-size:10px; letter-spacing:1px; color:var(--dim); margin:12px 0 2px; text-transform:uppercase;}
+  .gen-label:first-child{margin-top:2px;}
+  .inherit-note{font-size:10px; color:var(--ink2); padding-left:20px; margin:2px 0 6px; line-height:1.6;}
+  .inherit-note .skill{color:var(--crystal);}
+
+  /* ---- 慰霊（倒れた者） ---- */
+  .memo{border-bottom:1px dashed #232c34; padding:11px 0;}
+  .memo:last-child{border-bottom:none; padding-bottom:2px;}
+  .memo:first-child{padding-top:2px;}
+  .memo .mh{display:flex; align-items:baseline; gap:8px;}
+  .memo .mh .mn{font-size:13px; color:#c6cdd4;}
+  .memo .mh .mr{font-size:10px; color:var(--dim); margin-left:auto;}
+  .memo .cause{font-size:11px; color:var(--hplow); margin-top:4px; line-height:1.6;}
+  .memo .rel{font-size:10px; color:var(--ink2); margin-top:5px; line-height:1.7;}
+  .memo .rel .heir{color:var(--living);} .memo .rel .relic{color:var(--gold);}
+  .memo .cross{color:var(--grave); margin-right:2px;}
+
+  /* ---- 来歴タイムライン ---- */
+  .timeline{position:relative; padding:6px 0 4px 4px;}
+  .timeline::before{content:""; position:absolute; left:9px; top:6px; bottom:6px; width:2px; background:#2a3540;}
+  .mile{position:relative; padding:0 0 15px 28px; font-size:12px;}
+  .mile:last-child{padding-bottom:2px;}
+  .mile .dot{position:absolute; left:3px; top:2px; width:14px; height:14px; border-radius:50%;
+    background:var(--panel); border:2px solid var(--dim);}
+  .mile.founding .dot{border-color:var(--gold); background:#2a2410;}
+  .mile.golden .dot{border-color:var(--crystal); background:#0f2a38; box-shadow:0 0 8px rgba(95,208,255,.4);}
+  .mile.death .dot{border-color:var(--grave); background:#0d141b;}
+  .mile.crisis .dot{border-color:var(--hplow); background:#2a1210;}
+  .mile.now .dot{border-color:var(--living); background:#0f2a38;}
+  .mile .when{font-size:10px; color:var(--dim); letter-spacing:1px;}
+  .mile .ev{color:#dce7f0; margin-top:2px;}
+  .mile.founding .ev{color:var(--gold);}
+  .mile.golden .ev{color:var(--crystal);}
+  .mile.crisis .ev{color:#f0a89c;}
+  .mile.now .ev{color:var(--living);}
+  .mile .de{font-size:10px; color:var(--ink2); margin-top:3px; line-height:1.6;}
+
+  .legend{display:flex; gap:12px; flex-wrap:wrap; font-size:10px; color:var(--ink2); padding:2px 2px 0;}
+  .legend .li{display:flex; align-items:center; gap:5px;}
+  .legend .sw{width:10px;height:10px;border-radius:50%; border:2px solid;}
+
+  .foot{grid-column:2; grid-row:3; color:var(--dim); font-size:10px; padding-top:2px;}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="titlebar">
+    <span class="b">◆ RUINS</span><span>年代記 &nbsp;CHRONICLE</span>
+    <span class="s">|</span><span style="color:#dce7f0">一座の来歴と系譜</span>
+    <span class="right">霜嵐団 · 三代目 · 現ターン 214 · 創設より 214T</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- LEFT: 一座の銘板 + 統計 + 継承の一文 -->
+    <div class="col">
+      <div class="card">
+        <div class="crest">
+          <div class="seal">⚑</div>
+          <div>
+            <div class="nm">霜嵐団</div>
+            <div class="cl">移動する我が家 ―― 三代の一座</div>
+            <div class="sub">
+              創設: <span class="gen">214ターン前</span><br>
+              系譜: <span class="gen">三代目</span> 総勢 8 名<br>
+              見送った仲間: <span style="color:var(--grave)">11 名</span>
+            </div>
+            <div class="tags"><span class="tag g">現役 5</span><span class="tag d">物故 11</span><span class="tag w">世代交代 2</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">一座の記録 <span class="r">LEDGER</span></div>
+        <div class="cb">
+          <div class="up"><span class="k">踏破した遺跡</span><span class="v">B12F まで</span></div>
+          <div class="up"><span class="k">生還したラン</span><span class="v">63</span></div>
+          <div class="up"><span class="k">伝承された技</span><span class="v gold">剣術 · 重装 · 探索</span></div>
+          <div class="up"><span class="k">最古参（現役）</span><span class="v live">ミラ（二代目 · 弟子筋）</span></div>
+          <div class="up"><span class="k">最も長く在籍</span><span class="v grave">✝ ガロン 88T</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">継承 <span class="r">LEGACY</span></div>
+        <div class="cb">
+          <div class="legacyquote">
+            創設者 <span class="gr">ガロン</span> は <span class="em">40ターン前</span>、霜の金庫室の崩落に呑まれて逝った。
+            だが彼の <span class="em">剣術</span> は弟子 <span class="li">ミラ</span> に、
+            ミラからさらに <span class="li">若きレン</span> へと受け継がれている。
+            <br>――技は人より長く生きる。それが、キャラバンが続いていく理由だ。
+            <span class="sig">霜嵐団・年代記より</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: 師弟の系譜ツリー -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">師弟の系譜 <span class="r">LINEAGE · ◆技を継ぐ者</span></div>
+        <div class="cb tree">
+
+          <div class="gen-label">一代目 ― 創設世代</div>
+          <div class="lineage">
+            <div class="person dead">
+              <div class="av">🗡️</div>
+              <div class="who"><div class="pn">ガロン</div><div class="pr">剣士 / 創設者 · 在籍 88T</div></div>
+              <span class="badge founder">✝ 創設者</span>
+            </div>
+            <div class="inherit-note">└ <span class="skill">剣術 Lv14</span> · <span class="skill">重装 Lv11</span> を弟子へ遺す</div>
+
+            <div class="gen-label">二代目 ― ガロンの弟子筋</div>
+            <div class="lineage">
+              <div class="person">
+                <div class="av">🛡️</div>
+                <div class="who"><div class="pn">ミラ</div><div class="pr">重装剣士 / 現・座長 · 在籍 71T</div></div>
+                <span class="badge live">現役</span>
+              </div>
+              <div class="inherit-note">└ ガロンの <span class="skill">剣術</span> を継承。今は自ら <span class="skill">剣術・受け</span> を教える側</div>
+
+              <div class="person dead">
+                <div class="av">🏹</div>
+                <div class="who"><div class="pn">ソラ</div><div class="pr">狩人 · 在籍 34T</div></div>
+                <span class="badge dead">✝ 物故</span>
+              </div>
+              <div class="inherit-note">└ <span class="skill">探索 Lv9</span> をレンへ遺して倒れる</div>
+
+              <div class="gen-label">三代目 ― ミラ／ソラの弟子筋</div>
+              <div class="lineage">
+                <div class="person">
+                  <div class="av">⚔️</div>
+                  <div class="who"><div class="pn">レン</div><div class="pr">見習い剣士 · 在籍 12T</div></div>
+                  <span class="badge live">現役</span>
+                </div>
+                <div class="inherit-note">└ ミラより <span class="skill">剣術</span>、亡きソラより <span class="skill">探索</span> を継ぐ ―― 三代を越えた継承</div>
+
+                <div class="person">
+                  <div class="av">🔧</div>
+                  <div class="who"><div class="pn">カイ</div><div class="pr">整備工 · 在籍 9T</div></div>
+                  <span class="badge live">現役</span>
+                </div>
+                <div class="inherit-note">└ <span class="skill">解体・改造</span> を習得中。まだ師を持たぬ新芽</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span class="li"><span class="sw" style="border-color:var(--living)"></span>現役</span>
+            <span class="li"><span class="sw" style="border-color:var(--grave)"></span>物故（技は弟子に生きる）</span>
+            <span class="li"><span class="sw" style="border-color:var(--gold)"></span>創設者</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 慰霊 + 来歴タイムライン -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">慰霊 <span class="r">倒れた者 · IN MEMORIAM</span></div>
+        <div class="cb">
+          <div class="memo">
+            <div class="mh"><span class="cross">✝</span><span class="mn">ガロン</span><span class="mr">創設 〜 174T</span></div>
+            <div class="cause">霜の金庫室の崩落にて。凍てつく瓦礫の下、剣を手放さなかった。</div>
+            <div class="rel">遺した弟子: <span class="heir">ミラ</span> ／ 遺品: <span class="relic">〈初代の刃〉</span>（今もレンが佩く）</div>
+          </div>
+          <div class="memo">
+            <div class="mh"><span class="cross">✝</span><span class="mn">ソラ</span><span class="mr">102T 〜 136T</span></div>
+            <div class="cause">B9F の吹雪、隊列を守るしんがりで力尽きる。凍死。</div>
+            <div class="rel">遺した弟子: <span class="heir">レン</span> ／ 遺品: <span class="relic">〈遠見の羅針〉</span></div>
+          </div>
+          <div class="memo">
+            <div class="mh"><span class="cross">✝</span><span class="mn">トゥイ</span><span class="mr">58T 〜 79T · 老衰</span></div>
+            <div class="cause">戦ではなく、加齢の末に炉端で静かに。稀な大往生だった。</div>
+            <div class="rel">遺した弟子: <span class="heir">ガロン</span>（＝初代へ技を託した師）</div>
+          </div>
+          <div class="memo">
+            <div class="mh"><span class="cross">✝</span><span class="mn">ほか 8 名</span><span class="mr">…</span></div>
+            <div class="rel">名もなき戦友たち。年代記の余白に刻まれている。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">来歴 <span class="r">TIMELINE · 214T</span></div>
+        <div class="cb">
+          <div class="timeline">
+            <div class="mile founding">
+              <div class="dot"></div><div class="when">0T · 創設</div>
+              <div class="ev">霜嵐団、結成</div>
+              <div class="de">トゥイら 4 名。凍りゆく世界へ幌馬車を出す。</div>
+            </div>
+            <div class="mile crisis">
+              <div class="dot"></div><div class="when">31T · 初の危機</div>
+              <div class="ev">初の全滅寸前</div>
+              <div class="de">B3F で 2 名を失い、残ったのは 2 名。一座、存続の瀬戸際。</div>
+            </div>
+            <div class="mile">
+              <div class="dot"></div><div class="when">58T · 継承</div>
+              <div class="ev">ガロン、剣を継ぐ</div>
+              <div class="de">師トゥイより剣術を受け、二代目の芯となる。</div>
+            </div>
+            <div class="mile golden">
+              <div class="dot"></div><div class="when">120–170T · 全盛</div>
+              <div class="ev">ガロン世代の黄金期</div>
+              <div class="de">整備が進みベテラン揃い。B12F まで踏破。最も多くの弟子が育った時代。</div>
+            </div>
+            <div class="mile death">
+              <div class="dot"></div><div class="when">174T · 喪失</div>
+              <div class="ev">創設者の死</div>
+              <div class="de">ガロン、崩落に散る。老いたベテランたちも相次いで欠け、再び緊張の時代へ。</div>
+            </div>
+            <div class="mile now">
+              <div class="dot"></div><div class="when">214T · 現在</div>
+              <div class="ev">三代目、道半ば</div>
+              <div class="de">座長ミラのもと、レン・カイら若手が育つ。継いだ技を胸に、隊は北へ。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot">※ 完成形の方向性モック。検証したい賭け＝「世代交代が"続く物語"として感じられるか」（C型：世代を継ぐサーガ）。実装中のUIとは異なる。</div>
+</div>
+</body>
+</html>
