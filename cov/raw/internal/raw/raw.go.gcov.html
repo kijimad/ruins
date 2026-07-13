@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 14:21:42</td>
+            <td class="headerValue">2026-07-13 23:21:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,8 +85,8 @@
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // findByKey はスライスからキー関数でマッチする要素を線形検索する</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">       11535 : func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool) {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">      114358 :         for _, item := range PtrSlice(slice) {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">      114342 :                 if keyFn(item) == target {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">      117033 :         for _, item := range PtrSlice(slice) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">      117017 :                 if keyFn(item) == target {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       11519 :                         return item, true</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">       11519 :                 }</span></span>
 <span id="L30"><span class="lineNum">      30</span>              :         }</span>
@@ -126,7 +126,7 @@
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span>              : // FindItem は指定された名前のアイテム定義を検索する</span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">         379 : func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       79474 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       82080 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         380 :         if !ok {</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return oapi.Item{}, NewKeyNotFoundError(name, &quot;Items&quot;)</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 14:21:42</td>
+            <td class="headerValue">2026-07-13 23:21:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,12 +70,12 @@
 <span id="L8"><span class="lineNum">       8</span>              : }</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              : // Text はエントリ全体のテキストを結合して返す</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">        1067 : func (e LogEntry) Text() string {</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">        1067 :         var result strings.Builder</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">        2139 :         for _, fragment := range e.Fragments {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">        1072 :                 result.WriteString(fragment.Text)</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">        1072 :         }</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">        1067 :         return result.String()</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">        1071 : func (e LogEntry) Text() string {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">        1071 :         var result strings.Builder</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">        2147 :         for _, fragment := range e.Fragments {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">        1076 :                 result.WriteString(fragment.Text)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">        1076 :         }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">        1071 :         return result.String()</span></span>
 <span id="L17"><span class="lineNum">      17</span>              : }</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // IsEmpty はエントリが空かどうかを判定</span>
