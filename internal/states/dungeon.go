@@ -41,6 +41,9 @@ type DungeonState struct {
 	// Resume はセーブからの復帰モード。trueならマップ再生成とプレイヤー再配置を行わず、
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
+	// EscapeTarget は脱出(WarpEscape)時の遷移先。nilなら既定（自動精算 AutoSell→Town）。
+	// 設定すると自動精算を通さず TransReplace で指定先へ戻す（マクロ移動から潜行するとき MacroMap を渡す）
+	EscapeTarget es.StateFactory[w.World]
 }
 
 func (st DungeonState) String() string {
@@ -528,6 +531,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
 	case gc.WarpEscape:
+		if st.EscapeTarget != nil {
+			// マクロ移動から来た場合は自動精算を通さず、荷を持ったまま呼び出し元へ戻る。
+			// WarpNext で深層に積まれていても TransReplace で全解体して再構築する
+			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{st.EscapeTarget}}, nil
+		}
 		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewAutoSellState()),

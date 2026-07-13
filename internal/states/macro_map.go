@@ -211,10 +211,15 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 			NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
 		}, nil
 	case route.NodeRuin:
-		// Phase 4b: DungeonState を Push ＋ WithEscapeTarget で MacroMap へ戻す（★主リスク）
-		gamelog.New(query.GetGameLog(world)).System(
-			"遺跡に到着した。潜行できる（DungeonState 接続は次段）。").Log()
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		// 潜行。脱出時は自動精算を通さず MacroMap へ戻す（WithEscapeTarget）。
+		// 深層に潜っても TransReplace で MacroMap を再構築し、荷を持ったまま道中へ戻る
+		gamelog.New(query.GetGameLog(world)).System("遺跡に到着した。潜行する。").Log()
+		return es.Transition[w.World]{
+			Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{
+				NewDungeonState(1, WithEscapeTarget(NewMacroMapState)),
+			},
+		}, nil
 	case route.NodeHome:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}

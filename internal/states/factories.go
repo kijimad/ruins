@@ -535,6 +535,14 @@ func WithResume() DungeonStateOption {
 	}
 }
 
+// WithEscapeTarget は脱出時の遷移先を設定するオプション。
+// 設定すると自動精算(AutoSell→Town)を通さず、TransReplace で指定先へ戻す（マクロ移動から潜行するとき MacroMap を渡す）
+func WithEscapeTarget(target es.StateFactory[w.World]) DungeonStateOption {
+	return func(ds *DungeonState) {
+		ds.EscapeTarget = target
+	}
+}
+
 // NewDungeonState はDungeonStateインスタンスを作成するファクトリー関数
 // デフォルトではBuilderTypeはPlannerTypeRandomになる
 func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.World] {
