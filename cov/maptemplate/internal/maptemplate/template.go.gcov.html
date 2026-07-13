@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 23:23:20</td>
+            <td class="headerValue">2026-07-13 23:24:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,28 +94,28 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">          69 : func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          69 :         lines := strings.Split(strings.TrimSpace(mapStr), &quot;\n&quot;)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          69 :         cells := make([][]MapCell, len(lines))</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         395 :         for y, line := range lines {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         326 :                 runes := []rune(line)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         326 :                 cells[y] = make([]MapCell, len(runes))</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4577 :                 for x, ch := range runes {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4251 :                         charStr := string(ch)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4251 :                         var cell MapCell</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        7985 :                         if palette != nil {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6830 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3096 :                                         cell.Terrain = terrain</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3096 :                                 }</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         394 :         for y, line := range lines {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         325 :                 runes := []rune(line)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         325 :                 cells[y] = make([]MapCell, len(runes))</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4587 :                 for x, ch := range runes {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4262 :                         charStr := string(ch)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4262 :                         var cell MapCell</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        7992 :                         if palette != nil {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6825 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3095 :                                         cell.Terrain = terrain</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3095 :                                 }</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        3826 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">          87 :                                         cell.Prop = prop</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          87 :                                 }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3738 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3732 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                                         cell.NPC = npc</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                         }</span>
 <span id="L52"><span class="lineNum">      52</span>              :                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5422 :                         if cell.Terrain == &quot;&quot; {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5436 :                         if cell.Terrain == &quot;&quot; {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        1169 :                                 cell.Terrain = charStr</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        1169 :                         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4258 :                         cells[y][x] = cell</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4268 :                         cells[y][x] = cell</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                 }</span>
 <span id="L58"><span class="lineNum">      58</span>              :         }</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          69 :         return cells</span></span>

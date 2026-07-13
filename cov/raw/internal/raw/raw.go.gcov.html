@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 23:23:20</td>
+            <td class="headerValue">2026-07-13 23:24:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,19 +76,19 @@
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // PtrSlice はoapi.Rawsの*[]Tフィールドを安全にデリファレンスする</span>
 <span id="L16"><span class="lineNum">      16</span>              : // nilポインタの場合はnilスライスを返す</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">       11612 : func PtrSlice[T any](p *[]T) []T {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">       11630 :         if p == nil {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">       11610 : func PtrSlice[T any](p *[]T) []T {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">       11628 :         if p == nil {</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          18 :                 return nil</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          18 :         }</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">       11594 :         return *p</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">       11592 :         return *p</span></span>
 <span id="L22"><span class="lineNum">      22</span>              : }</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // findByKey はスライスからキー関数でマッチする要素を線形検索する</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">       11534 : func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool) {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">      112067 :         for _, item := range PtrSlice(slice) {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">      112051 :                 if keyFn(item) == target {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       11518 :                         return item, true</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">       11518 :                 }</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">       11529 : func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool) {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">      114098 :         for _, item := range PtrSlice(slice) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">      114084 :                 if keyFn(item) == target {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       11515 :                         return item, true</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">       11515 :                 }</span></span>
 <span id="L30"><span class="lineNum">      30</span>              :         }</span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          16 :         var zero T</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          16 :         return zero, false</span></span>
@@ -125,8 +125,8 @@
 <span id="L63"><span class="lineNum">      63</span>              : }</span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span>              : // FindItem は指定された名前のアイテム定義を検索する</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">         378 : func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       79402 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">         379 : func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       82080 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         380 :         if !ok {</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return oapi.Item{}, NewKeyNotFoundError(name, &quot;Items&quot;)</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -820,19 +820,19 @@
 <span id="L758"><span class="lineNum">     758</span>              : }</span>
 <span id="L759"><span class="lineNum">     759</span>              : </span>
 <span id="L760"><span class="lineNum">     760</span>              : // SelectEnemyByWeight は敵テーブルから深度を考慮して重み付きランダム選択する</span>
-<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">       13185 : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {</span></span>
-<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">       13185 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
-<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">       52719 :         for _, entry := range et.Entries {</span></span>
-<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">       44538 :                 if depth &lt; int(entry.MinDepth) || depth &gt; int(entry.MaxDepth) {</span></span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">       13205 : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {</span></span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">       13205 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">       52812 :         for _, entry := range et.Entries {</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">       44611 :                 if depth &lt; int(entry.MinDepth) || depth &gt; int(entry.MaxDepth) {</span></span>
 <span id="L765"><span class="lineNum">     765</span> <span class="tlaGNC">        5004 :                         continue</span></span>
 <span id="L766"><span class="lineNum">     766</span>              :                 }</span>
-<span id="L767"><span class="lineNum">     767</span> <span class="tlaGNC">       34577 :                 filtered = append(filtered, entry)</span></span>
+<span id="L767"><span class="lineNum">     767</span> <span class="tlaGNC">       34603 :                 filtered = append(filtered, entry)</span></span>
 <span id="L768"><span class="lineNum">     768</span>              :         }</span>
 <span id="L769"><span class="lineNum">     769</span>              : </span>
-<span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">       13191 :         return SelectByWeightFunc(</span></span>
-<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">       13191 :                 filtered,</span></span>
-<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">       70158 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
-<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">       13192 :                 func(e oapi.EnemyTableEntry) string { return e.EnemyName },</span></span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">       13205 :         return SelectByWeightFunc(</span></span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">       13205 :                 filtered,</span></span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">       70265 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">       13201 :                 func(e oapi.EnemyTableEntry) string { return e.EnemyName },</span></span>
 <span id="L774"><span class="lineNum">     774</span>              :                 rng,</span>
 <span id="L775"><span class="lineNum">     775</span>              :         )</span>
 <span id="L776"><span class="lineNum">     776</span>              : }</span>
