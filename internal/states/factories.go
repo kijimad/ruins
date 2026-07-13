@@ -582,6 +582,17 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 	return NewDungeonState(0, allOpts...)
 }
 
+// NewMarketState はマクロ移動の集落（マーケット）マップのステートを作成するファクトリー関数。
+// 商人に話しかけて交易し、帰還ゲートで呼び出し元へ戻る。WithEscapeTarget で戻り先を指定する
+func NewMarketState(opts ...DungeonStateOption) es.StateFactory[w.World] {
+	allOpts := make([]DungeonStateOption, 0, 2+len(opts))
+	allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeMarket))
+	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonMarket.Name))
+	allOpts = append(allOpts, opts...)
+
+	return NewDungeonState(0, allOpts...)
+}
+
 // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
 func NewDungeonSelectState() (es.State[w.World], error) {
 	return &DungeonSelectState{}, nil

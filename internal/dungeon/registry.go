@@ -16,6 +16,18 @@ var (
 		},
 	}
 
+	// DungeonMarket はマクロ移動の集落（マーケット）ノード用の定義。商人で交易し帰還ゲートで道中へ戻る
+	DungeonMarket = Definition{
+		Name:            "集落",
+		TotalFloors:     1,
+		EnemyTableName:  "",
+		ItemTableName:   "",
+		BaseTemperature: 0,
+		PlannerPool: []PlannerWeight{
+			{PlannerType: mapplanner.PlannerTypeMarket, Weight: 1},
+		},
+	}
+
 	// DungeonDebug はデバッグ用ダンジョン定義
 	DungeonDebug = Definition{
 		Name:            "デバッグ",
@@ -104,6 +116,7 @@ func GetAllDungeonNames() []string {
 // internalDungeons は選択画面に表示しない内部用ダンジョン定義
 var internalDungeons = []Definition{
 	DungeonTown,
+	DungeonMarket,
 	DungeonDebug,
 }
 

@@ -525,6 +525,15 @@ var (
 		},
 	}
 
+	// PlannerTypeMarket は市場（商人＋帰還ゲート。マクロ移動の集落ノード用）
+	PlannerTypeMarket = PlannerType{
+		Name:              "市場",
+		UseFixedPortalPos: true,
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeMarket, seed)
+		},
+	}
+
 	// PlannerTypeBossFloor はボスフロアのプランナータイプ
 	PlannerTypeBossFloor = PlannerType{
 		Name:              "ボスフロア",
@@ -546,6 +555,7 @@ var (
 		PlannerTypeOfficeBuilding,
 		PlannerTypeSmallTown,
 		PlannerTypeTownPlaza,
+		PlannerTypeMarket,
 		PlannerTypeBossFloor,
 	}
 )

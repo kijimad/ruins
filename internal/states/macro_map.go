@@ -234,12 +234,14 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case route.NodeMarket, route.NodeShop, route.NodeJunction, route.NodeOutpost:
-		// 交易（購入・能動売却）。既存 ShopMenuState を Push し、閉じると MacroMap に戻る
+		// 集落マップに入る。商人に話しかけて交易し、帰還ゲートで MacroMap へ戻る（ShopMenu は即出さない）
 		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
-			"%sに到着した。交易ができる。", nodeTypeJP(node.Type))).Log()
+			"%sに到着した。集落に入る。", nodeTypeJP(node.Type))).Log()
 		return es.Transition[w.World]{
-			Type:          es.TransPush,
-			NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
+			Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{
+				NewMarketState(WithEscapeTarget(NewMacroMapState)),
+			},
 		}, nil
 	case route.NodeRuin:
 		// 潜行する間に寒波前線が詰める（引き際の核）。呑まれたら潜らずラン失敗。

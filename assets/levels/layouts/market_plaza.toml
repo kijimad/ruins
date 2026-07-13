@@ -1,0 +1,35 @@
+[[chunk]]
+  map = """
+#...........rrr...................rrr............#
+#...........rrr...................rrr............#
+#...........rrr...................rrr............#
+#...L.......rrr....3....L.........rrr......L.....#
+#...........rrr...................rrr............#
+#..$........rrrrr...............rrrrr............#
+#..........rrrrrrr.............rrrrrrr...........#
+#.........rrrrrrrrr...........rrrrrrrrr..........#
+#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
+#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
+#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
+#.........rrrrrrrrrrrrrrrrrrrrrrrrrrrrr..........#
+#..........rrrrrrr.............rrrrrrr...........#
+#...1.......rrrrr...............rrrrr............#
+#...........rrr...2...............rrr............#
+#...L.......rrr......I.....I......rrr......L.....#
+#...........rrr...................rrr............#
+#...........rrr......I.rrr.I......rrr............#
+#...........rrr........r<r........rrr............#
+#...........rrr......I.rrr.I......rrr............#
+"""
+  name = '50x20_market_plaza'
+  palettes = ['standard', 'town']
+  placements = []
+  weight = 1
+
+  [chunk.Size]
+    H = 20
+    W = 50
+
+  [[chunk.spawn_points]]
+    x = 24
+    y = 10

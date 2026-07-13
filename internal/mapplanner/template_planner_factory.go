@@ -18,6 +18,8 @@ const (
 	TemplateTypeSmallTown
 	// TemplateTypeTownPlaza は町の広場
 	TemplateTypeTownPlaza
+	// TemplateTypeMarket は市場（商人＋帰還ゲート。マクロ移動の集落ノード用）
+	TemplateTypeMarket
 	// TemplateTypeBossFloor はボスフロア
 	TemplateTypeBossFloor
 )
@@ -54,6 +56,8 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		templateName = "50x50_small_town"
 	case TemplateTypeTownPlaza:
 		templateName = "50x20_town_plaza"
+	case TemplateTypeMarket:
+		templateName = "50x20_market_plaza"
 	case TemplateTypeBossFloor:
 		templateName = "50x50_boss_floor"
 	default:

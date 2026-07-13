@@ -11,6 +11,10 @@ r = 'floor'
 id = 'dungeon_gate'
 tile = 'dirt'
 
+[palette.props.'<']
+id = 'warp_escape'
+tile = 'floor'
+
 [palette.npcs]
 [palette.npcs.'$']
 id = '商人'
