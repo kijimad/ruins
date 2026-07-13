@@ -71,6 +71,7 @@ type EntitySpec struct {
 	GameLog            *GameLog            // ゲームログストレージを保持するシングルトン
 	Dungeon            *Dungeon            // ダンジョン状態を保持するシングルトン
 	GameProgress       *GameProgress       // ゲーム進行データを保持するシングルトン
+	CaravanRun         *CaravanRun         // マクロ移動のラン状態を保持するシングルトン
 	TurnState          *TurnState          // ターン状態を保持するシングルトン
 	SpatialIndex       *SpatialIndex       // 空間インデックスを保持するシングルトン
 }
@@ -142,6 +143,7 @@ type Components struct {
 	GameLog            *ecs.Map[GameLog]            // ゲームログストレージを保持するシングルトン
 	Dungeon            *ecs.Map[Dungeon]            // ダンジョン状態を保持するシングルトン
 	GameProgress       *ecs.Map[GameProgress]       // ゲーム進行データを保持するシングルトン
+	CaravanRun         *ecs.Map[CaravanRun]         // マクロ移動のラン状態を保持するシングルトン
 	TurnState          *ecs.Map[TurnState]          // ターン状態を保持するシングルトン
 	SpatialIndex       *ecs.Map[SpatialIndex]       // 空間インデックスを保持するシングルトン
 }
@@ -213,6 +215,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.GameLog = ecs.NewMap[GameLog](world)
 	c.Dungeon = ecs.NewMap[Dungeon](world)
 	c.GameProgress = ecs.NewMap[GameProgress](world)
+	c.CaravanRun = ecs.NewMap[CaravanRun](world)
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
 	return nil
@@ -286,6 +289,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.GameLog, entity, spec.GameLog)
 	addComp(c.Dungeon, entity, spec.Dungeon)
 	addComp(c.GameProgress, entity, spec.GameProgress)
+	addComp(c.CaravanRun, entity, spec.CaravanRun)
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
 	return entity

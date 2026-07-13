@@ -93,6 +93,7 @@ var Registry = []Def{
 	{Field: "GameLog", Comment: "ゲームログストレージを保持するシングルトン"},
 	{Field: "Dungeon", Comment: "ダンジョン状態を保持するシングルトン"},
 	{Field: "GameProgress", Comment: "ゲーム進行データを保持するシングルトン"},
+	{Field: "CaravanRun", Comment: "マクロ移動のラン状態を保持するシングルトン"},
 	{Field: "TurnState", Comment: "ターン状態を保持するシングルトン"},
 	{Field: "SpatialIndex", Comment: "空間インデックスを保持するシングルトン"},
 }

@@ -31,6 +31,23 @@ func GetDungeon(world w.World) *gc.Dungeon {
 	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
+// GetCaravanRun はシングルトンエンティティからマクロ移動のラン状態を取得する。
+// ラン未開始の場合はnilを返す
+func GetCaravanRun(world w.World) *gc.CaravanRun {
+	return GetSingleton[gc.CaravanRun](world, world.Components.CaravanRun)
+}
+
+// SetCaravanRun はシングルトンエンティティにマクロ移動のラン状態を設定する
+func SetCaravanRun(world w.World, run *gc.CaravanRun) {
+	entity := world.Resources.SingletonEntity
+	comp := world.Components.CaravanRun
+	if comp.Has(entity) {
+		comp.Set(entity, run)
+	} else {
+		comp.Add(entity, run)
+	}
+}
+
 // GetGameLog はシングルトンエンティティからGameLogストアを取得する
 func GetGameLog(world w.World) *gamelog.SafeSlice {
 	gl := GetSingleton[gc.GameLog](world, world.Components.GameLog)

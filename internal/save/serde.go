@@ -9,6 +9,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/route"
 	w "github.com/kijimaD/ruins/internal/world"
 	arkserde "github.com/mlange-42/ark-serde"
 	"github.com/mlange-42/ark/ecs"
@@ -92,6 +93,14 @@ func reestablishSingleton(world w.World) error {
 		}
 		if d.VisibleTiles == nil {
 			d.VisibleTiles = make(map[gc.GridElement]bool)
+		}
+	}
+
+	// json:"-"で除外されたルート網をシードから再構築する
+	if world.Components.CaravanRun.Has(singleton) {
+		cr := world.Components.CaravanRun.Get(singleton)
+		if cr.Graph == nil {
+			cr.Graph = route.Generate(cr.Expedition, cr.Seed)
 		}
 	}
 	return nil
