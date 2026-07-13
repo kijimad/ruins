@@ -11,7 +11,7 @@ require (
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
 	github.com/mlange-42/ark v0.8.3
 	github.com/mlange-42/ark-serde v0.3.2
-	github.com/oapi-codegen/runtime v1.4.2
+	github.com/oapi-codegen/runtime v1.5.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/profile v1.7.0
 	github.com/sebdah/goldie/v2 v2.8.0
