@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-12 14:37:34</td>
+            <td class="headerValue">2026-07-13 14:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -115,9 +115,9 @@
 <span id="L53"><span class="lineNum">      53</span>              : // PlanMeta は森の基本地形をタイルに描画する</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">          46 : func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">          46 :         // まず全体を床で埋める（森の地面）</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">       98245 :         for i := range planData.Tiles {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">       98199 :                 planData.Tiles[i] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">       98199 :         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">       98063 :         for i := range planData.Tiles {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">       98017 :                 planData.Tiles[i] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">       98017 :         }</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span>              :         // 空き地を床として確保</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">         259 :         for _, clearing := range planData.Rooms {</span></span>
@@ -127,19 +127,19 @@
 <span id="L65"><span class="lineNum">      65</span>              : }</span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              : // createCircularClearing は円形の空き地を作成する</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         213 : func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Rect) {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">         213 :         centerX := float64(clearing.X1+clearing.X2) / 2.0</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">         213 :         centerY := float64(clearing.Y1+clearing.Y2) / 2.0</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">         213 :         radius := math.Min(float64(clearing.X2-clearing.X1), float64(clearing.Y2-clearing.Y1)) / 2.0</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">         213 : </span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        1924 :         for x := clearing.X1 - 1; x &lt;= clearing.X2+1; x++ {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">       15804 :                 for y := clearing.Y1 - 1; y &lt;= clearing.Y2+1; y++ {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">       14093 :                         distance := geometry.Distance(float64(x), float64(y), centerX, centerY)</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">       14093 : </span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">       18690 :                         if distance &lt;= radius {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">        4597 :                                 idx := planData.Level.XYTileIndex(x, y)</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        4597 :                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">        4597 :                         }</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         212 : func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Rect) {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">         212 :         centerX := float64(clearing.X1+clearing.X2) / 2.0</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">         212 :         centerY := float64(clearing.Y1+clearing.Y2) / 2.0</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">         212 :         radius := math.Min(float64(clearing.X2-clearing.X1), float64(clearing.Y2-clearing.Y1)) / 2.0</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">         212 : </span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        1919 :         for x := clearing.X1 - 1; x &lt;= clearing.X2+1; x++ {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">       15699 :                 for y := clearing.Y1 - 1; y &lt;= clearing.Y2+1; y++ {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">       13992 :                         distance := geometry.Distance(float64(x), float64(y), centerX, centerY)</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">       13992 : </span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">       18557 :                         if distance &lt;= radius {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">        4565 :                                 idx := planData.Level.XYTileIndex(x, y)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        4565 :                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">        4565 :                         }</span></span>
 <span id="L81"><span class="lineNum">      81</span>              :                 }</span>
 <span id="L82"><span class="lineNum">      82</span>              :         }</span>
 <span id="L83"><span class="lineNum">      83</span>              : }</span>
@@ -154,21 +154,21 @@
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">          46 : </span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">          46 :         // 森全体に木を配置（60%の密度）</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">        2029 :         for x := 1; x &lt; width-1; x++ {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">       91933 :                 for y := 1; y &lt; height-1; y++ {</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">       89950 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">       89950 : </span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">      151886 :                         if !planData.Tiles[idx].BlockPass {</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">       61936 :                                 // 空き地の近くでは木の密度を下げる</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">       61936 :                                 treeDensity := f.calculateTreeDensity(planData, x, y)</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">       61936 : </span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">       91182 :                                 if planData.RNG.Float64() &lt; treeDensity {</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">       29246 :                                         // TODO: 木エンティティとして追加する</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">       29246 :                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">       29246 : </span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">       29246 :                                         // 大きな木の場合、周囲にも追加の木を配置</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">       35019 :                                         if planData.RNG.Float64() &lt; 0.2 { // 20%の確率で大木</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">        5773 :                                                 f.placeLargeTree(planData, x, y)</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">        5773 :                                         }</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">       91894 :                 for y := 1; y &lt; height-1; y++ {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">       89911 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">       89911 : </span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">      151781 :                         if !planData.Tiles[idx].BlockPass {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">       61870 :                                 // 空き地の近くでは木の密度を下げる</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">       61870 :                                 treeDensity := f.calculateTreeDensity(planData, x, y)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">       61870 : </span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">       91169 :                                 if planData.RNG.Float64() &lt; treeDensity {</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">       29299 :                                         // TODO: 木エンティティとして追加する</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">       29299 :                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">       29299 : </span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">       29299 :                                         // 大きな木の場合、周囲にも追加の木を配置</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">       35078 :                                         if planData.RNG.Float64() &lt; 0.2 { // 20%の確率で大木</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">        5779 :                                                 f.placeLargeTree(planData, x, y)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">        5779 :                                         }</span></span>
 <span id="L110"><span class="lineNum">     110</span>              :                                 }</span>
 <span id="L111"><span class="lineNum">     111</span>              :                         }</span>
 <span id="L112"><span class="lineNum">     112</span>              :                 }</span>
@@ -177,50 +177,50 @@
 <span id="L115"><span class="lineNum">     115</span>              : }</span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
 <span id="L117"><span class="lineNum">     117</span>              : // calculateTreeDensity は位置に基づいて木の密度を計算する</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">       61928 : func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">       61928 :         baseDensity := 0.6 // 基本密度60%</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">       61928 : </span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">       61928 :         // 空き地からの距離に基づいて密度を調整</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">       61928 :         minDistanceToClearing := 1000.0</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">       61928 : </span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">      343571 :         for _, clearing := range planData.Rooms {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">      281643 :                 centerX := float64(clearing.X1+clearing.X2) / 2.0</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">      281643 :                 centerY := float64(clearing.Y1+clearing.Y2) / 2.0</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">      281643 : </span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">      281643 :                 distance := geometry.Distance(float64(x), float64(y), centerX, centerY)</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">      281643 : </span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">      418631 :                 if distance &lt; minDistanceToClearing {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">      136988 :                         minDistanceToClearing = distance</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">      136988 :                 }</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">       61859 : func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">       61859 :         baseDensity := 0.6 // 基本密度60%</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">       61859 : </span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">       61859 :         // 空き地からの距離に基づいて密度を調整</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">       61859 :         minDistanceToClearing := 1000.0</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">       61859 : </span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">      342970 :         for _, clearing := range planData.Rooms {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">      281111 :                 centerX := float64(clearing.X1+clearing.X2) / 2.0</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">      281111 :                 centerY := float64(clearing.Y1+clearing.Y2) / 2.0</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">      281111 : </span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">      281111 :                 distance := geometry.Distance(float64(x), float64(y), centerX, centerY)</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">      281111 : </span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">      417089 :                 if distance &lt; minDistanceToClearing {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">      135978 :                         minDistanceToClearing = distance</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">      135978 :                 }</span></span>
 <span id="L133"><span class="lineNum">     133</span>              :         }</span>
 <span id="L134"><span class="lineNum">     134</span>              : </span>
 <span id="L135"><span class="lineNum">     135</span>              :         // 空き地に近いほど木の密度を下げる</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">       71975 :         if minDistanceToClearing &lt; 5 {</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">       10147 :                 return baseDensity * 0.3 // 空き地の近くは30%</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">       81559 :         } else if minDistanceToClearing &lt; 10 {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">       19655 :                 return baseDensity * 0.7 // 中距離は70%</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">       19655 :         }</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">       32125 :         return baseDensity // 遠くは基本密度</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">       71856 :         if minDistanceToClearing &lt; 5 {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">       10120 :                 return baseDensity * 0.3 // 空き地の近くは30%</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">       81371 :         } else if minDistanceToClearing &lt; 10 {</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">       19550 :                 return baseDensity * 0.7 // 中距離は70%</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">       19550 :         }</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">       32221 :         return baseDensity // 遠くは基本密度</span></span>
 <span id="L142"><span class="lineNum">     142</span>              : }</span>
 <span id="L143"><span class="lineNum">     143</span>              : </span>
 <span id="L144"><span class="lineNum">     144</span>              : // placeLargeTree は大きな木を配置する</span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">        5773 : func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">        5773 :         width := int(planData.Level.TileWidth)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">        5773 :         height := int(planData.Level.TileHeight)</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">        5773 : </span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        5773 :         // 大木の周囲2x2または3x3エリアに追加の木を配置</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">        5773 :         size := 1 + planData.RNG.IntN(2) // 1または2</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">        5773 : </span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">       28972 :         for dx := -size; dx &lt;= size; dx++ {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">      122156 :                 for dy := -size; dy &lt;= size; dy++ {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       98957 :                         x, y := centerX+dx, centerY+dy</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">       98957 : </span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">      196199 :                         if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">       97242 :                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">       97242 : </span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">      138104 :                                 if !planData.Tiles[idx].BlockPass &amp;&amp; planData.RNG.Float64() &lt; 0.7 {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">       40862 :                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">       40862 :                                 }</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">        5779 : func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">        5779 :         width := int(planData.Level.TileWidth)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">        5779 :         height := int(planData.Level.TileHeight)</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">        5779 : </span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        5779 :         // 大木の周囲2x2または3x3エリアに追加の木を配置</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">        5779 :         size := 1 + planData.RNG.IntN(2) // 1または2</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">        5779 : </span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">       29023 :         for dx := -size; dx &lt;= size; dx++ {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">      122421 :                 for dy := -size; dy &lt;= size; dy++ {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       99177 :                         x, y := centerX+dx, centerY+dy</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">       99177 : </span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">      196618 :                         if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">       97441 :                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">       97441 : </span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">      138351 :                                 if !planData.Tiles[idx].BlockPass &amp;&amp; planData.RNG.Float64() &lt; 0.7 {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">       40910 :                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">       40910 :                                 }</span></span>
 <span id="L162"><span class="lineNum">     162</span>              :                         }</span>
 <span id="L163"><span class="lineNum">     163</span>              :                 }</span>
 <span id="L164"><span class="lineNum">     164</span>              :         }</span>
@@ -242,9 +242,9 @@
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">         259 :                 for i := range len(planData.Rooms) {</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">         627 :                         for j := i + 1; j &lt; len(planData.Rooms); j++ {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">         414 :                                 // 距離が近い空き地のみ繋ぐ（50%の確率）</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">         630 :                                 if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">         216 :                                         f.createNaturalPath(planData, planData.Rooms[i], planData.Rooms[j])</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">         216 :                                 }</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">         636 :                                 if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">         222 :                                         f.createNaturalPath(planData, planData.Rooms[i], planData.Rooms[j])</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">         222 :                                 }</span></span>
 <span id="L186"><span class="lineNum">     186</span>              :                         }</span>
 <span id="L187"><span class="lineNum">     187</span>              :                 }</span>
 <span id="L188"><span class="lineNum">     188</span>              :         }</span>
@@ -264,23 +264,23 @@
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L203"><span class="lineNum">     203</span>              : </span>
 <span id="L204"><span class="lineNum">     204</span>              :         // 上から下まで確実に通路を作る</span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">        2120 :         for y := range height {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">        2074 :                 // 通路とその左右1タイルを床にする（幅3の通路）</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">        8294 :                 for dx := -1; dx &lt;= 1; dx++ {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">        6220 :                         x := pathX + dx</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">       12440 :                         if x &gt;= 0 &amp;&amp; x &lt; width {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">        6220 :                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">        6220 :                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">        6220 :                         }</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">        2121 :         for y := range height {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">        2075 :                 // 通路とその左右1タイルを床にする（幅3の通路）</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">        8300 :                 for dx := -1; dx &lt;= 1; dx++ {</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">        6225 :                         x := pathX + dx</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">       12450 :                         if x &gt;= 0 &amp;&amp; x &lt; width {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">        6225 :                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">        6225 :                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">        6225 :                         }</span></span>
 <span id="L213"><span class="lineNum">     213</span>              :                 }</span>
 <span id="L214"><span class="lineNum">     214</span>              : </span>
 <span id="L215"><span class="lineNum">     215</span>              :                 // 通路に自然な蛇行を追加（20%の確率で左右に移動）</span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">        2477 :                 if y &gt; 0 &amp;&amp; y &lt; height-1 &amp;&amp; planData.RNG.Float64() &lt; 0.2 {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">         606 :                         if planData.RNG.Float64() &lt; 0.5 {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">        2475 :                 if y &gt; 0 &amp;&amp; y &lt; height-1 &amp;&amp; planData.RNG.Float64() &lt; 0.2 {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">         604 :                         if planData.RNG.Float64() &lt; 0.5 {</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">         204 :                                 pathX = min(pathX+1, width-2)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">         402 :                         } else {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">         198 :                                 pathX = max(pathX-1, 1)</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">         198 :                         }</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">         400 :                         } else {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">         196 :                                 pathX = max(pathX-1, 1)</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">         196 :                         }</span></span>
 <span id="L222"><span class="lineNum">     222</span>              :                 }</span>
 <span id="L223"><span class="lineNum">     223</span>              :         }</span>
 <span id="L224"><span class="lineNum">     224</span>              : }</span>
@@ -296,52 +296,52 @@
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">         414 :         distance := geometry.Distance(center1X, center1Y, center2X, center2Y)</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">         414 : </span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">         414 :         // 近い空き地ほど繋がりやすい</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">         626 :         if distance &lt; 15 {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">         212 :                 return planData.RNG.Float64() &lt; 0.8</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">         542 :         } else if distance &lt; 25 {</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">         128 :                 return planData.RNG.Float64() &lt; 0.4</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">         128 :         }</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">          74 :         return planData.RNG.Float64() &lt; 0.1</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">         629 :         if distance &lt; 15 {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">         215 :                 return planData.RNG.Float64() &lt; 0.8</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">         540 :         } else if distance &lt; 25 {</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">         126 :                 return planData.RNG.Float64() &lt; 0.4</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">         126 :         }</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">          73 :         return planData.RNG.Float64() &lt; 0.1</span></span>
 <span id="L243"><span class="lineNum">     243</span>              : }</span>
 <span id="L244"><span class="lineNum">     244</span>              : </span>
 <span id="L245"><span class="lineNum">     245</span>              : // createNaturalPath は自然な曲線状の通路を作成する</span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">         216 : func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect) {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">         216 :         width := int(planData.Level.TileWidth)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">         216 :         height := int(planData.Level.TileHeight)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">         216 : </span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">         216 :         center1X := int(room1.X1+room1.X2) / 2</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">         216 :         center1Y := int(room1.Y1+room1.Y2) / 2</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">         216 :         center2X := int(room2.X1+room2.X2) / 2</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">         216 :         center2Y := int(room2.Y1+room2.Y2) / 2</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">         216 : </span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">         216 :         // ベジェ曲線風の自然な通路を作成</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">         216 :         steps := 50</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">       11229 :         for i := 0; i &lt;= steps; i++ {</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">       11013 :                 t := float64(i) / float64(steps)</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">       11013 : </span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">       11013 :                 // 制御点を追加してカーブを作る</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">       11013 :                 midX := (center1X + center2X) / 2</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">       11013 :                 midY := (center1Y + center2Y) / 2</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">       11013 : </span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">       11013 :                 // ランダムな偏向を追加</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">       11013 :                 randomOffsetX := int(float64(planData.RNG.IntN(11)-5) * (1.0 - math.Abs(t-0.5)*2))</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">       11013 :                 randomOffsetY := int(float64(planData.RNG.IntN(11)-5) * (1.0 - math.Abs(t-0.5)*2))</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">       11013 : </span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">       11013 :                 // 2次ベジェ曲線の近似</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">       11013 :                 x := int((1-t)*(1-t)*float64(center1X) + 2*(1-t)*t*float64(midX+randomOffsetX) + t*t*float64(center2X))</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">       11013 :                 y := int((1-t)*(1-t)*float64(center1Y) + 2*(1-t)*t*float64(midY+randomOffsetY) + t*t*float64(center2Y))</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">       11013 : </span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">       11013 :                 // 通路を作成（少し幅を持たせる）</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">       44008 :                 for dx := -1; dx &lt;= 1; dx++ {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">      131949 :                         for dy := -1; dy &lt;= 1; dy++ {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">       98954 :                                 nx, ny := x+dx, y+dy</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">      197918 :                                 if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height {</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">       98964 :                                         idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">       98964 : </span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">       98964 :                                         // 70%の確率で通路を作成（自然な感じに）</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">      168539 :                                         if planData.RNG.Float64() &lt; 0.7 {</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">       69575 :                                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">       69575 :                                         }</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">         222 : func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect) {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">         222 :         width := int(planData.Level.TileWidth)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">         222 :         height := int(planData.Level.TileHeight)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">         222 : </span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">         222 :         center1X := int(room1.X1+room1.X2) / 2</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">         222 :         center1Y := int(room1.Y1+room1.Y2) / 2</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">         222 :         center2X := int(room2.X1+room2.X2) / 2</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">         222 :         center2Y := int(room2.Y1+room2.Y2) / 2</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">         222 : </span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">         222 :         // ベジェ曲線風の自然な通路を作成</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">         222 :         steps := 50</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">       11539 :         for i := 0; i &lt;= steps; i++ {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">       11317 :                 t := float64(i) / float64(steps)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">       11317 : </span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">       11317 :                 // 制御点を追加してカーブを作る</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">       11317 :                 midX := (center1X + center2X) / 2</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">       11317 :                 midY := (center1Y + center2Y) / 2</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">       11317 : </span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">       11317 :                 // ランダムな偏向を追加</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">       11317 :                 randomOffsetX := int(float64(planData.RNG.IntN(11)-5) * (1.0 - math.Abs(t-0.5)*2))</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">       11317 :                 randomOffsetY := int(float64(planData.RNG.IntN(11)-5) * (1.0 - math.Abs(t-0.5)*2))</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">       11317 : </span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">       11317 :                 // 2次ベジェ曲線の近似</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">       11317 :                 x := int((1-t)*(1-t)*float64(center1X) + 2*(1-t)*t*float64(midX+randomOffsetX) + t*t*float64(center2X))</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">       11317 :                 y := int((1-t)*(1-t)*float64(center1Y) + 2*(1-t)*t*float64(midY+randomOffsetY) + t*t*float64(center2Y))</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">       11317 : </span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">       11317 :                 // 通路を作成（少し幅を持たせる）</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">       45234 :                 for dx := -1; dx &lt;= 1; dx++ {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">      135532 :                         for dy := -1; dy &lt;= 1; dy++ {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">      101615 :                                 nx, ny := x+dx, y+dy</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">      203239 :                                 if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">      101624 :                                         idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">      101624 : </span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">      101624 :                                         // 70%の確率で通路を作成（自然な感じに）</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">      173070 :                                         if planData.RNG.Float64() &lt; 0.7 {</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">       71446 :                                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">       71446 :                                         }</span></span>
 <span id="L283"><span class="lineNum">     283</span>              :                                 }</span>
 <span id="L284"><span class="lineNum">     284</span>              :                         }</span>
 <span id="L285"><span class="lineNum">     285</span>              :                 }</span>
@@ -359,26 +359,26 @@
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">          46 :         // 小さな動物の通り道や巣穴を作成</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">          46 :         wildlifeSpotCount := 2 + planData.RNG.IntN(4)</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">          46 : </span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">         199 :         for range wildlifeSpotCount {</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">         153 :                 // IntNの引数が正であることを保証</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">         153 :                 maxXRange := max(1, width-4)</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">         153 :                 maxYRange := max(1, height-4)</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">         153 :                 x := 2 + planData.RNG.IntN(maxXRange)</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">         153 :                 y := 2 + planData.RNG.IntN(maxYRange)</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">         153 : </span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">         153 :                 // 小さな円形の空き地を作成</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">         153 :                 radius := 1 + planData.RNG.IntN(2)</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">         153 : </span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">         778 :                 for dx := -radius; dx &lt;= radius; dx++ {</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">        3330 :                         for dy := -radius; dy &lt;= radius; dy++ {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">        2705 :                                 nx, ny := x+dx, y+dy</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">        2705 :                                 // 上端・下端行には描画しない（ForestPathsで保証した接続性を壊さないため）</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">        5380 :                                 if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt; 0 &amp;&amp; ny &lt; height-1 {</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">        2675 :                                         distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">        4098 :                                         if distance &lt;= float64(radius) {</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">        1423 :                                                 idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">        1423 :                                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">        1423 :                                         }</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">         198 :         for range wildlifeSpotCount {</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">         152 :                 // IntNの引数が正であることを保証</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">         152 :                 maxXRange := max(1, width-4)</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">         152 :                 maxYRange := max(1, height-4)</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">         152 :                 x := 2 + planData.RNG.IntN(maxXRange)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">         152 :                 y := 2 + planData.RNG.IntN(maxYRange)</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">         152 : </span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">         152 :                 // 小さな円形の空き地を作成</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">         152 :                 radius := 1 + planData.RNG.IntN(2)</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">         152 : </span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">         776 :                 for dx := -radius; dx &lt;= radius; dx++ {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">        3336 :                         for dy := -radius; dy &lt;= radius; dy++ {</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">        2712 :                                 nx, ny := x+dx, y+dy</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">        2712 :                                 // 上端・下端行には描画しない（ForestPathsで保証した接続性を壊さないため）</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">        5394 :                                 if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt; 0 &amp;&amp; ny &lt; height-1 {</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">        2682 :                                         distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">        4108 :                                         if distance &lt;= float64(radius) {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">        1426 :                                                 idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">        1426 :                                                 planData.Tiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">        1426 :                                         }</span></span>
 <span id="L320"><span class="lineNum">     320</span>              :                                 }</span>
 <span id="L321"><span class="lineNum">     321</span>              :                         }</span>
 <span id="L322"><span class="lineNum">     322</span>              :                 }</span>
