@@ -771,6 +771,11 @@ func NewShopMenuState() (es.State[w.World], error) {
 	return &ShopMenuState{}, nil
 }
 
+// NewMacroMapState はマクロ移動（ルート網）画面のStateを作成するファクトリー関数
+func NewMacroMapState() (es.State[w.World], error) {
+	return &MacroMapState{}, nil
+}
+
 // NewStorageMenuState は収納メニューStateを作成する
 func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
 	return &StorageMenuState{storageEntity: storageEntity}, nil

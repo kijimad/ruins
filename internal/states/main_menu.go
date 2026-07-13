@@ -146,15 +146,19 @@ func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
 	}
 
-	return mainMenuProps{
-		Items: []mainMenuItem{
-			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
-			{Label: "デモ", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}},
-			{Label: "読込", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
-			{Label: "設定", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
-			{Label: "終了", Transition: es.Transition[w.World]{Type: es.TransQuit}},
-		},
+	items := []mainMenuItem{
+		{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
+		{Label: "デモ", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}},
+		{Label: "読込", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
+		{Label: "設定", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
 	}
+	// デバッグ用のマクロ移動入口（RUINS_DEBUG_MACROMAP で有効化）。既定では非表示
+	if world.Config.DebugMacroMap {
+		items = append(items, mainMenuItem{Label: "マクロ移動(仮)", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewMacroMapState}}})
+	}
+	items = append(items, mainMenuItem{Label: "終了", Transition: es.Transition[w.World]{Type: es.TransQuit}})
+
+	return mainMenuProps{Items: items}
 }
 
 func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
