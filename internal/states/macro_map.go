@@ -11,10 +11,13 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/route"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -45,12 +48,36 @@ func (st *MacroMapState) OnResume(_ w.World) error { return nil }
 // OnStop はステートが終了する際に呼ばれる
 func (st *MacroMapState) OnStop(_ w.World) error { return nil }
 
-// OnStart はステートが開始される際に呼ばれる。ラン未開始なら自動生成する（デバッグ入口用）。
+// OnStart はステートが開始される際に呼ばれる。ラン未開始なら最小の実ラン世界を用意する（デバッグ入口用）。
 func (st *MacroMapState) OnStart(world w.World) error {
+	// 正式な遠征選択入口（Phase 5）ではそちらがプレイヤー・ランを用意するため、ここは通らない。
 	if query.GetCaravanRun(world) == nil {
-		query.SetCaravanRun(world, gc.NewCaravanRun(macroMapDebugSeed, route.ExpeditionDeepVault))
+		if err := setupDebugRun(world); err != nil {
+			return err
+		}
 	}
 	st.mount = hooks.NewMount[macroMapProps]()
+	return nil
+}
+
+// setupDebugRun はデバッグ入口用に最小の実ラン世界（プレイヤー・隊員・ラン）を用意する。
+// Shop/Dungeon などプレイヤー依存のサブステートを MacroMap から起動できるようにするための暫定処理で、
+// 正式な遠征選択入口（Phase 5）ができたら不要になる。DemoStart のセットアップに倣う。
+func setupDebugRun(world w.World) error {
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	if err != nil {
+		return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
+	}
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
+	if len(professions) > 0 {
+		if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {
+			return fmt.Errorf("職業の適用に失敗: %w", err)
+		}
+	}
+	if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
+		return fmt.Errorf("初期隊員の生成に失敗: %w", err)
+	}
+	query.SetCaravanRun(world, gc.NewCaravanRun(macroMapDebugSeed, route.ExpeditionDeepVault))
 	return nil
 }
 
@@ -176,10 +203,13 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 			"野営した。休息して糧食を %d 回復した。", campFoodRestore)).Log()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case route.NodeMarket, route.NodeShop, route.NodeJunction, route.NodeOutpost:
-		// Phase 4b: ShopMenuState を Push（実ラン世界＝プレイヤー・在庫が要る）
+		// 交易（購入・能動売却）。既存 ShopMenuState を Push し、閉じると MacroMap に戻る
 		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
-			"%sに到着した。交易ができる（ShopMenu 接続は次段）。", nodeTypeJP(node.Type))).Log()
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+			"%sに到着した。交易ができる。", nodeTypeJP(node.Type))).Log()
+		return es.Transition[w.World]{
+			Type:          es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
+		}, nil
 	case route.NodeRuin:
 		// Phase 4b: DungeonState を Push ＋ WithEscapeTarget で MacroMap へ戻す（★主リスク）
 		gamelog.New(query.GetGameLog(world)).System(
