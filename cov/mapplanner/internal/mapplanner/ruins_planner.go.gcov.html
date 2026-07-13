@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 23:21:16</td>
+            <td class="headerValue">2026-07-13 23:23:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,9 +111,9 @@
 <span id="L49"><span class="lineNum">      49</span>              : // PlanMeta は廃墟構造をタイルに描画する</span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">          32 : func (r RuinsDraw) PlanMeta(planData *MetaPlan) error {</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          32 :         // まず全体を床で埋める（屋外エリア）</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">       75737 :         for i := range planData.Tiles {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">       75705 :                 planData.Tiles[i] = planData.GetTile(r.FloorTile)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">       75705 :         }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">       75767 :         for i := range planData.Tiles {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">       75735 :                 planData.Tiles[i] = planData.GetTile(r.FloorTile)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">       75735 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
 <span id="L56"><span class="lineNum">      56</span>              :         // 各廃墟建物を処理</span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">         159 :         for _, room := range planData.Rooms {</span></span>
@@ -125,30 +125,30 @@
 <span id="L63"><span class="lineNum">      63</span>              : // drawRuinedBuilding は破損した建物を描画する</span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">         127 : func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         127 :         // 建物の外壁を描画（一部欠損あり）</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">        1677 :         for x := building.X1; x &lt;= building.X2; x++ {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">        1550 :                 // 上辺</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">        2647 :                 if y := building.Y1; planData.RNG.Float64() &gt; 0.3 { // 70%の確率で壁</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">        1097 :                         idx := planData.Level.XYTileIndex(x, y)</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">        1097 :                         planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">        1097 :                 }</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">        1672 :         for x := building.X1; x &lt;= building.X2; x++ {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">        1545 :                 // 上辺</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">        2641 :                 if y := building.Y1; planData.RNG.Float64() &gt; 0.3 { // 70%の確率で壁</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">        1096 :                         idx := planData.Level.XYTileIndex(x, y)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">        1096 :                         planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">        1096 :                 }</span></span>
 <span id="L72"><span class="lineNum">      72</span>              :                 // 下辺</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        2649 :                 if y := building.Y2; planData.RNG.Float64() &gt; 0.3 {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        2644 :                 if y := building.Y2; planData.RNG.Float64() &gt; 0.3 {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">        1099 :                         idx := planData.Level.XYTileIndex(x, y)</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">        1099 :                         planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">        1099 :                 }</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :         }</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        1255 :         for y := building.Y1; y &lt;= building.Y2; y++ {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">        1128 :                 // 左辺</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">        1937 :                 if x := building.X1; planData.RNG.Float64() &gt; 0.3 {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">         809 :                         idx := planData.Level.XYTileIndex(x, y)</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         809 :                         planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         809 :                 }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        1269 :         for y := building.Y1; y &lt;= building.Y2; y++ {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">        1142 :                 // 左辺</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">        1969 :                 if x := building.X1; planData.RNG.Float64() &gt; 0.3 {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">         827 :                         idx := planData.Level.XYTileIndex(x, y)</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         827 :                         planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         827 :                 }</span></span>
 <span id="L85"><span class="lineNum">      85</span>              :                 // 右辺</span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">        1940 :                 if x := building.X2; planData.RNG.Float64() &gt; 0.3 {</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">         812 :                         idx := planData.Level.XYTileIndex(x, y)</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">         812 :                         planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">         812 :                 }</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">        1961 :                 if x := building.X2; planData.RNG.Float64() &gt; 0.3 {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">         819 :                         idx := planData.Level.XYTileIndex(x, y)</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">         819 :                         planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">         819 :                 }</span></span>
 <span id="L90"><span class="lineNum">      90</span>              :         }</span>
 <span id="L91"><span class="lineNum">      91</span>              : </span>
 <span id="L92"><span class="lineNum">      92</span>              :         // 建物内部に部屋の仕切りを作成（一部破損）</span>
@@ -161,23 +161,23 @@
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">         127 :         buildingHeight := int(building.Y2 - building.Y1 + 1)</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">         127 : </span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">         127 :         // 建物が十分大きい場合のみ内部の仕切りを作成</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">         184 :         if buildingWidth &gt;= 10 &amp;&amp; buildingHeight &gt;= 8 {</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">          57 :                 // 縦の仕切り</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">          57 :                 midX := building.X1 + consts.Tile(buildingWidth/2)</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">         413 :                 for y := building.Y1 + 2; y &lt;= building.Y2-2; y++ {</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">         582 :                         if planData.RNG.Float64() &gt; 0.4 { // 60%の確率で壁</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">         226 :                                 idx := planData.Level.XYTileIndex(midX, y)</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">         226 :                                 planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">         226 :                         }</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">         187 :         if buildingWidth &gt;= 10 &amp;&amp; buildingHeight &gt;= 8 {</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">          60 :                 // 縦の仕切り</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">          60 :                 midX := building.X1 + consts.Tile(buildingWidth/2)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">         436 :                 for y := building.Y1 + 2; y &lt;= building.Y2-2; y++ {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">         613 :                         if planData.RNG.Float64() &gt; 0.4 { // 60%の確率で壁</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">         237 :                                 idx := planData.Level.XYTileIndex(midX, y)</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">         237 :                                 planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">         237 :                         }</span></span>
 <span id="L110"><span class="lineNum">     110</span>              :                 }</span>
 <span id="L111"><span class="lineNum">     111</span>              : </span>
 <span id="L112"><span class="lineNum">     112</span>              :                 // 横の仕切り</span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">          57 :                 midY := building.Y1 + consts.Tile(buildingHeight/2)</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">         583 :                 for x := building.X1 + 2; x &lt;= building.X2-2; x++ {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">         827 :                         if planData.RNG.Float64() &gt; 0.4 { // 60%の確率で壁</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         301 :                                 idx := planData.Level.XYTileIndex(x, midY)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         301 :                                 planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">         301 :                         }</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">          60 :                 midY := building.Y1 + consts.Tile(buildingHeight/2)</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">         611 :                 for x := building.X1 + 2; x &lt;= building.X2-2; x++ {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">         867 :                         if planData.RNG.Float64() &gt; 0.4 { // 60%の確率で壁</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         316 :                                 idx := planData.Level.XYTileIndex(x, midY)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         316 :                                 planData.Tiles[idx] = planData.GetTile(r.WallTile)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">         316 :                         }</span></span>
 <span id="L119"><span class="lineNum">     119</span>              :                 }</span>
 <span id="L120"><span class="lineNum">     120</span>              :         }</span>
 <span id="L121"><span class="lineNum">     121</span>              : }</span>
@@ -195,16 +195,16 @@
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">          32 : </span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">          32 :         // 屋外エリアに瓦礫を散乱させる</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">        1508 :         for x := 1; x &lt; width-1; x++ {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">       70727 :                 for y := 1; y &lt; height-1; y++ {</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">       69251 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">       69251 : </span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">      134765 :                         if planData.Tiles[idx].Name == r.FloorTile {</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">       65514 :                                 // 建物から離れた場所ほど瓦礫が少ない</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">       65514 :                                 debrisChance := r.calculateDebrisChance(planData, x, y)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">       65514 : </span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">       69109 :                                 if planData.RNG.Float64() &lt; debrisChance {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">        3595 :                                         planData.Tiles[idx] = planData.GetTile(r.WallTile) // 瓦礫として壁タイルを使用</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">        3595 :                                 }</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">       70843 :                 for y := 1; y &lt; height-1; y++ {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">       69367 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">       69367 : </span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">      134864 :                         if planData.Tiles[idx].Name == r.FloorTile {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">       65497 :                                 // 建物から離れた場所ほど瓦礫が少ない</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">       65497 :                                 debrisChance := r.calculateDebrisChance(planData, x, y)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">       65497 : </span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">       69087 :                                 if planData.RNG.Float64() &lt; debrisChance {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">        3590 :                                         planData.Tiles[idx] = planData.GetTile(r.WallTile) // 瓦礫として壁タイルを使用</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">        3590 :                                 }</span></span>
 <span id="L146"><span class="lineNum">     146</span>              :                         }</span>
 <span id="L147"><span class="lineNum">     147</span>              :                 }</span>
 <span id="L148"><span class="lineNum">     148</span>              :         }</span>
@@ -212,32 +212,32 @@
 <span id="L150"><span class="lineNum">     150</span>              : }</span>
 <span id="L151"><span class="lineNum">     151</span>              : </span>
 <span id="L152"><span class="lineNum">     152</span>              : // calculateDebrisChance は瓦礫の配置確率を計算する</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       65545 : func (r RuinsDebris) calculateDebrisChance(planData *MetaPlan, x, y int) float64 {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       65545 :         // 最寄りの建物までの距離を計算</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">       65545 :         minDistance := 1000.0</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">       65545 : </span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">      325413 :         for _, room := range planData.Rooms {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">      259868 :                 // 建物の中心からの距離</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">      259868 :                 centerX := float64(room.X1+room.X2) / 2.0</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">      259868 :                 centerY := float64(room.Y1+room.Y2) / 2.0</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">      259868 : </span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">      259868 :                 dx := float64(x) - centerX</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">      259868 :                 dy := float64(y) - centerY</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">      259868 :                 distance := dx*dx + dy*dy // 平方根は不要</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">      259868 : </span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">      379820 :                 if distance &lt; minDistance {</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">      119952 :                         minDistance = distance</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">      119952 :                 }</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       65456 : func (r RuinsDebris) calculateDebrisChance(planData *MetaPlan, x, y int) float64 {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       65456 :         // 最寄りの建物までの距離を計算</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">       65456 :         minDistance := 1000.0</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">       65456 : </span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">      324925 :         for _, room := range planData.Rooms {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">      259469 :                 // 建物の中心からの距離</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">      259469 :                 centerX := float64(room.X1+room.X2) / 2.0</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">      259469 :                 centerY := float64(room.Y1+room.Y2) / 2.0</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">      259469 : </span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">      259469 :                 dx := float64(x) - centerX</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">      259469 :                 dy := float64(y) - centerY</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">      259469 :                 distance := dx*dx + dy*dy // 平方根は不要</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">      259469 : </span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">      378627 :                 if distance &lt; minDistance {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">      119158 :                         minDistance = distance</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">      119158 :                 }</span></span>
 <span id="L169"><span class="lineNum">     169</span>              :         }</span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
 <span id="L171"><span class="lineNum">     171</span>              :         // 距離に基づいて瓦礫確率を計算（近いほど高確率）</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">       71819 :         if minDistance &lt; 25 { // 建物の近く</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">        6426 :                 return 0.15</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">       82468 :         } else if minDistance &lt; 100 { // 中距離</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       16902 :                 return 0.08</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">       16902 :         }</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">       71831 :         if minDistance &lt; 25 { // 建物の近く</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">        6451 :                 return 0.15</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">       82462 :         } else if minDistance &lt; 100 { // 中距離</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       16997 :                 return 0.08</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">       16997 :         }</span></span>
 <span id="L177"><span class="lineNum">     177</span>              :         // 遠距離</span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">       42370 :         return 0.03</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">       42178 :         return 0.03</span></span>
 <span id="L179"><span class="lineNum">     179</span>              : }</span>
 <span id="L180"><span class="lineNum">     180</span>              : </span>
 <span id="L181"><span class="lineNum">     181</span>              : // RuinsCorridors は廃墟間を繋ぐ通路を作成する</span>
@@ -259,56 +259,56 @@
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">         200 :                         room2 := planData.Rooms[j]</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">         200 : </span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">         200 :                         // 30%の確率で通路を作成（すべての建物を繋ぐわけではない）</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">         248 :                         if planData.RNG.Float64() &lt; 0.3 {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">          48 :                                 r.createRuinedPath(planData, room1, room2)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">          48 :                         }</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">         246 :                         if planData.RNG.Float64() &lt; 0.3 {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">          46 :                                 r.createRuinedPath(planData, room1, room2)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">          46 :                         }</span></span>
 <span id="L203"><span class="lineNum">     203</span>              :                 }</span>
 <span id="L204"><span class="lineNum">     204</span>              :         }</span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">          32 :         return nil</span></span>
 <span id="L206"><span class="lineNum">     206</span>              : }</span>
 <span id="L207"><span class="lineNum">     207</span>              : </span>
 <span id="L208"><span class="lineNum">     208</span>              : // createRuinedPath は破損した通路を作成する</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          48 : func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          48 :         // 各建物の中心を計算</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          48 :         center1X := (room1.X1 + room1.X2) / 2</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">          48 :         center1Y := (room1.Y1 + room1.Y2) / 2</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          48 :         center2X := (room2.X1 + room2.X2) / 2</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          48 :         center2Y := (room2.Y1 + room2.Y2) / 2</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          48 : </span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          48 :         // L字型の通路を作成（一部破損）</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          48 :         currentX, currentY := center1X, center1Y</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          48 : </span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          48 :         // 水平方向に移動</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">         518 :         for currentX != center2X {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">         727 :                 if currentX &lt; center2X {</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">         257 :                         currentX++</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">         470 :                 } else {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">         213 :                         currentX--</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">         213 :                 }</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          46 : func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          46 :         // 各建物の中心を計算</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          46 :         center1X := (room1.X1 + room1.X2) / 2</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">          46 :         center1Y := (room1.Y1 + room1.Y2) / 2</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          46 :         center2X := (room2.X1 + room2.X2) / 2</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          46 :         center2Y := (room2.Y1 + room2.Y2) / 2</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          46 : </span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          46 :         // L字型の通路を作成（一部破損）</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          46 :         currentX, currentY := center1X, center1Y</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          46 : </span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          46 :         // 水平方向に移動</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">         515 :         for currentX != center2X {</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">         747 :                 if currentX &lt; center2X {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">         278 :                         currentX++</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">         469 :                 } else {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">         191 :                         currentX--</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">         191 :                 }</span></span>
 <span id="L226"><span class="lineNum">     226</span>              : </span>
 <span id="L227"><span class="lineNum">     227</span>              :                 // 70%の確率で通路を作成（部分的に破損）</span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">         776 :                 if planData.RNG.Float64() &gt; 0.3 {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">         306 :                         idx := planData.Level.XYTileIndex(currentX, currentY)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">         772 :                 if planData.RNG.Float64() &gt; 0.3 {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">         303 :                         idx := planData.Level.XYTileIndex(currentX, currentY)</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">         401 :                         if planData.Tiles[idx].Name == r.WallTile {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">          95 :                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">          95 :                         }</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">          98 :                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">          98 :                         }</span></span>
 <span id="L233"><span class="lineNum">     233</span>              :                 }</span>
 <span id="L234"><span class="lineNum">     234</span>              :         }</span>
 <span id="L235"><span class="lineNum">     235</span>              : </span>
 <span id="L236"><span class="lineNum">     236</span>              :         // 垂直方向に移動</span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">         592 :         for currentY != center2Y {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">         857 :                 if currentY &lt; center2Y {</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">         313 :                         currentY++</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">         544 :                 } else {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">         231 :                         currentY--</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">         231 :                 }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">         562 :         for currentY != center2Y {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">         776 :                 if currentY &lt; center2Y {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">         260 :                         currentY++</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">         516 :                 } else {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">         256 :                         currentY--</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">         256 :                 }</span></span>
 <span id="L243"><span class="lineNum">     243</span>              : </span>
 <span id="L244"><span class="lineNum">     244</span>              :                 // 70%の確率で通路を作成</span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">         942 :                 if planData.RNG.Float64() &gt; 0.3 {</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">         398 :                         idx := planData.Level.XYTileIndex(currentX, currentY)</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">         523 :                         if planData.Tiles[idx].Name == r.WallTile {</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">         125 :                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">         125 :                         }</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">         891 :                 if planData.RNG.Float64() &gt; 0.3 {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">         375 :                         idx := planData.Level.XYTileIndex(currentX, currentY)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">         486 :                         if planData.Tiles[idx].Name == r.WallTile {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">         111 :                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">         111 :                         }</span></span>
 <span id="L250"><span class="lineNum">     250</span>              :                 }</span>
 <span id="L251"><span class="lineNum">     251</span>              :         }</span>
 <span id="L252"><span class="lineNum">     252</span>              : }</span>

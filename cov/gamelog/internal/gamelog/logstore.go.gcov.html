@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 23:21:16</td>
+            <td class="headerValue">2026-07-13 23:23:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -93,16 +93,16 @@
 <span id="L31"><span class="lineNum">      31</span>              : }</span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // Push は新しいログを追加</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">        2066 : func (s *SafeSlice) Push(message string) {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">        2066 :         // 単純な文字列を色付きログエントリに変換</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">        2066 :         entry := LogEntry{</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">        2066 :                 Fragments: []LogFragment{{</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        2066 :                         Text:  message,</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        2066 :                         Color: ColorWhite, // デフォルト色は白</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        2066 :                 }},</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        2066 :         }</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        2066 :         s.pushColoredEntry(entry)</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        2066 : }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">        2065 : func (s *SafeSlice) Push(message string) {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">        2065 :         // 単純な文字列を色付きログエントリに変換</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">        2065 :         entry := LogEntry{</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">        2065 :                 Fragments: []LogFragment{{</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        2065 :                         Text:  message,</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        2065 :                         Color: ColorWhite, // デフォルト色は白</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        2065 :                 }},</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        2065 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        2065 :         s.pushColoredEntry(entry)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        2065 : }</span></span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // GetRecent は最新N行を表示順で取得（文字列版）</span>
 <span id="L46"><span class="lineNum">      46</span>              : // 色付きエントリから文字列に変換して返す</span>
