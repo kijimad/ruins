@@ -19,6 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // macroMapDebugSeed はデバッグ入口でランを自動生成する際の固定シード。
@@ -64,21 +65,32 @@ func (st *MacroMapState) OnStart(world w.World) error {
 // Shop/Dungeon などプレイヤー依存のサブステートを MacroMap から起動できるようにするための暫定処理で、
 // 正式な遠征選択入口（Phase 5）ができたら不要になる。DemoStart のセットアップに倣う。
 func setupDebugRun(world w.World) error {
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
-	if err != nil {
-		return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
-	}
-	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-	if len(professions) > 0 {
-		if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {
-			return fmt.Errorf("職業の適用に失敗: %w", err)
+	// プレイヤーが未生成のときだけ生成する。ラン終了で CaravanRun を除去しても
+	// プレイヤー/隊員は World に残るため、CaravanRun の有無で判定すると再入で二重 spawn になる
+	if !playerExists(world) {
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		if err != nil {
+			return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
 		}
-	}
-	if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
-		return fmt.Errorf("初期隊員の生成に失敗: %w", err)
+		professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
+		if len(professions) > 0 {
+			if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {
+				return fmt.Errorf("職業の適用に失敗: %w", err)
+			}
+		}
+		if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
+			return fmt.Errorf("初期隊員の生成に失敗: %w", err)
+		}
 	}
 	query.SetCaravanRun(world, gc.NewCaravanRun(macroMapDebugSeed, route.ExpeditionDeepVault))
 	return nil
+}
+
+// playerExists は World にプレイヤーが既に存在するかを返す。
+func playerExists(world w.World) bool {
+	exists := false
+	query.Player(world, func(_ ecs.Entity) { exists = true })
+	return exists
 }
 
 // Update はステートの更新処理
@@ -146,7 +158,18 @@ type macroMapItem struct {
 
 func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 	run := query.GetCaravanRun(world)
+	if run == nil {
+		// ラン未設定でここに来るのは想定外だが、パニックさせず離脱できるようにする
+		return macroMapProps{Items: []macroMapItem{{Label: "戻る", IsCancel: true}}}
+	}
 	cur := run.Graph.NodeByID(run.Current)
+	if cur == nil {
+		// セーブ互換等で現在ノードを引けない場合の graceful degradation（生成アルゴリズム変更でIDがずれた等）
+		return macroMapProps{
+			Header: []string{"ルート情報を復元できません"},
+			Items:  []macroMapItem{{Label: "戻る", IsCancel: true}},
+		}
+	}
 
 	header := []string{
 		fmt.Sprintf("現在地: %s（層%d）", nodeTypeJP(cur.Type), cur.Layer),
@@ -179,6 +202,9 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 	}
 
 	run := query.GetCaravanRun(world)
+	if run == nil {
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}
 	to := run.Graph.NodeByID(item.Edge.To)
 	res := run.AdvanceAlong(item.Edge)
 	gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
