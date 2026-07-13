@@ -127,8 +127,9 @@ func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 		fmt.Sprintf("寒波リード %d 面（前進%d／前線%d）", run.FrontLead(), run.CaravanProgress, run.FrontProgress),
 	}
 
-	items := make([]macroMapItem, 0)
-	for _, e := range run.Graph.Outgoing(run.Current) {
+	outgoing := run.Graph.Outgoing(run.Current)
+	items := make([]macroMapItem, 0, len(outgoing)+1)
+	for _, e := range outgoing {
 		to := run.Graph.NodeByID(e.To)
 		items = append(items, macroMapItem{
 			Label: fmt.Sprintf("→ %s ｜%s 面%d", nodeTypeJP(to.Type), edgeTypeJP(e.Type), e.Faces),
@@ -157,10 +158,35 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 		"%sへ移動した。糧食-%d 燃料-%d、寒波が接近する。",
 		nodeTypeJP(to.Type), res.Cost.Food, res.Cost.Fuel)).Log()
 
-	// Phase 3 は抽象トラベル。到達ノード型ごとのサブステート遷移（潜行/交易/野営）は Phase 4。
-	if run.Current == run.Graph.Goal {
-		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。遠征達成。").Log()
+	return st.dispatchNode(world, run, to)
+}
+
+// dispatchNode は到達ノードの型に応じたサブ挙動へ振り分ける（Phase 4）。
+// Market/Shop/Ruin など実ラン世界（プレイヤー・ショップ在庫）を要する遷移は Phase 4b で接続する。
+func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *route.Node) (es.Transition[w.World], error) {
+	switch node.Type {
+	case route.NodeGoal:
+		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。背骨を納品して遠征達成。").Log()
 		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case route.NodeCamp:
+		// 野営で休息し糧食をいくらか回復する（CaravanRun のみで完結・プレイヤー不要）
+		const campFoodRestore = 15
+		run.Supply.Food += campFoodRestore
+		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
+			"野営した。休息して糧食を %d 回復した。", campFoodRestore)).Log()
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case route.NodeMarket, route.NodeShop, route.NodeJunction, route.NodeOutpost:
+		// Phase 4b: ShopMenuState を Push（実ラン世界＝プレイヤー・在庫が要る）
+		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
+			"%sに到着した。交易ができる（ShopMenu 接続は次段）。", nodeTypeJP(node.Type))).Log()
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case route.NodeRuin:
+		// Phase 4b: DungeonState を Push ＋ WithEscapeTarget で MacroMap へ戻す（★主リスク）
+		gamelog.New(query.GetGameLog(world)).System(
+			"遺跡に到着した。潜行できる（DungeonState 接続は次段）。").Log()
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case route.NodeHome:
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
