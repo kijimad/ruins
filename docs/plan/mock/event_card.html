@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 創発イベント（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --power:#ffd35c;
+    --hp:#57c06a; --hpmid:#e5c675; --hplow:#e0574a; --ally:#7fd6ff;
+    --str:#e07a6a; --sen:#c79cf0; --dex:#6fd0c0; --agi:#8fd14f; --vit:#e0a85a; --def:#7fa8d6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace; color:var(--ink);}
+  .screen{width:1280px; min-height:800px; margin:0 auto; background:var(--bg); position:relative;
+    display:grid; grid-template-columns:24px 1fr 24px; grid-template-rows:26px 1fr 24px;}
+  .titlebar{grid-column:1/4; grid-row:1; background:var(--panel2); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; padding:0 12px; font-size:12px;}
+  .titlebar .b{color:var(--gold);} .titlebar .s{color:var(--ink2);}
+  .titlebar .right{margin-left:auto; color:var(--ink2);}
+  .wrap{grid-column:2; grid-row:2; padding:14px 0; display:grid; grid-template-columns:1fr; gap:14px; max-width:880px; margin:0 auto;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .ch{font-size:11px; letter-spacing:2px; color:var(--ink2); padding:8px 12px; border-bottom:1px solid var(--line); text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;}
+  .ch .r{color:var(--dim); letter-spacing:0;}
+  .cb{padding:11px 12px;}
+  .tag{font-size:10px; background:#1e2a35; color:#9fd0e6; border-radius:3px; padding:2px 7px;}
+  .tag.g{background:#20302a; color:#a8e0b8;} .tag.w{background:#3a2320; color:#ffb0a6;}
+  .tag.gold{background:#2e2818; color:var(--gold);}
+  .foot{grid-column:2; grid-row:3; color:var(--dim); font-size:10px; padding-top:2px;}
+
+  /* イベントカード種別のアクセント色を左端の帯で示す */
+  .card.kind-tragic{border-left:3px solid var(--hplow);}
+  .card.kind-bond{border-left:3px solid var(--hp);}
+  .card.kind-rebirth{border-left:3px solid var(--crystal);}
+  .card.kind-daily{border-left:3px solid var(--gold);}
+  .ch .kindlabel.tragic{color:var(--hplow);}
+  .ch .kindlabel.bond{color:var(--hp);}
+  .ch .kindlabel.rebirth{color:var(--crystal);}
+  .ch .kindlabel.daily{color:var(--gold);}
+
+  /* 関与する隊員の並び（小ポートレート＋関係タグ） */
+  .cast{display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(255,255,255,.015), transparent);}
+  .who{display:flex; align-items:center; gap:8px;}
+  .pic{width:40px;height:46px;flex:none;border-radius:5px;position:relative;overflow:hidden;
+    background:radial-gradient(circle at 50% 34%, #2a3947 0%, #16202b 62%, #0d141b 100%);
+    border:1px solid #2c3d4b;}
+  .pic .fig{position:absolute; left:50%; bottom:-2px; transform:translateX(-50%); font-size:30px; filter:drop-shadow(0 1px 2px #000);}
+  .who .nm{font-size:13px; color:#eaf3fb; letter-spacing:.5px;}
+  .who .cl{font-size:10px; color:var(--ink2); margin-top:1px;}
+  .relbadge{display:flex; align-items:center; gap:6px; padding:2px 4px;}
+  .relbadge .arrow{color:var(--dim); font-size:14px;}
+
+  /* 状況文：雛形が埋まった一段落 */
+  .scene{padding:14px 14px 4px; font-size:14px; line-height:1.85; color:#dbe6f0;}
+  .scene .a{color:var(--fire);} .scene .b{color:var(--crystal);} .scene .em{color:var(--gold);}
+
+  /* 選択肢：それぞれに予想される代償/結果の一行 */
+  .choices{padding:6px 12px 12px;}
+  .choice{display:flex; align-items:flex-start; gap:10px; margin:8px 0; padding:9px 11px;
+    background:var(--card); border:1px solid #223140; border-radius:5px; cursor:default;}
+  .choice:hover{border-color:#33465a;}
+  .choice .key{width:20px; flex:none; color:var(--gold); font-size:12px; text-align:center; margin-top:1px;}
+  .choice .body{flex:1;}
+  .choice .act{font-size:13px; color:#eaf3fb;}
+  .choice .cost{font-size:11px; color:var(--ink2); margin-top:3px; line-height:1.6;}
+  .choice .cost .up{color:var(--hplow);} .choice .cost .dn{color:var(--fire);}
+  .choice .cost .good{color:var(--hp);} .choice .cost .warm{color:var(--gold);}
+
+  /* 関係変化の提示（結果の読める一行）— 言葉主・数値副 */
+  .aftermath{padding:10px 14px 13px; border-top:1px solid var(--line); background:var(--panel2);}
+  .aftermath .lead{font-size:10px; letter-spacing:1px; color:var(--dim); text-transform:uppercase; margin-bottom:6px;}
+  .delta{font-size:12px; color:var(--ink); line-height:1.9;}
+  .delta .who{color:#dce7f0;}
+  .delta .word{color:var(--gold);}
+  .delta .word.bad{color:var(--hplow);} .delta .word.good{color:var(--hp);}
+  .delta .n{font-size:10px; color:var(--dim);}
+  .delta .sep{color:var(--dim); margin:0 8px;}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="titlebar">
+    <span class="b">◆ RUINS</span><span>創発イベント &nbsp;— ダウンタイムの一場面</span>
+    <span class="s">|</span><span class="s">野営 3日目 · 夜</span>
+    <span class="right">監督が挿む物語 · 悲しみ → 再生</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- 1. 悲劇寄り -->
+    <div class="card kind-tragic">
+      <div class="ch">
+        <span><span class="kindlabel tragic">◆ 悲劇</span> &nbsp;焚き火の前で</span>
+        <span class="r">EVENT · TRAGIC</span>
+      </div>
+      <div class="cast">
+        <div class="who">
+          <div class="pic"><div class="fig">🧍</div></div>
+          <div><div class="nm">アッシュ</div><div class="cl">斥候</div></div>
+        </div>
+        <span class="relbadge"><span class="tag w">確執</span><span class="arrow">⇄</span></span>
+        <div class="who">
+          <div class="pic"><div class="fig">🧍‍♂️</div></div>
+          <div><div class="nm">ブラン</div><div class="cl">重装</div></div>
+        </div>
+      </div>
+      <div class="scene">
+        限られた糧食を巡り、<span class="a">アッシュ</span>と<span class="b">ブラン</span>が焚き火の前で睨み合う。
+        <span class="a">アッシュ</span>は昨夜、崩れる坑道に取り残された仲間を<span class="b">ブラン</span>が見殺しにしたことを、まだ許していない。
+        炎が二人の顔を赤く照らし、隊の誰も口を開かない。
+      </div>
+      <div class="choices">
+        <div class="choice">
+          <span class="key">A</span>
+          <div class="body">
+            <div class="act">アッシュに配給を回す —— 弱った斥候を優先する</div>
+            <div class="cost">ブランの<span class="up">遺恨が深まる</span>／だが隊の斥候能力は保たれる</div>
+          </div>
+        </div>
+        <div class="choice">
+          <span class="key">B</span>
+          <div class="body">
+            <div class="act">ブランに配給を回す —— 前衛を立たせ続ける</div>
+            <div class="cost">アッシュが<span class="up">見捨てられたと感じる</span>／前衛の壁は崩れない</div>
+          </div>
+        </div>
+        <div class="choice">
+          <span class="key">C</span>
+          <div class="body">
+            <div class="act">二人に分け合わせ、自分は抜く —— 監督が身を削る</div>
+            <div class="cost">両者の遺恨は静まる／<span class="dn">隊全体が飢える</span>・翌日の行軍に影</div>
+          </div>
+        </div>
+      </div>
+      <div class="aftermath">
+        <div class="lead">この後にありそうな変化</div>
+        <div class="delta">
+          <span class="who">ブラン → アッシュ</span> の<span class="word bad">遺恨がいっそう濃く</span>なる <span class="n">(+2)</span>
+          <span class="sep">·</span>
+          焚き火を囲む隊の<span class="word bad">士気がわずかに沈む</span> <span class="n">(−1)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 絆寄り -->
+    <div class="card kind-bond">
+      <div class="ch">
+        <span><span class="kindlabel bond">◆ 絆</span> &nbsp;見張りの交代</span>
+        <span class="r">EVENT · BOND</span>
+      </div>
+      <div class="cast">
+        <div class="who">
+          <div class="pic"><div class="fig">🧍‍♀️</div></div>
+          <div><div class="nm">シラ</div><div class="cl">衛生</div></div>
+        </div>
+        <span class="relbadge"><span class="tag g">師弟</span><span class="arrow">→</span></span>
+        <div class="who">
+          <div class="pic"><div class="fig">🧒</div></div>
+          <div><div class="nm">ノア</div><div class="cl">見習い</div></div>
+        </div>
+      </div>
+      <div class="scene">
+        深夜の見張りで震える<span class="b">ノア</span>に、<span class="a">シラ</span>が黙って自分の外套をかけた。
+        かつて<span class="a">シラ</span>を拾い、同じことをしてくれた誰かの手を思い出しながら。
+        「眠っていい。ここは私が見てる」——初めて<span class="b">ノア</span>は、この隊を家だと感じる。
+      </div>
+      <div class="choices">
+        <div class="choice">
+          <span class="key">A</span>
+          <div class="body">
+            <div class="act">シラに任せ、ノアを休ませる</div>
+            <div class="cost">二人の<span class="good">結びつきが強まる</span>／シラは寝不足で翌日の手当てが鈍る</div>
+          </div>
+        </div>
+        <div class="choice">
+          <span class="key">B</span>
+          <div class="body">
+            <div class="act">ノアを叩き起こし、見張りを続けさせる</div>
+            <div class="cost">ノアは<span class="up">規律を学ぶ</span>が、芽生えかけた慕情は冷える</div>
+          </div>
+        </div>
+      </div>
+      <div class="aftermath">
+        <div class="lead">この後にありそうな変化</div>
+        <div class="delta">
+          <span class="who">ノア → シラ</span> への<span class="word good">敬愛が芽生える</span> <span class="n">(好意 +2)</span>
+          <span class="sep">·</span>
+          ノアの<span class="word good">スキル成長がわずかに早まる</span> <span class="n">(師弟補正)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 再生（新しい出会い）寄り -->
+    <div class="card kind-rebirth">
+      <div class="ch">
+        <span><span class="kindlabel rebirth">◆ 再生</span> &nbsp;凍土に立つ影</span>
+        <span class="r">EVENT · REBIRTH</span>
+      </div>
+      <div class="cast">
+        <div class="who">
+          <div class="pic" style="background:radial-gradient(circle at 50% 34%, #1c2a38 0%, #10171f 62%, #0a0f15 100%);border-color:#243444;"><div class="fig">🧎</div></div>
+          <div><div class="nm">見知らぬ女</div><div class="cl">流民 · 素性不明</div></div>
+        </div>
+        <span class="relbadge"><span class="tag gold">初対面</span></span>
+        <div class="who">
+          <div class="pic"><div class="fig">🧍</div></div>
+          <div><div class="nm">キャラバン</div><div class="cl">あなたの隊</div></div>
+        </div>
+      </div>
+      <div class="scene">
+        崩れた前哨の陰に、凍えかけた<span class="b">女がひとり</span>うずくまっていた。
+        武器はなく、ただ一枚の古い隊章を握りしめている——それは、先の遠征で失った仲間のものだった。
+        炎の匂いに気づいた彼女が、こちらを見上げる。受け入れれば、隊はまた一つ物語を得る。
+      </div>
+      <div class="choices">
+        <div class="choice">
+          <span class="key">A</span>
+          <div class="body">
+            <div class="act">火のそばに招き入れる —— 素性を問わず迎える</div>
+            <div class="cost"><span class="good">新たな隊員を得る</span>／糧食の消費は増え、隊章の因縁が波紋を呼ぶかも</div>
+          </div>
+        </div>
+        <div class="choice">
+          <span class="key">B</span>
+          <div class="body">
+            <div class="act">食料だけ渡して去らせる —— 情けはかけるが背負わない</div>
+            <div class="cost">隊の負担は増えない／<span class="warm">「あの時拾えば」と後で悔いる</span>者が出る</div>
+          </div>
+        </div>
+        <div class="choice">
+          <span class="key">C</span>
+          <div class="body">
+            <div class="act">隊章について問い詰める —— 真実を先に確かめる</div>
+            <div class="cost">失った仲間の最期が語られる／喜びとも痛みともつかない一夜になる</div>
+          </div>
+        </div>
+      </div>
+      <div class="aftermath">
+        <div class="lead">この後にありそうな変化</div>
+        <div class="delta">
+          隊に<span class="word">新しい顔が加わり</span>、失った者の影が<span class="word good">静かに引き継がれる</span> <span class="n">(隊員 +1)</span>
+          <span class="sep">·</span>
+          隊の<span class="word good">士気が持ち直す</span> <span class="n">(+1)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 小さな日常 -->
+    <div class="card kind-daily">
+      <div class="ch">
+        <span><span class="kindlabel daily">◆ 日常</span> &nbsp;スープの湯気</span>
+        <span class="r">EVENT · DAILY</span>
+      </div>
+      <div class="cast">
+        <div class="who">
+          <div class="pic"><div class="fig">🧍‍♂️</div></div>
+          <div><div class="nm">ブラン</div><div class="cl">重装</div></div>
+        </div>
+        <span class="relbadge"><span class="tag">旧知</span><span class="arrow">⇄</span></span>
+        <div class="who">
+          <div class="pic"><div class="fig">🧍‍♀️</div></div>
+          <div><div class="nm">シラ</div><div class="cl">衛生</div></div>
+        </div>
+      </div>
+      <div class="scene">
+        戦いのない晩。<span class="a">ブラン</span>が不器用に薄いスープをかき混ぜ、<span class="b">シラ</span>がその塩加減にそっと文句をつける。
+        二十年前、まだ塔が凍る前に同じ鍋を囲んだ頃の、他愛ない口喧嘩のように。
+        束の間、この寒い世界の重さが、少しだけ軽くなる。
+      </div>
+      <div class="choices">
+        <div class="choice">
+          <span class="key">A</span>
+          <div class="body">
+            <div class="act">車座に加わり、昔話を促す</div>
+            <div class="cost">隊の<span class="good">士気が和らぐ</span>／夜更かしで翌朝の出発が少し遅れる</div>
+          </div>
+        </div>
+        <div class="choice">
+          <span class="key">B</span>
+          <div class="body">
+            <div class="act">静かに見守り、早めに休ませる</div>
+            <div class="cost">明日に備えられる／このささやかな温もりは記録に残らず流れる</div>
+          </div>
+        </div>
+      </div>
+      <div class="aftermath">
+        <div class="lead">この後にありそうな変化</div>
+        <div class="delta">
+          <span class="who">ブラン ⇄ シラ</span> の<span class="word good">古い好意が少し温もる</span> <span class="n">(+1)</span>
+          <span class="sep">·</span>
+          隊の<span class="word good">士気が回復</span> <span class="n">(+1)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot">※ 方向性モック。自動生成された出来事（雛形＋関係グラフ）を「物語の瞬間」として提示する型の検証用。実装中のUIとは異なる。</div>
+</div>
+</body>
+</html>

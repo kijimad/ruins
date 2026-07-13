@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 逗留ゾーン：ミクロの生産と強化（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --power:#ffd35c;
+    --hp:#57c06a; --hpmid:#e5c675; --hplow:#e0574a; --ally:#7fd6ff; --leader:#ffd35c;
+    --ore:#c08a5a; --scrap:#9fb0bd; --supply:#a8e0b8; --trade:#e5c675; --temp:#5fb6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace; color:var(--ink); -webkit-font-smoothing:antialiased;}
+  .screen{width:1280px; min-height:800px; margin:0 auto; background:var(--bg); position:relative;
+    display:grid; grid-template-columns:24px 1fr 24px; grid-template-rows:26px 1fr 24px;}
+  .titlebar{grid-column:1/4; grid-row:1; background:var(--panel2); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; padding:0 12px; font-size:12px;}
+  .titlebar .b{color:var(--gold);} .titlebar .s{color:var(--ink2);}
+  .titlebar .depth{color:var(--supply); font-weight:bold;}
+  .titlebar .right{margin-left:auto; color:var(--ink2);}
+  .wrap{grid-column:2; grid-row:2; padding:14px 0; display:grid; grid-template-columns:1fr 360px; gap:14px;}
+  .col{display:flex; flex-direction:column; gap:12px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .ch{font-size:11px; letter-spacing:2px; color:var(--ink2); padding:8px 12px; border-bottom:1px solid var(--line); text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;}
+  .ch .r{color:var(--dim); letter-spacing:0;}
+  .cb{padding:11px 12px;}
+  .bar{height:8px;border-radius:2px;background:#0a1119;overflow:hidden;box-shadow:inset 0 0 0 1px #05090d;}
+  .bar > i{display:block;height:100%;}
+  .tag{font-size:10px; background:#1e2a35; color:#9fd0e6; border-radius:3px; padding:2px 7px;}
+  .tag.g{background:#20302a; color:#a8e0b8;} .tag.w{background:#3a2320; color:#ffb0a6;}
+
+  /* ==== MICRO TILE MAP ==== */
+  .map{position:relative; background:#070a0e; overflow:hidden; border-radius:6px; border:1px solid var(--line); min-height:432px;}
+  #grid{position:absolute; inset:0;}
+  .cell{position:absolute;}
+  .ent{position:absolute; display:flex; align-items:center; justify-content:center; font-size:16px; transform:translate(-50%,-50%); z-index:5; text-shadow:0 1px 2px #000;}
+  .ent .ring{position:absolute; width:26px;height:26px;border-radius:50%;}
+  .name-tag{position:absolute; transform:translate(-50%,-135%); font-size:9px; color:#dfeaf2; background:rgba(6,10,14,.78); padding:0 3px; border-radius:2px; white-space:nowrap; z-index:6;}
+  .flow-tag{position:absolute; transform:translate(-50%,50%); font-size:9px; color:var(--gold); background:rgba(6,10,14,.7); padding:0 3px; border-radius:2px; white-space:nowrap; z-index:6;}
+  .maplabel{position:absolute; left:12px; bottom:10px; z-index:9; font-size:11px; color:var(--ink2); background:rgba(6,10,14,.6); padding:3px 8px; border-radius:3px;}
+  .safepill{position:absolute; right:12px; top:10px; z-index:9; background:rgba(6,10,14,.72); border:1px solid var(--line); border-radius:4px; padding:5px 10px; font-size:11px;}
+  .safepill b{color:var(--supply);}
+  .maplegend{padding:8px 12px; font-size:10px; color:var(--ink2); line-height:1.8; display:flex; flex-wrap:wrap; gap:14px;}
+  .maplegend .k{display:inline-block; margin-right:5px;}
+
+  /* ==== PRODUCTION CHAIN ==== */
+  .chain{display:flex; flex-direction:column; gap:10px;}
+  .chainrow{display:flex; align-items:center; gap:8px;}
+  .node{flex:none; background:var(--card); border:1px solid #223140; border-radius:5px; padding:7px 9px; min-width:96px;}
+  .node .ic{font-size:16px;} .node .nm{font-size:11px; color:#dce7f0; margin-top:2px;} .node .qt{font-size:10px; color:var(--ink2);}
+  .node.raw{border-color:#3a4a3a;} .node.mid{border-color:#3a4030;} .node.prod{border-color:#33404b;}
+  .arrow{flex:1; text-align:center; color:var(--dim); font-size:11px; position:relative;}
+  .arrow .st{font-size:9px; color:var(--gold); display:block;}
+  .split{margin-top:6px; display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .outbox{border-radius:5px; padding:8px 9px; border:1px solid;}
+  .outbox.supply{border-color:#2e5a3a; background:linear-gradient(180deg, rgba(168,224,184,.06), transparent);}
+  .outbox.trade{border-color:#5a4a2e; background:linear-gradient(180deg, rgba(229,198,117,.06), transparent);}
+  .outbox .h{font-size:10px; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; display:flex; justify-content:space-between;}
+  .outbox.supply .h{color:var(--supply);} .outbox.trade .h{color:var(--trade);}
+  .outbox .li{font-size:11px; color:#dce7f0; display:flex; justify-content:space-between; margin:4px 0;}
+  .outbox .li span{color:var(--ink2); font-size:10px;}
+
+  /* ==== DWELL FINITUDE ==== */
+  .lim{margin:11px 0;}
+  .lim .top{display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;}
+  .lim .top b{color:#dce7f0; font-weight:normal;} .lim .top span{color:var(--ink2);}
+  .lim.crit .top span{color:var(--hplow);}
+  .lim .note{font-size:10px; color:var(--dim); margin-top:4px; line-height:1.5;}
+  .ceil{display:flex; align-items:center; gap:6px; margin:6px 0; font-size:11px;}
+  .ceil .pip{width:11px;height:11px;border-radius:2px;flex:none;}
+  .ceil .pip.on{background:var(--gold);} .ceil .pip.off{background:#1a232c; box-shadow:inset 0 0 0 1px #2a3742;}
+  .ceil .lb{color:var(--ink2); margin-left:4px;}
+
+  /* station queue */
+  .st-line{display:flex; align-items:center; gap:8px; margin:8px 0; font-size:12px;}
+  .st-line .ico{width:22px; text-align:center;}
+  .st-line .nm{flex:1; color:#dce7f0;}
+  .st-line .prog{width:70px; height:6px; background:#0a1119; border-radius:2px; overflow:hidden; box-shadow:inset 0 0 0 1px #05090d;}
+  .st-line .prog i{display:block; height:100%; background:linear-gradient(90deg,#b07d1e,var(--power));}
+  .st-line .who{font-size:10px; color:var(--ink2); width:40px; text-align:right;}
+
+  /* footer decide buttons */
+  .decide{display:flex; gap:10px; padding:11px 12px; align-items:center;}
+  .btn{border:1px solid #223140; border-radius:5px; padding:8px 14px; font-size:12px; color:#dce7f0; background:var(--card);}
+  .btn.push{border-color:#5a3a2e; color:#ffb0a6; background:linear-gradient(180deg, rgba(224,87,74,.07), transparent);}
+  .btn.stay{border-color:#2e5a3a; color:var(--supply); background:linear-gradient(180deg, rgba(168,224,184,.06), transparent);}
+  .decide .hint{margin-left:auto; font-size:10px; color:var(--dim); text-align:right; line-height:1.5;}
+  .foot{grid-column:2; grid-row:3; color:var(--dim); font-size:10px; padding-top:2px;}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="titlebar">
+    <span class="b">◆ RUINS</span>
+    <span class="depth">逗留ゾーン — ミクロの生産と強化</span>
+    <span class="s">|</span>
+    <span>凍晶洞 B4F · 資源地「氷屑の窪地」</span>
+    <span class="s">ターン 128</span>
+    <span class="right">安息中 · 隊 5 / 生存 5 · 所持金 <span style="color:var(--gold)">1,240</span></span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- LEFT: micro tile map + production chain -->
+    <div class="col">
+      <div class="card" style="padding:0;">
+        <div class="ch">現地作業 <span class="r">その場で手を動かす · 採掘 → 加工 → 生産</span></div>
+        <div class="map">
+          <div id="grid"></div>
+          <div class="safepill">☗ 逗留ゾーン（戦闘なし）&nbsp;· 隊が自律作業中</div>
+          <div class="maplabel">▲ 隊員コマを採掘ノード／加工ステーションに割り当てる</div>
+        </div>
+        <div class="maplegend">
+          <span><span class="k" style="color:var(--crystal)">❄</span>氷晶脈</span>
+          <span><span class="k" style="color:var(--ore)">⛰</span>鉱脈</span>
+          <span><span class="k" style="color:var(--scrap)">▤</span>廃材</span>
+          <span><span class="k" style="color:var(--power)">🏭</span>工房</span>
+          <span><span class="k" style="color:var(--fire)">🔥</span>炉</span>
+          <span><span class="k" style="color:var(--leader)">◆</span>リーダー</span>
+          <span><span class="k" style="color:var(--ally)">■</span>隊員</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">生産チェーン <span class="r">原料 → 加工 → 製品 · 出口は自給／交易の二股</span></div>
+        <div class="cb">
+          <div class="chain">
+            <div class="chainrow">
+              <div class="node raw"><div class="ic">❄</div><div class="nm">氷晶（原料）</div><div class="qt">採取 ×48</div></div>
+              <div class="arrow">──<span class="st">🔥 精製 / 炉</span>▶</div>
+              <div class="node mid"><div class="ic">💧</div><div class="nm">精製結晶（中間）</div><div class="qt">在庫 ×22</div></div>
+              <div class="arrow">──<span class="st">🏭 生産 / 工房</span>▶</div>
+              <div class="node prod"><div class="ic">📦</div><div class="nm">製品</div><div class="qt">仕分け待ち</div></div>
+            </div>
+            <div class="split">
+              <div class="outbox supply">
+                <div class="h"><span>▼ 自給（この隊を守る消耗品）</span><span>回す</span></div>
+                <div class="li">💡 灯り <span>暗所レグの視界 +2</span></div>
+                <div class="li">🧥 防寒具 <span>寒波耐性 · 体温維持</span></div>
+                <div class="li">🔩 弾薬 <span>次の戦闘レグ用 ×30</span></div>
+              </div>
+              <div class="outbox trade">
+                <div class="h"><span>▼ 交易（売って稼ぐ）</span><span>売る</span></div>
+                <div class="li">💎 精製結晶塊 <span>行商人 @ 18/個</span></div>
+                <div class="li">🧭 計器部品 <span>ハブ市場 @ 42/個</span></div>
+                <div class="li">📈 見込 <span style="color:var(--gold)">+960 所持金</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: stations + dwell finitude + decision -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">加工ステーション <span class="r">STATIONS · 稼働中</span></div>
+        <div class="cb">
+          <div class="st-line"><span class="ico">🔥</span><span class="nm">炉 — 氷晶を精製</span><span class="prog"><i style="width:64%"></i></span><span class="who">Bran</span></div>
+          <div class="st-line"><span class="ico">🏭</span><span class="nm">工房 — 防寒具を縫製</span><span class="prog"><i style="width:38%"></i></span><span class="who">Cira</span></div>
+          <div class="st-line"><span class="ico">🔩</span><span class="nm">作業台 — 弾薬を再装填</span><span class="prog"><i style="width:82%"></i></span><span class="who">Doe</span></div>
+          <div class="st-line"><span class="ico">⚙</span><span class="nm">整備台 — 動力炉の点検</span><span class="prog"><i style="width:15%"></i></span><span class="who">Ash</span></div>
+          <div class="note" style="font-size:10px;color:var(--dim);margin-top:8px;line-height:1.5;">◈ 整備＝人を世代を越えて生かす基盤。手を止めれば装備は摩耗する。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">逗留の有限性 <span class="r">一時の安息地 · 永住地ではない</span></div>
+        <div class="cb">
+          <div class="lim"><div class="top"><b>ゾーン資源残量</b><span>41% — 採り尽くせば進むしかない</span></div><div class="bar"><i style="width:41%;background:var(--crystal)"></i></div><div class="note">氷晶脈が細り始めている。旨みのある採掘はあと数ターン。</div></div>
+
+          <div class="lim crit"><div class="top"><b>寒波前線までのリード</b><span>残 6 ターン — にじり寄る</span></div><div class="bar"><i style="width:30%;background:var(--temp)"></i></div><div class="note">長居するほど前線が迫る。留まる代償は「逃げ場の消失」。</div></div>
+
+          <div class="lim"><div class="top"><b>このゾーンの強化天井</b><span>3 / 5 到達</span></div>
+            <div class="ceil">
+              <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span><span class="pip off"></span>
+              <span class="lb">残 2 段 · ここでは上限</span>
+            </div>
+            <div class="note">この設備で得られる強化には天井がある。上を目指すなら深部のハブへ。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="decide">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="btn push">▶ 押し進む（次のレグへ）</div>
+            <div class="btn stay">◷ もう少し留まる（+2T 作業）</div>
+          </div>
+          <div class="hint">緊張 ↔ 余裕はミクロ内で振動する。<br>採り切る前に発つか、天井まで搾るか。<br>積載＝希少資源。持てる分しか運べない。</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot">※ 完成形の方向性モック — 「生産の手触りがミクロ（タイル上・手を動かす）で成立するか」を検証。実装中のUIとは異なる。</div>
+</div>
+
+<script>
+// ==== micro tile map: dwell zone resource pocket ====
+const COLS=26, ROWS=13, T=32;
+const grid=document.getElementById('grid');
+grid.style.width=(COLS*T)+"px"; grid.style.height=(ROWS*T)+"px";
+// tiles: 0 floor(dwell), 1 wall/rock
+const map=[];
+for(let y=0;y<ROWS;y++){map.push([]);for(let x=0;x<COLS;x++){
+  map[y][x]=(x===0||y===0||x===COLS-1||y===ROWS-1)?1:0;}}
+// rock outcrops framing the pocket
+[[3,2,3,2],[20,2,3,3],[6,9,3,2],[17,9,4,2],[12,1,2,2]].forEach(([x,y,w,h])=>{
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++) if(map[y+j]&&map[y+j][x+i]!==undefined) map[y+j][x+i]=1;});
+for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+  const wall=map[y][x];
+  const c=document.createElement('div'); c.className='cell';
+  c.style.left=x*T+'px'; c.style.top=y*T+'px'; c.style.width=T+'px'; c.style.height=T+'px';
+  if(wall){ c.style.background='#232c36'; c.style.boxShadow='inset 0 0 0 1px #2d3944, inset 0 -4px 6px rgba(0,0,0,.5)'; }
+  else { const shade=((x*7+y*13)%5); c.style.background=['#141b22','#161d25','#131a21','#171e26','#151c23'][shade];
+    c.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,.015)'; }
+  grid.appendChild(c);
+}
+// warm hearth glow around the furnace
+const warm=document.createElement('div'); warm.style.position='absolute'; warm.style.inset='0'; warm.style.zIndex=2; warm.style.pointerEvents='none';
+const fx=6*T+T/2, fy=6*T+T/2;
+warm.style.background=`radial-gradient(circle 100px at ${fx}px ${fy}px, rgba(255,157,60,.14), rgba(255,157,60,0) 70%)`;
+grid.appendChild(warm);
+// entities: nodes(sources), stations, workers
+const ents=[
+  // mining nodes
+  {x:4,y:4, g:"❄", col:"var(--crystal)", nm:"氷晶脈 ×48", flow:"採取→炉"},
+  {x:21,y:3, g:"⛰", col:"var(--ore)", nm:"鉱脈 ×20"},
+  {x:18,y:10, g:"▤", col:"var(--scrap)", nm:"廃材 ×12"},
+  {x:8,y:2, g:"❄", col:"var(--crystal)"},
+  // processing stations
+  {x:6,y:6, g:"🔥", col:"var(--fire)", nm:"炉（精製）"},
+  {x:12,y:6, g:"🏭", col:"var(--power)", nm:"工房（生産）"},
+  {x:15,y:9, g:"🔩", col:"var(--power)", nm:"作業台（弾薬）"},
+  {x:19,y:5, g:"⚙", col:"var(--scrap)", nm:"整備台"},
+  // stockpile / cart
+  {x:9,y:9, g:"📦", col:"var(--gold)", nm:"仕分け場"},
+  {x:10,y:11, g:"🛷", col:"var(--ore)", nm:"橇（積載）"},
+  // workers (colored tokens)
+  {x:5,y:5, g:"B", col:"var(--ally)", nm:"Bran", tok:true, flow:"精製中"},
+  {x:12,y:5, g:"C", col:"var(--ally)", nm:"Cira", tok:true},
+  {x:15,y:8, g:"D", col:"var(--ally)", nm:"Doe", tok:true},
+  {x:5,y:4, g:"◆", col:"var(--leader)", nm:"Ash", tok:true, ring:"rgba(255,211,92,.18)"},
+];
+function tokenSVG(g,bg){
+  return `<span style="width:18px;height:18px;border-radius:3px;background:${bg};color:#08111a;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;">${g}</span>`;
+}
+ents.forEach(e=>{
+  const el=document.createElement('div'); el.className='ent';
+  el.style.left=(e.x*T+T/2)+'px'; el.style.top=(e.y*T+T/2)+'px'; el.style.color=e.col;
+  if(e.ring){const r=document.createElement('div');r.className='ring';r.style.background=e.ring;el.appendChild(r);}
+  el.insertAdjacentHTML('beforeend', e.tok?tokenSVG(e.g,e.col):`<span>${e.g}</span>`);
+  grid.appendChild(el);
+  if(e.nm){const t=document.createElement('div');t.className='name-tag';
+    t.style.left=(e.x*T+T/2)+'px'; t.style.top=(e.y*T+T/2)+'px'; t.textContent=e.nm; grid.appendChild(t);}
+  if(e.flow){const t=document.createElement('div');t.className='flow-tag';
+    t.style.left=(e.x*T+T/2)+'px'; t.style.top=(e.y*T+T/2)+'px'; t.textContent=e.flow; grid.appendChild(t);}
+});
+// draw faint flow lines source -> station -> stockpile
+const svgNS="http://www.w3.org/2000/svg";
+const svg=document.createElementNS(svgNS,"svg");
+svg.setAttribute("style","position:absolute;inset:0;z-index:3;pointer-events:none;");
+svg.setAttribute("width",COLS*T); svg.setAttribute("height",ROWS*T);
+const flows=[[4,4,6,6],[6,6,9,9],[12,6,9,9],[15,9,9,9],[9,9,10,11]];
+flows.forEach(([x1,y1,x2,y2])=>{
+  const l=document.createElementNS(svgNS,"line");
+  l.setAttribute("x1",x1*T+T/2); l.setAttribute("y1",y1*T+T/2);
+  l.setAttribute("x2",x2*T+T/2); l.setAttribute("y2",y2*T+T/2);
+  l.setAttribute("stroke","rgba(229,198,117,.22)"); l.setAttribute("stroke-width","1.5");
+  l.setAttribute("stroke-dasharray","3 4"); svg.appendChild(l);
+});
+grid.appendChild(svg);
+</script>
+</body>
+</html>

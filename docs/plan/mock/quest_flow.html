@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — クエスト→ルートの流れ（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --warm:#ffb570;
+    --enemy:#ff5b57; --cold:#7fd6ff; --sel:#8fd14f; --merit:#e5c675; --risk:#ff6f60;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace;color:var(--ink);}
+  .screen{width:1280px;min-height:1180px;margin:0 auto;background:var(--bg);padding:0 0 20px;}
+  .top{display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px;}
+  .top .b{color:var(--gold);font-weight:bold;}
+  .top .s{color:var(--ink2);margin-left:auto;}
+  .sec{padding:14px 20px 4px;}
+  .steplabel{display:flex;align-items:center;gap:10px;font-size:15px;color:#dce7f0;font-weight:bold;margin-bottom:11px;}
+  .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#08111a;align-items:center;justify-content:center;font-size:14px;font-weight:bold;}
+  .steplabel .hint{margin-left:8px;font-size:12px;color:var(--ink2);font-weight:normal;}
+
+  .quests{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:11px 13px;position:relative;}
+  .q.sel{border-color:var(--sel);box-shadow:0 0 0 1px var(--sel), 0 0 22px rgba(143,209,79,.14);}
+  .q .badge{position:absolute;top:-9px;right:12px;font-size:10px;background:var(--sel);color:#08111a;font-weight:bold;padding:2px 8px;border-radius:3px;}
+  .q .kind{font-size:10px;letter-spacing:1px;color:var(--dim);}
+  .q .name{font-size:15px;color:#e7eef4;font-weight:bold;margin:2px 0 7px;}
+  .q .row{display:flex;font-size:12px;padding:3px 0;border-top:1px dotted #1b2530;}
+  .q .row .k{color:var(--ink2);width:74px;flex:none;} .q .row .v{color:#dce7f0;}
+  .q .v .gold{color:var(--gold);} .q .v .cold{color:var(--cold);} .q .v .up{color:var(--enemy);}
+  .q .foot{margin-top:8px;font-size:10px;color:var(--ink2);}
+  .q.dim{opacity:.62;}
+
+  .banner{margin:13px 0 2px;padding:9px 14px;background:linear-gradient(90deg,rgba(143,209,79,.12),transparent);border:1px solid #2c3a2a;border-left:3px solid var(--sel);border-radius:5px;font-size:13px;}
+  .banner b{color:var(--sel);} .banner .goal{color:var(--gold);}
+  .connector{text-align:center;color:var(--dim);font-size:18px;padding:2px 0 0;}
+
+  .maparea{margin:4px 20px 0;position:relative;background:radial-gradient(circle at 62% 40%, #0a1017, #06090d);border:1px solid var(--line);border-radius:8px;height:600px;overflow:hidden;}
+  #svg{position:absolute;inset:0;width:100%;height:100%;}
+  .maplbl{position:absolute;left:12px;top:9px;font-size:11px;color:var(--ink2);letter-spacing:1px;z-index:5;}
+  .keyhint{position:absolute;right:12px;top:9px;font-size:11px;z-index:5;background:rgba(10,20,30,.5);padding:4px 10px;border-radius:4px;}
+  .keyhint .m{color:var(--merit);} .keyhint .r{color:var(--risk);}
+
+  .legend{margin:11px 20px 0;display:grid;grid-template-columns:repeat(6,1fr);gap:9px;}
+  .lg{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 10px;}
+  .lg .h{display:flex;align-items:center;gap:7px;font-size:12px;color:#dce7f0;font-weight:bold;}
+  .lg .g{width:18px;text-align:center;}
+  .lg .d{font-size:10px;color:var(--ink2);margin-top:4px;line-height:1.5;}
+  .g-home{color:var(--gold);} .g-wp{color:var(--warm);} .g-ruin{color:#ff8a5f;} .g-vil{color:var(--crystal);} .g-shop{color:#c9a0ff;} .g-goal{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <div class="top">
+    <span class="b">◆ RUINS</span>
+    <span>遠征の流れ ── クエストを選び、ルートを辿って目標地点へ</span>
+    <span class="s">母港・遠征準備</span>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">1</span>メインクエストを選ぶ<span class="hint">＝ 目標地点が決まる（run の背骨）</span></div>
+    <div class="quests">
+      <div class="q dim">
+        <div class="kind">深層ヴォールト</div>
+        <div class="name">沈んだ書庫</div>
+        <div class="row"><span class="k">目標地点</span><span class="v">古学都市アーカ（NPCの街）</span></div>
+        <div class="row"><span class="k">目的/報酬</span><span class="v">沈んだ書庫で反応炉コアを得て、アーカへ届ける</span></div>
+        <div class="row"><span class="k">距離/難度</span><span class="v">遠い・極寒 / 高</span></div>
+        <div class="foot">重心：潜行。最奥の遺物を回収し、NPCの街へ納品して達成</div>
+      </div>
+      <div class="q sel">
+        <div class="badge">✓ 選択中</div>
+        <div class="kind">交易都市</div>
+        <div class="name">氷都リーゲン</div>
+        <div class="row"><span class="k">目標地点</span><span class="v gold">氷都リーゲン（NPCの街）</span></div>
+        <div class="row"><span class="k">目的/報酬</span><span class="v">希少財を持ち込み一山当てる</span></div>
+        <div class="row"><span class="k">距離/難度</span><span class="v"><span class="cold">中・寒冷</span> / 中</span></div>
+        <div class="foot">重心：交易。ゴールは大きなNPCの街</div>
+      </div>
+      <div class="q dim">
+        <div class="kind">庇護者依頼</div>
+        <div class="name">北方砦への護送</div>
+        <div class="row"><span class="k">目標地点</span><span class="v">北方砦</span></div>
+        <div class="row"><span class="k">目的/報酬</span><span class="v">封印貨物を無事届ける</span></div>
+        <div class="row"><span class="k">距離/難度</span><span class="v">中 / 中〜高</span></div>
+        <div class="foot">重心：護送。荷を守り切る遠征</div>
+      </div>
+    </div>
+    <div class="banner">→ <b>目標地点が決定：</b><span class="goal">氷都リーゲン（NPCの街・交易都市）</span> ── 「希少財を持ち込み一山当てろ」。凍原にルート網が生成された。</div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- STEP 2 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">2</span>ノードを選び、目標地点へ進む<span class="hint">＝ 各ノードのリスクとメリットを見て経路を決める</span></div>
+  </div>
+  <div class="maparea">
+    <div class="maplbl">ルート網 ── 分岐してしばらく進み、隊商宿で合流。どの道を通るかで得るものと危険が変わる</div>
+    <div class="keyhint"><span class="m">金＝メリット</span> ／ <span class="r">⚠赤＝リスク</span></div>
+    <svg id="svg" viewBox="0 0 1000 600" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div class="legend">
+    <div class="lg"><div class="h"><span class="g g-home">⌂</span>母港</div><div class="d">出発点。雇用・装備・遠征選択</div></div>
+    <div class="lg"><div class="h"><span class="g g-vil">✿</span>村</div><div class="d">交易・補給・雇用。需給は土地ごと</div></div>
+    <div class="lg"><div class="h"><span class="g g-shop">⚙</span>専門店</div><div class="d">身体改造・特殊装備の仕入れ</div></div>
+    <div class="lg"><div class="h"><span class="g g-ruin">☗</span>ダンジョン</div><div class="d">潜行して採取・戦利品</div></div>
+    <div class="lg"><div class="h"><span class="g g-wp">△</span>途中地点</div><div class="d">移動・野営（休息・暖・加工）</div></div>
+    <div class="lg"><div class="h"><span class="g g-goal">都</span>目標地点</div><div class="d">クエストのゴール＝NPCの街（交易都市など）</div></div>
+  </div>
+
+</div>
+
+<script>
+const svg=document.getElementById('svg');
+const W=1000,H=600;
+// node: x,y(0-100), type, glyph, label, merit, risk
+const N={
+  home    :{x:4, y:50, t:'home', g:'⌂', label:'母港',        merit:'補給万全', risk:''},
+  vilA    :{x:15,y:50, t:'vil',  g:'✿', label:'採掘集落',     merit:'+凍晶が安い', risk:''},
+  // 3-way branch
+  shopA   :{x:28,y:20, t:'shop', g:'⚙', label:'専門店',       merit:'+改造できる', risk:'⚠工賃が高い'},
+  wpMid   :{x:28,y:50, t:'wp',   g:'△', label:'尾根の道',     merit:'+野営で回復', risk:'⚠寒波に晒される'},
+  ruinA   :{x:28,y:80, t:'ruin', g:'☗', label:'崩落坑',       merit:'+サルベージ', risk:'⚠崩落・落盤'},
+  ruinB   :{x:41,y:20, t:'ruin', g:'☗', label:'氷窟',         merit:'+レア部品', risk:'⚠極寒・襲撃'},
+  vilB    :{x:41,y:50, t:'vil',  g:'✿', label:'農耕村',       merit:'+食料が安い', risk:''},
+  wpLow   :{x:41,y:80, t:'wp',   g:'△', label:'谷の近道',     merit:'+距離が短い', risk:'⚠襲撃が濃い'},
+  // rejoin
+  junction:{x:54,y:50, t:'vil',  g:'✪', label:'隊商宿（合流）', merit:'+交易・全ルート合流', risk:''},
+  // after junction, 2-way
+  shopB   :{x:66,y:26, t:'shop', g:'⚙', label:'工廠',         merit:'+特殊装備', risk:'⚠高額'},
+  ruinC   :{x:66,y:74, t:'ruin', g:'☗', label:'旧研究所',     merit:'+希少財', risk:'⚠古代機構'},
+  vilC    :{x:78,y:30, t:'vil',  g:'✿', label:'氷上集落',     merit:'+雇用・噂', risk:''},
+  wpFar   :{x:78,y:70, t:'wp',   g:'△', label:'凍河渡り',     merit:'+近道', risk:'⚠寒波接近'},
+  outpost :{x:88,y:50, t:'vil',  g:'⛺', label:'前哨',         merit:'+最終補給', risk:''},
+  goal    :{x:96,y:50, t:'goal', g:'都', label:'氷都リーゲン', merit:'目標地点：NPCの街', risk:''},
+};
+const E=[
+  ['home','vilA'],
+  ['vilA','shopA'],['vilA','wpMid'],['vilA','ruinA'],
+  ['shopA','ruinB'],['ruinB','junction'],
+  ['wpMid','vilB'],['vilB','junction'],
+  ['ruinA','wpLow'],['wpLow','junction'],
+  ['vilB','ruinB'],['vilB','wpLow'],
+  ['junction','shopB'],['junction','ruinC'],
+  ['shopB','vilC'],['vilC','outpost'],
+  ['ruinC','wpFar'],['wpFar','outpost'],
+  ['vilC','wpFar'],['ruinC','goal'],
+  ['outpost','goal'],
+];
+const px=n=>N[n].x/100*W, py=n=>N[n].y/100*H;
+
+let s='';
+s+='<defs><radialGradient id="glow"><stop offset="0" stop-color="#ffd35c" stop-opacity="0.55"/><stop offset="1" stop-color="#ffd35c" stop-opacity="0"/></radialGradient></defs>';
+
+// edges
+E.forEach(function(e){
+  s+='<line x1="'+px(e[0])+'" y1="'+py(e[0])+'" x2="'+px(e[1])+'" y2="'+py(e[1])+'" stroke="#46545f" stroke-width="1.8" opacity="0.6"/>';
+});
+
+// branch / rejoin annotations
+s+='<text x="'+(px('vilB'))+'" y="18" text-anchor="middle" fill="#7f8f9d" font-size="12" font-family="monospace">◀ 3ルートに分岐 ▶</text>';
+s+='<text x="'+(px('junction'))+'" y="'+(py('junction')+52)+'" text-anchor="middle" fill="#8fd14f" font-size="11" font-family="monospace">↑ ここで合流</text>';
+
+var ring={home:'#e5c675',vil:'#5fd0ff',shop:'#c9a0ff',ruin:'#ff8a5f',wp:'#ff9d3c',goal:'#ffd35c'};
+var fillN={home:'#1a222c',vil:'#14202a',shop:'#1d1826',ruin:'#241820',wp:'#1e1a14',goal:'#2a2410'};
+for(var k in N){
+  var n=N[k], x=px(k), y=py(k);
+  var r=n.t==='goal'?22:(n.t==='wp'?12:16);
+  if(n.t==='goal') s+='<circle cx="'+x+'" cy="'+y+'" r="40" fill="url(#glow)"/>';
+  if(k==='junction') s+='<circle cx="'+x+'" cy="'+y+'" r="26" fill="url(#glow)"/>';
+  s+='<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+fillN[n.t]+'" stroke="'+ring[n.t]+'" stroke-width="'+(k==='junction'||n.t==='goal'?3:1.8)+'"/>';
+  s+='<text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" font-size="'+(n.t==='goal'?19:14)+'">'+n.g+'</text>';
+  s+='<text x="'+x+'" y="'+(y-r-7)+'" text-anchor="middle" fill="#dce7f0" font-size="12" font-family="monospace">'+n.label+'</text>';
+  if(n.merit) s+='<text x="'+x+'" y="'+(y+r+14)+'" text-anchor="middle" fill="#e5c675" font-size="10" font-family="monospace">'+n.merit+'</text>';
+  if(n.risk)  s+='<text x="'+x+'" y="'+(y+r+26)+'" text-anchor="middle" fill="#ff6f60" font-size="10" font-family="monospace">'+n.risk+'</text>';
+}
+s+='<text x="'+px('home')+'" y="'+(py('home')-26)+'" text-anchor="middle" fill="#ffd35c" font-size="12" font-family="monospace">▼ 出発</text>';
+
+svg.innerHTML=s;
+</script>
+</body>
+</html>

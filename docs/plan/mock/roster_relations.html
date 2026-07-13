@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 隊ロスター：関係と世代（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --power:#ffd35c;
+    --hp:#57c06a; --hpmid:#e5c675; --hplow:#e0574a; --ally:#7fd6ff;
+    --str:#e07a6a; --sen:#c79cf0; --dex:#6fd0c0; --agi:#8fd14f; --vit:#e0a85a; --def:#7fa8d6;
+    /* 関係と世代 */
+    --bond:#e08a72;      /* 好意・恩（温色） */
+    --rift:#5f9fd0;      /* 確執・遺恨（寒色） */
+    --mentor:#e5c675;    /* 師弟の伝承リンク */
+    --stage-rookie:#8fd14f;
+    --stage-prime:#5fd0ff;
+    --stage-veteran:#e5c675;
+    --stage-fading:#c88fa8;
+    --dead:#556270;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace; color:var(--ink);}
+  .screen{width:1280px; min-height:800px; margin:0 auto; background:var(--bg); position:relative;
+    display:grid; grid-template-columns:24px 1fr 24px; grid-template-rows:26px 1fr 24px;}
+  .titlebar{grid-column:1/4; grid-row:1; background:var(--panel2); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; padding:0 12px; font-size:12px;}
+  .titlebar .b{color:var(--gold);} .titlebar .s{color:var(--ink2);}
+  .titlebar .right{margin-left:auto; color:var(--ink2);}
+  .wrap{grid-column:2; grid-row:2; padding:14px 0; display:grid; grid-template-columns:1fr 340px; gap:14px;}
+  .col{display:flex; flex-direction:column; gap:12px; min-width:0;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .ch{font-size:11px; letter-spacing:2px; color:var(--ink2); padding:8px 12px; border-bottom:1px solid var(--line); text-transform:uppercase; display:flex; justify-content:space-between;}
+  .ch .r{color:var(--dim); letter-spacing:0;}
+  .cb{padding:11px 12px;}
+  .tag{font-size:10px; background:#1e2a35; color:#9fd0e6; border-radius:3px; padding:2px 7px;}
+  .tag.g{background:#20302a; color:#a8e0b8;} .tag.w{background:#3a2320; color:#ffb0a6;}
+  .bar{height:8px;border-radius:2px;background:#0a1119;overflow:hidden;box-shadow:inset 0 0 0 1px #05090d;}
+  .bar > i{display:block;height:100%;}
+
+  /* ===== 関係網（円環） ===== */
+  .netcard{position:relative;}
+  .netwrap{position:relative; width:100%; height:560px;}
+  .netwrap svg{position:absolute; inset:0; width:100%; height:100%;}
+  .node{position:absolute; transform:translate(-50%,-50%); width:118px; text-align:center; cursor:pointer;}
+  .node .portrait{width:56px;height:56px;margin:0 auto;border-radius:50%;position:relative;overflow:hidden;
+    border:2px solid #2c3d4b;
+    background:radial-gradient(circle at 50% 36%, #2a3947 0%, #16202b 62%, #0d141b 100%);
+    box-shadow:0 2px 6px #000;}
+  .node .portrait .fig{position:absolute; left:50%; bottom:-2px; transform:translateX(-50%); font-size:34px; filter:drop-shadow(0 1px 2px #000);}
+  .node.sel .portrait{border-color:var(--gold); box-shadow:0 0 0 3px rgba(229,198,117,.25),0 2px 6px #000;}
+  .node .ring{position:absolute; inset:-4px; border-radius:50%; border:2px solid transparent;}
+  .node .nm{font-size:12px; color:#eaf3fb; margin-top:5px; letter-spacing:.5px;}
+  .node .quirk{font-size:9.5px; color:var(--ink2); line-height:1.35; margin-top:1px;}
+  .node .stage{font-size:9px; margin-top:3px; letter-spacing:.5px;}
+  /* 生涯段階の縁色 */
+  .node.rookie  .portrait{border-color:var(--stage-rookie);}
+  .node.prime   .portrait{border-color:var(--stage-prime);}
+  .node.veteran .portrait{border-color:var(--stage-veteran);}
+  .node.fading  .portrait{border-color:var(--stage-fading);}
+  .node.dead    .portrait{border-style:dashed; border-color:var(--dead); background:#0b1016;}
+  .node.dead .fig{opacity:.35; filter:grayscale(1) drop-shadow(0 1px 2px #000);}
+  .node.dead .nm{color:var(--dim);}
+  /* 気分の小メーター（ポートレート下の弧の代わりに細バー） */
+  .node .mood{width:56px; height:5px; margin:4px auto 0; border-radius:3px; background:#0a1119; overflow:hidden; box-shadow:inset 0 0 0 1px #05090d;}
+  .node .mood > i{display:block; height:100%;}
+  /* 線ホバー時のラベル小片 */
+  .edgelab{position:absolute; transform:translate(-50%,-50%); font-size:9.5px; padding:2px 7px; border-radius:3px;
+    background:#0b131b; border:1px solid var(--line); color:var(--ink); white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity .12s; z-index:5;}
+  .edgelab.bond{border-color:#5a3a30; color:#f0b8a6;}
+  .edgelab.rift{border-color:#2e4a63; color:#a6c8e6;}
+  .edgelab.mentor{border-color:#5a4d24; color:#f0dfa6;}
+  .edgelab.show{opacity:1;}
+  .edgelab .k{color:var(--ink2);}
+
+  /* 凡例 */
+  .legend{display:flex; flex-wrap:wrap; gap:10px 18px; font-size:10.5px; color:var(--ink2); padding:9px 12px; border-top:1px solid var(--line);}
+  .legend .it{display:flex; align-items:center; gap:6px;}
+  .legend .ln{width:22px; height:0; border-top:2px solid var(--bond);}
+  .legend .ln.rift{border-top-color:var(--rift);}
+  .legend .ln.mentor{border-top:2px dashed var(--mentor);}
+  .legend .dot{width:11px; height:11px; border-radius:50%; border:2px solid var(--stage-rookie); box-sizing:border-box;}
+  .legend .dot.prime{border-color:var(--stage-prime);}
+  .legend .dot.veteran{border-color:var(--stage-veteran);}
+  .legend .dot.fading{border-color:var(--stage-fading);}
+  .legend .dot.dead{border-color:var(--dead); border-style:dashed;}
+
+  /* ===== 右カラム：選択中ミニ詳細 ===== */
+  .idcard{display:flex; gap:12px; padding:12px;}
+  .portraitL{width:80px;height:92px;flex:none;border-radius:5px;position:relative;overflow:hidden;
+    background:radial-gradient(circle at 50% 34%, #2a3947 0%, #16202b 62%, #0d141b 100%);
+    border:1px solid #2c3d4b;}
+  .portraitL.veteran{border-color:var(--stage-veteran);}
+  .portraitL .fig{position:absolute; left:50%; bottom:0; transform:translateX(-50%); font-size:52px; filter:drop-shadow(0 2px 3px #000);}
+  .portraitL .helm{position:absolute; top:6px; left:50%; transform:translateX(-50%); font-size:11px; color:var(--gold);}
+  .idmeta .nm{font-size:19px; color:#eaf3fb; letter-spacing:1px;}
+  .idmeta .cl{font-size:12px; color:var(--gold); margin-top:2px;}
+  .idmeta .sub{font-size:11px; color:var(--ink2); margin-top:7px; line-height:1.7;}
+  .idmeta .tags{margin-top:8px; display:flex; gap:5px; flex-wrap:wrap;}
+
+  /* 生涯段階のゲージ */
+  .lifeline{padding:0 12px 12px;}
+  .lifeline .top{display:flex; justify-content:space-between; font-size:11px; margin-bottom:5px;}
+  .lifeline .top b{color:#dce7f0; font-weight:normal;} .lifeline .top span{color:var(--ink2);}
+  .lifeline .track{height:9px; border-radius:2px; overflow:hidden; box-shadow:inset 0 0 0 1px #05090d;
+    background:linear-gradient(90deg,
+      var(--stage-rookie) 0% 22%, var(--stage-prime) 22% 55%,
+      var(--stage-veteran) 55% 82%, var(--stage-fading) 82% 100%);}
+  .lifeline .mark{position:relative; height:0;}
+  .lifeline .mark i{position:absolute; top:-14px; transform:translateX(-50%); font-size:12px; color:#eaf3fb;}
+  .lifeline .steps{display:flex; justify-content:space-between; font-size:9px; color:var(--dim); margin-top:5px;}
+
+  .row2{display:flex; align-items:center; gap:8px; font-size:12px; margin:9px 0;}
+  .row2 .lab{width:64px; color:var(--ink2); font-size:11px;}
+  .row2 .barwrap{flex:1;}
+  .row2 .val{width:70px; text-align:right; color:#dce7f0; font-size:10.5px;}
+
+  .trait{display:flex; gap:8px; align-items:flex-start; margin:8px 0; font-size:11.5px;}
+  .trait .ic{width:20px; flex:none; text-align:center;}
+  .trait .tx{line-height:1.45;}
+  .trait .tx b{color:#dce7f0; font-weight:normal;}
+  .trait .tx span{color:var(--ink2);}
+  .trait.good .ic{color:var(--stage-rookie);}
+  .trait.bad .ic{color:var(--hplow);}
+
+  .rel{display:flex; align-items:center; gap:8px; margin:7px 0; font-size:11.5px;}
+  .rel .who{width:70px; color:#dce7f0;}
+  .rel .kind{font-size:9.5px; padding:1px 6px; border-radius:3px; white-space:nowrap;}
+  .rel .kind.bond{background:#2c1c16; color:#f0b8a6;}
+  .rel .kind.rift{background:#14212e; color:#a6c8e6;}
+  .rel .kind.mentor{background:#2c2610; color:#f0dfa6;}
+  .rel .desc{flex:1; color:var(--ink2); font-size:10.5px; line-height:1.4;}
+
+  .memory{margin:8px 0 2px; padding:9px 10px; background:var(--card); border:1px solid #223140; border-left:3px solid var(--gold); border-radius:4px;
+    font-size:11px; color:#cdd9e3; line-height:1.55;}
+  .memory .q{color:var(--gold);}
+
+  .empseat{padding:11px 12px; display:flex; gap:11px; align-items:center;}
+  .empseat .grave{width:52px;height:60px;flex:none;border-radius:4px; border:1px dashed var(--dead);
+    background:repeating-linear-gradient(135deg,#0b1016 0 6px,#0d141b 6px 12px);
+    display:flex; align-items:center; justify-content:center; font-size:26px; opacity:.7;}
+  .empseat .tx{font-size:11px; line-height:1.55; color:var(--ink2);}
+  .empseat .tx b{color:var(--dead);}
+  .empseat .tx .note{color:var(--hpmid);}
+
+  .foot{grid-column:2; grid-row:3; color:var(--dim); font-size:10px; padding-top:2px;}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="titlebar">
+    <span class="b">◆ RUINS</span><span>隊ロスター &nbsp;— 関係と世代</span>
+    <span class="s">|</span><span class="s">キャラバン「終わりなき荷駄」</span>
+    <span class="right">B4F · ターン 128 · 隊員 8 / 定員 10 · 欠員 1（戦死）</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- LEFT: 関係の網（円環ロスター） -->
+    <div class="col">
+      <div class="card netcard">
+        <div class="ch">関係の網 <span class="r">ROSTER · BONDS &amp; RIFTS · 顕著な線のみ</span></div>
+        <div class="netwrap" id="net">
+          <svg id="edges" viewBox="0 0 720 560" preserveAspectRatio="none"></svg>
+          <!-- nodes/labels は JS で配置 -->
+        </div>
+        <div class="legend">
+          <span class="it"><span class="ln"></span>好意・恩（温色）</span>
+          <span class="it"><span class="ln rift"></span>確執・遺恨（寒色）</span>
+          <span class="it"><span class="ln mentor"></span>師弟の伝承 →</span>
+          <span class="it" style="margin-left:6px"><span class="dot"></span>新兵</span>
+          <span class="it"><span class="dot prime"></span>全盛</span>
+          <span class="it"><span class="dot veteran"></span>ベテラン</span>
+          <span class="it"><span class="dot fading"></span>衰え</span>
+          <span class="it"><span class="dot dead"></span>戦死（欠員）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 選択中ミニ詳細 + 欠員 -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">選択中の隊員 <span class="r" id="selhint">MEMBER · 線や顔をクリック</span></div>
+        <div class="idcard">
+          <div class="portraitL veteran"><div class="helm">⛑</div><div class="fig">🧔</div></div>
+          <div class="idmeta">
+            <div class="nm" id="selName">ブラン</div>
+            <div class="cl" id="selClass">重装 / 近接ベテラン</div>
+            <div class="sub" id="selSub">54歳 · 雇用12ラン前<br>撃破187 · 生還41<br>弟子 2 人を育てた</div>
+            <div class="tags" id="selTags">
+              <span class="tag g">前衛</span><span class="tag g">師匠</span><span class="tag w">頑固</span>
+            </div>
+          </div>
+        </div>
+        <div class="lifeline">
+          <div class="top"><b>生涯段階</b><span id="selStageTxt">ベテラン — 全盛は過ぎた</span></div>
+          <div class="track"></div>
+          <div class="mark"><i id="selMark" style="left:70%">▲</i></div>
+          <div class="steps"><span>新兵</span><span>全盛</span><span>ベテラン</span><span>衰え</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">特性 <span class="r">TRAITS</span></div>
+        <div class="cb" id="selTraits">
+          <div class="trait good"><span class="ic">◆</span><div class="tx"><b>不屈の盾</b><br><span>受けに入ると崩れない。前列が安定する。</span></div></div>
+          <div class="trait good"><span class="ic">◆</span><div class="tx"><b>面倒見</b><br><span>近くの新兵の士気を底上げする。</span></div></div>
+          <div class="trait bad"><span class="ic">✕</span><div class="tx"><b>頑固</b><br><span>撤退命令に一手遅れる。</span></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">関係 <span class="r">RELATIONS</span></div>
+        <div class="cb" id="selRels">
+          <div class="rel"><span class="who">セラ</span><span class="kind mentor">師弟</span><span class="desc">弟子。技の伝承 60%。</span></div>
+          <div class="rel"><span class="who">アッシュ</span><span class="kind bond">恩</span><span class="desc">B2Fで命を救われた。</span></div>
+          <div class="rel"><span class="who">ヴェル</span><span class="kind rift">確執</span><span class="desc">戦術で衝突。口をきかない。</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">記憶 <span class="r">MEMORY</span></div>
+        <div class="cb" style="padding-top:9px;">
+          <div class="memory" id="selMemory">
+            <span class="q">「</span>あの子（=リオ）は、俺が最初に看取った隊員だった。<span class="q">」</span><br>
+            <span style="color:var(--ink2);font-size:10px;">— 亡きリオを、今も新兵に語り継ぐ。</span>
+          </div>
+        </div>
+        <div class="empseat">
+          <div class="grave">🪦</div>
+          <div class="tx">
+            <b>リオ（戦死）</b> · B3F · 32ターン前<br>
+            全盛の狩人。凍結の獣に倒れた。<br>
+            <span class="note">この席は空いたまま。欠けを抱えて隊は進む。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot">※ 完成形の方向性モック。愛着 × 死 × 継承 ―― 〜10人を「知っている」と感じ、関係の網が疎で顕著に読めるかの検証用。</div>
+</div>
+
+<script>
+// ===== ロスター定義 =====
+// stage: rookie / prime / veteran / fading / dead
+// mood: 0..100（気分・満たされ具合）, need: 主要欲求ラベル
+const members=[
+  {id:"bran", nm:"ブラン", fig:"🧔", quirk:"いつも最前列で受ける", stage:"veteran", age:54, mood:64, need:"矜持", cls:"重装 / 近接ベテラン",
+    sub:"54歳 · 雇用12ラン前<br>撃破187 · 生還41<br>弟子2人を育てた", tags:'<span class="tag g">前衛</span><span class="tag g">師匠</span><span class="tag w">頑固</span>',
+    stageTxt:"ベテラン — 全盛は過ぎた", mark:70,
+    traits:[["good","◆","不屈の盾","受けに入ると崩れない。前列が安定する。"],["good","◆","面倒見","近くの新兵の士気を底上げする。"],["bad","✕","頑固","撤退命令に一手遅れる。"]],
+    rels:[["セラ","mentor","師弟","弟子。技の伝承 60%。"],["アッシュ","bond","恩","B2Fで命を救われた。"],["ヴェル","rift","確執","戦術で衝突。口をきかない。"]],
+    mem:'<span class="q">「</span>あの子（=リオ）は、俺が最初に看取った隊員だった。<span class="q">」</span><br><span style="color:var(--ink2);font-size:10px;">— 亡きリオを、今も新兵に語り継ぐ。</span>'},
+  {id:"sera", nm:"セラ", fig:"🧑", quirk:"いつも盾を磨いている", stage:"prime", age:27, mood:78, need:"承認", cls:"重装見習い / 前衛",
+    sub:"27歳 · 雇用5ラン前<br>撃破44 · 生還18<br>ブランに師事", tags:'<span class="tag g">前衛</span><span class="tag">向上心</span>',
+    stageTxt:"全盛 — これから伸びる", mark:38,
+    traits:[["good","◆","早熟","経験の吸収が速い。"],["good","◆","忠義","師のそばで力を出す。"]],
+    rels:[["ブラン","mentor","師事","師。技の伝承 60% を受け継ぎ中。"],["ミラ","bond","親友","夜番をいつも一緒に。"]],
+    mem:'<span class="q">「</span>師匠より上手く盾を持ちたい。まだ遠い。<span class="q">」</span>'},
+  {id:"ash", nm:"アッシュ", fig:"🧑", quirk:"いつも先陣を偵察する", stage:"prime", age:31, mood:52, need:"自由", cls:"斥候 / 狙撃",
+    sub:"31歳 · 雇用9ラン前<br>撃破121 · 生還33", tags:'<span class="tag">遊撃</span><span class="tag g">冷静</span>',
+    stageTxt:"全盛 — 脂の乗った時期", mark:48,
+    traits:[["good","◆","鷹の目","遠距離の先制が強い。"],["bad","✕","一匹狼","隊列を離れがち。"]],
+    rels:[["ブラン","bond","恩人","B2Fで彼を助けた。"],["ヴェル","bond","相棒","背中を預け合う。"]],
+    mem:'<span class="q">「</span>リオの位置に、まだ誰も置きたくない。<span class="q">」</span>'},
+  {id:"vel", nm:"ヴェル", fig:"🧑", quirk:"いつも命令に口答えする", stage:"prime", age:35, mood:41, need:"主導", cls:"重火力 / 突撃",
+    sub:"35歳 · 雇用7ラン前<br>撃破98 · 生還24", tags:'<span class="tag">火力</span><span class="tag w">短気</span>',
+    stageTxt:"全盛 — 我が強い盛り", mark:52,
+    traits:[["good","◆","猛攻","開幕の火力が高い。"],["bad","✕","激情","確執相手の近くで士気が乱れる。"]],
+    rels:[["ブラン","rift","確執","戦術で衝突。口をきかない。"],["アッシュ","bond","相棒","戦場では信頼している。"]],
+    mem:'<span class="q">「</span>老いた指図に従うつもりはない。<span class="q">」</span>'},
+  {id:"mira", nm:"ミラ", fig:"🧑", quirk:"いつも薬包を数えている", stage:"prime", age:29, mood:70, need:"安全", cls:"衛生兵 / 後方",
+    sub:"29歳 · 雇用6ラン前<br>治療341 · 生還30", tags:'<span class="tag g">支援</span><span class="tag g">献身</span>',
+    stageTxt:"全盛 — 隊の要", mark:44,
+    traits:[["good","◆","治療の手","応急手当の効果が高い。"],["good","◆","冷静沈着","窮地でも手が震えない。"]],
+    rels:[["セラ","bond","親友","夜番をいつも一緒に。"],["トール","mentor","師事","老衛生兵に学ぶ。"]],
+    mem:'<span class="q">「</span>私が救えなかった名前を、忘れないでいる。<span class="q">」</span>'},
+  {id:"tor", nm:"トール", fig:"🧓", quirk:"いつも昔語りをする", stage:"fading", age:61, mood:58, need:"継承", cls:"老衛生兵 / 後方",
+    sub:"61歳 · 雇用15ラン前<br>治療902 · 生還47<br>まもなく引退の噂", tags:'<span class="tag veteran" style="background:#2c2610;color:#f0dfa6">長老</span><span class="tag">衰え</span>',
+    stageTxt:"衰え — 残る全盛期はわずか", mark:90,
+    traits:[["good","◆","伝承者","弟子に多くの技を渡せる。"],["bad","✕","衰弱","AGI・VIT が下がり続ける。"]],
+    rels:[["ミラ","mentor","弟子","技の伝承 80%。継ぎ手を託す。"]],
+    mem:'<span class="q">「</span>いつか動けなくなる。その前に、渡せるだけ渡す。<span class="q">」</span>'},
+  {id:"kai", nm:"カイ", fig:"🧒", quirk:"いつも先輩の真似をする", stage:"rookie", age:19, mood:83, need:"帰属", cls:"新兵 / 前衛見習い",
+    sub:"19歳 · 雇用1ラン前<br>撃破6 · 生還2", tags:'<span class="tag">新兵</span><span class="tag g">素直</span>',
+    stageTxt:"新兵 — すべてこれから", mark:12,
+    traits:[["good","◆","伸びしろ","成長速度に補正。"],["bad","✕","未熟","士気が折れやすい。"]],
+    rels:[["ブラン","bond","憧れ","背中を追っている。"]],
+    mem:'<span class="q">「</span>リオさんの話は、ブラン師匠から聞いた。会いたかった。<span class="q">」</span>'},
+  {id:"nix", nm:"ニクス", fig:"🧑", quirk:"いつも独り言を呟く", stage:"prime", age:33, mood:47, need:"孤独", cls:"技師 / 罠",
+    sub:"33歳 · 雇用8ラン前<br>撃破57 · 生還27", tags:'<span class="tag">技師</span><span class="tag w">陰気</span>',
+    stageTxt:"全盛 — 職人の年頃", mark:50,
+    traits:[["good","◆","仕掛けの妙","罠の威力が高い。"],["bad","✕","人嫌い","関係を結びにくい。"]],
+    rels:[["ヴェル","rift","遺恨","昔の失敗を根に持たれている。"]],
+    mem:'<span class="q">「</span>誰とも組まなくていい。機械は裏切らない。<span class="q">」</span>'},
+];
+
+// ===== エッジ定義（疎で顕著：全45ペアではなく物語のある少数だけ） =====
+// kind: bond / rift / mentor(a→bへ矢印)
+const edges=[
+  {a:"bran", b:"sera", kind:"mentor", lab:"技の伝承 60%"},
+  {a:"tor",  b:"mira", kind:"mentor", lab:"技の伝承 80%"},
+  {a:"ash",  b:"bran", kind:"bond",   lab:"恩 · B2Fで救った"},
+  {a:"sera", b:"mira", kind:"bond",   lab:"親友 · 夜番の相棒"},
+  {a:"ash",  b:"vel",  kind:"bond",   lab:"相棒 · 背中を預ける"},
+  {a:"kai",  b:"bran", kind:"bond",   lab:"憧れ · 背中を追う"},
+  {a:"bran", b:"vel",  kind:"rift",   lab:"確執 · 戦術で衝突"},
+  {a:"nix",  b:"vel",  kind:"rift",   lab:"遺恨 · 根に持たれる"},
+];
+
+// ===== 円環配置 =====
+const net=document.getElementById('net');
+const svg=document.getElementById('edges');
+const VW=720, VH=560, CX=360, CY=272, R=210;
+const pos={}; // id -> {x,y in viewBox units}, and pxpct
+
+members.forEach((m,i)=>{
+  const ang=(-90 + i*(360/members.length))*Math.PI/180;
+  const x=CX+R*Math.cos(ang), y=CY+R*Math.sin(ang);
+  pos[m.id]={x,y, lpct:x/VW*100, tpct:y/VH*100};
+});
+
+// 気分の色（低→高で寒→温、緑）
+function moodColor(v){
+  if(v>=70) return 'var(--hp)';
+  if(v>=50) return 'var(--hpmid)';
+  return 'var(--hplow)';
+}
+
+// エッジ描画
+const ns="http://www.w3.org/2000/svg";
+// 矢印マーカー
+svg.insertAdjacentHTML('beforeend',
+  `<defs>
+     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+       <path d="M0,0 L10,5 L0,10 z" fill="var(--mentor)"/>
+     </marker>
+   </defs>`);
+
+const labels=[]; // {el, edge}
+edges.forEach((e,idx)=>{
+  const A=pos[e.a], B=pos[e.b];
+  const col = e.kind==='bond'?'var(--bond)': e.kind==='rift'?'var(--rift)':'var(--mentor)';
+  const dash = e.kind==='mentor'?'7 5':'0';
+  // 円の中心へ少し寄せた端点（ノード半径ぶん）
+  const nodeR=34;
+  const dx=B.x-A.x, dy=B.y-A.y, len=Math.hypot(dx,dy);
+  const ux=dx/len, uy=dy/len;
+  const ax=A.x+ux*nodeR, ay=A.y+uy*nodeR;
+  const bx=B.x-ux*nodeR, by=B.y-uy*nodeR;
+  const mx=(ax+bx)/2, my=(ay+by)/2;
+  const line=document.createElementNS(ns,'line');
+  line.setAttribute('x1',ax); line.setAttribute('y1',ay);
+  line.setAttribute('x2',bx); line.setAttribute('y2',by);
+  line.setAttribute('stroke',col);
+  line.setAttribute('stroke-width', e.kind==='mentor'?2.4:2);
+  line.setAttribute('stroke-dasharray',dash);
+  line.setAttribute('opacity','0.72');
+  line.style.cursor='pointer';
+  if(e.kind==='mentor') line.setAttribute('marker-end','url(#arrow)');
+  svg.appendChild(line);
+
+  // ホバーラベル（HTMLオーバーレイ、viewBox→%換算）
+  const lab=document.createElement('div');
+  lab.className='edgelab '+e.kind;
+  lab.innerHTML = `<span class="k">${nameOf(e.a)}${e.kind==='mentor'?' → ':' — '}${nameOf(e.b)}</span> · ${e.lab}`;
+  lab.style.left = (mx/VW*100)+'%';
+  lab.style.top  = (my/VH*100)+'%';
+  net.appendChild(lab);
+  const show=()=>{lab.classList.add('show'); line.setAttribute('opacity','1'); line.setAttribute('stroke-width', e.kind==='mentor'?3.2:2.8);};
+  const hide=()=>{lab.classList.remove('show'); line.setAttribute('opacity','0.72'); line.setAttribute('stroke-width', e.kind==='mentor'?2.4:2);};
+  line.addEventListener('mouseenter',show);
+  line.addEventListener('mouseleave',hide);
+  line.addEventListener('click',()=>select(e.a));
+});
+
+function nameOf(id){ return (members.find(m=>m.id===id)||{}).nm||''; }
+
+// ノード描画
+members.forEach(m=>{
+  const p=pos[m.id];
+  const node=document.createElement('div');
+  node.className='node '+m.stage;
+  node.style.left=p.lpct+'%';
+  node.style.top =p.tpct+'%';
+  node.dataset.id=m.id;
+  node.innerHTML=`
+    <div class="portrait"><div class="fig">${m.fig}</div></div>
+    <div class="mood"><i style="width:${m.mood}%;background:${moodColor(m.mood)}"></i></div>
+    <div class="nm">${m.nm}</div>
+    <div class="quirk">${m.quirk}</div>
+    <div class="stage" style="color:${stageColor(m.stage)}">${stageLabel(m.stage)}</div>`;
+  node.addEventListener('click',()=>select(m.id));
+  net.appendChild(node);
+});
+
+// 故人（欠員）を円環の中央下に空席として置き、生者と点線で結ぶ。
+// 「欠けを抱えて進む」を関係網の中で読ませる。
+(function(){
+  const gx=CX, gy=CY; // 円の中心＝隊の空白
+  // 故人と縁の深かった者への追悼リンク（遺恨ではなく喪失の線）
+  const grief=[["bran","看取った師"],["ash","埋葬した相棒"],["kai","会えなかった憧れ"]];
+  grief.forEach(([id,])=>{
+    const P=pos[id];
+    const dx=gx-P.x, dy=gy-P.y, len=Math.hypot(dx,dy), ux=dx/len, uy=dy/len;
+    const line=document.createElementNS(ns,'line');
+    line.setAttribute('x1',P.x+ux*34); line.setAttribute('y1',P.y+uy*34);
+    line.setAttribute('x2',gx-ux*22); line.setAttribute('y2',gy-uy*22);
+    line.setAttribute('stroke','var(--dead)');
+    line.setAttribute('stroke-width','1.3');
+    line.setAttribute('stroke-dasharray','2 5');
+    line.setAttribute('opacity','0.5');
+    svg.appendChild(line);
+  });
+  const grave=document.createElement('div');
+  grave.className='node dead';
+  grave.style.left=(gx/VW*100)+'%';
+  grave.style.top =(gy/VH*100)+'%';
+  grave.innerHTML=`
+    <div class="portrait"><div class="fig">🪦</div></div>
+    <div class="nm">リオ</div>
+    <div class="quirk">戦死 · B3F</div>
+    <div class="stage" style="color:var(--dead)">欠員 · 空席</div>`;
+  net.appendChild(grave);
+})();
+
+function stageColor(s){return{rookie:'var(--stage-rookie)',prime:'var(--stage-prime)',veteran:'var(--stage-veteran)',fading:'var(--stage-fading)',dead:'var(--dead)'}[s];}
+function stageLabel(s){return{rookie:'新兵',prime:'全盛',veteran:'ベテラン',fading:'衰え',dead:'戦死'}[s];}
+
+// ===== 選択（右カラム更新） =====
+function select(id){
+  const m=members.find(x=>x.id===id); if(!m) return;
+  document.querySelectorAll('.node').forEach(n=>n.classList.toggle('sel', n.dataset.id===id));
+  document.getElementById('selName').textContent=m.nm;
+  document.getElementById('selClass').textContent=m.cls;
+  document.getElementById('selSub').innerHTML=m.sub;
+  document.getElementById('selTags').innerHTML=m.tags;
+  document.getElementById('selStageTxt').textContent=m.stageTxt;
+  document.getElementById('selMark').style.left=m.mark+'%';
+  // portrait
+  const pl=document.querySelector('.portraitL');
+  pl.className='portraitL '+m.stage;
+  pl.querySelector('.fig').textContent=m.fig;
+  // traits
+  document.getElementById('selTraits').innerHTML=m.traits.map(([cls,ic,nm,tx])=>
+    `<div class="trait ${cls}"><span class="ic">${ic}</span><div class="tx"><b>${nm}</b><br><span>${tx}</span></div></div>`).join('');
+  // rels
+  document.getElementById('selRels').innerHTML=m.rels.map(([who,k,kl,d])=>
+    `<div class="rel"><span class="who">${who}</span><span class="kind ${k}">${kl}</span><span class="desc">${d}</span></div>`).join('');
+  // memory
+  document.getElementById('selMemory').innerHTML=m.mem;
+}
+select('bran');
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RUINS — 方向性モック一覧</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#07090d;color:var(--ink);font-family:"DejaVu Sans Mono","Noto Sans JP",monospace;padding:32px 24px 60px;}
+  header{max-width:920px;margin:0 auto 24px;}
+  h1{font-size:22px;color:var(--gold);letter-spacing:1px;}
+  .sub{color:var(--ink2);font-size:13px;margin-top:8px;line-height:1.7;}
+  .docs{margin-top:12px;font-size:12px;color:var(--ink2);}
+  .docs a{color:var(--crystal);text-decoration:none;margin-right:14px;}
+  .docs a:hover{text-decoration:underline;}
+  .wrap{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;max-width:920px;margin:0 auto;}
+  .card{width:430px;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;text-decoration:none;color:inherit;transition:border-color .15s, transform .15s;display:block;}
+  .card:hover{border-color:var(--crystal);transform:translateY(-2px);}
+  .thumb{width:430px;height:260px;overflow:hidden;position:relative;background:#05070a;border-bottom:1px solid var(--line);}
+  .thumb iframe{width:1280px;height:900px;border:0;transform:scale(0.3359);transform-origin:top left;pointer-events:none;}
+  .thumb .badge{position:absolute;top:8px;right:8px;font-size:10px;background:rgba(229,198,117,.9);color:#08111a;font-weight:bold;padding:2px 8px;border-radius:3px;z-index:2;}
+  .meta{padding:12px 14px 14px;}
+  .t{font-size:15px;color:#dce7f0;font-weight:bold;display:flex;align-items:center;gap:8px;}
+  .no{color:var(--dim);font-size:12px;font-weight:normal;}
+  .d{font-size:12px;color:var(--ink2);margin-top:6px;line-height:1.6;}
+  .open{margin-top:9px;font-size:11px;color:var(--crystal);}
+  footer{max-width:920px;margin:28px auto 0;font-size:11px;color:var(--dim);text-align:center;}
+</style>
+</head>
+<body>
+  <header>
+    <h1>◆ RUINS — 方向性モック</h1>
+    <div class="sub">
+      ゲームの方向性を確定するための UI/ビジョンのモック集。クリックで各モックを開く。<br>
+      設計の到達点は B1（キャラバン交易ローグライク）。設計思想は設計ドキュメント参照。
+    </div>
+    <div class="docs">
+      関連ドキュメント：
+      <a href="../../design/20260712_54.md">design/20260712_54.md（方向性の確定版）</a>
+      <a href="../design.md">plan/design.md</a>
+      <a href="../lore.md">plan/lore.md</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <a class="card" href="b1_caravan.html">
+      <div class="thumb"><span class="badge">最新・到達点</span><iframe src="b1_caravan.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">05</span> B1 キャラバン交易ローグライク</div>
+        <div class="d">マクロのルート網＋キャラバン状態＋各ステップの選択（交易→ルート→潜行→引き際）。多地点マーケットと寒波前進を可視化した、現在の設計の到達点。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="quest_flow.html">
+      <div class="thumb"><span class="badge">フロー</span><iframe src="quest_flow.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">06</span> クエスト→ルートの流れ</div>
+        <div class="d">①メインクエストを選ぶ（目標地点が決まる）→ ②ノードを選び目標地点へ（途中で移動・ダンジョン潜行・村/専門店で買い物）。遠征の全体フロー。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="target_gameplay.html">
+      <div class="thumb"><iframe src="target_gameplay.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">01</span> 俯瞰タクティカル＋HUD</div>
+        <div class="d">潜行画面のイメージ。隊員パネル・兵站ゲージ・ミニマップ・武器ホットバー・メッセージログを備えた俯瞰戦術ビュー。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="member_detail.html">
+      <div class="thumb"><iframe src="member_detail.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">02</span> 隊員の詳細パラメータUI</div>
+        <div class="d">RimWorld的な隊員詳細。能力値・使用ベーススキル・動力予算を共有する身体改造・装備・維持コストを一望する。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="storepage_vision.html">
+      <div class="thumb"><iframe src="storepage_vision.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">04</span> ストアページ・ビジョン</div>
+        <div class="d">Steamストアページ風の全体ビジョン。4本柱・コアループ・特徴・デザインDNAをまとめた最初期のビジョン提示。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="camp_layout.html">
+      <div class="thumb"><span class="badge">感情の核</span><iframe src="camp_layout.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">07</span> 野営レイアウト</div>
+        <div class="d">「場所であってメニューでない」の検証。焚き火を核に天幕・工房・駄獣・見張り、隊員の配置＝ケア。逗留の有限性（資源残量・前線リード）も。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="roster_relations.html">
+      <div class="thumb"><span class="badge">感情の核</span><iframe src="roster_relations.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">08</span> 隊ロスターと関係の網</div>
+        <div class="d">〜10人を"知っている"か。関係線（好意/確執）は疎で顕著、生涯段階（新兵→ベテラン→衰え）、師弟リンク、故人の欠席。member_detail の感情面拡張。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="event_card.html">
+      <div class="thumb"><span class="badge">感情の核</span><iframe src="event_card.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">09</span> 創発イベント（ダウンタイム）</div>
+        <div class="d">最大の賭け＝「自動生成が人間ドラマに読めるか」。雛形が埋まった出来事＋選ばされる選択＋関係変化の提示。悲劇→絆→再生の型を縦に並べる。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="chronicle.html">
+      <div class="thumb"><span class="badge">世代</span><iframe src="chronicle.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">10</span> 年代記・系譜・慰霊</div>
+        <div class="d">世代交代が"続く物語"に感じられるか。師弟の系譜ツリー、倒れた者の記念、一座の来歴タイムライン。"三代目"のサーガを可視化。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="death_aftermath.html">
+      <div class="thumb"><span class="badge">感情の核</span><iframe src="death_aftermath.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">11</span> 喪失の余波</div>
+        <div class="d">一人の死が刺さるか。追悼・関係の波及・伝承の成否（弟子が継ぐ／技が失われる二重の悲劇）・空席。静かで重いトーン。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="dwell_production.html">
+      <div class="thumb"><span class="badge">ミクロ</span><iframe src="dwell_production.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">12</span> 逗留ゾーンの生産</div>
+        <div class="d">生産の手触りがミクロで成立するか。タイル上の採掘→加工→生産、出口の二股（自給/交易）、逗留の有限性（枯渇・前線・強化天井）。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+  </div>
+
+  <footer>docs/plan/mock/ — 番号は作成順の目安。到達点は 05（B1）。07〜12 は「感情の核（愛着×死×継承）・世代・ミクロ」の検証モック。</footer>
+</body>
+</html>

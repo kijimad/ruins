@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — B1 キャラバン交易ローグライク（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --warm:#ffb570;
+    --hp:#57c06a; --enemy:#ff5b57; --cold:#7fd6ff;
+    --buy:#8fd14f; --risk:#ff7a63; --pick:#e5c675;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace;color:var(--ink);}
+  .screen{width:1280px;height:1080px;margin:0 auto;background:var(--bg);position:relative;
+    display:grid;grid-template-columns:1fr 452px;grid-template-rows:48px 596px 1fr;
+    grid-template-areas:"top top" "map state" "story story";}
+  .top{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px;}
+  .top .b{color:var(--gold);font-weight:bold;} .top .s{color:var(--dim);}
+  .top .freeze{color:var(--cold);} .top .vault{color:var(--gold);}
+  .top .right{margin-left:auto;color:var(--ink2);}
+  .top .cash{color:var(--gold);}
+  .map{grid-area:map;position:relative;background:radial-gradient(circle at 60% 40%, #0a1017, #06090d);overflow:hidden;border-right:1px solid var(--line);}
+  #svg{position:absolute;inset:0;width:100%;height:100%;}
+  .maptitle{position:absolute;left:14px;top:10px;font-size:11px;letter-spacing:2px;color:var(--ink2);z-index:5;}
+  .legend{position:absolute;left:14px;bottom:12px;z-index:5;font-size:10px;color:var(--ink2);line-height:1.7;background:rgba(6,10,14,.6);padding:6px 9px;border-radius:4px;}
+  .legend b{display:inline-block;width:22px;} .lg-cold{color:var(--cold);} .lg-warm{color:var(--gold);} .lg-dgr{color:var(--enemy);}
+  .hint{position:absolute;right:14px;bottom:12px;z-index:5;font-size:11px;color:var(--cold);background:rgba(10,20,30,.6);padding:5px 9px;border-radius:4px;}
+  .state{grid-area:state;background:var(--panel);overflow:hidden;display:flex;flex-direction:column;}
+  .ph{font-size:11px;letter-spacing:2px;color:var(--ink2);padding:9px 12px 7px;border-bottom:1px solid var(--line);text-transform:uppercase;display:flex;justify-content:space-between;}
+  .ph .r{color:var(--dim);letter-spacing:0;}
+  .needs{padding:6px 12px 10px;border-bottom:1px solid var(--line);}
+  .need{margin:9px 0;}
+  .need .l{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+  .need .l .k{color:var(--ink2);} .need .l .v{color:#dce7f0;}
+  .need .body{font-size:11px;color:var(--warm);margin-top:3px;}
+  .need .body.cold{color:var(--cold);} .need .body.warn{color:var(--gold);} .need .body.bad{color:var(--enemy);}
+  .bar{height:7px;border-radius:2px;background:#0a1119;overflow:hidden;box-shadow:inset 0 0 0 1px #05090d;}
+  .bar>i{display:block;height:100%;}
+  .cargo{padding:6px 12px 10px;border-bottom:1px solid var(--line);}
+  .crow{display:flex;align-items:baseline;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px dotted #1b2530;}
+  .crow:last-child{border-bottom:none;}
+  .crow .nm{color:#dce7f0;flex:1;} .crow .q{color:var(--ink2);}
+  .crow .vd{font-size:10px;padding:1px 5px;border-radius:3px;}
+  .vd.hi{background:rgba(229,198,117,.14);color:var(--gold);}
+  .vd.lo{background:rgba(127,143,157,.14);color:var(--ink2);}
+  .crow .note{font-size:10px;color:var(--ink2);width:100%;}
+  .party{padding:8px 12px;font-size:11px;color:var(--ink2);}
+  .party .tok{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:3px;background:var(--gold);color:#08111a;font-size:9px;font-weight:bold;margin-right:2px;}
+  .party .tok.a{background:var(--crystal);}
+  .story{grid-area:story;background:var(--panel2);border-top:1px solid var(--line);padding:12px 16px 14px;overflow:hidden;}
+  .story h2{font-size:11px;letter-spacing:2px;color:var(--ink2);margin-bottom:10px;text-transform:uppercase;}
+  .story h2 span{color:var(--gold);}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .c{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:11px 12px;position:relative;}
+  .c .step{font-size:10px;color:var(--dim);letter-spacing:1px;}
+  .c .ttl{font-size:13px;color:#dce7f0;margin:2px 0 3px;font-weight:bold;}
+  .c .whr{font-size:10px;color:var(--ink2);margin-bottom:9px;}
+  .opt{border-top:1px solid #1b2530;padding:7px 0 6px;}
+  .opt:first-of-type{border-top:none;}
+  .opt .o{display:flex;align-items:center;gap:6px;font-size:12px;}
+  .opt .o .k{color:#e7eef4;} .opt .tag{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:3px;white-space:nowrap;}
+  .tag.buy{background:rgba(143,209,79,.15);color:var(--buy);}
+  .tag.pick{background:rgba(229,198,117,.18);color:var(--pick);}
+  .tag.risk{background:rgba(255,122,99,.15);color:var(--risk);}
+  .tag.safe{background:rgba(127,214,255,.13);color:var(--cold);}
+  .opt .d{font-size:10px;color:var(--ink2);margin-top:3px;line-height:1.5;}
+  .opt .d .cold{color:var(--cold);} .opt .d .warm{color:var(--gold);} .opt .d .up{color:var(--enemy);} .opt .d .dn{color:var(--buy);}
+  .arrow{position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:14px;z-index:2;}
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <div class="top">
+    <span class="b">◆ RUINS</span>
+    <span class="s">|</span>
+    <span>凍原横断 ラン・ターン <b style="color:#dce7f0">42</b></span>
+    <span class="freeze">❄ 寒波前線 5T 後方まで接近</span>
+    <span class="vault">都 目的地 氷都リーゲン（NPCの街）まで 8T</span>
+    <span class="right">現在地: 採掘集落 · 所持金 <span class="cash">1,240</span></span>
+  </div>
+
+  <div class="map">
+    <div class="maptitle">ルート網（マクロ層）── どこを経由するか</div>
+    <svg id="svg" viewBox="0 0 1000 596" preserveAspectRatio="none"></svg>
+    <div class="legend">
+      <div><b class="lg-cold">┈</b> 凍える近道（短・体温リスク）</div>
+      <div><b class="lg-warm">━</b> 暖かい迂回（長・安全）</div>
+      <div><b class="lg-dgr">┅</b> 危険路（襲撃）</div>
+      <div><b style="color:var(--dim)">·</b> 探索済み / 未開示は噂で判明</div>
+    </div>
+    <div class="hint">寒波が母港を呑んだ。もう戻れない ── 前へ進むしかない</div>
+  </div>
+
+  <div class="state">
+    <div class="ph">キャラバンの状態 <span class="r">身体で分かる</span></div>
+    <div class="needs">
+      <div class="need"><div class="l"><span class="k">食料</span><span class="v">残 8日ぶん</span></div>
+        <div class="bar"><i style="width:46%;background:var(--gold)"></i></div>
+        <div class="body warn">配給がやや細い。飢饉の集落では売らず抱えるべきか</div></div>
+      <div class="need"><div class="l"><span class="k">炉の燃料（凍晶）</span><span class="v">残 12T</span></div>
+        <div class="bar"><i style="width:60%;background:var(--crystal)"></i></div>
+        <div class="body">炉はまだ温かい。義肢は動く</div></div>
+      <div class="need"><div class="l"><span class="k">体温</span><span class="v">低下中</span></div>
+        <div class="bar"><i style="width:38%;background:var(--cold)"></i></div>
+        <div class="body cold">指がかじかむ。近道の凍える谷は危うい</div></div>
+      <div class="need"><div class="l"><span class="k">積載</span><span class="v">88%</span></div>
+        <div class="bar"><i style="width:88%;background:var(--warm)"></i></div>
+        <div class="body bad">背嚢が軋む。これ以上は足が鈍る</div></div>
+    </div>
+    <div class="ph">荷（価値密度で積む） <span class="r">CARGO</span></div>
+    <div class="cargo">
+      <div class="crow"><span class="nm">凍晶</span><span class="q">×40</span><span class="vd hi">高価値/軽</span></div>
+      <div class="crow"><span class="note">採掘集落で暴落中に仕込んだ。飢饉の集落なら高く売れる</span></div>
+      <div class="crow"><span class="nm">サイボーグ部品</span><span class="q">×3</span><span class="vd hi">高価値</span></div>
+      <div class="crow"><span class="nm">サルベージ屑鉄</span><span class="q">×12</span><span class="vd lo">かさばる</span></div>
+      <div class="crow"><span class="note">重量を食う。次の遺跡前に分解して捨てるか</span></div>
+      <div class="crow"><span class="nm">食料（自家用）</span><span class="q">×8日</span><span class="vd lo">消費財</span></div>
+    </div>
+    <div class="ph">隊 <span class="r">5人・パーマデス</span></div>
+    <div class="party">
+      <span class="tok">◆</span>Ash 先導/斥候 &nbsp;
+      <span class="tok a">B</span>Bran 護衛 &nbsp;
+      <span class="tok a">C</span>Cira 射撃 &nbsp;
+      <span class="tok a">D</span>Doe 荷役 &nbsp;
+      <span class="tok a">G</span>Gil 荷役<br>
+      <span style="color:var(--dim)">改造投資の累積：高。1人失うと大損害</span>
+    </div>
+  </div>
+
+  <div class="story">
+    <h2>各ステップの選択 ── <span>交易 → ルート → 潜行 → 引き際</span> のループ（この繰り返しがゲーム本体）</h2>
+    <div class="cards">
+
+      <div class="c">
+        <div class="step">STEP ①</div>
+        <div class="ttl">集落マーケットで交易</div>
+        <div class="whr">＠採掘集落 ── 価格差を突く</div>
+        <div class="opt"><div class="o"><span class="k">凍晶を買い集める</span><span class="tag buy">推奨・買</span></div>
+          <div class="d"><span class="dn">▼暴落中</span>。飢饉の農耕エンクレーブで<span class="up">▲高騰</span>＝裁定の種</div></div>
+        <div class="opt"><div class="o"><span class="k">手持ち食料を少し売る</span><span class="tag pick">選択</span></div>
+          <div class="d">ここは食料<span class="up">△やや高</span>。ただ抱えれば飢饉集落でもっと高い</div></div>
+        <div class="opt"><div class="o"><span class="k">工具を仕入れる</span><span class="tag safe">見送り</span></div>
+          <div class="d"><span class="up">▲高騰中</span>。メタ母港の方が安い。今は不要</div></div>
+        <div class="arrow">▶</div>
+      </div>
+
+      <div class="c">
+        <div class="step">STEP ②</div>
+        <div class="ttl">次にどこへ（経路）</div>
+        <div class="whr">積荷は重く、体温は低い</div>
+        <div class="opt"><div class="o"><span class="k">農耕エンクレーブ</span><span class="tag pick">裁定本命</span></div>
+          <div class="d"><span class="cold">凍える近道3T（体温リスク）</span> / <span class="warm">暖かい迂回6T</span>。飢饉で凍晶が高く売れる</div></div>
+        <div class="opt"><div class="o"><span class="k">遺跡A を襲う</span><span class="tag risk">一発・高危険</span></div>
+          <div class="d">4T。サイボーグ部品をサルベージ。ただし襲撃と寒さ</div></div>
+        <div class="opt"><div class="o"><span class="k">職人工房</span><span class="tag safe">安全</span></div>
+          <div class="d">3T。改造・部品仕入れ。堅実だが儲けは薄い</div></div>
+        <div class="arrow">▶</div>
+      </div>
+
+      <div class="c">
+        <div class="step">STEP ③</div>
+        <div class="ttl">遺跡での引き際（頂点）</div>
+        <div class="whr">＠遺跡A 潜行中 ── タクティカル</div>
+        <div class="opt"><div class="o"><span class="k">さらに奥へ続行</span><span class="tag risk">リスク</span></div>
+          <div class="d">奥にまだ高価値。<span class="up">ただし背嚢88%・指がかじかむ</span>・撤退が遠のく</div></div>
+        <div class="opt"><div class="o"><span class="k">屑鉄を分解して軽量化</span><span class="tag pick">選択</span></div>
+          <div class="d">かさばる荷を素材に。運搬効率↑だが時間を食う</div></div>
+        <div class="opt"><div class="o"><span class="k">確保して撤収</span><span class="tag safe">安全</span></div>
+          <div class="d">頂点を越える前に離脱。取り分を守る</div></div>
+        <div class="arrow">▶</div>
+      </div>
+
+      <div class="c">
+        <div class="step">STEP ④</div>
+        <div class="ttl">寒波の引き際</div>
+        <div class="whr">寒波前線まで5T / 目的地まで8T</div>
+        <div class="opt"><div class="o"><span class="k">北の遺跡でもう一撃</span><span class="tag risk">賭け</span></div>
+          <div class="d">大儲けの目。<span class="up">ただし寒波に呑まれれば全損（パーマデス）</span></div></div>
+        <div class="opt"><div class="o"><span class="k">荷を確保し目的地へ急ぐ</span><span class="tag pick">堅実</span></div>
+          <div class="d">富を持ち帰りラン成功。スコア＝富＋希少財＋生存者</div></div>
+        <div class="opt"><div class="o"><span class="k">近くの集落で最終交易</span><span class="tag safe">選択</span></div>
+          <div class="d">通り道なら最後にもう一度裁定。寄り道分の時間に注意</div></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const svg=document.getElementById('svg');
+const W=1000,H=596;
+const N={
+  home  :{x:5, y:50, t:'home',  g:'⌂', label:'母港',        sub:'呑まれた'},
+  mine  :{x:20,y:36, t:'market',g:'⚒', label:'採掘集落',    sub:'凍晶▼暴落', here:true},
+  ruinA :{x:19,y:76, t:'ruin',  g:'☗', label:'遺跡A',       sub:'部品'},
+  craft :{x:39,y:19, t:'market',g:'⚙', label:'職人工房',    sub:'改造'},
+  camp  :{x:35,y:54, t:'camp',  g:'△', label:'野営',        sub:''},
+  storm :{x:51,y:31, t:'hazard',g:'✷', label:'嵐',          sub:'ハザード'},
+  farm  :{x:53,y:64, t:'market',g:'✿', label:'農耕エンクレーブ',sub:'飢饉▲食料/凍晶高'},
+  ruinB :{x:67,y:26, t:'ruin',  g:'☗', label:'遺跡B',       sub:'技術'},
+  refug :{x:71,y:74, t:'market',g:'⛺',label:'難民キャンプ', sub:'買取・不安定'},
+  wp2   :{x:80,y:48, t:'camp',  g:'△', label:'野営',        sub:''},
+  vault :{x:93,y:50, t:'vault', g:'都', label:'氷都リーゲン', sub:'目的地・NPCの街'},
+};
+const E=[
+  ['home','mine','dim'],
+  ['mine','farm','cold'],
+  ['mine','camp','warm'],
+  ['camp','farm','warm'],
+  ['mine','ruinA','danger'],
+  ['mine','craft','normal'],
+  ['craft','storm','normal'],
+  ['craft','ruinB','normal'],
+  ['storm','ruinB','danger'],
+  ['farm','ruinB','normal'],
+  ['farm','refug','normal'],
+  ['refug','wp2','normal'],
+  ['ruinB','wp2','normal'],
+  ['wp2','vault','warm'],
+  ['refug','vault','normal'],
+];
+const HERE='mine';
+const px=n=>N[n].x/100*W, py=n=>N[n].y/100*H;
+const colOf={dim:'#33404b',cold:'#5fd0ff',warm:'#e5c675',danger:'#ff5b57',normal:'#54677a'};
+const dashOf={dim:'3 6',cold:'6 6',warm:'0',danger:'4 5',normal:'0'};
+
+let s='';
+s+='<defs>'
+ +'<linearGradient id="freeze" x1="0" y1="0" x2="1" y2="0">'
+ +'<stop offset="0" stop-color="#0d2740" stop-opacity="0.92"/>'
+ +'<stop offset="0.6" stop-color="#123a5c" stop-opacity="0.45"/>'
+ +'<stop offset="1" stop-color="#123a5c" stop-opacity="0"/></linearGradient>'
+ +'<radialGradient id="glow"><stop offset="0" stop-color="#ffd35c" stop-opacity="0.5"/><stop offset="1" stop-color="#ffd35c" stop-opacity="0"/></radialGradient>'
+ +'</defs>';
+s+='<rect x="0" y="0" width="'+(W*0.16)+'" height="'+H+'" fill="url(#freeze)"/>';
+s+='<line x1="'+(W*0.155)+'" y1="0" x2="'+(W*0.155)+'" y2="'+H+'" stroke="#7fd6ff" stroke-width="1.5" stroke-dasharray="2 6" opacity="0.7"/>';
+s+='<text x="'+(W*0.02)+'" y="'+(H-14)+'" fill="#7fd6ff" font-size="12" font-family="monospace">❄ 寒波前線 →</text>';
+
+E.forEach(function(e){
+  var a=e[0],b=e[1],t=e[2];
+  var hi=(a===HERE||b===HERE)&&t!=='dim';
+  s+='<line x1="'+px(a)+'" y1="'+py(a)+'" x2="'+px(b)+'" y2="'+py(b)+'" stroke="'+colOf[t]+'" stroke-width="'+(hi?3:1.6)+'" stroke-dasharray="'+dashOf[t]+'" opacity="'+(t==='dim'?0.5:(hi?0.95:0.55))+'"/>';
+});
+function edgeLabel(a,b,txt,col,dy){
+  var mx=(px(a)+px(b))/2, my=(py(a)+py(b))/2;
+  s+='<text x="'+mx+'" y="'+(my+(dy||0))+'" fill="'+col+'" font-size="11" font-family="monospace" text-anchor="middle" opacity="0.95">'+txt+'</text>';
+}
+edgeLabel('mine','farm','凍える近道 3T','#5fd0ff',-6);
+edgeLabel('camp','farm','暖かい迂回 6T','#e5c675',16);
+edgeLabel('mine','ruinA','高危険','#ff5b57',4);
+
+var ring={market:'#e5c675',ruin:'#ff8a5f',camp:'#ff9d3c',hazard:'#ff5b57',vault:'#ffd35c',home:'#33404b'};
+var fillN={market:'#1a222c',ruin:'#241820',camp:'#1e1a14',hazard:'#241416',vault:'#2a2410',home:'#0e141b'};
+for(var k in N){
+  var n=N[k], x=px(k), y=py(k);
+  var r=n.t==='vault'?24:(n.t==='camp'?12:18);
+  var dim=n.t==='home';
+  if(n.t==='vault') s+='<circle cx="'+x+'" cy="'+y+'" r="40" fill="url(#glow)"/>';
+  if(n.here) s+='<circle cx="'+x+'" cy="'+y+'" r="30" fill="url(#glow)"/>';
+  s+='<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+fillN[n.t]+'" stroke="'+ring[n.t]+'" stroke-width="'+(n.here?3:2)+'" opacity="'+(dim?0.5:1)+'"/>';
+  s+='<text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" font-size="'+(n.t==='vault'?20:15)+'" opacity="'+(dim?0.5:1)+'">'+n.g+'</text>';
+  s+='<text x="'+x+'" y="'+(y-r-6)+'" text-anchor="middle" fill="'+(dim?'#4a5a68':'#dce7f0')+'" font-size="12" font-family="monospace">'+n.label+'</text>';
+  if(n.sub) s+='<text x="'+x+'" y="'+(y+r+15)+'" text-anchor="middle" fill="'+(n.t==='market'?'#e5c675':(n.t==='ruin'?'#ff8a5f':'#7f8f9d'))+'" font-size="10" font-family="monospace">'+n.sub+'</text>';
+}
+var cx=px(HERE), cy=py(HERE);
+s+='<text x="'+cx+'" y="'+(cy-30)+'" text-anchor="middle" font-size="16" fill="#ffd35c" font-family="monospace">▼キャラバン</text>';
+
+svg.innerHTML=s;
+</script>
+</body>
+</html>

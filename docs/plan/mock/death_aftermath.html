@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 喪失の余波（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --power:#ffd35c;
+    --hp:#57c06a; --hpmid:#e5c675; --hplow:#e0574a; --ally:#7fd6ff;
+    --str:#e07a6a; --sen:#c79cf0; --dex:#6fd0c0; --agi:#8fd14f; --vit:#e0a85a; --def:#7fa8d6;
+    --grief:#8fa4c0; --loss:#e0574a; --hope:#6fd0c0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace; color:var(--ink);}
+  /* このモックは弔いの画面なので、全体トーンを詳細UIより一段暗く沈める */
+  .screen{width:1280px; min-height:800px; margin:0 auto; background:radial-gradient(circle at 50% -10%, #10151d 0%, var(--bg) 55%, #080b10 100%); position:relative;
+    display:grid; grid-template-columns:24px 1fr 24px; grid-template-rows:26px 1fr 26px;}
+  .titlebar{grid-column:1/4; grid-row:1; background:var(--panel2); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; padding:0 12px; font-size:12px;}
+  .titlebar .b{color:var(--gold);} .titlebar .s{color:var(--ink2);}
+  .titlebar .right{margin-left:auto; color:var(--ink2);}
+  .wrap{grid-column:2; grid-row:2; padding:16px 0; display:grid; grid-template-columns:352px 1fr 336px; gap:14px; align-items:start;}
+  .col{display:flex; flex-direction:column; gap:12px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .ch{font-size:11px; letter-spacing:2px; color:var(--ink2); padding:8px 12px; border-bottom:1px solid var(--line); text-transform:uppercase; display:flex; justify-content:space-between;}
+  .ch .r{color:var(--dim); letter-spacing:0;}
+  .cb{padding:11px 12px;}
+  .tag{font-size:10px; background:#1e2a35; color:#9fd0e6; border-radius:3px; padding:2px 7px;}
+  .tag.g{background:#20302a; color:#a8e0b8;} .tag.w{background:#3a2320; color:#ffb0a6;}
+  .tag.mute{background:#1a232d; color:var(--ink2);}
+
+  /* ── 追悼（左）─────────────────────────── */
+  .memorial{border-color:#2c3a4a; background:linear-gradient(180deg, rgba(143,164,192,.05), transparent 40%);}
+  .idcard{display:flex; gap:12px; padding:12px;}
+  /* 弔いのポートレート: 灰色に沈め、上に献花のリボンを掛ける */
+  .portrait{width:104px;height:120px;flex:none;border-radius:5px;background:
+    radial-gradient(circle at 50% 34%, #232c36 0%, #141b23 62%, #0b1016 100%);
+    border:1px solid #2c3d4b; position:relative; overflow:hidden; filter:grayscale(.55) brightness(.82);}
+  .portrait .fig{position:absolute; left:50%; bottom:0; transform:translateX(-50%); font-size:70px; opacity:.7; filter:drop-shadow(0 2px 3px #000);}
+  .portrait .cross{position:absolute; top:7px; left:50%; transform:translateX(-50%); font-size:13px; color:var(--grief); opacity:.85;}
+  .portrait::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 55%, rgba(5,7,10,.55));}
+  .portrait .yr{position:absolute; bottom:4px; left:0; right:0; text-align:center; font-size:9px; color:var(--grief); z-index:2; letter-spacing:1px;}
+  .idmeta .nm{font-size:22px; color:#dfe8f2; letter-spacing:1px;}
+  .idmeta .cl{font-size:12px; color:var(--grief); margin-top:3px;}
+  .idmeta .sub{font-size:11px; color:var(--ink2); margin-top:9px; line-height:1.75;}
+  .idmeta .tags{margin-top:9px; display:flex; gap:5px; flex-wrap:wrap;}
+
+  /* 記憶ログ: 共に越えた出来事の数行 */
+  .logline{display:flex; gap:9px; font-size:11.5px; padding:7px 2px; border-bottom:1px dashed #1c2733; line-height:1.5;}
+  .logline:last-child{border-bottom:none;}
+  .logline .t{color:var(--dim); width:60px; flex:none; font-size:10px; padding-top:1px;}
+  .logline .x{color:#b9c8d6;}
+  .logline .x em{font-style:normal; color:var(--grief);}
+  .logline.pk .x em{color:var(--crystal);}
+
+  /* 最期: 主体性（自分の決断）を静かに強調 */
+  .last{padding:11px 12px; border-top:1px solid var(--line); background:linear-gradient(180deg, rgba(224,87,74,.06), transparent);}
+  .last .lab{font-size:10px; letter-spacing:2px; color:var(--ink2); text-transform:uppercase; margin-bottom:6px;}
+  .last .body{font-size:12px; color:#cdd9e3; line-height:1.7;}
+  .last .body b{color:#e7d6c0; font-weight:normal;}
+  .last .choice{margin-top:8px; font-size:11px; color:var(--grief); border-left:2px solid #3a4a5c; padding-left:9px; line-height:1.65;}
+  .last .choice b{color:#c9b79c;}
+
+  /* ── 波及（中央）関係の網が揺れる ───────── */
+  .netbox{position:relative;}
+  .net{width:100%; height:298px; display:block;}
+  .netlegend{display:flex; gap:14px; font-size:10px; color:var(--ink2); padding:8px 12px 2px; flex-wrap:wrap;}
+  .netlegend span{display:flex; align-items:center; gap:5px;}
+  .netlegend i{width:16px; height:2px; display:inline-block; border-radius:2px;}
+  .ripple .rl{display:flex; gap:9px; align-items:flex-start; font-size:11.5px; padding:8px 2px; border-bottom:1px dashed #1c2733; line-height:1.55;}
+  .ripple .rl:last-child{border-bottom:none;}
+  .ripple .rl .ic{width:16px; flex:none; text-align:center; padding-top:1px;}
+  .ripple .rl .txt{color:#bccad8;}
+  .ripple .rl .txt b{color:#e0e9f2; font-weight:normal;}
+  .ripple .rl.grief .txt b{color:var(--grief);}
+  .ripple .rl.rancor .txt b{color:var(--fire);}
+  .ripple .rl.steel .txt b{color:var(--crystal);}
+  .who{font-size:10px; color:var(--ink2); background:#16202b; border:1px solid #223140; border-radius:3px; padding:1px 5px;}
+
+  /* ── 伝承の成否（二重の悲劇の核）────────── */
+  .lineage{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .ln{border:1px solid #223140; border-radius:5px; padding:11px 12px; background:var(--card);}
+  .ln.kept{border-color:#2c4a44;}
+  .ln.lost{border-color:#4a2a28; background:linear-gradient(180deg, rgba(224,87,74,.07), var(--card));}
+  .ln .lh{font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;}
+  .ln.kept .lh{color:var(--hope);}
+  .ln.lost .lh{color:var(--loss);}
+  .ln .arw{font-size:11.5px; color:#cdd9e3; line-height:1.7;}
+  .ln .arw b{font-weight:normal;}
+  .ln.kept .arw b{color:var(--hope);}
+  .ln.lost .arw b{color:#ffb0a6;}
+  .ln .flow{display:flex; align-items:center; gap:7px; margin:9px 0; font-size:11px;}
+  .ln .node{background:#16202b; border:1px solid #2a3a49; border-radius:4px; padding:4px 8px; color:#dce7f0;}
+  .ln.lost .node.gone{color:var(--dim); border-style:dashed; text-decoration:line-through;}
+  .ln .link{color:var(--dim); font-size:13px;}
+  .ln.kept .link{color:var(--hope);}
+  .ln.lost .link{color:var(--loss);}
+  .ln .skchip{font-size:10px; border-radius:3px; padding:2px 7px; display:inline-block; margin-top:2px;}
+  .ln.kept .skchip{background:#183028; color:#a8e0c8;}
+  .ln.lost .skchip{background:#2f1a18; color:#ffb0a6;}
+  .ln .out{margin-top:9px; font-size:11px; line-height:1.6;}
+  .ln.kept .out{color:#a8cabf;}
+  .ln.lost .out{color:#e08a80;}
+  .ln .badge{font-size:9px; letter-spacing:1px; padding:2px 6px; border-radius:3px; margin-left:6px;}
+  .ln.lost .badge{background:#3a1f1d; color:#ff9d90; border:1px solid #5a2b28;}
+
+  /* ── 空席（右）ロスター/寝床 ─────────────── */
+  .roster{display:flex; flex-direction:column; gap:0;}
+  .rmember{display:flex; align-items:center; gap:9px; padding:8px 2px; border-bottom:1px dashed #1c2733; font-size:12px;}
+  .rmember:last-child{border-bottom:none;}
+  .rmember .av{width:26px; height:26px; flex:none; border-radius:4px; background:radial-gradient(circle at 50% 35%, #2a3947, #121a22); border:1px solid #2c3d4b; display:flex; align-items:center; justify-content:center; font-size:14px;}
+  .rmember .rn{color:#dce7f0;}
+  .rmember .rr{color:var(--ink2); font-size:10px; margin-left:auto;}
+  .rmember.mourning .rn{color:var(--grief);}
+  .rmember.mourning .av{filter:grayscale(.4);}
+  .rmember.empty{opacity:.9;}
+  .rmember.empty .av{border-style:dashed; background:none; color:var(--dim); font-size:16px;}
+  .rmember.empty .rn{color:var(--dim);}
+  .rmember.empty .rr{color:var(--loss);}
+
+  /* 野営の寝床 */
+  .bunks{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:2px;}
+  .bunk{aspect-ratio:3/2; background:#0d141c; border:1px solid #233240; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:20px; position:relative; gap:2px;}
+  .bunk .cap{font-size:9px; color:var(--ink2);}
+  .bunk.empty{border-style:dashed; background:repeating-linear-gradient(45deg,#0a1017 0 6px, #0d141c 6px 12px);}
+  .bunk.empty .cap{color:var(--loss);}
+  .bunk.empty .ic{opacity:.35;}
+
+  .foot{grid-column:2; grid-row:3; color:var(--dim); font-size:10px; padding-top:4px; display:flex; justify-content:space-between; align-items:center;}
+  .foot .hopeline{color:var(--grief); font-size:11px;}
+  .foot .hopeline b{color:var(--hope);}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="titlebar">
+    <span class="b">◆ RUINS</span><span>喪失の余波 &nbsp;AFTERMATH</span>
+    <span class="s">|</span><span style="color:#dce7f0">B7F · ターン 214</span>
+    <span class="s">・凍てつく縦坑にて</span>
+    <span class="right">隊員は還らない ―― 死は永続である</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- LEFT: 追悼 -->
+    <div class="col">
+      <div class="card memorial">
+        <div class="idcard">
+          <div class="portrait">
+            <div class="cross">✝</div>
+            <div class="fig">🧍</div>
+            <div class="yr">在籍 18ラン ・ 逝去 T214</div>
+          </div>
+          <div class="idmeta">
+            <div class="nm">Ilva</div>
+            <div class="cl">氷上斥候 / 隊の最古参</div>
+            <div class="sub">
+              共に越えた縦坑: 41<br>
+              救った隊員: 6 名<br>
+              残した弟子: <span style="color:var(--grief)">1 名</span>
+            </div>
+            <div class="tags"><span class="tag mute">先導</span><span class="tag mute">氷上歩法</span><span class="tag w">帰らぬ人</span></div>
+          </div>
+        </div>
+        <div class="ch">記憶ログ <span class="r">共に越えた出来事</span></div>
+        <div class="cb" style="padding-top:6px;">
+          <div class="logline pk"><span class="t">R2 · T44</span><span class="x">初めての合流。凍り付いた橋で <em>Ilva</em> が隊を氷渡しの道へ導いた。</span></div>
+          <div class="logline"><span class="t">R7 · T96</span><span class="x">吹雪の夜、はぐれた <em>Bram</em> を背負って野営まで連れ帰った。</span></div>
+          <div class="logline"><span class="t">R11 · T130</span><span class="x">崩落坑で退路を身体で塞ぎ、後続を先に逃がした。</span></div>
+          <div class="logline"><span class="t">R15 · T188</span><span class="x">弟子 <em>Noa</em> に氷上歩法の初歩を伝え始めた。</span></div>
+        </div>
+        <div class="last">
+          <div class="lab">最期 ・ Last Stand</div>
+          <div class="body">
+            氷結した縦坑で足場が抜けた。落ちる隊列の先頭で、<b>Ilva</b> は自らアンカーを断ち、後続 3 名の墜落を止めた。
+          </div>
+          <div class="choice">
+            <b>あなたの決断:</b> 「アンカーを切る」を選んだのは監督だった。<br>
+            Ilva は納得の上で残り、隊は生きて次の階へ進んだ。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: 波及 + 伝承 -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">波及 <span class="r">関係の網が揺れる</span></div>
+        <div class="netbox">
+          <svg class="net" viewBox="0 0 480 298" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <radialGradient id="gone" cx="50%" cy="42%" r="60%">
+                <stop offset="0%" stop-color="#3a4658"/><stop offset="100%" stop-color="#121820"/>
+              </radialGradient>
+              <filter id="soft"><feGaussianBlur stdDeviation="0.4"/></filter>
+            </defs>
+            <!-- 波紋: 故人を中心に揺れる同心円 -->
+            <circle cx="240" cy="140" r="52" fill="none" stroke="#2a3644" stroke-width="1" opacity=".7"/>
+            <circle cx="240" cy="140" r="80" fill="none" stroke="#233040" stroke-width="1" opacity=".5"/>
+            <circle cx="240" cy="140" r="110" fill="none" stroke="#1e2a38" stroke-width="1" opacity=".35"/>
+
+            <!-- 関係線 -->
+            <!-- Ilva → Noa (継承・かすかな希望) -->
+            <line x1="240" y1="140" x2="368" y2="72" stroke="#3a7d6f" stroke-width="1.6" stroke-dasharray="2 3" opacity=".8"/>
+            <!-- Ilva → Bram (慕情 → 悲嘆) -->
+            <line x1="240" y1="140" x2="96" y2="70" stroke="#8fa4c0" stroke-width="2.4"/>
+            <!-- Ilva → Cael -->
+            <line x1="240" y1="140" x2="86" y2="216" stroke="#5b6a7e" stroke-width="1.4"/>
+            <!-- Bram → Cael (遺恨: Cael の判断が招いた) -->
+            <line x1="96" y1="70" x2="86" y2="216" stroke="#ff9d3c" stroke-width="2.2" stroke-dasharray="6 4"/>
+            <!-- Ilva → Noa の逆側支線 Noa→隊 -->
+            <line x1="368" y1="72" x2="380" y2="210" stroke="#33414f" stroke-width="1.2"/>
+
+            <!-- 故人ノード -->
+            <circle cx="240" cy="140" r="26" fill="url(#gone)" stroke="#4a5a6c" stroke-width="1.5"/>
+            <text x="240" y="136" text-anchor="middle" font-size="18" opacity=".6">🧍</text>
+            <text x="240" y="176" text-anchor="middle" fill="#8fa4c0" font-size="10" font-family="monospace">✝ Ilva</text>
+
+            <!-- 周囲ノード -->
+            <g font-family="monospace" font-size="10">
+              <!-- Bram -->
+              <circle cx="96" cy="70" r="18" fill="#16202b" stroke="#8fa4c0" stroke-width="1.4"/>
+              <text x="96" y="74" text-anchor="middle" font-size="14">😔</text>
+              <text x="96" y="42" text-anchor="middle" fill="#8fa4c0">Bram</text>
+              <text x="96" y="103" text-anchor="middle" fill="#7f8f9d" font-size="8">悲嘆 -12 士気</text>
+
+              <!-- Cael -->
+              <circle cx="86" cy="216" r="18" fill="#16202b" stroke="#8a5a34" stroke-width="1.4"/>
+              <text x="86" y="220" text-anchor="middle" font-size="14">😖</text>
+              <text x="86" y="248" text-anchor="middle" fill="#e0a85a">Cael</text>
+              <text x="86" y="188" text-anchor="middle" fill="#7f8f9d" font-size="8">自責</text>
+
+              <!-- Noa -->
+              <circle cx="368" cy="72" r="18" fill="#16202b" stroke="#3a7d6f" stroke-width="1.4"/>
+              <text x="368" y="76" text-anchor="middle" font-size="14">🧑</text>
+              <text x="368" y="44" text-anchor="middle" fill="#6fd0c0">Noa</text>
+              <text x="368" y="105" text-anchor="middle" fill="#7f8f9d" font-size="8">弟子・継承者</text>
+            </g>
+          </svg>
+        </div>
+        <div class="netlegend">
+          <span><i style="background:#8fa4c0"></i>慕情 → 悲嘆</span>
+          <span><i style="background:#ff9d3c"></i>遺恨（判断が招いた）</span>
+          <span><i style="background:#3a7d6f"></i>継承の糸</span>
+        </div>
+        <div class="cb ripple" style="border-top:1px solid var(--line); padding-top:8px;">
+          <div class="rl grief"><span class="ic">◆</span><span class="txt"><span class="who">Bram</span> は <b>Ilva</b> を長く慕っていた ―― <b>深い悲嘆</b>。数ターン、判断が鈍る。</span></div>
+          <div class="rl rancor"><span class="ic">◆</span><span class="txt"><span class="who">Bram</span> → <span class="who">Cael</span>：Ilva を落としたのは Cael の先導失敗だと <b>遺恨</b>が芽生えた。</span></div>
+          <div class="rl steel"><span class="ic">◆</span><span class="txt"><span class="who">Cael</span> は自責を負い、<b>「二度と落とさない」</b>と先導への覚悟を固めた。</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">伝承の成否 <span class="r">知識は残るか、共に消えるか</span></div>
+        <div class="cb">
+          <div class="lineage">
+            <div class="ln kept">
+              <div class="lh">✓ 伝承済み</div>
+              <div class="arw">生前、Ilva は弟子 <b>Noa</b> に技を継いでいた。</div>
+              <div class="flow">
+                <span class="node">Ilva の技</span>
+                <span class="link">→</span>
+                <span class="node">Noa</span>
+              </div>
+              <div><span class="skchip">氷上歩法 Lv3 継承</span></div>
+              <div class="out">技は隊に残る。<br>ほろ苦い希望 ―― 人は逝っても、道は途絶えない。</div>
+            </div>
+            <div class="ln lost">
+              <div class="lh">✕ 未伝承 <span class="badge">二重の喪失</span></div>
+              <div class="arw">誰にも継がれなかった技は、Ilva と共に <b>永久に失われた</b>。</div>
+              <div class="flow">
+                <span class="node gone">凍嵐の読み</span>
+                <span class="link">⇥</span>
+                <span class="node" style="opacity:.4">（継承者なし）</span>
+              </div>
+              <div><span class="skchip">凍嵐の読み Lv6 ・ 消失</span></div>
+              <div class="out">人を喪い、系譜も断たれた。<br>この知識は二度と隊に戻らない ―― 機構的損失。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 空席 -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">ロスター <span class="r">欠けを抱えて進む</span></div>
+        <div class="cb roster">
+          <div class="rmember"><span class="av">🧑</span><span class="rn">Noa</span><span class="rr">斥候見習 · 継承者</span></div>
+          <div class="rmember mourning"><span class="av">😔</span><span class="rn">Bram</span><span class="rr">重装 · 悲嘆中</span></div>
+          <div class="rmember mourning"><span class="av">😖</span><span class="rn">Cael</span><span class="rr">先導 · 自責</span></div>
+          <div class="rmember"><span class="av">🧍</span><span class="rn">Dula</span><span class="rr">工兵</span></div>
+          <div class="rmember empty"><span class="av">＋</span><span class="rn">― 空席 ―</span><span class="rr">最古参の欠員</span></div>
+          <div class="rmember empty"><span class="av">＋</span><span class="rn">― 空席 ―</span><span class="rr">補充待ち</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">野営 <span class="r">寝床</span></div>
+        <div class="cb">
+          <div class="bunks">
+            <div class="bunk"><span class="ic">🛏️</span><span class="cap">Noa</span></div>
+            <div class="bunk"><span class="ic">🛏️</span><span class="cap">Bram</span></div>
+            <div class="bunk"><span class="ic">🛏️</span><span class="cap">Cael</span></div>
+            <div class="bunk"><span class="ic">🛏️</span><span class="cap">Dula</span></div>
+            <div class="bunk empty"><span class="ic">🛏️</span><span class="cap">Ilva ―</span></div>
+            <div class="bunk empty"><span class="ic">＋</span><span class="cap">空き</span></div>
+          </div>
+          <div style="font-size:10px; color:var(--ink2); margin-top:10px; line-height:1.6;">
+            畳まれた寝床がひとつ。誰も、まだそこを使わない。
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">形見 <span class="r">RELIC</span></div>
+        <div class="cb">
+          <div class="eq" style="display:flex;align-items:center;gap:8px;font-size:12px;">
+            <span style="width:26px;height:26px;flex:none;border-radius:4px;background:#16202b;border:1px solid #2c3d4b;display:flex;align-items:center;justify-content:center;font-size:14px;">🪃</span>
+            <div style="flex:1;color:#cdd9e3;">氷斧 ―― Ilva の得物<br><span style="font-size:10px;color:var(--grief);">誰かが継げば、名は旅を続ける。</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot">
+    <span>※ 完成形の方向性モック。数値でなく「読める瞬間」で喪失を提示する検証用。</span>
+    <span class="hopeline">…B7F の避難所に、名も知らぬ人影がひとつ。<b>監督は歩み寄る。</b></span>
+  </div>
+</div>
+</body>
+</html>
