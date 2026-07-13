@@ -37,10 +37,17 @@ func GetCaravanRun(world w.World) *gc.CaravanRun {
 	return GetSingleton[gc.CaravanRun](world, world.Components.CaravanRun)
 }
 
-// SetCaravanRun はシングルトンエンティティにマクロ移動のラン状態を設定する
+// SetCaravanRun はシングルトンエンティティにマクロ移動のラン状態を設定する。
+// runがnilならコンポーネントを除去してランを終了する（再入時は新規生成される）
 func SetCaravanRun(world w.World, run *gc.CaravanRun) {
 	entity := world.Resources.SingletonEntity
 	comp := world.Components.CaravanRun
+	if run == nil {
+		if comp.Has(entity) {
+			comp.Remove(entity)
+		}
+		return
+	}
 	if comp.Has(entity) {
 		comp.Set(entity, run)
 	} else {

@@ -2,6 +2,17 @@ package components
 
 import "github.com/kijimaD/ruins/internal/route"
 
+// 寒波前線のモデル定数（面数）。移動は前線と等速なのでリードは変わらず、
+// 潜行・野営で道草を食うと前線だけが詰める＝引き際の圧を生む（漏れバケツ回避の設計）。
+const (
+	// InitialFrontLead はラン開始時のキャラバンの頭金（寒波前線への初期リード）
+	InitialFrontLead = 12
+	// CampFrontCost は野営1回で寒波前線が詰める面数
+	CampFrontCost = 3
+	// RuinFrontCost は遺跡潜行1回で寒波前線が詰める面数
+	RuinFrontCost = 4
+)
+
 // CaravanSupply はキャラバンの供給在庫。食料・燃料は束ねず独立に扱う（緩さ4原則）。
 // 積載は1面あたりの食料消費に効く（運搬役が積荷を食う＝物量で頂点が生まれる）。
 type CaravanSupply struct {
@@ -50,8 +61,19 @@ func NewCaravanRun(seed uint64, expedition route.ExpeditionType) *CaravanRun {
 }
 
 // FrontLead は寒波前線に対するリード（余裕）を面数で返す。0以下で呑まれ＝ラン失敗。
+// 初期頭金（InitialFrontLead）から始まり、移動では前線と等速で変わらず、道草で縮む。
 func (r *CaravanRun) FrontLead() int {
-	return r.CaravanProgress - r.FrontProgress
+	return InitialFrontLead + r.CaravanProgress - r.FrontProgress
+}
+
+// Dawdle は前進せず時間を費やす（潜行・野営）ぶん、寒波前線だけを前進させてリードを縮める。
+func (r *CaravanRun) Dawdle(faces int) {
+	r.FrontProgress += faces
+}
+
+// Swallowed は寒波前線に追いつかれた（リード0以下）かを返す。
+func (r *CaravanRun) Swallowed() bool {
+	return r.FrontLead() <= 0
 }
 
 // AdvanceAlong は辺を踏破し、供給消費・前進・現在ノード更新を適用して結果を返す。

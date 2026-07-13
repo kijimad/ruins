@@ -194,13 +194,18 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 	switch node.Type {
 	case route.NodeGoal:
 		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。背骨を納品して遠征達成。").Log()
+		query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case route.NodeCamp:
-		// 野営で休息し糧食をいくらか回復する（CaravanRun のみで完結・プレイヤー不要）
+		// 野営で糧食を回復するが、休息の間に寒波前線が詰める（道草の代償）
 		const campFoodRestore = 15
 		run.Supply.Food += campFoodRestore
+		run.Dawdle(gc.CampFrontCost)
 		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
-			"野営した。休息して糧食を %d 回復した。", campFoodRestore)).Log()
+			"野営した。糧食を %d 回復したが、寒波が %d 面詰めた。", campFoodRestore, gc.CampFrontCost)).Log()
+		if run.Swallowed() {
+			return st.failSwallowed(world)
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case route.NodeMarket, route.NodeShop, route.NodeJunction, route.NodeOutpost:
 		// 交易（購入・能動売却）。既存 ShopMenuState を Push し、閉じると MacroMap に戻る
@@ -211,9 +216,14 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 			NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
 		}, nil
 	case route.NodeRuin:
-		// 潜行。脱出時は自動精算を通さず MacroMap へ戻す（WithEscapeTarget）。
-		// 深層に潜っても TransReplace で MacroMap を再構築し、荷を持ったまま道中へ戻る
-		gamelog.New(query.GetGameLog(world)).System("遺跡に到着した。潜行する。").Log()
+		// 潜行する間に寒波前線が詰める（引き際の核）。呑まれたら潜らずラン失敗。
+		// 脱出時は自動精算を通さず MacroMap を再構築して荷を持ったまま道中へ戻す（WithEscapeTarget）
+		run.Dawdle(gc.RuinFrontCost)
+		if run.Swallowed() {
+			return st.failSwallowed(world)
+		}
+		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
+			"遺跡に到着した。潜行する（寒波が %d 面詰める）。", gc.RuinFrontCost)).Log()
 		return es.Transition[w.World]{
 			Type: es.TransPush,
 			NewStateFuncs: []es.StateFactory[w.World]{
@@ -224,6 +234,13 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
+}
+
+// failSwallowed は寒波前線に呑まれてラン失敗した際の処理。ランを終了して道中を閉じる。
+func (st *MacroMapState) failSwallowed(world w.World) (es.Transition[w.World], error) {
+	gamelog.New(query.GetGameLog(world)).System("寒波前線に呑まれた。ラン失敗。").Log()
+	query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
+	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 
 // nodeTypeJP はノード種別の表示名を返す（表示層の関心。route はモデルを英字で持つ）。

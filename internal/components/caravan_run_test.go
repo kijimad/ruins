@@ -31,7 +31,33 @@ func TestCaravanRun_FrontLead(t *testing.T) {
 	cr := NewCaravanRun(1, route.ExpeditionFrontier)
 	cr.CaravanProgress = 8
 	cr.FrontProgress = 3
-	assert.Equal(t, 5, cr.FrontLead(), "リード＝前進距離−前線位置")
+	assert.Equal(t, InitialFrontLead+5, cr.FrontLead(), "リード＝初期頭金＋前進−前線位置")
+}
+
+func TestCaravanRun_TravelKeepsLead(t *testing.T) {
+	t.Parallel()
+	// 移動は前線と等速なのでリードは変わらない（漏れバケツ回避）
+	cr := NewCaravanRun(1, route.ExpeditionFrontier)
+	before := cr.FrontLead()
+	cr.AdvanceAlong(route.Edge{To: 99, Type: route.EdgeNormal, Faces: 3})
+	assert.Equal(t, before, cr.FrontLead())
+}
+
+func TestCaravanRun_DawdleShrinksLead(t *testing.T) {
+	t.Parallel()
+	// 道草（潜行・野営）は前線だけ詰めてリードを縮める
+	cr := NewCaravanRun(1, route.ExpeditionFrontier)
+	before := cr.FrontLead()
+	cr.Dawdle(5)
+	assert.Equal(t, before-5, cr.FrontLead())
+	assert.False(t, cr.Swallowed())
+}
+
+func TestCaravanRun_Swallowed(t *testing.T) {
+	t.Parallel()
+	cr := NewCaravanRun(1, route.ExpeditionFrontier)
+	cr.Dawdle(InitialFrontLead) // リードを0まで詰める
+	assert.True(t, cr.Swallowed(), "リード0以下で呑まれ")
 }
 
 func TestCaravanRun_AdvanceAlong(t *testing.T) {
