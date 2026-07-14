@@ -3,6 +3,7 @@ package states
 import (
 	"fmt"
 	"math"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -142,10 +143,12 @@ func (st *LookAroundState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawInfoPanel(world, screen)
 }
 
-// 画像キャッシュ
+// 画像キャッシュ。sync.Once で一度だけ初期化する
 var (
-	cursorImageCache *ebiten.Image
-	panelImageCache  *ebiten.Image
+	cursorImageCache     *ebiten.Image
+	cursorImageCacheOnce sync.Once
+	panelImageCache      *ebiten.Image
+	panelImageCacheOnce  sync.Once
 )
 
 // drawCursor はカーソルを描画する
@@ -155,7 +158,7 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
 	cursorPixelY := float64(int(st.cursor.Y) * tileSize)
 
 	// カーソル画像をキャッシュから取得または作成
-	if cursorImageCache == nil {
+	cursorImageCacheOnce.Do(func() {
 		cursorImageCache = ebiten.NewImage(tileSize, tileSize)
 		// 枠線を描画（太さ3px、白色で目立つように）
 		cursorColor := theme.CursorLook
@@ -177,7 +180,7 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
 				cursorImageCache.Set(tileSize-1-i, y, cursorColor)
 			}
 		}
-	}
+	})
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(cursorPixelX, cursorPixelY)
@@ -205,10 +208,10 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	)
 
 	// パネル背景をキャッシュから取得または生成
-	if panelImageCache == nil {
+	panelImageCacheOnce.Do(func() {
 		panelImageCache = ebiten.NewImage(panelWidth, panelHeight)
 		panelImageCache.Fill(theme.Overlay)
-	}
+	})
 
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY

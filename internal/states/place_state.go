@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -217,15 +218,18 @@ func (st *PlaceState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawPlacePanel(world, screen)
 }
 
-// placeCursorCache はカーソル画像のキャッシュ
-var placeCursorCache *ebiten.Image
+// placeCursorCache はカーソル画像のキャッシュ。sync.Once で一度だけ初期化する
+var (
+	placeCursorCache     *ebiten.Image
+	placeCursorCacheOnce sync.Once
+)
 
 func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(st.cursor.X) * tileSize)
 	cursorPixelY := float64(int(st.cursor.Y) * tileSize)
 
-	if placeCursorCache == nil {
+	placeCursorCacheOnce.Do(func() {
 		placeCursorCache = ebiten.NewImage(tileSize, tileSize)
 		cursorColor := theme.CursorPlace
 		for i := range 3 {
@@ -238,7 +242,7 @@ func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 				placeCursorCache.Set(tileSize-1-i, y, cursorColor)
 			}
 		}
-	}
+	})
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(cursorPixelX, cursorPixelY)
