@@ -58,6 +58,11 @@ func TestGolden_CharacterJob(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
+func TestGolden_MacroMap(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, vrt.States(&gs.MacroMapState{}))
+}
+
 func TestGolden_Town(t *testing.T) {
 	t.Parallel()
 	town, err := gs.NewTownState()()
