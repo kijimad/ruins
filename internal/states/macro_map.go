@@ -43,22 +43,14 @@ var _ es.State[w.World] = &MacroMapState{}
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *MacroMapState) OnPause(_ w.World) error { return nil }
 
-// OnResume はステートが再開される際に呼ばれる。ノードマップ（集落/遺跡）から Pop で戻ったとき、
-// そのマップのエンティティが残るため掃除する（遷移時のリセット）
-func (st *MacroMapState) OnResume(world w.World) error {
-	removeMapEntities(world)
-	return nil
-}
+// OnResume はステートが再開される際に呼ばれる
+func (st *MacroMapState) OnResume(_ w.World) error { return nil }
 
 // OnStop はステートが終了する際に呼ばれる
 func (st *MacroMapState) OnStop(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる。ラン未開始なら最小の実ラン世界を用意する（デバッグ入口用）。
 func (st *MacroMapState) OnStart(world w.World) error {
-	// マクロ層はタクティカルマップを持たない。下層 paused マップ（デバッグメニューを開いた
-	// ダンジョン等）や直前のノードマップのエンティティが残ると重複するため、入場時に掃除する
-	removeMapEntities(world)
-
 	// 正式な遠征選択入口（Phase 5）ではそちらがプレイヤー・ランを用意するため、ここは通らない。
 	if query.GetCaravanRun(world) == nil {
 		if err := setupDebugRun(world); err != nil {
@@ -127,10 +119,8 @@ func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 	return st.ConsumeTransition(), nil
 }
 
-// Draw はステートの描画処理。Push で入り後ろに呼び出し元のstateが残るため、
-// 背景を塗って透けないようにする
+// Draw はステートの描画処理。背景は塗らず、後ろの呼び出し元（前の画面）を見せる
 func (st *MacroMapState) Draw(_ w.World, screen *ebiten.Image) error {
-	screen.Fill(theme.ScreenBackground)
 	st.widget.Draw(screen)
 	return nil
 }
