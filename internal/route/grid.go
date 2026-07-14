@@ -56,12 +56,13 @@ func GenerateGrid(expedition ExpeditionType, seed uint64, w, h int) *Grid {
 // gridTerrain は広域マップ1セルの地形を選ぶ。大半は原野（平原/山脈）で、POI（遺跡/村/専門店）は
 // 疎に散らす（CDDA のオーバーマップ＝ほとんど原野、ランドマークが点在）。遠征で POI 比率を調整する。
 func gridTerrain(exp ExpeditionType, rng *rand.Rand) NodeType {
-	ruinPct, marketPct, shopPct := 6, 4, 2
+	// 広域マップは 100 セル超あるため POI は数個で十分。遺跡はランドマークとして疎に置く。
+	ruinPct, marketPct, shopPct := 3, 3, 2
 	switch exp {
 	case ExpeditionDeepVault:
-		ruinPct = 10 // 潜行重心（それでも大半は原野）
+		ruinPct = 5 // 潜行重心（それでも数個）
 	case ExpeditionTradeCity:
-		marketPct, shopPct = 8, 4 // 交易重心
+		marketPct, shopPct = 6, 3 // 交易重心
 	case ExpeditionPatron, ExpeditionFrontier:
 		// 既定のまま
 	}

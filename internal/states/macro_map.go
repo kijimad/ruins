@@ -23,7 +23,8 @@ import (
 )
 
 // macroMapDebugSeed はデバッグ入口でランを自動生成する際の固定シード。
-const macroMapDebugSeed = 13
+// 分布が代表的（原野が主役・POI は疎）に見えるシードを選んでいる。
+const macroMapDebugSeed = 16
 
 // MacroMapState はマクロ移動（広域グリッドマップ）の画面のステート。
 // 矢印でセル単位に移動（マクロ横断のみ）、遺跡・村セルで「決定」を押すとミクロ（潜行・交易）へ。
