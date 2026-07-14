@@ -96,11 +96,11 @@ func reestablishSingleton(world w.World) error {
 		}
 	}
 
-	// json:"-"で除外された広域マップをシードから再構築する
+	// json:"-"で除外された停留点マップをシードから再構築する
 	if world.Components.CaravanRun.Has(singleton) {
 		cr := world.Components.CaravanRun.Get(singleton)
-		if cr.Grid == nil {
-			cr.Grid = route.GenerateGrid(cr.Expedition, cr.Seed, gc.GridW, gc.GridH)
+		if cr.Beacons == nil {
+			cr.Beacons = route.GenerateBeacons(cr.Expedition, cr.Seed)
 		}
 	}
 	return nil

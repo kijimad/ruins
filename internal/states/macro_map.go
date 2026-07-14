@@ -11,6 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/route"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -23,14 +24,15 @@ import (
 )
 
 // macroMapDebugSeed はデバッグ入口でランを自動生成する際の固定シード。
-// 分布が代表的（原野が主役・POI は疎）に見えるシードを選んでいる。
-const macroMapDebugSeed = 16
+// イベント種別が揃って見えるシードを選んでいる。
+const macroMapDebugSeed = 15
 
-// MacroMapState はマクロ移動（広域グリッドマップ）の画面のステート。
-// 矢印でセル単位に移動（マクロ横断のみ）、遺跡・村セルで「決定」を押すとミクロ（潜行・交易）へ。
+// MacroMapState はマクロ移動（FTL 風の停留点マップ）の画面のステート。
+// 次の停留点を選んでジャンプし、到達先のイベント（遺跡=潜行/村=交易/吹雪=選択/…）を解決する。
 // 寒波前線が背後の列から迫り、追いつかれるとラン失敗。
 type MacroMapState struct {
 	es.BaseState[w.World]
+	sel int // 選択中の次停留点インデックス（Outgoing の中）
 }
 
 func (st MacroMapState) String() string {
@@ -95,12 +97,14 @@ func playerExists(world w.World) bool {
 	return exists
 }
 
-// Update はステートの更新処理。矢印で移動、決定で現在セルをエンゲージ、キャンセルで離脱。
+// Update はステートの更新処理。上下で次停留点を選び、決定でジャンプ、キャンセルで離脱。
 func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 	run := query.GetCaravanRun(world)
-	if run == nil || run.Grid == nil {
+	if run == nil || run.Beacons == nil {
 		return es.Transition[w.World]{}, nil
 	}
+	next := run.Beacons.Outgoing(run.Current)
+
 	action, ok := HandleMenuInput()
 	if !ok {
 		return es.Transition[w.World]{}, nil
@@ -109,72 +113,78 @@ func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuUp:
-		return st.move(world, run, route.Coord{X: 0, Y: -1})
+		st.sel = cycle(st.sel-1, len(next))
+		return es.Transition[w.World]{}, nil
 	case inputmapper.ActionMenuDown:
-		return st.move(world, run, route.Coord{X: 0, Y: 1})
-	case inputmapper.ActionMenuLeft:
-		return st.move(world, run, route.Coord{X: -1, Y: 0})
-	case inputmapper.ActionMenuRight:
-		return st.move(world, run, route.Coord{X: 1, Y: 0})
+		st.sel = cycle(st.sel+1, len(next))
+		return es.Transition[w.World]{}, nil
 	case inputmapper.ActionMenuSelect:
-		return st.engageCell(world, run)
+		if len(next) == 0 {
+			return es.Transition[w.World]{}, nil
+		}
+		to := next[cycle(st.sel, len(next))]
+		st.sel = 0
+		return st.jump(world, run, to)
 	default:
 		return es.Transition[w.World]{}, nil
 	}
 }
 
-// move は方向 dir へ1セル移動を試みる。移動はマクロ横断のみ（ミクロには入らない）。
-func (st *MacroMapState) move(world w.World, run *gc.CaravanRun, dir route.Coord) (es.Transition[w.World], error) {
-	target := route.Coord{X: run.Pos.X + dir.X, Y: run.Pos.Y + dir.Y}
-	if !run.CanMoveTo(target) {
-		return es.Transition[w.World]{}, nil // 枠外・凍結・非隣接は無視
-	}
-	run.MoveTo(target)
+// jump は次の停留点へジャンプし、到達先のイベントを解決する。
+func (st *MacroMapState) jump(world w.World, run *gc.CaravanRun, to route.NodeID) (es.Transition[w.World], error) {
+	run.JumpTo(to)
 	if run.Swallowed() {
 		return st.failSwallowed(world)
 	}
-	if run.Pos == run.Grid.Goal {
-		return st.reachGoal(world)
+	b := run.Beacons.BeaconByID(run.Current)
+	if b == nil {
+		return es.Transition[w.World]{}, nil
 	}
-	return es.Transition[w.World]{}, nil
+	return st.resolveEvent(world, run, b.Event)
 }
 
-// engageCell は現在セルの地形をエンゲージする（決定を押したときだけ）。
-// 遺跡＝潜行、村/専門店/前哨＝交易、野営＝休息、目標＝達成。平原/山脈は跨ぐだけでエンゲージ対象外。
-func (st *MacroMapState) engageCell(world w.World, run *gc.CaravanRun) (es.Transition[w.World], error) {
-	switch run.Grid.At(run.Pos) {
+// resolveEvent は到達した停留点のイベントを解決する。
+// 遺跡=潜行、村/専門店/前哨=交易、野営=休息、山脈=吹雪(選択)、平原=無風、目標=達成。
+func (st *MacroMapState) resolveEvent(world w.World, run *gc.CaravanRun, ev route.NodeType) (es.Transition[w.World], error) {
+	log := gamelog.New(query.GetGameLog(world))
+	switch ev {
+	case route.NodeGoal:
+		return st.reachGoal(world)
 	case route.NodeRuin:
 		run.Dawdle(gc.RuinFrontCost)
 		if run.Swallowed() {
 			return st.failSwallowed(world)
 		}
-		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
-			"遺跡に潜行する（寒波が %d 列詰める）。", gc.RuinFrontCost)).Log()
+		log.System(fmt.Sprintf("遺跡に潜行する（寒波が %d 列詰める）。", gc.RuinFrontCost)).Log()
 		return es.Transition[w.World]{
 			Type:          es.TransPush,
 			NewStateFuncs: []es.StateFactory[w.World]{NewRuinState(WithEscapePop())},
 		}, nil
 	case route.NodeMarket, route.NodeShop, route.NodeOutpost:
-		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
-			"%sに立ち寄る。", nodeTypeJP(run.Grid.At(run.Pos)))).Log()
+		log.System(fmt.Sprintf("%sに立ち寄る。", nodeTypeJP(ev))).Log()
 		return es.Transition[w.World]{
 			Type:          es.TransPush,
 			NewStateFuncs: []es.StateFactory[w.World]{NewMarketState(WithEscapePop())},
 		}, nil
 	case route.NodeCamp:
-		const campFoodRestore = 15
+		const campFoodRestore = 20
 		run.Supply.Food += campFoodRestore
 		run.Dawdle(gc.CampFrontCost)
-		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
-			"野営した。糧食を %d 回復したが、寒波が %d 列詰めた。", campFoodRestore, gc.CampFrontCost)).Log()
+		log.System(fmt.Sprintf("野営した。糧食を %d 回復したが、寒波が %d 列詰めた。", campFoodRestore, gc.CampFrontCost)).Log()
 		if run.Swallowed() {
 			return st.failSwallowed(world)
 		}
 		return es.Transition[w.World]{}, nil
-	case route.NodeGoal:
-		return st.reachGoal(world)
+	case route.NodeMountain:
+		// 吹雪：燃料を焚くか凍えるかの選択イベント
+		return es.Transition[w.World]{
+			Type:          es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{NewBlizzardEventState()},
+		}, nil
 	default:
-		// 平原/山脈/母港 は跨ぐ地形（エンゲージ対象外）
+		// 平原など：無風（小さな採集）
+		run.Supply.Food += 4
+		log.System("穏やかな雪原を越えた。わずかに糧を得た（糧食 +4）。").Log()
 		return es.Transition[w.World]{}, nil
 	}
 }
@@ -202,22 +212,59 @@ func goalSummary() string {
 	return "遠征達成！\n\n目標地点に到達し、目標物を納品した。\nキャラバンは役目を果たした。"
 }
 
-// Draw はグリッド広域マップを描画する。
+// NewBlizzardEventState は吹雪の選択イベント（燃料を焚く / 凍えて進む）を作る。
+func NewBlizzardEventState() es.StateFactory[w.World] {
+	return func() (es.State[w.World], error) {
+		ms := &MessageState{}
+		ms.messageData = messagedata.NewSystemMessage("吹雪に見舞われた。凍てつく風が隊列を叩く。どうする？").
+			WithChoice("燃料を焚いて凌ぐ（燃料 -8）", func(world w.World) error {
+				if run := query.GetCaravanRun(world); run != nil {
+					run.Supply.Fuel = clampMin0(run.Supply.Fuel - 8)
+				}
+				ms.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
+			}).
+			WithChoice("凍えて進む（糧食 -12）", func(world w.World) error {
+				if run := query.GetCaravanRun(world); run != nil {
+					run.Supply.Food = clampMin0(run.Supply.Food - 12)
+				}
+				ms.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
+			})
+		return ms, nil
+	}
+}
+
+func clampMin0(n int) int {
+	if n < 0 {
+		return 0
+	}
+	return n
+}
+
+func cycle(i, n int) int {
+	if n <= 0 {
+		return 0
+	}
+	return ((i % n) + n) % n
+}
+
+// Draw は停留点マップを描画する。
 func (st *MacroMapState) Draw(world w.World, screen *ebiten.Image) error {
 	run := query.GetCaravanRun(world)
-	if run == nil || run.Grid == nil {
+	if run == nil || run.Beacons == nil {
 		return nil
 	}
-	st.drawGrid(world, screen, run)
+	st.drawMap(world, screen, run)
 	return nil
 }
 
 // ================
-// 描画（グリッド広域マップ）
+// 描画（停留点マップ）
 // ================
 
-func (st *MacroMapState) drawGrid(world w.World, screen *ebiten.Image, run *gc.CaravanRun) {
-	g := run.Grid
+func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.CaravanRun) {
+	m := run.Beacons
 	face := world.Resources.UIResources.Text.BodyFace
 	sw := float64(screen.Bounds().Dx())
 	sh := float64(screen.Bounds().Dy())
@@ -226,81 +273,99 @@ func (st *MacroMapState) drawGrid(world w.World, screen *ebiten.Image, run *gc.C
 	vector.FillCircle(screen, float32(sw*0.5), float32(sh*0.5), float32(sw*0.45), colorMacroBGCenter, true)
 
 	const (
-		marginX      = 60.0
-		marginTop    = 118.0
-		marginBottom = 66.0
+		marginX      = 70.0
+		marginTop    = 120.0
+		marginBottom = 70.0
 	)
 	mapW := sw - 2*marginX
 	mapH := sh - marginTop - marginBottom
-	cellW := mapW / float64(g.W)
-	cellH := mapH / float64(g.H)
-	cellCenter := func(c route.Coord) (float32, float32) {
-		return float32(marginX + (float64(c.X)+0.5)*cellW), float32(marginTop + (float64(c.Y)+0.5)*cellH)
-	}
 
-	// セル（地形タイル）を描画
-	for y := range g.H {
-		for x := range g.W {
-			c := route.Coord{X: x, Y: y}
-			cx, cy := cellCenter(c)
-			drawCell(screen, face, cx, cy, float32(cellW), float32(cellH), g.At(c), x <= run.FrontCol)
+	// 列ごとに集めて位置を計算
+	maxCol := 0
+	colBeacons := map[int][]route.NodeID{}
+	for _, b := range m.Beacons {
+		if b.Column > maxCol {
+			maxCol = b.Column
+		}
+		colBeacons[b.Column] = append(colBeacons[b.Column], b.ID)
+	}
+	if maxCol == 0 {
+		maxCol = 1
+	}
+	pos := make(map[route.NodeID][2]float64, len(m.Beacons))
+	for col, ids := range colBeacons {
+		x := marginX + float64(col)/float64(maxCol)*mapW
+		for i, id := range ids {
+			y := marginTop + float64(i+1)/float64(len(ids)+1)*mapH
+			pos[id] = [2]float64{x, y}
 		}
 	}
 
-	// 寒波前線の縁（明るいシアン線）
-	if run.FrontCol >= 0 && run.FrontCol < g.W {
-		fx := float32(marginX + (float64(run.FrontCol)+1)*cellW)
-		vector.StrokeLine(screen, fx, float32(marginTop), fx, float32(marginTop+mapH), 2.5, colorMacroCold, true)
+	// 選択中の次停留点
+	next := m.Outgoing(run.Current)
+	selectedTo := route.NodeID(-1)
+	if len(next) > 0 {
+		selectedTo = next[cycle(st.sel, len(next))]
 	}
 
-	// キャラバン（現在地）
-	px, py := cellCenter(run.Pos)
-	mr := float32(minF(cellW, cellH))
-	vector.FillCircle(screen, px, py, mr*0.30, colorMacroGlowWhite, true)
-	vector.FillCircle(screen, px, py, mr*0.16, colorMacroCurrent, true)
-	vector.StrokeCircle(screen, px, py, mr*0.24, 2.5, colorMacroCurrent, true)
+	// 辺を描画（現在地からの選択肢を強調）
+	for _, b := range m.Beacons {
+		p1, ok1 := pos[b.ID]
+		if !ok1 {
+			continue
+		}
+		for _, to := range m.Outgoing(b.ID) {
+			p2, ok2 := pos[to]
+			if !ok2 {
+				continue
+			}
+			col := colorMacroEdge
+			width := float32(1.8)
+			if b.ID == run.Current {
+				col = colorMacroReachEdge
+				width = 2.5
+				if to == selectedTo {
+					col = colorMacroSelected
+					width = 4.0
+				}
+			}
+			vector.StrokeLine(screen, float32(p1[0]), float32(p1[1]), float32(p2[0]), float32(p2[1]), width, col, true)
+		}
+	}
 
-	st.drawGridOverlay(screen, face, run)
+	// 停留点を描画
+	for _, b := range m.Beacons {
+		p := pos[b.ID]
+		x, y := float32(p[0]), float32(p[1])
+		r := beaconRadius(b.Event)
+		isCurrent := b.ID == run.Current
+
+		switch {
+		case isCurrent:
+			vector.FillCircle(screen, x, y, r+13, colorMacroGlowWhite, true)
+		case b.Event == route.NodeGoal:
+			vector.FillCircle(screen, x, y, r+11, colorMacroGlowGold, true)
+		}
+		vector.FillCircle(screen, x, y, r, colorMacroNodeFill, true)
+
+		ring := nodeRingColor(b.Event)
+		rw := float32(2.0)
+		switch {
+		case isCurrent:
+			ring, rw = colorMacroCurrent, 3.5
+		case b.ID == selectedTo:
+			ring, rw = colorMacroSelected, 3.0
+		}
+		vector.StrokeCircle(screen, x, y, r, rw, ring, true)
+
+		drawBeaconLabel(screen, face, nodeTypeShort(b.Event), p[0], p[1]+float64(r)+4)
+	}
+
+	st.drawOverlay(screen, face, run, selectedTo)
 }
 
-// drawCell は1セルを地形タイルとして描く。特別セル（遺跡・村・目標等）はリングとラベルを付ける。
-func drawCell(screen *ebiten.Image, face text.Face, cx, cy, cw, ch float32, t route.NodeType, frozen bool) {
-	pad := float32(3)
-	fill := dimColor(nodeRingColor(t), 0.22)
-	if frozen {
-		fill = colorMacroFrozen
-	}
-	vector.FillRect(screen, cx-cw/2+pad, cy-ch/2+pad, cw-2*pad, ch-2*pad, fill, false)
-
-	if !isSpecialCell(t) {
-		return
-	}
-	ring := nodeRingColor(t)
-	if frozen {
-		ring = dimColor(ring, 0.45)
-	}
-	r := minF32(cw, ch) * 0.24
-	vector.FillCircle(screen, cx, cy, r*0.7, colorMacroNodeFill, true)
-	vector.StrokeCircle(screen, cx, cy, r, 2, ring, true)
-
-	// 短いラベルをタイル下端に
-	label := nodeTypeShort(t)
-	lw, lh := text.Measure(label, face, 0)
-	lx := float64(cx) - lw/2
-	ly := float64(cy) + float64(r) + 2
-	vector.FillRect(screen, float32(lx-3), float32(ly-1), float32(lw+6), float32(lh+2), colorMacroLabelBG, false)
-	op := &text.DrawOptions{}
-	op.GeoM.Translate(lx, ly)
-	var labelColor color.Color = colorMacroLabel
-	if frozen {
-		labelColor = dimColor(colorMacroLabel, 0.5)
-	}
-	op.ColorScale.ScaleWithColor(labelColor)
-	text.Draw(screen, label, face, op)
-}
-
-// drawGridOverlay は上部パネル（現在地・供給・寒波リード）と下部ヒントを描く。
-func (st *MacroMapState) drawGridOverlay(screen *ebiten.Image, face text.Face, run *gc.CaravanRun) {
+// drawOverlay は上部パネル（現在地・供給・寒波リード）と下部（選択中イベント・操作ヒント）を描く。
+func (st *MacroMapState) drawOverlay(screen *ebiten.Image, face text.Face, run *gc.CaravanRun, selectedTo route.NodeID) {
 	sw := screen.Bounds().Dx()
 	sh := screen.Bounds().Dy()
 
@@ -313,112 +378,118 @@ func (st *MacroMapState) drawGridOverlay(screen *ebiten.Image, face text.Face, r
 	}
 
 	styled.DrawFramedBackground(screen, 10, 10, sw-20, 92, styled.PanelStyle())
-	drawText("広域マップ ── 凍原をどう横断するか", 18, theme.TextPrimary)
-	drawText(fmt.Sprintf("現在地: %s　　糧食 %d ／ 燃料 %d ／ 積載 %d",
-		nodeTypeJP(run.Grid.At(run.Pos)), run.Supply.Food, run.Supply.Fuel, int(run.Supply.Cargo)), 42, theme.TextPrimary)
+	drawText("停留点マップ ── どこへジャンプするか", 18, theme.TextPrimary)
+	if cur := run.Beacons.BeaconByID(run.Current); cur != nil {
+		drawText(fmt.Sprintf("現在地: %s　　糧食 %d ／ 燃料 %d ／ 積載 %d",
+			nodeTypeJP(cur.Event), run.Supply.Food, run.Supply.Fuel, int(run.Supply.Cargo)), 42, theme.TextPrimary)
+	}
 	lead := fmt.Sprintf("❄ 寒波リード %d 列", run.FrontLead())
 	if run.IsStarving() {
 		lead += "　⚠飢餓：足が鈍り寒波が加速する"
 	}
 	drawText(lead, 66, colorMacroCold)
 
-	// 現在セルに応じた行動プロンプト
-	prompt := "↑↓←→: 移動　　キャンセル: 戻る"
-	switch run.Grid.At(run.Pos) {
+	// 選択中の次停留点のイベント
+	if b := run.Beacons.BeaconByID(selectedTo); b != nil {
+		drawText(fmt.Sprintf("→ %s：%s", nodeTypeJP(b.Event), eventHint(b.Event)), sh-48, colorMacroSelected)
+	}
+	drawText("↑↓: 選ぶ　　決定: ジャンプ　　キャンセル: 戻る", sh-26, colorMacroLabel)
+}
+
+// eventHint は停留点イベントの一言説明を返す。
+func eventHint(ev route.NodeType) string {
+	switch ev {
 	case route.NodeRuin:
-		prompt = "決定: 潜行する　　↑↓←→: 移動　　キャンセル: 戻る"
+		return "潜行して戦利品（寒波が詰める）"
 	case route.NodeMarket, route.NodeShop, route.NodeOutpost:
-		prompt = "決定: 立ち寄る　　↑↓←→: 移動　　キャンセル: 戻る"
+		return "交易・補給"
 	case route.NodeCamp:
-		prompt = "決定: 野営する　　↑↓←→: 移動　　キャンセル: 戻る"
+		return "野営で糧食回復（寒波が詰める）"
+	case route.NodeMountain:
+		return "吹雪の選択"
+	case route.NodeGoal:
+		return "遠征達成"
 	default:
-		// 平原/山脈/母港/目標 は移動ヒントのまま
+		return "穏やかな雪原"
 	}
-	drawText(prompt, sh-26, colorMacroLabel)
 }
 
-// isSpecialCell は地形タイルに POI マーカー（リング・ラベル）を付けるかを返す。
-// 平原/山脈は跨ぐだけの地形なのでタイル色だけ、それ以外は目印を付ける。
-func isSpecialCell(t route.NodeType) bool {
-	switch t {
-	case route.NodePlain, route.NodeMountain:
-		return false
+// beaconRadius は停留点の半径を返す。目標・母港は大きめ。
+func beaconRadius(ev route.NodeType) float32 {
+	switch ev {
+	case route.NodeGoal:
+		return 15
+	case route.NodeHome:
+		return 13
 	default:
-		return true
+		return 11
 	}
 }
 
-// dimColor は色の明度を factor 倍に落とす（タイル背景など暗く敷く用途）。
-func dimColor(c color.Color, factor float64) color.Color {
-	r, g, b, _ := c.RGBA()
-	return color.RGBA{
-		uint8(float64(r>>8) * factor),
-		uint8(float64(g>>8) * factor),
-		uint8(float64(b>>8) * factor),
-		255,
+// drawBeaconLabel は停留点の表示名を (cx, topY) に中央寄せで描く（背景チップで辺から分離）。
+func drawBeaconLabel(screen *ebiten.Image, face text.Face, label string, cx, topY float64) {
+	if label == "" {
+		return
 	}
-}
-
-func minF(a, b float64) float64 {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func minF32(a, b float32) float32 {
-	if a < b {
-		return a
-	}
-	return b
+	const padX, padY = 4.0, 1.0
+	lw, lh := text.Measure(label, face, 0)
+	lx := cx - lw/2
+	vector.FillRect(screen, float32(lx-padX), float32(topY-padY), float32(lw+2*padX), float32(lh+2*padY), colorMacroLabelBG, false)
+	op := &text.DrawOptions{}
+	op.GeoM.Translate(lx, topY)
+	op.ColorScale.ScaleWithColor(colorMacroLabel)
+	text.Draw(screen, label, face, op)
 }
 
 // マップ描画の色（モックの暗地＋発光リングに寄せる）
 var (
-	colorMacroBG        = color.RGBA{10, 16, 23, 255}    // 地図背景（外側）
-	colorMacroBGCenter  = color.RGBA{16, 24, 34, 130}    // 中央のビネット
-	colorMacroNodeFill  = color.RGBA{17, 24, 33, 255}    // POI の暗い塗り
-	colorMacroFrozen    = color.RGBA{22, 34, 52, 255}    // 凍結した後方セル（氷の青）
-	colorMacroCurrent   = color.RGBA{245, 245, 245, 255} // 現在地（白）
-	colorMacroLabel     = color.RGBA{220, 231, 240, 255} // ラベル文字
-	colorMacroLabelBG   = color.RGBA{10, 16, 24, 225}    // ラベル背景チップ
-	colorMacroCold      = color.RGBA{127, 214, 255, 255} // 寒波表示
-	colorMacroGlowWhite = color.RGBA{240, 244, 250, 60}  // 白グロー（低α）
+	colorMacroBG        = color.RGBA{10, 16, 23, 255}
+	colorMacroBGCenter  = color.RGBA{16, 24, 34, 130}
+	colorMacroNodeFill  = color.RGBA{17, 24, 33, 255}
+	colorMacroCurrent   = color.RGBA{245, 245, 245, 255}
+	colorMacroSelected  = color.RGBA{229, 198, 117, 255}
+	colorMacroLabel     = color.RGBA{220, 231, 240, 255}
+	colorMacroLabelBG   = color.RGBA{10, 16, 24, 225}
+	colorMacroCold      = color.RGBA{127, 214, 255, 255}
+	colorMacroEdge      = color.RGBA{70, 84, 95, 200}
+	colorMacroReachEdge = color.RGBA{150, 165, 180, 235}
+	colorMacroGlowGold  = color.RGBA{255, 211, 92, 55}
+	colorMacroGlowWhite = color.RGBA{240, 244, 250, 60}
 )
 
-// nodeRingColor はノード種別の明色を返す（タイル色・POI リングに使う）。
+// nodeRingColor は停留点イベントの明色リング色を返す。
 func nodeRingColor(t route.NodeType) color.Color {
 	switch t {
 	case route.NodeHome:
-		return color.RGBA{229, 198, 117, 255} // 金
+		return color.RGBA{229, 198, 117, 255}
 	case route.NodeMarket:
-		return color.RGBA{95, 208, 255, 255} // 集落＝クリスタル青
+		return color.RGBA{95, 208, 255, 255}
 	case route.NodeShop:
-		return color.RGBA{201, 160, 255, 255} // 専門店＝紫
+		return color.RGBA{201, 160, 255, 255}
 	case route.NodeRuin:
-		return color.RGBA{255, 138, 95, 255} // 遺跡＝橙
+		return color.RGBA{255, 138, 95, 255}
 	case route.NodePlain:
-		return color.RGBA{143, 209, 79, 255} // 平原＝緑
+		return color.RGBA{143, 209, 79, 255}
 	case route.NodeMountain:
-		return color.RGBA{143, 176, 214, 255} // 山脈＝冷たい青灰
+		return color.RGBA{143, 176, 214, 255}
 	case route.NodeCamp:
-		return color.RGBA{255, 157, 60, 255} // 野営＝火の橙
+		return color.RGBA{255, 157, 60, 255}
 	case route.NodeOutpost:
-		return color.RGBA{127, 214, 255, 255} // 前哨＝青
+		return color.RGBA{127, 214, 255, 255}
 	case route.NodeGoal:
-		return color.RGBA{255, 211, 92, 255} // 目標＝金
+		return color.RGBA{255, 211, 92, 255}
 	default:
 		return color.RGBA{160, 160, 160, 255}
 	}
 }
 
-// nodeTypeJP はノード種別の表示名を返す。
+// nodeTypeJP は停留点イベントの表示名を返す。
 func nodeTypeJP(t route.NodeType) string {
 	switch t {
 	case route.NodeHome:
 		return "母港"
 	case route.NodeMarket:
-		return "集落マーケット"
+		return "集落"
 	case route.NodeShop:
 		return "専門店"
 	case route.NodeRuin:
@@ -426,9 +497,9 @@ func nodeTypeJP(t route.NodeType) string {
 	case route.NodeCamp:
 		return "野営地"
 	case route.NodePlain:
-		return "平原"
+		return "雪原"
 	case route.NodeMountain:
-		return "山脈"
+		return "吹雪の峠"
 	case route.NodeOutpost:
 		return "前哨"
 	case route.NodeGoal:
@@ -438,7 +509,7 @@ func nodeTypeJP(t route.NodeType) string {
 	}
 }
 
-// nodeTypeShort は広域マップ上の POI ラベル用の短い表示名を返す。
+// nodeTypeShort は停留点ラベル用の短い表示名を返す。
 func nodeTypeShort(t route.NodeType) string {
 	switch t {
 	case route.NodeHome:
@@ -451,6 +522,10 @@ func nodeTypeShort(t route.NodeType) string {
 		return "遺跡"
 	case route.NodeCamp:
 		return "野営"
+	case route.NodePlain:
+		return "雪原"
+	case route.NodeMountain:
+		return "吹雪"
 	case route.NodeOutpost:
 		return "前哨"
 	case route.NodeGoal:
