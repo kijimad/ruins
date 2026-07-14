@@ -72,9 +72,9 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 		return node
 	}
 
-	// セグメント数（合流点は numSegments-1 個）・各セグメントのレーン数/長さをシードで振る。
-	// これで毎回形が変わり、合流点(隊商宿)の位置もセグメント長に応じて中央からずれる。
-	numSegments := 2 + rng.IntN(2) // 2〜3 セグメント（合流点 1〜2）
+	// 合流点(隊商宿)は「全ルートが通る唯一の括れ」なので1つに固定（＝2セグメント）。
+	// 形の変化はレーン数・レーン長・合流点位置（セグメント長の非対称）で出す。
+	const numSegments = 2
 	g.Home = addNode(NodeHome)
 	layer++
 	from := g.Home
