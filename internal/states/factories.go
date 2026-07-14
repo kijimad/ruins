@@ -604,6 +604,26 @@ func NewRuinState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 	return NewDungeonState(1, allOpts...)
 }
 
+// NewPlainState はマクロ移動の平原（軽いトラベル面）ノードのステートを作成するファクトリー関数。
+// 遺跡と同じ潜行フロー（脱出=道中へ Pop）を共有し、定義の軽さ（単フロア・穏やか）で差別化する。
+func NewPlainState(opts ...DungeonStateOption) es.StateFactory[w.World] {
+	allOpts := make([]DungeonStateOption, 0, 1+len(opts))
+	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonPlain.Name))
+	allOpts = append(allOpts, opts...)
+
+	return NewDungeonState(1, allOpts...)
+}
+
+// NewMountainState はマクロ移動の山脈（軽いトラベル面）ノードのステートを作成するファクトリー関数。
+// 平原より寒く手強い峠。潜行フローは共有し、定義（寒さ・敵）で差別化する。
+func NewMountainState(opts ...DungeonStateOption) es.StateFactory[w.World] {
+	allOpts := make([]DungeonStateOption, 0, 1+len(opts))
+	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonMountain.Name))
+	allOpts = append(allOpts, opts...)
+
+	return NewDungeonState(1, allOpts...)
+}
+
 // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
 func NewDungeonSelectState() (es.State[w.World], error) {
 	return &DungeonSelectState{}, nil

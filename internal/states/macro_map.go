@@ -259,22 +259,38 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 	case route.NodeRuin:
 		// 潜行する間に寒波前線が詰める（引き際の核）。呑まれたら潜らずラン失敗。
 		// 脱出時は自動精算を通さず、荷を持ったまま MacroMap へ Pop で戻す（WithEscapePop）
-		run.Dawdle(gc.RuinFrontCost)
-		if run.Swallowed() {
-			return st.failSwallowed(world)
-		}
-		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
-			"遺跡に到着した。潜行する（寒波が %d 面詰める）。", gc.RuinFrontCost)).Log()
-		return es.Transition[w.World]{
-			Type: es.TransPush,
-			NewStateFuncs: []es.StateFactory[w.World]{
-				NewRuinState(WithEscapePop()),
-			},
-		}, nil
+		return st.enterField(world, run, gc.RuinFrontCost,
+			fmt.Sprintf("遺跡に到着した。潜行する（寒波が %d 面詰める）。", gc.RuinFrontCost),
+			NewRuinState(WithEscapePop()))
+	case route.NodePlain:
+		// 開けた平原を横断する軽いトラベル面。前線コストは小さい（素早く抜ける）
+		return st.enterField(world, run, gc.PlainFrontCost,
+			fmt.Sprintf("平原に出た。開けた雪原を横断する（寒波が %d 面詰める）。", gc.PlainFrontCost),
+			NewPlainState(WithEscapePop()))
+	case route.NodeMountain:
+		// 険しく寒い峠を越える軽いトラベル面。平原より前線コストが大きい
+		return st.enterField(world, run, gc.MountainFrontCost,
+			fmt.Sprintf("山脈にさしかかった。凍てつく峠を越える（寒波が %d 面詰める）。", gc.MountainFrontCost),
+			NewMountainState(WithEscapePop()))
 	case route.NodeHome:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
+}
+
+// enterField は潜行・踏破系ノード（遺跡・平原・山脈）に共通の入場処理。
+// 寒波前線を cost ぶん詰め、呑まれたら失敗、無事ならフィールド面を Push する。
+// 各ノードの差は前線コスト・ログ文・面（factory）の3つで、フローは共有する。
+func (st *MacroMapState) enterField(world w.World, run *gc.CaravanRun, cost int, logMsg string, factory es.StateFactory[w.World]) (es.Transition[w.World], error) {
+	run.Dawdle(cost)
+	if run.Swallowed() {
+		return st.failSwallowed(world)
+	}
+	gamelog.New(query.GetGameLog(world)).System(logMsg).Log()
+	return es.Transition[w.World]{
+		Type:          es.TransPush,
+		NewStateFuncs: []es.StateFactory[w.World]{factory},
+	}, nil
 }
 
 // failSwallowed は寒波前線に呑まれてラン失敗した際の処理。ランを終了して道中を閉じる。
@@ -498,6 +514,10 @@ func nodeColor(t route.NodeType) color.Color {
 		return color.RGBA{200, 90, 90, 255}
 	case route.NodeCamp:
 		return color.RGBA{110, 180, 120, 255}
+	case route.NodePlain:
+		return color.RGBA{150, 200, 150, 255} // 開けた雪原＝淡い緑
+	case route.NodeMountain:
+		return color.RGBA{150, 140, 170, 255} // 険しい峠＝青灰の岩
 	case route.NodeOutpost:
 		return color.RGBA{110, 200, 200, 255}
 	case route.NodeJunction:
@@ -535,6 +555,10 @@ func nodeTypeJP(t route.NodeType) string {
 		return "遺跡"
 	case route.NodeCamp:
 		return "野営地"
+	case route.NodePlain:
+		return "平原"
+	case route.NodeMountain:
+		return "山脈"
 	case route.NodeOutpost:
 		return "前哨"
 	case route.NodeJunction:
@@ -559,6 +583,10 @@ func nodeTypeShort(t route.NodeType) string {
 		return "遺跡"
 	case route.NodeCamp:
 		return "野営"
+	case route.NodePlain:
+		return "平原"
+	case route.NodeMountain:
+		return "山脈"
 	case route.NodeOutpost:
 		return "前哨"
 	case route.NodeJunction:

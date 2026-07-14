@@ -100,6 +100,37 @@ func TestGenerate_GuaranteesMinRuins(t *testing.T) {
 	}
 }
 
+func TestGenerate_FieldTerrainDominates(t *testing.T) {
+	t.Parallel()
+	// 道中の「歩く手触り」を主役にするため、中間ノード（合流点・前哨・母港・目標を除く）は
+	// フィールド地形（遺跡・平原・山脈）が過半数を占める。街ばかりで探索できないと
+	// マクロ/ミクロの比重が崩れる（フィールド率が低すぎる問題への回帰防止）。
+	isField := func(n NodeType) bool {
+		return n == NodeRuin || n == NodePlain || n == NodeMountain
+	}
+	for _, exp := range []ExpeditionType{
+		ExpeditionDeepVault, ExpeditionTradeCity, ExpeditionPatron, ExpeditionFrontier,
+	} {
+		var field, middle int
+		for seed := range seedCount {
+			g := Generate(exp, uint64(seed))
+			for _, n := range g.Nodes {
+				switch n.Type {
+				case NodeHome, NodeGoal, NodeJunction, NodeOutpost:
+					// 役割固定ノードは母数から除く
+				default:
+					middle++
+					if isField(n.Type) {
+						field++
+					}
+				}
+			}
+		}
+		assert.Greaterf(t, field*2, middle,
+			"exp=%v: 中間ノードの過半数がフィールド地形であること（field=%d middle=%d）", exp, field, middle)
+	}
+}
+
 // --- テスト用ヘルパー ---
 
 // reachableWithout は blocked ノードを避けて from→to へ到達できるかを BFS で判定する。

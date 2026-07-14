@@ -74,6 +74,36 @@ var (
 		},
 	}
 
+	// DungeonPlain はマクロ移動の平原ノード用の軽いトラベル面定義。
+	// 開けた地形を横断する。遺跡ほど深くなく、素早く抜けられる（作業感回避）
+	DungeonPlain = Definition{
+		Name:            "凍原の平野",
+		Description:     "見渡すかぎりの雪原。\n遮るものがなく、風だけが道連れになる。",
+		ImageKey:        "forest1",
+		TotalFloors:     1,
+		EnemyTableName:  "森",
+		ItemTableName:   "森",
+		BaseTemperature: 10, // 開けていて比較的穏やか
+		PlannerPool: []PlannerWeight{
+			{PlannerType: mapplanner.PlannerTypeForest, Weight: 1},
+		},
+	}
+
+	// DungeonMountain はマクロ移動の山脈ノード用の軽いトラベル面定義。
+	// 険しく寒い峠を越える。平原より寒く手強いが、遺跡ほど深くはない
+	DungeonMountain = Definition{
+		Name:            "凍嶺の峠",
+		Description:     "岩肌に氷が張りつく峠道。\n一歩ごとに息が白く凍る。",
+		ImageKey:        "cave1",
+		TotalFloors:     1,
+		EnemyTableName:  "洞窟",
+		ItemTableName:   "洞窟",
+		BaseTemperature: -5, // 寒い
+		PlannerPool: []PlannerWeight{
+			{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
+		},
+	}
+
 	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = Definition{
 		Name:            "忘却の廃都",
@@ -117,6 +147,8 @@ func GetAllDungeonNames() []string {
 var internalDungeons = []Definition{
 	DungeonTown,
 	DungeonMarket,
+	DungeonPlain,
+	DungeonMountain,
 	DungeonDebug,
 }
 

@@ -133,15 +133,20 @@ func ensureMinRuins(g *Graph, flexible []NodeID, minRuins int, rng *rand.Rand) {
 }
 
 // weightedMiddleType は中間ノードの種別を遠征で重み付けして選ぶ。
+// 道中の「歩く手触り」を主役にするため、基本プールをフィールド地形（平原/山脈/遺跡）優位に
+// 組む。街（集落/専門店）は道中の句読点として少数に留め、フィールド率を高く保つ。
 func weightedMiddleType(exp ExpeditionType, rng *rand.Rand) NodeType {
-	pool := []NodeType{NodeMarket, NodeRuin, NodeCamp, NodeShop}
+	// フィールド地形を厚めにした基本プール（平原×2・山脈×2・遺跡×1・集落・専門店）。
+	pool := []NodeType{
+		NodePlain, NodePlain, NodeMountain, NodeMountain, NodeRuin, NodeMarket, NodeShop,
+	}
 	switch exp {
 	case ExpeditionDeepVault:
 		pool = append(pool, NodeRuin, NodeRuin) // 潜行重心
 	case ExpeditionTradeCity:
-		pool = append(pool, NodeMarket, NodeMarket) // 交易重心
+		pool = append(pool, NodeMarket, NodeShop) // 交易重心（それでもフィールドは主役）
 	case ExpeditionPatron, ExpeditionFrontier:
-		// 重心なし（基本プールのまま）
+		pool = append(pool, NodeMountain) // 辺境＝険路重心
 	}
 	return pool[rng.IntN(len(pool))]
 }
@@ -199,6 +204,10 @@ func nodeTypeName(t NodeType) string {
 		return "ruin"
 	case NodeCamp:
 		return "camp"
+	case NodePlain:
+		return "plain"
+	case NodeMountain:
+		return "mountain"
 	case NodeOutpost:
 		return "outpost"
 	case NodeJunction:

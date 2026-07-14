@@ -9,6 +9,10 @@ const (
 	InitialFrontLead = 12
 	// CampFrontCost は野営1回で寒波前線が詰める面数
 	CampFrontCost = 3
+	// PlainFrontCost は平原の横断1回で寒波前線が詰める面数（開けた地形＝素早く抜ける）
+	PlainFrontCost = 1
+	// MountainFrontCost は山脈の踏破1回で寒波前線が詰める面数（険路＝平原より手強い）
+	MountainFrontCost = 2
 	// RuinFrontCost は遺跡潜行1回で寒波前線が詰める面数
 	RuinFrontCost = 4
 	// StarvationFrontPenalty は食料が尽きた状態で1レグ進むと寒波前線が余分に詰める面数。

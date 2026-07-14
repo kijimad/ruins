@@ -16,6 +16,8 @@ const (
 	NodeOutpost                  // 前哨（目標地点手前の最終補給・最終売却点）
 	NodeJunction                 // 合流点（隊商宿。全ルートが通る括れ）
 	NodeGoal                     // 目標地点（遠征のゴール）
+	NodePlain                    // 平原（軽いトラベル面。開けた地形を横断する）
+	NodeMountain                 // 山脈（軽いトラベル面。険しく寒い峠を越える）
 )
 
 // EdgeType は辺（レグ）の種別。面数と逆向き利得を型で表す。
