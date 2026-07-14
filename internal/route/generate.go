@@ -19,8 +19,10 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 	rng := rand.New(rand.NewPCG(seed, 0))
 
 	// 層ごとのノード数。1 の層は収束（母港・合流点・目標地点）。
-	layerSizes := []int{1, 3, 3, 1, 3, 1}
-	junctionLayer := 3
+	// 1ループ ≈ 10回の選択になるよう層を伸ばす（母港→目標で10回の辺選択）。
+	// 道中はフィールド地形が主役で、合流点(隊商宿)を中央に1つ挟んで分岐→合流→再分岐する。
+	layerSizes := []int{1, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1}
+	junctionLayer := 5
 	lastLayer := len(layerSizes) - 1
 
 	g := &Graph{}
@@ -133,12 +135,16 @@ func ensureMinRuins(g *Graph, flexible []NodeID, minRuins int, rng *rand.Rand) {
 }
 
 // weightedMiddleType は中間ノードの種別を遠征で重み付けして選ぶ。
-// 道中の「歩く手触り」を主役にするため、基本プールをフィールド地形（平原/山脈/遺跡）優位に
-// 組む。街（集落/専門店）は道中の句読点として少数に留め、フィールド率を高く保つ。
+// 道中の「歩く手触り」を主役にするため、基本プールをフィールド地形（平原/山脈/遺跡）で固め、
+// 街（集落/専門店）は「たまに」＝少数に留める。合流点(隊商宿)・前哨は層構造で必ず入り
+// そこでも交易できるため、明示的な街ノードは稀でよい（フィールドがベース）。
 func weightedMiddleType(exp ExpeditionType, rng *rand.Rand) NodeType {
-	// フィールド地形を厚めにした基本プール（平原×2・山脈×2・遺跡×1・集落・専門店）。
+	// 基本プール：フィールド地形 8 / 街 2（＝約8割がフィールド）。
 	pool := []NodeType{
-		NodePlain, NodePlain, NodeMountain, NodeMountain, NodeRuin, NodeMarket, NodeShop,
+		NodePlain, NodePlain, NodePlain,
+		NodeMountain, NodeMountain, NodeMountain,
+		NodeRuin, NodeRuin,
+		NodeMarket, NodeShop,
 	}
 	switch exp {
 	case ExpeditionDeepVault:
