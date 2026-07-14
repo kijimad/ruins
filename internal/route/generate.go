@@ -80,7 +80,7 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 	from := g.Home
 	for s := range numSegments {
 		lanes := 2 + rng.IntN(3)   // 2〜4 レーン（分岐の選択肢数）
-		laneLen := 2 + rng.IntN(2) // 2〜3 ノード（合流までの長さ。過密回避で控えめ）
+		laneLen := 3 + rng.IntN(2) // 3〜4 ノード（合流までの長さ＝ランの長さ・commit の重さ）
 		ends := addSegment(from, lanes, laneLen)
 		if s < numSegments-1 {
 			from = converge(ends, NodeJunction) // 合流点で合流→再分岐
