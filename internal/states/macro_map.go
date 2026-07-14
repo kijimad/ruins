@@ -156,16 +156,20 @@ type macroMapProps struct {
 	Items []macroMapItem
 }
 
+// macroMapItem は進める辺の1項目。表示要素は連結せず、役割ごとに別フィールドで持つ
+// （インベントリメニューの inventoryItemData に倣う）。整形・色分け・列揃えは描画側の関心。
 type macroMapItem struct {
-	Label    string
-	Edge     route.Edge
-	IsCancel bool // 「戻る」項目
+	Dest     string     // 行き先ノードの表示名
+	EdgeKind string     // 辺種別の表示名
+	Faces    int        // 踏破に要する面数
+	Edge     route.Edge // 選択時に踏破する辺の実体
+	IsCancel bool       // 「戻る」項目
 }
 
 func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 	run := query.GetCaravanRun(world)
 	if run == nil || run.Graph == nil {
-		return macroMapProps{Items: []macroMapItem{{Label: "戻る", IsCancel: true}}}
+		return macroMapProps{Items: []macroMapItem{{IsCancel: true}}}
 	}
 
 	outgoing := run.Graph.Outgoing(run.Current)
@@ -176,11 +180,13 @@ func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 			continue // 生成不整合等でエッジ先を引けない辺はスキップ
 		}
 		items = append(items, macroMapItem{
-			Label: fmt.Sprintf("→ %s ｜%s 面%d", nodeTypeJP(to.Type), edgeTypeJP(e.Type), e.Faces),
-			Edge:  e,
+			Dest:     nodeTypeJP(to.Type),
+			EdgeKind: edgeTypeJP(e.Type),
+			Faces:    e.Faces,
+			Edge:     e,
 		})
 	}
-	items = append(items, macroMapItem{Label: "戻る", IsCancel: true})
+	items = append(items, macroMapItem{IsCancel: true})
 
 	return macroMapProps{Items: items}
 }
@@ -373,10 +379,7 @@ func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.Ca
 		case reachable[n.ID]:
 			vector.StrokeCircle(screen, x, y, 13, 1.5, colorMacroReachable, true)
 		}
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(p[0]-16, p[1]+14)
-		op.ColorScale.ScaleWithColor(colorMacroLabel)
-		text.Draw(screen, nodeTypeShort(n.Type), face, op)
+		drawNodeLabel(screen, face, nodeTypeShort(n.Type), p[0], p[1])
 	}
 
 	st.drawOverlay(screen, face, run)
@@ -408,14 +411,69 @@ func (st *MacroMapState) drawOverlay(screen *ebiten.Image, face text.Face, run *
 	}
 	drawText(lead, 66, colorMacroCold)
 
-	// 下部: 選択中の辺と操作ヒント
+	// 下部: 選択中の辺（要素ごとに列で並べる。文字列連結しない）と操作ヒント
 	if ms, ok := hooks.GetState[hooks.TabMenuState](st.mount, "macromap"); ok {
 		items := st.mount.GetProps().Items
 		if ms.ItemIndex >= 0 && ms.ItemIndex < len(items) {
-			drawText(items[ms.ItemIndex].Label, sh-52, colorMacroSelected)
+			drawItemRow(screen, face, textX, float64(sh-52), items[ms.ItemIndex])
 		}
 	}
 	drawText("↑↓/←→: 選ぶ　　決定: 進む　　キャンセル: 戻る", sh-28, colorMacroLabel)
+}
+
+// drawNodeLabel はノードの表示名を円の直下に中央寄せで描く。
+// 辺と重ならないよう背景チップを敷き、リング半径ぶん下げて分離する。
+func drawNodeLabel(screen *ebiten.Image, face text.Face, label string, cx, cy float64) {
+	const (
+		gapBelow = 18.0 // 現在ノードのリング半径(15)より下げてラベルを分離する
+		padX     = 4.0
+		padY     = 1.0
+	)
+	lw, lh := text.Measure(label, face, 0)
+	lx := cx - lw/2
+	ly := cy + gapBelow
+	vector.FillRect(screen,
+		float32(lx-padX), float32(ly-padY), float32(lw+2*padX), float32(lh+2*padY),
+		colorMacroLabelBG, false)
+	op := &text.DrawOptions{}
+	op.GeoM.Translate(lx, ly)
+	op.ColorScale.ScaleWithColor(colorMacroLabel)
+	text.Draw(screen, label, face, op)
+}
+
+// textSegment は横並びで描く1区画のテキストと色。
+type textSegment struct {
+	text  string
+	color color.Color
+}
+
+// drawTextRow はセグメントを左から順に、実測幅ぶん送りながら描く（列レイアウト）。
+func drawTextRow(screen *ebiten.Image, face text.Face, x, y, gap float64, segs []textSegment) {
+	for _, s := range segs {
+		if s.text == "" {
+			continue
+		}
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(x, y)
+		op.ColorScale.ScaleWithColor(s.color)
+		text.Draw(screen, s.text, face, op)
+		wSeg, _ := text.Measure(s.text, face, 0)
+		x += wSeg + gap
+	}
+}
+
+// drawItemRow は選択中の辺を「行き先／辺種別／面数」の列に分けて描く。
+// 表示要素は連結せず、フィールドごとに別セグメントで色分けする（インベントリ流）。
+func drawItemRow(screen *ebiten.Image, face text.Face, x, y float64, item macroMapItem) {
+	if item.IsCancel {
+		drawTextRow(screen, face, x, y, 0, []textSegment{{"戻る", colorMacroSelected}})
+		return
+	}
+	drawTextRow(screen, face, x, y, 14, []textSegment{
+		{"→ " + item.Dest, colorMacroSelected},
+		{item.EdgeKind, colorMacroLabel},
+		{fmt.Sprintf("面 %d", item.Faces), colorMacroLabel},
+	})
 }
 
 // マップ描画の色
@@ -423,7 +481,8 @@ var (
 	colorMacroCurrent   = color.RGBA{245, 245, 245, 255}
 	colorMacroSelected  = color.RGBA{224, 190, 110, 255}
 	colorMacroReachable = color.RGBA{150, 165, 180, 255}
-	colorMacroLabel     = color.RGBA{170, 185, 200, 255}
+	colorMacroLabel     = color.RGBA{190, 205, 220, 255}
+	colorMacroLabelBG   = color.RGBA{18, 24, 32, 215} // ラベルを辺から分離する背景チップ
 	colorMacroCold      = color.RGBA{120, 190, 230, 255}
 )
 
