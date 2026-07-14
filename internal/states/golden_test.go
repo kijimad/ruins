@@ -98,7 +98,6 @@ func TestGolden_ShopMenu(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(town, &gs.ShopMenuState{}))
 }
 
-
 func TestGolden_SaveMenu(t *testing.T) {
 	t.Parallel()
 	town, err := gs.NewTownState()()
