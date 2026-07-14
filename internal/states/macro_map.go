@@ -24,7 +24,8 @@ import (
 )
 
 // macroMapDebugSeed はデバッグ入口でランを自動生成する際の固定シード。
-const macroMapDebugSeed = 20260713
+// 分布が代表的（平原/山脈がベース・遺跡は数個・街は稀）に見えるシードを選んでいる。
+const macroMapDebugSeed = 13
 
 // MacroMapState はマクロ移動（ルート網のノード選択）画面のステート。
 // ルート網を層状に描画し、進める辺を選んで踏破する。供給・寒波リードをオーバーレイ表示する。

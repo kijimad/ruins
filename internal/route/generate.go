@@ -135,22 +135,22 @@ func ensureMinRuins(g *Graph, flexible []NodeID, minRuins int, rng *rand.Rand) {
 }
 
 // weightedMiddleType は中間ノードの種別を遠征で重み付けして選ぶ。
-// 道中の「歩く手触り」を主役にするため、基本プールをフィールド地形（平原/山脈/遺跡）で固め、
-// 街（集落/専門店）は「たまに」＝少数に留める。合流点(隊商宿)・前哨は層構造で必ず入り
-// そこでも交易できるため、明示的な街ノードは稀でよい（フィールドがベース）。
+// 地形の頻度は「平原/山脈＝ベース（歩く地形の主役）＞ 遺跡＝たまの潜行スポット ＞ 店/村＝稀」。
+// 遺跡は重い潜行ダンジョンなので少数に留め、道中は平原/山脈で歩かせる。合流点(隊商宿)・前哨は
+// 層構造で必ず入り交易もそこで足りるため、明示的な街ノードは稀でよい。
 func weightedMiddleType(exp ExpeditionType, rng *rand.Rand) NodeType {
-	// 基本プール：フィールド地形 8 / 街 2（＝約8割がフィールド）。
+	// 基本プール：平原/山脈 8（ベース）／遺跡 1（たまの潜行）／街 2（稀）。
 	pool := []NodeType{
-		NodePlain, NodePlain, NodePlain,
-		NodeMountain, NodeMountain, NodeMountain,
-		NodeRuin, NodeRuin,
+		NodePlain, NodePlain, NodePlain, NodePlain,
+		NodeMountain, NodeMountain, NodeMountain, NodeMountain,
+		NodeRuin,
 		NodeMarket, NodeShop,
 	}
 	switch exp {
 	case ExpeditionDeepVault:
-		pool = append(pool, NodeRuin, NodeRuin) // 潜行重心
+		pool = append(pool, NodeRuin) // 潜行重心（それでも平原/山脈が主役の範囲）
 	case ExpeditionTradeCity:
-		pool = append(pool, NodeMarket, NodeShop) // 交易重心（それでもフィールドは主役）
+		pool = append(pool, NodeMarket, NodeShop) // 交易重心（街が少し増える）
 	case ExpeditionPatron, ExpeditionFrontier:
 		pool = append(pool, NodeMountain) // 辺境＝険路重心
 	}
