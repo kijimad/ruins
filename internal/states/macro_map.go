@@ -43,8 +43,12 @@ var _ es.State[w.World] = &MacroMapState{}
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *MacroMapState) OnPause(_ w.World) error { return nil }
 
-// OnResume はステートが再開される際に呼ばれる
-func (st *MacroMapState) OnResume(_ w.World) error { return nil }
+// OnResume はステートが再開される際に呼ばれる。ノードマップ（集落/遺跡）から Pop で戻ったとき、
+// そのマップのエンティティが残るため掃除する（遷移時のリセット）
+func (st *MacroMapState) OnResume(world w.World) error {
+	removeMapEntities(world)
+	return nil
+}
 
 // OnStop はステートが終了する際に呼ばれる
 func (st *MacroMapState) OnStop(_ w.World) error { return nil }
@@ -123,9 +127,10 @@ func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 	return st.ConsumeTransition(), nil
 }
 
-// Draw はステートの描画処理。TransReplace で入る単独stateのため、後ろに描画されるstateは無く
-// オフスクリーンも毎フレームクリアされるので背景塗りは不要
+// Draw はステートの描画処理。Push で入り後ろに呼び出し元のstateが残るため、
+// 背景を塗って透けないようにする
 func (st *MacroMapState) Draw(_ w.World, screen *ebiten.Image) error {
+	screen.Fill(theme.ScreenBackground)
 	st.widget.Draw(screen)
 	return nil
 }
@@ -134,7 +139,7 @@ func (st *MacroMapState) Draw(_ w.World, screen *ebiten.Image) error {
 func (st *MacroMapState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-		return exitToMainMenu(), nil
+		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(world)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown,
@@ -203,12 +208,12 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 	}
 	item := st.mount.GetProps().Items[menuState.ItemIndex]
 	if item.IsCancel {
-		return exitToMainMenu(), nil
+		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 
 	run := query.GetCaravanRun(world)
 	if run == nil {
-		return exitToMainMenu(), nil
+		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 	to := run.Graph.NodeByID(item.Edge.To)
 	res := run.AdvanceAlong(item.Edge)
@@ -226,7 +231,7 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 	case route.NodeGoal:
 		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。背骨を納品して遠征達成。").Log()
 		query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
-		return exitToMainMenu(), nil
+		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case route.NodeCamp:
 		// 野営で糧食を回復するが、休息の間に寒波前線が詰める（道草の代償）
 		const campFoodRestore = 15
@@ -245,12 +250,12 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 		return es.Transition[w.World]{
 			Type: es.TransPush,
 			NewStateFuncs: []es.StateFactory[w.World]{
-				NewMarketState(WithEscapeTarget(NewMacroMapState)),
+				NewMarketState(WithEscapePop()),
 			},
 		}, nil
 	case route.NodeRuin:
 		// 潜行する間に寒波前線が詰める（引き際の核）。呑まれたら潜らずラン失敗。
-		// 脱出時は自動精算を通さず MacroMap を再構築して荷を持ったまま道中へ戻す（WithEscapeTarget）
+		// 脱出時は自動精算を通さず、荷を持ったまま MacroMap へ Pop で戻す（WithEscapePop）
 		run.Dawdle(gc.RuinFrontCost)
 		if run.Swallowed() {
 			return st.failSwallowed(world)
@@ -260,7 +265,7 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 		return es.Transition[w.World]{
 			Type: es.TransPush,
 			NewStateFuncs: []es.StateFactory[w.World]{
-				NewRuinState(WithEscapeTarget(NewMacroMapState)),
+				NewRuinState(WithEscapePop()),
 			},
 		}, nil
 	case route.NodeHome:
@@ -273,16 +278,7 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 func (st *MacroMapState) failSwallowed(world w.World) (es.Transition[w.World], error) {
 	gamelog.New(query.GetGameLog(world)).System("寒波前線に呑まれた。ラン失敗。").Log()
 	query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
-	return exitToMainMenu(), nil
-}
-
-// exitToMainMenu はマクロ層を抜けてメインメニューへ戻る遷移。マクロは TransReplace で入る
-// 単独stateなので、TransPop（空スタック→ハング）でなく Replace で土台（メインメニュー）へ戻す
-func exitToMainMenu() es.Transition[w.World] {
-	return es.Transition[w.World]{
-		Type:          es.TransReplace,
-		NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState},
-	}
+	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 
 // nodeTypeJP はノード種別の表示名を返す（表示層の関心。route はモデルを英字で持つ）。

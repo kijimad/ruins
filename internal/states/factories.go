@@ -135,7 +135,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 		}).
 		WithChoice("マクロ移動", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
+				Type:          es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{NewMacroMapState},
 			})
 			return nil
@@ -542,11 +542,11 @@ func WithResume() DungeonStateOption {
 	}
 }
 
-// WithEscapeTarget は脱出時の遷移先を設定するオプション。
-// 設定すると自動精算(AutoSell→Town)を通さず、TransReplace で指定先へ戻す（マクロ移動から潜行するとき MacroMap を渡す）
-func WithEscapeTarget(target es.StateFactory[w.World]) DungeonStateOption {
+// WithEscapePop は脱出時に自動精算(AutoSell→Town)を通さず呼び出し元へ Pop で戻るオプション。
+// マクロ移動から集落/遺跡に入ったとき、道中(MacroMap)へ戻るのに使う
+func WithEscapePop() DungeonStateOption {
 	return func(ds *DungeonState) {
-		ds.EscapeTarget = target
+		ds.EscapePop = true
 	}
 }
 
