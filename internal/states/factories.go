@@ -593,6 +593,17 @@ func NewMarketState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 	return NewDungeonState(0, allOpts...)
 }
 
+// NewRuinState はマクロ移動の遺跡（ダンジョン）ノードのステートを作成するファクトリー関数。
+// 定義名を明示的に渡す（未指定だとシングルトンに残った直前の定義名を引き継ぎ、別マップになる）。
+// WithEscapeTarget で脱出時の戻り先を指定する
+func NewRuinState(opts ...DungeonStateOption) es.StateFactory[w.World] {
+	allOpts := make([]DungeonStateOption, 0, 1+len(opts))
+	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonRuins.Name))
+	allOpts = append(allOpts, opts...)
+
+	return NewDungeonState(1, allOpts...)
+}
+
 // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
 func NewDungeonSelectState() (es.State[w.World], error) {
 	return &DungeonSelectState{}, nil

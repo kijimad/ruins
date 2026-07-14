@@ -165,6 +165,18 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *DungeonState) OnStop(world w.World) error {
+	removeMapEntities(world)
+
+	// 未消費のステート遷移リクエストを破棄
+	lifecycle.ConsumeStateChange(world)
+
+	return nil
+}
+
+// removeMapEntities は現在のマップ上のエンティティ（NPC・敵・アイテム・地形など）を除去する。
+// プレイヤー・隊員・所持品・装備品は残す。DungeonState.OnStop（離脱時）と、
+// マップを持たない層へ入るとき（MacroMapState.OnStart）に呼び、残留・重複を防ぐ
+func removeMapEntities(world w.World) {
 	var toRemove []ecs.Entity
 	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).
 		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember](), ecs.C[gc.LocationInBackpack](), ecs.C[gc.LocationEquipped]()).Query()
@@ -181,11 +193,6 @@ func (st *DungeonState) OnStop(world w.World) error {
 			world.ECS.RemoveEntity(entity)
 		}
 	}
-
-	// 未消費のステート遷移リクエストを破棄
-	lifecycle.ConsumeStateChange(world)
-
-	return nil
 }
 
 // Update はゲームステートの更新処理を行う

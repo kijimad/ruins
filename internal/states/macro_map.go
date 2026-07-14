@@ -51,6 +51,10 @@ func (st *MacroMapState) OnStop(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる。ラン未開始なら最小の実ラン世界を用意する（デバッグ入口用）。
 func (st *MacroMapState) OnStart(world w.World) error {
+	// マクロ層はタクティカルマップを持たない。下層 paused マップ（デバッグメニューを開いた
+	// ダンジョン等）や直前のノードマップのエンティティが残ると重複するため、入場時に掃除する
+	removeMapEntities(world)
+
 	// 正式な遠征選択入口（Phase 5）ではそちらがプレイヤー・ランを用意するため、ここは通らない。
 	if query.GetCaravanRun(world) == nil {
 		if err := setupDebugRun(world); err != nil {
@@ -255,7 +259,7 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 		return es.Transition[w.World]{
 			Type: es.TransPush,
 			NewStateFuncs: []es.StateFactory[w.World]{
-				NewDungeonState(1, WithEscapeTarget(NewMacroMapState)),
+				NewRuinState(WithEscapeTarget(NewMacroMapState)),
 			},
 		}, nil
 	case route.NodeHome:
