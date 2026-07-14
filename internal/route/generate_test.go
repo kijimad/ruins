@@ -78,6 +78,28 @@ func TestGenerate_EdgesConnectAdjacentLayersForward(t *testing.T) {
 	}
 }
 
+func TestGenerate_GuaranteesMinRuins(t *testing.T) {
+	t.Parallel()
+	// どの遠征・シードでも遺跡（ミクロ潜行の入口）が最低数だけ生成される。
+	// これを欠くと「街しか無く一度も潜れない」ラン（macro/micro の比重崩壊）が起きる。
+	for _, exp := range []ExpeditionType{
+		ExpeditionDeepVault, ExpeditionTradeCity, ExpeditionPatron, ExpeditionFrontier,
+	} {
+		want := minRuinsFor(exp)
+		for seed := range seedCount {
+			g := Generate(exp, uint64(seed))
+			ruins := 0
+			for _, n := range g.Nodes {
+				if n.Type == NodeRuin {
+					ruins++
+				}
+			}
+			assert.GreaterOrEqualf(t, ruins, want,
+				"exp=%v seed=%d: 遺跡が最低 %d 個あること（実際 %d）", exp, seed, want, ruins)
+		}
+	}
+}
+
 // --- テスト用ヘルパー ---
 
 // reachableWithout は blocked ノードを避けて from→to へ到達できるかを BFS で判定する。

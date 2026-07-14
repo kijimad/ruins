@@ -25,6 +25,8 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 
 	g := &Graph{}
 	layers := make([][]NodeID, len(layerSizes))
+	// flexible は種別を後から差し替えてよい中間ノード（合流点・前哨・目標地点を除く）。
+	var flexible []NodeID
 	var nextID NodeID
 	for l, size := range layerSizes {
 		for i := range size {
@@ -38,6 +40,9 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 				Label: fmt.Sprintf("%s-%d", nodeTypeName(nt), id),
 			})
 			layers[l] = append(layers[l], id)
+			if isFlexibleMiddle(l, i, junctionLayer, lastLayer) {
+				flexible = append(flexible, id)
+			}
 		}
 	}
 	g.Home = layers[0][0]
@@ -47,6 +52,10 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 	for l := range lastLayer {
 		connectLayers(g, layers[l], layers[l+1], rng)
 	}
+
+	// 遺跡（＝ミクロ潜行の入口）の最低数を保証する。辺は種別に依存しないため
+	// 接続の後に行い、辺生成の乱数列を乱さない（遺跡が足りるランはここで rng を消費しない）。
+	ensureMinRuins(g, flexible, minRuinsFor(expedition), rng)
 	return g
 }
 
@@ -63,6 +72,63 @@ func nodeTypeFor(layer, idx, junctionLayer, lastLayer int, exp ExpeditionType, r
 		return NodeOutpost // 目標地点手前に前哨（最終補給・最終売却点）を1つ置く
 	default:
 		return weightedMiddleType(exp, rng)
+	}
+}
+
+// isFlexibleMiddle は種別を後処理で差し替えてよい中間ノードか判定する。
+// 合流点・前哨・目標地点・母港は役割が固定なので除外し、weightedMiddleType で
+// 種別を決めるノードのみ true を返す（nodeTypeFor の default ケースと対応する）。
+func isFlexibleMiddle(layer, idx, junctionLayer, lastLayer int) bool {
+	switch {
+	case layer == 0, layer == lastLayer, layer == junctionLayer:
+		return false
+	case layer == lastLayer-1 && idx == 0:
+		return false // 前哨
+	default:
+		return true
+	}
+}
+
+// minRuinsFor は遠征ごとの遺跡（潜行ダンジョン）の最低保証数を返す。
+// マクロ移動とミクロ潜行の比重を偏らせない設計上、どの遠征でも最低限のダンジョンを
+// 保証し、「街しか無く一度も潜れない」ランを防ぐ。DeepVault は潜行重心なので多め。
+func minRuinsFor(exp ExpeditionType) int {
+	if exp == ExpeditionDeepVault {
+		return 3
+	}
+	return 2
+}
+
+// ensureMinRuins は柔軟中間ノードの遺跡数が min 未満なら、非遺跡ノードを決定的に
+// シャッフルして不足ぶんを遺跡へ差し替える。既に足りていれば rng を消費せず即返す
+// （＝遺跡が十分なランのグラフ・乱数列は不変のまま）。
+func ensureMinRuins(g *Graph, flexible []NodeID, minRuins int, rng *rand.Rand) {
+	count := 0
+	for _, id := range flexible {
+		if g.Nodes[id].Type == NodeRuin {
+			count++
+		}
+	}
+	if count >= minRuins {
+		return
+	}
+
+	convertible := make([]NodeID, 0, len(flexible))
+	for _, id := range flexible {
+		if g.Nodes[id].Type != NodeRuin {
+			convertible = append(convertible, id)
+		}
+	}
+	rng.Shuffle(len(convertible), func(i, j int) {
+		convertible[i], convertible[j] = convertible[j], convertible[i]
+	})
+	for _, id := range convertible {
+		if count >= minRuins {
+			break
+		}
+		g.Nodes[id].Type = NodeRuin
+		g.Nodes[id].Label = fmt.Sprintf("%s-%d", nodeTypeName(NodeRuin), id)
+		count++
 	}
 }
 
