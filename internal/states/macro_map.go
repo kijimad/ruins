@@ -243,7 +243,7 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *route.Node) (es.Transition[w.World], error) {
 	switch node.Type {
 	case route.NodeGoal:
-		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。背骨を納品して遠征達成。").Log()
+		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。目標物を納品して遠征達成。").Log()
 		summary := goalSummary(world)
 		query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
 		return es.Transition[w.World]{

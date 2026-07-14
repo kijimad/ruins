@@ -7,12 +7,12 @@ import (
 )
 
 // NewGoalResultState は遠征達成のスコア画面を作る。summary は到達側で算出した結果テキスト。
-// 「母港へ戻る」で Pop し、Switch 元（母港）へ戻る。
+// 一方向の旅ゆえ母港へ「戻る」わけではない（帰還は抽象処理）。遠征を終えてメタ層へ抜ける。
 func NewGoalResultState(summary string) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		ms := &MessageState{}
 		ms.messageData = messagedata.NewSystemMessage(summary).
-			WithChoice("母港へ戻る", func(_ w.World) error {
+			WithChoice("遠征を終える", func(_ w.World) error {
 				ms.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 				return nil
 			})

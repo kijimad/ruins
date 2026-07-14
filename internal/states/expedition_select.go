@@ -23,12 +23,12 @@ var expeditionChoices = []expeditionChoice{
 	{"辺境/未踏（未知の奥地へ）", route.ExpeditionFrontier},
 }
 
-// NewExpeditionSelectState は遠征（目的地＝背骨）を選ぶステートを作成する。
+// NewExpeditionSelectState は遠征（目的地）を選ぶステートを作成する。
 // 選ぶとルート網を生成してラン開始し、マクロ移動へ入る。
 func NewExpeditionSelectState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
-	md := messagedata.NewSystemMessage("遠征を選ぶ（目的地＝背骨）")
+	md := messagedata.NewSystemMessage("遠征を選ぶ")
 	for _, choice := range expeditionChoices {
 		exp := choice.exp
 		md = md.WithChoice(choice.label, func(world w.World) error {
