@@ -443,6 +443,10 @@ type PlannerType struct {
 	Name string
 	// ポータル位置を固定するか
 	UseFixedPortalPos bool
+	// AlwaysEscapePortal は階の深さに関わらず毎階に帰還ポータルを置くか。
+	// トラベル地形（平原/山脈など単一フィールドの面）で、降りずにその場から
+	// 道中へ戻れるようにするために使う（既定は escapePortalInterval ごとの配置）
+	AlwaysEscapePortal bool
 	// 敵テーブル名。RawMasterから敵エントリを解決する際に使用する
 	EnemyTableName string
 	// アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する

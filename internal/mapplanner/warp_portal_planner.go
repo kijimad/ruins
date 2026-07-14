@@ -60,8 +60,9 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	if query.GetDungeon(p.world) == nil {
 		return fmt.Errorf("Dungeonが初期化されていません")
 	}
-	// 間隔ごとに帰還ポータルを配置する
-	if query.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
+	// 帰還ポータルを配置する。通常は escapePortalInterval ごとだが、トラベル地形
+	// （AlwaysEscapePortal）は毎階に置き、降りずにその場から道中へ戻れるようにする。
+	if p.plannerType.AlwaysEscapePortal || query.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
 		// プレイヤー位置とNextPortal位置の両方から最低距離を確保する
 		escRefs := []consts.Coord[int]{playerPos, nextPortalPos}
 		escDistSelector := minDistanceReachableSelector(pathFinder, escRefs, minPortalDistance, maxPortalPlacementAttempts)

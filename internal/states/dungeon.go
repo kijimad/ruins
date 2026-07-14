@@ -115,6 +115,9 @@ func (st *DungeonState) OnStart(world w.World) error {
 		builderType.EnemyTableName = def.EnemyTableName
 		builderType.ItemTableName = def.ItemTableName
 		builderType.Depth = st.Depth
+		// 単一フロアの定義（トラベル地形＝平原/山脈など）は毎階に帰還ポータルを置き、
+		// 降りずにその場から道中へ戻れるようにする（潜行を強制しない）
+		builderType.AlwaysEscapePortal = def.TotalFloors == 1
 
 		// 計画作成する
 		plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)

@@ -111,6 +111,29 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		}
 	})
 
+	t.Run("AlwaysEscapePortalがtrueなら1階でも帰還ポータルを配置する", func(t *testing.T) {
+		t.Parallel()
+		// トラベル地形（平原/山脈）は floor1 で入って降りずに戻れる必要がある。
+		// 間隔（5階ごと）を無視して毎階に帰還ポータルを置くことを検証する。
+		world := testutil.InitTestWorld(t)
+		query.SetDungeon(world, &gc.Dungeon{Depth: 1})
+		world.Resources.RawMaster = *CreateTestRawMaster()
+
+		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		require.NoError(t, err)
+		chain.PlanData.RawMaster = CreateTestRawMaster()
+		err = chain.Plan()
+		require.NoError(t, err)
+
+		travel := PlannerTypeSmallRoom
+		travel.AlwaysEscapePortal = true
+		planner := NewPortalPlanner(world, travel)
+		err = planner.PlanMeta(&chain.PlanData)
+		require.NoError(t, err)
+
+		assert.NotEmpty(t, chain.PlanData.EscapePortals, "1階でも帰還ポータルが配置されること")
+	})
+
 	t.Run("歩行可能タイルが孤立している場合はErrConnectivityを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
