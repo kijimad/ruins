@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 出口選択型ラン構造（56.md モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --warm:#ffb570;
+    --enemy:#ff5b57; --cold:#7fd6ff; --sel:#8fd14f; --merit:#e5c675; --risk:#ff6f60;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace;color:var(--ink);}
+  .screen{width:1280px;margin:0 auto;background:var(--bg);padding:0 0 24px;}
+  .top{display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px;}
+  .top .b{color:var(--gold);font-weight:bold;}
+  .top .s{color:var(--ink2);margin-left:auto;}
+  .sec{padding:14px 20px 4px;}
+  .steplabel{display:flex;align-items:center;gap:10px;font-size:15px;color:#dce7f0;font-weight:bold;margin-bottom:11px;}
+  .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#08111a;align-items:center;justify-content:center;font-size:14px;font-weight:bold;}
+  .steplabel .hint{margin-left:8px;font-size:12px;color:var(--ink2);font-weight:normal;}
+  .connector{text-align:center;color:var(--dim);font-size:18px;padding:6px 0 0;}
+
+  /* ---- STEP1: ダンジョン出口 ---- */
+  .game{margin:0 20px;position:relative;background:#080b0f;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .hud{display:flex;gap:22px;padding:8px 14px;background:rgba(10,16,24,.92);border-bottom:1px solid var(--line);font-size:12px;}
+  .hud .cold{color:var(--cold);} .hud .warn{color:var(--risk);}
+  .tiles{display:grid;grid-template-columns:repeat(30,26px);grid-auto-rows:26px;padding:14px;gap:1px;justify-content:center;}
+  .t{border-radius:2px;background:#10161e;}
+  .t.floor{background:#151d27;}
+  .t.wall{background:#0a0e13;box-shadow:inset 0 0 0 1px #1c2836;}
+  .t.ice{background:#12202e;}
+  .t.loot{background:#151d27;position:relative;}
+  .t.loot::after{content:"◆";color:var(--gold);font-size:12px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .t.crystal::after{content:"❖";color:var(--crystal);font-size:12px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .t.crystal{background:#151d27;position:relative;}
+  .t.player{background:#151d27;position:relative;}
+  .t.player::after{content:"@";color:#fff;font-weight:bold;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-shadow:0 0 8px #fff;}
+  .t.mate::after{content:"a";color:#bfe3ff;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .t.mate{background:#151d27;position:relative;}
+  .t.gate{position:relative;border-radius:4px;}
+  .t.gate::after{content:"◉";font-size:16px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .t.gate.g1{background:#241820;box-shadow:0 0 14px rgba(255,111,96,.55);} .t.gate.g1::after{color:#ff8a5f;}
+  .t.gate.g2{background:#14202a;box-shadow:0 0 14px rgba(95,208,255,.55);} .t.gate.g2::after{color:var(--crystal);}
+  .t.gate.g3{background:#1e1a14;box-shadow:0 0 14px rgba(255,157,60,.55);} .t.gate.g3::after{color:var(--fire);}
+  .t.gate.sel{outline:2px solid var(--sel);outline-offset:1px;}
+  .gatelbl{position:absolute;font-size:11px;color:#dce7f0;background:rgba(8,14,20,.9);padding:1px 7px;border-radius:3px;border:1px solid var(--line);}
+
+  .previews{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px 14px 14px;background:rgba(10,16,24,.92);border-top:1px solid var(--line);}
+  .pv{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:10px 12px;position:relative;}
+  .pv.sel{border-color:var(--sel);box-shadow:0 0 0 1px var(--sel), 0 0 18px rgba(143,209,79,.13);}
+  .pv .badge{position:absolute;top:-9px;right:10px;font-size:10px;background:var(--sel);color:#08111a;font-weight:bold;padding:1px 8px;border-radius:3px;}
+  .pv .kind{font-size:10px;letter-spacing:1px;color:var(--dim);}
+  .pv .name{font-size:14px;color:#e7eef4;font-weight:bold;margin:2px 0 6px;}
+  .pv .row{display:flex;font-size:11.5px;padding:2px 0;border-top:1px dotted #1b2530;}
+  .pv .row .k{color:var(--ink2);width:64px;flex:none;} .pv .row .v{color:#dce7f0;}
+  .pv .m{color:var(--merit);} .pv .r{color:var(--risk);} .pv .c{color:var(--cold);}
+  .keyhint{padding:7px 16px 10px;font-size:12px;color:var(--ink2);background:rgba(10,16,24,.92);}
+  .keyhint b{color:#dce7f0;}
+
+  /* ---- STEP2: 幕間 ---- */
+  .fade{margin:0 20px;background:radial-gradient(circle at 50% 42%, #0b1420, #05070a 75%);border:1px solid var(--line);border-radius:8px;height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+  .fade .journey{font-size:19px;color:#dce7f0;letter-spacing:2px;}
+  .fade .costs{display:flex;gap:26px;font-size:14px;}
+  .fade .costs .food{color:var(--warm);} .fade .costs .fuel{color:var(--crystal);} .fade .costs .front{color:var(--cold);}
+  .fade .note{font-size:12px;color:var(--ink2);}
+  .fade .left{font-size:12px;color:var(--gold);}
+
+  /* ---- STEP3: 地図 ---- */
+  .maparea{margin:0 20px;position:relative;background:radial-gradient(circle at 60% 40%, #0a1017, #06090d);border:1px solid var(--line);border-radius:8px;height:330px;overflow:hidden;}
+  #svg{position:absolute;inset:0;width:100%;height:100%;}
+  .maplbl{position:absolute;left:12px;top:9px;font-size:11px;color:var(--ink2);letter-spacing:1px;z-index:5;}
+  .mapclose{position:absolute;right:12px;top:9px;font-size:11px;color:var(--ink2);z-index:5;background:rgba(10,20,30,.5);padding:3px 10px;border-radius:4px;}
+
+  /* ---- 原則ノート ---- */
+  .notes{margin:12px 20px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .nt{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:9px 11px;}
+  .nt .h{font-size:12px;color:var(--gold);font-weight:bold;}
+  .nt .d{font-size:10.5px;color:var(--ink2);margin-top:4px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <div class="top">
+    <span class="b">◆ RUINS</span>
+    <span>出口選択型ラン構造 ── マクロ移動を消し、選択だけ残す（56.md）</span>
+    <span class="s">場面 → 出口で選ぶ → 次の場面</span>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">1</span>潜行の終わり ── 出口で次を選ぶ<span class="hint">＝ マクロ画面は無い。ミクロの出口がルート選択そのもの（Hades/DD型）</span></div>
+  </div>
+  <div class="game">
+    <div class="hud">
+      <span>忘却の廃都 B2 ── 荷は満ちた。引き際だ</span>
+      <span style="margin-left:auto">糧食 <b style="color:var(--warm)">62</b>　燃料 <b style="color:var(--crystal)">31</b>　積載 <b>47kg</b></span>
+      <span class="cold">❄ 寒波前線 7面後方</span>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="previews">
+      <div class="pv">
+        <div class="kind">潜行 ── 前線が近い</div>
+        <div class="name">◉ 凍りついた遺跡</div>
+        <div class="row"><span class="k">距離</span><span class="v">面2（糧食 -4）</span></div>
+        <div class="row"><span class="k">メリット</span><span class="v m">+戦利品は手つかず・凍晶の鉱脈</span></div>
+        <div class="row"><span class="k">リスク</span><span class="v r">⚠極寒・敵は凍結種（強い）</span></div>
+        <div class="row"><span class="k">前線</span><span class="v c">❄潜る間も詰め寄る</span></div>
+      </div>
+      <div class="pv sel">
+        <div class="badge">✓ 選択中</div>
+        <div class="kind">交易 ── 安全</div>
+        <div class="name">◉ 集落ハラム</div>
+        <div class="row"><span class="k">距離</span><span class="v">面4（糧食 -8）</span></div>
+        <div class="row"><span class="k">メリット</span><span class="v m">+凍晶が高く売れる・糧食が安い</span></div>
+        <div class="row"><span class="k">リスク</span><span class="v r">遠回り</span></div>
+        <div class="row"><span class="k">前線</span><span class="v c">❄等速──差は保てる</span></div>
+      </div>
+      <div class="pv">
+        <div class="kind">休息</div>
+        <div class="name">◉ 谷の野営地</div>
+        <div class="row"><span class="k">距離</span><span class="v">面3（糧食 -6）</span></div>
+        <div class="row"><span class="k">メリット</span><span class="v m">+休息・傷を癒す</span></div>
+        <div class="row"><span class="k">リスク</span><span class="v r">⚠夜襲の噂</span></div>
+        <div class="row"><span class="k">前線</span><span class="v c">❄野営の間に3面詰める</span></div>
+      </div>
+    </div>
+    <div class="keyhint"><b>←→</b>: ゲートを選ぶ　　<b>決定</b>: 出発する　　<b>M</b>: 地図を見る（読み物）　　※ ゲートまで歩いて入ってもよい（Phase A2）</div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- STEP 2 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">2</span>幕間 ── コストが見える遷移<span class="hint">＝ 消費は選択の結果（面数×積載）。フェード数秒、操作なし</span></div>
+  </div>
+  <div class="fade">
+    <div class="journey">凍原を 4面 進んだ ──</div>
+    <div class="costs">
+      <span class="food">糧食 -8</span>
+      <span class="fuel">燃料 -2</span>
+      <span class="front">❄ 寒波も 4面 進んだ（差は 7面のまま）</span>
+    </div>
+    <div class="note">走り続ける限り、差は保てる。立ち止まれば、詰められる。</div>
+    <div class="left">目標地点まで 残り 5面</div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- STEP 3 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">3</span>Mキー ── 読み物の地図<span class="hint">＝ 操作しない。現在地と先の分岐・街の位置を読む（先読み・交易計画）</span></div>
+  </div>
+  <div class="maparea">
+    <div class="maplbl">ルート概観 ── 来た道は凍りついた。先に集落と遺跡、目標まで5面</div>
+    <div class="mapclose">M / キャンセル: 閉じる</div>
+    <svg id="svg" viewBox="0 0 1000 330" preserveAspectRatio="none"></svg>
+  </div>
+
+  <!-- 原則ノート -->
+  <div class="notes">
+    <div class="nt"><div class="h">マクロが問い、ミクロが答える</div><div class="d">ゲートのプレビュー＝「どんな挑戦をどの条件で受けるか」。勝敗はミクロで決まる。</div></div>
+    <div class="nt"><div class="h">消費は選択の結果</div><div class="d">遷移コスト＝選んだ距離（面数）×積載。ルートと無関係の税を置かない（漏れバケツ禁止）。</div></div>
+    <div class="nt"><div class="h">引き際はミクロの中</div><div class="d">潜行中も前線はターン経過で詰め寄る（Phase A3）。「もう一部屋」の決断はダンジョン内で。</div></div>
+    <div class="nt"><div class="h">地図は読み物</div><div class="d">移動画面は無い。地図は先読みと交易計画のための一枚絵。</div></div>
+  </div>
+
+</div>
+
+<script>
+// ---- STEP1: タイルマップ（30x9）。出口の間に3つのゲート ----
+const W=30,H=9;
+const tiles=document.getElementById('tiles');
+const wall=new Set();
+// 外周と部屋の壁
+for(let x=0;x<W;x++){wall.add(x+',0');wall.add(x+','+(H-1));}
+for(let y=0;y<H;y++){wall.add('0,'+y);wall.add((W-1)+','+y);}
+[[8,1],[8,2],[8,3],[8,5],[8,6],[8,7],[17,1],[17,2],[17,4],[17,5],[17,6],[17,7],[22,3],[23,3],[24,3],[22,5],[23,5],[24,5]].forEach(p=>wall.add(p[0]+','+p[1]));
+const ice=new Set(['2,2','3,2','2,3','5,6','6,6','12,2','13,6']);
+const special={'4,4':'player','5,4':'mate','3,5':'mate','11,3':'loot','14,5':'loot','20,2':'crystal'};
+const gates={'28,2':'g1','28,4':'g2 sel','28,6':'g3'};
+let html='';
+for(let y=0;y<H;y++){
+  for(let x=0;x<W;x++){
+    const k=x+','+y;
+    let cls='t ';
+    if(gates[k]) cls+='gate '+gates[k];
+    else if(wall.has(k)) cls+='wall';
+    else if(ice.has(k)) cls+='ice';
+    else if(special[k]) cls+=special[k];
+    else cls+='floor';
+    html+='<div class="'+cls+'"></div>';
+  }
+}
+tiles.innerHTML=html;
+// ゲートラベル（グリッドのおおよその位置に絶対配置）
+const game=document.querySelector('.game');
+[['凍りついた遺跡',2],['集落ハラム',4],['谷の野営地',6]].forEach(function(g,i){
+  const d=document.createElement('div');
+  d.className='gatelbl';
+  d.textContent=g[0];
+  d.style.right='72px';
+  d.style.top=(58+g[1]*27-6)+'px';
+  game.appendChild(d);
+});
+
+// ---- STEP3: 読み物の地図 ----
+const svg=document.getElementById('svg');
+const Wm=1000,Hm=330;
+const N={
+  home:{x:5,y:50,t:'past',g:'⌂',label:'母港'},
+  p1:{x:16,y:34,t:'past',g:'・',label:''},
+  p2:{x:27,y:56,t:'past',g:'・',label:''},
+  ruinDone:{x:38,y:44,t:'cur',g:'☗',label:'忘却の廃都（今ここ）'},
+  ruin2:{x:52,y:22,t:'ruin',g:'☗',label:'凍りついた遺跡'},
+  town:{x:56,y:52,t:'vil',g:'✿',label:'集落ハラム'},
+  camp:{x:52,y:80,t:'wp',g:'△',label:'谷の野営地'},
+  shop:{x:70,y:30,t:'shop',g:'⚙',label:'工廠'},
+  outpost:{x:80,y:58,t:'vil',g:'⛺',label:'前哨'},
+  goal:{x:93,y:46,t:'goal',g:'都',label:'氷都リーゲン'},
+};
+const E=[['home','p1'],['p1','p2'],['p2','ruinDone'],
+  ['ruinDone','ruin2'],['ruinDone','town'],['ruinDone','camp'],
+  ['ruin2','shop'],['town','shop'],['town','outpost'],['camp','outpost'],
+  ['shop','goal'],['outpost','goal']];
+const px=n=>N[n].x/100*Wm, py=n=>N[n].y/100*Hm;
+let s='';
+s+='<defs><radialGradient id="glow"><stop offset="0" stop-color="#ffd35c" stop-opacity="0.5"/><stop offset="1" stop-color="#ffd35c" stop-opacity="0"/></radialGradient></defs>';
+// 凍結した後方（前線）
+s+='<rect x="0" y="0" width="'+(0.33*Wm)+'" height="'+Hm+'" fill="#0e2233" opacity="0.55"/>';
+s+='<line x1="'+(0.33*Wm)+'" y1="0" x2="'+(0.33*Wm)+'" y2="'+Hm+'" stroke="#7fd6ff" stroke-width="2" opacity="0.8"/>';
+s+='<text x="'+(0.33*Wm-8)+'" y="'+(Hm-14)+'" text-anchor="end" fill="#7fd6ff" font-size="11" font-family="monospace">❄ 寒波前線（来た道は凍った）</text>';
+E.forEach(function(e){
+  const past=(N[e[0]].t==='past');
+  s+='<line x1="'+px(e[0])+'" y1="'+py(e[0])+'" x2="'+px(e[1])+'" y2="'+py(e[1])+'" stroke="'+(past?'#27455c':'#46545f')+'" stroke-width="1.6" opacity="0.7"/>';
+});
+const ring={past:'#2c4a63',cur:'#f5f5f5',ruin:'#ff8a5f',vil:'#5fd0ff',shop:'#c9a0ff',wp:'#ff9d3c',goal:'#ffd35c'};
+for(const k in N){
+  const n=N[k],x=px(k),y=py(k);
+  const r=n.t==='goal'?18:(n.t==='past'?7:13);
+  if(n.t==='goal') s+='<circle cx="'+x+'" cy="'+y+'" r="34" fill="url(#glow)"/>';
+  if(n.t==='cur') s+='<circle cx="'+x+'" cy="'+y+'" r="24" fill="#f0f4fa" opacity="0.16"/>';
+  s+='<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#111820" stroke="'+ring[n.t]+'" stroke-width="'+(n.t==='cur'?3:1.8)+'"/>';
+  if(n.g!=='・') s+='<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="'+(n.t==='goal'?15:12)+'" fill="#dce7f0">'+n.g+'</text>';
+  if(n.label) s+='<text x="'+x+'" y="'+(y-r-7)+'" text-anchor="middle" fill="'+(n.t==='cur'?'#f5f5f5':'#dce7f0')+'" font-size="11" font-family="monospace">'+n.label+'</text>';
+}
+s+='<text x="'+px('goal')+'" y="'+(py('goal')+34)+'" text-anchor="middle" fill="#e5c675" font-size="10" font-family="monospace">目標地点 ── 残り5面</text>';
+svg.innerHTML=s;
+</script>
+</body>
+</html>
