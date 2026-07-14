@@ -11,6 +11,9 @@ const (
 	CampFrontCost = 3
 	// RuinFrontCost は遺跡潜行1回で寒波前線が詰める面数
 	RuinFrontCost = 4
+	// StarvationFrontPenalty は食料が尽きた状態で1レグ進むと寒波前線が余分に詰める面数。
+	// 食料＝行動半径（射程）の具現化。消費が結果を持つ（漏れバケツ回避）
+	StarvationFrontPenalty = 5
 )
 
 // CaravanSupply はキャラバンの供給在庫。食料・燃料は束ねず独立に扱う（緩さ4原則）。
@@ -81,11 +84,27 @@ func (r *CaravanRun) Swallowed() bool {
 // 体温変動・遭遇判定・呑まれ判定は LegResult を使って後段（system/state）が行う。
 func (r *CaravanRun) AdvanceAlong(edge route.Edge) route.LegResult {
 	res := route.ResolveLeg(edge, r.Supply.Cargo)
-	r.Supply.Food -= res.Cost.Food
 	r.Supply.Fuel -= res.Cost.Fuel
+	if r.Supply.Fuel < 0 {
+		r.Supply.Fuel = 0
+	}
+	r.Supply.Food -= res.Cost.Food
+	starving := r.Supply.Food < 0
+	if starving {
+		r.Supply.Food = 0
+	}
 	r.CaravanProgress += edge.Faces
 	r.FrontProgress += res.FrontAdvance
+	if starving {
+		// 食料が尽きた状態での移動は飢餓。寒波前線が余分に詰める（食料＝射程の具現化）
+		r.FrontProgress += StarvationFrontPenalty
+	}
 	r.Current = edge.To
 	r.Visited = append(r.Visited, edge.To)
 	return res
+}
+
+// IsStarving は食料が尽きている（飢餓）かを返す。飢餓中の移動は寒波前線を余分に詰める。
+func (r *CaravanRun) IsStarving() bool {
+	return r.Supply.Food <= 0
 }

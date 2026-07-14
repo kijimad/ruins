@@ -179,9 +179,13 @@ func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 		}
 	}
 
+	supplyLine := fmt.Sprintf("糧食 %d ／ 燃料 %d ／ 積載 %d", run.Supply.Food, run.Supply.Fuel, int(run.Supply.Cargo))
+	if run.IsStarving() {
+		supplyLine += "  ⚠飢餓：足が鈍り寒波が加速する"
+	}
 	header := []string{
 		fmt.Sprintf("現在地: %s（層%d）", nodeTypeJP(cur.Type), cur.Layer),
-		fmt.Sprintf("糧食 %d ／ 燃料 %d ／ 積載 %d", run.Supply.Food, run.Supply.Fuel, int(run.Supply.Cargo)),
+		supplyLine,
 		fmt.Sprintf("寒波リード %d 面（前進%d／前線%d）", run.FrontLead(), run.CaravanProgress, run.FrontProgress),
 	}
 
@@ -218,6 +222,12 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 	gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
 		"%sへ移動した。糧食-%d 燃料-%d、寒波が接近する。",
 		nodeTypeJP(to.Type), res.Cost.Food, res.Cost.Fuel)).Log()
+	if run.IsStarving() {
+		gamelog.New(query.GetGameLog(world)).System("糧食が尽きた。飢えで足が鈍り、寒波が余分に詰める。").Log()
+	}
+	if run.Swallowed() {
+		return st.failSwallowed(world)
+	}
 
 	return st.dispatchNode(world, run, to)
 }

@@ -60,6 +60,29 @@ func TestCaravanRun_Swallowed(t *testing.T) {
 	assert.True(t, cr.Swallowed(), "リード0以下で呑まれ")
 }
 
+func TestCaravanRun_StarvationAcceleratesFront(t *testing.T) {
+	t.Parallel()
+	// 食料が尽きた状態で移動すると、寒波前線が余分に詰めてリードを縮める（食料＝射程）
+	cr := NewCaravanRun(1, route.ExpeditionFrontier)
+	cr.Supply.Food = 0 // 飢餓状態
+	leadBefore := cr.FrontLead()
+	cr.AdvanceAlong(route.Edge{To: 99, Type: route.EdgeNormal, Faces: 3})
+	assert.Equal(t, leadBefore-StarvationFrontPenalty, cr.FrontLead(), "飢餓ぶんリードが縮む")
+	assert.True(t, cr.IsStarving())
+	assert.GreaterOrEqual(t, cr.Supply.Food, 0, "食料は0未満にならない")
+}
+
+func TestCaravanRun_NotStarvingKeepsLead(t *testing.T) {
+	t.Parallel()
+	// 食料が足りていれば移動でリードは変わらない（飢餓ペナルティは掛からない）
+	cr := NewCaravanRun(1, route.ExpeditionFrontier)
+	cr.Supply.Food = 100
+	leadBefore := cr.FrontLead()
+	cr.AdvanceAlong(route.Edge{To: 99, Type: route.EdgeNormal, Faces: 3})
+	assert.Equal(t, leadBefore, cr.FrontLead())
+	assert.False(t, cr.IsStarving())
+}
+
 func TestCaravanRun_AdvanceAlong(t *testing.T) {
 	t.Parallel()
 	cr := NewCaravanRun(1, route.ExpeditionFrontier)
