@@ -345,7 +345,14 @@ func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.Ca
 		x := marginX + float64(layer)/float64(maxLayer)*mapW
 		for i, id := range ids {
 			y := marginTop + float64(i+1)/float64(len(ids)+1)*mapH
-			pos[id] = [2]float64{x, y}
+			// 地形ノードは決定的ジッターで格子っぽさを崩す（同じグラフなら同じ位置＝安定）。
+			// 収束ノード（母港・合流点・前哨・目標）は整列させて結節点を読みやすく保つ。
+			if n := g.NodeByID(id); n != nil && isTerrainNode(n.Type) {
+				jx, jy := nodeJitter(id)
+				pos[id] = [2]float64{x + jx, y + jy}
+			} else {
+				pos[id] = [2]float64{x, y}
+			}
 		}
 	}
 
@@ -510,6 +517,26 @@ var (
 	colorMacroGlowGold  = color.RGBA{255, 211, 92, 55}   // 金グロー（低α）
 	colorMacroGlowWhite = color.RGBA{240, 244, 250, 50}  // 白グロー（低α）
 )
+
+// isTerrainNode はレーン内の地形ノード（＝ジッターで散らしてよい）かを返す。
+// 収束ノード（母港・合流点・前哨・目標）は結節点なので整列させたい＝false。
+func isTerrainNode(t route.NodeType) bool {
+	switch t {
+	case route.NodeHome, route.NodeJunction, route.NodeOutpost, route.NodeGoal:
+		return false
+	default:
+		return true
+	}
+}
+
+// nodeJitter はノードIDから決定的な小さな位置ゆらぎ（px）を返す。格子整列を崩して
+// 手置きの地図らしくする。同じIDなら常に同じ値なので描画は安定する。
+func nodeJitter(id route.NodeID) (float64, float64) {
+	h := uint64(id)*2654435761 + 0x9e3779b9
+	jx := float64(int(h%11)) - 5      // -5〜5
+	jy := float64(int((h>>8)%17)) - 8 // -8〜8
+	return jx, jy
+}
 
 // nodeRadius はノード種別ごとの半径を返す。重要ノード（目標・母港・合流点）は大きめ。
 func nodeRadius(t route.NodeType) float32 {

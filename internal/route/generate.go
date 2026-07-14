@@ -21,11 +21,6 @@ import (
 func Generate(expedition ExpeditionType, seed uint64) *Graph {
 	rng := rand.New(rand.NewPCG(seed, 0))
 
-	const (
-		lanes   = 3 // 並走レーン数（分岐点での選択肢）
-		laneLen = 3 // レーン長（合流までのノード数。長いほど commit が重い＝しばらく合流できない）
-	)
-
 	g := &Graph{}
 	var nextID NodeID
 	var flexible []NodeID // 種別を後処理で差し替えてよい地形ノード（遺跡最低保証に使う）
@@ -43,7 +38,8 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 
 	// addSegment は from（分岐元）から lanes 本の並走レーンを生やし、各レーン末尾を返す。
 	// レーン内は一本道で交差しない＝合流点まで合流できない。地形ノードは flexible に積む。
-	addSegment := func(from NodeID) []NodeID {
+	// レーン数・レーン長はセグメントごとに変え、毎回同じ対称形にならないようにする。
+	addSegment := func(from NodeID, lanes, laneLen int) []NodeID {
 		laneNodes := make([][]NodeID, lanes)
 		for range laneLen {
 			for j := range lanes {
@@ -54,9 +50,7 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 			layer++
 		}
 		for j := range lanes {
-			// 分岐: from → 各レーン先頭
 			g.Edges = append(g.Edges, newEdge(from, laneNodes[j][0], rng))
-			// レーン内前進（交差なし＝しばらく合流できない）
 			for i := 0; i+1 < laneLen; i++ {
 				g.Edges = append(g.Edges, newEdge(laneNodes[j][i], laneNodes[j][i+1], rng))
 			}
@@ -78,13 +72,24 @@ func Generate(expedition ExpeditionType, seed uint64) *Graph {
 		return node
 	}
 
-	// 母港 → seg1（並走レーン）→ 合流点 → seg2（並走レーン）→ 前哨 → 目標
+	// セグメント数（合流点は numSegments-1 個）・各セグメントのレーン数/長さをシードで振る。
+	// これで毎回形が変わり、合流点(隊商宿)の位置もセグメント長に応じて中央からずれる。
+	numSegments := 2 + rng.IntN(2) // 2〜3 セグメント（合流点 1〜2）
 	g.Home = addNode(NodeHome)
 	layer++
-	junction := converge(addSegment(g.Home), NodeJunction)
-	outpost := converge(addSegment(junction), NodeOutpost)
-	g.Goal = addNode(NodeGoal)
-	g.Edges = append(g.Edges, newEdge(outpost, g.Goal, rng))
+	from := g.Home
+	for s := range numSegments {
+		lanes := 2 + rng.IntN(3)   // 2〜4 レーン（分岐の選択肢数）
+		laneLen := 2 + rng.IntN(2) // 2〜3 ノード（合流までの長さ。過密回避で控えめ）
+		ends := addSegment(from, lanes, laneLen)
+		if s < numSegments-1 {
+			from = converge(ends, NodeJunction) // 合流点で合流→再分岐
+		} else {
+			outpost := converge(ends, NodeOutpost) // 最終セグメントは前哨で合流
+			g.Goal = addNode(NodeGoal)
+			g.Edges = append(g.Edges, newEdge(outpost, g.Goal, rng))
+		}
+	}
 
 	// 遺跡（＝ミクロ潜行の入口）の最低数を保証する。辺は種別に依存しないため
 	// 接続の後に行い、辺生成の乱数列を乱さない（遺跡が足りるランはここで rng を消費しない）。
