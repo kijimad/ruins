@@ -2,10 +2,11 @@ package states
 
 import (
 	"fmt"
+	"image/color"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	text "github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -26,12 +27,10 @@ import (
 const macroMapDebugSeed = 20260713
 
 // MacroMapState はマクロ移動（ルート網のノード選択）画面のステート。
-// 現在ノードの供給・寒波リードを表示し、進める辺を選んで踏破する。
-// Phase 1 は簡易表示＋抽象トラベル。ノード型ごとのサブステート遷移（潜行・交易・野営）は後段。
+// ルート網を層状に描画し、進める辺を選んで踏破する。供給・寒波リードをオーバーレイ表示する。
 type MacroMapState struct {
 	es.BaseState[w.World]
-	mount  *hooks.Mount[macroMapProps]
-	widget *ebitenui.UI
+	mount *hooks.Mount[macroMapProps]
 }
 
 func (st MacroMapState) String() string {
@@ -118,18 +117,18 @@ func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
+	st.mount.Update()
 
-	if st.mount.Update() || st.widget == nil {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
 	return st.ConsumeTransition(), nil
 }
 
-// Draw はステートの描画処理。背景は塗らず、後ろの呼び出し元（前の画面）を見せる
-func (st *MacroMapState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+// Draw はルート網を層状に描画する。背景は塗らず後ろの呼び出し元を見せる。
+func (st *MacroMapState) Draw(world w.World, screen *ebiten.Image) error {
+	run := query.GetCaravanRun(world)
+	if run == nil || run.Graph == nil {
+		return nil
+	}
+	st.drawMap(world, screen, run)
 	return nil
 }
 
@@ -154,8 +153,7 @@ func (st *MacroMapState) DoAction(world w.World, action inputmapper.ActionID) (e
 // ================
 
 type macroMapProps struct {
-	Header []string
-	Items  []macroMapItem
+	Items []macroMapItem
 }
 
 type macroMapItem struct {
@@ -166,27 +164,8 @@ type macroMapItem struct {
 
 func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 	run := query.GetCaravanRun(world)
-	if run == nil {
-		// ラン未設定でここに来るのは想定外だが、パニックさせず離脱できるようにする
+	if run == nil || run.Graph == nil {
 		return macroMapProps{Items: []macroMapItem{{Label: "戻る", IsCancel: true}}}
-	}
-	cur := run.Graph.NodeByID(run.Current)
-	if cur == nil {
-		// セーブ互換等で現在ノードを引けない場合の graceful degradation（生成アルゴリズム変更でIDがずれた等）
-		return macroMapProps{
-			Header: []string{"ルート情報を復元できません"},
-			Items:  []macroMapItem{{Label: "戻る", IsCancel: true}},
-		}
-	}
-
-	supplyLine := fmt.Sprintf("糧食 %d ／ 燃料 %d ／ 積載 %d", run.Supply.Food, run.Supply.Fuel, int(run.Supply.Cargo))
-	if run.IsStarving() {
-		supplyLine += "  ⚠飢餓：足が鈍り寒波が加速する"
-	}
-	header := []string{
-		fmt.Sprintf("現在地: %s（層%d）", nodeTypeJP(cur.Type), cur.Layer),
-		supplyLine,
-		fmt.Sprintf("寒波リード %d 面（前進%d／前線%d）", run.FrontLead(), run.CaravanProgress, run.FrontProgress),
 	}
 
 	outgoing := run.Graph.Outgoing(run.Current)
@@ -203,7 +182,7 @@ func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 	}
 	items = append(items, macroMapItem{Label: "戻る", IsCancel: true})
 
-	return macroMapProps{Header: header, Items: items}
+	return macroMapProps{Items: items}
 }
 
 func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World], error) {
@@ -239,7 +218,6 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 }
 
 // dispatchNode は到達ノードの型に応じたサブ挙動へ振り分ける（Phase 4）。
-// Market/Shop/Ruin など実ラン世界（プレイヤー・ショップ在庫）を要する遷移は Phase 4b で接続する。
 func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *route.Node) (es.Transition[w.World], error) {
 	switch node.Type {
 	case route.NodeGoal:
@@ -313,6 +291,178 @@ func goalSummary(world w.World) string {
 		currency, survivors, score)
 }
 
+// ================
+// 描画（ルート網）
+// ================
+
+func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.CaravanRun) {
+	g := run.Graph
+	face := world.Resources.UIResources.Text.BodyFace
+	sw := float64(screen.Bounds().Dx())
+	sh := float64(screen.Bounds().Dy())
+
+	const (
+		marginX      = 80.0
+		marginTop    = 120.0
+		marginBottom = 80.0
+	)
+	mapW := sw - 2*marginX
+	mapH := sh - marginTop - marginBottom
+
+	// 層ごとにノードを集め、位置を計算する（層＝列、層内は縦に等間隔）
+	maxLayer := 0
+	layerNodes := map[int][]route.NodeID{}
+	for _, n := range g.Nodes {
+		if n.Layer > maxLayer {
+			maxLayer = n.Layer
+		}
+		layerNodes[n.Layer] = append(layerNodes[n.Layer], n.ID)
+	}
+	if maxLayer == 0 {
+		maxLayer = 1
+	}
+	pos := make(map[route.NodeID][2]float64, len(g.Nodes))
+	for layer, ids := range layerNodes {
+		x := marginX + float64(layer)/float64(maxLayer)*mapW
+		for i, id := range ids {
+			y := marginTop + float64(i+1)/float64(len(ids)+1)*mapH
+			pos[id] = [2]float64{x, y}
+		}
+	}
+
+	// 選択中の辺・進める先
+	selectedTo := route.NodeID(-1)
+	if ms, ok := hooks.GetState[hooks.TabMenuState](st.mount, "macromap"); ok {
+		items := st.mount.GetProps().Items
+		if ms.ItemIndex >= 0 && ms.ItemIndex < len(items) && !items[ms.ItemIndex].IsCancel {
+			selectedTo = items[ms.ItemIndex].Edge.To
+		}
+	}
+	reachable := map[route.NodeID]bool{}
+	for _, e := range g.Outgoing(run.Current) {
+		reachable[e.To] = true
+	}
+
+	// 辺を描画（現在ノードから進める辺・選択中の辺を強調）
+	for _, e := range g.Edges {
+		p1, ok1 := pos[e.From]
+		p2, ok2 := pos[e.To]
+		if !ok1 || !ok2 {
+			continue
+		}
+		width := float32(1.5)
+		if e.From == run.Current {
+			width = 2.5
+			if e.To == selectedTo {
+				width = 4.5
+			}
+		}
+		vector.StrokeLine(screen, float32(p1[0]), float32(p1[1]), float32(p2[0]), float32(p2[1]), width, edgeColor(e.Type), true)
+	}
+
+	// ノードを描画
+	for _, n := range g.Nodes {
+		p := pos[n.ID]
+		x, y := float32(p[0]), float32(p[1])
+		vector.FillCircle(screen, x, y, 11, nodeColor(n.Type), true)
+		switch {
+		case n.ID == run.Current:
+			vector.StrokeCircle(screen, x, y, 15, 3, colorMacroCurrent, true)
+		case n.ID == selectedTo:
+			vector.StrokeCircle(screen, x, y, 14, 2.5, colorMacroSelected, true)
+		case reachable[n.ID]:
+			vector.StrokeCircle(screen, x, y, 13, 1.5, colorMacroReachable, true)
+		}
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(p[0]-16, p[1]+14)
+		op.ColorScale.ScaleWithColor(colorMacroLabel)
+		text.Draw(screen, nodeTypeShort(n.Type), face, op)
+	}
+
+	st.drawOverlay(screen, face, run)
+}
+
+// drawOverlay は上部に現在地・供給・寒波リード、下部に選択中の辺と操作ヒントを描く。
+func (st *MacroMapState) drawOverlay(screen *ebiten.Image, face text.Face, run *gc.CaravanRun) {
+	sw := screen.Bounds().Dx()
+	sh := screen.Bounds().Dy()
+
+	const textX = 22.0
+	drawText := func(s string, y int, c color.Color) {
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(textX, float64(y))
+		op.ColorScale.ScaleWithColor(c)
+		text.Draw(screen, s, face, op)
+	}
+
+	// 上部パネル
+	styled.DrawFramedBackground(screen, 10, 10, sw-20, 92, styled.PanelStyle())
+	drawText("ルート網 ── どこを経由するか", 18, theme.TextPrimary)
+	if cur := run.Graph.NodeByID(run.Current); cur != nil {
+		drawText(fmt.Sprintf("現在地: %s　　糧食 %d ／ 燃料 %d ／ 積載 %d",
+			nodeTypeJP(cur.Type), run.Supply.Food, run.Supply.Fuel, int(run.Supply.Cargo)), 42, theme.TextPrimary)
+	}
+	lead := fmt.Sprintf("❄ 寒波リード %d 面", run.FrontLead())
+	if run.IsStarving() {
+		lead += "　⚠飢餓：足が鈍り寒波が加速する"
+	}
+	drawText(lead, 66, colorMacroCold)
+
+	// 下部: 選択中の辺と操作ヒント
+	if ms, ok := hooks.GetState[hooks.TabMenuState](st.mount, "macromap"); ok {
+		items := st.mount.GetProps().Items
+		if ms.ItemIndex >= 0 && ms.ItemIndex < len(items) {
+			drawText(items[ms.ItemIndex].Label, sh-52, colorMacroSelected)
+		}
+	}
+	drawText("↑↓/←→: 選ぶ　　決定: 進む　　キャンセル: 戻る", sh-28, colorMacroLabel)
+}
+
+// マップ描画の色
+var (
+	colorMacroCurrent   = color.RGBA{245, 245, 245, 255}
+	colorMacroSelected  = color.RGBA{224, 190, 110, 255}
+	colorMacroReachable = color.RGBA{150, 165, 180, 255}
+	colorMacroLabel     = color.RGBA{170, 185, 200, 255}
+	colorMacroCold      = color.RGBA{120, 190, 230, 255}
+)
+
+func nodeColor(t route.NodeType) color.Color {
+	switch t {
+	case route.NodeHome:
+		return color.RGBA{230, 230, 230, 255}
+	case route.NodeMarket:
+		return color.RGBA{212, 175, 95, 255}
+	case route.NodeShop:
+		return color.RGBA{110, 160, 210, 255}
+	case route.NodeRuin:
+		return color.RGBA{200, 90, 90, 255}
+	case route.NodeCamp:
+		return color.RGBA{110, 180, 120, 255}
+	case route.NodeOutpost:
+		return color.RGBA{110, 200, 200, 255}
+	case route.NodeJunction:
+		return color.RGBA{220, 150, 80, 255}
+	case route.NodeGoal:
+		return color.RGBA{245, 220, 120, 255}
+	default:
+		return color.RGBA{160, 160, 160, 255}
+	}
+}
+
+func edgeColor(t route.EdgeType) color.Color {
+	switch t {
+	case route.EdgeShortcut:
+		return color.RGBA{100, 170, 220, 220} // 凍える近道
+	case route.EdgeDetour:
+		return color.RGBA{200, 165, 90, 220} // 暖かい迂回
+	case route.EdgeDanger:
+		return color.RGBA{200, 90, 90, 220} // 危険路
+	default:
+		return color.RGBA{90, 105, 120, 220} // 本道
+	}
+}
+
 // nodeTypeJP はノード種別の表示名を返す（表示層の関心。route はモデルを英字で持つ）。
 func nodeTypeJP(t route.NodeType) string {
 	switch t {
@@ -337,6 +487,30 @@ func nodeTypeJP(t route.NodeType) string {
 	}
 }
 
+// nodeTypeShort はマップ上のノードラベル用の短い表示名を返す。
+func nodeTypeShort(t route.NodeType) string {
+	switch t {
+	case route.NodeHome:
+		return "母港"
+	case route.NodeMarket:
+		return "集落"
+	case route.NodeShop:
+		return "専門店"
+	case route.NodeRuin:
+		return "遺跡"
+	case route.NodeCamp:
+		return "野営"
+	case route.NodeOutpost:
+		return "前哨"
+	case route.NodeJunction:
+		return "隊商宿"
+	case route.NodeGoal:
+		return "目標"
+	default:
+		return "地点"
+	}
+}
+
 // edgeTypeJP は辺種別の表示名を返す。
 func edgeTypeJP(t route.EdgeType) string {
 	switch t {
@@ -349,51 +523,4 @@ func edgeTypeJP(t route.EdgeType) string {
 	default:
 		return "本道"
 	}
-}
-
-// ================
-// buildUI
-// ================
-
-const macroMapWindowWidth = 420
-
-func (st *MacroMapState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.mount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "macromap")
-	itemIndex := menuState.ItemIndex
-
-	root := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-
-	windowContainer := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(theme.Space2),
-			widget.RowLayoutOpts.Padding(&widget.Insets{Top: 20, Bottom: 20, Left: 20, Right: 20}),
-		)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
-			}),
-			widget.WidgetOpts.MinSize(macroMapWindowWidth, 0),
-		),
-	)
-
-	// ヘッダ（現在地・供給・寒波リード）
-	for _, line := range props.Header {
-		windowContainer.AddChild(styled.NewBodyText(line, theme.TextPrimary, res))
-	}
-
-	// 進める辺の選択肢
-	for i, item := range props.Items {
-		isSelected := i == itemIndex
-		windowContainer.AddChild(styled.NewListItemText(item.Label, theme.TextPrimary, isSelected, res))
-	}
-
-	root.AddChild(windowContainer)
-	return &ebitenui.UI{Container: root}
 }
