@@ -57,10 +57,11 @@ func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*
 }
 
 func executeDungeonGate(world w.World) (*ActionResult, error) {
-	if err := lifecycle.RequestStateChange(world, gc.OpenDungeonSelectEvent()); err != nil {
-		return nil, fmt.Errorf("ダンジョン選択状態変更要求エラー: %w", err)
+	// キャラバン設計では母港の門＝遠征の出発。遠征（背骨）を選ぶメニューを開く
+	if err := lifecycle.RequestStateChange(world, gc.OpenExpeditionSelectEvent()); err != nil {
+		return nil, fmt.Errorf("遠征選択状態変更要求エラー: %w", err)
 	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "ダンジョンゲート発動"}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "遠征門発動"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
