@@ -10,6 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -129,6 +130,13 @@ func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 	if run == nil || run.Beacons == nil {
 		return es.Transition[w.World]{}, nil
 	}
+
+	// デバッグ: G キーで目標地点へ即到達する（cfg.Debug 時のみ。到達フローの動作確認用）
+	if world.Config.Debug && input.GetSharedKeyboardInput().IsKeyJustPressed(ebiten.KeyG) {
+		run.Current = run.Beacons.Goal
+		return st.reachGoal(world)
+	}
+
 	next := run.Beacons.Outgoing(run.Current)
 
 	action, ok := HandleMenuInput()
@@ -412,11 +420,11 @@ func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.Ca
 		drawBeaconLabel(screen, face, nodeTypeShort(b.Event), p[0], p[1]+float64(r)+4)
 	}
 
-	st.drawOverlay(screen, face, run, selectedTo)
+	st.drawOverlay(screen, face, run, selectedTo, world.Config.Debug)
 }
 
 // drawOverlay は上部パネル（現在地・供給・寒波リード）と下部（選択中イベント・操作ヒント）を描く。
-func (st *MacroMapState) drawOverlay(screen *ebiten.Image, face text.Face, run *gc.CaravanRun, selectedTo route.NodeID) {
+func (st *MacroMapState) drawOverlay(screen *ebiten.Image, face text.Face, run *gc.CaravanRun, selectedTo route.NodeID, debug bool) {
 	sw := screen.Bounds().Dx()
 	sh := screen.Bounds().Dy()
 
@@ -444,7 +452,11 @@ func (st *MacroMapState) drawOverlay(screen *ebiten.Image, face text.Face, run *
 	if b := run.Beacons.BeaconByID(selectedTo); b != nil {
 		drawText(fmt.Sprintf("→ %s：%s", nodeTypeJP(b.Event), eventHint(b.Event)), sh-48, colorMacroSelected)
 	}
-	drawText("↑↓: 選ぶ　　決定: ジャンプ　　キャンセル: 戻る", sh-26, colorMacroLabel)
+	hint := "↑↓: 選ぶ　　決定: ジャンプ　　キャンセル: 戻る"
+	if debug {
+		hint += "　　G: 目標へ(debug)"
+	}
+	drawText(hint, sh-26, colorMacroLabel)
 }
 
 // eventHint は停留点イベントの一言説明を返す。
