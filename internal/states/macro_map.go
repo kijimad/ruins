@@ -244,8 +244,12 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 	switch node.Type {
 	case route.NodeGoal:
 		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。背骨を納品して遠征達成。").Log()
+		summary := goalSummary(world)
 		query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
-		return es.Transition[w.World]{Type: es.TransPop}, nil
+		return es.Transition[w.World]{
+			Type:          es.TransSwitch,
+			NewStateFuncs: []es.StateFactory[w.World]{NewGoalResultState(summary)},
+		}, nil
 	case route.NodeCamp:
 		// 野営で糧食を回復するが、休息の間に寒波前線が詰める（道草の代償）
 		const campFoodRestore = 15
@@ -294,6 +298,19 @@ func (st *MacroMapState) failSwallowed(world w.World) (es.Transition[w.World], e
 	gamelog.New(query.GetGameLog(world)).System("寒波前線に呑まれた。ラン失敗。").Log()
 	query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
 	return es.Transition[w.World]{Type: es.TransPop}, nil
+}
+
+// goalSummary は遠征達成時のスコア要約を作る（富＝所持通貨＋生存者。希少財の加点は後段）。
+func goalSummary(world w.World) string {
+	currency := 0
+	if pe, err := query.GetPlayerEntity(world); err == nil && world.Components.Wallet.Has(pe) {
+		currency = query.GetCurrency(world, pe)
+	}
+	survivors := query.SquadMemberCount(world) + 1 // ＋リーダー
+	const survivorBonus = 50
+	score := currency + survivors*survivorBonus
+	return fmt.Sprintf("遠征達成！\n\n富（通貨）: %d\n生存者: %d 人\nスコア: %d\n\n（希少財の加点は後段）",
+		currency, survivors, score)
 }
 
 // nodeTypeJP はノード種別の表示名を返す（表示層の関心。route はモデルを英字で持つ）。
