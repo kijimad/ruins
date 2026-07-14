@@ -123,10 +123,9 @@ func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 	return st.ConsumeTransition(), nil
 }
 
-// Draw はステートの描画処理。スタックの全stateが描画されるため、
-// 背景を塗って後ろのstate（デバッグメニュー等）が透けないようにする
+// Draw はステートの描画処理。TransReplace で入る単独stateのため、後ろに描画されるstateは無く
+// オフスクリーンも毎フレームクリアされるので背景塗りは不要
 func (st *MacroMapState) Draw(_ w.World, screen *ebiten.Image) error {
-	screen.Fill(theme.ScreenBackground)
 	st.widget.Draw(screen)
 	return nil
 }
@@ -135,7 +134,7 @@ func (st *MacroMapState) Draw(_ w.World, screen *ebiten.Image) error {
 func (st *MacroMapState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-		return es.Transition[w.World]{Type: es.TransPop}, nil
+		return exitToMainMenu(), nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(world)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown,
@@ -204,12 +203,12 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 	}
 	item := st.mount.GetProps().Items[menuState.ItemIndex]
 	if item.IsCancel {
-		return es.Transition[w.World]{Type: es.TransPop}, nil
+		return exitToMainMenu(), nil
 	}
 
 	run := query.GetCaravanRun(world)
 	if run == nil {
-		return es.Transition[w.World]{Type: es.TransPop}, nil
+		return exitToMainMenu(), nil
 	}
 	to := run.Graph.NodeByID(item.Edge.To)
 	res := run.AdvanceAlong(item.Edge)
@@ -227,7 +226,7 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 	case route.NodeGoal:
 		gamelog.New(query.GetGameLog(world)).System("目標地点に到達した。背骨を納品して遠征達成。").Log()
 		query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
-		return es.Transition[w.World]{Type: es.TransPop}, nil
+		return exitToMainMenu(), nil
 	case route.NodeCamp:
 		// 野営で糧食を回復するが、休息の間に寒波前線が詰める（道草の代償）
 		const campFoodRestore = 15
@@ -274,7 +273,16 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 func (st *MacroMapState) failSwallowed(world w.World) (es.Transition[w.World], error) {
 	gamelog.New(query.GetGameLog(world)).System("寒波前線に呑まれた。ラン失敗。").Log()
 	query.SetCaravanRun(world, nil) // ランを終了（再入時は新規生成）
-	return es.Transition[w.World]{Type: es.TransPop}, nil
+	return exitToMainMenu(), nil
+}
+
+// exitToMainMenu はマクロ層を抜けてメインメニューへ戻る遷移。マクロは TransReplace で入る
+// 単独stateなので、TransPop（空スタック→ハング）でなく Replace で土台（メインメニュー）へ戻す
+func exitToMainMenu() es.Transition[w.World] {
+	return es.Transition[w.World]{
+		Type:          es.TransReplace,
+		NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState},
+	}
 }
 
 // nodeTypeJP はノード種別の表示名を返す（表示層の関心。route はモデルを英字で持つ）。

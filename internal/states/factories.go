@@ -135,7 +135,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 		}).
 		WithChoice("マクロ移動", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransSwitch,
+				Type:          es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{NewMacroMapState},
 			})
 			return nil
