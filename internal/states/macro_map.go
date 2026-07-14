@@ -123,8 +123,10 @@ func (st *MacroMapState) Update(world w.World) (es.Transition[w.World], error) {
 	return st.ConsumeTransition(), nil
 }
 
-// Draw はステートの描画処理
+// Draw はステートの描画処理。スタックの全stateが描画されるため、
+// 背景を塗って後ろのstate（デバッグメニュー等）が透けないようにする
 func (st *MacroMapState) Draw(_ w.World, screen *ebiten.Image) error {
+	screen.Fill(theme.ScreenBackground)
 	st.widget.Draw(screen)
 	return nil
 }
