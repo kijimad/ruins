@@ -33,6 +33,10 @@ const macroMapDebugSeed = 15
 type MacroMapState struct {
 	es.BaseState[w.World]
 	sel int // 選択中の次停留点インデックス（Outgoing の中）
+	// divingRuin は直近の Push が遺跡潜行かを示す（戻り時の物資回収判定に使う）
+	divingRuin bool
+	// cargoValueBeforeDive は潜行開始時の背嚢価値（戻り時に稼いだ差分を出す）
+	cargoValueBeforeDive int
 }
 
 func (st MacroMapState) String() string {
@@ -44,8 +48,30 @@ var _ es.State[w.World] = &MacroMapState{}
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *MacroMapState) OnPause(_ w.World) error { return nil }
 
-// OnResume はステートが再開される際に呼ばれる
-func (st *MacroMapState) OnResume(_ w.World) error { return nil }
+// OnResume はステートが再開される際に呼ばれる。サブステート（潜行・交易）から戻ったとき、
+// 背嚢の戦利品を広域のラン状態へ帰結させる（micro→macro の密結合）。
+func (st *MacroMapState) OnResume(world w.World) error {
+	run := query.GetCaravanRun(world)
+	if run == nil {
+		return nil
+	}
+	// 戦利品は積載重量になり、以後のジャンプ供給消費を増やす（物量で頂点＝稼ぐほど重く飢える）
+	run.Supply.Cargo = backpackWeight(world)
+	// 潜行から戻ったら、稼いだ戦利品価値の一部を糧食/燃料として回収する（潜ると供給が延びる）
+	if st.divingRuin {
+		st.divingRuin = false
+		gained := backpackValue(world) - st.cargoValueBeforeDive
+		if gained > 0 {
+			food := gained / 8
+			fuel := gained / 16
+			run.Supply.Food += food
+			run.Supply.Fuel += fuel
+			gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
+				"遺跡から物資を回収した（糧食 +%d ／ 燃料 +%d）。", food, fuel)).Log()
+		}
+	}
+	return nil
+}
 
 // OnStop はステートが終了する際に呼ばれる
 func (st *MacroMapState) OnStop(_ w.World) error { return nil }
@@ -155,6 +181,9 @@ func (st *MacroMapState) resolveEvent(world w.World, run *gc.CaravanRun, ev rout
 		if run.Swallowed() {
 			return st.failSwallowed(world)
 		}
+		// 戻り時に「稼いだ戦利品」を出せるよう、潜行前の背嚢価値を控える
+		st.divingRuin = true
+		st.cargoValueBeforeDive = backpackValue(world)
 		log.System(fmt.Sprintf("遺跡に潜行する（寒波が %d 列詰める）。", gc.RuinFrontCost)).Log()
 		return es.Transition[w.World]{
 			Type:          es.TransPush,
@@ -233,6 +262,28 @@ func NewBlizzardEventState() es.StateFactory[w.World] {
 			})
 		return ms, nil
 	}
+}
+
+// backpackWeight はキャラバンが背嚢に持つ全アイテムの総重量を返す（＝積載）。
+func backpackWeight(world w.World) route.Weight {
+	total := 0.0
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		total += query.GetEntityWeight(world, e) // GetEntityWeight は個数を含む
+	}
+	return route.Weight(total)
+}
+
+// backpackValue はキャラバンが背嚢に持つ全アイテムの価値合計を返す（潜行で稼いだ差分の算出に使う）。
+func backpackValue(world w.World) int {
+	total := 0
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		total += query.GetItemValue(world, e) * query.GetEntityCount(world, e)
+	}
+	return total
 }
 
 func clampMin0(n int) int {
