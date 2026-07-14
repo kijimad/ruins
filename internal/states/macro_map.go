@@ -65,24 +65,32 @@ func (st *MacroMapState) OnStart(world w.World) error {
 // Shop/Dungeon などプレイヤー依存のサブステートを MacroMap から起動できるようにするための暫定処理で、
 // 正式な遠征選択入口（Phase 5）ができたら不要になる。DemoStart のセットアップに倣う。
 func setupDebugRun(world w.World) error {
-	// プレイヤーが未生成のときだけ生成する。ラン終了で CaravanRun を除去しても
-	// プレイヤー/隊員は World に残るため、CaravanRun の有無で判定すると再入で二重 spawn になる
-	if !playerExists(world) {
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
-		if err != nil {
-			return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
-		}
-		professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-		if len(professions) > 0 {
-			if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {
-				return fmt.Errorf("職業の適用に失敗: %w", err)
-			}
-		}
-		if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
-			return fmt.Errorf("初期隊員の生成に失敗: %w", err)
-		}
+	if err := ensureDebugParty(world); err != nil {
+		return err
 	}
 	query.SetCaravanRun(world, gc.NewCaravanRun(macroMapDebugSeed, route.ExpeditionDeepVault))
+	return nil
+}
+
+// ensureDebugParty はプレイヤー・隊員が未生成なら生成する（デバッグ入口用。正式には母港で用意済み）。
+// ラン終了で CaravanRun を除去してもプレイヤー/隊員は残るため、CaravanRun でなくプレイヤー不在で判定する
+func ensureDebugParty(world w.World) error {
+	if playerExists(world) {
+		return nil
+	}
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	if err != nil {
+		return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
+	}
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
+	if len(professions) > 0 {
+		if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {
+			return fmt.Errorf("職業の適用に失敗: %w", err)
+		}
+	}
+	if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
+		return fmt.Errorf("初期隊員の生成に失敗: %w", err)
+	}
 	return nil
 }
 

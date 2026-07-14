@@ -133,10 +133,10 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("マクロ移動", func(_ w.World) error {
+		WithChoice("マクロ移動（遠征選択）", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewMacroMapState},
+				NewStateFuncs: []es.StateFactory[w.World]{NewExpeditionSelectState},
 			})
 			return nil
 		}).
