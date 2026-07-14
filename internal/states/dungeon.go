@@ -26,14 +26,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-var (
-	baseImage *ebiten.Image // 一番下にある黒背景
-)
-
 // DungeonState はダンジョン探索中のゲームステート
 type DungeonState struct {
 	es.BaseState[w.World]
-	Depth int
+	// baseImage は下に敷く背景
+	baseImage *ebiten.Image
+	Depth     int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
@@ -63,8 +61,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
-		baseImage = ebiten.NewImage(screenWidth, screenHeight)
-		baseImage.Fill(theme.ScreenBackground)
+		st.baseImage = ebiten.NewImage(screenWidth, screenHeight)
+		st.baseImage.Fill(theme.ScreenBackground)
 	}
 
 	query.GetDungeon(world).Depth = st.Depth
@@ -242,7 +240,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 // Draw はゲームステートの描画処理を行う
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
-	screen.DrawImage(baseImage, nil)
+	if st.baseImage != nil {
+		screen.DrawImage(st.baseImage, nil)
+	}
 
 	for _, renderer := range []w.Renderer{
 		&gs.RenderSpriteSystem{},

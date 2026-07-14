@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -223,8 +224,11 @@ func (st *ShootingState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawShootingPanel(world, screen)
 }
 
-// shootingCursorCache はターゲットカーソル画像のキャッシュ
-var shootingCursorCache *ebiten.Image
+// shootingCursorCache はターゲットカーソル画像のキャッシュ。sync.Once で一度だけ初期化する
+var (
+	shootingCursorCache     *ebiten.Image
+	shootingCursorCacheOnce sync.Once
+)
 
 // drawTargetCursor は選択中の敵にカーソルを描画する
 func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
@@ -238,7 +242,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	cursorPixelX := float64(int(targetGrid.X) * tileSize)
 	cursorPixelY := float64(int(targetGrid.Y) * tileSize)
 
-	if shootingCursorCache == nil {
+	shootingCursorCacheOnce.Do(func() {
 		shootingCursorCache = ebiten.NewImage(tileSize, tileSize)
 		cursorColor := theme.CursorShoot
 		for i := range 3 {
@@ -251,7 +255,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 				shootingCursorCache.Set(tileSize-1-i, y, cursorColor)
 			}
 		}
-	}
+	})
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(cursorPixelX, cursorPixelY)
@@ -265,8 +269,11 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	screen.DrawImage(shootingCursorCache, op)
 }
 
-// shootingPanelCache は情報パネル画像のキャッシュ
-var shootingPanelCache *ebiten.Image
+// shootingPanelCache は情報パネル画像のキャッシュ。sync.Once で一度だけ初期化する
+var (
+	shootingPanelCache     *ebiten.Image
+	shootingPanelCacheOnce sync.Once
+)
 
 // drawShootingPanel は射撃情報パネルを描画する
 func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) error {
@@ -280,10 +287,10 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 		lineHeight  = 20
 	)
 
-	if shootingPanelCache == nil {
+	shootingPanelCacheOnce.Do(func() {
 		shootingPanelCache = ebiten.NewImage(panelWidth, panelHeight)
 		shootingPanelCache.Fill(theme.Overlay)
-	}
+	})
 
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY

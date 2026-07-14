@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -166,15 +167,18 @@ func (st *PickupState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawPickupPanel(world, screen)
 }
 
-// pickupCursorCache はカーソル画像のキャッシュ
-var pickupCursorCache *ebiten.Image
+// pickupCursorCache はカーソル画像のキャッシュ。sync.Once で一度だけ初期化する
+var (
+	pickupCursorCache     *ebiten.Image
+	pickupCursorCacheOnce sync.Once
+)
 
 func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(st.cursor.X) * tileSize)
 	cursorPixelY := float64(int(st.cursor.Y) * tileSize)
 
-	if pickupCursorCache == nil {
+	pickupCursorCacheOnce.Do(func() {
 		pickupCursorCache = ebiten.NewImage(tileSize, tileSize)
 		cursorColor := theme.CursorPickup
 		for i := range 3 {
@@ -187,7 +191,7 @@ func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 				pickupCursorCache.Set(tileSize-1-i, y, cursorColor)
 			}
 		}
-	}
+	})
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(cursorPixelX, cursorPixelY)
