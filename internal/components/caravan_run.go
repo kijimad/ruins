@@ -84,19 +84,21 @@ func (r *CaravanRun) Swallowed() bool {
 // 体温変動・遭遇判定・呑まれ判定は LegResult を使って後段（system/state）が行う。
 func (r *CaravanRun) AdvanceAlong(edge route.Edge) route.LegResult {
 	res := route.ResolveLeg(edge, r.Supply.Cargo)
+	// 飢餓ペナルティは「このレグを踏み出す時点で既に食料が尽きている」場合に課す。
+	// レグの消費でちょうど尽きたレグには猶予を与え、判定を IsStarving（Food<=0）と一致させる
+	starving := r.IsStarving()
 	r.Supply.Fuel -= res.Cost.Fuel
 	if r.Supply.Fuel < 0 {
 		r.Supply.Fuel = 0
 	}
 	r.Supply.Food -= res.Cost.Food
-	starving := r.Supply.Food < 0
-	if starving {
+	if r.Supply.Food < 0 {
 		r.Supply.Food = 0
 	}
 	r.CaravanProgress += edge.Faces
 	r.FrontProgress += res.FrontAdvance
 	if starving {
-		// 食料が尽きた状態での移動は飢餓。寒波前線が余分に詰める（食料＝射程の具現化）
+		// 飢餓状態での移動は寒波前線が余分に詰める（食料＝射程の具現化）
 		r.FrontProgress += StarvationFrontPenalty
 	}
 	r.Current = edge.To

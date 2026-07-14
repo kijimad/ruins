@@ -193,6 +193,9 @@ func (st *MacroMapState) fetchProps(world w.World) macroMapProps {
 	items := make([]macroMapItem, 0, len(outgoing)+1)
 	for _, e := range outgoing {
 		to := run.Graph.NodeByID(e.To)
+		if to == nil {
+			continue // 生成不整合等でエッジ先を引けない辺はスキップ
+		}
 		items = append(items, macroMapItem{
 			Label: fmt.Sprintf("→ %s ｜%s 面%d", nodeTypeJP(to.Type), edgeTypeJP(e.Type), e.Faces),
 			Edge:  e,
@@ -218,6 +221,9 @@ func (st *MacroMapState) handleSelection(world w.World) (es.Transition[w.World],
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 	to := run.Graph.NodeByID(item.Edge.To)
+	if to == nil {
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}
 	res := run.AdvanceAlong(item.Edge)
 	gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
 		"%sへ移動した。糧食-%d 燃料-%d、寒波が接近する。",
@@ -252,7 +258,8 @@ func (st *MacroMapState) dispatchNode(world w.World, run *gc.CaravanRun, node *r
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case route.NodeMarket, route.NodeShop, route.NodeJunction, route.NodeOutpost:
-		// 集落マップに入る。商人に話しかけて交易し、帰還ゲートで MacroMap へ戻る（ShopMenu は即出さない）
+		// 集落マップに入る。商人に話しかけて交易し、帰還ゲートで MacroMap へ戻る（ShopMenu は即出さない）。
+		// TODO(Phase後段): 専門店(改造)・合流点(全ルート合流演出)・前哨(最終補給/売却点)を型ごとに差別化する（現状は同じ集落マップ）
 		gamelog.New(query.GetGameLog(world)).System(fmt.Sprintf(
 			"%sに到着した。集落に入る。", nodeTypeJP(node.Type))).Log()
 		return es.Transition[w.World]{

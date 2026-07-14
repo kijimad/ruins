@@ -41,8 +41,10 @@ type DungeonState struct {
 	// Resume はセーブからの復帰モード。trueならマップ再生成とプレイヤー再配置を行わず、
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
-	// EscapePop はtrueなら脱出(WarpEscape)時に自動精算(AutoSell→Town)を通さず、
-	// 呼び出し元へ Pop で戻る（マクロ移動から集落/遺跡に入ったとき、道中へ戻るのに使う）
+	// EscapePop はマクロのノードマップ（集落/遺跡）であることを示すフラグ。true のとき:
+	//   - WarpEscape で自動精算(AutoSell→Town)を通さず呼び出し元(MacroMap)へ Pop で戻る
+	//   - WarpNext は Push でなく Switch（多層でもスタックを深くせず単一 Pop で脱出できる）
+	//   - マップの掃除は前進(OnStart)で行い後退(OnStop)ではしない（下層マップを温存）
 	EscapePop bool
 }
 
@@ -544,6 +546,13 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	case gc.WarpNext:
 		// 次のフロアへ遷移する
 		nextDepth := query.GetDungeon(world).Depth + 1
+		if st.EscapePop {
+			// マクロのノードマップ（遺跡）は階を Push で積まず Switch で置き換える。
+			// こうすると脱出(WarpEscape)の単一 Pop で MacroMap まで戻れる（多層でもスタックが深くならない）
+			return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{
+				NewDungeonState(nextDepth, WithEscapePop()),
+			}}, nil
+		}
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
