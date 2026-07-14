@@ -38,17 +38,26 @@ func TestGenerate_JunctionOnAllPaths(t *testing.T) {
 	}
 }
 
-func TestGenerate_BranchLayersHaveChoices(t *testing.T) {
+func TestGenerate_ChoicesAtDivergencePoints(t *testing.T) {
 	t.Parallel()
+	// レーン方式: 分岐点（母港・合流点）でのみ複数レーンを選べ、レーン内は一本道で
+	// 「しばらく合流できない」。地形ノードの選択肢はちょうど1（commit）、分岐点は2以上。
 	for seed := range seedCount {
 		g := Generate(ExpeditionDeepVault, uint64(seed))
 		for _, n := range g.Nodes {
-			if !hasBranchingNext(g, n) {
-				continue
+			out := len(g.Outgoing(n.ID))
+			switch n.Type {
+			case NodeHome, NodeJunction:
+				assert.GreaterOrEqualf(t, out, 2,
+					"seed=%d %s: 分岐点はレーンを選べる（選択肢≥2）", seed, nodeTypeName(n.Type))
+			case NodeGoal:
+				assert.Equalf(t, 0, out, "seed=%d 目標は終点", seed)
+			default:
+				// 地形（平原/山脈/遺跡/街）・前哨＝レーン内。交差しないので選択肢はちょうど1
+				assert.Equalf(t, 1, out,
+					"seed=%d node=%d(%s layer %d): レーン内は一本道（しばらく合流できない）",
+					seed, n.ID, nodeTypeName(n.Type), n.Layer)
 			}
-			assert.GreaterOrEqualf(t, len(g.Outgoing(n.ID)), 2,
-				"seed=%d node=%d(layer %d): 分岐区間の選択肢は2以上（最短一択にしない）",
-				seed, n.ID, n.Layer)
 		}
 	}
 }
@@ -165,15 +174,4 @@ func junctionNode(g *Graph) *Node {
 		}
 	}
 	return nil
-}
-
-// hasBranchingNext は n の次層に2ノード以上あるか（＝分岐区間か）を返す。
-func hasBranchingNext(g *Graph, n Node) bool {
-	next := 0
-	for _, m := range g.Nodes {
-		if m.Layer == n.Layer+1 {
-			next++
-		}
-	}
-	return next >= 2
 }

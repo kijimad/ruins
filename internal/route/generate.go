@@ -5,90 +5,91 @@ import (
 	"math/rand/v2"
 )
 
-// Generate は遠征と乱数シードから層状 DAG のルート網を生成する純関数。
+// Generate は遠征と乱数シードからレーン方式のルート網を生成する純関数。
 // 同じ (expedition, seed) は同じグラフを返すため、save はグラフ本体でなくシードを
 // 保存し、ロード時に再構築できる（docs/design/20260713_55.md 実装計画 Phase 2）。
+//
+// 構造（レーン方式）: 母港から複数の並走レーンへ分岐し、レーン内は一本道で
+// 「しばらく合流できない」。全レーンは合流点(隊商宿)で一度だけ合流して再び分岐する。
+// これでメッシュ（毎ステップ合流/分岐して経路が絡む）を避け、「どのレーン＝地形の連なりに
+// 賭けるか」を commit する選択になる。
 //
 // 不変条件（generate_test.go で検証）:
 //   - 母港から目標地点へ必ず到達可能
 //   - 合流点を全経路が通る（分岐→合流→再分岐）
-//   - 分岐区間の各層は有効選択肢が2以上（最短一択にしない）
-//
-// Phase 1 は層構成を固定する: 母港 → 分岐 → 分岐 → 合流点 → 分岐 → 目標地点。
+//   - 分岐点（母港・合流点）は選択肢が2以上（ルートを選べる）
 func Generate(expedition ExpeditionType, seed uint64) *Graph {
 	rng := rand.New(rand.NewPCG(seed, 0))
 
-	// 層ごとのノード数。1 の層は収束（母港・合流点・目標地点）。
-	// 1ループ ≈ 10回の選択になるよう層を伸ばす（母港→目標で10回の辺選択）。
-	// 道中はフィールド地形が主役で、合流点(隊商宿)を中央に1つ挟んで分岐→合流→再分岐する。
-	layerSizes := []int{1, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1}
-	junctionLayer := 5
-	lastLayer := len(layerSizes) - 1
+	const (
+		lanes   = 3 // 並走レーン数（分岐点での選択肢）
+		laneLen = 3 // レーン長（合流までのノード数。長いほど commit が重い＝しばらく合流できない）
+	)
 
 	g := &Graph{}
-	layers := make([][]NodeID, len(layerSizes))
-	// flexible は種別を後から差し替えてよい中間ノード（合流点・前哨・目標地点を除く）。
-	var flexible []NodeID
 	var nextID NodeID
-	for l, size := range layerSizes {
-		for i := range size {
-			id := nextID
-			nextID++
-			nt := nodeTypeFor(l, i, junctionLayer, lastLayer, expedition, rng)
-			g.Nodes = append(g.Nodes, Node{
-				ID:    id,
-				Type:  nt,
-				Layer: l,
-				Label: fmt.Sprintf("%s-%d", nodeTypeName(nt), id),
-			})
-			layers[l] = append(layers[l], id)
-			if isFlexibleMiddle(l, i, junctionLayer, lastLayer) {
+	var flexible []NodeID // 種別を後処理で差し替えてよい地形ノード（遺跡最低保証に使う）
+	layer := 0
+
+	addNode := func(nt NodeType) NodeID {
+		id := nextID
+		nextID++
+		g.Nodes = append(g.Nodes, Node{
+			ID: id, Type: nt, Layer: layer,
+			Label: fmt.Sprintf("%s-%d", nodeTypeName(nt), id),
+		})
+		return id
+	}
+
+	// addSegment は from（分岐元）から lanes 本の並走レーンを生やし、各レーン末尾を返す。
+	// レーン内は一本道で交差しない＝合流点まで合流できない。地形ノードは flexible に積む。
+	addSegment := func(from NodeID) []NodeID {
+		laneNodes := make([][]NodeID, lanes)
+		for range laneLen {
+			for j := range lanes {
+				id := addNode(weightedMiddleType(expedition, rng))
 				flexible = append(flexible, id)
+				laneNodes[j] = append(laneNodes[j], id)
+			}
+			layer++
+		}
+		for j := range lanes {
+			// 分岐: from → 各レーン先頭
+			g.Edges = append(g.Edges, newEdge(from, laneNodes[j][0], rng))
+			// レーン内前進（交差なし＝しばらく合流できない）
+			for i := 0; i+1 < laneLen; i++ {
+				g.Edges = append(g.Edges, newEdge(laneNodes[j][i], laneNodes[j][i+1], rng))
 			}
 		}
+		ends := make([]NodeID, lanes)
+		for j := range lanes {
+			ends[j] = laneNodes[j][laneLen-1]
+		}
+		return ends
 	}
-	g.Home = layers[0][0]
-	g.Goal = layers[lastLayer][0]
 
-	// 隣接層のみ前進方向に接続する（一方向を構造で担保）。
-	for l := range lastLayer {
-		connectLayers(g, layers[l], layers[l+1], rng)
+	// converge は複数レーン末尾を1つの収束ノードへ合流させる。
+	converge := func(ends []NodeID, nt NodeType) NodeID {
+		node := addNode(nt)
+		layer++
+		for _, e := range ends {
+			g.Edges = append(g.Edges, newEdge(e, node, rng))
+		}
+		return node
 	}
+
+	// 母港 → seg1（並走レーン）→ 合流点 → seg2（並走レーン）→ 前哨 → 目標
+	g.Home = addNode(NodeHome)
+	layer++
+	junction := converge(addSegment(g.Home), NodeJunction)
+	outpost := converge(addSegment(junction), NodeOutpost)
+	g.Goal = addNode(NodeGoal)
+	g.Edges = append(g.Edges, newEdge(outpost, g.Goal, rng))
 
 	// 遺跡（＝ミクロ潜行の入口）の最低数を保証する。辺は種別に依存しないため
 	// 接続の後に行い、辺生成の乱数列を乱さない（遺跡が足りるランはここで rng を消費しない）。
 	ensureMinRuins(g, flexible, minRuinsFor(expedition), rng)
 	return g
-}
-
-// nodeTypeFor は層とインデックスからノード種別を決める。
-func nodeTypeFor(layer, idx, junctionLayer, lastLayer int, exp ExpeditionType, rng *rand.Rand) NodeType {
-	switch {
-	case layer == 0:
-		return NodeHome
-	case layer == lastLayer:
-		return NodeGoal
-	case layer == junctionLayer:
-		return NodeJunction
-	case layer == lastLayer-1 && idx == 0:
-		return NodeOutpost // 目標地点手前に前哨（最終補給・最終売却点）を1つ置く
-	default:
-		return weightedMiddleType(exp, rng)
-	}
-}
-
-// isFlexibleMiddle は種別を後処理で差し替えてよい中間ノードか判定する。
-// 合流点・前哨・目標地点・母港は役割が固定なので除外し、weightedMiddleType で
-// 種別を決めるノードのみ true を返す（nodeTypeFor の default ケースと対応する）。
-func isFlexibleMiddle(layer, idx, junctionLayer, lastLayer int) bool {
-	switch {
-	case layer == 0, layer == lastLayer, layer == junctionLayer:
-		return false
-	case layer == lastLayer-1 && idx == 0:
-		return false // 前哨
-	default:
-		return true
-	}
 }
 
 // minRuinsFor は遠征ごとの遺跡（潜行ダンジョン）の最低保証数を返す。
@@ -155,40 +156,6 @@ func weightedMiddleType(exp ExpeditionType, rng *rand.Rand) NodeType {
 		pool = append(pool, NodeMountain) // 辺境＝険路重心
 	}
 	return pool[rng.IntN(len(pool))]
-}
-
-// connectLayers は from 層の各ノードを to 層へ前進接続する。
-// to 層が分岐（2ノード以上）なら各ノードから2本以上引き（選択肢を担保）、
-// to 層の全ノードに最低1本の入辺を保証する（到達可能性）。
-func connectLayers(g *Graph, from, to []NodeID, rng *rand.Rand) {
-	covered := make(map[NodeID]bool)
-	for _, f := range from {
-		for _, tgt := range pickTargets(to, rng) {
-			g.Edges = append(g.Edges, newEdge(f, tgt, rng))
-			covered[tgt] = true
-		}
-	}
-	for _, t := range to {
-		if !covered[t] {
-			f := from[rng.IntN(len(from))]
-			g.Edges = append(g.Edges, newEdge(f, t, rng))
-			covered[t] = true
-		}
-	}
-}
-
-// pickTargets は接続先を選ぶ。to が収束層（1ノード）なら1件、分岐層なら2件以上。
-func pickTargets(to []NodeID, rng *rand.Rand) []NodeID {
-	if len(to) == 1 {
-		return []NodeID{to[0]}
-	}
-	perm := rng.Perm(len(to))
-	k := 2 + rng.IntN(len(to)-1) // [2, len(to)]
-	chosen := make([]NodeID, 0, k)
-	for i := range k {
-		chosen = append(chosen, to[perm[i]])
-	}
-	return chosen
 }
 
 // newEdge は辺種別をランダムに選び、その基準面数を持つ辺を作る。
