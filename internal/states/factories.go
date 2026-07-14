@@ -382,13 +382,6 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("探索結果", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{NewAutoSellState()},
-			})
-			return nil
-		}).
 		WithChoice("隊員スポーン", func(world w.World) error {
 			player, err := query.GetPlayerEntity(world)
 			if err != nil {
@@ -542,7 +535,7 @@ func WithResume() DungeonStateOption {
 	}
 }
 
-// WithEscapePop は脱出時に自動精算(AutoSell→Town)を通さず呼び出し元へ Pop で戻るオプション。
+// WithEscapePop は脱出時に街へ帰らず呼び出し元へ Pop で戻るオプション（荷は持ったまま）。
 // マクロ移動から集落/遺跡に入ったとき、道中(MacroMap)へ戻るのに使う
 func WithEscapePop() DungeonStateOption {
 	return func(ds *DungeonState) {

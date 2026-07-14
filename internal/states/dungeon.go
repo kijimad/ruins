@@ -42,7 +42,7 @@ type DungeonState struct {
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
 	// EscapePop はマクロのノードマップ（集落/遺跡）であることを示すフラグ。true のとき:
-	//   - WarpEscape で自動精算(AutoSell→Town)を通さず呼び出し元(MacroMap)へ Pop で戻る
+	//   - WarpEscape で街へ帰らず呼び出し元(MacroMap)へ Pop で戻る（荷は持ったまま）
 	//   - WarpNext は Push でなく Switch（多層でもスタックを深くせず単一 Pop で脱出できる）
 	//   - マップの掃除は前進(OnStart)で行い後退(OnStop)ではしない（下層マップを温存）
 	EscapePop bool
@@ -561,12 +561,12 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}}, nil
 	case gc.WarpEscape:
 		if st.EscapePop {
-			// マクロ移動から来た場合は自動精算を通さず、荷を持ったまま呼び出し元（MacroMap）へ Pop で戻る
+			// マクロ移動から来た場合は荷を持ったまま呼び出し元（MacroMap）へ Pop で戻る
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}
-		// 精算画面を経由して街へ帰還する
+		// 荷を持ったまま街へ帰還する（精算はせず、売却は街で能動的に行う）
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewFadeoutAnimationState(NewAutoSellState()),
+			NewFadeoutAnimationState(NewTownState()),
 		}}, nil
 	case gc.OpenDungeonSelect:
 		// ダンジョン選択画面を開く
