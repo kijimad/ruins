@@ -316,6 +316,10 @@ func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.Ca
 	sw := float64(screen.Bounds().Dx())
 	sh := float64(screen.Bounds().Dy())
 
+	// 暗い地図背景（モックの radial 暗地に寄せる）。中央をわずかに明るくしてビネットにする
+	screen.Fill(colorMacroBG)
+	vector.FillCircle(screen, float32(sw*0.5), float32(sh*0.46), float32(sw*0.42), colorMacroBGCenter, true)
+
 	const (
 		marginX      = 80.0
 		marginTop    = 120.0
@@ -353,11 +357,6 @@ func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.Ca
 			selectedTo = items[ms.ItemIndex].Edge.To
 		}
 	}
-	reachable := map[route.NodeID]bool{}
-	for _, e := range g.Outgoing(run.Current) {
-		reachable[e.To] = true
-	}
-
 	// 辺を描画（現在ノードから進める辺・選択中の辺を強調）
 	for _, e := range g.Edges {
 		p1, ok1 := pos[e.From]
@@ -375,20 +374,34 @@ func (st *MacroMapState) drawMap(world w.World, screen *ebiten.Image, run *gc.Ca
 		vector.StrokeLine(screen, float32(p1[0]), float32(p1[1]), float32(p2[0]), float32(p2[1]), width, edgeColor(e.Type), true)
 	}
 
-	// ノードを描画
+	// ノードを描画（暗塗り＋明色リング。重要ノードは背後にグロー）
 	for _, n := range g.Nodes {
 		p := pos[n.ID]
 		x, y := float32(p[0]), float32(p[1])
-		vector.FillCircle(screen, x, y, 11, nodeColor(n.Type), true)
+		r := nodeRadius(n.Type)
+		isCurrent := n.ID == run.Current
+
+		// グロー: 現在地＝白、目標/合流点＝金
 		switch {
-		case n.ID == run.Current:
-			vector.StrokeCircle(screen, x, y, 15, 3, colorMacroCurrent, true)
-		case n.ID == selectedTo:
-			vector.StrokeCircle(screen, x, y, 14, 2.5, colorMacroSelected, true)
-		case reachable[n.ID]:
-			vector.StrokeCircle(screen, x, y, 13, 1.5, colorMacroReachable, true)
+		case isCurrent:
+			vector.FillCircle(screen, x, y, r+13, colorMacroGlowWhite, true)
+		case n.Type == route.NodeGoal || n.Type == route.NodeJunction:
+			vector.FillCircle(screen, x, y, r+11, colorMacroGlowGold, true)
 		}
-		drawNodeLabel(screen, face, nodeTypeShort(n.Type), p[0], p[1])
+
+		// 暗い塗り＋明色リング（現在地＝白太／選択＝金／他＝種別色）
+		vector.FillCircle(screen, x, y, r, colorMacroNodeFill, true)
+		ring := nodeRingColor(n.Type)
+		rw := float32(2.0)
+		switch {
+		case isCurrent:
+			ring, rw = colorMacroCurrent, 3.5
+		case n.ID == selectedTo:
+			ring, rw = colorMacroSelected, 3.0
+		}
+		vector.StrokeCircle(screen, x, y, r, rw, ring, true)
+
+		drawNodeLabel(screen, face, nodeTypeShort(n.Type), p[0], p[1]+float64(r)+4)
 	}
 
 	st.drawOverlay(screen, face, run)
@@ -430,17 +443,16 @@ func (st *MacroMapState) drawOverlay(screen *ebiten.Image, face text.Face, run *
 	drawText("↑↓/←→: 選ぶ　　決定: 進む　　キャンセル: 戻る", sh-28, colorMacroLabel)
 }
 
-// drawNodeLabel はノードの表示名を円の直下に中央寄せで描く。
-// 辺と重ならないよう背景チップを敷き、リング半径ぶん下げて分離する。
-func drawNodeLabel(screen *ebiten.Image, face text.Face, label string, cx, cy float64) {
+// drawNodeLabel はノードの表示名を (cx, topY) に中央寄せで描く。
+// 辺と重ならないよう背景チップを敷いて分離する。topY はリング下端＋余白を呼び出し側で渡す。
+func drawNodeLabel(screen *ebiten.Image, face text.Face, label string, cx, topY float64) {
 	const (
-		gapBelow = 18.0 // 現在ノードのリング半径(15)より下げてラベルを分離する
-		padX     = 4.0
-		padY     = 1.0
+		padX = 4.0
+		padY = 1.0
 	)
 	lw, lh := text.Measure(label, face, 0)
 	lx := cx - lw/2
-	ly := cy + gapBelow
+	ly := topY
 	vector.FillRect(screen,
 		float32(lx-padX), float32(ly-padY), float32(lw+2*padX), float32(lh+2*padY),
 		colorMacroLabelBG, false)
@@ -485,38 +497,55 @@ func drawItemRow(screen *ebiten.Image, face text.Face, x, y float64, item macroM
 	})
 }
 
-// マップ描画の色
+// マップ描画の色（モックの暗地＋発光リングに寄せる）
 var (
-	colorMacroCurrent   = color.RGBA{245, 245, 245, 255}
-	colorMacroSelected  = color.RGBA{224, 190, 110, 255}
-	colorMacroReachable = color.RGBA{150, 165, 180, 255}
-	colorMacroLabel     = color.RGBA{190, 205, 220, 255}
-	colorMacroLabelBG   = color.RGBA{18, 24, 32, 215} // ラベルを辺から分離する背景チップ
-	colorMacroCold      = color.RGBA{120, 190, 230, 255}
+	colorMacroBG        = color.RGBA{10, 16, 23, 255}    // 地図背景（外側）#0a1017
+	colorMacroBGCenter  = color.RGBA{16, 24, 34, 130}    // 中央のわずかな明部＝ビネット
+	colorMacroNodeFill  = color.RGBA{17, 24, 33, 255}    // ノードの暗い塗り
+	colorMacroCurrent   = color.RGBA{245, 245, 245, 255} // 現在地リング（白）
+	colorMacroSelected  = color.RGBA{229, 198, 117, 255} // 選択リング（金）#e5c675
+	colorMacroLabel     = color.RGBA{220, 231, 240, 255} // ラベル文字 #dce7f0
+	colorMacroLabelBG   = color.RGBA{10, 16, 24, 225}    // ラベル背景チップ
+	colorMacroCold      = color.RGBA{127, 214, 255, 255} // 寒波表示 #7fd6ff
+	colorMacroGlowGold  = color.RGBA{255, 211, 92, 55}   // 金グロー（低α）
+	colorMacroGlowWhite = color.RGBA{240, 244, 250, 50}  // 白グロー（低α）
 )
 
-func nodeColor(t route.NodeType) color.Color {
+// nodeRadius はノード種別ごとの半径を返す。重要ノード（目標・母港・合流点）は大きめ。
+func nodeRadius(t route.NodeType) float32 {
+	switch t {
+	case route.NodeGoal:
+		return 15
+	case route.NodeHome, route.NodeJunction:
+		return 13
+	default:
+		return 10
+	}
+}
+
+// nodeRingColor はノード種別の明色リング色を返す（暗塗りの上に発光する縁）。
+func nodeRingColor(t route.NodeType) color.Color {
 	switch t {
 	case route.NodeHome:
-		return color.RGBA{230, 230, 230, 255}
+		return color.RGBA{229, 198, 117, 255} // 金
 	case route.NodeMarket:
-		return color.RGBA{212, 175, 95, 255}
+		return color.RGBA{95, 208, 255, 255} // 集落＝クリスタル青
 	case route.NodeShop:
-		return color.RGBA{110, 160, 210, 255}
+		return color.RGBA{201, 160, 255, 255} // 専門店＝紫
 	case route.NodeRuin:
-		return color.RGBA{200, 90, 90, 255}
-	case route.NodeCamp:
-		return color.RGBA{110, 180, 120, 255}
+		return color.RGBA{255, 138, 95, 255} // 遺跡＝橙
 	case route.NodePlain:
-		return color.RGBA{150, 200, 150, 255} // 開けた雪原＝淡い緑
+		return color.RGBA{143, 209, 79, 255} // 平原＝緑（開けた地）
 	case route.NodeMountain:
-		return color.RGBA{150, 140, 170, 255} // 険しい峠＝青灰の岩
+		return color.RGBA{143, 176, 214, 255} // 山脈＝冷たい青灰
+	case route.NodeCamp:
+		return color.RGBA{255, 157, 60, 255} // 野営＝火の橙
 	case route.NodeOutpost:
-		return color.RGBA{110, 200, 200, 255}
+		return color.RGBA{127, 214, 255, 255} // 前哨＝青
 	case route.NodeJunction:
-		return color.RGBA{220, 150, 80, 255}
+		return color.RGBA{143, 209, 79, 255} // 合流点＝緑（結節点）
 	case route.NodeGoal:
-		return color.RGBA{245, 220, 120, 255}
+		return color.RGBA{255, 211, 92, 255} // 目標＝金
 	default:
 		return color.RGBA{160, 160, 160, 255}
 	}
