@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 23:24:30</td>
+            <td class="headerValue">2026-07-14 10:25:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,10 +70,10 @@
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              : // resolveEnemyEntries は敵テーブル名とRawMasterから、指定深度でフィルタリングしたSpawnEntryを返す</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">         166 : func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]SpawnEntry, error) {</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">         326 :         if rawMaster == nil || tableName == &quot;&quot; {</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">         160 :                 return nil, nil</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">         160 :         }</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">         168 : func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]SpawnEntry, error) {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">         330 :         if rawMaster == nil || tableName == &quot;&quot; {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">         162 :                 return nil, nil</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">         162 :         }</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           6 :         enemyTable, err := raw.GetEnemyTable(*rawMaster, tableName)</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           6 :         if err != nil {</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;敵テーブルが見つかりません: %s: %w&quot;, tableName, err)</span></span>
@@ -94,10 +94,10 @@
 <span id="L32"><span class="lineNum">      32</span>              : }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // resolveItemSources はアイテムテーブル名とRawMasterから、指定深度でフィルタリングしたItemSourceを返す</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         167 : func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]ItemSource, error) {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         327 :         if rawMaster == nil || tableName == &quot;&quot; {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         160 :                 return nil, nil</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">         160 :         }</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         169 : func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]ItemSource, error) {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         331 :         if rawMaster == nil || tableName == &quot;&quot; {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         162 :                 return nil, nil</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">         162 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           7 :         itemTable, err := raw.GetItemTable(*rawMaster, tableName)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           7 :         if err != nil {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;アイテムテーブルが見つかりません: %s: %w&quot;, tableName, err)</span></span>

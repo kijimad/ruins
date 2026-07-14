@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-13 23:24:30</td>
+            <td class="headerValue">2026-07-14 10:25:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -404,9 +404,9 @@
 <span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           9 : }</span></span>
 <span id="L343"><span class="lineNum">     343</span>              : </span>
 <span id="L344"><span class="lineNum">     344</span>              : // getWeaponAccuracyFromAttack はAttackerから命中率補正を取得する</span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">          12 : func getWeaponAccuracyFromAttack(attack gc.Attacker) int {</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">          12 :         return attack.GetAccuracy() - formula.BaseHitRate</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">          12 : }</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">          11 : func getWeaponAccuracyFromAttack(attack gc.Attacker) int {</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">          11 :         return attack.GetAccuracy() - formula.BaseHitRate</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">          11 : }</span></span>
 <span id="L348"><span class="lineNum">     348</span>              : </span>
 <span id="L349"><span class="lineNum">     349</span>              : // calculateDamage はダメージ計算を行う</span>
 <span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           9 : func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {</span></span>
@@ -478,9 +478,9 @@
 <span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           9 : func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {</span></span>
 <span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           9 :         attackerRelevant := query.IsAlly(world, attacker)</span></span>
 <span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           9 :         targetRelevant := query.IsAlly(world, target)</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">          14 :         if !attackerRelevant &amp;&amp; !targetRelevant {</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           5 :                 return</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           5 :         }</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">          13 :         if !attackerRelevant &amp;&amp; !targetRelevant {</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           4 :                 return</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L422"><span class="lineNum">     422</span>              : </span>
 <span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           4 :         attackerName := query.GetEntityName(attacker, world)</span></span>
 <span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           4 :         targetName := query.GetEntityName(target, world)</span></span>
