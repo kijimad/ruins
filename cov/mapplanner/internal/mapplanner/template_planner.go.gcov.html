@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-14 10:25:57</td>
+            <td class="headerValue">2026-07-14 10:41:03</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -99,13 +99,13 @@
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           8 : </span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           8 :         // セル配列を走査して地形を配置する</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">         119 :         for y, row := range p.ResolvedMap {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4758 :                 for x, cell := range row {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        4647 :                         idx := y*width + x</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        4648 :                         if cell.Terrain == &quot;&quot; {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4706 :                 for x, cell := range row {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        4595 :                         idx := y*width + x</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        4596 :                         if cell.Terrain == &quot;&quot; {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;セルの地形が未定義です (位置: %d, %d)&quot;, x, y)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        4647 :                         tile := metaPlan.GetTile(cell.Terrain)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">        4647 :                         metaPlan.Tiles[idx] = tile</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        4580 :                         tile := metaPlan.GetTile(cell.Terrain)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">        4580 :                         metaPlan.Tiles[idx] = tile</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :                 }</span>
 <span id="L48"><span class="lineNum">      48</span>              :         }</span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
