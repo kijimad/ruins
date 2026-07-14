@@ -83,6 +83,12 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
 	if !st.Resume {
+		// マクロのノードマップ（EscapePop）は「前進（決定）で入るときにリセットして生成」する。
+		// 戻る（後退）では OnStop で掃除しないため、下層の呼び出し元マップが保たれる
+		if st.EscapePop {
+			removeMapEntities(world)
+		}
+
 		// ステージ用シードを生成する
 		stageSeed := world.Config.RNG.Uint64()
 		stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
@@ -165,7 +171,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *DungeonState) OnStop(world w.World) error {
-	removeMapEntities(world)
+	// マクロのノードマップ（EscapePop）は後退（戻る）で掃除しない。前進時に OnStart で掃除する。
+	// これで下層の呼び出し元マップのエンティティが、戻ったときに保たれる
+	if !st.EscapePop {
+		removeMapEntities(world)
+	}
 
 	// 未消費のステート遷移リクエストを破棄
 	lifecycle.ConsumeStateChange(world)
