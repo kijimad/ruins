@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-14 10:41:03</td>
+            <td class="headerValue">2026-07-15 14:22:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -820,19 +820,19 @@
 <span id="L758"><span class="lineNum">     758</span>              : }</span>
 <span id="L759"><span class="lineNum">     759</span>              : </span>
 <span id="L760"><span class="lineNum">     760</span>              : // SelectEnemyByWeight は敵テーブルから深度を考慮して重み付きランダム選択する</span>
-<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">       13201 : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {</span></span>
-<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">       13201 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
-<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">       52787 :         for _, entry := range et.Entries {</span></span>
-<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">       44590 :                 if depth &lt; int(entry.MinDepth) || depth &gt; int(entry.MaxDepth) {</span></span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">       13181 : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {</span></span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">       13181 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">       52676 :         for _, entry := range et.Entries {</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">       44499 :                 if depth &lt; int(entry.MinDepth) || depth &gt; int(entry.MaxDepth) {</span></span>
 <span id="L765"><span class="lineNum">     765</span> <span class="tlaGNC">        5004 :                         continue</span></span>
 <span id="L766"><span class="lineNum">     766</span>              :                 }</span>
-<span id="L767"><span class="lineNum">     767</span> <span class="tlaGNC">       34591 :                 filtered = append(filtered, entry)</span></span>
+<span id="L767"><span class="lineNum">     767</span> <span class="tlaGNC">       34549 :                 filtered = append(filtered, entry)</span></span>
 <span id="L768"><span class="lineNum">     768</span>              :         }</span>
 <span id="L769"><span class="lineNum">     769</span>              : </span>
-<span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">       13198 :         return SelectByWeightFunc(</span></span>
-<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">       13198 :                 filtered,</span></span>
-<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">       70211 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
-<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">       13193 :                 func(e oapi.EnemyTableEntry) string { return e.EnemyName },</span></span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">       13183 :         return SelectByWeightFunc(</span></span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">       13183 :                 filtered,</span></span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">       70021 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">       13169 :                 func(e oapi.EnemyTableEntry) string { return e.EnemyName },</span></span>
 <span id="L774"><span class="lineNum">     774</span>              :                 rng,</span>
 <span id="L775"><span class="lineNum">     775</span>              :         )</span>
 <span id="L776"><span class="lineNum">     776</span>              : }</span>

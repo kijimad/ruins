@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-14 10:41:03</td>
+            <td class="headerValue">2026-07-15 14:22:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,12 +87,12 @@
 <span id="L25"><span class="lineNum">      25</span>              : // keyで状態を識別し、初回呼び出し時にinitで初期化する</span>
 <span id="L26"><span class="lineNum">      26</span>              : // reducer関数はDispatch時に呼ばれ、状態を更新する</span>
 <span id="L27"><span class="lineNum">      27</span>              : // reducerは毎回再登録される。これによりProps変化時に最新のクロージャが使われる</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         114 : func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapper.ActionID) T) T {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         162 :         if _, ok := store.states[key]; !ok {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         116 : func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapper.ActionID) T) T {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         164 :         if _, ok := store.states[key]; !ok {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          48 :                 store.states[key] = init</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          48 :         }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              :         // 毎回reducerを再登録して最新のクロージャを反映する</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">         197 :         store.reducers[key] = func(s any, a inputmapper.ActionID) any {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">         198 :         store.reducers[key] = func(s any, a inputmapper.ActionID) any {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          83 :                 typed, ok := s.(T)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          83 :                 if !ok {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 :                         panic(&quot;hooks: 状態の型がreducerの型引数と一致しません: key=&quot; + key)</span></span>
@@ -103,7 +103,7 @@
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">         116 :         if !ok {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(&quot;hooks: 状態の型が登録時と一致しません: key=&quot; + key)</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         }</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">         115 :         return v</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">         116 :         return v</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : }</span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // Dispatch は全てのStateにActionを送る</span>
