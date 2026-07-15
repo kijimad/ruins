@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — 単一解像度シームレスワールド（57.md モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --warm:#ffb570;
+    --enemy:#ff5b57; --cold:#7fd6ff; --sel:#8fd14f; --front:#2a5f82;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace;color:var(--ink);}
+  .screen{width:1280px;margin:0 auto;background:var(--bg);padding:0 0 24px;}
+  .top{display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px;}
+  .top .b{color:var(--gold);font-weight:bold;}
+  .top .s{color:var(--ink2);margin-left:auto;}
+  .sec{padding:14px 20px 4px;}
+  .steplabel{display:flex;align-items:center;gap:10px;font-size:15px;color:#dce7f0;font-weight:bold;margin-bottom:11px;}
+  .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#08111a;align-items:center;justify-content:center;font-size:14px;font-weight:bold;}
+  .steplabel .hint{margin-left:8px;font-size:12px;color:var(--ink2);font-weight:normal;}
+  .connector{text-align:center;color:var(--dim);font-size:18px;padding:6px 0 0;}
+
+  /* ---- STEP1: ローカル視点（実解像度） ---- */
+  .game{margin:0 20px;position:relative;background:#080b0f;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .hud{display:flex;gap:22px;padding:8px 14px;background:rgba(10,16,24,.92);border-bottom:1px solid var(--line);font-size:12px;}
+  .hud .cold{color:var(--cold);} .hud .warn{color:var(--enemy);}
+  .tiles{display:grid;grid-template-columns:repeat(34,24px);grid-auto-rows:24px;padding:14px;gap:1px;justify-content:center;}
+  .t{border-radius:2px;background:#141c26;position:relative;}
+  .t.plain{background:#172030;}
+  .t.forest{background:#132a1e;}
+  .t.mountain{background:#241d16;box-shadow:inset 0 0 0 1px #3a2c1c;}
+  .t.frost0{background:#1c2d3c;} /* 勾配ゾーン：軽い霜 */
+  .t.frost1{background:#1b3a52;} /* やや強い */
+  .t.frost2{background:#164a6e;} /* 前線通過済み：極寒 */
+  .t.frost2::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(180,225,255,.06) 0 2px,transparent 2px 5px);}
+  .t.poi::after{content:"◆";color:var(--gold);font-size:12px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .t.player{background:#1a2432;}
+  .t.player::after{content:"@";color:#fff;font-weight:bold;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-shadow:0 0 8px #fff;}
+  .frontline{position:absolute;top:44px;bottom:0;width:2px;background:linear-gradient(180deg,var(--crystal),transparent 90%);box-shadow:0 0 10px var(--crystal);}
+  .frontlbl{position:absolute;top:48px;font-size:10px;color:var(--cold);background:rgba(8,14,20,.85);padding:2px 6px;border-radius:3px;white-space:nowrap;}
+  .keyhint{padding:7px 16px 10px;font-size:12px;color:var(--ink2);background:rgba(10,16,24,.92);}
+  .keyhint b{color:#dce7f0;}
+
+  /* ---- STEP2: 地形区画マップ（設計リファレンス） ---- */
+  .maparea{margin:0 20px;position:relative;background:radial-gradient(circle at 60% 40%, #0a1017, #06090d);border:1px solid var(--line);border-radius:8px;height:400px;overflow:hidden;}
+  #svg{position:absolute;inset:0;width:100%;height:100%;}
+  .maplbl{position:absolute;left:12px;top:9px;font-size:11px;color:var(--ink2);letter-spacing:1px;z-index:5;}
+  .legend{position:absolute;right:12px;top:9px;font-size:10.5px;color:var(--ink2);z-index:5;background:rgba(8,14,20,.75);padding:6px 10px;border-radius:5px;line-height:1.9;}
+  .legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+
+  /* ---- STEP3: 自動巡航 ---- */
+  .autopanel{margin:0 20px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px 18px;}
+  .autorow{display:flex;align-items:center;gap:12px;font-size:12.5px;padding:6px 0;border-bottom:1px dotted #1b2530;}
+  .autorow:last-child{border-bottom:none;}
+  .autorow .tag{color:var(--dim);width:90px;flex:none;}
+  .autorow .v{color:#dce7f0;}
+  .autorow.interrupt .v{color:var(--enemy);}
+  .bar{height:6px;background:#1a2432;border-radius:3px;overflow:hidden;flex:1;}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--fire));width:57%;}
+
+  /* ---- 原則ノート ---- */
+  .notes{margin:14px 20px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .nt{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:9px 11px;}
+  .nt .h{font-size:12px;color:var(--gold);font-weight:bold;}
+  .nt .d{font-size:10.5px;color:var(--ink2);margin-top:4px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <div class="top">
+    <span class="b">◆ RUINS</span>
+    <span>単一解像度シームレスワールド ── マクロ層を廃止し、地図そのものが広域を表現する（57.md）</span>
+    <span class="s">ズーム切替なし・専用画面なし</span>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">1</span>ローカル視点 ── 実際にプレイする解像度<span class="hint">＝ 母港も遺跡も野営地も、同じタイル・同じ移動システムで到達する</span></div>
+  </div>
+  <div class="game">
+    <div class="hud">
+      <span>凍土の外縁 ── 開けた雪原</span>
+      <span style="margin-left:auto">体温 <b style="color:var(--warm)">やや冷える</b>　積載 <b>38kg</b></span>
+      <span class="cold">❄ 前線まで 6タイル（西）</span>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="frontline" id="frontline" style="left:170px"></div>
+    <div class="frontlbl" id="frontlbl" style="left:176px">❄ 前線境界（勾配ゾーン）</div>
+    <div class="keyhint"><b>矢印/WASD</b>: 1タイル移動　　<b>境界に近いほど極寒（即死ではない）</b>: 体温が急速に低下し、装備・隊員に負荷がかかる　　境界の内側（西）は通過済み＝恒常的な極寒地帯</div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- STEP 2 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">2</span>地形区画マップ ── 設計リファレンス（読み物）<span class="hint">＝ 1区画 ≒ 100×100 タイル。西の母港から東の目標地点まで、区画が連なってワールドを構成する</span></div>
+  </div>
+  <div class="maparea">
+    <div class="maplbl">ワールド概観 ── 到達不可の稜線が合流点を強制し、その間の開けた帯が分岐（回り込み先）を誘う</div>
+    <div class="legend">
+      <div><span class="sw" style="background:#16374a"></span>凍結済み区画（恒常極寒）</div>
+      <div><span class="sw" style="background:#151f1c;border:2px dashed #7fd6ff"></span>侵食中の区画（境界）</div>
+      <div><span class="sw" style="background:#241a16"></span>到達不可（稜線・断崖。迂回必須）</div>
+      <div><span class="sw" style="background:#151f1c"></span>未到達区画（平常）</div>
+      <div><span class="sw" style="background:#e5c675"></span>目標地点</div>
+    </div>
+    <svg id="svg" viewBox="0 0 1000 400" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- STEP 3 -->
+  <div class="sec">
+    <div class="steplabel"><span class="num">3</span>自動巡航 ── 「移動の不便さ」への回答<span class="hint">＝ 目的地を指定すると、道中が平穏な間は高速で自動移動。遭遇・危険・POIで手動操作に戻る（CDDA の auto-travel）</span></div>
+  </div>
+  <div class="autopanel">
+    <div class="autorow">
+      <span class="tag">目的地</span>
+      <span class="v">集落ハラム（区画C-2）── 直線距離 約140タイル</span>
+    </div>
+    <div class="autorow">
+      <span class="tag">状態</span>
+      <span class="v">自動移動中... 経過 63ターン</span>
+      <div class="bar"><i></i></div>
+    </div>
+    <div class="autorow interrupt">
+      <span class="tag">中断</span>
+      <span class="v">⚠ 何かが近づいてくる気配 ── 自動移動を中断し、手動操作に戻った</span>
+    </div>
+    <div class="autorow">
+      <span class="tag">原則</span>
+      <span class="v">空間はリアルなまま。「何もない区間を1歩ずつ押させる」作業感だけを消す。前線接近中は自動巡航の速度が落ちる（緊張を薄めない）</span>
+    </div>
+  </div>
+
+  <!-- 原則ノート -->
+  <div class="notes">
+    <div class="nt"><div class="h">ズーム切替なし</div><div class="d">母港・集落・遺跡・野営地・目標地点は同じ座標空間・同じ解像度。専用のマクロ画面を持たない。</div></div>
+    <div class="nt"><div class="h">境界＝即死ではない</div><div class="d">前線に触れても即ゲームオーバーにしない。近いほど段階的に極寒（tile_temperature の悪化）。「際どく粘る」判断が残る。</div></div>
+    <div class="nt"><div class="h">前線速度は地形依存</div><div class="d">開けた雪原は速く、山地・森は遅く進む。地形そのものが経路選択の材料になり、一直線の競走に潰れない。</div></div>
+    <div class="nt"><div class="h">自動巡航で移動を圧縮</div><div class="d">距離は実タイルのまま、退屈な区間だけ高速化。CDDA の auto-travel を採用し「移動の不便さ」を解決する。</div></div>
+  </div>
+
+</div>
+
+<script>
+// ---- STEP1: ローカルタイル（34x9）。西側ほど霜が強く、右端にPOI ----
+const W=34,H=9;
+const tiles=document.getElementById('tiles');
+const forest=new Set(['9,2','9,3','10,2','20,5','21,5','21,6']);
+const mountain=new Set(['15,1','16,1','15,2','26,6','27,6']);
+// 境界（frostゾーン）：列7未満=frost2（通過済み）、7-9=frost1、10-12=frost0、以降=plain
+let html='';
+const poi={'32,4':1};
+const playerPos='13,4';
+for(let y=0;y<H;y++){
+  for(let x=0;x<W;x++){
+    const k=x+','+y;
+    let cls='t ';
+    if(k===playerPos) cls+='player';
+    else if(poi[k]) cls+='plain poi';
+    else if(x<7) cls+='frost2';
+    else if(x<9) cls+='frost1';
+    else if(x<11) cls+='frost0';
+    else if(mountain.has(k)) cls+='mountain';
+    else if(forest.has(k)) cls+='forest';
+    else cls+='plain';
+    html+='<div class="'+cls+'"></div>';
+  }
+}
+tiles.innerHTML=html;
+// 境界線の位置をタイルグリッドに合わせて調整（列10.5あたり＝frost0とplainの境目）
+const frontX = 14 + 10.5*25; // padding14 + col*(24+1)
+document.getElementById('frontline').style.left = frontX+'px';
+document.getElementById('frontlbl').style.left = (frontX+4)+'px';
+
+// ---- STEP2: 地形区画マップ ----
+// ノード・辺のグラフではなく、隙間なく敷き詰められた連続タイルとして表現する。
+// 「経路」は辺データで定義するのでなく、山地などの地形形状が自然に作る（回り込む・突っ切る）。
+const svg=document.getElementById('svg');
+const Wm=1000,Hm=400;
+const cols=12, rows=6;
+const marginX=20, marginY=30;
+const cw=(Wm-marginX*2)/cols, ch=(Hm-marginY*2)/rows;
+const cellX = c => marginX + c*cw;
+const cellY = r => marginY + r*ch;
+
+// 地形グリッド（行×列）。pl=平原 fo=森 mt=山地(遅いが歩ける) im=到達不可（稜線・断崖。迂回必須）。
+// im が縦に壁を作って合流点（狭い通り道）を強制し、壁と壁の間の開けた帯が分岐（回り込み先）を誘う。
+// 通り道は辺データで定義するのでなく、地形の形状そのものから生まれる。
+const P='pl', F='fo', M='mt', X='im';
+const terrain=[
+  [P,P,F,X,X,X,P,F,X,X,P,P],
+  [P,F,P,X,X,X,F,P,X,X,F,P],
+  [P,P,P,M,M,M,P,P,M,M,P,P],
+  [P,P,P,M,M,M,P,F,M,M,P,P],
+  [P,F,P,X,X,X,F,P,X,X,F,P],
+  [P,P,F,X,X,X,P,F,X,X,P,P],
+];
+
+const fillByTerrain={pl:'#151f1c', fo:'#122a1c', mt:'#1c1710', im:'#241a16'};
+const frozenByTerrain={pl:'#16374a', fo:'#123048', mt:'#1a3a4c', im:'#2a3238'};
+
+// 前線は区画（タイルより上の単位）ごとに侵食する。タイル単位の連続グラデーションではない。
+// 各区画は 凍結済み／侵食中（境界）／未到達 の3状態のいずれかを取る。
+// 凍結の所要ターン数は地形依存（開けた雪原は速く、山地・森は遅く）＝境界は直線でなく地形なりに歪む。
+// im（到達不可）は誰も歩かないが、前線自体は世界の現象として構わず迫る。
+const speedByTerrain={pl:1.0, fo:1.5, mt:2.2, im:1.8};
+const frontProgress=3.0; // 現在の前線の進行度（西端からの実効列数）
+function chunkState(r,c){
+  const threshold=(c+0.5)*speedByTerrain[terrain[r][c]];
+  if(threshold < frontProgress-0.4) return 'frozen';
+  if(threshold < frontProgress+0.4) return 'edge';
+  return 'safe';
+}
+
+let s='<defs><radialGradient id="glow"><stop offset="0" stop-color="#ffd35c" stop-opacity="0.5"/><stop offset="1" stop-color="#ffd35c" stop-opacity="0"/></radialGradient>' +
+  '<pattern id="impassable" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">' +
+  '<line x1="0" y1="0" x2="0" y2="7" stroke="#4a352a" stroke-width="3"/></pattern></defs>';
+
+// 区画を隙間なく敷く。凍結済み／侵食中は地形の色でなく前線の色で塗り、区画単位であることを明示する。
+// 到達不可（im）はハッチ柄＋稜線グリフで「歩けない」ことを明示し、他の地形と混同しないようにする。
+for(let r=0;r<rows;r++){
+  for(let c=0;c<cols;c++){
+    const type=terrain[r][c];
+    const st=chunkState(r,c);
+    const fill = st==='frozen' ? frozenByTerrain[type] : fillByTerrain[type];
+    const x=cellX(c), y=cellY(r), w=cw+0.6, h=ch+0.6;
+    s += '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+fill+'"/>';
+    if(type==='im'){
+      s += '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="url(#impassable)" opacity="0.55"/>';
+      s += '<text x="'+(x+w/2)+'" y="'+(y+h/2+5)+'" text-anchor="middle" font-size="15" fill="#8a6a52">▲</text>';
+    }
+    if(st==='edge'){
+      s += '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="none" stroke="#7fd6ff" stroke-width="2.5" stroke-dasharray="5 3"/>';
+    }
+  }
+}
+s += '<text x="'+marginX+'" y="18" fill="#7fd6ff" font-size="11" font-family="monospace">❄ 破線=侵食中の区画（境界）　塗り=凍結済み　▲ハッチ=到達不可（迂回必須）── 区画ごとに凍結の所要ターン数が違うので境界は直線にならない</text>';
+
+// POI（地形の上に置かれた点。区画そのものではない）
+// 到達不可の壁が2本の狭い通り道（合流点）を強制し、壁と壁の間の開けた帯が北回り/中央/南回りの分岐を誘う。
+const glyphByType={home:'⌂', town:'✿', ruin:'☗', camp:'△', goal:'都'};
+const ringByType={home:'#e5c675', town:'#5fd0ff', ruin:'#ff8a5f', camp:'#ff9d3c', goal:'#ffd35c'};
+const pois=[
+  {r:2.5, c:0,    type:'home', label:'母港'},
+  {r:0.5, c:6.5,  type:'ruin', label:'凍りついた遺跡（北回り）'},
+  {r:2.5, c:6.5,  type:'camp', label:'谷の野営地（中央）'},
+  {r:4.5, c:6.5,  type:'ruin', label:'忘却の廃都（南回り）'},
+  {r:2.5, c:10.5, type:'town', label:'集落ハラム'},
+  {r:2.5, c:11.6, type:'goal', label:'氷都リーゲン'},
+];
+pois.forEach(function(p){
+  const x=cellX(p.c)+cw/2, y=cellY(p.r)+ch/2;
+  if(p.type==='goal') s += '<circle cx="'+x+'" cy="'+y+'" r="60" fill="url(#glow)"/>';
+  s += '<circle cx="'+x+'" cy="'+y+'" r="15" fill="#0d1319" stroke="'+ringByType[p.type]+'" stroke-width="2"/>';
+  s += '<text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" font-size="14" fill="#dce7f0">'+glyphByType[p.type]+'</text>';
+  s += '<text x="'+x+'" y="'+(y-20)+'" text-anchor="middle" fill="#dce7f0" font-size="10" font-family="monospace">'+p.label+'</text>';
+});
+s += '<text x="'+marginX+'" y="'+(Hm-8)+'" fill="#5a6a78" font-size="9" font-family="monospace">マス目1つ ≒ 1地形区画（100×100タイル）。到達不可の壁が2本の狭い通り道（合流点）を作り、壁と壁の間が北回り/中央/南回りの分岐を誘う（設計された"辺"ではなく地形の形から生まれる）</text>';
+svg.innerHTML = s;
+</script>
+</body>
+</html>
