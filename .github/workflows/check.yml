@@ -94,14 +94,14 @@ jobs:
         run: make test COUNT=10
 
   bench-compare:
-    # PRのベースとベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
-    # base と PR を別々に checkout することで worktree 操作を避け、ベンチ実行は make bench を流用する。
+    # mainとPRでベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write # sticky コメント投稿用
     steps:
+      # base と PR を別々に checkout する
       - uses: actions/checkout@v7 # PR を作業ルートに
       - uses: actions/checkout@v7 # ベースを _base/ に
         with:
