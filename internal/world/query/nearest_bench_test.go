@@ -7,7 +7,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/testscene"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/require"
@@ -19,13 +20,18 @@ import (
 // キャラクター探索はインデックスの Characters に絞ることで、タイル数に依存しなくなる。
 func BenchmarkFindNearest(b *testing.B) {
 	for _, tiles := range []int{0, 2500} {
-		world, _ := testscene.InitDungeonWorld(b, 200, 100, 100)
+		world := testutil.InitTestWorld(b)
+		d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
+		d.Level = gc.Level{TileWidth: consts.Tile(200), TileHeight: consts.Tile(200)}
+		_, err := lifecycle.SpawnPlayer(world, 100, 100, "Ash")
+		require.NoError(b, err)
 
 		// キャラクター（敵）を散らす
 		rng := rand.New(rand.NewPCG(1, 2))
 		var self ecs.Entity
 		for i := range 20 {
-			e := testscene.MustSpawnEnemy(b, world, rng.IntN(200), rng.IntN(200))
+			e, err := lifecycle.SpawnEnemy(world, rng.IntN(200), rng.IntN(200), "火の玉")
+			require.NoError(b, err)
 			if i == 0 {
 				self = e
 			}

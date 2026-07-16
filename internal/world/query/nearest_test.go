@@ -5,8 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/testscene"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -124,10 +124,15 @@ func TestFindNearestEntity(t *testing.T) {
 // 最寄りを返すことを固定する（インデックス経由でタイルを走査しない契約）。
 func TestFindNearestCharacter_タイルを無視する(t *testing.T) {
 	t.Parallel()
-	world, player := testscene.InitDungeonWorld(t, 50, 10, 10)
+	world := testutil.InitTestWorld(t)
+	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
+	d.Level = gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}
+	player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+	require.NoError(t, err)
 
 	// self となる敵。プレイヤーが最寄りのキャラクター（距離3）
-	enemy := testscene.MustSpawnEnemy(t, world, 13, 10)
+	enemy, err := lifecycle.SpawnEnemy(world, 13, 10, "火の玉")
+	require.NoError(t, err)
 
 	// 敵のすぐ隣(距離1〜2)に非キャラの GridElement エンティティ（タイル模擬）を多数置く。
 	// 全走査ならこれらが最寄り候補になり得るが、キャラ探索では無視されるべき

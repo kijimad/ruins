@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/testscene"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/require"
@@ -46,7 +48,11 @@ func BenchmarkProcessAll(b *testing.B) {
 
 	for _, sc := range scenarios {
 		b.Run(sc.name, func(b *testing.B) {
-			world, _ := testscene.InitDungeonWorld(b, mapSize, cx, cy)
+			world := testutil.InitTestWorld(b)
+			d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
+			d.Level = gc.Level{TileWidth: consts.Tile(mapSize), TileHeight: consts.Tile(mapSize)}
+			_, err := lifecycle.SpawnPlayer(world, cx, cy, "Ash")
+			require.NoError(b, err)
 
 			// 敵配置は固定 seed で再現性を持たせる
 			rng := rand.New(rand.NewPCG(1, 2))
@@ -58,7 +64,8 @@ func BenchmarkProcessAll(b *testing.B) {
 					x = cx + rng.IntN(2*activationRadius+1) - activationRadius
 					y = cy + rng.IntN(2*activationRadius+1) - activationRadius
 				}
-				testscene.MustSpawnEnemy(b, world, x, y)
+				_, err := lifecycle.SpawnEnemy(world, x, y, "火の玉")
+				require.NoError(b, err)
 			}
 
 			// 参考値：初期状態でカリング後に処理される SoloAI 数
