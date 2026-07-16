@@ -50,8 +50,9 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 //
 // タイ（同距離）は entity.ID() の小さい方を選び、マップ反復順に依存しない決定的な結果を返す
 // （固定 seed の再現性を保つ）。位置は live な GridElement を読むため、インデックスキーが多少
-// ずれても正しい。空間インデックス未構築時は FindNearestEntity（全走査）にフォールバックする
-// （match がキャラクター以外を弾く前提）。
+// ずれても正しい。インデックスが使えないとき（シングルトン未登録、またはマップサイズ 0 で
+// GetSpatialIndex が nil を返すとき、Characters 未初期化のとき）は FindNearestEntity（全走査）に
+// フォールバックする（match がキャラクター以外を弾く前提）。
 func FindNearestCharacter(world w.World, self ecs.Entity, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {
 	si := GetSpatialIndex(world)
 	if si == nil || si.Characters == nil {
