@@ -236,9 +236,10 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 		"reason", reason)
 }
 
-// ProcessTurn は継続中の全アクティビティを1ターン分進める。
+// ProcessContinuousActivities は継続中の全アクティビティを1ターン分進める。
+// 即時アクション（TurnsTotal==1）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
-func ProcessTurn(world w.World) {
+func ProcessContinuousActivities(world w.World) {
 	var entities []ecs.Entity
 	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
 	for activityQuery.Next() {

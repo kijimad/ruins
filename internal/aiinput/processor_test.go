@@ -234,7 +234,7 @@ func TestCullDistantSolo_NoPlayerReturnsError(t *testing.T) {
 }
 
 // TestProcessAll_大規模でpanicしない は多数の敵を配置して数ターン AI 処理を回し、
-// panic しないことを確認する L1 ストレスガード。攻撃経路（入れ子 ProcessTurn）の回帰など、
+// panic しないことを確認する L1 ストレスガード。攻撃経路（入れ子の全アクティビティ一括走査）の回帰など、
 // 大規模時のみ顕在化するクラッシュを捕捉する。
 func TestProcessAll_大規模でpanicしない(t *testing.T) {
 	t.Parallel()

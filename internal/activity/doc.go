@@ -21,7 +21,7 @@
 // - InterruptActivity: アクティビティの中断
 // - ResumeActivity: アクティビティの再開
 // - CancelActivity: アクティビティのキャンセル
-// - ProcessTurn: ターン毎のアクティビティ処理
+// - ProcessContinuousActivities: 継続アクティビティのターン毎処理
 // - GetLastResult: 直近のアクティビティ実行結果を取得
 //
 // 責務：
@@ -132,8 +132,8 @@
 //	activity.InterruptActivity(player, "戦闘開始", world)
 //	activity.ResumeActivity(player, world)
 //
-//	// ターン毎の処理
-//	activity.ProcessTurn(world)
+//	// 継続アクティビティのターン毎処理
+//	activity.ProcessContinuousActivities(world)
 //
 //	// 直近の結果を取得
 //	lastResult := activity.GetLastResult(player, world)

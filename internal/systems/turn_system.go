@@ -139,7 +139,7 @@ func processPlayerContinuousActivity(world w.World) bool {
 	log.Debug("プレイヤー継続アクション処理")
 
 	// 継続アクションの1ターン分を処理
-	activity.ProcessTurn(world)
+	activity.ProcessContinuousActivities(world)
 
 	if !query.HasActivity(world, playerEntity) {
 		log.Debug("プレイヤー継続アクション完了")
