@@ -67,9 +67,8 @@ func BenchmarkProcessAll(b *testing.B) {
 			for soloQuery.Next() {
 				allSolo = append(allSolo, soloQuery.Entity())
 			}
-			kept, err := cullDistantSolo(world, allSolo)
+			processed, err := cullDistantSolo(world, allSolo)
 			require.NoError(b, err)
-			processed := len(kept)
 
 			proc := NewProcessor(rand.New(rand.NewPCG(3, 4)))
 
@@ -84,7 +83,7 @@ func BenchmarkProcessAll(b *testing.B) {
 			}
 			b.StopTimer()
 
-			b.ReportMetric(float64(processed), "processed")
+			b.ReportMetric(float64(len(processed)), "processed")
 			b.ReportMetric(b.Elapsed().Seconds()*1000/float64(b.N), "ms/op")
 		})
 	}
