@@ -27,20 +27,10 @@ updategolden: ## ゴールデンテスト用の基準画像を生成する
 	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
 .PHONY: bench
-bench: ## ベンチマークを実行する。BENCH=<正規表現>/PKGS=<パッケージ>/BENCHTIME/COUNT で調整。-race は付けない（計測精度のため）
+bench: ## ベンチマークを全て実行する（-race は付けない。計測精度のため）
 	RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a go test -run '^$$' -bench=$(or $(BENCH),.) -benchmem \
-		-benchtime=$(or $(BENCHTIME),1s) -count=$(or $(COUNT),1) \
-		$(or $(PKGS),$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/))
-
-.PHONY: profile
-profile: ## ベンチのCPU/メモリプロファイルを取得する。PKG=<パッケージ> BENCH=<正規表現> で対象指定
-	RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a go test $(or $(PKG),./internal/aiinput/) -run '^$$' \
-		-bench=$(or $(BENCH),BenchmarkProcessAll) -benchmem \
-		-cpuprofile=/tmp/ruins-cpu.prof -memprofile=/tmp/ruins-mem.prof
-	@echo "CPU: go tool pprof -top -cum -nodecount=25 /tmp/ruins-cpu.prof"
-	@echo "MEM: go tool pprof -top -alloc_space   -nodecount=25 /tmp/ruins-mem.prof"
+	$(BWRAP_CMD) xvfb-run -a go test -run '^$$' -bench=. -benchmem \
+		$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する

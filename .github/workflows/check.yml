@@ -95,8 +95,9 @@ jobs:
 
   bench-compare:
     # PRのベースとベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
-    # base と PR を別々に checkout することで worktree 操作を避け、bench 実行は make bench に任せる。
+    # base と PR を別々に checkout することで worktree 操作を避ける。
     # 比較対象は決定的な Update 系ベンチに限定（Draw 系は GPU/ノイズが大きくゲートに不向きなため除外）。
+    # make bench は「全部実行」の人間向けなので、CI は必要なベンチだけ go test で直接叩く。
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -116,9 +117,9 @@ jobs:
         run: go install golang.org/x/perf/cmd/benchstat@latest
       - name: run benchmarks (PR and base)
         run: |
-          make bench BENCH="$BENCH" PKGS="$PKGS" BENCHTIME=100ms COUNT=6 > pr.txt
-          # ベースにベンチ/ターゲットが無い場合（初回PR等）は比較スキップ扱い
-          make -C _base bench BENCH="$BENCH" PKGS="$PKGS" BENCHTIME=100ms COUNT=6 > base.txt 2>/dev/null || true
+          RUINS_LOG_LEVEL=ignore xvfb-run -a go test -run '^$' -bench="$BENCH" -benchmem -benchtime=100ms -count=6 $PKGS > pr.txt
+          # ベースにベンチが無い場合（初回PR等）は比較スキップ扱い
+          (cd _base && RUINS_LOG_LEVEL=ignore xvfb-run -a go test -run '^$' -bench="$BENCH" -benchmem -benchtime=100ms -count=6 $PKGS) > base.txt 2>/dev/null || true
       - name: compare
         id: cmp
         run: |
