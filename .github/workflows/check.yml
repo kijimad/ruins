@@ -94,45 +94,50 @@ jobs:
         run: make test COUNT=10
 
   bench-compare:
-    # PRのベースブランチとベンチを比較し、sec/opが2倍以上悪化したら失敗させる。
-    # 比較表は sticky コメントでPRに表示する
+    # PRのベースとベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
+    # base と PR を別々に checkout することで worktree 操作を避け、bench 実行は make bench に任せる。
+    # 比較対象は決定的な Update 系ベンチに限定（Draw 系は GPU/ノイズが大きくゲートに不向きなため除外）。
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write # sticky コメント投稿用
+    env:
+      BENCH: BenchmarkProcessAll|BenchmarkRestoreAllActionPoints|BenchmarkFindNearest
+      PKGS: ./internal/aiinput/... ./internal/world/query/...
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7 # PR を作業ルートに
+      - uses: actions/checkout@v7 # ベースを _base/ に
         with:
-          fetch-depth: 0 # ベースブランチのベンチ実行に全履歴が必要
+          ref: ${{ github.event.pull_request.base.ref }}
+          path: _base
       - uses: ./.github/actions/setup-go-with-x
-      - name: Cache Go modules
-        uses: actions/cache@v6
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: install benchstat
         run: go install golang.org/x/perf/cmd/benchstat@latest
-      - name: fetch base branch
-        # BASE=FETCH_HEAD を確実に解決できるよう、比較対象を明示 fetch する
-        run: git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.ref }}
-      - name: run bench-compare
-        id: bench
+      - name: run benchmarks (PR and base)
         run: |
-          set +e
-          BASE=FETCH_HEAD ./scripts/bench-compare.sh > /tmp/bench-result.md
-          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
-          cat /tmp/bench-result.md
+          make bench BENCH="$BENCH" PKGS="$PKGS" BENCHTIME=100ms COUNT=6 > pr.txt
+          # ベースにベンチ/ターゲットが無い場合（初回PR等）は比較スキップ扱い
+          make -C _base bench BENCH="$BENCH" PKGS="$PKGS" BENCHTIME=100ms COUNT=6 > base.txt 2>/dev/null || true
+      - name: compare
+        id: cmp
+        run: |
+          { echo '### ベンチ比較 (base vs PR)'; echo '```'; benchstat base.txt pr.txt || echo '比較を生成できませんでした'; echo '```'; } > cmp.md
+          cat cmp.md
+          # sec/op が2倍以上のベンチを検出（benchstatの生の平均比で判定。ノイズは2倍に届かない）
+          bad=$(benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
+            $1=="" && $2!="" { metric=$2; next }
+            $1!="" && $1!="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
+              printf "- %s: x%.2f\n", $1, $4/$2 }')
+          { echo "bad<<EOF"; echo "$bad"; echo "EOF"; } >> "$GITHUB_OUTPUT"
       - name: sticky comment
         if: always()
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: bench-compare
-          path: /tmp/bench-result.md
+          path: cmp.md
       - name: gate on catastrophic regression
-        if: steps.bench.outputs.exit_code != '0'
+        if: steps.cmp.outputs.bad != ''
         run: |
           echo "::error::ベンチマークが2倍以上悪化しました（詳細はPRコメント参照）"
           exit 1

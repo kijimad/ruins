@@ -27,14 +27,11 @@ updategolden: ## ゴールデンテスト用の基準画像を生成する
 	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
 .PHONY: bench
-bench: ## ベンチマークを実行する。BENCH=<正規表現> で対象を絞れる（デフォルト全て）。-race は付けない（計測精度のため）
+bench: ## ベンチマークを実行する。BENCH=<正規表現>/PKGS=<パッケージ>/BENCHTIME/COUNT で調整。-race は付けない（計測精度のため）
 	RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a go test -run '^$$' -bench=$(or $(BENCH),.) -benchmem -benchtime=$(or $(BENCHTIME),1s) \
-		$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
-
-.PHONY: bench-compare
-bench-compare: ## ベース(BASE=origin/main)と現在のベンチを比較する。sec/opが2倍以上悪化で非ゼロ終了。THRESHOLD/BENCH/COUNT で調整
-	./scripts/bench-compare.sh
+	$(BWRAP_CMD) xvfb-run -a go test -run '^$$' -bench=$(or $(BENCH),.) -benchmem \
+		-benchtime=$(or $(BENCHTIME),1s) -count=$(or $(COUNT),1) \
+		$(or $(PKGS),$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/))
 
 .PHONY: profile
 profile: ## ベンチのCPU/メモリプロファイルを取得する。PKG=<パッケージ> BENCH=<正規表現> で対象指定
