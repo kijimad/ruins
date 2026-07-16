@@ -210,12 +210,17 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 // renderObjectLayer はタイル以外のオブジェクトレイヤーを描画する
 func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
 	var entities []ecs.Entity
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin)
 
 	// タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む
 	objectQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).
 		Without(ecs.C[gc.Tile]()).Query()
 	for objectQuery.Next() {
 		entity := objectQuery.Entity()
+		// 画面外は描画しない
+		if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {
+			continue
+		}
 		entities = append(entities, entity)
 	}
 
@@ -246,6 +251,8 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 
 // renderShadows は物体と壁の影を描画する
 func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) {
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin)
+
 	// 物体の影
 	moverShadowQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).Query()
 	for moverShadowQuery.Next() {
@@ -264,6 +271,9 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 
 		gridElement := world.Components.GridElement.Get(entity)
 
+		if !inViewport(gridElement, minX, maxX, minY, maxY) {
+			continue
+		}
 		if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {
 			continue
 		}
@@ -280,12 +290,17 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		}
 	}
 
-	// 壁の影（下タイルが床の場合のみ）
+	// 壁の影（下タイルが床の場合のみ）。
+	// 下タイル参照用のマップは viewport 内（+margin）だけ構築する。大マップで全タイルを
+	// 毎フレーム map 化する O(全タイル) を避ける
 	tileMap := make(map[gc.GridElement]ecs.Entity)
 	tileMapQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
 	for tileMapQuery.Next() {
 		e := tileMapQuery.Entity()
 		ge := world.Components.GridElement.Get(e)
+		if !inViewport(ge, minX, maxX, minY, maxY) {
+			continue
+		}
 		tileMap[*ge] = e
 	}
 
@@ -294,6 +309,9 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		entity := wallShadowQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 
+		if !inViewport(grid, minX, maxX, minY, maxY) {
+			continue
+		}
 		if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {
 			continue
 		}
