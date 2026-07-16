@@ -93,6 +93,50 @@ jobs:
         # -race を常時付与しているため COUNT を抑えて実行時間の膨張を防ぐ
         run: make test COUNT=10
 
+  bench-compare:
+    # PRのベースブランチとベンチを比較し、sec/opが2倍以上悪化したら失敗させる。
+    # 比較表は sticky コメントでPRに表示する
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # sticky コメント投稿用
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # ベースブランチのベンチ実行に全履歴が必要
+      - uses: ./.github/actions/setup-go-with-x
+      - name: Cache Go modules
+        uses: actions/cache@v6
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: install benchstat
+        run: go install golang.org/x/perf/cmd/benchstat@latest
+      - name: fetch base branch
+        # BASE=FETCH_HEAD を確実に解決できるよう、比較対象を明示 fetch する
+        run: git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.ref }}
+      - name: run bench-compare
+        id: bench
+        run: |
+          set +e
+          BASE=FETCH_HEAD ./scripts/bench-compare.sh > /tmp/bench-result.md
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat /tmp/bench-result.md
+      - name: sticky comment
+        if: always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: bench-compare
+          path: /tmp/bench-result.md
+      - name: gate on catastrophic regression
+        if: steps.bench.outputs.exit_code != '0'
+        run: |
+          echo "::error::ベンチマークが2倍以上悪化しました（詳細はPRコメント参照）"
+          exit 1
+
   check-ui:
     runs-on: ubuntu-latest
     permissions:
