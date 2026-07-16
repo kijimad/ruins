@@ -55,17 +55,7 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 	// アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
 	// 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
 	if comp.TurnsTotal == 1 {
-		if stored := query.GetActivity(world, actor); stored != nil {
-			if err := behavior.DoTurn(stored, actor, world); err != nil {
-				log.Error("アクティビティターン処理エラー", "entity", actor, "type", behaviorName, "error", err.Error())
-				CancelActivity(actor, fmt.Sprintf("エラー: %s", err.Error()), world)
-			} else if IsCompleted(stored) {
-				if ferr := behavior.Finish(stored, actor, world); ferr != nil {
-					log.Error("アクティビティ完了処理エラー", "entity", actor, "type", behaviorName, "error", ferr.Error())
-				}
-				query.RemoveActivity(world, actor)
-			}
-		}
+		stepActivity(behavior, actor, world)
 
 		// ターン管理システムに移動コストを通知
 		consumePassCost(world, behavior, actor, comp.Destination)
@@ -102,6 +92,43 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 	}
 	setLastResult(actor, result, world)
 	return result, nil
+}
+
+// stepActivity は登録済みアクティビティを1ターン進める共通処理。
+// 即時アクションの初回実行（Execute）と継続アクションの毎ターン処理
+// （ProcessContinuousActivities）の両方から呼ばれ、両者で「1ターン進める」
+// ロジックを一本化する。即時アクションは1ステップで完結する継続アクションの特殊ケースとして扱う。
+//
+// DoTurn が失敗すればキャンセルし、完了していれば Finish して直近結果を記録し除去する。
+// アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
+// 消えても走査中コンポーネントの破壊による panic を招かない。
+func stepActivity(behavior Behavior, entity ecs.Entity, world w.World) {
+	stored := query.GetActivity(world, entity)
+	if stored == nil {
+		return
+	}
+
+	behaviorName := behavior.Name()
+	if err := behavior.DoTurn(stored, entity, world); err != nil {
+		log.Error("アクティビティターン処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
+		CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
+		return
+	}
+
+	if !IsCompleted(stored) {
+		return
+	}
+
+	if err := behavior.Finish(stored, entity, world); err != nil {
+		log.Error("アクティビティ完了処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
+	}
+	setLastResult(entity, &ActionResult{
+		Success:      true,
+		State:        gc.ActivityStateCompleted,
+		ActivityName: behaviorName,
+		Message:      "完了",
+	}, world)
+	query.RemoveActivity(world, entity)
 }
 
 // setLastResult はエンティティの直近アクティビティ結果を設定する
@@ -266,24 +293,7 @@ func ProcessContinuousActivities(world w.World) {
 			continue
 		}
 
-		if err := behavior.DoTurn(comp, entity, world); err != nil {
-			log.Error("アクティビティターン処理エラー", "entity", entity, "type", comp.BehaviorName, "error", err.Error())
-			CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
-			continue
-		}
-
-		if IsCompleted(comp) {
-			if err := behavior.Finish(comp, entity, world); err != nil {
-				log.Error("アクティビティ完了処理エラー", "entity", entity, "type", comp.BehaviorName, "error", err.Error())
-			}
-			setLastResult(entity, &ActionResult{
-				Success:      true,
-				State:        gc.ActivityStateCompleted,
-				ActivityName: comp.BehaviorName,
-				Message:      "完了",
-			}, world)
-			query.RemoveActivity(world, entity)
-		}
+		stepActivity(behavior, entity, world)
 	}
 }
 
