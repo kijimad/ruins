@@ -327,7 +327,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 
 // findNearestEnemy は視界内の最も近い敵を探す
 func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *squadContext) (*ecs.Entity, *gc.GridElement, int) {
-	return query.FindNearestEntity(world, entity, ctx.Grid, func(target ecs.Entity) bool {
+	return query.FindNearestCharacter(world, entity, ctx.Grid, func(target ecs.Entity) bool {
 		return query.FactionRelation(world, entity, target) == query.RelationHostile &&
 			sp.visionSystem.CanSeeTarget(world, entity, target, ctx.Squad.ViewDistance)
 	})

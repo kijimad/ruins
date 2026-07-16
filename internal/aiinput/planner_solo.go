@@ -70,7 +70,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior 
 // 視界判定は含まない。Chasing状態で視界外の対象を追い続けるため
 func (rp *soloPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity {
 	grid := world.Components.GridElement.Get(entity)
-	nearest, _, _ := query.FindNearestEntity(world, entity, grid, func(target ecs.Entity) bool {
+	nearest, _, _ := query.FindNearestCharacter(world, entity, grid, func(target ecs.Entity) bool {
 		return query.FactionRelation(world, entity, target) == query.RelationHostile
 	})
 	return nearest
@@ -300,7 +300,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 }
 
 func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
-	_, nearestGrid, nearestDist := query.FindNearestEntity(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {
+	_, nearestGrid, nearestDist := query.FindNearestCharacter(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {
 		return world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity)
 	})
 
