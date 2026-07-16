@@ -197,7 +197,7 @@ func TestCancelActivity(t *testing.T) {
 	CancelActivity(nonExistentActor, "テスト", world) // パニックしないことを確認
 }
 
-func TestProcessTurn(t *testing.T) {
+func TestProcessContinuousActivities(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -223,14 +223,14 @@ func TestProcessTurn(t *testing.T) {
 	assert.Equal(t, 2, summary["active"], "Expected 2 active activities")
 
 	// 1ターン目処理
-	ProcessTurn(world)
+	ProcessContinuousActivities(world)
 
 	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する
 	assert.Equal(t, 1, query.GetActivity(world, actor1).TurnsLeft, "Expected short activity to have 1 turn left")
 	assert.Equal(t, 4, query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 4 turns left")
 
 	// 2ターン目処理
-	ProcessTurn(world)
+	ProcessContinuousActivities(world)
 
 	// 短いアクティビティが完了。完了時は削除されるため結果コンポーネントで確認する
 	assert.Equal(t, gc.ActivityStateCompleted, GetLastResult(actor1, world).State, "Expected short activity to be completed")

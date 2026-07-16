@@ -54,17 +54,16 @@ func NewRenderSpriteSystem() *RenderSpriteSystem {
 	}
 }
 
-// SetTranslate はカメラを考慮した画像配置オプションをセットする
+// SetTranslate はカメラを考慮した画像配置オプションをセットする。
+// 単発描画向けの公開エントリで、内部でカメラを取得する。
+// 描画ループ内で繰り返し呼ぶ場合は取得済みカメラを渡す setTranslate を使う
 func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
-	var camera *gc.Camera
+	setTranslate(world, op, getCamera(world))
+}
 
-	// カメラコンポーネントを取得
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
-	for cameraQuery.Next() {
-		entity := cameraQuery.Entity()
-		camera = world.Components.Camera.Get(entity)
-	}
-
+// setTranslate は取得済みカメラを使って画像配置オプションをセットする。
+// per-sprite/per-shadow のホットループから呼ばれ、カメラ取得を1フレーム1回に抑える
+func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera) {
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
 
 	// カメラ位置の設定
@@ -75,6 +74,38 @@ func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 	// 画面の中央
 	op.GeoM.Translate(cx, cy)
 }
+
+// viewportTileBounds はカメラの可視範囲をタイル座標の矩形で返す。margin タイル分だけ外側に広げる。
+// 画面外のタイル/スプライト描画をスキップするための可視カリングに使う。
+func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (minX, maxX, minY, maxY int) {
+	var cameraX, cameraY float64
+	cameraScale := 1.0
+	if camera != nil {
+		cameraX, cameraY, cameraScale = camera.Pos.X, camera.Pos.Y, camera.Scale
+	}
+	if cameraScale <= 0 {
+		cameraScale = 1.0
+	}
+	ts := int(consts.TileSize)
+	m := int(margin)
+	halfW := int(float64(world.Resources.ScreenDimensions.Width)/cameraScale) / 2
+	halfH := int(float64(world.Resources.ScreenDimensions.Height)/cameraScale) / 2
+	minX = (int(cameraX)-halfW)/ts - m
+	maxX = (int(cameraX)+halfW)/ts + m
+	minY = (int(cameraY)-halfH)/ts - m
+	maxY = (int(cameraY)+halfH)/ts + m
+	return minX, maxX, minY, maxY
+}
+
+// inViewport は指定タイルが可視範囲矩形内かを返す
+func inViewport(grid *gc.GridElement, minX, maxX, minY, maxY int) bool {
+	x, y := int(grid.X), int(grid.Y)
+	return x >= minX && x <= maxX && y >= minY && y <= maxY
+}
+
+// viewportCullMargin は可視カリングの外側マージン。単位はタイル。
+// スプライト/影が画面端を跨いでも欠けないよう余裕を持たせる
+const viewportCullMargin consts.Tile = 2
 
 // String はシステム名を返す
 // w.Renderer interfaceを実装
@@ -90,12 +121,16 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 	initializeShadowImages()
 
-	if err := sys.renderFloorLayer(world, screen, tileRenderMap); err != nil {
+	// カメラはフレーム内で不変。ここで1回だけ取得し各描画関数へ渡す。
+	// 描画するスプライト/影の数だけフィルタ生成が走るのを防ぐ
+	camera := getCamera(world)
+
+	if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err
 	}
-	sys.renderDarkness(world, screen, tileRenderMap)
-	sys.renderShadows(world, screen, tileRenderMap)
-	if err := sys.renderObjectLayer(world, screen, tileRenderMap); err != nil {
+	sys.renderDarkness(world, screen, tileRenderMap, camera)
+	sys.renderShadows(world, screen, tileRenderMap, camera)
+	if err := sys.renderObjectLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err
 	}
 
@@ -123,14 +158,20 @@ func initializeShadowImages() {
 }
 
 // renderFloorLayer は床レイヤー（タイル）を描画する
-func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
+func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) error {
 	iSprite := 0
-	countQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).Query()
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
+	// タイル総数を上限に確保する。viewport カリングで実際に詰めるのは一部だけ
+	countQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
 	entities := make([]ecs.Entity, countQuery.Count())
 	countQuery.Close()
 	tileQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
+		// 画面外のタイルはソートも描画もしない
+		if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {
+			continue
+		}
 		entities[iSprite] = entity
 		iSprite++
 	}
@@ -155,7 +196,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)),
 			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2)),
 		}
-		if err := sys.drawImage(world, screen, spriteRender, pos, 0); err != nil {
+		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
 			// エンティティ情報を追加してエラーを詳細化
 			var entityInfo string
 			if world.Components.Name.Has(entity) {
@@ -170,14 +211,19 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 }
 
 // renderObjectLayer はタイル以外のオブジェクトレイヤーを描画する
-func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
+func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) error {
 	var entities []ecs.Entity
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 
 	// タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む
 	objectQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).
 		Without(ecs.C[gc.Tile]()).Query()
 	for objectQuery.Next() {
 		entity := objectQuery.Entity()
+		// 画面外は描画しない
+		if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {
+			continue
+		}
 		entities = append(entities, entity)
 	}
 
@@ -199,7 +245,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
 			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 		}
-		if err := sys.drawImage(world, screen, spriteRender, pos, 0); err != nil {
+		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
 			return err
 		}
 	}
@@ -207,7 +253,9 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 }
 
 // renderShadows は物体と壁の影を描画する
-func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) {
+func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
+
 	// 物体の影
 	moverShadowQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).Query()
 	for moverShadowQuery.Next() {
@@ -226,6 +274,9 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 
 		gridElement := world.Components.GridElement.Get(entity)
 
+		if !inViewport(gridElement, minX, maxX, minY, maxY) {
+			continue
+		}
 		if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {
 			continue
 		}
@@ -236,18 +287,24 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(pixelX, pixelY)
-		SetTranslate(world, op)
+		setTranslate(world, op, camera)
 		if moverShadowImage != nil {
 			screen.DrawImage(moverShadowImage, op)
 		}
 	}
 
-	// 壁の影（下タイルが床の場合のみ）
+	// 下タイルが床の場合のみ壁の影。
+	// 下タイル参照用のマップは viewport 内（+margin）だけ構築する。大マップで全タイルを
+	// 毎フレーム map 化するのを避ける
 	tileMap := make(map[gc.GridElement]ecs.Entity)
-	tileMapQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
+	// 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/Prop を走査から除く
+	tileMapQuery := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
 	for tileMapQuery.Next() {
 		e := tileMapQuery.Entity()
 		ge := world.Components.GridElement.Get(e)
+		if !inViewport(ge, minX, maxX, minY, maxY) {
+			continue
+		}
 		tileMap[*ge] = e
 	}
 
@@ -256,6 +313,9 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		entity := wallShadowQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 
+		if !inViewport(grid, minX, maxX, minY, maxY) {
+			continue
+		}
 		if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {
 			continue
 		}
@@ -290,7 +350,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))
-		SetTranslate(world, op)
+		setTranslate(world, op, camera)
 		if wallShadowImage != nil {
 			screen.DrawImage(wallShadowImage, op)
 		}
@@ -337,7 +397,7 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 	return result, nil
 }
 
-func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64) error {
+func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera) error {
 	// Resourcesからスプライトシートを取得
 	if world.Resources.SpriteSheets == nil {
 		return fmt.Errorf("SpriteSheets が nil です")
@@ -357,7 +417,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	op.GeoM.Translate(float64(-sprite.Width/2), float64(-sprite.Width/2)) // 回転軸を画像の中心にする
 	op.GeoM.Rotate(angle)
 	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
-	SetTranslate(world, op)
+	setTranslate(world, op, camera)
 
 	img, err := sys.getImage(world, spriteRender)
 	if err != nil {
@@ -382,7 +442,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 				// カメラ変換を考慮したテキスト位置を計算
 				textOp := &ebiten.DrawImageOptions{}
 				textOp.GeoM.Translate(float64(pos.X-8), float64(pos.Y-8)) // タイルの左上付近に表示
-				SetTranslate(world, textOp)
+				setTranslate(world, textOp, camera)
 
 				// テキスト表示位置を逆変換で求める
 				screenX, screenY := textOp.GeoM.Apply(0, 0)
@@ -398,14 +458,10 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 const DarknessLevels = 4
 
 // renderDarkness はタイルごとの暗闇オーバーレイを描画する
-func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) {
+func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
-
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
-	for cameraQuery.Next() {
-		entity := cameraQuery.Entity()
-		camera := world.Components.Camera.Get(entity)
+	if camera != nil {
 		cameraX = camera.Pos.X
 		cameraY = camera.Pos.Y
 		cameraScale = camera.Scale
@@ -417,16 +473,8 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
-	actualScreenWidth := int(float64(screenWidth) / cameraScale)
-	actualScreenHeight := int(float64(screenHeight) / cameraScale)
-	leftEdge := int(cameraX) - actualScreenWidth/2
-	rightEdge := int(cameraX) + actualScreenWidth/2
-	topEdge := int(cameraY) - actualScreenHeight/2
-	bottomEdge := int(cameraY) + actualScreenHeight/2
-	startTileX := leftEdge/int(consts.TileSize) - 1
-	endTileX := rightEdge/int(consts.TileSize) + 1
-	startTileY := topEdge/int(consts.TileSize) - 1
-	endTileY := bottomEdge/int(consts.TileSize) + 1
+	// 暗闇は可視範囲のタイルだけに描く。境界は viewportTileBounds に集約する
+	startTileX, endTileX, startTileY, endTileY := viewportTileBounds(world, 1, camera)
 
 	for tileX := startTileX; tileX <= endTileX; tileX++ {
 		for tileY := startTileY; tileY <= endTileY; tileY++ {

@@ -83,9 +83,10 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 	return captureScreen(screen)
 }
 
-// InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する
-func InitVRTWorld(t *testing.T) w.World {
-	t.Helper()
+// InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する。
+// テスト・ベンチ双方から使えるよう testing.TB を受ける
+func InitVRTWorld(tb testing.TB) w.World {
+	tb.Helper()
 
 	cfg := &config.Config{Profile: config.ProfileDevelopment}
 	cfg.ApplyProfileDefaults()
@@ -93,17 +94,17 @@ func InitVRTWorld(t *testing.T) w.World {
 	cfg.Seed = 12345
 	cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
 	cfg.DisableAnimation = true
-	require.NoError(t, cfg.Validate())
+	require.NoError(tb, cfg.Validate())
 
 	world, err := maingame.InitWorld(cfg)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	if len(professions) > 0 {
-		require.NoError(t, gameaction.ApplyProfession(world, player, professions[0]))
+		require.NoError(tb, gameaction.ApplyProfession(world, player, professions[0]))
 	}
 
 	for _, updater := range []w.Updater{
@@ -111,7 +112,7 @@ func InitVRTWorld(t *testing.T) w.World {
 		&gs.WeightDirtySystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
-			require.NoError(t, sys.Update(world))
+			require.NoError(tb, sys.Update(world))
 		}
 	}
 

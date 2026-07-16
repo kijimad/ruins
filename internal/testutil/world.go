@@ -29,12 +29,12 @@ var (
 //   - ゲームロジックのテスト
 //   - アイテムやレシピのテスト
 //   - UIを必要としないテスト
-func InitTestWorld(t *testing.T) w.World {
-	t.Helper()
+func InitTestWorld(tb testing.TB) w.World {
+	tb.Helper()
 
 	// 基本的なWorld構造を初期化
 	world, err := w.InitWorld(&gc.Components{})
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	// テスト用configを設定
 	world.Config = &config.Config{Profile: config.ProfileDevelopment}
@@ -47,7 +47,7 @@ func InitTestWorld(t *testing.T) w.World {
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）
 	rawMasterOnce.Do(func() {
 		rw, err := loader.LoadRaws()
-		require.NoError(t, err, "RawMasterの読み込みに失敗しました")
+		require.NoError(tb, err, "RawMasterの読み込みに失敗しました")
 		rawMaster = rw
 	})
 	world.Resources.RawMaster = rawMaster

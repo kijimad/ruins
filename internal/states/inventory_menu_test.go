@@ -3,14 +3,41 @@ package states
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestInventoryMenuState_最後の1個消費でpanicしない(t *testing.T) {
+	t.Parallel()
+
+	state := &InventoryMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	// 個数1の消費アイテムを作り、アクションウィンドウで選択中にする
+	item := world.ECS.NewEntity()
+	world.Components.Consumable.Add(item, &gc.Consumable{})
+	world.Components.Stackable.Add(item, &gc.Stackable{Count: 1})
+	state.windowMount.SetProps(windowProps{SelectedEntity: item})
+
+	// 最後の1個を消費するとエンティティが破棄される（ChangeItemCount: count 0 → RemoveEntity）
+	require.NoError(t, lifecycle.ChangeItemCount(world, item, -1))
+	require.False(t, world.ECS.Alive(item), "最後の1個の消費でエンティティは削除される")
+
+	// 選択中エンティティが dead のまま更新パス（setupWindowState→getActionItems）が走っても panic しない
+	require.NotPanics(t, func() {
+		state.setupWindowState(world)
+	}, "消費済みアイテム選択中でも setupWindowState は panic しない")
+	assert.Nil(t, state.getActionItems(world, item), "dead アイテムはアクション無し")
+	assert.Nil(t, state.getActionItems(world, ecs.Entity{}), "ゼロ値も nil アクション")
+}
 
 func TestInventoryMenuState_OnStart(t *testing.T) {
 	t.Parallel()

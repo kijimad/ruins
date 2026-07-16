@@ -118,6 +118,10 @@ func (aa *AttackActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はBehaviorの実装
 func (aa *AttackActivity) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	if comp.Target == nil {
+		log.Debug("攻撃対象が未設定のまま完了処理に到達した。攻撃は実行されていない", "actor", actor)
+		return nil
+	}
 	log.Debug("攻撃アクティビティ完了",
 		"actor", actor,
 		"target", *comp.Target)

@@ -51,10 +51,11 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 		return result, err
 	}
 
-	// 即座実行アクション（1ターン）の場合は即座に処理
+	// 即座実行アクション（1ターン）は、登録済みアクティビティを1ターン進めてその場で完結させる。
+	// アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
+	// 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
 	if comp.TurnsTotal == 1 {
-		// ターン処理実行
-		ProcessTurn(world)
+		stepActivity(behavior, actor, world)
 
 		// ターン管理システムに移動コストを通知
 		consumePassCost(world, behavior, actor, comp.Destination)
@@ -91,6 +92,43 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 	}
 	setLastResult(actor, result, world)
 	return result, nil
+}
+
+// stepActivity は登録済みアクティビティを1ターン進める共通処理。
+// 即時アクションの初回実行（Execute）と継続アクションの毎ターン処理
+// （ProcessContinuousActivities）の両方から呼ばれ、両者で「1ターン進める」
+// ロジックを一本化する。即時アクションは1ステップで完結する継続アクションの特殊ケースとして扱う。
+//
+// DoTurn が失敗すればキャンセルし、完了していれば Finish して直近結果を記録し除去する。
+// アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
+// 消えても走査中コンポーネントの破壊による panic を招かない。
+func stepActivity(behavior Behavior, entity ecs.Entity, world w.World) {
+	stored := query.GetActivity(world, entity)
+	if stored == nil {
+		return
+	}
+
+	behaviorName := behavior.Name()
+	if err := behavior.DoTurn(stored, entity, world); err != nil {
+		log.Error("アクティビティターン処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
+		CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
+		return
+	}
+
+	if !IsCompleted(stored) {
+		return
+	}
+
+	if err := behavior.Finish(stored, entity, world); err != nil {
+		log.Error("アクティビティ完了処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
+	}
+	setLastResult(entity, &ActionResult{
+		Success:      true,
+		State:        gc.ActivityStateCompleted,
+		ActivityName: behaviorName,
+		Message:      "完了",
+	}, world)
+	query.RemoveActivity(world, entity)
 }
 
 // setLastResult はエンティティの直近アクティビティ結果を設定する
@@ -225,13 +263,10 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 		"reason", reason)
 }
 
-// ProcessTurn は全てのアクティブなアクティビティの1ターン分の処理を実行する
-func ProcessTurn(world w.World) {
-	log.Debug("アクティビティターン処理開始")
-
-	// 完了・キャンセルされたアクティビティを削除するためのリスト
-	var toRemove []ecs.Entity
-
+// ProcessContinuousActivities は継続中の全アクティビティを1ターン分進める。
+// 即時アクション（TurnsTotal==1）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
+// 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
+func ProcessContinuousActivities(world w.World) {
 	var entities []ecs.Entity
 	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
 	for activityQuery.Next() {
@@ -244,10 +279,9 @@ func ProcessTurn(world w.World) {
 		}
 		comp := world.Components.Activity.Get(entity)
 
-		// アクティブなアクティビティのみ処理
 		if !IsActive(comp) {
 			if IsCompleted(comp) || IsCanceled(comp) {
-				toRemove = append(toRemove, entity)
+				query.RemoveActivity(world, entity)
 			}
 			continue
 		}
@@ -255,55 +289,12 @@ func ProcessTurn(world w.World) {
 		behavior, err := GetBehavior(comp.BehaviorName)
 		if err != nil {
 			log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
-			toRemove = append(toRemove, entity)
+			query.RemoveActivity(world, entity)
 			continue
 		}
 
-		// ターン処理を実行
-		if err := behavior.DoTurn(comp, entity, world); err != nil {
-			log.Error("アクティビティターン処理エラー",
-				"entity", entity,
-				"type", comp.BehaviorName,
-				"error", err.Error())
-
-			// エラーが発生した場合はキャンセル
-			CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
-			toRemove = append(toRemove, entity)
-			continue
-		}
-
-		// 完了したアクティビティの処理
-		if IsCompleted(comp) {
-			// Finish処理を実行
-			if err := behavior.Finish(comp, entity, world); err != nil {
-				log.Error("アクティビティ完了処理エラー",
-					"entity", entity,
-					"type", comp.BehaviorName,
-					"error", err.Error())
-			}
-
-			// 結果を記録
-			result := &ActionResult{
-				Success:      true,
-				State:        gc.ActivityStateCompleted,
-				ActivityName: comp.BehaviorName,
-				Message:      "完了",
-			}
-			setLastResult(entity, result, world)
-
-			log.Debug("アクティビティ完了",
-				"entity", entity,
-				"type", comp.BehaviorName)
-			toRemove = append(toRemove, entity)
-		}
+		stepActivity(behavior, entity, world)
 	}
-
-	// 完了・キャンセルされたアクティビティを削除
-	for _, entity := range toRemove {
-		query.RemoveActivity(world, entity)
-	}
-
-	log.Debug("アクティビティターン処理完了", "removed", len(toRemove))
 }
 
 // consumePassCost はアクションのAPコストを消費する

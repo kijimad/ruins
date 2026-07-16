@@ -18,6 +18,9 @@ type SpatialIndex struct {
 	PlayerEntity *ecs.Entity
 	// 構築済みフラグ。falseの場合は初回アクセス時に構築する
 	Built bool
+	// BuildCount は累積の再構築回数。移動ごとの無効化→再構築チャーンを回帰テストで検知するための観測用。
+	// Invalidate ではリセットしない
+	BuildCount int
 }
 
 // NewSpatialIndex は未構築の空インデックスを作成する
@@ -38,6 +41,22 @@ func (si *SpatialIndex) IsBlockPass(x, y int) bool {
 func (si *SpatialIndex) CharacterAt(x, y int) (ecs.Entity, bool) {
 	entity, ok := si.Characters[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]
 	return entity, ok
+}
+
+// MoveCharacter はキャラクターの位置を増分更新する。
+// 無効化→全再構築のチャーンを避け、移動のたびに O(1) でインデックスを最新に保つ。
+// from タイルの登録が自分自身のときだけ削除し、位置入れ替えで別キャラが入った場合を壊さない
+// actor と隊員をどちらの順で更新しても最終状態が正しくなる。
+// 未構築の場合は何もしない。次回アクセス時に真から再構築される。
+func (si *SpatialIndex) MoveCharacter(fromX, fromY, toX, toY int, e ecs.Entity) {
+	if !si.Built {
+		return
+	}
+	fromKey := GridElement{X: consts.Tile(fromX), Y: consts.Tile(fromY)}
+	if cur, ok := si.Characters[fromKey]; ok && cur == e {
+		delete(si.Characters, fromKey)
+	}
+	si.Characters[GridElement{X: consts.Tile(toX), Y: consts.Tile(toY)}] = e
 }
 
 // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる

@@ -69,13 +69,17 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		// ダンジョンには必ずプレイヤーが居る
+		_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
 		// ターン状態を設定
 		turnState := query.GetTurnState(world)
 
 		turnState.Phase = gc.TurnPhaseAI
 
 		sys := &TurnSystem{}
-		err := sys.Update(world)
+		err = sys.Update(world)
 		require.NoError(t, err)
 
 		assert.Equal(t, gc.TurnPhaseEnd, turnState.Phase, "AITurnからTurnEndへ遷移するべき")
