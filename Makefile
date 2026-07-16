@@ -3,6 +3,11 @@
 # bwrapが利用可能か実行時にテストする。CI環境ではunprivileged user namespaceが制限されていて使えない場合がある
 BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null && echo "bwrap --dev-bind / / --tmpfs /dev/input --")
 
+# test/bench/report/lint(deadcode) の対象Goパッケージ。除外理由は2つ:
+# - /editor-ui/: node_modulesに第三者のGo実装(flatted)が同梱される。npm管理外でビルド不能な依存が混入しうるため除外必須
+# - /oapi/: OpenAPI生成コード。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
+GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
+
 .PHONY: run
 run: ## 実行する。スクショのキーを指定している
 	RUINS_PROFILE=development \
@@ -14,12 +19,11 @@ editor: ## ゲームデータエディタを起動する
 
 .PHONY: test
 test: ## テストを実行する。COUNT=N で繰り返し実行できる（デフォルト1）
-	# editor-ui/node_modules 内にGoパッケージが含まれるため除外する必要がある
 	# bwrap: /dev/input を隠してebitenのgamepad初期化エラー(EINTR)を防ぐ
 	# xvfb-run: ebitenのゴールデンテストがウィンドウを開くのを防ぐ
 	RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a go test -race -v -cover -shuffle=on -timeout=60m -count=$(or $(COUNT),1) \
-		$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
+		$(GO_TEST_PKGS)
 
 .PHONY: updategolden
 updategolden: ## ゴールデンテスト用の基準画像を生成する
@@ -27,15 +31,15 @@ updategolden: ## ゴールデンテスト用の基準画像を生成する
 	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
 .PHONY: bench
-bench: ## ベンチマークを全て実行する（-race は付けない。計測精度のため）
+bench: ## ベンチマークを全て実行する
 	RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a go test -run '^$$' -bench=. -benchmem \
-		$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
+		$(GO_TEST_PKGS)
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
 	RUINS_LOG_LEVEL=ignore \
-	go test -coverprofile=coverage.out $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
+	go test -coverprofile=coverage.out $(GO_TEST_PKGS)
 	go tool cover -func=coverage.out
 
 .PHONY: build
@@ -56,7 +60,7 @@ fmt: ## フォーマットする
 lint: ## Linterを実行する
 	@go build -o /dev/null . # buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@golangci-lint run -v ./...
-	@if deadcode -test $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/) 2>&1 | grep -q "unreachable func"; then \
+	@if deadcode -test $(GO_TEST_PKGS) 2>&1 | grep -q "unreachable func"; then \
 		exit 1; \
 	fi
 
