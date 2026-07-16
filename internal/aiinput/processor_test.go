@@ -263,6 +263,43 @@ func TestProcessAll_大規模でpanicしない(t *testing.T) {
 	}
 }
 
+// TestProcessAll_AIフェーズで空間インデックスを再構築しない は §8 の増分更新を実際のホット文脈
+// （AIフェーズで多数の敵が移動する）で守る L1 ガード。旧実装（per-move 無効化）なら移動数に比例して
+// buildSpatialIndex が走るため、BuildCount の増分で再構築チャーンの再発を決定的に検知する。
+func TestProcessAll_AIフェーズで空間インデックスを再構築しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).Level = gc.Level{TileWidth: 60, TileHeight: 60}
+
+	_, err := lifecycle.SpawnPlayer(world, 30, 30, "Ash")
+	require.NoError(t, err)
+
+	// プレイヤー近傍に敵を多数配置（活性半径内＝毎ターン処理・移動される）
+	rng := rand.New(rand.NewPCG(1, 2))
+	for range 40 {
+		x := 30 + rng.IntN(21) - 10
+		y := 30 + rng.IntN(21) - 10
+		_, err := lifecycle.SpawnEnemy(world, x, y, "火の玉")
+		require.NoError(t, err)
+	}
+
+	si := query.GetSpatialIndex(world) // 初回構築
+	require.NotNil(t, si)
+	before := si.BuildCount
+
+	proc := NewProcessor(rand.New(rand.NewPCG(3, 4)))
+	const turns = 3
+	for range turns {
+		require.NoError(t, proc.ProcessAll(world))
+		require.NoError(t, query.RestoreAllActionPoints(world))
+	}
+
+	// AIフェーズでは40体×数ターン分の敵移動が起きるが、増分更新されるため再構築は起きない。
+	// 旧実装なら移動数（数十〜百）に比例して BuildCount が増える
+	assert.LessOrEqual(t, si.BuildCount-before, turns,
+		"AIフェーズの敵移動は増分更新され、再構築が移動数に比例しない（BuildCount増分=%d）", si.BuildCount-before)
+}
+
 // TestCullDistantSolo_ScalingInvariant はカリングが処理対象数を活性半径内に制限する不変条件を守る。
 // パフォーマンス劣化（カリングの無効化・削除）を壁時計に依存せず決定的に検出する回帰ガード。
 // カリングが壊れると processed == total となりこのテストが落ちる。
