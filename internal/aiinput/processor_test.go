@@ -187,7 +187,8 @@ func TestCullDistantSolo(t *testing.T) {
 	beyondFleeing := spawn(60, 60, gc.AIStateFleeing)   // 距離50だが逃亡中 → 処理
 
 	targets := []ecs.Entity{withinWaiting, boundaryWaiting, beyondWaiting, beyondDriving, beyondChasing, beyondFleeing}
-	kept := cullDistantSolo(world, targets)
+	kept, err := cullDistantSolo(world, targets)
+	require.NoError(t, err)
 
 	assert.True(t, containsEntity(kept, withinWaiting), "圏内の待機敵は処理対象")
 	assert.True(t, containsEntity(kept, boundaryWaiting), "境界（=半径ちょうど）の待機敵は処理対象")
@@ -207,24 +208,29 @@ func TestCullDistantSolo_PlayerApproachActivates(t *testing.T) {
 
 	targets := []ecs.Entity{enemy}
 
-	assert.Empty(t, cullDistantSolo(world, targets), "圏外の待機敵はスキップされる")
+	got, err := cullDistantSolo(world, targets)
+	require.NoError(t, err)
+	assert.Empty(t, got, "圏外の待機敵はスキップされる")
 
 	// プレイヤーが近づくと（距離20 → 圏内）同じ敵が処理対象になる
 	playerGrid := world.Components.GridElement.Get(player)
 	playerGrid.X = 20
-	assert.Len(t, cullDistantSolo(world, targets), 1, "接近後は圏内入りして処理対象になる")
+	got, err = cullDistantSolo(world, targets)
+	require.NoError(t, err)
+	assert.Len(t, got, 1, "接近後は圏内入りして処理対象になる")
 }
 
-func TestCullDistantSolo_NoPlayerProcessesAll(t *testing.T) {
+func TestCullDistantSolo_NoPlayerReturnsError(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 
-	// プレイヤー不在（GetPlayerEntity が失敗）ではカリングせず全処理する
+	// プレイヤー不在（GetPlayerEntity が失敗）は異常なのでエラーを返す
 	enemy := testscene.MustSpawnEnemy(t, world, 100, 100)
 
 	targets := []ecs.Entity{enemy}
-	assert.Len(t, cullDistantSolo(world, targets), 1, "プレイヤー不在時はカリングせず全処理する")
+	_, err := cullDistantSolo(world, targets)
+	assert.Error(t, err, "プレイヤー不在時はエラーを返す")
 }
 
 // TestProcessAll_大規模でpanicしない は多数の敵を配置して数ターン AI 処理を回し、
@@ -308,7 +314,9 @@ func TestCullDistantSolo_ScalingInvariant(t *testing.T) {
 	for soloQuery.Next() {
 		allSolo = append(allSolo, soloQuery.Entity())
 	}
-	processed := len(cullDistantSolo(world, allSolo))
+	kept, err := cullDistantSolo(world, allSolo)
+	require.NoError(t, err)
+	processed := len(kept)
 
 	// カリングが効いていれば処理数は活性半径内の敵のみに絞られ、総数を大きく下回る
 	assert.Positive(t, processed, "圏内の敵は処理される")

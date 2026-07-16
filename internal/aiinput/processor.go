@@ -1,6 +1,7 @@
 package aiinput
 
 import (
+	"fmt"
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -66,8 +67,12 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 		for soloQuery.Next() {
 			targets = append(targets, soloQuery.Entity())
 		}
-		// クエリ反復を終えてからカリングする（反復中に GetPlayerEntity の別クエリを張らない）
-		targets = cullDistantSolo(world, targets)
+		// クエリ反復を終えてからカリングする。反復中に GetPlayerEntity の別クエリを張らない
+		culled, err := cullDistantSolo(world, targets)
+		if err != nil {
+			return err
+		}
+		targets = culled
 	}
 
 	for _, entity := range targets {
@@ -80,13 +85,15 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 	return nil
 }
 
-// cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する（アクティベーション半径）。
-// 交戦中（Chasing/Fleeing）は視界外でも対象を追い続ける設計のため、距離に関わらず残す。
-// プレイヤー不在時はカリングせず全処理する（安全側フォールバック）。
-func cullDistantSolo(world w.World, targets []ecs.Entity) []ecs.Entity {
+// cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する。
+// 交戦中は視界外でも対象を追い続ける設計のため、距離に関わらず残す。
+func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) {
 	playerEntity, err := query.GetPlayerEntity(world)
-	if err != nil || !world.Components.GridElement.Has(playerEntity) {
-		return targets
+	if err != nil {
+		return nil, fmt.Errorf("カリングにはプレイヤーが必要: %w", err)
+	}
+	if !world.Components.GridElement.Has(playerEntity) {
+		return nil, fmt.Errorf("プレイヤーに位置情報がありません")
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 	px, py := int(playerGrid.X), int(playerGrid.Y)
@@ -103,7 +110,7 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) []ecs.Entity {
 		}
 		kept = append(kept, entity)
 	}
-	return kept
+	return kept, nil
 }
 
 // isActiveCombatState は交戦中（追跡・逃亡）状態かを返す。
