@@ -37,10 +37,10 @@ func BenchmarkProcessAll(b *testing.B) {
 		spread bool
 	}{
 		{"clustered/25", 25, false},
-		{"spread/25", 25, true},
 		{"clustered/100", 100, false},
-		{"spread/100", 100, true},
 		{"clustered/400", 400, false},
+		{"spread/25", 25, true},
+		{"spread/100", 100, true},
 		{"spread/400", 400, true},
 	}
 
