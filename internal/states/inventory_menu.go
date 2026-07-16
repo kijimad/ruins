@@ -469,7 +469,9 @@ type actionItem struct {
 
 // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す
 func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []actionItem {
-	if entity.IsZero() {
+	// アイテム使用でスタック最後の1個が消費されるとエンティティが破棄される。
+	// 選択中エンティティが dead のまま次フレームで呼ばれるため Alive も確認する
+	if entity.IsZero() || !world.ECS.Alive(entity) {
 		return nil
 	}
 
