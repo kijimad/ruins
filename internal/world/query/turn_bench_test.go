@@ -5,9 +5,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/testscene"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/require"
 )
@@ -20,17 +18,11 @@ import (
 func BenchmarkRestoreAllActionPoints(b *testing.B) {
 	for _, n := range []int{100, 400, 1000} {
 		b.Run(fmt.Sprintf("enemies=%d", n), func(b *testing.B) {
-			world := testutil.InitTestWorld(b)
-			d := query.GetDungeon(world)
-			d.Level = gc.Level{TileWidth: 200, TileHeight: 200}
-
-			_, err := lifecycle.SpawnPlayer(world, 100, 100, "Ash")
-			require.NoError(b, err)
+			world, _ := testscene.InitDungeonWorld(b, 200, 100, 100)
 
 			rng := rand.New(rand.NewPCG(1, 2))
 			for range n {
-				_, err := lifecycle.SpawnEnemy(world, rng.IntN(200), rng.IntN(200), "火の玉")
-				require.NoError(b, err)
+				testscene.MustSpawnEnemy(b, world, rng.IntN(200), rng.IntN(200))
 			}
 
 			b.ResetTimer()
