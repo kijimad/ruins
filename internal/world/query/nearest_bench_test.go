@@ -13,8 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// BenchmarkFindNearest は全走査(FindNearestEntity)とインデックス経由(FindNearestCharacter)を、
-// マップ上のタイル数(=GridElementを持つ床/壁エンティティ)を変えて比較する。
+// BenchmarkFindNearest は全走査とインデックス経由を、マップ上のタイル数を変えて比較する。
 //
 // 本作は床・壁も1タイル=1エンティティのため、全走査はマップ全タイルを毎回舐める。
 // キャラクター探索はインデックスの Characters に絞ることで、タイル数に依存しなくなる。

@@ -83,9 +83,9 @@ func InvalidateSpatialIndex(world w.World) {
 }
 
 // UpdateCharacterPositionInIndex は移動に伴い空間インデックスのキャラ位置を増分更新する。
-// 無効化→全再構築（毎移動）のチャーンを避けるための入口。
-// インデックスが未構築なら何もしない（次回アクセス時に真から再構築される）ため、
-// 意図的に GetSpatialIndex（未構築なら構築する）ではなく GetSingleton を使う。
+// 無効化→全再構築のチャーンを避けるための入口。
+// インデックスが未構築なら何もしないため、
+// 意図的に GetSpatialIndex ではなく GetSingleton を使う。
 func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, fromX, fromY, toX, toY int) {
 	si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
 	if si == nil {

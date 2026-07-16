@@ -7,10 +7,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindNearestEntity は条件を満たす最寄りのエンティティを全 GridElement から探す（汎用・全走査）。
+// FindNearestEntity は条件を満たす最寄りのエンティティを全 GridElement から探す。
 // selfは検索対象から除外されるエンティティで、Deadエンティティも自動的に除外する。
 // matchはターゲット候補を絞り込む述語。見つからない場合はnilを返す。
-// キャラクター探索のホットパスは FindNearestCharacter を使うこと（本関数は床・壁タイルも走査する）。
+// キャラクター探索のホットパスは FindNearestCharacter を使うこと。本関数は床・壁タイルも走査する。
 func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {
 	var nearestEntity *ecs.Entity
 	var nearestGrid *gc.GridElement
@@ -41,18 +41,16 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 	return nearestEntity, nearestGrid, nearestDist
 }
 
-// FindNearestCharacter は条件を満たす最寄りのキャラクター（Player/AI/隊員）を探す。
+// FindNearestCharacter は条件を満たす最寄りのキャラクターを探す。
 //
 // 床・壁・void も GridElement を持つエンティティのため、全 GridElement を走査するとマップ全タイル
-// （数千個）を毎回舐めることになる。空間インデックスの Characters（キャラクター位置）を候補にして
-// O(タイル数+キャラ数) → O(キャラ数) に削減する。AI のターゲット探索（敵・味方・仲間）はすべて
+// を毎回舐めることになる。空間インデックスのキャラクター位置を候補にして
+// O(タイル数+キャラ数) → O(キャラ数) に削減する。AI のターゲット探索はすべて
 // キャラクター対象なので、この関数を使う。
 //
-// タイ（同距離）は entity.ID() の小さい方を選び、マップ反復順に依存しない決定的な結果を返す
-// （固定 seed の再現性を保つ）。位置は live な GridElement を読むため、インデックスキーが多少
-// ずれても正しい。インデックスが使えないとき（シングルトン未登録、またはマップサイズ 0 で
-// GetSpatialIndex が nil を返すとき、Characters 未初期化のとき）は FindNearestEntity（全走査）に
-// フォールバックする（match がキャラクター以外を弾く前提）。
+// 同距離は entity.ID() の小さい方を選び、マップ反復順に依存しない決定的な結果を返して
+// 固定 seed の再現性を保つ。位置は live な GridElement を読むため、インデックスキーが多少
+// ずれても正しい。インデックスが使えないときは全走査にフォールバックする。
 func FindNearestCharacter(world w.World, self ecs.Entity, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {
 	si := GetSpatialIndex(world)
 	if si == nil || si.Characters == nil {
