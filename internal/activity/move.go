@@ -158,10 +158,6 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return err
 	}
 
-	// 移動後に空間インデックスを無効化する
-	// 同一ターン内で後続のAIが移動先を正しく判定できるようにする
-	query.InvalidateSpatialIndex(world)
-
 	Complete(comp)
 	return nil
 }
@@ -195,10 +191,19 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	destX, destY := int(comp.Destination.X), int(comp.Destination.Y)
 
 	// 味方キャラクターのいるタイルに移動する場合、位置を入れ替える
-	swapAllyIfNeeded(world, actor, oldX, oldY, destX, destY)
+	swapped, didSwap := swapAllyIfNeeded(world, actor, oldX, oldY, destX, destY)
 
 	grid.X = comp.Destination.X
 	grid.Y = comp.Destination.Y
+
+	// 空間インデックスを増分更新する（無効化→全再構築のチャーンを避け、
+	// 同一ターン内で後続のAIが移動先を正しく判定できるようにする）。
+	// 入れ替えが起きた場合は相手キャラの位置(dest→old)も更新する。
+	// 更新順は問わない（MoveCharacter が自分自身のときだけ from を削除するため）。
+	query.UpdateCharacterPositionInIndex(world, actor, oldX, oldY, destX, destY)
+	if didSwap {
+		query.UpdateCharacterPositionInIndex(world, swapped, destX, destY, oldX, oldY)
+	}
 
 	progressHunger(actor, world)
 
@@ -210,21 +215,22 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える
-func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) {
+// swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える。
+// 入れ替えた相手と、入れ替えが発生したかを返す
+func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) (ecs.Entity, bool) {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
-		return
+		return ecs.Entity{}, false
 	}
 	target, ok := si.CharacterAt(toX, toY)
 	if !ok {
-		return
+		return ecs.Entity{}, false
 	}
 	if !CanSwapPosition(world, actor, target) {
-		return
+		return ecs.Entity{}, false
 	}
 	if !world.Components.GridElement.Has(target) {
-		return
+		return ecs.Entity{}, false
 	}
 	targetGrid := world.Components.GridElement.Get(target)
 	targetGrid.X = consts.Tile(fromX)
@@ -234,4 +240,6 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 		"target", target,
 		"from", fmt.Sprintf("(%d,%d)", toX, toY),
 		"to", fmt.Sprintf("(%d,%d)", fromX, fromY))
+
+	return target, true
 }

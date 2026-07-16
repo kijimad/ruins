@@ -4,11 +4,22 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 
 	"github.com/mlange-42/ark/ecs"
 )
+
+// activationMargin は視界半径に加える余白タイル数。
+// 圏外の敵が視界に入るのと同じターンに反応できるよう、視界より一回り広く処理する
+const activationMargin = 2
+
+// activationRadius は SoloAI を距離カリングせず処理するチェビシェフ半径（タイル）。
+// この半径を超えた非交戦 SoloAI は行動計画をスキップする（アクティベーション半径）
+const activationRadius = int(consts.VisionRadiusTiles) + activationMargin
 
 // Processor はAIエンティティの行動処理を管理する。
 // AI.Plannerフィールドに基づいてsoloPlannerとsquadPlannerを使い分ける
@@ -55,6 +66,8 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 		for soloQuery.Next() {
 			targets = append(targets, soloQuery.Entity())
 		}
+		// クエリ反復を終えてからカリングする（反復中に GetPlayerEntity の別クエリを張らない）
+		targets = cullDistantSolo(world, targets)
 	}
 
 	for _, entity := range targets {
@@ -65,4 +78,36 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 	}
 
 	return nil
+}
+
+// cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する（アクティベーション半径）。
+// 交戦中（Chasing/Fleeing）は視界外でも対象を追い続ける設計のため、距離に関わらず残す。
+// プレイヤー不在時はカリングせず全処理する（安全側フォールバック）。
+func cullDistantSolo(world w.World, targets []ecs.Entity) []ecs.Entity {
+	playerEntity, err := query.GetPlayerEntity(world)
+	if err != nil || !world.Components.GridElement.Has(playerEntity) {
+		return targets
+	}
+	playerGrid := world.Components.GridElement.Get(playerEntity)
+	px, py := int(playerGrid.X), int(playerGrid.Y)
+
+	kept := make([]ecs.Entity, 0, len(targets))
+	for _, entity := range targets {
+		solo := world.Components.SoloAI.Get(entity)
+		if solo != nil && !isActiveCombatState(solo.SubState) {
+			grid := world.Components.GridElement.Get(entity)
+			if geometry.ChebyshevDistance(px, py, int(grid.X), int(grid.Y)) > activationRadius {
+				// 圏外の待機・徘徊敵はスキップ（画面外で観測不能なため凍結してよい）
+				continue
+			}
+		}
+		kept = append(kept, entity)
+	}
+	return kept
+}
+
+// isActiveCombatState は交戦中（追跡・逃亡）状態かを返す。
+// 交戦中の敵は視界外でも追い続ける設計のため距離カリングの対象外とする
+func isActiveCombatState(s gc.AIStateSubState) bool {
+	return s == gc.AIStateChasing || s == gc.AIStateFleeing
 }
