@@ -100,12 +100,11 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 
 	kept := make([]ecs.Entity, 0, len(targets))
 	for _, entity := range targets {
-		// targets は SoloAI+GridElement クエリ由来のため両コンポーネントの存在は保証済み（nil 不到達）
 		solo := world.Components.SoloAI.Get(entity)
-		if !isActiveCombatState(solo.SubState) {
+		if solo != nil && !isActiveCombatState(solo.SubState) {
 			grid := world.Components.GridElement.Get(entity)
 			if geometry.ChebyshevDistance(px, py, int(grid.X), int(grid.Y)) > activationRadius {
-				// 圏外の待機・徘徊敵はスキップ（画面外で観測不能なため凍結してよい）
+				// 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい
 				continue
 			}
 		}
