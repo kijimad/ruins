@@ -69,7 +69,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// ダンジョンには必ずプレイヤーが居る（AIフェーズのカリングがプレイヤーを要求する）
+		// ダンジョンには必ずプレイヤーが居る
 		_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 

@@ -55,14 +55,14 @@ func NewRenderSpriteSystem() *RenderSpriteSystem {
 }
 
 // SetTranslate はカメラを考慮した画像配置オプションをセットする。
-// 単発描画（各 state など）向けの公開エントリで、内部でカメラを取得する。
+// 単発描画向けの公開エントリで、内部でカメラを取得する。
 // 描画ループ内で繰り返し呼ぶ場合は取得済みカメラを渡す setTranslate を使う
 func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 	setTranslate(world, op, getCamera(world))
 }
 
 // setTranslate は取得済みカメラを使って画像配置オプションをセットする。
-// per-sprite/per-shadow のホットループから呼ばれ、カメラ取得（フィルタ生成）を1フレーム1回に抑える
+// per-sprite/per-shadow のホットループから呼ばれ、カメラ取得を1フレーム1回に抑える
 func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera) {
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
 
@@ -75,9 +75,9 @@ func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera)
 	op.GeoM.Translate(cx, cy)
 }
 
-// viewportTileBounds はカメラの可視範囲をタイル座標の矩形で返す（margin タイル分だけ外側に広げる）。
-// 画面外のタイル/スプライト描画（GPU コール）をスキップするための可視カリングに使う。
-func viewportTileBounds(world w.World, margin int, camera *gc.Camera) (minX, maxX, minY, maxY int) {
+// viewportTileBounds はカメラの可視範囲をタイル座標の矩形で返す。margin タイル分だけ外側に広げる。
+// 画面外のタイル/スプライト描画をスキップするための可視カリングに使う。
+func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (minX, maxX, minY, maxY int) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
 	if camera != nil {
@@ -87,12 +87,13 @@ func viewportTileBounds(world w.World, margin int, camera *gc.Camera) (minX, max
 		cameraScale = 1.0
 	}
 	ts := int(consts.TileSize)
+	m := int(margin)
 	halfW := int(float64(world.Resources.ScreenDimensions.Width)/cameraScale) / 2
 	halfH := int(float64(world.Resources.ScreenDimensions.Height)/cameraScale) / 2
-	minX = (int(cameraX)-halfW)/ts - margin
-	maxX = (int(cameraX)+halfW)/ts + margin
-	minY = (int(cameraY)-halfH)/ts - margin
-	maxY = (int(cameraY)+halfH)/ts + margin
+	minX = (int(cameraX)-halfW)/ts - m
+	maxX = (int(cameraX)+halfW)/ts + m
+	minY = (int(cameraY)-halfH)/ts - m
+	maxY = (int(cameraY)+halfH)/ts + m
 	return minX, maxX, minY, maxY
 }
 
@@ -102,9 +103,9 @@ func inViewport(grid *gc.GridElement, minX, maxX, minY, maxY int) bool {
 	return x >= minX && x <= maxX && y >= minY && y <= maxY
 }
 
-// viewportCullMargin は可視カリングの外側マージン（タイル）。
+// viewportCullMargin は可視カリングの外側マージン。単位はタイル。
 // スプライト/影が画面端を跨いでも欠けないよう余裕を持たせる
-const viewportCullMargin = 2
+const viewportCullMargin consts.Tile = 2
 
 // String はシステム名を返す
 // w.Renderer interfaceを実装
@@ -121,7 +122,7 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	initializeShadowImages()
 
 	// カメラはフレーム内で不変。ここで1回だけ取得し各描画関数へ渡す。
-	// 描画するスプライト/影の数だけ getCamera（フィルタ生成）が走るのを防ぐ
+	// 描画するスプライト/影の数だけフィルタ生成が走るのを防ぐ
 	camera := getCamera(world)
 
 	if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {
@@ -160,14 +161,14 @@ func initializeShadowImages() {
 func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) error {
 	iSprite := 0
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
-	// タイル総数を上限に確保する。viewport カリングで実際に詰めるのは一部だけ（iSprite で管理）
+	// タイル総数を上限に確保する。viewport カリングで実際に詰めるのは一部だけ
 	countQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
 	entities := make([]ecs.Entity, countQuery.Count())
 	countQuery.Close()
 	tileQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
-		// 画面外のタイルはソートも描画もしない（GPU 描画コールを削減）
+		// 画面外のタイルはソートも描画もしない
 		if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {
 			continue
 		}
@@ -292,9 +293,9 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		}
 	}
 
-	// 壁の影（下タイルが床の場合のみ）。
+	// 下タイルが床の場合のみ壁の影。
 	// 下タイル参照用のマップは viewport 内（+margin）だけ構築する。大マップで全タイルを
-	// 毎フレーム map 化する O(全タイル) を避ける
+	// 毎フレーム map 化するのを避ける
 	tileMap := make(map[gc.GridElement]ecs.Entity)
 	// 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/Prop を走査から除く
 	tileMapQuery := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
@@ -472,7 +473,7 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
-	// 暗闇は可視範囲のタイルだけに描く。境界は viewportTileBounds に集約（従来の margin 1 相当）
+	// 暗闇は可視範囲のタイルだけに描く。境界は viewportTileBounds に集約する
 	startTileX, endTileX, startTileY, endTileY := viewportTileBounds(world, 1, camera)
 
 	for tileX := startTileX; tileX <= endTileX; tileX++ {
