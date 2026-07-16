@@ -76,6 +76,39 @@ func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 	op.GeoM.Translate(cx, cy)
 }
 
+// viewportTileBounds はカメラの可視範囲をタイル座標の矩形で返す（margin タイル分だけ外側に広げる）。
+// 画面外のタイル/スプライト描画（GPU コール）をスキップするための可視カリングに使う。
+func viewportTileBounds(world w.World, margin int) (minX, maxX, minY, maxY int) {
+	var cameraX, cameraY float64
+	cameraScale := 1.0
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
+	for cameraQuery.Next() {
+		camera := world.Components.Camera.Get(cameraQuery.Entity())
+		cameraX, cameraY, cameraScale = camera.Pos.X, camera.Pos.Y, camera.Scale
+	}
+	if cameraScale <= 0 {
+		cameraScale = 1.0
+	}
+	ts := int(consts.TileSize)
+	halfW := int(float64(world.Resources.ScreenDimensions.Width)/cameraScale) / 2
+	halfH := int(float64(world.Resources.ScreenDimensions.Height)/cameraScale) / 2
+	minX = (int(cameraX)-halfW)/ts - margin
+	maxX = (int(cameraX)+halfW)/ts + margin
+	minY = (int(cameraY)-halfH)/ts - margin
+	maxY = (int(cameraY)+halfH)/ts + margin
+	return minX, maxX, minY, maxY
+}
+
+// inViewport は指定タイルが可視範囲矩形内かを返す
+func inViewport(grid *gc.GridElement, minX, maxX, minY, maxY int) bool {
+	x, y := int(grid.X), int(grid.Y)
+	return x >= minX && x <= maxX && y >= minY && y <= maxY
+}
+
+// viewportCullMargin は可視カリングの外側マージン（タイル）。
+// スプライト/影が画面端を跨いでも欠けないよう余裕を持たせる
+const viewportCullMargin = 2
+
 // String はシステム名を返す
 // w.Renderer interfaceを実装
 func (sys RenderSpriteSystem) String() string {
@@ -125,12 +158,17 @@ func initializeShadowImages() {
 // renderFloorLayer は床レイヤー（タイル）を描画する
 func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
 	iSprite := 0
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin)
 	countQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).Query()
 	entities := make([]ecs.Entity, countQuery.Count())
 	countQuery.Close()
 	tileQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
+		// 画面外のタイルはソートも描画もしない（GPU 描画コールを削減）
+		if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {
+			continue
+		}
 		entities[iSprite] = entity
 		iSprite++
 	}
