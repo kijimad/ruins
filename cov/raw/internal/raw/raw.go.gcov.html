@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-15 14:22:13</td>
+            <td class="headerValue">2026-07-16 16:04:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -775,11 +775,11 @@
 <span id="L713"><span class="lineNum">     713</span>              : }</span>
 <span id="L714"><span class="lineNum">     714</span>              : </span>
 <span id="L715"><span class="lineNum">     715</span>              : // SelectDropByWeight はドロップテーブルから重み付きランダム選択する</span>
-<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">       11003 : func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {</span></span>
-<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">       11003 :         return SelectByWeightFunc(</span></span>
-<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">       11003 :                 dt.Entries,</span></span>
-<span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">       68384 :                 func(e oapi.DropTableEntry) float64 { return e.Weight },</span></span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">       11002 :                 func(e oapi.DropTableEntry) string { return e.Material },</span></span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">       10994 : func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">       10994 :         return SelectByWeightFunc(</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">       10994 :                 dt.Entries,</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">       68159 :                 func(e oapi.DropTableEntry) float64 { return e.Weight },</span></span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">       10974 :                 func(e oapi.DropTableEntry) string { return e.Material },</span></span>
 <span id="L721"><span class="lineNum">     721</span>              :                 rng,</span>
 <span id="L722"><span class="lineNum">     722</span>              :         )</span>
 <span id="L723"><span class="lineNum">     723</span>              : }</span>
@@ -798,17 +798,17 @@
 <span id="L736"><span class="lineNum">     736</span>              :         // テーブルエントリからグループ名を重み付き選択する</span>
 <span id="L737"><span class="lineNum">     737</span> <span class="tlaGNC">       10203 :         groupName, err := SelectByWeightFunc(</span></span>
 <span id="L738"><span class="lineNum">     738</span> <span class="tlaGNC">       10203 :                 filtered,</span></span>
-<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">       46185 :                 func(e oapi.ItemTableEntry) float64 { return e.Weight },</span></span>
-<span id="L740"><span class="lineNum">     740</span> <span class="tlaGNC">       10201 :                 func(e oapi.ItemTableEntry) string { return e.GroupName },</span></span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">       46184 :                 func(e oapi.ItemTableEntry) float64 { return e.Weight },</span></span>
+<span id="L740"><span class="lineNum">     740</span> <span class="tlaGNC">       10200 :                 func(e oapi.ItemTableEntry) string { return e.GroupName },</span></span>
 <span id="L741"><span class="lineNum">     741</span>              :                 rng,</span>
 <span id="L742"><span class="lineNum">     742</span>              :         )</span>
-<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC">       10205 :         if err != nil || groupName == &quot;&quot; {</span></span>
+<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC">       10204 :         if err != nil || groupName == &quot;&quot; {</span></span>
 <span id="L744"><span class="lineNum">     744</span> <span class="tlaGNC">           2 :                 return &quot;&quot;, err</span></span>
 <span id="L745"><span class="lineNum">     745</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L746"><span class="lineNum">     746</span>              : </span>
 <span id="L747"><span class="lineNum">     747</span>              :         // グループからアイテムを選択する</span>
-<span id="L748"><span class="lineNum">     748</span> <span class="tlaGNC">       10201 :         group, err := GetItemGroup(raws, groupName)</span></span>
-<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">       10201 :         if err != nil {</span></span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaGNC">       10200 :         group, err := GetItemGroup(raws, groupName)</span></span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">       10200 :         if err != nil {</span></span>
 <span id="L750"><span class="lineNum">     750</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, err</span></span>
 <span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC tlaBgGNC">       10201 :         return SelectByWeightFunc(</span></span>
@@ -820,19 +820,19 @@
 <span id="L758"><span class="lineNum">     758</span>              : }</span>
 <span id="L759"><span class="lineNum">     759</span>              : </span>
 <span id="L760"><span class="lineNum">     760</span>              : // SelectEnemyByWeight は敵テーブルから深度を考慮して重み付きランダム選択する</span>
-<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">       13181 : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {</span></span>
-<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">       13181 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
-<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">       52676 :         for _, entry := range et.Entries {</span></span>
-<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">       44499 :                 if depth &lt; int(entry.MinDepth) || depth &gt; int(entry.MaxDepth) {</span></span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">       13085 : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {</span></span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">       13085 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">       51098 :         for _, entry := range et.Entries {</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">       43017 :                 if depth &lt; int(entry.MinDepth) || depth &gt; int(entry.MaxDepth) {</span></span>
 <span id="L765"><span class="lineNum">     765</span> <span class="tlaGNC">        5004 :                         continue</span></span>
 <span id="L766"><span class="lineNum">     766</span>              :                 }</span>
-<span id="L767"><span class="lineNum">     767</span> <span class="tlaGNC">       34549 :                 filtered = append(filtered, entry)</span></span>
+<span id="L767"><span class="lineNum">     767</span> <span class="tlaGNC">       33633 :                 filtered = append(filtered, entry)</span></span>
 <span id="L768"><span class="lineNum">     768</span>              :         }</span>
 <span id="L769"><span class="lineNum">     769</span>              : </span>
-<span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">       13183 :         return SelectByWeightFunc(</span></span>
-<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">       13183 :                 filtered,</span></span>
-<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">       70021 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
-<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">       13169 :                 func(e oapi.EnemyTableEntry) string { return e.EnemyName },</span></span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">       12964 :         return SelectByWeightFunc(</span></span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">       12964 :                 filtered,</span></span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">       68530 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">       13101 :                 func(e oapi.EnemyTableEntry) string { return e.EnemyName },</span></span>
 <span id="L774"><span class="lineNum">     774</span>              :                 rng,</span>
 <span id="L775"><span class="lineNum">     775</span>              :         )</span>
 <span id="L776"><span class="lineNum">     776</span>              : }</span>

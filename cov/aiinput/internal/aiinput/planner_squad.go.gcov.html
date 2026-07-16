@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-15 14:22:13</td>
+            <td class="headerValue">2026-07-16 16:04:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,13 +92,13 @@
 <span id="L30"><span class="lineNum">      30</span>              :         rng          *rand.Rand</span>
 <span id="L31"><span class="lineNum">      31</span>              : }</span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">          10 : func newSquadPlanner(rng *rand.Rand) *squadPlanner {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          10 :         return &amp;squadPlanner{</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          10 :                 visionSystem: NewVisionSystem(),</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          10 :                 logger:       logger.New(logger.CategoryTurn),</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          10 :                 rng:          rng,</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          10 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          10 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">          12 : func newSquadPlanner(rng *rand.Rand) *squadPlanner {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          12 :         return &amp;squadPlanner{</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          12 :                 visionSystem: NewVisionSystem(),</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          12 :                 logger:       logger.New(logger.CategoryTurn),</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          12 :                 rng:          rng,</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          12 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          12 : }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // squadContext は隊員AIに必要な情報をまとめる</span>
 <span id="L42"><span class="lineNum">      42</span>              : type squadContext struct {</span>
@@ -389,7 +389,7 @@
 <span id="L327"><span class="lineNum">     327</span>              : </span>
 <span id="L328"><span class="lineNum">     328</span>              : // findNearestEnemy は視界内の最も近い敵を探す</span>
 <span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC tlaBgUNC">           0 : func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *squadContext) (*ecs.Entity, *gc.GridElement, int) {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :         return query.FindNearestEntity(world, entity, ctx.Grid, func(target ecs.Entity) bool {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :         return query.FindNearestCharacter(world, entity, ctx.Grid, func(target ecs.Entity) bool {</span></span>
 <span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                 return query.FactionRelation(world, entity, target) == query.RelationHostile &amp;&amp;</span></span>
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                         sp.visionSystem.CanSeeTarget(world, entity, target, ctx.Squad.ViewDistance)</span></span>
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         })</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-15 14:22:13</td>
+            <td class="headerValue">2026-07-16 16:04:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,25 +81,25 @@
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">         233 : </span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">         233 :         // 変換が他のタイルの判定に影響しないように、まず変換すべきタイルを特定</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">         233 :         tilesToConvert := make([]int, 0)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">      444940 :         for i := range planData.Tiles {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">      444707 :                 tile := planData.Tiles[i]</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">      444707 : </span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">      444707 :                 // マップの端にあるタイルは変換対象外（境界として残す）</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">      444707 :                 x, y := planData.Level.XYTileCoord(gc.TileIdx(i))</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">      483011 :                 if int(x) == 0 || int(x) == width-1 || int(y) == 0 || int(y) == height-1 {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       38304 :                         continue</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">      447328 :         for i := range planData.Tiles {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">      447095 :                 tile := planData.Tiles[i]</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">      447095 : </span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">      447095 :                 // マップの端にあるタイルは変換対象外（境界として残す）</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">      447095 :                 x, y := planData.Level.XYTileCoord(gc.TileIdx(i))</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">      485417 :                 if int(x) == 0 || int(x) == width-1 || int(y) == 0 || int(y) == height-1 {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       38322 :                         continue</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :                 }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              :                 // wallタイルで床に隣接していない場合、変換対象とする</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">      480830 :                 if tile.Name == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">       74814 :                         tilesToConvert = append(tilesToConvert, i)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">       74814 :                 }</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">      483040 :                 if tile.Name == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">       74700 :                         tilesToConvert = append(tilesToConvert, i)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">       74700 :                 }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              :         }</span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              :         // 特定したタイルを変換</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">       75160 :         for _, i := range tilesToConvert {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">       74927 :                 planData.Tiles[i] = planData.GetTile(c.ReplacementTile)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">       74927 :         }</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">       75154 :         for _, i := range tilesToConvert {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">       74921 :                 planData.Tiles[i] = planData.GetTile(c.ReplacementTile)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">       74921 :         }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">         233 :         return nil</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : }</span>

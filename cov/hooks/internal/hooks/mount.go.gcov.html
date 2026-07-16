@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-15 14:22:13</td>
+            <td class="headerValue">2026-07-16 16:04:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,8 +86,8 @@
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span>              : // SetProps は外部からPropsを設定する</span>
 <span id="L26"><span class="lineNum">      26</span>              : // 値が変わった場合はdirtyフラグを立てる</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          35 : func (m *Mount[Props]) SetProps(props Props) {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          69 :         if !reflect.DeepEqual(m.props, props) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          36 : func (m *Mount[Props]) SetProps(props Props) {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          70 :         if !reflect.DeepEqual(m.props, props) {</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          34 :                 m.dirty = true</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          34 :         }</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          36 :         m.props = props</span></span>
@@ -127,11 +127,11 @@
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              : // Update は変更の有無を返す</span>
 <span id="L67"><span class="lineNum">      67</span>              : // 初回は常にtrue、以降はpropsまたはstateが変わった場合にtrueを返す</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">          92 : func (m *Mount[Props]) Update() bool {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">          92 :         changed := m.dirty</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">          92 :         m.dirty = false</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">          92 :         return changed</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">          92 : }</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">          93 : func (m *Mount[Props]) Update() bool {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">          93 :         changed := m.dirty</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">          93 :         m.dirty = false</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">          93 :         return changed</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">          93 : }</span></span>
         </pre>
               </td>
             </tr>

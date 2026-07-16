@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-15 14:22:13</td>
+            <td class="headerValue">2026-07-16 16:04:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,12 +91,12 @@
 <span id="L29"><span class="lineNum">      29</span>              : //   - ゲームロジックのテスト</span>
 <span id="L30"><span class="lineNum">      30</span>              : //   - アイテムやレシピのテスト</span>
 <span id="L31"><span class="lineNum">      31</span>              : //   - UIを必要としないテスト</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 : func InitTestWorld(t *testing.T) w.World {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 : func InitTestWorld(tb testing.TB) w.World {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         tb.Helper()</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         // 基本的なWorld構造を初期化</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         world, err := w.InitWorld(&amp;gc.Components{})</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         require.NoError(t, err)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         require.NoError(tb, err)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         // テスト用configを設定</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         world.Config = &amp;config.Config{Profile: config.ProfileDevelopment}</span></span>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         // RawMasterのみを共有リソースから取得（一度だけ読み込む）</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         rawMasterOnce.Do(func() {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 rw, err := loader.LoadRaws()</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 require.NoError(t, err, &quot;RawMasterの読み込みに失敗しました&quot;)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 require.NoError(tb, err, &quot;RawMasterの読み込みに失敗しました&quot;)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 rawMaster = rw</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         })</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         world.Resources.RawMaster = rawMaster</span></span>

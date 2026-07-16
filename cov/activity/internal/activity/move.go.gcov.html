@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">79.0&nbsp;%</td>
-            <td class="headerCovTableEntry">162</td>
-            <td class="headerCovTableEntry">128</td>
+            <td class="headerCovTableEntryMed">80.0&nbsp;%</td>
+            <td class="headerCovTableEntry">170</td>
+            <td class="headerCovTableEntry">136</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-15 14:22:13</td>
+            <td class="headerValue">2026-07-16 16:04:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -136,9 +136,9 @@
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          15 : }</span></span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // Name はBehaviorの実装</span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">          57 : func (ma *MoveActivity) Name() gc.BehaviorName {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          57 :         return gc.BehaviorMove</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">          57 : }</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">          71 : func (ma *MoveActivity) Name() gc.BehaviorName {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          71 :         return gc.BehaviorMove</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">          71 : }</span></span>
 <span id="L80"><span class="lineNum">      80</span>              : </span>
 <span id="L81"><span class="lineNum">      81</span>              : // BuildActivity はBehaviorの実装</span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">          14 : func (ma *MoveActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
@@ -220,83 +220,91 @@
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L160"><span class="lineNum">     160</span>              : </span>
-<span id="L161"><span class="lineNum">     161</span>              :         // 移動後に空間インデックスを無効化する</span>
-<span id="L162"><span class="lineNum">     162</span>              :         // 同一ターン内で後続のAIが移動先を正しく判定できるようにする</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC tlaBgGNC">          16 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">          16 :         Complete(comp)</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">          16 :         return nil</span></span>
-<span id="L167"><span class="lineNum">     167</span>              : }</span>
-<span id="L168"><span class="lineNum">     168</span>              : </span>
-<span id="L169"><span class="lineNum">     169</span>              : // Finish はBehaviorの実装</span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">          14 : func (ma *MoveActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">          14 :         log.Debug(&quot;移動アクティビティ完了&quot;, &quot;actor&quot;, actor)</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">          14 : </span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">          14 :         // プレイヤーの場合のみ移動先のタイルイベントをチェック</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          28 :         if comp.Destination != nil &amp;&amp; world.Components.Player.Has(actor) {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">          14 :                 showTileInteractionMessage(world, comp.Destination)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">          14 :         }</span></span>
-<span id="L177"><span class="lineNum">     177</span>              : </span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">          14 :         return nil</span></span>
-<span id="L179"><span class="lineNum">     179</span>              : }</span>
-<span id="L180"><span class="lineNum">     180</span>              : </span>
-<span id="L181"><span class="lineNum">     181</span>              : // Canceled はBehaviorの実装</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC tlaBgUNC">           0 : func (ma *MoveActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         log.Debug(&quot;移動キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">          16 : func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          16 :         if !world.Components.GridElement.Has(actor) {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ErrGridElementNotFound</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC tlaBgGNC">          16 :         gridElement := world.Components.GridElement.Get(actor)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC tlaBgGNC">          16 :         Complete(comp)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">          16 :         return nil</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // Finish はBehaviorの実装</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">          14 : func (ma *MoveActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          14 :         log.Debug(&quot;移動アクティビティ完了&quot;, &quot;actor&quot;, actor)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">          14 : </span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">          14 :         // プレイヤーの場合のみ移動先のタイルイベントをチェック</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">          28 :         if comp.Destination != nil &amp;&amp; world.Components.Player.Has(actor) {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">          14 :                 showTileInteractionMessage(world, comp.Destination)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">          14 :         }</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          14 :         return nil</span></span>
+<span id="L175"><span class="lineNum">     175</span>              : }</span>
+<span id="L176"><span class="lineNum">     176</span>              : </span>
+<span id="L177"><span class="lineNum">     177</span>              : // Canceled はBehaviorの実装</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC tlaBgUNC">           0 : func (ma *MoveActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         log.Debug(&quot;移動キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : </span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC tlaBgGNC">          16 : func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">          16 :         if !world.Components.GridElement.Has(actor) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ErrGridElementNotFound</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">          16 :         gridElement := world.Components.GridElement.Get(actor)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          16 : </span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">          16 :         grid := gridElement</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">          16 :         oldX, oldY := int(grid.X), int(grid.Y)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">          16 :         destX, destY := int(comp.Destination.X), int(comp.Destination.Y)</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">          16 :         grid := gridElement</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">          16 :         oldX, oldY := int(grid.X), int(grid.Y)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">          16 :         destX, destY := int(comp.Destination.X), int(comp.Destination.Y)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">          16 :         // 味方キャラクターのいるタイルに移動する場合、位置を入れ替える</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">          16 :         swapAllyIfNeeded(world, actor, oldX, oldY, destX, destY)</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">          16 :         grid.X = comp.Destination.X</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">          16 :         grid.Y = comp.Destination.Y</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">          16 :         progressHunger(actor, world)</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">          16 :         log.Debug(&quot;移動完了&quot;,</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          16 :                 &quot;actor&quot;, actor,</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          16 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, oldX, oldY),</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          16 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, destX, destY))</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">          16 :         // 味方キャラクターのいるタイルに移動する場合、位置を入れ替える</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">          16 :         swapped, didSwap := swapAllyIfNeeded(world, actor, oldX, oldY, destX, destY)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">          16 : </span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">          16 :         grid.X = comp.Destination.X</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">          16 :         grid.Y = comp.Destination.Y</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">          16 : </span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">          16 :         // 空間インデックスを増分更新する（無効化→全再構築のチャーンを避け、</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">          16 :         // 同一ターン内で後続のAIが移動先を正しく判定できるようにする）。</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">          16 :         // 入れ替えが起きた場合は相手キャラの位置(dest→old)も更新する。</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">          16 :         // 更新順は問わない（MoveCharacter が自分自身のときだけ from を削除するため）。</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">          16 :         query.UpdateCharacterPositionInIndex(world, actor, oldX, oldY, destX, destY)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">          17 :         if didSwap {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 query.UpdateCharacterPositionInIndex(world, swapped, destX, destY, oldX, oldY)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          16 :         progressHunger(actor, world)</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          16 :         return nil</span></span>
-<span id="L211"><span class="lineNum">     211</span>              : }</span>
-<span id="L212"><span class="lineNum">     212</span>              : </span>
-<span id="L213"><span class="lineNum">     213</span>              : // swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          16 : func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          16 :         si := query.GetSpatialIndex(world)</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          16 :         if si == nil {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC tlaBgGNC">          16 :         target, ok := si.CharacterAt(toX, toY)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">          31 :         if !ok {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">          15 :                 return</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">          15 :         }</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         if !CanSwapPosition(world, actor, target) {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(target) {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           1 :         targetGrid := world.Components.GridElement.Get(target)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         targetGrid.X = consts.Tile(fromX)</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         targetGrid.Y = consts.Tile(fromY)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         log.Debug(&quot;味方と位置入れ替え&quot;,</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 &quot;target&quot;, target,</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, toX, toY),</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, fromX, fromY))</span></span>
-<span id="L237"><span class="lineNum">     237</span>              : }</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          16 :         log.Debug(&quot;移動完了&quot;,</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          16 :                 &quot;actor&quot;, actor,</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">          16 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, oldX, oldY),</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          16 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, destX, destY))</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          16 : </span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          16 :         return nil</span></span>
+<span id="L216"><span class="lineNum">     216</span>              : }</span>
+<span id="L217"><span class="lineNum">     217</span>              : </span>
+<span id="L218"><span class="lineNum">     218</span>              : // swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える。</span>
+<span id="L219"><span class="lineNum">     219</span>              : // 入れ替えた相手と、入れ替えが発生したかを返す</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">          16 : func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) (ecs.Entity, bool) {</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">          16 :         si := query.GetSpatialIndex(world)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">          16 :         if si == nil {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">          16 :         target, ok := si.CharacterAt(toX, toY)</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">          31 :         if !ok {</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">          15 :                 return ecs.Entity{}, false</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">          15 :         }</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         if !CanSwapPosition(world, actor, target) {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(target) {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :         targetGrid := world.Components.GridElement.Get(target)</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         targetGrid.X = consts.Tile(fromX)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         targetGrid.Y = consts.Tile(fromY)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         log.Debug(&quot;味方と位置入れ替え&quot;,</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 &quot;target&quot;, target,</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, toX, toY),</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, fromX, fromY))</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         return target, true</span></span>
+<span id="L245"><span class="lineNum">     245</span>              : }</span>
         </pre>
               </td>
             </tr>
