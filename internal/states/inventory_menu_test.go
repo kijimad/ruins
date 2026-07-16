@@ -14,9 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestInventoryMenuState_最後の1個消費でpanicしない は、アクションウィンドウで選択中の
-// 消費アイテムの最後の1個を使ってエンティティが破棄されても、更新パスが panic しないことを
-// 実フローで検証する回帰テスト。旧実装は dead への Components.Has（Arkが panic する）で SIGSEGV。
 func TestInventoryMenuState_最後の1個消費でpanicしない(t *testing.T) {
 	t.Parallel()
 
