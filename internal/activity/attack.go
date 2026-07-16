@@ -118,6 +118,11 @@ func (aa *AttackActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はBehaviorの実装
 func (aa *AttackActivity) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	// Target は他メソッド同様 nil ガードする（多重防御）
+	if comp.Target == nil {
+		log.Debug("攻撃アクティビティ完了", "actor", actor)
+		return nil
+	}
 	log.Debug("攻撃アクティビティ完了",
 		"actor", actor,
 		"target", *comp.Target)

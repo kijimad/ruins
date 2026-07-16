@@ -53,8 +53,10 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 
 	// 即座実行アクション（1ターン）の場合は即座に処理
 	if comp.TurnsTotal == 1 {
-		// ターン処理実行
-		ProcessTurn(world)
+		// 指定エンティティのみ処理する。ProcessTurn(world) は全エンティティを対象とするため、
+		// 入れ子呼び出し時に他エンティティのアクティビティ・コンポーネントが削除・再利用され、
+		// ダングリング参照で panic することがある（攻撃時の Finish で Target=nil になる等）
+		ProcessTurnForEntity(world, actor)
 
 		// ターン管理システムに移動コストを通知
 		consumePassCost(world, behavior, actor, comp.Destination)
@@ -223,6 +225,58 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 		"entity", entity,
 		"type", comp.BehaviorName,
 		"reason", reason)
+}
+
+// ProcessTurnForEntity は指定エンティティのアクティビティのみ1ターン処理する。
+// Execute の TurnsTotal==1 パス専用。ProcessTurn(world) は全エンティティを対象とするため、
+// 入れ子呼び出し（攻撃→被弾側の処理など）で処理中のアクティビティ・コンポーネントが
+// 別処理で削除・再利用され、ダングリング参照（Target=nil の完了済みアクティビティが
+// Finish に到達するなど）で panic する問題を防ぐ。
+func ProcessTurnForEntity(world w.World, actor ecs.Entity) {
+	if !world.ECS.Alive(actor) || !world.Components.Activity.Has(actor) {
+		return
+	}
+	comp := world.Components.Activity.Get(actor)
+
+	if !IsActive(comp) {
+		if IsCompleted(comp) || IsCanceled(comp) {
+			query.RemoveActivity(world, actor)
+		}
+		return
+	}
+
+	behavior, err := GetBehavior(comp.BehaviorName)
+	if err != nil {
+		log.Error("Behaviorの取得に失敗", "entity", actor, "error", err.Error())
+		query.RemoveActivity(world, actor)
+		return
+	}
+
+	if err := behavior.DoTurn(comp, actor, world); err != nil {
+		log.Error("アクティビティターン処理エラー",
+			"entity", actor,
+			"type", comp.BehaviorName,
+			"error", err.Error())
+		CancelActivity(actor, fmt.Sprintf("エラー: %s", err.Error()), world)
+		return
+	}
+
+	if IsCompleted(comp) {
+		if err := behavior.Finish(comp, actor, world); err != nil {
+			log.Error("アクティビティ完了処理エラー",
+				"entity", actor,
+				"type", comp.BehaviorName,
+				"error", err.Error())
+		}
+		result := &ActionResult{
+			Success:      true,
+			State:        gc.ActivityStateCompleted,
+			ActivityName: comp.BehaviorName,
+			Message:      "完了",
+		}
+		setLastResult(actor, result, world)
+		query.RemoveActivity(world, actor)
+	}
 }
 
 // ProcessTurn は全てのアクティブなアクティビティの1ターン分の処理を実行する
