@@ -236,7 +236,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 		"reason", reason)
 }
 
-// ProcessTurn は継続中の全アクティビティを1ターン分進める（turn_system がターンごとに呼ぶ）。
+// ProcessTurn は継続中の全アクティビティを1ターン分進める。
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
 func ProcessTurn(world w.World) {
 	var entities []ecs.Entity
