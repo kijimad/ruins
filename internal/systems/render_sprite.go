@@ -56,14 +56,7 @@ func NewRenderSpriteSystem() *RenderSpriteSystem {
 
 // SetTranslate はカメラを考慮した画像配置オプションをセットする
 func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
-	var camera *gc.Camera
-
-	// カメラコンポーネントを取得
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
-	for cameraQuery.Next() {
-		entity := cameraQuery.Entity()
-		camera = world.Components.Camera.Get(entity)
-	}
+	camera := getCamera(world)
 
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
 
@@ -81,9 +74,7 @@ func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 func viewportTileBounds(world w.World, margin int) (minX, maxX, minY, maxY int) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
-	for cameraQuery.Next() {
-		camera := world.Components.Camera.Get(cameraQuery.Entity())
+	if camera := getCamera(world); camera != nil {
 		cameraX, cameraY, cameraScale = camera.Pos.X, camera.Pos.Y, camera.Scale
 	}
 	if cameraScale <= 0 {
@@ -457,11 +448,7 @@ const DarknessLevels = 4
 func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
-
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
-	for cameraQuery.Next() {
-		entity := cameraQuery.Entity()
-		camera := world.Components.Camera.Get(entity)
+	if camera := getCamera(world); camera != nil {
 		cameraX = camera.Pos.X
 		cameraY = camera.Pos.Y
 		cameraScale = camera.Scale
@@ -473,16 +460,8 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
-	actualScreenWidth := int(float64(screenWidth) / cameraScale)
-	actualScreenHeight := int(float64(screenHeight) / cameraScale)
-	leftEdge := int(cameraX) - actualScreenWidth/2
-	rightEdge := int(cameraX) + actualScreenWidth/2
-	topEdge := int(cameraY) - actualScreenHeight/2
-	bottomEdge := int(cameraY) + actualScreenHeight/2
-	startTileX := leftEdge/int(consts.TileSize) - 1
-	endTileX := rightEdge/int(consts.TileSize) + 1
-	startTileY := topEdge/int(consts.TileSize) - 1
-	endTileY := bottomEdge/int(consts.TileSize) + 1
+	// 暗闇は可視範囲のタイルだけに描く。境界は viewportTileBounds に集約（従来の margin 1 相当）
+	startTileX, endTileX, startTileY, endTileY := viewportTileBounds(world, 1)
 
 	for tileX := startTileX; tileX <= endTileX; tileX++ {
 		for tileY := startTileY; tileY <= endTileY; tileY++ {
