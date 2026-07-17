@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -8,6 +9,34 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestProgressHunger_空腹進行が基準ターン数に緩和される は、空腹進行100%のとき
+// 満腹度の減少が「約 1/HungerDrainTurns ターン」に間引かれることを固定する。
+// 毎ターン減（旧実装）だとシームレスワールドを歩くだけで猛烈に空腹になるため緩和した。
+func TestProgressHunger_空腹進行が基準ターン数に緩和される(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Config.RNG = rand.New(rand.NewPCG(1, 2)) // 決定的にする
+
+	actor := world.ECS.NewEntity()
+	world.Components.Player.Add(actor, &gc.Player{})
+	// クランプ（0 で止まる）を避けるため十分大きなプールにする
+	world.Components.Hunger.Add(actor, &gc.Hunger{Current: 1_000_000, Max: 1_000_000})
+
+	const turns = 3000
+	for range turns {
+		progressHunger(actor, world)
+	}
+
+	// Add は値をコピーするためストレージから読み直す
+	drained := 1_000_000 - world.Components.Hunger.Get(actor).Current
+	expected := turns / gc.HungerDrainTurns // 100%進行での期待減少
+	assert.InDelta(t, expected, drained, float64(expected)*0.15,
+		"空腹進行は約 1/%d ターンに緩和されている", gc.HungerDrainTurns)
+	assert.Less(t, drained, turns,
+		"毎ターン減より明確に緩やか（緩和の回帰防止）")
+}
 
 func TestActivityCreation(t *testing.T) {
 	t.Parallel()
