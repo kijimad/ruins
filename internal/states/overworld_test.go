@@ -165,6 +165,33 @@ func TestOverworldState_遺跡遷移で帯を退避復元する(t *testing.T) {
 	assert.True(t, query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 45, Y: 10}], "探索済みが復元される")
 }
 
+// TestOverworldState_maybeShift_開始点より西へはシフトしない は、eastIndex=0 で西へ移動しても
+// 開始点より西へシフトしない（eastIndex を負にしない）ことを固定する（bot レビュー #3）。
+func TestOverworldState_maybeShift_開始点より西へはシフトしない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	const chunkW, chunkH consts.Tile = 30, 20
+	const k = 3
+
+	factory := NewOverworldState(777, chunkW, chunkH, k, mapplanner.PlannerTypeSmallRoom)
+	state, err := factory()
+	require.NoError(t, err)
+	st, ok := state.(*OverworldState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+	require.Equal(t, 0, st.band.EastIndex(), "前提: 開始時 eastIndex=0")
+
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	// 中央チャンクより西へ（localX < centerSlot*chunkW = 30）
+	world.Components.GridElement.Get(player).X = 10
+	require.True(t, st.band.ShouldShiftWest(10), "前提: 西シフト条件は満たす")
+
+	require.NoError(t, st.maybeShift(world))
+	assert.Equal(t, 0, st.band.EastIndex(), "開始点より西へはシフトしない（eastIndex は負にならない）")
+}
+
 // countGridEntities は GridElement を持つエンティティ数を返す。
 func countGridEntities(world w.World) int {
 	count := 0

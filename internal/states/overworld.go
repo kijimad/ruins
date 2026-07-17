@@ -221,7 +221,10 @@ func (st *OverworldState) maybeShift(world w.World) error {
 				return err
 			}
 			st.syncBandState(world)
-		case st.band.ShouldShiftWest(localX):
+		case st.band.ShouldShiftWest(localX) && st.band.EastIndex() > 0:
+			// 西シフトは寄り道からの復帰時のみ。ラン開始（eastIndex=0）より西には
+			// 何も生成されていないため、eastIndex を負にする西シフトは行わない。
+			// プレイヤーは帯西端（localX=0 の境界）で自然に止まる
 			if err := st.band.ShiftWest(world, st.gen); err != nil {
 				return err
 			}

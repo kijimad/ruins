@@ -109,7 +109,7 @@ func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {
 }
 
 // translateTileKeyMap は GridElement キーの map を (dx,dy) 平行移動した新しい map を返す。
-// keep が false を返すキー（帯外に落ちたもの）は捨てる。
+// keep が false を返すキー（帯外に落ちたもの）は捨てる。keep が nil のときはフィルタせず全キーを通す。
 func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, keep func(gc.GridElement) bool) map[gc.GridElement]V {
 	if src == nil {
 		return nil
