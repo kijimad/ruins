@@ -53,24 +53,37 @@ func (b OverworldBarriers) PlanMeta(planData *MetaPlan) error {
 		}
 	}
 
-	// 通行保証: どの列も高さ全体を塞がない。全塞ぎ列があれば中央を通行可能に戻す
-	dirtTile := planData.GetTile("dirt")
-	for x := range w {
-		if columnBlocked(planData, x, h) {
-			planData.Tiles[planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(h/2))] = dirtTile
-		}
-	}
+	// 通行保証: 東西を貫く連結した通路を必ず1本掘る（連結性の構造保証）。
+	// 「各列に通行可能タイルがある」だけでは E-W 経路を保証できない（列ごとに通行可能な y が
+	// バラけて縦に途切れると4連結しない）。西端から東端まで連続した通路を constructive に
+	// 掘ることで、障壁をどう置いても西端→東端が4連結することを保証する。
+	carveEastWestPath(planData, w, h)
 	return nil
 }
 
-// columnBlocked は列 x の全タイルが通行不可かを返す。
-func columnBlocked(planData *MetaPlan, x, h int) bool {
-	for y := range h {
-		if !planData.Tiles[planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))].BlockPass {
-			return false
+// carveEastWestPath は西端から東端まで4連結した通路を1本掘る。
+// 各列で通路タイルを通行可能にし、上下にずれる際は移動元・移動先の両タイルを通して縦の連結も確保する。
+func carveEastWestPath(planData *MetaPlan, w, h int) {
+	dirtTile := planData.GetTile("dirt")
+	setDirt := func(x, y int) {
+		if y < 0 || y >= h {
+			return
+		}
+		planData.Tiles[planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))] = dirtTile
+	}
+
+	y := h / 2
+	for x := range w {
+		setDirt(x, y)
+		// 20% で上下に1歩蛇行する。ずれる際は移動元(既にdirt)と移動先の両方を通し縦連結を保つ
+		if planData.RNG.IntN(5) == 0 {
+			ny := y + (planData.RNG.IntN(2)*2 - 1) // y-1 または y+1
+			if ny >= 0 && ny < h {
+				setDirt(x, ny)
+				y = ny
+			}
 		}
 	}
-	return true
 }
 
 // NewOverworldFieldPlanner は開けた地形（通行可能デフォルト＋まばらな障壁）のチェーンを作る。

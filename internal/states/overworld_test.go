@@ -78,6 +78,33 @@ func TestOverworldState_maybeShift_東へ進むとシフトする(t *testing.T) 
 	assert.Equal(t, chunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
 }
 
+func TestOverworldState_maybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	const chunkW, chunkH consts.Tile = 30, 20
+	const k = 3
+
+	factory := NewOverworldState(777, chunkW, chunkH, k, mapplanner.PlannerTypeSmallRoom)
+	state, err := factory()
+	require.NoError(t, err)
+	st, ok := state.(*OverworldState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+
+	// 中央から2チャンク以上東（帯外）に飛ばす。1回のシフトでは中央に収まらない
+	world.Components.GridElement.Get(player).X = 100
+	require.NoError(t, st.maybeShift(world))
+
+	assert.Equal(t, 2, st.band.EastIndex(), "収まるまで連続シフトして eastIndex=2")
+	px := world.Components.GridElement.Get(player).X
+	assert.GreaterOrEqual(t, px, consts.Tile(k/2)*chunkW, "プレイヤーは中央チャンク内に収まる")
+	assert.Less(t, px, consts.Tile(k/2+1)*chunkW, "プレイヤーは中央チャンク内に収まる")
+}
+
 func TestOverworldState_maybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 

@@ -120,12 +120,21 @@ func (st *OverworldState) maybeShift(world w.World) error {
 	if query.HasActivity(world, playerEntity) {
 		return nil
 	}
-	localX := world.Components.GridElement.Get(playerEntity).X
-	switch {
-	case st.band.ShouldShiftEast(localX):
-		return st.band.ShiftEast(world, st.gen)
-	case st.band.ShouldShiftWest(localX):
-		return st.band.ShiftWest(world, st.gen)
+	// 中央チャンクに収まるまでシフトを繰り返す（設計 §2.1 の while 相当）。
+	// 各シフトはプレイヤーを chunkW ぶん中央へ寄せるため、必ず有限回で収束する。
+	for {
+		localX := world.Components.GridElement.Get(playerEntity).X
+		switch {
+		case st.band.ShouldShiftEast(localX):
+			if err := st.band.ShiftEast(world, st.gen); err != nil {
+				return err
+			}
+		case st.band.ShouldShiftWest(localX):
+			if err := st.band.ShiftWest(world, st.gen); err != nil {
+				return err
+			}
+		default:
+			return nil
+		}
 	}
-	return nil
 }
