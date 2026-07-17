@@ -33,7 +33,7 @@ updategolden: ## ゴールデンテスト用の基準画像を生成する
 # benchstat に読まれるため、コマンド文字列のノイズを混ぜないようにすること
 .PHONY: bench
 bench: ## ベンチマークを全て実行する
-	@RUINS_LOG_LEVEL=ignore \
+	RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a go test -run '^$$' -bench=. -benchmem \
 		$(GO_TEST_PKGS)
 

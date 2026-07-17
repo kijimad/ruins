@@ -116,10 +116,13 @@ jobs:
           # PRブランチで bench を実行する
           make bench > pr.txt
           # ベースブランチで bench を実行する。
-          # bench ターゲット無し・ビルドエラー等の失敗はbase.txt 空のまま比較スキップにする。
-          # エラー原因を base_err.txt に残す。
-          if ! make -C _base bench > base.txt 2> base_err.txt; then
+          # -s 必須: -C は top-level でも "make: Entering/Leaving directory" を stdout に出し、
+          # benchstat がそれを "make:" 設定行と誤解釈して base 側ベンチの突き合わせが壊れる。
+          # -s はこのメッセージも recipe echo も両方抑止する（Makefile の @ では -C 由来は消せない）。
+          if ! make -s -C _base bench > base.txt 2> base_err.txt; then
             echo "::warning::base のベンチ取得に失敗しました。比較をスキップします"
+            # bench ターゲット無し・ビルドエラー等の失敗は base.txt 空のまま比較スキップにする。
+            # エラー原因を base_err.txt に残す。
             sed 's/^/base bench err: /' base_err.txt || true
           fi
       - name: compare
