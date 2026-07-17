@@ -718,19 +718,23 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return err
 		}
-		// 復元済みの現在地（ダンジョン定義名・深度。町も深度0のダンジョンとして扱う）から
-		// 再生成せずに復帰する
-		dungeonState := query.GetDungeon(world)
-		resume := NewDungeonState(
-			dungeonState.Depth,
-			WithDefinitionName(dungeonState.DefinitionName),
-			WithResume(),
-		)
+		// 復元済みの現在地から再生成せずに復帰する
 		messageState.SetTransition(es.Transition[w.World]{
 			Type:          es.TransReplace,
-			NewStateFuncs: []es.StateFactory[w.World]{resume}})
+			NewStateFuncs: []es.StateFactory[w.World]{newResumeStateFactory(world)}})
 		return nil
 	})
+}
+
+// newResumeStateFactory はロード復元時の復帰先ステートを保存内容から選ぶ。
+// シームレスワールド（SeamlessBand.Active）なら OverworldState で復帰して帯を再構築し、
+// 通常ダンジョン/町なら DungeonState で復帰する（定義名・深度から再生成せずに）。
+func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
+	d := query.GetDungeon(world)
+	if d.SeamlessBand.Active {
+		return NewOverworldStateForLoad(mapplanner.PlannerTypeOverworldField)
+	}
+	return NewDungeonState(d.Depth, WithDefinitionName(d.DefinitionName), WithResume())
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。

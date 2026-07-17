@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"maps"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -148,7 +149,8 @@ func (st *OverworldState) OnPause(world w.World) error {
 		pos := *world.Components.GridElement.Get(p)
 		st.savedPlayerPos = &pos
 	}
-	st.savedExplored = query.GetDungeon(world).ExploredTiles
+	// 参照でなくコピーを退避する。遺跡側が ExploredTiles を再代入せず in-place 変異しても汚染されない
+	st.savedExplored = maps.Clone(query.GetDungeon(world).ExploredTiles)
 	// 帯タイルを消す（プレイヤー・隊員は残す）。遺跡タイルとの重なりを防ぐ
 	worldstream.RemoveEntitiesInXRange(world, 0, st.band.Width(), worldstream.KeepPlayerAndSquad(world))
 	return nil
@@ -159,6 +161,9 @@ func (st *OverworldState) OnPause(world w.World) error {
 // 遺跡の OnStop が非プレイヤーエンティティを全削除しているため、帯を決定的に再生成し、
 // 退避したプレイヤー位置・探索済みを復元する。
 func (st *OverworldState) OnResume(world w.World) error {
+	// 再生成前に帯領域を掃除して自己完結させる（遺跡側 OnStop の副作用に依存せず、
+	// 二重生成を防ぐ）。プレイヤー・隊員は残す
+	worldstream.RemoveEntitiesInXRange(world, 0, st.band.Width(), worldstream.KeepPlayerAndSquad(world))
 	if err := st.generateBandChunks(world); err != nil {
 		return err
 	}
