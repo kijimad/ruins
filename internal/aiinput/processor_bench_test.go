@@ -90,7 +90,7 @@ func BenchmarkProcessAll(b *testing.B) {
 			}
 			b.StopTimer()
 
-			// processed はカリング後に処理される SoloAI 数（比較の文脈）。
+			// processed はカリング後に処理される SoloAI 数。
 			// ms/op は benchstat の sec/op と重複するため出さない
 			b.ReportMetric(float64(len(processed)), "processed")
 		})

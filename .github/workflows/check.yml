@@ -109,39 +109,40 @@ jobs:
           path: _base
       - uses: ./.github/actions/setup-go-with-x
       - name: install benchstat
-        # バージョンを固定する。@latest だと benchstat の CSV 形式が変わったとき
-        # 下の awk ゲートがサイレントに無効化される恐れがあるため
+        # benchstat の CSV 形式が変わったとき壊れるのでバージョン固定する
         run: go install golang.org/x/perf/cmd/benchstat@v0.0.0-20260709024250-82a0b07e230d
       - name: run benchmarks (PR and base)
         run: |
-          # make -s で make のrecipe echo を抑止し、benchstat が読む go test 出力だけにする
-          make -s bench > pr.txt
-          # ベースにも同じ bench を走らせる。失敗（bench ターゲット無し・ビルドエラー等）は
-          # base.txt 空のまま比較スキップにする。原因を base_err.txt に残す
-          if ! make -s -C _base bench > base.txt 2> base_err.txt; then
-            echo "::warning::base のベンチ取得に失敗しました（比較をスキップします）"
+          # PRブランチで bench を実行する
+          make -bench > pr.txt
+          # ベースブランチで bench を実行する。
+          # bench ターゲット無し・ビルドエラー等の失敗はbase.txt 空のまま比較スキップにする。
+          # エラー原因を base_err.txt に残す。
+          if ! make -C _base bench > base.txt 2> base_err.txt; then
+            echo "::warning::base のベンチ取得に失敗しました。比較をスキップします"
             sed 's/^/base bench err: /' base_err.txt || true
           fi
       - name: compare
         id: cmp
         run: |
-          touch cmp.md # 途中でクラッシュしても sticky comment ステップがファイル無しで失敗しないよう保証
+          # 途中でクラッシュしても sticky comment ステップがファイル無しで失敗しないよう保証する
+          touch cmp.md
           bad=
-          # benchstat -format csv の geomean 行は次の形（pin した版で確認済み）:
+          # benchstat -format csv の geomean 行は次の形:
           #   ,sec/op,CI,sec/op,CI,vs base,P        ← metric ヘッダ行（$1="" $2=metric）
-          #   geomean,<base値>,,<pr値>,,+200.00%,   ← $1=geomean $2=base $4=pr
+          #   geomean,<base値>,,<pr値>,,+200.00%,    ← $1=geomean $2=base $4=pr
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
-            # base に比較対象のベンチがある → base vs PR を並べて表示
+            # base vs PR を並べて表示
             { echo '### ベンチ比較 (base vs PR)'; echo '```'; benchstat base.txt pr.txt; echo '```'; } > cmp.md
             # sec/op の geomean が2倍以上悪化したパッケージを検出する。
-            # 個別ベンチはサンプル数1（CI）だとノイズで簡単に2倍になり誤発火するため、
-            # 集約値の geomean で判定する（geomean が2倍動くには大半のベンチが劣化する必要がある）。
+            # 個別ベンチはサンプル数1だとノイズで簡単に2倍になり誤発火するため、
+            # 集約値の geomean で判定する。 geomean が2倍動くには大半のベンチが劣化する必要がある。
             bad=$(benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
               $1=="" && $2!="" { metric=$2; next }
               $1=="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
                 printf "- geomean: x%.2f\n", $4/$2 }')
           else
-            # base 側にベンチが無い（初回PR・リネーム・base ビルド失敗等）→ PR のみ表示し比較不可を明示
+            # base 側にベンチが無い（初回PR・リネーム・base ビルド失敗等）場合、 PR のみ表示し比較不可を明示する
             { echo '### ベンチ (PR のみ・base と比較不可)';
               echo '> base 側に比較対象のベンチが取得できなかったため、今回は PR の数値のみ表示します。';
               echo '```'; benchstat pr.txt; echo '```'; } > cmp.md
@@ -157,7 +158,7 @@ jobs:
       - name: gate on catastrophic regression
         if: steps.cmp.outputs.bad != ''
         run: |
-          echo "::error::ベンチマークが2倍以上悪化しました（詳細はPRコメント参照）"
+          echo "::error::ベンチマークが2倍以上悪化しました。詳細はPRコメント参照"
           exit 1
 
   check-ui:
