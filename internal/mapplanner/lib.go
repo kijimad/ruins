@@ -489,6 +489,16 @@ var (
 		PlannerFunc: NewForestPlanner,
 	}
 
+	// PlannerTypeOverworldField はシームレスワールドの開けた地形チャンクのプランナータイプ。
+	// 通行可能がデフォルトで障壁は例外。チャンクを継いでも東西通行が保証される（60.md §5.1）。
+	// UseFixedPortalPos=true はフロア降り/帰還ポータルを持たない（東へ歩く）ため、
+	// 手続き的なポータル配置をスキップさせる意味で使う。
+	PlannerTypeOverworldField = PlannerType{
+		Name:              "オーバーワールド原野",
+		UseFixedPortalPos: true,
+		PlannerFunc:       NewOverworldFieldPlanner,
+	}
+
 	// PlannerTypeTown は市街地のプランナータイプ
 	PlannerTypeTown = PlannerType{
 		Name:              "市街地",
