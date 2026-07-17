@@ -114,7 +114,7 @@ jobs:
       - name: run benchmarks (PR and base)
         run: |
           # PRブランチで bench を実行する
-          make -bench > pr.txt
+          make bench > pr.txt
           # ベースブランチで bench を実行する。
           # bench ターゲット無し・ビルドエラー等の失敗はbase.txt 空のまま比較スキップにする。
           # エラー原因を base_err.txt に残す。
@@ -128,12 +128,17 @@ jobs:
           # 途中でクラッシュしても sticky comment ステップがファイル無しで失敗しないよう保証する
           touch cmp.md
           bad=
+          # 実際にベンチを実行した commit を表示する
+          REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+          PR_SHA=$(git rev-parse --short HEAD)
+          BASE_SHA=$(git -C _base rev-parse --short HEAD 2>/dev/null || echo unknown)
+          SHA_LINE="> 実行コミット: base [\`${BASE_SHA}\`](${REPO_URL}/commit/${BASE_SHA}) → PR [\`${PR_SHA}\`](${REPO_URL}/commit/${PR_SHA})"
           # benchstat -format csv の geomean 行は次の形:
           #   ,sec/op,CI,sec/op,CI,vs base,P        ← metric ヘッダ行（$1="" $2=metric）
           #   geomean,<base値>,,<pr値>,,+200.00%,    ← $1=geomean $2=base $4=pr
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
             # base vs PR を並べて表示
-            { echo '### ベンチ比較 (base vs PR)'; echo '```'; benchstat base.txt pr.txt; echo '```'; } > cmp.md
+            { echo '### ベンチ比較 (base vs PR)'; echo "$SHA_LINE"; echo '```'; benchstat base.txt pr.txt; echo '```'; } > cmp.md
             # sec/op の geomean が2倍以上悪化したパッケージを検出する。
             # 個別ベンチはサンプル数1だとノイズで簡単に2倍になり誤発火するため、
             # 集約値の geomean で判定する。 geomean が2倍動くには大半のベンチが劣化する必要がある。
@@ -144,6 +149,7 @@ jobs:
           else
             # base 側にベンチが無い（初回PR・リネーム・base ビルド失敗等）場合、 PR のみ表示し比較不可を明示する
             { echo '### ベンチ (PR のみ・base と比較不可)';
+              echo "$SHA_LINE";
               echo '> base 側に比較対象のベンチが取得できなかったため、今回は PR の数値のみ表示します。';
               echo '```'; benchstat pr.txt; echo '```'; } > cmp.md
           fi
