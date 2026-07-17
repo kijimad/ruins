@@ -64,7 +64,7 @@ func (b OverworldBarriers) PlanMeta(planData *MetaPlan) error {
 // carveEastWestPath は西端から東端まで4連結した通路を1本掘る。
 // 各列で通路タイルを通行可能にし、上下にずれる際は移動元・移動先の両タイルを通して縦の連結も確保する。
 func carveEastWestPath(planData *MetaPlan, w, h int) {
-	dirtTile := planData.GetTile("dirt")
+	dirtTile := planData.GetTile(consts.TileNameDirt)
 	setDirt := func(x, y int) {
 		if y < 0 || y >= h {
 			return
@@ -90,7 +90,7 @@ func carveEastWestPath(planData *MetaPlan, w, h int) {
 func NewOverworldFieldPlanner(width, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(OverworldFieldPlanner{})
-	chain.With(NewFillAll("dirt"))  // 全面を通行可能な地面で埋める（デフォルト通行可）
-	chain.With(OverworldBarriers{}) // 障壁をまばらに置く（列は塞がない）
+	chain.With(NewFillAll(consts.TileNameDirt)) // 全面を通行可能な地面で埋める（デフォルト通行可）
+	chain.With(OverworldBarriers{})             // 障壁をまばらに置く（列は塞がない）
 	return chain, nil
 }

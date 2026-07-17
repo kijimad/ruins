@@ -130,6 +130,8 @@ func (st *OverworldState) syncBandState(world w.World) {
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
+// OnStart(新規)と OnResume(遺跡帰還)の両方から呼ばれる。Level 設定は帯幅が不変なので
+// ロード/帰還時に再設定しても冪等（無害）。
 func (st *OverworldState) generateBandChunks(world w.World) error {
 	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
 	for i := range st.band.K() {

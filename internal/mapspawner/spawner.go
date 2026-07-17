@@ -82,9 +82,9 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 	// TODO: タイル名直判定だと忘れやすいので直したい
 	if !tile.BlockPass {
 		switch tile.Name {
-		case "dirt":
-			index := int(metaPlan.CalculateAutoTileIndex(i, "dirt"))
-			return lifecycle.SpawnTile(world, "dirt", tileX, tileY, &index)
+		case consts.TileNameDirt:
+			index := int(metaPlan.CalculateAutoTileIndex(i, consts.TileNameDirt))
+			return lifecycle.SpawnTile(world, consts.TileNameDirt, tileX, tileY, &index)
 		case "floor":
 			index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
 			return lifecycle.SpawnTile(world, "floor", tileX, tileY, &index)
