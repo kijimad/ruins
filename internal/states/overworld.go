@@ -79,6 +79,12 @@ func (st *OverworldState) OnStart(world w.World) error {
 	d := query.GetDungeon(world)
 	sb := &d.SeamlessBand
 
+	// 視界の強制再計算を促す。VisionSystem は world.Updaters に居座る永続インスタンスで、
+	// Depth/DefinitionName が変わらないと内部キャッシュを無効化しない。オーバーワールドは常に
+	// Depth=0 なのでフロア変化が起きず、ロード復元では serde が空にした VisibleTiles が
+	// stale な isInitialized のまま再計算されず真っ暗になる。ここで一度だけ強制する。
+	d.NeedsForceUpdate = true
+
 	// ロード復元: 帯タイル・Level・プレイヤーは serde で復元済み。
 	// ここでは Band ドライバと ChunkGen を永続状態から再構築するだけでよい（再生成しない）。
 	if sb.Active {

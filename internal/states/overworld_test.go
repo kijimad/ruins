@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -13,6 +14,45 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestOverworldState_ロード復元で視界が再計算され真っ暗にならない は、セーブ→ロードで
+// VisibleTiles が空へ戻る（serde が json:"-" で除外）とき、OnStart が視界の強制再計算を
+// 促して初回フレームで真っ暗にならないことを固定する。
+//
+// VisionSystem は Depth/DefinitionName が変わらないと内部キャッシュを無効化しない。
+// オーバーワールドは常に Depth=0・DefinitionName="" なのでフロア変化が起きず、stale な
+// isInitialized で視界再計算がスキップされ、可視タイルが空のまま黒画面になっていた。
+func TestOverworldState_ロード復元で視界が再計算され真っ暗にならない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	const chunkW, chunkH consts.Tile = 30, 20
+
+	factory := NewOverworldState(777, chunkW, chunkH, 3, mapplanner.PlannerTypeOverworldField)
+	state, err := factory()
+	require.NoError(t, err)
+	st, ok := state.(*OverworldState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+
+	d := query.GetDungeon(world)
+	vs := gs.NewVisionSystem()
+
+	// 初回の視界計算で可視タイルが埋まる（プレイヤーは中央、周囲は開けた原野）
+	require.NoError(t, vs.Update(world))
+	require.NotEmpty(t, d.VisibleTiles, "前提: 初回で視界が埋まる")
+
+	// ロードを模す: serde は VisibleTiles を空へ初期化する（json:"-"）。
+	// VisionSystem インスタンスは world.Updaters に居座り isInitialized/lastPlayer が残る
+	d.VisibleTiles = map[gc.GridElement]bool{}
+
+	// ロード復帰の OnStart（sb.Active ブランチ）。プレイヤーは動かさない
+	require.NoError(t, st.OnStart(world))
+
+	// stale な同じ VisionSystem で再計算しても視界が戻る（真っ暗回帰防止）
+	require.NoError(t, vs.Update(world))
+	assert.NotEmpty(t, d.VisibleTiles, "ロード後も視界が再計算されて真っ暗にならない")
+}
 
 func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) {
 	t.Parallel()
