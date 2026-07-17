@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-16 16:04:54</td>
+            <td class="headerValue">2026-07-17 17:51:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -137,12 +137,12 @@
 <span id="L75"><span class="lineNum">      75</span>              : }</span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // WeaponAccuracyKey は武器スキルIDに対応する命中効果キーを返す。未定義ならpanicする</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">         107 : func WeaponAccuracyKey(id SkillID) ModifierKey {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">         107 :         key, ok := weaponAccuracyKeys[id]</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">         109 :         if !ok {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">         106 : func WeaponAccuracyKey(id SkillID) ModifierKey {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">         106 :         key, ok := weaponAccuracyKeys[id]</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">         108 :         if !ok {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           2 :                 panic(fmt.Sprintf(&quot;未定義の武器スキルID（命中）: %q&quot;, id))</span></span>
 <span id="L82"><span class="lineNum">      82</span>              :         }</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         105 :         return key</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         104 :         return key</span></span>
 <span id="L84"><span class="lineNum">      84</span>              : }</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
 <span id="L86"><span class="lineNum">      86</span>              : // elementResistKeys は元素タイプから耐性効果キーへのマッピング</span>
@@ -224,31 +224,31 @@
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">          13 :         e := &amp;CharModifiers{}</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">          13 :         src := make(map[ModifierKey][]ModifierSource)</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">          13 : </span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">         429 :         calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">         416 :                 v := skills.Get(skillID).Value</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">         416 :                 bonus := v * coeff</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">         416 :                 src[key] = append(src[key], ModifierSource{</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">         416 :                         Label: fmt.Sprintf(&quot;%s Lv%d&quot;, SkillName(skillID), v),</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">         416 :                         Value: bonus,</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">         416 :                 })</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">         416 : </span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">         416 :                 // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">         608 :                 if abils != nil {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">         192 :                         ablID := SkillAbilityID(skillID)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">         192 :                         ablVal := abils.ValueOf(ablID)</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">         192 :                         ablCoeff := 1</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">         264 :                         if coeff &lt; 0 {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">         424 :         calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">         411 :                 v := skills.Get(skillID).Value</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">         411 :                 bonus := v * coeff</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">         411 :                 src[key] = append(src[key], ModifierSource{</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">         411 :                         Label: fmt.Sprintf(&quot;%s Lv%d&quot;, SkillName(skillID), v),</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">         411 :                         Value: bonus,</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">         411 :                 })</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">         411 : </span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">         411 :                 // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">         600 :                 if abils != nil {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">         189 :                         ablID := SkillAbilityID(skillID)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">         189 :                         ablVal := abils.ValueOf(ablID)</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">         189 :                         ablCoeff := 1</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">         261 :                         if coeff &lt; 0 {</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          72 :                                 ablCoeff = -1</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">          72 :                         }</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">         192 :                         ablBonus := ablVal * ablCoeff</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">         192 :                         src[key] = append(src[key], ModifierSource{</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">         192 :                                 Label: fmt.Sprintf(&quot;%s %d&quot;, AbilityName(ablID), ablVal),</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">         192 :                                 Value: ablBonus,</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">         192 :                         })</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">         192 :                         bonus += ablBonus</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">         188 :                         ablBonus := ablVal * ablCoeff</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">         188 :                         src[key] = append(src[key], ModifierSource{</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">         188 :                                 Label: fmt.Sprintf(&quot;%s %d&quot;, AbilityName(ablID), ablVal),</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">         188 :                                 Value: ablBonus,</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">         188 :                         })</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">         188 :                         bonus += ablBonus</span></span>
 <span id="L187"><span class="lineNum">     187</span>              :                 }</span>
 <span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">         416 :                 return 100 + bonus</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">         414 :                 return 100 + bonus</span></span>
 <span id="L190"><span class="lineNum">     190</span>              :         }</span>
 <span id="L191"><span class="lineNum">     191</span>              : </span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          13 :         e.WeaponDamage = make(map[SkillID]int, len(weaponSkillIDs))</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-16 16:04:54</td>
+            <td class="headerValue">2026-07-17 17:51:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,16 +80,16 @@
 <span id="L18"><span class="lineNum">      18</span>              : }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // Info はBehaviorの実装</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">          12 : func (ra *RestActivity) Info() Info {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          12 :         return Info{</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          12 :                 Name:            &quot;休息&quot;,</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          12 :                 Description:     &quot;体力を回復するために休息する&quot;,</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          12 :                 Interruptible:   true,</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">          12 :                 Resumable:       true,</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          12 :                 ActionPointCost: consts.StandardActionCost,</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          12 :                 TotalRequiredAP: 1000,</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          12 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          12 : }</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">          11 : func (ra *RestActivity) Info() Info {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          11 :         return Info{</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          11 :                 Name:            &quot;休息&quot;,</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          11 :                 Description:     &quot;体力を回復するために休息する&quot;,</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          11 :                 Interruptible:   true,</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">          11 :                 Resumable:       true,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          11 :                 ActionPointCost: consts.StandardActionCost,</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          11 :                 TotalRequiredAP: 1000,</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          11 :         }</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          11 : }</span></span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // Name はBehaviorの実装</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           5 : func (ra *RestActivity) Name() gc.BehaviorName {</span></span>
@@ -201,17 +201,17 @@
 <span id="L139"><span class="lineNum">     139</span>              : }</span>
 <span id="L140"><span class="lineNum">     140</span>              : </span>
 <span id="L141"><span class="lineNum">     141</span>              : // Canceled は休息キャンセル時の処理を実行する</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 : func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           2 :         // プレイヤーの場合のみ中断時のメッセージを表示</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           3 :         if world.Components.Player.Has(actor) {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         // プレイヤーの場合のみ中断時のメッセージを表示</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :         if world.Components.Player.Has(actor) {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                         Append(&quot;休息が中断された: &quot;).</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                         Append(comp.CancelReason).</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         Log()</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :         log.Debug(&quot;休息中断&quot;, &quot;reason&quot;, comp.CancelReason, &quot;progress&quot;, GetProgressPercent(comp))</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           2 :         return nil</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         log.Debug(&quot;休息中断&quot;, &quot;reason&quot;, comp.CancelReason, &quot;progress&quot;, GetProgressPercent(comp))</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L153"><span class="lineNum">     153</span>              : }</span>
 <span id="L154"><span class="lineNum">     154</span>              : </span>
 <span id="L155"><span class="lineNum">     155</span>              : // performHealing はHP回復処理を実行する</span>
