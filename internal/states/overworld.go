@@ -53,6 +53,19 @@ func NewOverworldState(runSeed uint64, chunkW, chunkH consts.Tile, k int, planne
 	}
 }
 
+// NewOverworldStateForLoad はセーブから復元する際のファクトリを返す。
+// 帯パラメータ（seed/chunkW/chunkH/k/eastIndex）は OnStart が Dungeon.SeamlessBand から
+// 読み取って再構築するため、ここでは planner だけ指定すればよい。
+func NewOverworldStateForLoad(planner mapplanner.PlannerType) es.StateFactory[w.World] {
+	return func() (es.State[w.World], error) {
+		return &OverworldState{
+			DungeonState: &DungeonState{},
+			band:         worldstream.NewBand(1, 1), // OnStart で SeamlessBand から再構築される
+			planner:      planner,
+		}, nil
+	}
+}
+
 // OnStart は初期帯（K チャンク）を生成し、プレイヤーを中央チャンクへ置く。
 func (st *OverworldState) OnStart(world w.World) error {
 	sw := world.Resources.ScreenDimensions.Width
@@ -62,8 +75,28 @@ func (st *OverworldState) OnStart(world w.World) error {
 		st.baseImage.Fill(theme.ScreenBackground)
 	}
 
-	// 帯 ＝ K*chunkW × chunkH の単一マップ
 	d := query.GetDungeon(world)
+	sb := &d.SeamlessBand
+
+	// ロード復元: 帯タイル・Level・プレイヤーは serde で復元済み。
+	// ここでは Band ドライバと ChunkGen を永続状態から再構築するだけでよい（再生成しない）。
+	if sb.Active {
+		st.runSeed, st.chunkW, st.chunkH = sb.RunSeed, sb.ChunkW, sb.ChunkH
+		st.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
+		st.gen = overworld.NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, st.planner)
+		query.InvalidateSpatialIndex(world)
+		return nil
+	}
+
+	// 新規開始: 帯状態を Dungeon に記録し（セーブ対応）、初期帯を生成してプレイヤーを配置する
+	sb.Active = true
+	sb.RunSeed = st.runSeed
+	sb.EastIndex = st.band.EastIndex()
+	sb.ChunkW = st.chunkW
+	sb.ChunkH = st.chunkH
+	sb.K = st.band.K()
+
+	// 帯 ＝ K*chunkW × chunkH の単一マップ
 	d.Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
 	d.ExploredTiles = make(map[gc.GridElement]bool)
 
@@ -88,6 +121,11 @@ func (st *OverworldState) OnStart(world w.World) error {
 
 	query.InvalidateSpatialIndex(world)
 	return nil
+}
+
+// syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す（セーブに反映させる）。
+func (st *OverworldState) syncBandState(world w.World) {
+	query.GetDungeon(world).SeamlessBand.EastIndex = st.band.EastIndex()
 }
 
 // Update は DungeonState の共通処理を実行後、ターン境界で帯をシフトする。
@@ -129,10 +167,12 @@ func (st *OverworldState) maybeShift(world w.World) error {
 			if err := st.band.ShiftEast(world, st.gen); err != nil {
 				return err
 			}
+			st.syncBandState(world)
 		case st.band.ShouldShiftWest(localX):
 			if err := st.band.ShiftWest(world, st.gen); err != nil {
 				return err
 			}
+			st.syncBandState(world)
 		default:
 			return nil
 		}
