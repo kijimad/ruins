@@ -112,19 +112,33 @@ jobs:
         run: go install golang.org/x/perf/cmd/benchstat@latest
       - name: run benchmarks (PR and base)
         run: |
-          make bench > pr.txt
-          # ベースに bench ターゲットが無い場合（初回PR等）は比較スキップ扱い
-          make -C _base bench > base.txt 2>/dev/null || true
+          # make -s で make のrecipe echo を抑止し、benchstat が読む go test 出力だけにする
+          make -s bench > pr.txt
+          # ベースにも同じ bench を走らせる。失敗（bench ターゲット無し・ビルドエラー等）は
+          # base.txt 空のまま比較スキップにする。原因を base_err.txt に残す
+          if ! make -s -C _base bench > base.txt 2> base_err.txt; then
+            echo "::warning::base のベンチ取得に失敗しました（比較をスキップします）"
+            sed 's/^/base bench err: /' base_err.txt || true
+          fi
       - name: compare
         id: cmp
         run: |
-          { echo '### ベンチ比較 (base vs PR)'; echo '```'; benchstat base.txt pr.txt || echo '比較を生成できませんでした'; echo '```'; } > cmp.md
+          bad=
+          if grep -q '^Benchmark' base.txt 2>/dev/null; then
+            # base に比較対象のベンチがある → base vs PR を並べて表示
+            { echo '### ベンチ比較 (base vs PR)'; echo '```'; benchstat base.txt pr.txt; echo '```'; } > cmp.md
+            # sec/op が2倍以上のベンチを検出（benchstatの生の平均比で判定。ノイズは2倍に届かない）
+            bad=$(benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
+              $1=="" && $2!="" { metric=$2; next }
+              $1!="" && $1!="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
+                printf "- %s: x%.2f\n", $1, $4/$2 }')
+          else
+            # base 側にベンチが無い（初回PR・リネーム・base ビルド失敗等）→ PR のみ表示し比較不可を明示
+            { echo '### ベンチ (PR のみ・base と比較不可)';
+              echo '> base 側に比較対象のベンチが取得できなかったため、今回は PR の数値のみ表示します。';
+              echo '```'; benchstat pr.txt; echo '```'; } > cmp.md
+          fi
           cat cmp.md
-          # sec/op が2倍以上のベンチを検出（benchstatの生の平均比で判定。ノイズは2倍に届かない）
-          bad=$(benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
-            $1=="" && $2!="" { metric=$2; next }
-            $1!="" && $1!="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
-              printf "- %s: x%.2f\n", $1, $4/$2 }')
           { echo "bad<<EOF"; echo "$bad"; echo "EOF"; } >> "$GITHUB_OUTPUT"
       - name: sticky comment
         if: always()
