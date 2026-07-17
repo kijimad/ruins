@@ -20,7 +20,9 @@ import (
 func TestChunkSeed_決定的(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, overworld.ChunkSeed(42, 5), overworld.ChunkSeed(42, 5), "同じ入力なら同じ seed")
+	first := overworld.ChunkSeed(42, 5)
+	again := overworld.ChunkSeed(42, 5)
+	assert.Equal(t, first, again, "同じ入力なら同じ seed（決定的）")
 	assert.NotEqual(t, overworld.ChunkSeed(42, 1), overworld.ChunkSeed(42, 2), "隣接インデックスで seed が変わる")
 	assert.NotEqual(t, overworld.ChunkSeed(1, 5), overworld.ChunkSeed(2, 5), "runSeed が変われば seed も変わる")
 }
@@ -98,7 +100,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	require.True(t, band.ShouldShiftEast(world.Components.GridElement.Get(player).X))
 	require.NoError(t, band.ShiftEast(world, gen))
 
-	assert.Equal(t, 1, band.EastIndex, "東へ1チャンク進む")
+	assert.Equal(t, 1, band.EastIndex(), "東へ1チャンク進む")
 	assert.Equal(t, chunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
 
 	// 帯を3スロットに分け、各スロットにタイルが存在する（破棄＋生成＋リベース後も全域が埋まる）

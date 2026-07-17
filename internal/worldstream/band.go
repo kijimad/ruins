@@ -13,9 +13,9 @@ import (
 // リベース）。これにより帯ローカル座標は常に 0..K*chunkW に収まり、既存の単一マップ機構を
 // 変えずに無限東進を実現する。詳細設計は docs/design/20260717_60.md §2。
 type Band struct {
-	ChunkW    consts.Tile // 1チャンクの幅（タイル）
-	K         int         // 帯のチャンク数（奇数。中央チャンクを持つ）
-	EastIndex int         // 東進したチャンク数（帯西端チャンクの絶対インデックス）
+	chunkW    consts.Tile // 1チャンクの幅（タイル）。構築後不変
+	k         int         // 帯のチャンク数（奇数。中央チャンクを持つ）。構築後不変
+	eastIndex int         // 東進したチャンク数（帯西端チャンクの絶対インデックス）。シフトで変化
 }
 
 // ChunkGen は絶対チャンクインデックスの地形を帯ローカルの offsetX 位置へ生成・配置する。
@@ -25,54 +25,68 @@ type ChunkGen func(chunkIndex int, offsetX consts.Tile) error
 
 // NewBand は幅 chunkW・チャンク数 k（奇数推奨）の帯を eastIndex=0 で作る。
 func NewBand(chunkW consts.Tile, k int) *Band {
-	return &Band{ChunkW: chunkW, K: k, EastIndex: 0}
+	return NewBandAt(chunkW, k, 0)
 }
 
+// NewBandAt は eastIndex を指定して帯を作る。セーブからの復元（Phase 6）で使う。
+func NewBandAt(chunkW consts.Tile, k, eastIndex int) *Band {
+	return &Band{chunkW: chunkW, k: k, eastIndex: eastIndex}
+}
+
+// ChunkW は1チャンクの幅（タイル）を返す。
+func (b *Band) ChunkW() consts.Tile { return b.chunkW }
+
+// K は帯のチャンク数を返す。
+func (b *Band) K() int { return b.k }
+
+// EastIndex は東進したチャンク数（帯西端チャンクの絶対インデックス）を返す。
+func (b *Band) EastIndex() int { return b.eastIndex }
+
 // BandOriginX は帯ローカル X=0 が指す絶対 X。
-func (b *Band) BandOriginX() AbsTileX { return BandOriginX(b.EastIndex, b.ChunkW) }
+func (b *Band) BandOriginX() AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }
 
 // Width は帯の総幅（タイル）。帯ローカル X の有効範囲は [0, Width())。
-func (b *Band) Width() consts.Tile { return b.ChunkW * consts.Tile(b.K) }
+func (b *Band) Width() consts.Tile { return b.chunkW * consts.Tile(b.k) }
 
 // centerSlot は中央チャンクのスロット番号（K が奇数なら真ん中）。
-func (b *Band) centerSlot() int { return b.K / 2 }
+func (b *Band) centerSlot() int { return b.k / 2 }
 
 // ShouldShiftEast はプレイヤーの帯ローカル X が中央チャンクを東へ出たかを返す（ヒステリシス）。
 func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {
-	return playerLocalX >= consts.Tile(b.centerSlot()+1)*b.ChunkW
+	return playerLocalX >= consts.Tile(b.centerSlot()+1)*b.chunkW
 }
 
 // ShouldShiftWest はプレイヤーが中央チャンクを西へ出たかを返す（短い寄り道の復帰時のみ）。
 func (b *Band) ShouldShiftWest(playerLocalX consts.Tile) bool {
-	return playerLocalX < consts.Tile(b.centerSlot())*b.ChunkW
+	return playerLocalX < consts.Tile(b.centerSlot())*b.chunkW
 }
 
 // ShiftEast は帯を東へ1チャンク進める（§2.2 shiftEast の合成）。
 // 西端チャンク破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端チャンク生成。
 func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 	// 1. 西端チャンク破棄（前線が呑む）。プレイヤー・隊員は残す
-	RemoveEntitiesInXRange(world, 0, b.ChunkW, KeepPlayerAndSquad(world))
+	RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayerAndSquad(world))
 	// 2. リベース：全エンティティを西へ chunkW（プレイヤーを中央へ戻す）
-	TranslateAllEntities(world, -b.ChunkW, 0)
+	TranslateAllEntities(world, -b.chunkW, 0)
 	// 3. 座標キー Map を追従させる（§2.4）
-	b.rebaseCoordMaps(world, -b.ChunkW)
+	b.rebaseCoordMaps(world, -b.chunkW)
 	// 4. eastIndex 前進 → 新しい東端チャンクを生成・配置
-	b.EastIndex++
-	newChunkIndex := b.EastIndex + b.K - 1
-	offsetX := consts.Tile(b.K-1) * b.ChunkW
+	b.eastIndex++
+	newChunkIndex := b.eastIndex + b.k - 1
+	offsetX := consts.Tile(b.k-1) * b.chunkW
 	return gen(newChunkIndex, offsetX)
 }
 
 // ShiftWest は帯を西へ1チャンク戻す（ShiftEast の対称。短い寄り道からの復帰時のみ）。
 func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 	// 東端チャンク破棄
-	RemoveEntitiesInXRange(world, (consts.Tile(b.K)-1)*b.ChunkW, b.Width(), KeepPlayerAndSquad(world))
+	RemoveEntitiesInXRange(world, (consts.Tile(b.k)-1)*b.chunkW, b.Width(), KeepPlayerAndSquad(world))
 	// リベース：全エンティティを東へ chunkW
-	TranslateAllEntities(world, b.ChunkW, 0)
-	b.rebaseCoordMaps(world, b.ChunkW)
+	TranslateAllEntities(world, b.chunkW, 0)
+	b.rebaseCoordMaps(world, b.chunkW)
 	// eastIndex 後退 → 西端チャンクを生成・配置
-	b.EastIndex--
-	newChunkIndex := b.EastIndex
+	b.eastIndex--
+	newChunkIndex := b.eastIndex
 	return gen(newChunkIndex, 0)
 }
 

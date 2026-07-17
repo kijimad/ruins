@@ -1,9 +1,3 @@
-// Package worldstream は無限シームレスワールドの「アクティブ帯」を east 方向へ
-// ストリーミングするための基盤操作を提供する。
-//
-// 帯シフト（プレイヤーが中央チャンクを東へ出たときに、東端チャンクを生成し
-// 西端チャンクを破棄して座標をリベースする操作）は、次の2つの原子操作の合成で表現する。
-// 詳細設計は docs/design/20260717_60.md を参照。
 package worldstream
 
 import (
@@ -20,9 +14,9 @@ import (
 // バックパック/装備アイテムは GridElement を持たないため対象外（クエリで自然に除外される）。
 // コンポーネント値の書き換えのみでアーキタイプは変えないため、クエリ反復中の更新で安全。
 func TranslateAllEntities(world w.World, dx, dy consts.Tile) {
-	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
-	for query.Next() {
-		grid := world.Components.GridElement.Get(query.Entity())
+	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		grid := world.Components.GridElement.Get(q.Entity())
 		grid.X += dx
 		grid.Y += dy
 	}
@@ -35,9 +29,9 @@ func TranslateAllEntities(world w.World, dx, dy consts.Tile) {
 // 反復中の削除を避けるため、対象を収集してから削除する。
 func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {
 	var toRemove []ecs.Entity
-	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
-	for query.Next() {
-		entity := query.Entity()
+	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if grid.X < loX || grid.X >= hiX {
 			continue
