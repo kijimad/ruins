@@ -127,11 +127,13 @@ jobs:
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
             # base に比較対象のベンチがある → base vs PR を並べて表示
             { echo '### ベンチ比較 (base vs PR)'; echo '```'; benchstat base.txt pr.txt; echo '```'; } > cmp.md
-            # sec/op が2倍以上のベンチを検出（benchstatの生の平均比で判定。ノイズは2倍に届かない）
+            # sec/op の geomean が2倍以上悪化したパッケージを検出する。
+            # 個別ベンチはサンプル数1（CI）だとノイズで簡単に2倍になり誤発火するため、
+            # 集約値の geomean で判定する（geomean が2倍動くには大半のベンチが劣化する必要がある）。
             bad=$(benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
               $1=="" && $2!="" { metric=$2; next }
-              $1!="" && $1!="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
-                printf "- %s: x%.2f\n", $1, $4/$2 }')
+              $1=="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
+                printf "- geomean: x%.2f\n", $4/$2 }')
           else
             # base 側にベンチが無い（初回PR・リネーム・base ビルド失敗等）→ PR のみ表示し比較不可を明示
             { echo '### ベンチ (PR のみ・base と比較不可)';
