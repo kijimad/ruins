@@ -30,6 +30,11 @@ type OverworldState struct {
 	chunkW  consts.Tile
 	chunkH  consts.Tile
 	planner mapplanner.PlannerType
+
+	// 遺跡へ TransPush する際に退避する動的状態（決定的に再生成できないもの）。
+	// 帯タイルは seed 決定的なので保存せず OnResume で再生成する。
+	savedPlayerPos *gc.GridElement
+	savedExplored  map[gc.GridElement]bool
 }
 
 var _ es.State[w.World] = &OverworldState{}
@@ -96,16 +101,11 @@ func (st *OverworldState) OnStart(world w.World) error {
 	sb.ChunkH = st.chunkH
 	sb.K = st.band.K()
 
-	// 帯 ＝ K*chunkW × chunkH の単一マップ
-	d.Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
+	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する
 	d.ExploredTiles = make(map[gc.GridElement]bool)
-
-	// 初期帯: K チャンクを各スロットへ決定的生成
 	st.gen = overworld.NewChunkGen(world, st.runSeed, st.chunkW, st.chunkH, st.planner)
-	for i := range st.band.K() {
-		if err := st.gen(i, consts.Tile(i)*st.chunkW); err != nil {
-			return fmt.Errorf("初期チャンク生成失敗 (slot=%d): %w", i, err)
-		}
+	if err := st.generateBandChunks(world); err != nil {
+		return err
 	}
 
 	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
@@ -126,6 +126,54 @@ func (st *OverworldState) OnStart(world w.World) error {
 // syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す（セーブに反映させる）。
 func (st *OverworldState) syncBandState(world w.World) {
 	query.GetDungeon(world).SeamlessBand.EastIndex = st.band.EastIndex()
+}
+
+// generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
+func (st *OverworldState) generateBandChunks(world w.World) error {
+	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
+	for i := range st.band.K() {
+		if err := st.gen(i, consts.Tile(i)*st.chunkW); err != nil {
+			return fmt.Errorf("チャンク生成失敗 (slot=%d): %w", i, err)
+		}
+	}
+	return nil
+}
+
+// OnPause は遺跡へ TransPush する直前に呼ばれる。帯を退避する。
+//
+// 帯タイルは seed 決定的なので保存せず削除し、遺跡がクリーンな座標空間で生成できるようにする
+// （プレイヤー・隊員は残す）。決定的に戻せない動的状態（プレイヤー位置・探索済み）だけ保存する。
+func (st *OverworldState) OnPause(world w.World) error {
+	if p, err := query.GetPlayerEntity(world); err == nil {
+		pos := *world.Components.GridElement.Get(p)
+		st.savedPlayerPos = &pos
+	}
+	st.savedExplored = query.GetDungeon(world).ExploredTiles
+	// 帯タイルを消す（プレイヤー・隊員は残す）。遺跡タイルとの重なりを防ぐ
+	worldstream.RemoveEntitiesInXRange(world, 0, st.band.Width(), worldstream.KeepPlayerAndSquad(world))
+	return nil
+}
+
+// OnResume は遺跡から TransPop で戻った際に呼ばれる。帯を再構築する。
+//
+// 遺跡の OnStop が非プレイヤーエンティティを全削除しているため、帯を決定的に再生成し、
+// 退避したプレイヤー位置・探索済みを復元する。
+func (st *OverworldState) OnResume(world w.World) error {
+	if err := st.generateBandChunks(world); err != nil {
+		return err
+	}
+	if st.savedExplored != nil {
+		query.GetDungeon(world).ExploredTiles = st.savedExplored
+		st.savedExplored = nil
+	}
+	if st.savedPlayerPos != nil {
+		if err := lifecycle.MovePlayerToPosition(world, int(st.savedPlayerPos.X), int(st.savedPlayerPos.Y)); err != nil {
+			return fmt.Errorf("プレイヤー位置の復元に失敗: %w", err)
+		}
+		st.savedPlayerPos = nil
+	}
+	query.InvalidateSpatialIndex(world)
+	return nil
 }
 
 // Update は DungeonState の共通処理を実行後、ターン境界で帯をシフトする。
