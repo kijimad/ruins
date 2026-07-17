@@ -100,11 +100,13 @@ func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {
 	inBand := func(g gc.GridElement) bool {
 		return g.X >= 0 && g.X < b.Width()
 	}
-	// 永続記憶：キー付け替え（帯外に落ちたキーは捨てる）
+	// リベースは純粋な座標シフトなので、座標キーの Map はすべてキー付け替えで追従させる。
+	// 視界(VisibleTiles/LightSourceCache)もクリアでなく付け替えることで、シフトと同じフレームの
+	// 描画で有効なまま保て、チャンク境界越え時のチラつき(1フレーム暗転)を防ぐ。
+	// 次フレームの VisionSystem がどのみち再計算するが、その1フレームの穴を無くす。
 	d.ExploredTiles = translateTileKeyMap(d.ExploredTiles, dx, 0, inBand)
-	// 揮発キャッシュ：毎移動/毎フレーム再計算されるためクリアで足りる
-	d.VisibleTiles = make(map[gc.GridElement]bool)
-	d.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
+	d.VisibleTiles = translateTileKeyMap(d.VisibleTiles, dx, 0, inBand)
+	d.LightSourceCache = translateTileKeyMap(d.LightSourceCache, dx, 0, inBand)
 	query.InvalidateSpatialIndex(world)
 }
 

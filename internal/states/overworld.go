@@ -10,6 +10,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
+	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -215,24 +216,37 @@ func (st *OverworldState) maybeShift(world w.World) error {
 	}
 	// 中央チャンクに収まるまでシフトを繰り返す（設計 §2.1 の while 相当）。
 	// 各シフトはプレイヤーを chunkW ぶん中央へ寄せるため、必ず有限回で収束する。
+	shifted := false
 	for {
 		localX := world.Components.GridElement.Get(playerEntity).X
-		switch {
-		case st.band.ShouldShiftEast(localX):
+		if st.band.ShouldShiftEast(localX) {
 			if err := st.band.ShiftEast(world, st.gen); err != nil {
 				return err
 			}
 			st.syncBandState(world)
-		case st.band.ShouldShiftWest(localX) && st.band.EastIndex() > 0:
-			// 西シフトは寄り道からの復帰時のみ。ラン開始（eastIndex=0）より西には
-			// 何も生成されていないため、eastIndex を負にする西シフトは行わない。
-			// プレイヤーは帯西端（localX=0 の境界）で自然に止まる
+			shifted = true
+			continue
+		}
+		// 西シフトは寄り道からの復帰時のみ。ラン開始（eastIndex=0）より西には
+		// 何も生成されていないため、eastIndex を負にする西シフトは行わない。
+		// プレイヤーは帯西端（localX=0 の境界）で自然に止まる
+		if st.band.ShouldShiftWest(localX) && st.band.EastIndex() > 0 {
 			if err := st.band.ShiftWest(world, st.gen); err != nil {
 				return err
 			}
 			st.syncBandState(world)
-		default:
-			return nil
+			shifted = true
+			continue
+		}
+		break
+	}
+
+	if shifted {
+		// リベースでプレイヤーが中央へ動くが、カメラは Update 内で既に旧位置に合わせた後。
+		// カメラを再センタリングしないと、シフトしたフレームで視点がジャンプしてチラつく
+		if err := (&gs.CameraSystem{}).Update(world); err != nil {
+			return err
 		}
 	}
+	return nil
 }
