@@ -109,7 +109,9 @@ jobs:
           path: _base
       - uses: ./.github/actions/setup-go-with-x
       - name: install benchstat
-        run: go install golang.org/x/perf/cmd/benchstat@latest
+        # バージョンを固定する。@latest だと benchstat の CSV 形式が変わったとき
+        # 下の awk ゲートがサイレントに無効化される恐れがあるため
+        run: go install golang.org/x/perf/cmd/benchstat@v0.0.0-20260709024250-82a0b07e230d
       - name: run benchmarks (PR and base)
         run: |
           # make -s で make のrecipe echo を抑止し、benchstat が読む go test 出力だけにする
@@ -123,7 +125,11 @@ jobs:
       - name: compare
         id: cmp
         run: |
+          touch cmp.md # 途中でクラッシュしても sticky comment ステップがファイル無しで失敗しないよう保証
           bad=
+          # benchstat -format csv の geomean 行は次の形（pin した版で確認済み）:
+          #   ,sec/op,CI,sec/op,CI,vs base,P        ← metric ヘッダ行（$1="" $2=metric）
+          #   geomean,<base値>,,<pr値>,,+200.00%,   ← $1=geomean $2=base $4=pr
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
             # base に比較対象のベンチがある → base vs PR を並べて表示
             { echo '### ベンチ比較 (base vs PR)'; echo '```'; benchstat base.txt pr.txt; echo '```'; } > cmp.md
