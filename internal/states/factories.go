@@ -196,6 +196,16 @@ func NewDebugMenuState() (es.State[w.World], error) {
 				}})
 			return nil
 		}).
+		WithChoice("オーバーワールド開始(シームレス)", func(world w.World) error {
+			// runSeed からチャンクを決定的生成する。chunkW×chunkH を k 枚並べた帯
+			seed := world.Config.RNG.Uint64()
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{
+					NewOverworldState(seed, 50, 50, 3, mapplanner.PlannerTypeOverworldField),
+				}})
+			return nil
+		}).
 		WithChoice("市街地開始", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
