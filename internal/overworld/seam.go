@@ -17,17 +17,32 @@ import (
 // 継ぎ目が見える。接合後に境界列（boundaryX-1 = 西チャンク東端、boundaryX = 東チャンク西端）を
 // 再計算して継ぎ目を消す（設計 docs/design/20260717_60.md §5）。
 // 描画は SpriteKey で sprite をフェッチするため、SpriteKey の差し替えだけで見た目が直る。
+//
+// 境界の両側にタイルが揃っている「内部境界」だけを処理する。片側が空（帯の最西端・最東端で
+// 隣チャンクが無い）なら何もしない。これにより呼び出し側は東西どちらの境界かを気にせず
+// 両境界を無条件に呼べる（東シフトは西境界、西シフトは東境界が実境界になる）。
 func RecalcSeamAutotile(world w.World, boundaryX consts.Tile) {
 	// 境界周辺（列 boundaryX-2..boundaryX+1）のタイルを位置引きできるよう集める。
 	// 再計算対象の左右隣（boundaryX-2 / boundaryX+1）まで含める
 	tiles := make(map[gc.GridElement]ecs.Entity)
+	hasWest, hasEast := false, false
 	query := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
 	for query.Next() {
 		e := query.Entity()
 		g := *world.Components.GridElement.Get(e)
 		if g.X >= boundaryX-2 && g.X <= boundaryX+1 {
 			tiles[g] = e
+			if g.X == boundaryX-1 {
+				hasWest = true
+			}
+			if g.X == boundaryX {
+				hasEast = true
+			}
 		}
+	}
+	// 片側が空なら帯端の外周であり、直すべき継ぎ目は無い
+	if !hasWest || !hasEast {
+		return
 	}
 
 	nameOf := func(g gc.GridElement) (string, bool) {

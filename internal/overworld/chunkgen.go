@@ -35,11 +35,11 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, plan
 		if _, err := mapspawner.SpawnAt(world, plan, offsetX, 0); err != nil {
 			return fmt.Errorf("チャンク配置失敗 (index=%d): %w", chunkIndex, err)
 		}
-		// 西隣チャンクとの境界（このチャンクの西端）のオートタイルを接合後に再計算し継ぎ目を消す。
-		// offsetX==0 は帯の最西端で西隣が無いためスキップ
-		if offsetX > 0 {
-			RecalcSeamAutotile(world, offsetX)
-		}
+		// このチャンクの両境界を接合後に再計算して継ぎ目を消す。
+		// 東シフトでは西境界(offsetX)、西シフトでは東境界(offsetX+chunkW)が実境界になる。
+		// RecalcSeamAutotile は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。
+		RecalcSeamAutotile(world, offsetX)
+		RecalcSeamAutotile(world, offsetX+chunkW)
 		return nil
 	}
 }
