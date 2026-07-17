@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"maps"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -32,11 +31,6 @@ type OverworldState struct {
 	chunkW  consts.Tile
 	chunkH  consts.Tile
 	planner mapplanner.PlannerType
-
-	// 遺跡へ TransPush する際に退避する動的状態（決定的に再生成できないもの）。
-	// 帯タイルは seed 決定的なので保存せず OnResume で再生成する。
-	savedPlayerPos *gc.GridElement
-	savedExplored  map[gc.GridElement]bool
 }
 
 var _ es.State[w.World] = &OverworldState{}
@@ -131,8 +125,7 @@ func (st *OverworldState) syncBandState(world w.World) {
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
-// OnStart(新規)と OnResume(遺跡帰還)の両方から呼ばれる。Level 設定は帯幅が不変なので
-// ロード/帰還時に再設定しても冪等（無害）。
+// OnStart(新規開始)から呼ばれる。Level 設定は帯幅が不変なので再設定しても冪等（無害）。
 func (st *OverworldState) generateBandChunks(world w.World) error {
 	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
 	for i := range st.band.K() {
@@ -143,46 +136,16 @@ func (st *OverworldState) generateBandChunks(world w.World) error {
 	return nil
 }
 
-// OnPause は遺跡へ TransPush する直前に呼ばれる。帯を退避する。
+// OnPause/OnResume は DungeonState の no-op を継承する（オーバーライドしない）。
 //
-// 帯タイルは seed 決定的なので保存せず削除し、遺跡がクリーンな座標空間で生成できるようにする
-// （プレイヤー・隊員は残す）。決定的に戻せない動的状態（プレイヤー位置・探索済み）だけ保存する。
-func (st *OverworldState) OnPause(world w.World) error {
-	if p, err := query.GetPlayerEntity(world); err == nil {
-		pos := *world.Components.GridElement.Get(p)
-		st.savedPlayerPos = &pos
-	}
-	// 参照でなくコピーを退避する。遺跡側が ExploredTiles を再代入せず in-place 変異しても汚染されない
-	st.savedExplored = maps.Clone(query.GetDungeon(world).ExploredTiles)
-	// 帯タイルを消す（プレイヤー・隊員は残す）。遺跡タイルとの重なりを防ぐ
-	worldstream.RemoveEntitiesInXRange(world, 0, st.band.Width(), worldstream.KeepPlayerAndSquad(world))
-	return nil
-}
-
-// OnResume は遺跡から TransPop で戻った際に呼ばれる。帯を再構築する。
+// 射撃・観察・ダンジョンメニュー等のオーバーレイは TransPush で載るため OnPause/OnResume が
+// 呼ばれるが、これらは同じ世界を描画・操作するだけなので帯タイルはそのまま残す必要がある。
+// ここで帯を退避/再生成すると、オーバーレイ進入で画面が黒くなり（帯タイル消失）、
+// 復帰時の MovePlayerToPosition が隊員を再配置してしまう。
 //
-// 遺跡の OnStop が非プレイヤーエンティティを全削除しているため、帯を決定的に再生成し、
-// 退避したプレイヤー位置・探索済みを復元する。
-func (st *OverworldState) OnResume(world w.World) error {
-	// 再生成前に帯領域を掃除して自己完結させる（遺跡側 OnStop の副作用に依存せず、
-	// 二重生成を防ぐ）。プレイヤー・隊員は残す
-	worldstream.RemoveEntitiesInXRange(world, 0, st.band.Width(), worldstream.KeepPlayerAndSquad(world))
-	if err := st.generateBandChunks(world); err != nil {
-		return err
-	}
-	if st.savedExplored != nil {
-		query.GetDungeon(world).ExploredTiles = st.savedExplored
-		st.savedExplored = nil
-	}
-	if st.savedPlayerPos != nil {
-		if err := lifecycle.MovePlayerToPosition(world, int(st.savedPlayerPos.X), int(st.savedPlayerPos.Y)); err != nil {
-			return fmt.Errorf("プレイヤー位置の復元に失敗: %w", err)
-		}
-		st.savedPlayerPos = nil
-	}
-	query.InvalidateSpatialIndex(world)
-	return nil
-}
+// 将来オーバーワールドにポータルを足して遺跡へ入れるようにする場合、帯の退避は汎用フックの
+// OnPause ではなく「遺跡進入」専用の経路で行う（オーバーレイと区別できないため）。
+// 設計 docs/design/20260717_60.md §4。
 
 // Update は DungeonState の共通処理を実行後、ターン境界で帯をシフトする。
 func (st *OverworldState) Update(world w.World) (es.Transition[w.World], error) {

@@ -106,65 +106,6 @@ func TestOverworldState_maybeShift_複数チャンク跨ぎで連続シフト(t 
 	assert.Less(t, px, consts.Tile(k/2+1)*chunkW, "プレイヤーは中央チャンク内に収まる")
 }
 
-// TestOverworldState_遺跡遷移で帯を退避復元する は OnPause/OnResume（B2）を検証する。
-// 遺跡進入(OnPause)で帯タイルを退避し、帰還(OnResume)で決定的に再生成しつつ
-// プレイヤー位置・探索済みを復元することを固定する。
-func TestOverworldState_遺跡遷移で帯を退避復元する(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	const chunkW, chunkH consts.Tile = 30, 20
-	const k = 3
-
-	factory := NewOverworldState(999, chunkW, chunkH, k, mapplanner.PlannerTypeOverworldField)
-	state, err := factory()
-	require.NoError(t, err)
-	st, ok := state.(*OverworldState)
-	require.True(t, ok)
-	require.NoError(t, st.OnStart(world))
-
-	player, err := query.GetPlayerEntity(world)
-	require.NoError(t, err)
-	world.Components.GridElement.Get(player).X = 45
-	world.Components.GridElement.Get(player).Y = 10
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 45, Y: 10}] = true
-
-	before := countGridEntities(world)
-
-	// 遺跡へ進入: 帯タイル退避
-	require.NoError(t, st.OnPause(world))
-	assert.Less(t, countGridEntities(world), before, "帯タイルが退避（削除）される")
-	assert.True(t, world.ECS.Alive(player), "プレイヤーは残る")
-	require.NotNil(t, st.savedPlayerPos)
-
-	// 遺跡が探索済みをリセットし、プレイヤーを遺跡開始位置へ動かした状況を模す
-	query.GetDungeon(world).ExploredTiles = map[gc.GridElement]bool{}
-	world.Components.GridElement.Get(player).X = 5
-	world.Components.GridElement.Get(player).Y = 5
-
-	// 遺跡から帰還: 帯再構築＋復元
-	require.NoError(t, st.OnResume(world))
-
-	// 帯が再生成され各スロットが埋まる
-	slotCounts := make([]int, k)
-	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
-	for q.Next() {
-		x := world.Components.GridElement.Get(q.Entity()).X
-		if x >= 0 && x < chunkW*k {
-			slotCounts[int(x/chunkW)]++
-		}
-	}
-	for i, c := range slotCounts {
-		assert.NotZero(t, c, "スロット%d が再生成される", i)
-	}
-
-	// プレイヤー位置・探索済みが復元される
-	pg := world.Components.GridElement.Get(player)
-	assert.Equal(t, consts.Tile(45), pg.X, "プレイヤーX が復元される")
-	assert.Equal(t, consts.Tile(10), pg.Y, "プレイヤーY が復元される")
-	assert.True(t, query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 45, Y: 10}], "探索済みが復元される")
-}
-
 // TestOverworldState_maybeShift_開始点より西へはシフトしない は、eastIndex=0 で西へ移動しても
 // 開始点より西へシフトしない（eastIndex を負にしない）ことを固定する（bot レビュー #3）。
 func TestOverworldState_maybeShift_開始点より西へはシフトしない(t *testing.T) {
@@ -190,6 +131,61 @@ func TestOverworldState_maybeShift_開始点より西へはシフトしない(t 
 
 	require.NoError(t, st.maybeShift(world))
 	assert.Equal(t, 0, st.band.EastIndex(), "開始点より西へはシフトしない（eastIndex は負にならない）")
+}
+
+// TestOverworldState_オーバーレイ進入で帯タイルを消さない は、射撃/観察/ダンジョンメニュー等の
+// オーバーレイ（TransPush → OnPause）に入ったときに帯タイルが消えない（黒画面にならない）ことを固定する。
+func TestOverworldState_オーバーレイ進入で帯タイルを消さない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	const chunkW, chunkH consts.Tile = 30, 20
+
+	factory := NewOverworldState(777, chunkW, chunkH, 3, mapplanner.PlannerTypeSmallRoom)
+	state, err := factory()
+	require.NoError(t, err)
+	st, ok := state.(*OverworldState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+
+	before := countGridEntities(world)
+	require.Positive(t, before, "前提: 帯タイルが存在する")
+
+	// オーバーレイ進入 = OnPause
+	require.NoError(t, st.OnPause(world))
+
+	assert.Equal(t, before, countGridEntities(world),
+		"オーバーレイ進入で帯タイルを消さない（黒画面バグ回帰防止）")
+}
+
+// TestOverworldState_オーバーレイ往復で隊員位置が変わらない は、オーバーレイに入って戻っても
+// 隊員の位置が動かないことを固定する（MovePlayerToPosition の隊員再配置に巻き込まれない）。
+func TestOverworldState_オーバーレイ往復で隊員位置が変わらない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	const chunkW, chunkH consts.Tile = 30, 20
+
+	factory := NewOverworldState(777, chunkW, chunkH, 3, mapplanner.PlannerTypeSmallRoom)
+	state, err := factory()
+	require.NoError(t, err)
+	st, ok := state.(*OverworldState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+
+	// 隊員を1体作る（SquadMember + FactionAlly + GridElement）
+	const memberX, memberY consts.Tile = 20, 12
+	member := world.Components.GridElement.NewEntity(&gc.GridElement{X: memberX, Y: memberY})
+	world.Components.SquadMember.Add(member, &gc.SquadMember{})
+	world.Components.FactionAlly.Add(member, &gc.FactionAlly{})
+
+	// オーバーレイ往復 = OnPause → OnResume
+	require.NoError(t, st.OnPause(world))
+	require.NoError(t, st.OnResume(world))
+
+	g := world.Components.GridElement.Get(member)
+	assert.Equal(t, memberX, g.X, "隊員Xは変わらない")
+	assert.Equal(t, memberY, g.Y, "隊員Yは変わらない")
 }
 
 // countGridEntities は GridElement を持つエンティティ数を返す。
