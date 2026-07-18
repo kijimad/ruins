@@ -17,8 +17,8 @@ func TestGetSkillMult_NoCharModifiers(t *testing.T) {
 	entity := world.ECS.NewEntity()
 	// CharModifiersコンポーネントなし → 100を返す
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
-	assert.Equal(t, 100, getSkillMult(entity, melee, world, true))
-	assert.Equal(t, 100, getSkillMult(entity, melee, world, false))
+	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, true)))
+	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, false)))
 }
 
 func TestGetSkillMult_NilAttack(t *testing.T) {
@@ -26,7 +26,7 @@ func TestGetSkillMult_NilAttack(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
-	assert.Equal(t, 100, getSkillMult(entity, nil, world, true))
+	assert.Equal(t, 100, int(getSkillMult(entity, nil, world, true)))
 }
 
 func TestGetSkillMult_WithCharModifiers(t *testing.T) {
@@ -42,9 +42,9 @@ func TestGetSkillMult_WithCharModifiers(t *testing.T) {
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 	// 刀剣Lv3: ダメージ倍率 = 100 + 3*5 = 115
-	assert.Equal(t, 115, getSkillMult(entity, melee, world, true))
+	assert.Equal(t, 115, int(getSkillMult(entity, melee, world, true)))
 	// 刀剣Lv3: 命中倍率 = 100 + 3*3 = 109
-	assert.Equal(t, 109, getSkillMult(entity, melee, world, false))
+	assert.Equal(t, 109, int(getSkillMult(entity, melee, world, false)))
 }
 
 func TestGetSkillMult_UnmappedWeapon(t *testing.T) {
@@ -59,7 +59,7 @@ func TestGetSkillMult_UnmappedWeapon(t *testing.T) {
 
 	// 未登録の武器種 → 100
 	melee := &gc.Melee{AttackCategory: gc.AttackType{Type: "unknown"}}
-	assert.Equal(t, 100, getSkillMult(entity, melee, world, true))
+	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, true)))
 }
 
 func TestApplyElementResist_NoCharModifiers(t *testing.T) {
@@ -300,7 +300,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	mods := world.Components.CharModifiers.Get(actor)
 	require.NotNil(t, mods)
 	// MoveCost = 100 + 走破Lv0*(-2) + AGI0*(-1) + 軽度低体温10 = 110
-	assert.Equal(t, 110, mods.MoveCost, "HealthStatusのペナルティがCharModifiers再計算に反映されている")
+	assert.Equal(t, 110, int(mods.MoveCost), "HealthStatusのペナルティがCharModifiers再計算に反映されている")
 }
 
 func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {

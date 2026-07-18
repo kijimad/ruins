@@ -1,6 +1,10 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // Book は読書可能な本のコンポーネント
 type Book struct {
@@ -39,9 +43,9 @@ type SkillBookEffect struct {
 	RequiredLevel int     // 読むのに必要なスキルレベル。0なら誰でも読める
 }
 
-// ReadingEfficiency は本とプレイヤーのスキルレベル差に基づく経験値効率を返す（0-100）
+// ReadingEfficiency は本とプレイヤーのスキルレベル差に基づく経験値効率を倍率で返す（0-100%）
 // diff = bookLevel - playerLevel（正=本が難しい）
-func ReadingEfficiency(playerLevel, bookLevel int) int {
+func ReadingEfficiency(playerLevel, bookLevel int) consts.Percent {
 	diff := bookLevel - playerLevel
 
 	const (
@@ -57,10 +61,10 @@ func ReadingEfficiency(playerLevel, bookLevel int) int {
 		return 0
 	case diff >= 0:
 		// 難しい側: 100→50（線形）
-		return 100 - diff*hardPenaltyRate
+		return consts.Percent(100 - diff*hardPenaltyRate)
 	case diff >= -maxEase:
 		// 易しい側: 100→10（線形）
-		return 100 + diff*easePenaltyRate
+		return consts.Percent(100 + diff*easePenaltyRate)
 	default:
 		return minEfficiency
 	}

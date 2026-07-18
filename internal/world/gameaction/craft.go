@@ -23,7 +23,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 		return consts.InvalidEntity, fmt.Errorf("必要素材が足りません")
 	}
 
-	craftCostPct, smithQualityPct := 100, 100
+	craftCostPct, smithQualityPct := consts.PercentBase, consts.PercentBase
 	player, playerErr := query.GetPlayerEntity(world)
 	if playerErr == nil && world.Components.CharModifiers.Has(player) {
 		mods := world.Components.CharModifiers.Get(player)
@@ -74,9 +74,9 @@ func CanCraft(world w.World, name string) (bool, error) {
 
 // consumeMaterials はアイテム合成に必要な素材を消費する。
 // craftCostPctは素材消費量の倍率%で、100が基準。低いほど素材が節約できる。
-func consumeMaterials(world w.World, goal string, craftCostPct int) error {
+func consumeMaterials(world w.World, goal string, craftCostPct consts.Percent) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {
-		consumed := max(recipeInput.Amount*craftCostPct/100, 1)
+		consumed := max(craftCostPct.ApplyInt(recipeInput.Amount), 1)
 		err := lifecycle.ChangeStackableCount(world, recipeInput.Name, -consumed)
 		if err != nil {
 			return err
@@ -103,7 +103,7 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 
 // randomize はアイテムにランダム値を設定する。
 // smithQualityPctは品質倍率%で、100が基準。高いほどボーナスが大きくなる。
-func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
+func randomize(world w.World, entity ecs.Entity, smithQualityPct consts.Percent) {
 	// Stackableなアイテムを合成した場合、SpawnBackpackItem内の統合処理で
 	// このエンティティが既存スタックに統合されて削除されていることがある。
 	// 統合済みStackableに武器/防具の乱数化は不要なので、死亡していれば何もしない
@@ -111,7 +111,8 @@ func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
 		return
 	}
 
-	qualityBonus := (smithQualityPct - 100) / 10
+	// 基準からの乖離を10%刻みでボーナス段階に換算する。倍率そのものでなく段数なので int で扱う
+	qualityBonus := (int(smithQualityPct) - int(consts.PercentBase)) / 10
 
 	if world.Components.Melee.Has(entity) {
 		melee := world.Components.Melee.Get(entity)

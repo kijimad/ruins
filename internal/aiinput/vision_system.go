@@ -32,7 +32,7 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 
 	if world.Components.CharModifiers.Has(targetEntity) {
 		mods := world.Components.CharModifiers.Get(targetEntity)
-		viewDist = viewDist * float64(mods.EnemyVision) / 100
+		viewDist = mods.EnemyVision.ApplyFloat(viewDist)
 	}
 
 	return float64(distSq) <= viewDist*viewDist

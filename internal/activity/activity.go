@@ -188,11 +188,13 @@ func progressHunger(actor ecs.Entity, world w.World) {
 	}
 	hunger := world.Components.Hunger.Get(actor)
 
-	hungerPct := 100
+	// 空腹進行倍率。基準は等倍
+	hungerPct := consts.PercentBase
 	if world.Components.CharModifiers.Has(actor) {
 		hungerPct = world.Components.CharModifiers.Get(actor).HungerProgress
 	}
-	if world.Config.RNG.IntN(100) < hungerPct {
+	// 確率比較なので int で比べる
+	if world.Config.RNG.IntN(int(consts.PercentBase)) < int(hungerPct) {
 		hunger.Decrease(1)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -194,7 +195,7 @@ type shopWindowProps struct {
 
 func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	var currency int
-	buyPriceMod, sellPriceMod := 100, 100
+	buyPriceMod, sellPriceMod := consts.PercentBase, consts.PercentBase
 	query.Player(world, func(playerEntity ecs.Entity) {
 		currency = query.GetCurrency(world, playerEntity)
 		if world.Components.CharModifiers.Has(playerEntity) {
@@ -210,19 +211,19 @@ func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	}
 }
 
-func (st *ShopMenuState) createTabs(world w.World, currency, buyPriceMod, sellPriceMod int) []shopTabData {
+func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData {
 	return []shopTabData{
 		{ID: "buy", Label: "購入", Items: st.createBuyItems(world, currency, buyPriceMod)},
 		{ID: "sell", Label: "売却", Items: st.createSellItems(world, sellPriceMod)},
 	}
 }
 
-func (st *ShopMenuState) createBuyItems(world w.World, currency, buyPriceMod int) []shopItemData {
+func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod consts.Percent) []shopItemData {
 	shopInventory := gameaction.GetShopInventory()
 	items := make([]shopItemData, 0, len(shopInventory))
 
 	for _, itemName := range shopInventory {
-		price := st.getItemPrice(world, itemName, true) * buyPriceMod / 100
+		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemName, true))
 		canAfford := currency >= price
 
 		items = append(items, shopItemData{
@@ -236,7 +237,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency, buyPriceMod int
 	return items
 }
 
-func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shopItemData {
+func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData {
 	var items []shopItemData
 
 	query.Player(world, func(_ ecs.Entity) {
@@ -247,7 +248,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 			itemName := nameComp.Name
 
 			baseValue := query.GetItemValue(world, entity)
-			price := query.CalculateSellPrice(baseValue) * sellPriceMod / 100
+			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue))
 
 			count := query.GetEntityCount(world, entity)
 
