@@ -30,7 +30,7 @@ type OverworldState struct {
 	// 以下は OnStart で確定する実行時状態
 	band     *worldstream.Band
 	gen      worldstream.ChunkGen
-	frontCfg worldstream.FrontConfig // 寒波前線の前進パラメータ。現在位置は総ターン数から導出する
+	frontCfg worldstream.FrontConfig
 }
 
 var _ es.State[w.World] = &OverworldState{}
