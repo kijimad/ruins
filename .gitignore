@@ -1,27 +1,34 @@
+# lib
 node_modules
 
+# pprof
 mem.pprof
 cpu.pprof
 
+# bin
 ruins
 bin/
 .cache/
 editor-ui/dist/
-oas/redoc/
+wasm/game.wasm
+
+# save
 saves/auto_*.json
 
-wasm/game.wasm
-balance.json
-
+# AI
 .claude-task-state
+.claude/*
+!.claude/skills/
+
 # 参照用の外部リポジトリ（コミット対象外）
 Cataclysm-DDA/
 _ebitenui/
 digger_rs/
 cdda/
 
-.claude/*
-!.claude/skills/
-
-# make mutation(go-mutesting)がリポジトリ直下に出力するレポート
+# OpenAPIレポート
+oas/redoc/
+# make mutation(go-mutesting)が出力する
 /report.json
+# ゲームバランスコマンドが出力する
+balance.json
