@@ -193,7 +193,10 @@ func progressHunger(actor ecs.Entity, world w.World) {
 	if world.Components.CharModifiers.Has(actor) {
 		hungerPct = world.Components.CharModifiers.Get(actor).HungerProgress
 	}
-	// 確率比較なので int で比べる
+	// 確率比較なので int で比べる。
+	// HungerProgress は耐性スキルが高いと 0 以下に達し、空腹が進まなくなる
+	// （IntN(100) < 0 は常に偽）。下限を設けるかは進行系倍率（Hunger/Cold/Heat）
+	// 共通の課題として将来のバランス設計でまとめて検討する。ここでは意図的に下限を置かない。
 	if world.Config.RNG.IntN(int(consts.PercentBase)) < int(hungerPct) {
 		hunger.Decrease(1)
 	}
