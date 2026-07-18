@@ -16,22 +16,11 @@ jobs:
         with:
           fetch-depth: 0  # タグ情報を取得するために全履歴を取得
 
-      # build.sh は host の ~/go/pkg/mod・~/.cache/go-build を Docker にマウントする
-      - name: Cache Go modules & build cache (build.sh の docker マウント用)
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-wasmbuild-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-wasmbuild-
-
-      - name: Build
-        run: ./scripts/build.sh
-
       - name: Set up Go with X11 dependencies
         uses: ./.github/actions/setup-go-with-x
+
+      - name: Build
+        run: make build
 
       - name: Generate coverage report
         run: |
