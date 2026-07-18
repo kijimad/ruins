@@ -18,7 +18,7 @@ func TestProgressHunger_空腹進行が基準ターン数に緩和される(t *t
 
 	actor := world.ECS.NewEntity()
 	world.Components.Player.Add(actor, &gc.Player{})
-	// クランプ（0 で止まる）を避けるため十分大きなプールにする
+	// 0 で止まるクランプを避けるため十分大きなプールにする
 	world.Components.Hunger.Add(actor, &gc.Hunger{Current: 1_000_000, Max: 1_000_000})
 
 	const turns = 3000

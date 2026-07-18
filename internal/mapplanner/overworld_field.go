@@ -4,9 +4,8 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // OverworldFieldPlanner はオーバーワールドの「開けた地形」チャンクの初期プランナー。
 //
-// 部屋を掘る従来のダンジョンプランナーと逆で、全面通行可能をデフォルトにする。障壁は
-// OverworldBarriers が例外的に置く。これによりチャンクを東西に継いでも境界が壁で詰まらない。
-// 詳細設計は docs/design/20260717_60.md §5.1。
+// 部屋を掘る従来のダンジョンプランナーと逆で、全面通行可能をデフォルトにする。
+// 障壁は OverworldBarriers が例外的に置く。これによりチャンクを東西に継いでも境界が壁で詰まらない。
 type OverworldFieldPlanner struct{}
 
 // PlanInitial は初期化を行う。開けた地形は部屋を持たないため何もしない。
@@ -14,8 +13,7 @@ func (OverworldFieldPlanner) PlanInitial(_ *MetaPlan) error { return nil }
 
 // OverworldBarriers は開けた地形に稜線・岩などのまばらな障壁を置く MetaMapPlanner。
 //
-// design.md「到達不可地形が分岐・合流を作る」の実体。各ブロブの高さをマップ高さ未満に制限し、
-// さらに「どの列も高さ全体を塞がない」ことを最後に保証して、東西の通行を構造的に守る。
+// 各ブロブの高さがマップ高さ未満であること、「どの列も高さ全体を塞がない」ことを保証して、東西の通行を構造的に守る。
 type OverworldBarriers struct {
 	// Density は障壁ブロブ数のタイル面積あたりの割合。0 なら既定値を使う
 	Density float64

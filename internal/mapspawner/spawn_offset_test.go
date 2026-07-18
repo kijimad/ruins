@@ -13,7 +13,6 @@ import (
 )
 
 // TestSpawnAt_オフセット配置 は SpawnAt が全エンティティをオフセット領域へ配置することを固定する。
-// シームレスワールドで東スラブへチャンクを置く（§5）ための基盤。
 func TestSpawnAt_オフセット配置(t *testing.T) {
 	t.Parallel()
 
@@ -40,7 +39,7 @@ func TestSpawnAt_オフセット配置(t *testing.T) {
 	assert.GreaterOrEqual(t, count, int(wdt*hgt), "少なくとも全タイルぶんのエンティティが配置される")
 }
 
-// TestSpawn_オフセットなしは原点配置 は Spawn（=SpawnAt(...,0,0)）が従来どおり原点から配置することを固定する。
+// TestSpawn_オフセットなしは原点配置 は従来どおり原点から配置することを固定する。
 func TestSpawn_オフセットなしは原点配置(t *testing.T) {
 	t.Parallel()
 
