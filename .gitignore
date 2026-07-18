@@ -22,4 +22,6 @@ cdda/
 
 .claude/*
 !.claude/skills/
+
+# make mutation(go-mutesting)がリポジトリ直下に出力するレポート
 /report.json
