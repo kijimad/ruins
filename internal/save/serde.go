@@ -51,8 +51,16 @@ func serializeWorld(world w.World) ([]byte, error) {
 	)
 }
 
-// deserializeWorld はJSONからワールドを復元する。呼び出し前にworldはReset済みであること
-func deserializeWorld(world w.World, worldJSON []byte) error {
+// deserializeWorld はJSONからワールドを復元する。呼び出し前にworldはReset済みであること。
+//
+// セーブファイルは破損しうる信頼境界であり、arkserde/ark は壊れた入力で panic することがある。
+// panic を error に変換してゲームのクラッシュを防ぐ。ロード失敗は呼び出し側がエラー表示で扱う。
+func deserializeWorld(world w.World, worldJSON []byte) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("セーブデータの復元に失敗しました。データが破損している可能性があります: %v", r)
+		}
+	}()
 	return arkserde.Deserialize(worldJSON, world.ECS,
 		arkserde.Opts.SkipComponents(skipComponents()...),
 		arkserde.Opts.SkipAllResources(),

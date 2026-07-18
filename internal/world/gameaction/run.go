@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -63,7 +64,7 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 // collectBackpackItems はバックパック内の全アイテムを収集して返す。
 // エンティティは削除しない。
 func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult {
-	sellPriceMod := 100
+	sellPriceMod := consts.PercentBase
 	if world.Components.CharModifiers.Has(playerEntity) {
 		mods := world.Components.CharModifiers.Get(playerEntity)
 		sellPriceMod = mods.SellPrice
@@ -83,7 +84,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 		if world.Components.Value.Has(entity) {
 			count := query.GetEntityCount(world, entity)
 			baseValue := world.Components.Value.Get(entity).Value
-			price = query.CalculateSellPrice(baseValue) * count * sellPriceMod / 100
+			price = sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue) * count)
 		}
 
 		items = append(items, SoldItem{Entity: entity, Name: name, Price: price})

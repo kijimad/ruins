@@ -30,7 +30,7 @@ func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
 
 		if world.Components.CharModifiers.Has(entity) {
 			mods := world.Components.CharModifiers.Get(entity)
-			maxWeight = maxWeight * float64(mods.MaxWeight) / 100
+			maxWeight = mods.MaxWeight.ApplyFloat(maxWeight)
 		}
 
 		wc.Max = maxWeight
