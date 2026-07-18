@@ -15,6 +15,24 @@ type LightInfo struct {
 	Color    color.RGBA
 }
 
+// SeamlessBand はオーバーワールドのアクティブ帯の永続状態を保持する。
+// Active が true のときのみ有効。全フィールドがスカラーなので serde に乗る。
+// これによりロード後や遺跡遷移後に Band を再構築できる。
+type SeamlessBand struct {
+	// Active はシームレスワールド中かを表す
+	Active bool
+	// RunSeed はチャンク決定的生成の元 seed
+	RunSeed uint64
+	// EastIndex は東進したチャンク数
+	EastIndex consts.ChunkX
+	// ChunkW は1チャンクの幅
+	ChunkW consts.Tile
+	// ChunkH は帯の高さ
+	ChunkH consts.Tile
+	// K は帯のチャンク数
+	K consts.ChunkX
+}
+
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
 // 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
 type Dungeon struct {
@@ -41,6 +59,8 @@ type Dungeon struct {
 	// LightSourceCache は視界内タイルの光源情報。VisionSystemが計算し描画側が参照する。
 	// 視界更新のたびに再構築されるためserde不可
 	LightSourceCache map[GridElement]LightInfo `json:"-"`
+	// SeamlessBand はシームレスワールドの帯の永続状態。通常ダンジョンでは Active=false
+	SeamlessBand SeamlessBand
 }
 
 // NewDungeon は初期化されたDungeonを返す

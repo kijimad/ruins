@@ -5,6 +5,9 @@ const (
 	DefaultMaxHunger = 500
 	// DefaultInitialHunger はデフォルトの初期満腹度
 	DefaultInitialHunger = 400
+	// HungerDrainTurns は満腹度が1減るまでの平均ターン数の基準。空腹進行100%のときの値。
+	// 大きくするほど空腹の進行が緩やかになる。progressHunger が確率ゲートの分母に使う。
+	HungerDrainTurns = 3
 )
 
 // HungerLevel は空腹度の段階を表す

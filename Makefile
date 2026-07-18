@@ -68,7 +68,7 @@ lint: ## Linterを実行する
 
 .PHONY: mutation
 mutation: ## ミューテーションテストでテストの実効性を測る
-	@go tool go-mutesting ./internal
+	@go tool go-mutesting ./internal/...
 
 .PHONY: aseprite
 aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する

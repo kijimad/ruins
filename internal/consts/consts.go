@@ -67,10 +67,22 @@ const (
 // ========== タイル名 ==========
 
 const (
-	// TileNameWall は壁タイル名
+	// TileNameWall は壁タイル名。プランナーが出力する論理名で、生成時のスプライトは TileNameDWall になる
 	TileNameWall = "wall"
+	// TileNameDWall は壁の生成スプライト名。TileNameWall のプランを実体化するときに使う
+	TileNameDWall = "dwall"
 	// TileNameFloor は床タイル名
 	TileNameFloor = "floor"
+	// TileNameDirt は土のタイル名
+	TileNameDirt = "dirt"
 	// TileNameVoid は虚空タイル名
 	TileNameVoid = "void"
+	// TileNameBridgeA は橋タイル名の A バリアント
+	TileNameBridgeA = "bridge_a"
+	// TileNameBridgeB は橋タイル名の B バリアント
+	TileNameBridgeB = "bridge_b"
+	// TileNameBridgeC は橋タイル名の C バリアント
+	TileNameBridgeC = "bridge_c"
+	// TileNameBridgeD は橋タイル名の D バリアント
+	TileNameBridgeD = "bridge_d"
 )

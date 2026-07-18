@@ -195,6 +195,13 @@ func TestGolden_Dungeon(t *testing.T) {
 	}))
 }
 
+func TestGolden_Overworld(t *testing.T) {
+	t.Parallel()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &gs.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(s))
+}
+
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
@@ -234,6 +241,32 @@ func TestGolden_Status(t *testing.T) {
 	town, err := gs.NewTownState()()
 	require.NoError(t, err)
 	s, err := gs.NewStatusState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
+}
+
+func TestGolden_MemberStatus(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		playerEntity, err := query.GetPlayerEntity(world)
+		require.NoError(t, err)
+
+		member, err := lifecycle.SpawnDefaultSquadMember(world, playerEntity)
+		require.NoError(t, err)
+
+		town, err := gs.NewTownState()()
+		require.NoError(t, err)
+		status, err := gs.NewMemberStatusState(member)
+		require.NoError(t, err)
+		return []es.State[w.World]{town, status}
+	})
+}
+
+func TestGolden_TavernMenu(t *testing.T) {
+	t.Parallel()
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewTavernMenuState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
