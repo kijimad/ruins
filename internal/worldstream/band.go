@@ -11,7 +11,7 @@ import (
 //
 // プレイヤーは常に中央チャンクに保たれ、中央チャンクを東へ出るとシフトする。シフトは東端生成・
 // 西端破棄・リベースからなる。これにより帯ローカル座標は常に 0..K*chunkW に収まり、既存の単一
-// マップ機構を変えずに無限東進を実現する。詳細設計は docs/design/20260717_60.md §2。
+// マップ機構を変えずに無限東進を実現する。
 type Band struct {
 	chunkW    consts.Tile   // 1チャンクの幅。構築後不変
 	k         consts.ChunkX // 帯のチャンク数。奇数で中央チャンクを持つ。構築後不変
@@ -19,7 +19,7 @@ type Band struct {
 }
 
 // ChunkGen は絶対チャンクインデックスの地形を帯ローカルの offsetX 位置へ生成・配置する。
-// 呼び出し側が (runSeed, chunkIndex) からの決定的生成と mapspawner.SpawnAt を実装する。
+// 呼び出し側が引数からの決定的生成と mapspawner.SpawnAt を実装する。
 // worldstream を mapplanner/mapspawner に依存させないための注入点。
 type ChunkGen func(chunkIndex consts.ChunkX, offsetX consts.Tile) error
 
@@ -61,14 +61,14 @@ func (b *Band) ShouldShiftWest(playerLocalX consts.Tile) bool {
 	return playerLocalX < b.centerSlot().Tiles(b.chunkW)
 }
 
-// ShiftEast は帯を東へ1チャンク進める。§2.2 shiftEast の合成。
+// ShiftEast は帯を東へ1チャンク進める。
 // 西端チャンク破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端チャンク生成。
 func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 	// 1. 西端チャンクを破棄する。前線が呑む。プレイヤーと隊員は残す
 	RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayerAndSquad(world))
 	// 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す
 	TranslateAllEntities(world, -b.chunkW, 0)
-	// 3. 座標キー Map を追従させる。§2.4
+	// 3. 座標キー Map を追従させる。
 	b.rebaseCoordMaps(world, -b.chunkW)
 	// 4. eastIndex 前進 → 新しい東端チャンクを生成・配置
 	b.eastIndex++

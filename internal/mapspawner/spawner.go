@@ -86,9 +86,8 @@ type tileSpec struct {
 	autotile bool
 }
 
-// passableTileSpecs は歩行可能タイル、blockedTileSpecs は通行不可タイルの仕様表。
-// タイルを増やすときはここへ1行足すだけでよい。名前直書きの switch を避け、追加漏れを防ぐ。
 var (
+	// 歩行可能タイル
 	passableTileSpecs = map[string]tileSpec{
 		consts.TileNameDirt:    {spawnName: consts.TileNameDirt, autotile: true},
 		consts.TileNameFloor:   {spawnName: consts.TileNameFloor, autotile: true},
@@ -97,6 +96,7 @@ var (
 		consts.TileNameBridgeC: {spawnName: consts.TileNameBridgeC, autotile: true},
 		consts.TileNameBridgeD: {spawnName: consts.TileNameBridgeD, autotile: true},
 	}
+	// 通行不可タイル
 	blockedTileSpecs = map[string]tileSpec{
 		consts.TileNameWall: {spawnName: consts.TileNameDWall, autotile: true},
 		consts.TileNameVoid: {spawnName: consts.TileNameVoid, autotile: false},

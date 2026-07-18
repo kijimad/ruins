@@ -8,7 +8,6 @@ import "github.com/kijimaD/ruins/internal/consts"
 // 常に 0..K*chunkW の有界。絶対と局所の取り違えを Go の型で弾くための別名型。
 // 前線 frontEast・帯原点 bandOriginX・到達距離スコアはこの絶対軸で扱う。
 // 南北はストリーミングせず高さ固定の帯なので、絶対軸は X のみで足りる。
-// 詳細設計は docs/design/20260717_60.md §9。
 type AbsTileX int
 
 // BandOriginX は eastIndex（東進したチャンク数）と chunkW から帯の絶対原点 X を返す。

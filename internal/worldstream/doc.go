@@ -11,5 +11,5 @@
 //   - Band: 帯の状態と ShiftEast/ShiftWest によるシフト
 //
 // mapplanner/mapspawner には依存しない。チャンク生成は ChunkGen 注入で分離する。実生成の
-// アダプタは internal/overworld が提供する。詳細設計は docs/design/20260717_60.md。
+// アダプタは internal/overworld が提供する。
 package worldstream

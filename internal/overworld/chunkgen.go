@@ -11,7 +11,6 @@ import (
 )
 
 // ChunkSeed は runSeed とチャンクの絶対インデックスから決定的なチャンク seed を導く。
-// 同じ (runSeed, chunkIndex) なら常に同じ地形になり、破棄したチャンクを保存せず再生成できる。
 // splitmix64 系の混合で、隣接インデックスでも seed が十分散る。
 func ChunkSeed(runSeed uint64, chunkIndex consts.ChunkX) uint64 {
 	x := runSeed + uint64(chunkIndex)*0x9E3779B97F4A7C15

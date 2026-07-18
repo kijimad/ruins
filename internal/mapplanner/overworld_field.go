@@ -13,7 +13,7 @@ func (OverworldFieldPlanner) PlanInitial(_ *MetaPlan) error { return nil }
 
 // OverworldBarriers は開けた地形に稜線・岩などのまばらな障壁を置く MetaMapPlanner。
 //
-// 各ブロブの高さがマップ高さ未満であること、「どの列も高さ全体を塞がない」ことを保証して、東西の通行を構造的に守る。
+// 各ブロブの高さがマップ高さ未満であること、どの列も高さ全体を塞がないこと、を保証して東西の通行を構造的に守る。
 type OverworldBarriers struct {
 	// Density は障壁ブロブ数のタイル面積あたりの割合。0 なら既定値を使う
 	Density float64
@@ -88,7 +88,7 @@ func carveEastWestPath(planData *MetaPlan, w, h int) {
 func NewOverworldFieldPlanner(width, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(OverworldFieldPlanner{})
-	chain.With(NewFillAll(consts.TileNameDirt)) // 全面を通行可能な地面で埋めてデフォルト通行可にする
-	chain.With(OverworldBarriers{})             // 障壁をまばらに置く。列は塞がない
+	chain.With(NewFillAll(consts.TileNameDirt))
+	chain.With(OverworldBarriers{})
 	return chain, nil
 }

@@ -2,7 +2,7 @@ package worldstream
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// Front は寒波前線、すなわち移動する極低温ゾーンを表す。設計 docs/design/20260717_60.md §3。
+// Front は寒波前線、すなわち移動する極低温ゾーンを表す。
 //
 // East は極低温ゾーンの東端の絶対タイル X。そこから西へ ColdWidth 分が極低温ゾーンで、
 // 生存不能な極寒。ゾーンの西端 East-ColdWidth が破棄と進入不可ラインを兼ねる。
