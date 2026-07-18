@@ -16,4 +16,6 @@ runs:
     - name: set up go
       uses: actions/setup-go@v6
       with:
-        go-version: '1.25.7'
+        # go.mod に自動追従する
+        # デフォルトでは go.mod を読まない
+        go-version-file: 'go.mod'
