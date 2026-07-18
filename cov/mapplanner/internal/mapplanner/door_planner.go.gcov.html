@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 03:34:26</td>
+            <td class="headerValue">2026-07-18 09:33:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,25 +78,25 @@
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          78 :         width := int(mp.Level.TileWidth)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">          78 :         height := int(mp.Level.TileHeight)</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          78 : </span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">        2766 :         for y := 1; y &lt; height-1; y++ {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">      107019 :                 for x := 1; x &lt; width-1; x++ {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">      104331 :                         idx := y*width + x</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">      179766 :                         if mp.Tiles[idx].BlockPass {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">       75435 :                                 continue</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">        2767 :         for y := 1; y &lt; height-1; y++ {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">      107646 :                 for x := 1; x &lt; width-1; x++ {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">      104957 :                         idx := y*width + x</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">      180646 :                         if mp.Tiles[idx].BlockPass {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">       75689 :                                 continue</span></span>
 <span id="L24"><span class="lineNum">      24</span>              :                         }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">       57761 :                         if !isDoorPattern(mp, x, y, width) {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">       28562 :                                 continue</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">       57898 :                         if !isDoorPattern(mp, x, y, width) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">       28630 :                                 continue</span></span>
 <span id="L28"><span class="lineNum">      28</span>              :                         }</span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">         773 :                         if mp.RNG.Float64() &gt;= p.DoorChance {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">         774 :                         if mp.RNG.Float64() &gt;= p.DoorChance {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">         136 :                                 continue</span></span>
 <span id="L32"><span class="lineNum">      32</span>              :                         }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">         501 :                         mp.Doors = append(mp.Doors, DoorSpec{</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         501 :                                 Coord:       consts.Coord[int]{X: x, Y: y},</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         501 :                                 Orientation: doorOrientation(mp, x, y, width),</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         501 :                         })</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">         502 :                         mp.Doors = append(mp.Doors, DoorSpec{</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         502 :                                 Coord:       consts.Coord[int]{X: x, Y: y},</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         502 :                                 Orientation: doorOrientation(mp, x, y, width),</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         502 :                         })</span></span>
 <span id="L38"><span class="lineNum">      38</span>              :                 }</span>
 <span id="L39"><span class="lineNum">      39</span>              :         }</span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">          78 :         return nil</span></span>
@@ -104,32 +104,32 @@
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              : // isDoorPattern は床タイルがドア配置可能なパターンかを判定する。</span>
 <span id="L44"><span class="lineNum">      44</span>              : // 左右が壁かつ上下が床、または上下が壁かつ左右が床の場合にtrueを返す</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">       29197 : func isDoorPattern(mp *MetaPlan, x, y, width int) bool {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">       29197 :         idx := y*width + x</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">       29197 :         left := mp.Tiles[idx-1]</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">       29197 :         right := mp.Tiles[idx+1]</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">       29197 :         top := mp.Tiles[idx-width]</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">       29197 :         bottom := mp.Tiles[idx+width]</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">       29197 : </span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">       29197 :         // 左右が壁、上下が床 → 縦向きドア</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">       29521 :         if left.BlockPass &amp;&amp; right.BlockPass &amp;&amp; !top.BlockPass &amp;&amp; !bottom.BlockPass {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">         324 :                 return true</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">         324 :         }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">       29271 : func isDoorPattern(mp *MetaPlan, x, y, width int) bool {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">       29271 :         idx := y*width + x</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">       29271 :         left := mp.Tiles[idx-1]</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">       29271 :         right := mp.Tiles[idx+1]</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">       29271 :         top := mp.Tiles[idx-width]</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">       29271 :         bottom := mp.Tiles[idx+width]</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">       29271 : </span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">       29271 :         // 左右が壁、上下が床 → 縦向きドア</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">       29592 :         if left.BlockPass &amp;&amp; right.BlockPass &amp;&amp; !top.BlockPass &amp;&amp; !bottom.BlockPass {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">         321 :                 return true</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">         321 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              :         // 上下が壁、左右が床 → 横向きドア</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">       29194 :         if top.BlockPass &amp;&amp; bottom.BlockPass &amp;&amp; !left.BlockPass &amp;&amp; !right.BlockPass {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">         315 :                 return true</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">         315 :         }</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">       29269 :         if top.BlockPass &amp;&amp; bottom.BlockPass &amp;&amp; !left.BlockPass &amp;&amp; !right.BlockPass {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">         319 :                 return true</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">         319 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">       28565 :         return false</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">       28631 :         return false</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : }</span>
 <span id="L63"><span class="lineNum">      63</span>              : </span>
 <span id="L64"><span class="lineNum">      64</span>              : // doorOrientation はドア位置の隣接タイルから向きを判定する</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         501 : func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">         501 :         idx := y*width + x</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">         736 :         if mp.Tiles[idx-1].BlockPass &amp;&amp; mp.Tiles[idx+1].BlockPass {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         235 :                 return gc.DoorOrientationVertical</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">         235 :         }</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">         266 :         return gc.DoorOrientationHorizontal</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         502 : func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">         502 :         idx := y*width + x</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">         735 :         if mp.Tiles[idx-1].BlockPass &amp;&amp; mp.Tiles[idx+1].BlockPass {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         233 :                 return gc.DoorOrientationVertical</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">         233 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">         269 :         return gc.DoorOrientationHorizontal</span></span>
 <span id="L71"><span class="lineNum">      71</span>              : }</span>
         </pre>
               </td>
