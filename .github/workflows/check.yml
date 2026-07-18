@@ -41,9 +41,9 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-crossbuild-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-crosscompile-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-crossbuild-
+            ${{ runner.os }}-crosscompile-
       - name: build
         run: make build
 
@@ -63,9 +63,9 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-steambuild-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-build-steam-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-steambuild-
+            ${{ runner.os }}-build-steam-
       - name: build-steam
         run: make build-steam
 
