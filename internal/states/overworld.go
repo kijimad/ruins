@@ -25,12 +25,12 @@ import (
 // docs/design/20260717_60.md §6。
 type OverworldState struct {
 	*DungeonState
-	band    *worldstream.Band
-	gen     worldstream.ChunkGen
-	runSeed uint64
-	chunkW  consts.Tile
-	chunkH  consts.Tile
 	planner mapplanner.PlannerType
+	newGame *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
+
+	// 以下は OnStart で確定する実行時状態
+	band *worldstream.Band
+	gen  worldstream.ChunkGen
 }
 
 var _ es.State[w.World] = &OverworldState{}
@@ -39,35 +39,33 @@ var _ es.ActionHandler[w.World] = &OverworldState{}
 // String はステート名を返す
 func (st *OverworldState) String() string { return "Overworld" }
 
+// NewGameParams は新規オーバーワールド開始時の帯生成パラメータ。
+// chunkW×chunkH のチャンクを K 枚並べた帯を RunSeed から決定的生成する。
+type NewGameParams struct {
+	RunSeed uint64
+	ChunkW  consts.Tile
+	ChunkH  consts.Tile
+	K       consts.ChunkX
+}
+
 // NewOverworldState はシームレスワールドステートのファクトリを返す。
-// chunkW×chunkH のチャンクを k 枚並べた帯を runSeed から決定的生成する。
-func NewOverworldState(runSeed uint64, chunkW, chunkH consts.Tile, k consts.ChunkX, planner mapplanner.PlannerType) es.StateFactory[w.World] {
+//
+// params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、
+// 帯パラメータは OnStart が Dungeon.SeamlessBand から読み取って再構築する。
+// 新規開始とロード復元の初期化本体は startNewBand・restoreFromSave に分かれている。
+func NewOverworldState(planner mapplanner.PlannerType, params *NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &OverworldState{
 			DungeonState: &DungeonState{},
-			band:         worldstream.NewBand(chunkW, k),
-			runSeed:      runSeed,
-			chunkW:       chunkW,
-			chunkH:       chunkH,
 			planner:      planner,
+			newGame:      params,
 		}, nil
 	}
 }
 
-// NewOverworldStateForLoad はセーブから復元する際のファクトリを返す。
-// 帯パラメータの seed・chunkW・chunkH・k・eastIndex は OnStart が Dungeon.SeamlessBand から
-// 読み取って再構築するため、ここでは planner だけ指定すればよい。
-func NewOverworldStateForLoad(planner mapplanner.PlannerType) es.StateFactory[w.World] {
-	return func() (es.State[w.World], error) {
-		return &OverworldState{
-			DungeonState: &DungeonState{},
-			band:         worldstream.NewBand(1, 1), // OnStart で SeamlessBand から再構築される
-			planner:      planner,
-		}, nil
-	}
-}
-
-// OnStart は K チャンク分の初期帯を生成し、プレイヤーを中央チャンクへ置く。
+// OnStart は帯ドライバを用意する。新規開始なら初期帯を生成し、ロード復元なら
+// セーブ済みの SeamlessBand から Band と ChunkGen を作り直す。分岐の本体は
+// startNewBand・restoreFromSave に分けてあり、OnStart 自身はどちらを呼ぶかだけを決める。
 func (st *OverworldState) OnStart(world w.World) error {
 	sw := world.Resources.ScreenDimensions.Width
 	sh := world.Resources.ScreenDimensions.Height
@@ -77,7 +75,6 @@ func (st *OverworldState) OnStart(world w.World) error {
 	}
 
 	d := query.GetDungeon(world)
-	sb := &d.SeamlessBand
 
 	// 視界の強制再計算を促す。VisionSystem は world.Updaters に居座る永続インスタンスで、
 	// Depth/DefinitionName が変わらないと内部キャッシュを無効化しない。オーバーワールドは常に
@@ -85,34 +82,49 @@ func (st *OverworldState) OnStart(world w.World) error {
 	// stale な isInitialized のまま再計算されず真っ暗になる。ここで一度だけ強制する。
 	d.NeedsForceUpdate = true
 
-	// ロード復元: 帯タイル・Level・プレイヤーは serde で復元済み。
-	// ここでは Band ドライバと ChunkGen を永続状態から再構築するだけでよい。再生成はしない。
+	sb := &d.SeamlessBand
 	if sb.Active {
-		st.runSeed, st.chunkW, st.chunkH = sb.RunSeed, sb.ChunkW, sb.ChunkH
-		st.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
-		st.gen = overworld.NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, st.planner)
-		query.InvalidateSpatialIndex(world)
-		return nil
+		return st.restoreFromSave(world, sb)
 	}
+	return st.startNewBand(world, sb)
+}
 
-	// 新規開始: 帯状態を Dungeon に記録してセーブに対応し、初期帯を生成してプレイヤーを配置する
+// restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
+// 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
+func (st *OverworldState) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
+	st.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
+	st.gen = overworld.NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, st.planner)
+	query.InvalidateSpatialIndex(world)
+	return nil
+}
+
+// startNewBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
+// プレイヤーを中央チャンクへ置く。帯パラメータは newGame から取る。nil なら誤用なので弾く。
+func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error {
+	p := st.newGame
+	if p == nil {
+		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
+	}
+	st.band = worldstream.NewBand(p.ChunkW, p.K)
+	st.gen = overworld.NewChunkGen(world, p.RunSeed, p.ChunkW, p.ChunkH, st.planner)
+
+	// 帯状態を Dungeon に記録してセーブに対応する
 	sb.Active = true
-	sb.RunSeed = st.runSeed
+	sb.RunSeed = p.RunSeed
 	sb.EastIndex = st.band.EastIndex()
-	sb.ChunkW = st.chunkW
-	sb.ChunkH = st.chunkH
+	sb.ChunkW = p.ChunkW
+	sb.ChunkH = p.ChunkH
 	sb.K = st.band.K()
 
 	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する
-	d.ExploredTiles = make(map[gc.GridElement]bool)
-	st.gen = overworld.NewChunkGen(world, st.runSeed, st.chunkW, st.chunkH, st.planner)
-	if err := st.generateBandChunks(world); err != nil {
+	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
+	if err := st.generateBandChunks(world, p.ChunkW, p.ChunkH); err != nil {
 		return err
 	}
 
 	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
-	cx := int((st.band.K() / 2).Tiles(st.chunkW) + st.chunkW/2)
-	cy := int(st.chunkH / 2)
+	cx := int((st.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2)
+	cy := int(p.ChunkH / 2)
 	if _, err := query.GetPlayerEntity(world); err != nil {
 		if _, serr := lifecycle.SpawnPlayer(world, cx, cy, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
@@ -131,11 +143,11 @@ func (st *OverworldState) syncBandState(world w.World) {
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
-// OnStart の新規開始から呼ばれる。Level 設定は帯幅が不変なので再設定しても冪等で無害。
-func (st *OverworldState) generateBandChunks(world w.World) error {
-	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
+// startNewBand から呼ばれる。Level 設定は帯幅が不変なので再設定しても冪等で無害。
+func (st *OverworldState) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
+	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: chunkH}
 	for i := range st.band.K() {
-		if err := st.gen(i, i.Tiles(st.chunkW)); err != nil {
+		if err := st.gen(i, i.Tiles(chunkW)); err != nil {
 			return fmt.Errorf("チャンク生成失敗 (slot=%d): %w", i, err)
 		}
 	}
@@ -151,7 +163,6 @@ func (st *OverworldState) generateBandChunks(world w.World) error {
 //
 // 将来オーバーワールドにポータルを足して遺跡へ入れるようにする場合、帯の退避は汎用フックの
 // OnPause ではなく「遺跡進入」専用の経路で行う。汎用フックはオーバーレイと区別できないため。
-// 設計 docs/design/20260717_60.md §4。
 
 // Update は DungeonState の共通処理を実行後、ターン境界で帯をシフトする。
 func (st *OverworldState) Update(world w.World) (es.Transition[w.World], error) {
@@ -165,7 +176,7 @@ func (st *OverworldState) Update(world w.World) (es.Transition[w.World], error) 
 	return trans, nil
 }
 
-// maybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトする。§2.5 のターン境界フック。
+// maybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトする。
 //
 // 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち
 // プレイヤーターンの Player フェーズかつプレイヤーが継続アクティビティ中でないとき。
@@ -175,7 +186,6 @@ func (st *OverworldState) maybeShift(world w.World) error {
 		return nil
 	}
 	// Update は死亡チェック後にのみ maybeShift へ到達するため、ここでプレイヤーは存在するはず。
-	// 不在は異常なので伝播する。cullDistantSolo と同じ方針
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return fmt.Errorf("シフト判定にプレイヤーが必要: %w", err)
@@ -183,7 +193,7 @@ func (st *OverworldState) maybeShift(world w.World) error {
 	if query.HasActivity(world, playerEntity) {
 		return nil
 	}
-	// 中央チャンクに収まるまでシフトを繰り返す。設計 §2.1 の while 相当。
+	// 中央チャンクに収まるまでシフトを繰り返す。
 	// 各シフトはプレイヤーを chunkW ぶん中央へ寄せるため、必ず有限回で収束する。
 	shifted := false
 	for {

@@ -18,7 +18,7 @@ func TestOverworldState_Updateスモーク(t *testing.T) {
 
 	world := vrt.InitVRTWorld(t)
 
-	factory := gs.NewOverworldState(1, 50, 50, 3, mapplanner.PlannerTypeOverworldField)
+	factory := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &gs.NewGameParams{RunSeed: 1, ChunkW: 50, ChunkH: 50, K: 3})
 	state, err := factory()
 	require.NoError(t, err)
 

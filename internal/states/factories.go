@@ -202,7 +202,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
-					NewOverworldState(seed, 50, 50, 3, mapplanner.PlannerTypeOverworldField),
+					NewOverworldState(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: seed, ChunkW: 50, ChunkH: 50, K: 3}),
 				}})
 			return nil
 		}).
@@ -732,7 +732,7 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	d := query.GetDungeon(world)
 	if d.SeamlessBand.Active {
-		return NewOverworldStateForLoad(mapplanner.PlannerTypeOverworldField)
+		return NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
 	}
 	return NewDungeonState(d.Depth, WithDefinitionName(d.DefinitionName), WithResume())
 }

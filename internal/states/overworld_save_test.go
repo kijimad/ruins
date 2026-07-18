@@ -24,7 +24,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	const k = 3
 
 	world := testutil.InitTestWorld(t)
-	factory := NewOverworldState(12345, chunkW, chunkH, k, mapplanner.PlannerTypeOverworldField)
+	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: 12345, ChunkW: chunkW, ChunkH: chunkH, K: k})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*OverworldState)
@@ -57,7 +57,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	assert.Equal(t, k, int(sb.K), "K が復元される")
 
 	// 復元ワールドでロード用ファクトリから OverworldState を起動 → Band が eastIndex=1 で再構築される
-	loadFactory := NewOverworldStateForLoad(mapplanner.PlannerTypeOverworldField)
+	loadFactory := NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
 	loadState, err := loadFactory()
 	require.NoError(t, err)
 	ow2, ok := loadState.(*OverworldState)
