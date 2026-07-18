@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-17 17:51:36</td>
+            <td class="headerValue">2026-07-18 01:32:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -209,13 +209,13 @@
 <span id="L147"><span class="lineNum">     147</span>              : </span>
 <span id="L148"><span class="lineNum">     148</span>              : // has は Components のフィールド名を自動解決して Has を生成する。</span>
 <span id="L149"><span class="lineNum">     149</span>              : // Map ハンドルのポインタ同一性でフィールドを特定する</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         725 : func (c *Components) has(comp hasser) Has {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         725 :         val := reflect.ValueOf(c).Elem()</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         725 :         typ := val.Type()</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       16541 :         for i := range val.NumField() {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       16541 :                 if val.Field(i).Interface() == comp {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         725 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">         725 :                 }</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         721 : func (c *Components) has(comp hasser) Has {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         721 :         val := reflect.ValueOf(c).Elem()</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         721 :         typ := val.Type()</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       16095 :         for i := range val.NumField() {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       16097 :                 if val.Field(i).Interface() == comp {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         723 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">         723 :                 }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              :         }</span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;component not found in Components&quot;)</span></span>
 <span id="L159"><span class="lineNum">     159</span>              : }</span>

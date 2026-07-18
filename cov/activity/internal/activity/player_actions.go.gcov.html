@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-17 17:51:36</td>
+            <td class="headerValue">2026-07-18 01:32:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -131,11 +131,11 @@
 <span id="L69"><span class="lineNum">      69</span>              :         }</span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">          11 :         canMove := CanMoveTo(world, consts.Coord[int]{X: newX, Y: newY}, consts.Coord[int]{X: currentX, Y: currentY}, entity)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">          21 :         if canMove {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">          10 :                 destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          10 :                 _, err := Execute(&amp;MoveActivity{Destination: destination}, entity, world)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">          10 :                 return err</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          10 :         }</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">          22 :         if canMove {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">          11 :                 destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          11 :                 _, err := Execute(&amp;MoveActivity{Destination: destination}, entity, world)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">          11 :                 return err</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          11 :         }</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC tlaBgUNC">           0 :         return nil</span></span>
 <span id="L79"><span class="lineNum">      79</span>              : }</span>
@@ -176,11 +176,11 @@
 <span id="L114"><span class="lineNum">     114</span>              : </span>
 <span id="L115"><span class="lineNum">     115</span>              : // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する</span>
 <span id="L116"><span class="lineNum">     116</span>              : // Manual と OnCollision 方式のInteractableが対象</span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">          15 : func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">          15 :         var results []ecs.Entity</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">          15 : </span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">          15 :         rangeQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).Query()</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">          19 :         for rangeQuery.Next() {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">          16 : func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">          16 :         var results []ecs.Entity</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">          16 : </span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">          16 :         rangeQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).Query()</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">          20 :         for rangeQuery.Next() {</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           4 :                 entity := rangeQuery.Entity()</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           4 :                 interactable := world.Components.Interactable.Get(entity)</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           4 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
@@ -231,9 +231,9 @@
 <span id="L169"><span class="lineNum">     169</span>              : }</span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
 <span id="L171"><span class="lineNum">     171</span>              : // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">          13 : func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">          13 :         entities := GetAllInteractiveInteractablesInRange(world, playerGrid)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          13 :         for _, entity := range entities {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">          14 : func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">          14 :         entities := GetAllInteractiveInteractablesInRange(world, playerGrid)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          14 :         for _, entity := range entities {</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactable := world.Components.Interactable.Get(entity)</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 for _, interaction := range interactable.Interactions {</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                         if interaction.Config().ActivationWay != gc.ActivationWayManual {</span></span>

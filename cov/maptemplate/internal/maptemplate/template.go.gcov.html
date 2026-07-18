@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-17 17:51:36</td>
+            <td class="headerValue">2026-07-18 01:32:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,25 +97,25 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         395 :         for y, line := range lines {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         326 :                 runes := []rune(line)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         326 :                 cells[y] = make([]MapCell, len(runes))</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4524 :                 for x, ch := range runes {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4198 :                         charStr := string(ch)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4198 :                         var cell MapCell</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        7896 :                         if palette != nil {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6788 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3090 :                                         cell.Terrain = terrain</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3090 :                                 }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        3807 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4597 :                 for x, ch := range runes {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4271 :                         charStr := string(ch)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4271 :                         var cell MapCell</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        8004 :                         if palette != nil {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6829 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3096 :                                         cell.Terrain = terrain</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3096 :                                 }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        3828 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">          87 :                                         cell.Prop = prop</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          87 :                                 }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3700 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3737 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                                         cell.NPC = npc</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                         }</span>
 <span id="L52"><span class="lineNum">      52</span>              :                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5388 :                         if cell.Terrain == &quot;&quot; {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5438 :                         if cell.Terrain == &quot;&quot; {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        1169 :                                 cell.Terrain = charStr</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        1169 :                         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4219 :                         cells[y][x] = cell</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4270 :                         cells[y][x] = cell</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                 }</span>
 <span id="L58"><span class="lineNum">      58</span>              :         }</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          69 :         return cells</span></span>
@@ -309,9 +309,9 @@
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;マップの行が空です&quot;)</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L249"><span class="lineNum">     249</span>              : </span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC tlaBgGNC">         469 :         for i, line := range lines {</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">         411 :                 lineWidth := utf8.RuneCountInString(line)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">         413 :                 if lineWidth != expectedWidth {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC tlaBgGNC">         478 :         for i, line := range lines {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">         420 :                 lineWidth := utf8.RuneCountInString(line)</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">         422 :                 if lineWidth != expectedWidth {</span></span>
 <span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           2 :                         return fmt.Errorf(&quot;マップの行%dの長さが不一致です: 期待%d、実際%d&quot;, i, expectedWidth, lineWidth)</span></span>
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           2 :                 }</span></span>
 <span id="L255"><span class="lineNum">     255</span>              :         }</span>

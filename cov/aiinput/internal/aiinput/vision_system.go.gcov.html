@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-17 17:51:36</td>
+            <td class="headerValue">2026-07-18 01:32:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">        1046 : </span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">        2092 :         if world.Components.CharModifiers.Has(targetEntity) {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">        1046 :                 mods := world.Components.CharModifiers.Get(targetEntity)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">        1046 :                 viewDist = viewDist * float64(mods.EnemyVision) / 100</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">        1046 :                 viewDist = mods.EnemyVision.ApplyFloat(viewDist)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">        1046 :         }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        1046 :         return float64(distSq) &lt;= viewDist*viewDist</span></span>

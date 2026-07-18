@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-17 17:51:36</td>
+            <td class="headerValue">2026-07-18 01:32:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -205,7 +205,7 @@
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         // 回復効果倍率を適用する</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         if world.Components.CharModifiers.Has(actor) {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 mods := world.Components.CharModifiers.Get(actor)</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 amount = amount * mods.HealingEffect / 100</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 amount = mods.HealingEffect.ApplyInt(amount)</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         if amount &lt; 1 {</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 amount = 1</span></span>

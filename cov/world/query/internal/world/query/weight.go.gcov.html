@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-17 17:51:36</td>
+            <td class="headerValue">2026-07-18 01:32:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,7 +92,7 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 : </span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           3 :                 if world.Components.CharModifiers.Has(entity) {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                         mods := world.Components.CharModifiers.Get(entity)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         maxWeight = maxWeight * float64(mods.MaxWeight) / 100</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         maxWeight = mods.MaxWeight.ApplyFloat(maxWeight)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :                 wc.Max = maxWeight</span></span>

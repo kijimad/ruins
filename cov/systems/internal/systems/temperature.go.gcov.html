@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-17 17:51:36</td>
+            <td class="headerValue">2026-07-18 01:32:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -151,7 +151,7 @@
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 isPlayer := world.Components.Player.Has(entity)</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 // 体温進行倍率を取得する</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 coldProgressPct, heatProgressPct := 100, 100</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           2 :                 if world.Components.CharModifiers.Has(entity) {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                         mods := world.Components.CharModifiers.Get(entity)</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                         coldProgressPct = mods.ColdProgress</span></span>
@@ -217,7 +217,7 @@
 <span id="L155"><span class="lineNum">     155</span>              : // - isPlayerがtrueの場合、状態変化時にログを出力する。</span>
 <span id="L156"><span class="lineNum">     156</span>              : // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。</span>
 <span id="L157"><span class="lineNum">     157</span>              : // - 戻り値: 状態のSeverityが変化した場合trueを返す</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           8 : func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct int) bool {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           8 : func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           8 :         hasChange := false</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           8 :         partHealth := &amp;hs.Parts[gc.BodyPartWholeBody]</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           8 : </span></span>
@@ -226,8 +226,8 @@
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           8 :         // 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           8 :         effectiveTempHeat := envTemp - insulation.Heat</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           8 : </span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           8 :         coldDelta := calcTimerDelta(effectiveTempCold) * float64(coldProgressPct) / 100</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           8 :         heatDelta := calcTimerDelta(effectiveTempHeat) * float64(heatProgressPct) / 100</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           8 :         coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(effectiveTempCold))</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           8 :         heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(effectiveTempHeat))</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           8 : </span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           8 :         var changes []gc.SeverityChange</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           8 : </span></span>
