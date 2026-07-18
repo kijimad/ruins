@@ -37,10 +37,11 @@ func gainExp(s *gc.Skill, abilityValue int, baseExp int) bool {
 		return false
 	}
 
-	growthSpeed := 100 + abilityValue*growthConfig.AbilBonus
+	// 経験値への乗数倍率。decay は割り算で効く逆適用の倍率なのでApplyInt は使わず int のまま扱う。
+	growthSpeed := consts.PercentBase + consts.Percent(abilityValue*growthConfig.AbilBonus)
 	decay := 100 + s.Value*growthConfig.DecayPerLevel
 
-	exp := max(baseExp*growthSpeed/100*100/decay, 1)
+	exp := max(growthSpeed.ApplyInt(baseExp)*100/decay, 1)
 	s.Exp.Current += exp
 
 	if s.Exp.Current >= s.Exp.Max {

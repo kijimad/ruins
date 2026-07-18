@@ -45,6 +45,8 @@ type SkillBookEffect struct {
 
 // ReadingEfficiency は本とプレイヤーのスキルレベル差に基づく経験値効率を倍率で返す（0-100%）
 // diff = bookLevel - playerLevel（正=本が難しい）
+// 理解不能（diff > maxDifficulty）のときは 0 を返す。呼び出し元は 0 のとき経験値が
+// 入らないことを前提に扱うこと（例: GainExpScaled は max(..., 1) で下限1を保証する）。
 func ReadingEfficiency(playerLevel, bookLevel int) consts.Percent {
 	diff := bookLevel - playerLevel
 
