@@ -188,13 +188,11 @@ func progressHunger(actor ecs.Entity, world w.World) {
 	}
 	hunger := world.Components.Hunger.Get(actor)
 
-	// hungerPct は空腹進行倍率%（100が基準、スキル等で低いほど遅い）。
+	// 空腹進行倍率
 	hungerPct := 100
 	if world.Components.CharModifiers.Has(actor) {
 		hungerPct = world.Components.CharModifiers.Get(actor).HungerProgress
 	}
-	// 分母を HungerDrainTurns 倍に伸ばし、基準速度を「1減=約 HungerDrainTurns ターン」に緩和する。
-	// hungerPct は基準に対する割合のまま効く（例: 50%なら更に半分の速度）。
 	if world.Config.RNG.IntN(100*gc.HungerDrainTurns) < hungerPct {
 		hunger.Decrease(1)
 	}
