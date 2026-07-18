@@ -245,6 +245,23 @@ func TestGolden_Status(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
+func TestGolden_MemberStatus(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		playerEntity, err := query.GetPlayerEntity(world)
+		require.NoError(t, err)
+
+		member, err := lifecycle.SpawnDefaultSquadMember(world, playerEntity)
+		require.NoError(t, err)
+
+		town, err := gs.NewTownState()()
+		require.NoError(t, err)
+		status, err := gs.NewMemberStatusState(member)
+		require.NoError(t, err)
+		return []es.State[w.World]{town, status}
+	})
+}
+
 func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
