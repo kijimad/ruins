@@ -16,7 +16,7 @@ import (
 
 // TestOverworldState_セーブ往復で帯状態が復元される は、シームレスワールドの帯状態
 // （SeamlessBand）が serde に乗り、ロード後に OverworldState が同じ eastIndex で
-// 再構築できることを固定する（B3: セーブ有界化の基盤）。
+// 再構築できることを固定する。
 func TestOverworldState_セーブ往復で帯状態が復元される(t *testing.T) {
 	t.Parallel()
 

@@ -196,8 +196,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 				}})
 			return nil
 		}).
-		WithChoice("オーバーワールド開始(シームレス)", func(world w.World) error {
-			// runSeed からチャンクを決定的生成する。chunkW×chunkH を k 枚並べた帯
+		WithChoice("オーバーワールド開始", func(world w.World) error {
 			seed := world.Config.RNG.Uint64()
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,

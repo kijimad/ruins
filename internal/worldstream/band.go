@@ -90,7 +90,7 @@ func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 	return gen(newChunkIndex, 0)
 }
 
-// rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。§2.4。
+// rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。
 // 永続の ExploredTiles はキーを平行移動し、揮発キャッシュはクリアして次フレーム再構築させる。
 func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {
 	d := query.GetDungeon(world)

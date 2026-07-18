@@ -10,7 +10,7 @@ import (
 )
 
 // TestNewResumeStateFactory はロード復元の復帰先が保存内容で正しく分岐することを固定する。
-// これがないと addLoadSlot が常に DungeonState を選び、シームレスワールドのロードが壊れる（B3-1）。
+// これがないと addLoadSlot が常に DungeonState を選び、シームレスワールドのロードが壊れる。
 func TestNewResumeStateFactory_シームレスならOverworld(t *testing.T) {
 	t.Parallel()
 

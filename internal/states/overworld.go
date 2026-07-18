@@ -20,9 +20,8 @@ import (
 // OverworldState はシームレスワールドを東へ延々と歩く探索ステート。
 //
 // DungeonState を埋め込み、入力・システム列・描画・遷移処理をそのまま再利用する。
-// OverworldState 固有なのは「フロアを作り直さず、アクティブ帯をスライドさせ続ける」点だけで、
-// OnStart で初期帯を生成し、Update のターン境界でシフト判定する。詳細設計は
-// docs/design/20260717_60.md §6。
+// OverworldState 固有なのは「フロアを作り直さず、アクティブ帯をスライドさせ続ける」点だけ。
+// OnStart で初期帯を生成し、Update のターン境界でシフト判定する。
 type OverworldState struct {
 	*DungeonState
 	planner mapplanner.PlannerType
