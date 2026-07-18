@@ -16,5 +16,6 @@ runs:
     - name: set up go
       uses: actions/setup-go@v6
       with:
-        # go.mod の toolchain(go1.26.5)に合わせる。標準ライブラリの既知脆弱性(govulncheck)を解消する版
-        go-version: '1.26.5'
+        # go.mod に自動追従する
+        # デフォルトでは go.mod を読まない
+        go-version-file: 'go.mod'

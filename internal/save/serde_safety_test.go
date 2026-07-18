@@ -62,8 +62,7 @@ func assertSerdeSafe(t *testing.T, typ reflect.Type, path string, visited map[re
 		}
 		assertSerdeSafe(t, typ.Elem(), path+"{}", visited)
 	case reflect.Struct:
-		for i := range typ.NumField() {
-			f := typ.Field(i)
+		for f := range typ.Fields() {
 			if f.PkgPath != "" { // 非公開フィールドは JSON 化されない
 				continue
 			}
