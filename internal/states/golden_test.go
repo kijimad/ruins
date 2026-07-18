@@ -195,6 +195,13 @@ func TestGolden_Dungeon(t *testing.T) {
 	}))
 }
 
+func TestGolden_Overworld(t *testing.T) {
+	t.Parallel()
+	s, err := gs.NewOverworldState(42, 30, 20, 3, mapplanner.PlannerTypeOverworldField)()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(s))
+}
+
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
