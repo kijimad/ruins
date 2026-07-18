@@ -22,3 +22,4 @@ cdda/
 
 .claude/*
 !.claude/skills/
+/report.json

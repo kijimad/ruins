@@ -66,6 +66,12 @@ lint: ## Linterを実行する
 	fi
 	@go tool govulncheck ./...
 
+.PHONY: mutation
+mutation: ## ミューテーションテストでテストの実効性を測る。例: make mutation PKG=./internal/skill/
+	# go-mutesting は依存がアプリと無関係なので tool 化せず on-demand で実行する。
+	# 変異ごとに go test を回すため遅い。ebiten 描画に依存しない純粋な package 向け
+	@go run github.com/avito-tech/go-mutesting/cmd/go-mutesting@latest $(or $(PKG),./internal/skill/)
+
 .PHONY: aseprite
 aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する
 	@./scripts/pack.sh
