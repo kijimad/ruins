@@ -60,7 +60,32 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 
-	return baseTemp + timeModifier + tileModifier, nil
+	frostModifier := frostZoneModifier(world, x)
+
+	return baseTemp + timeModifier + tileModifier + frostModifier, nil
+}
+
+// FrostZoneTempModifier は寒波前線の極低温ゾーン内タイルの環境気温修正。
+// 生存不能な極寒を表す。ゾーンに踏み込むと低体温が急進する。
+const FrostZoneTempModifier = -100
+
+// frostZoneModifier はタイル x が寒波前線の極低温ゾーン内なら極寒修正を返す。
+//
+// 前線は SeamlessBand に絶対軸で公開されている。タイルのローカル X を帯原点で絶対 X に直し、
+// ゾーン (ColdZoneWest, FrontEastAbsX] 内かを判定する。西端は含まない（進入不可ライン）。
+// worldstream.Front.InColdZone と同じ半開区間。オーバーワールド以外は FrontActive=false で無効。
+func frostZoneModifier(world w.World, x consts.Tile) int {
+	sb := query.GetDungeon(world).SeamlessBand
+	if !sb.FrontActive {
+		return 0
+	}
+	bandOriginX := int(sb.EastIndex) * int(sb.ChunkW)
+	absX := int(x) + bandOriginX
+	coldZoneWest := int(sb.FrontEastAbsX) - int(sb.FrontColdWidth)
+	if absX > coldZoneWest && absX <= int(sb.FrontEastAbsX) {
+		return FrostZoneTempModifier
+	}
+	return 0
 }
 
 // Update は健康状態のタイマーを更新する
@@ -202,6 +227,8 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int
 // 負の値は低体温方向、正の値は高体温方向
 func calcTimerDelta(effectiveTemp int) float64 {
 	switch {
+	case effectiveTemp <= -50:
+		return -1.0 // 極寒。寒波前線の極低温ゾーン相当。通常環境では到達せず、居座れば急速に凍える
 	case effectiveTemp <= 0:
 		return -0.5 // 非常に寒い
 	case effectiveTemp <= 10:

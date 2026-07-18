@@ -12,6 +12,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。
+const coldDungeonName = "亡者の森"
+
 func TestGetTileTemperatureAt(t *testing.T) {
 	t.Parallel()
 
@@ -38,6 +41,106 @@ func TestGetTileTemperatureAt(t *testing.T) {
 	})
 }
 
+func TestFrostZoneModifier(t *testing.T) {
+	t.Parallel()
+
+	t.Run("極低温ゾーン内のタイルに極寒修正を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		sb := &query.GetDungeon(world).SeamlessBand
+		sb.FrontActive = true
+		sb.EastIndex = 0
+		sb.ChunkW = 40
+		sb.FrontColdWidth = 20
+		sb.FrontEastAbsX = 30 // ゾーンは半開区間 (10, 30]
+
+		assert.Equal(t, 0, frostZoneModifier(world, 10), "西端は含まない（進入不可ライン）")
+		assert.Equal(t, FrostZoneTempModifier, frostZoneModifier(world, 11), "ゾーン内は極寒")
+		assert.Equal(t, FrostZoneTempModifier, frostZoneModifier(world, 30), "東端は含む")
+		assert.Equal(t, 0, frostZoneModifier(world, 31), "前線より東は平常")
+	})
+
+	t.Run("帯原点で絶対Xに変換して判定する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		sb := &query.GetDungeon(world).SeamlessBand
+		sb.FrontActive = true
+		sb.EastIndex = 1 // bandOriginX = 1*40 = 40
+		sb.ChunkW = 40
+		sb.FrontColdWidth = 20
+		sb.FrontEastAbsX = 60 // ゾーン (40, 60]。ローカル x=10 → absX=50 は内側
+
+		assert.Equal(t, FrostZoneTempModifier, frostZoneModifier(world, 10), "ローカル10=絶対50はゾーン内")
+		assert.Equal(t, 0, frostZoneModifier(world, 25), "ローカル25=絶対65はゾーン外")
+	})
+
+	t.Run("FrontActiveでないと無効", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		sb := &query.GetDungeon(world).SeamlessBand
+		sb.FrontActive = false
+		sb.FrontEastAbsX = 30
+		sb.FrontColdWidth = 20
+		assert.Equal(t, 0, frostZoneModifier(world, 20), "通常ダンジョンでは前線無効")
+	})
+}
+
+func TestCalculateEnvTemperature_極低温ゾーンで極寒になる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	d := query.GetDungeon(world)
+	d.DefinitionName = coldDungeonName // 基本気温0度
+	sb := &d.SeamlessBand
+	sb.FrontActive = true
+	sb.EastIndex = 0
+	sb.ChunkW = 40
+	sb.FrontColdWidth = 20
+	sb.FrontEastAbsX = 30 // ゾーン (10, 30]
+
+	inZone, err := CalculateEnvTemperature(world, 20, 0)
+	require.NoError(t, err)
+	outZone, err := CalculateEnvTemperature(world, 35, 0)
+	require.NoError(t, err)
+
+	assert.Equal(t, FrostZoneTempModifier, inZone-outZone, "ゾーン内はゾーン外より極寒修正ぶん低い")
+	assert.LessOrEqual(t, inZone, 0, "ゾーン内は最大寒冷（0度以下）になり低体温が急進する")
+}
+
+func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *testing.T) {
+	t.Parallel()
+
+	// front=true なら極低温ゾーン内、false なら同じ位置の通常環境でプレイヤーを1ターン更新する。
+	setup := func(front bool) *gc.HealthStatus {
+		world := testutil.InitTestWorld(t)
+		d := query.GetDungeon(world)
+		d.DefinitionName = coldDungeonName // 基本気温0度
+		if front {
+			sb := &d.SeamlessBand
+			sb.FrontActive = true
+			sb.EastIndex = 0
+			sb.ChunkW = 40
+			sb.FrontColdWidth = 20
+			sb.FrontEastAbsX = 30 // ゾーン (10, 30]。プレイヤー x=20 は内側
+		}
+		player, err := lifecycle.SpawnPlayer(world, 20, 0, "Ash")
+		require.NoError(t, err)
+		require.NoError(t, (&TemperatureSystem{}).Update(world))
+		return world.Components.HealthStatus.Get(player)
+	}
+
+	inZone := setup(true).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+	require.NotNil(t, inZone, "ゾーン内では低体温が発生する")
+
+	// 通常環境は快適で低体温が付かないこともあるので nil を 0 として扱う
+	normalCold := setup(false).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+	normalTimer := 0.0
+	if normalCold != nil {
+		normalTimer = normalCold.Timer
+	}
+
+	assert.Greater(t, inZone.Timer, normalTimer, "極低温ゾーンは通常の寒さより低体温が速く進む")
+}
+
 func TestCalcTimerDelta(t *testing.T) {
 	t.Parallel()
 
@@ -46,6 +149,9 @@ func TestCalcTimerDelta(t *testing.T) {
 		effectiveTemp int
 		expected      float64
 	}{
+		{"極寒(-50度以下)", -100, -1.0},
+		{"極寒(-50度)", -50, -1.0},
+		{"非常に寒い(-49度)", -49, -0.5},
 		{"非常に寒い(0度以下)", -10, -0.5},
 		{"非常に寒い(0度)", 0, -0.5},
 		{"寒い(1-10度)", 5, -0.25},
@@ -198,7 +304,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("HealthStatusを持つエンティティの状態が更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetDungeon(world).DefinitionName = "亡者の森" // 基本気温0度
+		query.GetDungeon(world).DefinitionName = coldDungeonName // 基本気温0度
 
 		player, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
