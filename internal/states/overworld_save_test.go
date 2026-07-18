@@ -37,7 +37,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	world.Components.GridElement.Get(player).X = 2 * chunkW
 	require.NoError(t, st.maybeShift(world))
 	require.Equal(t, 1, int(st.band.EastIndex()))
-	require.Equal(t, 1, query.GetDungeon(world).SeamlessBand.EastIndex, "永続状態に同期される")
+	require.Equal(t, 1, int(query.GetDungeon(world).SeamlessBand.EastIndex), "永続状態に同期される")
 
 	// セーブ往復（メモリ内）
 	sm, err := save.NewSerializationManager()
@@ -51,10 +51,10 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	// SeamlessBand が復元されている
 	sb := query.GetDungeon(world2).SeamlessBand
 	assert.True(t, sb.Active, "Active が復元される")
-	assert.Equal(t, 1, sb.EastIndex, "EastIndex が復元される")
+	assert.Equal(t, 1, int(sb.EastIndex), "EastIndex が復元される")
 	assert.Equal(t, uint64(12345), sb.RunSeed, "RunSeed が復元される")
 	assert.Equal(t, chunkW, sb.ChunkW, "ChunkW が復元される")
-	assert.Equal(t, k, sb.K, "K が復元される")
+	assert.Equal(t, k, int(sb.K), "K が復元される")
 
 	// 復元ワールドでロード用ファクトリから OverworldState を起動 → Band が eastIndex=1 で再構築される
 	loadFactory := NewOverworldStateForLoad(mapplanner.PlannerTypeOverworldField)

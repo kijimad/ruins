@@ -24,13 +24,13 @@ type SeamlessBand struct {
 	// RunSeed はチャンク決定的生成の元 seed
 	RunSeed uint64
 	// EastIndex は東進したチャンク数
-	EastIndex int
+	EastIndex consts.ChunkX
 	// ChunkW は1チャンクの幅
 	ChunkW consts.Tile
 	// ChunkH は帯の高さ
 	ChunkH consts.Tile
 	// K は帯のチャンク数
-	K int
+	K consts.ChunkX
 }
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。

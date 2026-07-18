@@ -54,9 +54,9 @@ func TestBand_ShiftEast(t *testing.T) {
 	b := worldstream.NewBand(100, 3)
 	require.True(t, b.ShouldShiftEast(210), "前提: 東シフト条件を満たす")
 
-	var gotChunkIndex worldstream.ChunkX
+	var gotChunkIndex consts.ChunkX
 	var gotOffsetX consts.Tile
-	gen := func(chunkIndex worldstream.ChunkX, offsetX consts.Tile) error {
+	gen := func(chunkIndex consts.ChunkX, offsetX consts.Tile) error {
 		gotChunkIndex = chunkIndex
 		gotOffsetX = offsetX
 		// 東端に新チャンクのタイルを1枚だけ置く（マーカー）
@@ -112,9 +112,9 @@ func TestBand_ShiftWest(t *testing.T) {
 	b := worldstream.NewBandAt(100, 3, 1) // 一度東へ進んだ状態から西へ戻る
 	require.True(t, b.ShouldShiftWest(90), "前提: 西シフト条件を満たす")
 
-	var gotChunkIndex worldstream.ChunkX
+	var gotChunkIndex consts.ChunkX
 	var gotOffsetX consts.Tile
-	gen := func(chunkIndex worldstream.ChunkX, offsetX consts.Tile) error {
+	gen := func(chunkIndex consts.ChunkX, offsetX consts.Tile) error {
 		gotChunkIndex = chunkIndex
 		gotOffsetX = offsetX
 		return nil
