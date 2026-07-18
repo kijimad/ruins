@@ -63,6 +63,7 @@ lint: ## Linterを実行する
 	@if deadcode -test $(GO_TEST_PKGS) 2>&1 | grep -q "unreachable func"; then \
 		exit 1; \
 	fi
+	@go run golang.org/x/vuln/cmd/govulncheck@latest ./... # 依存と標準ライブラリの既知脆弱性を到達可能性ベースで検査する
 
 .PHONY: aseprite
 aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する
