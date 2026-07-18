@@ -14,21 +14,21 @@ func TestRecalculateCharModifiers_AllSkillsZero(t *testing.T) {
 
 	// スキル値0のとき全倍率は100（等倍）
 	for _, id := range weaponSkillIDs {
-		assert.Equal(t, 100, mods.WeaponDamage[id], "武器ダメージ %s は100", id)
-		assert.Equal(t, 100, mods.WeaponAccuracy[id], "武器命中 %s は100", id)
+		assert.Equal(t, 100, int(mods.WeaponDamage[id]), "武器ダメージ %s は100", id)
+		assert.Equal(t, 100, int(mods.WeaponAccuracy[id]), "武器命中 %s は100", id)
 	}
-	assert.Equal(t, 100, mods.ColdProgress)
-	assert.Equal(t, 100, mods.HeatProgress)
-	assert.Equal(t, 100, mods.HungerProgress)
-	assert.Equal(t, 100, mods.HealingEffect)
-	assert.Equal(t, 100, mods.MaxWeight)
-	assert.Equal(t, 100, mods.EnemyVision)
-	assert.Equal(t, 100, mods.MoveCost)
-	assert.Equal(t, 100, mods.CraftCost)
-	assert.Equal(t, 100, mods.SmithQuality)
-	assert.Equal(t, 100, mods.BuyPrice)
-	assert.Equal(t, 100, mods.SellPrice)
-	assert.Equal(t, 100, mods.HeavyArmor)
+	assert.Equal(t, 100, int(mods.ColdProgress))
+	assert.Equal(t, 100, int(mods.HeatProgress))
+	assert.Equal(t, 100, int(mods.HungerProgress))
+	assert.Equal(t, 100, int(mods.HealingEffect))
+	assert.Equal(t, 100, int(mods.MaxWeight))
+	assert.Equal(t, 100, int(mods.EnemyVision))
+	assert.Equal(t, 100, int(mods.MoveCost))
+	assert.Equal(t, 100, int(mods.CraftCost))
+	assert.Equal(t, 100, int(mods.SmithQuality))
+	assert.Equal(t, 100, int(mods.BuyPrice))
+	assert.Equal(t, 100, int(mods.SellPrice))
+	assert.Equal(t, 100, int(mods.HeavyArmor))
 }
 
 func TestRecalculateCharModifiers_SkillEffects(t *testing.T) {
@@ -40,11 +40,11 @@ func TestRecalculateCharModifiers_SkillEffects(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, nil, nil)
 
 	// 刀剣Lv2: ダメージ倍率 = 100 + 2*5 = 110
-	assert.Equal(t, 110, mods.WeaponDamage[SkillSword])
+	assert.Equal(t, 110, int(mods.WeaponDamage[SkillSword]))
 	// 刀剣Lv2: 命中倍率 = 100 + 2*3 = 106
-	assert.Equal(t, 106, mods.WeaponAccuracy[SkillSword])
+	assert.Equal(t, 106, int(mods.WeaponAccuracy[SkillSword]))
 	// 他の武器は影響なし
-	assert.Equal(t, 100, mods.WeaponDamage[SkillSpear])
+	assert.Equal(t, 100, int(mods.WeaponDamage[SkillSpear]))
 }
 
 func TestRecalculateCharModifiers_NegativeCoefficient(t *testing.T) {
@@ -56,9 +56,9 @@ func TestRecalculateCharModifiers_NegativeCoefficient(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, nil, nil)
 
 	// 耐寒Lv3: 低体温進行 = 100 + 3*(-3) = 91
-	assert.Equal(t, 91, mods.ColdProgress)
+	assert.Equal(t, 91, int(mods.ColdProgress))
 	// 耐寒Lv3: 火耐性 = 100 + 0*(-3) = 100（SkillFireResistはLv0のまま）
-	assert.Equal(t, 100, mods.ElementResist[ElementTypeFire])
+	assert.Equal(t, 100, int(mods.ElementResist[ElementTypeFire]))
 }
 
 func TestRecalculateCharModifiers_WithAbilities(t *testing.T) {
@@ -74,9 +74,9 @@ func TestRecalculateCharModifiers_WithAbilities(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, abils, nil)
 
 	// 刀剣Lv2 + STR10: ダメージ = 100 + 2*5 + 10*1 = 120
-	assert.Equal(t, 120, mods.WeaponDamage[SkillSword])
+	assert.Equal(t, 120, int(mods.WeaponDamage[SkillSword]))
 	// 刀剣Lv2 + STR10: 命中 = 100 + 2*3 + 10*1 = 116
-	assert.Equal(t, 116, mods.WeaponAccuracy[SkillSword])
+	assert.Equal(t, 116, int(mods.WeaponAccuracy[SkillSword]))
 }
 
 func TestRecalculateCharModifiers_AbilityNegativeDirection(t *testing.T) {
@@ -92,7 +92,7 @@ func TestRecalculateCharModifiers_AbilityNegativeDirection(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, abils, nil)
 
 	// 耐寒Lv1 + VIT5: 低体温進行 = 100 + 1*(-3) + 5*(-1) = 92
-	assert.Equal(t, 92, mods.ColdProgress)
+	assert.Equal(t, 92, int(mods.ColdProgress))
 }
 
 func TestRecalculateCharModifiers_Sources(t *testing.T) {
@@ -130,7 +130,7 @@ func TestRecalculateCharModifiers_HealthPenalty(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, nil, hs)
 
 	// 中度低体温: MoveCost = 100 + 20
-	assert.Equal(t, 120, mods.MoveCost)
+	assert.Equal(t, 120, int(mods.MoveCost))
 
 	// Sourcesに低体温のペナルティが記録される
 	sources := mods.Sources[ModMoveCost]
@@ -180,9 +180,9 @@ func TestRecalculateCharModifiers_Negotiation(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, nil, nil)
 
 	// 交渉Lv4: 買値 = 100 + 4*(-2) = 92 (安く買える)
-	assert.Equal(t, 92, mods.BuyPrice)
+	assert.Equal(t, 92, int(mods.BuyPrice))
 	// 交渉Lv4: 売値 = 100 + 4*2 = 108 (高く売れる)
-	assert.Equal(t, 108, mods.SellPrice)
+	assert.Equal(t, 108, int(mods.SellPrice))
 }
 
 func TestRecalculateCharModifiers_MultipleSkills(t *testing.T) {
@@ -202,13 +202,13 @@ func TestRecalculateCharModifiers_MultipleSkills(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, abils, nil)
 
 	// 刀剣Lv3 + STR8: ダメージ = 100 + 3*5 + 8*1 = 123
-	assert.Equal(t, 123, mods.WeaponDamage[SkillSword])
+	assert.Equal(t, 123, int(mods.WeaponDamage[SkillSword]))
 	// 拳銃Lv5 + SEN6: ダメージ = 100 + 5*5 + 6*1 = 131
-	assert.Equal(t, 131, mods.WeaponDamage[SkillHandgun])
+	assert.Equal(t, 131, int(mods.WeaponDamage[SkillHandgun]))
 	// 合成Lv2 + DEX4: 素材消費 = 100 + 2*(-3) + 4*(-1) = 90
-	assert.Equal(t, 90, mods.CraftCost)
+	assert.Equal(t, 90, int(mods.CraftCost))
 	// 長物は未使用: ダメージ = 100 + 0*5 + 8*1 = 108（STR能力値のみ）
-	assert.Equal(t, 108, mods.WeaponDamage[SkillSpear])
+	assert.Equal(t, 108, int(mods.WeaponDamage[SkillSpear]))
 }
 
 func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
@@ -234,7 +234,7 @@ func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
 	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82
 	// 重度低体温ペナルティ: +30
 	// 合計: 82 + 30 = 112
-	assert.Equal(t, 112, mods.MoveCost)
+	assert.Equal(t, 112, int(mods.MoveCost))
 
 	// Sourcesに3要因が記録される
 	sources := mods.Sources[ModMoveCost]
@@ -254,9 +254,9 @@ func TestRecalculateCharModifiers_FireAbility(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, abils, nil)
 
 	// 小銃Lv4 + SEN12: ダメージ = 100 + 4*5 + 12*1 = 132
-	assert.Equal(t, 132, mods.WeaponDamage[SkillRifle])
+	assert.Equal(t, 132, int(mods.WeaponDamage[SkillRifle]))
 	// 小銃Lv4 + SEN12: 命中 = 100 + 4*3 + 12*1 = 124
-	assert.Equal(t, 124, mods.WeaponAccuracy[SkillRifle])
+	assert.Equal(t, 124, int(mods.WeaponAccuracy[SkillRifle]))
 }
 
 func TestRecalculateCharModifiers_ElementResistAllTypes(t *testing.T) {
@@ -271,8 +271,8 @@ func TestRecalculateCharModifiers_ElementResistAllTypes(t *testing.T) {
 	mods := RecalculateCharModifiers(skills, nil, nil)
 
 	// 各元素耐性: 100 + Lv*(-3)
-	assert.Equal(t, 94, mods.ElementResist[ElementTypeFire])    // 100 + 2*(-3)
-	assert.Equal(t, 88, mods.ElementResist[ElementTypeThunder]) // 100 + 4*(-3)
-	assert.Equal(t, 82, mods.ElementResist[ElementTypeChill])   // 100 + 6*(-3)
-	assert.Equal(t, 76, mods.ElementResist[ElementTypePhoton])  // 100 + 8*(-3)
+	assert.Equal(t, 94, int(mods.ElementResist[ElementTypeFire]))    // 100 + 2*(-3)
+	assert.Equal(t, 88, int(mods.ElementResist[ElementTypeThunder])) // 100 + 4*(-3)
+	assert.Equal(t, 82, int(mods.ElementResist[ElementTypeChill]))   // 100 + 6*(-3)
+	assert.Equal(t, 76, int(mods.ElementResist[ElementTypePhoton]))  // 100 + 8*(-3)
 }

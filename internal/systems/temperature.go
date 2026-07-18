@@ -89,7 +89,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		isPlayer := world.Components.Player.Has(entity)
 
 		// 体温進行倍率を取得する
-		coldProgressPct, heatProgressPct := 100, 100
+		coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
 		if world.Components.CharModifiers.Has(entity) {
 			mods := world.Components.CharModifiers.Get(entity)
 			coldProgressPct = mods.ColdProgress
@@ -155,7 +155,7 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
 // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct int) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
 	hasChange := false
 	partHealth := &hs.Parts[gc.BodyPartWholeBody]
 
@@ -164,8 +164,8 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int
 	// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
 	effectiveTempHeat := envTemp - insulation.Heat
 
-	coldDelta := calcTimerDelta(effectiveTempCold) * float64(coldProgressPct) / 100
-	heatDelta := calcTimerDelta(effectiveTempHeat) * float64(heatProgressPct) / 100
+	coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(effectiveTempCold))
+	heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(effectiveTempHeat))
 
 	var changes []gc.SeverityChange
 

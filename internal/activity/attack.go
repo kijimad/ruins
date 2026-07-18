@@ -238,19 +238,19 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 // getSkillMult は事前計算済みのスキル倍率(%)を返す。
 // isDamageがtrueならWeaponDamage、falseならWeaponAccuracyを参照する。
 // Effectsコンポーネントを持たないエンティティでは100(等倍)を返す。
-func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage bool) int {
+func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage bool) consts.Percent {
 	if attack == nil {
-		return 100
+		return consts.PercentBase
 	}
 	if !world.Components.CharModifiers.Has(entity) {
-		return 100
+		return consts.PercentBase
 	}
 	effects := world.Components.CharModifiers.Get(entity)
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
-		return 100
+		return consts.PercentBase
 	}
-	var mults map[gc.SkillID]int
+	var mults map[gc.SkillID]consts.Percent
 	if isDamage {
 		mults = effects.WeaponDamage
 	} else {
@@ -259,7 +259,7 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	if mult, ok := mults[skillID]; ok {
 		return mult
 	}
-	return 100
+	return consts.PercentBase
 }
 
 // applyElementResist は事前計算済みの元素耐性倍率でダメージを軽減する
@@ -272,7 +272,7 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 	if !ok {
 		return damage
 	}
-	reduced := max(damage*mult/100, formula.MinDamage)
+	reduced := max(mult.ApplyInt(damage), formula.MinDamage)
 	return reduced
 }
 
@@ -321,7 +321,7 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 
 	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
 	hitRate += getWeaponAccuracyFromAttack(attack)
-	hitRate = hitRate * getSkillMult(attacker, attack, world, false) / 100
+	hitRate = getSkillMult(attacker, attack, world, false).ApplyInt(hitRate)
 	hitRate += modifier
 
 	if hitRate > formula.MaxHitRate {
@@ -372,7 +372,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	baseDamage += attack.GetDamage()
 	baseDamage += damageModifier
 
-	baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
+	baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
 	if critical {
 		baseDamage = formula.ApplyCritical(baseDamage)

@@ -24,7 +24,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	// 交渉スキルによる買値倍率を適用する
 	if world.Components.CharModifiers.Has(playerEntity) {
 		mods := world.Components.CharModifiers.Get(playerEntity)
-		price = price * mods.BuyPrice / 100
+		price = mods.BuyPrice.ApplyInt(price)
 	}
 
 	if !query.HasCurrency(world, playerEntity, price) {
@@ -69,7 +69,7 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 	// 交渉スキルによる売値倍率を適用する
 	if world.Components.CharModifiers.Has(playerEntity) {
 		mods := world.Components.CharModifiers.Get(playerEntity)
-		price = price * mods.SellPrice / 100
+		price = mods.SellPrice.ApplyInt(price)
 	}
 
 	if err := lifecycle.ChangeItemCount(world, itemEntity, -1); err != nil {
