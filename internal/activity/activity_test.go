@@ -10,9 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestProgressHunger_空腹進行が基準ターン数に緩和される は、空腹進行100%のとき
-// 満腹度の減少が「約 1/HungerDrainTurns ターン」に間引かれることを固定する。
-// 毎ターン減（旧実装）だとシームレスワールドを歩くだけで猛烈に空腹になるため緩和した。
 func TestProgressHunger_空腹進行が基準ターン数に緩和される(t *testing.T) {
 	t.Parallel()
 
@@ -35,7 +32,7 @@ func TestProgressHunger_空腹進行が基準ターン数に緩和される(t *t
 	assert.InDelta(t, expected, drained, float64(expected)*0.15,
 		"空腹進行は約 1/%d ターンに緩和されている", gc.HungerDrainTurns)
 	assert.Less(t, drained, turns,
-		"毎ターン減より明確に緩やか（緩和の回帰防止）")
+		"毎ターン減より明確に緩やか")
 }
 
 func TestActivityCreation(t *testing.T) {

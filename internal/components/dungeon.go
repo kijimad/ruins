@@ -15,19 +15,19 @@ type LightInfo struct {
 	Color    color.RGBA
 }
 
-// SeamlessBand はシームレスワールド（オーバーワールド）のアクティブ帯の永続状態を保持する。
-// Active が true のときのみ有効。全フィールドがスカラーなので serde に乗る（セーブ/ロード対応）。
-// これによりロード後や遺跡遷移後に帯（Band）を再構築できる。詳細は docs/design/20260717_60.md §4。
+// SeamlessBand はオーバーワールドのアクティブ帯の永続状態を保持する。
+// Active が true のときのみ有効。全フィールドがスカラーなので serde に乗る。
+// これによりロード後や遺跡遷移後に Band を再構築できる。
 type SeamlessBand struct {
 	// Active はシームレスワールド中かを表す
 	Active bool
 	// RunSeed はチャンク決定的生成の元 seed
 	RunSeed uint64
-	// EastIndex は東進したチャンク数（帯西端チャンクの絶対インデックス）
+	// EastIndex は東進したチャンク数
 	EastIndex int
-	// ChunkW は1チャンクの幅（タイル）
+	// ChunkW は1チャンクの幅
 	ChunkW consts.Tile
-	// ChunkH は帯の高さ（タイル）
+	// ChunkH は帯の高さ
 	ChunkH consts.Tile
 	// K は帯のチャンク数
 	K int
