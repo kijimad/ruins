@@ -26,7 +26,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  crosscomple:
+  crosscompile:
     permissions:
       contents: read
     runs-on: ubuntu-latest
