@@ -26,9 +26,9 @@ func RecalcSeamAutotile(world w.World, boundaryX consts.Tile) {
 	// 再計算対象の左右隣 boundaryX-2 と boundaryX+1 まで含める
 	tiles := make(map[gc.GridElement]ecs.Entity)
 	hasWest, hasEast := false, false
-	query := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
-	for query.Next() {
-		e := query.Entity()
+	q := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
 		g := *world.Components.GridElement.Get(e)
 		if g.X >= boundaryX-2 && g.X <= boundaryX+1 {
 			tiles[g] = e

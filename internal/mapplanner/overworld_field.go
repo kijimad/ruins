@@ -40,6 +40,9 @@ func (b OverworldBarriers) PlanMeta(planData *MetaPlan) error {
 		cy := planData.RNG.IntN(h)
 		bw := 1 + planData.RNG.IntN(3)
 		bh := 1 + planData.RNG.IntN(max(1, h/3))
+		// ブロブは中心 (cx,cy) から東・南方向にのみ伸ばす。中心をランダムに散らすので方向の
+		// 偏りは分布に出ず、高さは h/3 に制限され carveEastWestPath が通路を保証するため、
+		// 西・北へ伸ばさなくても東西通行や見た目に問題はない。分岐を単純に保つための意図的な非対称。
 		for dy := range bh {
 			for dx := range bw {
 				x, y := cx+dx, cy+dy

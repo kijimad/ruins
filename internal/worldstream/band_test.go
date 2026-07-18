@@ -129,3 +129,22 @@ func TestBand_ShiftWest(t *testing.T) {
 	assert.Equal(t, 0, int(gotChunkIndex), "新しい西端チャンクの絶対インデックス")
 	assert.Equal(t, consts.Tile(0), gotOffsetX, "西スラブのオフセットは0")
 }
+
+// TestBand_ShiftWest_eastIndex0はエラー は、ラン開始地点で西シフトを呼ぶと eastIndex を
+// 負にせずエラーを返すことを固定する。maybeShift のガードとは別に Band 自身が誤用を弾く。
+func TestBand_ShiftWest_eastIndex0はエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	b := worldstream.NewBand(100, 3) // eastIndex=0
+	genCalled := false
+	gen := func(_ consts.ChunkX, _ consts.Tile) error {
+		genCalled = true
+		return nil
+	}
+
+	err := b.ShiftWest(world, gen)
+	require.Error(t, err, "eastIndex=0 での西シフトはエラー")
+	assert.Equal(t, 0, int(b.EastIndex()), "eastIndex は負にならない")
+	assert.False(t, genCalled, "生成は呼ばれない")
+}

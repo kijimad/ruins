@@ -1,6 +1,8 @@
 package worldstream
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -78,7 +80,13 @@ func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 }
 
 // ShiftWest は帯を西へ1チャンク戻す。ShiftEast の対称で、短い寄り道からの復帰時のみ使う。
+//
+// eastIndex > 0 のときだけ呼ぶこと。ラン開始の eastIndex=0 より西には何も生成されておらず、
+// 戻ると eastIndex が負になる。誤用を黙って進めないよう先頭でガードしエラーにする。
 func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
+	if b.eastIndex <= 0 {
+		return fmt.Errorf("ShiftWest は eastIndex > 0 のときのみ呼べる: eastIndex=%d", b.eastIndex)
+	}
 	// 東端チャンク破棄
 	RemoveEntitiesInXRange(world, (b.k - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))
 	// リベース：全エンティティを東へ chunkW
