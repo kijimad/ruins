@@ -31,6 +31,22 @@ type SeamlessBand struct {
 	ChunkH consts.Tile
 	// K は帯のチャンク数
 	K consts.ChunkX
+
+	// 寒波前線。現在位置は保存せず、以下の config と永続の GameTime.TotalTurns から
+	// 決定的に導出する。位置を持たないのでドリフトせず、ロードでも自然に復元される。
+	// FrontActive は寒波前線が有効か
+	FrontActive bool
+	// FrontStartAbsX はラン開始時の極低温ゾーン東端の絶対タイルX。ローカルでなく絶対軸
+	FrontStartAbsX consts.Tile
+	// FrontColdWidth は極低温ゾーンの幅
+	FrontColdWidth consts.Tile
+	// FrontAdvanceTurns はこの経過ターンごとに FrontStep タイル東進する
+	FrontAdvanceTurns int
+	// FrontStep は1回の前進量
+	FrontStep consts.Tile
+	// FrontEastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した
+	// 現在位置のキャッシュ。描画や凍結効果など後続の消費者がここを読む
+	FrontEastAbsX consts.Tile
 }
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。

@@ -56,6 +56,12 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	assert.Equal(t, chunkW, sb.ChunkW, "ChunkW が復元される")
 	assert.Equal(t, k, int(sb.K), "K が復元される")
 
+	// 寒波前線の config が復元される
+	assert.True(t, sb.FrontActive, "FrontActive が復元される")
+	assert.Equal(t, chunkW*2, sb.FrontColdWidth, "FrontColdWidth が復元される")
+	assert.Equal(t, 3, sb.FrontAdvanceTurns, "FrontAdvanceTurns が復元される")
+	assert.Equal(t, consts.Tile(1), sb.FrontStep, "FrontStep が復元される")
+
 	// 復元ワールドでロード用ファクトリから OverworldState を起動 → Band が eastIndex=1 で再構築される
 	loadFactory := NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
 	loadState, err := loadFactory()
@@ -68,6 +74,9 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	// 帯タイルは serde で復元済み（再生成していない）ことの傍証: Level 幅が帯全幅のまま
 	assert.Equal(t, chunkW*k, query.GetDungeon(world2).Level.TileWidth, "帯全幅の Level が保たれる")
 
+	assert.True(t, ow2.frontCfg.AdvanceTurns == 3 && ow2.frontCfg.Step == 1,
+		"ロード復元で寒波前線 config も再構築される")
+
 	// 復元ワールドに帯タイルが存在する（serde 復元）
 	count := 0
 	tileQuery := ecs.NewFilter1[gc.GridElement](world2.ECS).Query()
@@ -75,4 +84,36 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 		count++
 	}
 	assert.Positive(t, count, "帯タイルが serde で復元されている")
+}
+
+// TestOverworldState_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns
+// から決定的に導出され、ターン経過で東へ進み、SeamlessBand.FrontEastAbsX に反映されることを固定する。
+func TestOverworldState_前線が総ターン数で前進する(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 40, 20
+
+	world := testutil.InitTestWorld(t)
+	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: 1, ChunkW: chunkW, ChunkH: chunkH, K: 3})
+	state, err := factory()
+	require.NoError(t, err)
+	st, ok := state.(*OverworldState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+
+	d := query.GetDungeon(world)
+	// 開始時（TotalTurns=0）は StartEast のまま。StartEast = bandOriginX(0) - chunkW = -chunkW
+	d.GameTime.TotalTurns = 0
+	st.updateFront(world)
+	assert.Equal(t, -chunkW, d.SeamlessBand.FrontEastAbsX, "0ターンは開始位置 -chunkW")
+
+	// AdvanceTurns=3, Step=1。9ターンで 3 前進する
+	d.GameTime.TotalTurns = 9
+	st.updateFront(world)
+	assert.Equal(t, -chunkW+3, d.SeamlessBand.FrontEastAbsX, "9ターンで 3 タイル東進する")
+
+	// 決定的: 同じターン数なら同じ位置
+	before := d.SeamlessBand.FrontEastAbsX
+	st.updateFront(world)
+	assert.Equal(t, before, d.SeamlessBand.FrontEastAbsX, "冪等（導出値）")
 }

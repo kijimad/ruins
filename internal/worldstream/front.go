@@ -36,3 +36,28 @@ func (f Front) Advance(dx consts.Tile) Front {
 	f.East += AbsTileX(dx)
 	return f
 }
+
+// FrontConfig は寒波前線の前進パラメータ。ラン開始時に決めて永続化する。
+//
+// 前線の現在位置は総経過ターン数から決定的に導出する。位置そのものは保存せず、
+// この config と永続の総ターン数だけを保存すれば復元できる。ドリフトが起きない。
+type FrontConfig struct {
+	// StartEast はラン開始時の極低温ゾーン東端の絶対 X。プレイヤーの西に置いて背後から迫らせる
+	StartEast AbsTileX
+	// ColdWidth は極低温ゾーンの幅。タイル単位
+	ColdWidth consts.Tile
+	// AdvanceTurns はこの経過ターンごとに Step タイル東進する。0 以下なら前進しない
+	AdvanceTurns int
+	// Step は1回の前進量。タイル単位
+	Step consts.Tile
+}
+
+// FrontAt は総経過ターン数 totalTurns 時点の Front を返す純関数。
+// AdvanceTurns ごとに Step 前進する階段状の前進。負のターンは前進0として扱う。
+func FrontAt(cfg FrontConfig, totalTurns int) Front {
+	var advanced consts.Tile
+	if cfg.AdvanceTurns > 0 && totalTurns > 0 {
+		advanced = consts.Tile(totalTurns/cfg.AdvanceTurns) * cfg.Step
+	}
+	return Front{East: cfg.StartEast + AbsTileX(advanced), ColdWidth: cfg.ColdWidth}
+}
