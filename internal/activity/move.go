@@ -53,19 +53,15 @@ func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entit
 
 // frontAllowsMoveTo はローカル X が寒波前線の進入不可ライン以西でないかを返す。
 //
-// 進入不可ラインは極低温ゾーン西端 ColdZoneWest（絶対軸）。ここより西は破棄され進入もできない。
-// 前線は SeamlessBand に絶対軸で公開されているので、ローカル X を帯原点で絶対 X に直して判定する。
+// 進入不可ラインは極低温ゾーン西端 ColdZoneWest。ここより西は破棄され進入もできない。
 // 極低温ゾーン自体（ライン東〜前線東端）へは進入できる。踏み込むと凍える（Phase 5b）。
-// 前線が無効な通常ダンジョンでは常に許可する。
+// ゾーン判定は SeamlessBand のメソッドに集約している。前線が無効な通常ダンジョンでは常に許可する。
 func frontAllowsMoveTo(world w.World, localX int) bool {
 	sb := query.GetDungeon(world).SeamlessBand
 	if !sb.FrontActive {
 		return true
 	}
-	bandOriginX := int(sb.EastIndex) * int(sb.ChunkW)
-	coldZoneWest := int(sb.FrontEastAbsX) - int(sb.FrontColdWidth)
-	absX := localX + bandOriginX
-	return absX > coldZoneWest
+	return !sb.IsWestOfFrontLine(sb.LocalToAbsX(consts.Tile(localX)))
 }
 
 // CanSwapPosition はmoverがtargetと位置交換できるかを判定する。

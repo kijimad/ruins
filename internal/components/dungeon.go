@@ -49,6 +49,29 @@ type SeamlessBand struct {
 	FrontEastAbsX consts.Tile
 }
 
+// 寒波前線のジオメトリ。温度・移動・描画の各消費者が同じ半開区間・絶対X変換を使うよう
+// ここに集約する。worldstream.Front と同じ意味だが、あちらは components を import するため
+// systems/activity から使えない。永続スカラーの上でこちらを正典にする。
+
+// BandOriginX は帯ローカル X=0 が指す絶対タイル X。
+func (sb SeamlessBand) BandOriginX() consts.Tile { return sb.EastIndex.Tiles(sb.ChunkW) }
+
+// LocalToAbsX は帯ローカル X を絶対 X に変換する。
+func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.Tile { return localX + sb.BandOriginX() }
+
+// ColdZoneWestAbsX は極低温ゾーン西端＝破棄/進入不可ラインの絶対 X。
+func (sb SeamlessBand) ColdZoneWestAbsX() consts.Tile { return sb.FrontEastAbsX - sb.FrontColdWidth }
+
+// InColdZone は絶対 X が極低温ゾーン (ColdZoneWest, FrontEast] 内かを返す。西端は含まない。
+func (sb SeamlessBand) InColdZone(absX consts.Tile) bool {
+	return absX > sb.ColdZoneWestAbsX() && absX <= sb.FrontEastAbsX
+}
+
+// IsWestOfFrontLine は絶対 X が進入不可ライン、すなわち極低温ゾーン西端以西かを返す。
+func (sb SeamlessBand) IsWestOfFrontLine(absX consts.Tile) bool {
+	return absX <= sb.ColdZoneWestAbsX()
+}
+
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
 // 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
 type Dungeon struct {

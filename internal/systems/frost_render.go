@@ -56,13 +56,12 @@ func (sys *FrostRenderSystem) Draw(world w.World, screen *ebiten.Image) error {
 	minX, minY = max(minX, 0), max(minY, 0)
 	maxX, maxY = min(maxX, bandW-1), min(maxY, bandH-1)
 
-	bandOriginX := int(sb.EastIndex) * int(sb.ChunkW)
 	frontEast := int(sb.FrontEastAbsX)
-	coldZoneWest := frontEast - int(sb.FrontColdWidth)
+	coldZoneWest := int(sb.ColdZoneWestAbsX())
 	ts := int(consts.TileSize)
 
 	for x := minX; x <= maxX; x++ {
-		alpha, draw := frostAlpha(frontEast, coldZoneWest, x+bandOriginX)
+		alpha, draw := frostAlpha(frontEast, coldZoneWest, int(sb.LocalToAbsX(consts.Tile(x))))
 		if !draw {
 			continue
 		}

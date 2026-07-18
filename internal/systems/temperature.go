@@ -65,24 +65,15 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 	return baseTemp + timeModifier + tileModifier + frostModifier, nil
 }
 
-// FrostZoneTempModifier は寒波前線の極低温ゾーン内タイルの環境気温修正。
-// 生存不能な極寒を表す。ゾーンに踏み込むと低体温が急進する。
+// FrostZoneTempModifier は寒波前線の極低温ゾーン内タイルの環境気温修正。生存不能な極寒を表す。
+// この値は calcTimerDelta の極寒バケット閾値（-50）を確実に下回る必要がある。両者は連動する。
 const FrostZoneTempModifier = -100
 
 // frostZoneModifier はタイル x が寒波前線の極低温ゾーン内なら極寒修正を返す。
-//
-// 前線は SeamlessBand に絶対軸で公開されている。タイルのローカル X を帯原点で絶対 X に直し、
-// ゾーン (ColdZoneWest, FrontEastAbsX] 内かを判定する。西端は含まない（進入不可ライン）。
-// worldstream.Front.InColdZone と同じ半開区間。オーバーワールド以外は FrontActive=false で無効。
+// ゾーン判定は SeamlessBand のメソッドに集約している。オーバーワールド以外は FrontActive=false で無効。
 func frostZoneModifier(world w.World, x consts.Tile) int {
 	sb := query.GetDungeon(world).SeamlessBand
-	if !sb.FrontActive {
-		return 0
-	}
-	bandOriginX := int(sb.EastIndex) * int(sb.ChunkW)
-	absX := int(x) + bandOriginX
-	coldZoneWest := int(sb.FrontEastAbsX) - int(sb.FrontColdWidth)
-	if absX > coldZoneWest && absX <= int(sb.FrontEastAbsX) {
+	if sb.FrontActive && sb.InColdZone(sb.LocalToAbsX(x)) {
 		return FrostZoneTempModifier
 	}
 	return 0
