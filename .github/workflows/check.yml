@@ -108,7 +108,6 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
           path: _base
       - uses: ./.github/actions/setup-go-with-x
-      # benchstat は go.mod の tool ディレクティブで固定済み。go tool benchstat で呼ぶため install 不要
       - name: run benchmarks (PR and base)
         run: |
           # PRブランチで bench を実行する
