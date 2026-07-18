@@ -41,6 +41,10 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	renderSpriteSystem := NewRenderSpriteSystem()
 	renderers[renderSpriteSystem.String()] = renderSpriteSystem
 
+	// FrostRenderSystem は寒波前線の極低温ゾーンを氷で覆う。前線無効時は何もしない
+	frostRenderSystem := &FrostRenderSystem{}
+	renderers[frostRenderSystem.String()] = frostRenderSystem
+
 	// HUDRenderingSystem は Updater と Renderer の両方を実装
 	hudRenderingSystem := NewHUDRenderingSystem(world)
 	updaters[hudRenderingSystem.String()] = hudRenderingSystem

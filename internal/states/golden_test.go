@@ -202,6 +202,19 @@ func TestGolden_Overworld(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
+// TestGolden_OverworldFrost は寒波前線の氷オーバーレイの描画を固定する。
+// 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
+func TestGolden_OverworldFrost(t *testing.T) {
+	t.Parallel()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &gs.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		// 前線が帯へ食い込むところまでターンを進める。updateFront が FrontEastAbsX を導出する
+		query.GetDungeon(world).GameTime.TotalTurns = 300
+		return []es.State[w.World]{s}
+	})
+}
+
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
