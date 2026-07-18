@@ -1,6 +1,9 @@
 package skill
 
-import gc "github.com/kijimaD/ruins/internal/components"
+import (
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // growthConfig はスキル成長のバランスパラメータ
 var growthConfig = struct {
@@ -21,10 +24,10 @@ func GainExp(s *gc.Skill, abilityValue int) bool {
 	return gainExp(s, abilityValue, growthConfig.BaseExp)
 }
 
-// GainExpScaled はBaseExpにefficiencyPct（0-100%）を適用してから経験値を加算する。
+// GainExpScaled はBaseExpにefficiencyPct（0-100%の倍率）を適用してから経験値を加算する。
 // 読書など、状況に応じて獲得量を調整する場合に使う。
-func GainExpScaled(s *gc.Skill, abilityValue int, efficiencyPct int) bool {
-	baseExp := max(growthConfig.BaseExp*efficiencyPct/100, 1)
+func GainExpScaled(s *gc.Skill, abilityValue int, efficiencyPct consts.Percent) bool {
+	baseExp := max(efficiencyPct.ApplyInt(growthConfig.BaseExp), 1)
 	return gainExp(s, abilityValue, baseExp)
 }
 
@@ -34,10 +37,11 @@ func gainExp(s *gc.Skill, abilityValue int, baseExp int) bool {
 		return false
 	}
 
-	growthSpeed := 100 + abilityValue*growthConfig.AbilBonus
+	// 経験値への乗数倍率。decay は割り算で効く逆適用の倍率なのでApplyInt は使わず int のまま扱う。
+	growthSpeed := consts.PercentBase + consts.Percent(abilityValue*growthConfig.AbilBonus)
 	decay := 100 + s.Value*growthConfig.DecayPerLevel
 
-	exp := max(baseExp*growthSpeed/100*100/decay, 1)
+	exp := max(growthSpeed.ApplyInt(baseExp)*100/decay, 1)
 	s.Exp.Current += exp
 
 	if s.Exp.Current >= s.Exp.Max {

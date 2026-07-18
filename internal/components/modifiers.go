@@ -1,6 +1,10 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // ModifierKey は効果倍率の識別キー
 type ModifierKey string
@@ -132,23 +136,23 @@ type ModifierSource struct {
 // CharModifiers はエンティティの効果倍率を集約するコンポーネント。
 // スキル、健康状態など複数の要因から算出される。100が基準値で変化なし。
 type CharModifiers struct {
-	WeaponDamage   map[SkillID]int     // 武器ダメージ倍率%
-	WeaponAccuracy map[SkillID]int     // 武器命中倍率%
-	ElementResist  map[ElementType]int // 元素耐性倍率%
-	ColdProgress   int                 // 低体温進行倍率%
-	HeatProgress   int                 // 高体温進行倍率%
-	HungerProgress int                 // 空腹進行倍率%
-	HealingEffect  int                 // 回復効果倍率%
-	MaxWeight      int                 // 最大所持重量倍率%
-	Exploration    int                 // TODO: アイテム発見システム実装時に適用する。アイテム発見率倍率%
-	EnemyVision    int                 // 敵視界距離倍率%
-	NightVision    int                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率%
-	MoveCost       int                 // 移動APコスト倍率%
-	CraftCost      int                 // 素材消費量倍率%
-	SmithQuality   int                 // 合成品質倍率%
-	BuyPrice       int                 // 買値倍率%
-	SellPrice      int                 // 売値倍率%
-	HeavyArmor     int                 // 重装備AGIペナルティ倍率%
+	WeaponDamage   map[SkillID]consts.Percent     // 武器ダメージ倍率
+	WeaponAccuracy map[SkillID]consts.Percent     // 武器命中倍率
+	ElementResist  map[ElementType]consts.Percent // 元素耐性倍率
+	ColdProgress   consts.Percent                 // 低体温進行倍率
+	HeatProgress   consts.Percent                 // 高体温進行倍率
+	HungerProgress consts.Percent                 // 空腹進行倍率
+	HealingEffect  consts.Percent                 // 回復効果倍率
+	MaxWeight      consts.Percent                 // 最大所持重量倍率
+	Exploration    consts.Percent                 // TODO: アイテム発見システム実装時に適用する。アイテム発見率倍率
+	EnemyVision    consts.Percent                 // 敵視界距離倍率
+	NightVision    consts.Percent                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率
+	MoveCost       consts.Percent                 // 移動APコスト倍率
+	CraftCost      consts.Percent                 // 素材消費量倍率
+	SmithQuality   consts.Percent                 // 合成品質倍率
+	BuyPrice       consts.Percent                 // 買値倍率
+	SellPrice      consts.Percent                 // 売値倍率
+	HeavyArmor     consts.Percent                 // 重装備AGIペナルティ倍率
 
 	// Sources は各効果の算出元を保持する。
 	// 1つの効果に複数の要因が影響しうるためスライスにしている。
@@ -162,7 +166,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	e := &CharModifiers{}
 	src := make(map[ModifierKey][]ModifierSource)
 
-	calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {
+	calcEffect := func(key ModifierKey, skillID SkillID, coeff int) consts.Percent {
 		v := skills.Get(skillID).Value
 		bonus := v * coeff
 		src[key] = append(src[key], ModifierSource{
@@ -186,17 +190,17 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 			bonus += ablBonus
 		}
 
-		return 100 + bonus
+		return consts.PercentBase + consts.Percent(bonus)
 	}
 
-	e.WeaponDamage = make(map[SkillID]int, len(weaponSkillIDs))
-	e.WeaponAccuracy = make(map[SkillID]int, len(weaponSkillIDs))
+	e.WeaponDamage = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
+	e.WeaponAccuracy = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
 	for _, id := range weaponSkillIDs {
 		e.WeaponDamage[id] = calcEffect(WeaponDamageKey(id), id, coeffWeaponDamage)
 		e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)
 	}
 
-	e.ElementResist = map[ElementType]int{
+	e.ElementResist = map[ElementType]consts.Percent{
 		ElementTypeFire:    calcEffect(ModFireResist, SkillFireResist, coeffElementResist),
 		ElementTypeThunder: calcEffect(ModThunderResist, SkillThunderResist, coeffElementResist),
 		ElementTypeChill:   calcEffect(ModChillResist, SkillChillResist, coeffElementResist),
@@ -223,7 +227,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 		wb := &hs.Parts[BodyPartWholeBody]
 		for _, cond := range wb.Conditions {
 			if penalty := temperatureMovePenalty(cond.Severity); penalty != 0 {
-				e.MoveCost += penalty
+				e.MoveCost += consts.Percent(penalty)
 				src[ModMoveCost] = append(src[ModMoveCost], ModifierSource{
 					Label: ConditionTypeDisplayName(cond.Type),
 					Value: penalty,

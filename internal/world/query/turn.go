@@ -128,7 +128,8 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	if world.Components.CharModifiers.Has(entity) {
 		effects := world.Components.CharModifiers.Get(entity)
-		moveCost := max(effects.MoveCost, 10)
+		// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
+		moveCost := max(int(effects.MoveCost), 10)
 		speed = speed * 100 / moveCost
 	}
 

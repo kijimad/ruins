@@ -108,7 +108,7 @@ func TestReadingEfficiency(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			result := ReadingEfficiency(tt.playerLevel, tt.bookLevel)
-			assert.Equal(t, tt.expected, result)
+			assert.Equal(t, tt.expected, int(result))
 		})
 	}
 }
