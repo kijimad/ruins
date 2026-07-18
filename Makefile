@@ -58,12 +58,13 @@ fmt: ## フォーマットする
 
 .PHONY: lint
 lint: ## Linterを実行する
-	@go build -o /dev/null . # buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
+	# buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
+	@go build -o /dev/null .
 	@golangci-lint run -v ./...
 	@if go tool deadcode -test $(GO_TEST_PKGS) 2>&1 | grep -q "unreachable func"; then \
 		exit 1; \
 	fi
-	@go run golang.org/x/vuln/cmd/govulncheck@latest ./... # 依存と標準ライブラリの既知脆弱性を到達可能性ベースで検査する
+	@go tool govulncheck ./...
 
 .PHONY: aseprite
 aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する
