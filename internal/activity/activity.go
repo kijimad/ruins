@@ -194,8 +194,8 @@ func progressHunger(actor ecs.Entity, world w.World) {
 		hungerPct = world.Components.CharModifiers.Get(actor).HungerProgress
 	}
 	// 分母を HungerDrainTurns 倍に伸ばし基準速度を緩和する。確率比較なので int で比べる。
-	// HungerProgress は耐性スキルが高いと 0 以下に達し、空腹が進まなくなる
-	// （常に偽）。下限を設けるかは進行系倍率（Hunger/Cold/Heat）共通の課題として
+	// HungerProgress は耐性スキルが高いと 0 以下に達し、空腹が進まなくなる。比較が常に偽になるためだ。
+	// 下限を設けるかは進行系倍率の Hunger・Cold・Heat 共通の課題として
 	// 将来のバランス設計でまとめて検討する。ここでは意図的に下限を置かない。
 	if world.Config.RNG.IntN(int(consts.PercentBase)*gc.HungerDrainTurns) < int(hungerPct) {
 		hunger.Decrease(1)

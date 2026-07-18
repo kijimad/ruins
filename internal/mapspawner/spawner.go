@@ -21,11 +21,11 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
 	return SpawnAt(world, metaPlan, 0, 0)
 }
 
-// SpawnAt は MetaPlan を (offsetX, offsetY) タイルずらして生成する。
-// シームレスワールドで、チャンクを帯の東スラブなど任意位置へ配置するために使う。
+// SpawnAt は MetaPlan を offsetX, offsetY タイルずらして生成する。
+// オーバーワールドで、チャンクを帯の東スラブなど任意位置へ配置するために使う。
 // オフセットはエンティティ座標にのみ加算し、オートタイルや扉向きの判定は
-// プラン内ローカル座標（metaPlan.Tiles のインデックス）で行うため影響しない。
-// 現状 offsetY は常に 0（南北ストリーミングしない帯）だが、将来の 2D 配置・対称性のため引数に残す。
+// プラン内ローカル座標、すなわち metaPlan.Tiles のインデックスで行うため影響しない。
+// 現状 offsetY は常に 0 で南北ストリーミングしない帯だが、将来の 2D 配置・対称性のため引数に残す。
 func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) (gc.Level, error) {
 	level := gc.Level{
 		TileWidth:  metaPlan.Level.TileWidth,

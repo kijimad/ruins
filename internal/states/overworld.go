@@ -55,7 +55,7 @@ func NewOverworldState(runSeed uint64, chunkW, chunkH consts.Tile, k int, planne
 }
 
 // NewOverworldStateForLoad はセーブから復元する際のファクトリを返す。
-// 帯パラメータ（seed/chunkW/chunkH/k/eastIndex）は OnStart が Dungeon.SeamlessBand から
+// 帯パラメータの seed・chunkW・chunkH・k・eastIndex は OnStart が Dungeon.SeamlessBand から
 // 読み取って再構築するため、ここでは planner だけ指定すればよい。
 func NewOverworldStateForLoad(planner mapplanner.PlannerType) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
@@ -67,7 +67,7 @@ func NewOverworldStateForLoad(planner mapplanner.PlannerType) es.StateFactory[w.
 	}
 }
 
-// OnStart は初期帯（K チャンク）を生成し、プレイヤーを中央チャンクへ置く。
+// OnStart は K チャンク分の初期帯を生成し、プレイヤーを中央チャンクへ置く。
 func (st *OverworldState) OnStart(world w.World) error {
 	sw := world.Resources.ScreenDimensions.Width
 	sh := world.Resources.ScreenDimensions.Height
@@ -86,7 +86,7 @@ func (st *OverworldState) OnStart(world w.World) error {
 	d.NeedsForceUpdate = true
 
 	// ロード復元: 帯タイル・Level・プレイヤーは serde で復元済み。
-	// ここでは Band ドライバと ChunkGen を永続状態から再構築するだけでよい（再生成しない）。
+	// ここでは Band ドライバと ChunkGen を永続状態から再構築するだけでよい。再生成はしない。
 	if sb.Active {
 		st.runSeed, st.chunkW, st.chunkH = sb.RunSeed, sb.ChunkW, sb.ChunkH
 		st.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
@@ -95,7 +95,7 @@ func (st *OverworldState) OnStart(world w.World) error {
 		return nil
 	}
 
-	// 新規開始: 帯状態を Dungeon に記録し（セーブ対応）、初期帯を生成してプレイヤーを配置する
+	// 新規開始: 帯状態を Dungeon に記録してセーブに対応し、初期帯を生成してプレイヤーを配置する
 	sb.Active = true
 	sb.RunSeed = st.runSeed
 	sb.EastIndex = st.band.EastIndex()
@@ -125,13 +125,13 @@ func (st *OverworldState) OnStart(world w.World) error {
 	return nil
 }
 
-// syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す（セーブに反映させる）。
+// syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す。これでセーブに反映される。
 func (st *OverworldState) syncBandState(world w.World) {
 	query.GetDungeon(world).SeamlessBand.EastIndex = st.band.EastIndex()
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
-// OnStart(新規開始)から呼ばれる。Level 設定は帯幅が不変なので再設定しても冪等（無害）。
+// OnStart の新規開始から呼ばれる。Level 設定は帯幅が不変なので再設定しても冪等で無害。
 func (st *OverworldState) generateBandChunks(world w.World) error {
 	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
 	for i := range st.band.K() {
@@ -142,15 +142,15 @@ func (st *OverworldState) generateBandChunks(world w.World) error {
 	return nil
 }
 
-// OnPause/OnResume は DungeonState の no-op を継承する（オーバーライドしない）。
+// OnPause/OnResume は DungeonState の no-op を継承し、オーバーライドしない。
 //
 // 射撃・観察・ダンジョンメニュー等のオーバーレイは TransPush で載るため OnPause/OnResume が
 // 呼ばれるが、これらは同じ世界を描画・操作するだけなので帯タイルはそのまま残す必要がある。
-// ここで帯を退避/再生成すると、オーバーレイ進入で画面が黒くなり（帯タイル消失）、
+// ここで帯を退避/再生成すると、オーバーレイ進入で帯タイルが消えて画面が黒くなり、
 // 復帰時の MovePlayerToPosition が隊員を再配置してしまう。
 //
 // 将来オーバーワールドにポータルを足して遺跡へ入れるようにする場合、帯の退避は汎用フックの
-// OnPause ではなく「遺跡進入」専用の経路で行う（オーバーレイと区別できないため）。
+// OnPause ではなく「遺跡進入」専用の経路で行う。汎用フックはオーバーレイと区別できないため。
 // 設計 docs/design/20260717_60.md §4。
 
 // Update は DungeonState の共通処理を実行後、ターン境界で帯をシフトする。
@@ -165,17 +165,17 @@ func (st *OverworldState) Update(world w.World) (es.Transition[w.World], error) 
 	return trans, nil
 }
 
-// maybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトする（§2.5 のターン境界フック）。
+// maybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトする。§2.5 のターン境界フック。
 //
-// 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う:
-// プレイヤーターン（Player フェーズ）かつプレイヤーが継続アクティビティ中でないとき。
+// 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち
+// プレイヤーターンの Player フェーズかつプレイヤーが継続アクティビティ中でないとき。
 // これによりアニメ補間中・移動 Activity 実行中のシフトを避ける。
 func (st *OverworldState) maybeShift(world w.World) error {
 	if query.GetTurnState(world).Phase != gc.TurnPhasePlayer {
 		return nil
 	}
 	// Update は死亡チェック後にのみ maybeShift へ到達するため、ここでプレイヤーは存在するはず。
-	// 不在は異常なので伝播する（cullDistantSolo と同じ方針）
+	// 不在は異常なので伝播する。cullDistantSolo と同じ方針
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return fmt.Errorf("シフト判定にプレイヤーが必要: %w", err)
@@ -183,7 +183,7 @@ func (st *OverworldState) maybeShift(world w.World) error {
 	if query.HasActivity(world, playerEntity) {
 		return nil
 	}
-	// 中央チャンクに収まるまでシフトを繰り返す（設計 §2.1 の while 相当）。
+	// 中央チャンクに収まるまでシフトを繰り返す。設計 §2.1 の while 相当。
 	// 各シフトはプレイヤーを chunkW ぶん中央へ寄せるため、必ず有限回で収束する。
 	shifted := false
 	for {
@@ -196,9 +196,9 @@ func (st *OverworldState) maybeShift(world w.World) error {
 			shifted = true
 			continue
 		}
-		// 西シフトは寄り道からの復帰時のみ。ラン開始（eastIndex=0）より西には
+		// 西シフトは寄り道からの復帰時のみ。ラン開始の eastIndex=0 より西には
 		// 何も生成されていないため、eastIndex を負にする西シフトは行わない。
-		// プレイヤーは帯西端（localX=0 の境界）で自然に止まる
+		// プレイヤーは帯西端の localX=0 の境界で自然に止まる
 		if st.band.ShouldShiftWest(localX) && st.band.EastIndex() > 0 {
 			if err := st.band.ShiftWest(world, st.gen); err != nil {
 				return err

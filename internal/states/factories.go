@@ -727,8 +727,8 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 }
 
 // newResumeStateFactory はロード復元時の復帰先ステートを保存内容から選ぶ。
-// シームレスワールド（SeamlessBand.Active）なら OverworldState で復帰して帯を再構築し、
-// 通常ダンジョン/町なら DungeonState で復帰する（定義名・深度から再生成せずに）。
+// SeamlessBand.Active が真ならオーバーワールドなので OverworldState で復帰して帯を再構築し、
+// 通常ダンジョン/町なら DungeonState で復帰する。定義名・深度から再生成はしない。
 func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	d := query.GetDungeon(world)
 	if d.SeamlessBand.Active {

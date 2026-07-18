@@ -4,15 +4,15 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // OverworldFieldPlanner はオーバーワールドの「開けた地形」チャンクの初期プランナー。
 //
-// 部屋を掘る従来のダンジョンプランナーと逆で、全面通行可能をデフォルトにする（障壁は
-// OverworldBarriers が例外的に置く）。これによりチャンクを東西に継いでも境界が壁で詰まらない。
+// 部屋を掘る従来のダンジョンプランナーと逆で、全面通行可能をデフォルトにする。障壁は
+// OverworldBarriers が例外的に置く。これによりチャンクを東西に継いでも境界が壁で詰まらない。
 // 詳細設計は docs/design/20260717_60.md §5.1。
 type OverworldFieldPlanner struct{}
 
 // PlanInitial は初期化を行う。開けた地形は部屋を持たないため何もしない。
 func (OverworldFieldPlanner) PlanInitial(_ *MetaPlan) error { return nil }
 
-// OverworldBarriers は開けた地形にまばらな障壁（稜線・岩）を置く MetaMapPlanner。
+// OverworldBarriers は開けた地形に稜線・岩などのまばらな障壁を置く MetaMapPlanner。
 //
 // design.md「到達不可地形が分岐・合流を作る」の実体。各ブロブの高さをマップ高さ未満に制限し、
 // さらに「どの列も高さ全体を塞がない」ことを最後に保証して、東西の通行を構造的に守る。
@@ -53,9 +53,9 @@ func (b OverworldBarriers) PlanMeta(planData *MetaPlan) error {
 		}
 	}
 
-	// 通行保証: 東西を貫く連結した通路を必ず1本掘る（連結性の構造保証）。
-	// 「各列に通行可能タイルがある」だけでは E-W 経路を保証できない（列ごとに通行可能な y が
-	// バラけて縦に途切れると4連結しない）。西端から東端まで連続した通路を constructive に
+	// 通行保証: 東西を貫く連結した通路を必ず1本掘り、連結性を構造的に保証する。
+	// 「各列に通行可能タイルがある」だけでは E-W 経路を保証できない。列ごとに通行可能な y が
+	// バラけて縦に途切れると4連結しないためである。西端から東端まで連続した通路を constructive に
 	// 掘ることで、障壁をどう置いても西端→東端が4連結することを保証する。
 	carveEastWestPath(planData, w, h)
 	return nil
@@ -75,7 +75,7 @@ func carveEastWestPath(planData *MetaPlan, w, h int) {
 	y := h / 2
 	for x := range w {
 		setDirt(x, y)
-		// 20% で上下に1歩蛇行する。ずれる際は移動元(既にdirt)と移動先の両方を通し縦連結を保つ
+		// 20% で上下に1歩蛇行する。ずれる際は移動元と移動先の両方を通し縦連結を保つ。移動元は既に dirt
 		if planData.RNG.IntN(5) == 0 {
 			ny := y + (planData.RNG.IntN(2)*2 - 1) // y-1 または y+1
 			if ny >= 0 && ny < h {
@@ -86,11 +86,11 @@ func carveEastWestPath(planData *MetaPlan, w, h int) {
 	}
 }
 
-// NewOverworldFieldPlanner は開けた地形（通行可能デフォルト＋まばらな障壁）のチェーンを作る。
+// NewOverworldFieldPlanner は開けた地形のチェーンを作る。通行可能をデフォルトにしまばらな障壁を置く。
 func NewOverworldFieldPlanner(width, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(OverworldFieldPlanner{})
-	chain.With(NewFillAll(consts.TileNameDirt)) // 全面を通行可能な地面で埋める（デフォルト通行可）
-	chain.With(OverworldBarriers{})             // 障壁をまばらに置く（列は塞がない）
+	chain.With(NewFillAll(consts.TileNameDirt)) // 全面を通行可能な地面で埋めてデフォルト通行可にする
+	chain.With(OverworldBarriers{})             // 障壁をまばらに置く。列は塞がない
 	return chain, nil
 }

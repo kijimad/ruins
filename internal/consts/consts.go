@@ -73,6 +73,6 @@ const (
 	TileNameFloor = "floor"
 	// TileNameVoid は虚空タイル名
 	TileNameVoid = "void"
-	// TileNameDirt は地面（土）タイル名
+	// TileNameDirt は地面のタイル名
 	TileNameDirt = "dirt"
 )

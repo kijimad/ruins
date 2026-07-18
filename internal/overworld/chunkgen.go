@@ -25,7 +25,7 @@ func ChunkSeed(runSeed uint64, chunkIndex int) uint64 {
 
 // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。
 // chunkIndex ごとに (runSeed, chunkIndex) から決定的に生成し、帯ローカルの offsetX へ配置する。
-// 高さ chunkH は固定（南北はストリーミングしない帯）。
+// 高さ chunkH は固定。南北はストリーミングしない帯。
 func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, planner mapplanner.PlannerType) worldstream.ChunkGen {
 	return func(chunkIndex int, offsetX consts.Tile) error {
 		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed(runSeed, chunkIndex), planner)
@@ -36,7 +36,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, plan
 			return fmt.Errorf("チャンク配置失敗 (index=%d): %w", chunkIndex, err)
 		}
 		// このチャンクの両境界を接合後に再計算して継ぎ目を消す。
-		// 東シフトでは西境界(offsetX)、西シフトでは東境界(offsetX+chunkW)が実境界になる。
+		// 東シフトでは西境界の offsetX、西シフトでは東境界の offsetX+chunkW が実境界になる。
 		// RecalcSeamAutotile は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。
 		RecalcSeamAutotile(world, offsetX)
 		RecalcSeamAutotile(world, offsetX+chunkW)
