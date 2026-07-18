@@ -262,6 +262,15 @@ func TestGolden_MemberStatus(t *testing.T) {
 	})
 }
 
+func TestGolden_TavernMenu(t *testing.T) {
+	t.Parallel()
+	town, err := gs.NewTownState()()
+	require.NoError(t, err)
+	s, err := gs.NewTavernMenuState()
+	require.NoError(t, err)
+	vrt.AssertStateGolden(t, vrt.States(town, s))
+}
+
 func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{

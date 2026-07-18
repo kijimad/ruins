@@ -57,11 +57,11 @@ func (st *TavernMenuState) OnResume(_ w.World) error { return nil }
 func (st *TavernMenuState) OnStop(_ w.World) error { return nil }
 
 // OnStart はステートが開始する際に呼ばれる
-func (st *TavernMenuState) OnStart(_ w.World) error {
+func (st *TavernMenuState) OnStart(world w.World) error {
 	st.subState = tavernSubStateMenu
 	st.menuMount = hooks.NewMount[tavernProps]()
 	st.windowMount = hooks.NewMount[tavernWindowProps]()
-	st.candidates = generateCandidates()
+	st.candidates = generateCandidates(world.Config.RNG)
 	return nil
 }
 
@@ -173,9 +173,11 @@ var candidateSpritePool = []string{
 	"general",
 }
 
-// generateCandidates はランダムな雇用候補を生成する
-func generateCandidates() []tavernCandidate {
-	count := 3 + rand.IntN(3) // 3〜5人
+// generateCandidates はランダムな雇用候補を生成する。
+// rng は world.Config.RNG を受け取る。グローバル rand を使わず決定的 RNG に依存させることで、
+// seed から候補が再現でき golden テストにも乗せられる。
+func generateCandidates(rng *rand.Rand) []tavernCandidate {
+	count := 3 + rng.IntN(3) // 3〜5人
 	used := make(map[string]bool)
 	var candidates []tavernCandidate
 
@@ -186,16 +188,16 @@ func generateCandidates() []tavernCandidate {
 		// 名前の重複を避ける
 		var name string
 		for {
-			name = candidateNamePool[rand.IntN(len(candidateNamePool))]
+			name = candidateNamePool[rng.IntN(len(candidateNamePool))]
 			if !used[name] {
 				used[name] = true
 				break
 			}
 		}
 
-		abilities := randomAbilities()
+		abilities := randomAbilities(rng)
 		cost := calculateHiringCost(abilities)
-		spriteKey := candidateSpritePool[rand.IntN(len(candidateSpritePool))]
+		spriteKey := candidateSpritePool[rng.IntN(len(candidateSpritePool))]
 
 		candidates = append(candidates, tavernCandidate{
 			Name:      name,
@@ -209,8 +211,8 @@ func generateCandidates() []tavernCandidate {
 }
 
 // randomAbilities はランダムな能力値を生成する
-func randomAbilities() gc.Abilities {
-	randStat := func() int { return 4 + rand.IntN(8) } // 4〜11
+func randomAbilities(rng *rand.Rand) gc.Abilities {
+	randStat := func() int { return 4 + rng.IntN(8) } // 4〜11
 	return gc.Abilities{
 		Vitality:  gc.Ability{Base: randStat()},
 		Strength:  gc.Ability{Base: randStat()},
