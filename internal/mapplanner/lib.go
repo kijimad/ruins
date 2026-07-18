@@ -552,6 +552,7 @@ var (
 		PlannerTypeCave,
 		PlannerTypeRuins,
 		PlannerTypeForest,
+		PlannerTypeOverworldField,
 		PlannerTypeTown,
 		PlannerTypeOfficeBuilding,
 		PlannerTypeSmallTown,
