@@ -117,7 +117,7 @@ func Interrupt(comp *gc.Activity, reason string) error {
 // Resume はアクティビティを再開する
 func Resume(comp *gc.Activity) error {
 	if !CanResume(comp) {
-		_, _ = fmt.Errorf, comp
+		return fmt.Errorf("アクティビティ '%s' は再開できません", GetDisplayName(comp))
 	}
 	comp.State = gc.ActivityStateRunning
 	comp.CancelReason = ""
