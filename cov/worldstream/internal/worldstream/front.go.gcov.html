@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - worldstream/internal/worldstream/front.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">worldstream/internal/worldstream</a> - front.go<span style="font-size: 80%;"> (source / <a href="front.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">13</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-18 12:49:17</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package worldstream</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // Front は寒波前線、すなわち移動する極低温ゾーンを表す。</span>
+<span id="L6"><span class="lineNum">       6</span>              : //</span>
+<span id="L7"><span class="lineNum">       7</span>              : // East は極低温ゾーンの東端の絶対タイル X。そこから西へ ColdWidth 分が極低温ゾーンで、</span>
+<span id="L8"><span class="lineNum">       8</span>              : // 生存不能な極寒。ゾーンの西端 East-ColdWidth が破棄と進入不可ラインを兼ねる。</span>
+<span id="L9"><span class="lineNum">       9</span>              : // 実ターン経過でゆるやかに東進し、居座るとプレイヤーを飲む。これが一方向の空間的強制になる。</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 破棄機構はこの1本のラインに統合され、シフト破棄と前線が別々に存在しない。</span>
+<span id="L11"><span class="lineNum">      11</span>              : type Front struct {</span>
+<span id="L12"><span class="lineNum">      12</span>              :         // East は極低温ゾーン東端の絶対 X</span>
+<span id="L13"><span class="lineNum">      13</span>              :         East AbsTileX</span>
+<span id="L14"><span class="lineNum">      14</span>              :         // ColdWidth は極低温ゾーンの幅。タイル単位</span>
+<span id="L15"><span class="lineNum">      15</span>              :         ColdWidth consts.Tile</span>
+<span id="L16"><span class="lineNum">      16</span>              : }</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : // ColdZoneWest は極低温ゾーンの西端＝破棄/進入不可ラインの絶対 X。</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">          11 : func (f Front) ColdZoneWest() AbsTileX {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          11 :         return f.East - AbsTileX(f.ColdWidth)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          11 : }</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // InColdZone は絶対 X abs が極低温ゾーン (ColdZoneWest, East] 内かを返す。</span>
+<span id="L24"><span class="lineNum">      24</span>              : // 西端は含まない。進入不可ラインの東側から極寒になる。東端は含む。</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           6 : func (f Front) InColdZone(abs AbsTileX) bool {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           6 :         return abs &gt; f.ColdZoneWest() &amp;&amp; abs &lt;= f.East</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           6 : }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : // IsWestOfFront は絶対 X abs が破棄と進入不可ライン、すなわち極低温ゾーン西端以西かを返す。</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           4 : func (f Front) IsWestOfFront(abs AbsTileX) bool {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           4 :         return abs &lt;= f.ColdZoneWest()</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           4 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // Advance は前線を dx タイル東進させた新しい Front を返す。値は不変でコピーを返す。</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func (f Front) Advance(dx consts.Tile) Front {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         f.East += AbsTileX(dx)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return f</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

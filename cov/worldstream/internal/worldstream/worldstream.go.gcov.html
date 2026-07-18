@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - worldstream/internal/worldstream/worldstream.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">worldstream/internal/worldstream</a> - worldstream.go<span style="font-size: 80%;"> (source / <a href="worldstream.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">27</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-18 12:49:17</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package worldstream</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // TranslateAllEntities は GridElement を持つ全エンティティの位置を dx,dy タイル平行移動する。</span>
+<span id="L12"><span class="lineNum">      12</span>              : //</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 帯シフト時のリベースの原子操作。リベースはプレイヤーを帯の中央へ戻し、帯ローカル座標を有界に保つ。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // バックパック/装備アイテムは GridElement を持たないため対象外で、クエリで自然に除外される。</span>
+<span id="L15"><span class="lineNum">      15</span>              : // コンポーネント値の書き換えのみでアーキタイプは変えないため、クエリ反復中の更新で安全。</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           3 : func TranslateAllEntities(world w.World, dx, dy consts.Tile) {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           3 :         q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           9 :         for q.Next() {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           6 :                 grid := world.Components.GridElement.Get(q.Entity())</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           6 :                 grid.X += dx</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           6 :                 grid.Y += dy</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           6 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : }</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // RemoveEntitiesInXRange は GridElement.X が [loX, hiX) にあるエンティティを削除する。</span>
+<span id="L26"><span class="lineNum">      26</span>              : //</span>
+<span id="L27"><span class="lineNum">      27</span>              : // 帯シフト時の西端チャンク破棄の原子操作で、前線に呑まれる領域を消去する。keep が true を返す</span>
+<span id="L28"><span class="lineNum">      28</span>              : // エンティティは削除しない。プレイヤー・隊員など残すべきものが該当する。削除した数を返す。</span>
+<span id="L29"><span class="lineNum">      29</span>              : // 反復中の削除を避けるため、対象を収集してから削除する。</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           4 : func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           4 :         var toRemove []ecs.Entity</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           4 :         q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          16 :         for q.Next() {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          12 :                 entity := q.Entity()</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          12 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          19 :                 if grid.X &lt; loX || grid.X &gt;= hiX {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           7 :                         continue</span></span>
+<span id="L38"><span class="lineNum">      38</span>              :                 }</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           6 :                 if keep != nil &amp;&amp; keep(entity) {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :                 }</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           4 :                 toRemove = append(toRemove, entity)</span></span>
+<span id="L43"><span class="lineNum">      43</span>              :         }</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           8 :         for _, entity := range toRemove {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           8 :                 if world.ECS.Alive(entity) {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           4 :                         world.ECS.RemoveEntity(entity)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           4 :                 }</span></span>
+<span id="L48"><span class="lineNum">      48</span>              :         }</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           4 :         return len(toRemove)</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : }</span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : // KeepPlayerAndSquad は「プレイヤーと隊員は残す」keep 述語を返す。</span>
+<span id="L53"><span class="lineNum">      53</span>              : // 西端破棄でリーダー・隊員を巻き込まないための定型。</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           3 : func KeepPlayerAndSquad(world w.World) func(ecs.Entity) bool {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           7 :         return func(entity ecs.Entity) bool {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           4 :                 return world.Components.Player.Has(entity) || world.Components.SquadMember.Has(entity)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           4 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

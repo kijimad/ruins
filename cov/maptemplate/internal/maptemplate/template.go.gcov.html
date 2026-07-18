@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 09:33:26</td>
+            <td class="headerValue">2026-07-18 12:49:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,25 +97,25 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         395 :         for y, line := range lines {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         326 :                 runes := []rune(line)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         326 :                 cells[y] = make([]MapCell, len(runes))</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4597 :                 for x, ch := range runes {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4271 :                         charStr := string(ch)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4271 :                         var cell MapCell</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        8018 :                         if palette != nil {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6850 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3103 :                                         cell.Terrain = terrain</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3103 :                                 }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        3834 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4576 :                 for x, ch := range runes {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4250 :                         charStr := string(ch)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4250 :                         var cell MapCell</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        7981 :                         if palette != nil {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6822 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3091 :                                         cell.Terrain = terrain</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3091 :                                 }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        3822 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">          87 :                                         cell.Prop = prop</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          87 :                                 }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3747 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3731 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                                         cell.NPC = npc</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                         }</span>
 <span id="L52"><span class="lineNum">      52</span>              :                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5441 :                         if cell.Terrain == &quot;&quot; {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5420 :                         if cell.Terrain == &quot;&quot; {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        1169 :                                 cell.Terrain = charStr</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        1169 :                         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4272 :                         cells[y][x] = cell</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4251 :                         cells[y][x] = cell</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                 }</span>
 <span id="L58"><span class="lineNum">      58</span>              :         }</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          69 :         return cells</span></span>
@@ -129,16 +129,16 @@
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">         148 :                 if y &gt; 0 {</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">          72 :                         sb.WriteByte('\n')</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">          72 :                 }</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">        2892 :                 for x, cell := range row {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">        5556 :                         if x &gt; 0 {</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">        2740 :                                 sb.WriteByte(' ')</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        2740 :                         }</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">        2816 :                         sb.WriteString(cell.Terrain)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">        2874 :                         if cell.Prop != &quot;&quot; || cell.NPC != &quot;&quot; {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">        2888 :                 for x, cell := range row {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">        5548 :                         if x &gt; 0 {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">        2736 :                                 sb.WriteByte(' ')</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        2736 :                         }</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">        2811 :                         sb.WriteString(cell.Terrain)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">        2869 :                         if cell.Prop != &quot;&quot; || cell.NPC != &quot;&quot; {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          58 :                                 sb.WriteByte(':')</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">          58 :                                 sb.WriteString(cell.Prop)</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          58 :                         }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        2816 :                         if cell.NPC != &quot;&quot; {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        2811 :                         if cell.NPC != &quot;&quot; {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC tlaBgUNC">           0 :                                 sb.WriteByte(':')</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                                 sb.WriteString(cell.NPC)</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                         }</span></span>

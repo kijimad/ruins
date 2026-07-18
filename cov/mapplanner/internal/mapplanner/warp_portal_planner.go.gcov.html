@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 09:33:26</td>
+            <td class="headerValue">2026-07-18 12:49:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,19 +85,19 @@
 <span id="L23"><span class="lineNum">      23</span>              : }</span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span>              : // NewPortalPlanner はポータルプランナーを作成する</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">         176 : func NewPortalPlanner(world w.World, plannerType PlannerType) *PortalPlanner {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">         176 :         return &amp;PortalPlanner{</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         176 :                 world:       world,</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         176 :                 plannerType: plannerType,</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">         176 :         }</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">         176 : }</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">         186 : func NewPortalPlanner(world w.World, plannerType PlannerType) *PortalPlanner {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">         186 :         return &amp;PortalPlanner{</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         186 :                 world:       world,</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         186 :                 plannerType: plannerType,</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">         186 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">         186 : }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // PlanMeta はポータルをMetaPlanに追加する</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">         175 : func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         175 :         // テンプレートベースのマップではポータルは固定位置なのでスキップ</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         179 :         if p.plannerType.UseFixedPortalPos {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           4 :                 return nil</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           4 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">         185 : func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         185 :         // テンプレートベースのマップではポータルは固定位置なのでスキップ</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         199 :         if p.plannerType.UseFixedPortalPos {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          14 :                 return nil</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          14 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              :         // プロシージャルマップの場合はランダム配置（到達可能な位置のみ）</span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">         171 :         pathFinder := NewPathFinder(planData)</span></span>

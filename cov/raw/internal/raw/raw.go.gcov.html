@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 09:33:26</td>
+            <td class="headerValue">2026-07-18 12:49:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -775,11 +775,11 @@
 <span id="L713"><span class="lineNum">     713</span>              : }</span>
 <span id="L714"><span class="lineNum">     714</span>              : </span>
 <span id="L715"><span class="lineNum">     715</span>              : // SelectDropByWeight はドロップテーブルから重み付きランダム選択する</span>
-<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">       10998 : func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {</span></span>
-<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">       10998 :         return SelectByWeightFunc(</span></span>
-<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">       10998 :                 dt.Entries,</span></span>
-<span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">       68182 :                 func(e oapi.DropTableEntry) float64 { return e.Weight },</span></span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">       10971 :                 func(e oapi.DropTableEntry) string { return e.Material },</span></span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">       11003 : func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">       11003 :         return SelectByWeightFunc(</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">       11003 :                 dt.Entries,</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">       68384 :                 func(e oapi.DropTableEntry) float64 { return e.Weight },</span></span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">       11002 :                 func(e oapi.DropTableEntry) string { return e.Material },</span></span>
 <span id="L721"><span class="lineNum">     721</span>              :                 rng,</span>
 <span id="L722"><span class="lineNum">     722</span>              :         )</span>
 <span id="L723"><span class="lineNum">     723</span>              : }</span>
