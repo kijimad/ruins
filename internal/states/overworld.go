@@ -111,7 +111,7 @@ func (st *OverworldState) OnStart(world w.World) error {
 	}
 
 	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
-	cx := int((st.band.K()/2).Tiles(st.chunkW) + st.chunkW/2)
+	cx := int((st.band.K() / 2).Tiles(st.chunkW) + st.chunkW/2)
 	cy := int(st.chunkH / 2)
 	if _, err := query.GetPlayerEntity(world); err != nil {
 		if _, serr := lifecycle.SpawnPlayer(world, cx, cy, "Ash"); serr != nil {

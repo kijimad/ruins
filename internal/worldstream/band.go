@@ -53,7 +53,7 @@ func (b *Band) centerSlot() ChunkX { return b.k / 2 }
 
 // ShouldShiftEast はプレイヤーの帯ローカル X が中央チャンクを東へ出たかを返す。判定はヒステリシスを持つ。
 func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {
-	return playerLocalX >= (b.centerSlot()+1).Tiles(b.chunkW)
+	return playerLocalX >= (b.centerSlot() + 1).Tiles(b.chunkW)
 }
 
 // ShouldShiftWest はプレイヤーが中央チャンクを西へ出たかを返す。短い寄り道からの復帰時のみ使う。
@@ -80,7 +80,7 @@ func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 // ShiftWest は帯を西へ1チャンク戻す。ShiftEast の対称で、短い寄り道からの復帰時のみ使う。
 func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 	// 東端チャンク破棄
-	RemoveEntitiesInXRange(world, (b.k-1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))
+	RemoveEntitiesInXRange(world, (b.k - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))
 	// リベース：全エンティティを東へ chunkW
 	TranslateAllEntities(world, b.chunkW, 0)
 	b.rebaseCoordMaps(world, b.chunkW)
