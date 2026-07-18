@@ -174,8 +174,6 @@ var candidateSpritePool = []string{
 }
 
 // generateCandidates はランダムな雇用候補を生成する。
-// rng は world.Config.RNG を受け取る。グローバル rand を使わず決定的 RNG に依存させることで、
-// seed から候補が再現でき golden テストにも乗せられる。
 func generateCandidates(rng *rand.Rand) []tavernCandidate {
 	count := 3 + rng.IntN(3) // 3〜5人
 	used := make(map[string]bool)

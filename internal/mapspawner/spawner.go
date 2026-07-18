@@ -77,34 +77,54 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	return nil
 }
 
-// spawnTile は1タイルを生成する
+// tileSpec は1種類のタイルをどう実体化するかの仕様。
+// プランナーが出力する論理名 tile.Name をキーに引く。
+type tileSpec struct {
+	// spawnName は生成するスプライト名。多くは論理名と同じだが wall→dwall のように異なるものもある
+	spawnName string
+	// autotile は周囲を見てオートタイル添字を計算するか。void のように単一絵柄のタイルは false
+	autotile bool
+}
+
+// passableTileSpecs は歩行可能タイル、blockedTileSpecs は通行不可タイルの仕様表。
+// タイルを増やすときはここへ1行足すだけでよい。名前直書きの switch を避け、追加漏れを防ぐ。
+var (
+	passableTileSpecs = map[string]tileSpec{
+		consts.TileNameDirt:    {spawnName: consts.TileNameDirt, autotile: true},
+		consts.TileNameFloor:   {spawnName: consts.TileNameFloor, autotile: true},
+		consts.TileNameBridgeA: {spawnName: consts.TileNameBridgeA, autotile: true},
+		consts.TileNameBridgeB: {spawnName: consts.TileNameBridgeB, autotile: true},
+		consts.TileNameBridgeC: {spawnName: consts.TileNameBridgeC, autotile: true},
+		consts.TileNameBridgeD: {spawnName: consts.TileNameBridgeD, autotile: true},
+	}
+	blockedTileSpecs = map[string]tileSpec{
+		consts.TileNameWall: {spawnName: consts.TileNameDWall, autotile: true},
+		consts.TileNameVoid: {spawnName: consts.TileNameVoid, autotile: false},
+	}
+)
+
+// spawnTile は1タイルを生成する。
+// 通行可否で仕様表を選び、論理名 tile.Name で仕様を引いて実体化する。
 func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
-	// TODO: タイル名直判定だと忘れやすいので直したい
-	if !tile.BlockPass {
-		switch tile.Name {
-		case consts.TileNameDirt:
-			index := int(metaPlan.CalculateAutoTileIndex(i, consts.TileNameDirt))
-			return lifecycle.SpawnTile(world, consts.TileNameDirt, tileX, tileY, &index)
-		case "floor":
-			index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
-			return lifecycle.SpawnTile(world, "floor", tileX, tileY, &index)
-		case "bridge_a", "bridge_b", "bridge_c", "bridge_d":
-			index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
-			return lifecycle.SpawnTile(world, tile.Name, tileX, tileY, &index)
-		default:
-			return consts.InvalidEntity, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
-		}
+	specs := passableTileSpecs
+	category := "歩行可能"
+	if tile.BlockPass {
+		specs = blockedTileSpecs
+		category = "通行不可"
 	}
 
-	switch tile.Name {
-	case "wall":
-		index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
-		return lifecycle.SpawnTile(world, "dwall", tileX, tileY, &index)
-	case "void":
-		return lifecycle.SpawnTile(world, "void", tileX, tileY, nil)
-	default:
-		return consts.InvalidEntity, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
+	spec, ok := specs[tile.Name]
+	if !ok {
+		return consts.InvalidEntity, fmt.Errorf("未対応の%sタイル名: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
 	}
+
+	// オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。
+	var indexPtr *int
+	if spec.autotile {
+		index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
+		indexPtr = &index
+	}
+	return lifecycle.SpawnTile(world, spec.spawnName, tileX, tileY, indexPtr)
 }
 
 // spawnNPCs はNPCを生成する
