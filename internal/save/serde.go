@@ -53,9 +53,8 @@ func serializeWorld(world w.World) ([]byte, error) {
 
 // deserializeWorld はJSONからワールドを復元する。呼び出し前にworldはReset済みであること。
 //
-// セーブファイルは破損しうる信頼境界であり、arkserde/ark は壊れた入力で panic することがある
-// （例: LoadEntities の index out of range）。panic を error に変換してゲームのクラッシュを防ぐ。
-// ロード失敗は呼び出し側がエラー表示で扱う。
+// セーブファイルは破損しうる信頼境界であり、arkserde/ark は壊れた入力で panic することがある。
+// panic を error に変換してゲームのクラッシュを防ぐ。ロード失敗は呼び出し側がエラー表示で扱う。
 func deserializeWorld(world w.World, worldJSON []byte) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
