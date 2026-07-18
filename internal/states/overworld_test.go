@@ -115,7 +115,7 @@ func TestOverworldState_maybeShift_東へ進むとシフトする(t *testing.T) 
 
 	require.NoError(t, st.maybeShift(world))
 
-	assert.Equal(t, 1, st.band.EastIndex(), "東シフトで eastIndex が進む")
+	assert.Equal(t, 1, int(st.band.EastIndex()), "東シフトで eastIndex が進む")
 	assert.Equal(t, chunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
 }
 
@@ -140,7 +140,7 @@ func TestOverworldState_maybeShift_複数チャンク跨ぎで連続シフト(t 
 	world.Components.GridElement.Get(player).X = 100
 	require.NoError(t, st.maybeShift(world))
 
-	assert.Equal(t, 2, st.band.EastIndex(), "収まるまで連続シフトして eastIndex=2")
+	assert.Equal(t, 2, int(st.band.EastIndex()), "収まるまで連続シフトして eastIndex=2")
 	px := world.Components.GridElement.Get(player).X
 	assert.GreaterOrEqual(t, px, consts.Tile(k/2)*chunkW, "プレイヤーは中央チャンク内に収まる")
 	assert.Less(t, px, consts.Tile(k/2+1)*chunkW, "プレイヤーは中央チャンク内に収まる")
@@ -161,7 +161,7 @@ func TestOverworldState_maybeShift_開始点より西へはシフトしない(t 
 	st, ok := state.(*OverworldState)
 	require.True(t, ok)
 	require.NoError(t, st.OnStart(world))
-	require.Equal(t, 0, st.band.EastIndex(), "前提: 開始時 eastIndex=0")
+	require.Equal(t, 0, int(st.band.EastIndex()), "前提: 開始時 eastIndex=0")
 
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
@@ -170,7 +170,7 @@ func TestOverworldState_maybeShift_開始点より西へはシフトしない(t 
 	require.True(t, st.band.ShouldShiftWest(10), "前提: 西シフト条件は満たす")
 
 	require.NoError(t, st.maybeShift(world))
-	assert.Equal(t, 0, st.band.EastIndex(), "開始点より西へはシフトしない（eastIndex は負にならない）")
+	assert.Equal(t, 0, int(st.band.EastIndex()), "開始点より西へはシフトしない（eastIndex は負にならない）")
 }
 
 // TestOverworldState_オーバーレイ進入で帯タイルを消さない は、射撃/観察/ダンジョンメニュー等の
@@ -252,5 +252,5 @@ func TestOverworldState_maybeShift_中央では動かない(t *testing.T) {
 	require.NoError(t, st.OnStart(world))
 
 	require.NoError(t, st.maybeShift(world))
-	assert.Equal(t, 0, st.band.EastIndex(), "中央チャンク内ではシフトしない")
+	assert.Equal(t, 0, int(st.band.EastIndex()), "中央チャンク内ではシフトしない")
 }

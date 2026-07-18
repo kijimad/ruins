@@ -13,8 +13,8 @@ type AbsTileX int
 
 // BandOriginX は eastIndex（東進したチャンク数）と chunkW から帯の絶対原点 X を返す。
 // 帯ローカル X=0 が絶対軸で指す位置。
-func BandOriginX(eastIndex int, chunkW consts.Tile) AbsTileX {
-	return AbsTileX(eastIndex * int(chunkW))
+func BandOriginX(eastIndex ChunkX, chunkW consts.Tile) AbsTileX {
+	return AbsTileX(int(eastIndex) * int(chunkW))
 }
 
 // ToAbs は帯ローカル X を絶対 X に変換する。absX = localX + bandOriginX。
@@ -25,4 +25,16 @@ func ToAbs(bandOriginX AbsTileX, localX consts.Tile) AbsTileX {
 // ToLocal は絶対 X を帯ローカル X に変換する。localX = absX - bandOriginX。
 func ToLocal(bandOriginX AbsTileX, absX AbsTileX) consts.Tile {
 	return consts.Tile(absX - bandOriginX)
+}
+
+// ChunkX はチャンク単位の東西量。1 ＝ チャンク1枚ぶん。
+//
+// タイル単位の consts.Tile や絶対タイルの AbsTileX とは別物で、チャンクの絶対インデックスや
+// 帯のチャンク数といった「チャンクで数える量」を型で区別する。東西1次元の帯なので X のみで足りる。
+// AbsTileX との関係は AbsTileX ＝ ChunkX × chunkW。タイルへは Tiles で明示的に変換する。
+type ChunkX int
+
+// Tiles はチャンク量をタイル幅へ変換する。cx チャンク ＝ cx × chunkW タイル。
+func (cx ChunkX) Tiles(chunkW consts.Tile) consts.Tile {
+	return consts.Tile(int(cx)) * chunkW
 }

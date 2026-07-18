@@ -90,7 +90,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
 	// 初期帯: K チャンクを各スロットへ生成
 	for i := range k {
-		require.NoError(t, gen(i, consts.Tile(i)*chunkW))
+		require.NoError(t, gen(worldstream.ChunkX(i), consts.Tile(i)*chunkW))
 	}
 	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
 	player, err := lifecycle.SpawnPlayer(world, int(2*chunkW), int(chunkH/2), "Ash")
@@ -100,7 +100,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	require.True(t, band.ShouldShiftEast(world.Components.GridElement.Get(player).X))
 	require.NoError(t, band.ShiftEast(world, gen))
 
-	assert.Equal(t, 1, band.EastIndex(), "東へ1チャンク進む")
+	assert.Equal(t, 1, int(band.EastIndex()), "東へ1チャンク進む")
 	assert.Equal(t, chunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
 
 	// 帯を3スロットに分け、各スロットにタイルが存在する（破棄＋生成＋リベース後も全域が埋まる）

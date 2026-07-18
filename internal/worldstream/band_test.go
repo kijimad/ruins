@@ -54,9 +54,9 @@ func TestBand_ShiftEast(t *testing.T) {
 	b := worldstream.NewBand(100, 3)
 	require.True(t, b.ShouldShiftEast(210), "前提: 東シフト条件を満たす")
 
-	var gotChunkIndex int
+	var gotChunkIndex worldstream.ChunkX
 	var gotOffsetX consts.Tile
-	gen := func(chunkIndex int, offsetX consts.Tile) error {
+	gen := func(chunkIndex worldstream.ChunkX, offsetX consts.Tile) error {
 		gotChunkIndex = chunkIndex
 		gotOffsetX = offsetX
 		// 東端に新チャンクのタイルを1枚だけ置く（マーカー）
@@ -67,7 +67,7 @@ func TestBand_ShiftEast(t *testing.T) {
 	require.NoError(t, b.ShiftEast(world, gen))
 
 	// eastIndex 前進・原点更新
-	assert.Equal(t, 1, b.EastIndex(), "eastIndex が1つ進む")
+	assert.Equal(t, 1, int(b.EastIndex()), "eastIndex が1つ進む")
 	assert.Equal(t, worldstream.AbsTileX(100), b.BandOriginX(), "帯原点が chunkW ぶん東へ")
 
 	// 西端チャンクの敵は破棄
@@ -78,7 +78,7 @@ func TestBand_ShiftEast(t *testing.T) {
 	assert.Equal(t, consts.Tile(150), world.Components.GridElement.Get(eastEnemy).X, "東敵もリベースされる")
 
 	// 生成呼び出し: chunkIndex=eastIndex+K-1=3, offsetX=(K-1)*chunkW=200
-	assert.Equal(t, 3, gotChunkIndex, "新チャンクの絶対インデックス")
+	assert.Equal(t, 3, int(gotChunkIndex), "新チャンクの絶対インデックス")
 	assert.Equal(t, consts.Tile(200), gotOffsetX, "東スラブのオフセット")
 
 	// ExploredTiles 追従: (150,30)→(50,30) 生存、(50,30)→(-50,30) は帯外で破棄
@@ -112,9 +112,9 @@ func TestBand_ShiftWest(t *testing.T) {
 	b := worldstream.NewBandAt(100, 3, 1) // 一度東へ進んだ状態から西へ戻る
 	require.True(t, b.ShouldShiftWest(90), "前提: 西シフト条件を満たす")
 
-	var gotChunkIndex int
+	var gotChunkIndex worldstream.ChunkX
 	var gotOffsetX consts.Tile
-	gen := func(chunkIndex int, offsetX consts.Tile) error {
+	gen := func(chunkIndex worldstream.ChunkX, offsetX consts.Tile) error {
 		gotChunkIndex = chunkIndex
 		gotOffsetX = offsetX
 		return nil
@@ -122,10 +122,10 @@ func TestBand_ShiftWest(t *testing.T) {
 
 	require.NoError(t, b.ShiftWest(world, gen))
 
-	assert.Equal(t, 0, b.EastIndex(), "eastIndex が1つ戻る")
+	assert.Equal(t, 0, int(b.EastIndex()), "eastIndex が1つ戻る")
 	assert.False(t, world.ECS.Alive(eastEnemy), "東端チャンクの敵は破棄される")
 	assert.Equal(t, consts.Tile(190), world.Components.GridElement.Get(player).X, "プレイヤーは東へリベースされ中央へ")
 	assert.Equal(t, consts.Tile(150), world.Components.GridElement.Get(westEnemy).X, "西敵もリベースされる")
-	assert.Equal(t, 0, gotChunkIndex, "新しい西端チャンクの絶対インデックス")
+	assert.Equal(t, 0, int(gotChunkIndex), "新しい西端チャンクの絶対インデックス")
 	assert.Equal(t, consts.Tile(0), gotOffsetX, "西スラブのオフセットは0")
 }

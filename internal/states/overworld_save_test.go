@@ -36,7 +36,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	require.NoError(t, err)
 	world.Components.GridElement.Get(player).X = 2 * chunkW
 	require.NoError(t, st.maybeShift(world))
-	require.Equal(t, 1, st.band.EastIndex())
+	require.Equal(t, 1, int(st.band.EastIndex()))
 	require.Equal(t, 1, query.GetDungeon(world).SeamlessBand.EastIndex, "永続状態に同期される")
 
 	// セーブ往復（メモリ内）
@@ -64,7 +64,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	require.True(t, ok)
 	require.NoError(t, ow2.OnStart(world2))
 
-	assert.Equal(t, 1, ow2.band.EastIndex(), "ロード復元で Band が eastIndex=1 で再構築される")
+	assert.Equal(t, 1, int(ow2.band.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
 	// 帯タイルは serde で復元済み（再生成していない）ことの傍証: Level 幅が帯全幅のまま
 	assert.Equal(t, chunkW*k, query.GetDungeon(world2).Level.TileWidth, "帯全幅の Level が保たれる")
 

@@ -41,7 +41,7 @@ func (st *OverworldState) String() string { return "Overworld" }
 
 // NewOverworldState はシームレスワールドステートのファクトリを返す。
 // chunkW×chunkH のチャンクを k 枚並べた帯を runSeed から決定的生成する。
-func NewOverworldState(runSeed uint64, chunkW, chunkH consts.Tile, k int, planner mapplanner.PlannerType) es.StateFactory[w.World] {
+func NewOverworldState(runSeed uint64, chunkW, chunkH consts.Tile, k worldstream.ChunkX, planner mapplanner.PlannerType) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &OverworldState{
 			DungeonState: &DungeonState{},
@@ -89,7 +89,7 @@ func (st *OverworldState) OnStart(world w.World) error {
 	// ここでは Band ドライバと ChunkGen を永続状態から再構築するだけでよい。再生成はしない。
 	if sb.Active {
 		st.runSeed, st.chunkW, st.chunkH = sb.RunSeed, sb.ChunkW, sb.ChunkH
-		st.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
+		st.band = worldstream.NewBandAt(sb.ChunkW, worldstream.ChunkX(sb.K), worldstream.ChunkX(sb.EastIndex))
 		st.gen = overworld.NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, st.planner)
 		query.InvalidateSpatialIndex(world)
 		return nil
@@ -98,10 +98,10 @@ func (st *OverworldState) OnStart(world w.World) error {
 	// 新規開始: 帯状態を Dungeon に記録してセーブに対応し、初期帯を生成してプレイヤーを配置する
 	sb.Active = true
 	sb.RunSeed = st.runSeed
-	sb.EastIndex = st.band.EastIndex()
+	sb.EastIndex = int(st.band.EastIndex())
 	sb.ChunkW = st.chunkW
 	sb.ChunkH = st.chunkH
-	sb.K = st.band.K()
+	sb.K = int(st.band.K())
 
 	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する
 	d.ExploredTiles = make(map[gc.GridElement]bool)
@@ -111,7 +111,7 @@ func (st *OverworldState) OnStart(world w.World) error {
 	}
 
 	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
-	cx := int(consts.Tile(st.band.K()/2)*st.chunkW + st.chunkW/2)
+	cx := int((st.band.K()/2).Tiles(st.chunkW) + st.chunkW/2)
 	cy := int(st.chunkH / 2)
 	if _, err := query.GetPlayerEntity(world); err != nil {
 		if _, serr := lifecycle.SpawnPlayer(world, cx, cy, "Ash"); serr != nil {
@@ -127,7 +127,7 @@ func (st *OverworldState) OnStart(world w.World) error {
 
 // syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す。これでセーブに反映される。
 func (st *OverworldState) syncBandState(world w.World) {
-	query.GetDungeon(world).SeamlessBand.EastIndex = st.band.EastIndex()
+	query.GetDungeon(world).SeamlessBand.EastIndex = int(st.band.EastIndex())
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
@@ -135,7 +135,7 @@ func (st *OverworldState) syncBandState(world w.World) {
 func (st *OverworldState) generateBandChunks(world w.World) error {
 	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: st.chunkH}
 	for i := range st.band.K() {
-		if err := st.gen(i, consts.Tile(i)*st.chunkW); err != nil {
+		if err := st.gen(i, i.Tiles(st.chunkW)); err != nil {
 			return fmt.Errorf("チャンク生成失敗 (slot=%d): %w", i, err)
 		}
 	}
