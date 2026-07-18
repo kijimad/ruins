@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 12:49:17</td>
+            <td class="headerValue">2026-07-18 15:21:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -246,9 +246,9 @@
 <span id="L184"><span class="lineNum">     184</span>              : }</span>
 <span id="L185"><span class="lineNum">     185</span>              : </span>
 <span id="L186"><span class="lineNum">     186</span>              : // Update はゲームステートの更新処理を行う</span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">          66 : func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          66 :         // 全クリアイベントの表示</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">          66 :         if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">          56 : func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          56 :         // 全クリアイベントの表示</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">          56 :         if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC tlaBgUNC">           0 :                 query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                         NewAllClearEventState,</span></span>
@@ -256,7 +256,7 @@
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L195"><span class="lineNum">     195</span>              : </span>
 <span id="L196"><span class="lineNum">     196</span>              :         // キー入力をActionに変換</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">          66 :         if action, ok := st.HandleInput(world.Config); ok {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">          56 :         if action, ok := st.HandleInput(world.Config); ok {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC tlaBgUNC">           0 :                 if transition, err := st.DoAction(world, action); err != nil {</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 } else if transition.Type != es.TransNone {</span></span>
@@ -264,40 +264,40 @@
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L203"><span class="lineNum">     203</span>              :         }</span>
 <span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">          66 :         for _, updater := range []w.Updater{</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          66 :                 &amp;gs.AnimationSystem{},</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          66 :                 &amp;gs.DeadCleanupSystem{},</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          66 :                 &amp;gs.TurnSystem{},</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          66 :                 &amp;gs.VisionSystem{},</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          66 :                 &amp;gs.CameraSystem{},</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          66 :                 &amp;gs.HUDRenderingSystem{},</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">          66 :                 &amp;gs.StatsChangedSystem{},</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          66 :                 &amp;gs.WeightDirtySystem{},</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          66 :                 &amp;gs.VisualEffectSystem{},</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">         660 :         } {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">        1188 :                 if sys, ok := world.Updaters[updater.String()]; ok {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">         594 :                         if err := sys.Update(world); err != nil {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">          56 :         for _, updater := range []w.Updater{</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          56 :                 &amp;gs.AnimationSystem{},</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          56 :                 &amp;gs.DeadCleanupSystem{},</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          56 :                 &amp;gs.TurnSystem{},</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          56 :                 &amp;gs.VisionSystem{},</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          56 :                 &amp;gs.CameraSystem{},</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          56 :                 &amp;gs.HUDRenderingSystem{},</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">          56 :                 &amp;gs.StatsChangedSystem{},</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          56 :                 &amp;gs.WeightDirtySystem{},</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          56 :                 &amp;gs.VisualEffectSystem{},</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">         560 :         } {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">        1008 :                 if sys, ok := world.Updaters[updater.String()]; ok {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">         504 :                         if err := sys.Update(world); err != nil {</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L220"><span class="lineNum">     220</span>              :                 }</span>
 <span id="L221"><span class="lineNum">     221</span>              :         }</span>
 <span id="L222"><span class="lineNum">     222</span>              : </span>
 <span id="L223"><span class="lineNum">     223</span>              :         // プレイヤー死亡チェック</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC tlaBgGNC">          66 :         if st.checkPlayerDeath(world) {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC tlaBgGNC">          56 :         if st.checkPlayerDeath(world) {</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewGameOverMessageState}}, nil</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L227"><span class="lineNum">     227</span>              : </span>
 <span id="L228"><span class="lineNum">     228</span>              :         // ステート遷移リクエストを処理</span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">          66 :         transition, err := st.handleStateChangeRequest(world)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">          66 :         if err != nil {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">          56 :         transition, err := st.handleStateChangeRequest(world)</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">          56 :         if err != nil {</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC tlaBgGNC">          66 :         if transition.Type != es.TransNone {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC tlaBgGNC">          56 :         if transition.Type != es.TransNone {</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC tlaBgUNC">           0 :                 return transition, nil</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L236"><span class="lineNum">     236</span>              : </span>
 <span id="L237"><span class="lineNum">     237</span>              :         // BaseStateの共通処理を使用</span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC tlaBgGNC">          66 :         return st.ConsumeTransition(), nil</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC tlaBgGNC">          56 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L239"><span class="lineNum">     239</span>              : }</span>
 <span id="L240"><span class="lineNum">     240</span>              : </span>
 <span id="L241"><span class="lineNum">     241</span>              : // Draw はゲームステートの描画処理を行う</span>
@@ -324,76 +324,76 @@
 <span id="L262"><span class="lineNum">     262</span>              : // ================</span>
 <span id="L263"><span class="lineNum">     263</span>              : </span>
 <span id="L264"><span class="lineNum">     264</span>              : // HandleInput はキー入力をActionに変換する</span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">          66 : func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, bool) {</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">          66 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">          66 : </span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">          66 :         if cfg.Debug &amp;&amp; keyboardInput.IsKeyJustPressed(ebiten.KeySlash) {</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">          56 : func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, bool) {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">          56 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">          56 : </span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">          56 :         if cfg.Debug &amp;&amp; keyboardInput.IsKeyJustPressed(ebiten.KeySlash) {</span></span>
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionOpenDebugMenu, true</span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L271"><span class="lineNum">     271</span>              : </span>
 <span id="L272"><span class="lineNum">     272</span>              :         // ダンジョンメニュー</span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyM) {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyM) {</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionOpenDungeonMenu, true</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L276"><span class="lineNum">     276</span>              : </span>
 <span id="L277"><span class="lineNum">     277</span>              :         // インタラクションメニュー</span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.KeySpace) {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.KeySpace) {</span></span>
 <span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionOpenInteractionMenu, true</span></span>
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L281"><span class="lineNum">     281</span>              : </span>
 <span id="L282"><span class="lineNum">     282</span>              :         // 視界情報表示</span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyX) {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyX) {</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionOpenFieldInfo, true</span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L286"><span class="lineNum">     286</span>              : </span>
 <span id="L287"><span class="lineNum">     287</span>              :         // 射撃モード</span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyF) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyF) {</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionShoot, true</span></span>
 <span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L291"><span class="lineNum">     291</span>              : </span>
 <span id="L292"><span class="lineNum">     292</span>              :         // 拾うモード</span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyG) {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyG) {</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionPickup, true</span></span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L296"><span class="lineNum">     296</span>              : </span>
 <span id="L297"><span class="lineNum">     297</span>              :         // 置くモード</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyP) {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyP) {</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionPlace, true</span></span>
 <span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L301"><span class="lineNum">     301</span>              : </span>
 <span id="L302"><span class="lineNum">     302</span>              :         // 移動入力</span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC tlaBgGNC">          66 :         if action, ok := handleMoveInput(keyboardInput); ok {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC tlaBgGNC">          56 :         if action, ok := handleMoveInput(keyboardInput); ok {</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC tlaBgUNC">           0 :                 return action, true</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L306"><span class="lineNum">     306</span>              : </span>
 <span id="L307"><span class="lineNum">     307</span>              :         // 待機キー（キーリピート対応）</span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyPeriod) {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyPeriod) {</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionWait, true</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L311"><span class="lineNum">     311</span>              : </span>
 <span id="L312"><span class="lineNum">     312</span>              :         // 相互作用キー（Enter）</span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionInteract, true</span></span>
 <span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L316"><span class="lineNum">     316</span>              : </span>
 <span id="L317"><span class="lineNum">     317</span>              :         // 武器スロット切り替え（1-5キー）</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.Key1) {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.Key1) {</span></span>
 <span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionSwitchWeaponSlot1, true</span></span>
 <span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.Key2) {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.Key2) {</span></span>
 <span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionSwitchWeaponSlot2, true</span></span>
 <span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.Key3) {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.Key3) {</span></span>
 <span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionSwitchWeaponSlot3, true</span></span>
 <span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.Key4) {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.Key4) {</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionSwitchWeaponSlot4, true</span></span>
 <span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC tlaBgGNC">          66 :         if keyboardInput.IsKeyJustPressed(ebiten.Key5) {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC tlaBgGNC">          56 :         if keyboardInput.IsKeyJustPressed(ebiten.Key5) {</span></span>
 <span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionSwitchWeaponSlot5, true</span></span>
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L333"><span class="lineNum">     333</span>              : </span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC tlaBgGNC">          66 :         return &quot;&quot;, false</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC tlaBgGNC">          56 :         return &quot;&quot;, false</span></span>
 <span id="L335"><span class="lineNum">     335</span>              : }</span>
 <span id="L336"><span class="lineNum">     336</span>              : </span>
 <span id="L337"><span class="lineNum">     337</span>              : // DoAction はActionを実行する</span>
@@ -537,21 +537,21 @@
 <span id="L475"><span class="lineNum">     475</span>              : // ================</span>
 <span id="L476"><span class="lineNum">     476</span>              : </span>
 <span id="L477"><span class="lineNum">     477</span>              : // checkPlayerDeath はプレイヤーの死亡状態をチェックする</span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC tlaBgGNC">          66 : func (st *DungeonState) checkPlayerDeath(world w.World) bool {</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">          66 :         playerDead := false</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">          66 :         playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">          66 :         for playerDeadQuery.Next() {</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC tlaBgGNC">          56 : func (st *DungeonState) checkPlayerDeath(world w.World) bool {</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">          56 :         playerDead := false</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">          56 :         playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">          56 :         for playerDeadQuery.Next() {</span></span>
 <span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC tlaBgUNC">           0 :                 playerDead = true</span></span>
 <span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC tlaBgGNC">          66 :         return playerDead</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC tlaBgGNC">          56 :         return playerDead</span></span>
 <span id="L485"><span class="lineNum">     485</span>              : }</span>
 <span id="L486"><span class="lineNum">     486</span>              : </span>
 <span id="L487"><span class="lineNum">     487</span>              : // handleStateChangeRequest はステート遷移リクエストを消費し、対応する遷移を返す</span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">          66 : func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">          66 :         req := lifecycle.ConsumeStateChange(world)</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">         132 :         if req == nil {</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">          66 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">          66 :         }</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">          56 : func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">          56 :         req := lifecycle.ConsumeStateChange(world)</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">         112 :         if req == nil {</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">          56 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">          56 :         }</span></span>
 <span id="L493"><span class="lineNum">     493</span>              : </span>
 <span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC tlaBgUNC">           0 :         switch p := req.Payload.(type) {</span></span>
 <span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :         case gc.ShowDialog:</span></span>
@@ -632,32 +632,32 @@
 <span id="L570"><span class="lineNum">     570</span>              : }</span>
 <span id="L571"><span class="lineNum">     571</span>              : </span>
 <span id="L572"><span class="lineNum">     572</span>              : // handleMoveInput は8方向移動のキー入力を処理する</span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC tlaBgGNC">          77 : func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {</span></span>
-<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">          77 :         // Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける。</span></span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">          77 :         // IsKeyPressedWithRepeatは副作用があるため、Shift判定を先に行い不要な呼び出しを避ける</span></span>
-<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">          79 :         if keyboardInput.IsKeyPressed(ebiten.KeyShift) {</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC tlaBgGNC">          67 : func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">          67 :         // Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける。</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">          67 :         // IsKeyPressedWithRepeatは副作用があるため、Shift判定を先に行い不要な呼び出しを避ける</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">          69 :         if keyboardInput.IsKeyPressed(ebiten.KeyShift) {</span></span>
 <span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">           2 :                 return handleShiftDiagonalInput(keyboardInput)</span></span>
 <span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L579"><span class="lineNum">     579</span>              : </span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">          75 :         upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)</span></span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">          75 :         downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)</span></span>
-<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">          75 :         leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)</span></span>
-<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">          75 :         rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)</span></span>
-<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">          75 : </span></span>
-<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">          78 :         if upPressed {</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">          65 :         upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">          65 :         downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">          65 :         leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">          65 :         rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">          65 : </span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">          68 :         if upPressed {</span></span>
 <span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           3 :                 return inputmapper.ActionMoveNorth, true</span></span>
 <span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           3 :         }</span></span>
-<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">          74 :         if downPressed {</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">          64 :         if downPressed {</span></span>
 <span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           2 :                 return inputmapper.ActionMoveSouth, true</span></span>
 <span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           2 :         }</span></span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">          72 :         if leftPressed {</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">          62 :         if leftPressed {</span></span>
 <span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">           2 :                 return inputmapper.ActionMoveWest, true</span></span>
 <span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           2 :         }</span></span>
-<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">          70 :         if rightPressed {</span></span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">          60 :         if rightPressed {</span></span>
 <span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           2 :                 return inputmapper.ActionMoveEast, true</span></span>
 <span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L597"><span class="lineNum">     597</span>              : </span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">          66 :         return &quot;&quot;, false</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">          56 :         return &quot;&quot;, false</span></span>
 <span id="L599"><span class="lineNum">     599</span>              : }</span>
 <span id="L600"><span class="lineNum">     600</span>              : </span>
 <span id="L601"><span class="lineNum">     601</span>              : // handleShiftDiagonalInput はShift押下中の斜め移動入力を処理する。</span>
