@@ -167,7 +167,7 @@ func (pf *PathFinder) hasAdjacentFreeTile(x, y int) bool {
 	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
 	for _, d := range directions {
 		nx, ny := x+d[0], y+d[1]
-		if pf.IsWalkable(nx, ny) && !pf.planData.existPlannedEntityOnTile(nx, ny) {
+		if pf.IsWalkable(nx, ny) && !pf.planData.existPlannedEntityOnTile(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)}) {
 			return true
 		}
 	}
@@ -229,7 +229,7 @@ func (pf *PathFinder) isValidSpawnPosition(x, y int) bool {
 	}
 
 	// NPC・アイテム・ポータルなど計画済みエンティティとの重複を防ぐ
-	if planData.existPlannedEntityOnTile(x, y) {
+	if planData.existPlannedEntityOnTile(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}) {
 		return false
 	}
 

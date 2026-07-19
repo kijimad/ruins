@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"reflect"
+	"slices"
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -63,7 +64,8 @@ type MetaPlan struct {
 
 // IsSpawnableTile は指定タイル座標がスポーン可能かを返す
 func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool {
-	idx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: tx, Y: ty})
+	pos := consts.Coord[consts.Tile]{X: tx, Y: ty}
+	idx := bm.Level.CoordToIndex(pos)
 	tile := bm.Tiles[idx]
 	// 通行不可なのでスポーン不可
 	if tile.BlockPass {
@@ -71,7 +73,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 	}
 
 	// planning段階では、MetaPlan内の計画済みエンティティをチェック
-	if bm.existPlannedEntityOnTile(int(tx), int(ty)) {
+	if bm.existPlannedEntityOnTile(pos) {
 		return false
 	}
 
@@ -79,43 +81,39 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 }
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
-func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
-	for _, portal := range bm.NextPortals {
-		if int(portal.X) == x && int(portal.Y) == y {
-			return true
-		}
+func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool {
+	if slices.Contains(bm.NextPortals, pos) {
+		return true
 	}
 
-	for _, portal := range bm.EscapePortals {
-		if int(portal.X) == x && int(portal.Y) == y {
-			return true
-		}
+	if slices.Contains(bm.EscapePortals, pos) {
+		return true
 	}
 
 	// NPCをチェック
 	for _, npc := range bm.NPCs {
-		if int(npc.X) == x && int(npc.Y) == y {
+		if npc.Coord == pos {
 			return true
 		}
 	}
 
 	// アイテムをチェック
 	for _, item := range bm.Items {
-		if int(item.X) == x && int(item.Y) == y {
+		if item.Coord == pos {
 			return true
 		}
 	}
 
 	// Propsをチェック
 	for _, prop := range bm.Props {
-		if int(prop.X) == x && int(prop.Y) == y {
+		if prop.Coord == pos {
 			return true
 		}
 	}
 
 	// ドアをチェック
 	for _, door := range bm.Doors {
-		if int(door.X) == x && int(door.Y) == y {
+		if door.Coord == pos {
 			return true
 		}
 	}
