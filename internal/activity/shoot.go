@@ -205,9 +205,9 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 	aPos := world.Components.GridElement.Get(actor)
 	tPos := world.Components.GridElement.Get(target)
 
-	points := geometry.BresenhamLine(aPos.Coord, tPos.Coord)
+	points := geometry.BresenhamLine(consts.Coord[int]{X: int(aPos.X), Y: int(aPos.Y)}, consts.Coord[int]{X: int(tPos.X), Y: int(tPos.Y)})
 	for _, p := range points {
-		entities := query.GetEntitiesAt(world, p.X, p.Y)
+		entities := query.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
 		for _, e := range entities {
 			if world.Components.BlockView.Has(e) {
 				return true, coverCount

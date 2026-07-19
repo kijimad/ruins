@@ -23,17 +23,18 @@ func IsAdjacent[T consts.Numeric](a, b consts.Coord[T]) bool {
 	return dx <= 1 && dy <= 1
 }
 
-// BresenhamLine はBresenhamアルゴリズムで2点間のタイル座標列を返す。始点と終点は含まない
-func BresenhamLine(from, to consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
-	var points []consts.Coord[consts.Tile]
+// BresenhamLine はBresenhamアルゴリズムで2点間の座標列を返す。始点と終点は含まない。
+// 純粋な整数グリッドのアルゴリズムなので、ドメイン単位でなく Coord[int] で扱う
+func BresenhamLine(from, to consts.Coord[int]) []consts.Coord[int] {
+	var points []consts.Coord[int]
 
 	dx := Abs(to.X - from.X)
 	dy := Abs(to.Y - from.Y)
-	sx := consts.Tile(1)
+	sx := 1
 	if from.X > to.X {
 		sx = -1
 	}
-	sy := consts.Tile(1)
+	sy := 1
 	if from.Y > to.Y {
 		sy = -1
 	}

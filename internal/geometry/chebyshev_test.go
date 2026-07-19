@@ -40,28 +40,28 @@ func TestBresenhamLine_Vertical(t *testing.T) {
 	t.Parallel()
 
 	// (0,0)→(0,3): 中間点は (0,1) と (0,2) の2点
-	points := BresenhamLine(consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 0, Y: 3})
+	points := BresenhamLine(consts.Coord[int]{X: 0, Y: 0}, consts.Coord[int]{X: 0, Y: 3})
 	assert.Len(t, points, 2)
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 0, Y: 1}, points[0])
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 0, Y: 2}, points[1])
+	assert.Equal(t, consts.Coord[int]{X: 0, Y: 1}, points[0])
+	assert.Equal(t, consts.Coord[int]{X: 0, Y: 2}, points[1])
 }
 
 func TestBresenhamLine_Diagonal(t *testing.T) {
 	t.Parallel()
 
 	// (0,0)→(3,3): 中間点は (1,1) と (2,2) の2点
-	points := BresenhamLine(consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 3, Y: 3})
+	points := BresenhamLine(consts.Coord[int]{X: 0, Y: 0}, consts.Coord[int]{X: 3, Y: 3})
 	assert.Len(t, points, 2)
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 1, Y: 1}, points[0])
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, points[1])
+	assert.Equal(t, consts.Coord[int]{X: 1, Y: 1}, points[0])
+	assert.Equal(t, consts.Coord[int]{X: 2, Y: 2}, points[1])
 }
 
 func TestBresenhamLine_Reverse(t *testing.T) {
 	t.Parallel()
 
 	// (3,0)→(0,0): 中間点は (2,0) と (1,0) の2点
-	points := BresenhamLine(consts.Coord[consts.Tile]{X: 3, Y: 0}, consts.Coord[consts.Tile]{X: 0, Y: 0})
+	points := BresenhamLine(consts.Coord[int]{X: 3, Y: 0}, consts.Coord[int]{X: 0, Y: 0})
 	assert.Len(t, points, 2)
-	assert.Equal(t, consts.Tile(2), points[0].X)
-	assert.Equal(t, consts.Tile(1), points[1].X)
+	assert.Equal(t, 2, points[0].X)
+	assert.Equal(t, 1, points[1].X)
 }

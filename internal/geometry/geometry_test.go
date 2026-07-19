@@ -62,21 +62,21 @@ func TestBresenhamLine(t *testing.T) {
 
 	t.Run("隣接は空", func(t *testing.T) {
 		t.Parallel()
-		points := BresenhamLine(consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 1, Y: 0})
+		points := BresenhamLine(consts.Coord[int]{X: 0, Y: 0}, consts.Coord[int]{X: 1, Y: 0})
 		assert.Empty(t, points)
 	})
 
 	t.Run("水平線は始点終点を含まない", func(t *testing.T) {
 		t.Parallel()
-		points := BresenhamLine(consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 3, Y: 0})
+		points := BresenhamLine(consts.Coord[int]{X: 0, Y: 0}, consts.Coord[int]{X: 3, Y: 0})
 		assert.Len(t, points, 2)
-		assert.Equal(t, consts.Tile(1), points[0].X)
-		assert.Equal(t, consts.Tile(2), points[1].X)
+		assert.Equal(t, 1, points[0].X)
+		assert.Equal(t, 2, points[1].X)
 	})
 
 	t.Run("同じ座標なら空", func(t *testing.T) {
 		t.Parallel()
-		points := BresenhamLine(consts.Coord[consts.Tile]{X: 5, Y: 5}, consts.Coord[consts.Tile]{X: 5, Y: 5})
+		points := BresenhamLine(consts.Coord[int]{X: 5, Y: 5}, consts.Coord[int]{X: 5, Y: 5})
 		assert.Empty(t, points)
 	})
 }
