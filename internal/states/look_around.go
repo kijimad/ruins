@@ -124,13 +124,11 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 
 // moveCursor はカーソルを移動する
 func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
-	newX := int(st.cursor.X) + dx
-	newY := int(st.cursor.Y) + dy
+	next := st.cursor.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
 
 	level := query.GetDungeon(world).Level
-	if newX >= 0 && newX < int(level.TileWidth) && newY >= 0 && newY < int(level.TileHeight) {
-		st.cursor.X = consts.Tile(newX)
-		st.cursor.Y = consts.Tile(newY)
+	if next.X >= 0 && next.X < level.TileWidth && next.Y >= 0 && next.Y < level.TileHeight {
+		st.cursor = next
 	}
 }
 

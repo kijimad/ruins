@@ -136,31 +136,30 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 
 // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する
 func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
-	dx := int(targetGrid.X) - int(playerGrid.X)
-	dy := int(targetGrid.Y) - int(playerGrid.Y)
+	d := targetGrid.Sub(playerGrid.Coord)
 
 	// 同じタイル
-	if dx == 0 && dy == 0 {
+	if d.X == 0 && d.Y == 0 {
 		return "直上"
 	}
 
 	// 8方向を判定
-	if dy < 0 {
-		if dx < 0 {
+	if d.Y < 0 {
+		if d.X < 0 {
 			return "左上"
-		} else if dx > 0 {
+		} else if d.X > 0 {
 			return "右上"
 		}
 		return "上"
-	} else if dy > 0 {
-		if dx < 0 {
+	} else if d.Y > 0 {
+		if d.X < 0 {
 			return "左下"
-		} else if dx > 0 {
+		} else if d.X > 0 {
 			return "右下"
 		}
 		return "下"
 	}
-	if dx < 0 {
+	if d.X < 0 {
 		return "左"
 	}
 	return "右"

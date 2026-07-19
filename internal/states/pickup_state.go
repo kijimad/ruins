@@ -261,11 +261,9 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 
 // moveCursorAdjacent はカーソルを移動する。基準点からチェビシェフ距離1以内に制限する
 func moveCursorAdjacent(cursor *consts.Coord[consts.Tile], origin consts.Coord[consts.Tile], dx, dy int) {
-	newX := int(cursor.X) + dx
-	newY := int(cursor.Y) + dy
-	if geometry.ChebyshevDistance(newX, newY, int(origin.X), int(origin.Y)) <= 1 {
-		cursor.X = consts.Tile(newX)
-		cursor.Y = consts.Tile(newY)
+	next := cursor.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
+	if geometry.ChebyshevDistance(int(next.X), int(next.Y), int(origin.X), int(origin.Y)) <= 1 {
+		*cursor = next
 	}
 }
 
