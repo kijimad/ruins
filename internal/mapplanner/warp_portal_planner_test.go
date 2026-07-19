@@ -194,13 +194,13 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		// NextPortalsが到達可能であることを確認
 		for _, portal := range chain.PlanData.NextPortals {
-			assert.True(t, pathFinder.IsReachable(int(playerPos.X), int(playerPos.Y), int(portal.X), int(portal.Y)),
+			assert.True(t, pathFinder.IsReachable(playerPos, portal),
 				"NextPortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
 		}
 
 		// EscapePortalsが到達可能であることを確認
 		for _, portal := range chain.PlanData.EscapePortals {
-			assert.True(t, pathFinder.IsReachable(int(playerPos.X), int(playerPos.Y), int(portal.X), int(portal.Y)),
+			assert.True(t, pathFinder.IsReachable(playerPos, portal),
 				"EscapePortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
 		}
 	})
@@ -231,13 +231,13 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			pathFinder := NewPathFinder(&chain.PlanData)
 
 			for _, portal := range chain.PlanData.NextPortals {
-				path := pathFinder.FindPath(int(playerPos.X), int(playerPos.Y), int(portal.X), int(portal.Y))
+				path := pathFinder.FindPath(playerPos, portal)
 				// フォールバックで配置された場合は距離が短い可能性があるため、到達可能であることだけ確認
 				assert.NotEmpty(t, path, "seed=%d: NextPortalに到達不能", seed)
 			}
 
 			for _, portal := range chain.PlanData.EscapePortals {
-				path := pathFinder.FindPath(int(playerPos.X), int(playerPos.Y), int(portal.X), int(portal.Y))
+				path := pathFinder.FindPath(playerPos, portal)
 				assert.NotEmpty(t, path, "seed=%d: EscapePortalに到達不能", seed)
 			}
 		}

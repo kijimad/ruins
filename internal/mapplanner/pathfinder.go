@@ -17,102 +17,66 @@ func NewPathFinder(planData *MetaPlan) *PathFinder {
 	return &PathFinder{planData: planData}
 }
 
-// IsWalkable は指定座標が歩行可能かを判定する
-func (pf *PathFinder) IsWalkable(x, y int) bool {
-	width := int(pf.planData.Level.TileWidth)
-	height := int(pf.planData.Level.TileHeight)
+// fourDirs は上下左右の4方向のタイル差分
+var fourDirs = []consts.Coord[consts.Tile]{{X: 0, Y: 1}, {X: 1, Y: 0}, {X: 0, Y: -1}, {X: -1, Y: 0}}
 
+// IsWalkable は指定座標が歩行可能かを判定する
+func (pf *PathFinder) IsWalkable(pos consts.Coord[consts.Tile]) bool {
 	// 境界チェック
-	if x < 0 || x >= width || y < 0 || y >= height {
+	if pos.X < 0 || pos.X >= pf.planData.Level.TileWidth || pos.Y < 0 || pos.Y >= pf.planData.Level.TileHeight {
 		return false
 	}
 
-	idx := pf.planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-	tile := pf.planData.Tiles[idx]
-
-	// 歩行可能
-	return !tile.BlockPass
+	idx := pf.planData.Level.CoordToIndex(pos)
+	return !pf.planData.Tiles[idx].BlockPass
 }
 
-// FindPath はBFSを使ってスタート地点からゴールまでのパスを探索する
-// 上下左右の4方向移動のみサポート
-func (pf *PathFinder) FindPath(startX, startY, goalX, goalY int) []consts.Coord[int] {
-	width := int(pf.planData.Level.TileWidth)
-	height := int(pf.planData.Level.TileHeight)
-
-	// スタートまたはゴールが歩行不可能な場合は空のパスを返す
-	if !pf.IsWalkable(startX, startY) || !pf.IsWalkable(goalX, goalY) {
-		return []consts.Coord[int]{}
+// FindPath はBFSでスタート地点からゴールまでのパスを探索する。
+// 上下左右の4方向移動のみサポートする。到達できない場合は空を返す
+func (pf *PathFinder) FindPath(start, goal consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+	if !pf.IsWalkable(start) || !pf.IsWalkable(goal) {
+		return nil
 	}
 
-	// 訪問済みマップ
-	visited := make([][]bool, width)
-	for i := range visited {
-		visited[i] = make([]bool, height)
-	}
+	// parent はパス復元用、visited は探索済み。どちらもタイル座標をキーにする
+	parent := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
+	visited := map[consts.Coord[consts.Tile]]bool{start: true}
+	queue := []consts.Coord[consts.Tile]{start}
 
-	// 親ポイントマップ（パス復元用）
-	parent := make([][]consts.Coord[int], width)
-	for i := range parent {
-		parent[i] = make([]consts.Coord[int], height)
-		for j := range parent[i] {
-			parent[i][j] = consts.Coord[int]{X: -1, Y: -1} // 無効値で初期化
-		}
-	}
-
-	// BFS用のキュー
-	queue := []consts.Coord[int]{{X: startX, Y: startY}}
-	visited[startX][startY] = true
-
-	// 4方向の移動方向
-	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
-
-	// BFS実行
 	for len(queue) > 0 {
-		current := queue[0]
+		cur := queue[0]
 		queue = queue[1:]
 
-		// ゴールに到達した場合
-		if current.X == goalX && current.Y == goalY {
-			// パスを復元
-			return pf.reconstructPath(parent, startX, startY, goalX, goalY)
+		if cur == goal {
+			return pf.reconstructPath(parent, start, goal)
 		}
 
-		// 隣接する4方向をチェック
-		for _, dir := range directions {
-			nextX := current.X + dir[0]
-			nextY := current.Y + dir[1]
-
-			// 境界チェックと歩行可能性チェック
-			if nextX >= 0 && nextX < width && nextY >= 0 && nextY < height &&
-				!visited[nextX][nextY] && pf.IsWalkable(nextX, nextY) {
-
-				visited[nextX][nextY] = true
-				parent[nextX][nextY] = consts.Coord[int]{X: current.X, Y: current.Y}
-				queue = append(queue, consts.Coord[int]{X: nextX, Y: nextY})
+		for _, d := range fourDirs {
+			next := cur.Add(d)
+			// IsWalkable が境界外を false にするので境界チェックは兼ねる
+			if visited[next] || !pf.IsWalkable(next) {
+				continue
 			}
+			visited[next] = true
+			parent[next] = cur
+			queue = append(queue, next)
 		}
 	}
 
-	// パスが見つからなかった場合は空のスライスを返す
-	return []consts.Coord[int]{}
+	return nil
 }
 
-// reconstructPath は親ポイントマップからパスを復元する
-func (pf *PathFinder) reconstructPath(parent [][]consts.Coord[int], startX, startY, goalX, goalY int) []consts.Coord[int] {
-	var path []consts.Coord[int]
-	current := consts.Coord[int]{X: goalX, Y: goalY}
-
-	// ゴールからスタートまで逆順にたどる
-	for current.X != -1 && current.Y != -1 {
-		path = append(path, current)
-		if current.X == startX && current.Y == startY {
+// reconstructPath は親マップからスタート→ゴール順のパスを復元する
+func (pf *PathFinder) reconstructPath(parent map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile], start, goal consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+	var path []consts.Coord[consts.Tile]
+	for cur := goal; ; cur = parent[cur] {
+		path = append(path, cur)
+		if cur == start {
 			break
 		}
-		current = parent[current.X][current.Y]
 	}
 
-	// パスを反転（スタートからゴールの順序にする）
+	// スタートからゴールの順序にする
 	for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
 		path[i], path[j] = path[j], path[i]
 	}
@@ -121,53 +85,42 @@ func (pf *PathFinder) reconstructPath(parent [][]consts.Coord[int], startX, star
 }
 
 // IsReachable はスタート地点からゴール地点まで到達可能かを判定する
-func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool {
-	path := pf.FindPath(startX, startY, goalX, goalY)
-	return len(path) > 0
+func (pf *PathFinder) IsReachable(start, goal consts.Coord[consts.Tile]) bool {
+	return len(pf.FindPath(start, goal)) > 0
 }
 
 // countReachableFrom は指定位置からBFSで到達可能な歩行可能タイル数を返す
-func (pf *PathFinder) countReachableFrom(startX, startY int) int {
-	width := int(pf.planData.Level.TileWidth)
-	height := int(pf.planData.Level.TileHeight)
-
-	if !pf.IsWalkable(startX, startY) {
+func (pf *PathFinder) countReachableFrom(start consts.Coord[consts.Tile]) int {
+	if !pf.IsWalkable(start) {
 		return 0
 	}
 
-	visited := make([][]bool, width)
-	for i := range visited {
-		visited[i] = make([]bool, height)
-	}
-
-	type pos struct{ x, y int }
-	queue := []pos{{startX, startY}}
-	visited[startX][startY] = true
+	visited := map[consts.Coord[consts.Tile]]bool{start: true}
+	queue := []consts.Coord[consts.Tile]{start}
 	count := 0
 
-	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
 	for len(queue) > 0 {
 		cur := queue[0]
 		queue = queue[1:]
 		count++
 
-		for _, d := range directions {
-			nx, ny := cur.x+d[0], cur.y+d[1]
-			if nx >= 0 && nx < width && ny >= 0 && ny < height && !visited[nx][ny] && pf.IsWalkable(nx, ny) {
-				visited[nx][ny] = true
-				queue = append(queue, pos{nx, ny})
+		for _, d := range fourDirs {
+			next := cur.Add(d)
+			if !visited[next] && pf.IsWalkable(next) {
+				visited[next] = true
+				queue = append(queue, next)
 			}
 		}
 	}
+
 	return count
 }
 
 // hasAdjacentFreeTile は隣接4方向のうち少なくとも1つが歩行可能かつ計画済みエンティティがないかを判定する
-func (pf *PathFinder) hasAdjacentFreeTile(x, y int) bool {
-	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
-	for _, d := range directions {
-		nx, ny := x+d[0], y+d[1]
-		if pf.IsWalkable(nx, ny) && !pf.planData.existPlannedEntityOnTile(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)}) {
+func (pf *PathFinder) hasAdjacentFreeTile(pos consts.Coord[consts.Tile]) bool {
+	for _, d := range fourDirs {
+		next := pos.Add(d)
+		if pf.IsWalkable(next) && !pf.planData.existPlannedEntityOnTile(next) {
 			return true
 		}
 	}
@@ -179,20 +132,20 @@ func (pf *PathFinder) hasAdjacentFreeTile(x, y int) bool {
 const minReachableTiles = 100
 
 // FindPlayerStartPosition はプレイヤーの開始位置を探す
-func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[int], error) {
+func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], error) {
 	planData := pf.planData
 
 	// SpawnPointsが設定されていればそれを使用（テンプレートマップ用）
 	if len(planData.SpawnPoints) > 0 {
-		return consts.Coord[int]{X: planData.SpawnPoints[0].X, Y: planData.SpawnPoints[0].Y}, nil
+		return consts.Coord[consts.Tile]{X: consts.Tile(planData.SpawnPoints[0].X), Y: consts.Tile(planData.SpawnPoints[0].Y)}, nil
 	}
 
 	// プロシージャルマップ用: 歩行可能でポータルに到達可能な位置を探す
-	width := int(planData.Level.TileWidth)
-	height := int(planData.Level.TileHeight)
+	width := planData.Level.TileWidth
+	height := planData.Level.TileHeight
 
 	// 候補位置を試す（中央から外側へ）
-	attempts := []consts.Coord[int]{
+	attempts := []consts.Coord[consts.Tile]{
 		{X: width / 2, Y: height / 2},
 		{X: width / 4, Y: height / 4},
 		{X: 3 * width / 4, Y: height / 4},
@@ -201,7 +154,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[int], error) {
 	}
 
 	for _, pos := range attempts {
-		if pf.isValidSpawnPosition(pos.X, pos.Y) {
+		if pf.isValidSpawnPosition(pos) {
 			return pos, nil
 		}
 	}
@@ -209,52 +162,52 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[int], error) {
 	// 見つからない場合は全体をスキャン
 	for _i, tile := range planData.Tiles {
 		if !tile.BlockPass {
-			i := gc.TileIdx(_i)
-			x, y := planData.Level.XYTileCoord(i)
-			if pf.isValidSpawnPosition(int(x), int(y)) {
-				return consts.Coord[int]{X: int(x), Y: int(y)}, nil
+			x, y := planData.Level.XYTileCoord(gc.TileIdx(_i))
+			pos := consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+			if pf.isValidSpawnPosition(pos) {
+				return pos, nil
 			}
 		}
 	}
 
-	return consts.Coord[int]{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")
+	return consts.Coord[consts.Tile]{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")
 }
 
 // isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する
-func (pf *PathFinder) isValidSpawnPosition(x, y int) bool {
+func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {
 	planData := pf.planData
-	idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
+	idx := planData.Level.CoordToIndex(pos)
 	if int(idx) >= len(planData.Tiles) || planData.Tiles[idx].BlockPass {
 		return false
 	}
 
 	// NPC・アイテム・ポータルなど計画済みエンティティとの重複を防ぐ
-	if planData.existPlannedEntityOnTile(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}) {
+	if planData.existPlannedEntityOnTile(pos) {
 		return false
 	}
 
 	// 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。
 	// 敵エンティティはBlockPassを持つため、全隣接タイルが占有されるとプレイヤーが移動不能になる
-	if !pf.hasAdjacentFreeTile(x, y) {
+	if !pf.hasAdjacentFreeTile(pos) {
 		return false
 	}
 
 	// 到達可能なタイル数が十分であることを確認する。
 	// 単一BFSで済むため、複数BFSを要するポータル到達性チェックより先に行う
-	if pf.countReachableFrom(x, y) < minReachableTiles {
+	if pf.countReachableFrom(pos) < minReachableTiles {
 		return false
 	}
 
 	// NextPortalsへの到達性をチェック
 	for _, portal := range planData.NextPortals {
-		if !pf.IsReachable(x, y, int(portal.X), int(portal.Y)) {
+		if !pf.IsReachable(pos, portal) {
 			return false
 		}
 	}
 
 	// EscapePortalsへの到達性をチェック
 	for _, portal := range planData.EscapePortals {
-		if !pf.IsReachable(x, y, int(portal.X), int(portal.Y)) {
+		if !pf.IsReachable(pos, portal) {
 			return false
 		}
 	}
@@ -272,7 +225,7 @@ func (pf *PathFinder) ValidatePortalReachability() error {
 
 	// NextPortalsの到達性をチェック
 	for i, portal := range pf.planData.NextPortals {
-		if !pf.IsReachable(playerPos.X, playerPos.Y, int(portal.X), int(portal.Y)) {
+		if !pf.IsReachable(playerPos, portal) {
 			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からNextPortal[%d](%d,%d)への到達不可",
 				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}
@@ -280,7 +233,7 @@ func (pf *PathFinder) ValidatePortalReachability() error {
 
 	// EscapePortalsの到達性をチェック
 	for i, portal := range pf.planData.EscapePortals {
-		if !pf.IsReachable(playerPos.X, playerPos.Y, int(portal.X), int(portal.Y)) {
+		if !pf.IsReachable(playerPos, portal) {
 			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からEscapePortal[%d](%d,%d)への到達不可",
 				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}

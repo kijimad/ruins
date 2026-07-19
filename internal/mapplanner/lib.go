@@ -694,6 +694,5 @@ func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 // ポータルへの到達性も確認し、到達可能な位置を返す
 func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[consts.Tile], error) {
-	pos, err := NewPathFinder(bm).FindPlayerStartPosition()
-	return consts.Coord[consts.Tile]{X: consts.Tile(pos.X), Y: consts.Tile(pos.Y)}, err
+	return NewPathFinder(bm).FindPlayerStartPosition()
 }

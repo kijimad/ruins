@@ -58,7 +58,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
 			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 			if planData.IsSpawnableTile(world, x, y) &&
 				planData.isInAnyRoom(x, y) &&
-				pf.IsReachable(int(playerPos.X), int(playerPos.Y), int(x), int(y)) {
+				pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) {
 				return x, y, true
 			}
 		}
@@ -78,7 +78,7 @@ func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord
 			}
 			farEnough := true
 			for _, ref := range referencePoints {
-				path := pf.FindPath(int(ref.X), int(ref.Y), int(x), int(y))
+				path := pf.FindPath(ref, consts.Coord[consts.Tile]{X: x, Y: y})
 				if len(path) == 0 || len(path) < minDist {
 					farEnough = false
 					break

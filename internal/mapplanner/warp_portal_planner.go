@@ -39,12 +39,10 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 
 	// プロシージャルマップの場合はランダム配置（到達可能な位置のみ）
 	pathFinder := NewPathFinder(planData)
-	startPos, err := pathFinder.FindPlayerStartPosition()
+	playerPos, err := pathFinder.FindPlayerStartPosition()
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrConnectivity, err)
 	}
-	// BFS は int タイルインデックスで返すので spec 側のタイル座標へ変換する
-	playerPos := consts.Coord[consts.Tile]{X: consts.Tile(startPos.X), Y: consts.Tile(startPos.Y)}
 
 	// 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック
 	refs := []consts.Coord[consts.Tile]{playerPos}
