@@ -89,8 +89,8 @@ func TestIsInActivationRange_SameTile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			playerGrid := &gc.GridElement{X: tt.playerX, Y: tt.playerY}
-			triggerGrid := &gc.GridElement{X: tt.triggerX, Y: tt.triggerY}
+			playerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: tt.playerX, Y: tt.playerY}}
+			triggerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: tt.triggerX, Y: tt.triggerY}}
 
 			result := IsInActivationRange(playerGrid, triggerGrid, gc.ActivationRangeSameTile)
 			assert.Equal(t, tt.expectedInRange, result)
@@ -243,8 +243,8 @@ func TestIsInActivationRange_Adjacent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			playerGrid := &gc.GridElement{X: tt.playerX, Y: tt.playerY}
-			triggerGrid := &gc.GridElement{X: tt.triggerX, Y: tt.triggerY}
+			playerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: tt.playerX, Y: tt.playerY}}
+			triggerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: tt.triggerX, Y: tt.triggerY}}
 
 			result := IsInActivationRange(playerGrid, triggerGrid, gc.ActivationRangeAdjacent)
 			assert.Equal(t, tt.expectedInRange, result)
@@ -256,8 +256,8 @@ func TestIsInActivationRange_Adjacent(t *testing.T) {
 func TestIsInActivationRange_InvalidRange(t *testing.T) {
 	t.Parallel()
 
-	playerGrid := &gc.GridElement{X: 5, Y: 5}
-	triggerGrid := &gc.GridElement{X: 5, Y: 5}
+	playerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+	triggerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 
 	// 無効な範囲タイプ
 	result := IsInActivationRange(playerGrid, triggerGrid, gc.ActivationRange("INVALID"))
@@ -269,18 +269,18 @@ func TestIsInActivationRange_8Neighbors(t *testing.T) {
 	t.Parallel()
 
 	// プレイヤーを中心(5,5)に配置
-	playerGrid := &gc.GridElement{X: 5, Y: 5}
+	playerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 
 	// 8近傍の全タイル
 	neighbors := []gc.GridElement{
-		{X: 4, Y: 4}, // 左上
-		{X: 5, Y: 4}, // 上
-		{X: 6, Y: 4}, // 右上
-		{X: 4, Y: 5}, // 左
-		{X: 6, Y: 5}, // 右
-		{X: 4, Y: 6}, // 左下
-		{X: 5, Y: 6}, // 下
-		{X: 6, Y: 6}, // 右下
+		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}}, // 左上
+		{Coord: consts.Coord[consts.Tile]{X: 5, Y: 4}}, // 上
+		{Coord: consts.Coord[consts.Tile]{X: 6, Y: 4}}, // 右上
+		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 5}}, // 左
+		{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}}, // 右
+		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 6}}, // 左下
+		{Coord: consts.Coord[consts.Tile]{X: 5, Y: 6}}, // 下
+		{Coord: consts.Coord[consts.Tile]{X: 6, Y: 6}}, // 右下
 	}
 
 	for _, neighbor := range neighbors {

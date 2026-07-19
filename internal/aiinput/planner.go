@@ -131,7 +131,7 @@ func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, c
 // moveAction は指定座標への移動アクションを生成する
 func moveAction(dest consts.Coord[int]) activity.Behavior {
 	return &activity.MoveActivity{
-		Destination: gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)},
+		Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}},
 	}
 }
 

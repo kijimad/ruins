@@ -72,7 +72,7 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 	// シルエットエフェクトを作成
 	spriteFadeoutEffect := gc.NewSpriteFadeoutEffect("character", "slime_0")
 	effectEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(effectEntity, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{spriteFadeoutEffect},
 	})
@@ -141,7 +141,7 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 	// ダメージエフェクトをGridElement付きで作成
 	damageEffect := gc.NewDamageEffect(99)
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 4})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{damageEffect},
 	})
@@ -175,7 +175,7 @@ func TestVisualEffectSystem_MissEffect(t *testing.T) {
 
 	missEffect := gc.NewMissEffect()
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{missEffect},
 	})
@@ -201,7 +201,7 @@ func TestVisualEffectSystem_HealEffect(t *testing.T) {
 
 	healEffect := gc.NewHealEffect(30)
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 2, Y: 3})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 3}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{healEffect},
 	})
@@ -225,7 +225,7 @@ func TestVisualEffectSystem_MultipleEffectsOnEntity(t *testing.T) {
 
 	// 1つのエンティティに複数エフェクトを付与
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 3})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{
 			gc.NewDamageEffect(50),
@@ -261,7 +261,7 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 		VelocityY: -0.5,
 	}
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 1, Y: 1})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})

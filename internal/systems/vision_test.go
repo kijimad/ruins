@@ -19,7 +19,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 	t.Run("視界内タイルはTileRenderVisibleになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 5, Y: 5}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 		query.GetDungeon(world).ExploredTiles[grid] = true
 
@@ -32,7 +32,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 	t.Run("記憶済みだが見えないタイルはTileRenderRememberedになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 3, Y: 3}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 		query.GetDungeon(world).ExploredTiles[grid] = true
 
@@ -45,7 +45,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 	t.Run("未探索かつ不可視のタイルはマップに含まれない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 10, Y: 10}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		result := computeTileRenderMap(world, nil)
@@ -56,7 +56,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 	t.Run("光源があるタイルは光源色が設定される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 5, Y: 5}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]gc.LightInfo{
@@ -81,7 +81,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 	t.Run("視界内タイルにはDarknessVisibleが設定される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 5, Y: 5}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		result := computeTileRenderMap(world, nil)
@@ -94,7 +94,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 	t.Run("記憶済みタイルにはDarknessRememberedが設定される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 3, Y: 3}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 		query.GetDungeon(world).ExploredTiles[grid] = true
 
@@ -111,7 +111,7 @@ func TestComputeTileRenderMap_VisibleOverridesRemembered(t *testing.T) {
 
 	// 可視タイルが記憶済みタイルより優先されることを保証する
 	world := testutil.InitTestWorld(t)
-	grid := gc.GridElement{X: 5, Y: 5}
+	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 	query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 	query.GetDungeon(world).ExploredTiles[grid] = true
 
@@ -127,7 +127,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 	t.Run("光源Darkness=1.0では光源色が設定されない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 5, Y: 5}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]gc.LightInfo{
@@ -148,7 +148,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 	t.Run("光源Darkness=0.99では光源色が設定される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		grid := gc.GridElement{X: 7, Y: 7}
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 7, Y: 7}}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]gc.LightInfo{
@@ -181,9 +181,9 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	visible := gc.GridElement{X: 1, Y: 1}
-	remembered := gc.GridElement{X: 2, Y: 2}
-	unknown := gc.GridElement{X: 3, Y: 3}
+	visible := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}
+	remembered := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}}
+	unknown := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
 
 	query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{visible: true}
 	query.GetDungeon(world).ExploredTiles[visible] = true
@@ -203,8 +203,8 @@ func TestComputeTileRenderMap_OutOfBoundsIncluded(t *testing.T) {
 	// computeTileRenderMapは境界チェックを行わない。
 	// マップ外座標の除外はrenderDarkness側で行う
 	world := testutil.InitTestWorld(t)
-	insideGrid := gc.GridElement{X: 1, Y: 1}
-	outsideGrid := gc.GridElement{X: 99, Y: 99}
+	insideGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}
+	outsideGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}
 
 	query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
 		insideGrid:  true,
@@ -224,11 +224,11 @@ func TestIsInMapBounds(t *testing.T) {
 
 	level := gc.Level{TileWidth: 10, TileHeight: 5}
 
-	assert.True(t, isInMapBounds(gc.GridElement{X: 0, Y: 0}, level))
-	assert.True(t, isInMapBounds(gc.GridElement{X: 9, Y: 4}, level))
-	assert.False(t, isInMapBounds(gc.GridElement{X: 10, Y: 0}, level))
-	assert.False(t, isInMapBounds(gc.GridElement{X: 0, Y: 5}, level))
-	assert.False(t, isInMapBounds(gc.GridElement{X: -1, Y: 0}, level))
+	assert.True(t, isInMapBounds(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}}, level))
+	assert.True(t, isInMapBounds(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 4}}, level))
+	assert.False(t, isInMapBounds(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 0}}, level))
+	assert.False(t, isInMapBounds(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 5}}, level))
+	assert.False(t, isInMapBounds(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: -1, Y: 0}}, level))
 }
 
 func TestBuildBlockViewIndex(t *testing.T) {
@@ -239,13 +239,13 @@ func TestBuildBlockViewIndex(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// BlockView付きの壁タイルを生成する
-		wallGrid := gc.GridElement{X: 3, Y: 4}
+		wallGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}}
 		wallEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wallEntity, &wallGrid)
 		world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 
 		// BlockViewなしの床タイルを生成する
-		floorGrid := gc.GridElement{X: 5, Y: 6}
+		floorGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 6}}
 		floorEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(floorEntity, &floorGrid)
 
@@ -278,7 +278,7 @@ func TestBresenhamLineOfSight(t *testing.T) {
 	t.Run("途中に壁があれば見えない", func(t *testing.T) {
 		t.Parallel()
 		blockIndex := map[gc.GridElement]bool{
-			{X: 2, Y: 2}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}}: true,
 		}
 
 		assert.False(t, bresenhamLineOfSight(0, 0, 5, 5, blockIndex))
@@ -288,7 +288,7 @@ func TestBresenhamLineOfSight(t *testing.T) {
 		t.Parallel()
 		// ターゲット自体が壁でも到達判定が先なので見える
 		blockIndex := map[gc.GridElement]bool{
-			{X: 3, Y: 3}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}: true,
 		}
 
 		assert.True(t, bresenhamLineOfSight(0, 0, 3, 3, blockIndex))
@@ -318,7 +318,7 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		dungeon := gc.NewDungeon()
 		dungeon.Depth = 2
 		dungeon.DefinitionName = "new"
-		dungeon.LightSourceCache[gc.GridElement{X: 99, Y: 99}] = gc.LightInfo{Darkness: 0.5}
+		dungeon.LightSourceCache[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}] = gc.LightInfo{Darkness: 0.5}
 
 		vs.invalidateOnFloorChange(dungeon)
 

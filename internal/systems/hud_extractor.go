@@ -137,10 +137,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		camEntity := cameraQuery.Entity()
 		gridElement := world.Components.GridElement.Get(camEntity)
 		// GridElementからピクセル座標に変換
-		cameraPos = gc.Position{
-			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
-		}
+		cameraPos = gc.Position{X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2), Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)}
 		camera := world.Components.Camera.Get(camEntity)
 		cameraScale = camera.Scale
 	}
@@ -285,7 +282,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
-		gridElement := gc.GridElement{X: grid.X, Y: grid.Y}
+		gridElement := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y}}
 		tileTypeMap[gridElement] = world.Components.BlockView.Has(entity)
 	}
 

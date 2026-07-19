@@ -23,7 +23,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		// 移動を実行
@@ -84,7 +84,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 				player := world.ECS.NewEntity()
 				world.Components.Player.Add(player, &gc.Player{})
-				world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+				world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 				world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 				require.NoError(t, activity.ExecuteMoveAction(world, tt.direction))
@@ -103,7 +103,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		// プレイヤーを作成（AP.Current >= 0 なら行動可能）
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{
 			AP: gc.IntPool{Current: 50, Max: 50},
 		})
@@ -319,10 +319,10 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		prop := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
@@ -341,10 +341,10 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		enemy := world.ECS.NewEntity()
-		world.Components.GridElement.Add(enemy, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Name.Add(enemy, &gc.Name{Name: "ゴブリン"})
 		world.Components.SoloAI.Add(enemy, &gc.SoloAI{
 			CombatDefault: gc.CombatAttack,
@@ -366,11 +366,11 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		prop := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 9})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}})
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
@@ -401,11 +401,11 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// SameTile+Manualのアイテムを配置
 		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(item, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
@@ -422,11 +422,11 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// アイテム
 		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(item, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
@@ -434,7 +434,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		// ポータル
 		portal := world.ECS.NewEntity()
-		world.Components.GridElement.Add(portal, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(portal, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(portal, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
 		})
@@ -449,11 +449,11 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 隣接タイルのアイテム
 		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Interactable.Add(item, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
@@ -469,11 +469,11 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// OnCollisionの扉（SameTileではなくAdjacentだが念のため）
 		door := world.ECS.NewEntity()
-		world.Components.GridElement.Add(door, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(door, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(door, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionDoor},
 		})
@@ -489,17 +489,17 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		item1 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item1, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(item1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(item1, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 		world.Components.Name.Add(item1, &gc.Name{Name: "木刀"})
 
 		item2 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item2, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(item2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(item2, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
@@ -518,10 +518,10 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(item, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})

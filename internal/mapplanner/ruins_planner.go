@@ -29,12 +29,8 @@ func (r RuinsPlanner) PlanInitial(planData *MetaPlan) error {
 		y := 2 + planData.RNG.IntN(maxYRange)
 
 		// 建物の外壁を作成
-		room := gc.Rect{
-			X1: consts.Tile(x),
-			Y1: consts.Tile(y),
-			X2: consts.Tile(x + buildingWidth - 1),
-			Y2: consts.Tile(y + buildingHeight - 1),
-		}
+		room := gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, Max: consts.Coord[consts.Tile]{X: consts.Tile(x + buildingWidth - 1), Y: consts.Tile(y + buildingHeight - 1)}}
+
 		planData.Rooms = append(planData.Rooms, room)
 	}
 	return nil
@@ -63,27 +59,27 @@ func (r RuinsDraw) PlanMeta(planData *MetaPlan) error {
 // drawRuinedBuilding は破損した建物を描画する
 func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {
 	// 建物の外壁を描画（一部欠損あり）
-	for x := building.X1; x <= building.X2; x++ {
+	for x := building.Min.X; x <= building.Max.X; x++ {
 		// 上辺
-		if y := building.Y1; planData.RNG.Float64() > 0.3 { // 70%の確率で壁
+		if y := building.Min.Y; planData.RNG.Float64() > 0.3 { // 70%の確率で壁
 			idx := planData.Level.XYTileIndex(x, y)
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
 		// 下辺
-		if y := building.Y2; planData.RNG.Float64() > 0.3 {
+		if y := building.Max.Y; planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.XYTileIndex(x, y)
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
 	}
 
-	for y := building.Y1; y <= building.Y2; y++ {
+	for y := building.Min.Y; y <= building.Max.Y; y++ {
 		// 左辺
-		if x := building.X1; planData.RNG.Float64() > 0.3 {
+		if x := building.Min.X; planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.XYTileIndex(x, y)
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
 		// 右辺
-		if x := building.X2; planData.RNG.Float64() > 0.3 {
+		if x := building.Max.X; planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.XYTileIndex(x, y)
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
@@ -95,14 +91,14 @@ func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {
 
 // addInteriorWalls は建物内部に仕切り壁を追加する
 func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
-	buildingWidth := int(building.X2 - building.X1 + 1)
-	buildingHeight := int(building.Y2 - building.Y1 + 1)
+	buildingWidth := int(building.Max.X - building.Min.X + 1)
+	buildingHeight := int(building.Max.Y - building.Min.Y + 1)
 
 	// 建物が十分大きい場合のみ内部の仕切りを作成
 	if buildingWidth >= 10 && buildingHeight >= 8 {
 		// 縦の仕切り
-		midX := building.X1 + consts.Tile(buildingWidth/2)
-		for y := building.Y1 + 2; y <= building.Y2-2; y++ {
+		midX := building.Min.X + consts.Tile(buildingWidth/2)
+		for y := building.Min.Y + 2; y <= building.Max.Y-2; y++ {
 			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
 				idx := planData.Level.XYTileIndex(midX, y)
 				planData.Tiles[idx] = planData.GetTile(r.WallTile)
@@ -110,8 +106,8 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
 		}
 
 		// 横の仕切り
-		midY := building.Y1 + consts.Tile(buildingHeight/2)
-		for x := building.X1 + 2; x <= building.X2-2; x++ {
+		midY := building.Min.Y + consts.Tile(buildingHeight/2)
+		for x := building.Min.X + 2; x <= building.Max.X-2; x++ {
 			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
 				idx := planData.Level.XYTileIndex(x, midY)
 				planData.Tiles[idx] = planData.GetTile(r.WallTile)
@@ -156,8 +152,8 @@ func (r RuinsDebris) calculateDebrisChance(planData *MetaPlan, x, y int) float64
 
 	for _, room := range planData.Rooms {
 		// 建物の中心からの距離
-		centerX := float64(room.X1+room.X2) / 2.0
-		centerY := float64(room.Y1+room.Y2) / 2.0
+		centerX := float64(room.Min.X+room.Max.X) / 2.0
+		centerY := float64(room.Min.Y+room.Max.Y) / 2.0
 
 		dx := float64(x) - centerX
 		dy := float64(y) - centerY
@@ -208,10 +204,10 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error {
 // createRuinedPath は破損した通路を作成する
 func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) {
 	// 各建物の中心を計算
-	center1X := (room1.X1 + room1.X2) / 2
-	center1Y := (room1.Y1 + room1.Y2) / 2
-	center2X := (room2.X1 + room2.X2) / 2
-	center2Y := (room2.Y1 + room2.Y2) / 2
+	center1X := (room1.Min.X + room1.Max.X) / 2
+	center1Y := (room1.Min.Y + room1.Max.Y) / 2
+	center2X := (room2.Min.X + room2.Max.X) / 2
+	center2Y := (room2.Min.Y + room2.Max.Y) / 2
 
 	// L字型の通路を作成（一部破損）
 	currentX, currentY := center1X, center1Y

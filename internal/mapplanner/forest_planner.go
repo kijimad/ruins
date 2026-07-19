@@ -36,12 +36,8 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 		centerY := y + clearingHeight/2
 		radius := math.Min(float64(clearingWidth), float64(clearingHeight)) / 2.0
 
-		clearing := gc.Rect{
-			X1: consts.Tile(centerX - int(radius)),
-			Y1: consts.Tile(centerY - int(radius)),
-			X2: consts.Tile(centerX + int(radius)),
-			Y2: consts.Tile(centerY + int(radius)),
-		}
+		clearing := gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(centerX - int(radius)), Y: consts.Tile(centerY - int(radius))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(centerX + int(radius)), Y: consts.Tile(centerY + int(radius))}}
+
 		planData.Rooms = append(planData.Rooms, clearing)
 	}
 	return nil
@@ -66,12 +62,12 @@ func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
 
 // createCircularClearing は円形の空き地を作成する
 func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Rect) {
-	centerX := float64(clearing.X1+clearing.X2) / 2.0
-	centerY := float64(clearing.Y1+clearing.Y2) / 2.0
-	radius := math.Min(float64(clearing.X2-clearing.X1), float64(clearing.Y2-clearing.Y1)) / 2.0
+	centerX := float64(clearing.Min.X+clearing.Max.X) / 2.0
+	centerY := float64(clearing.Min.Y+clearing.Max.Y) / 2.0
+	radius := math.Min(float64(clearing.Max.X-clearing.Min.X), float64(clearing.Max.Y-clearing.Min.Y)) / 2.0
 
-	for x := clearing.X1 - 1; x <= clearing.X2+1; x++ {
-		for y := clearing.Y1 - 1; y <= clearing.Y2+1; y++ {
+	for x := clearing.Min.X - 1; x <= clearing.Max.X+1; x++ {
+		for y := clearing.Min.Y - 1; y <= clearing.Max.Y+1; y++ {
 			distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
 			if distance <= radius {
@@ -122,8 +118,8 @@ func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 
 	minDistanceToClearing := 1000.0
 
 	for _, clearing := range planData.Rooms {
-		centerX := float64(clearing.X1+clearing.X2) / 2.0
-		centerY := float64(clearing.Y1+clearing.Y2) / 2.0
+		centerX := float64(clearing.Min.X+clearing.Max.X) / 2.0
+		centerY := float64(clearing.Min.Y+clearing.Max.Y) / 2.0
 
 		distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
@@ -226,10 +222,10 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
 // shouldCreatePath は通路を作成するかどうかを判定する
 func (f ForestPaths) shouldCreatePath(planData *MetaPlan, room1, room2 gc.Rect) bool {
 	// 空き地間の距離を計算
-	center1X := float64(room1.X1+room1.X2) / 2.0
-	center1Y := float64(room1.Y1+room1.Y2) / 2.0
-	center2X := float64(room2.X1+room2.X2) / 2.0
-	center2Y := float64(room2.Y1+room2.Y2) / 2.0
+	center1X := float64(room1.Min.X+room1.Max.X) / 2.0
+	center1Y := float64(room1.Min.Y+room1.Max.Y) / 2.0
+	center2X := float64(room2.Min.X+room2.Max.X) / 2.0
+	center2Y := float64(room2.Min.Y+room2.Max.Y) / 2.0
 
 	distance := geometry.Distance(center1X, center1Y, center2X, center2Y)
 
@@ -247,10 +243,10 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
 
-	center1X := int(room1.X1+room1.X2) / 2
-	center1Y := int(room1.Y1+room1.Y2) / 2
-	center2X := int(room2.X1+room2.X2) / 2
-	center2Y := int(room2.Y1+room2.Y2) / 2
+	center1X := int(room1.Min.X+room1.Max.X) / 2
+	center1Y := int(room1.Min.Y+room1.Max.Y) / 2
+	center2X := int(room2.Min.X+room2.Max.X) / 2
+	center2Y := int(room2.Min.Y+room2.Max.Y) / 2
 
 	// ベジェ曲線風の自然な通路を作成
 	steps := 50

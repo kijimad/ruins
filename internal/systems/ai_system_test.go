@@ -20,12 +20,12 @@ func TestAISystem(t *testing.T) {
 	// プレイヤーエンティティを作成
 	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(10)})
+	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(10), Y: consts.Tile(10)}})
 
 	// AIエンティティを作成
 	aiEntity := world.ECS.NewEntity()
 	world.Components.FactionEnemy.Add(aiEntity, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(aiEntity, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
+	world.Components.GridElement.Add(aiEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(5), Y: consts.Tile(5)}})
 	world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,

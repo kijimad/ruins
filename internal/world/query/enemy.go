@@ -60,7 +60,7 @@ func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 		return false
 	}
 
-	gridElement := gc.GridElement{X: consts.Tile(targetX), Y: consts.Tile(targetY)}
+	gridElement := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(targetX), Y: consts.Tile(targetY)}}
 	return dungeon.VisibleTiles[gridElement]
 }
 

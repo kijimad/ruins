@@ -38,7 +38,7 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 
 	// 範囲外にあるトリガーを作成（距離が2以上）
 	triggerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 15, Y: 15})
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 15, Y: 15}})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionItem},
 	})
@@ -65,7 +65,7 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 
 	// Manual方式のトリガーを作成（プレイヤーと同じタイル）
 	triggerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionItem}, // Manual 方式
 	})
@@ -94,7 +94,7 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 
 	// OnCollision方式のトリガーを作成（プレイヤーと隣接）
 	triggerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 11, Y: 10})
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionDoor}, // OnCollision 方式
 	})
@@ -121,7 +121,7 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 
 	// 未知の種類（平坦化によりゼロ値=無効なConfigになる）のトリガーを作成
 	triggerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{X: 10, Y: 10})
+	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionKind("UNKNOWN")},
 	})

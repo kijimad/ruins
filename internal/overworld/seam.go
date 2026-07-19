@@ -77,16 +77,16 @@ func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, nameOf fu
 
 	// CalculateAutoTileIndex と同じビット割り当て: 上1・右2・下4・左8
 	bit := 0
-	if n, ok := nameOf(gc.GridElement{X: g.X, Y: g.Y - 1}); ok && n == self {
+	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y - 1}}); ok && n == self {
 		bit |= 1
 	}
-	if n, ok := nameOf(gc.GridElement{X: g.X + 1, Y: g.Y}); ok && n == self {
+	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X + 1, Y: g.Y}}); ok && n == self {
 		bit |= 2
 	}
-	if n, ok := nameOf(gc.GridElement{X: g.X, Y: g.Y + 1}); ok && n == self {
+	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y + 1}}); ok && n == self {
 		bit |= 4
 	}
-	if n, ok := nameOf(gc.GridElement{X: g.X - 1, Y: g.Y}); ok && n == self {
+	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X - 1, Y: g.Y}}); ok && n == self {
 		bit |= 8
 	}
 	sr.SpriteKey = base + "_" + strconv.Itoa(bit)

@@ -24,7 +24,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -60,7 +60,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -101,7 +101,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -147,7 +147,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -179,7 +179,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{X: memberGrid.X, Y: memberGrid.Y},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: memberGrid.X, Y: memberGrid.Y}},
 		}
 
 		ma := &MoveActivity{}
@@ -482,9 +482,7 @@ func TestCanMoveTo(t *testing.T) {
 		// AIエンティティを手動で作成する
 		aiEntity := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{})
-		world.Components.GridElement.Add(aiEntity, &gc.GridElement{
-			X: consts.Tile(memberX + 1), Y: consts.Tile(memberY),
-		})
+		world.Components.GridElement.Add(aiEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(memberX + 1), Y: consts.Tile(memberY)}})
 
 		// エンティティ追加後にSpatialIndexを再構築させる
 		query.InvalidateSpatialIndex(world)

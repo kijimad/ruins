@@ -126,11 +126,11 @@ func TestGetEntitiesAt(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	e1 := world.ECS.NewEntity()
-	world.Components.GridElement.Add(e1, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(e1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	e2 := world.ECS.NewEntity()
-	world.Components.GridElement.Add(e2, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(e2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	e3 := world.ECS.NewEntity()
-	world.Components.GridElement.Add(e3, &gc.GridElement{X: 10, Y: 10})
+	world.Components.GridElement.Add(e3, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 	entities := GetEntitiesAt(world, consts.Tile(5), consts.Tile(5))
 	assert.Len(t, entities, 2)

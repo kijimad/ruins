@@ -34,12 +34,12 @@ func (si *SpatialIndex) IsBlockPass(x, y int) bool {
 	if !si.Built {
 		return false
 	}
-	return si.BlockPass[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]
+	return si.BlockPass[GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}]
 }
 
 // CharacterAt は指定座標のキャラクターを返す
 func (si *SpatialIndex) CharacterAt(x, y int) (ecs.Entity, bool) {
-	entity, ok := si.Characters[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]
+	entity, ok := si.Characters[GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}]
 	return entity, ok
 }
 
@@ -52,11 +52,11 @@ func (si *SpatialIndex) MoveCharacter(fromX, fromY, toX, toY int, e ecs.Entity) 
 	if !si.Built {
 		return
 	}
-	fromKey := GridElement{X: consts.Tile(fromX), Y: consts.Tile(fromY)}
+	fromKey := GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(fromX), Y: consts.Tile(fromY)}}
 	if cur, ok := si.Characters[fromKey]; ok && cur == e {
 		delete(si.Characters, fromKey)
 	}
-	si.Characters[GridElement{X: consts.Tile(toX), Y: consts.Tile(toY)}] = e
+	si.Characters[GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(toX), Y: consts.Tile(toY)}}] = e
 }
 
 // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる

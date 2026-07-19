@@ -58,12 +58,12 @@ func TestForestPlanner(t *testing.T) {
 		actualHeight := chain.PlanData.Level.TileHeight
 
 		for i, room := range chain.PlanData.Rooms {
-			assert.GreaterOrEqual(t, int(room.X1), 0, "空き地%dのX1が負の値", i)
-			assert.GreaterOrEqual(t, int(room.Y1), 0, "空き地%dのY1が負の値", i)
-			assert.LessOrEqual(t, int(room.X2), int(actualWidth), "空き地%dのX2が幅を超えている", i)
-			assert.LessOrEqual(t, int(room.Y2), int(actualHeight), "空き地%dのY2が高さを超えている", i)
-			assert.LessOrEqual(t, int(room.X1), int(room.X2), "空き地%dのX座標が逆転している", i)
-			assert.LessOrEqual(t, int(room.Y1), int(room.Y2), "空き地%dのY座標が逆転している", i)
+			assert.GreaterOrEqual(t, int(room.Min.X), 0, "空き地%dのX1が負の値", i)
+			assert.GreaterOrEqual(t, int(room.Min.Y), 0, "空き地%dのY1が負の値", i)
+			assert.LessOrEqual(t, int(room.Max.X), int(actualWidth), "空き地%dのX2が幅を超えている", i)
+			assert.LessOrEqual(t, int(room.Max.Y), int(actualHeight), "空き地%dのY2が高さを超えている", i)
+			assert.LessOrEqual(t, int(room.Min.X), int(room.Max.X), "空き地%dのX座標が逆転している", i)
+			assert.LessOrEqual(t, int(room.Min.Y), int(room.Max.Y), "空き地%dのY座標が逆転している", i)
 		}
 	})
 

@@ -24,7 +24,7 @@ func TestGetTileTemperatureAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		tile := world.ECS.NewEntity()
-		world.Components.GridElement.Add(tile, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{
 			Shelter: gc.ShelterFull,
 		})

@@ -21,15 +21,15 @@ func TestFindNearestEntity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		self := world.ECS.NewEntity()
-		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(self, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		near := world.ECS.NewEntity()
-		world.Components.GridElement.Add(near, &gc.GridElement{X: 6, Y: 5})
+		world.Components.GridElement.Add(near, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 
 		far := world.ECS.NewEntity()
-		world.Components.GridElement.Add(far, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(far, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-		from := &gc.GridElement{X: 5, Y: 5}
+		from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		found, grid, dist := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
 			return true
 		})
@@ -45,16 +45,16 @@ func TestFindNearestEntity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		self := world.ECS.NewEntity()
-		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(self, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
-		world.Components.GridElement.NewEntity(&gc.GridElement{X: 8, Y: 5})
+		world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 5}})
 
 		closest := world.ECS.NewEntity()
-		world.Components.GridElement.Add(closest, &gc.GridElement{X: 6, Y: 6})
+		world.Components.GridElement.Add(closest, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 6}})
 
-		world.Components.GridElement.NewEntity(&gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-		from := &gc.GridElement{X: 5, Y: 5}
+		from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		found, grid, dist := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
 			return true
 		})
@@ -70,9 +70,9 @@ func TestFindNearestEntity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		self := world.ECS.NewEntity()
-		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(self, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
-		from := &gc.GridElement{X: 5, Y: 5}
+		from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		found, _, _ := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
 			return true
 		})
@@ -85,13 +85,13 @@ func TestFindNearestEntity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		self := world.ECS.NewEntity()
-		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(self, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		dead := world.ECS.NewEntity()
-		world.Components.GridElement.Add(dead, &gc.GridElement{X: 6, Y: 5})
+		world.Components.GridElement.Add(dead, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 		world.Components.Dead.Add(dead, &gc.Dead{})
 
-		from := &gc.GridElement{X: 5, Y: 5}
+		from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		found, _, _ := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
 			return true
 		})
@@ -104,11 +104,11 @@ func TestFindNearestEntity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		self := world.ECS.NewEntity()
-		world.Components.GridElement.Add(self, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(self, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
-		world.Components.GridElement.NewEntity(&gc.GridElement{X: 6, Y: 5})
+		world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 
-		from := &gc.GridElement{X: 5, Y: 5}
+		from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		found, grid, dist := query.FindNearestEntity(world, self, from, func(_ ecs.Entity) bool {
 			return false
 		})
@@ -137,7 +137,7 @@ func TestFindNearestCharacter_タイルを無視する(t *testing.T) {
 	// 敵のすぐ隣(距離1〜2)に非キャラの GridElement エンティティ（タイル模擬）を多数置く。
 	// 全走査ならこれらが最寄り候補になり得るが、キャラ探索では無視されるべき
 	for i := range 50 {
-		world.Components.GridElement.NewEntity(&gc.GridElement{X: consts.Tile(12), Y: consts.Tile(9 + i%3)})
+		world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(12), Y: consts.Tile(9 + i%3)}})
 	}
 
 	enemyGrid := world.Components.GridElement.Get(enemy)

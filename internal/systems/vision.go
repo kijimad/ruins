@@ -124,7 +124,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		if !tileData.Visible {
 			continue
 		}
-		gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
+		gridElement := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}}
 		if !isInMapBounds(gridElement, dungeon.Level) {
 			continue
 		}
@@ -319,7 +319,7 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 		}
 
 		// 現在のタイルが視界を遮るかチェック
-		if blockIndex[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] {
+		if blockIndex[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}] {
 			return false
 		}
 

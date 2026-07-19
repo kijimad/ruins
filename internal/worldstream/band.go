@@ -126,7 +126,7 @@ func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, ke
 	}
 	dst := make(map[gc.GridElement]V, len(src))
 	for k, v := range src {
-		nk := gc.GridElement{X: k.X + dx, Y: k.Y + dy}
+		nk := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: k.X + dx, Y: k.Y + dy}}
 		if keep != nil && !keep(nk) {
 			continue
 		}

@@ -148,8 +148,8 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, npc := range chain.PlanData.NPCs {
 			inRoom := false
 			for _, room := range chain.PlanData.Rooms {
-				if npc.X >= int(room.X1) && npc.X < int(room.X2) &&
-					npc.Y >= int(room.Y1) && npc.Y < int(room.Y2) {
+				if npc.X >= int(room.Min.X) && npc.X < int(room.Max.X) &&
+					npc.Y >= int(room.Min.Y) && npc.Y < int(room.Max.Y) {
 					inRoom = true
 					break
 				}
@@ -224,12 +224,12 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, room := range chain.PlanData.Rooms {
 			species := map[string]bool{}
 			for _, npc := range chain.PlanData.NPCs {
-				if npc.X >= int(room.X1) && npc.X < int(room.X2) &&
-					npc.Y >= int(room.Y1) && npc.Y < int(room.Y2) {
+				if npc.X >= int(room.Min.X) && npc.X < int(room.Max.X) &&
+					npc.Y >= int(room.Min.Y) && npc.Y < int(room.Max.Y) {
 					species[npc.Name] = true
 				}
 			}
-			assert.LessOrEqual(t, len(species), 1, "部屋(%d,%d)-(%d,%d)内に異種の敵が混在している", room.X1, room.Y1, room.X2, room.Y2)
+			assert.LessOrEqual(t, len(species), 1, "部屋(%d,%d)-(%d,%d)内に異種の敵が混在している", room.Min.X, room.Min.Y, room.Max.X, room.Max.Y)
 		}
 	})
 }

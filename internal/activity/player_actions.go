@@ -32,7 +32,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	newY := currentY + deltaY
 
 	// 移動先にOnCollision方式のInteractableがある場合は自動実行
-	targetGrid := &gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
+	targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(newX), Y: consts.Tile(newY)}}
 	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
 
 	if interactable != nil {
@@ -70,7 +70,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	canMove := CanMoveTo(world, consts.Coord[int]{X: newX, Y: newY}, consts.Coord[int]{X: currentX, Y: currentY}, entity)
 	if canMove {
-		destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(newX), Y: consts.Tile(newY)}}
 		_, err := Execute(&MoveActivity{Destination: destination}, entity, world)
 		return err
 	}

@@ -29,12 +29,7 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 	bottomW := 2 + planData.RNG.IntN(8)
 	bottomH := 2 + planData.RNG.IntN(8)
 	bottomX := planData.RNG.IntN(width)
-	rooms = append(rooms, gc.Rect{
-		X1: consts.Tile(bottomX),
-		X2: consts.Tile(min(bottomX+bottomW, width)),
-		Y1: consts.Tile(max(height-bottomH, 0)),
-		Y2: consts.Tile(height),
-	})
+	rooms = append(rooms, gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(bottomX), Y: consts.Tile(max(height-bottomH, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(bottomX+bottomW, width)), Y: consts.Tile(height)}})
 
 	// 残りの部屋はランダム配置
 	maxRooms := 4 + planData.RNG.IntN(10)
@@ -51,10 +46,6 @@ func (b RectRoomPlanner) createRoom(planData *MetaPlan, width, height, y int) gc
 	x := planData.RNG.IntN(width)
 	w := 2 + planData.RNG.IntN(8)
 	h := 2 + planData.RNG.IntN(8)
-	return gc.Rect{
-		X1: consts.Tile(x),
-		X2: consts.Tile(min(x+w, width)),
-		Y1: consts.Tile(max(y, 0)),
-		Y2: consts.Tile(min(y+h, height)),
-	}
+	return gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(max(y, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(x+w, width)), Y: consts.Tile(min(y+h, height))}}
+
 }

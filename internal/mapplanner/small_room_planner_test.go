@@ -82,14 +82,14 @@ func TestSmallRoomPlanner(t *testing.T) {
 
 		// 各部屋が有効な範囲内にあることを確認
 		for i, room := range chain.PlanData.Rooms {
-			assert.GreaterOrEqual(t, int(room.X1), 0, "部屋%dのX1が負の値", i)
-			assert.GreaterOrEqual(t, int(room.Y1), 0, "部屋%dのY1が負の値", i)
-			assert.LessOrEqual(t, int(room.X2), int(actualWidth), "部屋%dのX2が幅を超えている", i)
-			assert.LessOrEqual(t, int(room.Y2), int(actualHeight), "部屋%dのY2が高さを超えている", i)
+			assert.GreaterOrEqual(t, int(room.Min.X), 0, "部屋%dのX1が負の値", i)
+			assert.GreaterOrEqual(t, int(room.Min.Y), 0, "部屋%dのY1が負の値", i)
+			assert.LessOrEqual(t, int(room.Max.X), int(actualWidth), "部屋%dのX2が幅を超えている", i)
+			assert.LessOrEqual(t, int(room.Max.Y), int(actualHeight), "部屋%dのY2が高さを超えている", i)
 
 			// 部屋のサイズが正しいことを確認
-			assert.LessOrEqual(t, int(room.X1), int(room.X2), "部屋%dのX座標が逆転している", i)
-			assert.LessOrEqual(t, int(room.Y1), int(room.Y2), "部屋%dのY座標が逆転している", i)
+			assert.LessOrEqual(t, int(room.Min.X), int(room.Max.X), "部屋%dのX座標が逆転している", i)
+			assert.LessOrEqual(t, int(room.Min.Y), int(room.Max.Y), "部屋%dのY座標が逆転している", i)
 		}
 	})
 
@@ -108,8 +108,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 		for i, room := range chain.PlanData.Rooms {
 			// 部屋内に床タイルがあるか確認
 			hasFloor := false
-			for x := room.X1; x <= room.X2 && !hasFloor; x++ {
-				for y := room.Y1; y <= room.Y2 && !hasFloor; y++ {
+			for x := room.Min.X; x <= room.Max.X && !hasFloor; x++ {
+				for y := room.Min.Y; y <= room.Max.Y && !hasFloor; y++ {
 					idx := chain.PlanData.Level.XYTileIndex(x, y)
 					if idx >= 0 && int(idx) < len(chain.PlanData.Tiles) {
 						if !chain.PlanData.Tiles[idx].BlockPass {

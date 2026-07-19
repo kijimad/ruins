@@ -216,7 +216,7 @@ func findAdjacentEmptyTile(world w.World, center consts.Coord[consts.Tile], excl
 				continue
 			}
 		}
-		pos := gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}
+		pos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}
 		if exclude[pos] {
 			continue
 		}
@@ -265,7 +265,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 		}
 		memberGrid.X = adj.X
 		memberGrid.Y = adj.Y
-		exclude[gc.GridElement{X: adj.X, Y: adj.Y}] = true
+		exclude[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: adj.X, Y: adj.Y}}] = true
 	}
 
 	return nil

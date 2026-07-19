@@ -27,7 +27,7 @@ func setupTestAI(t *testing.T, world w.World, x, y int, solo *gc.SoloAI) ecs.Ent
 	t.Helper()
 	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "テストAI"})
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}})
 	world.Components.SoloAI.Add(entity, solo)
 	world.Components.FactionEnemy.Add(entity, &gc.FactionEnemy{})
 	world.Components.TurnBased.Add(entity, &gc.TurnBased{
@@ -366,7 +366,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	wall := world.ECS.NewEntity()
-	world.Components.GridElement.Add(wall, &gc.GridElement{X: 21, Y: 20})
+	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 21, Y: 20}})
 	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
 	solo := &gc.SoloAI{
@@ -401,7 +401,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 
 	for _, x := range []int{19, 21} {
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: consts.Tile(x), Y: 20})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: 20}})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 	}
 
@@ -551,7 +551,7 @@ func TestPlanWallHugAction(t *testing.T) {
 
 	for x := 19; x <= 21; x++ {
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: consts.Tile(x), Y: 19})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: 19}})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 	}
 
@@ -626,7 +626,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 		ViewDistance:  5,
 	}
 	ally := world.ECS.NewEntity()
-	world.Components.GridElement.Add(ally, &gc.GridElement{X: 25, Y: 25})
+	world.Components.GridElement.Add(ally, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 25, Y: 25}})
 	world.Components.SoloAI.Add(ally, allyAI)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -685,20 +685,20 @@ func TestIsAdjacent(t *testing.T) {
 	t.Parallel()
 
 	assert.True(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 6, Y: 5},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}},
 	))
 	assert.True(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 6, Y: 6},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 6}},
 	))
 	assert.False(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 5, Y: 5},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
 	))
 	assert.False(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 7, Y: 5},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 7, Y: 5}},
 	))
 }
 

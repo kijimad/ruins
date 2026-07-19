@@ -192,10 +192,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		}
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
-		pos := &gc.Position{
-			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)),
-			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2)),
-		}
+		pos := &gc.Position{X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)), Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2))}
 		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
 			// エンティティ情報を追加してエラーを詳細化
 			var entityInfo string
@@ -241,10 +238,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 		}
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
-		pos := &gc.Position{
-			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
-		}
+		pos := &gc.Position{X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2), Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)}
 		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
 			return err
 		}
@@ -328,7 +322,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		}
 
 		// 下のタイルを検索
-		belowPos := gc.GridElement{X: grid.X, Y: grid.Y + 1}
+		belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}
 		belowTileEntity, foundBelow := tileMap[belowPos]
 
 		if !foundBelow {
@@ -478,7 +472,7 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 
 	for tileX := startTileX; tileX <= endTileX; tileX++ {
 		for tileY := startTileY; tileY <= endTileY; tileY++ {
-			grid := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileX), Y: consts.Tile(tileY)}}
 
 			var darkness float64
 			var lightColor color.RGBA

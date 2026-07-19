@@ -156,7 +156,7 @@ func (st *PickupState) executePickup(world w.World) error {
 		return err
 	}
 
-	destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}
+	destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}}
 	_, err = activity.Execute(&activity.PickupActivity{Destination: &destination}, playerEntity, world)
 	return err
 }

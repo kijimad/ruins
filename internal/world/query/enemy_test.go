@@ -31,7 +31,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// プレイヤーを配置
 		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界内に敵を配置
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 12}, "火の玉")
@@ -40,7 +40,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 
 		// 可視タイルに設定
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
-			{X: 12, Y: 12}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 12, Y: 12}}: true,
 		}
 
 		enemies, err := query.GetVisibleEnemies(world)
@@ -65,7 +65,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// プレイヤーを配置
 		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界外に敵を配置（探索済みでない）
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "火の玉")
@@ -102,14 +102,14 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// プレイヤーを配置
 		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 敵を配置
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
-			{X: 11, Y: 10}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}: true,
 		}
 
 		enemies, err := query.GetVisibleEnemies(world)
@@ -133,7 +133,7 @@ func TestGetVisibleItems(t *testing.T) {
 		// プレイヤーを配置
 		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界内にアイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(12), consts.Tile(12), 1)
@@ -141,7 +141,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 		// 可視タイルに設定
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
-			{X: 12, Y: 12}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 12, Y: 12}}: true,
 		}
 
 		items, err := query.GetVisibleItems(world)
@@ -171,7 +171,7 @@ func TestGetVisibleItems(t *testing.T) {
 		// プレイヤーを配置
 		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界外にアイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50), 1)
@@ -192,14 +192,14 @@ func TestGetVisibleItems(t *testing.T) {
 		// プレイヤーを配置
 		playerEntity := world.ECS.NewEntity()
 		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// アイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10), 1)
 		require.NoError(t, err)
 
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
-			{X: 11, Y: 10}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}: true,
 		}
 
 		items, err := query.GetVisibleItems(world)
@@ -230,7 +230,7 @@ func TestIsInVision(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
-			{X: 100, Y: 100}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 100, Y: 100}}: true,
 		}
 
 		assert.False(t, query.IsInVision(world, 0, 0, 100, 100))
@@ -241,7 +241,7 @@ func TestIsInVision(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
-			{X: 5, Y: 5}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 		}
 
 		assert.True(t, query.IsInVision(world, 0, 0, 5, 5))
@@ -252,7 +252,7 @@ func TestIsInVision(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		query.GetDungeon(world).ExploredTiles = map[gc.GridElement]bool{
-			{X: 5, Y: 5}: true,
+			{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 		}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 

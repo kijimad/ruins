@@ -20,7 +20,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		// プレイヤーを作成
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.SpriteRender.Add(player, &gc.SpriteRender{})
 		world.Components.Camera.Add(player, &gc.Camera{})
 

@@ -39,9 +39,7 @@ func BenchmarkFindNearest(b *testing.B) {
 
 		// 床タイルを模した GridElement エンティティ（キャラクターではない＝インデックス Characters に入らない）
 		for range tiles {
-			world.Components.GridElement.NewEntity(&gc.GridElement{
-				X: consts.Tile(rng.IntN(200)), Y: consts.Tile(rng.IntN(200)),
-			})
+			world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(rng.IntN(200)), Y: consts.Tile(rng.IntN(200))}})
 		}
 
 		selfGrid := world.Components.GridElement.Get(self)

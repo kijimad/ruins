@@ -608,8 +608,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	}
 	totalArea := 0
 	for _, r := range bm.Rooms {
-		w := int(r.X2 - r.X1)
-		h := int(r.Y2 - r.Y1)
+		w := int(r.Max.X - r.Min.X)
+		h := int(r.Max.Y - r.Min.Y)
 		if w > 0 && h > 0 {
 			totalArea += w * h
 		}
@@ -621,8 +621,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	roll := bm.RNG.IntN(totalArea)
 	cumulative := 0
 	for i, r := range bm.Rooms {
-		w := int(r.X2 - r.X1)
-		h := int(r.Y2 - r.Y1)
+		w := int(r.Max.X - r.Min.X)
+		h := int(r.Max.Y - r.Min.Y)
 		if w > 0 && h > 0 {
 			cumulative += w * h
 		}
@@ -637,14 +637,14 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
 // maxAttemptsを超えても見つからない場合はfalseを返す
 func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-	rw := int(room.X2 - room.X1)
-	rh := int(room.Y2 - room.Y1)
+	rw := int(room.Max.X - room.Min.X)
+	rh := int(room.Max.Y - room.Min.Y)
 	if rw <= 0 || rh <= 0 {
 		return 0, 0, false
 	}
 	for range maxAttempts {
-		tx := consts.Tile(int(room.X1) + bm.RNG.IntN(rw))
-		ty := consts.Tile(int(room.Y1) + bm.RNG.IntN(rh))
+		tx := consts.Tile(int(room.Min.X) + bm.RNG.IntN(rw))
+		ty := consts.Tile(int(room.Min.Y) + bm.RNG.IntN(rh))
 		if bm.IsSpawnableTile(world, tx, ty) {
 			return tx, ty, true
 		}
@@ -660,7 +660,7 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 		dy := bm.RNG.IntN(radius*2+1) - radius
 		tx := consts.Tile(int(centerX) + dx)
 		ty := consts.Tile(int(centerY) + dy)
-		if tx < room.X1 || tx >= room.X2 || ty < room.Y1 || ty >= room.Y2 {
+		if tx < room.Min.X || tx >= room.Max.X || ty < room.Min.Y || ty >= room.Max.Y {
 			continue
 		}
 		if bm.IsSpawnableTile(world, tx, ty) {
@@ -686,7 +686,7 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
 func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 	for _, room := range bm.Rooms {
-		if x >= room.X1 && x < room.X2 && y >= room.Y1 && y < room.Y2 {
+		if x >= room.Min.X && x < room.Max.X && y >= room.Min.Y && y < room.Max.Y {
 			return true
 		}
 	}

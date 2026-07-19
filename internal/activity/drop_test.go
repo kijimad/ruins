@@ -26,7 +26,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
@@ -65,7 +65,7 @@ func TestDropActivity_Validate(t *testing.T) {
 
 		// バックパック外のアイテムを手動で作成
 		item := world.ECS.NewEntity()
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
@@ -131,7 +131,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
@@ -193,7 +193,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			State:        gc.ActivityStateRunning,
@@ -246,7 +246,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		require.NoError(t, err)
 
 		// プレイヤーの右隣にドロップ
-		destination := gc.GridElement{X: 11, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
@@ -275,7 +275,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		require.NoError(t, err)
 
 		// 右下斜めにドロップ
-		destination := gc.GridElement{X: 11, Y: 11}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 11}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
@@ -310,7 +310,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		require.NoError(t, lifecycle.MoveToBackpack(world, prop, player))
 
 		// ドロップ実行
-		destination := gc.GridElement{X: 11, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &prop,
@@ -348,7 +348,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		require.NoError(t, err)
 
 		// 拾う
-		pickupDest := gc.GridElement{X: 10, Y: 10}
+		pickupDest := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		pickupComp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
@@ -363,7 +363,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		assert.False(t, world.Components.GridElement.Has(item))
 
 		// ドロップ
-		dropDest := gc.GridElement{X: 9, Y: 9}
+		dropDest := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}
 		dropComp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			State:        gc.ActivityStateRunning,

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -45,35 +46,35 @@ func TestBuildTileColors(t *testing.T) {
 			name: "壁タイルは灰色で描画される",
 			setupEntities: func(world w.World) {
 				entity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 3})
+				world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}})
 				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
 				world.Components.BlockView.Add(entity, &gc.BlockView{})
 				// 探索済みタイルに追加
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 5, Y: 3}] = true
+				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}}] = true
 			},
-			gridElement:   gc.GridElement{X: 5, Y: 3},
+			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}},
 			expectedColor: color.RGBA{100, 100, 100, 255},
 		},
 		{
 			name: "床タイルは薄い灰色で描画される",
 			setupEntities: func(world w.World) {
 				entity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(entity, &gc.GridElement{X: 10, Y: 15})
+				world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}})
 				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
 				// BlockViewコンポーネントなし = 床
 				// 探索済みタイルに追加
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true
+				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true
 			},
-			gridElement:   gc.GridElement{X: 10, Y: 15},
+			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}},
 			expectedColor: color.RGBA{200, 200, 200, 128},
 		},
 		{
 			name: "エンティティなしの場合は透明",
 			setupEntities: func(world w.World) {
 				// 探索済みタイルに追加してるが、エンティティはない
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 999, Y: 999}] = true
+				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 999, Y: 999}}] = true
 			},
-			gridElement:   gc.GridElement{X: 999, Y: 999},
+			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 999, Y: 999}},
 			expectedColor: color.RGBA{0, 0, 0, 0},
 		},
 		{
@@ -81,18 +82,18 @@ func TestBuildTileColors(t *testing.T) {
 			setupEntities: func(world w.World) {
 				// 床エンティティ
 				floorEntity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(floorEntity, &gc.GridElement{X: 20, Y: 20})
+				world.Components.GridElement.Add(floorEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}})
 				world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
 
 				// 壁エンティティ
 				wallEntity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(wallEntity, &gc.GridElement{X: 20, Y: 20})
+				world.Components.GridElement.Add(wallEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}})
 				world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
 				world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 				// 探索済みタイルに追加
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 20, Y: 20}] = true
+				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}}] = true
 			},
-			gridElement:   gc.GridElement{X: 20, Y: 20},
+			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}},
 			expectedColor: color.RGBA{100, 100, 100, 255}, // 壁が優先される
 		},
 	}
@@ -133,25 +134,25 @@ func TestExtractMinimapData(t *testing.T) {
 
 	// プレイヤーエンティティを作成
 	playerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 15})
+	world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}})
 	world.Components.Player.Add(playerEntity, &gc.Player{})
 
 	// 探索済みタイルを設定
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true // プレイヤー位置
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 9, Y: 15}] = true  // 左のタイル
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 11, Y: 15}] = true // 右のタイル
+	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true // プレイヤー位置
+	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}] = true  // 左のタイル
+	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}}] = true // 右のタイル
 
 	// 画面リソースを設定
 	world.Resources.SetScreenDimensions(800, 600)
 
 	// いくつかの壁と床エンティティを作成
 	wallEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(wallEntity, &gc.GridElement{X: 9, Y: 15})
+	world.Components.GridElement.Add(wallEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}})
 	world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
 	world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 
 	floorEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(floorEntity, &gc.GridElement{X: 11, Y: 15})
+	world.Components.GridElement.Add(floorEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}})
 	world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
 
 	// テスト実行
@@ -166,8 +167,8 @@ func TestExtractMinimapData(t *testing.T) {
 	assert.Equal(t, 2, minimapData.MinimapConfig.Scale, "ミニマップスケールが正しくない")
 
 	// タイル色が正しく設定されているか確認
-	wallGrid := gc.GridElement{X: 9, Y: 15}
-	floorGrid := gc.GridElement{X: 11, Y: 15}
+	wallGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}
+	floorGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}}
 	require.Contains(t, minimapData.TileColors, wallGrid, "壁タイルの色情報がない")
 	require.Contains(t, minimapData.TileColors, floorGrid, "床タイルの色情報がない")
 

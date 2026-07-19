@@ -109,7 +109,7 @@ func TestSpatialIndex_移動で再構築チャーンが起きない(t *testing.T
 	const steps = 5
 	for range steps {
 		grid := world.Components.GridElement.Get(player)
-		dest := gc.GridElement{X: grid.X + 1, Y: grid.Y}
+		dest := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X + 1, Y: grid.Y}}
 		_, err := activity.Execute(&activity.MoveActivity{Destination: dest}, player, world)
 		require.NoError(t, err)
 	}

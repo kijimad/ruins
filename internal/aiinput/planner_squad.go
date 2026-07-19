@@ -369,7 +369,7 @@ func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squ
 		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
 		if dungeon != nil && dungeon.ExploredTiles != nil {
-			destGrid := gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}
+			destGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}}
 			if !dungeon.ExploredTiles[destGrid] {
 				continue
 			}

@@ -4,6 +4,7 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // Position はフィールド上に座標をもって存在する
 // スプライトはこの位置に中心を合わせて配置する
+// TODO: こちらも埋め込みにする
 // -----
 // |   |
 // | * |
@@ -19,22 +20,19 @@ type Position = consts.Coord[consts.Pixel]
 // |   |
 // -----
 type GridElement struct {
-	X consts.Tile
-	Y consts.Tile
+	consts.Coord[consts.Tile]
 }
 
-// Rect は矩形を表す構造体
+// Rect は矩形を表す構造体。Min が左上、Max が右下の隅
 type Rect struct {
-	X1 consts.Tile
-	X2 consts.Tile
-	Y1 consts.Tile
-	Y2 consts.Tile
+	Min consts.Coord[consts.Tile]
+	Max consts.Coord[consts.Tile]
 }
 
 // Center は矩形の中心座標を返す
 func (r *Rect) Center() (consts.Tile, consts.Tile) {
-	x := (r.X1 + r.X2) / 2
-	y := (r.Y1 + r.Y2) / 2
+	x := (r.Min.X + r.Max.X) / 2
+	y := (r.Min.Y + r.Max.Y) / 2
 	return x, y
 }
 

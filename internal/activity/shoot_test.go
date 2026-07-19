@@ -42,7 +42,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	require.NoError(t, err)
 
 	// 敵の位置を探索済みにする
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 13, Y: 10}] = true
+	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 13, Y: 10}}] = true
 
 	return world, p, e, we
 }
@@ -159,7 +159,7 @@ func TestShootActivity_Validate(t *testing.T) {
 
 		// 射線上に壁を配置
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		sa := &ShootActivity{}
@@ -312,7 +312,7 @@ func TestCanShootTarget(t *testing.T) {
 		world, player, enemy, _ := setupShootingWorld(t)
 
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		assert.False(t, CanShootTarget(player, enemy, world))
@@ -337,9 +337,9 @@ func TestEntityDistance(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		a := world.ECS.NewEntity()
-		world.Components.GridElement.Add(a, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(a, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		b := world.ECS.NewEntity()
-		world.Components.GridElement.Add(b, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(b, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		assert.Equal(t, 0.0, EntityDistance(a, b, world))
 	})
@@ -349,9 +349,9 @@ func TestEntityDistance(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		a := world.ECS.NewEntity()
-		world.Components.GridElement.Add(a, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(a, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		b := world.ECS.NewEntity()
-		world.Components.GridElement.Add(b, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(b, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 
 		assert.Equal(t, 3.0, EntityDistance(a, b, world))
 	})
@@ -361,9 +361,9 @@ func TestEntityDistance(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		a := world.ECS.NewEntity()
-		world.Components.GridElement.Add(a, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(a, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		b := world.ECS.NewEntity()
-		world.Components.GridElement.Add(b, &gc.GridElement{X: 3, Y: 4})
+		world.Components.GridElement.Add(b, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
 
 		assert.Equal(t, 5.0, EntityDistance(a, b, world))
 	})
@@ -389,9 +389,9 @@ func TestCheckLineOfSight(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -403,12 +403,12 @@ func TestCheckLineOfSight(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
 
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		blocked, _ := checkLineOfSight(actor, target, world)
@@ -420,13 +420,13 @@ func TestCheckLineOfSight(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
 
 		// BlockPassだけ（BlockViewなし）→ 遮蔽物
 		cover := world.ECS.NewEntity()
-		world.Components.GridElement.Add(cover, &gc.GridElement{X: 2, Y: 0})
+		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
@@ -445,9 +445,9 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
@@ -459,10 +459,10 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		// ハンドガン: 最適射程3, ペナルティ8%/tile → 距離6なら(6-3)*8=24%ペナルティ
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 6, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 0}})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
@@ -474,12 +474,12 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 
 		cover := world.ECS.NewEntity()
-		world.Components.GridElement.Add(cover, &gc.GridElement{X: 2, Y: 0})
+		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}

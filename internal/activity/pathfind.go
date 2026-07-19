@@ -21,7 +21,7 @@ func (g *bfsGrid) isPassable(x, y int) bool {
 	if x < 0 || y < 0 || x >= g.width || y >= g.height {
 		return false
 	}
-	key := gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}
+	key := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}
 	if g.si.BlockPass[key] {
 		return false
 	}

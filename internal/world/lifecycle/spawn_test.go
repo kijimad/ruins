@@ -416,7 +416,7 @@ func TestSpawnVisualEffect(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		effect := gc.NewHealEffect(10)
 		SpawnVisualEffect(entity, effect, world)

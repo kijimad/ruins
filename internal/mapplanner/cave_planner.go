@@ -138,12 +138,8 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 					}
 
 					// 部屋として登録
-					room := gc.Rect{
-						X1: consts.Tile(minX),
-						Y1: consts.Tile(minY),
-						X2: consts.Tile(maxX),
-						Y2: consts.Tile(maxY),
-					}
+					room := gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(minX), Y: consts.Tile(minY)}, Max: consts.Coord[consts.Tile]{X: consts.Tile(maxX), Y: consts.Tile(maxY)}}
+
 					planData.Rooms = append(planData.Rooms, room)
 				}
 			}
@@ -295,10 +291,10 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 	height := int(planData.Level.TileHeight)
 
 	// 各部屋の中心を計算
-	center1X := int(room1.X1+room1.X2) / 2
-	center1Y := int(room1.Y1+room1.Y2) / 2
-	center2X := int(room2.X1+room2.X2) / 2
-	center2Y := int(room2.Y1+room2.Y2) / 2
+	center1X := int(room1.Min.X+room1.Max.X) / 2
+	center1Y := int(room1.Min.Y+room1.Max.Y) / 2
+	center2X := int(room2.Min.X+room2.Max.X) / 2
+	center2Y := int(room2.Min.Y+room2.Max.Y) / 2
 
 	// L字型のトンネルを作成（太さ2タイル）
 	currentX, currentY := center1X, center1Y

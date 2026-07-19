@@ -122,7 +122,7 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 	world.Components.Name.Add(enemy, &gc.Name{Name: "灰の偶像"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
 	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "灰の偶像"})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// DeadCleanupSystem実行前のアイテムエンティティ数をカウント
 	itemCountBefore := 0
@@ -163,7 +163,7 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 	world.Components.Name.Add(enemy, &gc.Name{Name: "火の玉"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
 	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "火の玉"})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
@@ -196,7 +196,7 @@ func TestDeadCleanupSystem_WithoutDropTable(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "火の玉"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
@@ -253,7 +253,7 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "スライム"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.SpriteRender.Add(enemy, &gc.SpriteRender{
 		SpriteSheetName: "character",
 		SpriteKey:       "slime_0",

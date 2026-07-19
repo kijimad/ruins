@@ -28,8 +28,8 @@ func TestBigRoomPlanner(t *testing.T) {
 	expectedMinWidth := int(width) - 6 // margin * 2 + 境界
 	expectedMinHeight := int(height) - 6
 
-	actualWidth := int(room.X2 - room.X1 + 1)
-	actualHeight := int(room.Y2 - room.Y1 + 1)
+	actualWidth := int(room.Max.X - room.Min.X + 1)
+	actualHeight := int(room.Max.Y - room.Min.Y + 1)
 
 	assert.GreaterOrEqual(t, actualWidth, expectedMinWidth, "部屋の幅が小さすぎる")
 	assert.GreaterOrEqual(t, actualHeight, expectedMinHeight, "部屋の高さが小さすぎる")
@@ -123,8 +123,8 @@ func TestBigRoomPlannerBoundaries(t *testing.T) {
 	room := chain.PlanData.Rooms[0]
 
 	// 部屋の内部が床になっているか
-	for x := room.X1; x <= room.X2; x++ {
-		for y := room.Y1; y <= room.Y2; y++ {
+	for x := room.Min.X; x <= room.Max.X; x++ {
+		for y := room.Min.Y; y <= room.Max.Y; y++ {
 			idx := chain.PlanData.Level.XYTileIndex(x, y)
 			require.Equal(t, "floor", chain.PlanData.Tiles[idx].Name,
 				"部屋内部[%d,%d]が床でない", x, y)
@@ -132,32 +132,32 @@ func TestBigRoomPlannerBoundaries(t *testing.T) {
 	}
 
 	// 部屋の四周（コーナー含む）が壁になっているか
-	for y := room.Y1 - 1; y <= room.Y2+1; y++ {
+	for y := room.Min.Y - 1; y <= room.Max.Y+1; y++ {
 		if y < 0 || int(y) >= int(height) {
 			continue
 		}
 		// 左辺
-		if x := room.X1 - 1; x >= 0 {
+		if x := room.Min.X - 1; x >= 0 {
 			idx := chain.PlanData.Level.XYTileIndex(x, y)
 			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
 				"部屋左辺壁[%d,%d]が壁でない", x, y)
 		}
 		// 右辺
-		if x := room.X2 + 1; int(x) < int(width) {
+		if x := room.Max.X + 1; int(x) < int(width) {
 			idx := chain.PlanData.Level.XYTileIndex(x, y)
 			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
 				"部屋右辺壁[%d,%d]が壁でない", x, y)
 		}
 	}
-	for x := room.X1; x <= room.X2; x++ {
+	for x := room.Min.X; x <= room.Max.X; x++ {
 		// 上辺
-		if y := room.Y1 - 1; y >= 0 {
+		if y := room.Min.Y - 1; y >= 0 {
 			idx := chain.PlanData.Level.XYTileIndex(x, y)
 			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
 				"部屋上辺壁[%d,%d]が壁でない", x, y)
 		}
 		// 下辺
-		if y := room.Y2 + 1; int(y) < int(height) {
+		if y := room.Max.Y + 1; int(y) < int(height) {
 			idx := chain.PlanData.Level.XYTileIndex(x, y)
 			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
 				"部屋下辺壁[%d,%d]が壁でない", x, y)

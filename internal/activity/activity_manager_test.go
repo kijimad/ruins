@@ -298,7 +298,7 @@ func TestGetPassCostAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		prop := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 
 		cost := getPassCostAt(world, 5, 5)
@@ -310,11 +310,11 @@ func TestGetPassCostAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		prop1 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop1, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(prop1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.PassCost.Add(prop1, &gc.PassCost{Value: 30})
 
 		prop2 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop2, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(prop2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.PassCost.Add(prop2, &gc.PassCost{Value: 20})
 
 		cost := getPassCostAt(world, 5, 5)
@@ -336,7 +336,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		// ExecuteはArchetypeを変える構造変更を伴うため、TurnBasedは都度取り直す
 		apBefore := world.Components.TurnBased.Get(player).AP.Current
 
-		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 11, Y: 10}}, player, world)
+		_, err = Execute(&MoveActivity{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}}, player, world)
 		require.NoError(t, err)
 
 		normalCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
@@ -346,10 +346,10 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 
 		// 移動先にPassCostを持つPropを配置
 		prop := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 12, Y: 10})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}})
 		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 
-		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 12, Y: 10}}, player, world)
+		_, err = Execute(&MoveActivity{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}}}, player, world)
 		require.NoError(t, err)
 
 		modCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
@@ -402,7 +402,7 @@ func TestLastActivity(t *testing.T) {
 		assert.Equal(t, expected, result)
 
 		// 移動
-		_, err = Execute(&MoveActivity{Destination: gc.GridElement{X: 10, Y: 9}}, player, world)
+		_, err = Execute(&MoveActivity{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}}}, player, world)
 		require.NoError(t, err)
 
 		result = GetLastResult(player, world)

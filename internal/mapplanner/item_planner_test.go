@@ -229,8 +229,8 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		inRoomCount := 0
 		for _, item := range chain.PlanData.Items {
 			for _, room := range chain.PlanData.Rooms {
-				if item.X >= int(room.X1) && item.X < int(room.X2) &&
-					item.Y >= int(room.Y1) && item.Y < int(room.Y2) {
+				if item.X >= int(room.Min.X) && item.X < int(room.Max.X) &&
+					item.Y >= int(room.Min.Y) && item.Y < int(room.Max.Y) {
 					inRoomCount++
 					break
 				}
