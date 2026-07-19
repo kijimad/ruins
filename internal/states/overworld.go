@@ -84,9 +84,17 @@ func (st *OverworldState) OnStart(world w.World) error {
 
 	sb := &d.SeamlessBand
 	if sb.Active {
-		return st.restoreFromSave(world, sb)
+		if err := st.restoreFromSave(world, sb); err != nil {
+			return err
+		}
+	} else if err := st.startNewBand(world, sb); err != nil {
+		return err
 	}
-	return st.startNewBand(world, sb)
+
+	// 前線の現在位置を初回フレームの描画前に確定させる。Update を待つと最初の1フレーム
+	// FrontEastAbsX が未初期化になりうるため、OnStart 時点で一度導出しておく
+	st.updateFront(world)
+	return nil
 }
 
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。

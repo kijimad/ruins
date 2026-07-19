@@ -2,6 +2,7 @@ package systems
 
 import (
 	"image/color"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -20,20 +21,23 @@ type FrostRenderSystem struct{}
 // String はシステム名を返す。w.Renderer interface を実装する
 func (sys FrostRenderSystem) String() string { return "FrostRenderSystem" }
 
-// frostTileImage は1タイルぶんの氷白画像。アルファは描画時に ColorScale で調整する
-var frostTileImage *ebiten.Image
+// frostTileImage は1タイルぶんの氷白画像。アルファは描画時に ColorScale で調整する。
+// ebiten は単一ゲームループ前提だが、並列 golden テストが同時に Draw を叩きうるため Once で保護する
+var (
+	frostTileImage     *ebiten.Image
+	frostTileImageOnce sync.Once
+)
 
 func initFrostImage() {
-	if frostTileImage != nil {
-		return
-	}
-	ts := int(consts.TileSize)
-	if ts <= 0 {
-		return
-	}
-	frostTileImage = ebiten.NewImage(ts, ts)
-	// 青みのある氷色。白系だとタン地形の上で「明るいだけ」になり霜に見えないため寒色を入れる
-	frostTileImage.Fill(color.RGBA{130, 205, 240, 255})
+	frostTileImageOnce.Do(func() {
+		ts := int(consts.TileSize)
+		if ts <= 0 {
+			return
+		}
+		frostTileImage = ebiten.NewImage(ts, ts)
+		// 青みのある氷色。白系だとタン地形の上で「明るいだけ」になり霜に見えないため寒色を入れる
+		frostTileImage.Fill(color.RGBA{130, 205, 240, 255})
+	})
 }
 
 // Draw は極低温ゾーンに氷のオーバーレイを描く。
