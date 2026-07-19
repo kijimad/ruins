@@ -128,8 +128,8 @@ func (b BigRoomDraw) applyPillars(planData *MetaPlan) {
 func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {
 	for _, room := range planData.Rooms {
 		// 障害物の数を部屋のサイズに基づいて決定
-		roomWidth := int(room.Max.X - room.Min.X)
-		roomHeight := int(room.Max.Y - room.Min.Y)
+		roomWidth := int(room.Width())
+		roomHeight := int(room.Height())
 		obstacleCount := (roomWidth * roomHeight) / 30 // 面積の1/30程度
 
 		for range obstacleCount {

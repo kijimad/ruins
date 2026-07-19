@@ -39,7 +39,7 @@ func (t TimeOfDay) String() string {
 const turnsPerDay consts.Turn = 1500
 
 // 時間帯ごとのターン数
-const turnsPerTimeOfDay = turnsPerDay / 6 // 250ターン
+const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
 
 // GameTime はゲーム内時間を管理する
 type GameTime struct {

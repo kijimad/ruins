@@ -166,7 +166,8 @@ type MinimapSettings struct {
 	// ミニマップのサイズ（ピクセル単位）
 	Width  int
 	Height int
-	// ミニマップの表示位置（画面右上に配置）
+	// ミニマップの表示位置。整数ピクセルの画面 UI レイアウト値で、ワールド座標でもタイル座標でもない。
+	// Width/Height/Scale と同じ UI 設定の一員なので Coord[consts.Pixel] でなく Coord[int] にする。
 	Offset consts.Coord[int]
 	// ミニマップのスケール（何ピクセルで1タイルを表すか）
 	Scale int

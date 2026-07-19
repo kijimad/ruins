@@ -366,7 +366,7 @@ func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squ
 	from := consts.Coord[int]{X: int(ctx.Grid.X), Y: int(ctx.Grid.Y)}
 
 	for _, d := range shuffledEightDirections(sp.rng) {
-		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
+		dest := from.Add(d)
 
 		if dungeon != nil && dungeon.ExploredTiles != nil {
 			destGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}}

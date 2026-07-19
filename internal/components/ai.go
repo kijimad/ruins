@@ -31,9 +31,12 @@ type SoloAI struct {
 	SubState              AIStateSubState
 	StartSubStateTurn     consts.Turn
 	DurationSubStateTurns consts.Turn
-	Origin                consts.Coord[int]
-	PatrolDir             consts.Coord[int]
-	TargetEntity          *ecs.Entity
+	// Origin/PatrolDir は AI のグリッド移動計算用に int タイルインデックス空間で保持する。
+	// planner_solo の探索・方向計算が int で完結するため Coord[Tile] でなく Coord[int] にし、
+	// GridElement(Coord[Tile]) との境界でだけ変換する。FindNextStep の BFS が int で完結するのと同じ方針。
+	Origin       consts.Coord[int] // パトロール原点のタイル座標
+	PatrolDir    consts.Coord[int] // パトロール方向。各成分は -1/0/1
+	TargetEntity *ecs.Entity
 }
 
 // Type はPlannerSoloを返す

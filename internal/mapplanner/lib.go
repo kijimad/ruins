@@ -608,8 +608,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	}
 	totalArea := 0
 	for _, r := range bm.Rooms {
-		w := int(r.Max.X - r.Min.X)
-		h := int(r.Max.Y - r.Min.Y)
+		w := int(r.Width())
+		h := int(r.Height())
 		if w > 0 && h > 0 {
 			totalArea += w * h
 		}
@@ -621,8 +621,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	roll := bm.RNG.IntN(totalArea)
 	cumulative := 0
 	for i, r := range bm.Rooms {
-		w := int(r.Max.X - r.Min.X)
-		h := int(r.Max.Y - r.Min.Y)
+		w := int(r.Width())
+		h := int(r.Height())
 		if w > 0 && h > 0 {
 			cumulative += w * h
 		}
@@ -637,8 +637,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
 // maxAttemptsを超えても見つからない場合はfalseを返す
 func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-	rw := int(room.Max.X - room.Min.X)
-	rh := int(room.Max.Y - room.Min.Y)
+	rw := int(room.Width())
+	rh := int(room.Height())
 	if rw <= 0 || rh <= 0 {
 		return 0, 0, false
 	}

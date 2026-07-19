@@ -28,8 +28,8 @@ func TestBigRoomPlanner(t *testing.T) {
 	expectedMinWidth := int(width) - 6 // margin * 2 + 境界
 	expectedMinHeight := int(height) - 6
 
-	actualWidth := int(room.Max.X - room.Min.X + 1)
-	actualHeight := int(room.Max.Y - room.Min.Y + 1)
+	actualWidth := int(room.Width() + 1)
+	actualHeight := int(room.Height() + 1)
 
 	assert.GreaterOrEqual(t, actualWidth, expectedMinWidth, "部屋の幅が小さすぎる")
 	assert.GreaterOrEqual(t, actualHeight, expectedMinHeight, "部屋の高さが小さすぎる")

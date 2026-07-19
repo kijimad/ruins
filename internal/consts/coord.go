@@ -11,6 +11,16 @@ type Coord[T Numeric] struct {
 	Y T
 }
 
+// Add は2つの座標を成分ごとに加算した座標を返す。
+func (c Coord[T]) Add(o Coord[T]) Coord[T] {
+	return Coord[T]{X: c.X + o.X, Y: c.Y + o.Y}
+}
+
+// Sub は成分ごとに減算した座標を返す。
+func (c Coord[T]) Sub(o Coord[T]) Coord[T] {
+	return Coord[T]{X: c.X - o.X, Y: c.Y - o.Y}
+}
+
 // TileCenterToWorld はタイル座標を、そのタイル中心のワールドピクセル座標へ変換する。
 // スプライトはタイル中心に合わせて配置するため中心へ半タイルぶんずらす。
 func TileCenterToWorld(grid Coord[Tile]) Coord[Pixel] {

@@ -91,8 +91,8 @@ func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {
 
 // addInteriorWalls は建物内部に仕切り壁を追加する
 func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
-	buildingWidth := int(building.Max.X - building.Min.X + 1)
-	buildingHeight := int(building.Max.Y - building.Min.Y + 1)
+	buildingWidth := int(building.Width() + 1)
+	buildingHeight := int(building.Height() + 1)
 
 	// 建物が十分大きい場合のみ内部の仕切りを作成
 	if buildingWidth >= 10 && buildingHeight >= 8 {

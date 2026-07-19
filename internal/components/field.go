@@ -37,6 +37,12 @@ func (r *Rect) Center() (consts.Tile, consts.Tile) {
 	return x, y
 }
 
+// Width は矩形の幅を返す。Max と Min の X 差。
+func (r *Rect) Width() consts.Tile { return r.Max.X - r.Min.X }
+
+// Height は矩形の高さを返す。Max と Min の Y 差。
+func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y }
+
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
 

@@ -213,7 +213,7 @@ func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, 
 
 	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
 	for _, d := range shuffledEightDirections(rp.rng) {
-		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
+		dest := from.Add(d)
 		if activity.CanMoveTo(world, dest, from, aiEntity) {
 			return moveAction(dest)
 		}
@@ -263,7 +263,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 
 	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
 	for _, d := range eightDirections {
-		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
+		dest := from.Add(d)
 
 		if !activity.CanMoveTo(world, dest, from, aiEntity) {
 			continue
@@ -322,7 +322,7 @@ func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGri
 func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {
 	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
-	dest := consts.Coord[int]{X: from.X + solo.PatrolDir.X, Y: from.Y + solo.PatrolDir.Y}
+	dest := from.Add(solo.PatrolDir)
 	if activity.CanMoveTo(world, dest, from, aiEntity) {
 		return moveAction(dest)
 	}
@@ -330,7 +330,7 @@ func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo
 	solo.PatrolDir.X = -solo.PatrolDir.X
 	solo.PatrolDir.Y = -solo.PatrolDir.Y
 
-	dest = consts.Coord[int]{X: from.X + solo.PatrolDir.X, Y: from.Y + solo.PatrolDir.Y}
+	dest = from.Add(solo.PatrolDir)
 	if activity.CanMoveTo(world, dest, from, aiEntity) {
 		return moveAction(dest)
 	}
@@ -342,7 +342,7 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
 	for _, d := range shuffledEightDirections(rp.rng) {
-		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
+		dest := from.Add(d)
 
 		dx := geometry.Abs(dest.X - solo.Origin.X)
 		dy := geometry.Abs(dest.Y - solo.Origin.Y)

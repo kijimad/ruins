@@ -120,7 +120,7 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, bool) {
 	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
 	for _, c := range candidates {
-		dest := consts.Coord[int]{X: fromPos.X + c.X, Y: fromPos.Y + c.Y}
+		dest := fromPos.Add(c)
 		if activity.CanMoveTo(world, dest, fromPos, entity) {
 			return moveAction(dest), true
 		}
