@@ -88,7 +88,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
 		}
 		candidates = append(candidates, consts.Coord[consts.Tile]{X: moveX, Y: moveY})
 
-		if geometry.Abs(int(dx)) > geometry.Abs(int(dy)) {
+		if geometry.Abs(dx) > geometry.Abs(dy) {
 			candidates = append(candidates, consts.Coord[consts.Tile]{X: moveX, Y: 0})
 			candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
 		} else {

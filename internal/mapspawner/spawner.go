@@ -135,7 +135,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 			return fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
 		}
 
-		x, y := int(npc.X) + int(offsetX), int(npc.Y) + int(offsetY)
+		x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
 		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutralName {
 			_, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
@@ -158,7 +158,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 // spawnItems はアイテムを生成する
 func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, item := range metaPlan.Items {
-		tileX, tileY := item.X + offsetX, item.Y + offsetY
+		tileX, tileY := item.X+offsetX, item.Y+offsetY
 		if item.Count <= 0 {
 			return fmt.Errorf("アイテムの個数が不正です (%d, %d): count=%d", item.X, item.Y, item.Count)
 		}
@@ -173,7 +173,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 // spawnProps はPropsを生成する
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, prop := range metaPlan.Props {
-		tileX, tileY := prop.X + offsetX, prop.Y + offsetY
+		tileX, tileY := prop.X+offsetX, prop.Y+offsetY
 
 		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
@@ -207,7 +207,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 // spawnDoors はドアを生成する
 func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, door := range metaPlan.Doors {
-		tileX, tileY := door.X + offsetX, door.Y + offsetY
+		tileX, tileY := door.X+offsetX, door.Y+offsetY
 		_, err := lifecycle.SpawnDoor(world, tileX, tileY, door.Orientation)
 		if err != nil {
 			return fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
@@ -219,7 +219,7 @@ func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 // spawnPortals はポータルを生成する
 func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, portal := range metaPlan.NextPortals {
-		tileX, tileY := portal.X + offsetX, portal.Y + offsetY
+		tileX, tileY := portal.X+offsetX, portal.Y+offsetY
 		_, err := lifecycle.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
@@ -227,7 +227,7 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	}
 
 	for _, portal := range metaPlan.EscapePortals {
-		tileX, tileY := portal.X + offsetX, portal.Y + offsetY
+		tileX, tileY := portal.X+offsetX, portal.Y+offsetY
 		_, err := lifecycle.SpawnProp(world, "warp_escape", tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
