@@ -58,7 +58,7 @@ func TestUpdateState_ChasingPlayerVisible_ContinuesChase(t *testing.T) {
 
 	rp.updateState(solo, true, 5)
 	assert.Equal(t, gc.AIStateChasing, solo.SubState, "追跡継続")
-	assert.Equal(t, 1, solo.StartSubStateTurn, "StartSubStateTurnは変化しない")
+	assert.Equal(t, 1, int(solo.StartSubStateTurn), "StartSubStateTurnは変化しない")
 }
 
 func TestUpdateState_WaitingToDriving(t *testing.T) {
@@ -189,7 +189,7 @@ func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 
 	rp.updateState(solo, true, 3)
 	assert.Equal(t, gc.AIStateFleeing, solo.SubState)
-	assert.Equal(t, 3, solo.StartSubStateTurn)
+	assert.Equal(t, 3, int(solo.StartSubStateTurn))
 }
 
 func TestUpdateState_FleeingToDriving(t *testing.T) {

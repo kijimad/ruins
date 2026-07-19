@@ -29,8 +29,8 @@ type SoloAI struct {
 	ViewDistance  consts.Tile
 
 	SubState               AIStateSubState
-	StartSubStateTurn      int
-	DurationSubStateTurns  int
+	StartSubStateTurn      consts.Turn
+	DurationSubStateTurns  consts.Turn
 	OriginX, OriginY       int
 	PatrolDirX, PatrolDirY int
 	TargetEntity           *ecs.Entity

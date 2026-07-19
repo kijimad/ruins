@@ -47,14 +47,14 @@ type FrontConfig struct {
 	// ColdWidth は極低温ゾーンの幅。タイル単位
 	ColdWidth consts.Tile
 	// AdvanceTurns はこの経過ターンごとに Step タイル東進する。0 以下なら前進しない
-	AdvanceTurns int
+	AdvanceTurns consts.Turn
 	// Step は1回の前進量。タイル単位
 	Step consts.Tile
 }
 
 // FrontAt は総経過ターン数 totalTurns 時点の Front を返す純関数。
 // AdvanceTurns ごとに Step 前進する階段状の前進。負のターンは前進0として扱う。
-func FrontAt(cfg FrontConfig, totalTurns int) Front {
+func FrontAt(cfg FrontConfig, totalTurns consts.Turn) Front {
 	var advanced consts.Tile
 	if cfg.AdvanceTurns > 0 && totalTurns > 0 {
 		advanced = consts.Tile(totalTurns/cfg.AdvanceTurns) * cfg.Step

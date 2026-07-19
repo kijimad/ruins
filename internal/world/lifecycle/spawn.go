@@ -102,7 +102,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		solo := entitySpec.SoloAI
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
-		solo.DurationSubStateTurns = 2 + rand.IntN(3)
+		solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
 		solo.OriginX = tileX
 		solo.OriginY = tileY
 		solo.PatrolDirX = initialPatrolDir()
@@ -142,7 +142,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	solo := entitySpec.SoloAI
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
-	solo.DurationSubStateTurns = 2 + rand.IntN(3)
+	solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
 	solo.OriginX = tileX
 	solo.OriginY = tileY
 	solo.PatrolDirX = initialPatrolDir()

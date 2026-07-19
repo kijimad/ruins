@@ -50,7 +50,7 @@ type SeamlessFront struct {
 	// ColdWidth は極低温ゾーンの幅
 	ColdWidth consts.Tile
 	// AdvanceTurns はこの経過ターンごとに Step タイル東進する
-	AdvanceTurns int
+	AdvanceTurns consts.Turn
 	// Step は1回の前進量
 	Step consts.Tile
 	// EastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した

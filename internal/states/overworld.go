@@ -51,7 +51,7 @@ type NewGameParams struct {
 const (
 	// frontAdvanceTurns は前線が frontStep タイル前進するのに要するターン数。大きいほどゆるやか。
 	// 1500ターン/日なので 20 なら 75タイル/日。開始時に背後25タイルなら追いつくまで約500ターン≈0.33日
-	frontAdvanceTurns = 20
+	frontAdvanceTurns consts.Turn = 20
 	// frontStep は1回の前進量。タイル単位
 	frontStep consts.Tile = 1
 	// frontColdWidthChunks は極低温ゾーンの幅。チャンク数

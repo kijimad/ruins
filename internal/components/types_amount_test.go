@@ -30,5 +30,5 @@ func TestNewTurnState(t *testing.T) {
 
 	ts := NewTurnState()
 	assert.Equal(t, TurnPhasePlayer, ts.Phase)
-	assert.Equal(t, 1, ts.TurnNumber)
+	assert.Equal(t, 1, int(ts.TurnNumber))
 }

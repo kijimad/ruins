@@ -78,7 +78,7 @@ func (rp *soloPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs
 
 // ========== 状態遷移ロジック ==========
 
-func (rp *soloPlanner) updateState(solo *gc.SoloAI, canSeePlayer bool, currentTurn int) {
+func (rp *soloPlanner) updateState(solo *gc.SoloAI, canSeePlayer bool, currentTurn consts.Turn) {
 	elapsedTurns := currentTurn - solo.StartSubStateTurn
 
 	switch solo.SubState {
@@ -95,7 +95,7 @@ func (rp *soloPlanner) updateState(solo *gc.SoloAI, canSeePlayer bool, currentTu
 	}
 }
 
-func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {
 	if canSeePlayer {
 		switch solo.CombatCurrent {
 		case gc.CombatEvade:
@@ -109,7 +109,7 @@ func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, ela
 	}
 }
 
-func (rp *soloPlanner) updateFromDriving(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (rp *soloPlanner) updateFromDriving(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {
 	if canSeePlayer {
 		switch solo.CombatCurrent {
 		case gc.CombatEvade:
@@ -123,7 +123,7 @@ func (rp *soloPlanner) updateFromDriving(solo *gc.SoloAI, canSeePlayer bool, ela
 	}
 }
 
-func (rp *soloPlanner) updateFromChasing(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (rp *soloPlanner) updateFromChasing(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {
 	if !canSeePlayer {
 		if elapsedTurns >= 3 {
 			rp.transitionToDriving(solo, currentTurn)
@@ -133,7 +133,7 @@ func (rp *soloPlanner) updateFromChasing(solo *gc.SoloAI, canSeePlayer bool, ela
 	}
 }
 
-func (rp *soloPlanner) updateFromFleeing(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (rp *soloPlanner) updateFromFleeing(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {
 	if !canSeePlayer && elapsedTurns >= solo.DurationSubStateTurns {
 		solo.ResetCombat()
 		rp.transitionToDriving(solo, currentTurn)
@@ -142,34 +142,34 @@ func (rp *soloPlanner) updateFromFleeing(solo *gc.SoloAI, canSeePlayer bool, ela
 	}
 }
 
-func (rp *soloPlanner) transitionToWaiting(solo *gc.SoloAI, currentTurn int) {
+func (rp *soloPlanner) transitionToWaiting(solo *gc.SoloAI, currentTurn consts.Turn) {
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = currentTurn
-	solo.DurationSubStateTurns = 2 + rp.rng.IntN(4)
+	solo.DurationSubStateTurns = consts.Turn(2 + rp.rng.IntN(4))
 }
 
-func (rp *soloPlanner) transitionToDriving(solo *gc.SoloAI, currentTurn int) {
+func (rp *soloPlanner) transitionToDriving(solo *gc.SoloAI, currentTurn consts.Turn) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = currentTurn
-	solo.DurationSubStateTurns = 3 + rp.rng.IntN(7)
+	solo.DurationSubStateTurns = consts.Turn(3 + rp.rng.IntN(7))
 }
 
-func (rp *soloPlanner) transitionToChasing(solo *gc.SoloAI, currentTurn int) {
+func (rp *soloPlanner) transitionToChasing(solo *gc.SoloAI, currentTurn consts.Turn) {
 	solo.SubState = gc.AIStateChasing
 	solo.StartSubStateTurn = currentTurn
-	solo.DurationSubStateTurns = 10 + rp.rng.IntN(5)
+	solo.DurationSubStateTurns = consts.Turn(10 + rp.rng.IntN(5))
 }
 
-func (rp *soloPlanner) transitionToFleeing(solo *gc.SoloAI, currentTurn int) {
+func (rp *soloPlanner) transitionToFleeing(solo *gc.SoloAI, currentTurn consts.Turn) {
 	solo.SubState = gc.AIStateFleeing
 	solo.StartSubStateTurn = currentTurn
-	solo.DurationSubStateTurns = 5 + rp.rng.IntN(5)
+	solo.DurationSubStateTurns = consts.Turn(5 + rp.rng.IntN(5))
 }
 
-func (rp *soloPlanner) initializeToWaiting(solo *gc.SoloAI, currentTurn int) {
+func (rp *soloPlanner) initializeToWaiting(solo *gc.SoloAI, currentTurn consts.Turn) {
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = currentTurn
-	solo.DurationSubStateTurns = 2 + rp.rng.IntN(3)
+	solo.DurationSubStateTurns = consts.Turn(2 + rp.rng.IntN(3))
 }
 
 // ========== アクション計画ロジック ==========

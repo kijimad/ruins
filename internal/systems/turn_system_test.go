@@ -626,7 +626,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)
@@ -680,7 +680,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)
@@ -801,7 +801,7 @@ func TestPatrolMovement(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)
@@ -858,7 +858,7 @@ func TestTerritorialMovement(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)
