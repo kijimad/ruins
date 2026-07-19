@@ -192,7 +192,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		}
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
-		pos := &gc.Position{Coord: consts.Coord[consts.WorldPixel]{X: consts.WorldPixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)), Y: consts.WorldPixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2))}}
+		pos := &gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
 		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
 			// エンティティ情報を追加してエラーを詳細化
 			var entityInfo string
@@ -238,7 +238,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 		}
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
-		pos := &gc.Position{Coord: consts.Coord[consts.WorldPixel]{X: consts.WorldPixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2), Y: consts.WorldPixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)}}
+		pos := &gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
 		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
 			return err
 		}
@@ -275,9 +275,10 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			continue
 		}
 
-		// グリッド座標をピクセル座標に変換
-		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2 - 12)
-		pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
+		// グリッド座標をタイル中心のピクセル座標に変換。X はスプライト幅ぶん左へずらす
+		center := consts.TileCenterToWorld(gridElement.Coord)
+		pixelX := float64(center.X) - 12
+		pixelY := float64(center.Y)
 
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(pixelX, pixelY)

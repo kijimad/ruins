@@ -176,9 +176,10 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 
 // drawDamageText はエンティティ座標でダメージテキストを描画する
 func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Image, face text.Face, gridElement *gc.GridElement, effect *gc.DamageTextEffect) {
-	// グリッド座標をピクセル座標に変換
-	pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
-	pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
+	// グリッド座標をタイル中心のピクセル座標に変換
+	center := consts.TileCenterToWorld(gridElement.Coord)
+	pixelX := float64(center.X)
+	pixelY := float64(center.Y)
 
 	// オフセットを適用
 	pixelX += effect.Offset.X
@@ -266,9 +267,10 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	bottom := min(textureHeight, sprite.Y+sprite.Height)
 	img := gc.SubImage(texture.Image, image.Rect(left, top, right, bottom))
 
-	// グリッド座標をピクセル座標に変換
-	pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
-	pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
+	// グリッド座標をタイル中心のピクセル座標に変換
+	center := consts.TileCenterToWorld(gridElement.Coord)
+	pixelX := float64(center.X)
+	pixelY := float64(center.Y)
 
 	// シェーダー描画オプションを設定
 	op := &ebiten.DrawRectShaderOptions{}
