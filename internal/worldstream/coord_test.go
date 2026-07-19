@@ -32,7 +32,7 @@ func TestToLocal_前線を帯ローカルへ(t *testing.T) {
 	t.Parallel()
 
 	origin := worldstream.BandOriginX(5, 100) // 帯ローカル0 = 絶対500
-	frontEast := consts.AbsTileX(540)    // 帯の40タイル目に前線がある
+	frontEast := consts.AbsTileX(540)         // 帯の40タイル目に前線がある
 
 	assert.Equal(t, consts.Tile(40), worldstream.ToLocal(origin, frontEast),
 		"絶対540は帯ローカル40に写る")
