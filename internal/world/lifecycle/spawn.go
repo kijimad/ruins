@@ -103,9 +103,9 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
 		solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
-		solo.OriginX = tileX
-		solo.OriginY = tileY
-		solo.PatrolDirX = initialPatrolDir()
+		solo.Origin.X = tileX
+		solo.Origin.Y = tileY
+		solo.PatrolDir.X = initialPatrolDir()
 		solo.ViewDistance = consts.AIVisionDistance
 	}
 
@@ -143,9 +143,9 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
-	solo.OriginX = tileX
-	solo.OriginY = tileY
-	solo.PatrolDirX = initialPatrolDir()
+	solo.Origin.X = tileX
+	solo.Origin.Y = tileY
+	solo.PatrolDir.X = initialPatrolDir()
 	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionMelee},

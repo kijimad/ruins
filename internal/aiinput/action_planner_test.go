@@ -297,8 +297,8 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -344,10 +344,10 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
-	solo.PatrolDirX = 1
-	solo.PatrolDirY = 0
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
+	solo.PatrolDir.X = 1
+	solo.PatrolDir.Y = 0
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -378,10 +378,10 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
-	solo.PatrolDirX = 1
-	solo.PatrolDirY = 0
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
+	solo.PatrolDir.X = 1
+	solo.PatrolDir.Y = 0
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -392,7 +392,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	move, ok := behavior.(*activity.MoveActivity)
 	require.True(t, ok, "型が *activity.MoveActivity であるべき")
 	assert.Equal(t, consts.Tile(19), move.Destination.X)
-	assert.Equal(t, -1, solo.PatrolDirX)
+	assert.Equal(t, -1, solo.PatrolDir.X)
 }
 
 func TestPlanPatrolAction_BothBlocked(t *testing.T) {
@@ -414,10 +414,10 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
-	solo.PatrolDirX = 1
-	solo.PatrolDirY = 0
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
+	solo.PatrolDir.X = 1
+	solo.PatrolDir.Y = 0
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -440,8 +440,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -457,8 +457,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 			grid.Y = move.Destination.Y
 		}
 
-		dx := int(grid.X) - solo.OriginX
-		dy := int(grid.Y) - solo.OriginY
+		dx := int(grid.X) - solo.Origin.X
+		dy := int(grid.Y) - solo.Origin.Y
 		if dx < 0 {
 			dx = -dx
 		}
@@ -483,8 +483,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
 	entity := setupTestAI(t, world, 25, 25, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -495,8 +495,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 		if behavior.Name() == gc.BehaviorMove {
 			move, ok := behavior.(*activity.MoveActivity)
 			require.True(t, ok, "型が *activity.MoveActivity であるべき")
-			dx := int(move.Destination.X) - solo.OriginX
-			dy := int(move.Destination.Y) - solo.OriginY
+			dx := int(move.Destination.X) - solo.Origin.X
+			dy := int(move.Destination.Y) - solo.Origin.Y
 			if dx < 0 {
 				dx = -dx
 			}

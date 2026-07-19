@@ -31,8 +31,8 @@ type SoloAI struct {
 	SubState               AIStateSubState
 	StartSubStateTurn      consts.Turn
 	DurationSubStateTurns  consts.Turn
-	OriginX, OriginY       int
-	PatrolDirX, PatrolDirY int
+	Origin    consts.Coord[int]
+	PatrolDir consts.Coord[int]
 	TargetEntity           *ecs.Entity
 }
 

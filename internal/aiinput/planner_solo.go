@@ -322,15 +322,15 @@ func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGri
 func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {
 	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
-	dest := consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
+	dest := consts.Coord[int]{X: from.X + solo.PatrolDir.X, Y: from.Y + solo.PatrolDir.Y}
 	if activity.CanMoveTo(world, dest, from, aiEntity) {
 		return moveAction(dest)
 	}
 
-	solo.PatrolDirX = -solo.PatrolDirX
-	solo.PatrolDirY = -solo.PatrolDirY
+	solo.PatrolDir.X = -solo.PatrolDir.X
+	solo.PatrolDir.Y = -solo.PatrolDir.Y
 
-	dest = consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
+	dest = consts.Coord[int]{X: from.X + solo.PatrolDir.X, Y: from.Y + solo.PatrolDir.Y}
 	if activity.CanMoveTo(world, dest, from, aiEntity) {
 		return moveAction(dest)
 	}
@@ -344,8 +344,8 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 	for _, d := range shuffledEightDirections(rp.rng) {
 		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
-		dx := geometry.Abs(dest.X - solo.OriginX)
-		dy := geometry.Abs(dest.Y - solo.OriginY)
+		dx := geometry.Abs(dest.X - solo.Origin.X)
+		dy := geometry.Abs(dest.Y - solo.Origin.Y)
 		if dx > territorialRadius || dy > territorialRadius {
 			continue
 		}
