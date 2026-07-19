@@ -130,7 +130,7 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
 	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, propName)
 	if err != nil {
-		return consts.InvalidEntity, err
+		return gc.InvalidEntity, err
 	}
 
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}

@@ -1,11 +1,5 @@
 package consts
 
-import "github.com/mlange-42/ark/ecs"
-
-// InvalidEntity はエラー時の戻り値として使うセンチネル値。
-// Ark のゼロ値 Entity は無効なエンティティを表す。
-var InvalidEntity = ecs.Entity{}
-
 // ========== 基本型 ==========
 
 // WorldPixel はワールド空間のピクセル単位。計算用に float64。

@@ -93,17 +93,25 @@ linters:
               desc: engineはcomponentsに依存しない
             - pkg: "github.com/kijimaD/ruins/internal/resources"
               desc: engineはresourcesに依存しない
-        # geometry は純粋アルゴリズムの leaf パッケージ。ゲームドメインを知ってはならない。
-        # 単位型 consts のみ許可し、world や components に依存させない。
+        # geometry は純粋アルゴリズムの leaf パッケージ。stdlib と単位型 consts のみ許可し、
+        # それ以外の内部パッケージや第三者ライブラリを strict で全面禁止する。
+        # deny リストの列挙でなく allow リストにすることで、将来どんな依存が混入しても弾ける。
         # ドメイン単位が要る計算は呼び出し側で Tile と int を変換する。テストも純粋に保つ。
         geometry_guard:
-          list-mode: lax
+          list-mode: strict
           files:
             - "**/internal/geometry/**"
-          deny:
-            - pkg: "github.com/kijimaD/ruins/internal/world"
-              desc: geometryは純粋アルゴリズムでありworldに依存しない
-            - pkg: "github.com/kijimaD/ruins/internal/components"
-              desc: geometryは純粋アルゴリズムでありcomponentsに依存しない
-            - pkg: "github.com/kijimaD/ruins/internal/resources"
-              desc: geometryは純粋アルゴリズムでありresourcesに依存しない
+          allow:
+            - "$gostd"
+            - "github.com/kijimaD/ruins/internal/consts"
+            - "github.com/stretchr/testify"
+        # consts は最下層の単位・座標型 leaf。内部パッケージに一切依存させない。
+        # stdlib のみ許可し、ドメインを import した瞬間に弾く。テストの consts/testify は許可する。
+        consts_guard:
+          list-mode: strict
+          files:
+            - "**/internal/consts/**"
+          allow:
+            - "$gostd"
+            - "github.com/kijimaD/ruins/internal/consts"
+            - "github.com/stretchr/testify"

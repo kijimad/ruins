@@ -65,7 +65,7 @@ func TestStartActivity(t *testing.T) {
 	assert.True(t, query.HasActivity(world, actor), "Expected HasActivity to return true")
 
 	// 存在しないエンティティのテスト
-	nonExistentActor := consts.InvalidEntity
+	nonExistentActor := gc.InvalidEntity
 	assert.False(t, query.HasActivity(world, nonExistentActor), "Expected HasActivity to return false for non-existent entity")
 }
 
@@ -162,7 +162,7 @@ func TestInterruptAndResume(t *testing.T) {
 	assert.True(t, query.HasActivity(world, actor), "Expected HasActivity to return true for resumed activity")
 
 	// 存在しないアクティビティの中断・再開テスト
-	nonExistentActor := consts.InvalidEntity
+	nonExistentActor := gc.InvalidEntity
 	err = InterruptActivity(nonExistentActor, "テスト", world)
 	require.Error(t, err, "Expected error when interrupting non-existent activity")
 
@@ -193,7 +193,7 @@ func TestCancelActivity(t *testing.T) {
 	assert.Nil(t, currentActivity, "Expected no current activity after cancel")
 
 	// 存在しないアクティビティのキャンセル（エラーにならない）
-	nonExistentActor := consts.InvalidEntity
+	nonExistentActor := gc.InvalidEntity
 	CancelActivity(nonExistentActor, "テスト", world) // パニックしないことを確認
 }
 
@@ -423,7 +423,7 @@ func TestLastActivity(t *testing.T) {
 		require.NoError(t, err)
 
 		// 存在しないターゲットへの攻撃（失敗する）
-		nonExistentEntity := consts.InvalidEntity
+		nonExistentEntity := gc.InvalidEntity
 		_, _ = Execute(&AttackActivity{Target: nonExistentEntity}, player, world)
 
 		result := GetLastResult(player, world)

@@ -8,6 +8,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// InvalidEntity は無効なエンティティを表すゼロ値。エラー時の戻り値などに使う
+var InvalidEntity = ecs.Entity{}
+
 // Upsert はコンポーネントを追加または更新する。
 // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。
 // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。

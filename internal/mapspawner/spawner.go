@@ -115,7 +115,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 
 	spec, ok := specs[tile.Name]
 	if !ok {
-		return consts.InvalidEntity, fmt.Errorf("未対応の%sタイル名: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
+		return gc.InvalidEntity, fmt.Errorf("未対応の%sタイル名: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
 	}
 
 	// オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。
