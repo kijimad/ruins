@@ -54,6 +54,9 @@ func (sys *TurnSystem) Update(world w.World) error {
 		// 空間インデックスを無効化する。次ターンで再構築される
 		query.InvalidateSpatialIndex(world)
 		turnState.TurnNumber++
+		// ゲーム内時間を1ターン進める。昼夜・気温の時間修正・寒波前線の前進がこれに依存する。
+		// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
+		query.GetDungeon(world).GameTime.Advance()
 		turnState.Phase = gc.TurnPhasePlayer
 	}
 	return nil
