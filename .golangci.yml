@@ -111,3 +111,45 @@ linters:
           allow:
             - "$gostd"
             - "github.com/kijimaD/ruins/internal/consts"
+        # formula はゲーム計算ロジック。純粋に保ちドメインに依存させない
+        formula_guard:
+          list-mode: strict
+          files:
+            - "**/internal/formula/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+        # logger はログ基盤。汎用に保ちドメインに依存させない
+        logger_guard:
+          list-mode: strict
+          files:
+            - "**/internal/logger/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+        # inputmapper は入力からアクションへの対応。ドメインに依存させない
+        inputmapper_guard:
+          list-mode: strict
+          files:
+            - "**/internal/inputmapper/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+        # input は入力基盤。ebiten のみ許可しドメインに依存させない
+        input_guard:
+          list-mode: strict
+          files:
+            - "**/internal/input/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/hajimehoshi/ebiten/v2"
+        # gamelog はゲームログ。domain が書き込む sink であり、逆に domain を参照させない
+        gamelog_guard:
+          list-mode: strict
+          files:
+            - "**/internal/gamelog/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/kijimaD/ruins/internal/consts"
