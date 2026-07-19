@@ -9,10 +9,7 @@ import "github.com/kijimaD/ruins/internal/consts"
 // | * |
 // |   |
 // -----
-type Position struct {
-	X consts.Pixel
-	Y consts.Pixel
-}
+type Position = consts.Coord[consts.Pixel]
 
 // GridElement はフィールド上にグリッドに沿って存在する
 // スプライトはグリッドに沿って配置する
