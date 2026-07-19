@@ -42,23 +42,25 @@ func (g *bfsGrid) canPassDiagonal(cx, cy, dx, dy int) bool {
 // 経路が見つからない場合はfalseを返す。
 // ゴールが通行不能でも到達を認識する。ゴールはキューに入れないので通り抜ける経路は生まれない。
 // キャラクターの通行可否はmoverとの関係性で決まる
-func FindNextStep(world w.World, mover ecs.Entity, fromX, fromY, goalX, goalY int) (int, int, bool) {
+func FindNextStep(world w.World, mover ecs.Entity, from, goal consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
+	// BFS 内部はタイルインデックスの int 演算なので、境界でだけ int へ展開する
+	fromX, fromY, goalX, goalY := int(from.X), int(from.Y), int(goal.X), int(goal.Y)
 	si := query.GetSpatialIndex(world)
 	if si == nil {
-		return 0, 0, false
+		return consts.Coord[consts.Tile]{}, false
 	}
 
 	if fromX == goalX && fromY == goalY {
-		return 0, 0, false
+		return consts.Coord[consts.Tile]{}, false
 	}
 
 	width, height := si.MapWidth, si.MapHeight
 
 	if goalX < 0 || goalY < 0 || goalX >= width || goalY >= height {
-		return 0, 0, false
+		return consts.Coord[consts.Tile]{}, false
 	}
 	if fromX < 0 || fromY < 0 || fromX >= width || fromY >= height {
-		return 0, 0, false
+		return consts.Coord[consts.Tile]{}, false
 	}
 
 	g := &bfsGrid{world: world, mover: mover, si: si, width: width, height: height}
@@ -110,12 +112,12 @@ func FindNextStep(world w.World, mover ecs.Entity, fromX, fromY, goalX, goalY in
 
 			if isGoal {
 				step := firstStep[ni]
-				return step.x, step.y, true
+				return consts.Coord[consts.Tile]{X: consts.Tile(step.x), Y: consts.Tile(step.y)}, true
 			}
 
 			queue = append(queue, coord{nx, ny})
 		}
 	}
 
-	return 0, 0, false
+	return consts.Coord[consts.Tile]{}, false
 }

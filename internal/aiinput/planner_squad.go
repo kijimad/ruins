@@ -336,14 +336,14 @@ func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *
 // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる
 func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, bool) {
 	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
-	goalX, goalY := int(target.X), int(target.Y)
-
-	nextX, nextY, ok := activity.FindNextStep(world, entity, fromPos.X, fromPos.Y, goalX, goalY)
+	nextTile, ok := activity.FindNextStep(world, entity,
+		consts.Coord[consts.Tile]{X: from.X, Y: from.Y},
+		consts.Coord[consts.Tile]{X: target.X, Y: target.Y})
 	if !ok {
 		return nil, false
 	}
 
-	next := consts.Coord[int]{X: nextX, Y: nextY}
+	next := consts.Coord[int]{X: int(nextTile.X), Y: int(nextTile.Y)}
 	if !activity.CanMoveTo(world, next, fromPos, entity) {
 		return nil, false
 	}
