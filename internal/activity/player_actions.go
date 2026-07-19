@@ -24,15 +24,13 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	gridElement := world.Components.GridElement.Get(entity)
-	currentX := int(gridElement.X)
-	currentY := int(gridElement.Y)
+	current := gridElement.Coord
 
 	deltaX, deltaY := direction.GetDelta()
-	newX := currentX + deltaX
-	newY := currentY + deltaY
+	next := current.Add(consts.Coord[consts.Tile]{X: consts.Tile(deltaX), Y: consts.Tile(deltaY)})
 
 	// 移動先にOnCollision方式のInteractableがある場合は自動実行
-	targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(newX), Y: consts.Tile(newY)}}
+	targetGrid := &gc.GridElement{Coord: next}
 	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
 
 	if interactable != nil {
@@ -68,9 +66,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
-	canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: consts.Tile(newX), Y: consts.Tile(newY)}, consts.Coord[consts.Tile]{X: consts.Tile(currentX), Y: consts.Tile(currentY)}, entity)
+	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(newX), Y: consts.Tile(newY)}}
+		destination := gc.GridElement{Coord: next}
 		_, err := Execute(&MoveActivity{Destination: destination}, entity, world)
 		return err
 	}
