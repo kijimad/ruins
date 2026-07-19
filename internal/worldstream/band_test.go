@@ -68,7 +68,7 @@ func TestBand_ShiftEast(t *testing.T) {
 
 	// eastIndex 前進・原点更新
 	assert.Equal(t, 1, int(b.EastIndex()), "eastIndex が1つ進む")
-	assert.Equal(t, worldstream.AbsTileX(100), b.BandOriginX(), "帯原点が chunkW ぶん東へ")
+	assert.Equal(t, consts.AbsTileX(100), b.BandOriginX(), "帯原点が chunkW ぶん東へ")
 
 	// 西端チャンクの敵は破棄
 	assert.False(t, world.ECS.Alive(westEnemy), "西端チャンクの敵は破棄される")

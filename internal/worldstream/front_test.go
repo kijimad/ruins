@@ -12,7 +12,7 @@ func TestFront_ColdZoneWest(t *testing.T) {
 	t.Parallel()
 
 	f := worldstream.Front{East: 500, ColdWidth: 30}
-	assert.Equal(t, worldstream.AbsTileX(470), f.ColdZoneWest(), "西端 = East - ColdWidth")
+	assert.Equal(t, consts.AbsTileX(470), f.ColdZoneWest(), "西端 = East - ColdWidth")
 }
 
 func TestFront_InColdZone(t *testing.T) {
@@ -45,9 +45,9 @@ func TestFront_Advance(t *testing.T) {
 	f := worldstream.Front{East: 500, ColdWidth: 30}
 	f2 := f.Advance(10)
 
-	assert.Equal(t, worldstream.AbsTileX(510), f2.East, "East が東進する")
+	assert.Equal(t, consts.AbsTileX(510), f2.East, "East が東進する")
 	assert.Equal(t, consts.Tile(30), f2.ColdWidth, "幅は不変")
-	assert.Equal(t, worldstream.AbsTileX(500), f.East, "元の値は不変（値型）")
+	assert.Equal(t, consts.AbsTileX(500), f.East, "元の値は不変（値型）")
 }
 
 func TestFrontAt(t *testing.T) {
@@ -56,17 +56,17 @@ func TestFrontAt(t *testing.T) {
 	cfg := worldstream.FrontConfig{StartEast: -100, ColdWidth: 40, AdvanceTurns: 5, Step: 3}
 
 	// 総ターン数から階段状に前進する
-	assert.Equal(t, worldstream.AbsTileX(-100), worldstream.FrontAt(cfg, 0).East, "0ターンは開始位置")
-	assert.Equal(t, worldstream.AbsTileX(-100), worldstream.FrontAt(cfg, 4).East, "AdvanceTurns 未満は前進しない")
-	assert.Equal(t, worldstream.AbsTileX(-97), worldstream.FrontAt(cfg, 5).East, "5ターンで Step=3 前進")
-	assert.Equal(t, worldstream.AbsTileX(-97), worldstream.FrontAt(cfg, 9).East, "階段状: 5〜9ターンは同じ")
-	assert.Equal(t, worldstream.AbsTileX(-94), worldstream.FrontAt(cfg, 10).East, "10ターンで 2段め")
+	assert.Equal(t, consts.AbsTileX(-100), worldstream.FrontAt(cfg, 0).East, "0ターンは開始位置")
+	assert.Equal(t, consts.AbsTileX(-100), worldstream.FrontAt(cfg, 4).East, "AdvanceTurns 未満は前進しない")
+	assert.Equal(t, consts.AbsTileX(-97), worldstream.FrontAt(cfg, 5).East, "5ターンで Step=3 前進")
+	assert.Equal(t, consts.AbsTileX(-97), worldstream.FrontAt(cfg, 9).East, "階段状: 5〜9ターンは同じ")
+	assert.Equal(t, consts.AbsTileX(-94), worldstream.FrontAt(cfg, 10).East, "10ターンで 2段め")
 	assert.Equal(t, consts.Tile(40), worldstream.FrontAt(cfg, 10).ColdWidth, "ColdWidth は config どおり")
 
 	// 決定的: totalTurns から一意に定まる。42ターン → 42/5=8段 × Step3 = 24 前進
-	assert.Equal(t, worldstream.AbsTileX(-76), worldstream.FrontAt(cfg, 42).East, "42ターンは -100+24=-76")
+	assert.Equal(t, consts.AbsTileX(-76), worldstream.FrontAt(cfg, 42).East, "42ターンは -100+24=-76")
 
 	// 前進しない設定は開始位置に留まる
 	still := worldstream.FrontConfig{StartEast: 0, ColdWidth: 10, AdvanceTurns: 0, Step: 3}
-	assert.Equal(t, worldstream.AbsTileX(0), worldstream.FrontAt(still, 1000).East, "AdvanceTurns=0 は前進しない")
+	assert.Equal(t, consts.AbsTileX(0), worldstream.FrontAt(still, 1000).East, "AdvanceTurns=0 は前進しない")
 }

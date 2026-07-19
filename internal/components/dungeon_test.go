@@ -91,9 +91,9 @@ func TestSeamlessBand_前線ジオメトリ(t *testing.T) {
 	// EastIndex=1, ChunkW=40 → 帯原点は絶対40。前線東端60・幅20 → ゾーンは (40, 60]
 	sb := SeamlessBand{EastIndex: 1, ChunkW: 40, FrontEastAbsX: 60, FrontColdWidth: 20}
 
-	assert.Equal(t, consts.Tile(40), sb.BandOriginX(), "帯原点 = EastIndex*ChunkW")
-	assert.Equal(t, consts.Tile(50), sb.LocalToAbsX(10), "ローカル10 = 絶対50")
-	assert.Equal(t, consts.Tile(40), sb.ColdZoneWestAbsX(), "西端 = FrontEast - ColdWidth")
+	assert.Equal(t, consts.AbsTileX(40), sb.BandOriginX(), "帯原点 = EastIndex*ChunkW")
+	assert.Equal(t, consts.AbsTileX(50), sb.LocalToAbsX(10), "ローカル10 = 絶対50")
+	assert.Equal(t, consts.AbsTileX(40), sb.ColdZoneWestAbsX(), "西端 = FrontEast - ColdWidth")
 
 	assert.False(t, sb.InColdZone(40), "西端は含まない（進入不可ライン）")
 	assert.True(t, sb.InColdZone(41), "ゾーン内")

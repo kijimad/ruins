@@ -45,7 +45,7 @@ func (b *Band) K() consts.ChunkX { return b.k }
 func (b *Band) EastIndex() consts.ChunkX { return b.eastIndex }
 
 // BandOriginX は帯ローカル X=0 が指す絶対 X。
-func (b *Band) BandOriginX() AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }
+func (b *Band) BandOriginX() consts.AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }
 
 // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。
 func (b *Band) Width() consts.Tile { return b.k.Tiles(b.chunkW) }

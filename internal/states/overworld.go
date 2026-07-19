@@ -121,7 +121,7 @@ func (st *OverworldState) restoreFromSave(world w.World, sb *gc.SeamlessBand) er
 // frontCfgFromBand は永続状態から寒波前線の前進パラメータを復元する。
 func frontCfgFromBand(sb *gc.SeamlessBand) worldstream.FrontConfig {
 	return worldstream.FrontConfig{
-		StartEast:    worldstream.AbsTileX(sb.FrontStartAbsX),
+		StartEast:    sb.FrontStartAbsX,
 		ColdWidth:    sb.FrontColdWidth,
 		AdvanceTurns: sb.FrontAdvanceTurns,
 		Step:         sb.FrontStep,
@@ -156,13 +156,13 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 	// これで開始時からプレイヤーの背後に霜が見え、西へ戻ると凍える。以東へ進み帯がシフトすると前線は
 	// 絶対軸に留まるため背後へ離れていく。普通に東進する限り触れない遅い地平にする。
 	st.frontCfg = worldstream.FrontConfig{
-		StartEast:    worldstream.BandOriginX(st.band.EastIndex(), p.ChunkW) + worldstream.AbsTileX(p.ChunkW),
+		StartEast:    worldstream.BandOriginX(st.band.EastIndex(), p.ChunkW) + consts.AbsTileX(p.ChunkW),
 		ColdWidth:    p.ChunkW * frontColdWidthChunks,
 		AdvanceTurns: frontAdvanceTurns,
 		Step:         frontStep,
 	}
 	sb.FrontActive = true
-	sb.FrontStartAbsX = consts.Tile(st.frontCfg.StartEast)
+	sb.FrontStartAbsX = st.frontCfg.StartEast
 	sb.FrontColdWidth = st.frontCfg.ColdWidth
 	sb.FrontAdvanceTurns = st.frontCfg.AdvanceTurns
 	sb.FrontStep = st.frontCfg.Step
@@ -235,7 +235,7 @@ func (st *OverworldState) updateFront(world w.World) {
 	if !sb.FrontActive {
 		return
 	}
-	sb.FrontEastAbsX = consts.Tile(st.front(world).East)
+	sb.FrontEastAbsX = st.front(world).East
 }
 
 // maybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトする。

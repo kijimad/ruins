@@ -37,7 +37,7 @@ type SeamlessBand struct {
 	// FrontActive は寒波前線が有効か
 	FrontActive bool
 	// FrontStartAbsX はラン開始時の極低温ゾーン東端の絶対タイルX。ローカルでなく絶対軸
-	FrontStartAbsX consts.Tile
+	FrontStartAbsX consts.AbsTileX
 	// FrontColdWidth は極低温ゾーンの幅
 	FrontColdWidth consts.Tile
 	// FrontAdvanceTurns はこの経過ターンごとに FrontStep タイル東進する
@@ -46,7 +46,7 @@ type SeamlessBand struct {
 	FrontStep consts.Tile
 	// FrontEastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した
 	// 現在位置のキャッシュ。描画や凍結効果など後続の消費者がここを読む
-	FrontEastAbsX consts.Tile
+	FrontEastAbsX consts.AbsTileX
 }
 
 // 寒波前線のジオメトリ。温度・移動・描画の各消費者が同じ半開区間・絶対X変換を使うよう
@@ -54,21 +54,27 @@ type SeamlessBand struct {
 // systems/activity から使えない。永続スカラーの上でこちらを正典にする。
 
 // BandOriginX は帯ローカル X=0 が指す絶対タイル X。
-func (sb SeamlessBand) BandOriginX() consts.Tile { return sb.EastIndex.Tiles(sb.ChunkW) }
+func (sb SeamlessBand) BandOriginX() consts.AbsTileX {
+	return consts.AbsTileX(sb.EastIndex.Tiles(sb.ChunkW))
+}
 
 // LocalToAbsX は帯ローカル X を絶対 X に変換する。
-func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.Tile { return localX + sb.BandOriginX() }
+func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.AbsTileX {
+	return consts.AbsTileX(localX) + sb.BandOriginX()
+}
 
 // ColdZoneWestAbsX は極低温ゾーン西端＝破棄/進入不可ラインの絶対 X。
-func (sb SeamlessBand) ColdZoneWestAbsX() consts.Tile { return sb.FrontEastAbsX - sb.FrontColdWidth }
+func (sb SeamlessBand) ColdZoneWestAbsX() consts.AbsTileX {
+	return sb.FrontEastAbsX - consts.AbsTileX(sb.FrontColdWidth)
+}
 
 // InColdZone は絶対 X が極低温ゾーン (ColdZoneWest, FrontEast] 内かを返す。西端は含まない。
-func (sb SeamlessBand) InColdZone(absX consts.Tile) bool {
+func (sb SeamlessBand) InColdZone(absX consts.AbsTileX) bool {
 	return absX > sb.ColdZoneWestAbsX() && absX <= sb.FrontEastAbsX
 }
 
 // IsWestOfFrontLine は絶対 X が進入不可ライン、すなわち極低温ゾーン西端以西かを返す。
-func (sb SeamlessBand) IsWestOfFrontLine(absX consts.Tile) bool {
+func (sb SeamlessBand) IsWestOfFrontLine(absX consts.AbsTileX) bool {
 	return absX <= sb.ColdZoneWestAbsX()
 }
 
