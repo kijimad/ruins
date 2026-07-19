@@ -31,13 +31,13 @@ func TestPlanData_GetWallType(t *testing.T) {
 	}
 
 	// テストケース1: WallTypeTop（下に床がある壁）
-	// 座標系注意: XYTileIndex(tx Row, ty Col) → tx は X座標（横方向）、ty は Y座標（縦方向）
+	// 座標系注意: CoordToIndex の pos.X=Row, pos.Y=Col → tx は X座標（横方向）、ty は Y座標（縦方向）
 	// インデックス計算: ty * width + tx
 	centerWallX, centerWallY := consts.Tile(3), consts.Tile(3)
 	bottomFloorX, bottomFloorY := centerWallX, centerWallY+1 // 下の床（Y座標が大きくなる）
 
-	centerWallIdx := planData.Level.XYTileIndex(centerWallX, centerWallY)
-	bottomFloorIdx := planData.Level.XYTileIndex(bottomFloorX, bottomFloorY)
+	centerWallIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: centerWallX, Y: centerWallY})
+	bottomFloorIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: bottomFloorX, Y: bottomFloorY})
 
 	planData.Tiles[bottomFloorIdx] = planData.GetTile("floor")
 
@@ -53,7 +53,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 
 	// テストケース2: WallTypeRight（左に床がある壁）
 	leftFloorX, leftFloorY := centerWallX-1, centerWallY // 左の床（X座標が小さくなる）
-	leftFloorIdx := planData.Level.XYTileIndex(leftFloorX, leftFloorY)
+	leftFloorIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: leftFloorX, Y: leftFloorY})
 
 	planData.Tiles[leftFloorIdx] = planData.GetTile("floor")
 	planData.Tiles[bottomFloorIdx] = planData.GetTile("wall") // 前のテストケースをリセット
@@ -65,8 +65,8 @@ func TestPlanData_GetWallType(t *testing.T) {
 	rightFloorX, rightFloorY := centerWallX+1, centerWallY // 右の床（X座標が大きくなる）
 	downFloorX, downFloorY := centerWallX, centerWallY+1   // 下の床（Y座標が大きくなる）
 
-	rightFloorIdx := planData.Level.XYTileIndex(rightFloorX, rightFloorY)
-	downFloorIdx := planData.Level.XYTileIndex(downFloorX, downFloorY)
+	rightFloorIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: rightFloorX, Y: rightFloorY})
+	downFloorIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: downFloorX, Y: downFloorY})
 
 	planData.Tiles[rightFloorIdx] = planData.GetTile("floor")
 	planData.Tiles[downFloorIdx] = planData.GetTile("floor")
@@ -77,7 +77,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 
 	// テストケース4: WallTypeGeneric（複雑なパターン）
 	upFloorX, upFloorY := centerWallX, centerWallY-1 // 上の床（Y座標が小さくなる）
-	upFloorIdx := planData.Level.XYTileIndex(upFloorX, upFloorY)
+	upFloorIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: upFloorX, Y: upFloorY})
 	planData.Tiles[upFloorIdx] = planData.GetTile("floor")
 
 	wallType = planData.GetWallType(centerWallIdx) // 今は上、右、下に床がある状態
@@ -108,8 +108,8 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 	wallX, wallY := consts.Tile(2), consts.Tile(2)
 	floorX, floorY := wallX, wallY+1 // 下に床を配置（Y座標が大きくなる）
 
-	floorIdx := planData.Level.XYTileIndex(floorX, floorY)
-	wallIdx := planData.Level.XYTileIndex(wallX, wallY)
+	floorIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: floorX, Y: floorY})
+	wallIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: wallX, Y: wallY})
 	planData.Tiles[floorIdx] = planData.GetTile("floor")
 
 	wallType := planData.GetWallType(wallIdx)

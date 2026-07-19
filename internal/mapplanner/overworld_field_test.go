@@ -26,7 +26,7 @@ func eastWestConnected(plan *mapplanner.MetaPlan, w, h int) bool {
 		if x < 0 || x >= w || y < 0 || y >= h {
 			return false
 		}
-		return !plan.Tiles[plan.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))].BlockPass
+		return !plan.Tiles[plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})].BlockPass
 	}
 	visited := make([]bool, w*h)
 	var queue [][2]int

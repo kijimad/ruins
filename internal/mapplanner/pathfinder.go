@@ -27,7 +27,7 @@ func (pf *PathFinder) IsWalkable(x, y int) bool {
 		return false
 	}
 
-	idx := pf.planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+	idx := pf.planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 	tile := pf.planData.Tiles[idx]
 
 	// 歩行可能
@@ -223,7 +223,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[int], error) {
 // isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する
 func (pf *PathFinder) isValidSpawnPosition(x, y int) bool {
 	planData := pf.planData
-	idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+	idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 	if int(idx) >= len(planData.Tiles) || planData.Tiles[idx].BlockPass {
 		return false
 	}

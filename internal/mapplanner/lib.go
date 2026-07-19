@@ -63,7 +63,7 @@ type MetaPlan struct {
 
 // IsSpawnableTile は指定タイル座標がスポーン可能かを返す
 func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool {
-	idx := bm.Level.XYTileIndex(tx, ty)
+	idx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: tx, Y: ty})
 	tile := bm.Tiles[idx]
 	// 通行不可なのでスポーン不可
 	if tile.BlockPass {
@@ -204,7 +204,7 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
 			continue
 		}
 
-		neighborIdx := bm.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
+		neighborIdx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 		tile := bm.Tiles[neighborIdx]
 
 		// 歩行可能

@@ -19,7 +19,7 @@ func TestNewDungeon(t *testing.T) {
 	assert.Equal(t, 3, d.MinimapSettings.Scale)
 }
 
-func TestLevel_XYTileIndex(t *testing.T) {
+func TestLevel_CoordToIndex(t *testing.T) {
 	t.Parallel()
 
 	level := &Level{TileWidth: 10, TileHeight: 5}
@@ -38,7 +38,7 @@ func TestLevel_XYTileIndex(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.expected, level.XYTileIndex(tt.tx, tt.ty))
+			assert.Equal(t, tt.expected, level.CoordToIndex(consts.Coord[consts.Tile]{X: tt.tx, Y: tt.ty}))
 		})
 	}
 }
@@ -70,14 +70,14 @@ func TestLevel_XYTileCoord(t *testing.T) {
 	}
 }
 
-func TestLevel_XYTileIndex_and_XYTileCoord_roundtrip(t *testing.T) {
+func TestLevel_CoordToIndex_and_XYTileCoord_roundtrip(t *testing.T) {
 	t.Parallel()
 
 	level := &Level{TileWidth: 10, TileHeight: 5}
 
 	for ty := consts.Tile(0); ty < level.TileHeight; ty++ {
 		for tx := consts.Tile(0); tx < level.TileWidth; tx++ {
-			idx := level.XYTileIndex(tx, ty)
+			idx := level.CoordToIndex(consts.Coord[consts.Tile]{X: tx, Y: ty})
 			gotX, gotY := level.XYTileCoord(idx)
 			assert.Equal(t, consts.WorldPixel(tx), gotX)
 			assert.Equal(t, consts.WorldPixel(ty), gotY)

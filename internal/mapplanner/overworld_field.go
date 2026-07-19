@@ -49,7 +49,7 @@ func (b OverworldBarriers) PlanMeta(planData *MetaPlan) error {
 				if x < 0 || x >= w || y < 0 || y >= h {
 					continue
 				}
-				planData.Tiles[planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))] = wallTile
+				planData.Tiles[planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})] = wallTile
 			}
 		}
 	}
@@ -70,7 +70,7 @@ func carveEastWestPath(planData *MetaPlan, w, h int) {
 		if y < 0 || y >= h {
 			return
 		}
-		planData.Tiles[planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))] = dirtTile
+		planData.Tiles[planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})] = dirtTile
 	}
 
 	y := h / 2

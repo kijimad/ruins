@@ -92,7 +92,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, err)
 
 		for _, item := range chain.PlanData.Items {
-			tileIdx := chain.PlanData.Level.XYTileIndex(item.X, item.Y)
+			tileIdx := chain.PlanData.Level.CoordToIndex(item.Coord)
 			tile := chain.PlanData.Tiles[tileIdx]
 			assert.False(t, tile.BlockPass, "アイテム(%d,%d)が壁タイルに配置されている", item.X, item.Y)
 		}

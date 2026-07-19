@@ -138,9 +138,9 @@ type Level struct {
 	TileHeight consts.Tile
 }
 
-// XYTileIndex はタイル座標から、タイルスライスのインデックスを求める
-func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {
-	return TileIdx(int(ty)*int(l.TileWidth) + int(tx))
+// CoordToIndex はタイル座標から、タイルスライスのインデックスを求める
+func (l *Level) CoordToIndex(pos consts.Coord[consts.Tile]) TileIdx {
+	return TileIdx(int(pos.Y)*int(l.TileWidth) + int(pos.X))
 }
 
 // XYTileCoord はタイルスライスのインデックスからタイル座標を求める

@@ -71,7 +71,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 			distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
 			if distance <= radius {
-				idx := planData.Level.XYTileIndex(x, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
@@ -89,7 +89,7 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 	// 森全体に木を配置（60%の密度）
 	for x := 1; x < width-1; x++ {
 		for y := 1; y < height-1; y++ {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			if !planData.Tiles[idx].BlockPass {
 				// 空き地の近くでは木の密度を下げる
@@ -150,7 +150,7 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 			x, y := centerX+dx, centerY+dy
 
 			if x >= 0 && x < width && y >= 0 && y < height {
-				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 				if !planData.Tiles[idx].BlockPass && planData.RNG.Float64() < 0.7 {
 					planData.Tiles[idx] = planData.GetTile("wall")
@@ -203,7 +203,7 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
 		for dx := -1; dx <= 1; dx++ {
 			x := pathX + dx
 			if x >= 0 && x < width {
-				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
@@ -270,7 +270,7 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 			for dy := -1; dy <= 1; dy++ {
 				nx, ny := x+dx, y+dy
 				if nx >= 0 && nx < width && ny >= 0 && ny < height {
-					idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
+					idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 
 					// 70%の確率で通路を作成（自然な感じに）
 					if planData.RNG.Float64() < 0.7 {
@@ -310,7 +310,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 				if nx >= 0 && nx < width && ny > 0 && ny < height-1 {
 					distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
 					if distance <= float64(radius) {
-						idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
+						idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 						planData.Tiles[idx] = planData.GetTile("floor")
 					}
 				}

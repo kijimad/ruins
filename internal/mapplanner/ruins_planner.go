@@ -62,12 +62,12 @@ func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {
 	for x := building.Min.X; x <= building.Max.X; x++ {
 		// 上辺
 		if y := building.Min.Y; planData.RNG.Float64() > 0.3 { // 70%の確率で壁
-			idx := planData.Level.XYTileIndex(x, y)
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
 		// 下辺
 		if y := building.Max.Y; planData.RNG.Float64() > 0.3 {
-			idx := planData.Level.XYTileIndex(x, y)
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
 	}
@@ -75,12 +75,12 @@ func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {
 	for y := building.Min.Y; y <= building.Max.Y; y++ {
 		// 左辺
 		if x := building.Min.X; planData.RNG.Float64() > 0.3 {
-			idx := planData.Level.XYTileIndex(x, y)
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
 		// 右辺
 		if x := building.Max.X; planData.RNG.Float64() > 0.3 {
-			idx := planData.Level.XYTileIndex(x, y)
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 			planData.Tiles[idx] = planData.GetTile(r.WallTile)
 		}
 	}
@@ -100,7 +100,7 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
 		midX := building.Min.X + consts.Tile(buildingWidth/2)
 		for y := building.Min.Y + 2; y <= building.Max.Y-2; y++ {
 			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
-				idx := planData.Level.XYTileIndex(midX, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: midX, Y: y})
 				planData.Tiles[idx] = planData.GetTile(r.WallTile)
 			}
 		}
@@ -109,7 +109,7 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
 		midY := building.Min.Y + consts.Tile(buildingHeight/2)
 		for x := building.Min.X + 2; x <= building.Max.X-2; x++ {
 			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
-				idx := planData.Level.XYTileIndex(x, midY)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: midY})
 				planData.Tiles[idx] = planData.GetTile(r.WallTile)
 			}
 		}
@@ -130,7 +130,7 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
 	// 屋外エリアに瓦礫を散乱させる
 	for x := 1; x < width-1; x++ {
 		for y := 1; y < height-1; y++ {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			if planData.Tiles[idx].Name == r.FloorTile {
 				// 建物から離れた場所ほど瓦礫が少ない
@@ -222,7 +222,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 
 		// 70%の確率で通路を作成（部分的に破損）
 		if planData.RNG.Float64() > 0.3 {
-			idx := planData.Level.XYTileIndex(currentX, currentY)
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
 			if planData.Tiles[idx].Name == r.WallTile {
 				planData.Tiles[idx] = planData.GetTile(r.FloorTile)
 			}
@@ -239,7 +239,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 
 		// 70%の確率で通路を作成
 		if planData.RNG.Float64() > 0.3 {
-			idx := planData.Level.XYTileIndex(currentX, currentY)
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
 			if planData.Tiles[idx].Name == r.WallTile {
 				planData.Tiles[idx] = planData.GetTile(r.FloorTile)
 			}

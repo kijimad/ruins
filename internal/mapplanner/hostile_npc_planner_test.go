@@ -92,7 +92,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, err)
 
 		for _, npc := range chain.PlanData.NPCs {
-			tileIdx := chain.PlanData.Level.XYTileIndex(npc.X, npc.Y)
+			tileIdx := chain.PlanData.Level.CoordToIndex(npc.Coord)
 			tile := chain.PlanData.Tiles[tileIdx]
 			assert.False(t, tile.BlockPass, "NPC(%d,%d)が壁タイルに配置されている", npc.X, npc.Y)
 		}

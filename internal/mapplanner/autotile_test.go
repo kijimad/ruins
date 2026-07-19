@@ -37,7 +37,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	}
 
 	// 中央（2,2）を土タイルに設定
-	centerIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(2))
+	centerIdx := metaPlan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(2), Y: consts.Tile(2)})
 	dirtTile, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	metaPlan.Tiles[centerIdx] = dirtTile
@@ -47,7 +47,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	assert.Equal(t, AutoTileIsolated, autoTileIndex, "孤立タイルの判定が間違っています")
 
 	// テストケース2: 上に土タイルを追加（下だけが異なる状態）
-	topIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(1))
+	topIdx := metaPlan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(2), Y: consts.Tile(1)})
 	topDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	metaPlan.Tiles[topIdx] = topDirt
@@ -64,7 +64,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	assert.Equal(t, AutoTileUp, autoTileIndex, "上だけが同じタイルの判定が間違っています")
 
 	// テストケース3: 右にも土タイルを追加（下左が異なる状態）
-	rightIdx := metaPlan.Level.XYTileIndex(consts.Tile(3), consts.Tile(2))
+	rightIdx := metaPlan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(3), Y: consts.Tile(2)})
 	rightDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	metaPlan.Tiles[rightIdx] = rightDirt
@@ -73,8 +73,8 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	assert.Equal(t, AutoTileUpRight, autoTileIndex, "上右が同じタイルの判定が間違っています")
 
 	// テストケース4: 全方向に土タイルを配置（中央タイル）
-	bottomIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(3))
-	leftIdx := metaPlan.Level.XYTileIndex(consts.Tile(1), consts.Tile(2))
+	bottomIdx := metaPlan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(2), Y: consts.Tile(3)})
+	leftIdx := metaPlan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(1), Y: consts.Tile(2)})
 	bottomDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	leftDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)

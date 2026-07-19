@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -126,7 +127,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			chain.PlanData.Tiles[i] = chain.PlanData.GetTile("wall")
 		}
 		// (5,5) だけ床にする
-		idx := chain.PlanData.Level.XYTileIndex(5, 5)
+		idx := chain.PlanData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 5, Y: 5})
 		chain.PlanData.Tiles[idx] = chain.PlanData.GetTile("floor")
 
 		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)

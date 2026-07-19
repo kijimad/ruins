@@ -62,7 +62,7 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 		// 部屋の内部を床タイルで埋める
 		for x := room.Min.X; x <= room.Max.X; x++ {
 			for y := room.Min.Y; y <= room.Max.Y; y++ {
-				idx := planData.Level.XYTileIndex(x, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 				planData.Tiles[idx] = planData.GetTile(b.FloorTile)
 			}
 		}
@@ -71,14 +71,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 		for y := room.Min.Y; y <= room.Max.Y; y++ {
 			// 左辺
 			if x := room.Min.X - 1; x >= 0 {
-				idx := planData.Level.XYTileIndex(x, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 				if planData.Tiles[idx].Name != b.FloorTile {
 					planData.Tiles[idx] = planData.GetTile(b.WallTile)
 				}
 			}
 			// 右辺
 			if x := room.Max.X + 1; int(x) < int(planData.Level.TileWidth) {
-				idx := planData.Level.XYTileIndex(x, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 				if planData.Tiles[idx].Name != b.FloorTile {
 					planData.Tiles[idx] = planData.GetTile(b.WallTile)
 				}
@@ -88,14 +88,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 		for x := room.Min.X; x <= room.Max.X; x++ {
 			// 上辺
 			if y := room.Min.Y - 1; y >= 0 {
-				idx := planData.Level.XYTileIndex(x, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 				if planData.Tiles[idx].Name != b.FloorTile {
 					planData.Tiles[idx] = planData.GetTile(b.WallTile)
 				}
 			}
 			// 下辺
 			if y := room.Max.Y + 1; int(y) < int(planData.Level.TileHeight) {
-				idx := planData.Level.XYTileIndex(x, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 				if planData.Tiles[idx].Name != b.FloorTile {
 					planData.Tiles[idx] = planData.GetTile(b.WallTile)
 				}
@@ -117,7 +117,7 @@ func (b BigRoomDraw) applyPillars(planData *MetaPlan) {
 		// 規則的に柱を配置
 		for x := startX; x < int(room.Max.X); x += spacing + 1 {
 			for y := startY; y < int(room.Max.Y); y += spacing + 1 {
-				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 				planData.Tiles[idx] = planData.GetTile("wall")
 			}
 		}
@@ -140,7 +140,7 @@ func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {
 			x := int(room.Min.X) + 1 + planData.RNG.IntN(maxXRange)
 			y := int(room.Min.Y) + 1 + planData.RNG.IntN(maxYRange)
 
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 			planData.Tiles[idx] = planData.GetTile("wall")
 		}
 	}
@@ -156,7 +156,7 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 			for y := int(room.Min.Y) + 1; y <= int(room.Max.Y)-1; y++ {
 				// 縦の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {
-					idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+					idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}
@@ -167,7 +167,7 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 			for x := int(room.Min.X); x <= int(room.Max.X); x++ {
 				// 横の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {
-					idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+					idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}
@@ -193,7 +193,7 @@ func (b BigRoomDraw) applyCenterPlatform(planData *MetaPlan) {
 					y := centerY + dy
 					if x >= int(room.Min.X) && x <= int(room.Max.X) &&
 						y >= int(room.Min.Y) && y <= int(room.Max.Y) {
-						idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+						idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 						// 外周は壁、内部は床のまま
 						if distance >= (platformSize-1)*(platformSize-1) {
 							planData.Tiles[idx] = planData.GetTile("wall")

@@ -50,17 +50,17 @@ func TestPathFinder_IsWalkable(t *testing.T) {
 	assert.False(t, pf.IsWalkable(1, 1), "Expected wall tile to be not walkable")
 
 	// 床タイルに変更してテスト
-	idx := planData.Level.XYTileIndex(1, 1)
+	idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
 	planData.Tiles[idx] = planData.GetTile("floor")
 	assert.True(t, pf.IsWalkable(1, 1), "Expected floor tile to be walkable")
 
 	// ワープタイルテスト
-	idx = planData.Level.XYTileIndex(2, 2)
+	idx = planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 2, Y: 2})
 	planData.Tiles[idx] = planData.GetTile("floor")
 	assert.True(t, pf.IsWalkable(2, 2), "Expected warp next tile to be walkable")
 
 	// 脱出タイルテスト
-	idx = planData.Level.XYTileIndex(3, 3)
+	idx = planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 3, Y: 3})
 	planData.Tiles[idx] = planData.GetTile("floor")
 	assert.True(t, pf.IsWalkable(3, 3), "Expected warp escape tile to be walkable")
 }
@@ -73,7 +73,7 @@ func TestPathFinder_FindPath_SimplePath(t *testing.T) {
 	// 簡単な一直線のパスを作成
 	// (1,1) -> (1,2) -> (1,3)
 	for y := 1; y <= 3; y++ {
-		idx := planData.Level.XYTileIndex(1, consts.Tile(y))
+		idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: consts.Tile(y)})
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
@@ -96,7 +96,7 @@ func TestPathFinder_FindPath_NoPath(t *testing.T) {
 	pf := NewPathFinder(planData)
 
 	// スタート地点のみ床にする（ゴールは壁のまま）
-	idx := planData.Level.XYTileIndex(1, 1)
+	idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
 	planData.Tiles[idx] = planData.GetTile("floor")
 
 	path := pf.FindPath(1, 1, 3, 3)
@@ -113,7 +113,7 @@ func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
 	// (1,1) -> (1,2) -> (2,2) -> (3,2)
 	positions := []consts.Coord[int]{{X: 1, Y: 1}, {X: 1, Y: 2}, {X: 2, Y: 2}, {X: 3, Y: 2}}
 	for _, pos := range positions {
-		idx := planData.Level.XYTileIndex(consts.Tile(pos.X), consts.Tile(pos.Y))
+		idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(pos.X), Y: consts.Tile(pos.Y)})
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
@@ -136,7 +136,7 @@ func TestPathFinder_IsReachable(t *testing.T) {
 	// パスを作成
 	positions := []consts.Coord[int]{{X: 1, Y: 1}, {X: 1, Y: 2}, {X: 2, Y: 2}}
 	for _, pos := range positions {
-		idx := planData.Level.XYTileIndex(consts.Tile(pos.X), consts.Tile(pos.Y))
+		idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(pos.X), Y: consts.Tile(pos.Y)})
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
@@ -169,7 +169,7 @@ func TestFindPlayerStartPosition_AvoidsNPCs(t *testing.T) {
 	// 内側を床にする
 	for y := 1; y < height-1; y++ {
 		for x := 1; x < width-1; x++ {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 			tiles[idx] = planData.GetTile("floor")
 		}
 	}

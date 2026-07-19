@@ -42,13 +42,13 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	// 内側5x5を床にする
 	for x := 1; x <= 5; x++ {
 		for y := 1; y <= 5; y++ {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 			planData.Tiles[idx] = planData.GetTile("floor")
 		}
 	}
 
 	// 中央の床を壁に戻す（床に隣接する壁）
-	centerIdx := planData.Level.XYTileIndex(3, 3)
+	centerIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 3, Y: 3})
 	planData.Tiles[centerIdx] = planData.GetTile("wall")
 
 	// プランナーを実行（floorに変換）
@@ -61,10 +61,10 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	assert.Equal(t, "wall", planData.Tiles[centerIdx].Name, "床に隣接する中央の壁はwallのまま")
 
 	// 周囲の壁（床に隣接）
-	topWallIdx := planData.Level.XYTileIndex(3, 0)
-	bottomWallIdx := planData.Level.XYTileIndex(3, 6)
-	leftWallIdx := planData.Level.XYTileIndex(0, 3)
-	rightWallIdx := planData.Level.XYTileIndex(6, 3)
+	topWallIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 3, Y: 0})
+	bottomWallIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 3, Y: 6})
+	leftWallIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 0, Y: 3})
+	rightWallIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 6, Y: 3})
 
 	assert.Equal(t, "wall", planData.Tiles[topWallIdx].Name, "床に隣接する上壁はwallのまま")
 	assert.Equal(t, "wall", planData.Tiles[bottomWallIdx].Name, "床に隣接する下壁はwallのまま")
@@ -72,10 +72,10 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	assert.Equal(t, "wall", planData.Tiles[rightWallIdx].Name, "床に隣接する右壁はwallのまま")
 
 	// 検証2: 四隅の壁も斜めで床に隣接しているのでwallのまま
-	topLeftIdx := planData.Level.XYTileIndex(0, 0)
-	topRightIdx := planData.Level.XYTileIndex(6, 0)
-	bottomLeftIdx := planData.Level.XYTileIndex(0, 6)
-	bottomRightIdx := planData.Level.XYTileIndex(6, 6)
+	topLeftIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 0, Y: 0})
+	topRightIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 6, Y: 0})
+	bottomLeftIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 0, Y: 6})
+	bottomRightIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 6, Y: 6})
 
 	assert.Equal(t, "wall", planData.Tiles[topLeftIdx].Name, "四隅の壁も斜めで床に隣接")
 	assert.Equal(t, "wall", planData.Tiles[topRightIdx].Name, "四隅の壁も斜めで床に隣接")
@@ -83,7 +83,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	assert.Equal(t, "wall", planData.Tiles[bottomRightIdx].Name, "四隅の壁も斜めで床に隣接")
 
 	// 検証3: 床タイルはそのまま床として残る
-	floorIdx := planData.Level.XYTileIndex(1, 1)
+	floorIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
 	assert.Equal(t, "floor", planData.Tiles[floorIdx].Name, "床タイルはそのまま")
 }
 

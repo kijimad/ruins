@@ -110,7 +110,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 			hasFloor := false
 			for x := room.Min.X; x <= room.Max.X && !hasFloor; x++ {
 				for y := room.Min.Y; y <= room.Max.Y && !hasFloor; y++ {
-					idx := chain.PlanData.Level.XYTileIndex(x, y)
+					idx := chain.PlanData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 					if idx >= 0 && int(idx) < len(chain.PlanData.Tiles) {
 						if !chain.PlanData.Tiles[idx].BlockPass {
 							hasFloor = true
