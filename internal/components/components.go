@@ -36,9 +36,9 @@ type Camera struct {
 	// ズーム率
 	Scale   float64
 	ScaleTo float64
-	// カメラ位置。ピクセル単位
-	Pos    consts.Coord[float64]
-	Target consts.Coord[float64]
+	// カメラ位置。ワールド空間のピクセル単位
+	Pos    consts.Coord[consts.Pixel]
+	Target consts.Coord[consts.Pixel]
 }
 
 // Consumable は消耗品。一度使うとなくなる

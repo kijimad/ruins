@@ -135,10 +135,10 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 		camera := world.Components.Camera.Get(entity)
 		camera.Scale = scale
 		camera.ScaleTo = scale
-		camera.Pos.X = centerX
-		camera.Pos.Y = centerY
-		camera.Target.X = centerX
-		camera.Target.Y = centerY
+		camera.Pos.X = consts.Pixel(centerX)
+		camera.Pos.Y = consts.Pixel(centerY)
+		camera.Target.X = consts.Pixel(centerX)
+		camera.Target.Y = consts.Pixel(centerY)
 	}
 }
 

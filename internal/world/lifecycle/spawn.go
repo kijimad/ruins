@@ -60,14 +60,12 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
 
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: pos.X, Y: pos.Y}}
-	tileSize := float64(consts.TileSize)
-	initialX := float64(pos.X)*tileSize + tileSize/2
-	initialY := float64(pos.Y)*tileSize + tileSize/2
+	center := consts.TileCenterToWorld(pos)
 	entitySpec.Camera = &gc.Camera{
 		Scale:   cameraNormalScale,
 		ScaleTo: cameraNormalScale,
-		Pos:     consts.Coord[float64]{X: initialX, Y: initialY},
-		Target:  consts.Coord[float64]{X: initialX, Y: initialY},
+		Pos:     center,
+		Target:  center,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}

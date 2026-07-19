@@ -8,8 +8,14 @@ var InvalidEntity = ecs.Entity{}
 
 // ========== 基本型 ==========
 
-// Pixel はピクセル単位。計算用にfloat64
+// Pixel はワールド空間のピクセル単位。計算用に float64。
+// フィールド上の絶対位置を表す。カメラ変換前の座標。
 type Pixel float64
+
+// ScreenPixel は画面空間のピクセル単位。カメラ変換後の描画位置を表す。
+// Pixel とは別型にして、ワールド座標とスクリーン座標の取り違えを型で弾く。
+// 変換は WorldToScreen で行う。
+type ScreenPixel float64
 
 // Tile はタイルの位置。ピクセル数ではない
 type Tile int

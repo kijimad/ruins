@@ -77,11 +77,8 @@ func (sys *VisionSystem) Update(world w.World) error {
 		return nil
 	}
 
-	// タイル座標をピクセル座標に変換
-	playerPos := consts.Coord[consts.Pixel]{
-		X: consts.Pixel(int(playerGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-		Y: consts.Pixel(int(playerGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
-	}
+	// タイル座標をワールドピクセル座標に変換
+	playerPos := consts.TileCenterToWorld(playerGridElement.Coord)
 
 	dungeon := query.GetDungeon(world)
 	if dungeon == nil {
@@ -225,12 +222,11 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.Pixel], r
 			tileY := playerTileY + dy
 
 			// タイルの中心座標を計算
-			tileCenterX := float64(tileX*int(consts.TileSize) + int(consts.TileSize)/2)
-			tileCenterY := float64(tileY*int(consts.TileSize) + int(consts.TileSize)/2)
+			tileCenter := consts.TileCenterToWorld(consts.Coord[consts.Tile]{X: consts.Tile(tileX), Y: consts.Tile(tileY)})
 
 			// プレイヤーからタイル中心への距離をチェック（平方根計算の最適化）
-			dxF := tileCenterX - float64(playerPos.X)
-			dyF := tileCenterY - float64(playerPos.Y)
+			dxF := float64(tileCenter.X - playerPos.X)
+			dyF := float64(tileCenter.Y - playerPos.Y)
 			distanceSquared := dxF*dxF + dyF*dyF
 			radiusSquared := float64(radius) * float64(radius)
 
@@ -238,10 +234,7 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.Pixel], r
 
 			// 視界範囲内のタイルのみ処理
 			if distanceSquared <= radiusSquared {
-				visible := isTileVisibleByRaycast(
-					consts.Coord[float64]{X: float64(playerPos.X), Y: float64(playerPos.Y)},
-					consts.Coord[float64]{X: tileCenterX, Y: tileCenterY},
-					rcCache, blockIndex)
+				visible := isTileVisibleByRaycast(playerPos, tileCenter, rcCache, blockIndex)
 
 				visibilityMap[tileKey] = TileVisibility{
 					Row:     tileY,
@@ -257,7 +250,7 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.Pixel], r
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
-func isTileVisibleByRaycast(player, target consts.Coord[float64], rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
+func isTileVisibleByRaycast(player, target consts.Coord[consts.Pixel], rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
 	// キャッシュキーを生成（4刻みに丸めて近い視線を共有する）
 	cacheKey := raycastCacheKey{
 		Player: consts.Coord[int]{X: int(player.X/4) * 4, Y: int(player.Y/4) * 4},
@@ -270,10 +263,10 @@ func isTileVisibleByRaycast(player, target consts.Coord[float64], rcCache map[ra
 	}
 
 	// タイル座標に変換
-	playerTileX := int(player.X / float64(consts.TileSize))
-	playerTileY := int(player.Y / float64(consts.TileSize))
-	targetTileX := int(target.X / float64(consts.TileSize))
-	targetTileY := int(target.Y / float64(consts.TileSize))
+	playerTileX := int(player.X / consts.TileSize)
+	playerTileY := int(player.Y / consts.TileSize)
+	targetTileX := int(target.X / consts.TileSize)
+	targetTileY := int(target.Y / consts.TileSize)
 
 	// 同じタイルまたは隣接タイルは常に見える
 	if geometry.Abs(targetTileX-playerTileX) <= 1 && geometry.Abs(targetTileY-playerTileY) <= 1 {

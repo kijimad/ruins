@@ -11,6 +11,22 @@ type Coord[T Numeric] struct {
 	Y T
 }
 
+// TileCenterToWorld はタイル座標を、そのタイル中心のワールドピクセル座標へ変換する。
+// スプライトはタイル中心に合わせて配置するため中心へ半タイルぶんずらす。
+func TileCenterToWorld(grid Coord[Tile]) Coord[Pixel] {
+	half := TileSize / 2
+	return Coord[Pixel]{X: Pixel(grid.X)*TileSize + half, Y: Pixel(grid.Y)*TileSize + half}
+}
+
+// WorldToScreen はワールドピクセル座標をカメラ変換して画面のスクリーンピクセル座標へ変換する。
+// cameraPos はカメラ中心のワールド位置、scale はズーム率、screen は画面サイズ。
+func WorldToScreen(world Coord[Pixel], cameraPos Coord[Pixel], scale float64, screenW, screenH int) Coord[ScreenPixel] {
+	return Coord[ScreenPixel]{
+		X: ScreenPixel(float64(world.X-cameraPos.X)*scale + float64(screenW)/2),
+		Y: ScreenPixel(float64(world.Y-cameraPos.Y)*scale + float64(screenH)/2),
+	}
+}
+
 // AbsTileX は東西の絶対タイル X 座標。
 //
 // 東へ進むほど無限に増える絶対軸で、帯ローカルの GridElement.X とは別物。GridElement.X は

@@ -68,7 +68,7 @@ func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera)
 
 	// カメラ位置の設定
 	if camera != nil {
-		op.GeoM.Translate(-camera.Pos.X, -camera.Pos.Y)
+		op.GeoM.Translate(-float64(camera.Pos.X), -float64(camera.Pos.Y))
 		op.GeoM.Scale(camera.Scale, camera.Scale)
 	}
 	// 画面の中央
@@ -81,7 +81,7 @@ func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (m
 	var cameraX, cameraY float64
 	cameraScale := 1.0
 	if camera != nil {
-		cameraX, cameraY, cameraScale = camera.Pos.X, camera.Pos.Y, camera.Scale
+		cameraX, cameraY, cameraScale = float64(camera.Pos.X), float64(camera.Pos.Y), camera.Scale
 	}
 	if cameraScale <= 0 {
 		cameraScale = 1.0
@@ -456,8 +456,8 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	var cameraX, cameraY float64
 	cameraScale := 1.0
 	if camera != nil {
-		cameraX = camera.Pos.X
-		cameraY = camera.Pos.Y
+		cameraX = float64(camera.Pos.X)
+		cameraY = float64(camera.Pos.Y)
 		cameraScale = camera.Scale
 	}
 
