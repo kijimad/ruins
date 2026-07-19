@@ -80,23 +80,21 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
+        # engine はゲーム基盤。許可した依存以外を strict で全面禁止し、world/components/
+        # resources などドメインに依存させない。テストはドメインを import してよいので除外する
         engine_guard:
-          list-mode: lax
+          list-mode: strict
           files:
             - "**/internal/engine/**"
             - "!$test"
-          deny:
-            # 正確にmodule名である必要がある。ワイルドカードは使えない
-            - pkg: "github.com/kijimaD/ruins/internal/world"
-              desc: engineはworldに依存しない
-            - pkg: "github.com/kijimaD/ruins/internal/components"
-              desc: engineはcomponentsに依存しない
-            - pkg: "github.com/kijimaD/ruins/internal/resources"
-              desc: engineはresourcesに依存しない
-        # geometry は純粋アルゴリズムの leaf パッケージ。stdlib と単位型 consts のみ許可し、
-        # それ以外の内部パッケージや第三者ライブラリを strict で全面禁止する。
-        # deny リストの列挙でなく allow リストにすることで、将来どんな依存が混入しても弾ける。
-        # ドメイン単位が要る計算は呼び出し側で Tile と int を変換する。テストも純粋に保つ。
+          allow:
+            - "$gostd"
+            - "github.com/hajimehoshi/ebiten/v2"
+            - "github.com/mlange-42/ark/ecs"
+            - "github.com/kijimaD/ruins/internal/config"
+            - "github.com/kijimaD/ruins/internal/inputmapper"
+            - "github.com/kijimaD/ruins/internal/engine"
+        # geometry は純粋アルゴリズム。stdlib と単位型 consts のみ許可する
         geometry_guard:
           list-mode: strict
           files:
@@ -105,8 +103,7 @@ linters:
             - "$gostd"
             - "github.com/kijimaD/ruins/internal/consts"
             - "github.com/stretchr/testify"
-        # consts は最下層の単位・座標型 leaf。内部パッケージに一切依存させない。
-        # stdlib のみ許可し、ドメインを import した瞬間に弾く。テストの consts/testify は許可する。
+        # consts は最下層の単位・座標型。内部パッケージに一切依存させない
         consts_guard:
           list-mode: strict
           files:
