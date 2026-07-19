@@ -4,6 +4,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -19,11 +20,8 @@ type WindowSize struct {
 	Height int
 }
 
-// Position はウィンドウ位置の設定
-type Position struct {
-	X int
-	Y int
-}
+// Position はウィンドウ位置の設定。実体は consts.Coord[int]。
+type Position = consts.Coord[int]
 
 // Padding は内側余白の設定
 type Padding struct {

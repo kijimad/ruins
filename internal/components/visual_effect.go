@@ -2,6 +2,8 @@ package components
 
 import (
 	"image/color"
+
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // VisualEffect はビジュアルエフェクトのインターフェース
@@ -53,8 +55,7 @@ func calculateFadeAlpha(elapsed, fadeInMs, holdMs, fadeOutMs float64) float64 {
 
 // TextProperties はテキスト表示に共通するプロパティをまとめる
 type TextProperties struct {
-	OffsetX float64    // X座標オフセット
-	OffsetY float64    // Y座標オフセット
-	Text    string     // 表示テキスト
-	Color   color.RGBA // 表示色
+	Offset consts.Coord[float64] // 座標オフセット
+	Text   string                // 表示テキスト
+	Color  color.RGBA            // 表示色
 }

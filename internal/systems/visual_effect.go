@@ -133,8 +133,8 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 
 	// テキストサイズを測定して中央揃え
 	textWidth, textHeight := text.Measure(effect.Text, effect.Face, 0)
-	x := effect.OffsetX - textWidth/2
-	y := effect.OffsetY - textHeight/2
+	x := effect.Offset.X - textWidth/2
+	y := effect.Offset.Y - textHeight/2
 
 	// フル不透明でバッファに描画する
 	textColor := effect.Color
@@ -164,7 +164,7 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 
 	if effect.LineWidth > 0 {
 		lineY := y + textHeight + 2
-		lineLeft := effect.OffsetX - effect.LineWidth/2
+		lineLeft := effect.Offset.X - effect.LineWidth/2
 		sys.drawHorizontalLine(world, buf, lineLeft, lineY, int(effect.LineWidth), effect.Color)
 	}
 
@@ -181,8 +181,8 @@ func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Imag
 	pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
 
 	// オフセットを適用
-	pixelX += effect.OffsetX
-	pixelY += effect.OffsetY
+	pixelX += effect.Offset.X
+	pixelY += effect.Offset.Y
 
 	// カメラ変換を適用して画面座標に変換
 	op := &ebiten.DrawImageOptions{}
