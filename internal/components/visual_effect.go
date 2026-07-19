@@ -55,7 +55,11 @@ func calculateFadeAlpha(elapsed, fadeInMs, holdMs, fadeOutMs float64) float64 {
 
 // TextProperties はテキスト表示に共通するプロパティをまとめる
 type TextProperties struct {
-	Offset consts.Coord[float64] // 座標オフセット
+	// Offset の意味はエフェクト種別で異なるため単位型を付けない。
+	// DamageText ではエンティティ基準のワールドピクセルオフセット、カメラ変換を通る。
+	// SplashText では画面直描きのスクリーン位置。両者で意味が違うので Coord[float64] のまま置く。
+	// 単位型を付けるにはエフェクト種別ごとに Offset を分ける設計変更が要る。
+	Offset consts.Coord[float64]
 	Text   string                // 表示テキスト
 	Color  color.RGBA            // 表示色
 }
