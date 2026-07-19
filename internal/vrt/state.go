@@ -107,7 +107,7 @@ func InitVRTWorld(tb testing.TB) w.World {
 	world, err := maingame.InitWorld(cfg)
 	require.NoError(tb, err)
 
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(tb, err)
 
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)

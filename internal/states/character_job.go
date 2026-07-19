@@ -164,7 +164,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 		world.ECS.RemoveEntity(existing)
 	}
 
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	if err != nil {
 		return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの生成に失敗: %w", err)
 	}

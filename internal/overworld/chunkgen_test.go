@@ -93,7 +93,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 		require.NoError(t, gen(consts.Chunk(i), consts.Tile(i)*chunkW))
 	}
 	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
-	player, err := lifecycle.SpawnPlayer(world, int(2*chunkW), int(chunkH/2), "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2 * chunkW, Y: chunkH / 2}, "Ash")
 	require.NoError(t, err)
 
 	band := worldstream.NewBand(chunkW, k)

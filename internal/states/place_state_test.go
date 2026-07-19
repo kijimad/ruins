@@ -23,7 +23,7 @@ func TestPlaceState_OnStart(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 3, 8, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 3, Y: 8}, "Ash")
 	require.NoError(t, err)
 
 	state := &PlaceState{}

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
@@ -23,7 +24,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	world = testutil.InitTestWorld(t)
 
 	// プレイヤーを生成
-	p, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+	p, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 
 	// ハンドガンを生成して装備
@@ -37,7 +38,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	require.NoError(t, err)
 
 	// 敵を生成（射程内）
-	e, err := lifecycle.SpawnEnemy(world, 13, 10, "火の玉")
+	e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
 	require.NoError(t, err)
 
 	// 敵の位置を探索済みにする
@@ -106,7 +107,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
@@ -115,7 +116,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		// ハンドガンの最大射程(8)より遠くに配置
-		enemy, err := lifecycle.SpawnEnemy(world, 20, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		sa := &ShootActivity{}
@@ -131,7 +132,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// 近接武器（木刀）を装備
@@ -140,7 +141,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
-		enemy, err := lifecycle.SpawnEnemy(world, 12, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		sa := &ShootActivity{}
@@ -258,7 +259,7 @@ func TestExecuteShootAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
@@ -266,7 +267,7 @@ func TestExecuteShootAction(t *testing.T) {
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
-		enemy, err := lifecycle.SpawnEnemy(world, 12, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		err = ExecuteShootAction(player, enemy, world)
@@ -292,7 +293,7 @@ func TestCanShootTarget(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
@@ -300,7 +301,7 @@ func TestCanShootTarget(t *testing.T) {
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		// ハンドガン最大射程(8)より遠く
-		enemy, err := lifecycle.SpawnEnemy(world, 20, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		assert.False(t, CanShootTarget(player, enemy, world))
@@ -505,7 +506,7 @@ func TestGetEquippedFire(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
@@ -533,13 +534,13 @@ func TestCalculateShootHitRate(t *testing.T) {
 		worldNear, playerNear, _, _ := setupShootingWorld(t)
 
 		// 近い敵（距離3）
-		nearEnemy, err := lifecycle.SpawnEnemy(worldNear, 13, 10, "火の玉")
+		nearEnemy, err := lifecycle.SpawnEnemy(worldNear, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
 		require.NoError(t, err)
 		nearRate := CalculateShootHitRate(playerNear, nearEnemy, worldNear)
 
 		// 遠い敵用のWorldを別に構築
 		worldFar, playerFar, _, _ := setupShootingWorld(t)
-		farEnemy, err := lifecycle.SpawnEnemy(worldFar, 17, 10, "火の玉")
+		farEnemy, err := lifecycle.SpawnEnemy(worldFar, consts.Coord[consts.Tile]{X: 17, Y: 10}, "火の玉")
 		require.NoError(t, err)
 		farRate := CalculateShootHitRate(playerFar, farEnemy, worldFar)
 

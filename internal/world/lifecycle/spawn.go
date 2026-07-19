@@ -49,7 +49,7 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 }
 
 // SpawnPlayer はプレイヤーキャラクターを生成する
-func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
+func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) {
 	entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
@@ -59,10 +59,10 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	entitySpec.Skills = skills
 	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
 
-	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{X: pos.X, Y: pos.Y}
 	tileSize := float64(consts.TileSize)
-	initialX := float64(tileX)*tileSize + tileSize/2
-	initialY := float64(tileY)*tileSize + tileSize/2
+	initialX := float64(pos.X)*tileSize + tileSize/2
+	initialY := float64(pos.Y)*tileSize + tileSize/2
 	entitySpec.Camera = &gc.Camera{
 		Scale:   cameraNormalScale,
 		ScaleTo: cameraNormalScale,
@@ -83,7 +83,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 }
 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
-func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
+func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) {
 	entitySpec, err := raw.NewMemberSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("中立NPC生成エラー: %w", err)
@@ -96,15 +96,14 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		return consts.InvalidEntity, fmt.Errorf("'%s' には会話データがありません", name)
 	}
 
-	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{X: pos.X, Y: pos.Y}
 
 	if entitySpec.SoloAI != nil {
 		solo := entitySpec.SoloAI
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
 		solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
-		solo.Origin.X = tileX
-		solo.Origin.Y = tileY
+		solo.Origin = consts.Coord[int]{X: int(pos.X), Y: int(pos.Y)}
 		solo.PatrolDir.X = initialPatrolDir()
 		solo.ViewDistance = consts.AIVisionDistance
 	}
@@ -129,13 +128,13 @@ func WithBoss() SpawnEnemyOption {
 }
 
 // SpawnEnemy はフィールド上に敵キャラクターを生成する
-func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
+func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
 	entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
 	}
 
-	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{X: pos.X, Y: pos.Y}
 	if entitySpec.SoloAI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
@@ -143,8 +142,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
-	solo.Origin.X = tileX
-	solo.Origin.Y = tileY
+	solo.Origin = consts.Coord[int]{X: int(pos.X), Y: int(pos.Y)}
 	solo.PatrolDir.X = initialPatrolDir()
 	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
@@ -183,7 +181,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	leaderGrid := world.Components.GridElement.Get(leader)
 
 	// リーダーの隣接空きタイルを探す
-	spawnX, spawnY, err := findAdjacentEmptyTile(world, int(leaderGrid.X), int(leaderGrid.Y), nil)
+	spawnPos, err := findAdjacentEmptyTile(world, consts.Coord[consts.Tile]{X: leaderGrid.X, Y: leaderGrid.Y}, nil)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("隊員のスポーン位置が見つかりません: %w", err)
 	}
@@ -205,7 +203,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			ai := gc.DefaultSquadAI()
 			return &ai
 		}(),
-		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
+		GridElement: &gc.GridElement{X: spawnPos.X, Y: spawnPos.Y},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,

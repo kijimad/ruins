@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -22,9 +23,9 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	_, err = lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnEnemy(world, 8, 8, "火の玉")
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "火の玉")
 	require.NoError(t, err)
 	// 回復薬は平坦化された ProvidesHealing を持つ。serde 往復で保存されることを確認する
 	_, err = lifecycle.SpawnFieldItem(world, "回復薬", 3, 3, 2)
@@ -91,7 +92,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	_, err = lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	dungeonState := query.GetDungeon(world)
@@ -126,9 +127,9 @@ func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
-	enemy, err := lifecycle.SpawnEnemy(world, 8, 8, "火の玉")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "火の玉")
 	require.NoError(t, err)
 
 	// 敵のSoloAIがプレイヤーを標的にしている戦闘中状態を作る

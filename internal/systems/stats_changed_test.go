@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -20,7 +21,7 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 初期Strengthを取得
@@ -60,7 +61,7 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 現在APを非常に高い値に設定（通常ではありえない値）

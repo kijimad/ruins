@@ -4,6 +4,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -90,7 +91,7 @@ func TestCharacterNamingState_OnStart_WithExistingPlayer(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	state := &CharacterNamingState{}
@@ -104,7 +105,7 @@ func TestConfirmName_ChangesPlayerName(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -124,7 +125,7 @@ func TestConfirmName_Japanese(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -144,7 +145,7 @@ func TestConfirmName_InvalidLength(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -169,7 +170,7 @@ func TestConfirmName_TooLong(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -208,7 +209,7 @@ func TestCharacterNamingState_DoAction_Cancel(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	state := &CharacterNamingState{}

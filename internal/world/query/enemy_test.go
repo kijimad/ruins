@@ -34,7 +34,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界内に敵を配置
-		enemy, err := lifecycle.SpawnEnemy(world, 12, 12, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 12}, "火の玉")
 		require.NoError(t, err)
 		world.Components.Name.Set(enemy, &gc.Name{Name: "ゴブリン"})
 
@@ -68,7 +68,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界外に敵を配置（探索済みでない）
-		_, err := lifecycle.SpawnEnemy(world, 50, 50, "火の玉")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "火の玉")
 		require.NoError(t, err)
 
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
@@ -84,7 +84,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーなし、敵のみ
-		_, err := lifecycle.SpawnEnemy(world, 5, 5, "火の玉")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉")
 		require.NoError(t, err)
 
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
@@ -105,7 +105,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{X: 10, Y: 10})
 
 		// 敵を配置
-		_, err := lifecycle.SpawnEnemy(world, 11, 10, "火の玉")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{

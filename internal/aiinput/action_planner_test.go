@@ -41,7 +41,7 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -67,7 +67,7 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -94,7 +94,7 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -121,7 +121,7 @@ func TestPlanAction_FleeingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -147,7 +147,7 @@ func TestPlanAction_DrivingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -173,7 +173,7 @@ func TestPlanAction_UnknownState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -742,7 +742,7 @@ func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -763,7 +763,7 @@ func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 20, 20, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "Ash")
 	require.NoError(t, err)
 
 	abilities := gc.Abilities{
@@ -812,7 +812,7 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 20, 20, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "Ash")
 	require.NoError(t, err)
 
 	abilities := gc.Abilities{
@@ -849,7 +849,7 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 30, 30, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "Ash")
 	require.NoError(t, err)
 
 	abilities := gc.Abilities{

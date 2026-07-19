@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
@@ -515,7 +516,7 @@ func spawnEnemyNearPlayer(world w.World, name string) error {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(player)
-	_, err = lifecycle.SpawnEnemy(world, int(playerGrid.X)+8, int(playerGrid.Y), name)
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: playerGrid.X + 8, Y: playerGrid.Y}, name)
 	return err
 }
 

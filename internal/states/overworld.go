@@ -173,13 +173,13 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 	}
 
 	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
-	cx := int((st.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2)
-	cy := int(p.ChunkH / 2)
+	cx := (st.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2
+	cy := p.ChunkH / 2
 	if _, err := query.GetPlayerEntity(world); err != nil {
-		if _, serr := lifecycle.SpawnPlayer(world, cx, cy, "Ash"); serr != nil {
+		if _, serr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
 		}
-	} else if merr := lifecycle.MovePlayerToPosition(world, cx, cy); merr != nil {
+	} else if merr := lifecycle.MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); merr != nil {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}
 

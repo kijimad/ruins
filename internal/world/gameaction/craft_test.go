@@ -70,7 +70,7 @@ func TestCraft_StackableTwice(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 統合はowner(プレイヤー)配下でのみ行われるため、プレイヤーを用意する
-	_, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
 	require.NoError(t, err)
 
 	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるStackableアイテム

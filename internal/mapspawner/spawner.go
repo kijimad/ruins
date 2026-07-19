@@ -137,7 +137,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 
 		x, y := npc.X+int(offsetX), npc.Y+int(offsetY)
 		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutralName {
-			_, err := lifecycle.SpawnNeutralNPC(world, x, y, npc.Name)
+			_, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
 				return fmt.Errorf("中立NPC生成エラー (%d, %d): %w", x, y, err)
 			}
@@ -146,7 +146,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 			if member.IsBoss {
 				opts = append(opts, lifecycle.WithBoss())
 			}
-			_, err := lifecycle.SpawnEnemy(world, x, y, npc.Name, opts...)
+			_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name, opts...)
 			if err != nil {
 				return fmt.Errorf("敵NPC生成エラー (%d, %d): %w", x, y, err)
 			}
