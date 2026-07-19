@@ -30,9 +30,8 @@ func TestDirection_GetDelta(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			x, y := tt.dir.GetDelta()
-			assert.Equal(t, tt.wantX, x)
-			assert.Equal(t, tt.wantY, y)
+			want := consts.Coord[consts.Tile]{X: consts.Tile(tt.wantX), Y: consts.Tile(tt.wantY)}
+			assert.Equal(t, want, tt.dir.GetDelta())
 		})
 	}
 }

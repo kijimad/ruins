@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -26,8 +25,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	gridElement := world.Components.GridElement.Get(entity)
 	current := gridElement.Coord
 
-	deltaX, deltaY := direction.GetDelta()
-	next := current.Add(consts.Coord[consts.Tile]{X: consts.Tile(deltaX), Y: consts.Tile(deltaY)})
+	next := current.Add(direction.GetDelta())
 
 	// 移動先にOnCollision方式のInteractableがある場合は自動実行
 	targetGrid := &gc.GridElement{Coord: next}

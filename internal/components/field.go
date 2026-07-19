@@ -88,26 +88,26 @@ const (
 	DirectionDownRight
 )
 
-// GetDelta は方向から移動量を取得する
-func (d Direction) GetDelta() (int, int) {
+// GetDelta は方向から移動量をタイル座標の差分として取得する。各成分は -1/0/1
+func (d Direction) GetDelta() consts.Coord[consts.Tile] {
 	switch d {
 	case DirectionUp:
-		return 0, -1
+		return consts.Coord[consts.Tile]{X: 0, Y: -1}
 	case DirectionDown:
-		return 0, 1
+		return consts.Coord[consts.Tile]{X: 0, Y: 1}
 	case DirectionLeft:
-		return -1, 0
+		return consts.Coord[consts.Tile]{X: -1, Y: 0}
 	case DirectionRight:
-		return 1, 0
+		return consts.Coord[consts.Tile]{X: 1, Y: 0}
 	case DirectionUpLeft:
-		return -1, -1
+		return consts.Coord[consts.Tile]{X: -1, Y: -1}
 	case DirectionUpRight:
-		return 1, -1
+		return consts.Coord[consts.Tile]{X: 1, Y: -1}
 	case DirectionDownLeft:
-		return -1, 1
+		return consts.Coord[consts.Tile]{X: -1, Y: 1}
 	case DirectionDownRight:
-		return 1, 1
+		return consts.Coord[consts.Tile]{X: 1, Y: 1}
 	default:
-		return 0, 0
+		return consts.Coord[consts.Tile]{X: 0, Y: 0}
 	}
 }
