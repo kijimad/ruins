@@ -25,7 +25,7 @@ type raycastCacheKey struct {
 // レイキャストキャッシュなどの内部メモは本システムが保持し、フロア変化時に自身で破棄する
 type VisionSystem struct {
 	// プレイヤー位置キャッシュ（タイル移動ごとに更新）
-	lastPlayer    consts.Coord[consts.Pixel]
+	lastPlayer    consts.Coord[consts.WorldPixel]
 	isInitialized bool
 
 	// レイキャスト結果のキャッシュ
@@ -108,7 +108,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	blockViewIndex := buildBlockViewIndex(world)
 
 	// タイルの可視性マップを更新
-	visionRadius := consts.Pixel(consts.VisionRadiusTiles) * consts.TileSize
+	visionRadius := consts.WorldPixel(consts.VisionRadiusTiles) * consts.TileSize
 	visibilityData := calculateTileVisibilityWithDistance(playerPos, visionRadius, sys.raycastCache, blockViewIndex)
 
 	// 光源情報を更新前にクリアする
@@ -204,7 +204,7 @@ func isInMapBounds(grid gc.GridElement, level gc.Level) bool {
 }
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
-func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.Pixel], radius consts.Pixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility {
+func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixel], radius consts.WorldPixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility {
 	visibilityMap := make(map[string]TileVisibility)
 
 	// プレイヤーの位置からタイル座標を計算
@@ -250,7 +250,7 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.Pixel], r
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
-func isTileVisibleByRaycast(player, target consts.Coord[consts.Pixel], rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
+func isTileVisibleByRaycast(player, target consts.Coord[consts.WorldPixel], rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
 	// キャッシュキーを生成（4刻みに丸めて近い視線を共有する）
 	cacheKey := raycastCacheKey{
 		Player: consts.Coord[int]{X: int(player.X/4) * 4, Y: int(player.Y/4) * 4},

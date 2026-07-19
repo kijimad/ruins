@@ -71,7 +71,7 @@ func ChebyshevDistance(x0, y0, x1, y1 int) int {
 	return dy
 }
 
-// Abs は絶対値を返す。int だけでなく consts.Tile/Pixel などの単位型でも使える
+// Abs は絶対値を返す。int だけでなく consts.Tile/WorldPixel などの単位型でも使える
 func Abs[T consts.Numeric](x T) T {
 	if x < 0 {
 		return -x

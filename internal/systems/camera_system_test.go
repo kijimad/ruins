@@ -51,8 +51,8 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 	camera := &gc.Camera{
 		Scale:   1.0,
 		ScaleTo: 1.0,
-		Pos:     consts.Coord[consts.Pixel]{X: consts.Pixel(initialX), Y: consts.Pixel(initialY)},
-		Target:  consts.Coord[consts.Pixel]{X: consts.Pixel(initialX), Y: consts.Pixel(initialY)},
+		Pos:     consts.Coord[consts.WorldPixel]{X: consts.WorldPixel(initialX), Y: consts.WorldPixel(initialY)},
+		Target:  consts.Coord[consts.WorldPixel]{X: consts.WorldPixel(initialX), Y: consts.WorldPixel(initialY)},
 	}
 	world.Components.Camera.Add(cameraEntity, camera)
 

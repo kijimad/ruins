@@ -51,8 +51,8 @@ func TestLevel_XYTileCoord(t *testing.T) {
 	tests := []struct {
 		name      string
 		idx       TileIdx
-		expectedX consts.Pixel
-		expectedY consts.Pixel
+		expectedX consts.WorldPixel
+		expectedY consts.WorldPixel
 	}{
 		{"インデックス0は左上", 0, 0, 0},
 		{"インデックス1は1列目", 1, 1, 0},
@@ -79,8 +79,8 @@ func TestLevel_XYTileIndex_and_XYTileCoord_roundtrip(t *testing.T) {
 		for tx := consts.Tile(0); tx < level.TileWidth; tx++ {
 			idx := level.XYTileIndex(tx, ty)
 			gotX, gotY := level.XYTileCoord(idx)
-			assert.Equal(t, consts.Pixel(tx), gotX)
-			assert.Equal(t, consts.Pixel(ty), gotY)
+			assert.Equal(t, consts.WorldPixel(tx), gotX)
+			assert.Equal(t, consts.WorldPixel(ty), gotY)
 		}
 	}
 }

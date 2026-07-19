@@ -3,6 +3,7 @@ package components
 import "github.com/kijimaD/ruins/internal/consts"
 
 // Position はフィールド上に座標をもって存在する
+// 値はカメラ変換前のワールド座標。描画時にはスクリーン座標へ変換する必要がある
 // スプライトはこの位置に中心を合わせて配置する
 // -----
 // |   |
@@ -10,7 +11,7 @@ import "github.com/kijimaD/ruins/internal/consts"
 // |   |
 // -----
 type Position struct {
-	consts.Coord[consts.Pixel]
+	consts.Coord[consts.WorldPixel]
 }
 
 // GridElement はフィールド上にグリッドに沿って存在する

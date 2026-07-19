@@ -144,21 +144,21 @@ func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {
 }
 
 // XYTileCoord はタイルスライスのインデックスからタイル座標を求める
-func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {
+func (l *Level) XYTileCoord(idx TileIdx) (consts.WorldPixel, consts.WorldPixel) {
 	x := int(idx) % int(l.TileWidth)
 	y := int(idx) / int(l.TileWidth)
 
-	return consts.Pixel(x), consts.Pixel(y)
+	return consts.WorldPixel(x), consts.WorldPixel(y)
 }
 
 // Width はステージ幅。横の全体ピクセル数
-func (l *Level) Width() consts.Pixel {
-	return consts.Pixel(int(l.TileWidth) * int(consts.TileSize))
+func (l *Level) Width() consts.WorldPixel {
+	return consts.WorldPixel(int(l.TileWidth) * int(consts.TileSize))
 }
 
 // Height はステージ縦。縦の全体ピクセル数
-func (l *Level) Height() consts.Pixel {
-	return consts.Pixel(int(l.TileHeight) * int(consts.TileSize))
+func (l *Level) Height() consts.WorldPixel {
+	return consts.WorldPixel(int(l.TileHeight) * int(consts.TileSize))
 }
 
 // MinimapSettings はミニマップの設定を管理する
@@ -167,7 +167,7 @@ type MinimapSettings struct {
 	Width  int
 	Height int
 	// ミニマップの表示位置。整数ピクセルの画面 UI レイアウト値で、ワールド座標でもタイル座標でもない。
-	// Width/Height/Scale と同じ UI 設定の一員なので Coord[consts.Pixel] でなく Coord[int] にする。
+	// Width/Height/Scale と同じ UI 設定の一員なので Coord[consts.WorldPixel] でなく Coord[int] にする。
 	Offset consts.Coord[int]
 	// ミニマップのスケール（何ピクセルで1タイルを表すか）
 	Scale int

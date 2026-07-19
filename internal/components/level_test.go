@@ -11,12 +11,12 @@ func TestLevel_Width(t *testing.T) {
 	t.Parallel()
 
 	l := &Level{TileWidth: 10, TileHeight: 5}
-	assert.Equal(t, consts.Pixel(10*int(consts.TileSize)), l.Width())
+	assert.Equal(t, consts.WorldPixel(10*int(consts.TileSize)), l.Width())
 }
 
 func TestLevel_Height(t *testing.T) {
 	t.Parallel()
 
 	l := &Level{TileWidth: 10, TileHeight: 5}
-	assert.Equal(t, consts.Pixel(5*int(consts.TileSize)), l.Height())
+	assert.Equal(t, consts.WorldPixel(5*int(consts.TileSize)), l.Height())
 }
