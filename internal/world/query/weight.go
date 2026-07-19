@@ -59,23 +59,18 @@ func calculateOwnedWeight(world w.World, entity ecs.Entity) consts.Milligram {
 	weightQuery := ecs.NewFilter1[gc.Weight](world.ECS).Query()
 	for weightQuery.Next() {
 		itemEntity := weightQuery.Entity()
-		if world.Components.LocationInBackpack.Has(itemEntity) {
-			loc := world.Components.LocationInBackpack.Get(itemEntity)
-			if loc.Owner == entity {
+		// アイテムは排他的に1箇所にのみ存在する（lifecycle の MoveToX が保証）ため else if で判定する
+		switch {
+		case world.Components.LocationInBackpack.Has(itemEntity):
+			if world.Components.LocationInBackpack.Get(itemEntity).Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
-		}
-
-		if world.Components.LocationEquipped.Has(itemEntity) {
-			loc := world.Components.LocationEquipped.Get(itemEntity)
-			if loc.Owner == entity {
+		case world.Components.LocationEquipped.Has(itemEntity):
+			if world.Components.LocationEquipped.Get(itemEntity).Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
-		}
-
-		if world.Components.LocationInStorage.Has(itemEntity) {
-			loc := world.Components.LocationInStorage.Get(itemEntity)
-			if loc.Owner == entity {
+		case world.Components.LocationInStorage.Has(itemEntity):
+			if world.Components.LocationInStorage.Get(itemEntity).Owner == entity {
 				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
