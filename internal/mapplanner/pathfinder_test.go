@@ -10,11 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// tileCoord はテスト用にタイル座標を組み立てる
-func tileCoord(x, y int) consts.Coord[consts.Tile] {
-	return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
-}
-
 // createTestPlanData はテスト用のPlanDataを作成する
 func createTestPlanData(_, _ int) *MetaPlan {
 	width := 5  // 固定値を使用
@@ -46,28 +41,28 @@ func TestPathFinder_IsWalkable(t *testing.T) {
 	pf := NewPathFinder(planData)
 
 	// 境界外テスト
-	assert.False(t, pf.IsWalkable(tileCoord(-1, 0)), "Expected (-1, 0) to be not walkable")
-	assert.False(t, pf.IsWalkable(tileCoord(0, -1)), "Expected (0, -1) to be not walkable")
-	assert.False(t, pf.IsWalkable(tileCoord(5, 0)), "Expected (5, 0) to be not walkable")
-	assert.False(t, pf.IsWalkable(tileCoord(0, 5)), "Expected (0, 5) to be not walkable")
+	assert.False(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: -1, Y: 0}), "Expected (-1, 0) to be not walkable")
+	assert.False(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: 0, Y: -1}), "Expected (0, -1) to be not walkable")
+	assert.False(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: 5, Y: 0}), "Expected (5, 0) to be not walkable")
+	assert.False(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: 0, Y: 5}), "Expected (0, 5) to be not walkable")
 
 	// 壁タイルテスト（デフォルト）
-	assert.False(t, pf.IsWalkable(tileCoord(1, 1)), "Expected wall tile to be not walkable")
+	assert.False(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: 1, Y: 1}), "Expected wall tile to be not walkable")
 
 	// 床タイルに変更してテスト
 	idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
 	planData.Tiles[idx] = planData.GetTile("floor")
-	assert.True(t, pf.IsWalkable(tileCoord(1, 1)), "Expected floor tile to be walkable")
+	assert.True(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: 1, Y: 1}), "Expected floor tile to be walkable")
 
 	// ワープタイルテスト
 	idx = planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 2, Y: 2})
 	planData.Tiles[idx] = planData.GetTile("floor")
-	assert.True(t, pf.IsWalkable(tileCoord(2, 2)), "Expected warp next tile to be walkable")
+	assert.True(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: 2, Y: 2}), "Expected warp next tile to be walkable")
 
 	// 脱出タイルテスト
 	idx = planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 3, Y: 3})
 	planData.Tiles[idx] = planData.GetTile("floor")
-	assert.True(t, pf.IsWalkable(tileCoord(3, 3)), "Expected warp escape tile to be walkable")
+	assert.True(t, pf.IsWalkable(consts.Coord[consts.Tile]{X: 3, Y: 3}), "Expected warp escape tile to be walkable")
 }
 
 func TestPathFinder_FindPath_SimplePath(t *testing.T) {
@@ -82,13 +77,13 @@ func TestPathFinder_FindPath_SimplePath(t *testing.T) {
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
-	path := pf.FindPath(tileCoord(1, 1), tileCoord(1, 3))
+	path := pf.FindPath(consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.Tile]{X: 1, Y: 3})
 
 	expectedLength := 3 // スタート、中間、ゴール
 	require.Len(t, path, expectedLength, "パス長が期待値と異なる")
 
 	// パスの内容を検証
-	expected := []consts.Coord[consts.Tile]{tileCoord(1, 1), tileCoord(1, 2), tileCoord(1, 3)}
+	expected := []consts.Coord[consts.Tile]{{X: 1, Y: 1}, {X: 1, Y: 2}, {X: 1, Y: 3}}
 	assert.Equal(t, expected, path, "パスの内容が期待値と異なる")
 }
 
@@ -101,7 +96,7 @@ func TestPathFinder_FindPath_NoPath(t *testing.T) {
 	idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
 	planData.Tiles[idx] = planData.GetTile("floor")
 
-	path := pf.FindPath(tileCoord(1, 1), tileCoord(3, 3))
+	path := pf.FindPath(consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.Tile]{X: 3, Y: 3})
 
 	assert.Empty(t, path, "パスが存在しないはずなのに見つかった")
 }
@@ -119,13 +114,13 @@ func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
-	path := pf.FindPath(tileCoord(1, 1), tileCoord(3, 2))
+	path := pf.FindPath(consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.Tile]{X: 3, Y: 2})
 
 	require.Len(t, path, 4, "パス長が期待値と異なる")
 
 	// スタートとゴールが正しいことを確認
-	assert.Equal(t, tileCoord(1, 1), path[0], "スタートが期待値と異なる")
-	assert.Equal(t, tileCoord(3, 2), path[len(path)-1], "ゴールが期待値と異なる")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 1, Y: 1}, path[0], "スタートが期待値と異なる")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 2}, path[len(path)-1], "ゴールが期待値と異なる")
 }
 
 func TestPathFinder_IsReachable(t *testing.T) {
@@ -141,10 +136,10 @@ func TestPathFinder_IsReachable(t *testing.T) {
 	}
 
 	// 到達可能なテスト
-	assert.True(t, pf.IsReachable(tileCoord(1, 1), tileCoord(2, 2)), "Expected (1,1) to (2,2) to be reachable")
+	assert.True(t, pf.IsReachable(consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.Tile]{X: 2, Y: 2}), "Expected (1,1) to (2,2) to be reachable")
 
 	// 到達不可能なテスト
-	assert.False(t, pf.IsReachable(tileCoord(1, 1), tileCoord(3, 3)), "Expected (1,1) to (3,3) to be not reachable")
+	assert.False(t, pf.IsReachable(consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.Tile]{X: 3, Y: 3}), "Expected (1,1) to (3,3) to be not reachable")
 }
 
 // TestFindPlayerStartPosition_AvoidsNPCs はプレイヤーのスポーン位置がNPCと重複しないことを検証する
