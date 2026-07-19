@@ -9,7 +9,8 @@ import (
 // 壁・キャラクターの位置をキャッシュし、O(1)で判定できるようにする。
 // すべてターン開始時に1回構築し、ターン終了時に無効化する
 type SpatialIndex struct {
-	MapWidth, MapHeight int
+	// マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位
+	MapWidth, MapHeight consts.Tile
 	// 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つPropが対象
 	BlockPass map[GridElement]bool
 	// キャラクター位置のインデックス。プレイヤー・敵・隊員・中立NPCの位置

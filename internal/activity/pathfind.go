@@ -54,7 +54,8 @@ func FindNextStep(world w.World, mover ecs.Entity, from, goal consts.Coord[const
 		return consts.Coord[consts.Tile]{}, false
 	}
 
-	width, height := si.MapWidth, si.MapHeight
+	// BFS はスライス添字や x+y*width の int 演算で完結するので、境界でだけ int へ展開する
+	width, height := int(si.MapWidth), int(si.MapHeight)
 
 	if goalX < 0 || goalY < 0 || goalX >= width || goalY >= height {
 		return consts.Coord[consts.Tile]{}, false

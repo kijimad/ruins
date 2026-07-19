@@ -20,7 +20,7 @@ func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], movingEntity e
 		return false
 	}
 
-	if to.X < 0 || to.Y < 0 || to.X >= consts.Tile(si.MapWidth) || to.Y >= consts.Tile(si.MapHeight) {
+	if to.X < 0 || to.Y < 0 || to.X >= si.MapWidth || to.Y >= si.MapHeight {
 		return false
 	}
 

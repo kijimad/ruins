@@ -101,8 +101,8 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	if dungeon == nil {
 		return
 	}
-	si.MapWidth = int(dungeon.Level.TileWidth)
-	si.MapHeight = int(dungeon.Level.TileHeight)
+	si.MapWidth = dungeon.Level.TileWidth
+	si.MapHeight = dungeon.Level.TileHeight
 	si.BlockPass = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil

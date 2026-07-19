@@ -207,7 +207,7 @@ func findAdjacentEmptyTile(world w.World, center consts.Coord[consts.Tile], excl
 		tile := consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
 		// SpatialIndexが構築済みの場合のみ範囲と衝突をチェックする
 		if si != nil {
-			if x >= si.MapWidth || y >= si.MapHeight {
+			if tile.X >= si.MapWidth || tile.Y >= si.MapHeight {
 				continue
 			}
 			if si.IsBlockPass(tile) {
