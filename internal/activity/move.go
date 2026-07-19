@@ -58,10 +58,10 @@ func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entit
 // ゾーン判定は SeamlessBand のメソッドに集約している。前線が無効な通常ダンジョンでは常に許可する。
 func frontAllowsMoveTo(world w.World, localX int) bool {
 	sb := query.GetDungeon(world).SeamlessBand
-	if !sb.FrontActive {
+	if !sb.Front.Active {
 		return true
 	}
-	return !sb.IsWestOfFrontLine(sb.LocalToAbsX(consts.Tile(localX)))
+	return !sb.Front.IsWestOfFront(sb.LocalToAbsX(consts.Tile(localX)))
 }
 
 // CanSwapPosition はmoverがtargetと位置交換できるかを判定する。

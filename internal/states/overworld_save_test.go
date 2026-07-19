@@ -57,10 +57,10 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	assert.Equal(t, k, int(sb.K), "K が復元される")
 
 	// 寒波前線の config が復元される
-	assert.True(t, sb.FrontActive, "FrontActive が復元される")
-	assert.Equal(t, chunkW*frontColdWidthChunks, sb.FrontColdWidth, "FrontColdWidth が復元される")
-	assert.Equal(t, frontAdvanceTurns, sb.FrontAdvanceTurns, "FrontAdvanceTurns が復元される")
-	assert.Equal(t, consts.Tile(frontStep), sb.FrontStep, "FrontStep が復元される")
+	assert.True(t, sb.Front.Active, "FrontActive が復元される")
+	assert.Equal(t, chunkW*frontColdWidthChunks, sb.Front.ColdWidth, "FrontColdWidth が復元される")
+	assert.Equal(t, frontAdvanceTurns, sb.Front.AdvanceTurns, "FrontAdvanceTurns が復元される")
+	assert.Equal(t, consts.Tile(frontStep), sb.Front.Step, "FrontStep が復元される")
 
 	// 復元ワールドでロード用ファクトリから OverworldState を起動 → Band が eastIndex=1 で再構築される
 	loadFactory := NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
@@ -87,7 +87,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 }
 
 // TestOverworldState_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns
-// から決定的に導出され、ターン経過で東へ進み、SeamlessBand.FrontEastAbsX に反映されることを固定する。
+// から決定的に導出され、ターン経過で東へ進み、SeamlessBand.Front.EastAbsX に反映されることを固定する。
 func TestOverworldState_前線が総ターン数で前進する(t *testing.T) {
 	t.Parallel()
 
@@ -105,19 +105,19 @@ func TestOverworldState_前線が総ターン数で前進する(t *testing.T) {
 	// 開始時（TotalTurns=0）は StartEast のまま。StartEast = bandOriginX(0) + chunkW = +chunkW（西チャンク東端）
 	d.GameTime.TotalTurns = 0
 	st.updateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.FrontEastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
+	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.Front.EastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
 
 	// frontAdvanceTurns ごとに frontStep 前進する。AdvanceTurns 未満は動かない
 	d.GameTime.TotalTurns = frontAdvanceTurns - 1
 	st.updateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.FrontEastAbsX, "AdvanceTurns 未満は前進しない")
+	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.Front.EastAbsX, "AdvanceTurns 未満は前進しない")
 
 	d.GameTime.TotalTurns = frontAdvanceTurns
 	st.updateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW)+consts.AbsTileX(frontStep), d.SeamlessBand.FrontEastAbsX, "AdvanceTurns で 1 段前進する")
+	assert.Equal(t, consts.AbsTileX(chunkW)+consts.AbsTileX(frontStep), d.SeamlessBand.Front.EastAbsX, "AdvanceTurns で 1 段前進する")
 
 	// 決定的: 同じターン数なら同じ位置
-	before := d.SeamlessBand.FrontEastAbsX
+	before := d.SeamlessBand.Front.EastAbsX
 	st.updateFront(world)
-	assert.Equal(t, before, d.SeamlessBand.FrontEastAbsX, "冪等（導出値）")
+	assert.Equal(t, before, d.SeamlessBand.Front.EastAbsX, "冪等（導出値）")
 }

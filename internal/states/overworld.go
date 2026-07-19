@@ -121,10 +121,10 @@ func (st *OverworldState) restoreFromSave(world w.World, sb *gc.SeamlessBand) er
 // frontCfgFromBand は永続状態から寒波前線の前進パラメータを復元する。
 func frontCfgFromBand(sb *gc.SeamlessBand) worldstream.FrontConfig {
 	return worldstream.FrontConfig{
-		StartEast:    sb.FrontStartAbsX,
-		ColdWidth:    sb.FrontColdWidth,
-		AdvanceTurns: sb.FrontAdvanceTurns,
-		Step:         sb.FrontStep,
+		StartEast:    sb.Front.StartAbsX,
+		ColdWidth:    sb.Front.ColdWidth,
+		AdvanceTurns: sb.Front.AdvanceTurns,
+		Step:         sb.Front.Step,
 	}
 }
 
@@ -161,11 +161,11 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 		AdvanceTurns: frontAdvanceTurns,
 		Step:         frontStep,
 	}
-	sb.FrontActive = true
-	sb.FrontStartAbsX = st.frontCfg.StartEast
-	sb.FrontColdWidth = st.frontCfg.ColdWidth
-	sb.FrontAdvanceTurns = st.frontCfg.AdvanceTurns
-	sb.FrontStep = st.frontCfg.Step
+	sb.Front.Active = true
+	sb.Front.StartAbsX = st.frontCfg.StartEast
+	sb.Front.ColdWidth = st.frontCfg.ColdWidth
+	sb.Front.AdvanceTurns = st.frontCfg.AdvanceTurns
+	sb.Front.Step = st.frontCfg.Step
 
 	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する
 	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
@@ -232,10 +232,10 @@ func (st *OverworldState) Update(world w.World) (es.Transition[w.World], error) 
 // 位置は導出値なので毎フレーム書いても冪等。描画や凍結効果はこの FrontEastAbsX を読む。
 func (st *OverworldState) updateFront(world w.World) {
 	sb := &query.GetDungeon(world).SeamlessBand
-	if !sb.FrontActive {
+	if !sb.Front.Active {
 		return
 	}
-	sb.FrontEastAbsX = st.front(world).East
+	sb.Front.EastAbsX = st.front(world).East
 }
 
 // maybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトする。

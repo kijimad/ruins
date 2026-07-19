@@ -32,26 +32,31 @@ type SeamlessBand struct {
 	// K は帯のチャンク数
 	K consts.ChunkX
 
-	// 寒波前線。現在位置は保存せず、以下の config と永続の GameTime.TotalTurns から
-	// 決定的に導出する。位置を持たないのでドリフトせず、ロードでも自然に復元される。
-	// FrontActive は寒波前線が有効か
-	FrontActive bool
-	// FrontStartAbsX はラン開始時の極低温ゾーン東端の絶対タイルX。ローカルでなく絶対軸
-	FrontStartAbsX consts.AbsTileX
-	// FrontColdWidth は極低温ゾーンの幅
-	FrontColdWidth consts.Tile
-	// FrontAdvanceTurns はこの経過ターンごとに FrontStep タイル東進する
-	FrontAdvanceTurns int
-	// FrontStep は1回の前進量
-	FrontStep consts.Tile
-	// FrontEastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した
-	// 現在位置のキャッシュ。描画や凍結効果など後続の消費者がここを読む
-	FrontEastAbsX consts.AbsTileX
+	// Front は寒波前線の永続状態。帯の Active に従属し、帯とセットで復元される。
+	Front SeamlessFront
 }
 
-// 寒波前線のジオメトリ。温度・移動・描画の各消費者が同じ半開区間・絶対X変換を使うよう
-// ここに集約する。worldstream.Front と同じ意味だが、あちらは components を import するため
+// SeamlessFront は寒波前線の永続状態。現在位置は保存せず、config と永続の
+// GameTime.TotalTurns から決定的に導出する。位置を持たないのでドリフトせず、ロードでも自然に復元される。
+//
+// ジオメトリは温度・移動・描画の各消費者が同じ半開区間を使うようここに集約する。
+// worldstream.Front と同じ意味・同じメソッド面だが、あちらは components を import するため
 // systems/activity から使えない。永続スカラーの上でこちらを正典にする。
+type SeamlessFront struct {
+	// Active は寒波前線が有効か
+	Active bool
+	// StartAbsX はラン開始時の極低温ゾーン東端の絶対タイルX。ローカルでなく絶対軸
+	StartAbsX consts.AbsTileX
+	// ColdWidth は極低温ゾーンの幅
+	ColdWidth consts.Tile
+	// AdvanceTurns はこの経過ターンごとに Step タイル東進する
+	AdvanceTurns int
+	// Step は1回の前進量
+	Step consts.Tile
+	// EastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した
+	// 現在位置のキャッシュ。描画や凍結効果など後続の消費者がここを読む
+	EastAbsX consts.AbsTileX
+}
 
 // BandOriginX は帯ローカル X=0 が指す絶対タイル X。
 func (sb SeamlessBand) BandOriginX() consts.AbsTileX {
@@ -63,19 +68,19 @@ func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.AbsTileX {
 	return consts.AbsTileX(localX) + sb.BandOriginX()
 }
 
-// ColdZoneWestAbsX は極低温ゾーン西端＝破棄/進入不可ラインの絶対 X。
-func (sb SeamlessBand) ColdZoneWestAbsX() consts.AbsTileX {
-	return sb.FrontEastAbsX - consts.AbsTileX(sb.FrontColdWidth)
+// ColdZoneWest は極低温ゾーン西端＝破棄/進入不可ラインの絶対 X。
+func (f SeamlessFront) ColdZoneWest() consts.AbsTileX {
+	return f.EastAbsX - consts.AbsTileX(f.ColdWidth)
 }
 
-// InColdZone は絶対 X が極低温ゾーン (ColdZoneWest, FrontEast] 内かを返す。西端は含まない。
-func (sb SeamlessBand) InColdZone(absX consts.AbsTileX) bool {
-	return absX > sb.ColdZoneWestAbsX() && absX <= sb.FrontEastAbsX
+// InColdZone は絶対 X が極低温ゾーン (ColdZoneWest, EastAbsX] 内かを返す。西端は含まない。
+func (f SeamlessFront) InColdZone(absX consts.AbsTileX) bool {
+	return absX > f.ColdZoneWest() && absX <= f.EastAbsX
 }
 
-// IsWestOfFrontLine は絶対 X が進入不可ライン、すなわち極低温ゾーン西端以西かを返す。
-func (sb SeamlessBand) IsWestOfFrontLine(absX consts.AbsTileX) bool {
-	return absX <= sb.ColdZoneWestAbsX()
+// IsWestOfFront は絶対 X が進入不可ライン、すなわち極低温ゾーン西端以西かを返す。
+func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
+	return absX <= f.ColdZoneWest()
 }
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。

@@ -48,11 +48,11 @@ func TestFrostZoneModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		sb := &query.GetDungeon(world).SeamlessBand
-		sb.FrontActive = true
+		sb.Front.Active = true
 		sb.EastIndex = 0
 		sb.ChunkW = 40
-		sb.FrontColdWidth = 20
-		sb.FrontEastAbsX = 30 // ゾーンは半開区間 (10, 30]
+		sb.Front.ColdWidth = 20
+		sb.Front.EastAbsX = 30 // ゾーンは半開区間 (10, 30]
 
 		assert.Equal(t, 0, frostZoneModifier(world, 10), "西端は含まない（進入不可ライン）")
 		assert.Equal(t, FrostZoneTempModifier, frostZoneModifier(world, 11), "ゾーン内は極寒")
@@ -64,11 +64,11 @@ func TestFrostZoneModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		sb := &query.GetDungeon(world).SeamlessBand
-		sb.FrontActive = true
+		sb.Front.Active = true
 		sb.EastIndex = 1 // bandOriginX = 1*40 = 40
 		sb.ChunkW = 40
-		sb.FrontColdWidth = 20
-		sb.FrontEastAbsX = 60 // ゾーン (40, 60]。ローカル x=10 → absX=50 は内側
+		sb.Front.ColdWidth = 20
+		sb.Front.EastAbsX = 60 // ゾーン (40, 60]。ローカル x=10 → absX=50 は内側
 
 		assert.Equal(t, FrostZoneTempModifier, frostZoneModifier(world, 10), "ローカル10=絶対50はゾーン内")
 		assert.Equal(t, 0, frostZoneModifier(world, 25), "ローカル25=絶対65はゾーン外")
@@ -78,9 +78,9 @@ func TestFrostZoneModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		sb := &query.GetDungeon(world).SeamlessBand
-		sb.FrontActive = false
-		sb.FrontEastAbsX = 30
-		sb.FrontColdWidth = 20
+		sb.Front.Active = false
+		sb.Front.EastAbsX = 30
+		sb.Front.ColdWidth = 20
 		assert.Equal(t, 0, frostZoneModifier(world, 20), "通常ダンジョンでは前線無効")
 	})
 }
@@ -91,11 +91,11 @@ func TestCalculateEnvTemperature_極低温ゾーンで極寒になる(t *testing
 	d := query.GetDungeon(world)
 	d.DefinitionName = coldDungeonName // 基本気温0度
 	sb := &d.SeamlessBand
-	sb.FrontActive = true
+	sb.Front.Active = true
 	sb.EastIndex = 0
 	sb.ChunkW = 40
-	sb.FrontColdWidth = 20
-	sb.FrontEastAbsX = 30 // ゾーン (10, 30]
+	sb.Front.ColdWidth = 20
+	sb.Front.EastAbsX = 30 // ゾーン (10, 30]
 
 	inZone, err := CalculateEnvTemperature(world, 20, 0)
 	require.NoError(t, err)
@@ -116,11 +116,11 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 		d.DefinitionName = coldDungeonName // 基本気温0度
 		if front {
 			sb := &d.SeamlessBand
-			sb.FrontActive = true
+			sb.Front.Active = true
 			sb.EastIndex = 0
 			sb.ChunkW = 40
-			sb.FrontColdWidth = 20
-			sb.FrontEastAbsX = 30 // ゾーン (10, 30]。プレイヤー x=20 は内側
+			sb.Front.ColdWidth = 20
+			sb.Front.EastAbsX = 30 // ゾーン (10, 30]。プレイヤー x=20 は内側
 		}
 		player, err := lifecycle.SpawnPlayer(world, 20, 0, "Ash")
 		require.NoError(t, err)

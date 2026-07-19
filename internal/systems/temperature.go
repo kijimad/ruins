@@ -73,7 +73,7 @@ const FrostZoneTempModifier = -100
 // ゾーン判定は SeamlessBand のメソッドに集約している。オーバーワールド以外は FrontActive=false で無効。
 func frostZoneModifier(world w.World, x consts.Tile) int {
 	sb := query.GetDungeon(world).SeamlessBand
-	if sb.FrontActive && sb.InColdZone(sb.LocalToAbsX(x)) {
+	if sb.Front.Active && sb.Front.InColdZone(sb.LocalToAbsX(x)) {
 		return FrostZoneTempModifier
 	}
 	return 0
