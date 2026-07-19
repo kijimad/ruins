@@ -204,23 +204,23 @@ func findAdjacentEmptyTile(world w.World, center consts.Coord[consts.Tile], excl
 		if x < 0 || y < 0 {
 			continue
 		}
+		tile := consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
 		// SpatialIndexが構築済みの場合のみ範囲と衝突をチェックする
 		if si != nil {
 			if x >= si.MapWidth || y >= si.MapHeight {
 				continue
 			}
-			if si.IsBlockPass(x, y) {
+			if si.IsBlockPass(tile) {
 				continue
 			}
-			if _, occupied := si.CharacterAt(x, y); occupied {
+			if _, occupied := si.CharacterAt(tile); occupied {
 				continue
 			}
 		}
-		pos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}
-		if exclude[pos] {
+		if exclude[gc.GridElement{Coord: tile}] {
 			continue
 		}
-		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, nil
+		return tile, nil
 	}
 	return consts.Coord[consts.Tile]{}, fmt.Errorf("(%d,%d)の隣接に空きタイルがありません", center.X, center.Y)
 }

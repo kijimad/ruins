@@ -271,7 +271,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 
 		wallCount := 0
 		for _, adj := range []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}} {
-			if si.IsBlockPass(int(dest.X+adj.X), int(dest.Y+adj.Y)) {
+			if si.IsBlockPass(dest.Add(adj)) {
 				wallCount++
 			}
 		}
