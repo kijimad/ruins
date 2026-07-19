@@ -157,7 +157,7 @@ type storageItemData struct {
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 	storageName := query.GetEntityName(st.storageEntity, world)
 	wc := world.Components.WeightCapacity.Get(st.storageEntity)
-	weightText := fmt.Sprintf("%s / %s", wc.Current, wc.Max)
+	weightText := fmt.Sprintf("%s / %s", wc.Current.KgString(), wc.Max.KgString())
 
 	storeTabs := st.createBackpackItemData(world)
 

@@ -34,21 +34,46 @@ func TestMilligramFromKg(t *testing.T) {
 func TestMilligram_String(t *testing.T) {
 	t.Parallel()
 
+	// String は値の大きさに応じて最適な単位を選ぶ
+	tests := []struct {
+		name string
+		mg   consts.Milligram
+		want string
+	}{
+		{"1.5kgはkg", 1_500_000, "1.5" + consts.IconKg},
+		{"2kgはkg", 2_000_000, "2" + consts.IconKg},
+		{"500gはg", 500_000, "500" + consts.IconG},
+		{"50gはg", 50_000, "50" + consts.IconG},
+		{"1g未満はmg", 500, "500" + consts.IconMg},
+		{"1mg", 1, "1" + consts.IconMg},
+		{"ゼロはmg", 0, "0" + consts.IconMg},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.mg.String())
+		})
+	}
+}
+
+func TestMilligram_KgString(t *testing.T) {
+	t.Parallel()
+
+	// KgString は常に kg 固定で小数2桁
 	tests := []struct {
 		name string
 		mg   consts.Milligram
 		want string
 	}{
 		{"1.5kg", 1_500_000, "1.50" + consts.IconKg},
-		{"0.5kg", 500_000, "0.50" + consts.IconKg},
 		{"2kg", 2_000_000, "2.00" + consts.IconKg},
+		{"500gも0.50kg", 500_000, "0.50" + consts.IconKg},
 		{"ゼロ", 0, "0.00" + consts.IconKg},
-		{"1g未満も小数2桁", 500, "0.00" + consts.IconKg}, // 500mg=0.0005kg は表示上0.00
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, tt.mg.String())
+			assert.Equal(t, tt.want, tt.mg.KgString())
 		})
 	}
 }
@@ -91,6 +116,7 @@ func TestParseWeight_エラー(t *testing.T) {
 		{"数値が不正", "abc g"},
 		{"フィールド過多", "1 2 g"},
 		{"単位のみ", "kg"},
+		{"負値", "-1 kg"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -107,5 +133,6 @@ func TestParseWeight_Stringラウンドトリップ(t *testing.T) {
 
 	mg, err := consts.ParseWeight("3.5 kg")
 	require.NoError(t, err)
-	assert.Equal(t, "3.50"+consts.IconKg, mg.String())
+	assert.Equal(t, "3.5"+consts.IconKg, mg.String())    // 最適単位
+	assert.Equal(t, "3.50"+consts.IconKg, mg.KgString()) // kg固定
 }

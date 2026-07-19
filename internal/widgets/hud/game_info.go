@@ -131,7 +131,7 @@ func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio floa
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
 func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) {
 	// 所持重量テキストを作成。表記は Milligram.String() に集約する
-	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight, data.PlayerMaxWeight)
+	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())
 
 	// テキストの幅を測定
 	textWidth, textHeight := text.Measure(weightText, info.bodyFace, 0)
