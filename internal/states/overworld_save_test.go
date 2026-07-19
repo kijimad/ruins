@@ -58,9 +58,9 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 
 	// 寒波前線の config が復元される
 	assert.True(t, sb.FrontActive, "FrontActive が復元される")
-	assert.Equal(t, chunkW*2, sb.FrontColdWidth, "FrontColdWidth が復元される")
-	assert.Equal(t, 3, sb.FrontAdvanceTurns, "FrontAdvanceTurns が復元される")
-	assert.Equal(t, consts.Tile(1), sb.FrontStep, "FrontStep が復元される")
+	assert.Equal(t, chunkW*frontColdWidthChunks, sb.FrontColdWidth, "FrontColdWidth が復元される")
+	assert.Equal(t, frontAdvanceTurns, sb.FrontAdvanceTurns, "FrontAdvanceTurns が復元される")
+	assert.Equal(t, consts.Tile(frontStep), sb.FrontStep, "FrontStep が復元される")
 
 	// 復元ワールドでロード用ファクトリから OverworldState を起動 → Band が eastIndex=1 で再構築される
 	loadFactory := NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
@@ -74,7 +74,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	// 帯タイルは serde で復元済み（再生成していない）ことの傍証: Level 幅が帯全幅のまま
 	assert.Equal(t, chunkW*k, query.GetDungeon(world2).Level.TileWidth, "帯全幅の Level が保たれる")
 
-	assert.True(t, ow2.frontCfg.AdvanceTurns == 3 && ow2.frontCfg.Step == 1,
+	assert.True(t, ow2.frontCfg.AdvanceTurns == frontAdvanceTurns && ow2.frontCfg.Step == frontStep,
 		"ロード復元で寒波前線 config も再構築される")
 
 	// 復元ワールドに帯タイルが存在する（serde 復元）
@@ -107,10 +107,14 @@ func TestOverworldState_前線が総ターン数で前進する(t *testing.T) {
 	st.updateFront(world)
 	assert.Equal(t, chunkW, d.SeamlessBand.FrontEastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
 
-	// AdvanceTurns=3, Step=1。9ターンで 3 前進する
-	d.GameTime.TotalTurns = 9
+	// frontAdvanceTurns ごとに frontStep 前進する。AdvanceTurns 未満は動かない
+	d.GameTime.TotalTurns = frontAdvanceTurns - 1
 	st.updateFront(world)
-	assert.Equal(t, chunkW+3, d.SeamlessBand.FrontEastAbsX, "9ターンで 3 タイル東進する")
+	assert.Equal(t, chunkW, d.SeamlessBand.FrontEastAbsX, "AdvanceTurns 未満は前進しない")
+
+	d.GameTime.TotalTurns = frontAdvanceTurns
+	st.updateFront(world)
+	assert.Equal(t, chunkW+consts.Tile(frontStep), d.SeamlessBand.FrontEastAbsX, "AdvanceTurns で 1 段前進する")
 
 	// 決定的: 同じターン数なら同じ位置
 	before := d.SeamlessBand.FrontEastAbsX

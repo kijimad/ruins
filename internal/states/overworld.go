@@ -48,6 +48,17 @@ type NewGameParams struct {
 	K       consts.ChunkX
 }
 
+// 寒波前線の暫定チューニング値。実プレイの体感で調整する。
+const (
+	// frontAdvanceTurns は前線が frontStep タイル前進するのに要するターン数。大きいほどゆるやか。
+	// 1500ターン/日なので 20 なら 75タイル/日。開始時に背後25タイルなら追いつくまで約500ターン≈0.33日
+	frontAdvanceTurns = 20
+	// frontStep は1回の前進量（タイル）
+	frontStep = 1
+	// frontColdWidthChunks は極低温ゾーンの幅（チャンク数）
+	frontColdWidthChunks = 2
+)
+
 // NewOverworldState はシームレスワールドステートのファクトリを返す。
 //
 // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、
@@ -143,12 +154,12 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 
 	// 寒波前線を初期化する。極低温ゾーン東端を西チャンクの東端（プレイヤーの1チャンク背後）に置く。
 	// これで開始時からプレイヤーの背後に霜が見え、西へ戻ると凍える。以東へ進み帯がシフトすると前線は
-	// 絶対軸に留まるため背後へ離れていく。速度と幅は暫定値で、後続のバランス調整で詰める。
+	// 絶対軸に留まるため背後へ離れていく。普通に東進する限り触れない遅い地平にする。
 	st.frontCfg = worldstream.FrontConfig{
 		StartEast:    worldstream.BandOriginX(st.band.EastIndex(), p.ChunkW) + worldstream.AbsTileX(p.ChunkW),
-		ColdWidth:    p.ChunkW * 2,
-		AdvanceTurns: 3,
-		Step:         1,
+		ColdWidth:    p.ChunkW * frontColdWidthChunks,
+		AdvanceTurns: frontAdvanceTurns,
+		Step:         frontStep,
 	}
 	sb.FrontActive = true
 	sb.FrontStartAbsX = consts.Tile(st.frontCfg.StartEast)
