@@ -145,16 +145,15 @@ func (bm MetaPlan) DownTile(idx gc.TileIdx) oapi.Tile {
 
 // LeftTile は左にあるタイルを調べる
 func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
-	x, y := bm.Level.XYTileCoord(idx)
+	pos := bm.Level.IndexToCoord(idx)
 	// 左端の場合は境界外（マップ外＝暗闇）
-	if x == 0 {
+	if pos.X == 0 {
 		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	// 左のタイルが同じ行であることを確認
 	targetIdx := idx - 1
-	_, targetY := bm.Level.XYTileCoord(targetIdx)
-	if targetY != y {
+	if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {
 		// 前の行にラップアラウンドしている（境界外）
 		return bm.GetTile(consts.TileNameVoid)
 	}
@@ -164,16 +163,15 @@ func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
 
 // RightTile は右にあるタイルを調べる
 func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile {
-	x, y := bm.Level.XYTileCoord(idx)
+	pos := bm.Level.IndexToCoord(idx)
 	// 右端の場合は境界外（マップ外＝暗闇）
-	if int(x) == int(bm.Level.TileWidth)-1 {
+	if pos.X == bm.Level.TileWidth-1 {
 		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	// 右のタイルが同じ行であることを確認
 	targetIdx := idx + 1
-	_, targetY := bm.Level.XYTileCoord(targetIdx)
-	if targetY != y {
+	if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {
 		// 次の行にラップアラウンドしている（境界外）
 		return bm.GetTile(consts.TileNameVoid)
 	}
@@ -183,7 +181,7 @@ func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile {
 
 // AdjacentAnyFloor は直交・斜めを含む近傍8タイルに床があるか判定する
 func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
-	x, y := bm.Level.XYTileCoord(idx)
+	pos := bm.Level.IndexToCoord(idx)
 	width := int(bm.Level.TileWidth)
 	height := int(bm.Level.TileHeight)
 
@@ -195,7 +193,7 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
 	}
 
 	for _, dir := range directions {
-		nx, ny := int(x)+dir[0], int(y)+dir[1]
+		nx, ny := int(pos.X)+dir[0], int(pos.Y)+dir[1]
 
 		// 境界チェック
 		if nx < 0 || nx >= width || ny < 0 || ny >= height {

@@ -162,8 +162,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
 	// 見つからない場合は全体をスキャン
 	for _i, tile := range planData.Tiles {
 		if !tile.BlockPass {
-			x, y := planData.Level.XYTileCoord(gc.TileIdx(_i))
-			pos := consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+			pos := planData.Level.IndexToCoord(gc.TileIdx(_i))
 			if pf.isValidSpawnPosition(pos) {
 				return pos, nil
 			}

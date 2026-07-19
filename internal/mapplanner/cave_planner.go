@@ -122,18 +122,18 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 					minY, maxY := y, y
 
 					for _, tilePos := range floorTiles {
-						tileX, tileY := planData.Level.XYTileCoord(gc.TileIdx(tilePos))
-						if int(tileX) < minX {
-							minX = int(tileX)
+						pos := planData.Level.IndexToCoord(gc.TileIdx(tilePos))
+						if int(pos.X) < minX {
+							minX = int(pos.X)
 						}
-						if int(tileX) > maxX {
-							maxX = int(tileX)
+						if int(pos.X) > maxX {
+							maxX = int(pos.X)
 						}
-						if int(tileY) < minY {
-							minY = int(tileY)
+						if int(pos.Y) < minY {
+							minY = int(pos.Y)
 						}
-						if int(tileY) > maxY {
-							maxY = int(tileY)
+						if int(pos.Y) > maxY {
+							maxY = int(pos.Y)
 						}
 					}
 

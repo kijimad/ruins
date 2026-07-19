@@ -143,12 +143,12 @@ func (l *Level) CoordToIndex(pos consts.Coord[consts.Tile]) TileIdx {
 	return TileIdx(int(pos.Y)*int(l.TileWidth) + int(pos.X))
 }
 
-// XYTileCoord はタイルスライスのインデックスからタイル座標を求める
-func (l *Level) XYTileCoord(idx TileIdx) (consts.WorldPixel, consts.WorldPixel) {
-	x := int(idx) % int(l.TileWidth)
-	y := int(idx) / int(l.TileWidth)
+// IndexToCoord はタイルスライスのインデックスからタイル座標を求める。CoordToIndex の逆操作
+func (l *Level) IndexToCoord(idx TileIdx) consts.Coord[consts.Tile] {
+	x := consts.Tile(int(idx) % int(l.TileWidth))
+	y := consts.Tile(int(idx) / int(l.TileWidth))
 
-	return consts.WorldPixel(x), consts.WorldPixel(y)
+	return consts.Coord[consts.Tile]{X: x, Y: y}
 }
 
 // Width はステージ幅。横の全体ピクセル数

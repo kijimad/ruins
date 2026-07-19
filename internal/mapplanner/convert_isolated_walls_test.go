@@ -115,13 +115,13 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 
 	// 検証: 端の壁はwallのまま、内側の壁はvoidに変換される
 	for i, tile := range planData.Tiles {
-		x, y := planData.Level.XYTileCoord(gc.TileIdx(i))
-		isEdge := int(x) == 0 || int(x) == int(width)-1 || int(y) == 0 || int(y) == int(height)-1
+		pos := planData.Level.IndexToCoord(gc.TileIdx(i))
+		isEdge := int(pos.X) == 0 || int(pos.X) == int(width)-1 || int(pos.Y) == 0 || int(pos.Y) == int(height)-1
 
 		if isEdge {
-			assert.Equal(t, "wall", tile.Name, "端のタイル(%d, %d)は境界として壁のまま", x, y)
+			assert.Equal(t, "wall", tile.Name, "端のタイル(%d, %d)は境界として壁のまま", pos.X, pos.Y)
 		} else {
-			assert.Equal(t, "void", tile.Name, "内側のタイル(%d, %d)は床に隣接しないためvoidに変換", x, y)
+			assert.Equal(t, "void", tile.Name, "内側のタイル(%d, %d)は床に隣接しないためvoidに変換", pos.X, pos.Y)
 		}
 	}
 }

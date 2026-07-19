@@ -58,12 +58,12 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _i, tile := range metaPlan.Tiles {
 		i := gc.TileIdx(_i)
-		x, y := metaPlan.Level.XYTileCoord(i)
-		tileX, tileY := consts.Tile(x)+offsetX, consts.Tile(y)+offsetY
+		pos := metaPlan.Level.IndexToCoord(i)
+		tileX, tileY := pos.X+offsetX, pos.Y+offsetY
 
 		tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)
 		if err != nil {
-			return fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(x), int(y), err)
+			return fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(pos.X), int(pos.Y), err)
 		}
 
 		// TileRaw の環境情報を TileTemperature に設定する

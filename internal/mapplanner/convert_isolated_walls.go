@@ -23,8 +23,8 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 		tile := planData.Tiles[i]
 
 		// マップの端にあるタイルは変換対象外（境界として残す）
-		x, y := planData.Level.XYTileCoord(gc.TileIdx(i))
-		if int(x) == 0 || int(x) == width-1 || int(y) == 0 || int(y) == height-1 {
+		pos := planData.Level.IndexToCoord(gc.TileIdx(i))
+		if int(pos.X) == 0 || int(pos.X) == width-1 || int(pos.Y) == 0 || int(pos.Y) == height-1 {
 			continue
 		}
 
