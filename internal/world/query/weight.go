@@ -59,7 +59,9 @@ func calculateOwnedWeight(world w.World, entity ecs.Entity) consts.Milligram {
 	weightQuery := ecs.NewFilter1[gc.Weight](world.ECS).Query()
 	for weightQuery.Next() {
 		itemEntity := weightQuery.Entity()
-		// アイテムは排他的に1箇所にのみ存在する（lifecycle の MoveToX が保証）ため else if で判定する
+		// アイテムは排他的に1箇所にのみ存在する（lifecycle の MoveToX が保証）ため switch で判定する。
+		// 所持重量に含めるのは Backpack/Equipped/Storage の3箇所のみ。
+		// LocationOnField（フィールド上に落ちているアイテム）は所持していないので意図的に除外する
 		switch {
 		case world.Components.LocationInBackpack.Has(itemEntity):
 			if world.Components.LocationInBackpack.Get(itemEntity).Owner == entity {
