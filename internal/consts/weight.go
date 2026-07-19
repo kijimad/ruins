@@ -43,9 +43,9 @@ func (m Milligram) KgString() string {
 	return fmt.Sprintf("%.2f%s", float64(m)/MilligramPerKg, IconKg)
 }
 
-// weightUnits は単位文字列を Milligram への係数へ対応させる。
+// weightUnits は単位文字列を、その単位1つあたりの Milligram 量に対応させる。
 // mg は係数1なので、"0.5 mg" のような小数入力は丸められる。データは整数mgを前提とする
-var weightUnits = map[string]float64{
+var weightUnits = map[string]Milligram{
 	"mg": 1,
 	"g":  MilligramPerGram,
 	"kg": MilligramPerKg,
@@ -69,5 +69,5 @@ func ParseWeight(s string) (Milligram, error) {
 	if !ok {
 		return 0, fmt.Errorf("重量の単位が不正です: %q（mg/g/kg のいずれか）", s)
 	}
-	return Milligram(math.Round(value * factor)), nil
+	return Milligram(math.Round(value * float64(factor))), nil
 }
