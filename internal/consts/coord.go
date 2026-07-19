@@ -1,5 +1,7 @@
 package consts
 
+import "fmt"
+
 // Numeric は座標で使用可能な数値型を定義する
 type Numeric interface {
 	~int | ~float64
@@ -9,6 +11,11 @@ type Numeric interface {
 type Coord[T Numeric] struct {
 	X T
 	Y T
+}
+
+// String は (x,y) 形式の文字列を返す。ログや座標表示の整形を一箇所に集約する。
+func (c Coord[T]) String() string {
+	return fmt.Sprintf("(%v,%v)", c.X, c.Y)
 }
 
 // Add は2つの座標を成分ごとに加算した座標を返す。

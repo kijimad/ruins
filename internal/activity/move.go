@@ -223,8 +223,8 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 
 	log.Debug("移動完了",
 		"actor", actor,
-		"from", fmt.Sprintf("(%d,%d)", old.X, old.Y),
-		"to", fmt.Sprintf("(%d,%d)", dest.X, dest.Y))
+		"from", old.String(),
+		"to", dest.String())
 
 	return nil
 }
@@ -251,8 +251,8 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, from, to consts.Coord[con
 
 	log.Debug("味方と位置入れ替え",
 		"target", target,
-		"from", fmt.Sprintf("(%d,%d)", to.X, to.Y),
-		"to", fmt.Sprintf("(%d,%d)", from.X, from.Y))
+		"from", to.String(),
+		"to", from.String())
 
 	return target, true
 }

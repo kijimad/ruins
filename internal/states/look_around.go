@@ -231,7 +231,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	}
 
 	// 座標表示
-	drawText(fmt.Sprintf("座標: (%d, %d)", st.cursor.X, st.cursor.Y))
+	drawText(fmt.Sprintf("座標: %s", st.cursor))
 	y += 5
 
 	// 視界内かどうかをチェック
