@@ -4,7 +4,6 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -19,9 +18,6 @@ type WindowSize struct {
 	Width  int
 	Height int
 }
-
-// Position はウィンドウ位置の設定。実体は consts.Coord[int]。
-type Position = consts.Coord[int]
 
 // Padding は内側余白の設定
 type Padding struct {
@@ -56,9 +52,8 @@ type ActionStyle struct {
 // Config はメッセージウィンドウの設定
 type Config struct {
 	// レイアウト設定
-	Size     WindowSize
-	Position Position // 画面上の位置（中央配置の場合は無視）
-	Center   bool     // 画面中央に配置するか
+	Size   WindowSize
+	Center bool // 画面中央に配置するか
 
 	// 外観設定
 	WindowStyle WindowStyle
