@@ -8,7 +8,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// InvalidEntity は無効なエンティティを表すゼロ値。エラー時の戻り値などに使う
+// InvalidEntity は無効なエンティティを表す。ark は id 0 を予約ゼロエンティティとし
+// 実エンティティには割り当てないため、ゼロ値 Entity は安全な無効値として使える。
+// エラー時の戻り値などに使う。格納済みエンティティの生存確認には world.ECS.Alive を使う。
 var InvalidEntity = ecs.Entity{}
 
 // Upsert はコンポーネントを追加または更新する。
