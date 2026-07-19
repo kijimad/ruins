@@ -84,3 +84,23 @@ func TestLevel_XYTileIndex_and_XYTileCoord_roundtrip(t *testing.T) {
 		}
 	}
 }
+
+func TestSeamlessBand_前線ジオメトリ(t *testing.T) {
+	t.Parallel()
+
+	// EastIndex=1, ChunkW=40 → 帯原点は絶対40。前線東端60・幅20 → ゾーンは (40, 60]
+	sb := SeamlessBand{EastIndex: 1, ChunkW: 40, Front: SeamlessFront{EastAbsX: 60, ColdWidth: 20}}
+
+	assert.Equal(t, consts.AbsTileX(40), sb.BandOriginX(), "帯原点 = EastIndex*ChunkW")
+	assert.Equal(t, consts.AbsTileX(50), sb.LocalToAbsX(10), "ローカル10 = 絶対50")
+	assert.Equal(t, consts.AbsTileX(40), sb.Front.ColdZoneWest(), "西端 = FrontEast - ColdWidth")
+
+	assert.False(t, sb.Front.InColdZone(40), "西端は含まない（進入不可ライン）")
+	assert.True(t, sb.Front.InColdZone(41), "ゾーン内")
+	assert.True(t, sb.Front.InColdZone(60), "東端は含む")
+	assert.False(t, sb.Front.InColdZone(61), "前線より東は平常")
+
+	assert.True(t, sb.Front.IsWestOfFront(40), "西端ちょうどは進入不可側")
+	assert.True(t, sb.Front.IsWestOfFront(30), "西は進入不可側")
+	assert.False(t, sb.Front.IsWestOfFront(50), "ゾーン内は進入不可側でない")
+}

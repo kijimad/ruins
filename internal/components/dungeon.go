@@ -24,13 +24,63 @@ type SeamlessBand struct {
 	// RunSeed はチャンク決定的生成の元 seed
 	RunSeed uint64
 	// EastIndex は東進したチャンク数
-	EastIndex consts.ChunkX
+	EastIndex consts.Chunk
 	// ChunkW は1チャンクの幅
 	ChunkW consts.Tile
 	// ChunkH は帯の高さ
 	ChunkH consts.Tile
 	// K は帯のチャンク数
-	K consts.ChunkX
+	K consts.Chunk
+
+	// Front は寒波前線の永続状態。帯の Active に従属し、帯とセットで復元される。
+	Front SeamlessFront
+}
+
+// SeamlessFront は寒波前線の永続状態。現在位置は保存せず、config と永続の
+// GameTime.TotalTurns から決定的に導出する。位置を持たないのでドリフトせず、ロードでも自然に復元される。
+//
+// ジオメトリは温度・移動・描画の各消費者が同じ半開区間を使うようここに集約する。
+// worldstream.Front と同じ意味・同じメソッド面だが、あちらは components を import するため
+// systems/activity から使えない。永続スカラーの上でこちらを正典にする。
+type SeamlessFront struct {
+	// Active は寒波前線が有効か
+	Active bool
+	// StartAbsX はラン開始時の極低温ゾーン東端の絶対タイルX。ローカルでなく絶対軸
+	StartAbsX consts.AbsTileX
+	// ColdWidth は極低温ゾーンの幅
+	ColdWidth consts.Tile
+	// AdvanceTurns はこの経過ターンごとに Step タイル東進する
+	AdvanceTurns int
+	// Step は1回の前進量
+	Step consts.Tile
+	// EastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した
+	// 現在位置のキャッシュ。描画や凍結効果など後続の消費者がここを読む
+	EastAbsX consts.AbsTileX
+}
+
+// BandOriginX は帯ローカル X=0 が指す絶対タイル X。
+func (sb SeamlessBand) BandOriginX() consts.AbsTileX {
+	return consts.AbsTileX(sb.EastIndex.Tiles(sb.ChunkW))
+}
+
+// LocalToAbsX は帯ローカル X を絶対 X に変換する。
+func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.AbsTileX {
+	return consts.AbsTileX(localX) + sb.BandOriginX()
+}
+
+// ColdZoneWest は極低温ゾーン西端＝破棄/進入不可ラインの絶対 X。
+func (f SeamlessFront) ColdZoneWest() consts.AbsTileX {
+	return f.EastAbsX - consts.AbsTileX(f.ColdWidth)
+}
+
+// InColdZone は絶対 X が極低温ゾーン (ColdZoneWest, EastAbsX] 内かを返す。西端は含まない。
+func (f SeamlessFront) InColdZone(absX consts.AbsTileX) bool {
+	return absX > f.ColdZoneWest() && absX <= f.EastAbsX
+}
+
+// IsWestOfFront は絶対 X が進入不可ライン、すなわち極低温ゾーン西端以西かを返す。
+func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
+	return absX <= f.ColdZoneWest()
 }
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。

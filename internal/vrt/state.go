@@ -48,13 +48,15 @@ func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World])
 func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
 
-	// World初期化(UIリソース/フォント/画像=ebitenのグローバル描画状態)も
-	// ebitenui内部の入力ハンドラも並行アクセス安全でないため、初期化から描画まで直列化する。
-	// mutex待機中にebitenui内部の時間ベースアニメーション（Caretブリンク等）が進行するのも防ぐ
+	// World初期化・状態構築・描画はいずれも ebitenui のグローバル描画状態に触れて並行アクセス安全でない。
+	// これらを renderMu で直列化する。World 初期化は InitVRTWorld が内部で同じ renderMu を取るので、
+	// ここでは構築から描画までを別区間としてロックする。両区間とも renderMu なので ebitenui グローバルへの
+	// 同時アクセスは起きない。mutex待機中に ebitenui の時間ベースアニメーション（Caretブリンク等）が進むのも防ぐ
+	world := InitVRTWorld(t)
+
 	renderMu.Lock()
 	defer renderMu.Unlock()
 
-	world := InitVRTWorld(t)
 	states := buildStates(world)
 	require.NotEmpty(t, states, "ステートが1つ以上必要")
 
@@ -84,9 +86,15 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 }
 
 // InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する。
-// テスト・ベンチ双方から使えるよう testing.TB を受ける
+// テスト・ベンチ双方から使えるよう testing.TB を受ける。
+//
+// maingame.InitWorld 経由で ebitenui のグローバルな NineSlice キャッシュを触るため renderMu で
+// 直列化する。触らないと並列ゴールデンテストの初期化と描画が同時にこのキャッシュへアクセスして
+// data race になる。renderMu は非再入なので、renderState はこの関数を描画ロックの外側で呼ぶ。
 func InitVRTWorld(tb testing.TB) w.World {
 	tb.Helper()
+	renderMu.Lock()
+	defer renderMu.Unlock()
 
 	cfg := &config.Config{Profile: config.ProfileDevelopment}
 	cfg.ApplyProfileDefaults()

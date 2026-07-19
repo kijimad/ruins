@@ -7,7 +7,7 @@
 //
 // 主な構成:
 //   - TranslateAllEntities / RemoveEntitiesInXRange: 帯シフトの原子操作。純 ECS
-//   - AbsTileX / ToAbs / ToLocal: 絶対軸 X と帯ローカル座標の分離・変換
+//   - ToAbs / ToLocal: 絶対軸 X（consts.AbsTileX）と帯ローカル座標の分離・変換
 //   - Band: 帯の状態と ShiftEast/ShiftWest によるシフト
 //
 // mapplanner/mapspawner には依存しない。チャンク生成は ChunkGen 注入で分離する。実生成の

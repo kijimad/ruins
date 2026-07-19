@@ -28,8 +28,9 @@ type OverworldState struct {
 	newGame *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
 
 	// 以下は OnStart で確定する実行時状態
-	band *worldstream.Band
-	gen  worldstream.ChunkGen
+	band     *worldstream.Band
+	gen      worldstream.ChunkGen
+	frontCfg worldstream.FrontConfig
 }
 
 var _ es.State[w.World] = &OverworldState{}
@@ -44,8 +45,18 @@ type NewGameParams struct {
 	RunSeed uint64
 	ChunkW  consts.Tile
 	ChunkH  consts.Tile
-	K       consts.ChunkX
+	K       consts.Chunk
 }
+
+const (
+	// frontAdvanceTurns は前線が frontStep タイル前進するのに要するターン数。大きいほどゆるやか。
+	// 1500ターン/日なので 20 なら 75タイル/日。開始時に背後25タイルなら追いつくまで約500ターン≈0.33日
+	frontAdvanceTurns = 20
+	// frontStep は1回の前進量。タイル単位
+	frontStep consts.Tile = 1
+	// frontColdWidthChunks は極低温ゾーンの幅。チャンク数
+	frontColdWidthChunks consts.Chunk = 2
+)
 
 // NewOverworldState はシームレスワールドステートのファクトリを返す。
 //
@@ -83,9 +94,17 @@ func (st *OverworldState) OnStart(world w.World) error {
 
 	sb := &d.SeamlessBand
 	if sb.Active {
-		return st.restoreFromSave(world, sb)
+		if err := st.restoreFromSave(world, sb); err != nil {
+			return err
+		}
+	} else if err := st.startNewBand(world, sb); err != nil {
+		return err
 	}
-	return st.startNewBand(world, sb)
+
+	// 前線の現在位置を初回フレームの描画前に確定させる。Update を待つと最初の1フレーム
+	// FrontEastAbsX が未初期化になりうるため、OnStart 時点で一度導出しておく
+	st.updateFront(world)
+	return nil
 }
 
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
@@ -93,8 +112,25 @@ func (st *OverworldState) OnStart(world w.World) error {
 func (st *OverworldState) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 	st.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
 	st.gen = overworld.NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, st.planner)
+	st.frontCfg = frontCfgFromBand(sb)
 	query.InvalidateSpatialIndex(world)
 	return nil
+}
+
+// frontCfgFromBand は永続状態から寒波前線の前進パラメータを復元する。
+func frontCfgFromBand(sb *gc.SeamlessBand) worldstream.FrontConfig {
+	return worldstream.FrontConfig{
+		StartEast:    sb.Front.StartAbsX,
+		ColdWidth:    sb.Front.ColdWidth,
+		AdvanceTurns: sb.Front.AdvanceTurns,
+		Step:         sb.Front.Step,
+	}
+}
+
+// front は総経過ターン数から寒波前線の現在位置を導出する。
+func (st *OverworldState) front(world w.World) worldstream.Front {
+	totalTurns := query.GetDungeon(world).GameTime.TotalTurns
+	return worldstream.FrontAt(st.frontCfg, totalTurns)
 }
 
 // startNewBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
@@ -114,6 +150,21 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 	sb.ChunkW = p.ChunkW
 	sb.ChunkH = p.ChunkH
 	sb.K = st.band.K()
+
+	// 寒波前線を初期化する。極低温ゾーン東端を西チャンクの東端（プレイヤーの1チャンク背後）に置く。
+	// これで開始時からプレイヤーの背後に霜が見え、西へ戻ると凍える。以東へ進み帯がシフトすると前線は
+	// 絶対軸に留まるため背後へ離れていく。普通に東進する限り触れない遅い地平にする。
+	st.frontCfg = worldstream.FrontConfig{
+		StartEast:    worldstream.BandOriginX(st.band.EastIndex(), p.ChunkW) + consts.AbsTileX(p.ChunkW),
+		ColdWidth:    frontColdWidthChunks.Tiles(p.ChunkW),
+		AdvanceTurns: frontAdvanceTurns,
+		Step:         frontStep,
+	}
+	sb.Front.Active = true
+	sb.Front.StartAbsX = st.frontCfg.StartEast
+	sb.Front.ColdWidth = st.frontCfg.ColdWidth
+	sb.Front.AdvanceTurns = st.frontCfg.AdvanceTurns
+	sb.Front.Step = st.frontCfg.Step
 
 	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する
 	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
@@ -163,16 +214,27 @@ func (st *OverworldState) generateBandChunks(world w.World, chunkW, chunkH const
 // 将来オーバーワールドにポータルを足して遺跡へ入れるようにする場合、帯の退避は汎用フックの
 // OnPause ではなく「遺跡進入」専用の経路で行う。汎用フックはオーバーレイと区別できないため。
 
-// Update は DungeonState の共通処理を実行後、ターン境界で帯をシフトする。
+// Update は DungeonState の共通処理を実行後、寒波前線を進め、ターン境界で帯をシフトする。
 func (st *OverworldState) Update(world w.World) (es.Transition[w.World], error) {
 	trans, err := st.DungeonState.Update(world)
 	if err != nil || trans.Type != es.TransNone {
 		return trans, err
 	}
+	st.updateFront(world)
 	if serr := st.maybeShift(world); serr != nil {
 		return es.Transition[w.World]{}, serr
 	}
 	return trans, nil
+}
+
+// updateFront は総ターン数から導出した寒波前線の現在位置を永続状態へ反映する。
+// 位置は導出値なので毎フレーム書いても冪等。描画や凍結効果はこの FrontEastAbsX を読む。
+func (st *OverworldState) updateFront(world w.World) {
+	sb := &query.GetDungeon(world).SeamlessBand
+	if !sb.Front.Active {
+		return
+	}
+	sb.Front.EastAbsX = st.front(world).East
 }
 
 // maybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトする。

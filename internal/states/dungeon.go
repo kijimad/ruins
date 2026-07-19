@@ -246,6 +246,7 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 
 	for _, renderer := range []w.Renderer{
 		&gs.RenderSpriteSystem{},
+		&gs.FrostRenderSystem{},
 		&gs.HUDRenderingSystem{},
 		&gs.VisualEffectSystem{},
 	} {

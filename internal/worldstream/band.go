@@ -15,23 +15,23 @@ import (
 // 西端破棄・リベースからなる。これにより帯ローカル座標は常に 0..K*chunkW に収まり、既存の単一
 // マップ機構を変えずに無限東進を実現する。
 type Band struct {
-	chunkW    consts.Tile   // 1チャンクの幅。構築後不変
-	k         consts.ChunkX // 帯のチャンク数。奇数で中央チャンクを持つ。構築後不変
-	eastIndex consts.ChunkX // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化
+	chunkW    consts.Tile  // 1チャンクの幅。構築後不変
+	k         consts.Chunk // 帯のチャンク数。奇数で中央チャンクを持つ。構築後不変
+	eastIndex consts.Chunk // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化
 }
 
 // ChunkGen は絶対チャンクインデックスの地形を帯ローカルの offsetX 位置へ生成・配置する。
 // 呼び出し側が引数からの決定的生成と mapspawner.SpawnAt を実装する。
 // worldstream を mapplanner/mapspawner に依存させないための注入点。
-type ChunkGen func(chunkIndex consts.ChunkX, offsetX consts.Tile) error
+type ChunkGen func(chunkIndex consts.Chunk, offsetX consts.Tile) error
 
 // NewBand は幅 chunkW、チャンク数 k の帯を eastIndex=0 で作る。k は奇数を推奨する。
-func NewBand(chunkW consts.Tile, k consts.ChunkX) *Band {
+func NewBand(chunkW consts.Tile, k consts.Chunk) *Band {
 	return NewBandAt(chunkW, k, 0)
 }
 
 // NewBandAt は eastIndex を指定して帯を作る。セーブからの復元で使う。
-func NewBandAt(chunkW consts.Tile, k, eastIndex consts.ChunkX) *Band {
+func NewBandAt(chunkW consts.Tile, k, eastIndex consts.Chunk) *Band {
 	return &Band{chunkW: chunkW, k: k, eastIndex: eastIndex}
 }
 
@@ -39,19 +39,19 @@ func NewBandAt(chunkW consts.Tile, k, eastIndex consts.ChunkX) *Band {
 func (b *Band) ChunkW() consts.Tile { return b.chunkW }
 
 // K は帯のチャンク数を返す。
-func (b *Band) K() consts.ChunkX { return b.k }
+func (b *Band) K() consts.Chunk { return b.k }
 
 // EastIndex は東進したチャンク数を返す。帯西端チャンクの絶対インデックス。
-func (b *Band) EastIndex() consts.ChunkX { return b.eastIndex }
+func (b *Band) EastIndex() consts.Chunk { return b.eastIndex }
 
 // BandOriginX は帯ローカル X=0 が指す絶対 X。
-func (b *Band) BandOriginX() AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }
+func (b *Band) BandOriginX() consts.AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }
 
 // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。
 func (b *Band) Width() consts.Tile { return b.k.Tiles(b.chunkW) }
 
 // centerSlot は中央チャンクのスロット番号。K が奇数なら真ん中。
-func (b *Band) centerSlot() consts.ChunkX { return b.k / 2 }
+func (b *Band) centerSlot() consts.Chunk { return b.k / 2 }
 
 // ShouldShiftEast はプレイヤーの帯ローカル X が中央チャンクを東へ出たかを返す。判定はヒステリシスを持つ。
 func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {

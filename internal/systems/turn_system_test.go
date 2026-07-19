@@ -95,6 +95,7 @@ func TestTurnSystem_Update(t *testing.T) {
 
 		turnState.Phase = gc.TurnPhaseEnd
 		initialTurnNumber := turnState.TurnNumber
+		initialTotalTurns := query.GetDungeon(world).GameTime.TotalTurns
 
 		sys := &TurnSystem{}
 		err := sys.Update(world)
@@ -102,6 +103,8 @@ func TestTurnSystem_Update(t *testing.T) {
 
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "TurnEndからPlayerTurnへ遷移するべき")
 		assert.Equal(t, initialTurnNumber+1, turnState.TurnNumber, "ターン番号が増加するべき")
+		assert.Equal(t, initialTotalTurns+1, query.GetDungeon(world).GameTime.TotalTurns,
+			"ゲーム内時間も1ターン進むべき（昼夜・気温・寒波前線が依存する）")
 	})
 }
 
