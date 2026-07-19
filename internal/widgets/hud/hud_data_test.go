@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,8 +16,7 @@ func TestHUDData(t *testing.T) {
 			FloorNumber: 3,
 		},
 		MinimapData: MinimapData{
-			PlayerTileX:      5,
-			PlayerTileY:      7,
+			PlayerTile:       consts.Coord[consts.Tile]{X: 5, Y: 7},
 			ExploredTiles:    map[gc.GridElement]bool{{X: 5, Y: 7}: true},
 			TileColors:       map[gc.GridElement]TileColorInfo{{X: 5, Y: 7}: {R: 255, G: 255, B: 255, A: 255}},
 			MinimapConfig:    MinimapConfig{Width: 150, Height: 150, Scale: 3},
@@ -34,7 +34,7 @@ func TestHUDData(t *testing.T) {
 
 	// データ構造が正しく作成されることを確認
 	assert.Equal(t, 3, hudData.GameInfo.FloorNumber)
-	assert.Equal(t, 5, hudData.MinimapData.PlayerTileX)
+	assert.Equal(t, 5, int(hudData.MinimapData.PlayerTile.X))
 	assert.Len(t, hudData.MessageData.Messages, 2)
 }
 

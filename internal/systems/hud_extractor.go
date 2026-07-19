@@ -86,8 +86,8 @@ func extractMinimapData(world w.World) hud.MinimapData {
 	}
 
 	// プレイヤーのタイル座標
-	playerTileX := int(playerGridElement.X)
-	playerTileY := int(playerGridElement.Y)
+	playerTileX := playerGridElement.X
+	playerTileY := playerGridElement.Y
 
 	// タイル色情報を抽出
 	tileColors := buildTileColors(world)
@@ -100,16 +100,14 @@ func extractMinimapData(world w.World) hud.MinimapData {
 			if world.Components.GridElement.Has(member) {
 				grid := world.Components.GridElement.Get(member)
 				squadPositions = append(squadPositions, hud.MinimapMarker{
-					TileX: int(grid.X),
-					TileY: int(grid.Y),
+					Tile: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y},
 				})
 			}
 		}
 	}
 
 	return hud.MinimapData{
-		PlayerTileX:    playerTileX,
-		PlayerTileY:    playerTileY,
+		PlayerTile:     consts.Coord[consts.Tile]{X: playerTileX, Y: playerTileY},
 		ExploredTiles:  query.GetDungeon(world).ExploredTiles,
 		TileColors:     tileColors,
 		SquadPositions: squadPositions,
@@ -181,15 +179,13 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			stateText = "UNKNOWN"
 		}
 		aiStates = append(aiStates, hud.AIStateInfo{
-			ScreenX:   screenX,
-			ScreenY:   screenY,
+			Screen:    consts.Coord[float64]{X: screenX, Y: screenY},
 			StateText: stateText,
 		})
 
 		scaledRadius := float32(float64(solo.ViewDistance) * float64(consts.TileSize) * cameraScale)
 		visionRanges = append(visionRanges, hud.VisionRangeInfo{
-			ScreenX:      screenX,
-			ScreenY:      screenY,
+			Screen:       consts.Coord[float64]{X: screenX, Y: screenY},
 			ScaledRadius: scaledRadius,
 		})
 	}
@@ -224,8 +220,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2
 
 		hpDisplays = append(hpDisplays, hud.HPDisplayInfo{
-			ScreenX:    screenX,
-			ScreenY:    screenY,
+			Screen:     consts.Coord[float64]{X: screenX, Y: screenY},
 			CurrentHP:  hp.Current,
 			MaxHP:      hp.Max,
 			EntityName: entityName,

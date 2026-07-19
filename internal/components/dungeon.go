@@ -120,11 +120,10 @@ func NewDungeon() *Dungeon {
 		VisibleTiles:     make(map[GridElement]bool),
 		LightSourceCache: make(map[GridElement]LightInfo),
 		MinimapSettings: MinimapSettings{
-			Width:   150,
-			Height:  150,
-			OffsetX: 10,
-			OffsetY: 10,
-			Scale:   3,
+			Width:  150,
+			Height: 150,
+			Offset: consts.Coord[int]{X: 10, Y: 10},
+			Scale:  3,
 		},
 		SelectedWeaponSlot: 1,
 	}
@@ -168,8 +167,7 @@ type MinimapSettings struct {
 	Width  int
 	Height int
 	// ミニマップの表示位置（画面右上に配置）
-	OffsetX int
-	OffsetY int
+	Offset consts.Coord[int]
 	// ミニマップのスケール（何ピクセルで1タイルを表すか）
 	Scale int
 }
