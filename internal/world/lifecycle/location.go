@@ -195,16 +195,15 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 func findAdjacentEmptyTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) (consts.Coord[consts.Tile], error) {
 	si := query.GetSpatialIndex(world)
 	// 上下左右を優先し、次に斜めを探す
-	offsets := [][2]int{
-		{0, -1}, {0, 1}, {-1, 0}, {1, 0},
-		{-1, -1}, {1, -1}, {-1, 1}, {1, 1},
+	offsets := []consts.Coord[consts.Tile]{
+		{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0},
+		{X: -1, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 1}, {X: 1, Y: 1},
 	}
 	for _, off := range offsets {
-		x, y := int(center.X)+off[0], int(center.Y)+off[1]
-		if x < 0 || y < 0 {
+		tile := center.Add(off)
+		if tile.X < 0 || tile.Y < 0 {
 			continue
 		}
-		tile := consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
 		// SpatialIndexが構築済みの場合のみ範囲と衝突をチェックする
 		if si != nil {
 			if tile.X >= si.MapWidth || tile.Y >= si.MapHeight {
