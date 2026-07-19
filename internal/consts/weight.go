@@ -25,13 +25,13 @@ func MilligramFromKg(kg float64) Milligram {
 
 // String は値の大きさに応じた最適な単位（kg/g/mg）で表示する。
 // 単一アイテムの重量など幅の広い値に使う。1kg以上はkg、1g以上はg、それ未満はmg。
-// 数値は %g で末尾ゼロを落とす
+// 数値は FormatFloat の 'f' 最短表記で末尾ゼロを落とす。指数表記にはしない
 func (m Milligram) String() string {
 	switch {
 	case m >= MilligramPerKg:
-		return fmt.Sprintf("%g%s", float64(m)/MilligramPerKg, IconKg)
+		return strconv.FormatFloat(float64(m)/MilligramPerKg, 'f', -1, 64) + IconKg
 	case m >= MilligramPerGram:
-		return fmt.Sprintf("%g%s", float64(m)/MilligramPerGram, IconG)
+		return strconv.FormatFloat(float64(m)/MilligramPerGram, 'f', -1, 64) + IconG
 	default:
 		return fmt.Sprintf("%d%s", int(m), IconMg)
 	}

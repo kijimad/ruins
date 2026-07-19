@@ -47,6 +47,7 @@ func TestMilligram_String(t *testing.T) {
 		{"1g未満はmg", 500, "500" + consts.IconMg},
 		{"1mg", 1, "1" + consts.IconMg},
 		{"ゼロはmg", 0, "0" + consts.IconMg},
+		{"大質量でも指数表記にしない", 12_345_678_000_000, "12345678" + consts.IconKg},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
