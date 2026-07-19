@@ -10,18 +10,16 @@ import (
 )
 
 type bfsGrid struct {
-	world  w.World
-	mover  ecs.Entity
-	si     *gc.SpatialIndex
-	width  int
-	height int
+	world w.World
+	mover ecs.Entity
+	si    *gc.SpatialIndex
 }
 
-func (g *bfsGrid) isPassable(x, y int) bool {
-	if x < 0 || y < 0 || x >= g.width || y >= g.height {
+func (g *bfsGrid) isPassable(pos consts.Coord[consts.Tile]) bool {
+	if pos.X < 0 || pos.Y < 0 || pos.X >= g.si.MapWidth || pos.Y >= g.si.MapHeight {
 		return false
 	}
-	key := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}
+	key := gc.GridElement{Coord: pos}
 	if g.si.BlockPass[key] {
 		return false
 	}
@@ -31,11 +29,14 @@ func (g *bfsGrid) isPassable(x, y int) bool {
 	return true
 }
 
-func (g *bfsGrid) canPassDiagonal(cx, cy, dx, dy int) bool {
-	if dx == 0 || dy == 0 {
+// canPassDiagonal は斜め移動時の壁すり抜けを禁じる。隣接する直交2方向の
+// どちらかが通行可能なら斜めに進める。d は移動方向で各成分は -1/0/1
+func (g *bfsGrid) canPassDiagonal(cur, d consts.Coord[consts.Tile]) bool {
+	if d.X == 0 || d.Y == 0 {
 		return true
 	}
-	return g.isPassable(cx+dx, cy) || g.isPassable(cx, cy+dy)
+	return g.isPassable(cur.Add(consts.Coord[consts.Tile]{X: d.X})) ||
+		g.isPassable(cur.Add(consts.Coord[consts.Tile]{Y: d.Y}))
 }
 
 // FindNextStep はBFSで最短経路を求め、次の1歩の座標を返す。
@@ -43,43 +44,33 @@ func (g *bfsGrid) canPassDiagonal(cx, cy, dx, dy int) bool {
 // ゴールが通行不能でも到達を認識する。ゴールはキューに入れないので通り抜ける経路は生まれない。
 // キャラクターの通行可否はmoverとの関係性で決まる
 func FindNextStep(world w.World, mover ecs.Entity, from, goal consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
-	// BFS 内部はタイルインデックスの int 演算なので、境界でだけ int へ展開する
-	fromX, fromY, goalX, goalY := int(from.X), int(from.Y), int(goal.X), int(goal.Y)
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return consts.Coord[consts.Tile]{}, false
 	}
 
-	if fromX == goalX && fromY == goalY {
+	if from == goal {
 		return consts.Coord[consts.Tile]{}, false
 	}
 
-	// BFS はスライス添字や x+y*width の int 演算で完結するので、境界でだけ int へ展開する
-	width, height := int(si.MapWidth), int(si.MapHeight)
-
-	if goalX < 0 || goalY < 0 || goalX >= width || goalY >= height {
-		return consts.Coord[consts.Tile]{}, false
+	inBounds := func(p consts.Coord[consts.Tile]) bool {
+		return p.X >= 0 && p.Y >= 0 && p.X < si.MapWidth && p.Y < si.MapHeight
 	}
-	if fromX < 0 || fromY < 0 || fromX >= width || fromY >= height {
+	if !inBounds(from) || !inBounds(goal) {
 		return consts.Coord[consts.Tile]{}, false
 	}
 
-	g := &bfsGrid{world: world, mover: mover, si: si, width: width, height: height}
+	g := &bfsGrid{world: world, mover: mover, si: si}
 
-	type coord struct{ x, y int }
+	// visited は探索済みタイル、firstStep はそのタイルへ到達する最初の1歩を記録する
+	visited := map[consts.Coord[consts.Tile]]bool{from: true}
+	firstStep := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
 
-	visited := make([]bool, width*height)
-	firstStep := make([]coord, width*height)
+	queue := []consts.Coord[consts.Tile]{from}
 
-	idx := func(x, y int) int { return y*width + x }
-
-	visited[idx(fromX, fromY)] = true
-
-	queue := []coord{{fromX, fromY}}
-
-	dirs := [8][2]int{
-		{0, -1}, {0, 1}, {-1, 0}, {1, 0},
-		{-1, -1}, {1, -1}, {-1, 1}, {1, 1},
+	dirs := []consts.Coord[consts.Tile]{
+		{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0},
+		{X: -1, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 1}, {X: 1, Y: 1},
 	}
 
 	for len(queue) > 0 {
@@ -87,36 +78,32 @@ func FindNextStep(world w.World, mover ecs.Entity, from, goal consts.Coord[const
 		queue = queue[1:]
 
 		for _, d := range dirs {
-			nx, ny := cur.x+d[0], cur.y+d[1]
+			next := cur.Add(d)
 
-			isGoal := nx == goalX && ny == goalY
+			isGoal := next == goal
 
-			if !isGoal && !g.isPassable(nx, ny) {
+			if !isGoal && !g.isPassable(next) {
 				continue
 			}
-
-			if !g.canPassDiagonal(cur.x, cur.y, d[0], d[1]) {
+			if !g.canPassDiagonal(cur, d) {
 				continue
 			}
-
-			ni := idx(nx, ny)
-			if visited[ni] {
+			if visited[next] {
 				continue
 			}
-			visited[ni] = true
+			visited[next] = true
 
-			if cur.x == fromX && cur.y == fromY {
-				firstStep[ni] = coord{nx, ny}
+			if cur == from {
+				firstStep[next] = next
 			} else {
-				firstStep[ni] = firstStep[idx(cur.x, cur.y)]
+				firstStep[next] = firstStep[cur]
 			}
 
 			if isGoal {
-				step := firstStep[ni]
-				return consts.Coord[consts.Tile]{X: consts.Tile(step.x), Y: consts.Tile(step.y)}, true
+				return firstStep[next], true
 			}
 
-			queue = append(queue, coord{nx, ny})
+			queue = append(queue, next)
 		}
 	}
 
