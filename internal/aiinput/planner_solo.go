@@ -15,7 +15,7 @@ import (
 )
 
 // territorialRadius はTerritorial移動パターンでスポーン地点から離れられる最大距離を定義する
-const territorialRadius = 5
+const territorialRadius consts.Tile = 5
 
 // soloPlanner は敵・中立NPC用の行動計画を実装する。
 // AIStateの状態遷移とSoloMovementによる移動を統合して行動を決定する
@@ -344,8 +344,8 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 	for _, d := range shuffledEightDirections(rp.rng) {
 		dest := from.Add(d)
 
-		dx := geometry.Abs(int(dest.X - solo.Origin.X))
-		dy := geometry.Abs(int(dest.Y - solo.Origin.Y))
+		dx := geometry.Abs(dest.X - solo.Origin.X)
+		dy := geometry.Abs(dest.Y - solo.Origin.Y)
 		if dx > territorialRadius || dy > territorialRadius {
 			continue
 		}
