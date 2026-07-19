@@ -52,10 +52,10 @@ const (
 	// frontAdvanceTurns は前線が frontStep タイル前進するのに要するターン数。大きいほどゆるやか。
 	// 1500ターン/日なので 20 なら 75タイル/日。開始時に背後25タイルなら追いつくまで約500ターン≈0.33日
 	frontAdvanceTurns = 20
-	// frontStep は1回の前進量（タイル）
-	frontStep = 1
-	// frontColdWidthChunks は極低温ゾーンの幅（チャンク数）
-	frontColdWidthChunks = 2
+	// frontStep は1回の前進量。タイル単位
+	frontStep consts.Tile = 1
+	// frontColdWidthChunks は極低温ゾーンの幅。チャンク数
+	frontColdWidthChunks consts.Chunk = 2
 )
 
 // NewOverworldState はシームレスワールドステートのファクトリを返す。
@@ -156,7 +156,7 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 	// 絶対軸に留まるため背後へ離れていく。普通に東進する限り触れない遅い地平にする。
 	st.frontCfg = worldstream.FrontConfig{
 		StartEast:    worldstream.BandOriginX(st.band.EastIndex(), p.ChunkW) + consts.AbsTileX(p.ChunkW),
-		ColdWidth:    p.ChunkW * frontColdWidthChunks,
+		ColdWidth:    frontColdWidthChunks.Tiles(p.ChunkW),
 		AdvanceTurns: frontAdvanceTurns,
 		Step:         frontStep,
 	}

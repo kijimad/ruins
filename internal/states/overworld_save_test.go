@@ -58,9 +58,9 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 
 	// 寒波前線の config が復元される
 	assert.True(t, sb.Front.Active, "FrontActive が復元される")
-	assert.Equal(t, chunkW*frontColdWidthChunks, sb.Front.ColdWidth, "FrontColdWidth が復元される")
+	assert.Equal(t, frontColdWidthChunks.Tiles(chunkW), sb.Front.ColdWidth, "FrontColdWidth が復元される")
 	assert.Equal(t, frontAdvanceTurns, sb.Front.AdvanceTurns, "FrontAdvanceTurns が復元される")
-	assert.Equal(t, consts.Tile(frontStep), sb.Front.Step, "FrontStep が復元される")
+	assert.Equal(t, frontStep, sb.Front.Step, "FrontStep が復元される")
 
 	// 復元ワールドでロード用ファクトリから OverworldState を起動 → Band が eastIndex=1 で再構築される
 	loadFactory := NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
