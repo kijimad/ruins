@@ -3,6 +3,7 @@ package geometry
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +28,9 @@ func TestChebyshevDistance(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.expected, ChebyshevDistance(tt.x0, tt.y0, tt.x1, tt.y1))
+			a := consts.Coord[int]{X: tt.x0, Y: tt.y0}
+			b := consts.Coord[int]{X: tt.x1, Y: tt.y1}
+			assert.Equal(t, tt.expected, ChebyshevDistance(a, b))
 		})
 	}
 }
@@ -37,32 +40,28 @@ func TestBresenhamLine_Vertical(t *testing.T) {
 	t.Parallel()
 
 	// (0,0)→(0,3): 中間点は (0,1) と (0,2) の2点
-	points := BresenhamLine(0, 0, 0, 3)
+	points := BresenhamLine(consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 0, Y: 3})
 	assert.Len(t, points, 2)
-	assert.Equal(t, 0, points[0].X)
-	assert.Equal(t, 1, points[0].Y)
-	assert.Equal(t, 0, points[1].X)
-	assert.Equal(t, 2, points[1].Y)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 0, Y: 1}, points[0])
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 0, Y: 2}, points[1])
 }
 
 func TestBresenhamLine_Diagonal(t *testing.T) {
 	t.Parallel()
 
 	// (0,0)→(3,3): 中間点は (1,1) と (2,2) の2点
-	points := BresenhamLine(0, 0, 3, 3)
+	points := BresenhamLine(consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	assert.Len(t, points, 2)
-	assert.Equal(t, 1, points[0].X)
-	assert.Equal(t, 1, points[0].Y)
-	assert.Equal(t, 2, points[1].X)
-	assert.Equal(t, 2, points[1].Y)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 1, Y: 1}, points[0])
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, points[1])
 }
 
 func TestBresenhamLine_Reverse(t *testing.T) {
 	t.Parallel()
 
 	// (3,0)→(0,0): 中間点は (2,0) と (1,0) の2点
-	points := BresenhamLine(3, 0, 0, 0)
+	points := BresenhamLine(consts.Coord[consts.Tile]{X: 3, Y: 0}, consts.Coord[consts.Tile]{X: 0, Y: 0})
 	assert.Len(t, points, 2)
-	assert.Equal(t, 2, points[0].X)
-	assert.Equal(t, 1, points[1].X)
+	assert.Equal(t, consts.Tile(2), points[0].X)
+	assert.Equal(t, consts.Tile(1), points[1].X)
 }

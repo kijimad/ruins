@@ -14,61 +14,61 @@ func Distance(x0, y0, x1, y1 float64) float64 {
 }
 
 // IsAdjacent は2点が隣接しているかを判定する。チェビシェフ距離が1以下で同一座標でない場合にtrueを返す
-func IsAdjacent(x0, y0, x1, y1 int) bool {
-	dx := Abs(x0 - x1)
-	dy := Abs(y0 - y1)
+func IsAdjacent[T consts.Numeric](a, b consts.Coord[T]) bool {
+	dx := Abs(a.X - b.X)
+	dy := Abs(a.Y - b.Y)
 	if dx == 0 && dy == 0 {
 		return false
 	}
 	return dx <= 1 && dy <= 1
 }
 
-// BresenhamLine はBresenhamアルゴリズムで2点間の座標列を返す。始点と終点は含まない
-func BresenhamLine(x0, y0, x1, y1 int) []consts.Coord[int] {
-	var points []consts.Coord[int]
+// BresenhamLine はBresenhamアルゴリズムで2点間のタイル座標列を返す。始点と終点は含まない
+func BresenhamLine(from, to consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+	var points []consts.Coord[consts.Tile]
 
-	dx := Abs(x1 - x0)
-	dy := Abs(y1 - y0)
-	sx := 1
-	if x0 > x1 {
+	dx := Abs(to.X - from.X)
+	dy := Abs(to.Y - from.Y)
+	sx := consts.Tile(1)
+	if from.X > to.X {
 		sx = -1
 	}
-	sy := 1
-	if y0 > y1 {
+	sy := consts.Tile(1)
+	if from.Y > to.Y {
 		sy = -1
 	}
 	err := dx - dy
 
-	x, y := x0, y0
+	cur := from
 	for {
-		if (x != x0 || y != y0) && (x != x1 || y != y1) {
-			points = append(points, consts.Coord[int]{X: x, Y: y})
+		if cur != from && cur != to {
+			points = append(points, cur)
 		}
-		if x == x1 && y == y1 {
+		if cur == to {
 			break
 		}
 		e2 := 2 * err
 		if e2 > -dy {
 			err -= dy
-			x += sx
+			cur.X += sx
 		}
 		if e2 < dx {
 			err += dx
-			y += sy
+			cur.Y += sy
 		}
 	}
 
 	return points
 }
 
-// ChebyshevDistance は2点間のチェビシェフ距離を返す
-func ChebyshevDistance(x0, y0, x1, y1 int) int {
-	dx := Abs(x0 - x1)
-	dy := Abs(y0 - y1)
+// ChebyshevDistance は2点間のチェビシェフ距離を返す。距離はタイル数などの int
+func ChebyshevDistance[T consts.Numeric](a, b consts.Coord[T]) int {
+	dx := Abs(a.X - b.X)
+	dy := Abs(a.Y - b.Y)
 	if dx > dy {
-		return dx
+		return int(dx)
 	}
-	return dy
+	return int(dy)
 }
 
 // Abs は絶対値を返す。int だけでなく consts.Tile/WorldPixel などの単位型でも使える

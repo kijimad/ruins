@@ -61,7 +61,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
 // gridDistance は2つのGridElement間のチェビシェフ距離を返す
 func gridDistance(a, b *gc.GridElement) int {
-	return geometry.ChebyshevDistance(int(a.X), int(a.Y), int(b.X), int(b.Y))
+	return geometry.ChebyshevDistance(a.Coord, b.Coord)
 }
 
 // eightDirections は隣接8方向の座標差分を定義する
@@ -153,5 +153,5 @@ func shuffledEightDirections(rng *rand.Rand) []consts.Coord[consts.Tile] {
 
 // isAdjacent は2つのタイルが隣接しているかを判定する
 func isAdjacent(a, b *gc.GridElement) bool {
-	return geometry.IsAdjacent(int(a.X), int(a.Y), int(b.X), int(b.Y))
+	return geometry.IsAdjacent(a.Coord, b.Coord)
 }

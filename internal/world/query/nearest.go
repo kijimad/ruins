@@ -29,7 +29,7 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
-		dist := geometry.ChebyshevDistance(int(from.X), int(from.Y), int(grid.X), int(grid.Y))
+		dist := geometry.ChebyshevDistance(from.Coord, grid.Coord)
 		if nearestDist < 0 || dist < nearestDist {
 			e := entity
 			nearestEntity = &e
@@ -70,7 +70,7 @@ func FindNearestCharacter(world w.World, self ecs.Entity, from *gc.GridElement, 
 			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
-		dist := geometry.ChebyshevDistance(int(from.X), int(from.Y), int(grid.X), int(grid.Y))
+		dist := geometry.ChebyshevDistance(from.Coord, grid.Coord)
 		if !found || dist < nearestDist || (dist == nearestDist && entity.ID() < nearest.ID()) {
 			nearest = entity
 			nearestGrid = grid

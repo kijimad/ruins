@@ -63,7 +63,7 @@ func IsInActivationRange(playerGrid, triggerGrid *gc.GridElement, activationRang
 	case gc.ActivationRangeSameTile:
 		return playerGrid.X == triggerGrid.X && playerGrid.Y == triggerGrid.Y
 	case gc.ActivationRangeAdjacent:
-		return geometry.IsAdjacent(int(playerGrid.X), int(playerGrid.Y), int(triggerGrid.X), int(triggerGrid.Y))
+		return geometry.IsAdjacent(playerGrid.Coord, triggerGrid.Coord)
 	default:
 		return false
 	}
