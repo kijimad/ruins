@@ -249,6 +249,7 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, from, to consts.Coord[con
 	targetGrid := world.Components.GridElement.Get(target)
 	targetGrid.Coord = from
 
+	// 位置入れ替えなので味方は actor と逆向きに動く。味方視点では to から from へ移る
 	log.Debug("味方と位置入れ替え",
 		"target", target,
 		"from", to.String(),
