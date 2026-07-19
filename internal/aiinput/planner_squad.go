@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -312,8 +311,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 		}
 		loc := world.Components.LocationInBackpack.Get(item)
 		if loc.Owner == entity {
-			e := item
-			itemToTransfer = &e
+			itemToTransfer = &item
 		}
 	}
 
@@ -335,16 +333,12 @@ func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *
 
 // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる
 func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, bool) {
-	fromPos := from.Coord
-	nextTile, ok := activity.FindNextStep(world, entity,
-		from.Coord,
-		target.Coord)
+	next, ok := activity.FindNextStep(world, entity, from.Coord, target.Coord)
 	if !ok {
 		return nil, false
 	}
 
-	next := nextTile
-	if !activity.CanMoveTo(world, next, fromPos, entity) {
+	if !activity.CanMoveTo(world, next, from.Coord, entity) {
 		return nil, false
 	}
 
@@ -353,10 +347,7 @@ func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, ta
 
 // tryMoveAway はターゲットから離れる移動を試みる
 func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, threat *gc.GridElement) (activity.Behavior, bool) {
-	dx := from.X - threat.X
-	dy := from.Y - threat.Y
-
-	candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: dx, Y: dy})
+	candidates := calculateMoveCandidates(from.Sub(threat.Coord))
 	return tryMoveCandidates(world, entity, from, candidates)
 }
 
