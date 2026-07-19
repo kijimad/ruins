@@ -222,7 +222,7 @@ func TestIsInVision(t *testing.T) {
 
 		query.GetDungeon(world).VisibleTiles = nil
 
-		assert.False(t, query.IsInVision(world, 0, 0, 5, 5))
+		assert.False(t, query.IsInVision(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 5, Y: 5}))
 	})
 
 	t.Run("視界半径外は視界外と判定される", func(t *testing.T) {
@@ -233,7 +233,7 @@ func TestIsInVision(t *testing.T) {
 			{Coord: consts.Coord[consts.Tile]{X: 100, Y: 100}}: true,
 		}
 
-		assert.False(t, query.IsInVision(world, 0, 0, 100, 100))
+		assert.False(t, query.IsInVision(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 100, Y: 100}))
 	})
 
 	t.Run("VisibleTilesに含まれるタイルは視界内と判定される", func(t *testing.T) {
@@ -244,7 +244,7 @@ func TestIsInVision(t *testing.T) {
 			{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 		}
 
-		assert.True(t, query.IsInVision(world, 0, 0, 5, 5))
+		assert.True(t, query.IsInVision(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 5, Y: 5}))
 	})
 
 	t.Run("探索済みでもVisibleTilesに含まれないタイルは視界外と判定される", func(t *testing.T) {
@@ -256,6 +256,6 @@ func TestIsInVision(t *testing.T) {
 		}
 		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 
-		assert.False(t, query.IsInVision(world, 0, 0, 5, 5), "暗闘のタイルは探索済みでも視界外であるべき")
+		assert.False(t, query.IsInVision(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 5, Y: 5}), "暗闘のタイルは探索済みでも視界外であるべき")
 	})
 }

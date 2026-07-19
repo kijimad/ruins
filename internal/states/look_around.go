@@ -238,7 +238,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
-	inVision := query.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursor.X), int(st.cursor.Y))
+	inVision := query.IsInVision(world, playerGrid.Coord, st.cursor)
 
 	if !inVision {
 		drawText("暗闇")
