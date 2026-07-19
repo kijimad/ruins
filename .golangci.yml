@@ -80,8 +80,7 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
-        # engine はゲーム基盤。許可した依存以外を strict で全面禁止し、world/components/
-        # resources などドメインに依存させない。テストはドメインを import してよいので除外する
+        # engine はゲーム基盤。ドメインに依存させない
         engine_guard:
           list-mode: strict
           files:
@@ -94,21 +93,21 @@ linters:
             - "github.com/kijimaD/ruins/internal/config"
             - "github.com/kijimaD/ruins/internal/inputmapper"
             - "github.com/kijimaD/ruins/internal/engine"
-        # geometry は純粋アルゴリズム。stdlib と単位型 consts のみ許可する
+        # geometry は純粋アルゴリズム。ドメインに依存させない
         geometry_guard:
           list-mode: strict
           files:
             - "**/internal/geometry/**"
+            - "!$test"
           allow:
             - "$gostd"
             - "github.com/kijimaD/ruins/internal/consts"
-            - "github.com/stretchr/testify"
-        # consts は最下層の単位・座標型。内部パッケージに一切依存させない
+        # consts は最下層の単位・座標型。ドメインに依存させない
         consts_guard:
           list-mode: strict
           files:
             - "**/internal/consts/**"
+            - "!$test"
           allow:
             - "$gostd"
             - "github.com/kijimaD/ruins/internal/consts"
-            - "github.com/stretchr/testify"
