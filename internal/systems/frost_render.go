@@ -93,5 +93,7 @@ func frostAlpha(frontEast, coldZoneWest, absX int) (alpha float32, draw bool) {
 	}
 	zoneWidth := max(1, frontEast-coldZoneWest)
 	depth := float32(frontEast-absX) / float32(zoneWidth) // 0(東端)〜1(西端寄り)
+	// ゾーン内は 0.25〜0.75 のグラデ。進入不可ライン 0.9 との段差は意図的に残す。
+	// 滑らかに繋ぐと硬い境界が濃淡に埋もれるため、越えられない壁として読めるよう区別する。
 	return 0.25 + 0.5*depth, true
 }
