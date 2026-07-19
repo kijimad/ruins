@@ -87,11 +87,11 @@ func TestTryMoveCloser(t *testing.T) {
 
 		dx := int(target.X) - int(from.X)
 		dy := int(target.Y) - int(from.Y)
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
 
 		assert.NotEmpty(t, candidates)
 		bestCandidate := candidates[0]
-		newGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: from.X + consts.Tile(bestCandidate.X), Y: from.Y + consts.Tile(bestCandidate.Y)}}
+		newGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: from.X + bestCandidate.X, Y: from.Y + bestCandidate.Y}}
 
 		newDist := gridDistance(newGrid, target)
 		assert.Less(t, newDist, currentDist, "最優先候補は距離を縮める")

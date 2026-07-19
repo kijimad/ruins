@@ -181,10 +181,10 @@ func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs
 		return &activity.AttackActivity{Target: playerEntity}
 	}
 
-	dx := int(playerGrid.X) - int(aiGrid.X)
-	dy := int(playerGrid.Y) - int(aiGrid.Y)
+	dx := playerGrid.X - aiGrid.X
+	dy := playerGrid.Y - aiGrid.Y
 
-	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
+	candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: dx, Y: dy})
 	if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
 		return b
 	}
@@ -195,10 +195,10 @@ func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs
 func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 
-	dx := int(aiGrid.X) - int(playerGrid.X)
-	dy := int(aiGrid.Y) - int(playerGrid.Y)
+	dx := aiGrid.X - playerGrid.X
+	dy := aiGrid.Y - playerGrid.Y
 
-	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
+	candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: dx, Y: dy})
 	if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
 		return b
 	}
@@ -211,7 +211,7 @@ func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, 
 		return waitAction("AIランダム待機")
 	}
 
-	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
+	from := aiGrid.Coord
 	for _, d := range shuffledEightDirections(rp.rng) {
 		dest := from.Add(d)
 		if activity.CanMoveTo(world, dest, from, aiEntity) {
@@ -256,12 +256,12 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 	si := query.GetSpatialIndex(world)
 
 	type scoredDir struct {
-		consts.Coord[int]
+		consts.Coord[consts.Tile]
 		score int
 	}
 	var candidates []scoredDir
 
-	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
+	from := aiGrid.Coord
 	for _, d := range eightDirections {
 		dest := from.Add(d)
 
@@ -270,12 +270,12 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 		}
 
 		wallCount := 0
-		for _, adj := range []consts.Coord[int]{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}} {
-			if si.IsBlockPass(dest.X+adj.X, dest.Y+adj.Y) {
+		for _, adj := range []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}} {
+			if si.IsBlockPass(int(dest.X+adj.X), int(dest.Y+adj.Y)) {
 				wallCount++
 			}
 		}
-		candidates = append(candidates, scoredDir{consts.Coord[int]{X: d.X, Y: d.Y}, wallCount})
+		candidates = append(candidates, scoredDir{consts.Coord[consts.Tile]{X: d.X, Y: d.Y}, wallCount})
 	}
 
 	if len(candidates) == 0 {
@@ -296,7 +296,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 	}
 	chosen := tied[rp.rng.IntN(len(tied))]
 
-	return moveAction(consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})
+	return moveAction(consts.Coord[consts.Tile]{X: from.X + chosen.X, Y: from.Y + chosen.Y})
 }
 
 func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {
@@ -308,10 +308,10 @@ func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGri
 		return rp.planRandomMoveAction(world, aiEntity, aiGrid)
 	}
 
-	dx := int(nearestGrid.X) - int(aiGrid.X)
-	dy := int(nearestGrid.Y) - int(aiGrid.Y)
+	dx := nearestGrid.X - aiGrid.X
+	dy := nearestGrid.Y - aiGrid.Y
 
-	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
+	candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: dx, Y: dy})
 	if b, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
 		return b
 	}
@@ -320,7 +320,7 @@ func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGri
 }
 
 func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {
-	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
+	from := grid.Coord
 
 	dest := from.Add(solo.PatrolDir)
 	if activity.CanMoveTo(world, dest, from, aiEntity) {
@@ -339,13 +339,13 @@ func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo
 }
 
 func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {
-	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
+	from := grid.Coord
 
 	for _, d := range shuffledEightDirections(rp.rng) {
 		dest := from.Add(d)
 
-		dx := geometry.Abs(dest.X - solo.Origin.X)
-		dy := geometry.Abs(dest.Y - solo.Origin.Y)
+		dx := geometry.Abs(int(dest.X - solo.Origin.X))
+		dy := geometry.Abs(int(dest.Y - solo.Origin.Y))
 		if dx > territorialRadius || dy > territorialRadius {
 			continue
 		}

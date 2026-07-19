@@ -14,37 +14,41 @@ import (
 
 // CanMoveTo は指定位置に移動可能かチェックする。
 // fromは移動元の座標で、斜め移動時の壁すり抜け防止に使用する
-func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entity) bool {
+func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], movingEntity ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return false
 	}
 
-	if to.X < 0 || to.Y < 0 || to.X >= si.MapWidth || to.Y >= si.MapHeight {
+	// SpatialIndex はタイルインデックスの int 空間で動くので、境界でだけ int へ展開する
+	toX, toY := int(to.X), int(to.Y)
+	fromX, fromY := int(from.X), int(from.Y)
+
+	if toX < 0 || toY < 0 || toX >= si.MapWidth || toY >= si.MapHeight {
 		return false
 	}
 
 	// 寒波前線の進入不可ライン（極低温ゾーン西端）以西へは移動できない。
 	// 一方向の空間的強制。前線が無効な通常ダンジョンでは影響しない
-	if !frontAllowsMoveTo(world, to.X) {
+	if !frontAllowsMoveTo(world, toX) {
 		return false
 	}
 
 	// 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
-	dx := to.X - from.X
-	dy := to.Y - from.Y
+	dx := toX - fromX
+	dy := toY - fromY
 	if dx != 0 && dy != 0 {
-		if si.IsBlockPass(from.X+dx, from.Y) && si.IsBlockPass(from.X, from.Y+dy) {
+		if si.IsBlockPass(fromX+dx, fromY) && si.IsBlockPass(fromX, fromY+dy) {
 			return false
 		}
 	}
 
-	if si.IsBlockPass(to.X, to.Y) {
+	if si.IsBlockPass(toX, toY) {
 		return false
 	}
 
 	// キャラクターがいるタイルへは、位置交換できる相手の場合のみ移動可能
-	if target, ok := si.CharacterAt(to.X, to.Y); ok {
+	if target, ok := si.CharacterAt(toX, toY); ok {
 		return CanSwapPosition(world, movingEntity, target)
 	}
 
@@ -113,7 +117,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveTargetNotSet
 	}
 
-	dest := consts.Coord[int]{X: int(comp.Destination.X), Y: int(comp.Destination.Y)}
+	dest := comp.Destination.Coord
 	if dest.X < 0 || dest.Y < 0 {
 		return ErrMoveTargetCoordInvalid
 	}
@@ -122,7 +126,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveNoGridElement
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(gridElement.X), Y: int(gridElement.Y)}, actor) {
+	if !CanMoveTo(world, dest, gridElement.Coord, actor) {
 		return ErrMoveTargetInvalid
 	}
 
@@ -165,8 +169,8 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	// 移動可能かチェック
 	grid := gridElement
-	to := consts.Coord[int]{X: int(comp.Destination.X), Y: int(comp.Destination.Y)}
-	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
+	to := comp.Destination.Coord
+	from := grid.Coord
 	if !CanMoveTo(world, to, from, actor) {
 		Cancel(comp, "移動できません")
 		return ErrMoveTargetInvalid

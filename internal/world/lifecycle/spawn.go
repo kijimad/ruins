@@ -28,7 +28,7 @@ var (
 )
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
-func initialPatrolDir() int {
+func initialPatrolDir() consts.Tile {
 	if rand.IntN(2) == 0 {
 		return 1
 	}
@@ -101,7 +101,7 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
 		solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
-		solo.Origin = consts.Coord[int]{X: int(pos.X), Y: int(pos.Y)}
+		solo.Origin = pos
 		solo.PatrolDir.X = initialPatrolDir()
 		solo.ViewDistance = consts.AIVisionDistance
 	}
@@ -140,7 +140,7 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
-	solo.Origin = consts.Coord[int]{X: int(pos.X), Y: int(pos.Y)}
+	solo.Origin = pos
 	solo.PatrolDir.X = initialPatrolDir()
 	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{

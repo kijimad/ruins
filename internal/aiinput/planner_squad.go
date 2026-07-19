@@ -335,15 +335,15 @@ func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *
 
 // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる
 func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, bool) {
-	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
+	fromPos := from.Coord
 	nextTile, ok := activity.FindNextStep(world, entity,
-		consts.Coord[consts.Tile]{X: from.X, Y: from.Y},
-		consts.Coord[consts.Tile]{X: target.X, Y: target.Y})
+		from.Coord,
+		target.Coord)
 	if !ok {
 		return nil, false
 	}
 
-	next := consts.Coord[int]{X: int(nextTile.X), Y: int(nextTile.Y)}
+	next := nextTile
 	if !activity.CanMoveTo(world, next, fromPos, entity) {
 		return nil, false
 	}
@@ -353,23 +353,23 @@ func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, ta
 
 // tryMoveAway はターゲットから離れる移動を試みる
 func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, threat *gc.GridElement) (activity.Behavior, bool) {
-	dx := int(from.X) - int(threat.X)
-	dy := int(from.Y) - int(threat.Y)
+	dx := from.X - threat.X
+	dy := from.Y - threat.Y
 
-	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
+	candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: dx, Y: dy})
 	return tryMoveCandidates(world, entity, from, candidates)
 }
 
 // tryRandomMove は探索済みエリア内でランダム移動を試みる
 func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
 	dungeon := query.GetDungeon(world)
-	from := consts.Coord[int]{X: int(ctx.Grid.X), Y: int(ctx.Grid.Y)}
+	from := ctx.Grid.Coord
 
 	for _, d := range shuffledEightDirections(sp.rng) {
 		dest := from.Add(d)
 
 		if dungeon != nil && dungeon.ExploredTiles != nil {
-			destGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}}
+			destGrid := gc.GridElement{Coord: dest}
 			if !dungeon.ExploredTiles[destGrid] {
 				continue
 			}

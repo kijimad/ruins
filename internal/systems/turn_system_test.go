@@ -782,8 +782,8 @@ func TestPatrolMovement(t *testing.T) {
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
-		Origin:                consts.Coord[int]{X: enemyX, Y: enemyY},
-		PatrolDir:             consts.Coord[int]{X: 1, Y: 0},
+		Origin:                consts.Coord[consts.Tile]{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)},
+		PatrolDir:             consts.Coord[consts.Tile]{X: 1, Y: 0},
 		ViewDistance:          5,
 	})
 	world.Components.TurnBased.Add(enemy, &gc.TurnBased{
@@ -839,7 +839,7 @@ func TestTerritorialMovement(t *testing.T) {
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
-		Origin:                consts.Coord[int]{X: spawnX, Y: spawnY},
+		Origin:                consts.Coord[consts.Tile]{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
 		ViewDistance:          5,
 	})
 	world.Components.TurnBased.Add(enemy, &gc.TurnBased{

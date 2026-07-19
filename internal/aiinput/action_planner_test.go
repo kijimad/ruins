@@ -392,7 +392,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	move, ok := behavior.(*activity.MoveActivity)
 	require.True(t, ok, "型が *activity.MoveActivity であるべき")
 	assert.Equal(t, consts.Tile(19), move.Destination.X)
-	assert.Equal(t, -1, solo.PatrolDir.X)
+	assert.Equal(t, -1, int(solo.PatrolDir.X))
 }
 
 func TestPlanPatrolAction_BothBlocked(t *testing.T) {
@@ -457,8 +457,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 			grid.Y = move.Destination.Y
 		}
 
-		dx := int(grid.X) - solo.Origin.X
-		dy := int(grid.Y) - solo.Origin.Y
+		dx := grid.X - solo.Origin.X
+		dy := grid.Y - solo.Origin.Y
 		if dx < 0 {
 			dx = -dx
 		}
@@ -495,8 +495,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 		if behavior.Name() == gc.BehaviorMove {
 			move, ok := behavior.(*activity.MoveActivity)
 			require.True(t, ok, "型が *activity.MoveActivity であるべき")
-			dx := int(move.Destination.X) - solo.Origin.X
-			dy := int(move.Destination.Y) - solo.Origin.Y
+			dx := move.Destination.X - solo.Origin.X
+			dy := move.Destination.Y - solo.Origin.Y
 			if dx < 0 {
 				dx = -dx
 			}
@@ -652,31 +652,31 @@ func TestCalculateMoveCandidates(t *testing.T) {
 
 	t.Run("斜め方向", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: 3, Y: 2})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: 3, Y: 2})
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, 1, candidates[0].X)
-		assert.Equal(t, 1, candidates[0].Y)
+		assert.Equal(t, 1, int(candidates[0].X))
+		assert.Equal(t, 1, int(candidates[0].Y))
 	})
 
 	t.Run("水平方向のみ", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: -5, Y: 0})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: -5, Y: 0})
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, -1, candidates[0].X)
-		assert.Equal(t, 0, candidates[0].Y)
+		assert.Equal(t, -1, int(candidates[0].X))
+		assert.Equal(t, 0, int(candidates[0].Y))
 	})
 
 	t.Run("垂直方向のみ", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: 0, Y: 4})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: 0, Y: 4})
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, 0, candidates[0].X)
-		assert.Equal(t, 1, candidates[0].Y)
+		assert.Equal(t, 0, int(candidates[0].X))
+		assert.Equal(t, 1, int(candidates[0].Y))
 	})
 
 	t.Run("差分なし", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: 0, Y: 0})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: 0, Y: 0})
 		assert.Empty(t, candidates)
 	})
 }
