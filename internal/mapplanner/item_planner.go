@@ -23,7 +23,7 @@ const (
 
 // ItemSpec はアイテム配置仕様を表す
 type ItemSpec struct {
-	consts.Coord[int]
+	consts.Coord[consts.Tile]
 	Name  string // アイテム名
 	Count int    // 個数
 }
@@ -102,7 +102,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		// 最初のアイテムをアンカーに配置
 		first := items[0]
 		planData.Items = append(planData.Items, ItemSpec{
-			Coord: consts.Coord[int]{X: int(anchorX), Y: int(anchorY)},
+			Coord: consts.Coord[consts.Tile]{X: anchorX, Y: anchorY},
 			Name:  first.Name,
 			Count: first.Count,
 		})
@@ -123,7 +123,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 				break
 			}
 			planData.Items = append(planData.Items, ItemSpec{
-				Coord: consts.Coord[int]{X: int(nx), Y: int(ny)},
+				Coord: consts.Coord[consts.Tile]{X: nx, Y: ny},
 				Name:  items[idx].Name,
 				Count: items[idx].Count,
 			})

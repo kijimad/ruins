@@ -19,8 +19,8 @@ type Snapshot struct {
 	Items         []ItemSpec
 	Props         []PropsSpec
 	Doors         []DoorSpec
-	NextPortals   []consts.Coord[int]
-	EscapePortals []consts.Coord[int]
+	NextPortals   []consts.Coord[consts.Tile]
+	EscapePortals []consts.Coord[consts.Tile]
 	SpawnPoints   []maptemplate.SpawnPoint
 }
 

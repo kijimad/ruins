@@ -247,14 +247,14 @@ func (pf *PathFinder) isValidSpawnPosition(x, y int) bool {
 
 	// NextPortalsへの到達性をチェック
 	for _, portal := range planData.NextPortals {
-		if !pf.IsReachable(x, y, portal.X, portal.Y) {
+		if !pf.IsReachable(x, y, int(portal.X), int(portal.Y)) {
 			return false
 		}
 	}
 
 	// EscapePortalsへの到達性をチェック
 	for _, portal := range planData.EscapePortals {
-		if !pf.IsReachable(x, y, portal.X, portal.Y) {
+		if !pf.IsReachable(x, y, int(portal.X), int(portal.Y)) {
 			return false
 		}
 	}
@@ -272,7 +272,7 @@ func (pf *PathFinder) ValidatePortalReachability() error {
 
 	// NextPortalsの到達性をチェック
 	for i, portal := range pf.planData.NextPortals {
-		if !pf.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y) {
+		if !pf.IsReachable(playerPos.X, playerPos.Y, int(portal.X), int(portal.Y)) {
 			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からNextPortal[%d](%d,%d)への到達不可",
 				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}
@@ -280,7 +280,7 @@ func (pf *PathFinder) ValidatePortalReachability() error {
 
 	// EscapePortalsの到達性をチェック
 	for i, portal := range pf.planData.EscapePortals {
-		if !pf.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y) {
+		if !pf.IsReachable(playerPos.X, playerPos.Y, int(portal.X), int(portal.Y)) {
 			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からEscapePortal[%d](%d,%d)への到達不可",
 				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}

@@ -18,13 +18,13 @@ import (
 
 // PropsSpec はProps配置仕様を表す
 type PropsSpec struct {
-	consts.Coord[int]
+	consts.Coord[consts.Tile]
 	Name string // Prop名
 }
 
 // DoorSpec はドア配置仕様を表す
 type DoorSpec struct {
-	consts.Coord[int]
+	consts.Coord[consts.Tile]
 	Orientation gc.DoorOrientation
 }
 
@@ -44,9 +44,9 @@ type MetaPlan struct {
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []oapi.Tile
 	// NextPortals は次の階へ進むポータルリスト
-	NextPortals []consts.Coord[int]
+	NextPortals []consts.Coord[consts.Tile]
 	// EscapePortals は脱出用ポータルリスト
-	EscapePortals []consts.Coord[int]
+	EscapePortals []consts.Coord[consts.Tile]
 	// NPCs は配置予定のNPCリスト
 	NPCs []NPCSpec
 	// Items は配置予定のアイテムリスト
@@ -81,41 +81,41 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 	for _, portal := range bm.NextPortals {
-		if portal.X == x && portal.Y == y {
+		if int(portal.X) == x && int(portal.Y) == y {
 			return true
 		}
 	}
 
 	for _, portal := range bm.EscapePortals {
-		if portal.X == x && portal.Y == y {
+		if int(portal.X) == x && int(portal.Y) == y {
 			return true
 		}
 	}
 
 	// NPCをチェック
 	for _, npc := range bm.NPCs {
-		if npc.X == x && npc.Y == y {
+		if int(npc.X) == x && int(npc.Y) == y {
 			return true
 		}
 	}
 
 	// アイテムをチェック
 	for _, item := range bm.Items {
-		if item.X == x && item.Y == y {
+		if int(item.X) == x && int(item.Y) == y {
 			return true
 		}
 	}
 
 	// Propsをチェック
 	for _, prop := range bm.Props {
-		if prop.X == x && prop.Y == y {
+		if int(prop.X) == x && int(prop.Y) == y {
 			return true
 		}
 	}
 
 	// ドアをチェック
 	for _, door := range bm.Doors {
-		if door.X == x && door.Y == y {
+		if int(door.X) == x && int(door.Y) == y {
 			return true
 		}
 	}
@@ -310,8 +310,8 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 			Rooms:         []gc.Rect{},
 			Corridors:     [][]gc.TileIdx{},
 			RNG:           rand.New(rand.NewPCG(seed, seed+1)),
-			NextPortals:   []consts.Coord[int]{},
-			EscapePortals: []consts.Coord[int]{},
+			NextPortals:   []consts.Coord[consts.Tile]{},
+			EscapePortals: []consts.Coord[consts.Tile]{},
 			NPCs:          []NPCSpec{},
 			Items:         []ItemSpec{},
 			Props:         []PropsSpec{},
@@ -695,6 +695,7 @@ func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 // ポータルへの到達性も確認し、到達可能な位置を返す
-func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[int], error) {
-	return NewPathFinder(bm).FindPlayerStartPosition()
+func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[consts.Tile], error) {
+	pos, err := NewPathFinder(bm).FindPlayerStartPosition()
+	return consts.Coord[consts.Tile]{X: consts.Tile(pos.X), Y: consts.Tile(pos.Y)}, err
 }

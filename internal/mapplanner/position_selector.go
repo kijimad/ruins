@@ -51,14 +51,14 @@ func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAtt
 }
 
 // reachableSelector はマップ全体からランダムに選び、部屋内かつプレイヤーから到達可能な位置を返す
-func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts int) positionSelector {
+func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxAttempts int) positionSelector {
 	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
 		for range maxAttempts {
 			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
 			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 			if planData.IsSpawnableTile(world, x, y) &&
 				planData.isInAnyRoom(x, y) &&
-				pf.IsReachable(playerPos.X, playerPos.Y, int(x), int(y)) {
+				pf.IsReachable(int(playerPos.X), int(playerPos.Y), int(x), int(y)) {
 				return x, y, true
 			}
 		}
@@ -68,7 +68,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts 
 
 // minDistanceReachableSelector はマップ全体からランダムに選び、
 // 部屋内かつ全基準点から到達可能かつ最低歩数以上離れた位置を返す
-func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord[int], minDist int, maxAttempts int) positionSelector {
+func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord[consts.Tile], minDist int, maxAttempts int) positionSelector {
 	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
 		for range maxAttempts {
 			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
@@ -78,7 +78,7 @@ func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord
 			}
 			farEnough := true
 			for _, ref := range referencePoints {
-				path := pf.FindPath(ref.X, ref.Y, int(x), int(y))
+				path := pf.FindPath(int(ref.X), int(ref.Y), int(x), int(y))
 				if len(path) == 0 || len(path) < minDist {
 					farEnough = false
 					break

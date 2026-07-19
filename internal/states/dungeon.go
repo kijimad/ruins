@@ -120,7 +120,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 		if err != nil {
 			return err
 		}
-		if err := lifecycle.MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: consts.Tile(playerPos.X), Y: consts.Tile(playerPos.Y)}); err != nil {
+		if err := lifecycle.MovePlayerToPosition(world, playerPos); err != nil {
 			return err
 		}
 

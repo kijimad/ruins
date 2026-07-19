@@ -175,11 +175,11 @@ func TestFindPlayerStartPosition_AvoidsNPCs(t *testing.T) {
 	}
 
 	// ポータルを配置
-	planData.NextPortals = []consts.Coord[int]{{X: 1, Y: 1}}
+	planData.NextPortals = []consts.Coord[consts.Tile]{{X: 1, Y: 1}}
 
 	// 中央付近にNPCを配置してプレイヤーの最優先候補位置を塞ぐ
 	planData.NPCs = []NPCSpec{
-		{Coord: consts.Coord[int]{X: width / 2, Y: height / 2}, Name: "test"},
+		{Coord: consts.Coord[consts.Tile]{X: consts.Tile(width / 2), Y: consts.Tile(height / 2)}, Name: "test"},
 	}
 
 	pf := NewPathFinder(planData)
@@ -188,7 +188,7 @@ func TestFindPlayerStartPosition_AvoidsNPCs(t *testing.T) {
 
 	// プレイヤーのスポーン位置がNPCと重複しないことを検証
 	for _, npc := range planData.NPCs {
-		assert.False(t, pos.X == npc.X && pos.Y == npc.Y,
+		assert.False(t, pos.X == int(npc.X) && pos.Y == int(npc.Y),
 			"プレイヤーのスポーン位置(%d,%d)がNPC位置(%d,%d)と重複しています", pos.X, pos.Y, npc.X, npc.Y)
 	}
 }
