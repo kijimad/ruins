@@ -136,8 +136,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	for cameraQuery.Next() {
 		camEntity := cameraQuery.Entity()
 		gridElement := world.Components.GridElement.Get(camEntity)
-		// GridElementからピクセル座標に変換
-		cameraPos = gc.Position{Coord: consts.Coord[consts.Pixel]{X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2), Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)}}
+		// GridElementからワールドピクセル座標に変換
+		cameraPos = gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
 		camera := world.Components.Camera.Get(camEntity)
 		cameraScale = camera.Scale
 	}
@@ -156,11 +156,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		gridElement := world.Components.GridElement.Get(entity)
 		solo := world.Components.SoloAI.Get(entity)
 
-		// グリッド座標をピクセル座標に変換
-		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
-		pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
-		screenX := (pixelX-float64(cameraPos.X))*cameraScale + float64(screenDimensions.Width)/2
-		screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2
+		// グリッド座標をワールドピクセルへ、さらにスクリーン座標へ変換
+		screen := consts.WorldToScreen(consts.TileCenterToWorld(gridElement.Coord), cameraPos.Coord, cameraScale, screenDimensions.Width, screenDimensions.Height)
 
 		var stateText string
 		switch solo.SubState {
@@ -176,13 +173,13 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			stateText = "UNKNOWN"
 		}
 		aiStates = append(aiStates, hud.AIStateInfo{
-			Screen:    consts.Coord[float64]{X: screenX, Y: screenY},
+			Screen:    screen,
 			StateText: stateText,
 		})
 
 		scaledRadius := float32(float64(solo.ViewDistance) * float64(consts.TileSize) * cameraScale)
 		visionRanges = append(visionRanges, hud.VisionRangeInfo{
-			Screen:       consts.Coord[float64]{X: screenX, Y: screenY},
+			Screen:       screen,
 			ScaledRadius: scaledRadius,
 		})
 	}
@@ -208,16 +205,11 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			entityName = "Unknown"
 		}
 
-		// グリッド座標をピクセル座標に変換
-		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
-		pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
-
-		// 画面座標に変換
-		screenX := (pixelX-float64(cameraPos.X))*cameraScale + float64(screenDimensions.Width)/2
-		screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2
+		// グリッド座標をワールドピクセルへ、さらにスクリーン座標へ変換
+		screen := consts.WorldToScreen(consts.TileCenterToWorld(gridElement.Coord), cameraPos.Coord, cameraScale, screenDimensions.Width, screenDimensions.Height)
 
 		hpDisplays = append(hpDisplays, hud.HPDisplayInfo{
-			Screen:     consts.Coord[float64]{X: screenX, Y: screenY},
+			Screen:     screen,
 			CurrentHP:  hp.Current,
 			MaxHP:      hp.Max,
 			EntityName: entityName,

@@ -72,19 +72,19 @@ type DebugOverlayData struct {
 
 // AIStateInfo はAI状態の情報
 type AIStateInfo struct {
-	Screen    consts.Coord[float64] // 画面上の座標
+	Screen    consts.Coord[consts.ScreenPixel] // 画面上の座標
 	StateText string                // 状態テキスト
 }
 
 // VisionRangeInfo は視界範囲の情報
 type VisionRangeInfo struct {
-	Screen       consts.Coord[float64] // 中心の画面座標
+	Screen       consts.Coord[consts.ScreenPixel] // 中心の画面座標
 	ScaledRadius float32               // スケール済み半径
 }
 
 // HPDisplayInfo はHP表示の情報
 type HPDisplayInfo struct {
-	Screen     consts.Coord[float64] // 画面上の座標
+	Screen     consts.Coord[consts.ScreenPixel] // 画面上の座標
 	CurrentHP  int                   // 現在のHP
 	MaxHP      int                   // 最大HP
 	EntityName string                // エンティティ名（デバッグ用）
