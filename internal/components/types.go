@@ -1,9 +1,13 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // Pool は最大値と現在値を持つようなパラメータ
-type Pool[T int | float64] struct {
+type Pool[T consts.Numeric] struct {
 	Max     T // 最大値
 	Current T // 現在値
 }

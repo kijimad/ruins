@@ -7,7 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/kijimaD/ruins/internal/consts"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -131,8 +130,8 @@ func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio floa
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
 func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) {
-	// 所持重量テキストを作成
-	weightText := fmt.Sprintf("%.2f / %.2f%s", data.PlayerWeight, data.PlayerMaxWeight, consts.IconKg)
+	// 所持重量テキストを作成。表記は Milligram.String() に集約する
+	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight, data.PlayerMaxWeight)
 
 	// テキストの幅を測定
 	textWidth, textHeight := text.Measure(weightText, info.bodyFace, 0)
@@ -149,7 +148,7 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
 	// 重量比率を計算して色を決定
 	var textColor color.RGBA
 	if data.PlayerMaxWeight > 0 {
-		ratio := data.PlayerWeight / data.PlayerMaxWeight
+		ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight)
 		switch {
 		case ratio > 1.0:
 			// 超過: 赤

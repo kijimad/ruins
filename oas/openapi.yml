@@ -2101,11 +2101,9 @@ components:
       maximum: 99999
       description: 売買価格
     ItemWeight:
-      type: number
-      format: double
-      minimum: 0
-      maximum: 1000
-      description: アイテム重量（kg）
+      type: string
+      pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$
+      description: 'アイテム重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"'
     LightEnabled:
       type: boolean
       description: 光源が有効かどうか
@@ -3649,9 +3647,9 @@ components:
         - Current
       properties:
         Max:
-          $ref: '#/components/schemas/SaveData.PoolFloatMax'
+          $ref: '#/components/schemas/SaveData.PoolMax'
         Current:
-          $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
+          $ref: '#/components/schemas/SaveData.PoolCurrent'
       description: 所持重量。最大値と現在値を持つ
     SaveData.WorldSaveData:
       type: object
@@ -3770,11 +3768,9 @@ components:
       type: boolean
       description: スタック可能かどうか
     StorageMaxWeight:
-      type: number
-      format: double
-      minimum: 0
-      maximum: 1000
-      description: 収納の最大格納重量（kg）
+      type: string
+      pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$
+      description: '収納の最大格納重量。単位付き文字列で指定する。例: "20 kg"'
     StorageRaw:
       type: object
       required:

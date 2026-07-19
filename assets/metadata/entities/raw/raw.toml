@@ -4,7 +4,7 @@ name = "たいまつ"
 spriteKey = "torch"
 spriteSheetName = "field"
 value = 15
-weight = 0.5
+weight = "500 g"
 
 [items.melee]
 accuracy = 90
@@ -22,7 +22,7 @@ name = "ほうき"
 spriteKey = "broom"
 spriteSheetName = "field"
 value = 10
-weight = 0.5
+weight = "500 g"
 
 [items.melee]
 accuracy = 85
@@ -40,7 +40,7 @@ name = "アイスメイス"
 spriteKey = "ice_mace"
 spriteSheetName = "field"
 value = 320
-weight = 3.5
+weight = "3.5 kg"
 
 [items.melee]
 accuracy = 80
@@ -58,7 +58,7 @@ name = "カッターナイフ"
 spriteKey = "cutter_knife"
 spriteSheetName = "field"
 value = 30
-weight = 0.1
+weight = "100 g"
 
 [items.melee]
 accuracy = 95
@@ -76,7 +76,7 @@ name = "クレイモア"
 spriteKey = "claymore"
 spriteSheetName = "field"
 value = 350
-weight = 5
+weight = "5 kg"
 
 [items.melee]
 accuracy = 75
@@ -94,7 +94,7 @@ name = "シャベル"
 spriteKey = "shovel"
 spriteSheetName = "field"
 value = 50
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 80
@@ -112,7 +112,7 @@ name = "ツルハシ"
 spriteKey = "pickaxe"
 spriteSheetName = "field"
 value = 60
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 85
@@ -130,7 +130,7 @@ name = "ドライバー"
 spriteKey = "driver"
 spriteSheetName = "field"
 value = 15
-weight = 0.1
+weight = "100 g"
 
 [items.melee]
 accuracy = 95
@@ -148,7 +148,7 @@ name = "ヌンチャク"
 spriteKey = "nunchaku"
 spriteSheetName = "field"
 value = 100
-weight = 0.8
+weight = "800 g"
 
 [items.melee]
 accuracy = 90
@@ -166,7 +166,7 @@ name = "ハルバード"
 spriteKey = "halberd"
 spriteSheetName = "field"
 value = 400
-weight = 4.5
+weight = "4.5 kg"
 
 [items.melee]
 accuracy = 70
@@ -184,7 +184,7 @@ name = "ハンマー"
 spriteKey = "hammer"
 spriteSheetName = "field"
 value = 160
-weight = 4
+weight = "4 kg"
 
 [items.melee]
 accuracy = 70
@@ -202,7 +202,7 @@ name = "バトルアックス"
 spriteKey = "battle_axe"
 spriteSheetName = "field"
 value = 450
-weight = 6
+weight = "6 kg"
 
 [items.melee]
 accuracy = 65
@@ -220,7 +220,7 @@ name = "フォーク"
 spriteKey = "forks"
 spriteSheetName = "field"
 value = 5
-weight = 0.05
+weight = "50 g"
 
 [items.melee]
 accuracy = 90
@@ -238,7 +238,7 @@ name = "ブロックハンマー"
 spriteKey = "block_hammer"
 spriteSheetName = "field"
 value = 220
-weight = 5
+weight = "5 kg"
 
 [items.melee]
 accuracy = 65
@@ -256,7 +256,7 @@ name = "プライヤー"
 spriteKey = "pliers"
 spriteSheetName = "field"
 value = 30
-weight = 0.3
+weight = "300 g"
 
 [items.melee]
 accuracy = 90
@@ -274,7 +274,7 @@ name = "モンキーレンチ"
 spriteKey = "monkey_wrench"
 spriteSheetName = "field"
 value = 70
-weight = 1.5
+weight = "1.5 kg"
 
 [items.melee]
 accuracy = 85
@@ -292,7 +292,7 @@ name = "三叉槍"
 spriteKey = "trident"
 spriteSheetName = "field"
 value = 300
-weight = 3
+weight = "3 kg"
 
 [items.melee]
 accuracy = 80
@@ -310,7 +310,7 @@ name = "体当たり"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 100
@@ -328,7 +328,7 @@ name = "光弾"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 90
@@ -346,7 +346,7 @@ name = "冷気攻撃"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 85
@@ -364,7 +364,7 @@ name = "叩き潰し"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 75
@@ -382,7 +382,7 @@ name = "咆哮"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 80
@@ -400,7 +400,7 @@ name = "噛みつき"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 90
@@ -418,7 +418,7 @@ name = "大鎌"
 spriteKey = "greap"
 spriteSheetName = "field"
 value = 130
-weight = 3
+weight = "3 kg"
 
 [items.melee]
 accuracy = 75
@@ -436,7 +436,7 @@ name = "天使の剣"
 spriteKey = "angel_sword"
 spriteSheetName = "field"
 value = 500
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 90
@@ -454,7 +454,7 @@ name = "引き裂き"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 85
@@ -472,7 +472,7 @@ name = "斧"
 spriteKey = "axe"
 spriteSheetName = "field"
 value = 120
-weight = 3
+weight = "3 kg"
 
 [items.melee]
 accuracy = 80
@@ -490,7 +490,7 @@ name = "明メイス"
 spriteKey = "light_mace"
 spriteSheetName = "field"
 value = 300
-weight = 3
+weight = "3 kg"
 
 [items.melee]
 accuracy = 80
@@ -509,7 +509,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 10
-weight = 0.3
+weight = "300 g"
 
 [items.melee]
 accuracy = 100
@@ -527,7 +527,7 @@ name = "木刀"
 spriteKey = "wooden_sword"
 spriteSheetName = "field"
 value = 80
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 100
@@ -545,7 +545,7 @@ name = "機銃掃射"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 75
@@ -563,7 +563,7 @@ name = "歪曲刀"
 spriteKey = "curved_blade"
 spriteSheetName = "field"
 value = 260
-weight = 1.8
+weight = "1.8 kg"
 
 [items.melee]
 accuracy = 80
@@ -581,7 +581,7 @@ name = "毒牙"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 85
@@ -599,7 +599,7 @@ name = "水晶の剣"
 spriteKey = "crystal_sword"
 spriteSheetName = "field"
 value = 240
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 85
@@ -617,7 +617,7 @@ name = "氷の槍"
 spriteKey = "crystal_mace"
 spriteSheetName = "field"
 value = 250
-weight = 1.8
+weight = "1.8 kg"
 
 [items.melee]
 accuracy = 80
@@ -635,7 +635,7 @@ name = "消火器"
 spriteKey = "fire_extinguisher"
 spriteSheetName = "field"
 value = 40
-weight = 5
+weight = "5 kg"
 
 [items.melee]
 accuracy = 75
@@ -653,7 +653,7 @@ name = "火炎ブレス"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 80
@@ -671,7 +671,7 @@ name = "火炎攻撃"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 85
@@ -689,7 +689,7 @@ name = "砲撃"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 85
@@ -707,7 +707,7 @@ name = "素手"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 100
@@ -725,7 +725,7 @@ name = "紫の刀"
 spriteKey = "purple_katana"
 spriteSheetName = "field"
 value = 320
-weight = 1.8
+weight = "1.8 kg"
 
 [items.melee]
 accuracy = 85
@@ -743,7 +743,7 @@ name = "紫メイス"
 spriteKey = "purple_mace"
 spriteSheetName = "field"
 value = 280
-weight = 3
+weight = "3 kg"
 
 [items.melee]
 accuracy = 80
@@ -761,7 +761,7 @@ name = "細いレイピア"
 spriteKey = "thin_rapier"
 spriteSheetName = "field"
 value = 180
-weight = 1
+weight = "1 kg"
 
 [items.melee]
 accuracy = 95
@@ -779,7 +779,7 @@ name = "緑のドライバー"
 spriteKey = "driver_green"
 spriteSheetName = "field"
 value = 25
-weight = 0.3
+weight = "300 g"
 
 [items.melee]
 accuracy = 90
@@ -797,7 +797,7 @@ name = "緑剣"
 spriteKey = "green_sword"
 spriteSheetName = "field"
 value = 280
-weight = 1.5
+weight = "1.5 kg"
 
 [items.melee]
 accuracy = 90
@@ -815,7 +815,7 @@ name = "裁縫セット"
 spriteKey = "hand_sew"
 spriteSheetName = "field"
 value = 15
-weight = 0.1
+weight = "100 g"
 
 [items.melee]
 accuracy = 95
@@ -833,7 +833,7 @@ name = "重い曲刀"
 spriteKey = "heavy_scimitar"
 spriteSheetName = "field"
 value = 380
-weight = 5
+weight = "5 kg"
 
 [items.melee]
 accuracy = 70
@@ -851,7 +851,7 @@ name = "釘バット"
 spriteKey = "nail_bat"
 spriteSheetName = "field"
 value = 40
-weight = 1.5
+weight = "1.5 kg"
 
 [items.melee]
 accuracy = 90
@@ -869,7 +869,7 @@ name = "針工具"
 spriteKey = "needle_tool"
 spriteSheetName = "field"
 value = 20
-weight = 0.05
+weight = "50 g"
 
 [items.melee]
 accuracy = 95
@@ -887,7 +887,7 @@ name = "鉄のナイフ"
 spriteKey = "cutter_knife"
 spriteSheetName = "field"
 value = 90
-weight = 1
+weight = "1 kg"
 
 [items.melee]
 accuracy = 100
@@ -905,7 +905,7 @@ name = "鉄の剣"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 200
-weight = 2.5
+weight = "2.5 kg"
 
 [items.melee]
 accuracy = 90
@@ -923,7 +923,7 @@ name = "鉄の曲刀"
 spriteKey = "iron_scimitar"
 spriteSheetName = "field"
 value = 200
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 85
@@ -941,7 +941,7 @@ name = "鉄の直剣"
 spriteKey = "iron_straight_sword"
 spriteSheetName = "field"
 value = 180
-weight = 2.5
+weight = "2.5 kg"
 
 [items.melee]
 accuracy = 90
@@ -959,7 +959,7 @@ name = "鉄カッター"
 spriteKey = "iron_cutter"
 spriteSheetName = "field"
 value = 50
-weight = 0.8
+weight = "800 g"
 
 [items.melee]
 accuracy = 85
@@ -977,7 +977,7 @@ name = "鋳鉄の剣"
 spriteKey = "iron_sword"
 spriteSheetName = "field"
 value = 160
-weight = 3
+weight = "3 kg"
 
 [items.melee]
 accuracy = 85
@@ -995,7 +995,7 @@ name = "電動ドライバー"
 spriteKey = "electric_driver"
 spriteSheetName = "field"
 value = 60
-weight = 0.5
+weight = "500 g"
 
 [items.melee]
 accuracy = 85
@@ -1013,7 +1013,7 @@ name = "電撃"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 0
-weight = 0
+weight = "0 g"
 
 [items.melee]
 accuracy = 80
@@ -1031,7 +1031,7 @@ name = "青いバトルアックス"
 spriteKey = "blue_battle_axe"
 spriteSheetName = "field"
 value = 420
-weight = 5.5
+weight = "5.5 kg"
 
 [items.melee]
 accuracy = 65
@@ -1049,7 +1049,7 @@ name = "黒いバトルアックス"
 spriteKey = "black_battle_axe"
 spriteSheetName = "field"
 value = 480
-weight = 6
+weight = "6 kg"
 
 [items.melee]
 accuracy = 65
@@ -1067,7 +1067,7 @@ name = "黒い刀"
 spriteKey = "black_katana"
 spriteSheetName = "field"
 value = 350
-weight = 1.5
+weight = "1.5 kg"
 
 [items.melee]
 accuracy = 85
@@ -1085,7 +1085,7 @@ name = "50ミリ砲"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 480
-weight = 120
+weight = "120 kg"
 
 [items.melee]
 accuracy = 75
@@ -1116,7 +1116,7 @@ name = "M1919重機関銃"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 420
-weight = 140
+weight = "140 kg"
 
 [items.melee]
 accuracy = 75
@@ -1147,7 +1147,7 @@ name = "M72 LAW"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 480
-weight = 20
+weight = "20 kg"
 
 [items.melee]
 accuracy = 80
@@ -1178,7 +1178,7 @@ name = "ハンドガン"
 spriteKey = "handgun"
 spriteSheetName = "field"
 value = 150
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 90
@@ -1209,7 +1209,7 @@ name = "レイガン"
 spriteKey = "laser_gun"
 spriteSheetName = "field"
 value = 280
-weight = 2
+weight = "2 kg"
 
 [items.melee]
 accuracy = 90
@@ -1240,7 +1240,7 @@ name = "冷凍グレネード"
 spriteKey = "blue_flask"
 spriteSheetName = "field"
 value = 340
-weight = 10
+weight = "10 kg"
 
 [items.melee]
 accuracy = 85
@@ -1271,7 +1271,7 @@ name = "溶解液"
 spriteKey = "bottle_formalin"
 spriteSheetName = "field"
 value = 150
-weight = 1
+weight = "1 kg"
 
 [items.melee]
 accuracy = 85
@@ -1302,7 +1302,7 @@ name = "連射砲"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 380
-weight = 4
+weight = "4 kg"
 
 [items.melee]
 accuracy = 85
@@ -1333,7 +1333,7 @@ name = "電撃グレネード"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 350
-weight = 10
+weight = "10 kg"
 
 [items.melee]
 accuracy = 85
@@ -1364,7 +1364,7 @@ name = "ブーメラン"
 spriteKey = "boomerang"
 spriteSheetName = "field"
 value = 90
-weight = 0.5
+weight = "500 g"
 
 [items.fire]
 accuracy = 80
@@ -1384,7 +1384,7 @@ name = "手裏剣"
 spriteKey = "shuriken"
 spriteSheetName = "field"
 value = 60
-weight = 0.1
+weight = "100 g"
 
 [items.fire]
 accuracy = 90
@@ -1404,7 +1404,7 @@ name = "水晶杖"
 spriteKey = "crystal_staff"
 spriteSheetName = "field"
 value = 360
-weight = 1.5
+weight = "1.5 kg"
 
 [items.fire]
 accuracy = 90
@@ -1424,7 +1424,7 @@ name = "狩人の弓"
 spriteKey = "hunter_bow"
 spriteSheetName = "field"
 value = 180
-weight = 1.5
+weight = "1.5 kg"
 
 [items.fire]
 accuracy = 85
@@ -1444,7 +1444,7 @@ name = "鉄のクロスボウ"
 spriteKey = "iron_crossbow"
 spriteSheetName = "field"
 value = 280
-weight = 3
+weight = "3 kg"
 
 [items.fire]
 accuracy = 80
@@ -1464,7 +1464,7 @@ name = "鉄のチャクラム"
 spriteKey = "iron_chakram"
 spriteSheetName = "field"
 value = 140
-weight = 0.5
+weight = "500 g"
 
 [items.fire]
 accuracy = 85
@@ -1484,7 +1484,7 @@ name = "とんがり靴"
 spriteKey = "pointed_shoes"
 spriteSheetName = "field"
 value = 90
-weight = 0.6
+weight = "600 g"
 
 [items.wearable]
 defense = 1
@@ -1502,7 +1502,7 @@ name = "ガントレット(茶)"
 spriteKey = "gauntlet_brown"
 spriteSheetName = "field"
 value = 120
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 3
@@ -1516,7 +1516,7 @@ name = "ガントレット(金)"
 spriteKey = "gauntlet_gold"
 spriteSheetName = "field"
 value = 400
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 5
@@ -1534,7 +1534,7 @@ name = "ガントレット(鉄)"
 spriteKey = "gauntlet_iron"
 spriteSheetName = "field"
 value = 200
-weight = 1.8
+weight = "1.8 kg"
 
 [items.wearable]
 defense = 4
@@ -1551,7 +1551,7 @@ name = "ガントレット(青)"
 spriteKey = "gauntlet_blue"
 spriteSheetName = "field"
 value = 250
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 4
@@ -1568,7 +1568,7 @@ name = "ガントレット(魔)"
 spriteKey = "gauntlet_magic"
 spriteSheetName = "field"
 value = 350
-weight = 1.2
+weight = "1.2 kg"
 
 [items.wearable]
 defense = 3
@@ -1586,7 +1586,7 @@ name = "キャプテンのコート"
 spriteKey = "captain_coat"
 spriteSheetName = "field"
 value = 350
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 5
@@ -1607,7 +1607,7 @@ name = "コック帽"
 spriteKey = "chef_hat"
 spriteSheetName = "field"
 value = 20
-weight = 0.1
+weight = "100 g"
 
 [items.wearable]
 defense = 0
@@ -1628,7 +1628,7 @@ name = "サンダル"
 spriteKey = "sandals"
 spriteSheetName = "field"
 value = 30
-weight = 0.3
+weight = "300 g"
 
 [items.wearable]
 defense = 0
@@ -1649,7 +1649,7 @@ name = "セーラー服"
 spriteKey = "sailor_outfit"
 spriteSheetName = "field"
 value = 80
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 1
@@ -1670,7 +1670,7 @@ name = "ダイヤの指輪"
 spriteKey = "ring_diamond"
 spriteSheetName = "field"
 value = 500
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -1688,7 +1688,7 @@ name = "チェックシャツ"
 spriteKey = "check_shirt"
 spriteSheetName = "field"
 value = 60
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 1
@@ -1702,7 +1702,7 @@ name = "ツールチョッキ"
 spriteKey = "tool_vest"
 spriteSheetName = "field"
 value = 100
-weight = 1.2
+weight = "1.2 kg"
 
 [items.wearable]
 defense = 2
@@ -1719,7 +1719,7 @@ name = "デニム素材の服"
 spriteKey = "denim_outfit"
 spriteSheetName = "field"
 value = 60
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 2
@@ -1740,7 +1740,7 @@ name = "ハートの指輪"
 spriteKey = "ring_heart"
 spriteSheetName = "field"
 value = 200
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -1757,7 +1757,7 @@ name = "ファージャケット"
 spriteKey = "fur_jacket_brown"
 spriteSheetName = "field"
 value = 200
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 3
@@ -1774,7 +1774,7 @@ name = "ファー帽子"
 spriteKey = "fur_hat"
 spriteSheetName = "field"
 value = 150
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 2
@@ -1788,7 +1788,7 @@ name = "ホストの服"
 spriteKey = "host_outfit"
 spriteSheetName = "field"
 value = 180
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 1
@@ -1809,7 +1809,7 @@ name = "メッセンジャーバッグ(大)"
 spriteKey = "messenger_bag_large"
 spriteSheetName = "field"
 value = 120
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 1
@@ -1826,7 +1826,7 @@ name = "メッセンジャーバッグ(腰)"
 spriteKey = "messenger_bag_waist"
 spriteSheetName = "field"
 value = 100
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 1
@@ -1843,7 +1843,7 @@ name = "レザーコート"
 spriteKey = "leather_coat"
 spriteSheetName = "field"
 value = 180
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -1860,7 +1860,7 @@ name = "レザーチョッキ"
 spriteKey = "leather_vest"
 spriteSheetName = "field"
 value = 130
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 3
@@ -1877,7 +1877,7 @@ name = "レザーハンド"
 spriteKey = "leather_hand"
 spriteSheetName = "field"
 value = 80
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 2
@@ -1891,7 +1891,7 @@ name = "レザーバンダナ"
 spriteKey = "leather_bandana"
 spriteSheetName = "field"
 value = 60
-weight = 0.3
+weight = "300 g"
 
 [items.wearable]
 defense = 1
@@ -1905,7 +1905,7 @@ name = "レザーベルト"
 spriteKey = "leather_belt"
 spriteSheetName = "field"
 value = 60
-weight = 0.3
+weight = "300 g"
 
 [items.wearable]
 defense = 1
@@ -1919,7 +1919,7 @@ name = "レザーロングブーツ"
 spriteKey = "leather_long_boots"
 spriteSheetName = "field"
 value = 150
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -1936,7 +1936,7 @@ name = "レザー手袋"
 spriteKey = "leather_gloves"
 spriteSheetName = "field"
 value = 90
-weight = 0.4
+weight = "400 g"
 
 [items.wearable]
 defense = 2
@@ -1953,7 +1953,7 @@ name = "レザー服"
 spriteKey = "leather_outfit"
 spriteSheetName = "field"
 value = 150
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -1967,7 +1967,7 @@ name = "上等鎖帷子"
 spriteKey = "chainmail_armor"
 spriteSheetName = "field"
 value = 300
-weight = 6
+weight = "6 kg"
 
 [items.wearable]
 defense = 8
@@ -1985,7 +1985,7 @@ name = "上級騎士の鎧"
 spriteKey = "senior_knight_armor"
 spriteSheetName = "field"
 value = 600
-weight = 8
+weight = "8 kg"
 
 [items.wearable]
 defense = 11
@@ -2003,7 +2003,7 @@ name = "世紀末の服"
 spriteKey = "apocalypse_outfit"
 spriteSheetName = "field"
 value = 200
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 4
@@ -2024,7 +2024,7 @@ name = "作業用ヘルメット"
 spriteKey = "construction_helmet"
 spriteSheetName = "field"
 value = 150
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 4
@@ -2045,7 +2045,7 @@ name = "冒険者の服"
 spriteKey = "adventurer_outfit"
 spriteSheetName = "field"
 value = 120
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -2062,7 +2062,7 @@ name = "力の石"
 spriteKey = "power_stones"
 spriteSheetName = "field"
 value = 350
-weight = 0.3
+weight = "300 g"
 
 [items.wearable]
 defense = 1
@@ -2083,7 +2083,7 @@ name = "十字軍の服"
 spriteKey = "crusader_outfit"
 spriteSheetName = "field"
 value = 500
-weight = 12
+weight = "12 kg"
 
 [items.wearable]
 defense = 9
@@ -2104,7 +2104,7 @@ name = "厚底革ブーツ"
 spriteKey = "leather_boots_2"
 spriteSheetName = "field"
 value = 120
-weight = 1.2
+weight = "1.2 kg"
 
 [items.wearable]
 defense = 3
@@ -2118,7 +2118,7 @@ name = "古い騎士兜"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 300
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 6
@@ -2139,7 +2139,7 @@ name = "古代の法衣"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 380
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -2160,7 +2160,7 @@ name = "商人の服"
 spriteKey = "merchant_outfit"
 spriteSheetName = "field"
 value = 140
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -2177,7 +2177,7 @@ name = "城紋の盾"
 spriteKey = "castle_crest_shield"
 spriteSheetName = "field"
 value = 350
-weight = 4
+weight = "4 kg"
 
 [items.wearable]
 defense = 7
@@ -2195,7 +2195,7 @@ name = "太ベルト"
 spriteKey = "thick_belt"
 spriteSheetName = "field"
 value = 80
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 2
@@ -2209,7 +2209,7 @@ name = "太金の指輪"
 spriteKey = "ring_thick_gold"
 spriteSheetName = "field"
 value = 350
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2227,7 +2227,7 @@ name = "太銀の指輪"
 spriteKey = "ring_thick_silver"
 spriteSheetName = "field"
 value = 250
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2245,7 +2245,7 @@ name = "太銅の指輪"
 spriteKey = "ring_thick_copper"
 spriteSheetName = "field"
 value = 150
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2262,7 +2262,7 @@ name = "太陽鎧"
 spriteKey = "sun_armor"
 spriteSheetName = "field"
 value = 750
-weight = 7
+weight = "7 kg"
 
 [items.wearable]
 defense = 11
@@ -2280,7 +2280,7 @@ name = "女王の冠"
 spriteKey = "queen_crown"
 spriteSheetName = "field"
 value = 6000
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 1
@@ -2301,7 +2301,7 @@ name = "宇宙冠"
 spriteKey = "crown"
 spriteSheetName = "field"
 value = 500
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 3
@@ -2319,7 +2319,7 @@ name = "宇宙盾(赤)"
 spriteKey = "space_shield_red"
 spriteSheetName = "field"
 value = 400
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 6
@@ -2336,7 +2336,7 @@ name = "宇宙盾(青)"
 spriteKey = "space_shield_blue"
 spriteSheetName = "field"
 value = 400
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 6
@@ -2353,7 +2353,7 @@ name = "宇宙鎧"
 spriteKey = "space_armor"
 spriteSheetName = "field"
 value = 550
-weight = 5
+weight = "5 kg"
 
 [items.wearable]
 defense = 8
@@ -2370,7 +2370,7 @@ name = "宇宙靴(緑)"
 spriteKey = "space_boots_green"
 spriteSheetName = "field"
 value = 350
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -2387,7 +2387,7 @@ name = "宇宙靴(赤)"
 spriteKey = "space_boots_red"
 spriteSheetName = "field"
 value = 350
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -2404,7 +2404,7 @@ name = "宇宙靴(青)"
 spriteKey = "space_boots_blue"
 spriteSheetName = "field"
 value = 350
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -2421,7 +2421,7 @@ name = "宝石の指輪"
 spriteKey = "jeweled_ring"
 spriteSheetName = "field"
 value = 400
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2439,7 +2439,7 @@ name = "宝石ベルト"
 spriteKey = "jewel_belt"
 spriteSheetName = "field"
 value = 300
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 2
@@ -2456,7 +2456,7 @@ name = "宝石黄金鎧"
 spriteKey = "golden_armor_jewel"
 spriteSheetName = "field"
 value = 1500
-weight = 12
+weight = "12 kg"
 
 [items.wearable]
 defense = 14
@@ -2475,7 +2475,7 @@ name = "将軍の兜"
 spriteKey = "general"
 spriteSheetName = "field"
 value = 900
-weight = 3.5
+weight = "3.5 kg"
 
 [items.wearable]
 defense = 7
@@ -2494,7 +2494,7 @@ name = "布のシャツ"
 spriteKey = "waiter_outfit"
 spriteSheetName = "field"
 value = 15
-weight = 0.3
+weight = "300 g"
 
 [items.wearable]
 defense = 0
@@ -2508,7 +2508,7 @@ name = "布のズボン"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 12
-weight = 0.2
+weight = "200 g"
 
 [items.wearable]
 defense = 0
@@ -2522,7 +2522,7 @@ name = "布の帽子"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 10
-weight = 0.1
+weight = "100 g"
 
 [items.wearable]
 defense = 0
@@ -2536,7 +2536,7 @@ name = "布の手袋"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 8
-weight = 0.1
+weight = "100 g"
 
 [items.wearable]
 defense = 0
@@ -2550,7 +2550,7 @@ name = "布の腕巻き"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 8
-weight = 0.1
+weight = "100 g"
 
 [items.wearable]
 defense = 0
@@ -2564,7 +2564,7 @@ name = "布の靴"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 10
-weight = 0.2
+weight = "200 g"
 
 [items.wearable]
 defense = 0
@@ -2578,7 +2578,7 @@ name = "幕付き帽子"
 spriteKey = "curtain_hat"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 2
@@ -2595,7 +2595,7 @@ name = "強化機械腕"
 spriteKey = "asm_arm_yellow"
 spriteSheetName = "field"
 value = 500
-weight = 4
+weight = "4 kg"
 
 [items.wearable]
 defense = 5
@@ -2616,7 +2616,7 @@ name = "影の外套"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 450
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -2637,7 +2637,7 @@ name = "影の頭巾"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 280
-weight = 0.2
+weight = "200 g"
 
 [items.wearable]
 defense = 1
@@ -2658,7 +2658,7 @@ name = "支配人の服"
 spriteKey = "manager_outfit"
 spriteSheetName = "field"
 value = 250
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -2679,7 +2679,7 @@ name = "旅行カバン"
 spriteKey = "travel_bag_leather"
 spriteSheetName = "field"
 value = 130
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 1
@@ -2693,7 +2693,7 @@ name = "旅行者の服"
 spriteKey = "traveler_outfit"
 spriteSheetName = "field"
 value = 150
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -2714,7 +2714,7 @@ name = "星のアクセサリー"
 spriteKey = "star_acc"
 spriteSheetName = "field"
 value = 400
-weight = 0.05
+weight = "50 g"
 
 [items.wearable]
 defense = 0
@@ -2735,7 +2735,7 @@ name = "星鉄の指輪"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 380
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2756,7 +2756,7 @@ name = "月の鎧"
 spriteKey = "moon_armor"
 spriteSheetName = "field"
 value = 700
-weight = 6
+weight = "6 kg"
 
 [items.wearable]
 defense = 9
@@ -2774,7 +2774,7 @@ name = "木の盾"
 spriteKey = "wooden_shield"
 spriteSheetName = "field"
 value = 60
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 3
@@ -2788,7 +2788,7 @@ name = "木紐の指輪"
 spriteKey = "ring_wood_cord"
 spriteSheetName = "field"
 value = 30
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2805,7 +2805,7 @@ name = "梟の指輪"
 spriteKey = "ring_owl"
 spriteSheetName = "field"
 value = 300
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2822,7 +2822,7 @@ name = "植物の指輪"
 spriteKey = "ring_plant"
 spriteSheetName = "field"
 value = 180
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2840,7 +2840,7 @@ name = "機械の指輪"
 spriteKey = "power_ring"
 spriteSheetName = "field"
 value = 250
-weight = 0.05
+weight = "50 g"
 
 [items.wearable]
 defense = 1
@@ -2861,7 +2861,7 @@ name = "機械腕"
 spriteKey = "asm_arm"
 spriteSheetName = "field"
 value = 300
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 3
@@ -2882,7 +2882,7 @@ name = "毛皮付きコート"
 spriteKey = "fur_coat"
 spriteSheetName = "field"
 value = 280
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 4
@@ -2903,7 +2903,7 @@ name = "水玉長靴"
 spriteKey = "rain_boots_polka"
 spriteSheetName = "field"
 value = 70
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 1
@@ -2917,7 +2917,7 @@ name = "炎の指輪"
 spriteKey = "ring_fire"
 spriteSheetName = "field"
 value = 350
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2934,7 +2934,7 @@ name = "爪の指輪"
 spriteKey = "ring_claw"
 spriteSheetName = "field"
 value = 280
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -2952,7 +2952,7 @@ name = "狩人の外套"
 spriteKey = "hunter_outfit"
 spriteSheetName = "field"
 value = 260
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -2973,7 +2973,7 @@ name = "狩人の帽子"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 180
-weight = 0.3
+weight = "300 g"
 
 [items.wearable]
 defense = 3
@@ -2994,7 +2994,7 @@ name = "狩人の脚絆"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 180
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 2
@@ -3015,7 +3015,7 @@ name = "狼頭の盾"
 spriteKey = "wolf_head_shield"
 spriteSheetName = "field"
 value = 300
-weight = 3.5
+weight = "3.5 kg"
 
 [items.wearable]
 defense = 6
@@ -3033,7 +3033,7 @@ name = "獅子の盾"
 spriteKey = "lion_shield"
 spriteSheetName = "field"
 value = 350
-weight = 4
+weight = "4 kg"
 
 [items.wearable]
 defense = 7
@@ -3051,7 +3051,7 @@ name = "王冠"
 spriteKey = "king_crown"
 spriteSheetName = "field"
 value = 5000
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 1
@@ -3072,7 +3072,7 @@ name = "王紋の盾"
 spriteKey = "royal_crest_shield"
 spriteSheetName = "field"
 value = 500
-weight = 4
+weight = "4 kg"
 
 [items.wearable]
 defense = 7
@@ -3091,7 +3091,7 @@ name = "登山靴"
 spriteKey = "climbing_boots"
 spriteSheetName = "field"
 value = 140
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -3108,7 +3108,7 @@ name = "白い脚絆"
 spriteKey = "white_legs"
 spriteSheetName = "field"
 value = 80
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 1
@@ -3129,7 +3129,7 @@ name = "粒の指輪"
 spriteKey = "ring_grain"
 spriteSheetName = "field"
 value = 100
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3146,7 +3146,7 @@ name = "紫石の指輪"
 spriteKey = "ring_purple_stone"
 spriteSheetName = "field"
 value = 280
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3164,7 +3164,7 @@ name = "紳士の服"
 spriteKey = "gentleman_outfit"
 spriteSheetName = "field"
 value = 200
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 1
@@ -3185,7 +3185,7 @@ name = "緑の指輪"
 spriteKey = "ring_green"
 spriteSheetName = "field"
 value = 200
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3203,7 +3203,7 @@ name = "緑の服"
 spriteKey = "green_outfit"
 spriteSheetName = "field"
 value = 60
-weight = 0.6
+weight = "600 g"
 
 [items.wearable]
 defense = 2
@@ -3224,7 +3224,7 @@ name = "緑冒険者の服"
 spriteKey = "green_adventurer_outfit"
 spriteSheetName = "field"
 value = 180
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 3
@@ -3245,7 +3245,7 @@ name = "緑宝石の盾"
 spriteKey = "green_jewel_shield"
 spriteSheetName = "field"
 value = 400
-weight = 3.5
+weight = "3.5 kg"
 
 [items.wearable]
 defense = 6
@@ -3263,7 +3263,7 @@ name = "緑石の指輪"
 spriteKey = "ring_green_stone"
 spriteSheetName = "field"
 value = 250
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3281,7 +3281,7 @@ name = "緑長靴"
 spriteKey = "rain_boots_green"
 spriteSheetName = "field"
 value = 70
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 1
@@ -3295,7 +3295,7 @@ name = "縫いシャツ"
 spriteKey = "sewn_shirt"
 spriteSheetName = "field"
 value = 50
-weight = 0.4
+weight = "400 g"
 
 [items.wearable]
 defense = 1
@@ -3309,7 +3309,7 @@ name = "翼馬鎧"
 spriteKey = "winged_horse_armor"
 spriteSheetName = "field"
 value = 700
-weight = 8
+weight = "8 kg"
 
 [items.wearable]
 defense = 10
@@ -3328,7 +3328,7 @@ name = "聖職者の冠"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 350
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 2
@@ -3349,7 +3349,7 @@ name = "聖職者の法衣"
 spriteKey = "priest_outfit"
 spriteSheetName = "field"
 value = 200
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -3367,7 +3367,7 @@ name = "聖騎士の鎧"
 spriteKey = "armor_item"
 spriteSheetName = "field"
 value = 800
-weight = 20
+weight = "20 kg"
 
 [items.wearable]
 defense = 12
@@ -3388,7 +3388,7 @@ name = "虹の指輪"
 spriteKey = "ring_rainbow"
 spriteSheetName = "field"
 value = 600
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3409,7 +3409,7 @@ name = "蛇の指輪"
 spriteKey = "ring_snake"
 spriteSheetName = "field"
 value = 220
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3427,7 +3427,7 @@ name = "蛸の指輪"
 spriteKey = "ring_octopus"
 spriteSheetName = "field"
 value = 200
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3444,7 +3444,7 @@ name = "血の指輪"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 280
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 0
@@ -3465,7 +3465,7 @@ name = "西洋鎧"
 spriteKey = "iron_armor"
 spriteSheetName = "field"
 value = 400
-weight = 15
+weight = "15 kg"
 
 [items.wearable]
 defense = 8
@@ -3486,7 +3486,7 @@ name = "赤いマント"
 spriteKey = "red_cloak"
 spriteSheetName = "field"
 value = 250
-weight = 1.2
+weight = "1.2 kg"
 
 [items.wearable]
 defense = 3
@@ -3507,7 +3507,7 @@ name = "赤宝石の盾"
 spriteKey = "red_jewel_shield"
 spriteSheetName = "field"
 value = 400
-weight = 3.5
+weight = "3.5 kg"
 
 [items.wearable]
 defense = 6
@@ -3525,7 +3525,7 @@ name = "赤石の指輪"
 spriteKey = "ring_red_stone"
 spriteSheetName = "field"
 value = 280
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3543,7 +3543,7 @@ name = "軍靴"
 spriteKey = "military_boots"
 spriteSheetName = "field"
 value = 200
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -3560,7 +3560,7 @@ name = "道着"
 spriteKey = "gi"
 spriteSheetName = "field"
 value = 120
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 2
@@ -3581,7 +3581,7 @@ name = "金の兜"
 spriteKey = "gold_helm"
 spriteSheetName = "field"
 value = 600
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 6
@@ -3599,7 +3599,7 @@ name = "金の指輪"
 spriteKey = "ring_gold"
 spriteSheetName = "field"
 value = 300
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3617,7 +3617,7 @@ name = "金紐の指輪"
 spriteKey = "ring_gold_cord"
 spriteSheetName = "field"
 value = 250
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3635,7 +3635,7 @@ name = "鉄のブーツ"
 spriteKey = "armor_legs"
 spriteSheetName = "field"
 value = 180
-weight = 2.5
+weight = "2.5 kg"
 
 [items.wearable]
 defense = 4
@@ -3656,7 +3656,7 @@ name = "鉄の棘拳"
 spriteKey = "iron_spike_fist"
 spriteSheetName = "field"
 value = 250
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -3674,7 +3674,7 @@ name = "鉄の爪"
 spriteKey = "iron_claw"
 spriteSheetName = "field"
 value = 220
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -3693,7 +3693,7 @@ name = "鉄の王冠"
 spriteKey = "crown_iron"
 spriteSheetName = "field"
 value = 350
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 5
@@ -3711,7 +3711,7 @@ name = "鉄の盾"
 spriteKey = "iron_shield"
 spriteSheetName = "field"
 value = 200
-weight = 4.5
+weight = "4.5 kg"
 
 [items.wearable]
 defense = 6
@@ -3728,7 +3728,7 @@ name = "鉄の篭手"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 200
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -3749,7 +3749,7 @@ name = "鉄の胸当て"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 220
-weight = 5
+weight = "5 kg"
 
 [items.wearable]
 defense = 5
@@ -3770,7 +3770,7 @@ name = "鉄の脚鎧"
 spriteKey = "iron_legs"
 spriteSheetName = "field"
 value = 200
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 5
@@ -3791,7 +3791,7 @@ name = "鉄の脛当て"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 160
-weight = 2.5
+weight = "2.5 kg"
 
 [items.wearable]
 defense = 4
@@ -3812,7 +3812,7 @@ name = "鉄の腕甲"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 180
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 4
@@ -3833,7 +3833,7 @@ name = "鉄手袋"
 spriteKey = "iron_gloves"
 spriteSheetName = "field"
 value = 180
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 4
@@ -3850,7 +3850,7 @@ name = "銀の指輪"
 spriteKey = "ring_silver"
 spriteSheetName = "field"
 value = 200
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3868,7 +3868,7 @@ name = "銀紐の指輪"
 spriteKey = "ring_silver_cord"
 spriteSheetName = "field"
 value = 180
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3886,7 +3886,7 @@ name = "銀鎧"
 spriteKey = "silver_armor"
 spriteSheetName = "field"
 value = 500
-weight = 8
+weight = "8 kg"
 
 [items.wearable]
 defense = 10
@@ -3904,7 +3904,7 @@ name = "銅の指輪"
 spriteKey = "ring_copper"
 spriteSheetName = "field"
 value = 80
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -3921,7 +3921,7 @@ name = "錨のペンダント"
 spriteKey = "pendant_anchor"
 spriteSheetName = "field"
 value = 150
-weight = 0.05
+weight = "50 g"
 
 [items.wearable]
 defense = 0
@@ -3939,7 +3939,7 @@ name = "鎖帷子"
 spriteKey = "chainmail"
 spriteSheetName = "field"
 value = 300
-weight = 8
+weight = "8 kg"
 
 [items.wearable]
 defense = 6
@@ -3960,7 +3960,7 @@ name = "闇鎧"
 spriteKey = "dark_armor"
 spriteSheetName = "field"
 value = 800
-weight = 9
+weight = "9 kg"
 
 [items.wearable]
 defense = 12
@@ -3978,7 +3978,7 @@ name = "防寒ブーツ"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 160
-weight = 1.2
+weight = "1.2 kg"
 
 [items.wearable]
 defense = 2
@@ -3999,7 +3999,7 @@ name = "防寒手袋"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 120
-weight = 0.3
+weight = "300 g"
 
 [items.wearable]
 defense = 1
@@ -4020,7 +4020,7 @@ name = "防寒脚絆"
 spriteKey = "warm_legs"
 spriteSheetName = "field"
 value = 140
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -4041,7 +4041,7 @@ name = "電盾"
 spriteKey = "electric_shield"
 spriteSheetName = "field"
 value = 450
-weight = 3.5
+weight = "3.5 kg"
 
 [items.wearable]
 defense = 6
@@ -4059,7 +4059,7 @@ name = "青の王冠"
 spriteKey = "crown_blue"
 spriteSheetName = "field"
 value = 550
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 4
@@ -4077,7 +4077,7 @@ name = "青石の指輪"
 spriteKey = "ring_blue_stone"
 spriteSheetName = "field"
 value = 280
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -4095,7 +4095,7 @@ name = "青線の指輪"
 spriteKey = "ring_blue_line"
 spriteSheetName = "field"
 value = 220
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -4112,7 +4112,7 @@ name = "青長靴"
 spriteKey = "rain_boots_blue"
 spriteSheetName = "field"
 value = 70
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 1
@@ -4126,7 +4126,7 @@ name = "革のダスターコート"
 spriteKey = "leather_duster"
 spriteSheetName = "field"
 value = 200
-weight = 2.5
+weight = "2.5 kg"
 
 [items.wearable]
 defense = 4
@@ -4143,7 +4143,7 @@ name = "革のツナギ"
 spriteKey = "leather_coverall"
 spriteSheetName = "field"
 value = 160
-weight = 2
+weight = "2 kg"
 
 [items.wearable]
 defense = 3
@@ -4157,7 +4157,7 @@ name = "革のバンデージ"
 spriteKey = "leather_bandage"
 spriteSheetName = "field"
 value = 80
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 2
@@ -4171,7 +4171,7 @@ name = "革のブーツ"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 120
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 3
@@ -4192,7 +4192,7 @@ name = "革のマント"
 spriteKey = "leather_cloak"
 spriteSheetName = "field"
 value = 170
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 3
@@ -4209,7 +4209,7 @@ name = "革の手袋"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 80
-weight = 0.2
+weight = "200 g"
 
 [items.wearable]
 defense = 1
@@ -4230,7 +4230,7 @@ name = "革の矢筒"
 spriteKey = "leather_quiver"
 spriteSheetName = "field"
 value = 100
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 0
@@ -4247,7 +4247,7 @@ name = "革の脚絆"
 spriteKey = "leather_legs"
 spriteSheetName = "field"
 value = 100
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 3
@@ -4268,7 +4268,7 @@ name = "革の腕当て"
 spriteKey = "field_item"
 spriteSheetName = "field"
 value = 100
-weight = 0.5
+weight = "500 g"
 
 [items.wearable]
 defense = 2
@@ -4289,7 +4289,7 @@ name = "革ブーツ"
 spriteKey = "leather_boots"
 spriteSheetName = "field"
 value = 100
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -4303,7 +4303,7 @@ name = "革靴"
 spriteKey = "leather_shoes"
 spriteSheetName = "field"
 value = 80
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 2
@@ -4317,7 +4317,7 @@ name = "騎士の盾"
 spriteKey = "knight_shield"
 spriteSheetName = "field"
 value = 300
-weight = 4
+weight = "4 kg"
 
 [items.wearable]
 defense = 7
@@ -4335,7 +4335,7 @@ name = "騎士の脚甲"
 spriteKey = "knight_legs"
 spriteSheetName = "field"
 value = 400
-weight = 7
+weight = "7 kg"
 
 [items.wearable]
 defense = 8
@@ -4356,7 +4356,7 @@ name = "騎士の脚鎧"
 spriteKey = "armor_legs"
 spriteSheetName = "field"
 value = 350
-weight = 8
+weight = "8 kg"
 
 [items.wearable]
 defense = 7
@@ -4377,7 +4377,7 @@ name = "騎士の鎧"
 spriteKey = "knight_armor"
 spriteSheetName = "field"
 value = 400
-weight = 7
+weight = "7 kg"
 
 [items.wearable]
 defense = 9
@@ -4395,7 +4395,7 @@ name = "騎士の靴"
 spriteKey = "knight_boots"
 spriteSheetName = "field"
 value = 250
-weight = 2.5
+weight = "2.5 kg"
 
 [items.wearable]
 defense = 5
@@ -4413,7 +4413,7 @@ name = "骨の指輪"
 spriteKey = "ring_bone"
 spriteSheetName = "field"
 value = 120
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -4430,7 +4430,7 @@ name = "骸骨の指輪"
 spriteKey = "ring_skeleton"
 spriteSheetName = "field"
 value = 250
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -4448,7 +4448,7 @@ name = "魔の盾"
 spriteKey = "magic_shield"
 spriteSheetName = "field"
 value = 500
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 5
@@ -4465,7 +4465,7 @@ name = "黄金の盾"
 spriteKey = "golden_shield"
 spriteSheetName = "field"
 value = 600
-weight = 5
+weight = "5 kg"
 
 [items.wearable]
 defense = 8
@@ -4483,7 +4483,7 @@ name = "黄金の脚鎧"
 spriteKey = "gold_legs"
 spriteSheetName = "field"
 value = 600
-weight = 6
+weight = "6 kg"
 
 [items.wearable]
 defense = 8
@@ -4504,7 +4504,7 @@ name = "黄金の鈴"
 spriteKey = "golden_bell"
 spriteSheetName = "field"
 value = 500
-weight = 0.05
+weight = "50 g"
 
 [items.wearable]
 defense = 0
@@ -4525,7 +4525,7 @@ name = "黄金鎧"
 spriteKey = "golden_armor"
 spriteSheetName = "field"
 value = 1000
-weight = 10
+weight = "10 kg"
 
 [items.wearable]
 defense = 13
@@ -4543,7 +4543,7 @@ name = "黄金靴"
 spriteKey = "golden_boots"
 spriteSheetName = "field"
 value = 500
-weight = 3
+weight = "3 kg"
 
 [items.wearable]
 defense = 5
@@ -4561,7 +4561,7 @@ name = "黄鎧"
 spriteKey = "gold_armor"
 spriteSheetName = "field"
 value = 900
-weight = 18
+weight = "18 kg"
 
 [items.wearable]
 defense = 14
@@ -4582,7 +4582,7 @@ name = "黒い脚絆"
 spriteKey = "black_legs"
 spriteSheetName = "field"
 value = 220
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 3
@@ -4603,7 +4603,7 @@ name = "黒い道着"
 spriteKey = "black_gi"
 spriteSheetName = "field"
 value = 160
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 2
@@ -4624,7 +4624,7 @@ name = "黒の宇宙鎧"
 spriteKey = "space_armor_black"
 spriteSheetName = "field"
 value = 650
-weight = 5.5
+weight = "5.5 kg"
 
 [items.wearable]
 defense = 9
@@ -4642,7 +4642,7 @@ name = "黒の指輪"
 spriteKey = "black_ring"
 spriteSheetName = "field"
 value = 350
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -4660,7 +4660,7 @@ name = "黒の王冠"
 spriteKey = "crown_black"
 spriteSheetName = "field"
 value = 700
-weight = 1.5
+weight = "1.5 kg"
 
 [items.wearable]
 defense = 5
@@ -4678,7 +4678,7 @@ name = "黒ジャケット"
 spriteKey = "cloth_jacket_black"
 spriteSheetName = "field"
 value = 90
-weight = 0.8
+weight = "800 g"
 
 [items.wearable]
 defense = 2
@@ -4695,7 +4695,7 @@ name = "黒ブーツ"
 spriteKey = "black_boots"
 spriteSheetName = "field"
 value = 100
-weight = 1
+weight = "1 kg"
 
 [items.wearable]
 defense = 2
@@ -4709,7 +4709,7 @@ name = "龍の兜"
 spriteKey = "dragon_helm"
 spriteSheetName = "field"
 value = 800
-weight = 4
+weight = "4 kg"
 
 [items.wearable]
 defense = 8
@@ -4727,7 +4727,7 @@ name = "龍の指輪"
 spriteKey = "ring_dragon"
 spriteSheetName = "field"
 value = 500
-weight = 0.02
+weight = "20 g"
 
 [items.wearable]
 defense = 1
@@ -4747,7 +4747,7 @@ spriteKey = "ice_cream"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4762,7 +4762,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 25
 value = 20
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4777,7 +4777,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 35
 value = 28
-weight = 1
+weight = "1 kg"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4792,7 +4792,7 @@ spriteKey = "garlic_bread"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4807,7 +4807,7 @@ spriteKey = "cookie"
 spriteSheetName = "field"
 stackable = true
 value = 12
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4822,7 +4822,7 @@ spriteKey = "croissant"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.15
+weight = "150 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4837,7 +4837,7 @@ spriteKey = "bottled_cola"
 spriteSheetName = "field"
 stackable = true
 value = 25
-weight = 0.35
+weight = "350 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4852,7 +4852,7 @@ spriteKey = "bread"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4867,7 +4867,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 30
 value = 25
-weight = 2
+weight = "2 kg"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4882,7 +4882,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 20
 value = 20
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4897,7 +4897,7 @@ spriteKey = "sausage"
 spriteSheetName = "field"
 stackable = true
 value = 25
-weight = 0.15
+weight = "150 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4912,7 +4912,7 @@ spriteKey = "tongue"
 spriteSheetName = "field"
 stackable = true
 value = 35
-weight = 0.25
+weight = "250 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4927,7 +4927,7 @@ spriteKey = "cherry"
 spriteSheetName = "field"
 stackable = true
 value = 8
-weight = 0.05
+weight = "50 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4942,7 +4942,7 @@ spriteKey = "churrocky"
 spriteSheetName = "field"
 stackable = true
 value = 18
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4957,7 +4957,7 @@ spriteKey = "candy"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4972,7 +4972,7 @@ spriteKey = "food_item"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.25
+weight = "250 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -4987,7 +4987,7 @@ spriteKey = "tomato"
 spriteSheetName = "field"
 stackable = true
 value = 12
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5002,7 +5002,7 @@ spriteKey = "donut"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5017,7 +5017,7 @@ spriteKey = "naan"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.15
+weight = "150 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5032,7 +5032,7 @@ spriteKey = "hamburger"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.4
+weight = "400 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5047,7 +5047,7 @@ spriteKey = "baguette"
 spriteSheetName = "field"
 stackable = true
 value = 22
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5062,7 +5062,7 @@ spriteKey = "banana"
 spriteSheetName = "field"
 stackable = true
 value = 16
-weight = 0.15
+weight = "150 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5077,7 +5077,7 @@ spriteKey = "food_item"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5092,7 +5092,7 @@ spriteKey = "potato"
 spriteSheetName = "field"
 stackable = true
 value = 25
-weight = 0.25
+weight = "250 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5107,7 +5107,7 @@ spriteKey = "biscuit"
 spriteSheetName = "field"
 stackable = true
 value = 25
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5122,7 +5122,7 @@ spriteKey = "beef_jerky"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5137,7 +5137,7 @@ spriteKey = "pizza"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.4
+weight = "400 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5152,7 +5152,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 20
 value = 12
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5167,7 +5167,7 @@ spriteKey = "bagel"
 spriteSheetName = "field"
 stackable = true
 value = 18
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5182,7 +5182,7 @@ spriteKey = "sesame_bagel"
 spriteSheetName = "field"
 stackable = true
 value = 22
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5197,7 +5197,7 @@ spriteKey = "pop_corn"
 spriteSheetName = "field"
 stackable = true
 value = 10
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5212,7 +5212,7 @@ spriteKey = "minced_meat"
 spriteSheetName = "field"
 stackable = true
 value = 22
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5227,7 +5227,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 50
 value = 45
-weight = 0.5
+weight = "500 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5242,7 +5242,7 @@ spriteKey = "round_meat"
 spriteSheetName = "field"
 stackable = true
 value = 35
-weight = 0.4
+weight = "400 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5257,7 +5257,7 @@ spriteKey = "food_item"
 spriteSheetName = "field"
 stackable = true
 value = 50
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5272,7 +5272,7 @@ spriteKey = "scored_bread"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5286,7 +5286,7 @@ spriteKey = "healing_potion"
 spriteSheetName = "field"
 stackable = true
 value = 100
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5306,7 +5306,7 @@ spriteKey = "dried_meat"
 spriteSheetName = "field"
 stackable = true
 value = 35
-weight = 0.1
+weight = "100 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5321,7 +5321,7 @@ spriteKey = "flat_meat"
 spriteSheetName = "field"
 stackable = true
 value = 28
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5336,7 +5336,7 @@ spriteKey = "grenade"
 spriteSheetName = "field"
 stackable = true
 value = 150
-weight = 0.4
+weight = "400 g"
 
 [items.consumable]
 targetGroup = "ENEMY"
@@ -5350,7 +5350,7 @@ spriteKey = "toothwash_set"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5370,7 +5370,7 @@ spriteKey = "poison_grenade"
 spriteSheetName = "field"
 stackable = true
 value = 180
-weight = 0.4
+weight = "400 g"
 
 [items.consumable]
 targetGroup = "ENEMY"
@@ -5384,7 +5384,7 @@ spriteKey = "green_herb"
 spriteSheetName = "field"
 stackable = true
 value = 80
-weight = 0.08
+weight = "80 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5399,7 +5399,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 40
 value = 35
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5414,7 +5414,7 @@ spriteKey = "spiral_bread"
 spriteSheetName = "field"
 stackable = true
 value = 18
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5429,7 +5429,7 @@ spriteKey = "fire_grenade"
 spriteSheetName = "field"
 stackable = true
 value = 220
-weight = 0.4
+weight = "400 g"
 
 [items.consumable]
 targetGroup = "ENEMY"
@@ -5443,7 +5443,7 @@ spriteKey = "type4_grenade"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.35
+weight = "350 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5458,7 +5458,7 @@ spriteSheetName = "field"
 stackable = true
 providesNutrition = 55
 value = 50
-weight = 0.5
+weight = "500 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5473,7 +5473,7 @@ spriteKey = "prosciutto"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.15
+weight = "150 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5488,7 +5488,7 @@ spriteKey = "raw_meat"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.4
+weight = "400 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5502,7 +5502,7 @@ spriteKey = "green_herb"
 spriteSheetName = "field"
 stackable = true
 value = 10
-weight = 0.05
+weight = "50 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5522,7 +5522,7 @@ spriteKey = "meatball"
 spriteSheetName = "field"
 stackable = true
 value = 22
-weight = 0.15
+weight = "150 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5537,7 +5537,7 @@ spriteKey = "stuffed_sausage"
 spriteSheetName = "field"
 stackable = true
 value = 28
-weight = 0.2
+weight = "200 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5552,7 +5552,7 @@ spriteKey = "belly_meat"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.5
+weight = "500 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5567,7 +5567,7 @@ spriteKey = "pig_head"
 spriteSheetName = "field"
 stackable = true
 value = 50
-weight = 0.8
+weight = "800 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5581,7 +5581,7 @@ spriteKey = "flash_grenade"
 spriteSheetName = "field"
 stackable = true
 value = 180
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ENEMY"
@@ -5596,7 +5596,7 @@ spriteKey = "white_bread"
 spriteSheetName = "field"
 stackable = true
 value = 12
-weight = 0.25
+weight = "250 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5611,7 +5611,7 @@ spriteKey = "dark_bread"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.25
+weight = "250 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5626,7 +5626,7 @@ spriteKey = "bone_in_meat"
 spriteSheetName = "field"
 stackable = true
 value = 45
-weight = 0.6
+weight = "600 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5641,7 +5641,7 @@ spriteKey = "chicken"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.3
+weight = "300 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5655,7 +5655,7 @@ spriteKey = "heal_item"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.05
+weight = "50 g"
 
 [items.consumable]
 targetGroup = "ALLY"
@@ -5674,7 +5674,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 10
-weight = 0.01
+weight = "10 g"
 
 [items.ammo]
 accuracyBonus = 5
@@ -5688,7 +5688,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 5
-weight = 0.01
+weight = "10 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5702,7 +5702,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 8
-weight = 0.01
+weight = "10 g"
 
 [items.ammo]
 accuracyBonus = -5
@@ -5716,7 +5716,7 @@ spriteKey = "blue_cube"
 spriteSheetName = "field"
 stackable = true
 value = 10
-weight = 0.02
+weight = "20 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5730,7 +5730,7 @@ spriteKey = "tesla_coil_ball"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.01
+weight = "10 g"
 
 [items.ammo]
 accuracyBonus = 5
@@ -5744,7 +5744,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 8
-weight = 0.02
+weight = "20 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5758,7 +5758,7 @@ spriteKey = "small_caliber_gray"
 spriteSheetName = "field"
 stackable = true
 value = 6
-weight = 0.01
+weight = "10 g"
 
 [items.ammo]
 accuracyBonus = -5
@@ -5772,7 +5772,7 @@ spriteKey = "small_caliber_yellow"
 spriteSheetName = "field"
 stackable = true
 value = 7
-weight = 0.01
+weight = "10 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5786,7 +5786,7 @@ spriteKey = "heavy_load_round"
 spriteSheetName = "field"
 stackable = true
 value = 12
-weight = 0.01
+weight = "10 g"
 
 [items.ammo]
 accuracyBonus = -10
@@ -5800,7 +5800,7 @@ spriteKey = "wood_arrow"
 spriteSheetName = "field"
 stackable = true
 value = 2
-weight = 0.03
+weight = "30 g"
 
 [items.ammo]
 accuracyBonus = -5
@@ -5813,7 +5813,7 @@ spriteKey = "water_arrow"
 spriteSheetName = "field"
 stackable = true
 value = 12
-weight = 0.05
+weight = "50 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5826,7 +5826,7 @@ spriteKey = "ice_arrow"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.05
+weight = "50 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5839,7 +5839,7 @@ spriteKey = "fire_arrow"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.05
+weight = "50 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5852,7 +5852,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.5
+weight = "500 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5866,7 +5866,7 @@ spriteKey = "holy_arrow"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.05
+weight = "50 g"
 
 [items.ammo]
 accuracyBonus = 5
@@ -5879,7 +5879,7 @@ spriteKey = "iron_arrow"
 spriteSheetName = "field"
 stackable = true
 value = 5
-weight = 0.03
+weight = "30 g"
 
 [items.ammo]
 accuracyBonus = 0
@@ -5891,7 +5891,7 @@ name = "UFO本"
 spriteKey = "ufo_book"
 spriteSheetName = "field"
 value = 40
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -5907,7 +5907,7 @@ name = "ぶどう本"
 spriteKey = "grape_book"
 spriteSheetName = "field"
 value = 35
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -5923,7 +5923,7 @@ name = "アイス本"
 spriteKey = "ice_cream_book"
 spriteSheetName = "field"
 value = 30
-weight = 0.2
+weight = "200 g"
 
 [items.book]
 totalEffort = 150
@@ -5939,7 +5939,7 @@ name = "アート本"
 spriteKey = "art_book"
 spriteSheetName = "field"
 value = 45
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 180
@@ -5955,7 +5955,7 @@ name = "アート本2"
 spriteKey = "art_book_2"
 spriteSheetName = "field"
 value = 60
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 200
@@ -5971,7 +5971,7 @@ name = "イッツ廃墟"
 spriteKey = "its_ruins"
 spriteSheetName = "field"
 value = 50
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 180
@@ -5987,7 +5987,7 @@ name = "オフロードカー本"
 spriteKey = "offroad_car_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 250
@@ -6003,7 +6003,7 @@ name = "カーライフ"
 spriteKey = "car_life"
 spriteSheetName = "field"
 value = 40
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -6019,7 +6019,7 @@ name = "ゲーセン本"
 spriteKey = "arcade_book"
 spriteSheetName = "field"
 value = 35
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -6035,7 +6035,7 @@ name = "ゲーマーズ本"
 spriteKey = "gamers_book"
 spriteSheetName = "field"
 value = 35
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -6051,7 +6051,7 @@ name = "コーヒー本"
 spriteKey = "coffee_book"
 spriteSheetName = "field"
 value = 30
-weight = 0.2
+weight = "200 g"
 
 [items.book]
 totalEffort = 150
@@ -6067,7 +6067,7 @@ name = "サイボーグデイズ"
 spriteKey = "cyborg_days"
 spriteSheetName = "field"
 value = 150
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 300
@@ -6083,7 +6083,7 @@ name = "ザエコ"
 spriteKey = "the_eco"
 spriteSheetName = "field"
 value = 45
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 180
@@ -6099,7 +6099,7 @@ name = "ザ科学"
 spriteKey = "the_science"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6115,7 +6115,7 @@ name = "ハンバーガー本"
 spriteKey = "hamburger_book"
 spriteSheetName = "field"
 value = 30
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -6131,7 +6131,7 @@ name = "パイ料理本"
 spriteKey = "pie_recipe_book"
 spriteSheetName = "field"
 value = 40
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 180
@@ -6147,7 +6147,7 @@ name = "ピラミッド本"
 spriteKey = "pyramid_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6163,7 +6163,7 @@ name = "マシンガンマガジン vol.43"
 spriteKey = "old_book"
 spriteSheetName = "field"
 value = 50
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 200
@@ -6179,7 +6179,7 @@ name = "ユニバースニュース"
 spriteKey = "universe_news"
 spriteSheetName = "field"
 value = 40
-weight = 0.2
+weight = "200 g"
 
 [items.book]
 totalEffort = 150
@@ -6195,7 +6195,7 @@ name = "ロボティクス49"
 spriteKey = "robotics_49"
 spriteSheetName = "field"
 value = 150
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 300
@@ -6211,7 +6211,7 @@ name = "乗り物本"
 spriteKey = "vehicle_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6227,7 +6227,7 @@ name = "剣の本"
 spriteKey = "sword_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6243,7 +6243,7 @@ name = "動物のきもち"
 spriteKey = "animal_feelings"
 spriteSheetName = "field"
 value = 45
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 180
@@ -6259,7 +6259,7 @@ name = "園芸のすすめ"
 spriteKey = "gardening_guide"
 spriteSheetName = "field"
 value = 40
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 180
@@ -6275,7 +6275,7 @@ name = "太陽の本"
 spriteKey = "sun_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6291,7 +6291,7 @@ name = "日記帳"
 spriteKey = "diary"
 spriteSheetName = "field"
 value = 25
-weight = 0.15
+weight = "150 g"
 
 [items.book]
 totalEffort = 120
@@ -6307,7 +6307,7 @@ name = "星の本"
 spriteKey = "star_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6323,7 +6323,7 @@ name = "月の本"
 spriteKey = "moon_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6339,7 +6339,7 @@ name = "月夜本"
 spriteKey = "moonlit_night_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6355,7 +6355,7 @@ name = "植物本"
 spriteKey = "plant_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6371,7 +6371,7 @@ name = "歴史ガイド"
 spriteKey = "history_guide"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6387,7 +6387,7 @@ name = "氷本"
 spriteKey = "ice_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6403,7 +6403,7 @@ name = "深淵娯楽本"
 spriteKey = "abyss_entertainment_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6419,7 +6419,7 @@ name = "火山本"
 spriteKey = "volcano_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6435,7 +6435,7 @@ name = "灰月の本"
 spriteKey = "ash_moon_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6451,7 +6451,7 @@ name = "灰本"
 spriteKey = "ash_book"
 spriteSheetName = "field"
 value = 35
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -6467,7 +6467,7 @@ name = "白マニア本"
 spriteKey = "white_mania_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6483,7 +6483,7 @@ name = "盾の本"
 spriteKey = "shield_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6499,7 +6499,7 @@ name = "知られざる顔"
 spriteKey = "unknown_faces"
 spriteSheetName = "field"
 value = 100
-weight = 0.4
+weight = "400 g"
 
 [items.book]
 totalEffort = 250
@@ -6515,7 +6515,7 @@ name = "紫本"
 spriteKey = "purple_book"
 spriteSheetName = "field"
 value = 30
-weight = 0.2
+weight = "200 g"
 
 [items.book]
 totalEffort = 150
@@ -6531,7 +6531,7 @@ name = "細胞本"
 spriteKey = "cell_book"
 spriteSheetName = "field"
 value = 150
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 300
@@ -6547,7 +6547,7 @@ name = "緑本"
 spriteKey = "green_book"
 spriteSheetName = "field"
 value = 30
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -6563,7 +6563,7 @@ name = "聖書(茶)"
 spriteKey = "bible_brown"
 spriteSheetName = "field"
 value = 200
-weight = 0.6
+weight = "600 g"
 
 [items.book]
 totalEffort = 350
@@ -6579,7 +6579,7 @@ name = "聖書(黒)"
 spriteKey = "bible_black"
 spriteSheetName = "field"
 value = 250
-weight = 0.7
+weight = "700 g"
 
 [items.book]
 totalEffort = 400
@@ -6595,7 +6595,7 @@ name = "自動工学本"
 spriteKey = "automation_book"
 spriteSheetName = "field"
 value = 280
-weight = 0.7
+weight = "700 g"
 
 [items.book]
 totalEffort = 400
@@ -6611,7 +6611,7 @@ name = "船本"
 spriteKey = "ship_book"
 spriteSheetName = "field"
 value = 100
-weight = 0.45
+weight = "450 g"
 
 [items.book]
 totalEffort = 250
@@ -6627,7 +6627,7 @@ name = "茶本"
 spriteKey = "brown_book"
 spriteSheetName = "field"
 value = 25
-weight = 0.2
+weight = "200 g"
 
 [items.book]
 totalEffort = 150
@@ -6643,7 +6643,7 @@ name = "薄い本"
 spriteKey = "thin_book"
 spriteSheetName = "field"
 value = 20
-weight = 0.15
+weight = "150 g"
 
 [items.book]
 totalEffort = 120
@@ -6659,7 +6659,7 @@ name = "重厚な本"
 spriteKey = "heavy_book"
 spriteSheetName = "field"
 value = 250
-weight = 0.8
+weight = "800 g"
 
 [items.book]
 totalEffort = 400
@@ -6675,7 +6675,7 @@ name = "鉱物ライフ"
 spriteKey = "mineral_life"
 spriteSheetName = "field"
 value = 50
-weight = 0.3
+weight = "300 g"
 
 [items.book]
 totalEffort = 180
@@ -6691,7 +6691,7 @@ name = "陸軍射撃マニュアル"
 spriteKey = "old_book"
 spriteSheetName = "field"
 value = 200
-weight = 0.8
+weight = "800 g"
 
 [items.book]
 totalEffort = 400
@@ -6707,7 +6707,7 @@ name = "電子機器本"
 spriteKey = "electronics_book"
 spriteSheetName = "field"
 value = 150
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 300
@@ -6723,7 +6723,7 @@ name = "青本"
 spriteKey = "blue_book"
 spriteSheetName = "field"
 value = 30
-weight = 0.25
+weight = "250 g"
 
 [items.book]
 totalEffort = 150
@@ -6739,7 +6739,7 @@ name = "飛行機本"
 spriteKey = "airplane_book"
 spriteSheetName = "field"
 value = 120
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 280
@@ -6755,7 +6755,7 @@ name = "高みのサバイバルライフ"
 spriteKey = "old_book"
 spriteSheetName = "field"
 value = 150
-weight = 0.5
+weight = "500 g"
 
 [items.book]
 totalEffort = 300
@@ -6771,7 +6771,7 @@ name = "魔術生活"
 spriteKey = "magic_life"
 spriteSheetName = "field"
 value = 250
-weight = 0.7
+weight = "700 g"
 
 [items.book]
 totalEffort = 400
@@ -6787,7 +6787,7 @@ name = "はかり"
 spriteKey = "weight_measure"
 spriteSheetName = "field"
 value = 50
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -6797,7 +6797,7 @@ spriteKey = "honey"
 spriteSheetName = "field"
 stackable = true
 value = 60
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -6806,7 +6806,7 @@ name = "やかん"
 spriteKey = "kettle"
 spriteSheetName = "field"
 value = 20
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -6816,7 +6816,7 @@ spriteKey = "seaweed_fossil"
 spriteSheetName = "field"
 stackable = true
 value = 60
-weight = 0.15
+weight = "150 g"
 material = true
 
 [[items]]
@@ -6826,7 +6826,7 @@ spriteKey = "atomic_core"
 spriteSheetName = "field"
 stackable = true
 value = 400
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -6836,7 +6836,7 @@ spriteKey = "aluminum"
 spriteSheetName = "field"
 stackable = true
 value = 80
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -6846,7 +6846,7 @@ spriteKey = "emerald"
 spriteSheetName = "field"
 stackable = true
 value = 2000
-weight = 0.03
+weight = "30 g"
 material = true
 
 [[items]]
@@ -6856,7 +6856,7 @@ spriteKey = "omega"
 spriteSheetName = "field"
 stackable = true
 value = 150
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -6866,7 +6866,7 @@ spriteKey = "bottle_mushroom"
 spriteSheetName = "field"
 stackable = true
 value = 50
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -6876,7 +6876,7 @@ spriteKey = "stacked_cable"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 2
+weight = "2 kg"
 material = true
 
 [[items]]
@@ -6885,7 +6885,7 @@ name = "コンパス"
 spriteKey = "compass"
 spriteSheetName = "field"
 value = 80
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -6895,7 +6895,7 @@ spriteKey = "cable_bundle"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -6905,7 +6905,7 @@ spriteKey = "coffee_bean"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -6915,7 +6915,7 @@ spriteKey = "towel_hunger"
 spriteSheetName = "field"
 stackable = true
 value = 8
-weight = 0.15
+weight = "150 g"
 material = true
 
 [[items]]
@@ -6925,7 +6925,7 @@ spriteKey = "charger"
 spriteSheetName = "field"
 stackable = true
 value = 120
-weight = 0.15
+weight = "150 g"
 material = true
 
 [[items]]
@@ -6934,7 +6934,7 @@ name = "ティーポット"
 spriteKey = "teapot"
 spriteSheetName = "field"
 value = 25
-weight = 0.4
+weight = "400 g"
 material = true
 
 [[items]]
@@ -6943,7 +6943,7 @@ name = "テディベア"
 spriteKey = "teddy_bear"
 spriteSheetName = "field"
 value = 15
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -6953,7 +6953,7 @@ spriteKey = "toilet_paper"
 spriteSheetName = "field"
 stackable = true
 value = 5
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -6963,7 +6963,7 @@ spriteKey = "topaz"
 spriteSheetName = "field"
 stackable = true
 value = 1500
-weight = 0.03
+weight = "30 g"
 material = true
 
 [[items]]
@@ -6972,7 +6972,7 @@ name = "トースター"
 spriteKey = "toaster"
 spriteSheetName = "field"
 value = 30
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -6982,7 +6982,7 @@ spriteKey = "heart"
 spriteSheetName = "field"
 stackable = true
 value = 50
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -6991,7 +6991,7 @@ name = "パラソル"
 spriteKey = "parasol"
 spriteSheetName = "field"
 value = 40
-weight = 0.8
+weight = "800 g"
 material = true
 
 [[items]]
@@ -7001,7 +7001,7 @@ spriteKey = "ferrite_core"
 spriteSheetName = "field"
 stackable = true
 value = 100
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7011,7 +7011,7 @@ spriteKey = "magnelight"
 spriteSheetName = "field"
 stackable = true
 value = 120
-weight = 0.15
+weight = "150 g"
 material = true
 
 [[items]]
@@ -7020,7 +7020,7 @@ name = "ミシン"
 spriteKey = "sewing_machine"
 spriteSheetName = "field"
 value = 80
-weight = 10
+weight = "10 kg"
 material = true
 
 [[items]]
@@ -7030,7 +7030,7 @@ spriteKey = "ring_cell"
 spriteSheetName = "field"
 stackable = true
 value = 100
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7040,7 +7040,7 @@ spriteKey = "red_gem"
 spriteSheetName = "field"
 stackable = true
 value = 500
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7049,7 +7049,7 @@ name = "レコード"
 spriteKey = "record"
 spriteSheetName = "field"
 value = 30
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7058,7 +7058,7 @@ name = "ワイヤーカッター"
 spriteKey = "red_wire_cutter"
 spriteSheetName = "field"
 value = 25
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7068,7 +7068,7 @@ spriteKey = "tri_color_rod"
 spriteSheetName = "field"
 stackable = true
 value = 800
-weight = 0.8
+weight = "800 g"
 material = true
 
 [[items]]
@@ -7078,7 +7078,7 @@ spriteKey = "swap_cell"
 spriteSheetName = "field"
 stackable = true
 value = 80
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7088,7 +7088,7 @@ spriteKey = "photo"
 spriteSheetName = "field"
 stackable = true
 value = 10
-weight = 0.01
+weight = "10 g"
 material = true
 
 [[items]]
@@ -7098,7 +7098,7 @@ spriteKey = "chemical_vessel"
 spriteSheetName = "field"
 stackable = true
 value = 100
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7107,7 +7107,7 @@ name = "古い地球儀"
 spriteKey = "old_earth"
 spriteSheetName = "field"
 value = 80
-weight = 2
+weight = "2 kg"
 material = true
 
 [[items]]
@@ -7117,7 +7117,7 @@ spriteKey = "gear_iron"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7127,7 +7127,7 @@ spriteKey = "vase"
 spriteSheetName = "field"
 stackable = true
 value = 1800
-weight = 2.5
+weight = "2.5 kg"
 material = true
 
 [[items]]
@@ -7137,7 +7137,7 @@ spriteKey = "fossil_chunk"
 spriteSheetName = "field"
 stackable = true
 value = 4
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7147,7 +7147,7 @@ spriteKey = "gold_ore"
 spriteSheetName = "field"
 stackable = true
 value = 1500
-weight = 0.01
+weight = "10 g"
 material = true
 
 [[items]]
@@ -7157,7 +7157,7 @@ spriteKey = "orbit_gauge"
 spriteSheetName = "field"
 stackable = true
 value = 250
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7167,7 +7167,7 @@ spriteKey = "rainbow_large_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 2500
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7177,7 +7177,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 3200
-weight = 0.005
+weight = "5 g"
 material = true
 
 [[items]]
@@ -7187,7 +7187,7 @@ spriteKey = "cosmic_cornerstone"
 spriteSheetName = "field"
 stackable = true
 value = 500
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -7197,7 +7197,7 @@ spriteKey = "test_vessel"
 spriteSheetName = "field"
 stackable = true
 value = 60
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7207,7 +7207,7 @@ spriteKey = "sharp_stone"
 spriteSheetName = "field"
 stackable = true
 value = 2
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7217,7 +7217,7 @@ spriteKey = "hay"
 spriteSheetName = "field"
 stackable = true
 value = 2
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7227,7 +7227,7 @@ spriteKey = "organ_heart"
 spriteSheetName = "field"
 stackable = true
 value = 500
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7236,7 +7236,7 @@ name = "戦車の模型"
 spriteKey = "light_tank"
 spriteSheetName = "field"
 value = 200
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -7245,7 +7245,7 @@ name = "扇子"
 spriteKey = "folding_fan"
 spriteSheetName = "field"
 value = 15
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -7255,7 +7255,7 @@ spriteKey = "origami"
 spriteSheetName = "field"
 stackable = true
 value = 5
-weight = 0.01
+weight = "10 g"
 material = true
 
 [[items]]
@@ -7265,7 +7265,7 @@ spriteKey = "diagonal_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 350
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7275,7 +7275,7 @@ spriteKey = "bright_green_stone"
 spriteSheetName = "field"
 stackable = true
 value = 180
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7285,7 +7285,7 @@ spriteKey = "rainbow_chunk"
 spriteSheetName = "field"
 stackable = true
 value = 2000
-weight = 0.02
+weight = "20 g"
 material = true
 
 [[items]]
@@ -7295,7 +7295,7 @@ spriteKey = "star_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 2500
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7305,7 +7305,7 @@ spriteKey = "cosmic_stone"
 spriteSheetName = "field"
 stackable = true
 value = 400
-weight = 1.5
+weight = "1.5 kg"
 material = true
 
 [[items]]
@@ -7315,7 +7315,7 @@ spriteKey = "stacked_woods"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 10
+weight = "10 kg"
 material = true
 
 [[items]]
@@ -7324,7 +7324,7 @@ name = "枕"
 spriteKey = "pillow"
 spriteSheetName = "field"
 value = 10
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7334,7 +7334,7 @@ spriteKey = "dye"
 spriteSheetName = "field"
 stackable = true
 value = 50
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -7344,7 +7344,7 @@ spriteKey = "resin_stone"
 spriteSheetName = "field"
 stackable = true
 value = 60
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7354,7 +7354,7 @@ spriteKey = "resin_craft"
 spriteSheetName = "field"
 stackable = true
 value = 180
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -7364,7 +7364,7 @@ spriteKey = "orange_ore"
 spriteSheetName = "field"
 stackable = true
 value = 150
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7374,7 +7374,7 @@ spriteKey = "equipment_core"
 spriteSheetName = "field"
 stackable = true
 value = 180
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7384,7 +7384,7 @@ spriteKey = "purple_powder"
 spriteSheetName = "field"
 stackable = true
 value = 6
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -7393,7 +7393,7 @@ name = "水準器"
 spriteKey = "spirit_level"
 spriteSheetName = "field"
 value = 35
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7403,7 +7403,7 @@ spriteKey = "ice_ston"
 spriteSheetName = "field"
 stackable = true
 value = 150
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7413,7 +7413,7 @@ spriteKey = "floating_stone"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7423,7 +7423,7 @@ spriteKey = "marine_cube"
 spriteSheetName = "field"
 stackable = true
 value = 600
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7433,7 +7433,7 @@ spriteKey = "spiral_stone"
 spriteSheetName = "field"
 stackable = true
 value = 70
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7443,7 +7443,7 @@ spriteKey = "yellow_powder"
 spriteSheetName = "field"
 stackable = true
 value = 1
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7453,7 +7453,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -7463,7 +7463,7 @@ spriteKey = "ammonite_fossil"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -7472,7 +7472,7 @@ name = "皿の山"
 spriteKey = "stacked_dishs"
 spriteSheetName = "field"
 value = 10
-weight = 3
+weight = "3 kg"
 material = true
 
 [[items]]
@@ -7482,7 +7482,7 @@ spriteKey = "stone"
 spriteSheetName = "field"
 stackable = true
 value = 1
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -7492,7 +7492,7 @@ spriteKey = "stone_holder"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 2
+weight = "2 kg"
 material = true
 
 [[items]]
@@ -7502,7 +7502,7 @@ spriteKey = "stone_tablet"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.8
+weight = "800 g"
 material = true
 
 [[items]]
@@ -7512,7 +7512,7 @@ spriteKey = "coal"
 spriteSheetName = "field"
 stackable = true
 value = 10
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -7522,7 +7522,7 @@ spriteKey = "bottle_sand"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7532,7 +7532,7 @@ spriteKey = "heavy_wood"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 3
+weight = "3 kg"
 material = true
 
 [[items]]
@@ -7542,7 +7542,7 @@ spriteKey = "seed_core"
 spriteSheetName = "field"
 stackable = true
 value = 150
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -7552,7 +7552,7 @@ spriteKey = "dragon_head"
 spriteSheetName = "field"
 stackable = true
 value = 5000
-weight = 2
+weight = "2 kg"
 material = true
 
 [[items]]
@@ -7562,7 +7562,7 @@ spriteKey = "rough_brown_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 120
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -7572,7 +7572,7 @@ spriteKey = "clay"
 spriteSheetName = "field"
 stackable = true
 value = 3
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -7582,7 +7582,7 @@ spriteKey = "crystal"
 spriteSheetName = "field"
 stackable = true
 value = 600
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7592,7 +7592,7 @@ spriteKey = "purple_gem"
 spriteSheetName = "field"
 stackable = true
 value = 1200
-weight = 0.03
+weight = "30 g"
 material = true
 
 [[items]]
@@ -7602,7 +7602,7 @@ spriteKey = "purple_core"
 spriteSheetName = "field"
 stackable = true
 value = 300
-weight = 0.15
+weight = "150 g"
 material = true
 
 [[items]]
@@ -7612,7 +7612,7 @@ spriteKey = "purple_star"
 spriteSheetName = "field"
 stackable = true
 value = 350
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7622,7 +7622,7 @@ spriteKey = "amethyst_stone"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 0.4
+weight = "400 g"
 material = true
 
 [[items]]
@@ -7632,7 +7632,7 @@ spriteKey = "purple"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7642,7 +7642,7 @@ spriteKey = "green_stone"
 spriteSheetName = "field"
 stackable = true
 value = 80
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7652,7 +7652,7 @@ spriteKey = "green_lattice"
 spriteSheetName = "field"
 stackable = true
 value = 50
-weight = 0.15
+weight = "150 g"
 material = true
 
 [[items]]
@@ -7662,7 +7662,7 @@ spriteKey = "green_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 300
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7672,7 +7672,7 @@ spriteKey = "green_crystal_stone"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.4
+weight = "400 g"
 material = true
 
 [[items]]
@@ -7682,7 +7682,7 @@ spriteKey = "feather"
 spriteSheetName = "field"
 stackable = true
 value = 5
-weight = 0.01
+weight = "10 g"
 material = true
 
 [[items]]
@@ -7692,7 +7692,7 @@ spriteKey = "bottle_spore"
 spriteSheetName = "field"
 stackable = true
 value = 80
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7702,7 +7702,7 @@ spriteKey = "fine_amber"
 spriteSheetName = "field"
 stackable = true
 value = 800
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7712,7 +7712,7 @@ spriteKey = "moss_stone"
 spriteSheetName = "field"
 stackable = true
 value = 100
-weight = 0.4
+weight = "400 g"
 material = true
 
 [[items]]
@@ -7722,7 +7722,7 @@ spriteKey = "brown_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 250
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7732,7 +7732,7 @@ spriteKey = "gear_brown"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7742,7 +7742,7 @@ spriteKey = "bottle_brown"
 spriteSheetName = "field"
 stackable = true
 value = 30
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7752,7 +7752,7 @@ spriteKey = "faucet_bottle"
 spriteSheetName = "field"
 stackable = true
 value = 15
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7762,7 +7762,7 @@ spriteKey = "blue_stone"
 spriteSheetName = "field"
 stackable = true
 value = 150
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7772,7 +7772,7 @@ spriteKey = "void_stone"
 spriteSheetName = "field"
 stackable = true
 value = 500
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7782,7 +7782,7 @@ spriteKey = "rainbow_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 800
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7792,7 +7792,7 @@ spriteKey = "rainbow_stone"
 spriteSheetName = "field"
 stackable = true
 value = 400
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7802,7 +7802,7 @@ spriteKey = "bottle_snake"
 spriteSheetName = "field"
 stackable = true
 value = 300
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7812,7 +7812,7 @@ spriteKey = "snake_stone"
 spriteSheetName = "field"
 stackable = true
 value = 120
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7822,7 +7822,7 @@ spriteKey = "bottle_blood"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7832,7 +7832,7 @@ spriteKey = "red_crystal_stone"
 spriteSheetName = "field"
 stackable = true
 value = 3000
-weight = 0.03
+weight = "30 g"
 material = true
 
 [[items]]
@@ -7842,7 +7842,7 @@ spriteKey = "blood"
 spriteSheetName = "field"
 stackable = true
 value = 5
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7852,7 +7852,7 @@ spriteKey = "crimson_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 0.8
+weight = "800 g"
 material = true
 
 [[items]]
@@ -7861,7 +7861,7 @@ name = "観葉植物"
 spriteKey = "houseplants"
 spriteSheetName = "field"
 value = 15
-weight = 2
+weight = "2 kg"
 material = true
 
 [[items]]
@@ -7871,7 +7871,7 @@ spriteKey = "test_tube"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.05
+weight = "50 g"
 material = true
 
 [[items]]
@@ -7881,7 +7881,7 @@ spriteKey = "bottle_bean"
 spriteSheetName = "field"
 stackable = true
 value = 40
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7891,7 +7891,7 @@ spriteKey = "red_stone"
 spriteSheetName = "field"
 stackable = true
 value = 100
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7901,7 +7901,7 @@ spriteKey = "gear_redstone"
 spriteSheetName = "field"
 stackable = true
 value = 300
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7911,7 +7911,7 @@ spriteKey = "pyroxene"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -7921,7 +7921,7 @@ spriteKey = "gear_gold"
 spriteSheetName = "field"
 stackable = true
 value = 1000
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7931,7 +7931,7 @@ spriteKey = "iron_content"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 2
+weight = "2 kg"
 material = true
 
 [[items]]
@@ -7941,7 +7941,7 @@ spriteKey = "scrap_metal"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 1
+weight = "1 kg"
 material = true
 
 [[items]]
@@ -7951,7 +7951,7 @@ spriteKey = "iron_ore"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 3
+weight = "3 kg"
 material = true
 
 [[items]]
@@ -7961,7 +7961,7 @@ spriteKey = "round_pebble"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -7971,7 +7971,7 @@ spriteKey = "field_item"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 1.2
+weight = "1.2 kg"
 material = true
 
 [[items]]
@@ -7981,7 +7981,7 @@ spriteKey = "meteorite"
 spriteSheetName = "field"
 stackable = true
 value = 800
-weight = 2
+weight = "2 kg"
 material = true
 
 [[items]]
@@ -7991,7 +7991,7 @@ spriteKey = "yellow_crystal_stone"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 0.6
+weight = "600 g"
 material = true
 
 [[items]]
@@ -8001,7 +8001,7 @@ spriteKey = "wire"
 spriteSheetName = "field"
 stackable = true
 value = 8
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -8011,7 +8011,7 @@ spriteKey = "soul_stone"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -8021,7 +8021,7 @@ spriteKey = "blue_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 300
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -8031,7 +8031,7 @@ spriteKey = "blue_crystal_stone"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.4
+weight = "400 g"
 material = true
 
 [[items]]
@@ -8041,7 +8041,7 @@ spriteKey = "gear_skull"
 spriteSheetName = "field"
 stackable = true
 value = 150
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -8051,7 +8051,7 @@ spriteKey = "yellow_ball"
 spriteSheetName = "field"
 stackable = true
 value = 20
-weight = 0.1
+weight = "100 g"
 material = true
 
 [[items]]
@@ -8061,7 +8061,7 @@ spriteKey = "yellow_wire"
 spriteSheetName = "field"
 stackable = true
 value = 8
-weight = 0.3
+weight = "300 g"
 material = true
 
 [[items]]
@@ -8071,7 +8071,7 @@ spriteKey = "black_core_stone"
 spriteSheetName = "field"
 stackable = true
 value = 450
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[items]]
@@ -8081,7 +8081,7 @@ spriteKey = "obsidian"
 spriteSheetName = "field"
 stackable = true
 value = 0
-weight = 0.5
+weight = "500 g"
 material = true
 
 [[items]]
@@ -8091,7 +8091,7 @@ spriteKey = "black_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 3500
-weight = 0.02
+weight = "20 g"
 material = true
 
 [[items]]
@@ -8101,7 +8101,7 @@ spriteKey = "black_powder"
 spriteSheetName = "field"
 stackable = true
 value = 200
-weight = 0.2
+weight = "200 g"
 material = true
 
 [[recipes]]
@@ -13616,7 +13616,7 @@ spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
 [props.storage]
-maxWeight = 20.0
+maxWeight = "20 kg"
 lootTableName = "廃墟"
 lootCountMin = 1
 lootCountMax = 3
@@ -13634,7 +13634,7 @@ spriteKey = "electric_locker"
 spriteSheetName = "field"
 
 [props.storage]
-maxWeight = 50.0
+maxWeight = "50 kg"
 lootTableName = "廃墟"
 lootCountMin = 2
 lootCountMax = 5

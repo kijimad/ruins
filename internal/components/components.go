@@ -102,8 +102,8 @@ type HP Pool[int]
 
 // WeightCapacity は重量容量を表すコンポーネント。
 // Playerの所持重量とStorageの格納重量の両方に使用する。
-// Maxは最大容量、Currentは現在の重量を表す
-type WeightCapacity Pool[float64]
+// Maxは最大容量、Currentは現在の重量を表す。単位はミリグラムの整数
+type WeightCapacity Pool[consts.Milligram]
 
 // ProvidesHealing は回復する性質。
 // Amount の意味は Kind で決まる。HealNumeral なら絶対回復量、HealRatio なら最大HPに対する倍率。
@@ -143,10 +143,10 @@ type Value struct {
 	Value int
 }
 
-// Weight はアイテムの重量(kg)
+// Weight はアイテムの重量。内部はミリグラムの整数で持ち、関数で単位表記する。
 // 所持重量の計算に使用される
 type Weight struct {
-	Kg float64 // 重量（キログラム）
+	consts.Milligram
 }
 
 // Recipe は合成に必要な素材

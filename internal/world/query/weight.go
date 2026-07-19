@@ -2,15 +2,16 @@ package query
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
 
 const (
-	// baseCarryingWeight は基本所持可能重量(kg)
-	baseCarryingWeight = 10.0
-	// strengthWeightMultiplier は筋力1あたりの追加所持可能重量(kg)
-	strengthWeightMultiplier = 2.0
+	// baseCarryingWeight は基本所持可能重量
+	baseCarryingWeight = consts.Milligram(10 * consts.MilligramPerKg)
+	// strengthWeightMultiplier は筋力1あたりの追加所持可能重量
+	strengthWeightMultiplier = consts.Milligram(2 * consts.MilligramPerKg)
 )
 
 // UpdateWeightCapacity はエンティティのWeightCapacityを更新する。
@@ -30,7 +31,7 @@ func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
 
 		if world.Components.CharModifiers.Has(entity) {
 			mods := world.Components.CharModifiers.Get(entity)
-			maxWeight = mods.MaxWeight.ApplyFloat(maxWeight)
+			maxWeight = consts.Milligram(mods.MaxWeight.ApplyInt(int(maxWeight)))
 		}
 
 		wc.Max = maxWeight
@@ -41,18 +42,18 @@ func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
 }
 
 // calculateMaxCarryingWeight は筋力ステータスから所持可能重量を計算する
-func calculateMaxCarryingWeight(abilities *gc.Abilities) float64 {
+func calculateMaxCarryingWeight(abilities *gc.Abilities) consts.Milligram {
 	if abilities == nil {
 		return baseCarryingWeight
 	}
 	strength := abilities.Strength.Base + abilities.Strength.Modifier
-	return baseCarryingWeight + float64(strength)*strengthWeightMultiplier
+	return baseCarryingWeight + consts.Milligram(strength)*strengthWeightMultiplier
 }
 
 // calculateOwnedWeight はエンティティが所有するアイテムの総重量を計算する。
 // Backpack内、装備中、Storage内のアイテムをOwnerで判定して合算する
-func calculateOwnedWeight(world w.World, entity ecs.Entity) float64 {
-	var totalWeight float64
+func calculateOwnedWeight(world w.World, entity ecs.Entity) consts.Milligram {
+	var totalWeight consts.Milligram
 
 	weightQuery := ecs.NewFilter1[gc.Weight](world.ECS).Query()
 	for weightQuery.Next() {

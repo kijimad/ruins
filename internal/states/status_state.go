@@ -222,7 +222,7 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 	if aliveHas(world, world.Components.WeightCapacity, playerEntity) {
 		cw := world.Components.WeightCapacity.Get(playerEntity)
 		items = append(items,
-			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", cw.Max, consts.IconKg), Description: "所持可能な最大重量"},
+			statusItemData{Label: "最大重量", Value: cw.Max.String(), Description: "所持可能な最大重量"},
 		)
 	}
 
