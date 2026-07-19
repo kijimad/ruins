@@ -4,13 +4,14 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // Position はフィールド上に座標をもって存在する
 // スプライトはこの位置に中心を合わせて配置する
-// TODO: こちらも埋め込みにする
 // -----
 // |   |
 // | * |
 // |   |
 // -----
-type Position = consts.Coord[consts.Pixel]
+type Position struct {
+	consts.Coord[consts.Pixel]
+}
 
 // GridElement はフィールド上にグリッドに沿って存在する
 // スプライトはグリッドに沿って配置する
