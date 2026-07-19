@@ -90,7 +90,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
 	// 初期帯: K チャンクを各スロットへ生成
 	for i := range k {
-		require.NoError(t, gen(consts.ChunkX(i), consts.Tile(i)*chunkW))
+		require.NoError(t, gen(consts.Chunk(i), consts.Tile(i)*chunkW))
 	}
 	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
 	player, err := lifecycle.SpawnPlayer(world, int(2*chunkW), int(chunkH/2), "Ash")

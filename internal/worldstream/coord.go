@@ -6,7 +6,7 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // BandOriginX は eastIndex（東進したチャンク数）と chunkW から帯の絶対原点 X を返す。
 // 帯ローカル X=0 が絶対軸で指す位置。
-func BandOriginX(eastIndex consts.ChunkX, chunkW consts.Tile) consts.AbsTileX {
+func BandOriginX(eastIndex consts.Chunk, chunkW consts.Tile) consts.AbsTileX {
 	return consts.AbsTileX(int(eastIndex) * int(chunkW))
 }
 

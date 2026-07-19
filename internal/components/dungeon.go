@@ -24,13 +24,13 @@ type SeamlessBand struct {
 	// RunSeed はチャンク決定的生成の元 seed
 	RunSeed uint64
 	// EastIndex は東進したチャンク数
-	EastIndex consts.ChunkX
+	EastIndex consts.Chunk
 	// ChunkW は1チャンクの幅
 	ChunkW consts.Tile
 	// ChunkH は帯の高さ
 	ChunkH consts.Tile
 	// K は帯のチャンク数
-	K consts.ChunkX
+	K consts.Chunk
 
 	// Front は寒波前線の永続状態。帯の Active に従属し、帯とセットで復元される。
 	Front SeamlessFront

@@ -45,10 +45,9 @@ type NewGameParams struct {
 	RunSeed uint64
 	ChunkW  consts.Tile
 	ChunkH  consts.Tile
-	K       consts.ChunkX
+	K       consts.Chunk
 }
 
-// 寒波前線の暫定チューニング値。実プレイの体感で調整する。
 const (
 	// frontAdvanceTurns は前線が frontStep タイル前進するのに要するターン数。大きいほどゆるやか。
 	// 1500ターン/日なので 20 なら 75タイル/日。開始時に背後25タイルなら追いつくまで約500ターン≈0.33日
