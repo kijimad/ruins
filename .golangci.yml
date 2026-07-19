@@ -93,3 +93,17 @@ linters:
               desc: engineはcomponentsに依存しない
             - pkg: "github.com/kijimaD/ruins/internal/resources"
               desc: engineはresourcesに依存しない
+        # geometry は純粋アルゴリズムの leaf パッケージ。ゲームドメインを知ってはならない。
+        # 単位型 consts のみ許可し、world や components に依存させない。
+        # ドメイン単位が要る計算は呼び出し側で Tile と int を変換する。テストも純粋に保つ。
+        geometry_guard:
+          list-mode: lax
+          files:
+            - "**/internal/geometry/**"
+          deny:
+            - pkg: "github.com/kijimaD/ruins/internal/world"
+              desc: geometryは純粋アルゴリズムでありworldに依存しない
+            - pkg: "github.com/kijimaD/ruins/internal/components"
+              desc: geometryは純粋アルゴリズムでありcomponentsに依存しない
+            - pkg: "github.com/kijimaD/ruins/internal/resources"
+              desc: geometryは純粋アルゴリズムでありresourcesに依存しない
