@@ -19,7 +19,7 @@ func TestNewDungeon(t *testing.T) {
 	assert.Equal(t, 3, d.MinimapSettings.Scale)
 }
 
-func TestLevel_XYTileIndex(t *testing.T) {
+func TestLevel_CoordToIndex(t *testing.T) {
 	t.Parallel()
 
 	level := &Level{TileWidth: 10, TileHeight: 5}
@@ -38,12 +38,12 @@ func TestLevel_XYTileIndex(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.expected, level.XYTileIndex(tt.tx, tt.ty))
+			assert.Equal(t, tt.expected, level.CoordToIndex(consts.Coord[consts.Tile]{X: tt.tx, Y: tt.ty}))
 		})
 	}
 }
 
-func TestLevel_XYTileCoord(t *testing.T) {
+func TestLevel_IndexToCoord(t *testing.T) {
 	t.Parallel()
 
 	level := &Level{TileWidth: 10, TileHeight: 5}
@@ -51,8 +51,8 @@ func TestLevel_XYTileCoord(t *testing.T) {
 	tests := []struct {
 		name      string
 		idx       TileIdx
-		expectedX consts.Pixel
-		expectedY consts.Pixel
+		expectedX consts.Tile
+		expectedY consts.Tile
 	}{
 		{"インデックス0は左上", 0, 0, 0},
 		{"インデックス1は1列目", 1, 1, 0},
@@ -63,24 +63,22 @@ func TestLevel_XYTileCoord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			x, y := level.XYTileCoord(tt.idx)
-			assert.Equal(t, tt.expectedX, x)
-			assert.Equal(t, tt.expectedY, y)
+			pos := level.IndexToCoord(tt.idx)
+			assert.Equal(t, tt.expectedX, pos.X)
+			assert.Equal(t, tt.expectedY, pos.Y)
 		})
 	}
 }
 
-func TestLevel_XYTileIndex_and_XYTileCoord_roundtrip(t *testing.T) {
+func TestLevel_CoordToIndex_and_IndexToCoord_roundtrip(t *testing.T) {
 	t.Parallel()
 
 	level := &Level{TileWidth: 10, TileHeight: 5}
 
 	for ty := consts.Tile(0); ty < level.TileHeight; ty++ {
 		for tx := consts.Tile(0); tx < level.TileWidth; tx++ {
-			idx := level.XYTileIndex(tx, ty)
-			gotX, gotY := level.XYTileCoord(idx)
-			assert.Equal(t, consts.Pixel(tx), gotX)
-			assert.Equal(t, consts.Pixel(ty), gotY)
+			idx := level.CoordToIndex(consts.Coord[consts.Tile]{X: tx, Y: ty})
+			assert.Equal(t, consts.Coord[consts.Tile]{X: tx, Y: ty}, level.IndexToCoord(idx))
 		}
 	}
 }

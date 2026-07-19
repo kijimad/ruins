@@ -3,6 +3,7 @@ package gameaction
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -58,7 +59,7 @@ func TestCraft(t *testing.T) {
 	// 素材を用意してクラフト成功
 	_, _ = lifecycle.SpawnBackpackItem(world, "木の棒", 5)
 	result, err := Craft(world, "木刀")
-	assert.NotEqual(t, consts.InvalidEntity, result, "素材が十分ならば有効なエンティティが返されるべき")
+	assert.NotEqual(t, gc.InvalidEntity, result, "素材が十分ならば有効なエンティティが返されるべき")
 	assert.NoError(t, err, "素材が十分ならばエラーは発生しないべき")
 }
 
@@ -70,7 +71,7 @@ func TestCraft_StackableTwice(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 統合はowner(プレイヤー)配下でのみ行われるため、プレイヤーを用意する
-	_, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
 	require.NoError(t, err)
 
 	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるStackableアイテム

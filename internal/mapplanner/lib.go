@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"reflect"
+	"slices"
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -18,13 +19,13 @@ import (
 
 // PropsSpec はProps配置仕様を表す
 type PropsSpec struct {
-	consts.Coord[int]
+	consts.Coord[consts.Tile]
 	Name string // Prop名
 }
 
 // DoorSpec はドア配置仕様を表す
 type DoorSpec struct {
-	consts.Coord[int]
+	consts.Coord[consts.Tile]
 	Orientation gc.DoorOrientation
 }
 
@@ -44,9 +45,9 @@ type MetaPlan struct {
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []oapi.Tile
 	// NextPortals は次の階へ進むポータルリスト
-	NextPortals []consts.Coord[int]
+	NextPortals []consts.Coord[consts.Tile]
 	// EscapePortals は脱出用ポータルリスト
-	EscapePortals []consts.Coord[int]
+	EscapePortals []consts.Coord[consts.Tile]
 	// NPCs は配置予定のNPCリスト
 	NPCs []NPCSpec
 	// Items は配置予定のアイテムリスト
@@ -63,7 +64,8 @@ type MetaPlan struct {
 
 // IsSpawnableTile は指定タイル座標がスポーン可能かを返す
 func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool {
-	idx := bm.Level.XYTileIndex(tx, ty)
+	pos := consts.Coord[consts.Tile]{X: tx, Y: ty}
+	idx := bm.Level.CoordToIndex(pos)
 	tile := bm.Tiles[idx]
 	// 通行不可なのでスポーン不可
 	if tile.BlockPass {
@@ -71,7 +73,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 	}
 
 	// planning段階では、MetaPlan内の計画済みエンティティをチェック
-	if bm.existPlannedEntityOnTile(int(tx), int(ty)) {
+	if bm.existPlannedEntityOnTile(pos) {
 		return false
 	}
 
@@ -79,43 +81,39 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 }
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
-func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
-	for _, portal := range bm.NextPortals {
-		if portal.X == x && portal.Y == y {
-			return true
-		}
+func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool {
+	if slices.Contains(bm.NextPortals, pos) {
+		return true
 	}
 
-	for _, portal := range bm.EscapePortals {
-		if portal.X == x && portal.Y == y {
-			return true
-		}
+	if slices.Contains(bm.EscapePortals, pos) {
+		return true
 	}
 
 	// NPCをチェック
 	for _, npc := range bm.NPCs {
-		if npc.X == x && npc.Y == y {
+		if npc.Coord == pos {
 			return true
 		}
 	}
 
 	// アイテムをチェック
 	for _, item := range bm.Items {
-		if item.X == x && item.Y == y {
+		if item.Coord == pos {
 			return true
 		}
 	}
 
 	// Propsをチェック
 	for _, prop := range bm.Props {
-		if prop.X == x && prop.Y == y {
+		if prop.Coord == pos {
 			return true
 		}
 	}
 
 	// ドアをチェック
 	for _, door := range bm.Doors {
-		if door.X == x && door.Y == y {
+		if door.Coord == pos {
 			return true
 		}
 	}
@@ -147,16 +145,15 @@ func (bm MetaPlan) DownTile(idx gc.TileIdx) oapi.Tile {
 
 // LeftTile は左にあるタイルを調べる
 func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
-	x, y := bm.Level.XYTileCoord(idx)
+	pos := bm.Level.IndexToCoord(idx)
 	// 左端の場合は境界外（マップ外＝暗闇）
-	if x == 0 {
+	if pos.X == 0 {
 		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	// 左のタイルが同じ行であることを確認
 	targetIdx := idx - 1
-	_, targetY := bm.Level.XYTileCoord(targetIdx)
-	if targetY != y {
+	if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {
 		// 前の行にラップアラウンドしている（境界外）
 		return bm.GetTile(consts.TileNameVoid)
 	}
@@ -166,16 +163,15 @@ func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
 
 // RightTile は右にあるタイルを調べる
 func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile {
-	x, y := bm.Level.XYTileCoord(idx)
+	pos := bm.Level.IndexToCoord(idx)
 	// 右端の場合は境界外（マップ外＝暗闇）
-	if int(x) == int(bm.Level.TileWidth)-1 {
+	if pos.X == bm.Level.TileWidth-1 {
 		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	// 右のタイルが同じ行であることを確認
 	targetIdx := idx + 1
-	_, targetY := bm.Level.XYTileCoord(targetIdx)
-	if targetY != y {
+	if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {
 		// 次の行にラップアラウンドしている（境界外）
 		return bm.GetTile(consts.TileNameVoid)
 	}
@@ -185,7 +181,7 @@ func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile {
 
 // AdjacentAnyFloor は直交・斜めを含む近傍8タイルに床があるか判定する
 func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
-	x, y := bm.Level.XYTileCoord(idx)
+	pos := bm.Level.IndexToCoord(idx)
 	width := int(bm.Level.TileWidth)
 	height := int(bm.Level.TileHeight)
 
@@ -197,14 +193,14 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
 	}
 
 	for _, dir := range directions {
-		nx, ny := int(x)+dir[0], int(y)+dir[1]
+		nx, ny := int(pos.X)+dir[0], int(pos.Y)+dir[1]
 
 		// 境界チェック
 		if nx < 0 || nx >= width || ny < 0 || ny >= height {
 			continue
 		}
 
-		neighborIdx := bm.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
+		neighborIdx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 		tile := bm.Tiles[neighborIdx]
 
 		// 歩行可能
@@ -310,8 +306,8 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 			Rooms:         []gc.Rect{},
 			Corridors:     [][]gc.TileIdx{},
 			RNG:           rand.New(rand.NewPCG(seed, seed+1)),
-			NextPortals:   []consts.Coord[int]{},
-			EscapePortals: []consts.Coord[int]{},
+			NextPortals:   []consts.Coord[consts.Tile]{},
+			EscapePortals: []consts.Coord[consts.Tile]{},
 			NPCs:          []NPCSpec{},
 			Items:         []ItemSpec{},
 			Props:         []PropsSpec{},
@@ -608,8 +604,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	}
 	totalArea := 0
 	for _, r := range bm.Rooms {
-		w := int(r.X2 - r.X1)
-		h := int(r.Y2 - r.Y1)
+		w := int(r.Width())
+		h := int(r.Height())
 		if w > 0 && h > 0 {
 			totalArea += w * h
 		}
@@ -621,8 +617,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	roll := bm.RNG.IntN(totalArea)
 	cumulative := 0
 	for i, r := range bm.Rooms {
-		w := int(r.X2 - r.X1)
-		h := int(r.Y2 - r.Y1)
+		w := int(r.Width())
+		h := int(r.Height())
 		if w > 0 && h > 0 {
 			cumulative += w * h
 		}
@@ -637,14 +633,14 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
 // maxAttemptsを超えても見つからない場合はfalseを返す
 func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-	rw := int(room.X2 - room.X1)
-	rh := int(room.Y2 - room.Y1)
+	rw := int(room.Width())
+	rh := int(room.Height())
 	if rw <= 0 || rh <= 0 {
 		return 0, 0, false
 	}
 	for range maxAttempts {
-		tx := consts.Tile(int(room.X1) + bm.RNG.IntN(rw))
-		ty := consts.Tile(int(room.Y1) + bm.RNG.IntN(rh))
+		tx := consts.Tile(int(room.Min.X) + bm.RNG.IntN(rw))
+		ty := consts.Tile(int(room.Min.Y) + bm.RNG.IntN(rh))
 		if bm.IsSpawnableTile(world, tx, ty) {
 			return tx, ty, true
 		}
@@ -660,7 +656,7 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 		dy := bm.RNG.IntN(radius*2+1) - radius
 		tx := consts.Tile(int(centerX) + dx)
 		ty := consts.Tile(int(centerY) + dy)
-		if tx < room.X1 || tx >= room.X2 || ty < room.Y1 || ty >= room.Y2 {
+		if tx < room.Min.X || tx >= room.Max.X || ty < room.Min.Y || ty >= room.Max.Y {
 			continue
 		}
 		if bm.IsSpawnableTile(world, tx, ty) {
@@ -686,7 +682,7 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
 func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 	for _, room := range bm.Rooms {
-		if x >= room.X1 && x < room.X2 && y >= room.Y1 && y < room.Y2 {
+		if x >= room.Min.X && x < room.Max.X && y >= room.Min.Y && y < room.Max.Y {
 			return true
 		}
 	}
@@ -695,6 +691,6 @@ func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 // ポータルへの到達性も確認し、到達可能な位置を返す
-func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[int], error) {
+func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[consts.Tile], error) {
 	return NewPathFinder(bm).FindPlayerStartPosition()
 }

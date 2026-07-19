@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +18,7 @@ func TestApplyHealing(t *testing.T) {
 
 		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 50})
-		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		actual := ApplyHealing(world, entity, 30)
 		assert.Equal(t, 30, actual)
@@ -32,7 +33,7 @@ func TestApplyHealing(t *testing.T) {
 
 		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 90})
-		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		actual := ApplyHealing(world, entity, 50)
 		assert.Equal(t, 10, actual, "実際の回復量は10のみ")
@@ -47,7 +48,7 @@ func TestApplyHealing(t *testing.T) {
 
 		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 100})
-		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		actual := ApplyHealing(world, entity, 10)
 		assert.Equal(t, 0, actual)

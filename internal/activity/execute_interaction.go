@@ -107,7 +107,7 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 		return nil, fmt.Errorf("位置情報が見つかりません")
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-	destination := gc.GridElement{X: gridElement.X, Y: gridElement.Y}
+	destination := gc.GridElement{Coord: gridElement.Coord}
 	return Execute(&PickupActivity{Destination: &destination}, actor, world)
 }
 

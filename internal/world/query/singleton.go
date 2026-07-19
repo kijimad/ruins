@@ -2,6 +2,7 @@ package query
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -86,12 +87,12 @@ func InvalidateSpatialIndex(world w.World) {
 // 無効化→全再構築のチャーンを避けるための入口。
 // インデックスが未構築なら何もしないため、
 // 意図的に GetSpatialIndex ではなく GetSingleton を使う。
-func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, fromX, fromY, toX, toY int) {
+func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to consts.Coord[consts.Tile]) {
 	si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
 	if si == nil {
 		return
 	}
-	si.MoveCharacter(fromX, fromY, toX, toY, entity)
+	si.MoveCharacter(from, to, entity)
 }
 
 // buildSpatialIndex は壁・キャラクター・プレイヤーの位置をスキャンしてインデックスを構築する
@@ -100,8 +101,8 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	if dungeon == nil {
 		return
 	}
-	si.MapWidth = int(dungeon.Level.TileWidth)
-	si.MapHeight = int(dungeon.Level.TileHeight)
+	si.MapWidth = dungeon.Level.TileWidth
+	si.MapHeight = dungeon.Level.TileHeight
 	si.BlockPass = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil

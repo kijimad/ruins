@@ -59,8 +59,8 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, planner.PlanMeta(mp))
 
 		require.Len(t, mp.Doors, 1)
-		assert.Equal(t, 3, mp.Doors[0].X)
-		assert.Equal(t, 2, mp.Doors[0].Y)
+		assert.Equal(t, 3, int(mp.Doors[0].X))
+		assert.Equal(t, 2, int(mp.Doors[0].Y))
 	})
 
 	t.Run("上下が壁のパターンでドアが配置される", func(t *testing.T) {
@@ -77,8 +77,8 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, planner.PlanMeta(mp))
 
 		require.Len(t, mp.Doors, 1)
-		assert.Equal(t, 2, mp.Doors[0].X)
-		assert.Equal(t, 3, mp.Doors[0].Y)
+		assert.Equal(t, 2, int(mp.Doors[0].X))
+		assert.Equal(t, 3, int(mp.Doors[0].Y))
 	})
 
 	t.Run("DoorChance=0の場合はドアが配置されない", func(t *testing.T) {
@@ -111,7 +111,7 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		// 全ドアがパターンを満たしていることを確認
 		for _, door := range mp.Doors {
 			w := int(mp.Level.TileWidth)
-			idx := door.Y*w + door.X
+			idx := int(door.Y)*w + int(door.X)
 			hasLR := mp.Tiles[idx-1].BlockPass && mp.Tiles[idx+1].BlockPass
 			hasTB := mp.Tiles[idx-w].BlockPass && mp.Tiles[idx+w].BlockPass
 			assert.True(t, hasLR || hasTB,

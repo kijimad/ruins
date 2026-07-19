@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,7 +12,7 @@ func TestGameTime_GetTimeOfDay(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		totalTurns int
+		totalTurns consts.Turn
 		expected   TimeOfDay
 	}{
 		{"ターン0は夜明け", 0, TimeDawn},
@@ -44,7 +45,7 @@ func TestGameTime_GetTemperatureModifier(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		totalTurns int
+		totalTurns consts.Turn
 		expected   int
 	}{
 		{"夜明けは+0°C", 0, 0},
@@ -69,10 +70,10 @@ func TestGameTime_Advance(t *testing.T) {
 
 	gt := &GameTime{TotalTurns: 0}
 	gt.Advance()
-	assert.Equal(t, 1, gt.TotalTurns)
+	assert.Equal(t, 1, int(gt.TotalTurns))
 
 	gt.Advance()
-	assert.Equal(t, 2, gt.TotalTurns)
+	assert.Equal(t, 2, int(gt.TotalTurns))
 }
 
 func TestGameTime_GetDayNumber(t *testing.T) {
@@ -80,7 +81,7 @@ func TestGameTime_GetDayNumber(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		totalTurns int
+		totalTurns consts.Turn
 		expected   int
 	}{
 		{"ターン0は1日目", 0, 1},

@@ -19,12 +19,6 @@ type WindowSize struct {
 	Height int
 }
 
-// Position はウィンドウ位置の設定
-type Position struct {
-	X int
-	Y int
-}
-
 // Padding は内側余白の設定
 type Padding struct {
 	Top    int
@@ -58,9 +52,8 @@ type ActionStyle struct {
 // Config はメッセージウィンドウの設定
 type Config struct {
 	// レイアウト設定
-	Size     WindowSize
-	Position Position // 画面上の位置（中央配置の場合は無視）
-	Center   bool     // 画面中央に配置するか
+	Size   WindowSize
+	Center bool // 画面中央に配置するか
 
 	// 外観設定
 	WindowStyle WindowStyle

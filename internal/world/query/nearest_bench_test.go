@@ -23,14 +23,14 @@ func BenchmarkFindNearest(b *testing.B) {
 		world := testutil.InitTestWorld(b)
 		d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
 		d.Level = gc.Level{TileWidth: consts.Tile(200), TileHeight: consts.Tile(200)}
-		_, err := lifecycle.SpawnPlayer(world, 100, 100, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 100, Y: 100}, "Ash")
 		require.NoError(b, err)
 
 		// キャラクター（敵）を散らす
 		rng := rand.New(rand.NewPCG(1, 2))
 		var self ecs.Entity
 		for i := range 20 {
-			e, err := lifecycle.SpawnEnemy(world, rng.IntN(200), rng.IntN(200), "火の玉")
+			e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(rng.IntN(200)), Y: consts.Tile(rng.IntN(200))}, "火の玉")
 			require.NoError(b, err)
 			if i == 0 {
 				self = e
@@ -39,9 +39,7 @@ func BenchmarkFindNearest(b *testing.B) {
 
 		// 床タイルを模した GridElement エンティティ（キャラクターではない＝インデックス Characters に入らない）
 		for range tiles {
-			world.Components.GridElement.NewEntity(&gc.GridElement{
-				X: consts.Tile(rng.IntN(200)), Y: consts.Tile(rng.IntN(200)),
-			})
+			world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(rng.IntN(200)), Y: consts.Tile(rng.IntN(200))}})
 		}
 
 		selfGrid := world.Components.GridElement.Get(self)

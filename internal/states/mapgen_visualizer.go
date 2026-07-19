@@ -135,10 +135,10 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 		camera := world.Components.Camera.Get(entity)
 		camera.Scale = scale
 		camera.ScaleTo = scale
-		camera.Pos.X = centerX
-		camera.Pos.Y = centerY
-		camera.Target.X = centerX
-		camera.Target.Y = centerY
+		camera.Pos.X = consts.WorldPixel(centerX)
+		camera.Pos.Y = consts.WorldPixel(centerY)
+		camera.Target.X = consts.WorldPixel(centerX)
+		camera.Target.Y = consts.WorldPixel(centerY)
 	}
 }
 
@@ -196,7 +196,7 @@ func (st *MapGenVisualizerState) revealAllTiles(world w.World) {
 	d.VisibleTiles = make(map[gc.GridElement]bool)
 	for y := consts.Tile(0); y < st.mapHeight; y++ {
 		for x := consts.Tile(0); x < st.mapWidth; x++ {
-			d.VisibleTiles[gc.GridElement{X: x, Y: y}] = true
+			d.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}] = true
 		}
 	}
 }

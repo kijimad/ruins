@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
@@ -16,7 +17,7 @@ func TestPreviewEndRun(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	prof := (*world.Resources.RawMaster.Professions)[0]
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	require.NoError(t, ApplyProfession(world, player, prof))
 
@@ -49,7 +50,7 @@ func TestExecuteEndRun(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	prof := (*world.Resources.RawMaster.Professions)[0]
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	require.NoError(t, ApplyProfession(world, player, prof))
 
@@ -81,7 +82,7 @@ func TestExecuteEndRunNoItems(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	prof := (*world.Resources.RawMaster.Professions)[0]
 	world.Components.Profession.Add(player, &gc.Profession{ID: prof.Id})

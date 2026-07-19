@@ -23,14 +23,14 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		}
 
 		// 2つの部屋を縦に配置する。廊下が上下に接続される
-		room1 := gc.Rect{X1: 8, Y1: 2, X2: 12, Y2: 5}
-		room2 := gc.Rect{X1: 8, Y1: 14, X2: 12, Y2: 17}
+		room1 := gc.Rect{Min: consts.Coord[consts.Tile]{X: 8, Y: 2}, Max: consts.Coord[consts.Tile]{X: 12, Y: 5}}
+		room2 := gc.Rect{Min: consts.Coord[consts.Tile]{X: 8, Y: 14}, Max: consts.Coord[consts.Tile]{X: 12, Y: 17}}
 		rooms := []gc.Rect{room1, room2}
 
 		// 部屋の内部を床にする
 		for _, room := range rooms {
-			for x := int(room.X1); x <= int(room.X2); x++ {
-				for y := int(room.Y1); y <= int(room.Y2); y++ {
+			for x := int(room.Min.X); x <= int(room.Max.X); x++ {
+				for y := int(room.Min.Y); y <= int(room.Max.Y); y++ {
 					tiles[y*width+x] = oapi.Tile{Name: "floor", BlockPass: false}
 				}
 			}
@@ -53,7 +53,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		centerX, _ := room1.Center()
 
 		// 部屋の境界付近(y=6: room1の下辺y=5の直下)で1タイル幅を確認
-		boundaryY := int(room1.Y2) + 1
+		boundaryY := int(room1.Max.Y) + 1
 		floorCount := 0
 		for x := int(centerX) - 1; x <= int(centerX)+1; x++ {
 			if x >= 0 && x < width {
@@ -87,7 +87,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 func TestIsAdjacentToRoom(t *testing.T) {
 	t.Parallel()
 
-	rooms := []gc.Rect{{X1: 3, Y1: 3, X2: 6, Y2: 6}}
+	rooms := []gc.Rect{{Min: consts.Coord[consts.Tile]{X: 3, Y: 3}, Max: consts.Coord[consts.Tile]{X: 6, Y: 6}}}
 
 	tests := []struct {
 		name     string

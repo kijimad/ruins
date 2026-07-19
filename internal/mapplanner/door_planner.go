@@ -32,7 +32,7 @@ func (p DoorPlanner) PlanMeta(mp *MetaPlan) error {
 			}
 
 			mp.Doors = append(mp.Doors, DoorSpec{
-				Coord:       consts.Coord[int]{X: x, Y: y},
+				Coord:       consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},
 				Orientation: doorOrientation(mp, x, y, width),
 			})
 		}

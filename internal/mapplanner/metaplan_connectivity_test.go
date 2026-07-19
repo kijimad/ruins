@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -80,12 +81,12 @@ func TestConnectivity_TemplatePlanners(t *testing.T) {
 			require.NoError(t, err, "プレイヤー開始位置が未設定")
 
 			pf := NewPathFinder(plan)
-			assert.True(t, pf.IsWalkable(playerPos.X, playerPos.Y),
+			assert.True(t, pf.IsWalkable(playerPos),
 				"プレイヤー開始位置(%d,%d)が歩行不可", playerPos.X, playerPos.Y)
 
 			// テンプレートのポータルはProps経由で配置されるので、MetaPlan上のポータルリストではなく
 			// プレイヤーから到達可能な歩行可能タイルが十分にあることを確認する
-			reachableCount := countReachableTiles(pf, playerPos.X, playerPos.Y)
+			reachableCount := countReachableTiles(pf, playerPos)
 			assert.Greater(t, reachableCount, 10,
 				"プレイヤーから到達可能なタイルが少なすぎる（%d）", reachableCount)
 		})
@@ -102,28 +103,28 @@ func assertMapConnectivity(t *testing.T, plan *MetaPlan) {
 	pf := NewPathFinder(plan)
 
 	// プレイヤー開始位置が歩行可能であること
-	assert.True(t, pf.IsWalkable(playerPos.X, playerPos.Y),
+	assert.True(t, pf.IsWalkable(playerPos),
 		"プレイヤー開始位置(%d,%d)が歩行不可", playerPos.X, playerPos.Y)
 
 	// NextPortalが存在し、到達可能であること
 	require.NotEmpty(t, plan.NextPortals, "NextPortalが存在しない")
 	for i, portal := range plan.NextPortals {
-		assert.True(t, pf.IsWalkable(portal.X, portal.Y),
+		assert.True(t, pf.IsWalkable(portal),
 			"NextPortal[%d](%d,%d)が歩行不可タイル上にある", i, portal.X, portal.Y)
-		assert.True(t, pf.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y),
+		assert.True(t, pf.IsReachable(playerPos, portal),
 			"NextPortal[%d](%d,%d)にプレイヤー(%d,%d)から到達不可", i, portal.X, portal.Y, playerPos.X, playerPos.Y)
 	}
 
 	// EscapePortalが存在する場合、到達可能であること
 	for i, portal := range plan.EscapePortals {
-		assert.True(t, pf.IsWalkable(portal.X, portal.Y),
+		assert.True(t, pf.IsWalkable(portal),
 			"EscapePortal[%d](%d,%d)が歩行不可タイル上にある", i, portal.X, portal.Y)
-		assert.True(t, pf.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y),
+		assert.True(t, pf.IsReachable(playerPos, portal),
 			"EscapePortal[%d](%d,%d)にプレイヤー(%d,%d)から到達不可", i, portal.X, portal.Y, playerPos.X, playerPos.Y)
 	}
 }
 
 // countReachableTiles はBFSで指定位置から到達可能な歩行可能タイル数を返す
-func countReachableTiles(pf *PathFinder, startX, startY int) int {
-	return pf.countReachableFrom(startX, startY)
+func countReachableTiles(pf *PathFinder, start consts.Coord[consts.Tile]) int {
+	return pf.countReachableFrom(start)
 }

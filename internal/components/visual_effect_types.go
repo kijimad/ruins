@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // SplashTextEffect はダンジョン開始時などに画面中央にスプラッシュ表示するエフェクト。
@@ -26,7 +27,7 @@ type DamageTextEffect struct {
 
 // Update はフェードアニメーションを進めつつY座標を移動させる
 func (e *DamageTextEffect) Update(deltaMs float64) bool {
-	e.OffsetY += e.VelocityY
+	e.Offset.Y += e.VelocityY
 	return e.FadeAnimation.Update(deltaMs)
 }
 
@@ -55,10 +56,9 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
 			Alpha:       0.0,
 		},
 		TextProperties: TextProperties{
-			OffsetX: float64(screenW) / 2,
-			OffsetY: float64(screenH) * 2 / 5,
-			Text:    textStr,
-			Color:   color.RGBA{255, 255, 255, 255},
+			Offset: consts.Coord[float64]{X: float64(screenW) / 2, Y: float64(screenH) * 2 / 5},
+			Text:   textStr,
+			Color:  color.RGBA{255, 255, 255, 255},
 		},
 		Face:      face,
 		LineWidth: float64(screenW) * 0.7,
@@ -78,10 +78,9 @@ func NewDamageEffect(damage int) *DamageTextEffect {
 			Alpha:       0.0,
 		},
 		TextProperties: TextProperties{
-			OffsetX: 0,
-			OffsetY: -8,
-			Text:    fmt.Sprintf("%d", damage),
-			Color:   color.RGBA{255, 80, 80, 255},
+			Offset: consts.Coord[float64]{X: 0, Y: -8},
+			Text:   fmt.Sprintf("%d", damage),
+			Color:  color.RGBA{255, 80, 80, 255},
 		},
 		VelocityY: -0.5,
 	}
@@ -100,10 +99,9 @@ func NewMissEffect() *DamageTextEffect {
 			Alpha:       0.0,
 		},
 		TextProperties: TextProperties{
-			OffsetX: 0,
-			OffsetY: -8,
-			Text:    "MISS",
-			Color:   color.RGBA{180, 180, 180, 255},
+			Offset: consts.Coord[float64]{X: 0, Y: -8},
+			Text:   "MISS",
+			Color:  color.RGBA{180, 180, 180, 255},
 		},
 		VelocityY: -0.3,
 	}
@@ -122,10 +120,9 @@ func NewHealEffect(amount int) *DamageTextEffect {
 			Alpha:       0.0,
 		},
 		TextProperties: TextProperties{
-			OffsetX: 0,
-			OffsetY: -8,
-			Text:    fmt.Sprintf("+%d", amount),
-			Color:   color.RGBA{80, 255, 80, 255},
+			Offset: consts.Coord[float64]{X: 0, Y: -8},
+			Text:   fmt.Sprintf("+%d", amount),
+			Color:  color.RGBA{80, 255, 80, 255},
 		},
 		VelocityY: -0.5,
 	}

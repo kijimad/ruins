@@ -124,13 +124,11 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 
 // moveCursor はカーソルを移動する
 func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
-	newX := int(st.cursor.X) + dx
-	newY := int(st.cursor.Y) + dy
+	next := st.cursor.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
 
 	level := query.GetDungeon(world).Level
-	if newX >= 0 && newX < int(level.TileWidth) && newY >= 0 && newY < int(level.TileHeight) {
-		st.cursor.X = consts.Tile(newX)
-		st.cursor.Y = consts.Tile(newY)
+	if next.X >= 0 && next.X < level.TileWidth && next.Y >= 0 && next.Y < level.TileHeight {
+		st.cursor = next
 	}
 }
 
@@ -231,7 +229,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	}
 
 	// 座標表示
-	drawText(fmt.Sprintf("座標: (%d, %d)", st.cursor.X, st.cursor.Y))
+	drawText(fmt.Sprintf("座標: %s", st.cursor))
 	y += 5
 
 	// 視界内かどうかをチェック
@@ -240,7 +238,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
-	inVision := query.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursor.X), int(st.cursor.Y))
+	inVision := query.IsInVision(world, playerGrid.Coord, st.cursor)
 
 	if !inVision {
 		drawText("暗闇")

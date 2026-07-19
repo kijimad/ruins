@@ -51,7 +51,7 @@ type NewGameParams struct {
 const (
 	// frontAdvanceTurns は前線が frontStep タイル前進するのに要するターン数。大きいほどゆるやか。
 	// 1500ターン/日なので 20 なら 75タイル/日。開始時に背後25タイルなら追いつくまで約500ターン≈0.33日
-	frontAdvanceTurns = 20
+	frontAdvanceTurns consts.Turn = 20
 	// frontStep は1回の前進量。タイル単位
 	frontStep consts.Tile = 1
 	// frontColdWidthChunks は極低温ゾーンの幅。チャンク数
@@ -173,13 +173,13 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 	}
 
 	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
-	cx := int((st.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2)
-	cy := int(p.ChunkH / 2)
+	cx := (st.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2
+	cy := p.ChunkH / 2
 	if _, err := query.GetPlayerEntity(world); err != nil {
-		if _, serr := lifecycle.SpawnPlayer(world, cx, cy, "Ash"); serr != nil {
+		if _, serr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
 		}
-	} else if merr := lifecycle.MovePlayerToPosition(world, cx, cy); merr != nil {
+	} else if merr := lifecycle.MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); merr != nil {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}
 

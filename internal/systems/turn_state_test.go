@@ -21,7 +21,7 @@ func TestGetTurnState(t *testing.T) {
 		state := query.GetTurnState(world)
 		require.NotNil(t, state, "TurnStateが存在する")
 		assert.Equal(t, gc.TurnPhasePlayer, state.Phase, "初期フェーズはPlayerTurn")
-		assert.Equal(t, 1, state.TurnNumber, "初期ターン番号は1")
+		assert.Equal(t, 1, int(state.TurnNumber), "初期ターン番号は1")
 	})
 }
 
@@ -55,13 +55,13 @@ func TestTurnStateDirectManipulation(t *testing.T) {
 		state := query.GetTurnState(world)
 		require.NotNil(t, state)
 
-		assert.Equal(t, 1, state.TurnNumber)
+		assert.Equal(t, 1, int(state.TurnNumber))
 
 		state.TurnNumber++
-		assert.Equal(t, 2, state.TurnNumber)
+		assert.Equal(t, 2, int(state.TurnNumber))
 
 		state.TurnNumber++
-		assert.Equal(t, 3, state.TurnNumber)
+		assert.Equal(t, 3, int(state.TurnNumber))
 	})
 }
 
@@ -77,7 +77,7 @@ func TestTurnCycle(t *testing.T) {
 
 		// 初期状態
 		assert.Equal(t, gc.TurnPhasePlayer, state.Phase)
-		assert.Equal(t, 1, state.TurnNumber)
+		assert.Equal(t, 1, int(state.TurnNumber))
 
 		// PlayerTurn → AITurn
 		state.Phase = gc.TurnPhaseAI
@@ -91,6 +91,6 @@ func TestTurnCycle(t *testing.T) {
 		state.TurnNumber++
 		state.Phase = gc.TurnPhasePlayer
 		assert.Equal(t, gc.TurnPhasePlayer, state.Phase)
-		assert.Equal(t, 2, state.TurnNumber)
+		assert.Equal(t, 2, int(state.TurnNumber))
 	})
 }

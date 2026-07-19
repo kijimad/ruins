@@ -17,10 +17,10 @@ import (
 func Craft(world w.World, name string) (ecs.Entity, error) {
 	canCraft, err := CanCraft(world, name)
 	if err != nil {
-		return consts.InvalidEntity, err
+		return gc.InvalidEntity, err
 	}
 	if !canCraft {
-		return consts.InvalidEntity, fmt.Errorf("必要素材が足りません")
+		return gc.InvalidEntity, fmt.Errorf("必要素材が足りません")
 	}
 
 	craftCostPct, smithQualityPct := consts.PercentBase, consts.PercentBase
@@ -33,7 +33,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 
 	resultEntity, err := lifecycle.SpawnBackpackItem(world, name, 1)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("アイテム生成に失敗: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("アイテム生成に失敗: %w", err)
 	}
 	// Stackableアイテムの合成では、SpawnBackpackItem内の統合処理で
 	// resultEntityが既存スタックへ統合されて削除されることがある。
@@ -45,7 +45,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	}
 	randomize(world, resultEntity, smithQualityPct)
 	if err := consumeMaterials(world, name, craftCostPct); err != nil {
-		return consts.InvalidEntity, fmt.Errorf("素材消費に失敗: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("素材消費に失敗: %w", err)
 	}
 
 	return resultEntity, nil

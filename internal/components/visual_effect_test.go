@@ -63,7 +63,7 @@ func TestNewDamageEffect(t *testing.T) {
 	assert.Equal(t, 0.0, effect.Alpha)
 	assert.Equal(t, 800.0, effect.TotalMs)
 	assert.Equal(t, effect.TotalMs, effect.RemainingMs)
-	assert.Equal(t, -8.0, effect.OffsetY, "初期Y方向オフセット")
+	assert.Equal(t, -8.0, effect.Offset.Y, "初期Y方向オフセット")
 }
 
 func TestNewMissEffect(t *testing.T) {
@@ -90,11 +90,11 @@ func TestNewHealEffect(t *testing.T) {
 func TestDamageTextEffect_Update_MovesY(t *testing.T) {
 	t.Parallel()
 	effect := NewDamageEffect(10)
-	initialY := effect.OffsetY
+	initialY := effect.Offset.Y
 
 	effect.Update(16.67) // 1フレーム分
 
-	assert.Less(t, effect.OffsetY, initialY, "VelocityYが負なのでOffsetYは減少する")
+	assert.Less(t, effect.Offset.Y, initialY, "VelocityYが負なのでOffsetYは減少する")
 	assert.Greater(t, effect.Alpha, 0.0, "フェードインが始まる")
 }
 
@@ -119,8 +119,8 @@ func TestNewSplashTextEffect(t *testing.T) {
 	effect := NewSplashTextEffect("テスト", nil, 800, 600)
 
 	assert.Equal(t, "テスト", effect.Text)
-	assert.Equal(t, 400.0, effect.OffsetX, "画面中央X")
-	assert.Equal(t, 240.0, effect.OffsetY, "画面上部2/5")
+	assert.Equal(t, 400.0, effect.Offset.X, "画面中央X")
+	assert.Equal(t, 240.0, effect.Offset.Y, "画面上部2/5")
 	assert.Equal(t, 560.0, effect.LineWidth, "画面幅の70%")
 	assert.Equal(t, 3200.0, effect.TotalMs)
 	assert.Equal(t, color.RGBA{255, 255, 255, 255}, effect.Color)

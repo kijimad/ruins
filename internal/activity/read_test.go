@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -57,7 +58,7 @@ func TestReadActivity_Validate_RequiredLevelNotMet(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.Skills.Add(actor, gc.NewSkills())
 
 	bookEntity := world.ECS.NewEntity()
@@ -79,7 +80,7 @@ func TestReadActivity_Validate_RequiredLevelMet(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Value = 3
@@ -102,7 +103,7 @@ func TestReadActivity_Validate_Success(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
@@ -121,7 +122,7 @@ func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.Skills.Add(actor, gc.NewSkills())
 	world.Components.Abilities.Add(actor, &gc.Abilities{})
 
@@ -153,7 +154,7 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
@@ -187,7 +188,7 @@ func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
@@ -221,7 +222,7 @@ func TestReadActivity_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.Skills.Add(actor, gc.NewSkills())
 	world.Components.Abilities.Add(actor, &gc.Abilities{})
 
@@ -255,12 +256,12 @@ func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
 	actor := world.ECS.NewEntity()
 	world.Components.Player.Add(actor, &gc.Player{})
 	world.Components.FactionAlly.Add(actor, &gc.FactionAlly{})
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// 隣に敵を配置
 	enemy := world.ECS.NewEntity()
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: 6, Y: 5})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
@@ -290,7 +291,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.Player.Add(actor, &gc.Player{})
 
 	skills := gc.NewSkills()
@@ -331,7 +332,7 @@ func TestReadActivity_NoSkillsComponent(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.GridElement.Add(actor, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	// Skillsコンポーネントなし → panicしない
 
 	bookEntity := world.ECS.NewEntity()

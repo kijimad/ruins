@@ -36,12 +36,8 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 		centerY := y + clearingHeight/2
 		radius := math.Min(float64(clearingWidth), float64(clearingHeight)) / 2.0
 
-		clearing := gc.Rect{
-			X1: consts.Tile(centerX - int(radius)),
-			Y1: consts.Tile(centerY - int(radius)),
-			X2: consts.Tile(centerX + int(radius)),
-			Y2: consts.Tile(centerY + int(radius)),
-		}
+		clearing := gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(centerX - int(radius)), Y: consts.Tile(centerY - int(radius))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(centerX + int(radius)), Y: consts.Tile(centerY + int(radius))}}
+
 		planData.Rooms = append(planData.Rooms, clearing)
 	}
 	return nil
@@ -66,16 +62,16 @@ func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
 
 // createCircularClearing は円形の空き地を作成する
 func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Rect) {
-	centerX := float64(clearing.X1+clearing.X2) / 2.0
-	centerY := float64(clearing.Y1+clearing.Y2) / 2.0
-	radius := math.Min(float64(clearing.X2-clearing.X1), float64(clearing.Y2-clearing.Y1)) / 2.0
+	centerX := float64(clearing.Min.X+clearing.Max.X) / 2.0
+	centerY := float64(clearing.Min.Y+clearing.Max.Y) / 2.0
+	radius := math.Min(float64(clearing.Max.X-clearing.Min.X), float64(clearing.Max.Y-clearing.Min.Y)) / 2.0
 
-	for x := clearing.X1 - 1; x <= clearing.X2+1; x++ {
-		for y := clearing.Y1 - 1; y <= clearing.Y2+1; y++ {
+	for x := clearing.Min.X - 1; x <= clearing.Max.X+1; x++ {
+		for y := clearing.Min.Y - 1; y <= clearing.Max.Y+1; y++ {
 			distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
 			if distance <= radius {
-				idx := planData.Level.XYTileIndex(x, y)
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
@@ -93,7 +89,7 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 	// 森全体に木を配置（60%の密度）
 	for x := 1; x < width-1; x++ {
 		for y := 1; y < height-1; y++ {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			if !planData.Tiles[idx].BlockPass {
 				// 空き地の近くでは木の密度を下げる
@@ -122,8 +118,8 @@ func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 
 	minDistanceToClearing := 1000.0
 
 	for _, clearing := range planData.Rooms {
-		centerX := float64(clearing.X1+clearing.X2) / 2.0
-		centerY := float64(clearing.Y1+clearing.Y2) / 2.0
+		centerX := float64(clearing.Min.X+clearing.Max.X) / 2.0
+		centerY := float64(clearing.Min.Y+clearing.Max.Y) / 2.0
 
 		distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
@@ -154,7 +150,7 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 			x, y := centerX+dx, centerY+dy
 
 			if x >= 0 && x < width && y >= 0 && y < height {
-				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 				if !planData.Tiles[idx].BlockPass && planData.RNG.Float64() < 0.7 {
 					planData.Tiles[idx] = planData.GetTile("wall")
@@ -207,7 +203,7 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
 		for dx := -1; dx <= 1; dx++ {
 			x := pathX + dx
 			if x >= 0 && x < width {
-				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
@@ -226,10 +222,10 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
 // shouldCreatePath は通路を作成するかどうかを判定する
 func (f ForestPaths) shouldCreatePath(planData *MetaPlan, room1, room2 gc.Rect) bool {
 	// 空き地間の距離を計算
-	center1X := float64(room1.X1+room1.X2) / 2.0
-	center1Y := float64(room1.Y1+room1.Y2) / 2.0
-	center2X := float64(room2.X1+room2.X2) / 2.0
-	center2Y := float64(room2.Y1+room2.Y2) / 2.0
+	center1X := float64(room1.Min.X+room1.Max.X) / 2.0
+	center1Y := float64(room1.Min.Y+room1.Max.Y) / 2.0
+	center2X := float64(room2.Min.X+room2.Max.X) / 2.0
+	center2Y := float64(room2.Min.Y+room2.Max.Y) / 2.0
 
 	distance := geometry.Distance(center1X, center1Y, center2X, center2Y)
 
@@ -247,10 +243,10 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
 
-	center1X := int(room1.X1+room1.X2) / 2
-	center1Y := int(room1.Y1+room1.Y2) / 2
-	center2X := int(room2.X1+room2.X2) / 2
-	center2Y := int(room2.Y1+room2.Y2) / 2
+	center1X := int(room1.Min.X+room1.Max.X) / 2
+	center1Y := int(room1.Min.Y+room1.Max.Y) / 2
+	center2X := int(room2.Min.X+room2.Max.X) / 2
+	center2Y := int(room2.Min.Y+room2.Max.Y) / 2
 
 	// ベジェ曲線風の自然な通路を作成
 	steps := 50
@@ -274,7 +270,7 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 			for dy := -1; dy <= 1; dy++ {
 				nx, ny := x+dx, y+dy
 				if nx >= 0 && nx < width && ny >= 0 && ny < height {
-					idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
+					idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 
 					// 70%の確率で通路を作成（自然な感じに）
 					if planData.RNG.Float64() < 0.7 {
@@ -314,7 +310,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 				if nx >= 0 && nx < width && ny > 0 && ny < height-1 {
 					distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
 					if distance <= float64(radius) {
-						idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
+						idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 						planData.Tiles[idx] = planData.GetTile("floor")
 					}
 				}

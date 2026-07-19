@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
@@ -23,7 +24,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	world = testutil.InitTestWorld(t)
 
 	// プレイヤーを生成
-	p, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+	p, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 
 	// ハンドガンを生成して装備
@@ -37,11 +38,11 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	require.NoError(t, err)
 
 	// 敵を生成（射程内）
-	e, err := lifecycle.SpawnEnemy(world, 13, 10, "火の玉")
+	e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
 	require.NoError(t, err)
 
 	// 敵の位置を探索済みにする
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{X: 13, Y: 10}] = true
+	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 13, Y: 10}}] = true
 
 	return world, p, e, we
 }
@@ -106,7 +107,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
@@ -115,7 +116,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		// ハンドガンの最大射程(8)より遠くに配置
-		enemy, err := lifecycle.SpawnEnemy(world, 20, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		sa := &ShootActivity{}
@@ -131,7 +132,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// 近接武器（木刀）を装備
@@ -140,7 +141,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
-		enemy, err := lifecycle.SpawnEnemy(world, 12, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		sa := &ShootActivity{}
@@ -158,7 +159,7 @@ func TestShootActivity_Validate(t *testing.T) {
 
 		// 射線上に壁を配置
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		sa := &ShootActivity{}
@@ -258,7 +259,7 @@ func TestExecuteShootAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
@@ -266,7 +267,7 @@ func TestExecuteShootAction(t *testing.T) {
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
-		enemy, err := lifecycle.SpawnEnemy(world, 12, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		err = ExecuteShootAction(player, enemy, world)
@@ -292,7 +293,7 @@ func TestCanShootTarget(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
@@ -300,7 +301,7 @@ func TestCanShootTarget(t *testing.T) {
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		// ハンドガン最大射程(8)より遠く
-		enemy, err := lifecycle.SpawnEnemy(world, 20, 10, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		assert.False(t, CanShootTarget(player, enemy, world))
@@ -311,7 +312,7 @@ func TestCanShootTarget(t *testing.T) {
 		world, player, enemy, _ := setupShootingWorld(t)
 
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		assert.False(t, CanShootTarget(player, enemy, world))
@@ -336,9 +337,9 @@ func TestEntityDistance(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		a := world.ECS.NewEntity()
-		world.Components.GridElement.Add(a, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(a, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		b := world.ECS.NewEntity()
-		world.Components.GridElement.Add(b, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(b, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		assert.Equal(t, 0.0, EntityDistance(a, b, world))
 	})
@@ -348,9 +349,9 @@ func TestEntityDistance(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		a := world.ECS.NewEntity()
-		world.Components.GridElement.Add(a, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(a, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		b := world.ECS.NewEntity()
-		world.Components.GridElement.Add(b, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(b, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 
 		assert.Equal(t, 3.0, EntityDistance(a, b, world))
 	})
@@ -360,9 +361,9 @@ func TestEntityDistance(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		a := world.ECS.NewEntity()
-		world.Components.GridElement.Add(a, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(a, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		b := world.ECS.NewEntity()
-		world.Components.GridElement.Add(b, &gc.GridElement{X: 3, Y: 4})
+		world.Components.GridElement.Add(b, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
 
 		assert.Equal(t, 5.0, EntityDistance(a, b, world))
 	})
@@ -388,9 +389,9 @@ func TestCheckLineOfSight(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -402,12 +403,12 @@ func TestCheckLineOfSight(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
 
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		blocked, _ := checkLineOfSight(actor, target, world)
@@ -419,13 +420,13 @@ func TestCheckLineOfSight(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 5, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
 
 		// BlockPassだけ（BlockViewなし）→ 遮蔽物
 		cover := world.ECS.NewEntity()
-		world.Components.GridElement.Add(cover, &gc.GridElement{X: 2, Y: 0})
+		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
@@ -444,9 +445,9 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
@@ -458,10 +459,10 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		// ハンドガン: 最適射程3, ペナルティ8%/tile → 距離6なら(6-3)*8=24%ペナルティ
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 6, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 0}})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
@@ -473,12 +474,12 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.ECS.NewEntity()
-		world.Components.GridElement.Add(actor, &gc.GridElement{X: 0, Y: 0})
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 		target := world.ECS.NewEntity()
-		world.Components.GridElement.Add(target, &gc.GridElement{X: 3, Y: 0})
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 
 		cover := world.ECS.NewEntity()
-		world.Components.GridElement.Add(cover, &gc.GridElement{X: 2, Y: 0})
+		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
 
 		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
@@ -505,7 +506,7 @@ func TestGetEquippedFire(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 		query.GetDungeon(world).SelectedWeaponSlot = 1
 
@@ -533,13 +534,13 @@ func TestCalculateShootHitRate(t *testing.T) {
 		worldNear, playerNear, _, _ := setupShootingWorld(t)
 
 		// 近い敵（距離3）
-		nearEnemy, err := lifecycle.SpawnEnemy(worldNear, 13, 10, "火の玉")
+		nearEnemy, err := lifecycle.SpawnEnemy(worldNear, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
 		require.NoError(t, err)
 		nearRate := CalculateShootHitRate(playerNear, nearEnemy, worldNear)
 
 		// 遠い敵用のWorldを別に構築
 		worldFar, playerFar, _, _ := setupShootingWorld(t)
-		farEnemy, err := lifecycle.SpawnEnemy(worldFar, 17, 10, "火の玉")
+		farEnemy, err := lifecycle.SpawnEnemy(worldFar, consts.Coord[consts.Tile]{X: 17, Y: 10}, "火の玉")
 		require.NoError(t, err)
 		farRate := CalculateShootHitRate(playerFar, farEnemy, worldFar)
 

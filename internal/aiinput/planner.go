@@ -61,66 +61,66 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
 // gridDistance は2つのGridElement間のチェビシェフ距離を返す
 func gridDistance(a, b *gc.GridElement) int {
-	return geometry.ChebyshevDistance(int(a.X), int(a.Y), int(b.X), int(b.Y))
+	return geometry.ChebyshevDistance(a.Coord, b.Coord)
 }
 
 // eightDirections は隣接8方向の座標差分を定義する
-var eightDirections = []consts.Coord[int]{
+var eightDirections = []consts.Coord[consts.Tile]{
 	{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
 	{X: -1, Y: 0}, {X: 1, Y: 0},
 	{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
 }
 
 // calculateMoveCandidates はターゲットに向かう移動候補を計算する
-func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
-	var candidates []consts.Coord[int]
+func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+	var candidates []consts.Coord[consts.Tile]
 	dx, dy := delta.X, delta.Y
 
 	switch {
 	case dx != 0 && dy != 0:
-		moveX := 1
+		moveX := consts.Tile(1)
 		if dx < 0 {
 			moveX = -1
 		}
-		moveY := 1
+		moveY := consts.Tile(1)
 		if dy < 0 {
 			moveY = -1
 		}
-		candidates = append(candidates, consts.Coord[int]{X: moveX, Y: moveY})
+		candidates = append(candidates, consts.Coord[consts.Tile]{X: moveX, Y: moveY})
 
 		if geometry.Abs(dx) > geometry.Abs(dy) {
-			candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
-			candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
+			candidates = append(candidates, consts.Coord[consts.Tile]{X: moveX, Y: 0})
+			candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
 		} else {
-			candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
-			candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
+			candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
+			candidates = append(candidates, consts.Coord[consts.Tile]{X: moveX, Y: 0})
 		}
 	case dx != 0:
-		moveX := 1
+		moveX := consts.Tile(1)
 		if dx < 0 {
 			moveX = -1
 		}
-		candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
-		candidates = append(candidates, consts.Coord[int]{X: 0, Y: 1})
-		candidates = append(candidates, consts.Coord[int]{X: 0, Y: -1})
+		candidates = append(candidates, consts.Coord[consts.Tile]{X: moveX, Y: 0})
+		candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: 1})
+		candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: -1})
 	case dy != 0:
-		moveY := 1
+		moveY := consts.Tile(1)
 		if dy < 0 {
 			moveY = -1
 		}
-		candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
-		candidates = append(candidates, consts.Coord[int]{X: 1, Y: 0})
-		candidates = append(candidates, consts.Coord[int]{X: -1, Y: 0})
+		candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
+		candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
+		candidates = append(candidates, consts.Coord[consts.Tile]{X: -1, Y: 0})
 	}
 
 	return candidates
 }
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
-func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, bool) {
-	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
+func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[consts.Tile]) (activity.Behavior, bool) {
+	fromPos := from.Coord
 	for _, c := range candidates {
-		dest := consts.Coord[int]{X: fromPos.X + c.X, Y: fromPos.Y + c.Y}
+		dest := fromPos.Add(c)
 		if activity.CanMoveTo(world, dest, fromPos, entity) {
 			return moveAction(dest), true
 		}
@@ -129,9 +129,9 @@ func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, c
 }
 
 // moveAction は指定座標への移動アクションを生成する
-func moveAction(dest consts.Coord[int]) activity.Behavior {
+func moveAction(dest consts.Coord[consts.Tile]) activity.Behavior {
 	return &activity.MoveActivity{
-		Destination: gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)},
+		Destination: gc.GridElement{Coord: dest},
 	}
 }
 
@@ -141,8 +141,8 @@ func waitAction(reason string) activity.Behavior {
 }
 
 // shuffledEightDirections は8方向をシャッフルして返す
-func shuffledEightDirections(rng *rand.Rand) []consts.Coord[int] {
-	shuffled := make([]consts.Coord[int], len(eightDirections))
+func shuffledEightDirections(rng *rand.Rand) []consts.Coord[consts.Tile] {
+	shuffled := make([]consts.Coord[consts.Tile], len(eightDirections))
 	copy(shuffled, eightDirections)
 	for i := len(shuffled) - 1; i > 0; i-- {
 		j := rng.IntN(i + 1)
@@ -153,5 +153,5 @@ func shuffledEightDirections(rng *rand.Rand) []consts.Coord[int] {
 
 // isAdjacent は2つのタイルが隣接しているかを判定する
 func isAdjacent(a, b *gc.GridElement) bool {
-	return geometry.IsAdjacent(int(a.X), int(a.Y), int(b.X), int(b.Y))
+	return geometry.IsAdjacent(a.Coord, b.Coord)
 }

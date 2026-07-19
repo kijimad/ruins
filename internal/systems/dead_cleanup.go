@@ -3,6 +3,7 @@ package systems
 import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -122,7 +123,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			}
 		}
 		for _, item := range items {
-			world.Components.GridElement.Add(item, &gc.GridElement{X: gridX, Y: gridY})
+			world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: gridX, Y: gridY}})
 			lifecycle.MoveToField(world, item, &owner)
 		}
 	}
@@ -136,10 +137,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 			effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
 			effectEntity := world.ECS.NewEntity()
-			world.Components.GridElement.Add(effectEntity, &gc.GridElement{
-				X: gridElement.X,
-				Y: gridElement.Y,
-			})
+			world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: gridElement.Coord})
 			world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 				Effects: []gc.VisualEffect{effect},
 			})

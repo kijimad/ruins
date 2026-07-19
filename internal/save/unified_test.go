@@ -150,7 +150,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
-	world.Components.GridElement.Add(player, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(15)})
+	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(10), Y: consts.Tile(15)}})
 	world.Components.Abilities.Add(player, &gc.Abilities{
 		Vitality:  gc.Ability{Base: 10, Modifier: 0, Total: 10},
 		Strength:  gc.Ability{Base: 8, Modifier: 0, Total: 8},
@@ -212,10 +212,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	for i := range 3 {
 		npc := world.ECS.NewEntity()
 		world.Components.Name.Add(npc, &gc.Name{Name: "NPC" + string(rune('A'+i))})
-		world.Components.GridElement.Add(npc, &gc.GridElement{
-			X: consts.Tile(20 + i*5),
-			Y: consts.Tile(25 + i*3),
-		})
+		world.Components.GridElement.Add(npc, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(20 + i*5), Y: consts.Tile(25 + i*3)}})
 		world.Components.SoloAI.Add(npc, &gc.SoloAI{ViewDistance: 5})
 		world.Components.FactionEnemy.Add(npc, &gc.FactionEnemy{})
 		world.Components.Abilities.Add(npc, &gc.Abilities{

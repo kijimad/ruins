@@ -9,7 +9,8 @@ import (
 // 壁・キャラクターの位置をキャッシュし、O(1)で判定できるようにする。
 // すべてターン開始時に1回構築し、ターン終了時に無効化する
 type SpatialIndex struct {
-	MapWidth, MapHeight int
+	// マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位
+	MapWidth, MapHeight consts.Tile
 	// 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つPropが対象
 	BlockPass map[GridElement]bool
 	// キャラクター位置のインデックス。プレイヤー・敵・隊員・中立NPCの位置
@@ -28,18 +29,18 @@ func NewSpatialIndex() *SpatialIndex {
 	return &SpatialIndex{}
 }
 
-// IsBlockPass は指定座標に静的障害物があるかをO(1)で判定する。
+// IsBlockPass は指定タイルに静的障害物があるかをO(1)で判定する。
 // 未構築の場合はfalseを返す
-func (si *SpatialIndex) IsBlockPass(x, y int) bool {
+func (si *SpatialIndex) IsBlockPass(pos consts.Coord[consts.Tile]) bool {
 	if !si.Built {
 		return false
 	}
-	return si.BlockPass[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]
+	return si.BlockPass[GridElement{Coord: pos}]
 }
 
-// CharacterAt は指定座標のキャラクターを返す
-func (si *SpatialIndex) CharacterAt(x, y int) (ecs.Entity, bool) {
-	entity, ok := si.Characters[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]
+// CharacterAt は指定タイルのキャラクターを返す
+func (si *SpatialIndex) CharacterAt(pos consts.Coord[consts.Tile]) (ecs.Entity, bool) {
+	entity, ok := si.Characters[GridElement{Coord: pos}]
 	return entity, ok
 }
 
@@ -48,15 +49,15 @@ func (si *SpatialIndex) CharacterAt(x, y int) (ecs.Entity, bool) {
 // from タイルの登録が自分自身のときだけ削除し、位置入れ替えで別キャラが入った場合を壊さない
 // actor と隊員をどちらの順で更新しても最終状態が正しくなる。
 // 未構築の場合は何もしない。次回アクセス時に真から再構築される。
-func (si *SpatialIndex) MoveCharacter(fromX, fromY, toX, toY int, e ecs.Entity) {
+func (si *SpatialIndex) MoveCharacter(from, to consts.Coord[consts.Tile], e ecs.Entity) {
 	if !si.Built {
 		return
 	}
-	fromKey := GridElement{X: consts.Tile(fromX), Y: consts.Tile(fromY)}
+	fromKey := GridElement{Coord: from}
 	if cur, ok := si.Characters[fromKey]; ok && cur == e {
 		delete(si.Characters, fromKey)
 	}
-	si.Characters[GridElement{X: consts.Tile(toX), Y: consts.Tile(toY)}] = e
+	si.Characters[GridElement{Coord: to}] = e
 }
 
 // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる

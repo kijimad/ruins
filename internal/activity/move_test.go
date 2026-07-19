@@ -19,12 +19,12 @@ func TestMoveActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -36,7 +36,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -60,7 +60,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -95,13 +95,13 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -120,7 +120,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -147,7 +147,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{X: 11, Y: 10},
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
 		ma := &MoveActivity{}
@@ -162,7 +162,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		playerX, playerY := 10, 10
-		player, err := lifecycle.SpawnPlayer(world, playerX, playerY, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: consts.Tile(playerX), Y: consts.Tile(playerY)}, "Ash")
 		require.NoError(t, err)
 
 		abilities := gc.Abilities{
@@ -179,7 +179,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{X: memberGrid.X, Y: memberGrid.Y},
+			Destination:  &gc.GridElement{Coord: memberGrid.Coord},
 		}
 
 		ma := &MoveActivity{}
@@ -315,7 +315,7 @@ func TestCanMoveTo_前線の進入不可ラインで西へ進めない(t *testin
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 12, 10, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "Ash")
 	require.NoError(t, err)
 
 	sb := &query.GetDungeon(world).SeamlessBand
@@ -325,9 +325,9 @@ func TestCanMoveTo_前線の進入不可ラインで西へ進めない(t *testin
 	sb.Front.ColdWidth = 20
 	sb.Front.EastAbsX = 30 // ColdZoneWest = 10
 
-	from := consts.Coord[int]{X: 12, Y: 10}
-	assert.False(t, CanMoveTo(world, consts.Coord[int]{X: 10, Y: 10}, from, player), "ライン上以西へは進めない")
-	assert.True(t, CanMoveTo(world, consts.Coord[int]{X: 11, Y: 10}, from, player), "ライン東のゾーン内へは進める")
+	from := consts.Coord[consts.Tile]{X: 12, Y: 10}
+	assert.False(t, CanMoveTo(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, from, player), "ライン上以西へは進めない")
+	assert.True(t, CanMoveTo(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, from, player), "ライン東のゾーン内へは進める")
 }
 
 func TestCanMoveTo(t *testing.T) {
@@ -337,7 +337,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
@@ -348,14 +348,14 @@ func TestCanMoveTo(t *testing.T) {
 		_, err = lifecycle.SpawnTile(world, "wall", 10, 9, nil)
 		require.NoError(t, err)
 
-		from := consts.Coord[int]{X: 10, Y: 10}
+		from := consts.Coord[consts.Tile]{X: 10, Y: 10}
 
 		// 左側(9, 10)への移動は可能なはず
-		canMove := CanMoveTo(world, consts.Coord[int]{X: 9, Y: 10}, from, player)
+		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: 9, Y: 10}, from, player)
 		assert.True(t, canMove, "左側への移動は可能なはず")
 
 		// 下側(10, 11)への移動は可能なはず
-		canMove = CanMoveTo(world, consts.Coord[int]{X: 10, Y: 11}, from, player)
+		canMove = CanMoveTo(world, consts.Coord[consts.Tile]{X: 10, Y: 11}, from, player)
 		assert.True(t, canMove, "下側への移動は可能なはず")
 	})
 
@@ -363,7 +363,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
@@ -374,14 +374,14 @@ func TestCanMoveTo(t *testing.T) {
 		_, err = lifecycle.SpawnTile(world, "wall", 10, 9, nil)
 		require.NoError(t, err)
 
-		from := consts.Coord[int]{X: 10, Y: 10}
+		from := consts.Coord[consts.Tile]{X: 10, Y: 10}
 
 		// 右側(11, 10)への移動は壁によってブロックされるはず
-		canMove := CanMoveTo(world, consts.Coord[int]{X: 11, Y: 10}, from, player)
+		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, from, player)
 		assert.False(t, canMove, "右側の壁に移動は不可なはず")
 
 		// 上側(10, 9)への移動は壁によってブロックされるはず
-		canMove = CanMoveTo(world, consts.Coord[int]{X: 10, Y: 9}, from, player)
+		canMove = CanMoveTo(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, from, player)
 		assert.False(t, canMove, "上側の壁に移動は不可なはず")
 	})
 
@@ -389,7 +389,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// 全方向に壁を配置
@@ -402,17 +402,17 @@ func TestCanMoveTo(t *testing.T) {
 		_, err = lifecycle.SpawnTile(world, "wall", 10, 11, nil) // 下
 		require.NoError(t, err)
 
-		from := consts.Coord[int]{X: 10, Y: 10}
+		from := consts.Coord[consts.Tile]{X: 10, Y: 10}
 
 		// 全方向への移動が不可能になるはず
 		directions := []struct {
 			name string
-			to   consts.Coord[int]
+			to   consts.Coord[consts.Tile]
 		}{
-			{"右", consts.Coord[int]{X: 11, Y: 10}},
-			{"左", consts.Coord[int]{X: 9, Y: 10}},
-			{"上", consts.Coord[int]{X: 10, Y: 9}},
-			{"下", consts.Coord[int]{X: 10, Y: 11}},
+			{"右", consts.Coord[consts.Tile]{X: 11, Y: 10}},
+			{"左", consts.Coord[consts.Tile]{X: 9, Y: 10}},
+			{"上", consts.Coord[consts.Tile]{X: 10, Y: 9}},
+			{"下", consts.Coord[consts.Tile]{X: 10, Y: 11}},
 		}
 
 		for _, dir := range directions {
@@ -425,7 +425,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// 右(11,10)と上(10,9)に壁を配置
@@ -435,7 +435,7 @@ func TestCanMoveTo(t *testing.T) {
 		require.NoError(t, err)
 
 		// 右上(11,9)への斜め移動は不可（右と上の両方が壁）
-		canMove := CanMoveTo(world, consts.Coord[int]{X: 11, Y: 9}, consts.Coord[int]{X: 10, Y: 10}, player)
+		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: 11, Y: 9}, consts.Coord[consts.Tile]{X: 10, Y: 10}, player)
 		assert.False(t, canMove, "隣接2方向が両方壁なら斜め移動は不可")
 	})
 
@@ -443,7 +443,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		abilities := gc.Abilities{
@@ -457,7 +457,7 @@ func TestCanMoveTo(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
 
-		canMove := CanMoveTo(world, consts.Coord[int]{X: memberX, Y: memberY}, consts.Coord[int]{X: 10, Y: 10}, player)
+		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: consts.Tile(memberX), Y: consts.Tile(memberY)}, consts.Coord[consts.Tile]{X: 10, Y: 10}, player)
 		assert.True(t, canMove, "プレイヤーは自分の隊員のタイルに移動できる")
 	})
 
@@ -465,7 +465,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		abilities := gc.Abilities{
@@ -482,14 +482,12 @@ func TestCanMoveTo(t *testing.T) {
 		// AIエンティティを手動で作成する
 		aiEntity := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{})
-		world.Components.GridElement.Add(aiEntity, &gc.GridElement{
-			X: consts.Tile(memberX + 1), Y: consts.Tile(memberY),
-		})
+		world.Components.GridElement.Add(aiEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(memberX + 1), Y: consts.Tile(memberY)}})
 
 		// エンティティ追加後にSpatialIndexを再構築させる
 		query.InvalidateSpatialIndex(world)
 
-		canMove := CanMoveTo(world, consts.Coord[int]{X: memberX, Y: memberY}, consts.Coord[int]{X: memberX + 1, Y: memberY}, aiEntity)
+		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: consts.Tile(memberX), Y: consts.Tile(memberY)}, consts.Coord[consts.Tile]{X: consts.Tile(memberX + 1), Y: consts.Tile(memberY)}, aiEntity)
 		assert.False(t, canMove, "AI側からは隊員のタイルに移動できない")
 	})
 
@@ -497,7 +495,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		abilities := gc.Abilities{
@@ -519,7 +517,7 @@ func TestCanMoveTo(t *testing.T) {
 
 		query.InvalidateSpatialIndex(world)
 
-		canMove := CanMoveTo(world, consts.Coord[int]{X: 11, Y: 10}, consts.Coord[int]{X: 12, Y: 10}, member2)
+		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, consts.Coord[consts.Tile]{X: 12, Y: 10}, member2)
 		assert.False(t, canMove, "隊員は他の隊員のタイルに移動できない")
 	})
 
@@ -527,7 +525,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// 右(11,10)にだけ壁を配置
@@ -535,7 +533,7 @@ func TestCanMoveTo(t *testing.T) {
 		require.NoError(t, err)
 
 		// 右上(11,9)への斜め移動は可能（上方向は空いている）
-		canMove := CanMoveTo(world, consts.Coord[int]{X: 11, Y: 9}, consts.Coord[int]{X: 10, Y: 10}, player)
+		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: 11, Y: 9}, consts.Coord[consts.Tile]{X: 10, Y: 10}, player)
 		assert.True(t, canMove, "隣接1方向のみ壁なら斜め移動は可能")
 	})
 }

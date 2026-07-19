@@ -27,7 +27,7 @@ func setupTestAI(t *testing.T, world w.World, x, y int, solo *gc.SoloAI) ecs.Ent
 	t.Helper()
 	entity := world.ECS.NewEntity()
 	world.Components.Name.Add(entity, &gc.Name{Name: "テストAI"})
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}})
 	world.Components.SoloAI.Add(entity, solo)
 	world.Components.FactionEnemy.Add(entity, &gc.FactionEnemy{})
 	world.Components.TurnBased.Add(entity, &gc.TurnBased{
@@ -41,7 +41,7 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -67,7 +67,7 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -94,7 +94,7 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -121,7 +121,7 @@ func TestPlanAction_FleeingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -147,7 +147,7 @@ func TestPlanAction_DrivingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -173,7 +173,7 @@ func TestPlanAction_UnknownState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -297,8 +297,8 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -344,10 +344,10 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
-	solo.PatrolDirX = 1
-	solo.PatrolDirY = 0
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
+	solo.PatrolDir.X = 1
+	solo.PatrolDir.Y = 0
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -366,7 +366,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	wall := world.ECS.NewEntity()
-	world.Components.GridElement.Add(wall, &gc.GridElement{X: 21, Y: 20})
+	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 21, Y: 20}})
 	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
 	solo := &gc.SoloAI{
@@ -378,10 +378,10 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
-	solo.PatrolDirX = 1
-	solo.PatrolDirY = 0
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
+	solo.PatrolDir.X = 1
+	solo.PatrolDir.Y = 0
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -392,7 +392,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	move, ok := behavior.(*activity.MoveActivity)
 	require.True(t, ok, "型が *activity.MoveActivity であるべき")
 	assert.Equal(t, consts.Tile(19), move.Destination.X)
-	assert.Equal(t, -1, solo.PatrolDirX)
+	assert.Equal(t, -1, int(solo.PatrolDir.X))
 }
 
 func TestPlanPatrolAction_BothBlocked(t *testing.T) {
@@ -401,7 +401,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 
 	for _, x := range []int{19, 21} {
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: consts.Tile(x), Y: 20})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: 20}})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 	}
 
@@ -414,10 +414,10 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
-	solo.PatrolDirX = 1
-	solo.PatrolDirY = 0
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
+	solo.PatrolDir.X = 1
+	solo.PatrolDir.Y = 0
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -440,8 +440,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -457,8 +457,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 			grid.Y = move.Destination.Y
 		}
 
-		dx := int(grid.X) - solo.OriginX
-		dy := int(grid.Y) - solo.OriginY
+		dx := grid.X - solo.Origin.X
+		dy := grid.Y - solo.Origin.Y
 		if dx < 0 {
 			dx = -dx
 		}
@@ -483,8 +483,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	solo.SubState = gc.AIStateDriving
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 100
-	solo.OriginX = 20
-	solo.OriginY = 20
+	solo.Origin.X = 20
+	solo.Origin.Y = 20
 	entity := setupTestAI(t, world, 25, 25, solo)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -495,8 +495,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 		if behavior.Name() == gc.BehaviorMove {
 			move, ok := behavior.(*activity.MoveActivity)
 			require.True(t, ok, "型が *activity.MoveActivity であるべき")
-			dx := int(move.Destination.X) - solo.OriginX
-			dy := int(move.Destination.Y) - solo.OriginY
+			dx := move.Destination.X - solo.Origin.X
+			dy := move.Destination.Y - solo.Origin.Y
 			if dx < 0 {
 				dx = -dx
 			}
@@ -551,7 +551,7 @@ func TestPlanWallHugAction(t *testing.T) {
 
 	for x := 19; x <= 21; x++ {
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: consts.Tile(x), Y: 19})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: 19}})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 	}
 
@@ -626,7 +626,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 		ViewDistance:  5,
 	}
 	ally := world.ECS.NewEntity()
-	world.Components.GridElement.Add(ally, &gc.GridElement{X: 25, Y: 25})
+	world.Components.GridElement.Add(ally, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 25, Y: 25}})
 	world.Components.SoloAI.Add(ally, allyAI)
 
 	rp := newSoloPlanner(newTestRNG())
@@ -652,31 +652,31 @@ func TestCalculateMoveCandidates(t *testing.T) {
 
 	t.Run("斜め方向", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: 3, Y: 2})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: 3, Y: 2})
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, 1, candidates[0].X)
-		assert.Equal(t, 1, candidates[0].Y)
+		assert.Equal(t, 1, int(candidates[0].X))
+		assert.Equal(t, 1, int(candidates[0].Y))
 	})
 
 	t.Run("水平方向のみ", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: -5, Y: 0})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: -5, Y: 0})
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, -1, candidates[0].X)
-		assert.Equal(t, 0, candidates[0].Y)
+		assert.Equal(t, -1, int(candidates[0].X))
+		assert.Equal(t, 0, int(candidates[0].Y))
 	})
 
 	t.Run("垂直方向のみ", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: 0, Y: 4})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: 0, Y: 4})
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, 0, candidates[0].X)
-		assert.Equal(t, 1, candidates[0].Y)
+		assert.Equal(t, 0, int(candidates[0].X))
+		assert.Equal(t, 1, int(candidates[0].Y))
 	})
 
 	t.Run("差分なし", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: 0, Y: 0})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: 0, Y: 0})
 		assert.Empty(t, candidates)
 	})
 }
@@ -685,20 +685,20 @@ func TestIsAdjacent(t *testing.T) {
 	t.Parallel()
 
 	assert.True(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 6, Y: 5},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}},
 	))
 	assert.True(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 6, Y: 6},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 6}},
 	))
 	assert.False(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 5, Y: 5},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
 	))
 	assert.False(t, isAdjacent(
-		&gc.GridElement{X: 5, Y: 5},
-		&gc.GridElement{X: 7, Y: 5},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+		&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 7, Y: 5}},
 	))
 }
 
@@ -742,7 +742,7 @@ func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
@@ -763,7 +763,7 @@ func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 20, 20, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "Ash")
 	require.NoError(t, err)
 
 	abilities := gc.Abilities{
@@ -812,7 +812,7 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 20, 20, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "Ash")
 	require.NoError(t, err)
 
 	abilities := gc.Abilities{
@@ -849,7 +849,7 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 30, 30, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "Ash")
 	require.NoError(t, err)
 
 	abilities := gc.Abilities{

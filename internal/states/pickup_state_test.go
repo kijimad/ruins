@@ -23,7 +23,7 @@ func TestPickupState_OnStart(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, 5, 7, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 7}, "Ash")
 	require.NoError(t, err)
 
 	state := &PickupState{}

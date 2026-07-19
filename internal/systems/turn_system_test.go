@@ -23,7 +23,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// ターン状態を設定
@@ -46,7 +46,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// ターン状態を設定
@@ -70,7 +70,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// ダンジョンには必ずプレイヤーが居る
-		_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// ターン状態を設定
@@ -127,7 +127,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		turnBased := world.Components.TurnBased.Get(player)
@@ -155,7 +155,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		turnBased := world.Components.TurnBased.Get(player)
@@ -205,7 +205,7 @@ func TestProcessTurnEnd(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Updaters = make(map[string]w.Updater)
 
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// APをマイナスに設定
@@ -273,7 +273,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		result := processPlayerContinuousActivity(world)
@@ -285,7 +285,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 継続アクションを設定
@@ -327,7 +327,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// TurnBasedコンポーネントの存在確認
@@ -349,7 +349,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -378,7 +378,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// APをマイナスに設定
@@ -395,7 +395,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// APを0に設定
@@ -412,7 +412,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 初期APを確認
@@ -434,7 +434,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 通常時のSpeedを計算
@@ -468,7 +468,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -530,7 +530,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温 + 飢餓
@@ -557,7 +557,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -593,7 +593,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	world.Updaters = make(map[string]w.Updater)
 
 	// プレイヤーを配置（AI処理で必要）
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	// AIエンティティを手動で作成（Driving状態で即座に移動するように設定）
@@ -601,7 +601,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)}})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
@@ -626,7 +626,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)
@@ -652,11 +652,11 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	// 苔亀のwander移動は80%待機の確率的挙動のため、シードを固定してflaky化を防ぐ
 	world.Config.RNG = rand.New(rand.NewPCG(1, 0))
 
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	// SpawnEnemyで実際の敵を生成
-	enemy, err := lifecycle.SpawnEnemy(world, 20, 20, "苔亀")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "苔亀")
 	require.NoError(t, err)
 
 	initialGrid := world.Components.GridElement.Get(enemy)
@@ -680,7 +680,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)
@@ -707,10 +707,10 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 	// 苔亀のwander移動は80%待機の確率的挙動のため、シードを固定してflaky化を防ぐ
 	world.Config.RNG = rand.New(rand.NewPCG(1, 0))
 
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	enemy, err := lifecycle.SpawnEnemy(world, 20, 20, "苔亀")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "苔亀")
 	require.NoError(t, err)
 
 	// Waiting期間をスキップ
@@ -766,7 +766,7 @@ func TestPatrolMovement(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	// Patrol移動のAIエンティティを作成する。PatrolDirX=1で右に進む
@@ -774,7 +774,7 @@ func TestPatrolMovement(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "パトロール敵"})
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)}})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
@@ -782,10 +782,8 @@ func TestPatrolMovement(t *testing.T) {
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
-		OriginX:               enemyX,
-		OriginY:               enemyY,
-		PatrolDirX:            1,
-		PatrolDirY:            0,
+		Origin:                consts.Coord[consts.Tile]{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)},
+		PatrolDir:             consts.Coord[consts.Tile]{X: 1, Y: 0},
 		ViewDistance:          5,
 	})
 	world.Components.TurnBased.Add(enemy, &gc.TurnBased{
@@ -801,7 +799,7 @@ func TestPatrolMovement(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)
@@ -825,7 +823,7 @@ func TestTerritorialMovement(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
 
-	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
 	require.NoError(t, err)
 
 	// Territorial移動のAIエンティティを作成する
@@ -833,7 +831,7 @@ func TestTerritorialMovement(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "縄張り敵"})
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)}})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
@@ -841,8 +839,7 @@ func TestTerritorialMovement(t *testing.T) {
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
-		OriginX:               spawnX,
-		OriginY:               spawnY,
+		Origin:                consts.Coord[consts.Tile]{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
 		ViewDistance:          5,
 	})
 	world.Components.TurnBased.Add(enemy, &gc.TurnBased{
@@ -858,7 +855,7 @@ func TestTerritorialMovement(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
-		turnState.TurnNumber = turn + 1
+		turnState.TurnNumber = consts.Turn(turn + 1)
 
 		err := processAITurn(world)
 		require.NoError(t, err)

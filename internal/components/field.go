@@ -3,6 +3,7 @@ package components
 import "github.com/kijimaD/ruins/internal/consts"
 
 // Position はフィールド上に座標をもって存在する
+// 値はカメラ変換前のワールド座標。描画時にはスクリーン座標へ変換する必要がある
 // スプライトはこの位置に中心を合わせて配置する
 // -----
 // |   |
@@ -10,8 +11,7 @@ import "github.com/kijimaD/ruins/internal/consts"
 // |   |
 // -----
 type Position struct {
-	X consts.Pixel
-	Y consts.Pixel
+	consts.Coord[consts.WorldPixel]
 }
 
 // GridElement はフィールド上にグリッドに沿って存在する
@@ -22,24 +22,27 @@ type Position struct {
 // |   |
 // -----
 type GridElement struct {
-	X consts.Tile
-	Y consts.Tile
+	consts.Coord[consts.Tile]
 }
 
-// Rect は矩形を表す構造体
+// Rect は矩形を表す構造体。Min が左上、Max が右下の隅
 type Rect struct {
-	X1 consts.Tile
-	X2 consts.Tile
-	Y1 consts.Tile
-	Y2 consts.Tile
+	Min consts.Coord[consts.Tile]
+	Max consts.Coord[consts.Tile]
 }
 
 // Center は矩形の中心座標を返す
 func (r *Rect) Center() (consts.Tile, consts.Tile) {
-	x := (r.X1 + r.X2) / 2
-	y := (r.Y1 + r.Y2) / 2
+	x := (r.Min.X + r.Max.X) / 2
+	y := (r.Min.Y + r.Max.Y) / 2
 	return x, y
 }
+
+// Width は矩形の幅を返す。Max と Min の X 差。
+func (r *Rect) Width() consts.Tile { return r.Max.X - r.Min.X }
+
+// Height は矩形の高さを返す。Max と Min の Y 差。
+func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y }
 
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
@@ -85,26 +88,26 @@ const (
 	DirectionDownRight
 )
 
-// GetDelta は方向から移動量を取得する
-func (d Direction) GetDelta() (int, int) {
+// GetDelta は方向から移動量をタイル座標の差分として取得する。各成分は -1/0/1
+func (d Direction) GetDelta() consts.Coord[consts.Tile] {
 	switch d {
 	case DirectionUp:
-		return 0, -1
+		return consts.Coord[consts.Tile]{X: 0, Y: -1}
 	case DirectionDown:
-		return 0, 1
+		return consts.Coord[consts.Tile]{X: 0, Y: 1}
 	case DirectionLeft:
-		return -1, 0
+		return consts.Coord[consts.Tile]{X: -1, Y: 0}
 	case DirectionRight:
-		return 1, 0
+		return consts.Coord[consts.Tile]{X: 1, Y: 0}
 	case DirectionUpLeft:
-		return -1, -1
+		return consts.Coord[consts.Tile]{X: -1, Y: -1}
 	case DirectionUpRight:
-		return 1, -1
+		return consts.Coord[consts.Tile]{X: 1, Y: -1}
 	case DirectionDownLeft:
-		return -1, 1
+		return consts.Coord[consts.Tile]{X: -1, Y: 1}
 	case DirectionDownRight:
-		return 1, 1
+		return consts.Coord[consts.Tile]{X: 1, Y: 1}
 	default:
-		return 0, 0
+		return consts.Coord[consts.Tile]{X: 0, Y: 0}
 	}
 }

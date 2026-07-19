@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -312,8 +311,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 		}
 		loc := world.Components.LocationInBackpack.Get(item)
 		if loc.Owner == entity {
-			e := item
-			itemToTransfer = &e
+			itemToTransfer = &item
 		}
 	}
 
@@ -335,16 +333,12 @@ func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *
 
 // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる
 func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, bool) {
-	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
-	goalX, goalY := int(target.X), int(target.Y)
-
-	nextX, nextY, ok := activity.FindNextStep(world, entity, fromPos.X, fromPos.Y, goalX, goalY)
+	next, ok := activity.FindNextStep(world, entity, from.Coord, target.Coord)
 	if !ok {
 		return nil, false
 	}
 
-	next := consts.Coord[int]{X: nextX, Y: nextY}
-	if !activity.CanMoveTo(world, next, fromPos, entity) {
+	if !activity.CanMoveTo(world, next, from.Coord, entity) {
 		return nil, false
 	}
 
@@ -353,23 +347,20 @@ func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, ta
 
 // tryMoveAway はターゲットから離れる移動を試みる
 func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, threat *gc.GridElement) (activity.Behavior, bool) {
-	dx := int(from.X) - int(threat.X)
-	dy := int(from.Y) - int(threat.Y)
-
-	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
+	candidates := calculateMoveCandidates(from.Sub(threat.Coord))
 	return tryMoveCandidates(world, entity, from, candidates)
 }
 
 // tryRandomMove は探索済みエリア内でランダム移動を試みる
 func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
 	dungeon := query.GetDungeon(world)
-	from := consts.Coord[int]{X: int(ctx.Grid.X), Y: int(ctx.Grid.Y)}
+	from := ctx.Grid.Coord
 
 	for _, d := range shuffledEightDirections(sp.rng) {
-		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
+		dest := from.Add(d)
 
 		if dungeon != nil && dungeon.ExploredTiles != nil {
-			destGrid := gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}
+			destGrid := gc.GridElement{Coord: dest}
 			if !dungeon.ExploredTiles[destGrid] {
 				continue
 			}

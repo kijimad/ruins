@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -162,7 +163,7 @@ func TestSpawnEnemyHasAI(t *testing.T) {
 	world.Resources.SpriteSheets = spriteSheets
 
 	// NPCを生成（タイル座標で指定）
-	_, err := SpawnEnemy(world, 5, 5, "火の玉")
+	_, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉")
 	require.NoError(t, err)
 
 	// AIコンポーネントを持つエンティティが存在することを確認
@@ -192,7 +193,7 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		initSpriteSheets(world)
-		enemy, err := SpawnEnemy(world, 5, 5, "火の玉", WithBoss())
+		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉", WithBoss())
 		require.NoError(t, err)
 		assert.True(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべき")
 	})
@@ -201,7 +202,7 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		initSpriteSheets(world)
-		enemy, err := SpawnEnemy(world, 6, 6, "火の玉")
+		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 6, Y: 6}, "火の玉")
 		require.NoError(t, err)
 		assert.False(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべきではない")
 	})
@@ -222,7 +223,7 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	world.Resources.SpriteSheets = spriteSheets
 
 	// 「火の玉」を生成（DropTableが定義されている敵）
-	enemy, err := SpawnEnemy(world, 10, 10, "火の玉")
+	enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "火の玉")
 	require.NoError(t, err, "火の玉の生成に失敗")
 
 	// DropTableコンポーネントが付与されていることを確認
@@ -244,7 +245,7 @@ func TestSpawnEnemy_AI(t *testing.T) {
 	}
 	world.Resources.SpriteSheets = spriteSheets
 
-	enemy, err := SpawnEnemy(world, 5, 5, "火の玉")
+	enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉")
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.SoloAI.Has(enemy))
@@ -415,7 +416,7 @@ func TestSpawnVisualEffect(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 		effect := gc.NewHealEffect(10)
 		SpawnVisualEffect(entity, effect, world)

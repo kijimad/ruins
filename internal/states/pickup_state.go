@@ -59,7 +59,7 @@ func (st *PickupState) OnStart(world w.World) error {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
-	st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}
+	st.playerPos = playerGrid.Coord
 	st.cursor = st.playerPos
 	st.refreshItems(world)
 	return nil
@@ -156,7 +156,7 @@ func (st *PickupState) executePickup(world w.World) error {
 		return err
 	}
 
-	destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}
+	destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}}
 	_, err = activity.Execute(&activity.PickupActivity{Destination: &destination}, playerEntity, world)
 	return err
 }
@@ -261,11 +261,9 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 
 // moveCursorAdjacent はカーソルを移動する。基準点からチェビシェフ距離1以内に制限する
 func moveCursorAdjacent(cursor *consts.Coord[consts.Tile], origin consts.Coord[consts.Tile], dx, dy int) {
-	newX := int(cursor.X) + dx
-	newY := int(cursor.Y) + dy
-	if geometry.ChebyshevDistance(newX, newY, int(origin.X), int(origin.Y)) <= 1 {
-		cursor.X = consts.Tile(newX)
-		cursor.Y = consts.Tile(newY)
+	next := cursor.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
+	if geometry.ChebyshevDistance(next, origin) <= 1 {
+		*cursor = next
 	}
 }
 

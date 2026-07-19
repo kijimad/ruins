@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // TimeOfDay は時間帯を表す
 type TimeOfDay int
 
@@ -34,14 +36,14 @@ func (t TimeOfDay) String() string {
 }
 
 // 1日のターン数
-const turnsPerDay = 1500
+const turnsPerDay consts.Turn = 1500
 
 // 時間帯ごとのターン数
-const turnsPerTimeOfDay = turnsPerDay / 6 // 250ターン
+const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
 
 // GameTime はゲーム内時間を管理する
 type GameTime struct {
-	TotalTurns int // 経過した総ターン数
+	TotalTurns consts.Turn // 経過した総ターン数
 }
 
 // GetTimeOfDay は現在の時間帯を返す
@@ -77,5 +79,5 @@ func (gt *GameTime) Advance() {
 
 // GetDayNumber は経過日数を返す（1日目から始まる）
 func (gt *GameTime) GetDayNumber() int {
-	return gt.TotalTurns/turnsPerDay + 1
+	return int(gt.TotalTurns/turnsPerDay) + 1
 }

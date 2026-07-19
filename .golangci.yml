@@ -80,16 +80,76 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
+        # engine はゲーム基盤。ドメインに依存させない
         engine_guard:
-          list-mode: lax
+          list-mode: strict
           files:
             - "**/internal/engine/**"
             - "!$test"
-          deny:
-            # 正確にmodule名である必要がある。ワイルドカードは使えない
-            - pkg: "github.com/kijimaD/ruins/internal/world"
-              desc: engineはworldに依存しない
-            - pkg: "github.com/kijimaD/ruins/internal/components"
-              desc: engineはcomponentsに依存しない
-            - pkg: "github.com/kijimaD/ruins/internal/resources"
-              desc: engineはresourcesに依存しない
+          allow:
+            - "$gostd"
+            - "github.com/hajimehoshi/ebiten/v2"
+            - "github.com/mlange-42/ark/ecs"
+            - "github.com/kijimaD/ruins/internal/config"
+            - "github.com/kijimaD/ruins/internal/inputmapper"
+            - "github.com/kijimaD/ruins/internal/engine"
+        # geometry は純粋アルゴリズム。ドメインに依存させない
+        geometry_guard:
+          list-mode: strict
+          files:
+            - "**/internal/geometry/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/kijimaD/ruins/internal/consts"
+        # consts は最下層の単位・座標型。ドメインに依存させない
+        consts_guard:
+          list-mode: strict
+          files:
+            - "**/internal/consts/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/kijimaD/ruins/internal/consts"
+        # formula はゲーム計算ロジック。純粋に保ちドメインに依存させない
+        formula_guard:
+          list-mode: strict
+          files:
+            - "**/internal/formula/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+        # logger はログ基盤。汎用に保ちドメインに依存させない
+        logger_guard:
+          list-mode: strict
+          files:
+            - "**/internal/logger/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+        # inputmapper は入力からアクションへの対応。ドメインに依存させない
+        inputmapper_guard:
+          list-mode: strict
+          files:
+            - "**/internal/inputmapper/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+        # input は入力基盤。ebiten のみ許可しドメインに依存させない
+        input_guard:
+          list-mode: strict
+          files:
+            - "**/internal/input/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/hajimehoshi/ebiten/v2"
+        # gamelog はゲームログ。domain が書き込む sink であり、逆に domain を参照させない
+        gamelog_guard:
+          list-mode: strict
+          files:
+            - "**/internal/gamelog/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/kijimaD/ruins/internal/consts"

@@ -39,19 +39,19 @@ func (overlay *DebugOverlay) Draw(screen *ebiten.Image, data DebugOverlayData) {
 	// AI状態を描画
 	for _, aiState := range data.AIStates {
 		textOffsetY := 30.0
-		drawOutlinedText(screen, aiState.StateText, overlay.face, float64(int(aiState.ScreenX)-20), aiState.ScreenY-textOffsetY, theme.TextPrimary)
+		drawOutlinedText(screen, aiState.StateText, overlay.face, float64(int(aiState.Screen.X)-20), float64(aiState.Screen.Y)-textOffsetY, theme.TextPrimary)
 	}
 
 	// 視界範囲を描画
 	for _, visionRange := range data.VisionRanges {
-		overlay.drawVisionCircle(screen, float32(visionRange.ScreenX), float32(visionRange.ScreenY), visionRange.ScaledRadius)
+		overlay.drawVisionCircle(screen, float32(visionRange.Screen.X), float32(visionRange.Screen.Y), visionRange.ScaledRadius)
 	}
 
 	// HP情報を描画
 	for _, hpDisplay := range data.HPDisplays {
 		hpText := fmt.Sprintf("%d/%d", hpDisplay.CurrentHP, hpDisplay.MaxHP)
 		textOffsetY := 15.0 // AI状態テキスト（30.0）より上に表示して重複を避ける
-		drawOutlinedText(screen, hpText, overlay.face, float64(int(hpDisplay.ScreenX)-15), hpDisplay.ScreenY-textOffsetY, theme.TextPrimary)
+		drawOutlinedText(screen, hpText, overlay.face, float64(int(hpDisplay.Screen.X)-15), float64(hpDisplay.Screen.Y)-textOffsetY, theme.TextPrimary)
 	}
 }
 

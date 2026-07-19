@@ -575,7 +575,7 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: tileRaw.Name}
 	entitySpec.Description = &gc.Description{Description: tileRaw.Description}
-	entitySpec.GridElement = &gc.GridElement{X: x, Y: y}
+	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 
 	// SpriteRenderを設定
 	sprite := toGCSpriteRender(tileRaw.SpriteRender)

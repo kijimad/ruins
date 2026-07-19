@@ -71,7 +71,7 @@ func (st *PlaceState) OnStart(world w.World) error {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
-	st.playerPos = consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}
+	st.playerPos = playerGrid.Coord
 	st.phase = placePhaseSelectItem
 	st.refreshBackpackItems(world)
 	return nil
@@ -205,7 +205,7 @@ func (st *PlaceState) executeDrop(world w.World) error {
 	}
 
 	item := st.backpackItems[st.selectedIndex]
-	destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}
+	destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}}
 	_, err = activity.Execute(&activity.DropActivity{Target: item, Destination: destination}, playerEntity, world)
 	return err
 }

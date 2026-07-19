@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -179,7 +180,7 @@ func TestStatusState_SkillsTab(t *testing.T) {
 	require.NoError(t, state.OnStart(world))
 
 	// プレイヤーを生成してスキルタブにデータがあることを確認
-	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	props := state.fetchProps(world)

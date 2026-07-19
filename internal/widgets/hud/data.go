@@ -2,6 +2,7 @@ package hud
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // Data はすべてのHUDウィジェットが必要とするデータを統合する
@@ -29,8 +30,7 @@ type GameInfoData struct {
 
 // MinimapData はミニマップ描画に必要なデータ
 type MinimapData struct {
-	PlayerTileX      int                              // プレイヤーのタイル座標X
-	PlayerTileY      int                              // プレイヤーのタイル座標Y
+	PlayerTile       consts.Coord[consts.Tile]        // プレイヤーのタイル座標
 	ExploredTiles    map[gc.GridElement]bool          // 探索済みタイル
 	TileColors       map[gc.GridElement]TileColorInfo // タイル色情報
 	SquadPositions   []MinimapMarker                  // 隊員の位置
@@ -40,8 +40,7 @@ type MinimapData struct {
 
 // MinimapMarker はミニマップ上のマーカー
 type MinimapMarker struct {
-	TileX int
-	TileY int
+	Tile consts.Coord[consts.Tile]
 }
 
 // TileColorInfo はタイルの色情報
@@ -73,25 +72,22 @@ type DebugOverlayData struct {
 
 // AIStateInfo はAI状態の情報
 type AIStateInfo struct {
-	ScreenX   float64 // 画面上のX座標
-	ScreenY   float64 // 画面上のY座標
-	StateText string  // 状態テキスト
+	Screen    consts.Coord[consts.ScreenPixel] // 画面上の座標
+	StateText string                           // 状態テキスト
 }
 
 // VisionRangeInfo は視界範囲の情報
 type VisionRangeInfo struct {
-	ScreenX      float64 // 中心の画面X座標
-	ScreenY      float64 // 中心の画面Y座標
-	ScaledRadius float32 // スケール済み半径
+	Screen       consts.Coord[consts.ScreenPixel] // 中心の画面座標
+	ScaledRadius float32                          // スケール済み半径
 }
 
 // HPDisplayInfo はHP表示の情報
 type HPDisplayInfo struct {
-	ScreenX    float64 // 画面上のX座標
-	ScreenY    float64 // 画面上のY座標
-	CurrentHP  int     // 現在のHP
-	MaxHP      int     // 最大HP
-	EntityName string  // エンティティ名（デバッグ用）
+	Screen     consts.Coord[consts.ScreenPixel] // 画面上の座標
+	CurrentHP  int                              // 現在のHP
+	MaxHP      int                              // 最大HP
+	EntityName string                           // エンティティ名（デバッグ用）
 }
 
 // MessageData はメッセージ表示に必要なデータ

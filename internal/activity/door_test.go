@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -21,13 +22,13 @@ func TestOpenDoorActivity(t *testing.T) {
 		// プレイヤーを作成
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		// 扉を作成（閉じている）
 		door := world.ECS.NewEntity()
 		world.Components.Door.Add(door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
-		world.Components.GridElement.Add(door, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(door, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockPass.Add(door, &gc.BlockPass{})
 		world.Components.BlockView.Add(door, &gc.BlockView{})
 
@@ -61,7 +62,7 @@ func TestOpenDoorActivity(t *testing.T) {
 
 		// 普通の壁を作成（Doorコンポーネントなし）
 		wall := world.ECS.NewEntity()
-		world.Components.GridElement.Add(wall, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
 		// OpenDoorActivityを実行
@@ -82,12 +83,12 @@ func TestOpenDoorActivity(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		door := world.ECS.NewEntity()
 		world.Components.Door.Add(door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal, Locked: true})
-		world.Components.GridElement.Add(door, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(door, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockPass.Add(door, &gc.BlockPass{})
 		world.Components.BlockView.Add(door, &gc.BlockView{})
 

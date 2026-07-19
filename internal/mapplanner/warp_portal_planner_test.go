@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -126,7 +127,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			chain.PlanData.Tiles[i] = chain.PlanData.GetTile("wall")
 		}
 		// (5,5) だけ床にする
-		idx := chain.PlanData.Level.XYTileIndex(5, 5)
+		idx := chain.PlanData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 5, Y: 5})
 		chain.PlanData.Tiles[idx] = chain.PlanData.GetTile("floor")
 
 		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
@@ -193,13 +194,13 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		// NextPortalsが到達可能であることを確認
 		for _, portal := range chain.PlanData.NextPortals {
-			assert.True(t, pathFinder.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y),
+			assert.True(t, pathFinder.IsReachable(playerPos, portal),
 				"NextPortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
 		}
 
 		// EscapePortalsが到達可能であることを確認
 		for _, portal := range chain.PlanData.EscapePortals {
-			assert.True(t, pathFinder.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y),
+			assert.True(t, pathFinder.IsReachable(playerPos, portal),
 				"EscapePortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
 		}
 	})
@@ -230,13 +231,13 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			pathFinder := NewPathFinder(&chain.PlanData)
 
 			for _, portal := range chain.PlanData.NextPortals {
-				path := pathFinder.FindPath(playerPos.X, playerPos.Y, portal.X, portal.Y)
+				path := pathFinder.FindPath(playerPos, portal)
 				// フォールバックで配置された場合は距離が短い可能性があるため、到達可能であることだけ確認
 				assert.NotEmpty(t, path, "seed=%d: NextPortalに到達不能", seed)
 			}
 
 			for _, portal := range chain.PlanData.EscapePortals {
-				path := pathFinder.FindPath(playerPos.X, playerPos.Y, portal.X, portal.Y)
+				path := pathFinder.FindPath(playerPos, portal)
 				assert.NotEmpty(t, path, "seed=%d: EscapePortalに到達不能", seed)
 			}
 		}

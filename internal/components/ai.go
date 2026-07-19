@@ -28,12 +28,12 @@ type SoloAI struct {
 	Movement      SoloMovement
 	ViewDistance  consts.Tile
 
-	SubState               AIStateSubState
-	StartSubStateTurn      int
-	DurationSubStateTurns  int
-	OriginX, OriginY       int
-	PatrolDirX, PatrolDirY int
-	TargetEntity           *ecs.Entity
+	SubState              AIStateSubState
+	StartSubStateTurn     consts.Turn
+	DurationSubStateTurns consts.Turn
+	Origin                consts.Coord[consts.Tile] // パトロール原点のタイル座標
+	PatrolDir             consts.Coord[consts.Tile] // パトロール方向。各成分は -1/0/1
+	TargetEntity          *ecs.Entity
 }
 
 // Type はPlannerSoloを返す

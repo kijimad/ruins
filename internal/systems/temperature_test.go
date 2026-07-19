@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -23,7 +24,7 @@ func TestGetTileTemperatureAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		tile := world.ECS.NewEntity()
-		world.Components.GridElement.Add(tile, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{
 			Shelter: gc.ShelterFull,
 		})
@@ -122,7 +123,7 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 			sb.Front.ColdWidth = 20
 			sb.Front.EastAbsX = 30 // ゾーン (10, 30]。プレイヤー x=20 は内側
 		}
-		player, err := lifecycle.SpawnPlayer(world, 20, 0, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 0}, "Ash")
 		require.NoError(t, err)
 		require.NoError(t, (&TemperatureSystem{}).Update(world))
 		return world.Components.HealthStatus.Get(player)
@@ -306,7 +307,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).DefinitionName = coldDungeonName // 基本気温0度
 
-		player, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
 		require.NoError(t, err)
 
 		sys := &TemperatureSystem{}
@@ -370,7 +371,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備なしの場合は全て0", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
 		require.NoError(t, err)
 
 		insulation := CalculateEquippedInsulation(world, player)
@@ -381,7 +382,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備の断熱値が合算される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
 		require.NoError(t, err)
 
 		// 胴体装備（耐寒10, 耐熱5）

@@ -3,6 +3,7 @@ package geometry
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -49,7 +50,9 @@ func TestIsAdjacent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.expected, IsAdjacent(tt.x0, tt.y0, tt.x1, tt.y1))
+			a := consts.Coord[int]{X: tt.x0, Y: tt.y0}
+			b := consts.Coord[int]{X: tt.x1, Y: tt.y1}
+			assert.Equal(t, tt.expected, IsAdjacent(a, b))
 		})
 	}
 }
@@ -59,13 +62,13 @@ func TestBresenhamLine(t *testing.T) {
 
 	t.Run("隣接は空", func(t *testing.T) {
 		t.Parallel()
-		points := BresenhamLine(0, 0, 1, 0)
+		points := BresenhamLine(consts.Coord[int]{X: 0, Y: 0}, consts.Coord[int]{X: 1, Y: 0})
 		assert.Empty(t, points)
 	})
 
 	t.Run("水平線は始点終点を含まない", func(t *testing.T) {
 		t.Parallel()
-		points := BresenhamLine(0, 0, 3, 0)
+		points := BresenhamLine(consts.Coord[int]{X: 0, Y: 0}, consts.Coord[int]{X: 3, Y: 0})
 		assert.Len(t, points, 2)
 		assert.Equal(t, 1, points[0].X)
 		assert.Equal(t, 2, points[1].X)
@@ -73,7 +76,7 @@ func TestBresenhamLine(t *testing.T) {
 
 	t.Run("同じ座標なら空", func(t *testing.T) {
 		t.Parallel()
-		points := BresenhamLine(5, 5, 5, 5)
+		points := BresenhamLine(consts.Coord[int]{X: 5, Y: 5}, consts.Coord[int]{X: 5, Y: 5})
 		assert.Empty(t, points)
 	})
 }

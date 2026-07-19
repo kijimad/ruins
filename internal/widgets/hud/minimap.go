@@ -68,8 +68,8 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 		tileY := int(gridElement.Y)
 
 		// プレイヤー位置からの相対位置を計算
-		relativeX := tileX - data.PlayerTileX
-		relativeY := tileY - data.PlayerTileY
+		relativeX := tileX - int(data.PlayerTile.X)
+		relativeY := tileY - int(data.PlayerTile.Y)
 
 		// ミニマップ上の座標を計算（回転なし、素直な座標変換）
 		// X軸: 右方向が正、Y軸: 下方向が正
@@ -91,8 +91,8 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	// 隊員の位置を青い点で表示
 	squadColor := color.RGBA{80, 140, 255, 255}
 	for _, pos := range data.SquadPositions {
-		relX := pos.TileX - data.PlayerTileX
-		relY := pos.TileY - data.PlayerTileY
+		relX := int(pos.Tile.X - data.PlayerTile.X)
+		relY := int(pos.Tile.Y - data.PlayerTile.Y)
 		mx := float32(centerX + relX*minimapScale)
 		my := float32(centerY + relY*minimapScale)
 		if mx >= float32(minimapX) && mx <= float32(minimapX+minimapWidth) &&

@@ -34,8 +34,8 @@ func TestChebyshevDistance(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			a := &gc.GridElement{X: consts.Tile(tt.ax), Y: consts.Tile(tt.ay)}
-			b := &gc.GridElement{X: consts.Tile(tt.bx), Y: consts.Tile(tt.by)}
+			a := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tt.ax), Y: consts.Tile(tt.ay)}}
+			b := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tt.bx), Y: consts.Tile(tt.by)}}
 			assert.Equal(t, tt.want, gridDistance(a, b))
 		})
 	}
@@ -81,31 +81,29 @@ func TestTryMoveCloser(t *testing.T) {
 
 	t.Run("距離が縮まる方向にのみ移動する", func(t *testing.T) {
 		t.Parallel()
-		from := &gc.GridElement{X: 5, Y: 5}
-		target := &gc.GridElement{X: 8, Y: 5}
+		from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+		target := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 5}}
 		currentDist := gridDistance(from, target) // 3
 
 		dx := int(target.X) - int(from.X)
 		dy := int(target.Y) - int(from.Y)
-		candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
+		candidates := calculateMoveCandidates(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
 
 		assert.NotEmpty(t, candidates)
 		bestCandidate := candidates[0]
-		newGrid := &gc.GridElement{
-			X: from.X + consts.Tile(bestCandidate.X),
-			Y: from.Y + consts.Tile(bestCandidate.Y),
-		}
+		newGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: from.X + bestCandidate.X, Y: from.Y + bestCandidate.Y}}
+
 		newDist := gridDistance(newGrid, target)
 		assert.Less(t, newDist, currentDist, "最優先候補は距離を縮める")
 	})
 
 	t.Run("横移動では距離が縮まらないことを検出できる", func(t *testing.T) {
 		t.Parallel()
-		from := &gc.GridElement{X: 5, Y: 5}
-		target := &gc.GridElement{X: 8, Y: 5}
+		from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+		target := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 5}}
 		currentDist := gridDistance(from, target) // 3
 
-		sideGrid := &gc.GridElement{X: 5, Y: 4}
+		sideGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 4}}
 		sideDist := gridDistance(sideGrid, target)
 		assert.GreaterOrEqual(t, sideDist, currentDist, "横移動は距離を縮めない")
 	})
@@ -126,7 +124,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -154,7 +152,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -181,7 +179,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -205,7 +203,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -236,7 +234,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -270,7 +268,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -300,7 +298,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -333,7 +331,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")

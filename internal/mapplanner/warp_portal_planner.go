@@ -45,7 +45,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	// 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック
-	refs := []consts.Coord[int]{playerPos}
+	refs := []consts.Coord[consts.Tile]{playerPos}
 	distSelector := minDistanceReachableSelector(pathFinder, refs, minPortalDistance, maxPortalPlacementAttempts)
 	fallbackSelector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)
 
@@ -54,7 +54,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	if err != nil {
 		return fmt.Errorf("%w: NextPortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
 	}
-	nextPortalPos := consts.Coord[int]{X: int(x), Y: int(y)}
+	nextPortalPos := consts.Coord[consts.Tile]{X: x, Y: y}
 	planData.NextPortals = append(planData.NextPortals, nextPortalPos)
 
 	if query.GetDungeon(p.world) == nil {
@@ -63,13 +63,13 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	// 間隔ごとに帰還ポータルを配置する
 	if query.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
 		// プレイヤー位置とNextPortal位置の両方から最低距離を確保する
-		escRefs := []consts.Coord[int]{playerPos, nextPortalPos}
+		escRefs := []consts.Coord[consts.Tile]{playerPos, nextPortalPos}
 		escDistSelector := minDistanceReachableSelector(pathFinder, escRefs, minPortalDistance, maxPortalPlacementAttempts)
 		ex, ey, escErr := findPosition(planData, p.world, escDistSelector, fallbackSelector)
 		if escErr != nil {
 			return fmt.Errorf("%w: EscapePortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
 		}
-		planData.EscapePortals = append(planData.EscapePortals, consts.Coord[int]{X: int(ex), Y: int(ey)})
+		planData.EscapePortals = append(planData.EscapePortals, consts.Coord[consts.Tile]{X: ex, Y: ey})
 	}
 
 	return nil

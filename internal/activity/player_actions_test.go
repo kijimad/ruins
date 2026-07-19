@@ -22,7 +22,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		// 移動を実行
@@ -81,7 +81,7 @@ func TestExecuteMoveAction(t *testing.T) {
 
 				player := world.ECS.NewEntity()
 				world.Components.Player.Add(player, &gc.Player{})
-				world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+				world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 				world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 				require.NoError(t, ExecuteMoveAction(world, tt.direction))
@@ -98,9 +98,9 @@ func TestExecuteMoveAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy)
 		initialEnemyHP := enemyHP.Current
@@ -130,7 +130,7 @@ func TestExecuteWaitAction(t *testing.T) {
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
 		require.NoError(t, ExecuteWaitAction(world))
@@ -158,12 +158,12 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 
 		// Interactableエンティティを作成
 		interactableEntity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
+		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		interactable, foundEntity := getInteractableAtSameTile(world, targetGrid)
 
 		require.NotNil(t, interactable)
@@ -176,12 +176,12 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 
 		// Interactableエンティティを作成（異なる位置）
 		interactableEntity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{X: 15, Y: 15})
+		world.Components.GridElement.Add(interactableEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 15, Y: 15}})
 		world.Components.Interactable.Add(interactableEntity, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
+		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		interactable, _ := getInteractableAtSameTile(world, targetGrid)
 
 		assert.Nil(t, interactable)
@@ -193,13 +193,13 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 
 		// 死亡したInteractableエンティティを作成
 		deadEntity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(deadEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(deadEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(deadEntity, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
 		world.Components.Dead.Add(deadEntity, &gc.Dead{})
 
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
+		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		interactable, _ := getInteractableAtSameTile(world, targetGrid)
 
 		assert.Nil(t, interactable)
@@ -215,12 +215,12 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 
 		// Manual方式のInteractableを作成
 		manualEntity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(manualEntity, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(manualEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(manualEntity, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem}, // Manual + SameTile
 		})
 
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
+		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		results := GetAllInteractiveInteractablesInRange(world, targetGrid)
 
 		require.Len(t, results, 1)
@@ -233,12 +233,12 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 
 		// OnCollision方式のInteractableを作成
 		collisionEntity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(collisionEntity, &gc.GridElement{X: 11, Y: 10})
+		world.Components.GridElement.Add(collisionEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Interactable.Add(collisionEntity, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionMelee}, // OnCollision + Adjacent
 		})
 
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
+		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		results := GetAllInteractiveInteractablesInRange(world, targetGrid)
 
 		require.Len(t, results, 1)
@@ -271,8 +271,8 @@ func TestGetDirectionLabel(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			playerGrid := &gc.GridElement{X: consts.Tile(tt.playerX), Y: consts.Tile(tt.playerY)}
-			targetGrid := &gc.GridElement{X: consts.Tile(tt.targetX), Y: consts.Tile(tt.targetY)}
+			playerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tt.playerX), Y: consts.Tile(tt.playerY)}}
+			targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tt.targetX), Y: consts.Tile(tt.targetY)}}
 
 			result := GetDirectionLabel(playerGrid, targetGrid)
 			assert.Equal(t, tt.expected, result)
@@ -288,9 +288,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
 		require.NoError(t, err)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
@@ -310,9 +310,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy)
 		enemyHP.Current = 1

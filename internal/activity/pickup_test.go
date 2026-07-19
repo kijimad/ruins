@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -18,13 +19,13 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			Destination:  &destination,
@@ -39,14 +40,14 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// アイテムは別のタイルにある
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			Destination:  &destination,
@@ -62,7 +63,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -101,13 +102,13 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
@@ -130,14 +131,14 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		// 別のタイルにアイテムがある
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
@@ -155,7 +156,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -178,7 +179,7 @@ func TestPickupActivity_DoTurn_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		item1, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
@@ -216,7 +217,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
@@ -236,13 +237,13 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
 		comp := &gc.Activity{
@@ -264,16 +265,16 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 10, Y: 10})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		destination := gc.GridElement{X: 10, Y: 10}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			Destination:  &destination,
@@ -289,7 +290,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
@@ -298,10 +299,10 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 5, Y: 5})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}})
 
-		destination := gc.GridElement{X: 5, Y: 5}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			Destination:  &destination,
@@ -320,17 +321,17 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, 8, 6, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 8, Y: 6}, "Ash")
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.HP.Add(prop, &gc.HP{Max: 10, Current: 10})
-		world.Components.GridElement.Add(prop, &gc.GridElement{X: 8, Y: 6})
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		destination := gc.GridElement{X: 8, Y: 6}
+		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,

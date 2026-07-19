@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // TurnPhase はターンの段階を表す
 type TurnPhase int
 
@@ -28,8 +30,8 @@ func (tp TurnPhase) String() string {
 
 // TurnState はターン状態を保持する。singleton componentとして管理される
 type TurnState struct {
-	Phase      TurnPhase // 現在のターンフェーズ
-	TurnNumber int       // ターン番号（1から開始）
+	Phase      TurnPhase   // 現在のターンフェーズ
+	TurnNumber consts.Turn // ターン番号（1から開始）
 }
 
 // NewTurnState は初期化されたTurnStateを返す

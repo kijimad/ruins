@@ -23,8 +23,6 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)
-	playerX := int(playerGrid.X)
-	playerY := int(playerGrid.Y)
 
 	var enemies []ecs.Entity
 
@@ -32,10 +30,8 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	for enemiesQuery.Next() {
 		entity := enemiesQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
-		enemyX := int(gridElement.X)
-		enemyY := int(gridElement.Y)
 
-		if !IsInVision(world, playerX, playerY, enemyX, enemyY) {
+		if !IsInVision(world, playerGrid.Coord, gridElement.Coord) {
 			continue
 		}
 
@@ -47,8 +43,8 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 
 // IsInVision はプレイヤーから指定座標が現在見えるかをチェックする。
 // リアルタイムの可視性データを使用し、暗闇のタイルは見えないと判定する
-func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
-	distanceInPixels := geometry.Distance(float64(playerX), float64(playerY), float64(targetX), float64(targetY)) * float64(consts.TileSize)
+func IsInVision(world w.World, player, target consts.Coord[consts.Tile]) bool {
+	distanceInPixels := geometry.Distance(float64(player.X), float64(player.Y), float64(target.X), float64(target.Y)) * float64(consts.TileSize)
 	visionRadius := float64(consts.VisionRadiusTiles) * float64(consts.TileSize)
 
 	if distanceInPixels > visionRadius {
@@ -60,8 +56,7 @@ func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 		return false
 	}
 
-	gridElement := gc.GridElement{X: consts.Tile(targetX), Y: consts.Tile(targetY)}
-	return dungeon.VisibleTiles[gridElement]
+	return dungeon.VisibleTiles[gc.GridElement{Coord: target}]
 }
 
 // GetVisibleItems は視界内のアイテムエンティティをすべて取得して返す
@@ -76,8 +71,6 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)
-	playerX := int(playerGrid.X)
-	playerY := int(playerGrid.Y)
 
 	var items []ecs.Entity
 
@@ -85,10 +78,8 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	for itemsQuery.Next() {
 		entity := itemsQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
-		itemX := int(gridElement.X)
-		itemY := int(gridElement.Y)
 
-		if !IsInVision(world, playerX, playerY, itemX, itemY) {
+		if !IsInVision(world, playerGrid.Coord, gridElement.Coord) {
 			continue
 		}
 

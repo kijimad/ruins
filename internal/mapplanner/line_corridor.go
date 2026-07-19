@@ -69,7 +69,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 
 			// 中心線は無条件に床に変換する
 			for _, p := range centerPoints {
-				idx := planData.Level.XYTileIndex(p.X, p.Y)
+				idx := planData.Level.CoordToIndex(p)
 				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Name == consts.TileNameWall {
 					planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
 				}
@@ -78,7 +78,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 
 			// サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
 			for _, p := range sidePoints {
-				idx := planData.Level.XYTileIndex(p.X, p.Y)
+				idx := planData.Level.CoordToIndex(p)
 				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Name == consts.TileNameWall {
 					if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) {
 						continue
@@ -103,7 +103,7 @@ func isValidTileIdx(planData *MetaPlan, idx gc.TileIdx) bool {
 // 対角方向も含めることで、部屋の角付近でサイドタイルが部屋壁を上書きするのを防ぐ
 func isAdjacentToRoom(rooms []gc.Rect, x, y int) bool {
 	for _, room := range rooms {
-		if x >= int(room.X1)-1 && x <= int(room.X2)+1 && y >= int(room.Y1)-1 && y <= int(room.Y2)+1 {
+		if x >= int(room.Min.X)-1 && x <= int(room.Max.X)+1 && y >= int(room.Min.Y)-1 && y <= int(room.Max.Y)+1 {
 			return true
 		}
 	}

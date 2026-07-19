@@ -21,7 +21,7 @@ func TestMoveToStorage(t *testing.T) {
 	require.NoError(t, err)
 
 	// アイテムを生成してバックパックに配置
-	playerEntity, err2 := SpawnPlayer(world, 5, 5, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err2)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
@@ -154,7 +154,7 @@ func TestMoveToStorage_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err2 := SpawnPlayer(world, 5, 5, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err2)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
@@ -177,7 +177,7 @@ func TestMoveToBackpack_SetsWeightDirtyOnPreviousStorage(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err2 := SpawnPlayer(world, 5, 5, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err2)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
@@ -197,7 +197,7 @@ func TestMoveToField_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	playerEntity, err := SpawnPlayer(world, 5, 5, "Ash")
+	playerEntity, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
@@ -218,7 +218,7 @@ func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err2 := SpawnPlayer(world, 5, 5, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err2)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
@@ -239,7 +239,7 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err := SpawnPlayer(world, 5, 5, "Ash")
+	playerEntity, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	// バックパックに回復薬 x3 を配置
@@ -275,7 +275,7 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := SpawnPlayer(world, 5, 5, "Ash")
+	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	// 非Stackableアイテムを2つバックパックに配置
@@ -305,7 +305,7 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	_, err = SpawnPlayer(world, 5, 5, "Ash")
+	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	// 収納に回復薬 x3 を配置
@@ -344,7 +344,7 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	storageB, err := SpawnProp(world, "木箱", consts.Tile(1), consts.Tile(0))
 	require.NoError(t, err)
 
-	_, err = SpawnPlayer(world, 5, 5, "Ash")
+	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	// 木箱Aに回復薬 x3、木箱Bに回復薬 x2

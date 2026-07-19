@@ -14,7 +14,7 @@ import (
 
 // CanMoveTo は指定位置に移動可能かチェックする。
 // fromは移動元の座標で、斜め移動時の壁すり抜け防止に使用する
-func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entity) bool {
+func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], movingEntity ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return false
@@ -31,20 +31,19 @@ func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entit
 	}
 
 	// 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
-	dx := to.X - from.X
-	dy := to.Y - from.Y
-	if dx != 0 && dy != 0 {
-		if si.IsBlockPass(from.X+dx, from.Y) && si.IsBlockPass(from.X, from.Y+dy) {
+	d := to.Sub(from)
+	if d.X != 0 && d.Y != 0 {
+		if si.IsBlockPass(from.Add(consts.Coord[consts.Tile]{X: d.X})) && si.IsBlockPass(from.Add(consts.Coord[consts.Tile]{Y: d.Y})) {
 			return false
 		}
 	}
 
-	if si.IsBlockPass(to.X, to.Y) {
+	if si.IsBlockPass(to) {
 		return false
 	}
 
 	// キャラクターがいるタイルへは、位置交換できる相手の場合のみ移動可能
-	if target, ok := si.CharacterAt(to.X, to.Y); ok {
+	if target, ok := si.CharacterAt(to); ok {
 		return CanSwapPosition(world, movingEntity, target)
 	}
 
@@ -56,12 +55,12 @@ func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entit
 // 進入不可ラインは極低温ゾーン西端 ColdZoneWest。ここより西は破棄され進入もできない。
 // 極低温ゾーン自体（ライン東〜前線東端）へは進入できる。踏み込むと凍える。
 // ゾーン判定は SeamlessBand のメソッドに集約している。前線が無効な通常ダンジョンでは常に許可する。
-func frontAllowsMoveTo(world w.World, localX int) bool {
+func frontAllowsMoveTo(world w.World, localX consts.Tile) bool {
 	sb := query.GetDungeon(world).SeamlessBand
 	if !sb.Front.Active {
 		return true
 	}
-	return !sb.Front.IsWestOfFront(sb.LocalToAbsX(consts.Tile(localX)))
+	return !sb.Front.IsWestOfFront(sb.LocalToAbsX(localX))
 }
 
 // CanSwapPosition はmoverがtargetと位置交換できるかを判定する。
@@ -113,8 +112,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveTargetNotSet
 	}
 
-	dest := consts.Coord[int]{X: int(comp.Destination.X), Y: int(comp.Destination.Y)}
-	if dest.X < 0 || dest.Y < 0 {
+	if comp.Destination.X < 0 || comp.Destination.Y < 0 {
 		return ErrMoveTargetCoordInvalid
 	}
 
@@ -122,7 +120,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveNoGridElement
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(gridElement.X), Y: int(gridElement.Y)}, actor) {
+	if !CanMoveTo(world, comp.Destination.Coord, gridElement.Coord, actor) {
 		return ErrMoveTargetInvalid
 	}
 
@@ -165,8 +163,8 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	// 移動可能かチェック
 	grid := gridElement
-	to := consts.Coord[int]{X: int(comp.Destination.X), Y: int(comp.Destination.Y)}
-	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
+	to := comp.Destination.Coord
+	from := grid.Coord
 	if !CanMoveTo(world, to, from, actor) {
 		Cancel(comp, "移動できません")
 		return ErrMoveTargetInvalid
@@ -203,45 +201,42 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	if !world.Components.GridElement.Has(actor) {
 		return ErrGridElementNotFound
 	}
-	gridElement := world.Components.GridElement.Get(actor)
-
-	grid := gridElement
-	oldX, oldY := int(grid.X), int(grid.Y)
-	destX, destY := int(comp.Destination.X), int(comp.Destination.Y)
+	grid := world.Components.GridElement.Get(actor)
+	old := grid.Coord
+	dest := comp.Destination.Coord
 
 	// 味方キャラクターのいるタイルに移動する場合、位置を入れ替える
-	swapped, didSwap := swapAllyIfNeeded(world, actor, oldX, oldY, destX, destY)
+	swapped, didSwap := swapAllyIfNeeded(world, actor, old, dest)
 
-	grid.X = comp.Destination.X
-	grid.Y = comp.Destination.Y
+	grid.Coord = dest
 
 	// 空間インデックスを増分更新する（無効化→全再構築のチャーンを避け、
 	// 同一ターン内で後続のAIが移動先を正しく判定できるようにする）。
 	// 入れ替えが起きた場合は相手キャラの位置(dest→old)も更新する。
 	// 更新順は問わない（MoveCharacter が自分自身のときだけ from を削除するため）。
-	query.UpdateCharacterPositionInIndex(world, actor, oldX, oldY, destX, destY)
+	query.UpdateCharacterPositionInIndex(world, actor, old, dest)
 	if didSwap {
-		query.UpdateCharacterPositionInIndex(world, swapped, destX, destY, oldX, oldY)
+		query.UpdateCharacterPositionInIndex(world, swapped, dest, old)
 	}
 
 	progressHunger(actor, world)
 
 	log.Debug("移動完了",
 		"actor", actor,
-		"from", fmt.Sprintf("(%d,%d)", oldX, oldY),
-		"to", fmt.Sprintf("(%d,%d)", destX, destY))
+		"from", old.String(),
+		"to", dest.String())
 
 	return nil
 }
 
 // swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える。
 // 入れ替えた相手と、入れ替えが発生したかを返す
-func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) (ecs.Entity, bool) {
+func swapAllyIfNeeded(world w.World, actor ecs.Entity, from, to consts.Coord[consts.Tile]) (ecs.Entity, bool) {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return ecs.Entity{}, false
 	}
-	target, ok := si.CharacterAt(toX, toY)
+	target, ok := si.CharacterAt(to)
 	if !ok {
 		return ecs.Entity{}, false
 	}
@@ -252,13 +247,13 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 		return ecs.Entity{}, false
 	}
 	targetGrid := world.Components.GridElement.Get(target)
-	targetGrid.X = consts.Tile(fromX)
-	targetGrid.Y = consts.Tile(fromY)
+	targetGrid.Coord = from
 
+	// 位置入れ替えなので味方は actor と逆向きに動く。味方視点では to から from へ移る
 	log.Debug("味方と位置入れ替え",
 		"target", target,
-		"from", fmt.Sprintf("(%d,%d)", toX, toY),
-		"to", fmt.Sprintf("(%d,%d)", fromX, fromY))
+		"from", to.String(),
+		"to", from.String())
 
 	return target, true
 }

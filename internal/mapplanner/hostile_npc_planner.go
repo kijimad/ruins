@@ -22,7 +22,7 @@ const (
 
 // NPCSpec はNPC配置仕様を表す
 type NPCSpec struct {
-	consts.Coord[int]
+	consts.Coord[consts.Tile]
 	Name string // NPCタイプ
 }
 
@@ -105,7 +105,7 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, entries []Sp
 			continue
 		}
 		planData.NPCs = append(planData.NPCs, NPCSpec{
-			Coord: consts.Coord[int]{X: int(anchorX), Y: int(anchorY)},
+			Coord: consts.Coord[consts.Tile]{X: anchorX, Y: anchorY},
 			Name:  entry.Name,
 		})
 		placed++
@@ -119,7 +119,7 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, entries []Sp
 				break
 			}
 			planData.NPCs = append(planData.NPCs, NPCSpec{
-				Coord: consts.Coord[int]{X: int(tx), Y: int(ty)},
+				Coord: consts.Coord[consts.Tile]{X: tx, Y: ty},
 				Name:  entry.Name,
 			})
 			placed++
@@ -154,7 +154,7 @@ func (n *HostileNPCPlanner) planWithRandomPosition(planData *MetaPlan, entries [
 		}
 
 		planData.NPCs = append(planData.NPCs, NPCSpec{
-			Coord: consts.Coord[int]{X: int(tx), Y: int(ty)},
+			Coord: consts.Coord[consts.Tile]{X: tx, Y: ty},
 			Name:  entry.Name,
 		})
 		placed++

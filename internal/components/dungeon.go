@@ -50,7 +50,7 @@ type SeamlessFront struct {
 	// ColdWidth は極低温ゾーンの幅
 	ColdWidth consts.Tile
 	// AdvanceTurns はこの経過ターンごとに Step タイル東進する
-	AdvanceTurns int
+	AdvanceTurns consts.Turn
 	// Step は1回の前進量
 	Step consts.Tile
 	// EastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した
@@ -120,11 +120,10 @@ func NewDungeon() *Dungeon {
 		VisibleTiles:     make(map[GridElement]bool),
 		LightSourceCache: make(map[GridElement]LightInfo),
 		MinimapSettings: MinimapSettings{
-			Width:   150,
-			Height:  150,
-			OffsetX: 10,
-			OffsetY: 10,
-			Scale:   3,
+			Width:  150,
+			Height: 150,
+			Offset: consts.Coord[int]{X: 10, Y: 10},
+			Scale:  3,
 		},
 		SelectedWeaponSlot: 1,
 	}
@@ -139,27 +138,27 @@ type Level struct {
 	TileHeight consts.Tile
 }
 
-// XYTileIndex はタイル座標から、タイルスライスのインデックスを求める
-func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {
-	return TileIdx(int(ty)*int(l.TileWidth) + int(tx))
+// CoordToIndex はタイル座標から、タイルスライスのインデックスを求める
+func (l *Level) CoordToIndex(pos consts.Coord[consts.Tile]) TileIdx {
+	return TileIdx(int(pos.Y)*int(l.TileWidth) + int(pos.X))
 }
 
-// XYTileCoord はタイルスライスのインデックスからタイル座標を求める
-func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {
-	x := int(idx) % int(l.TileWidth)
-	y := int(idx) / int(l.TileWidth)
+// IndexToCoord はタイルスライスのインデックスからタイル座標を求める。CoordToIndex の逆操作
+func (l *Level) IndexToCoord(idx TileIdx) consts.Coord[consts.Tile] {
+	x := consts.Tile(int(idx) % int(l.TileWidth))
+	y := consts.Tile(int(idx) / int(l.TileWidth))
 
-	return consts.Pixel(x), consts.Pixel(y)
+	return consts.Coord[consts.Tile]{X: x, Y: y}
 }
 
 // Width はステージ幅。横の全体ピクセル数
-func (l *Level) Width() consts.Pixel {
-	return consts.Pixel(int(l.TileWidth) * int(consts.TileSize))
+func (l *Level) Width() consts.WorldPixel {
+	return consts.WorldPixel(int(l.TileWidth) * int(consts.TileSize))
 }
 
 // Height はステージ縦。縦の全体ピクセル数
-func (l *Level) Height() consts.Pixel {
-	return consts.Pixel(int(l.TileHeight) * int(consts.TileSize))
+func (l *Level) Height() consts.WorldPixel {
+	return consts.WorldPixel(int(l.TileHeight) * int(consts.TileSize))
 }
 
 // MinimapSettings はミニマップの設定を管理する
@@ -167,9 +166,9 @@ type MinimapSettings struct {
 	// ミニマップのサイズ（ピクセル単位）
 	Width  int
 	Height int
-	// ミニマップの表示位置（画面右上に配置）
-	OffsetX int
-	OffsetY int
+	// ミニマップの表示位置。整数ピクセルの画面 UI レイアウト値で、ワールド座標でもタイル座標でもない。
+	// Width/Height/Scale と同じ UI 設定の一員なので Coord[consts.WorldPixel] でなく Coord[int] にする。
+	Offset consts.Coord[int]
 	// ミニマップのスケール（何ピクセルで1タイルを表すか）
 	Scale int
 }

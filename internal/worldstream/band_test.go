@@ -34,22 +34,22 @@ func TestBand_ShiftEast(t *testing.T) {
 	d.Level = gc.Level{TileWidth: 300, TileHeight: 60} // K=3 * chunkW=100
 
 	// プレイヤーは東チャンクへ踏み込んでいる（localX=210）
-	player, err := lifecycle.SpawnPlayer(world, 210, 30, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 210, Y: 30}, "Ash")
 	require.NoError(t, err)
 	// 西端チャンク [0,100) の敵 → 破棄される
-	westEnemy, err := lifecycle.SpawnEnemy(world, 50, 30, "火の玉")
+	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "火の玉")
 	require.NoError(t, err)
 	// 東チャンク [200,300) の敵 → 残ってリベースされる
-	eastEnemy, err := lifecycle.SpawnEnemy(world, 250, 30, "火の玉")
+	eastEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 250, Y: 30}, "火の玉")
 	require.NoError(t, err)
 
 	// 探索済み: 中央(150,30)は生存→(50,30)へ、西(50,30)は破棄ゾーンへ落ちて消える
 	d.ExploredTiles = map[gc.GridElement]bool{
-		{X: 150, Y: 30}: true,
-		{X: 50, Y: 30}:  true,
+		{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}: true,
+		{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}:  true,
 	}
 	// 視界も付け替え対象（チラつき防止のためクリアでなく平行移動する）
-	d.VisibleTiles = map[gc.GridElement]bool{{X: 150, Y: 30}: true}
+	d.VisibleTiles = map[gc.GridElement]bool{{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}: true}
 
 	b := worldstream.NewBand(100, 3)
 	require.True(t, b.ShouldShiftEast(210), "前提: 東シフト条件を満たす")
@@ -60,7 +60,7 @@ func TestBand_ShiftEast(t *testing.T) {
 		gotChunkIndex = chunkIndex
 		gotOffsetX = offsetX
 		// 東端に新チャンクのタイルを1枚だけ置く（マーカー）
-		world.Components.GridElement.NewEntity(&gc.GridElement{X: offsetX + 5, Y: 10})
+		world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: offsetX + 5, Y: 10}})
 		return nil
 	}
 
@@ -82,13 +82,13 @@ func TestBand_ShiftEast(t *testing.T) {
 	assert.Equal(t, consts.Tile(200), gotOffsetX, "東スラブのオフセット")
 
 	// ExploredTiles 追従: (150,30)→(50,30) 生存、(50,30)→(-50,30) は帯外で破棄
-	assert.True(t, d.ExploredTiles[gc.GridElement{X: 50, Y: 30}], "中央の探索済みは付け替わって残る")
-	assert.False(t, d.ExploredTiles[gc.GridElement{X: 150, Y: 30}], "元キーは残らない")
+	assert.True(t, d.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}], "中央の探索済みは付け替わって残る")
+	assert.False(t, d.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}], "元キーは残らない")
 	assert.Len(t, d.ExploredTiles, 1, "帯外に落ちた探索済みキーは捨てられる")
 
 	// 視界も付け替えられる（クリアでなく平行移動。シフトフレームの暗転＝チラつきを防ぐ）
-	assert.True(t, d.VisibleTiles[gc.GridElement{X: 50, Y: 30}], "VisibleTiles も付け替わって残る")
-	assert.False(t, d.VisibleTiles[gc.GridElement{X: 150, Y: 30}], "元キーは残らない")
+	assert.True(t, d.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}], "VisibleTiles も付け替わって残る")
+	assert.False(t, d.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}], "元キーは残らない")
 }
 
 // TestBand_ShiftWest は西へ1回シフトする対称動作を固定する（短い寄り道の復帰）。
@@ -100,13 +100,13 @@ func TestBand_ShiftWest(t *testing.T) {
 	d.Level = gc.Level{TileWidth: 300, TileHeight: 60}
 
 	// プレイヤーは西チャンクへ踏み込んでいる（localX=90）
-	player, err := lifecycle.SpawnPlayer(world, 90, 30, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 90, Y: 30}, "Ash")
 	require.NoError(t, err)
 	// 東端チャンク [200,300) の敵 → 破棄される
-	eastEnemy, err := lifecycle.SpawnEnemy(world, 250, 30, "火の玉")
+	eastEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 250, Y: 30}, "火の玉")
 	require.NoError(t, err)
 	// 西チャンク [0,100) の敵 → 残ってリベースされる
-	westEnemy, err := lifecycle.SpawnEnemy(world, 50, 30, "火の玉")
+	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "火の玉")
 	require.NoError(t, err)
 
 	b := worldstream.NewBandAt(100, 3, 1) // 一度東へ進んだ状態から西へ戻る

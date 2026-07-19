@@ -192,41 +192,40 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 
 // findAdjacentEmptyTile はcenterの隣接タイルから空きタイルを探す。
 // excludeは追加で除外する座標セット。空きがなければエラーを返す
-func findAdjacentEmptyTile(world w.World, centerX, centerY int, exclude map[gc.GridElement]bool) (int, int, error) {
+func findAdjacentEmptyTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) (consts.Coord[consts.Tile], error) {
 	si := query.GetSpatialIndex(world)
 	// 上下左右を優先し、次に斜めを探す
-	offsets := [][2]int{
-		{0, -1}, {0, 1}, {-1, 0}, {1, 0},
-		{-1, -1}, {1, -1}, {-1, 1}, {1, 1},
+	offsets := []consts.Coord[consts.Tile]{
+		{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0},
+		{X: -1, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 1}, {X: 1, Y: 1},
 	}
 	for _, off := range offsets {
-		x, y := centerX+off[0], centerY+off[1]
-		if x < 0 || y < 0 {
+		tile := center.Add(off)
+		if tile.X < 0 || tile.Y < 0 {
 			continue
 		}
 		// SpatialIndexが構築済みの場合のみ範囲と衝突をチェックする
 		if si != nil {
-			if x >= si.MapWidth || y >= si.MapHeight {
+			if tile.X >= si.MapWidth || tile.Y >= si.MapHeight {
 				continue
 			}
-			if si.IsBlockPass(x, y) {
+			if si.IsBlockPass(tile) {
 				continue
 			}
-			if _, occupied := si.CharacterAt(x, y); occupied {
+			if _, occupied := si.CharacterAt(tile); occupied {
 				continue
 			}
 		}
-		pos := gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}
-		if exclude[pos] {
+		if exclude[gc.GridElement{Coord: tile}] {
 			continue
 		}
-		return x, y, nil
+		return tile, nil
 	}
-	return 0, 0, fmt.Errorf("(%d,%d)の隣接に空きタイルがありません", centerX, centerY)
+	return consts.Coord[consts.Tile]{}, fmt.Errorf("(%d,%d)の隣接に空きタイルがありません", center.X, center.Y)
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
-func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
+func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	var playerEntity ecs.Entity
 	var found bool
 
@@ -244,28 +243,25 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 
 	// プレイヤーの位置を更新する
 	gridElement := world.Components.GridElement.Get(playerEntity)
-	gridElement.X = consts.Tile(tileX)
-	gridElement.Y = consts.Tile(tileY)
+	gridElement.X = pos.X
+	gridElement.Y = pos.Y
 
 	// カメラ位置も同期する
 	camera := world.Components.Camera.Get(playerEntity)
-	tileSize := float64(consts.TileSize)
-	camera.Pos.X = float64(tileX)*tileSize + tileSize/2
-	camera.Pos.Y = float64(tileY)*tileSize + tileSize/2
-	camera.Target.X = camera.Pos.X
-	camera.Target.Y = camera.Pos.Y
+	camera.Pos = consts.TileCenterToWorld(pos)
+	camera.Target = camera.Pos
 
 	// Active隊員をプレイヤーの隣接タイルに配置する
 	exclude := map[gc.GridElement]bool{}
 	for _, member := range query.SquadMembers(world) {
 		memberGrid := world.Components.GridElement.Get(member)
-		x, y, err := findAdjacentEmptyTile(world, tileX, tileY, exclude)
+		adj, err := findAdjacentEmptyTile(world, pos, exclude)
 		if err != nil {
 			return fmt.Errorf("隊員の配置に失敗: %w", err)
 		}
-		memberGrid.X = consts.Tile(x)
-		memberGrid.Y = consts.Tile(y)
-		exclude[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true
+		memberGrid.X = adj.X
+		memberGrid.Y = adj.Y
+		exclude[gc.GridElement{Coord: adj}] = true
 	}
 
 	return nil

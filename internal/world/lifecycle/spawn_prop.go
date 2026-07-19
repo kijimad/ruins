@@ -130,10 +130,10 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
 	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, propName)
 	if err != nil {
-		return consts.InvalidEntity, err
+		return gc.InvalidEntity, err
 	}
 
-	entitySpec.GridElement = &gc.GridElement{X: x, Y: y}
+	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
@@ -151,7 +151,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 	entitySpec := gc.EntitySpec{
 		Name:        &gc.Name{Name: "扉"},
 		Description: &gc.Description{Description: "開閉できる扉"},
-		GridElement: &gc.GridElement{X: x, Y: y},
+		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,

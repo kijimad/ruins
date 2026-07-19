@@ -1,5 +1,7 @@
 package consts
 
+import "fmt"
+
 // Numeric は座標で使用可能な数値型を定義する
 type Numeric interface {
 	~int | ~float64
@@ -9,6 +11,37 @@ type Numeric interface {
 type Coord[T Numeric] struct {
 	X T
 	Y T
+}
+
+// String は (x,y) 形式の文字列を返す。ログや座標表示の整形を一箇所に集約する。
+func (c Coord[T]) String() string {
+	return fmt.Sprintf("(%v,%v)", c.X, c.Y)
+}
+
+// Add は2つの座標を成分ごとに加算した座標を返す。
+func (c Coord[T]) Add(o Coord[T]) Coord[T] {
+	return Coord[T]{X: c.X + o.X, Y: c.Y + o.Y}
+}
+
+// Sub は成分ごとに減算した座標を返す。
+func (c Coord[T]) Sub(o Coord[T]) Coord[T] {
+	return Coord[T]{X: c.X - o.X, Y: c.Y - o.Y}
+}
+
+// TileCenterToWorld はタイル座標を、そのタイル中心のワールドピクセル座標へ変換する。
+// スプライトはタイル中心に合わせて配置するため中心へ半タイルぶんずらす。
+func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
+	half := TileSize / 2
+	return Coord[WorldPixel]{X: WorldPixel(grid.X)*TileSize + half, Y: WorldPixel(grid.Y)*TileSize + half}
+}
+
+// WorldToScreen はワールドピクセル座標をカメラ変換して画面のスクリーンピクセル座標へ変換する。
+// cameraPos はカメラ中心のワールド位置、scale はズーム率、screen は画面サイズ。
+func WorldToScreen(world Coord[WorldPixel], cameraPos Coord[WorldPixel], scale float64, screenW, screenH int) Coord[ScreenPixel] {
+	return Coord[ScreenPixel]{
+		X: ScreenPixel(float64(world.X-cameraPos.X)*scale + float64(screenW)/2),
+		Y: ScreenPixel(float64(world.Y-cameraPos.Y)*scale + float64(screenH)/2),
+	}
 }
 
 // AbsTileX は東西の絶対タイル X 座標。

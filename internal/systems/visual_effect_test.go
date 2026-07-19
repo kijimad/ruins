@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -44,8 +45,8 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	require.True(t, ok, "SplashTextEffectであるべき")
 
 	assert.Equal(t, "テストダンジョン 1F", effect.Text)
-	assert.Equal(t, 400.0, effect.OffsetX, "画面中央X")
-	assert.Equal(t, 240.0, effect.OffsetY, "画面上部2/5")
+	assert.Equal(t, 400.0, effect.Offset.X, "画面中央X")
+	assert.Equal(t, 240.0, effect.Offset.Y, "画面上部2/5")
 	assert.Equal(t, 0.0, effect.Alpha, "初期Alpha")
 	assert.Equal(t, 3200.0, effect.TotalMs, "合計時間")
 	assert.Greater(t, effect.LineWidth, 0.0, "水平線が有効")
@@ -71,7 +72,7 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 	// シルエットエフェクトを作成
 	spriteFadeoutEffect := gc.NewSpriteFadeoutEffect("character", "slime_0")
 	effectEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(effectEntity, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{spriteFadeoutEffect},
 	})
@@ -140,7 +141,7 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 	// ダメージエフェクトをGridElement付きで作成
 	damageEffect := gc.NewDamageEffect(99)
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 4})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{damageEffect},
 	})
@@ -152,8 +153,8 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 	require.True(t, ok)
 
 	assert.Equal(t, "99", effect.Text)
-	assert.Equal(t, -8.0, effect.OffsetY)
-	initialY := effect.OffsetY
+	assert.Equal(t, -8.0, effect.Offset.Y)
+	initialY := effect.Offset.Y
 
 	// Update実行後にY座標が移動することを確認
 	sys := &VisualEffectSystem{}
@@ -164,7 +165,7 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 	require.Len(t, ve.Effects, 1)
 	effect, ok = ve.Effects[0].(*gc.DamageTextEffect)
 	require.True(t, ok, "型が *gc.DamageTextEffect であるべき")
-	assert.Less(t, effect.OffsetY, initialY, "VelocityYが負なのでY座標が減少する")
+	assert.Less(t, effect.Offset.Y, initialY, "VelocityYが負なのでY座標が減少する")
 	assert.Greater(t, effect.Alpha, 0.0, "フェードインが始まる")
 }
 
@@ -174,7 +175,7 @@ func TestVisualEffectSystem_MissEffect(t *testing.T) {
 
 	missEffect := gc.NewMissEffect()
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 5, Y: 5})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{missEffect},
 	})
@@ -200,7 +201,7 @@ func TestVisualEffectSystem_HealEffect(t *testing.T) {
 
 	healEffect := gc.NewHealEffect(30)
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 2, Y: 3})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 3}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{healEffect},
 	})
@@ -224,7 +225,7 @@ func TestVisualEffectSystem_MultipleEffectsOnEntity(t *testing.T) {
 
 	// 1つのエンティティに複数エフェクトを付与
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 3, Y: 3})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{
 			gc.NewDamageEffect(50),
@@ -255,12 +256,12 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 			TotalMs: 800, RemainingMs: 1,
 		},
 		TextProperties: gc.TextProperties{
-			Text: "1", OffsetY: -8,
+			Text: "1", Offset: consts.Coord[float64]{Y: -8},
 		},
 		VelocityY: -0.5,
 	}
 	entity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(entity, &gc.GridElement{X: 1, Y: 1})
+	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
@@ -287,9 +288,8 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 			RemainingMs: 1, // ほぼ完了（残り1ミリ秒）
 		},
 		TextProperties: gc.TextProperties{
-			Text:    "テスト",
-			OffsetX: 100,
-			OffsetY: 100,
+			Text:   "テスト",
+			Offset: consts.Coord[float64]{X: 100, Y: 100},
 		},
 	}
 	effectEntity := world.ECS.NewEntity()

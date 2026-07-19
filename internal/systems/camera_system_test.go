@@ -17,7 +17,7 @@ func TestCameraSystem_SnapsToPlayerPosition(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 
 	// カメラの初期位置は原点
@@ -36,8 +36,8 @@ func TestCameraSystem_SnapsToPlayerPosition(t *testing.T) {
 	expectedY := float64(10)*tileSize + tileSize/2
 
 	camera = world.Components.Camera.Get(cameraEntity)
-	assert.Equal(t, expectedX, camera.Pos.X, "1回のUpdateでカメラがプレイヤー位置にスナップする")
-	assert.Equal(t, expectedY, camera.Pos.Y, "1回のUpdateでカメラがプレイヤー位置にスナップする")
+	assert.Equal(t, expectedX, float64(camera.Pos.X), "1回のUpdateでカメラがプレイヤー位置にスナップする")
+	assert.Equal(t, expectedY, float64(camera.Pos.Y), "1回のUpdateでカメラがプレイヤー位置にスナップする")
 }
 
 func TestCameraSystem_NoPlayer(t *testing.T) {
@@ -51,8 +51,8 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 	camera := &gc.Camera{
 		Scale:   1.0,
 		ScaleTo: 1.0,
-		Pos:     consts.Coord[float64]{X: initialX, Y: initialY},
-		Target:  consts.Coord[float64]{X: initialX, Y: initialY},
+		Pos:     consts.Coord[consts.WorldPixel]{X: consts.WorldPixel(initialX), Y: consts.WorldPixel(initialY)},
+		Target:  consts.Coord[consts.WorldPixel]{X: consts.WorldPixel(initialX), Y: consts.WorldPixel(initialY)},
 	}
 	world.Components.Camera.Add(cameraEntity, camera)
 
@@ -60,8 +60,8 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	camera = world.Components.Camera.Get(cameraEntity)
-	assert.Equal(t, initialX, camera.Pos.X, "プレイヤーがいない場合、カメラ位置は変わらない")
-	assert.Equal(t, initialY, camera.Pos.Y, "プレイヤーがいない場合、カメラ位置は変わらない")
+	assert.Equal(t, initialX, float64(camera.Pos.X), "プレイヤーがいない場合、カメラ位置は変わらない")
+	assert.Equal(t, initialY, float64(camera.Pos.Y), "プレイヤーがいない場合、カメラ位置は変わらない")
 }
 
 func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
@@ -69,7 +69,7 @@ func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	cameraEntity := world.ECS.NewEntity()
@@ -91,6 +91,6 @@ func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 	expectedX := float64(8)*tileSize + tileSize/2
 	expectedY := float64(3)*tileSize + tileSize/2
 	camera = world.Components.Camera.Get(cameraEntity)
-	assert.Equal(t, expectedX, camera.Pos.X, "移動後にカメラが即座に追従する")
-	assert.Equal(t, expectedY, camera.Pos.Y, "移動後にカメラが即座に追従する")
+	assert.Equal(t, expectedX, float64(camera.Pos.X), "移動後にカメラが即座に追従する")
+	assert.Equal(t, expectedY, float64(camera.Pos.Y), "移動後にカメラが即座に追従する")
 }

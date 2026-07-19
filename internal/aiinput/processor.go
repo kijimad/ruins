@@ -96,14 +96,13 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 		return nil, fmt.Errorf("プレイヤーに位置情報がありません")
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
-	px, py := int(playerGrid.X), int(playerGrid.Y)
 
 	kept := make([]ecs.Entity, 0, len(targets))
 	for _, entity := range targets {
 		solo := world.Components.SoloAI.Get(entity)
 		if solo != nil && !isActiveCombatState(solo.SubState) {
 			grid := world.Components.GridElement.Get(entity)
-			if geometry.ChebyshevDistance(px, py, int(grid.X), int(grid.Y)) > activationRadius {
+			if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) > activationRadius {
 				// 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい
 				continue
 			}

@@ -47,7 +47,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 
 		for x := range width {
 			for y := range height {
-				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 				// 左右端は壁にする
 				// 上下端はオートマトンのルールに任せる
@@ -90,7 +90,7 @@ func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, ce
 				continue
 			}
 
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 			if planData.Tiles[idx].BlockPass {
 				wallCount++
 			}
@@ -109,7 +109,7 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 	// 連結している床領域を見つけて部屋として登録
 	for x := range width {
 		for y := range height {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			if !planData.Tiles[idx].BlockPass && !visited[idx] {
 				// 洪水塗りつぶしで連結領域を見つける
@@ -122,28 +122,24 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 					minY, maxY := y, y
 
 					for _, tilePos := range floorTiles {
-						tileX, tileY := planData.Level.XYTileCoord(gc.TileIdx(tilePos))
-						if int(tileX) < minX {
-							minX = int(tileX)
+						pos := planData.Level.IndexToCoord(gc.TileIdx(tilePos))
+						if int(pos.X) < minX {
+							minX = int(pos.X)
 						}
-						if int(tileX) > maxX {
-							maxX = int(tileX)
+						if int(pos.X) > maxX {
+							maxX = int(pos.X)
 						}
-						if int(tileY) < minY {
-							minY = int(tileY)
+						if int(pos.Y) < minY {
+							minY = int(pos.Y)
 						}
-						if int(tileY) > maxY {
-							maxY = int(tileY)
+						if int(pos.Y) > maxY {
+							maxY = int(pos.Y)
 						}
 					}
 
 					// 部屋として登録
-					room := gc.Rect{
-						X1: consts.Tile(minX),
-						Y1: consts.Tile(minY),
-						X2: consts.Tile(maxX),
-						Y2: consts.Tile(maxY),
-					}
+					room := gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(minX), Y: consts.Tile(minY)}, Max: consts.Coord[consts.Tile]{X: consts.Tile(maxX), Y: consts.Tile(maxY)}}
+
 					planData.Rooms = append(planData.Rooms, room)
 				}
 			}
@@ -158,7 +154,7 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
 	var result []int
 	var queue [][2]int
 
-	startIdx := planData.Level.XYTileIndex(consts.Tile(startX), consts.Tile(startY))
+	startIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(startX), Y: consts.Tile(startY)})
 	queue = append(queue, [2]int{startX, startY})
 	visited[startIdx] = true
 
@@ -170,7 +166,7 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
 		queue = queue[1:]
 
 		x, y := current[0], current[1]
-		idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+		idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 		result = append(result, int(idx))
 
 		// 隣接タイルをチェック
@@ -178,7 +174,7 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
 			nx, ny := x+dir[0], y+dir[1]
 
 			if nx >= 0 && nx < width && ny >= 0 && ny < height {
-				nIdx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
+				nIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 
 				if !visited[nIdx] && !planData.Tiles[nIdx].BlockPass {
 					visited[nIdx] = true
@@ -205,7 +201,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error {
 
 	for x := 1; x < width-1; x++ {
 		for y := 1; y < height-1; y++ {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			// 現在が壁で、隣接に床がある場合
 			if planData.Tiles[idx].BlockPass {
@@ -236,7 +232,7 @@ func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, center
 		x, y := centerX+dir[0], centerY+dir[1]
 
 		if x >= 0 && x < width && y >= 0 && y < height {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 			if !planData.Tiles[idx].BlockPass {
 				count++
 			}
@@ -257,7 +253,7 @@ func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {
 	// 床タイルの一部を鍾乳石（壁）に変換
 	for x := 2; x < width-2; x++ {
 		for y := 2; y < height-2; y++ {
-			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			if !planData.Tiles[idx].BlockPass {
 				// 2%の確率で鍾乳石を配置（確率を下げてより通行可能に）
@@ -295,10 +291,10 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 	height := int(planData.Level.TileHeight)
 
 	// 各部屋の中心を計算
-	center1X := int(room1.X1+room1.X2) / 2
-	center1Y := int(room1.Y1+room1.Y2) / 2
-	center2X := int(room2.X1+room2.X2) / 2
-	center2Y := int(room2.Y1+room2.Y2) / 2
+	center1X := int(room1.Min.X+room1.Max.X) / 2
+	center1Y := int(room1.Min.Y+room1.Max.Y) / 2
+	center2X := int(room2.Min.X+room2.Max.X) / 2
+	center2Y := int(room2.Min.Y+room2.Max.Y) / 2
 
 	// L字型のトンネルを作成（太さ2タイル）
 	currentX, currentY := center1X, center1Y
@@ -315,7 +311,7 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 		for dy := -1; dy <= 1; dy++ {
 			y := currentY + dy
 			if y >= 1 && y < height-1 && currentX >= 1 && currentX < width-1 {
-				idx := planData.Level.XYTileIndex(consts.Tile(currentX), consts.Tile(y))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(currentX), Y: consts.Tile(y)})
 				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
@@ -333,7 +329,7 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 		for dx := -1; dx <= 1; dx++ {
 			x := currentX + dx
 			if x >= 1 && x < width-1 && currentY >= 1 && currentY < height-1 {
-				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(currentY))
+				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(currentY)})
 				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}

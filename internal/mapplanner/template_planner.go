@@ -58,12 +58,12 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 			if cell.Prop != "" {
 				switch cell.Prop {
 				case "warp_next":
-					metaPlan.NextPortals = append(metaPlan.NextPortals, consts.Coord[int]{X: x, Y: y})
+					metaPlan.NextPortals = append(metaPlan.NextPortals, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 				case "warp_escape":
-					metaPlan.EscapePortals = append(metaPlan.EscapePortals, consts.Coord[int]{X: x, Y: y})
+					metaPlan.EscapePortals = append(metaPlan.EscapePortals, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 				default:
 					metaPlan.Props = append(metaPlan.Props, PropsSpec{
-						Coord: consts.Coord[int]{X: x, Y: y},
+						Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},
 						Name:  cell.Prop,
 					})
 				}
@@ -71,7 +71,7 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 
 			if cell.NPC != "" {
 				metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{
-					Coord: consts.Coord[int]{X: x, Y: y},
+					Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},
 					Name:  cell.NPC,
 				})
 			}

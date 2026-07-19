@@ -35,10 +35,10 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	}
 
 	if len(entities) == 0 {
-		return consts.InvalidEntity, fmt.Errorf("プレイヤーエンティティが存在しません")
+		return gc.InvalidEntity, fmt.Errorf("プレイヤーエンティティが存在しません")
 	}
 	if len(entities) > 1 {
-		return consts.InvalidEntity, fmt.Errorf("プレイヤーエンティティが複数存在します: %d個", len(entities))
+		return gc.InvalidEntity, fmt.Errorf("プレイヤーエンティティが複数存在します: %d個", len(entities))
 	}
 
 	return entities[0], nil
@@ -63,7 +63,7 @@ func IsInActivationRange(playerGrid, triggerGrid *gc.GridElement, activationRang
 	case gc.ActivationRangeSameTile:
 		return playerGrid.X == triggerGrid.X && playerGrid.Y == triggerGrid.Y
 	case gc.ActivationRangeAdjacent:
-		return geometry.IsAdjacent(int(playerGrid.X), int(playerGrid.Y), int(triggerGrid.X), int(triggerGrid.Y))
+		return geometry.IsAdjacent(playerGrid.Coord, triggerGrid.Coord)
 	default:
 		return false
 	}

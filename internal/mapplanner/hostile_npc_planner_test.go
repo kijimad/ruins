@@ -3,7 +3,6 @@ package mapplanner
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -93,7 +92,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, err)
 
 		for _, npc := range chain.PlanData.NPCs {
-			tileIdx := chain.PlanData.Level.XYTileIndex(consts.Tile(npc.X), consts.Tile(npc.Y))
+			tileIdx := chain.PlanData.Level.CoordToIndex(npc.Coord)
 			tile := chain.PlanData.Tiles[tileIdx]
 			assert.False(t, tile.BlockPass, "NPC(%d,%d)が壁タイルに配置されている", npc.X, npc.Y)
 		}
@@ -148,8 +147,8 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, npc := range chain.PlanData.NPCs {
 			inRoom := false
 			for _, room := range chain.PlanData.Rooms {
-				if npc.X >= int(room.X1) && npc.X < int(room.X2) &&
-					npc.Y >= int(room.Y1) && npc.Y < int(room.Y2) {
+				if npc.X >= room.Min.X && npc.X < room.Max.X &&
+					npc.Y >= room.Min.Y && npc.Y < room.Max.Y {
 					inRoom = true
 					break
 				}
@@ -191,7 +190,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 				b := npcs[j]
 				dx := a.X - b.X
 				dy := a.Y - b.Y
-				if dx*dx+dy*dy <= maxDistSq {
+				if int(dx*dx+dy*dy) <= maxDistSq {
 					nearPairs++
 				}
 			}
@@ -224,12 +223,12 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, room := range chain.PlanData.Rooms {
 			species := map[string]bool{}
 			for _, npc := range chain.PlanData.NPCs {
-				if npc.X >= int(room.X1) && npc.X < int(room.X2) &&
-					npc.Y >= int(room.Y1) && npc.Y < int(room.Y2) {
+				if npc.X >= room.Min.X && npc.X < room.Max.X &&
+					npc.Y >= room.Min.Y && npc.Y < room.Max.Y {
 					species[npc.Name] = true
 				}
 			}
-			assert.LessOrEqual(t, len(species), 1, "部屋(%d,%d)-(%d,%d)内に異種の敵が混在している", room.X1, room.Y1, room.X2, room.Y2)
+			assert.LessOrEqual(t, len(species), 1, "部屋(%d,%d)-(%d,%d)内に異種の敵が混在している", room.Min.X, room.Min.Y, room.Max.X, room.Max.Y)
 		}
 	})
 }

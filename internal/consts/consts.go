@@ -1,15 +1,15 @@
 package consts
 
-import "github.com/mlange-42/ark/ecs"
-
-// InvalidEntity はエラー時の戻り値として使うセンチネル値。
-// Ark のゼロ値 Entity は無効なエンティティを表す。
-var InvalidEntity = ecs.Entity{}
-
 // ========== 基本型 ==========
 
-// Pixel はピクセル単位。計算用にfloat64
-type Pixel float64
+// WorldPixel はワールド空間のピクセル単位。計算用に float64。
+// フィールド上の絶対位置を表す。カメラ変換前の座標。
+type WorldPixel float64
+
+// ScreenPixel は画面空間のピクセル単位。カメラ変換後の描画位置を表す。
+// WorldPixel とは別型にして、ワールド座標とスクリーン座標の取り違えを型で弾く。
+// 変換は WorldToScreen で行う。
+type ScreenPixel float64
 
 // Tile はタイルの位置。ピクセル数ではない
 type Tile int
@@ -41,7 +41,7 @@ const (
 
 const (
 	// TileSize はタイルの寸法
-	TileSize Pixel = 32
+	TileSize WorldPixel = 32
 )
 
 const (

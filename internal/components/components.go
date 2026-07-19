@@ -8,6 +8,11 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// InvalidEntity は無効なエンティティを表す。ark は id 0 を予約ゼロエンティティとし
+// 実エンティティには割り当てないため、ゼロ値 Entity は安全な無効値として使える。
+// エラー時の戻り値などに使う。格納済みエンティティの生存確認には world.ECS.Alive を使う。
+var InvalidEntity = ecs.Entity{}
+
 // Upsert はコンポーネントを追加または更新する。
 // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。
 // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。
@@ -36,9 +41,9 @@ type Camera struct {
 	// ズーム率
 	Scale   float64
 	ScaleTo float64
-	// カメラ位置。ピクセル単位
-	Pos    consts.Coord[float64]
-	Target consts.Coord[float64]
+	// カメラ位置。ワールド空間のピクセル単位
+	Pos    consts.Coord[consts.WorldPixel]
+	Target consts.Coord[consts.WorldPixel]
 }
 
 // Consumable は消耗品。一度使うとなくなる

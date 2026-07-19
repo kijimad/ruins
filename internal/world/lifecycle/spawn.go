@@ -28,7 +28,7 @@ var (
 )
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
-func initialPatrolDir() int {
+func initialPatrolDir() consts.Tile {
 	if rand.IntN(2) == 0 {
 		return 1
 	}
@@ -41,7 +41,7 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 	rawMaster := world.Resources.RawMaster
 	entitySpec, err := raw.NewTileSpec(rawMaster, tileName, x, y, autoTileIndex)
 	if err != nil {
-		return consts.InvalidEntity, err
+		return gc.InvalidEntity, err
 	}
 
 	entity := world.Components.AddEntity(world.ECS, &entitySpec)
@@ -49,32 +49,30 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 }
 
 // SpawnPlayer はプレイヤーキャラクターを生成する
-func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
+func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) {
 	entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
+		return gc.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
 	}
 
 	skills := gc.NewSkills()
 	entitySpec.Skills = skills
 	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
 
-	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	tileSize := float64(consts.TileSize)
-	initialX := float64(tileX)*tileSize + tileSize/2
-	initialY := float64(tileY)*tileSize + tileSize/2
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
+	center := consts.TileCenterToWorld(pos)
 	entitySpec.Camera = &gc.Camera{
 		Scale:   cameraNormalScale,
 		ScaleTo: cameraNormalScale,
-		Pos:     consts.Coord[float64]{X: initialX, Y: initialY},
-		Target:  consts.Coord[float64]{X: initialX, Y: initialY},
+		Pos:     center,
+		Target:  center,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}
 	playerEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 
 	if err := FullRecover(world, playerEntity); err != nil {
-		return consts.InvalidEntity, fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
 	}
 	world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
 
@@ -83,35 +81,34 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 }
 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
-func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
+func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) {
 	entitySpec, err := raw.NewMemberSpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("中立NPC生成エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("中立NPC生成エラー: %w", err)
 	}
 
 	if entitySpec.FactionNeutral == nil {
-		return consts.InvalidEntity, fmt.Errorf("'%s' は中立NPCではありません", name)
+		return gc.InvalidEntity, fmt.Errorf("'%s' は中立NPCではありません", name)
 	}
 	if entitySpec.Dialog == nil {
-		return consts.InvalidEntity, fmt.Errorf("'%s' には会話データがありません", name)
+		return gc.InvalidEntity, fmt.Errorf("'%s' には会話データがありません", name)
 	}
 
-	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 
 	if entitySpec.SoloAI != nil {
 		solo := entitySpec.SoloAI
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
-		solo.DurationSubStateTurns = 2 + rand.IntN(3)
-		solo.OriginX = tileX
-		solo.OriginY = tileY
-		solo.PatrolDirX = initialPatrolDir()
+		solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
+		solo.Origin = pos
+		solo.PatrolDir.X = initialPatrolDir()
 		solo.ViewDistance = consts.AIVisionDistance
 	}
 
 	npcEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, npcEntity); err != nil {
-		return consts.InvalidEntity, fmt.Errorf("NPCの回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("NPCの回復処理エラー: %w", err)
 	}
 
 	query.InvalidateSpatialIndex(world)
@@ -129,23 +126,22 @@ func WithBoss() SpawnEnemyOption {
 }
 
 // SpawnEnemy はフィールド上に敵キャラクターを生成する
-func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
+func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
 	entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
+		return gc.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
 	}
 
-	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	if entitySpec.SoloAI == nil {
-		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
+		return gc.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
 	solo := entitySpec.SoloAI
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
-	solo.DurationSubStateTurns = 2 + rand.IntN(3)
-	solo.OriginX = tileX
-	solo.OriginY = tileY
-	solo.PatrolDirX = initialPatrolDir()
+	solo.DurationSubStateTurns = consts.Turn(2 + rand.IntN(3))
+	solo.Origin = pos
+	solo.PatrolDir.X = initialPatrolDir()
 	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionMelee},
@@ -153,14 +149,14 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 
 	npcEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, npcEntity); err != nil {
-		return consts.InvalidEntity, fmt.Errorf("敵の回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("敵の回復処理エラー: %w", err)
 	}
 
 	if world.Components.TurnBased.Has(npcEntity) {
 		actionPoints := world.Components.TurnBased.Get(npcEntity)
 		maxAP, err := query.CalculateMaxActionPoints(world, npcEntity)
 		if err != nil {
-			return consts.InvalidEntity, fmt.Errorf("AP計算エラー: %w", err)
+			return gc.InvalidEntity, fmt.Errorf("AP計算エラー: %w", err)
 		}
 		actionPoints.AP.Current = maxAP
 		actionPoints.AP.Max = maxAP
@@ -178,14 +174,14 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 // リーダーの隣接空きタイルに配置され、ポリシーに基づいて自律行動する
 func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
 	if !world.Components.GridElement.Has(leader) {
-		return consts.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
+		return gc.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
 	}
 	leaderGrid := world.Components.GridElement.Get(leader)
 
 	// リーダーの隣接空きタイルを探す
-	spawnX, spawnY, err := findAdjacentEmptyTile(world, int(leaderGrid.X), int(leaderGrid.Y), nil)
+	spawnPos, err := findAdjacentEmptyTile(world, leaderGrid.Coord, nil)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("隊員のスポーン位置が見つかりません: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("隊員のスポーン位置が見つかりません: %w", err)
 	}
 
 	skills := gc.NewSkills()
@@ -205,7 +201,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			ai := gc.DefaultSquadAI()
 			return &ai
 		}(),
-		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
+		GridElement: &gc.GridElement{Coord: spawnPos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,
@@ -217,7 +213,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 
 	memberEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, memberEntity); err != nil {
-		return consts.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
 	}
 
 	query.InvalidateSpatialIndex(world)
@@ -241,7 +237,7 @@ func SpawnDefaultSquadMember(world w.World, leader ecs.Entity) (ecs.Entity, erro
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
 	item, err := spawnItemBase(world, name, count)
 	if err != nil {
-		return consts.InvalidEntity, err
+		return gc.InvalidEntity, err
 	}
 
 	var playerEntity ecs.Entity
@@ -266,24 +262,24 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 // spawnItemBase はLocationなしでアイテムエンティティを生成する内部関数
 func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
 	if count <= 0 {
-		return consts.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
+		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
 	}
 
 	{
 		itemDef, err := raw.FindItem(world.Resources.RawMaster, name)
 		if err != nil {
-			return consts.InvalidEntity, fmt.Errorf("item not found: %s", name)
+			return gc.InvalidEntity, fmt.Errorf("item not found: %s", name)
 		}
 		isStackable := itemDef.Stackable != nil && *itemDef.Stackable
 
 		if !isStackable && count > 1 {
-			return consts.InvalidEntity, fmt.Errorf("item %s is not stackable, count must be 1 (got %d)", name, count)
+			return gc.InvalidEntity, fmt.Errorf("item %s is not stackable, count must be 1 (got %d)", name, count)
 		}
 	}
 
 	entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrItemGeneration, err)
+		return gc.InvalidEntity, fmt.Errorf("%w: %w", ErrItemGeneration, err)
 	}
 	if entitySpec.Stackable != nil {
 		entitySpec.Stackable.Count = count
@@ -355,7 +351,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
 	item, err := spawnItemBase(world, itemName, count)
 	if err != nil {
-		return consts.InvalidEntity, err
+		return gc.InvalidEntity, err
 	}
 
 	if err := MoveToStorage(world, item, storage); err != nil {
@@ -369,11 +365,11 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
 	item, err := spawnItemBase(world, itemName, count)
 	if err != nil {
-		return consts.InvalidEntity, err
+		return gc.InvalidEntity, err
 	}
 
 	MoveToField(world, item, nil)
-	world.Components.GridElement.Add(item, &gc.GridElement{X: x, Y: y})
+	world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 
 	return item, nil
 }
@@ -387,10 +383,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	gridElement := world.Components.GridElement.Get(target)
 
 	effectEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(effectEntity, &gc.GridElement{
-		X: gridElement.X,
-		Y: gridElement.Y,
-	})
+	world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: gridElement.Coord})
 	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})

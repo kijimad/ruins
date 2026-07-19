@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -24,15 +23,12 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	gridElement := world.Components.GridElement.Get(entity)
-	currentX := int(gridElement.X)
-	currentY := int(gridElement.Y)
+	current := gridElement.Coord
 
-	deltaX, deltaY := direction.GetDelta()
-	newX := currentX + deltaX
-	newY := currentY + deltaY
+	next := current.Add(direction.GetDelta())
 
 	// 移動先にOnCollision方式のInteractableがある場合は自動実行
-	targetGrid := &gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
+	targetGrid := &gc.GridElement{Coord: next}
 	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
 
 	if interactable != nil {
@@ -68,9 +64,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
-	canMove := CanMoveTo(world, consts.Coord[int]{X: newX, Y: newY}, consts.Coord[int]{X: currentX, Y: currentY}, entity)
+	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
-		destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
+		destination := gc.GridElement{Coord: next}
 		_, err := Execute(&MoveActivity{Destination: destination}, entity, world)
 		return err
 	}
@@ -138,31 +134,30 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 
 // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する
 func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
-	dx := int(targetGrid.X) - int(playerGrid.X)
-	dy := int(targetGrid.Y) - int(playerGrid.Y)
+	d := targetGrid.Sub(playerGrid.Coord)
 
 	// 同じタイル
-	if dx == 0 && dy == 0 {
+	if d.X == 0 && d.Y == 0 {
 		return "直上"
 	}
 
 	// 8方向を判定
-	if dy < 0 {
-		if dx < 0 {
+	if d.Y < 0 {
+		if d.X < 0 {
 			return "左上"
-		} else if dx > 0 {
+		} else if d.X > 0 {
 			return "右上"
 		}
 		return "上"
-	} else if dy > 0 {
-		if dx < 0 {
+	} else if d.Y > 0 {
+		if d.X < 0 {
 			return "左下"
-		} else if dx > 0 {
+		} else if d.X > 0 {
 			return "右下"
 		}
 		return "下"
 	}
-	if dx < 0 {
+	if d.X < 0 {
 		return "左"
 	}
 	return "右"

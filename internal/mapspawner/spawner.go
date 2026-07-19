@@ -58,12 +58,12 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _i, tile := range metaPlan.Tiles {
 		i := gc.TileIdx(_i)
-		x, y := metaPlan.Level.XYTileCoord(i)
-		tileX, tileY := consts.Tile(x)+offsetX, consts.Tile(y)+offsetY
+		pos := metaPlan.Level.IndexToCoord(i)
+		tileX, tileY := pos.X+offsetX, pos.Y+offsetY
 
 		tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)
 		if err != nil {
-			return fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(x), int(y), err)
+			return fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(pos.X), int(pos.Y), err)
 		}
 
 		// TileRaw の環境情報を TileTemperature に設定する
@@ -115,7 +115,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 
 	spec, ok := specs[tile.Name]
 	if !ok {
-		return consts.InvalidEntity, fmt.Errorf("未対応の%sタイル名: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
+		return gc.InvalidEntity, fmt.Errorf("未対応の%sタイル名: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
 	}
 
 	// オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。
@@ -135,9 +135,9 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 			return fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
 		}
 
-		x, y := npc.X+int(offsetX), npc.Y+int(offsetY)
+		x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
 		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutralName {
-			_, err := lifecycle.SpawnNeutralNPC(world, x, y, npc.Name)
+			_, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
 				return fmt.Errorf("中立NPC生成エラー (%d, %d): %w", x, y, err)
 			}
@@ -146,7 +146,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 			if member.IsBoss {
 				opts = append(opts, lifecycle.WithBoss())
 			}
-			_, err := lifecycle.SpawnEnemy(world, x, y, npc.Name, opts...)
+			_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name, opts...)
 			if err != nil {
 				return fmt.Errorf("敵NPC生成エラー (%d, %d): %w", x, y, err)
 			}
@@ -158,7 +158,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 // spawnItems はアイテムを生成する
 func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, item := range metaPlan.Items {
-		tileX, tileY := consts.Tile(item.X)+offsetX, consts.Tile(item.Y)+offsetY
+		tileX, tileY := item.X+offsetX, item.Y+offsetY
 		if item.Count <= 0 {
 			return fmt.Errorf("アイテムの個数が不正です (%d, %d): count=%d", item.X, item.Y, item.Count)
 		}
@@ -173,7 +173,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 // spawnProps はPropsを生成する
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, prop := range metaPlan.Props {
-		tileX, tileY := consts.Tile(prop.X)+offsetX, consts.Tile(prop.Y)+offsetY
+		tileX, tileY := prop.X+offsetX, prop.Y+offsetY
 
 		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
@@ -188,7 +188,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 		// Door componentがあれば向きを設定して閉じた状態で初期化
 		if propRaw.Door != nil {
 			doorComp := world.Components.Door.Get(propEntity)
-			doorComp.Orientation = detectPropDoorOrientation(metaPlan, prop.X, prop.Y)
+			doorComp.Orientation = detectPropDoorOrientation(metaPlan, int(prop.X), int(prop.Y))
 			if err := lifecycle.CloseDoor(world, propEntity); err != nil {
 				return fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
@@ -207,7 +207,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 // spawnDoors はドアを生成する
 func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, door := range metaPlan.Doors {
-		tileX, tileY := consts.Tile(door.X)+offsetX, consts.Tile(door.Y)+offsetY
+		tileX, tileY := door.X+offsetX, door.Y+offsetY
 		_, err := lifecycle.SpawnDoor(world, tileX, tileY, door.Orientation)
 		if err != nil {
 			return fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
@@ -219,7 +219,7 @@ func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 // spawnPortals はポータルを生成する
 func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, portal := range metaPlan.NextPortals {
-		tileX, tileY := consts.Tile(portal.X)+offsetX, consts.Tile(portal.Y)+offsetY
+		tileX, tileY := portal.X+offsetX, portal.Y+offsetY
 		_, err := lifecycle.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
@@ -227,7 +227,7 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	}
 
 	for _, portal := range metaPlan.EscapePortals {
-		tileX, tileY := consts.Tile(portal.X)+offsetX, consts.Tile(portal.Y)+offsetY
+		tileX, tileY := portal.X+offsetX, portal.Y+offsetY
 		_, err := lifecycle.SpawnProp(world, "warp_escape", tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
