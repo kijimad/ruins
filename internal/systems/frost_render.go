@@ -22,7 +22,7 @@ type FrostRenderSystem struct{}
 func (sys FrostRenderSystem) String() string { return "FrostRenderSystem" }
 
 // frostTileImage は1タイルぶんの氷白画像。アルファは描画時に ColorScale で調整する。
-// ebiten は単一ゲームループ前提だが、並列 golden テストが同時に Draw を叩きうるため Once で保護する
+// 並列 golden テストが同時に Draw を叩きうるため Once で保護する
 var (
 	frostTileImage     *ebiten.Image
 	frostTileImageOnce sync.Once
@@ -35,7 +35,7 @@ func initFrostImage() {
 			return
 		}
 		frostTileImage = ebiten.NewImage(ts, ts)
-		// 青みのある氷色。白系だとタン地形の上で「明るいだけ」になり霜に見えないため寒色を入れる
+		// 青みのある氷色。白系だと明るいだけになり霜に見えないため寒色を入れる
 		frostTileImage.Fill(color.RGBA{130, 205, 240, 255})
 	})
 }

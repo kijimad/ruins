@@ -246,7 +246,7 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 
 	for _, renderer := range []w.Renderer{
 		&gs.RenderSpriteSystem{},
-		&gs.FrostRenderSystem{}, // 地形・キャラの上、HUD の下に寒波前線の氷を重ねる
+		&gs.FrostRenderSystem{},
 		&gs.HUDRenderingSystem{},
 		&gs.VisualEffectSystem{},
 	} {
