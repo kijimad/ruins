@@ -100,7 +100,7 @@ func extractMinimapData(world w.World) hud.MinimapData {
 			if world.Components.GridElement.Has(member) {
 				grid := world.Components.GridElement.Get(member)
 				squadPositions = append(squadPositions, hud.MinimapMarker{
-					Tile: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y},
+					Tile: grid.Coord,
 				})
 			}
 		}
@@ -274,7 +274,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
-		gridElement := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y}}
+		gridElement := gc.GridElement{Coord: grid.Coord}
 		tileTypeMap[gridElement] = world.Components.BlockView.Has(entity)
 	}
 

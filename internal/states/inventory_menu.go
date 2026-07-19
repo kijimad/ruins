@@ -588,7 +588,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		playerGrid := world.Components.GridElement.Get(playerEntity)
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: playerGrid.X, Y: playerGrid.Y}}
+		destination := gc.GridElement{Coord: playerGrid.Coord}
 		_, err = activity.Execute(&activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu

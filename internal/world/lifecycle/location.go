@@ -262,7 +262,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 		}
 		memberGrid.X = adj.X
 		memberGrid.Y = adj.Y
-		exclude[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: adj.X, Y: adj.Y}}] = true
+		exclude[gc.GridElement{Coord: adj}] = true
 	}
 
 	return nil

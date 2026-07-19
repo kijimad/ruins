@@ -275,7 +275,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 				wallCount++
 			}
 		}
-		candidates = append(candidates, scoredDir{consts.Coord[consts.Tile]{X: d.X, Y: d.Y}, wallCount})
+		candidates = append(candidates, scoredDir{d, wallCount})
 	}
 
 	if len(candidates) == 0 {

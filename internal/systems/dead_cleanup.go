@@ -137,7 +137,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 			effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
 			effectEntity := world.ECS.NewEntity()
-			world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: gridElement.X, Y: gridElement.Y}})
+			world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: gridElement.Coord})
 			world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 				Effects: []gc.VisualEffect{effect},
 			})

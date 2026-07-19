@@ -179,7 +179,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: memberGrid.X, Y: memberGrid.Y}},
+			Destination:  &gc.GridElement{Coord: memberGrid.Coord},
 		}
 
 		ma := &MoveActivity{}

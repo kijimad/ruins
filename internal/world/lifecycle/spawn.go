@@ -59,7 +59,7 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	entitySpec.Skills = skills
 	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
 
-	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: pos.X, Y: pos.Y}}
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	center := consts.TileCenterToWorld(pos)
 	entitySpec.Camera = &gc.Camera{
 		Scale:   cameraNormalScale,
@@ -94,7 +94,7 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 		return consts.InvalidEntity, fmt.Errorf("'%s' には会話データがありません", name)
 	}
 
-	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: pos.X, Y: pos.Y}}
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 
 	if entitySpec.SoloAI != nil {
 		solo := entitySpec.SoloAI
@@ -132,7 +132,7 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 		return consts.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
 	}
 
-	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: pos.X, Y: pos.Y}}
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	if entitySpec.SoloAI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
@@ -179,7 +179,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	leaderGrid := world.Components.GridElement.Get(leader)
 
 	// リーダーの隣接空きタイルを探す
-	spawnPos, err := findAdjacentEmptyTile(world, consts.Coord[consts.Tile]{X: leaderGrid.X, Y: leaderGrid.Y}, nil)
+	spawnPos, err := findAdjacentEmptyTile(world, leaderGrid.Coord, nil)
 	if err != nil {
 		return consts.InvalidEntity, fmt.Errorf("隊員のスポーン位置が見つかりません: %w", err)
 	}
@@ -201,7 +201,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			ai := gc.DefaultSquadAI()
 			return &ai
 		}(),
-		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: spawnPos.X, Y: spawnPos.Y}},
+		GridElement: &gc.GridElement{Coord: spawnPos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,
@@ -383,7 +383,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	gridElement := world.Components.GridElement.Get(target)
 
 	effectEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: gridElement.X, Y: gridElement.Y}})
+	world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: gridElement.Coord})
 	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
