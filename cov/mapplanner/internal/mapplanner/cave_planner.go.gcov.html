@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 15:21:23</td>
+            <td class="headerValue">2026-07-19 02:47:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,12 +76,12 @@
 <span id="L14"><span class="lineNum">      14</span>              : // PlanInitial は初期洞窟マップをプランする</span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">          34 : func (c CavePlanner) PlanInitial(planData *MetaPlan) error {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          34 :         // 初期状態をランダムに設定（30%の確率で壁、より広い空間を確保）</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">       76579 :         for i := range planData.Tiles {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">       99290 :                 if planData.RNG.Float64() &lt; 0.30 {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">       22745 :                         planData.Tiles[i] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">       76496 :                 } else {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">       53751 :                         planData.Tiles[i] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">       53751 :                 }</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">       76610 :         for i := range planData.Tiles {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">       99325 :                 if planData.RNG.Float64() &lt; 0.30 {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">       22749 :                         planData.Tiles[i] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">       76549 :                 } else {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">       53800 :                         planData.Tiles[i] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">       53800 :                 }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              :         }</span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          34 :         return nil</span></span>
@@ -108,25 +108,25 @@
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">         102 :                 newTiles := make([]oapi.Tile, len(planData.Tiles))</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">         102 : </span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        4842 :                 for x := range width {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">      234086 :                         for y := range height {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">      229346 :                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">      229346 : </span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">      229346 :                                 // 左右端は壁にする</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">      229346 :                                 // 上下端はオートマトンのルールに任せる</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">      238826 :                                 if x == 0 || x == width-1 {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">      233739 :                         for y := range height {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">      228999 :                                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">      228999 : </span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">      228999 :                                 // 左右端は壁にする</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">      228999 :                                 // 上下端はオートマトンのルールに任せる</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">      238479 :                                 if x == 0 || x == width-1 {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        9480 :                                         newTiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        9480 :                                         continue</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                                 }</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              :                                 // 周囲の壁の数を数える</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">      219903 :                                 wallCount := c.countWallsInRadius(planData, x, y, 1)</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">      219903 : </span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">      219903 :                                 // ルール：周囲に6つ以上の壁があれば壁、そうでなければ床（より通路を確保）</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">      222885 :                                 if wallCount &gt;= 6 {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">        2982 :                                         newTiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">      220026 :                                 } else {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">      217044 :                                         newTiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">      217044 :                                 }</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">      219611 :                                 wallCount := c.countWallsInRadius(planData, x, y, 1)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">      219611 : </span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">      219611 :                                 // ルール：周囲に6つ以上の壁があれば壁、そうでなければ床（より通路を確保）</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">      222609 :                                 if wallCount &gt;= 6 {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">        2998 :                                         newTiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">      219856 :                                 } else {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">      216858 :                                         newTiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">      216858 :                                 }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              :                         }</span>
 <span id="L69"><span class="lineNum">      69</span>              :                 }</span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
@@ -139,27 +139,27 @@
 <span id="L77"><span class="lineNum">      77</span>              : }</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              : // countWallsInRadius は指定半径内の壁タイル数を数える</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">      219901 : func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, centerY, radius int) int {</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">      219901 :         wallCount := 0</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">      219901 :         width := int(planData.Level.TileWidth)</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">      219901 :         height := int(planData.Level.TileHeight)</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">      219901 : </span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">      878641 :         for x := centerX - radius; x &lt;= centerX+radius; x++ {</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">     2630012 :                 for y := centerY - radius; y &lt;= centerY+radius; y++ {</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">     1971272 :                         // 境界外は壁とみなす</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">     1998486 :                         if x &lt; 0 || x &gt;= width || y &lt; 0 || y &gt;= height {</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">       27214 :                                 wallCount++</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">       27214 :                                 continue</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">      219604 : func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, centerY, radius int) int {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">      219604 :         wallCount := 0</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">      219604 :         width := int(planData.Level.TileWidth)</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">      219604 :         height := int(planData.Level.TileHeight)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">      219604 : </span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">      876539 :         for x := centerX - radius; x &lt;= centerX+radius; x++ {</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">     2620053 :                 for y := centerY - radius; y &lt;= centerY+radius; y++ {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">     1963118 :                         // 境界外は壁とみなす</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">     1990322 :                         if x &lt; 0 || x &gt;= width || y &lt; 0 || y &gt;= height {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">       27204 :                                 wallCount++</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">       27204 :                                 continue</span></span>
 <span id="L91"><span class="lineNum">      91</span>              :                         }</span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">     1944019 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">     2177427 :                         if planData.Tiles[idx].BlockPass {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">      233408 :                                 wallCount++</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">      233408 :                         }</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">     1935788 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">     2169067 :                         if planData.Tiles[idx].BlockPass {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">      233279 :                                 wallCount++</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">      233279 :                         }</span></span>
 <span id="L97"><span class="lineNum">      97</span>              :                 }</span>
 <span id="L98"><span class="lineNum">      98</span>              :         }</span>
 <span id="L99"><span class="lineNum">      99</span>              : </span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">      219992 :         return wallCount</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">      219829 :         return wallCount</span></span>
 <span id="L101"><span class="lineNum">     101</span>              : }</span>
 <span id="L102"><span class="lineNum">     102</span>              : </span>
 <span id="L103"><span class="lineNum">     103</span>              : // extractCaveRooms は洞窟から部屋領域を抽出する</span>
@@ -183,20 +183,20 @@
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">          34 :                                         minX, maxX := x, x</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">          34 :                                         minY, maxY := y, y</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">          34 : </span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">       73311 :                                         for _, tilePos := range floorTiles {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">       73277 :                                                 tileX, tileY := planData.Level.XYTileCoord(gc.TileIdx(tilePos))</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">       73277 :                                                 if int(tileX) &lt; minX {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">       73309 :                                         for _, tilePos := range floorTiles {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">       73275 :                                                 tileX, tileY := planData.Level.XYTileCoord(gc.TileIdx(tilePos))</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">       73275 :                                                 if int(tileX) &lt; minX {</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC tlaBgUNC">           0 :                                                         minX = int(tileX)</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                                                 }</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC tlaBgGNC">       74755 :                                                 if int(tileX) &gt; maxX {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC tlaBgGNC">       74753 :                                                 if int(tileX) &gt; maxX {</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">        1478 :                                                         maxX = int(tileX)</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">        1478 :                                                 }</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">       73285 :                                                 if int(tileY) &lt; minY {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           8 :                                                         minY = int(tileY)</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           8 :                                                 }</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">       74815 :                                                 if int(tileY) &gt; maxY {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">        1538 :                                                         maxY = int(tileY)</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">        1538 :                                                 }</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">       73284 :                                                 if int(tileY) &lt; minY {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           9 :                                                         minY = int(tileY)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           9 :                                                 }</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">       74812 :                                                 if int(tileY) &gt; maxY {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">        1537 :                                                         maxY = int(tileY)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">        1537 :                                                 }</span></span>
 <span id="L138"><span class="lineNum">     138</span>              :                                         }</span>
 <span id="L139"><span class="lineNum">     139</span>              : </span>
 <span id="L140"><span class="lineNum">     140</span>              :                                         // 部屋として登録</span>
@@ -227,25 +227,25 @@
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">          34 :         // 4方向の隣接タイル</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">          34 :         directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          34 : </span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">       73288 :         for len(queue) &gt; 0 {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">       73254 :                 current := queue[0]</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">       73254 :                 queue = queue[1:]</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">       73254 : </span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">       73254 :                 x, y := current[0], current[1]</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">       73254 :                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">       73254 :                 result = append(result, int(idx))</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       73254 : </span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">       73254 :                 // 隣接タイルをチェック</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">      366044 :                 for _, dir := range directions {</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">      292790 :                         nx, ny := x+dir[0], y+dir[1]</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">      292790 : </span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">      582796 :                         if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">      290006 :                                 nIdx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">      290006 : </span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">      363238 :                                 if !visited[nIdx] &amp;&amp; !planData.Tiles[nIdx].BlockPass {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">       73232 :                                         visited[nIdx] = true</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">       73232 :                                         queue = append(queue, [2]int{nx, ny})</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">       73232 :                                 }</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">       73242 :         for len(queue) &gt; 0 {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">       73208 :                 current := queue[0]</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">       73208 :                 queue = queue[1:]</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">       73208 : </span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">       73208 :                 x, y := current[0], current[1]</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">       73208 :                 idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">       73208 :                 result = append(result, int(idx))</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       73208 : </span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">       73208 :                 // 隣接タイルをチェック</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">      365244 :                 for _, dir := range directions {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">      292036 :                         nx, ny := x+dir[0], y+dir[1]</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">      292036 : </span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">      581328 :                         if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">      289292 :                                 nIdx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">      289292 : </span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">      362466 :                                 if !visited[nIdx] &amp;&amp; !planData.Tiles[nIdx].BlockPass {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">       73174 :                                         visited[nIdx] = true</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">       73174 :                                         queue = append(queue, [2]int{nx, ny})</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">       73174 :                                 }</span></span>
 <span id="L187"><span class="lineNum">     187</span>              :                         }</span>
 <span id="L188"><span class="lineNum">     188</span>              :                 }</span>
 <span id="L189"><span class="lineNum">     189</span>              :         }</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 15:21:23</td>
+            <td class="headerValue">2026-07-19 02:47:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,11 +70,11 @@
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              : // GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">         141 : func GetSingleton[T any](world w.World, comp *ecs.Map[T]) *T {</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">         142 :         if !comp.Has(world.Resources.SingletonEntity) {</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">         151 : func GetSingleton[T any](world w.World, comp *ecs.Map[T]) *T {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">         152 :         if !comp.Has(world.Resources.SingletonEntity) {</span></span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">         140 :         return comp.Get(world.Resources.SingletonEntity)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">         150 :         return comp.Get(world.Resources.SingletonEntity)</span></span>
 <span id="L16"><span class="lineNum">      16</span>              : }</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // GetTurnState はシングルトンエンティティからターン状態を取得する</span>
@@ -89,9 +89,9 @@
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // GetDungeon はシングルトンエンティティからDungeonを取得する</span>
 <span id="L29"><span class="lineNum">      29</span>              : // ダンジョン未開始の場合はnilを返す</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          41 : func GetDungeon(world w.World) *gc.Dungeon {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          41 :         return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          41 : }</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          51 : func GetDungeon(world w.World) *gc.Dungeon {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          51 :         return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          51 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // GetGameLog はシングルトンエンティティからGameLogストアを取得する</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           6 : func GetGameLog(world w.World) *gamelog.SafeSlice {</span></span>

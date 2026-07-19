@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 15:21:23</td>
+            <td class="headerValue">2026-07-19 02:47:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,17 +62,19 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package consts</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : // ChunkX はチャンク単位の東西量。1 ＝ チャンク1枚ぶん。</span>
+<span id="L3"><span class="lineNum">       3</span>              : // Chunk はチャンクで数える量。1 ＝ チャンク1枚ぶん。</span>
 <span id="L4"><span class="lineNum">       4</span>              : //</span>
-<span id="L5"><span class="lineNum">       5</span>              : // タイル単位の Tile や絶対タイルの worldstream.AbsTileX とは別物で、チャンクの絶対インデックスや</span>
-<span id="L6"><span class="lineNum">       6</span>              : // 帯のチャンク数といった「チャンクで数える量」を型で区別する。東西1次元の帯なので X のみで足りる。</span>
-<span id="L7"><span class="lineNum">       7</span>              : // タイルへは Tiles() で明示的に変換する。</span>
-<span id="L8"><span class="lineNum">       8</span>              : type ChunkX int</span>
-<span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // Tiles はチャンク量をタイル幅へ変換する。cx チャンク ＝ cx × chunkW タイル。</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC tlaBgUNC">           0 : func (cx ChunkX) Tiles(chunkW Tile) Tile {</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC">           0 :         return Tile(int(cx)) * chunkW</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L5"><span class="lineNum">       5</span>              : // タイル単位の Tile や絶対タイルの AbsTileX とは別物で、チャンクの絶対インデックスや</span>
+<span id="L6"><span class="lineNum">       6</span>              : // 帯のチャンク数といった「チャンクで数える量」を型で区別する。</span>
+<span id="L7"><span class="lineNum">       7</span>              : // Tile と同じく軸に依らないスカラーで、東西インデックスにも枚数にも使う。X を焼き込まない。</span>
+<span id="L8"><span class="lineNum">       8</span>              : // タイルへは Tiles() で明示的に変換する。</span>
+<span id="L9"><span class="lineNum">       9</span>              : type Chunk int</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // Tiles はチャンク量をタイル数へ変換する。c チャンク ＝ c × chunkSize タイル。</span>
+<span id="L12"><span class="lineNum">      12</span>              : // chunkSize はその軸のチャンクの辺のタイル数。東西なら chunkW。</span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC tlaBgUNC">           0 : func (c Chunk) Tiles(chunkSize Tile) Tile {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :         return Tile(int(c)) * chunkSize</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>

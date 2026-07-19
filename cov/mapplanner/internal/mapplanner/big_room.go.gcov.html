@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-18 15:21:23</td>
+            <td class="headerValue">2026-07-19 02:47:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -105,14 +105,14 @@
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          44 :         variantType := planData.RNG.IntN(5)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          44 : </span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">          44 :         switch variantType {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           8 :         case 0:</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           9 :         case 0:</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :                 // 通常の大部屋（何も追加しない）</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">          10 :         case 1:</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">          10 :                 // 柱を追加</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">          10 :                 b.applyPillars(planData)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           7 :         case 2:</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           7 :                 // 障害物を追加</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           7 :                 b.applyObstacles(planData)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           6 :         case 2:</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           6 :                 // 障害物を追加</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           6 :                 b.applyObstacles(planData)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           9 :         case 3:</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           9 :                 // 迷路パターンを追加</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           9 :                 b.applyMazePattern(planData)</span></span>
@@ -128,10 +128,10 @@
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          88 :         for _, room := range planData.Rooms {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">          44 :                 // 部屋の内部を床タイルで埋める</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">        1844 :                 for x := room.X1; x &lt;= room.X2; x++ {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">       83594 :                         for y := room.Y1; y &lt;= room.Y2; y++ {</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">       81794 :                                 idx := planData.Level.XYTileIndex(x, y)</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">       81794 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">       81794 :                         }</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">       83589 :                         for y := room.Y1; y &lt;= room.Y2; y++ {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">       81789 :                                 idx := planData.Level.XYTileIndex(x, y)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">       81789 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">       81789 :                         }</span></span>
 <span id="L73"><span class="lineNum">      73</span>              :                 }</span>
 <span id="L74"><span class="lineNum">      74</span>              : </span>
 <span id="L75"><span class="lineNum">      75</span>              :                 // 部屋の境界を壁で囲む</span>
@@ -192,24 +192,24 @@
 <span id="L130"><span class="lineNum">     130</span>              : }</span>
 <span id="L131"><span class="lineNum">     131</span>              : </span>
 <span id="L132"><span class="lineNum">     132</span>              : // applyObstacles は部屋にランダムな障害物を追加する</span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           7 : func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">          14 :         for _, room := range planData.Rooms {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           7 :                 // 障害物の数を部屋のサイズに基づいて決定</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           7 :                 roomWidth := int(room.X2 - room.X1)</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           7 :                 roomHeight := int(room.Y2 - room.Y1)</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           7 :                 obstacleCount := (roomWidth * roomHeight) / 30 // 面積の1/30程度</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           7 : </span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">         499 :                 for range obstacleCount {</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">         492 :                         // 部屋内のランダムな位置に障害物を配置する</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">         492 :                         // IntNの引数が正であることを保証する</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">         492 :                         maxXRange := max(1, roomWidth-2)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">         492 :                         maxYRange := max(1, roomHeight-2)</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">         492 :                         x := int(room.X1) + 1 + planData.RNG.IntN(maxXRange)</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">         492 :                         y := int(room.Y1) + 1 + planData.RNG.IntN(maxYRange)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">         492 : </span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">         492 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">         492 :                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         492 :                 }</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           6 : func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">          12 :         for _, room := range planData.Rooms {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           6 :                 // 障害物の数を部屋のサイズに基づいて決定</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           6 :                 roomWidth := int(room.X2 - room.X1)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           6 :                 roomHeight := int(room.Y2 - room.Y1)</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           6 :                 obstacleCount := (roomWidth * roomHeight) / 30 // 面積の1/30程度</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           6 : </span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">         418 :                 for range obstacleCount {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">         412 :                         // 部屋内のランダムな位置に障害物を配置する</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">         412 :                         // IntNの引数が正であることを保証する</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">         412 :                         maxXRange := max(1, roomWidth-2)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">         412 :                         maxYRange := max(1, roomHeight-2)</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">         412 :                         x := int(room.X1) + 1 + planData.RNG.IntN(maxXRange)</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">         412 :                         y := int(room.Y1) + 1 + planData.RNG.IntN(maxYRange)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">         412 : </span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">         412 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">         412 :                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         412 :                 }</span></span>
 <span id="L151"><span class="lineNum">     151</span>              :         }</span>
 <span id="L152"><span class="lineNum">     152</span>              : }</span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
