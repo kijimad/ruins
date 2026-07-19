@@ -141,10 +141,11 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 	sb.ChunkH = p.ChunkH
 	sb.K = st.band.K()
 
-	// 寒波前線を初期化する。極低温ゾーン東端をプレイヤーの西へ置いて背後から迫らせる。
-	// 速度と幅は暫定値で、凍結効果を入れる後続増分でバランス調整する。
+	// 寒波前線を初期化する。極低温ゾーン東端を西チャンクの東端（プレイヤーの1チャンク背後）に置く。
+	// これで開始時からプレイヤーの背後に霜が見え、西へ戻ると凍える。以東へ進み帯がシフトすると前線は
+	// 絶対軸に留まるため背後へ離れていく。速度と幅は暫定値で、後続のバランス調整で詰める。
 	st.frontCfg = worldstream.FrontConfig{
-		StartEast:    worldstream.BandOriginX(st.band.EastIndex(), p.ChunkW) - worldstream.AbsTileX(p.ChunkW),
+		StartEast:    worldstream.BandOriginX(st.band.EastIndex(), p.ChunkW) + worldstream.AbsTileX(p.ChunkW),
 		ColdWidth:    p.ChunkW * 2,
 		AdvanceTurns: 3,
 		Step:         1,

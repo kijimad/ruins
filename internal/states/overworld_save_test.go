@@ -102,15 +102,15 @@ func TestOverworldState_前線が総ターン数で前進する(t *testing.T) {
 	require.NoError(t, st.OnStart(world))
 
 	d := query.GetDungeon(world)
-	// 開始時（TotalTurns=0）は StartEast のまま。StartEast = bandOriginX(0) - chunkW = -chunkW
+	// 開始時（TotalTurns=0）は StartEast のまま。StartEast = bandOriginX(0) + chunkW = +chunkW（西チャンク東端）
 	d.GameTime.TotalTurns = 0
 	st.updateFront(world)
-	assert.Equal(t, -chunkW, d.SeamlessBand.FrontEastAbsX, "0ターンは開始位置 -chunkW")
+	assert.Equal(t, chunkW, d.SeamlessBand.FrontEastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
 
 	// AdvanceTurns=3, Step=1。9ターンで 3 前進する
 	d.GameTime.TotalTurns = 9
 	st.updateFront(world)
-	assert.Equal(t, -chunkW+3, d.SeamlessBand.FrontEastAbsX, "9ターンで 3 タイル東進する")
+	assert.Equal(t, chunkW+3, d.SeamlessBand.FrontEastAbsX, "9ターンで 3 タイル東進する")
 
 	// 決定的: 同じターン数なら同じ位置
 	before := d.SeamlessBand.FrontEastAbsX
