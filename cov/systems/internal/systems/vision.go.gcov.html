@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">29.3&nbsp;%</td>
-            <td class="headerCovTableEntry">263</td>
-            <td class="headerCovTableEntry">77</td>
+            <td class="headerCovTableEntryLo">29.5&nbsp;%</td>
+            <td class="headerCovTableEntry">264</td>
+            <td class="headerCovTableEntry">78</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -398,8 +398,8 @@
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         var totalR, totalG, totalB float64</span></span>
 <span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         var totalWeight float64</span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         // 全ての光源をチェック</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         lightQuery := ecs.NewFilter2[gc.LightSource, gc.GridElement](world.ECS).Query()</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         // 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()</span></span>
 <span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         for lightQuery.Next() {</span></span>
 <span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 lightEntity := lightQuery.Entity()</span></span>
 <span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 lightSource := world.Components.LightSource.Get(lightEntity)</span></span>
@@ -467,14 +467,15 @@
 <span id="L405"><span class="lineNum">     405</span>              : // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する</span>
 <span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC tlaBgGNC">           2 : func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {</span></span>
 <span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           2 :         index := make(map[gc.GridElement]bool)</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           2 :         blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.ECS).Query()</span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           3 :         for blockViewQuery.Next() {</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                 entity := blockViewQuery.Entity()</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 index[*grid] = true</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           2 :         return index</span></span>
-<span id="L415"><span class="lineNum">     415</span>              : }</span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           2 :         // 退避中ステージの遮蔽物は現ステージの視界を遮らない</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           2 :         blockViewQuery := query.ActiveFilter2[gc.GridElement, gc.BlockView](world).Query()</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           3 :         for blockViewQuery.Next() {</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 entity := blockViewQuery.Entity()</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                 index[*grid] = true</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           2 :         return index</span></span>
+<span id="L416"><span class="lineNum">     416</span>              : }</span>
         </pre>
               </td>
             </tr>

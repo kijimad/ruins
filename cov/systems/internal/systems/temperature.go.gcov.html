@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -149,7 +149,7 @@
 <span id="L87"><span class="lineNum">      87</span>              : </span>
 <span id="L88"><span class="lineNum">      88</span>              :         // HealthStatusとGridElementを持つエンティティを処理。</span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           4 :         var toMark []ecs.Entity</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           4 :         healthQuery := ecs.NewFilter2[gc.HealthStatus, gc.GridElement](world.ECS).Query()</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           4 :         healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           7 :         for healthQuery.Next() {</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           3 :                 entity := healthQuery.Entity()</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           3 :                 hs := world.Components.HealthStatus.Get(entity)</span></span>
@@ -216,7 +216,7 @@
 <span id="L154"><span class="lineNum">     154</span>              : // getTileTemperatureAt は指定座標のタイル気温修正値を取得する</span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           7 : func getTileTemperatureAt(world w.World, x, y consts.Tile) int {</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           7 :         var modifier int</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           7 :         tileTempQuery := ecs.NewFilter2[gc.GridElement, gc.TileTemperature](world.ECS).Query()</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           7 :         tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileTemperature](world).Query()</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           8 :         for tileTempQuery.Next() {</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 entity := tileTempQuery.Entity()</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>

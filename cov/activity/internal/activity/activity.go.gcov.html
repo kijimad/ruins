@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -259,9 +259,9 @@
 <span id="L197"><span class="lineNum">     197</span>              :         // HungerProgress は耐性スキルが高いと 0 以下に達し、空腹が進まなくなる。比較が常に偽になるためだ。</span>
 <span id="L198"><span class="lineNum">     198</span>              :         // 下限を設けるかは進行系倍率の Hunger・Cold・Heat 共通の課題として</span>
 <span id="L199"><span class="lineNum">     199</span>              :         // 将来のバランス設計でまとめて検討する。ここでは意図的に下限を置かない。</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">        4002 :         if world.Config.RNG.IntN(int(consts.PercentBase)*gc.HungerDrainTurns) &lt; int(hungerPct) {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         988 :                 hunger.Decrease(1)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">         988 :         }</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">        3999 :         if world.Config.RNG.IntN(int(consts.PercentBase)*gc.HungerDrainTurns) &lt; int(hungerPct) {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         985 :                 hunger.Decrease(1)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">         985 :         }</span></span>
 <span id="L203"><span class="lineNum">     203</span>              : }</span>
 <span id="L204"><span class="lineNum">     204</span>              : </span>
 <span id="L205"><span class="lineNum">     205</span>              : // isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする</span>
@@ -275,7 +275,7 @@
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          19 :         safeRadius := 1</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          19 :         hasHostile := false</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          19 : </span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          19 :         areaQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          19 :         areaQuery := query.ActiveFilter1[gc.GridElement](world).Query()</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          43 :         for areaQuery.Next() {</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          24 :                 entity := areaQuery.Entity()</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          24 :                 if hasHostile {</span></span>

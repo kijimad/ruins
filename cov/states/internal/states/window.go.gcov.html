@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,34 +69,34 @@
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // HandleMenuInput はメニュー操作のキー入力をActionに変換する</span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC tlaBgGNC">         168 : func HandleMenuInput() (inputmapper.ActionID, bool) {</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">         168 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">         168 : </span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">         168 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC tlaBgGNC">         158 : func HandleMenuInput() (inputmapper.ActionID, bool) {</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">         158 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">         158 : </span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">         158 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuCancel, true</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">         168 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">         158 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) {</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuLeft, true</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">         168 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">         158 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuRight, true</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">         168 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">         158 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuUp, true</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">         168 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">         158 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuDown, true</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">         168 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">         158 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC tlaBgUNC">           0 :                 if keyboardInput.IsKeyPressed(ebiten.KeyShift) {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                         return inputmapper.ActionMenuTabPrev, true</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return inputmapper.ActionMenuTabNext, true</span></span>
 <span id="L33"><span class="lineNum">      33</span>              :         }</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">         168 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">         158 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuSelect, true</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">         168 :         return &quot;&quot;, false</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">         158 :         return &quot;&quot;, false</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // HandleWindowInput はウィンドウモード時のキー入力をActionに変換する</span>

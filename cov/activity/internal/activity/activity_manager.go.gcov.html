@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.1&nbsp;%</td>
-            <td class="headerCovTableEntry">233</td>
-            <td class="headerCovTableEntry">175</td>
+            <td class="headerCovTableEntryMed">75.2&nbsp;%</td>
+            <td class="headerCovTableEntry">234</td>
+            <td class="headerCovTableEntry">176</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -330,72 +330,73 @@
 <span id="L268"><span class="lineNum">     268</span>              : // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。</span>
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           2 : func ProcessContinuousActivities(world w.World) {</span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           2 :         var entities []ecs.Entity</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           2 :         activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           6 :         for activityQuery.Next() {</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           4 :                 entities = append(entities, activityQuery.Entity())</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           4 :         }</span></span>
-<span id="L275"><span class="lineNum">     275</span>              : </span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           6 :         for _, entity := range entities {</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           4 :                 if !world.ECS.Alive(entity) || !world.Components.Activity.Has(entity) {</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L279"><span class="lineNum">     279</span>              :                 }</span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC tlaBgGNC">           4 :                 comp := world.Components.Activity.Get(entity)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           4 : </span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           4 :                 if !IsActive(comp) {</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC tlaBgUNC">           0 :                         if IsCompleted(comp) || IsCanceled(comp) {</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                                 query.RemoveActivity(world, entity)</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L287"><span class="lineNum">     287</span>              :                 }</span>
-<span id="L288"><span class="lineNum">     288</span>              : </span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC tlaBgGNC">           4 :                 behavior, err := GetBehavior(comp.BehaviorName)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           4 :                 if err != nil {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Error(&quot;Behaviorの取得に失敗&quot;, &quot;entity&quot;, entity, &quot;error&quot;, err.Error())</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                         query.RemoveActivity(world, entity)</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L294"><span class="lineNum">     294</span>              :                 }</span>
-<span id="L295"><span class="lineNum">     295</span>              : </span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC tlaBgGNC">           4 :                 stepActivity(behavior, entity, world)</span></span>
-<span id="L297"><span class="lineNum">     297</span>              :         }</span>
-<span id="L298"><span class="lineNum">     298</span>              : }</span>
-<span id="L299"><span class="lineNum">     299</span>              : </span>
-<span id="L300"><span class="lineNum">     300</span>              : // consumePassCost はアクションのAPコストを消費する</span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">          29 : func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destination *gc.GridElement) {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">          29 :         info := behavior.Info()</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">          29 :         cost := info.ActionPointCost</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">          29 : </span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">          29 :         // 移動行動の場合、移動先タイルのPassCostを加算する</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">          43 :         if behavior.Name() == gc.BehaviorMove &amp;&amp; destination != nil {</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">          14 :                 cost += getPassCostAt(world, int(destination.X), int(destination.Y))</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">          14 :         }</span></span>
-<span id="L309"><span class="lineNum">     309</span>              : </span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">          29 :         if !query.ConsumeActionPoints(world, actor, cost) {</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Debug(&quot;TurnBasedコンポーネントがない&quot;, &quot;actor&quot;, actor)</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L313"><span class="lineNum">     313</span>              : }</span>
-<span id="L314"><span class="lineNum">     314</span>              : </span>
-<span id="L315"><span class="lineNum">     315</span>              : // getPassCostAt は指定座標にあるPropのPassCostを合算して返す</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC tlaBgGNC">          17 : func getPassCostAt(world w.World, x, y int) int {</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">          17 :         total := 0</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">          17 :         passCostQuery := ecs.NewFilter2[gc.GridElement, gc.PassCost](world.ECS).Query()</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">          21 :         for passCostQuery.Next() {</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           4 :                 entity := passCostQuery.Entity()</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           4 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           8 :                 if int(grid.X) == x &amp;&amp; int(grid.Y) == y {</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           4 :                         mc := world.Components.PassCost.Get(entity)</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           4 :                         total += mc.Value</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           4 :                 }</span></span>
-<span id="L326"><span class="lineNum">     326</span>              :         }</span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">          17 :         return total</span></span>
-<span id="L328"><span class="lineNum">     328</span>              : }</span>
-<span id="L329"><span class="lineNum">     329</span>              : </span>
-<span id="L330"><span class="lineNum">     330</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC tlaBgUNC">           0 : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :         if !world.Components.TurnBased.Has(entity) {</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                 return 0, fmt.Errorf(&quot;TurnBasedコンポーネントが見つからない: entity=%v&quot;, entity)</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
-<span id="L336"><span class="lineNum">     336</span>              : }</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           2 :         // 退避中ステージのエンティティのアクティビティは進めない</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           2 :         activityQuery := query.ActiveFilter1[gc.Activity](world).Query()</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           6 :         for activityQuery.Next() {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           4 :                 entities = append(entities, activityQuery.Entity())</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           4 :         }</span></span>
+<span id="L276"><span class="lineNum">     276</span>              : </span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           6 :         for _, entity := range entities {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           4 :                 if !world.ECS.Alive(entity) || !world.Components.Activity.Has(entity) {</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :                 }</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC tlaBgGNC">           4 :                 comp := world.Components.Activity.Get(entity)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           4 : </span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           4 :                 if !IsActive(comp) {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC tlaBgUNC">           0 :                         if IsCompleted(comp) || IsCanceled(comp) {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                                 query.RemoveActivity(world, entity)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L288"><span class="lineNum">     288</span>              :                 }</span>
+<span id="L289"><span class="lineNum">     289</span>              : </span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC tlaBgGNC">           4 :                 behavior, err := GetBehavior(comp.BehaviorName)</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           4 :                 if err != nil {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Error(&quot;Behaviorの取得に失敗&quot;, &quot;entity&quot;, entity, &quot;error&quot;, err.Error())</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         query.RemoveActivity(world, entity)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :                 }</span>
+<span id="L296"><span class="lineNum">     296</span>              : </span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC tlaBgGNC">           4 :                 stepActivity(behavior, entity, world)</span></span>
+<span id="L298"><span class="lineNum">     298</span>              :         }</span>
+<span id="L299"><span class="lineNum">     299</span>              : }</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              : // consumePassCost はアクションのAPコストを消費する</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">          29 : func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destination *gc.GridElement) {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">          29 :         info := behavior.Info()</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">          29 :         cost := info.ActionPointCost</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">          29 : </span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">          29 :         // 移動行動の場合、移動先タイルのPassCostを加算する</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">          43 :         if behavior.Name() == gc.BehaviorMove &amp;&amp; destination != nil {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">          14 :                 cost += getPassCostAt(world, int(destination.X), int(destination.Y))</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">          14 :         }</span></span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">          29 :         if !query.ConsumeActionPoints(world, actor, cost) {</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Debug(&quot;TurnBasedコンポーネントがない&quot;, &quot;actor&quot;, actor)</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L314"><span class="lineNum">     314</span>              : }</span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span>              : // getPassCostAt は指定座標にあるPropのPassCostを合算して返す</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC tlaBgGNC">          17 : func getPassCostAt(world w.World, x, y int) int {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">          17 :         total := 0</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">          17 :         passCostQuery := query.ActiveFilter2[gc.GridElement, gc.PassCost](world).Query()</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">          21 :         for passCostQuery.Next() {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           4 :                 entity := passCostQuery.Entity()</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           4 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           8 :                 if int(grid.X) == x &amp;&amp; int(grid.Y) == y {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           4 :                         mc := world.Components.PassCost.Get(entity)</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           4 :                         total += mc.Value</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           4 :                 }</span></span>
+<span id="L327"><span class="lineNum">     327</span>              :         }</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">          17 :         return total</span></span>
+<span id="L329"><span class="lineNum">     329</span>              : }</span>
+<span id="L330"><span class="lineNum">     330</span>              : </span>
+<span id="L331"><span class="lineNum">     331</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC tlaBgUNC">           0 : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         if !world.Components.TurnBased.Has(entity) {</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 return 0, fmt.Errorf(&quot;TurnBasedコンポーネントが見つからない: entity=%v&quot;, entity)</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
+<span id="L337"><span class="lineNum">     337</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">49</td>
-            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntry">50</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -132,18 +132,19 @@
 <span id="L70"><span class="lineNum">      70</span>              : }</span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // GetEntitiesAt は指定座標にあるすべてのエンティティを返す</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 : func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :         var entities []ecs.Entity</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :         entitiesQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           8 :         for entitiesQuery.Next() {</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           6 :                 entity := entitiesQuery.Entity()</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           6 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           8 :                 if grid.X == x &amp;&amp; grid.Y == y {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           2 :                         entities = append(entities, entity)</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           2 :                 }</span></span>
-<span id="L82"><span class="lineNum">      82</span>              :         }</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           2 :         return entities</span></span>
-<span id="L84"><span class="lineNum">      84</span>              : }</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           3 : func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           3 :         var entities []ecs.Entity</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           3 :         // 座標が重なる退避中ステージのエンティティを座標検索に混ぜない</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           3 :         entitiesQuery := ActiveFilter1[gc.GridElement](world).Query()</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">          10 :         for entitiesQuery.Next() {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           7 :                 entity := entitiesQuery.Entity()</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           7 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">          10 :                 if grid.X == x &amp;&amp; grid.Y == y {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           3 :                         entities = append(entities, entity)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           3 :                 }</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :         }</span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           3 :         return entities</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : }</span>
         </pre>
               </td>
             </tr>

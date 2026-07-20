@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -204,8 +204,8 @@
 <span id="L142"><span class="lineNum">     142</span>              : // refreshItems はカーソル位置のタイル上の拾得可能エンティティを更新する</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC tlaBgGNC">           2 : func (st *PickupState) refreshItems(world w.World) {</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :         st.itemsAtTarget = nil</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           5 :         for _, entity := range query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           3 :                 if query.IsPickable(entity, world) {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           6 :         for _, entity := range query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           4 :                 if query.IsPickable(entity, world) {</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                         st.itemsAtTarget = append(st.itemsAtTarget, entity)</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L149"><span class="lineNum">     149</span>              :         }</span>

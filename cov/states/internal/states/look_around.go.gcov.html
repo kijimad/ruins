@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -283,12 +283,12 @@
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         textX := float64(panelX + 10)</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         y := panelY + 10</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           8 :         drawText := func(str string) {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           7 :                 op := &amp;text.DrawOptions{}</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           7 :                 op.GeoM.Translate(textX, float64(y))</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           7 :                 text.Draw(screen, str, face, op)</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           7 :                 y += lineHeight</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           7 :         }</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           9 :         drawText := func(str string) {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           8 :                 op := &amp;text.DrawOptions{}</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           8 :                 op.GeoM.Translate(textX, float64(y))</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           8 :                 text.Draw(screen, str, face, op)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           8 :                 y += lineHeight</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           8 :         }</span></span>
 <span id="L230"><span class="lineNum">     230</span>              : </span>
 <span id="L231"><span class="lineNum">     231</span>              :         // 座標表示</span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;座標: %s&quot;, st.cursor))</span></span>
@@ -313,9 +313,9 @@
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         if len(entities) == 0 {</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(&quot;何もありません&quot;)</span></span>
 <span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC tlaBgGNC">           1 :         } else {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           3 :                 for _, entity := range entities {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           2 :                         st.drawEntityInfo(world, entity, drawText)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           2 :                 }</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           4 :                 for _, entity := range entities {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           3 :                         st.drawEntityInfo(world, entity, drawText)</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           3 :                 }</span></span>
 <span id="L257"><span class="lineNum">     257</span>              :         }</span>
 <span id="L258"><span class="lineNum">     258</span>              : </span>
 <span id="L259"><span class="lineNum">     259</span>              :         // 移動コストを表示</span>
@@ -332,11 +332,11 @@
 <span id="L270"><span class="lineNum">     270</span>              : }</span>
 <span id="L271"><span class="lineNum">     271</span>              : </span>
 <span id="L272"><span class="lineNum">     272</span>              : // drawEntityInfo はエンティティ情報を描画する</span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 : func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, drawText func(string)) {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           2 :         name := query.GetEntityName(entity, world)</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           2 : </span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           2 :         cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           3 : func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, drawText func(string)) {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           3 :         name := query.GetEntityName(entity, world)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           3 : </span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           3 :         cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           3 :         if !ok {</span></span>
 <span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC tlaBgUNC">           0 :                 // 壁などは名前だけ表示する</span></span>
 <span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                 if name != &quot;&quot; {</span></span>
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                         drawText(name)</span></span>
@@ -344,15 +344,15 @@
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 return</span></span>
 <span id="L283"><span class="lineNum">     283</span>              :         }</span>
 <span id="L284"><span class="lineNum">     284</span>              : </span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC tlaBgGNC">           2 :         typeStr := fmt.Sprintf(&quot;[%s]&quot;, cat)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           4 :         if name != &quot;&quot; {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           2 :                 drawText(fmt.Sprintf(&quot;%s %s&quot;, typeStr, name))</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           2 :         } else {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC tlaBgGNC">           3 :         typeStr := fmt.Sprintf(&quot;[%s]&quot;, cat)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           6 :         if name != &quot;&quot; {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           3 :                 drawText(fmt.Sprintf(&quot;%s %s&quot;, typeStr, name))</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           3 :         } else {</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(typeStr)</span></span>
 <span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L291"><span class="lineNum">     291</span>              : </span>
 <span id="L292"><span class="lineNum">     292</span>              :         // HPを持つエンティティはHP表示</span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           3 :         if world.Components.HP.Has(entity) {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           4 :         if world.Components.HP.Has(entity) {</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 hp := world.Components.HP.Get(entity)</span></span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 label := &quot;HP&quot;</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 if world.Components.Prop.Has(entity) {</span></span>
@@ -366,11 +366,11 @@
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 : func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y *int, drawText func(string)) {</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         blocked := false</span></span>
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         totalAdd := 0</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           3 :         for _, entity := range entities {</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           2 :                 if world.Components.BlockPass.Has(entity) {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           4 :         for _, entity := range entities {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           3 :                 if world.Components.BlockPass.Has(entity) {</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC tlaBgUNC">           0 :                         blocked = true</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           2 :                 if world.Components.PassCost.Has(entity) {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           3 :                 if world.Components.PassCost.Has(entity) {</span></span>
 <span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC tlaBgUNC">           0 :                         mc := world.Components.PassCost.Get(entity)</span></span>
 <span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                         totalAdd += mc.Value</span></span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 }</span></span>

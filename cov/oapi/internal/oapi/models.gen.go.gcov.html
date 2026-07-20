@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -1346,11 +1346,11 @@
 <span id="L1284"><span class="lineNum">    1284</span>              :         // Storage 収納ローデータ</span>
 <span id="L1285"><span class="lineNum">    1285</span>              :         Storage *StorageRaw `json:&quot;storage,omitempty&quot;`</span>
 <span id="L1286"><span class="lineNum">    1286</span>              : </span>
-<span id="L1287"><span class="lineNum">    1287</span>              :         // WarpEscapeTrigger 脱出ワープトリガー</span>
-<span id="L1288"><span class="lineNum">    1288</span>              :         WarpEscapeTrigger *WarpEscapeTriggerRaw `json:&quot;warpEscapeTrigger,omitempty&quot;`</span>
+<span id="L1287"><span class="lineNum">    1287</span>              :         // WarpNextTrigger 次階層ワープトリガー</span>
+<span id="L1288"><span class="lineNum">    1288</span>              :         WarpNextTrigger *WarpNextTriggerRaw `json:&quot;warpNextTrigger,omitempty&quot;`</span>
 <span id="L1289"><span class="lineNum">    1289</span>              : </span>
-<span id="L1290"><span class="lineNum">    1290</span>              :         // WarpNextTrigger 次階層ワープトリガー</span>
-<span id="L1291"><span class="lineNum">    1291</span>              :         WarpNextTrigger *WarpNextTriggerRaw `json:&quot;warpNextTrigger,omitempty&quot;`</span>
+<span id="L1290"><span class="lineNum">    1290</span>              :         // WarpPrevTrigger 前階層ワープトリガー</span>
+<span id="L1291"><span class="lineNum">    1291</span>              :         WarpPrevTrigger *WarpPrevTriggerRaw `json:&quot;warpPrevTrigger,omitempty&quot;`</span>
 <span id="L1292"><span class="lineNum">    1292</span>              : }</span>
 <span id="L1293"><span class="lineNum">    1293</span>              : </span>
 <span id="L1294"><span class="lineNum">    1294</span>              : // PropList 置物一覧</span>
@@ -2319,11 +2319,11 @@
 <span id="L2257"><span class="lineNum">    2257</span>              : // Vitality 体力。HPに影響する</span>
 <span id="L2258"><span class="lineNum">    2258</span>              : type Vitality = int32</span>
 <span id="L2259"><span class="lineNum">    2259</span>              : </span>
-<span id="L2260"><span class="lineNum">    2260</span>              : // WarpEscapeTriggerRaw 脱出ワープトリガー</span>
-<span id="L2261"><span class="lineNum">    2261</span>              : type WarpEscapeTriggerRaw = map[string]interface{}</span>
+<span id="L2260"><span class="lineNum">    2260</span>              : // WarpNextTriggerRaw 次階層ワープトリガー</span>
+<span id="L2261"><span class="lineNum">    2261</span>              : type WarpNextTriggerRaw = map[string]interface{}</span>
 <span id="L2262"><span class="lineNum">    2262</span>              : </span>
-<span id="L2263"><span class="lineNum">    2263</span>              : // WarpNextTriggerRaw 次階層ワープトリガー</span>
-<span id="L2264"><span class="lineNum">    2264</span>              : type WarpNextTriggerRaw = map[string]interface{}</span>
+<span id="L2263"><span class="lineNum">    2263</span>              : // WarpPrevTriggerRaw 前階層ワープトリガー</span>
+<span id="L2264"><span class="lineNum">    2264</span>              : type WarpPrevTriggerRaw = map[string]interface{}</span>
 <span id="L2265"><span class="lineNum">    2265</span>              : </span>
 <span id="L2266"><span class="lineNum">    2266</span>              : // WaterType 水タイプ</span>
 <span id="L2267"><span class="lineNum">    2267</span>              : type WaterType float32</span>

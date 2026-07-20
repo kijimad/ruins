@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,7 +85,7 @@
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           4 : func (sys *WeightDirtySystem) Update(world w.World) error {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           4 :         // WeightDirtyマーカーが付いたエンティティを収集する。</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           4 :         var changedEntities []ecs.Entity</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           4 :         weightDirtyQuery := ecs.NewFilter1[gc.WeightDirty](world.ECS).Query()</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           4 :         weightDirtyQuery := query.ActiveFilter1[gc.WeightDirty](world).Query()</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           8 :         for weightDirtyQuery.Next() {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           4 :                 changedEntities = append(changedEntities, weightDirtyQuery.Entity())</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           4 :         }</span></span>

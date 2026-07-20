@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">41</td>
-            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">29</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,75 +67,57 @@
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              : )</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // ポータル配置用の定数</span>
-<span id="L13"><span class="lineNum">      13</span>              : const (</span>
-<span id="L14"><span class="lineNum">      14</span>              :         maxPortalPlacementAttempts = 200 // ポータル配置処理の最大試行回数</span>
-<span id="L15"><span class="lineNum">      15</span>              :         escapePortalInterval       = 5   // 帰還ポータル配置間隔（n階層ごと）</span>
-<span id="L16"><span class="lineNum">      16</span>              :         minPortalDistance          = 10  // ポータル間およびプレイヤーからの最低歩数</span>
-<span id="L17"><span class="lineNum">      17</span>              : )</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // PortalPlanner はポータル配置を担当するプランナー</span>
-<span id="L20"><span class="lineNum">      20</span>              : type PortalPlanner struct {</span>
-<span id="L21"><span class="lineNum">      21</span>              :         world       w.World</span>
-<span id="L22"><span class="lineNum">      22</span>              :         plannerType PlannerType</span>
-<span id="L23"><span class="lineNum">      23</span>              : }</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // NewPortalPlanner はポータルプランナーを作成する</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">         186 : func NewPortalPlanner(world w.World, plannerType PlannerType) *PortalPlanner {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">         186 :         return &amp;PortalPlanner{</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         186 :                 world:       world,</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         186 :                 plannerType: plannerType,</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">         186 :         }</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">         186 : }</span></span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // PlanMeta はポータルをMetaPlanに追加する</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">         185 : func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         185 :         // テンプレートベースのマップではポータルは固定位置なのでスキップ</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         199 :         if p.plannerType.UseFixedPortalPos {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          14 :                 return nil</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          14 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span>              :         // プロシージャルマップの場合はランダム配置（到達可能な位置のみ）</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">         171 :         pathFinder := NewPathFinder(planData)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">         171 :         playerPos, err := pathFinder.FindPlayerStartPosition()</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">         173 :         if err != nil {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :                 return fmt.Errorf(&quot;%w: %w&quot;, ErrConnectivity, err)</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :         }</span></span>
-<span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span>              :         // 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">         169 :         refs := []consts.Coord[consts.Tile]{playerPos}</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">         169 :         distSelector := minDistanceReachableSelector(pathFinder, refs, minPortalDistance, maxPortalPlacementAttempts)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">         169 :         fallbackSelector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">         169 : </span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">         169 :         // 次の階へ進むポータルを配置する</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">         169 :         x, y, err := findPosition(planData, p.world, distSelector, fallbackSelector)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">         173 :         if err != nil {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           4 :                 return fmt.Errorf(&quot;%w: NextPortalの配置に失敗しました（%d回試行）&quot;, ErrConnectivity, maxPortalPlacementAttempts)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           4 :         }</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">         165 :         nextPortalPos := consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">         165 :         planData.NextPortals = append(planData.NextPortals, nextPortalPos)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">         165 : </span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">         166 :         if query.GetDungeon(p.world) == nil {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;Dungeonが初期化されていません&quot;)</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L63"><span class="lineNum">      63</span>              :         // 間隔ごとに帰還ポータルを配置する</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">         325 :         if query.GetDungeon(p.world).Depth%escapePortalInterval == 0 {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         161 :                 // プレイヤー位置とNextPortal位置の両方から最低距離を確保する</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">         161 :                 escRefs := []consts.Coord[consts.Tile]{playerPos, nextPortalPos}</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">         161 :                 escDistSelector := minDistanceReachableSelector(pathFinder, escRefs, minPortalDistance, maxPortalPlacementAttempts)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         161 :                 ex, ey, escErr := findPosition(planData, p.world, escDistSelector, fallbackSelector)</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">         163 :                 if escErr != nil {</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           2 :                         return fmt.Errorf(&quot;%w: EscapePortalの配置に失敗しました（%d回試行）&quot;, ErrConnectivity, maxPortalPlacementAttempts)</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           2 :                 }</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">         159 :                 planData.EscapePortals = append(planData.EscapePortals, consts.Coord[consts.Tile]{X: ex, Y: ey})</span></span>
-<span id="L73"><span class="lineNum">      73</span>              :         }</span>
-<span id="L74"><span class="lineNum">      74</span>              : </span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         162 :         return nil</span></span>
-<span id="L76"><span class="lineNum">      76</span>              : }</span>
+<span id="L8"><span class="lineNum">       8</span>              : )</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // ポータル配置用の定数</span>
+<span id="L11"><span class="lineNum">      11</span>              : const (</span>
+<span id="L12"><span class="lineNum">      12</span>              :         maxPortalPlacementAttempts = 200 // ポータル配置処理の最大試行回数</span>
+<span id="L13"><span class="lineNum">      13</span>              :         minPortalDistance          = 10  // ポータル間およびプレイヤーからの最低歩数</span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // PortalPlanner はポータル配置を担当するプランナー</span>
+<span id="L17"><span class="lineNum">      17</span>              : type PortalPlanner struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         world       w.World</span>
+<span id="L19"><span class="lineNum">      19</span>              :         plannerType PlannerType</span>
+<span id="L20"><span class="lineNum">      20</span>              : }</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // NewPortalPlanner はポータルプランナーを作成する</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">         180 : func NewPortalPlanner(world w.World, plannerType PlannerType) *PortalPlanner {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">         180 :         return &amp;PortalPlanner{</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">         180 :                 world:       world,</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">         180 :                 plannerType: plannerType,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">         180 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         180 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // PlanMeta はポータルをMetaPlanに追加する</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">         179 : func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">         179 :         // テンプレートベースのマップではポータルは固定位置なのでスキップ</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">         193 :         if p.plannerType.UseFixedPortalPos {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          14 :                 return nil</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          14 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              :         // プロシージャルマップの場合はランダム配置（到達可能な位置のみ）</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">         165 :         pathFinder := NewPathFinder(planData)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">         165 :         playerPos, err := pathFinder.FindPlayerStartPosition()</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">         167 :         if err != nil {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :                 return fmt.Errorf(&quot;%w: %w&quot;, ErrConnectivity, err)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              :         // 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">         163 :         refs := []consts.Coord[consts.Tile]{playerPos}</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">         163 :         distSelector := minDistanceReachableSelector(pathFinder, refs, minPortalDistance, maxPortalPlacementAttempts)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">         163 :         fallbackSelector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">         163 : </span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">         163 :         // 次の階へ進むポータルを配置する</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">         163 :         x, y, err := findPosition(planData, p.world, distSelector, fallbackSelector)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">         169 :         if err != nil {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           6 :                 return fmt.Errorf(&quot;%w: NextPortalの配置に失敗しました（%d回試行）&quot;, ErrConnectivity, maxPortalPlacementAttempts)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           6 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">         157 :         nextPortalPos := consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">         157 :         planData.NextPortals = append(planData.NextPortals, nextPortalPos)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">         157 : </span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">         157 :         return nil</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
         </pre>
               </td>
             </tr>

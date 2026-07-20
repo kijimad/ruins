@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - world/query/internal/world/query/active.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">world/query/internal/world/query</a> - active.go<span style="font-size: 80%;"> (source / <a href="active.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">50.0&nbsp;%</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">6</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package query</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // ActiveFilterN は現ステージのエンティティだけを対象にするフィルタを返す。</span>
+<span id="L10"><span class="lineNum">      10</span>              : //</span>
+<span id="L11"><span class="lineNum">      11</span>              : // 共存方式では全ステージのエンティティが同一 world にいる。ステージ跨ぎのシステムが</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 退避中ステージのエンティティを巻き込むと、描画・視界・AI・座標索引が混ざる。</span>
+<span id="L13"><span class="lineNum">      13</span>              : // この関数群は Suspended の除外を1箇所に集約し、各システムが付け忘れないようにする。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 生の ecs.NewFilterN でなくこれを使う。付け忘れは silent な leak になる。</span>
+<span id="L15"><span class="lineNum">      15</span>              : //</span>
+<span id="L16"><span class="lineNum">      16</span>              : // 追加の除外は返り値へ Without を重ねればよい。ark の Without は除外を累積するので、</span>
+<span id="L17"><span class="lineNum">      17</span>              : // Suspended に上乗せされる。例: ActiveFilter2[A, B](world).Without(ecs.C[gc.Dead]())。</span>
+<span id="L18"><span class="lineNum">      18</span>              : //</span>
+<span id="L19"><span class="lineNum">      19</span>              : // arity 1..4 の重複は ark 自身が Filter1..4 に分かれているのと同じ Go の制約による。</span>
+<span id="L20"><span class="lineNum">      20</span>              : // 可変長の型パラメータが無いので1関数に畳めない。</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // suspendedExclude は Suspended だけを除外する共有スライス。</span>
+<span id="L23"><span class="lineNum">      23</span>              : // spread で渡すと毎フレームのホットパスでも再アロケーションを起こさない。</span>
+<span id="L24"><span class="lineNum">      24</span>              : // Without は読み取り専用で受け取るため共有して安全</span>
+<span id="L25"><span class="lineNum">      25</span>              : var suspendedExclude = []ecs.Comp{ecs.C[gc.Suspended]()}</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // ActiveFilter1 は現ステージ限定の Filter1 を返す。</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">          34 : func ActiveFilter1[A any](world w.World) *ecs.Filter1[A] {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          34 :         return ecs.NewFilter1[A](world.ECS).Without(suspendedExclude...)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          34 : }</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // ActiveFilter2 は現ステージ限定の Filter2 を返す。</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          37 : func ActiveFilter2[A, B any](world w.World) *ecs.Filter2[A, B] {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          37 :         return ecs.NewFilter2[A, B](world.ECS).Without(suspendedExclude...)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          37 : }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : // ActiveFilter3 は現ステージ限定の Filter3 を返す。</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 : func ActiveFilter3[A, B, C any](world w.World) *ecs.Filter3[A, B, C] {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         return ecs.NewFilter3[A, B, C](world.ECS).Without(suspendedExclude...)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : // ActiveFilter4 は現ステージ限定の Filter4 を返す。</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 : func ActiveFilter4[A, B, C, D any](world w.World) *ecs.Filter4[A, B, C, D] {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         return ecs.NewFilter4[A, B, C, D](world.ECS).Without(suspendedExclude...)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

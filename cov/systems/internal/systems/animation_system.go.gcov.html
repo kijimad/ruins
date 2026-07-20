@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : const (</span>
@@ -99,7 +99,7 @@
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         sys.animationCounter++</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         spriteQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         spriteQuery := query.ActiveFilter1[gc.SpriteRender](world).Query()</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         for spriteQuery.Next() {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 entity := spriteQuery.Entity()</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>

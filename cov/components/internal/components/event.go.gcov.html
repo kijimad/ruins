@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">66.7&nbsp;%</td>
-            <td class="headerCovTableEntry">18</td>
-            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">16</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,66 +71,85 @@
 <span id="L9"><span class="lineNum">       9</span>              : // 非公開メソッドで実装先をこのパッケージ内に限定する。</span>
 <span id="L10"><span class="lineNum">      10</span>              : type StatePayload interface{ isStatePayload() }</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // WarpNext は次の階層への移動</span>
-<span id="L13"><span class="lineNum">      13</span>              : type WarpNext struct{}</span>
+<span id="L12"><span class="lineNum">      12</span>              : // WarpDescend は下り階段による1つ下の階への移動</span>
+<span id="L13"><span class="lineNum">      13</span>              : type WarpDescend struct{}</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span>              : // WarpEscape は脱出ポータルによる帰還</span>
-<span id="L16"><span class="lineNum">      16</span>              : type WarpEscape struct{}</span>
+<span id="L15"><span class="lineNum">      15</span>              : // WarpAscend は上り階段による1つ上の階への移動</span>
+<span id="L16"><span class="lineNum">      16</span>              : type WarpAscend struct{}</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
-<span id="L18"><span class="lineNum">      18</span>              : // GameClear はゲームクリア</span>
-<span id="L19"><span class="lineNum">      19</span>              : type GameClear struct{}</span>
-<span id="L20"><span class="lineNum">      20</span>              : </span>
-<span id="L21"><span class="lineNum">      21</span>              : // OpenDungeonSelect はダンジョン選択メニューを開く</span>
-<span id="L22"><span class="lineNum">      22</span>              : type OpenDungeonSelect struct{}</span>
+<span id="L18"><span class="lineNum">      18</span>              : // WarpRuinEnter は遺跡入口からの遺跡進入</span>
+<span id="L19"><span class="lineNum">      19</span>              : type WarpRuinEnter struct {</span>
+<span id="L20"><span class="lineNum">      20</span>              :         // DefinitionName は進入する遺跡の定義名</span>
+<span id="L21"><span class="lineNum">      21</span>              :         DefinitionName string</span>
+<span id="L22"><span class="lineNum">      22</span>              : }</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              : // ShowDialog は会話メッセージの表示</span>
-<span id="L25"><span class="lineNum">      25</span>              : type ShowDialog struct {</span>
-<span id="L26"><span class="lineNum">      26</span>              :         MessageKey    string</span>
-<span id="L27"><span class="lineNum">      27</span>              :         SpeakerEntity ecs.Entity</span>
-<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L24"><span class="lineNum">      24</span>              : // WarpRuinExit は遺跡地上からオーバーワールドへの脱出</span>
+<span id="L25"><span class="lineNum">      25</span>              : type WarpRuinExit struct{}</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // GameClear はゲームクリア</span>
+<span id="L28"><span class="lineNum">      28</span>              : type GameClear struct{}</span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span>              : // OpenStorage は収納メニューを開く</span>
-<span id="L31"><span class="lineNum">      31</span>              : type OpenStorage struct {</span>
-<span id="L32"><span class="lineNum">      32</span>              :         StorageEntity ecs.Entity // 収納Propのエンティティ</span>
-<span id="L33"><span class="lineNum">      33</span>              : }</span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 : func (WarpNext) isStatePayload()          {}</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : func (WarpEscape) isStatePayload()        {}</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 : func (GameClear) isStatePayload()         {}</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func (OpenDungeonSelect) isStatePayload() {}</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : func (ShowDialog) isStatePayload()        {}</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : func (OpenStorage) isStatePayload()       {}</span></span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。</span>
-<span id="L43"><span class="lineNum">      43</span>              : // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。</span>
-<span id="L44"><span class="lineNum">      44</span>              : // 一時イベントで保存対象外（skipComponents）のため interface フィールドを持てる。</span>
-<span id="L45"><span class="lineNum">      45</span>              : type StateChangeRequest struct {</span>
-<span id="L46"><span class="lineNum">      46</span>              :         Payload StatePayload</span>
-<span id="L47"><span class="lineNum">      47</span>              : }</span>
-<span id="L48"><span class="lineNum">      48</span>              : </span>
-<span id="L49"><span class="lineNum">      49</span>              : // WarpNextEvent は次の階層への移動リクエストを生成する</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 : func WarpNextEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpNext{}} }</span></span>
-<span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span>              : // WarpEscapeEvent は脱出ポータルによる帰還リクエストを生成する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func WarpEscapeEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpEscape{}} }</span></span>
-<span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span>              : // GameClearEvent はゲームクリアリクエストを生成する</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }</span></span>
-<span id="L57"><span class="lineNum">      57</span>              : </span>
-<span id="L58"><span class="lineNum">      58</span>              : // ShowDialogEvent は会話メッセージ表示リクエストを生成する</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return StateChangeRequest{Payload: ShowDialog{MessageKey: messageKey, SpeakerEntity: speaker}}</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : // OpenDungeonSelect はダンジョン選択メニューを開く</span>
+<span id="L31"><span class="lineNum">      31</span>              : type OpenDungeonSelect struct{}</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : // ShowDialog は会話メッセージの表示</span>
+<span id="L34"><span class="lineNum">      34</span>              : type ShowDialog struct {</span>
+<span id="L35"><span class="lineNum">      35</span>              :         MessageKey    string</span>
+<span id="L36"><span class="lineNum">      36</span>              :         SpeakerEntity ecs.Entity</span>
+<span id="L37"><span class="lineNum">      37</span>              : }</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : // OpenStorage は収納メニューを開く</span>
+<span id="L40"><span class="lineNum">      40</span>              : type OpenStorage struct {</span>
+<span id="L41"><span class="lineNum">      41</span>              :         StorageEntity ecs.Entity // 収納Propのエンティティ</span>
+<span id="L42"><span class="lineNum">      42</span>              : }</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 : func (WarpDescend) isStatePayload()       {}</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : func (WarpAscend) isStatePayload()        {}</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 : func (WarpRuinEnter) isStatePayload()     {}</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : func (WarpRuinExit) isStatePayload()      {}</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 : func (GameClear) isStatePayload()         {}</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 : func (OpenDungeonSelect) isStatePayload() {}</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : func (ShowDialog) isStatePayload()        {}</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : func (OpenStorage) isStatePayload()       {}</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              : // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。</span>
+<span id="L54"><span class="lineNum">      54</span>              : // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。</span>
+<span id="L55"><span class="lineNum">      55</span>              : // 一時イベントで保存対象外（skipComponents）のため interface フィールドを持てる。</span>
+<span id="L56"><span class="lineNum">      56</span>              : type StateChangeRequest struct {</span>
+<span id="L57"><span class="lineNum">      57</span>              :         Payload StatePayload</span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : // WarpDescendEvent は下り階段による移動リクエストを生成する</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 : func WarpDescendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpDescend{}} }</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : </span>
-<span id="L63"><span class="lineNum">      63</span>              : // OpenDungeonSelectEvent はダンジョン選択メニューを開くリクエストを生成する</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : func OpenDungeonSelectEvent() StateChangeRequest {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         return StateChangeRequest{Payload: OpenDungeonSelect{}}</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L67"><span class="lineNum">      67</span>              : </span>
-<span id="L68"><span class="lineNum">      68</span>              : // OpenStorageEvent は収納メニューを開くリクエストを生成する</span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         return StateChangeRequest{Payload: OpenStorage{StorageEntity: storage}}</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : // WarpAscendEvent は上り階段による移動リクエストを生成する</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : func WarpAscendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpAscend{}} }</span></span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : // WarpRuinEnterEvent は遺跡進入リクエストを生成する</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 : func WarpRuinEnterEvent(definitionName string) StateChangeRequest {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return StateChangeRequest{Payload: WarpRuinEnter{DefinitionName: definitionName}}</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : // WarpRuinExitEvent は遺跡地上からオーバーワールドへの脱出リクエストを生成する</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : func WarpRuinExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpRuinExit{}} }</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : </span>
+<span id="L74"><span class="lineNum">      74</span>              : // GameClearEvent はゲームクリアリクエストを生成する</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span>              : // ShowDialogEvent は会話メッセージ表示リクエストを生成する</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         return StateChangeRequest{Payload: ShowDialog{MessageKey: messageKey, SpeakerEntity: speaker}}</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : // OpenDungeonSelectEvent はダンジョン選択メニューを開くリクエストを生成する</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 : func OpenDungeonSelectEvent() StateChangeRequest {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         return StateChangeRequest{Payload: OpenDungeonSelect{}}</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L86"><span class="lineNum">      86</span>              : </span>
+<span id="L87"><span class="lineNum">      87</span>              : // OpenStorageEvent は収納メニューを開くリクエストを生成する</span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 : func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         return StateChangeRequest{Payload: OpenStorage{StorageEntity: storage}}</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

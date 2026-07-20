@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 01:07:41</td>
+            <td class="headerValue">2026-07-20 11:26:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -130,7 +130,7 @@
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           4 :         hasPickable := false</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           4 :         pickableQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           4 :         pickableQuery := query.ActiveFilter1[gc.GridElement](world).Query()</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">          13 :         for pickableQuery.Next() {</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           9 :                 entity := pickableQuery.Entity()</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          10 :                 if hasPickable {</span></span>
@@ -203,7 +203,7 @@
 <span id="L141"><span class="lineNum">     141</span>              : </span>
 <span id="L142"><span class="lineNum">     142</span>              :         // 対象タイルの拾得可能なエンティティを検索</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           4 :         var toCollect []ecs.Entity</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           4 :         collectQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           4 :         collectQuery := query.ActiveFilter1[gc.GridElement](world).Query()</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">          12 :         for collectQuery.Next() {</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           8 :                 entity := collectQuery.Entity()</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           8 :                 grid := world.Components.GridElement.Get(entity)</span></span>
