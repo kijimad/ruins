@@ -78,54 +78,18 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
 	if !st.Resume {
-		// ステージ用シードを生成する
-		stageSeed := world.Config.RNG.Uint64()
-		stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
-
-		// ビルダータイプを決定
-		var builderType mapplanner.PlannerType
-		// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
-		switch {
-		case def.BossPlannerType != nil && st.Depth == def.TotalFloors:
-			builderType = *def.BossPlannerType
-		case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
-			var err error
-			builderType, err = dungeon.SelectPlanner(def, stageRNG)
-			if err != nil {
-				return err
-			}
-		default:
-			builderType = st.BuilderType
-		}
-
-		// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
-		builderType.EnemyTableName = def.EnemyTableName
-		builderType.ItemTableName = def.ItemTableName
-		builderType.Depth = st.Depth
-
-		// 計画作成する
-		plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
+		key := dungeonStageKey(st.Depth)
+		playerPos, err := st.spawnFloor(world, st.Depth, def, key)
 		if err != nil {
 			return err
 		}
-		// スポーンする
-		level, err := mapspawner.Spawn(world, plan)
-		if err != nil {
-			return err
-		}
-		query.GetDungeon(world).Level = level
-
 		// プレイヤーを配置する
-		playerPos, err := plan.GetPlayerStartPosition()
-		if err != nil {
-			return err
-		}
 		if err := lifecycle.MovePlayerToPosition(world, playerPos); err != nil {
 			return err
 		}
-
-		// フロア移動時に探索済みマップをリセット
-		query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
+		// フロア移動時に探索済みマップをリセットし、現ステージを確定する
+		resetExploredTiles(world)
+		query.GetDungeon(world).CurrentStage = key
 	}
 
 	// 前フロア・復元前のSpatialIndexが残っている可能性があるため無効化して作り直す。
@@ -155,6 +119,94 @@ func (st *DungeonState) OnStart(world w.World) error {
 		}
 	}
 
+	return nil
+}
+
+// dungeonStageKey は指定深度のダンジョン階を表すステージキーを返す。
+// ストアは1回の潜行スコープなので、同一潜行内では深度だけで階を一意に識別できる
+func dungeonStageKey(depth int) gc.StageKey {
+	return gc.StageKey{Kind: gc.StageKindDungeon, Depth: depth}
+}
+
+// spawnFloor は depth のフロアを生成して world に配置し、生成物に StageMember を付ける。
+// プレイヤー開始位置を返す。プレイヤー配置・探索リセット・現ステージ更新は呼び出し側が行う
+func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definition, key gc.StageKey) (consts.Coord[consts.Tile], error) {
+	var zero consts.Coord[consts.Tile]
+
+	// ステージ用シードを生成する
+	stageSeed := world.Config.RNG.Uint64()
+	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
+
+	// ビルダータイプを決定する。最終階層かつBossPlannerTypeがあればボスフロアにする
+	var builderType mapplanner.PlannerType
+	switch {
+	case def.BossPlannerType != nil && depth == def.TotalFloors:
+		builderType = *def.BossPlannerType
+	case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
+		var err error
+		builderType, err = dungeon.SelectPlanner(def, stageRNG)
+		if err != nil {
+			return zero, err
+		}
+	default:
+		builderType = st.BuilderType
+	}
+
+	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+	builderType.EnemyTableName = def.EnemyTableName
+	builderType.ItemTableName = def.ItemTableName
+	builderType.Depth = depth
+
+	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
+	if err != nil {
+		return zero, err
+	}
+	level, err := mapspawner.Spawn(world, plan)
+	if err != nil {
+		return zero, err
+	}
+	query.GetDungeon(world).Level = level
+
+	// 生成物をこのステージの一員として識別できるようにする
+	tagStageMembers(world, key)
+
+	return plan.GetPlayerStartPosition()
+}
+
+// descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
+// 生成フローの swapTo 化。TransPush で新ステートを積む旧 WarpNext と違い、同一 State 内で入れ替える
+func (st *DungeonState) descend(world w.World) error {
+	nextDepth := st.Depth + 1
+	target := dungeonStageKey(nextDepth)
+
+	// 生成は swapTo の callback で行う。未訪問のときだけ呼ばれる。
+	// def 参照も生成時だけに閉じ、訪問済みの再稼働では不要にする
+	var playerPos consts.Coord[consts.Tile]
+	var generated bool
+	var genErr error
+	swapTo(world, target, func(world w.World, key gc.StageKey) {
+		def, found := dungeon.GetDungeon(query.GetDungeon(world).DefinitionName)
+		if !found {
+			genErr = fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
+			return
+		}
+		playerPos, genErr = st.spawnFloor(world, nextDepth, def, key)
+		generated = true
+	})
+	if genErr != nil {
+		return genErr
+	}
+
+	st.Depth = nextDepth
+	query.GetDungeon(world).Depth = nextDepth
+
+	// 生成したフロアはプレイヤーを開始位置へ置く。
+	// 訪問済みフロアの再訪は上り階段からの帰還位置を使うが、上り階段は未実装のため保留
+	if generated {
+		if err := lifecycle.MovePlayerToPosition(world, playerPos); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -528,6 +580,12 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
+	case gc.WarpDescend:
+		// 共存方式の下り。同一 State 内で swapTo する。現階は退避され再訪で復元できる
+		if err := st.descend(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpEscape:
 		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
