@@ -89,6 +89,16 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	require.NoError(t, err)
 	pg := world.Components.GridElement.Get(player)
 	assert.Equal(t, consts.Tile(k/2)*chunkW+chunkW/2, pg.X, "プレイヤーX は中央チャンク中央")
+
+	// 開始チャンクに遺跡入口が1つ置かれ、進入先の遺跡名を持つ
+	entranceCount := 0
+	eq := ecs.NewFilter1[gc.RuinEntrance](world.ECS).Query()
+	for eq.Next() {
+		entranceCount++
+		assert.NotEmpty(t, world.Components.RuinEntrance.Get(eq.Entity()).DefinitionName, "遺跡入口は進入先を持つ")
+		assert.True(t, world.Components.Interactable.Has(eq.Entity()), "遺跡入口は相互作用を持つ")
+	}
+	assert.Equal(t, 1, entranceCount, "開始チャンクに遺跡入口が1つ置かれる")
 }
 
 func TestOverworldState_maybeShift_東へ進むとシフトする(t *testing.T) {
