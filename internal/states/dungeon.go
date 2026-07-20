@@ -253,10 +253,13 @@ func (st *DungeonState) descend(world w.World) error {
 	if generated {
 		return lifecycle.MovePlayerToPosition(world, playerPos)
 	}
-	if pos, ok := findPortalPosition(world, gc.InteractionPortalPrev); ok {
-		return lifecycle.MovePlayerToPosition(world, pos)
+	pos, ok := findPortalPosition(world, gc.InteractionPortalPrev)
+	if !ok {
+		// 訪問済みの階には必ず上り階段があるはず。無ければステージ切替済みで
+		// プレイヤーが元座標に取り残されるので、silent にせず error にする
+		return fmt.Errorf("再訪した階に上り階段が見つかりません: 深度%d", nextDepth)
 	}
-	return nil
+	return lifecycle.MovePlayerToPosition(world, pos)
 }
 
 // findPortal は現ステージの指定種別ポータルのエンティティと位置を返す。
@@ -318,7 +321,13 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	}
 
 	st.Depth = target.Depth
-	query.GetDungeon(world).Depth = target.Depth
+	d := query.GetDungeon(world)
+	d.Depth = target.Depth
+	// オーバーワールドへ戻ったら遺跡定義名をクリアする。残すと OnStart の再構築や
+	// タイトルエフェクトが古い遺跡名を参照しうる
+	if target.Kind == gc.StageKindOverworld {
+		d.DefinitionName = ""
+	}
 
 	if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {
 		return false, err
@@ -370,11 +379,13 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 	if generated {
 		return lifecycle.MovePlayerToPosition(world, landing)
 	}
-	// 再訪。遺跡の上り階段(入口)へ戻す
-	if pos, ok := findPortalPosition(world, gc.InteractionPortalPrev); ok {
-		return lifecycle.MovePlayerToPosition(world, pos)
+	// 再訪。遺跡の上り階段(入口)へ戻す。訪問済みなら必ず存在するはず。
+	// 無ければプレイヤーが元座標に取り残されるので silent にせず error にする
+	pos, ok := findPortalPosition(world, gc.InteractionPortalPrev)
+	if !ok {
+		return fmt.Errorf("再訪した遺跡に上り階段が見つかりません: %s", defName)
 	}
-	return nil
+	return lifecycle.MovePlayerToPosition(world, pos)
 }
 
 // OnStop はステートが停止される際に呼ばれる。

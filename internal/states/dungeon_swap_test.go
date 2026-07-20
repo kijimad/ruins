@@ -27,7 +27,9 @@ func addStageEntity(t *testing.T, world w.World, key gc.StageKey) ecs.Entity {
 	return e
 }
 
-// hasPortalPrev は world に上り階段プロップが存在するかを返す
+// hasPortalPrev は world に上り階段プロップが存在するかを返す。
+// 本番の findPortal と違い ActiveFilter を使わず退避中ステージも含めて全ステージを見る。
+// 「生成されたどの階にも上り階段があるか」を確かめるテスト専用の意図
 func hasPortalPrev(world w.World) bool {
 	found := false
 	q := ecs.NewFilter1[gc.Interactable](world.ECS).Query()
@@ -150,6 +152,18 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	floor2 := addStageEntity(t, world, dungeonStageKey(2))
 	world.Components.Suspended.Add(floor2, &gc.Suspended{})
 
+	// 実フロア相当。2階には上り階段があり、再訪でプレイヤーはそこへ配置される
+	upStair := world.ECS.NewEntity()
+	world.Components.GridElement.Add(upStair, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+	world.Components.Interactable.Add(upStair, &gc.Interactable{
+		Interactions: []gc.InteractionKind{gc.InteractionPortalPrev},
+	})
+	world.Components.StageBound.Add(upStair, &gc.StageBound{Key: dungeonStageKey(2)})
+	world.Components.Suspended.Add(upStair, &gc.Suspended{})
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
+	require.NoError(t, err)
+
 	st := &DungeonState{Depth: 1}
 	require.NoError(t, st.descend(world))
 
@@ -157,6 +171,7 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	assert.True(t, world.Components.Suspended.Has(floor1), "降りた1階は退避される")
 	assert.True(t, world.ECS.Alive(floor1), "1階のエンティティは破棄されず現物が残る")
 	assert.False(t, world.Components.Suspended.Has(floor2), "再訪する2階は再稼働される")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "再訪でプレイヤーは2階の上り階段へ")
 
 	// 深度と現ステージが更新される
 	assert.Equal(t, 2, st.Depth)

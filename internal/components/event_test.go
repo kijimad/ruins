@@ -14,16 +14,15 @@ func TestStateChangeRequest_Constructors(t *testing.T) {
 	// 各コンストラクタが正しい種別のペイロードを生成することを確認
 	assert.IsType(t, WarpDescend{}, WarpDescendEvent().Payload)
 	assert.IsType(t, WarpAscend{}, WarpAscendEvent().Payload)
-	assert.IsType(t, WarpDungeonExit{}, WarpDungeonExitEvent().Payload)
 	assert.IsType(t, GameClear{}, GameClearEvent().Payload)
 	assert.IsType(t, OpenDungeonSelect{}, OpenDungeonSelectEvent().Payload)
 
 	// 遺跡進入は遺跡定義名を運ぶ
-	ruinEnter := WarpDungeonEnterEvent("ancient_ruin")
-	require.IsType(t, WarpDungeonEnter{}, ruinEnter.Payload)
-	ruinEnterPayload, ok := ruinEnter.Payload.(WarpDungeonEnter)
+	dungeonEnter := WarpDungeonEnterEvent("ancient_ruin")
+	require.IsType(t, WarpDungeonEnter{}, dungeonEnter.Payload)
+	dungeonEnterPayload, ok := dungeonEnter.Payload.(WarpDungeonEnter)
 	require.True(t, ok, "型が WarpDungeonEnter であるべき")
-	assert.Equal(t, "ancient_ruin", ruinEnterPayload.DefinitionName)
+	assert.Equal(t, "ancient_ruin", dungeonEnterPayload.DefinitionName)
 
 	// ペイロード付きのイベントもフィールドが設定されることを確認
 	dialog := ShowDialogEvent("test", ecs.Entity{})

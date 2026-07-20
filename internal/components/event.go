@@ -21,9 +21,6 @@ type WarpDungeonEnter struct {
 	DefinitionName string
 }
 
-// WarpDungeonExit は遺跡地上からオーバーワールドへの脱出
-type WarpDungeonExit struct{}
-
 // GameClear はゲームクリア
 type GameClear struct{}
 
@@ -44,7 +41,6 @@ type OpenStorage struct {
 func (WarpDescend) isStatePayload()       {}
 func (WarpAscend) isStatePayload()        {}
 func (WarpDungeonEnter) isStatePayload()  {}
-func (WarpDungeonExit) isStatePayload()   {}
 func (GameClear) isStatePayload()         {}
 func (OpenDungeonSelect) isStatePayload() {}
 func (ShowDialog) isStatePayload()        {}
@@ -67,9 +63,6 @@ func WarpAscendEvent() StateChangeRequest { return StateChangeRequest{Payload: W
 func WarpDungeonEnterEvent(definitionName string) StateChangeRequest {
 	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName}}
 }
-
-// WarpDungeonExitEvent は遺跡地上からオーバーワールドへの脱出リクエストを生成する
-func WarpDungeonExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpDungeonExit{}} }
 
 // GameClearEvent はゲームクリアリクエストを生成する
 func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }

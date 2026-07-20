@@ -143,6 +143,8 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 
 // SpawnDungeonEntrance は遺跡入口プロップを生成する。触れて Enter で definitionName の遺跡へ入る。
 // オーバーワールドはコードで入口を配置するため、raw でなく EntitySpec を直接組む。
+// 入口はオーバーワールドの地物なので StageBound{overworld} を直接持たせ、遺跡進入時に帯と共に
+// 退避されるようにする。swapTo の遅延 Bind に頼らず、明示束縛でリファクタリング耐性を上げる。
 func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitionName string) (ecs.Entity, error) {
 	entitySpec := gc.EntitySpec{
 		Name:        &gc.Name{Name: "遺跡入口"},
@@ -157,6 +159,7 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 		LocationOnField: &gc.LocationOnField{},
 		Interactable:    &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDungeonEnter}},
 		DungeonEntrance: &gc.DungeonEntrance{DefinitionName: definitionName},
+		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
 	}
 
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
