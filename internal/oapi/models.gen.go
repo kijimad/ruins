@@ -1284,9 +1284,6 @@ type Prop struct {
 	// Storage 収納ローデータ
 	Storage *StorageRaw `json:"storage,omitempty"`
 
-	// WarpEscapeTrigger 脱出ワープトリガー
-	WarpEscapeTrigger *WarpEscapeTriggerRaw `json:"warpEscapeTrigger,omitempty"`
-
 	// WarpNextTrigger 次階層ワープトリガー
 	WarpNextTrigger *WarpNextTriggerRaw `json:"warpNextTrigger,omitempty"`
 
@@ -2259,9 +2256,6 @@ type ViewDistance = int32
 
 // Vitality 体力。HPに影響する
 type Vitality = int32
-
-// WarpEscapeTriggerRaw 脱出ワープトリガー
-type WarpEscapeTriggerRaw = map[string]interface{}
 
 // WarpNextTriggerRaw 次階層ワープトリガー
 type WarpNextTriggerRaw = map[string]interface{}

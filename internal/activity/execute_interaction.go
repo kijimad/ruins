@@ -29,8 +29,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー")
 	case gc.InteractionPortalPrev:
 		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー")
-	case gc.InteractionPortalTown:
-		return executePortal(world, gc.WarpEscapeEvent(), "街帰還状態変更要求エラー")
 	case gc.InteractionDungeonGate:
 		return executeDungeonGate(world)
 	case gc.InteractionDoor:

@@ -204,13 +204,6 @@ func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {
 		}
 	}
 
-	// EscapePortalsへの到達性をチェック
-	for _, portal := range planData.EscapePortals {
-		if !pf.IsReachable(pos, portal) {
-			return false
-		}
-	}
-
 	return true
 }
 
@@ -226,14 +219,6 @@ func (pf *PathFinder) ValidatePortalReachability() error {
 	for i, portal := range pf.planData.NextPortals {
 		if !pf.IsReachable(playerPos, portal) {
 			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からNextPortal[%d](%d,%d)への到達不可",
-				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
-		}
-	}
-
-	// EscapePortalsの到達性をチェック
-	for i, portal := range pf.planData.EscapePortals {
-		if !pf.IsReachable(playerPos, portal) {
-			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からEscapePortal[%d](%d,%d)への到達不可",
 				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}
 	}

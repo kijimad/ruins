@@ -11,17 +11,16 @@ import (
 
 // Snapshot はマップ生成の各フェーズ完了時点でのMetaPlanの状態を保存する
 type Snapshot struct {
-	Label         string
-	Tiles         []oapi.Tile
-	Rooms         []gc.Rect
-	Corridors     [][]gc.TileIdx
-	NPCs          []NPCSpec
-	Items         []ItemSpec
-	Props         []PropsSpec
-	Doors         []DoorSpec
-	NextPortals   []consts.Coord[consts.Tile]
-	EscapePortals []consts.Coord[consts.Tile]
-	SpawnPoints   []maptemplate.SpawnPoint
+	Label       string
+	Tiles       []oapi.Tile
+	Rooms       []gc.Rect
+	Corridors   [][]gc.TileIdx
+	NPCs        []NPCSpec
+	Items       []ItemSpec
+	Props       []PropsSpec
+	Doors       []DoorSpec
+	NextPortals []consts.Coord[consts.Tile]
+	SpawnPoints []maptemplate.SpawnPoint
 }
 
 // takeSnapshot はRecordingが有効な場合にMetaPlanの現在の状態をスナップショットとして保存する
@@ -31,17 +30,16 @@ func (b *PlannerChain) takeSnapshot(label string) {
 	}
 	d := &b.PlanData
 	b.Snapshots = append(b.Snapshots, Snapshot{
-		Label:         label,
-		Tiles:         slices.Clone(d.Tiles),
-		Rooms:         slices.Clone(d.Rooms),
-		Corridors:     deepCloneCorridors(d.Corridors),
-		NPCs:          slices.Clone(d.NPCs),
-		Items:         slices.Clone(d.Items),
-		Props:         slices.Clone(d.Props),
-		Doors:         slices.Clone(d.Doors),
-		NextPortals:   slices.Clone(d.NextPortals),
-		EscapePortals: slices.Clone(d.EscapePortals),
-		SpawnPoints:   slices.Clone(d.SpawnPoints),
+		Label:       label,
+		Tiles:       slices.Clone(d.Tiles),
+		Rooms:       slices.Clone(d.Rooms),
+		Corridors:   deepCloneCorridors(d.Corridors),
+		NPCs:        slices.Clone(d.NPCs),
+		Items:       slices.Clone(d.Items),
+		Props:       slices.Clone(d.Props),
+		Doors:       slices.Clone(d.Doors),
+		NextPortals: slices.Clone(d.NextPortals),
+		SpawnPoints: slices.Clone(d.SpawnPoints),
 	})
 }
 

@@ -48,7 +48,6 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		// ポータルが配置されていないことを確認
 		assert.Empty(t, chain.PlanData.NextPortals)
-		assert.Empty(t, chain.PlanData.EscapePortals)
 	})
 
 	t.Run("プロシージャルマップではNextPortalsが配置される", func(t *testing.T) {
@@ -69,47 +68,6 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		// NextPortalsが配置されていることを確認
 		assert.NotEmpty(t, chain.PlanData.NextPortals)
-	})
-
-	t.Run("5階層ごとにEscapePortalsが配置される", func(t *testing.T) {
-		t.Parallel()
-
-		testCases := []struct {
-			depth        int
-			expectEscape bool
-			description  string
-		}{
-			{1, false, "1階層目は帰還ポータルなし"},
-			{5, true, "5階層目は帰還ポータルあり"},
-			{6, false, "6階層目は帰還ポータルなし"},
-			{10, true, "10階層目は帰還ポータルあり"},
-			{15, true, "15階層目は帰還ポータルあり"},
-		}
-
-		for _, tc := range testCases {
-			t.Run(tc.description, func(t *testing.T) {
-				t.Parallel()
-				world := testutil.InitTestWorld(t)
-				query.SetDungeon(world, &gc.Dungeon{Depth: tc.depth})
-				world.Resources.RawMaster = *CreateTestRawMaster()
-
-				chain, err := NewSmallRoomPlanner(30, 30, 12345)
-				require.NoError(t, err)
-				chain.PlanData.RawMaster = CreateTestRawMaster()
-				err = chain.Plan()
-				require.NoError(t, err)
-
-				planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
-				err = planner.PlanMeta(&chain.PlanData)
-				require.NoError(t, err)
-
-				if tc.expectEscape {
-					assert.NotEmpty(t, chain.PlanData.EscapePortals, tc.description)
-				} else {
-					assert.Empty(t, chain.PlanData.EscapePortals, tc.description)
-				}
-			})
-		}
 	})
 
 	t.Run("歩行可能タイルが孤立している場合はErrConnectivityを返す", func(t *testing.T) {
@@ -154,23 +112,6 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		assert.ErrorIs(t, err, ErrConnectivity)
 	})
 
-	t.Run("Dungeonがnilの場合エラーを返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		query.SetDungeon(world, nil)
-
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
-		require.NoError(t, err)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-		err = chain.Plan()
-		require.NoError(t, err)
-
-		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
-		err = planner.PlanMeta(&chain.PlanData)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "Dungeonが初期化されていません")
-	})
-
 	t.Run("配置されたポータルはプレイヤーから到達可能", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -198,11 +139,6 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 				"NextPortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
 		}
 
-		// EscapePortalsが到達可能であることを確認
-		for _, portal := range chain.PlanData.EscapePortals {
-			assert.True(t, pathFinder.IsReachable(playerPos, portal),
-				"EscapePortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
-		}
 	})
 
 	t.Run("ポータルはプレイヤーから最低歩数以上離れて配置される", func(t *testing.T) {
@@ -234,11 +170,6 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 				path := pathFinder.FindPath(playerPos, portal)
 				// フォールバックで配置された場合は距離が短い可能性があるため、到達可能であることだけ確認
 				assert.NotEmpty(t, path, "seed=%d: NextPortalに到達不能", seed)
-			}
-
-			for _, portal := range chain.PlanData.EscapePortals {
-				path := pathFinder.FindPath(playerPos, portal)
-				assert.NotEmpty(t, path, "seed=%d: EscapePortalに到達不能", seed)
 			}
 		}
 	})

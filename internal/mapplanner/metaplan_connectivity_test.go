@@ -41,7 +41,7 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 					t.Parallel()
 					world := testutil.InitTestWorld(t)
 					world.Resources.RawMaster = *CreateTestRawMaster()
-					query.SetDungeon(world, &gc.Dungeon{Depth: 5}) // EscapePortalも生成される階層
+					query.SetDungeon(world, &gc.Dungeon{Depth: 5})
 
 					plan, err := Plan(world, 50, 50, seed, tc.plannerType)
 					require.NoError(t, err, "Plan失敗")
@@ -115,13 +115,6 @@ func assertMapConnectivity(t *testing.T, plan *MetaPlan) {
 			"NextPortal[%d](%d,%d)にプレイヤー(%d,%d)から到達不可", i, portal.X, portal.Y, playerPos.X, playerPos.Y)
 	}
 
-	// EscapePortalが存在する場合、到達可能であること
-	for i, portal := range plan.EscapePortals {
-		assert.True(t, pf.IsWalkable(portal),
-			"EscapePortal[%d](%d,%d)が歩行不可タイル上にある", i, portal.X, portal.Y)
-		assert.True(t, pf.IsReachable(playerPos, portal),
-			"EscapePortal[%d](%d,%d)にプレイヤー(%d,%d)から到達不可", i, portal.X, portal.Y, playerPos.X, playerPos.Y)
-	}
 }
 
 // countReachableTiles はBFSで指定位置から到達可能な歩行可能タイル数を返す

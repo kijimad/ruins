@@ -12,9 +12,6 @@ type StatePayload interface{ isStatePayload() }
 // WarpNext は次の階層への移動
 type WarpNext struct{}
 
-// WarpEscape は脱出ポータルによる帰還
-type WarpEscape struct{}
-
 // WarpDescend は下り階段による1つ下の階への移動
 type WarpDescend struct{}
 
@@ -48,7 +45,6 @@ type OpenStorage struct {
 }
 
 func (WarpNext) isStatePayload()          {}
-func (WarpEscape) isStatePayload()        {}
 func (WarpDescend) isStatePayload()       {}
 func (WarpAscend) isStatePayload()        {}
 func (WarpRuinEnter) isStatePayload()     {}
@@ -67,9 +63,6 @@ type StateChangeRequest struct {
 
 // WarpNextEvent は次の階層への移動リクエストを生成する
 func WarpNextEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpNext{}} }
-
-// WarpEscapeEvent は脱出ポータルによる帰還リクエストを生成する
-func WarpEscapeEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpEscape{}} }
 
 // WarpDescendEvent は下り階段による移動リクエストを生成する
 func WarpDescendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpDescend{}} }

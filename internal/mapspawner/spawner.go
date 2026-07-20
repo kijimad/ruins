@@ -226,13 +226,6 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 		}
 	}
 
-	for _, portal := range metaPlan.EscapePortals {
-		tileX, tileY := portal.X+offsetX, portal.Y+offsetY
-		_, err := lifecycle.SpawnProp(world, "warp_escape", tileX, tileY)
-		if err != nil {
-			return fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
-		}
-	}
 	return nil
 }
 

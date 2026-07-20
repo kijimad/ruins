@@ -156,7 +156,6 @@ func TestSpawnEnemyHasAI(t *testing.T) {
 			"floor":        {Width: 32, Height: 32},
 			"player":       {Width: 32, Height: 32},
 			"warp_next":    {Width: 32, Height: 32},
-			"warp_escape":  {Width: 32, Height: 32},
 			"red_ball":     {Width: 32, Height: 32}, // 敵のスプライト
 		},
 	}

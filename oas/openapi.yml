@@ -2445,8 +2445,6 @@ components:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
         warpPrevTrigger:
           $ref: '#/components/schemas/WarpPrevTriggerRaw'
-        warpEscapeTrigger:
-          $ref: '#/components/schemas/WarpEscapeTriggerRaw'
         dungeonGateTrigger:
           $ref: '#/components/schemas/DungeonGateTriggerRaw'
         storage:
@@ -3871,9 +3869,6 @@ components:
       minimum: -100
       maximum: 100
       description: 体力。HPに影響する
-    WarpEscapeTriggerRaw:
-      type: object
-      description: 脱出ワープトリガー
     WarpNextTriggerRaw:
       type: object
       description: 次階層ワープトリガー

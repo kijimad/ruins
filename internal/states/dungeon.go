@@ -657,11 +657,6 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case gc.WarpEscape:
-		// 精算画面を経由して街へ帰還する
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewFadeoutAnimationState(NewAutoSellState()),
-		}}, nil
 	case gc.OpenDungeonSelect:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil

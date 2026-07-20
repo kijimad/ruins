@@ -35096,12 +35096,6 @@
   ],
   "Doors": [],
   "NextPortals": [],
-  "EscapePortals": [
-    {
-      "X": 2,
-      "Y": 2
-    }
-  ],
   "SpawnPoints": [
     {
       "x": 2,

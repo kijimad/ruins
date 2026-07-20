@@ -186,10 +186,6 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Append("上り階段がある。Enterキーで移動。").
 					Log()
-			case gc.InteractionPortalTown:
-				gamelog.New(query.GetGameLog(world)).
-					Append("帰還ゲートがある。Enterキーで脱出。").
-					Log()
 			case gc.InteractionDungeonGate:
 				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").

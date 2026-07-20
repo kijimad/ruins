@@ -156,12 +156,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionPortalTown:
-			result = append(result, InteractionAction{
-				Label:       "転移する(帰還)",
-				Target:      interactableEntity,
-				Interaction: interaction,
-			})
 		case gc.InteractionDungeonGate:
 			result = append(result, InteractionAction{
 				Label:       "ダンジョンを選ぶ",
