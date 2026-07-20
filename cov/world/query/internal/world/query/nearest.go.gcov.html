@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,7 +91,7 @@
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L30"><span class="lineNum">      30</span>              :                 }</span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           5 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           5 :                 dist := geometry.ChebyshevDistance(int(from.X), int(from.Y), int(grid.X), int(grid.Y))</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           5 :                 dist := geometry.ChebyshevDistance(from.Coord, grid.Coord)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           8 :                 if nearestDist &lt; 0 || dist &lt; nearestDist {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           3 :                         e := entity</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           3 :                         nearestEntity = &amp;e</span></span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L71"><span class="lineNum">      71</span>              :                 }</span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 dist := geometry.ChebyshevDistance(int(from.X), int(from.Y), int(grid.X), int(grid.Y))</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 dist := geometry.ChebyshevDistance(from.Coord, grid.Coord)</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :                 if !found || dist &lt; nearestDist || (dist == nearestDist &amp;&amp; entity.ID() &lt; nearest.ID()) {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         nearest = entity</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                         nearestGrid = grid</span></span>

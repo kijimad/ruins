@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,336 +70,341 @@
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // Upsert はコンポーネントを追加または更新する。</span>
-<span id="L12"><span class="lineNum">      12</span>              : // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。</span>
-<span id="L13"><span class="lineNum">      13</span>              : // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           3 : func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *T) error {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           4 :         if !world.Alive(entity) {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;死亡エンティティにコンポーネントを設定できない: entity=%v&quot;, entity)</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           3 :         if comp.Has(entity) {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 comp.Set(entity, data)</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         } else {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 comp.Add(entity, data)</span></span>
+<span id="L11"><span class="lineNum">      11</span>              : // InvalidEntity は無効なエンティティを表す。ark は id 0 を予約ゼロエンティティとし</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 実エンティティには割り当てないため、ゼロ値 Entity は安全な無効値として使える。</span>
+<span id="L13"><span class="lineNum">      13</span>              : // エラー時の戻り値などに使う。格納済みエンティティの生存確認には world.ECS.Alive を使う。</span>
+<span id="L14"><span class="lineNum">      14</span>              : var InvalidEntity = ecs.Entity{}</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // Upsert はコンポーネントを追加または更新する。</span>
+<span id="L17"><span class="lineNum">      17</span>              : // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。</span>
+<span id="L18"><span class="lineNum">      18</span>              : // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           3 : func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *T) error {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           4 :         if !world.Alive(entity) {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;死亡エンティティにコンポーネントを設定できない: entity=%v&quot;, entity)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         return nil</span></span>
-<span id="L24"><span class="lineNum">      24</span>              : }</span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // addComp は非nilなら対応するMapにコンポーネントを付与する</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">        4356 : func addComp[T any](m *ecs.Map[T], entity ecs.Entity, v *T) {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">        4422 :         if v != nil {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          66 :                 m.Add(entity, v)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          66 :         }</span></span>
-<span id="L31"><span class="lineNum">      31</span>              : }</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // Camera はカメラ</span>
-<span id="L34"><span class="lineNum">      34</span>              : // 滑らかなズームと追従のため、実際値と目標値を別々に持つ</span>
-<span id="L35"><span class="lineNum">      35</span>              : type Camera struct {</span>
-<span id="L36"><span class="lineNum">      36</span>              :         // ズーム率</span>
-<span id="L37"><span class="lineNum">      37</span>              :         Scale   float64</span>
-<span id="L38"><span class="lineNum">      38</span>              :         ScaleTo float64</span>
-<span id="L39"><span class="lineNum">      39</span>              :         // カメラ位置。ピクセル単位</span>
-<span id="L40"><span class="lineNum">      40</span>              :         Pos    consts.Coord[float64]</span>
-<span id="L41"><span class="lineNum">      41</span>              :         Target consts.Coord[float64]</span>
-<span id="L42"><span class="lineNum">      42</span>              : }</span>
-<span id="L43"><span class="lineNum">      43</span>              : </span>
-<span id="L44"><span class="lineNum">      44</span>              : // Consumable は消耗品。一度使うとなくなる</span>
-<span id="L45"><span class="lineNum">      45</span>              : type Consumable struct {</span>
-<span id="L46"><span class="lineNum">      46</span>              :         UsableScene UsableSceneType</span>
-<span id="L47"><span class="lineNum">      47</span>              :         TargetType  TargetType</span>
-<span id="L48"><span class="lineNum">      48</span>              : }</span>
-<span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span>              : // Name は表示名</span>
-<span id="L51"><span class="lineNum">      51</span>              : type Name struct {</span>
-<span id="L52"><span class="lineNum">      52</span>              :         Name string</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           3 :         if comp.Has(entity) {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 comp.Set(entity, data)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         } else {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 comp.Add(entity, data)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         return nil</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // addComp は非nilなら対応するMapにコンポーネントを付与する</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">        4353 : func addComp[T any](m *ecs.Map[T], entity ecs.Entity, v *T) {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">        4419 :         if v != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          66 :                 m.Add(entity, v)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          66 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : }</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // Camera はカメラ</span>
+<span id="L39"><span class="lineNum">      39</span>              : // 滑らかなズームと追従のため、実際値と目標値を別々に持つ</span>
+<span id="L40"><span class="lineNum">      40</span>              : type Camera struct {</span>
+<span id="L41"><span class="lineNum">      41</span>              :         // ズーム率</span>
+<span id="L42"><span class="lineNum">      42</span>              :         Scale   float64</span>
+<span id="L43"><span class="lineNum">      43</span>              :         ScaleTo float64</span>
+<span id="L44"><span class="lineNum">      44</span>              :         // カメラ位置。ワールド空間のピクセル単位</span>
+<span id="L45"><span class="lineNum">      45</span>              :         Pos    consts.Coord[consts.WorldPixel]</span>
+<span id="L46"><span class="lineNum">      46</span>              :         Target consts.Coord[consts.WorldPixel]</span>
+<span id="L47"><span class="lineNum">      47</span>              : }</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : // Consumable は消耗品。一度使うとなくなる</span>
+<span id="L50"><span class="lineNum">      50</span>              : type Consumable struct {</span>
+<span id="L51"><span class="lineNum">      51</span>              :         UsableScene UsableSceneType</span>
+<span id="L52"><span class="lineNum">      52</span>              :         TargetType  TargetType</span>
 <span id="L53"><span class="lineNum">      53</span>              : }</span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span>              : // Description は説明</span>
-<span id="L56"><span class="lineNum">      56</span>              : type Description struct {</span>
-<span id="L57"><span class="lineNum">      57</span>              :         Description string</span>
+<span id="L55"><span class="lineNum">      55</span>              : // Name は表示名</span>
+<span id="L56"><span class="lineNum">      56</span>              : type Name struct {</span>
+<span id="L57"><span class="lineNum">      57</span>              :         Name string</span>
 <span id="L58"><span class="lineNum">      58</span>              : }</span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
-<span id="L60"><span class="lineNum">      60</span>              : // Dialog は会話データ</span>
-<span id="L61"><span class="lineNum">      61</span>              : type Dialog struct {</span>
-<span id="L62"><span class="lineNum">      62</span>              :         MessageKey string // メッセージキー</span>
+<span id="L60"><span class="lineNum">      60</span>              : // Description は説明</span>
+<span id="L61"><span class="lineNum">      61</span>              : type Description struct {</span>
+<span id="L62"><span class="lineNum">      62</span>              :         Description string</span>
 <span id="L63"><span class="lineNum">      63</span>              : }</span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>
-<span id="L65"><span class="lineNum">      65</span>              : // Wearable は装備品。キャラクタが装備することでパラメータを変更できる</span>
-<span id="L66"><span class="lineNum">      66</span>              : type Wearable struct {</span>
-<span id="L67"><span class="lineNum">      67</span>              :         Defense           int           // 防御力</span>
-<span id="L68"><span class="lineNum">      68</span>              :         EquipmentCategory EquipmentType // 装備部位</span>
-<span id="L69"><span class="lineNum">      69</span>              :         EquipBonus        EquipBonus    // ステータスへのボーナス</span>
-<span id="L70"><span class="lineNum">      70</span>              :         InsulationCold    int           // 耐寒（快適温度の下限を下げる）</span>
-<span id="L71"><span class="lineNum">      71</span>              :         InsulationHeat    int           // 耐暑（快適温度の上限を上げる）</span>
-<span id="L72"><span class="lineNum">      72</span>              : }</span>
-<span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span>              : // Player は操作対象の主人公キャラクター</span>
-<span id="L75"><span class="lineNum">      75</span>              : type Player struct{}</span>
-<span id="L76"><span class="lineNum">      76</span>              : </span>
-<span id="L77"><span class="lineNum">      77</span>              : // Boss はボスエンティティを示すマーカーコンポーネント</span>
-<span id="L78"><span class="lineNum">      78</span>              : type Boss struct{}</span>
-<span id="L79"><span class="lineNum">      79</span>              : </span>
-<span id="L80"><span class="lineNum">      80</span>              : // Profession はプレイヤーが選択した職業を保持する。ラン終了時の再適用に使う</span>
-<span id="L81"><span class="lineNum">      81</span>              : type Profession struct {</span>
-<span id="L82"><span class="lineNum">      82</span>              :         ID string // raw.Profession.ID に対応する</span>
-<span id="L83"><span class="lineNum">      83</span>              : }</span>
+<span id="L65"><span class="lineNum">      65</span>              : // Dialog は会話データ</span>
+<span id="L66"><span class="lineNum">      66</span>              : type Dialog struct {</span>
+<span id="L67"><span class="lineNum">      67</span>              :         MessageKey string // メッセージキー</span>
+<span id="L68"><span class="lineNum">      68</span>              : }</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : // Wearable は装備品。キャラクタが装備することでパラメータを変更できる</span>
+<span id="L71"><span class="lineNum">      71</span>              : type Wearable struct {</span>
+<span id="L72"><span class="lineNum">      72</span>              :         Defense           int           // 防御力</span>
+<span id="L73"><span class="lineNum">      73</span>              :         EquipmentCategory EquipmentType // 装備部位</span>
+<span id="L74"><span class="lineNum">      74</span>              :         EquipBonus        EquipBonus    // ステータスへのボーナス</span>
+<span id="L75"><span class="lineNum">      75</span>              :         InsulationCold    int           // 耐寒（快適温度の下限を下げる）</span>
+<span id="L76"><span class="lineNum">      76</span>              :         InsulationHeat    int           // 耐暑（快適温度の上限を上げる）</span>
+<span id="L77"><span class="lineNum">      77</span>              : }</span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span>              : // Player は操作対象の主人公キャラクター</span>
+<span id="L80"><span class="lineNum">      80</span>              : type Player struct{}</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : // Boss はボスエンティティを示すマーカーコンポーネント</span>
+<span id="L83"><span class="lineNum">      83</span>              : type Boss struct{}</span>
 <span id="L84"><span class="lineNum">      84</span>              : </span>
-<span id="L85"><span class="lineNum">      85</span>              : // Dead はキャラクターが死亡している状態を示すマーカーコンポーネント</span>
-<span id="L86"><span class="lineNum">      86</span>              : // 死亡時の処理(ドロップ/統計処理/ゲームログ...)を共通化するために使う</span>
-<span id="L87"><span class="lineNum">      87</span>              : type Dead struct{}</span>
-<span id="L88"><span class="lineNum">      88</span>              : </span>
-<span id="L89"><span class="lineNum">      89</span>              : // Wallet はプレイヤーの資金を管理する</span>
-<span id="L90"><span class="lineNum">      90</span>              : type Wallet struct {</span>
-<span id="L91"><span class="lineNum">      91</span>              :         Currency int</span>
-<span id="L92"><span class="lineNum">      92</span>              : }</span>
+<span id="L85"><span class="lineNum">      85</span>              : // Profession はプレイヤーが選択した職業を保持する。ラン終了時の再適用に使う</span>
+<span id="L86"><span class="lineNum">      86</span>              : type Profession struct {</span>
+<span id="L87"><span class="lineNum">      87</span>              :         ID string // raw.Profession.ID に対応する</span>
+<span id="L88"><span class="lineNum">      88</span>              : }</span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              : // Dead はキャラクターが死亡している状態を示すマーカーコンポーネント</span>
+<span id="L91"><span class="lineNum">      91</span>              : // 死亡時の処理(ドロップ/統計処理/ゲームログ...)を共通化するために使う</span>
+<span id="L92"><span class="lineNum">      92</span>              : type Dead struct{}</span>
 <span id="L93"><span class="lineNum">      93</span>              : </span>
-<span id="L94"><span class="lineNum">      94</span>              : // HP は生命力を表すコンポーネント</span>
-<span id="L95"><span class="lineNum">      95</span>              : // なくなるとゲームオーバーになる。キャラクターとProp（破壊可能な置物）の両方が使う</span>
-<span id="L96"><span class="lineNum">      96</span>              : type HP Pool[int]</span>
-<span id="L97"><span class="lineNum">      97</span>              : </span>
-<span id="L98"><span class="lineNum">      98</span>              : // WeightCapacity は重量容量を表すコンポーネント。</span>
-<span id="L99"><span class="lineNum">      99</span>              : // Playerの所持重量とStorageの格納重量の両方に使用する。</span>
-<span id="L100"><span class="lineNum">     100</span>              : // Maxは最大容量、Currentは現在の重量を表す</span>
-<span id="L101"><span class="lineNum">     101</span>              : type WeightCapacity Pool[float64]</span>
+<span id="L94"><span class="lineNum">      94</span>              : // Wallet はプレイヤーの資金を管理する</span>
+<span id="L95"><span class="lineNum">      95</span>              : type Wallet struct {</span>
+<span id="L96"><span class="lineNum">      96</span>              :         Currency int</span>
+<span id="L97"><span class="lineNum">      97</span>              : }</span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              : // HP は生命力を表すコンポーネント</span>
+<span id="L100"><span class="lineNum">     100</span>              : // なくなるとゲームオーバーになる。キャラクターとProp（破壊可能な置物）の両方が使う</span>
+<span id="L101"><span class="lineNum">     101</span>              : type HP Pool[int]</span>
 <span id="L102"><span class="lineNum">     102</span>              : </span>
-<span id="L103"><span class="lineNum">     103</span>              : // ProvidesHealing は回復する性質。</span>
-<span id="L104"><span class="lineNum">     104</span>              : // Amount の意味は Kind で決まる。HealNumeral なら絶対回復量、HealRatio なら最大HPに対する倍率。</span>
-<span id="L105"><span class="lineNum">     105</span>              : type ProvidesHealing struct {</span>
-<span id="L106"><span class="lineNum">     106</span>              :         Kind   HealAmountKind</span>
-<span id="L107"><span class="lineNum">     107</span>              :         Amount float64</span>
-<span id="L108"><span class="lineNum">     108</span>              : }</span>
-<span id="L109"><span class="lineNum">     109</span>              : </span>
-<span id="L110"><span class="lineNum">     110</span>              : // Calc は基準値(最大HP)から実際の回復量を計算する。絶対量指定の場合baseは無視される</span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           7 : func (ph ProvidesHealing) Calc(base int) int {</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">          11 :         if ph.Kind == HealRatio {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           4 :                 return int(float64(base) * ph.Amount)</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           4 :         }</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           3 :         return int(ph.Amount)</span></span>
-<span id="L116"><span class="lineNum">     116</span>              : }</span>
-<span id="L117"><span class="lineNum">     117</span>              : </span>
-<span id="L118"><span class="lineNum">     118</span>              : // ProvidesNutrition は空腹度を回復する性質</span>
-<span id="L119"><span class="lineNum">     119</span>              : type ProvidesNutrition struct {</span>
-<span id="L120"><span class="lineNum">     120</span>              :         Amount int // 回復量（この値だけ空腹度を減らす）</span>
+<span id="L103"><span class="lineNum">     103</span>              : // WeightCapacity は重量容量を表すコンポーネント。</span>
+<span id="L104"><span class="lineNum">     104</span>              : // Playerの所持重量とStorageの格納重量の両方に使用する。</span>
+<span id="L105"><span class="lineNum">     105</span>              : // Maxは最大容量、Currentは現在の重量を表す。単位はミリグラムの整数</span>
+<span id="L106"><span class="lineNum">     106</span>              : type WeightCapacity Pool[consts.Milligram]</span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : // ProvidesHealing は回復する性質。</span>
+<span id="L109"><span class="lineNum">     109</span>              : // Amount の意味は Kind で決まる。HealNumeral なら絶対回復量、HealRatio なら最大HPに対する倍率。</span>
+<span id="L110"><span class="lineNum">     110</span>              : type ProvidesHealing struct {</span>
+<span id="L111"><span class="lineNum">     111</span>              :         Kind   HealAmountKind</span>
+<span id="L112"><span class="lineNum">     112</span>              :         Amount float64</span>
+<span id="L113"><span class="lineNum">     113</span>              : }</span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span>              : // Calc は基準値(最大HP)から実際の回復量を計算する。絶対量指定の場合baseは無視される</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           7 : func (ph ProvidesHealing) Calc(base int) int {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">          11 :         if ph.Kind == HealRatio {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           4 :                 return int(float64(base) * ph.Amount)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           4 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           3 :         return int(ph.Amount)</span></span>
 <span id="L121"><span class="lineNum">     121</span>              : }</span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
-<span id="L123"><span class="lineNum">     123</span>              : // InflictsDamage はダメージを与える性質</span>
-<span id="L124"><span class="lineNum">     124</span>              : // 直接的な数値が作用し、ステータスなどは考慮されない</span>
-<span id="L125"><span class="lineNum">     125</span>              : type InflictsDamage struct {</span>
-<span id="L126"><span class="lineNum">     126</span>              :         Amount int</span>
-<span id="L127"><span class="lineNum">     127</span>              : }</span>
-<span id="L128"><span class="lineNum">     128</span>              : </span>
-<span id="L129"><span class="lineNum">     129</span>              : // Stackable はスタック可能なエンティティを示すコンポーネント</span>
-<span id="L130"><span class="lineNum">     130</span>              : // 所持数を管理する。非Stackableエンティティの個数は常に1として扱う</span>
-<span id="L131"><span class="lineNum">     131</span>              : type Stackable struct {</span>
-<span id="L132"><span class="lineNum">     132</span>              :         Count int // 所持数</span>
-<span id="L133"><span class="lineNum">     133</span>              : }</span>
-<span id="L134"><span class="lineNum">     134</span>              : </span>
-<span id="L135"><span class="lineNum">     135</span>              : // Value はアイテムの基本価値</span>
-<span id="L136"><span class="lineNum">     136</span>              : // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される</span>
-<span id="L137"><span class="lineNum">     137</span>              : type Value struct {</span>
-<span id="L138"><span class="lineNum">     138</span>              :         Value int</span>
-<span id="L139"><span class="lineNum">     139</span>              : }</span>
-<span id="L140"><span class="lineNum">     140</span>              : </span>
-<span id="L141"><span class="lineNum">     141</span>              : // Weight はアイテムの重量(kg)</span>
-<span id="L142"><span class="lineNum">     142</span>              : // 所持重量の計算に使用される</span>
-<span id="L143"><span class="lineNum">     143</span>              : type Weight struct {</span>
-<span id="L144"><span class="lineNum">     144</span>              :         Kg float64 // 重量（キログラム）</span>
-<span id="L145"><span class="lineNum">     145</span>              : }</span>
-<span id="L146"><span class="lineNum">     146</span>              : </span>
-<span id="L147"><span class="lineNum">     147</span>              : // Recipe は合成に必要な素材</span>
-<span id="L148"><span class="lineNum">     148</span>              : type Recipe struct {</span>
-<span id="L149"><span class="lineNum">     149</span>              :         Inputs []RecipeInput</span>
+<span id="L123"><span class="lineNum">     123</span>              : // ProvidesNutrition は空腹度を回復する性質</span>
+<span id="L124"><span class="lineNum">     124</span>              : type ProvidesNutrition struct {</span>
+<span id="L125"><span class="lineNum">     125</span>              :         Amount int // 回復量（この値だけ空腹度を減らす）</span>
+<span id="L126"><span class="lineNum">     126</span>              : }</span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span>              : // InflictsDamage はダメージを与える性質</span>
+<span id="L129"><span class="lineNum">     129</span>              : // 直接的な数値が作用し、ステータスなどは考慮されない</span>
+<span id="L130"><span class="lineNum">     130</span>              : type InflictsDamage struct {</span>
+<span id="L131"><span class="lineNum">     131</span>              :         Amount int</span>
+<span id="L132"><span class="lineNum">     132</span>              : }</span>
+<span id="L133"><span class="lineNum">     133</span>              : </span>
+<span id="L134"><span class="lineNum">     134</span>              : // Stackable はスタック可能なエンティティを示すコンポーネント</span>
+<span id="L135"><span class="lineNum">     135</span>              : // 所持数を管理する。非Stackableエンティティの個数は常に1として扱う</span>
+<span id="L136"><span class="lineNum">     136</span>              : type Stackable struct {</span>
+<span id="L137"><span class="lineNum">     137</span>              :         Count int // 所持数</span>
+<span id="L138"><span class="lineNum">     138</span>              : }</span>
+<span id="L139"><span class="lineNum">     139</span>              : </span>
+<span id="L140"><span class="lineNum">     140</span>              : // Value はアイテムの基本価値</span>
+<span id="L141"><span class="lineNum">     141</span>              : // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される</span>
+<span id="L142"><span class="lineNum">     142</span>              : type Value struct {</span>
+<span id="L143"><span class="lineNum">     143</span>              :         Value int</span>
+<span id="L144"><span class="lineNum">     144</span>              : }</span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span>              : // Weight はアイテムの重量。内部はミリグラムの整数で持ち、関数で単位表記する。</span>
+<span id="L147"><span class="lineNum">     147</span>              : // 所持重量の計算に使用される</span>
+<span id="L148"><span class="lineNum">     148</span>              : type Weight struct {</span>
+<span id="L149"><span class="lineNum">     149</span>              :         consts.Milligram</span>
 <span id="L150"><span class="lineNum">     150</span>              : }</span>
 <span id="L151"><span class="lineNum">     151</span>              : </span>
-<span id="L152"><span class="lineNum">     152</span>              : // StatsChanged はステータス再計算が必要なことを示すダーティーフラグ</span>
-<span id="L153"><span class="lineNum">     153</span>              : // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う</span>
-<span id="L154"><span class="lineNum">     154</span>              : type StatsChanged struct{}</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              : // WeightDirty は重量の再計算が必要であることを示すダーティフラグ</span>
-<span id="L157"><span class="lineNum">     157</span>              : // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う</span>
-<span id="L158"><span class="lineNum">     158</span>              : type WeightDirty struct{}</span>
-<span id="L159"><span class="lineNum">     159</span>              : </span>
-<span id="L160"><span class="lineNum">     160</span>              : // Ammo は弾薬アイテムの性能を定義する</span>
-<span id="L161"><span class="lineNum">     161</span>              : type Ammo struct {</span>
-<span id="L162"><span class="lineNum">     162</span>              :         AmmoTag       string // 口径タグ。武器の AmmoTag とマッチする</span>
-<span id="L163"><span class="lineNum">     163</span>              :         DamageBonus   int    // ダメージ修正値</span>
-<span id="L164"><span class="lineNum">     164</span>              :         AccuracyBonus int    // 命中率修正値</span>
-<span id="L165"><span class="lineNum">     165</span>              : }</span>
-<span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span>              : // Attacker は近接・遠距離攻撃の共通インターフェース。</span>
-<span id="L168"><span class="lineNum">     168</span>              : // ダメージ計算や命中判定など攻撃種別を問わない共通処理で使用する</span>
-<span id="L169"><span class="lineNum">     169</span>              : type Attacker interface {</span>
-<span id="L170"><span class="lineNum">     170</span>              :         GetAccuracy() int</span>
-<span id="L171"><span class="lineNum">     171</span>              :         GetDamage() int</span>
-<span id="L172"><span class="lineNum">     172</span>              :         GetAttackCount() int</span>
-<span id="L173"><span class="lineNum">     173</span>              :         GetElement() ElementType</span>
-<span id="L174"><span class="lineNum">     174</span>              :         GetAttackCategory() AttackType</span>
-<span id="L175"><span class="lineNum">     175</span>              :         GetCost() int</span>
-<span id="L176"><span class="lineNum">     176</span>              :         GetTargetType() TargetType</span>
-<span id="L177"><span class="lineNum">     177</span>              : }</span>
-<span id="L178"><span class="lineNum">     178</span>              : </span>
-<span id="L179"><span class="lineNum">     179</span>              : // Melee は近接攻撃の性質。近接攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する</span>
-<span id="L180"><span class="lineNum">     180</span>              : type Melee struct {</span>
-<span id="L181"><span class="lineNum">     181</span>              :         Accuracy       int         // 命中率</span>
-<span id="L182"><span class="lineNum">     182</span>              :         Damage         int         // 攻撃力</span>
-<span id="L183"><span class="lineNum">     183</span>              :         AttackCount    int         // 攻撃回数</span>
-<span id="L184"><span class="lineNum">     184</span>              :         Element        ElementType // 攻撃属性</span>
-<span id="L185"><span class="lineNum">     185</span>              :         AttackCategory AttackType  // 攻撃種別</span>
-<span id="L186"><span class="lineNum">     186</span>              :         Cost           int         // 行動コスト</span>
-<span id="L187"><span class="lineNum">     187</span>              :         TargetType     TargetType  // 対象タイプ</span>
-<span id="L188"><span class="lineNum">     188</span>              : }</span>
-<span id="L189"><span class="lineNum">     189</span>              : </span>
-<span id="L190"><span class="lineNum">     190</span>              : // GetAccuracy はAttackerの実装</span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 : func (m *Melee) GetAccuracy() int { return m.Accuracy }</span></span>
-<span id="L192"><span class="lineNum">     192</span>              : </span>
-<span id="L193"><span class="lineNum">     193</span>              : // GetDamage はAttackerの実装</span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 : func (m *Melee) GetDamage() int { return m.Damage }</span></span>
-<span id="L195"><span class="lineNum">     195</span>              : </span>
-<span id="L196"><span class="lineNum">     196</span>              : // GetAttackCount はAttackerの実装</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : func (m *Melee) GetAttackCount() int { return m.AttackCount }</span></span>
-<span id="L198"><span class="lineNum">     198</span>              : </span>
-<span id="L199"><span class="lineNum">     199</span>              : // GetElement はAttackerの実装</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 : func (m *Melee) GetElement() ElementType { return m.Element }</span></span>
-<span id="L201"><span class="lineNum">     201</span>              : </span>
-<span id="L202"><span class="lineNum">     202</span>              : // GetAttackCategory はAttackerの実装</span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : func (m *Melee) GetAttackCategory() AttackType { return m.AttackCategory }</span></span>
-<span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span>              : // GetCost はAttackerの実装</span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 : func (m *Melee) GetCost() int { return m.Cost }</span></span>
-<span id="L207"><span class="lineNum">     207</span>              : </span>
-<span id="L208"><span class="lineNum">     208</span>              : // GetTargetType はAttackerの実装</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           2 : func (m *Melee) GetTargetType() TargetType { return m.TargetType }</span></span>
-<span id="L210"><span class="lineNum">     210</span>              : </span>
-<span id="L211"><span class="lineNum">     211</span>              : // Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む</span>
-<span id="L212"><span class="lineNum">     212</span>              : type Fire struct {</span>
-<span id="L213"><span class="lineNum">     213</span>              :         // 攻撃パラメータ</span>
-<span id="L214"><span class="lineNum">     214</span>              :         Accuracy       int         // 命中率</span>
-<span id="L215"><span class="lineNum">     215</span>              :         Damage         int         // 攻撃力</span>
-<span id="L216"><span class="lineNum">     216</span>              :         AttackCount    int         // 攻撃回数</span>
-<span id="L217"><span class="lineNum">     217</span>              :         Element        ElementType // 攻撃属性</span>
-<span id="L218"><span class="lineNum">     218</span>              :         AttackCategory AttackType  // 攻撃種別</span>
-<span id="L219"><span class="lineNum">     219</span>              :         Cost           int         // 行動コスト</span>
-<span id="L220"><span class="lineNum">     220</span>              :         TargetType     TargetType  // 対象タイプ</span>
-<span id="L221"><span class="lineNum">     221</span>              :         // 弾薬管理</span>
-<span id="L222"><span class="lineNum">     222</span>              :         Magazine            int    // 現在の装弾数</span>
-<span id="L223"><span class="lineNum">     223</span>              :         MagazineSize        int    // 最大装弾数</span>
-<span id="L224"><span class="lineNum">     224</span>              :         ReloadEffort        int    // リロード完了に必要な総工数</span>
-<span id="L225"><span class="lineNum">     225</span>              :         AmmoTag             string // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする</span>
-<span id="L226"><span class="lineNum">     226</span>              :         LoadedDamageBonus   int    // 装填中の弾薬によるダメージ修正値。リロード時に設定される</span>
-<span id="L227"><span class="lineNum">     227</span>              :         LoadedAccuracyBonus int    // 装填中の弾薬による命中修正値。リロード時に設定される</span>
-<span id="L228"><span class="lineNum">     228</span>              : }</span>
-<span id="L229"><span class="lineNum">     229</span>              : </span>
-<span id="L230"><span class="lineNum">     230</span>              : // GetAccuracy はAttackerの実装</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 : func (f *Fire) GetAccuracy() int { return f.Accuracy }</span></span>
-<span id="L232"><span class="lineNum">     232</span>              : </span>
-<span id="L233"><span class="lineNum">     233</span>              : // GetDamage はAttackerの実装</span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : func (f *Fire) GetDamage() int { return f.Damage }</span></span>
-<span id="L235"><span class="lineNum">     235</span>              : </span>
-<span id="L236"><span class="lineNum">     236</span>              : // GetAttackCount はAttackerの実装</span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 : func (f *Fire) GetAttackCount() int { return f.AttackCount }</span></span>
-<span id="L238"><span class="lineNum">     238</span>              : </span>
-<span id="L239"><span class="lineNum">     239</span>              : // GetElement はAttackerの実装</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 : func (f *Fire) GetElement() ElementType { return f.Element }</span></span>
-<span id="L241"><span class="lineNum">     241</span>              : </span>
-<span id="L242"><span class="lineNum">     242</span>              : // GetAttackCategory はAttackerの実装</span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 : func (f *Fire) GetAttackCategory() AttackType { return f.AttackCategory }</span></span>
-<span id="L244"><span class="lineNum">     244</span>              : </span>
-<span id="L245"><span class="lineNum">     245</span>              : // GetCost はAttackerの実装</span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 : func (f *Fire) GetCost() int { return f.Cost }</span></span>
-<span id="L247"><span class="lineNum">     247</span>              : </span>
-<span id="L248"><span class="lineNum">     248</span>              : // GetTargetType はAttackerの実装</span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 : func (f *Fire) GetTargetType() TargetType { return f.TargetType }</span></span>
-<span id="L250"><span class="lineNum">     250</span>              : </span>
-<span id="L251"><span class="lineNum">     251</span>              : // CommandTable はAI用の、戦闘コマンドテーブル名</span>
-<span id="L252"><span class="lineNum">     252</span>              : type CommandTable struct {</span>
-<span id="L253"><span class="lineNum">     253</span>              :         Name string</span>
-<span id="L254"><span class="lineNum">     254</span>              : }</span>
+<span id="L152"><span class="lineNum">     152</span>              : // Recipe は合成に必要な素材</span>
+<span id="L153"><span class="lineNum">     153</span>              : type Recipe struct {</span>
+<span id="L154"><span class="lineNum">     154</span>              :         Inputs []RecipeInput</span>
+<span id="L155"><span class="lineNum">     155</span>              : }</span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span>              : // StatsChanged はステータス再計算が必要なことを示すダーティーフラグ</span>
+<span id="L158"><span class="lineNum">     158</span>              : // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う</span>
+<span id="L159"><span class="lineNum">     159</span>              : type StatsChanged struct{}</span>
+<span id="L160"><span class="lineNum">     160</span>              : </span>
+<span id="L161"><span class="lineNum">     161</span>              : // WeightDirty は重量の再計算が必要であることを示すダーティフラグ</span>
+<span id="L162"><span class="lineNum">     162</span>              : // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う</span>
+<span id="L163"><span class="lineNum">     163</span>              : type WeightDirty struct{}</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // Ammo は弾薬アイテムの性能を定義する</span>
+<span id="L166"><span class="lineNum">     166</span>              : type Ammo struct {</span>
+<span id="L167"><span class="lineNum">     167</span>              :         AmmoTag       string // 口径タグ。武器の AmmoTag とマッチする</span>
+<span id="L168"><span class="lineNum">     168</span>              :         DamageBonus   int    // ダメージ修正値</span>
+<span id="L169"><span class="lineNum">     169</span>              :         AccuracyBonus int    // 命中率修正値</span>
+<span id="L170"><span class="lineNum">     170</span>              : }</span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span>              : // Attacker は近接・遠距離攻撃の共通インターフェース。</span>
+<span id="L173"><span class="lineNum">     173</span>              : // ダメージ計算や命中判定など攻撃種別を問わない共通処理で使用する</span>
+<span id="L174"><span class="lineNum">     174</span>              : type Attacker interface {</span>
+<span id="L175"><span class="lineNum">     175</span>              :         GetAccuracy() int</span>
+<span id="L176"><span class="lineNum">     176</span>              :         GetDamage() int</span>
+<span id="L177"><span class="lineNum">     177</span>              :         GetAttackCount() int</span>
+<span id="L178"><span class="lineNum">     178</span>              :         GetElement() ElementType</span>
+<span id="L179"><span class="lineNum">     179</span>              :         GetAttackCategory() AttackType</span>
+<span id="L180"><span class="lineNum">     180</span>              :         GetCost() int</span>
+<span id="L181"><span class="lineNum">     181</span>              :         GetTargetType() TargetType</span>
+<span id="L182"><span class="lineNum">     182</span>              : }</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span>              : // Melee は近接攻撃の性質。近接攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する</span>
+<span id="L185"><span class="lineNum">     185</span>              : type Melee struct {</span>
+<span id="L186"><span class="lineNum">     186</span>              :         Accuracy       int         // 命中率</span>
+<span id="L187"><span class="lineNum">     187</span>              :         Damage         int         // 攻撃力</span>
+<span id="L188"><span class="lineNum">     188</span>              :         AttackCount    int         // 攻撃回数</span>
+<span id="L189"><span class="lineNum">     189</span>              :         Element        ElementType // 攻撃属性</span>
+<span id="L190"><span class="lineNum">     190</span>              :         AttackCategory AttackType  // 攻撃種別</span>
+<span id="L191"><span class="lineNum">     191</span>              :         Cost           int         // 行動コスト</span>
+<span id="L192"><span class="lineNum">     192</span>              :         TargetType     TargetType  // 対象タイプ</span>
+<span id="L193"><span class="lineNum">     193</span>              : }</span>
+<span id="L194"><span class="lineNum">     194</span>              : </span>
+<span id="L195"><span class="lineNum">     195</span>              : // GetAccuracy はAttackerの実装</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : func (m *Melee) GetAccuracy() int { return m.Accuracy }</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span>              : // GetDamage はAttackerの実装</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : func (m *Melee) GetDamage() int { return m.Damage }</span></span>
+<span id="L200"><span class="lineNum">     200</span>              : </span>
+<span id="L201"><span class="lineNum">     201</span>              : // GetAttackCount はAttackerの実装</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 : func (m *Melee) GetAttackCount() int { return m.AttackCount }</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span>              : // GetElement はAttackerの実装</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 : func (m *Melee) GetElement() ElementType { return m.Element }</span></span>
+<span id="L206"><span class="lineNum">     206</span>              : </span>
+<span id="L207"><span class="lineNum">     207</span>              : // GetAttackCategory はAttackerの実装</span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 : func (m *Melee) GetAttackCategory() AttackType { return m.AttackCategory }</span></span>
+<span id="L209"><span class="lineNum">     209</span>              : </span>
+<span id="L210"><span class="lineNum">     210</span>              : // GetCost はAttackerの実装</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : func (m *Melee) GetCost() int { return m.Cost }</span></span>
+<span id="L212"><span class="lineNum">     212</span>              : </span>
+<span id="L213"><span class="lineNum">     213</span>              : // GetTargetType はAttackerの実装</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 : func (m *Melee) GetTargetType() TargetType { return m.TargetType }</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : // Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む</span>
+<span id="L217"><span class="lineNum">     217</span>              : type Fire struct {</span>
+<span id="L218"><span class="lineNum">     218</span>              :         // 攻撃パラメータ</span>
+<span id="L219"><span class="lineNum">     219</span>              :         Accuracy       int         // 命中率</span>
+<span id="L220"><span class="lineNum">     220</span>              :         Damage         int         // 攻撃力</span>
+<span id="L221"><span class="lineNum">     221</span>              :         AttackCount    int         // 攻撃回数</span>
+<span id="L222"><span class="lineNum">     222</span>              :         Element        ElementType // 攻撃属性</span>
+<span id="L223"><span class="lineNum">     223</span>              :         AttackCategory AttackType  // 攻撃種別</span>
+<span id="L224"><span class="lineNum">     224</span>              :         Cost           int         // 行動コスト</span>
+<span id="L225"><span class="lineNum">     225</span>              :         TargetType     TargetType  // 対象タイプ</span>
+<span id="L226"><span class="lineNum">     226</span>              :         // 弾薬管理</span>
+<span id="L227"><span class="lineNum">     227</span>              :         Magazine            int    // 現在の装弾数</span>
+<span id="L228"><span class="lineNum">     228</span>              :         MagazineSize        int    // 最大装弾数</span>
+<span id="L229"><span class="lineNum">     229</span>              :         ReloadEffort        int    // リロード完了に必要な総工数</span>
+<span id="L230"><span class="lineNum">     230</span>              :         AmmoTag             string // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする</span>
+<span id="L231"><span class="lineNum">     231</span>              :         LoadedDamageBonus   int    // 装填中の弾薬によるダメージ修正値。リロード時に設定される</span>
+<span id="L232"><span class="lineNum">     232</span>              :         LoadedAccuracyBonus int    // 装填中の弾薬による命中修正値。リロード時に設定される</span>
+<span id="L233"><span class="lineNum">     233</span>              : }</span>
+<span id="L234"><span class="lineNum">     234</span>              : </span>
+<span id="L235"><span class="lineNum">     235</span>              : // GetAccuracy はAttackerの実装</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 : func (f *Fire) GetAccuracy() int { return f.Accuracy }</span></span>
+<span id="L237"><span class="lineNum">     237</span>              : </span>
+<span id="L238"><span class="lineNum">     238</span>              : // GetDamage はAttackerの実装</span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 : func (f *Fire) GetDamage() int { return f.Damage }</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span>              : // GetAttackCount はAttackerの実装</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : func (f *Fire) GetAttackCount() int { return f.AttackCount }</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span>              : // GetElement はAttackerの実装</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 : func (f *Fire) GetElement() ElementType { return f.Element }</span></span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span>              : // GetAttackCategory はAttackerの実装</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 : func (f *Fire) GetAttackCategory() AttackType { return f.AttackCategory }</span></span>
+<span id="L249"><span class="lineNum">     249</span>              : </span>
+<span id="L250"><span class="lineNum">     250</span>              : // GetCost はAttackerの実装</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : func (f *Fire) GetCost() int { return f.Cost }</span></span>
+<span id="L252"><span class="lineNum">     252</span>              : </span>
+<span id="L253"><span class="lineNum">     253</span>              : // GetTargetType はAttackerの実装</span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 : func (f *Fire) GetTargetType() TargetType { return f.TargetType }</span></span>
 <span id="L255"><span class="lineNum">     255</span>              : </span>
-<span id="L256"><span class="lineNum">     256</span>              : // DropTable はドロップテーブル名</span>
-<span id="L257"><span class="lineNum">     257</span>              : type DropTable struct {</span>
+<span id="L256"><span class="lineNum">     256</span>              : // CommandTable はAI用の、戦闘コマンドテーブル名</span>
+<span id="L257"><span class="lineNum">     257</span>              : type CommandTable struct {</span>
 <span id="L258"><span class="lineNum">     258</span>              :         Name string</span>
 <span id="L259"><span class="lineNum">     259</span>              : }</span>
 <span id="L260"><span class="lineNum">     260</span>              : </span>
-<span id="L261"><span class="lineNum">     261</span>              : // SheetImage はシート画像情報</span>
-<span id="L262"><span class="lineNum">     262</span>              : type SheetImage struct {</span>
-<span id="L263"><span class="lineNum">     263</span>              :         SheetName   string</span>
-<span id="L264"><span class="lineNum">     264</span>              :         SheetNumber *int</span>
-<span id="L265"><span class="lineNum">     265</span>              : }</span>
-<span id="L266"><span class="lineNum">     266</span>              : </span>
-<span id="L267"><span class="lineNum">     267</span>              : // 派閥は種別ごとに独立したマーカーコンポーネントとして表現する。</span>
-<span id="L268"><span class="lineNum">     268</span>              : // archetypeクエリ（「全敵」「全味方」）が効くため archetype ECS に適している。</span>
-<span id="L269"><span class="lineNum">     269</span>              : // 派閥は排他（1エンティティは高々1つ）で、生成時に EntitySpec で1つだけ指定する。</span>
-<span id="L270"><span class="lineNum">     270</span>              : </span>
-<span id="L271"><span class="lineNum">     271</span>              : // 派閥のenum文字列（oapiのFactionType enumと一致させる）</span>
-<span id="L272"><span class="lineNum">     272</span>              : const (</span>
-<span id="L273"><span class="lineNum">     273</span>              :         FactionAllyName    = &quot;FactionAlly&quot;</span>
-<span id="L274"><span class="lineNum">     274</span>              :         FactionEnemyName   = &quot;FactionEnemy&quot;</span>
-<span id="L275"><span class="lineNum">     275</span>              :         FactionNeutralName = &quot;FactionNeutral&quot;</span>
-<span id="L276"><span class="lineNum">     276</span>              : )</span>
-<span id="L277"><span class="lineNum">     277</span>              : </span>
-<span id="L278"><span class="lineNum">     278</span>              : // FactionAlly は味方派閥(プレイヤー側)のマーカー</span>
-<span id="L279"><span class="lineNum">     279</span>              : type FactionAlly struct{}</span>
-<span id="L280"><span class="lineNum">     280</span>              : </span>
-<span id="L281"><span class="lineNum">     281</span>              : // FactionEnemy は敵性派閥(プレイヤーと敵対)のマーカー</span>
-<span id="L282"><span class="lineNum">     282</span>              : type FactionEnemy struct{}</span>
-<span id="L283"><span class="lineNum">     283</span>              : </span>
-<span id="L284"><span class="lineNum">     284</span>              : // FactionNeutral は中立派閥(会話可能NPC)のマーカー</span>
-<span id="L285"><span class="lineNum">     285</span>              : type FactionNeutral struct{}</span>
-<span id="L286"><span class="lineNum">     286</span>              : </span>
-<span id="L287"><span class="lineNum">     287</span>              : // 位置は種別ごとに独立したコンポーネントとして表現する。</span>
-<span id="L288"><span class="lineNum">     288</span>              : // archetypeクエリ（「全装備品」「全バックパックアイテム」）が効くため、</span>
-<span id="L289"><span class="lineNum">     289</span>              : // タグ付き単一コンポーネントより archetype ECS に適している。</span>
-<span id="L290"><span class="lineNum">     290</span>              : // 排他（1エンティティは高々1つの位置）は lifecycle の MoveToX 関数で保証する。</span>
+<span id="L261"><span class="lineNum">     261</span>              : // DropTable はドロップテーブル名</span>
+<span id="L262"><span class="lineNum">     262</span>              : type DropTable struct {</span>
+<span id="L263"><span class="lineNum">     263</span>              :         Name string</span>
+<span id="L264"><span class="lineNum">     264</span>              : }</span>
+<span id="L265"><span class="lineNum">     265</span>              : </span>
+<span id="L266"><span class="lineNum">     266</span>              : // SheetImage はシート画像情報</span>
+<span id="L267"><span class="lineNum">     267</span>              : type SheetImage struct {</span>
+<span id="L268"><span class="lineNum">     268</span>              :         SheetName   string</span>
+<span id="L269"><span class="lineNum">     269</span>              :         SheetNumber *int</span>
+<span id="L270"><span class="lineNum">     270</span>              : }</span>
+<span id="L271"><span class="lineNum">     271</span>              : </span>
+<span id="L272"><span class="lineNum">     272</span>              : // 派閥は種別ごとに独立したマーカーコンポーネントとして表現する。</span>
+<span id="L273"><span class="lineNum">     273</span>              : // archetypeクエリ（「全敵」「全味方」）が効くため archetype ECS に適している。</span>
+<span id="L274"><span class="lineNum">     274</span>              : // 派閥は排他（1エンティティは高々1つ）で、生成時に EntitySpec で1つだけ指定する。</span>
+<span id="L275"><span class="lineNum">     275</span>              : </span>
+<span id="L276"><span class="lineNum">     276</span>              : // 派閥のenum文字列（oapiのFactionType enumと一致させる）</span>
+<span id="L277"><span class="lineNum">     277</span>              : const (</span>
+<span id="L278"><span class="lineNum">     278</span>              :         FactionAllyName    = &quot;FactionAlly&quot;</span>
+<span id="L279"><span class="lineNum">     279</span>              :         FactionEnemyName   = &quot;FactionEnemy&quot;</span>
+<span id="L280"><span class="lineNum">     280</span>              :         FactionNeutralName = &quot;FactionNeutral&quot;</span>
+<span id="L281"><span class="lineNum">     281</span>              : )</span>
+<span id="L282"><span class="lineNum">     282</span>              : </span>
+<span id="L283"><span class="lineNum">     283</span>              : // FactionAlly は味方派閥(プレイヤー側)のマーカー</span>
+<span id="L284"><span class="lineNum">     284</span>              : type FactionAlly struct{}</span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span>              : // FactionEnemy は敵性派閥(プレイヤーと敵対)のマーカー</span>
+<span id="L287"><span class="lineNum">     287</span>              : type FactionEnemy struct{}</span>
+<span id="L288"><span class="lineNum">     288</span>              : </span>
+<span id="L289"><span class="lineNum">     289</span>              : // FactionNeutral は中立派閥(会話可能NPC)のマーカー</span>
+<span id="L290"><span class="lineNum">     290</span>              : type FactionNeutral struct{}</span>
 <span id="L291"><span class="lineNum">     291</span>              : </span>
-<span id="L292"><span class="lineNum">     292</span>              : // LocationInBackpack はバックパック内位置</span>
-<span id="L293"><span class="lineNum">     293</span>              : type LocationInBackpack struct {</span>
-<span id="L294"><span class="lineNum">     294</span>              :         Owner ecs.Entity // バックパックの所有者</span>
-<span id="L295"><span class="lineNum">     295</span>              : }</span>
+<span id="L292"><span class="lineNum">     292</span>              : // 位置は種別ごとに独立したコンポーネントとして表現する。</span>
+<span id="L293"><span class="lineNum">     293</span>              : // archetypeクエリ（「全装備品」「全バックパックアイテム」）が効くため、</span>
+<span id="L294"><span class="lineNum">     294</span>              : // タグ付き単一コンポーネントより archetype ECS に適している。</span>
+<span id="L295"><span class="lineNum">     295</span>              : // 排他（1エンティティは高々1つの位置）は lifecycle の MoveToX 関数で保証する。</span>
 <span id="L296"><span class="lineNum">     296</span>              : </span>
-<span id="L297"><span class="lineNum">     297</span>              : // LocationEquipped は装備中位置</span>
-<span id="L298"><span class="lineNum">     298</span>              : type LocationEquipped struct {</span>
-<span id="L299"><span class="lineNum">     299</span>              :         Owner         ecs.Entity</span>
-<span id="L300"><span class="lineNum">     300</span>              :         EquipmentSlot EquipmentSlotNumber</span>
-<span id="L301"><span class="lineNum">     301</span>              : }</span>
-<span id="L302"><span class="lineNum">     302</span>              : </span>
-<span id="L303"><span class="lineNum">     303</span>              : // LocationOnField はフィールド上位置</span>
-<span id="L304"><span class="lineNum">     304</span>              : type LocationOnField struct{}</span>
-<span id="L305"><span class="lineNum">     305</span>              : </span>
-<span id="L306"><span class="lineNum">     306</span>              : // LocationInStorage は収納内位置</span>
-<span id="L307"><span class="lineNum">     307</span>              : type LocationInStorage struct {</span>
-<span id="L308"><span class="lineNum">     308</span>              :         Owner ecs.Entity // 収納Propのエンティティ</span>
-<span id="L309"><span class="lineNum">     309</span>              : }</span>
+<span id="L297"><span class="lineNum">     297</span>              : // LocationInBackpack はバックパック内位置</span>
+<span id="L298"><span class="lineNum">     298</span>              : type LocationInBackpack struct {</span>
+<span id="L299"><span class="lineNum">     299</span>              :         Owner ecs.Entity // バックパックの所有者</span>
+<span id="L300"><span class="lineNum">     300</span>              : }</span>
+<span id="L301"><span class="lineNum">     301</span>              : </span>
+<span id="L302"><span class="lineNum">     302</span>              : // LocationEquipped は装備中位置</span>
+<span id="L303"><span class="lineNum">     303</span>              : type LocationEquipped struct {</span>
+<span id="L304"><span class="lineNum">     304</span>              :         Owner         ecs.Entity</span>
+<span id="L305"><span class="lineNum">     305</span>              :         EquipmentSlot EquipmentSlotNumber</span>
+<span id="L306"><span class="lineNum">     306</span>              : }</span>
+<span id="L307"><span class="lineNum">     307</span>              : </span>
+<span id="L308"><span class="lineNum">     308</span>              : // LocationOnField はフィールド上位置</span>
+<span id="L309"><span class="lineNum">     309</span>              : type LocationOnField struct{}</span>
 <span id="L310"><span class="lineNum">     310</span>              : </span>
-<span id="L311"><span class="lineNum">     311</span>              : // Material は素材を表すマーカーコンポーネント。</span>
-<span id="L312"><span class="lineNum">     312</span>              : // 合成や売却の材料となるアイテムに付与される</span>
-<span id="L313"><span class="lineNum">     313</span>              : type Material struct{}</span>
-<span id="L314"><span class="lineNum">     314</span>              : </span>
-<span id="L315"><span class="lineNum">     315</span>              : // Prop は置物を表すマーカーコンポーネント</span>
-<span id="L316"><span class="lineNum">     316</span>              : type Prop struct{}</span>
-<span id="L317"><span class="lineNum">     317</span>              : </span>
-<span id="L318"><span class="lineNum">     318</span>              : // LightSource は光源コンポーネント</span>
-<span id="L319"><span class="lineNum">     319</span>              : type LightSource struct {</span>
-<span id="L320"><span class="lineNum">     320</span>              :         Radius  consts.Tile // 照明範囲</span>
-<span id="L321"><span class="lineNum">     321</span>              :         Color   color.RGBA  // 光の色</span>
-<span id="L322"><span class="lineNum">     322</span>              :         Enabled bool        // 有効/無効</span>
-<span id="L323"><span class="lineNum">     323</span>              : }</span>
-<span id="L324"><span class="lineNum">     324</span>              : </span>
-<span id="L325"><span class="lineNum">     325</span>              : // Door は開閉可能な扉コンポーネント</span>
-<span id="L326"><span class="lineNum">     326</span>              : type Door struct {</span>
-<span id="L327"><span class="lineNum">     327</span>              :         IsOpen      bool            // 開いているかどうか</span>
-<span id="L328"><span class="lineNum">     328</span>              :         Orientation DoorOrientation // 扉の向き</span>
-<span id="L329"><span class="lineNum">     329</span>              :         Locked      bool            // ロック中は開閉不可</span>
-<span id="L330"><span class="lineNum">     330</span>              : }</span>
-<span id="L331"><span class="lineNum">     331</span>              : </span>
-<span id="L332"><span class="lineNum">     332</span>              : // DoorOrientation は扉の向き</span>
-<span id="L333"><span class="lineNum">     333</span>              : type DoorOrientation int</span>
-<span id="L334"><span class="lineNum">     334</span>              : </span>
-<span id="L335"><span class="lineNum">     335</span>              : const (</span>
-<span id="L336"><span class="lineNum">     336</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
-<span id="L337"><span class="lineNum">     337</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
-<span id="L338"><span class="lineNum">     338</span>              :         // DoorOrientationVertical は縦向きの扉</span>
-<span id="L339"><span class="lineNum">     339</span>              :         DoorOrientationVertical</span>
-<span id="L340"><span class="lineNum">     340</span>              : )</span>
+<span id="L311"><span class="lineNum">     311</span>              : // LocationInStorage は収納内位置</span>
+<span id="L312"><span class="lineNum">     312</span>              : type LocationInStorage struct {</span>
+<span id="L313"><span class="lineNum">     313</span>              :         Owner ecs.Entity // 収納Propのエンティティ</span>
+<span id="L314"><span class="lineNum">     314</span>              : }</span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span>              : // Material は素材を表すマーカーコンポーネント。</span>
+<span id="L317"><span class="lineNum">     317</span>              : // 合成や売却の材料となるアイテムに付与される</span>
+<span id="L318"><span class="lineNum">     318</span>              : type Material struct{}</span>
+<span id="L319"><span class="lineNum">     319</span>              : </span>
+<span id="L320"><span class="lineNum">     320</span>              : // Prop は置物を表すマーカーコンポーネント</span>
+<span id="L321"><span class="lineNum">     321</span>              : type Prop struct{}</span>
+<span id="L322"><span class="lineNum">     322</span>              : </span>
+<span id="L323"><span class="lineNum">     323</span>              : // LightSource は光源コンポーネント</span>
+<span id="L324"><span class="lineNum">     324</span>              : type LightSource struct {</span>
+<span id="L325"><span class="lineNum">     325</span>              :         Radius  consts.Tile // 照明範囲</span>
+<span id="L326"><span class="lineNum">     326</span>              :         Color   color.RGBA  // 光の色</span>
+<span id="L327"><span class="lineNum">     327</span>              :         Enabled bool        // 有効/無効</span>
+<span id="L328"><span class="lineNum">     328</span>              : }</span>
+<span id="L329"><span class="lineNum">     329</span>              : </span>
+<span id="L330"><span class="lineNum">     330</span>              : // Door は開閉可能な扉コンポーネント</span>
+<span id="L331"><span class="lineNum">     331</span>              : type Door struct {</span>
+<span id="L332"><span class="lineNum">     332</span>              :         IsOpen      bool            // 開いているかどうか</span>
+<span id="L333"><span class="lineNum">     333</span>              :         Orientation DoorOrientation // 扉の向き</span>
+<span id="L334"><span class="lineNum">     334</span>              :         Locked      bool            // ロック中は開閉不可</span>
+<span id="L335"><span class="lineNum">     335</span>              : }</span>
+<span id="L336"><span class="lineNum">     336</span>              : </span>
+<span id="L337"><span class="lineNum">     337</span>              : // DoorOrientation は扉の向き</span>
+<span id="L338"><span class="lineNum">     338</span>              : type DoorOrientation int</span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span>              : const (</span>
+<span id="L341"><span class="lineNum">     341</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
+<span id="L342"><span class="lineNum">     342</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
+<span id="L343"><span class="lineNum">     343</span>              :         // DoorOrientationVertical は縦向きの扉</span>
+<span id="L344"><span class="lineNum">     344</span>              :         DoorOrientationVertical</span>
+<span id="L345"><span class="lineNum">     345</span>              : )</span>
         </pre>
               </td>
             </tr>

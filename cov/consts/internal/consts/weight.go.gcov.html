@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - consts/internal/consts/weight.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">consts/internal/consts</a> - weight.go<span style="font-size: 80%;"> (source / <a href="weight.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">84.8&nbsp;%</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">28</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package consts</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;math&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;strconv&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;strings&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              : )</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // MilligramPerKg は 1kg あたりのミリグラム数</span>
+<span id="L11"><span class="lineNum">      11</span>              : const MilligramPerKg = 1_000_000</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : // MilligramPerGram は 1g あたりのミリグラム数</span>
+<span id="L14"><span class="lineNum">      14</span>              : const MilligramPerGram = 1_000</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // Milligram は重量のミリグラム単位。整数で正確に扱い、表示は String/KgString に集約する。</span>
+<span id="L17"><span class="lineNum">      17</span>              : // float の丸め誤差を避けるため所持重量の加減算・比較はこの整数で行う。</span>
+<span id="L18"><span class="lineNum">      18</span>              : // 重量は非負を前提とする。ParseWeight は負値を弾き、通常の計算経路でも負にはならない。</span>
+<span id="L19"><span class="lineNum">      19</span>              : type Milligram int</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : // String は値の大きさに応じた最適な単位（kg/g/mg）で表示する。</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 単一アイテムの重量など幅の広い値に使う。1kg以上はkg、1g以上はg、それ未満はmg。</span>
+<span id="L23"><span class="lineNum">      23</span>              : // 数値は FormatFloat の 'f' 最短表記で末尾ゼロを落とす。指数表記にはしない</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           9 : func (m Milligram) String() string {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           9 :         switch {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           4 :         case m &gt;= MilligramPerKg:</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           4 :                 return strconv.FormatFloat(float64(m)/MilligramPerKg, 'f', -1, 64) + IconKg</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         case m &gt;= MilligramPerGram:</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :                 return strconv.FormatFloat(float64(m)/MilligramPerGram, 'f', -1, 64) + IconG</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           3 :         default:</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           3 :                 return fmt.Sprintf(&quot;%d%s&quot;, int(m), IconMg)</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :         }</span>
+<span id="L33"><span class="lineNum">      33</span>              : }</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // KgString は常に kg 表記で表示する。合計所持重量など単位を揃えたい箇所に使う。</span>
+<span id="L36"><span class="lineNum">      36</span>              : // float への変換はこの表示処理の内部だけに閉じ、演算は Milligram の int で行う</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           5 : func (m Milligram) KgString() string {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           5 :         return fmt.Sprintf(&quot;%.2f%s&quot;, float64(m)/MilligramPerKg, IconKg)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           5 : }</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : // weightUnits は単位文字列を、その単位1つあたりの Milligram 量に対応させる。</span>
+<span id="L42"><span class="lineNum">      42</span>              : // mg は係数1なので、&quot;0.5 mg&quot; のような小数入力は丸められる。データは整数mgを前提とする</span>
+<span id="L43"><span class="lineNum">      43</span>              : var weightUnits = map[string]Milligram{</span>
+<span id="L44"><span class="lineNum">      44</span>              :         &quot;mg&quot;: 1,</span>
+<span id="L45"><span class="lineNum">      45</span>              :         &quot;g&quot;:  MilligramPerGram,</span>
+<span id="L46"><span class="lineNum">      46</span>              :         &quot;kg&quot;: MilligramPerKg,</span>
+<span id="L47"><span class="lineNum">      47</span>              : }</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : // ParseWeight は &quot;500 g&quot; &quot;2 kg&quot; &quot;1 mg&quot; のような単位付き文字列を Milligram に変換する。</span>
+<span id="L50"><span class="lineNum">      50</span>              : // 数値と単位は空白で区切る。単位は mg/g/kg のいずれか。負値は許さない</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          15 : func ParseWeight(s string) (Milligram, error) {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          15 :         fields := strings.Fields(s)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          19 :         if len(fields) != 2 {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           4 :                 return 0, fmt.Errorf(&quot;重量の形式が不正です: %q（例: \&quot;500 g\&quot;）&quot;, s)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           4 :         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">          11 :         value, err := strconv.ParseFloat(fields[0], 64)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">          12 :         if err != nil {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;重量の数値が不正です: %q&quot;, s)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">          11 :         if value &lt; 0 {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;重量は負にできません: %q&quot;, s)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           9 :         factor, ok := weightUnits[fields[1]]</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">          10 :         if !ok {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;重量の単位が不正です: %q（mg/g/kg のいずれか）&quot;, s)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           8 :         return Milligram(math.Round(value * float64(factor))), nil</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : }</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : // MustParseWeight は ParseWeight のパニック版。パース失敗時に panic する。</span>
+<span id="L71"><span class="lineNum">      71</span>              : // 固定リテラルやテスト値のように失敗があり得ない箇所で使う。regexp.MustCompile と同じ発想。</span>
+<span id="L72"><span class="lineNum">      72</span>              : // 動的な入力には error を返す ParseWeight を使う</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC tlaBgUNC">           0 : func MustParseWeight(s string) Milligram {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         mg, err := ParseWeight(s)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 panic(err)</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :         }</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         return mg</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

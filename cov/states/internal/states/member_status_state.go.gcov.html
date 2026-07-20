@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -207,7 +207,7 @@
 <span id="L145"><span class="lineNum">     145</span>              : </span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">          20 :         if world.Components.WeightCapacity.Has(member) {</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">          10 :                 wc := world.Components.WeightCapacity.Get(member)</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">          10 :                 items = append(items, memberStatusItem{Label: &quot;重量&quot;, Value: fmt.Sprintf(&quot;%.1f / %.1f&quot;, wc.Current, wc.Max)})</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">          10 :                 items = append(items, memberStatusItem{Label: &quot;重量&quot;, Value: fmt.Sprintf(&quot;%s / %s&quot;, wc.Current.KgString(), wc.Max.KgString())})</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">          10 :         }</span></span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">          10 :         return memberStatusTab{</span></span>

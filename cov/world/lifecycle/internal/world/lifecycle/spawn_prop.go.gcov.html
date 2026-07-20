@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -192,10 +192,10 @@
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">          13 : func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">          13 :         entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, propName)</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">          13 :         if err != nil {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, err</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, err</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L135"><span class="lineNum">     135</span>              : </span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC tlaBgGNC">          13 :         entitySpec.GridElement = &amp;gc.GridElement{X: x, Y: y}</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC tlaBgGNC">          13 :         entitySpec.GridElement = &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">          13 :         entitySpec.LocationOnField = &amp;gc.LocationOnField{}</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">          13 : </span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">          13 :         return world.Components.AddEntity(world.ECS, &amp;entitySpec), nil</span></span>
@@ -213,7 +213,7 @@
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           9 :         entitySpec := gc.EntitySpec{</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           9 :                 Name:        &amp;gc.Name{Name: &quot;扉&quot;},</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           9 :                 Description: &amp;gc.Description{Description: &quot;開閉できる扉&quot;},</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           9 :                 GridElement: &amp;gc.GridElement{X: x, Y: y},</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           9 :                 GridElement: &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           9 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           9 :                         SpriteSheetName: &quot;field&quot;,</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           9 :                         SpriteKey:       spriteKey,</span></span>

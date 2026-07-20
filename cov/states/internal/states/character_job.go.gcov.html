@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -226,7 +226,7 @@
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 world.ECS.RemoveEntity(existing)</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         player, err := lifecycle.SpawnPlayer(world, 5, 5, &quot;Ash&quot;)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, &quot;Ash&quot;)</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;プレイヤーの生成に失敗: %w&quot;, err)</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         }</span></span>

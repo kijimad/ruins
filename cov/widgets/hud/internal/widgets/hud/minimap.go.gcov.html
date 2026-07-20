@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -130,8 +130,8 @@
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 tileY := int(gridElement.Y)</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 // プレイヤー位置からの相対位置を計算</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 relativeX := tileX - data.PlayerTileX</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 relativeY := tileY - data.PlayerTileY</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 relativeX := tileX - int(data.PlayerTile.X)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 relativeY := tileY - int(data.PlayerTile.Y)</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 // ミニマップ上の座標を計算（回転なし、素直な座標変換）</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 // X軸: 右方向が正、Y軸: 下方向が正</span></span>
@@ -153,8 +153,8 @@
 <span id="L91"><span class="lineNum">      91</span>              :         // 隊員の位置を青い点で表示</span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         squadColor := color.RGBA{80, 140, 255, 255}</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         for _, pos := range data.SquadPositions {</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 relX := pos.TileX - data.PlayerTileX</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 relY := pos.TileY - data.PlayerTileY</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 relX := int(pos.Tile.X - data.PlayerTile.X)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 relY := int(pos.Tile.Y - data.PlayerTile.Y)</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 mx := float32(centerX + relX*minimapScale)</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 my := float32(centerY + relY*minimapScale)</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                 if mx &gt;= float32(minimapX) &amp;&amp; mx &lt;= float32(minimapX+minimapWidth) &amp;&amp;</span></span>

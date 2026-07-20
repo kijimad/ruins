@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,14 +109,14 @@
 <span id="L47"><span class="lineNum">      47</span>              :         // ColdWidth は極低温ゾーンの幅。タイル単位</span>
 <span id="L48"><span class="lineNum">      48</span>              :         ColdWidth consts.Tile</span>
 <span id="L49"><span class="lineNum">      49</span>              :         // AdvanceTurns はこの経過ターンごとに Step タイル東進する。0 以下なら前進しない</span>
-<span id="L50"><span class="lineNum">      50</span>              :         AdvanceTurns int</span>
+<span id="L50"><span class="lineNum">      50</span>              :         AdvanceTurns consts.Turn</span>
 <span id="L51"><span class="lineNum">      51</span>              :         // Step は1回の前進量。タイル単位</span>
 <span id="L52"><span class="lineNum">      52</span>              :         Step consts.Tile</span>
 <span id="L53"><span class="lineNum">      53</span>              : }</span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              : // FrontAt は総経過ターン数 totalTurns 時点の Front を返す純関数。</span>
 <span id="L56"><span class="lineNum">      56</span>              : // AdvanceTurns ごとに Step 前進する階段状の前進。負のターンは前進0として扱う。</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           8 : func FrontAt(cfg FrontConfig, totalTurns int) Front {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           8 : func FrontAt(cfg FrontConfig, totalTurns consts.Turn) Front {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           8 :         var advanced consts.Tile</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          14 :         if cfg.AdvanceTurns &gt; 0 &amp;&amp; totalTurns &gt; 0 {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           6 :                 advanced = consts.Tile(totalTurns/cfg.AdvanceTurns) * cfg.Step</span></span>

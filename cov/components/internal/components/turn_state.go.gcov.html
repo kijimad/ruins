@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,45 +62,47 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : // TurnPhase はターンの段階を表す</span>
-<span id="L4"><span class="lineNum">       4</span>              : type TurnPhase int</span>
-<span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              : const (</span>
-<span id="L7"><span class="lineNum">       7</span>              :         // TurnPhasePlayer はプレイヤーのターン</span>
-<span id="L8"><span class="lineNum">       8</span>              :         TurnPhasePlayer TurnPhase = iota</span>
-<span id="L9"><span class="lineNum">       9</span>              :         // TurnPhaseAI はAI/NPCのターン</span>
-<span id="L10"><span class="lineNum">      10</span>              :         TurnPhaseAI</span>
-<span id="L11"><span class="lineNum">      11</span>              :         // TurnPhaseEnd はターン終了処理</span>
-<span id="L12"><span class="lineNum">      12</span>              :         TurnPhaseEnd</span>
-<span id="L13"><span class="lineNum">      13</span>              : )</span>
-<span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span>              : // String はTurnPhaseの文字列表現を返す</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 : func (tp TurnPhase) String() string {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         switch tp {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 :         case TurnPhasePlayer:</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 return &quot;PlayerTurn&quot;</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         case TurnPhaseAI:</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                 return &quot;AITurn&quot;</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         case TurnPhaseEnd:</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 return &quot;TurnEnd&quot;</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 panic(&quot;不正なTurnPhase値&quot;)</span></span>
-<span id="L26"><span class="lineNum">      26</span>              :         }</span>
-<span id="L27"><span class="lineNum">      27</span>              : }</span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span>              : // TurnState はターン状態を保持する。singleton componentとして管理される</span>
-<span id="L30"><span class="lineNum">      30</span>              : type TurnState struct {</span>
-<span id="L31"><span class="lineNum">      31</span>              :         Phase      TurnPhase // 現在のターンフェーズ</span>
-<span id="L32"><span class="lineNum">      32</span>              :         TurnNumber int       // ターン番号（1から開始）</span>
-<span id="L33"><span class="lineNum">      33</span>              : }</span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span>              : // NewTurnState は初期化されたTurnStateを返す</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func NewTurnState() *TurnState {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return &amp;TurnState{</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 Phase:      TurnPhasePlayer,</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 TurnNumber: 1,</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // TurnPhase はターンの段階を表す</span>
+<span id="L6"><span class="lineNum">       6</span>              : type TurnPhase int</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : const (</span>
+<span id="L9"><span class="lineNum">       9</span>              :         // TurnPhasePlayer はプレイヤーのターン</span>
+<span id="L10"><span class="lineNum">      10</span>              :         TurnPhasePlayer TurnPhase = iota</span>
+<span id="L11"><span class="lineNum">      11</span>              :         // TurnPhaseAI はAI/NPCのターン</span>
+<span id="L12"><span class="lineNum">      12</span>              :         TurnPhaseAI</span>
+<span id="L13"><span class="lineNum">      13</span>              :         // TurnPhaseEnd はターン終了処理</span>
+<span id="L14"><span class="lineNum">      14</span>              :         TurnPhaseEnd</span>
+<span id="L15"><span class="lineNum">      15</span>              : )</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // String はTurnPhaseの文字列表現を返す</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func (tp TurnPhase) String() string {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         switch tp {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 :         case TurnPhasePlayer:</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                 return &quot;PlayerTurn&quot;</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         case TurnPhaseAI:</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 return &quot;AITurn&quot;</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         case TurnPhaseEnd:</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 return &quot;TurnEnd&quot;</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 panic(&quot;不正なTurnPhase値&quot;)</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         }</span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // TurnState はターン状態を保持する。singleton componentとして管理される</span>
+<span id="L32"><span class="lineNum">      32</span>              : type TurnState struct {</span>
+<span id="L33"><span class="lineNum">      33</span>              :         Phase      TurnPhase   // 現在のターンフェーズ</span>
+<span id="L34"><span class="lineNum">      34</span>              :         TurnNumber consts.Turn // ターン番号（1から開始）</span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : // NewTurnState は初期化されたTurnStateを返す</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func NewTurnState() *TurnState {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return &amp;TurnState{</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 Phase:      TurnPhasePlayer,</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 TurnNumber: 1,</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

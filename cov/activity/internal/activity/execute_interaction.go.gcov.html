@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -169,7 +169,7 @@
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;位置情報が見つかりません&quot;)</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :         gridElement := world.Components.GridElement.Get(actor)</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         destination := gc.GridElement{X: gridElement.X, Y: gridElement.Y}</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         destination := gc.GridElement{Coord: gridElement.Coord}</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         return Execute(&amp;PickupActivity{Destination: &amp;destination}, actor, world)</span></span>
 <span id="L112"><span class="lineNum">     112</span>              : }</span>
 <span id="L113"><span class="lineNum">     113</span>              : </span>

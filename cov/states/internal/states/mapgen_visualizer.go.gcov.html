@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -197,10 +197,10 @@
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 camera := world.Components.Camera.Get(entity)</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 camera.Scale = scale</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 camera.ScaleTo = scale</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 camera.Pos.X = centerX</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 camera.Pos.Y = centerY</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 camera.Target.X = centerX</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 camera.Target.Y = centerY</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 camera.Pos.X = consts.WorldPixel(centerX)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 camera.Pos.Y = consts.WorldPixel(centerY)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 camera.Target.X = consts.WorldPixel(centerX)</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 camera.Target.Y = consts.WorldPixel(centerY)</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L143"><span class="lineNum">     143</span>              : }</span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
@@ -258,7 +258,7 @@
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         d.VisibleTiles = make(map[gc.GridElement]bool)</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         for y := consts.Tile(0); y &lt; st.mapHeight; y++ {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 for x := consts.Tile(0); x &lt; st.mapWidth; x++ {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         d.VisibleTiles[gc.GridElement{X: x, Y: y}] = true</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         d.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}] = true</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L201"><span class="lineNum">     201</span>              :         }</span>
 <span id="L202"><span class="lineNum">     202</span>              : }</span>

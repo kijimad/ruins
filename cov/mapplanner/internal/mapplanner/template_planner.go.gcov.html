@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -120,12 +120,12 @@
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">        4658 :                         if cell.Prop != &quot;&quot; {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          43 :                                 switch cell.Prop {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 :                                 case &quot;warp_next&quot;:</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                                         metaPlan.NextPortals = append(metaPlan.NextPortals, consts.Coord[int]{X: x, Y: y})</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                                         metaPlan.NextPortals = append(metaPlan.NextPortals, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :                                 case &quot;warp_escape&quot;:</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                                         metaPlan.EscapePortals = append(metaPlan.EscapePortals, consts.Coord[int]{X: x, Y: y})</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                                         metaPlan.EscapePortals = append(metaPlan.EscapePortals, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">          42 :                                 default:</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">          42 :                                         metaPlan.Props = append(metaPlan.Props, PropsSpec{</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          42 :                                                 Coord: consts.Coord[int]{X: x, Y: y},</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          42 :                                                 Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">          42 :                                                 Name:  cell.Prop,</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">          42 :                                         })</span></span>
 <span id="L69"><span class="lineNum">      69</span>              :                                 }</span>
@@ -133,7 +133,7 @@
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">        4624 :                         if cell.NPC != &quot;&quot; {</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           9 :                                 metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           9 :                                         Coord: consts.Coord[int]{X: x, Y: y},</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           9 :                                         Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           9 :                                         Name:  cell.NPC,</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           9 :                                 })</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           9 :                         }</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -267,7 +267,7 @@
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">          16 :         aPos := world.Components.GridElement.Get(actor)</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          16 :         tPos := world.Components.GridElement.Get(target)</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          16 : </span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          16 :         points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          16 :         points := geometry.BresenhamLine(consts.Coord[int]{X: int(aPos.X), Y: int(aPos.Y)}, consts.Coord[int]{X: int(tPos.X), Y: int(tPos.Y)})</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          58 :         for _, p := range points {</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          42 :                 entities := query.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          48 :                 for _, e := range entities {</span></span>

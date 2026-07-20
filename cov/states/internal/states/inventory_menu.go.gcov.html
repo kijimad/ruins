@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -650,7 +650,7 @@
 <span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L589"><span class="lineNum">     589</span>              : </span>
 <span id="L590"><span class="lineNum">     590</span> <span class="tlaUNC">           0 :                 playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC">           0 :                 destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC">           0 :                 destination := gc.GridElement{Coord: playerGrid.Coord}</span></span>
 <span id="L592"><span class="lineNum">     592</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)</span></span>
 <span id="L593"><span class="lineNum">     593</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
 <span id="L594"><span class="lineNum">     594</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>

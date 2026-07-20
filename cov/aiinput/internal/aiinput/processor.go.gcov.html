@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.7&nbsp;%</td>
-            <td class="headerCovTableEntry">63</td>
-            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntryMed">85.5&nbsp;%</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntry">53</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -158,28 +158,27 @@
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;プレイヤーに位置情報がありません&quot;)</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC tlaBgGNC">          10 :         playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">          10 :         px, py := int(playerGrid.X), int(playerGrid.Y)</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">          10 : </span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">          10 :         kept := make([]ecs.Entity, 0, len(targets))</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">        2038 :         for _, entity := range targets {</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">        2028 :                 solo := world.Components.SoloAI.Get(entity)</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">        4026 :                 if solo != nil &amp;&amp; !isActiveCombatState(solo.SubState) {</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">        1998 :                         grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">        3486 :                         if geometry.ChebyshevDistance(px, py, int(grid.X), int(grid.Y)) &gt; activationRadius {</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">        1488 :                                 // 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">        1488 :                                 continue</span></span>
-<span id="L109"><span class="lineNum">     109</span>              :                         }</span>
-<span id="L110"><span class="lineNum">     110</span>              :                 }</span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">         540 :                 kept = append(kept, entity)</span></span>
-<span id="L112"><span class="lineNum">     112</span>              :         }</span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">          10 :         return kept, nil</span></span>
-<span id="L114"><span class="lineNum">     114</span>              : }</span>
-<span id="L115"><span class="lineNum">     115</span>              : </span>
-<span id="L116"><span class="lineNum">     116</span>              : // isActiveCombatState は交戦中（追跡・逃亡）状態かを返す。</span>
-<span id="L117"><span class="lineNum">     117</span>              : // 交戦中の敵は視界外でも追い続ける設計のため距離カリングの対象外とする</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">        2028 : func isActiveCombatState(s gc.AIStateSubState) bool {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">        2028 :         return s == gc.AIStateChasing || s == gc.AIStateFleeing</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">        2028 : }</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">          10 : </span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">          10 :         kept := make([]ecs.Entity, 0, len(targets))</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">        2038 :         for _, entity := range targets {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">        2028 :                 solo := world.Components.SoloAI.Get(entity)</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">        4026 :                 if solo != nil &amp;&amp; !isActiveCombatState(solo.SubState) {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">        1998 :                         grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">        3486 :                         if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) &gt; activationRadius {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">        1488 :                                 // 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">        1488 :                                 continue</span></span>
+<span id="L108"><span class="lineNum">     108</span>              :                         }</span>
+<span id="L109"><span class="lineNum">     109</span>              :                 }</span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">         540 :                 kept = append(kept, entity)</span></span>
+<span id="L111"><span class="lineNum">     111</span>              :         }</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">          10 :         return kept, nil</span></span>
+<span id="L113"><span class="lineNum">     113</span>              : }</span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span>              : // isActiveCombatState は交戦中（追跡・逃亡）状態かを返す。</span>
+<span id="L116"><span class="lineNum">     116</span>              : // 交戦中の敵は視界外でも追い続ける設計のため距離カリングの対象外とする</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">        2028 : func isActiveCombatState(s gc.AIStateSubState) bool {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">        2028 :         return s == gc.AIStateChasing || s == gc.AIStateFleeing</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">        2028 : }</span></span>
         </pre>
               </td>
             </tr>

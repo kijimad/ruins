@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">45</td>
-            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntry">44</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -112,7 +112,7 @@
 <span id="L50"><span class="lineNum">      50</span>              :         // ColdWidth は極低温ゾーンの幅</span>
 <span id="L51"><span class="lineNum">      51</span>              :         ColdWidth consts.Tile</span>
 <span id="L52"><span class="lineNum">      52</span>              :         // AdvanceTurns はこの経過ターンごとに Step タイル東進する</span>
-<span id="L53"><span class="lineNum">      53</span>              :         AdvanceTurns int</span>
+<span id="L53"><span class="lineNum">      53</span>              :         AdvanceTurns consts.Turn</span>
 <span id="L54"><span class="lineNum">      54</span>              :         // Step は1回の前進量</span>
 <span id="L55"><span class="lineNum">      55</span>              :         Step consts.Tile</span>
 <span id="L56"><span class="lineNum">      56</span>              :         // EastAbsX は現在の極低温ゾーン東端の絶対タイルX。config と総ターン数から毎ターン導出した</span>
@@ -182,59 +182,58 @@
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 VisibleTiles:     make(map[GridElement]bool),</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 LightSourceCache: make(map[GridElement]LightInfo),</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 MinimapSettings: MinimapSettings{</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                         Width:   150,</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         Height:  150,</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                         OffsetX: 10,</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                         OffsetY: 10,</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                         Scale:   3,</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 SelectedWeaponSlot: 1,</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L132"><span class="lineNum">     132</span>              : </span>
-<span id="L133"><span class="lineNum">     133</span>              : // Level は現在の階層</span>
-<span id="L134"><span class="lineNum">     134</span>              : // タイル計算メソッドを提供する</span>
-<span id="L135"><span class="lineNum">     135</span>              : type Level struct {</span>
-<span id="L136"><span class="lineNum">     136</span>              :         // 横のタイル数</span>
-<span id="L137"><span class="lineNum">     137</span>              :         TileWidth consts.Tile</span>
-<span id="L138"><span class="lineNum">     138</span>              :         // 縦のタイル数</span>
-<span id="L139"><span class="lineNum">     139</span>              :         TileHeight consts.Tile</span>
-<span id="L140"><span class="lineNum">     140</span>              : }</span>
-<span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span>              : // XYTileIndex はタイル座標から、タイルスライスのインデックスを求める</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">          54 : func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">          54 :         return TileIdx(int(ty)*int(l.TileWidth) + int(tx))</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">          54 : }</span></span>
-<span id="L146"><span class="lineNum">     146</span>              : </span>
-<span id="L147"><span class="lineNum">     147</span>              : // XYTileCoord はタイルスライスのインデックスからタイル座標を求める</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">          54 : func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">          54 :         x := int(idx) % int(l.TileWidth)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">          54 :         y := int(idx) / int(l.TileWidth)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">          54 : </span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">          54 :         return consts.Pixel(x), consts.Pixel(y)</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">          54 : }</span></span>
-<span id="L154"><span class="lineNum">     154</span>              : </span>
-<span id="L155"><span class="lineNum">     155</span>              : // Width はステージ幅。横の全体ピクセル数</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func (l *Level) Width() consts.Pixel {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return consts.Pixel(int(l.TileWidth) * int(consts.TileSize))</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L159"><span class="lineNum">     159</span>              : </span>
-<span id="L160"><span class="lineNum">     160</span>              : // Height はステージ縦。縦の全体ピクセル数</span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : func (l *Level) Height() consts.Pixel {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         return consts.Pixel(int(l.TileHeight) * int(consts.TileSize))</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L164"><span class="lineNum">     164</span>              : </span>
-<span id="L165"><span class="lineNum">     165</span>              : // MinimapSettings はミニマップの設定を管理する</span>
-<span id="L166"><span class="lineNum">     166</span>              : type MinimapSettings struct {</span>
-<span id="L167"><span class="lineNum">     167</span>              :         // ミニマップのサイズ（ピクセル単位）</span>
-<span id="L168"><span class="lineNum">     168</span>              :         Width  int</span>
-<span id="L169"><span class="lineNum">     169</span>              :         Height int</span>
-<span id="L170"><span class="lineNum">     170</span>              :         // ミニマップの表示位置（画面右上に配置）</span>
-<span id="L171"><span class="lineNum">     171</span>              :         OffsetX int</span>
-<span id="L172"><span class="lineNum">     172</span>              :         OffsetY int</span>
-<span id="L173"><span class="lineNum">     173</span>              :         // ミニマップのスケール（何ピクセルで1タイルを表すか）</span>
-<span id="L174"><span class="lineNum">     174</span>              :         Scale int</span>
-<span id="L175"><span class="lineNum">     175</span>              : }</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                         Width:  150,</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         Height: 150,</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                         Offset: consts.Coord[int]{X: 10, Y: 10},</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                         Scale:  3,</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 SelectedWeaponSlot: 1,</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              : // Level は現在の階層</span>
+<span id="L133"><span class="lineNum">     133</span>              : // タイル計算メソッドを提供する</span>
+<span id="L134"><span class="lineNum">     134</span>              : type Level struct {</span>
+<span id="L135"><span class="lineNum">     135</span>              :         // 横のタイル数</span>
+<span id="L136"><span class="lineNum">     136</span>              :         TileWidth consts.Tile</span>
+<span id="L137"><span class="lineNum">     137</span>              :         // 縦のタイル数</span>
+<span id="L138"><span class="lineNum">     138</span>              :         TileHeight consts.Tile</span>
+<span id="L139"><span class="lineNum">     139</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : // CoordToIndex はタイル座標から、タイルスライスのインデックスを求める</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">          54 : func (l *Level) CoordToIndex(pos consts.Coord[consts.Tile]) TileIdx {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">          54 :         return TileIdx(int(pos.Y)*int(l.TileWidth) + int(pos.X))</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">          54 : }</span></span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span>              : // IndexToCoord はタイルスライスのインデックスからタイル座標を求める。CoordToIndex の逆操作</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">          54 : func (l *Level) IndexToCoord(idx TileIdx) consts.Coord[consts.Tile] {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">          54 :         x := consts.Tile(int(idx) % int(l.TileWidth))</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">          54 :         y := consts.Tile(int(idx) / int(l.TileWidth))</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">          54 : </span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">          54 :         return consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">          54 : }</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              : // Width はステージ幅。横の全体ピクセル数</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 : func (l *Level) Width() consts.WorldPixel {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         return consts.WorldPixel(int(l.TileWidth) * int(consts.TileSize))</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              : // Height はステージ縦。縦の全体ピクセル数</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 : func (l *Level) Height() consts.WorldPixel {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         return consts.WorldPixel(int(l.TileHeight) * int(consts.TileSize))</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span>              : // MinimapSettings はミニマップの設定を管理する</span>
+<span id="L165"><span class="lineNum">     165</span>              : type MinimapSettings struct {</span>
+<span id="L166"><span class="lineNum">     166</span>              :         // ミニマップのサイズ（ピクセル単位）</span>
+<span id="L167"><span class="lineNum">     167</span>              :         Width  int</span>
+<span id="L168"><span class="lineNum">     168</span>              :         Height int</span>
+<span id="L169"><span class="lineNum">     169</span>              :         // ミニマップの表示位置。整数ピクセルの画面 UI レイアウト値で、ワールド座標でもタイル座標でもない。</span>
+<span id="L170"><span class="lineNum">     170</span>              :         // Width/Height/Scale と同じ UI 設定の一員なので Coord[consts.WorldPixel] でなく Coord[int] にする。</span>
+<span id="L171"><span class="lineNum">     171</span>              :         Offset consts.Coord[int]</span>
+<span id="L172"><span class="lineNum">     172</span>              :         // ミニマップのスケール（何ピクセルで1タイルを表すか）</span>
+<span id="L173"><span class="lineNum">     173</span>              :         Scale int</span>
+<span id="L174"><span class="lineNum">     174</span>              : }</span>
         </pre>
               </td>
             </tr>

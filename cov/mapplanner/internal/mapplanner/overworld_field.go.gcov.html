@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,7 +111,7 @@
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">        1704 :                                 if x &lt; 0 || x &gt;= w || y &lt; 0 || y &gt;= h {</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">         142 :                                         continue</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                                 }</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">        1420 :                                 planData.Tiles[planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))] = wallTile</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">        1420 :                                 planData.Tiles[planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})] = wallTile</span></span>
 <span id="L53"><span class="lineNum">      53</span>              :                         }</span>
 <span id="L54"><span class="lineNum">      54</span>              :                 }</span>
 <span id="L55"><span class="lineNum">      55</span>              :         }</span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">         894 :                 if y &lt; 0 || y &gt;= h {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 :                         return</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">         894 :                 planData.Tiles[planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))] = dirtTile</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">         894 :                 planData.Tiles[planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})] = dirtTile</span></span>
 <span id="L74"><span class="lineNum">      74</span>              :         }</span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          10 :         y := h / 2</span></span>

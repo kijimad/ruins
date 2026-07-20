@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,10 +97,10 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          11 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          16 :         if len(entities) == 0 {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           3 :                 return consts.InvalidEntity, fmt.Errorf(&quot;プレイヤーエンティティが存在しません&quot;)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           3 :                 return gc.InvalidEntity, fmt.Errorf(&quot;プレイヤーエンティティが存在しません&quot;)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           3 :         }</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">          11 :         if len(entities) &gt; 1 {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return consts.InvalidEntity, fmt.Errorf(&quot;プレイヤーエンティティが複数存在します: %d個&quot;, len(entities))</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, fmt.Errorf(&quot;プレイヤーエンティティが複数存在します: %d個&quot;, len(entities))</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           9 :         return entities[0], nil</span></span>
@@ -125,7 +125,7 @@
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           8 :         case gc.ActivationRangeSameTile:</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           8 :                 return playerGrid.X == triggerGrid.X &amp;&amp; playerGrid.Y == triggerGrid.Y</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">          25 :         case gc.ActivationRangeAdjacent:</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          25 :                 return geometry.IsAdjacent(int(playerGrid.X), int(playerGrid.Y), int(triggerGrid.X), int(triggerGrid.Y))</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          25 :                 return geometry.IsAdjacent(playerGrid.Coord, triggerGrid.Coord)</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         default:</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L69"><span class="lineNum">      69</span>              :         }</span>

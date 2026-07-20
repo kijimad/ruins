@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -120,12 +120,12 @@
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           3 : func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">         903 :         for _i, tile := range metaPlan.Tiles {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">         900 :                 i := gc.TileIdx(_i)</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">         900 :                 x, y := metaPlan.Level.XYTileCoord(i)</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         900 :                 tileX, tileY := consts.Tile(x)+offsetX, consts.Tile(y)+offsetY</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">         900 :                 pos := metaPlan.Level.IndexToCoord(i)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         900 :                 tileX, tileY := pos.X+offsetX, pos.Y+offsetY</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">         900 : </span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">         900 :                 tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         900 :                 if err != nil {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;タイルエンティティ生成エラー (%d, %d): %w&quot;, int(x), int(y), err)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;タイルエンティティ生成エラー (%d, %d): %w&quot;, int(pos.X), int(pos.Y), err)</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              :                 // TileRaw の環境情報を TileTemperature に設定する</span>
@@ -177,7 +177,7 @@
 <span id="L115"><span class="lineNum">     115</span>              : </span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         900 :         spec, ok := specs[tile.Name]</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         900 :         if !ok {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.InvalidEntity, fmt.Errorf(&quot;未対応の%sタイル名: %s (%d, %d)&quot;, category, tile.Name, int(tileX), int(tileY))</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;未対応の%sタイル名: %s (%d, %d)&quot;, category, tile.Name, int(tileX), int(tileY))</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L120"><span class="lineNum">     120</span>              : </span>
 <span id="L121"><span class="lineNum">     121</span>              :         // オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。</span>
@@ -197,9 +197,9 @@
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;NPC '%s' が見つかりません&quot;, npc.Name)</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : </span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 x, y := npc.X+int(offsetX), npc.Y+int(offsetY)</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 if member.FactionType != nil &amp;&amp; string(*member.FactionType) == gc.FactionNeutralName {</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                         _, err := lifecycle.SpawnNeutralNPC(world, x, y, npc.Name)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                         _, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                         if err != nil {</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;中立NPC生成エラー (%d, %d): %w&quot;, x, y, err)</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                         }</span></span>
@@ -208,7 +208,7 @@
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                         if member.IsBoss {</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                                 opts = append(opts, lifecycle.WithBoss())</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                         _, err := lifecycle.SpawnEnemy(world, x, y, npc.Name, opts...)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                         _, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name, opts...)</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                         if err != nil {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;敵NPC生成エラー (%d, %d): %w&quot;, x, y, err)</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                         }</span></span>
@@ -220,7 +220,7 @@
 <span id="L158"><span class="lineNum">     158</span>              : // spawnItems はアイテムを生成する</span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           3 : func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           3 :         for _, item := range metaPlan.Items {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC tlaBgUNC">           0 :                 tileX, tileY := consts.Tile(item.X)+offsetX, consts.Tile(item.Y)+offsetY</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC tlaBgUNC">           0 :                 tileX, tileY := item.X+offsetX, item.Y+offsetY</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 if item.Count &lt;= 0 {</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;アイテムの個数が不正です (%d, %d): count=%d&quot;, item.X, item.Y, item.Count)</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -235,7 +235,7 @@
 <span id="L173"><span class="lineNum">     173</span>              : // spawnProps はPropsを生成する</span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           3 : func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           8 :         for _, prop := range metaPlan.Props {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           5 :                 tileX, tileY := consts.Tile(prop.X)+offsetX, consts.Tile(prop.Y)+offsetY</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           5 :                 tileX, tileY := prop.X+offsetX, prop.Y+offsetY</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           5 : </span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           5 :                 propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           5 :                 if err != nil {</span></span>
@@ -250,7 +250,7 @@
 <span id="L188"><span class="lineNum">     188</span>              :                 // Door componentがあれば向きを設定して閉じた状態で初期化</span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC tlaBgGNC">           5 :                 if propRaw.Door != nil {</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC tlaBgUNC">           0 :                         doorComp := world.Components.Door.Get(propEntity)</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         doorComp.Orientation = detectPropDoorOrientation(metaPlan, prop.X, prop.Y)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         doorComp.Orientation = detectPropDoorOrientation(metaPlan, int(prop.X), int(prop.Y))</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                         if err := lifecycle.CloseDoor(world, propEntity); err != nil {</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;扉初期化エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                         }</span></span>
@@ -269,7 +269,7 @@
 <span id="L207"><span class="lineNum">     207</span>              : // spawnDoors はドアを生成する</span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           3 : func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           9 :         for _, door := range metaPlan.Doors {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           6 :                 tileX, tileY := consts.Tile(door.X)+offsetX, consts.Tile(door.Y)+offsetY</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           6 :                 tileX, tileY := door.X+offsetX, door.Y+offsetY</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           6 :                 _, err := lifecycle.SpawnDoor(world, tileX, tileY, door.Orientation)</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           6 :                 if err != nil {</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;ドア生成エラー (%d, %d): %w&quot;, door.X, door.Y, err)</span></span>
@@ -281,7 +281,7 @@
 <span id="L219"><span class="lineNum">     219</span>              : // spawnPortals はポータルを生成する</span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           3 : func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           5 :         for _, portal := range metaPlan.NextPortals {</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           2 :                 tileX, tileY := consts.Tile(portal.X)+offsetX, consts.Tile(portal.Y)+offsetY</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           2 :                 tileX, tileY := portal.X+offsetX, portal.Y+offsetY</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           2 :                 _, err := lifecycle.SpawnProp(world, &quot;warp_next&quot;, tileX, tileY)</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;NextPortal生成エラー (%d, %d): %w&quot;, portal.X, portal.Y, err)</span></span>
@@ -289,7 +289,7 @@
 <span id="L227"><span class="lineNum">     227</span>              :         }</span>
 <span id="L228"><span class="lineNum">     228</span>              : </span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           5 :         for _, portal := range metaPlan.EscapePortals {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           2 :                 tileX, tileY := consts.Tile(portal.X)+offsetX, consts.Tile(portal.Y)+offsetY</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           2 :                 tileX, tileY := portal.X+offsetX, portal.Y+offsetY</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           2 :                 _, err := lifecycle.SpawnProp(world, &quot;warp_escape&quot;, tileX, tileY)</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;EscapePortal生成エラー (%d, %d): %w&quot;, portal.X, portal.Y, err)</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-19 02:47:48</td>
+            <td class="headerValue">2026-07-20 00:51:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -113,7 +113,7 @@
 <span id="L51"><span class="lineNum">      51</span>              : const (</span>
 <span id="L52"><span class="lineNum">      52</span>              :         // frontAdvanceTurns は前線が frontStep タイル前進するのに要するターン数。大きいほどゆるやか。</span>
 <span id="L53"><span class="lineNum">      53</span>              :         // 1500ターン/日なので 20 なら 75タイル/日。開始時に背後25タイルなら追いつくまで約500ターン≈0.33日</span>
-<span id="L54"><span class="lineNum">      54</span>              :         frontAdvanceTurns = 20</span>
+<span id="L54"><span class="lineNum">      54</span>              :         frontAdvanceTurns consts.Turn = 20</span>
 <span id="L55"><span class="lineNum">      55</span>              :         // frontStep は1回の前進量。タイル単位</span>
 <span id="L56"><span class="lineNum">      56</span>              :         frontStep consts.Tile = 1</span>
 <span id="L57"><span class="lineNum">      57</span>              :         // frontColdWidthChunks は極低温ゾーンの幅。チャンク数</span>
@@ -235,13 +235,13 @@
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span>              :         // プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">          12 :         cx := int((st.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2)</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">          12 :         cy := int(p.ChunkH / 2)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">          12 :         cx := (st.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">          12 :         cy := p.ChunkH / 2</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">          22 :         if _, err := query.GetPlayerEntity(world); err != nil {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          10 :                 if _, serr := lifecycle.SpawnPlayer(world, cx, cy, &quot;Ash&quot;); serr != nil {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          10 :                 if _, serr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, &quot;Ash&quot;); serr != nil {</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;プレイヤー生成失敗: %w&quot;, serr)</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           2 :         } else if merr := lifecycle.MovePlayerToPosition(world, cx, cy); merr != nil {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           2 :         } else if merr := lifecycle.MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); merr != nil {</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;プレイヤー配置失敗: %w&quot;, merr)</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L185"><span class="lineNum">     185</span>              : </span>
