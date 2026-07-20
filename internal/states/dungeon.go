@@ -174,8 +174,8 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 	}
 
 	// 上り階段を開始位置に置く。降りてきた場所が、上りで戻ってくる場所になる。
-	// 最上階(depth<=1)は上れないので置かない
-	if depth > 1 {
+	// 最上階(floor 1)では上り階段がダンジョン脱出口を兼ねる。町(depth 0)には置かない
+	if depth > 0 {
 		if _, err := lifecycle.SpawnProp(world, "warp_prev", start.X, start.Y); err != nil {
 			return zero, err
 		}
@@ -244,7 +244,7 @@ func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[co
 // プレイヤーは上った先の下り階段、すなわち元々降りてきた場所へ戻す
 func (st *DungeonState) ascend(world w.World) error {
 	if st.Depth <= 1 {
-		// 最上階からは上れない。地上や街への脱出は WarpEscape が担う
+		// 最上階からの脱出は呼び出し側が扱う。ここへは来ない前提
 		return nil
 	}
 	prevDepth := st.Depth - 1
@@ -646,6 +646,12 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpAscend:
+		if st.Depth <= 1 {
+			// 最上階からの上りはダンジョン脱出。精算画面を経由して街へ帰還する
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+				NewFadeoutAnimationState(NewAutoSellState()),
+			}}, nil
+		}
 		// 共存方式の上り。上り先は訪問済みなので再稼働する
 		if err := st.ascend(world); err != nil {
 			return es.Transition[w.World]{}, err

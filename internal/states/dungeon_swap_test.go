@@ -54,6 +54,7 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 
 	floor1 := stageMembers(world, key1)
 	require.NotEmpty(t, floor1, "floor1 が生成されている")
+	assert.True(t, hasPortalPrev(world), "floor1 にも上り階段(ダンジョン脱出口)がある")
 
 	// 下る
 	require.NoError(t, st.descend(world))
