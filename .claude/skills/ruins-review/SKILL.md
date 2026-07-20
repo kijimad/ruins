@@ -26,6 +26,19 @@ description: ruins 固有のレビュー観点チェックリスト。Ark の st
 - 不要なゲッター/セッターを作らない。コンストラクタは型ごとに最大1つ（必要ならオプションパターン）。
 - 生成ファイル（`*_gen.go`）を sed 等で直接書き換えない。生成元を直して再生成する。
 
+## 列挙の網羅（散在スイッチ・クエリ）
+
+ある概念が**複数のスイッチ/クエリに散在**し、1種別足すと全箇所に足す必要がある。Go の `exhaustive` linter は default 付き switch を検査しないので、漏れがコンパイルを通ってしまう。手動プレイで初めて発覚しがち。
+
+- **新しい `InteractionKind`**: 以下**すべて**に追加する。1つでも漏れると発動しない/表示されない。
+  - `components/interactable.go` の `Config()`（発動方式 SameTile/Manual 等）
+  - `activity/execute_interaction.go`（種別 → イベント発行）
+  - `states/action_handlers.go` の `getInteractionActions`（発動可能アクション一覧。ここが漏れると Enter が無反応）
+  - `activity/player_actions.go` の足元ログ（ここが漏れるとログも出ない）
+  - 追加後、既存種別で照合する: `grep -rn "InteractionPortalNext" internal/ --include="*.go"` の出現箇所と件数に対し、新種別が同じ箇所・同数あることを確認する。
+- **ステージ跨ぎクエリ（Phase 7 共存方式）**: 退避中ステージのエンティティを含みうるクエリは生の `ecs.NewFilterN` でなく `query.ActiveFilter` を使う。`Suspended` 除外を1箇所に集約している。漏れは `grep -rn "ecs.NewFilter" internal/ | grep -iE "GridElement|Door|SoloAI|Interactable"` 等で洗う。座標検索・破壊的操作（一括削除/平行移動）の漏れが特に致命的。
+- 一般手順: 新種別/概念を足したら、**既存の1つを grep して全出現箇所を列挙し、同じ場所すべてに新種別を足したか照合**する。キーワード列挙の grep には盲点があるので、複数の同義キーワードで洗う。
+
 ## 参照
 
 - 設計・コード規約の詳細は CLAUDE.md。
