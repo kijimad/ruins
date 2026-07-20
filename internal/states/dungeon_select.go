@@ -29,10 +29,6 @@ type DungeonSelectState struct {
 	widget *ebitenui.UI
 }
 
-func (st DungeonSelectState) String() string {
-	return "DungeonSelect"
-}
-
 var _ es.State[w.World] = &DungeonSelectState{}
 
 // OnPause はステートが一時停止される際に呼ばれる

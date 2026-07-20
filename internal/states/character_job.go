@@ -42,10 +42,6 @@ func NewCharacterJobState(playerName string) es.StateFactory[w.World] {
 	}
 }
 
-func (st CharacterJobState) String() string {
-	return "CharacterJob"
-}
-
 // State interface ================
 
 var _ es.State[w.World] = &CharacterJobState{}

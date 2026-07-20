@@ -57,13 +57,6 @@ func (st DungeonState) isSeamless() bool {
 	return ok && def.Seamless
 }
 
-func (st DungeonState) String() string {
-	if st.isSeamless() {
-		return "Overworld"
-	}
-	return "Dungeon"
-}
-
 // NewOverworldState はオーバーワールド探索ステートのファクトリを返す。
 //
 // オーバーワールドは「帯を持つダンジョン」(DungeonOverworld, Seamless=true)で、専用の State 型は

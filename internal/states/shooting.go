@@ -37,10 +37,6 @@ func (st *ShootingState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-func (st ShootingState) String() string {
-	return "Shooting"
-}
-
 var _ es.State[w.World] = &ShootingState{}
 var _ Configurable = &ShootingState{}
 

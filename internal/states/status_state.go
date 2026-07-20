@@ -33,10 +33,6 @@ type StatusState struct {
 	widget *ebitenui.UI
 }
 
-func (st StatusState) String() string {
-	return "Status"
-}
-
 var _ es.State[w.World] = &StatusState{}
 
 // OnPause はステートが一時停止される際に呼ばれる

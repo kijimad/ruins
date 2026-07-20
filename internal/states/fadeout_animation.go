@@ -28,10 +28,6 @@ func NewFadeoutAnimationState(nextStateFunc es.StateFactory[w.World]) es.StateFa
 	}
 }
 
-func (st FadeoutAnimationState) String() string {
-	return "FadeoutAnimation"
-}
-
 var _ es.State[w.World] = &FadeoutAnimationState{}
 
 // OnPause はステートが一時停止される際に呼ばれる

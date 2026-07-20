@@ -40,10 +40,6 @@ type TavernMenuState struct {
 	candidates  []tavernCandidate
 }
 
-func (st TavernMenuState) String() string {
-	return "TavernMenu"
-}
-
 var _ es.State[w.World] = &TavernMenuState{}
 var _ es.ActionHandler[w.World] = &TavernMenuState{}
 

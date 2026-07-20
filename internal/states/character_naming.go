@@ -38,10 +38,6 @@ func NewCharacterNamingState() (es.State[w.World], error) {
 	return &CharacterNamingState{}, nil
 }
 
-func (st CharacterNamingState) String() string {
-	return "CharacterNaming"
-}
-
 // State interface ================
 
 var _ es.State[w.World] = &CharacterNamingState{}

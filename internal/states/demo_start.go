@@ -20,10 +20,6 @@ type DemoStartState struct {
 	es.BaseState[w.World]
 }
 
-func (st DemoStartState) String() string {
-	return "DemoStart"
-}
-
 // OnStart はステート開始時にデフォルトプレイヤーを生成し、TownStateへの遷移を設定する
 func (st *DemoStartState) OnStart(world w.World) error {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")

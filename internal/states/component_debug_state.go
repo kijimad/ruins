@@ -26,10 +26,6 @@ type ComponentDebugState struct {
 	widget *ebitenui.UI
 }
 
-func (st ComponentDebugState) String() string {
-	return "ComponentDebug"
-}
-
 var _ es.State[w.World] = &ComponentDebugState{}
 
 // OnPause はステートが一時停止される際に呼ばれる

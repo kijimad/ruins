@@ -21,10 +21,6 @@ type MessageState struct {
 	currentBgKey    string
 }
 
-func (st MessageState) String() string {
-	return "Message"
-}
-
 var _ es.State[w.World] = &MessageState{}
 
 // OnPause はステートが一時停止される際に呼ばれる

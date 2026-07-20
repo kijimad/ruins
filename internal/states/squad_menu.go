@@ -39,10 +39,6 @@ type SquadMenuState struct {
 	widget      *ebitenui.UI
 }
 
-func (st SquadMenuState) String() string {
-	return "SquadMenu"
-}
-
 var _ es.State[w.World] = &SquadMenuState{}
 var _ es.ActionHandler[w.World] = &SquadMenuState{}
 

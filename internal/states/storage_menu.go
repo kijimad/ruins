@@ -33,10 +33,6 @@ type StorageMenuState struct {
 	widget        *ebitenui.UI
 }
 
-func (st StorageMenuState) String() string {
-	return "StorageMenu"
-}
-
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}

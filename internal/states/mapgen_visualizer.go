@@ -33,10 +33,6 @@ type MapGenVisualizerState struct {
 	mapHeight consts.Tile
 }
 
-func (st MapGenVisualizerState) String() string {
-	return "MapGenVisualizer"
-}
-
 var _ es.State[w.World] = &MapGenVisualizerState{}
 
 // OnPause は一時停止時の処理

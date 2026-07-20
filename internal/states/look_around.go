@@ -33,10 +33,6 @@ func (st *LookAroundState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-func (st LookAroundState) String() string {
-	return "LookAround"
-}
-
 var _ es.State[w.World] = &LookAroundState{}
 var _ Configurable = &LookAroundState{}
 
