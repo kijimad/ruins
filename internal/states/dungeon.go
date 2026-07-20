@@ -640,17 +640,15 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
 	case gc.WarpDescend:
-		// 共存方式の下り。同一 State 内で swapTo する。現階は退避され再訪で復元できる
-		if err := st.descend(world); err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		// 共存方式の下り。暗転の裏で同一 State 内 swapTo する。現階は退避され再訪で復元できる
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			NewFadeTransitionState(st.descend),
+		}}, nil
 	case gc.WarpAscend:
-		// 共存方式の上り。上り先は訪問済みなので再稼働する
-		if err := st.ascend(world); err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		// 共存方式の上り。暗転の裏で上り先を再稼働する
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			NewFadeTransitionState(st.ascend),
+		}}, nil
 	case gc.WarpEscape:
 		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
