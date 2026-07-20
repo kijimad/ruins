@@ -90,6 +90,8 @@ type Dungeon struct {
 	Level Level
 	// 階層数
 	Depth int
+	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える
+	CurrentStage StageKey
 	// 探索済みタイルのマップ。座標をキーとして使用。
 	// GridElement(struct)キーのためserde不可、ロード時に再構築する
 	ExploredTiles map[GridElement]bool `json:"-"`
