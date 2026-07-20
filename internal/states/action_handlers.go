@@ -162,9 +162,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionRuinEnter:
+		case gc.InteractionDungeonEnter:
 			result = append(result, InteractionAction{
-				Label:       "遺跡へ入る",
+				Label:       "ダンジョンへ入る",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})

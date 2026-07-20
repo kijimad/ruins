@@ -190,9 +190,9 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").
 					Log()
-			case gc.InteractionRuinEnter:
+			case gc.InteractionDungeonEnter:
 				gamelog.New(query.GetGameLog(world)).
-					Append("遺跡の入口がある。Enterキーで入る。").
+					Append("ダンジョンの入口がある。Enterキーで入る。").
 					Log()
 			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を

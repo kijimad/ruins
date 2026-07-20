@@ -14,9 +14,9 @@ func TestStageConstructors(t *testing.T) {
 
 	assert.Equal(t, StageKey{Kind: StageKindOverworld}, NewOverworldStage())
 	assert.Equal(t, StageKey{Kind: StageKindDungeon, Depth: 3}, NewDungeonStage(3))
-	assert.Equal(t, StageKey{Kind: StageKindRuin, Ruin: "遺跡", Depth: 2}, NewRuinStage("遺跡", 2))
+	assert.Equal(t, StageKey{Kind: StageKindDungeon, Name: "森の奥", Depth: 2}, NewNamedDungeonStage("森の奥", 2))
 
-	for _, k := range []StageKey{NewOverworldStage(), NewDungeonStage(3), NewRuinStage("遺跡", 2)} {
+	for _, k := range []StageKey{NewOverworldStage(), NewDungeonStage(3), NewNamedDungeonStage("森の奥", 2)} {
 		require.NoError(t, k.Validate(), "コンストラクタ生成のキーは Validate を通る: %+v", k)
 	}
 }
@@ -32,14 +32,13 @@ func TestStageKeyValidate(t *testing.T) {
 		wantErr bool
 	}{
 		{"ゼロ値は未設定として許容", StageKey{}, false},
-		{"オーバーワールドは深度も遺跡名もなし", NewOverworldStage(), false},
-		{"ダンジョンは深度あり遺跡名なし", NewDungeonStage(1), false},
-		{"遺跡は遺跡名あり", NewRuinStage("森", 1), false},
-		{"ダンジョンに遺跡名は不正", StageKey{Kind: StageKindDungeon, Ruin: "森", Depth: 1}, true},
+		{"オーバーワールドは深度も名前もなし", NewOverworldStage(), false},
+		{"名前なしダンジョンは深度あり", NewDungeonStage(1), false},
+		{"名前ありダンジョンも有効", NewNamedDungeonStage("森", 1), false},
 		{"ダンジョンに深度0は不正", StageKey{Kind: StageKindDungeon, Depth: 0}, true},
-		{"遺跡に遺跡名なしは不正", StageKey{Kind: StageKindRuin, Depth: 1}, true},
-		{"遺跡に深度0は不正", StageKey{Kind: StageKindRuin, Ruin: "森", Depth: 0}, true},
+		{"名前ありダンジョンでも深度0は不正", StageKey{Kind: StageKindDungeon, Name: "森", Depth: 0}, true},
 		{"オーバーワールドに深度は不正", StageKey{Kind: StageKindOverworld, Depth: 1}, true},
+		{"オーバーワールドに名前は不正", StageKey{Kind: StageKindOverworld, Name: "森"}, true},
 		{"未知の種別は不正", StageKey{Kind: StageKind("banana")}, true},
 		{"空 Kind で深度だけ埋まるのは不正", StageKey{Depth: 5}, true},
 	}

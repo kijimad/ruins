@@ -17,7 +17,7 @@ type LightInfo struct {
 
 // SeamlessBand はオーバーワールドのアクティブ帯の永続状態を保持する。
 // Active が true のときのみ有効。全フィールドがスカラーなので serde に乗る。
-// これによりロード後や遺跡遷移後に Band を再構築できる。
+// これによりロード後やダンジョン遷移後に Band を再構築できる。
 type SeamlessBand struct {
 	// Active はシームレスワールド中かを表す
 	Active bool

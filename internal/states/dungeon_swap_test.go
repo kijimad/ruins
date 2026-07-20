@@ -88,10 +88,10 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	}
 }
 
-// TestEnterRuin_遺跡へ入り上り階段が入口へ結線される は、オーバーワールドから遺跡へ入ると
-// 帯が退避され遺跡1階が生成され、遺跡の上り階段が入った入口座標へ結線されること、そして
+// TestEnterDungeon_ダンジョンへ入り上り階段が入口へ結線される は、オーバーワールドからダンジョンへ入ると
+// 帯が退避されダンジョン1階が生成され、ダンジョンの上り階段が入った入口座標へ結線されること、そして
 // その上り階段でオーバーワールドの入口へ正確に戻れることを実生成で検証する。
-func TestEnterRuin_遺跡へ入り上り階段が入口へ結線される(t *testing.T) {
+func TestEnterDungeon_ダンジョンへ入り上り階段が入口へ結線される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -101,23 +101,23 @@ func TestEnterRuin_遺跡へ入り上り階段が入口へ結線される(t *tes
 
 	d := query.GetDungeon(world)
 	d.CurrentStage = gc.NewOverworldStage()
-	// オーバーワールド帯の現物相当。遺跡に入っている間 退避されるべき
+	// オーバーワールド帯の現物相当。ダンジョンに入っている間 退避されるべき
 	band := addStageEntity(t, world, gc.NewOverworldStage())
 
 	defName := dungeon.DungeonDebug.Name
 	st := &DungeonState{DefinitionName: defName, BuilderType: mapplanner.PlannerTypeRandom}
-	require.NoError(t, st.enterRuin(world, defName))
+	require.NoError(t, st.enterDungeon(world, defName))
 
-	// 遺跡1階が現ステージ、オーバーワールドは退避
-	ruinKey := gc.NewRuinStage(defName, 1)
-	assert.Equal(t, ruinKey, d.CurrentStage, "現ステージは遺跡1階")
+	// ダンジョン1階が現ステージ、オーバーワールドは退避
+	dungeonKey := gc.NewNamedDungeonStage(defName, 1)
+	assert.Equal(t, dungeonKey, d.CurrentStage, "現ステージはダンジョン1階")
 	assert.Equal(t, 1, st.Depth)
 	assert.True(t, world.Components.Suspended.Has(band), "オーバーワールド帯は退避される")
-	assert.NotEmpty(t, stage.BoundEntities(world, ruinKey), "遺跡1階が生成されている")
+	assert.NotEmpty(t, stage.BoundEntities(world, dungeonKey), "ダンジョン1階が生成されている")
 
-	// 遺跡の上り階段が入口(オーバーワールド, entrancePos)へ結線されている
+	// ダンジョンの上り階段が入口(オーバーワールド, entrancePos)へ結線されている
 	upStair, _, ok := findPortal(world, gc.InteractionPortalPrev)
-	require.True(t, ok, "遺跡に上り階段がある")
+	require.True(t, ok, "ダンジョンに上り階段がある")
 	require.True(t, world.Components.PortalConnection.Has(upStair), "上り階段は結線を持つ")
 	conn := world.Components.PortalConnection.Get(upStair)
 	assert.Equal(t, gc.NewOverworldStage(), conn.Stage, "上り階段はオーバーワールドへ結線される")

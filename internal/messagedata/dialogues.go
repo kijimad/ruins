@@ -10,7 +10,7 @@ var DialogueTable = map[string]func(speakerName string) *MessageData{
 		// 1ページ目
 		msg1 := NewDialogMessage("", speakerName).
 			AddText("「あんた、").
-			AddKeyword("遺跡").
+			AddKeyword("ダンジョン").
 			AddText("の").
 			AddKeyword("潜り").
 			AddText(`だろ?

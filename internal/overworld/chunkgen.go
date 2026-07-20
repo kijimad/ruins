@@ -37,7 +37,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, plan
 			return fmt.Errorf("チャンク配置失敗 (index=%d): %w", chunkIndex, err)
 		}
 		// 生成したチャンクのフィールドエンティティをオーバーワールドステージへ束縛する。
-		// 共存方式で遺跡へ入るとき帯を退避できるようにする。シフトで生成される新チャンクも
+		// 共存方式でダンジョンへ入るとき帯を退避できるようにする。シフトで生成される新チャンクも
 		// ここで束縛される。Player・SquadMember・既束縛は Bind が自然に除外する
 		stage.Bind(world, gc.NewOverworldStage())
 		// このチャンクの両境界を接合後に再計算して継ぎ目を消す。

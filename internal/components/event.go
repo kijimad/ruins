@@ -15,14 +15,14 @@ type WarpDescend struct{}
 // WarpAscend は上り階段による1つ上の階への移動
 type WarpAscend struct{}
 
-// WarpRuinEnter は遺跡入口からの遺跡進入
-type WarpRuinEnter struct {
-	// DefinitionName は進入する遺跡の定義名
+// WarpDungeonEnter はダンジョン入口からのダンジョン進入
+type WarpDungeonEnter struct {
+	// DefinitionName は進入するダンジョンの定義名
 	DefinitionName string
 }
 
-// WarpRuinExit は遺跡地上からオーバーワールドへの脱出
-type WarpRuinExit struct{}
+// WarpDungeonExit はダンジョン地上からオーバーワールドへの脱出
+type WarpDungeonExit struct{}
 
 // GameClear はゲームクリア
 type GameClear struct{}
@@ -43,8 +43,8 @@ type OpenStorage struct {
 
 func (WarpDescend) isStatePayload()       {}
 func (WarpAscend) isStatePayload()        {}
-func (WarpRuinEnter) isStatePayload()     {}
-func (WarpRuinExit) isStatePayload()      {}
+func (WarpDungeonEnter) isStatePayload()  {}
+func (WarpDungeonExit) isStatePayload()   {}
 func (GameClear) isStatePayload()         {}
 func (OpenDungeonSelect) isStatePayload() {}
 func (ShowDialog) isStatePayload()        {}
@@ -63,13 +63,13 @@ func WarpDescendEvent() StateChangeRequest { return StateChangeRequest{Payload: 
 // WarpAscendEvent は上り階段による移動リクエストを生成する
 func WarpAscendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpAscend{}} }
 
-// WarpRuinEnterEvent は遺跡進入リクエストを生成する
-func WarpRuinEnterEvent(definitionName string) StateChangeRequest {
-	return StateChangeRequest{Payload: WarpRuinEnter{DefinitionName: definitionName}}
+// WarpDungeonEnterEvent はダンジョン進入リクエストを生成する
+func WarpDungeonEnterEvent(definitionName string) StateChangeRequest {
+	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName}}
 }
 
-// WarpRuinExitEvent は遺跡地上からオーバーワールドへの脱出リクエストを生成する
-func WarpRuinExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpRuinExit{}} }
+// WarpDungeonExitEvent はダンジョン地上からオーバーワールドへの脱出リクエストを生成する
+func WarpDungeonExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpDungeonExit{}} }
 
 // GameClearEvent はゲームクリアリクエストを生成する
 func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }

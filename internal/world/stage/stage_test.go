@@ -16,7 +16,7 @@ import (
 var (
 	stageA      = gc.NewDungeonStage(1)
 	stageB      = gc.NewDungeonStage(2)
-	stageAbsent = gc.NewRuinStage("未訪問", 1)
+	stageAbsent = gc.NewNamedDungeonStage("未訪問", 1)
 )
 
 // addStageEntity は指定ステージに束縛されたエンティティを1つ作る
