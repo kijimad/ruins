@@ -97,8 +97,7 @@ jobs:
       - uses: ./.github/actions/setup-go-with-x
       - name: Flaky check
         # race検出付きで繰り返し実行し、データ競合とフレークを検出する。
-        # -race で低速なため COUNT を抑えて実行時間の膨張を防ぐ
-        run: make test-race COUNT=10
+        run: make test RACE=-race COUNT=10
 
   bench-compare:
     # mainとPRでベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
