@@ -36,9 +36,9 @@ func TestActiveFilter_退避中を除外し追加除外も効く(t *testing.T) {
 	assert.NotContains(t, got, suspended, "Suspended は除外される")
 	assert.Contains(t, got, tile, "追加除外なしなら Tile も含まれる")
 
-	// 追加除外 Tile も効く
+	// 追加除外 Tile を Without で重ねても効く
 	var got2 []ecs.Entity
-	q2 := query.ActiveFilter1[gc.GridElement](world, ecs.C[gc.Tile]()).Query()
+	q2 := query.ActiveFilter1[gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for q2.Next() {
 		got2 = append(got2, q2.Entity())
 	}

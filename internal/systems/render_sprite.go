@@ -213,7 +213,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 
 	// タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む
-	objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world, ecs.C[gc.Tile]()).Query()
+	objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objectQuery.Next() {
 		entity := objectQuery.Entity()
 		// 画面外は描画しない
