@@ -28,16 +28,19 @@ description: ruins 固有のレビュー観点チェックリスト。Ark の st
 
 ## 列挙の網羅（散在スイッチ・クエリ）
 
-ある概念が**複数のスイッチ/クエリに散在**し、1種別足すと全箇所に足す必要がある。Go の `exhaustive` linter は default 付き switch を検査しないので、漏れがコンパイルを通ってしまう。手動プレイで初めて発覚しがち。
+ある概念が**複数のスイッチ/クエリに散在**し、1種別足すと全箇所に足す必要がある。1つでも漏れると、発動しない・表示されないといった silent な不具合になり、手動プレイで初めて発覚しがち。
 
-- **新しい `InteractionKind`**: 以下**すべて**に追加する。1つでも漏れると発動しない/表示されない。
-  - `components/interactable.go` の `Config()`（発動方式 SameTile/Manual 等）
-  - `activity/execute_interaction.go`（種別 → イベント発行）
-  - `states/action_handlers.go` の `getInteractionActions`（発動可能アクション一覧。ここが漏れると Enter が無反応）
-  - `activity/player_actions.go` の足元ログ（ここが漏れるとログも出ない）
-  - 追加後、既存種別で照合する: `grep -rn "InteractionPortalNext" internal/ --include="*.go"` の出現箇所と件数に対し、新種別が同じ箇所・同数あることを確認する。
-- **ステージ跨ぎクエリ（Phase 7 共存方式）**: 退避中ステージのエンティティを含みうるクエリは生の `ecs.NewFilterN` でなく `query.ActiveFilter` を使う。`Suspended` 除外を1箇所に集約している。漏れは `grep -rn "ecs.NewFilter" internal/ | grep -iE "GridElement|Door|SoloAI|Interactable"` 等で洗う。座標検索・破壊的操作（一括削除/平行移動）の漏れが特に致命的。
-- 一般手順: 新種別/概念を足したら、**既存の1つを grep して全出現箇所を列挙し、同じ場所すべてに新種別を足したか照合**する。キーワード列挙の grep には盲点があるので、複数の同義キーワードで洗う。
+**機械化を最優先する。** enum を switch する箇所は **default を置かず** exhaustive linter に全 case を強制させる。`.golangci.yml` は `default-signifies-exhaustive: true`（default があれば網羅とみなす）なので、**強制したい switch は default を消す**のが要点。値を返す switch は switch の後に fall-through 用の一文を置く:
+
+- **内部の信頼できる値**を switch する場合は末尾に `panic("未知の X: " + string(k))`。Go 版の never 相当。
+- **raw/save 由来の未信頼な値**を switch する場合は panic 禁止。末尾でゼロ値など graceful なフォールバックを返し、呼び出し側の検証に委ねる。`Config()` はこの型で、末尾 `return InteractionConfig{}`。exhaustive は既知種別の網羅を強制しつつ、未知入力は末尾へ落ちる。
+
+これで新種別の対応漏れが `make lint` で止まる。
+
+- **`InteractionKind` の機能スイッチは exhaustive 強制済み**: `components/interactable.go` の `Config()`（発動方式）と `states/action_handlers.go` の `getInteractionActions`（発動可能アクション。漏れると Enter が無反応）は default を持たない。新種別を足すと lint が漏れを検知する。手動照合は不要。
+- **default を残している相互作用スイッチ**は手動で対応する: `activity/execute_interaction.go`（未処理は実行時 error で loud に落ちる）、`activity/player_actions.go` の足元ログ（cosmetic）。ここは default があるので exhaustive が効かない。新種別を足したら忘れず対応する。
+- **ステージ跨ぎクエリ（Phase 7 共存方式）**: 退避中ステージのエンティティを含みうるクエリは生の `ecs.NewFilterN` でなく `query.ActiveFilter` を使う。`Suspended` 除外を1箇所に集約している。linter 強制は無いので `grep -rn "ecs.NewFilter" internal/ | grep -iE "GridElement|Door|SoloAI|Interactable"` 等で洗う。座標検索・破壊的操作（一括削除/平行移動）の漏れが特に致命的。
+- 一般方針: 新しい enum を足すなら、扱う switch から default を外して exhaustive に強制させるのが最優先。default が必要なら grep で全出現箇所を照合する。
 
 ## 参照
 
