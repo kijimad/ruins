@@ -9,9 +9,6 @@ import (
 // 非公開メソッドで実装先をこのパッケージ内に限定する。
 type StatePayload interface{ isStatePayload() }
 
-// WarpNext は次の階層への移動
-type WarpNext struct{}
-
 // WarpDescend は下り階段による1つ下の階への移動
 type WarpDescend struct{}
 
@@ -44,7 +41,6 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納Propのエンティティ
 }
 
-func (WarpNext) isStatePayload()          {}
 func (WarpDescend) isStatePayload()       {}
 func (WarpAscend) isStatePayload()        {}
 func (WarpRuinEnter) isStatePayload()     {}
@@ -60,9 +56,6 @@ func (OpenStorage) isStatePayload()       {}
 type StateChangeRequest struct {
 	Payload StatePayload
 }
-
-// WarpNextEvent は次の階層への移動リクエストを生成する
-func WarpNextEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpNext{}} }
 
 // WarpDescendEvent は下り階段による移動リクエストを生成する
 func WarpDescendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpDescend{}} }

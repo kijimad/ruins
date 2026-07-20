@@ -16,18 +16,18 @@ func TestRequestStateChange(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		err := RequestStateChange(world, gc.WarpNextEvent())
+		err := RequestStateChange(world, gc.WarpDescendEvent())
 		require.NoError(t, err)
 
 		req := ConsumeStateChange(world)
-		assert.IsType(t, gc.WarpNext{}, req.Payload)
+		assert.IsType(t, gc.WarpDescend{}, req.Payload)
 	})
 
 	t.Run("既にリクエストが設定されている場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		err := RequestStateChange(world, gc.WarpNextEvent())
+		err := RequestStateChange(world, gc.WarpAscendEvent())
 		require.NoError(t, err)
 
 		err = RequestStateChange(world, gc.WarpDescendEvent())

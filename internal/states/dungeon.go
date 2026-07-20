@@ -187,7 +187,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 }
 
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
-// 生成フローの swapTo 化。TransPush で新ステートを積む旧 WarpNext と違い、同一 State 内で入れ替える
+// TransPush で新ステートを積むのでなく、同一 State 内で現階と入れ替えるのが共存方式の要点
 func (st *DungeonState) descend(world w.World) error {
 	nextDepth := st.Depth + 1
 	target := dungeonStageKey(nextDepth)
@@ -642,12 +642,6 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
 			}}, nil
 		}
-	case gc.WarpNext:
-		// 次のフロアへ遷移する
-		nextDepth := query.GetDungeon(world).Depth + 1
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
-		}}, nil
 	case gc.WarpDescend:
 		// 共存方式の下り。同一 State 内で swapTo する。現階は退避され再訪で復元できる
 		if err := st.descend(world); err != nil {

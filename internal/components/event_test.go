@@ -12,7 +12,6 @@ func TestStateChangeRequest_Constructors(t *testing.T) {
 	t.Parallel()
 
 	// 各コンストラクタが正しい種別のペイロードを生成することを確認
-	assert.IsType(t, WarpNext{}, WarpNextEvent().Payload)
 	assert.IsType(t, WarpDescend{}, WarpDescendEvent().Payload)
 	assert.IsType(t, WarpAscend{}, WarpAscendEvent().Payload)
 	assert.IsType(t, WarpRuinExit{}, WarpRuinExitEvent().Payload)
