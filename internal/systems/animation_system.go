@@ -3,7 +3,7 @@ package systems
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/mlange-42/ark/ecs"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 const (
@@ -37,7 +37,7 @@ func (sys *AnimationSystem) Update(world w.World) error {
 
 	sys.animationCounter++
 
-	spriteQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()
+	spriteQuery := query.ActiveFilter1[gc.SpriteRender](world).Query()
 	for spriteQuery.Next() {
 		entity := spriteQuery.Entity()
 		spriteRender := world.Components.SpriteRender.Get(entity)

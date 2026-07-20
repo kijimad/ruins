@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -28,7 +29,7 @@ func (sys VisualEffectSystem) String() string {
 func (sys *VisualEffectSystem) Update(world w.World) error {
 	var entitiesToDelete []ecs.Entity
 
-	collectQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	collectQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
 	for collectQuery.Next() {
 		entity := collectQuery.Entity()
 		entitiesToDelete = append(entitiesToDelete, entity)
@@ -46,7 +47,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	const deltaMs = 1000.0 / 60.0 // 1フレームあたりの時間（60FPS想定）
 	entitiesToDelete = entitiesToDelete[:0]
 
-	updateQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	updateQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
 	for updateQuery.Next() {
 		entity := updateQuery.Entity()
 		ve := world.Components.VisualEffects.Get(entity)
@@ -87,7 +88,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	var err error
-	drawQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	drawQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
 	for drawQuery.Next() {
 		entity := drawQuery.Entity()
 		if err != nil {

@@ -87,7 +87,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 	// HealthStatusとGridElementを持つエンティティを処理。
 	var toMark []ecs.Entity
-	healthQuery := ecs.NewFilter2[gc.HealthStatus, gc.GridElement](world.ECS).Query()
+	healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
 		hs := world.Components.HealthStatus.Get(entity)
@@ -154,7 +154,7 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 // getTileTemperatureAt は指定座標のタイル気温修正値を取得する
 func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	var modifier int
-	tileTempQuery := ecs.NewFilter2[gc.GridElement, gc.TileTemperature](world.ECS).Query()
+	tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileTemperature](world).Query()
 	for tileTempQuery.Next() {
 		entity := tileTempQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
