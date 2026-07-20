@@ -97,7 +97,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 
 	dungeonState := query.GetDungeon(world)
 	dungeonState.Depth = 3
-	dungeonState.DefinitionName = "ダンジョン"
+	dungeonState.DefinitionName = "遺跡"
 
 	require.NoError(t, manager.SaveWorld(world, "location"))
 
@@ -107,7 +107,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	restored := query.GetDungeon(newWorld)
 	require.NotNil(t, restored)
 	assert.Equal(t, 3, restored.Depth, "階層が復元される")
-	assert.Equal(t, "ダンジョン", restored.DefinitionName, "ダンジョン定義名が復元される")
+	assert.Equal(t, "遺跡", restored.DefinitionName, "ダンジョン定義名が復元される")
 
 	// 視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
 	// nilのままだと視界処理で書き込み時にpanicするため非nilであること

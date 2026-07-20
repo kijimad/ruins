@@ -18,7 +18,7 @@ func TestStateChangeRequest_Constructors(t *testing.T) {
 	assert.IsType(t, GameClear{}, GameClearEvent().Payload)
 	assert.IsType(t, OpenDungeonSelect{}, OpenDungeonSelectEvent().Payload)
 
-	// ダンジョン進入はダンジョン定義名を運ぶ
+	// 遺跡進入は遺跡定義名を運ぶ
 	ruinEnter := WarpDungeonEnterEvent("ancient_ruin")
 	require.IsType(t, WarpDungeonEnter{}, ruinEnter.Payload)
 	ruinEnterPayload, ok := ruinEnter.Payload.(WarpDungeonEnter)

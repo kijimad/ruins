@@ -128,7 +128,7 @@ func TestSaveLoadInPlace(t *testing.T) {
 	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
 	// GameProgressにデータを設定
-	query.GetGameProgress(world).MarkDungeonCleared("ダンジョン")
+	query.GetGameProgress(world).MarkDungeonCleared("遺跡")
 
 	sm, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
@@ -142,7 +142,7 @@ func TestSaveLoadInPlace(t *testing.T) {
 	// シングルトンのGameProgressがパニックせずアクセスできることを確認
 	gp := query.GetGameProgress(world)
 	require.NotNil(t, gp, "GameProgressがnilであってはならない")
-	assert.True(t, gp.IsDungeonCleared("ダンジョン"))
+	assert.True(t, gp.IsDungeonCleared("遺跡"))
 
 	// Dungeonは丸ごと保存で復元されるのでnilにならない
 	d := query.GetDungeon(world)
@@ -163,7 +163,7 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
 
 		// ダンジョンクリアフラグを設定
-		query.GetGameProgress(world).MarkDungeonCleared("ダンジョン")
+		query.GetGameProgress(world).MarkDungeonCleared("遺跡")
 		query.GetGameProgress(world).MarkDungeonCleared("洞窟")
 
 		// JSON生成→復元のラウンドトリップ
@@ -176,7 +176,7 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		require.NoError(t, err)
 
 		// 復元後のGameProgressを検証
-		assert.True(t, query.GetGameProgress(newWorld).IsDungeonCleared("ダンジョン"))
+		assert.True(t, query.GetGameProgress(newWorld).IsDungeonCleared("遺跡"))
 		assert.True(t, query.GetGameProgress(newWorld).IsDungeonCleared("洞窟"))
 		assert.False(t, query.GetGameProgress(newWorld).IsDungeonCleared("森林"))
 	})

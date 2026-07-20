@@ -73,7 +73,7 @@ func (st *DungeonState) onStartOverworld(world w.World) error {
 	d := query.GetDungeon(world)
 
 	// 現ステージをオーバーワールドに確定する。共存機構が現在地を識別するのに使う。
-	// ダンジョンが未実装の間は Suspended が付かないので ActiveFilter は全件を返し挙動は変わらない
+	// 遺跡が未実装の間は Suspended が付かないので ActiveFilter は全件を返し挙動は変わらない
 	d.CurrentStage = gc.NewOverworldStage()
 
 	// 視界の強制再計算を促す。VisionSystem は world.Updaters に居座る永続インスタンスで、
@@ -173,10 +173,10 @@ func (st *DungeonState) startNewBand(world w.World, sb *gc.SeamlessBand) error {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}
 
-	// 開始チャンクにダンジョン入口を1つ置く。プレイヤーの数タイル東、歩いて到達できる位置。
-	// 触れて Enter でダンジョンへ入れる。未束縛だが swapTo の Bind が進入時にオーバーワールドへ回収する
+	// 開始チャンクに遺跡入口を1つ置く。プレイヤーの数タイル東、歩いて到達できる位置。
+	// 触れて Enter で遺跡へ入れる。未束縛だが swapTo の Bind が進入時にオーバーワールドへ回収する
 	if _, err := lifecycle.SpawnDungeonEntrance(world, cx+2, cy, dungeon.DungeonForest.Name); err != nil {
-		return fmt.Errorf("ダンジョン入口の配置に失敗: %w", err)
+		return fmt.Errorf("遺跡入口の配置に失敗: %w", err)
 	}
 
 	query.InvalidateSpatialIndex(world)
@@ -207,8 +207,8 @@ func (st *DungeonState) generateBandChunks(world w.World, chunkW, chunkH consts.
 // ここで帯を退避/再生成すると、オーバーレイ進入で帯タイルが消えて画面が黒くなり、
 // 復帰時の MovePlayerToPosition が隊員を再配置してしまう。
 //
-// 将来オーバーワールドにポータルを足してダンジョンへ入れるようにする場合、帯の退避は汎用フックの
-// OnPause ではなく「ダンジョン進入」専用の経路で行う。汎用フックはオーバーレイと区別できないため。
+// 将来オーバーワールドにポータルを足して遺跡へ入れるようにする場合、帯の退避は汎用フックの
+// OnPause ではなく「遺跡進入」専用の経路で行う。汎用フックはオーバーレイと区別できないため。
 
 // updateFront は総ターン数から導出した寒波前線の現在位置を永続状態へ反映する。
 // 位置は導出値なので毎フレーム書いても冪等。描画や凍結効果はこの FrontEastAbsX を読む。

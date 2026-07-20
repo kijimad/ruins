@@ -15,13 +15,13 @@ type WarpDescend struct{}
 // WarpAscend は上り階段による1つ上の階への移動
 type WarpAscend struct{}
 
-// WarpDungeonEnter はダンジョン入口からのダンジョン進入
+// WarpDungeonEnter は遺跡入口からの遺跡進入
 type WarpDungeonEnter struct {
-	// DefinitionName は進入するダンジョンの定義名
+	// DefinitionName は進入する遺跡の定義名
 	DefinitionName string
 }
 
-// WarpDungeonExit はダンジョン地上からオーバーワールドへの脱出
+// WarpDungeonExit は遺跡地上からオーバーワールドへの脱出
 type WarpDungeonExit struct{}
 
 // GameClear はゲームクリア
@@ -63,12 +63,12 @@ func WarpDescendEvent() StateChangeRequest { return StateChangeRequest{Payload: 
 // WarpAscendEvent は上り階段による移動リクエストを生成する
 func WarpAscendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpAscend{}} }
 
-// WarpDungeonEnterEvent はダンジョン進入リクエストを生成する
+// WarpDungeonEnterEvent は遺跡進入リクエストを生成する
 func WarpDungeonEnterEvent(definitionName string) StateChangeRequest {
 	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName}}
 }
 
-// WarpDungeonExitEvent はダンジョン地上からオーバーワールドへの脱出リクエストを生成する
+// WarpDungeonExitEvent は遺跡地上からオーバーワールドへの脱出リクエストを生成する
 func WarpDungeonExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpDungeonExit{}} }
 
 // GameClearEvent はゲームクリアリクエストを生成する

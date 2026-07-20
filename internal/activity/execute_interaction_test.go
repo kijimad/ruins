@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestExecuteInteraction_DungeonEnter_進入先のダンジョン名を要求に載せる は、ダンジョン入口の相互作用が
-// 入口プロップの DungeonEntrance から進入先のダンジョン名を読み、WarpDungeonEnter 要求へ載せることを確認する。
+// TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せる は、遺跡入口の相互作用が
+// 入口プロップの DungeonEntrance から進入先の遺跡名を読み、WarpDungeonEnter 要求へ載せることを確認する。
 // 入口ごとに進入先が違うため、名前を要求に載せて運ぶ。
-func TestExecuteInteraction_DungeonEnter_進入先のダンジョン名を要求に載せる(t *testing.T) {
+func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -32,7 +32,7 @@ func TestExecuteInteraction_DungeonEnter_進入先のダンジョン名を要求
 	require.NotNil(t, req, "状態変更要求が積まれる")
 	payload, ok := req.Payload.(gc.WarpDungeonEnter)
 	require.True(t, ok, "WarpDungeonEnter が要求される")
-	assert.Equal(t, "森", payload.DefinitionName, "進入先のダンジョン名が要求に載る")
+	assert.Equal(t, "森", payload.DefinitionName, "進入先の遺跡名が要求に載る")
 }
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。

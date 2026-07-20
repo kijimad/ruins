@@ -67,17 +67,17 @@ func executeDungeonGate(world w.World) (*ActionResult, error) {
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "ダンジョンゲート発動"}, nil
 }
 
-// executeDungeonEnter はダンジョン入口の進入先を入口プロップの DungeonEntrance から読み、ダンジョン進入を要求する。
+// executeDungeonEnter は遺跡入口の進入先を入口プロップの DungeonEntrance から読み、遺跡進入を要求する。
 // 入口ごとに進入先が違うため、イベントに定義名を載せて運ぶ。
 func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.DungeonEntrance.Has(target) {
-		return nil, fmt.Errorf("ダンジョン入口に進入先のダンジョン定義がありません")
+		return nil, fmt.Errorf("遺跡入口に進入先の遺跡定義がありません")
 	}
 	defName := world.Components.DungeonEntrance.Get(target).DefinitionName
 	if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(defName)); err != nil {
-		return nil, fmt.Errorf("ダンジョン進入状態変更要求エラー: %w", err)
+		return nil, fmt.Errorf("遺跡進入状態変更要求エラー: %w", err)
 	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "ダンジョン進入"}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "遺跡進入"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

@@ -21,7 +21,7 @@ const (
 type StageKey struct {
 	// Kind はステージの種類を表す
 	Kind StageKind
-	// Name はダンジョン定義名を保持する。オーバーワールドから入るダンジョンは進入先を区別
+	// Name は遺跡定義名を保持する。オーバーワールドから入る遺跡は進入先を区別
 	// するため設定する。1回の潜行スコープの通常ダンジョンでは空でよい
 	Name string
 	// Depth は階の深度を表す。オーバーワールドは 0 とする
@@ -36,8 +36,8 @@ func NewDungeonStage(depth int) StageKey {
 	return StageKey{Kind: StageKindDungeon, Depth: depth}
 }
 
-// NewNamedDungeonStage はダンジョン定義 name・深度 depth のダンジョン階のステージキーを返す。
-// オーバーワールドから入るダンジョンは、複数の入口を区別するため定義名を持たせる。
+// NewNamedDungeonStage は遺跡定義 name・深度 depth の遺跡階のステージキーを返す。
+// オーバーワールドから入る遺跡は、複数の入口を区別するため定義名を持たせる。
 func NewNamedDungeonStage(name string, depth int) StageKey {
 	return StageKey{Kind: StageKindDungeon, Name: name, Depth: depth}
 }
@@ -54,13 +54,13 @@ func (k StageKey) Validate() error {
 	}
 	switch k.Kind {
 	case StageKindOverworld:
-		// オーバーワールドは深度も定義名も持たない
+		// オーバーワールドは深度も遺跡名も持たない
 		if k.Name != "" || k.Depth != 0 {
 			return fmt.Errorf("オーバーワールドステージに余分な値がある: Name=%q Depth=%d", k.Name, k.Depth)
 		}
 		return nil
 	case StageKindDungeon:
-		// ダンジョンは1階以上の深度を持つ。定義名は任意で、オーバーワールドから入るときだけ設定する
+		// ダンジョンは1階以上の深度を持つ。遺跡名は任意で、オーバーワールドから入るときだけ設定する
 		if k.Depth < 1 {
 			return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)
 		}
@@ -82,7 +82,7 @@ type StageBound struct {
 }
 
 // PortalConnection はポータルの行き先を保持する。触れると Stage へ swapTo し Coord へ配置する。
-// 生成時に往復の両端を相互結線する。findPortalPosition の探索を置き換え、複数入口でも
+// 生成時に往復の両端を相互結線する。findPortalPosition の探索を置き換え、遺跡の複数入口でも
 // どのポータルがどこへ繋がるかが曖昧にならない。Stage・Coord とも比較可能で serde 対象。
 type PortalConnection struct {
 	// Stage は行き先ステージ
@@ -91,10 +91,10 @@ type PortalConnection struct {
 	Coord consts.Coord[consts.Tile]
 }
 
-// DungeonEntrance はダンジョン入口プロップが、どのダンジョン定義へ入るかを保持する。
+// DungeonEntrance は遺跡入口プロップが、どの遺跡定義へ入るかを保持する。
 // 相互作用 InteractionDungeonEnter の発動時に DefinitionName を読んで進入先を決める。
 type DungeonEntrance struct {
-	// DefinitionName は進入するダンジョンの定義名
+	// DefinitionName は進入する遺跡の定義名
 	DefinitionName string
 }
 

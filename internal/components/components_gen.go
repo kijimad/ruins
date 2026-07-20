@@ -44,7 +44,7 @@ type EntitySpec struct {
 	TileTemperature    *TileTemperature    // タイルの気温修正値を保持する
 	StageBound         *StageBound         // 束縛先ステージを保持する。往復するステージの同定に使う
 	PortalConnection   *PortalConnection   // ポータルの行き先ステージと着地座標を保持する
-	DungeonEntrance    *DungeonEntrance    // ダンジョン入口が進入先のダンジョン定義名を保持する
+	DungeonEntrance    *DungeonEntrance    // 遺跡入口が進入先の遺跡定義名を保持する
 	Suspended          *Suspended          // 現ステージ以外に属し稼働しないことを示すマーカー
 	Player             *Player             // 操作対象の主人公であることを示す
 	Profession         *Profession         // 選択した職業を保持する
@@ -119,7 +119,7 @@ type Components struct {
 	TileTemperature    *ecs.Map[TileTemperature]    // タイルの気温修正値を保持する
 	StageBound         *ecs.Map[StageBound]         // 束縛先ステージを保持する。往復するステージの同定に使う
 	PortalConnection   *ecs.Map[PortalConnection]   // ポータルの行き先ステージと着地座標を保持する
-	DungeonEntrance    *ecs.Map[DungeonEntrance]    // ダンジョン入口が進入先のダンジョン定義名を保持する
+	DungeonEntrance    *ecs.Map[DungeonEntrance]    // 遺跡入口が進入先の遺跡定義名を保持する
 	Suspended          *ecs.Map[Suspended]          // 現ステージ以外に属し稼働しないことを示すマーカー
 	Player             *ecs.Map[Player]             // 操作対象の主人公であることを示す
 	Profession         *ecs.Map[Profession]         // 選択した職業を保持する

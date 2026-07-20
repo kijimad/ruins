@@ -410,7 +410,7 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 func TestNewDungeonState_WithResume(t *testing.T) {
 	t.Parallel()
 
-	factory := NewDungeonState(3, WithDefinitionName("ダンジョン"), WithResume())
+	factory := NewDungeonState(3, WithDefinitionName("遺跡"), WithResume())
 	state, err := factory()
 	require.NoError(t, err)
 
@@ -418,7 +418,7 @@ func TestNewDungeonState_WithResume(t *testing.T) {
 	require.True(t, ok, "DungeonStateが生成される")
 	assert.True(t, ds.Resume, "WithResumeでResumeフラグが立つ")
 	assert.Equal(t, 3, ds.Depth, "階層が設定される")
-	assert.Equal(t, "ダンジョン", ds.DefinitionName, "ダンジョン定義名が設定される")
+	assert.Equal(t, "遺跡", ds.DefinitionName, "ダンジョン定義名が設定される")
 }
 
 // TestNewDungeonState_DefaultNotResume は通常生成では復帰モードにならないことを検証する。

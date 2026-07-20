@@ -63,7 +63,7 @@ func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *test
 	overworldKey := gc.NewOverworldStage()
 
 	// 生成したチャンクのフィールドエンティティは全てオーバーワールドへ束縛される。
-	// これが無いとダンジョンへ入るとき帯を退避できない
+	// これが無いと遺跡へ入るとき帯を退避できない
 	boundCount := 0
 	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for q.Next() {

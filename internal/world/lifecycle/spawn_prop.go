@@ -141,12 +141,12 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
-// SpawnDungeonEntrance はダンジョン入口プロップを生成する。触れて Enter で definitionName のダンジョンへ入る。
+// SpawnDungeonEntrance は遺跡入口プロップを生成する。触れて Enter で definitionName の遺跡へ入る。
 // オーバーワールドはコードで入口を配置するため、raw でなく EntitySpec を直接組む。
 func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitionName string) (ecs.Entity, error) {
 	entitySpec := gc.EntitySpec{
-		Name:        &gc.Name{Name: "ダンジョン入口"},
-		Description: &gc.Description{Description: "ダンジョンへ通じる入口"},
+		Name:        &gc.Name{Name: "遺跡入口"},
+		Description: &gc.Description{Description: "遺跡へ通じる入口"},
 		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",

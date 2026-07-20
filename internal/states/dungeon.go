@@ -294,7 +294,7 @@ func setPortalConnection(world w.World, portal ecs.Entity, target gc.StageKey, c
 // ascend は現階の上り階段の結線した戻り先へ swapTo で移動する。上り先は訪問済み前提で再稼働する。
 // 戻り先ステージと着地座標は生成時に上り階段へ結線済みなので、探索でなく結線から引く。
 // 上り階段の結線があれば移動して true を返す。結線が無い、たとえば最上階の脱出口なら false を
-// 返し、街やオーバーワールドへの脱出は呼び出し側が扱う。上り先が浅い階でもダンジョン→地上でも同一機構。
+// 返し、街やオーバーワールドへの脱出は呼び出し側が扱う。上り先が浅い階でも遺跡→地上でも同一機構。
 func (st *DungeonState) ascend(world w.World) (bool, error) {
 	// 現階の上り階段。生成時に戻り先が結線されている
 	upStair, _, ok := findPortal(world, gc.InteractionPortalPrev)
@@ -326,8 +326,8 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	return true, nil
 }
 
-// enterDungeon はオーバーワールドからダンジョンへ入る。現在地(入口座標)を上り階段へ結線して戻れるようにする。
-// descend のダンジョン版で、行き先が1つ深い階でなくダンジョン1階になる。
+// enterDungeon はオーバーワールドから遺跡へ入る。現在地(入口座標)を上り階段へ結線して戻れるようにする。
+// descend の遺跡版で、行き先が1つ深い階でなく遺跡1階になる。
 func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 	fromStage := query.GetDungeon(world).CurrentStage
 	player, err := query.GetPlayerEntity(world)
@@ -344,13 +344,13 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
 		def, found := dungeon.GetDungeon(defName)
 		if !found {
-			return fmt.Errorf("ダンジョン定義が見つかりません: %s", defName)
+			return fmt.Errorf("遺跡定義が見つかりません: %s", defName)
 		}
 		start, upStair, serr := st.spawnFloor(world, 1, def, key)
 		if serr != nil {
 			return serr
 		}
-		// ダンジョンの上り階段(=出口)に、入ってきたオーバーワールドの入口座標を結線する。
+		// 遺跡の上り階段(=出口)に、入ってきたオーバーワールドの入口座標を結線する。
 		// これで exit は入った入口へ正確に戻れる。入口が複数でも曖昧にならない
 		if cerr := setPortalConnection(world, upStair, fromStage, fromPos); cerr != nil {
 			return cerr
@@ -370,7 +370,7 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 	if generated {
 		return lifecycle.MovePlayerToPosition(world, landing)
 	}
-	// 再訪。ダンジョンの上り階段(入口)へ戻す
+	// 再訪。遺跡の上り階段(入口)へ戻す
 	if pos, ok := findPortalPosition(world, gc.InteractionPortalPrev); ok {
 		return lifecycle.MovePlayerToPosition(world, pos)
 	}
@@ -464,7 +464,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// BaseStateの共通処理を使用
 	transition = st.ConsumeTransition()
 	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。構築時フラグでなく
-	// 現ステージ種別で判定するのは、ダンジョンへ入ると同一 State 内で現ステージがダンジョンへ変わり、
+	// 現ステージ種別で判定するのは、遺跡へ入ると同一 State 内で現ステージが遺跡へ変わり、
 	// そのあいだ帯を触ってはならないため。死亡やリクエスト遷移で早期 return したフレームも触らない
 	if query.GetDungeon(world).CurrentStage.Kind == gc.StageKindOverworld && transition.Type == es.TransNone {
 		st.updateFront(world)
@@ -766,7 +766,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpAscend:
-		// 上り階段に結線があればそこへ移動する。浅い階でもダンジョン→地上でも同一機構。
+		// 上り階段に結線があればそこへ移動する。浅い階でも遺跡→地上でも同一機構。
 		// 結線が無い＝最上階の脱出口なら handled=false。持ち帰り品はそのまま街へ帰還する
 		handled, err := st.ascend(world)
 		if err != nil {
@@ -779,7 +779,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			NewFadeoutAnimationState(NewTownState()),
 		}}, nil
 	case gc.WarpDungeonEnter:
-		// オーバーワールドからダンジョンへ入る。同一 State 内 swapTo で帯を退避しダンジョンへ切り替える
+		// オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える
 		if err := st.enterDungeon(world, p.DefinitionName); err != nil {
 			return es.Transition[w.World]{}, err
 		}

@@ -37,7 +37,7 @@ const (
 	InteractionPortalPrev InteractionKind = "PORTAL_PREV"
 	// InteractionDungeonGate はダンジョン選択門の相互作用（発動でダンジョン選択メニューを開く）
 	InteractionDungeonGate InteractionKind = "DUNGEON_GATE"
-	// InteractionDungeonEnter はダンジョン入口の相互作用（発動でオーバーワールドからダンジョンへ入る）
+	// InteractionDungeonEnter は遺跡入口の相互作用（発動でオーバーワールドから遺跡へ入る）
 	InteractionDungeonEnter InteractionKind = "DUNGEON_ENTER"
 	// InteractionDoor は扉の相互作用
 	InteractionDoor InteractionKind = "DOOR"

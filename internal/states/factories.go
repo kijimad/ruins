@@ -609,7 +609,7 @@ func NewGameOverMessageState() (es.State[w.World], error) {
 func NewAllClearEventState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
-	messageData := messagedata.NewSystemMessage("すべてのダンジョンを踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
+	messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
@@ -901,10 +901,10 @@ func NewOpeningState() (es.State[w.World], error) {
 	page1a := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
 	page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
 
-	// 2. 穴背景: 空ページ（背景だけ見せる）→ ダンジョンの説明
+	// 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
 	blank := &messagedata.MessageData{Speaker: "", BackgroundKey: "hole1"}
 	page1b := &messagedata.MessageData{Speaker: ""}
-	page1b.AddText("穴の底には古代文明のダンジョンがある。\n").
+	page1b.AddText("穴の底には古代文明の遺跡がある。\n").
 		AddText("宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n").
 		AddText("穴のまわりには潜る者、売る者、買う者で街ができた。")
 

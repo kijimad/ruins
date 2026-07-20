@@ -49,7 +49,7 @@ func exists(world w.World, key gc.StageKey) bool {
 }
 
 // Purge は指定ステージのエンティティを world から完全に除去する。
-// 特定ステージだけの破棄に使う。ダンジョンからオーバーワールドへ戻る際など、
+// 特定ステージだけの破棄に使う。遺跡からオーバーワールドへ戻る際など、
 // 一部ステージだけを捨て、残りを共存させたまま離脱するときに呼ぶ
 func Purge(world w.World, key gc.StageKey) {
 	for _, e := range BoundEntities(world, key) {
