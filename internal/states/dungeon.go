@@ -24,6 +24,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/kijimaD/ruins/internal/world/stage"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -89,7 +90,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 			return err
 		}
 		// フロア移動時に探索済みマップをリセットし、現ステージを確定する
-		resetExploredTiles(world)
+		stage.ResetExploredTiles(world)
 		query.GetDungeon(world).CurrentStage = key
 	}
 
@@ -180,8 +181,8 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 		}
 	}
 
-	// 生成物(上り階段を含む)をこのステージの一員として識別できるようにする
-	bindToStage(world, key)
+	// 生成物(上り階段を含む)をこのステージへ束縛して識別できるようにする
+	stage.Bind(world, key)
 
 	return start, nil
 }
@@ -196,7 +197,7 @@ func (st *DungeonState) descend(world w.World) error {
 	// def 参照も生成時だけに閉じ、訪問済みの再稼働では不要にする
 	var playerPos consts.Coord[consts.Tile]
 	var generated bool
-	if err := swapTo(world, target, func(world w.World, key gc.StageKey) error {
+	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
 		def, found := dungeon.GetDungeon(query.GetDungeon(world).DefinitionName)
 		if !found {
 			return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
@@ -252,7 +253,7 @@ func (st *DungeonState) ascend(world w.World) error {
 	target := dungeonStageKey(prevDepth)
 
 	// 上り先は訪問済み前提。未訪問なら生成でなくエラーにする
-	if err := swapTo(world, target, func(_ w.World, _ gc.StageKey) error {
+	if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error {
 		return fmt.Errorf("上り先の階が存在しません: 深度%d", prevDepth)
 	}); err != nil {
 		return err

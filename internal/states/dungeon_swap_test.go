@@ -13,10 +13,19 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/kijimaD/ruins/internal/world/stage"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// addStageEntity は指定ステージに束縛されたエンティティを1つ作る
+func addStageEntity(t *testing.T, world w.World, key gc.StageKey) ecs.Entity {
+	t.Helper()
+	e := world.ECS.NewEntity()
+	world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
+	return e
+}
 
 // hasPortalPrev は world に上り階段プロップが存在するかを返す
 func hasPortalPrev(world w.World) bool {
@@ -52,7 +61,7 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	require.NoError(t, lifecycle.MovePlayerToPosition(world, pos1))
 	d.CurrentStage = key1
 
-	floor1 := boundEntities(world, key1)
+	floor1 := stage.BoundEntities(world, key1)
 	require.NotEmpty(t, floor1, "floor1 が生成されている")
 	assert.True(t, hasPortalPrev(world), "floor1 にも上り階段(ダンジョン脱出口)がある")
 
@@ -61,18 +70,18 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	require.Equal(t, dungeonStageKey(2), d.CurrentStage)
 
 	// floor1 の現物が残り、すべて退避されている
-	assert.Len(t, boundEntities(world, key1), len(floor1), "floor1 の現物が残る")
-	for _, e := range boundEntities(world, key1) {
+	assert.Len(t, stage.BoundEntities(world, key1), len(floor1), "floor1 の現物が残る")
+	for _, e := range stage.BoundEntities(world, key1) {
 		assert.True(t, world.Components.Suspended.Has(e), "floor1 は退避されている")
 	}
-	require.NotEmpty(t, boundEntities(world, dungeonStageKey(2)), "floor2 が生成されている")
+	require.NotEmpty(t, stage.BoundEntities(world, dungeonStageKey(2)), "floor2 が生成されている")
 	assert.True(t, hasPortalPrev(world), "floor2 に上り階段がある")
 
 	require.NoError(t, st.ascend(world))
 	require.Equal(t, 1, st.Depth)
 	require.Equal(t, key1, d.CurrentStage)
-	assert.Len(t, boundEntities(world, key1), len(floor1), "上って戻っても floor1 は同じ現物")
-	for _, e := range boundEntities(world, key1) {
+	assert.Len(t, stage.BoundEntities(world, key1), len(floor1), "上って戻っても floor1 は同じ現物")
+	for _, e := range stage.BoundEntities(world, key1) {
 		assert.False(t, world.Components.Suspended.Has(e), "floor1 は再稼働されている")
 	}
 }
