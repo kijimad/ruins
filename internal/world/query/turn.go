@@ -63,7 +63,8 @@ func RestoreAllActionPoints(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
 	var err error
 
-	turnBasedQuery := ecs.NewFilter1[gc.TurnBased](world.ECS).Query()
+	// 退避中ステージの敵はAP回復しない。現ステージのみ対象にする
+	turnBasedQuery := ActiveFilter1[gc.TurnBased](world).Query()
 	for turnBasedQuery.Next() {
 		entity := turnBasedQuery.Entity()
 		tb := world.Components.TurnBased.Get(entity)

@@ -26,7 +26,8 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 
 	var enemies []ecs.Entity
 
-	enemiesQuery := ecs.NewFilter2[gc.GridElement, gc.FactionEnemy](world.ECS).Query()
+	// 座標が重なる退避中ステージの敵を可視判定に混ぜない。現ステージのみ対象にする
+	enemiesQuery := ActiveFilter2[gc.GridElement, gc.FactionEnemy](world).Query()
 	for enemiesQuery.Next() {
 		entity := enemiesQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
@@ -74,7 +75,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 
 	var items []ecs.Entity
 
-	itemsQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()
+	itemsQuery := ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Query()
 	for itemsQuery.Next() {
 		entity := itemsQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)

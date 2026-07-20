@@ -16,7 +16,8 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 	var nearestGrid *gc.GridElement
 	nearestDist := -1
 
-	nearestQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	// 座標が重なる退避中ステージのエンティティを最近傍探索に混ぜない
+	nearestQuery := ActiveFilter1[gc.GridElement](world).Query()
 	for nearestQuery.Next() {
 		entity := nearestQuery.Entity()
 		if entity == self {

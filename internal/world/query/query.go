@@ -72,7 +72,8 @@ func IsInActivationRange(playerGrid, triggerGrid *gc.GridElement, activationRang
 // GetEntitiesAt は指定座標にあるすべてのエンティティを返す
 func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
 	var entities []ecs.Entity
-	entitiesQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	// 座標が重なる退避中ステージのエンティティを座標検索に混ぜない
+	entitiesQuery := ActiveFilter1[gc.GridElement](world).Query()
 	for entitiesQuery.Next() {
 		entity := entitiesQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
