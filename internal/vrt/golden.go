@@ -159,8 +159,27 @@ func newGoldie(t *testing.T, opts ...goldie.Option) *goldie.Goldie {
 	return goldie.New(t, all...)
 }
 
+// channelTolerance16 は1チャンネルあたり許容する差分。RGBA() が返す16bit値(0..65535)で表す。
+// 0x101 は color の RGBA() が8bit階調を16bit空間へ拡張する係数(v*0x101)。8bitで16階調ぶん許容する。
+// フォントのアンチエイリアスはグリフ境界で数階調ゆれるが、これを差分として数えない。文字や色の
+// 実変化はアルファが 0↔全開など全階調規模で動くので取りこぼさない。差分の「数」だけでなく
+// 「大きさ」も見る二段トレランスになり、AAノイズ由来のフレークを防ぐ。
+//
+// 限界: 広域に及ぶ中振幅の変化、たとえば背景色の微変更は、各画素が許容振幅内に収まると見逃す。
+// メニュー系の現状の用途では実害ないが、複雑な画面へ転用するときはこの盲点に注意する。
+const channelTolerance16 = 16 * 0x101
+
+// absDiffU32 は2値の差の絶対値を返す
+func absDiffU32(a, b uint32) uint32 {
+	if a > b {
+		return a - b
+	}
+	return b - a
+}
+
 // pngPixelEqualFn は2つのPNGバイト列をピクセル単位で比較する。
-// toleranceRatio で許容する差分ピクセル比率を指定する
+// toleranceRatio で許容する差分ピクセル比率を、channelTolerance16 で1画素内の許容振幅を指定する。
+// どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする
 func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {
 	return func(actual, expected []byte) bool {
 		actualImg, err := png.Decode(bytes.NewReader(actual))
@@ -185,7 +204,10 @@ func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {
 			for x := eb.Min.X; x < eb.Max.X; x++ {
 				er, eg, ebl, ea := expectedImg.At(x, y).RGBA()
 				ar, ag, abl, aa := actualImg.At(x, y).RGBA()
-				if er != ar || eg != ag || ebl != abl || ea != aa {
+				if absDiffU32(er, ar) > channelTolerance16 ||
+					absDiffU32(eg, ag) > channelTolerance16 ||
+					absDiffU32(ebl, abl) > channelTolerance16 ||
+					absDiffU32(ea, aa) > channelTolerance16 {
 					diffCount++
 					if diffCount > maxAllowed {
 						return false
