@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 00:51:23</td>
+            <td class="headerValue">2026-07-20 01:07:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -175,12 +175,12 @@
 <span id="L113"><span class="lineNum">     113</span>              : }</span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
 <span id="L115"><span class="lineNum">     115</span>              : // SkillName はスキルIDの表示名を返す。未定義ならpanicする</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         443 : func SkillName(id SkillID) string {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         443 :         name, ok := skillName[id]</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">         444 :         if !ok {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         442 : func SkillName(id SkillID) string {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         442 :         name, ok := skillName[id]</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">         443 :         if !ok {</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義のスキルID: %q&quot;, id))</span></span>
 <span id="L120"><span class="lineNum">     120</span>              :         }</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">         442 :         return name</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">         441 :         return name</span></span>
 <span id="L122"><span class="lineNum">     122</span>              : }</span>
 <span id="L123"><span class="lineNum">     123</span>              : </span>
 <span id="L124"><span class="lineNum">     124</span>              : // HasSkillName はスキルIDの表示名が定義されているかを返す。ロード時のバリデーション用</span>
@@ -279,12 +279,12 @@
 <span id="L217"><span class="lineNum">     217</span>              : }</span>
 <span id="L218"><span class="lineNum">     218</span>              : </span>
 <span id="L219"><span class="lineNum">     219</span>              : // Get は指定されたスキルIDのSkillを返す。未定義ならpanicする</span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">         460 : func (s *Skills) Get(id SkillID) *Skill {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">         460 :         sk, ok := s.Data[id]</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">         461 :         if !ok {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">         458 : func (s *Skills) Get(id SkillID) *Skill {</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">         458 :         sk, ok := s.Data[id]</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">         459 :         if !ok {</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義のスキルID: %q&quot;, id))</span></span>
 <span id="L224"><span class="lineNum">     224</span>              :         }</span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">         459 :         return sk</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">         457 :         return sk</span></span>
 <span id="L226"><span class="lineNum">     226</span>              : }</span>
 <span id="L227"><span class="lineNum">     227</span>              : </span>
 <span id="L228"><span class="lineNum">     228</span>              : // LevelUpExp はスキルアップに必要な経験値</span>

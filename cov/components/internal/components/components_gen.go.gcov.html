@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 00:51:23</td>
+            <td class="headerValue">2026-07-20 01:07:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -210,75 +210,75 @@
 <span id="L148"><span class="lineNum">     148</span>              : </span>
 <span id="L149"><span class="lineNum">     149</span>              : // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、</span>
 <span id="L150"><span class="lineNum">     150</span>              : // 各フィールドに型付き Map ハンドルを割り当てる。</span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">          98 : func (c *Components) InitializeComponents(world *ecs.World) error {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">          98 :         c.Name = ecs.NewMap[Name](world)</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">          98 :         c.Description = ecs.NewMap[Description](world)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">          98 :         c.HP = ecs.NewMap[HP](world)</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">          98 :         c.Consumable = ecs.NewMap[Consumable](world)</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">          98 :         c.WeightCapacity = ecs.NewMap[WeightCapacity](world)</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">          98 :         c.Melee = ecs.NewMap[Melee](world)</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">          98 :         c.Fire = ecs.NewMap[Fire](world)</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">          98 :         c.Value = ecs.NewMap[Value](world)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">          98 :         c.Weight = ecs.NewMap[Weight](world)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">          98 :         c.Recipe = ecs.NewMap[Recipe](world)</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">          98 :         c.Wearable = ecs.NewMap[Wearable](world)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">          98 :         c.Abilities = ecs.NewMap[Abilities](world)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">          98 :         c.Ammo = ecs.NewMap[Ammo](world)</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">          98 :         c.Stackable = ecs.NewMap[Stackable](world)</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">          98 :         c.Material = ecs.NewMap[Material](world)</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          98 :         c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">          98 :         c.LocationEquipped = ecs.NewMap[LocationEquipped](world)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">          98 :         c.LocationOnField = ecs.NewMap[LocationOnField](world)</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">          98 :         c.LocationInStorage = ecs.NewMap[LocationInStorage](world)</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">          98 :         c.Tile = ecs.NewMap[Tile](world)</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">          98 :         c.SoloAI = ecs.NewMap[SoloAI](world)</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">          98 :         c.SquadAI = ecs.NewMap[SquadAI](world)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          98 :         c.Camera = ecs.NewMap[Camera](world)</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">          98 :         c.Position = ecs.NewMap[Position](world)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">          98 :         c.GridElement = ecs.NewMap[GridElement](world)</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">          98 :         c.SpriteRender = ecs.NewMap[SpriteRender](world)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">          98 :         c.BlockView = ecs.NewMap[BlockView](world)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          98 :         c.BlockPass = ecs.NewMap[BlockPass](world)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">          98 :         c.PassCost = ecs.NewMap[PassCost](world)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">          98 :         c.Door = ecs.NewMap[Door](world)</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">          98 :         c.Prop = ecs.NewMap[Prop](world)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">          98 :         c.LightSource = ecs.NewMap[LightSource](world)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">          98 :         c.Interactable = ecs.NewMap[Interactable](world)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">          98 :         c.VisualEffects = ecs.NewMap[VisualEffects](world)</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">          98 :         c.TileTemperature = ecs.NewMap[TileTemperature](world)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">          98 :         c.Player = ecs.NewMap[Player](world)</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          98 :         c.Profession = ecs.NewMap[Profession](world)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">          98 :         c.Hunger = ecs.NewMap[Hunger](world)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">          98 :         c.Wallet = ecs.NewMap[Wallet](world)</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">          98 :         c.FactionAlly = ecs.NewMap[FactionAlly](world)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          98 :         c.FactionEnemy = ecs.NewMap[FactionEnemy](world)</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">          98 :         c.FactionNeutral = ecs.NewMap[FactionNeutral](world)</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">          98 :         c.Boss = ecs.NewMap[Boss](world)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">          98 :         c.Dialog = ecs.NewMap[Dialog](world)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">          98 :         c.Dead = ecs.NewMap[Dead](world)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">          98 :         c.TurnBased = ecs.NewMap[TurnBased](world)</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">          98 :         c.HealthStatus = ecs.NewMap[HealthStatus](world)</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">          98 :         c.Skills = ecs.NewMap[Skills](world)</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">          98 :         c.CharModifiers = ecs.NewMap[CharModifiers](world)</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">          98 :         c.StateChangeRequest = ecs.NewMap[StateChangeRequest](world)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">          98 :         c.StatsChanged = ecs.NewMap[StatsChanged](world)</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">          98 :         c.WeightDirty = ecs.NewMap[WeightDirty](world)</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">          98 :         c.ProvidesHealing = ecs.NewMap[ProvidesHealing](world)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">          98 :         c.ProvidesNutrition = ecs.NewMap[ProvidesNutrition](world)</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          98 :         c.InflictsDamage = ecs.NewMap[InflictsDamage](world)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          98 :         c.Book = ecs.NewMap[Book](world)</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          98 :         c.CommandTable = ecs.NewMap[CommandTable](world)</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          98 :         c.DropTable = ecs.NewMap[DropTable](world)</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          98 :         c.SquadMember = ecs.NewMap[SquadMember](world)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          98 :         c.Activity = ecs.NewMap[Activity](world)</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">          98 :         c.LastActivity = ecs.NewMap[LastActivity](world)</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          98 :         c.GameLog = ecs.NewMap[GameLog](world)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          98 :         c.Dungeon = ecs.NewMap[Dungeon](world)</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          98 :         c.GameProgress = ecs.NewMap[GameProgress](world)</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          98 :         c.TurnState = ecs.NewMap[TurnState](world)</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          98 :         c.SpatialIndex = ecs.NewMap[SpatialIndex](world)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          98 :         return nil</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          98 : }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">          99 : func (c *Components) InitializeComponents(world *ecs.World) error {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">          99 :         c.Name = ecs.NewMap[Name](world)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">          99 :         c.Description = ecs.NewMap[Description](world)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">          99 :         c.HP = ecs.NewMap[HP](world)</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">          99 :         c.Consumable = ecs.NewMap[Consumable](world)</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">          99 :         c.WeightCapacity = ecs.NewMap[WeightCapacity](world)</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">          99 :         c.Melee = ecs.NewMap[Melee](world)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">          99 :         c.Fire = ecs.NewMap[Fire](world)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">          99 :         c.Value = ecs.NewMap[Value](world)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">          99 :         c.Weight = ecs.NewMap[Weight](world)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">          99 :         c.Recipe = ecs.NewMap[Recipe](world)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">          99 :         c.Wearable = ecs.NewMap[Wearable](world)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">          99 :         c.Abilities = ecs.NewMap[Abilities](world)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">          99 :         c.Ammo = ecs.NewMap[Ammo](world)</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">          99 :         c.Stackable = ecs.NewMap[Stackable](world)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">          99 :         c.Material = ecs.NewMap[Material](world)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          99 :         c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">          99 :         c.LocationEquipped = ecs.NewMap[LocationEquipped](world)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">          99 :         c.LocationOnField = ecs.NewMap[LocationOnField](world)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">          99 :         c.LocationInStorage = ecs.NewMap[LocationInStorage](world)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">          99 :         c.Tile = ecs.NewMap[Tile](world)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">          99 :         c.SoloAI = ecs.NewMap[SoloAI](world)</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">          99 :         c.SquadAI = ecs.NewMap[SquadAI](world)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          99 :         c.Camera = ecs.NewMap[Camera](world)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">          99 :         c.Position = ecs.NewMap[Position](world)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">          99 :         c.GridElement = ecs.NewMap[GridElement](world)</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">          99 :         c.SpriteRender = ecs.NewMap[SpriteRender](world)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">          99 :         c.BlockView = ecs.NewMap[BlockView](world)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          99 :         c.BlockPass = ecs.NewMap[BlockPass](world)</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">          99 :         c.PassCost = ecs.NewMap[PassCost](world)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">          99 :         c.Door = ecs.NewMap[Door](world)</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">          99 :         c.Prop = ecs.NewMap[Prop](world)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">          99 :         c.LightSource = ecs.NewMap[LightSource](world)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">          99 :         c.Interactable = ecs.NewMap[Interactable](world)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">          99 :         c.VisualEffects = ecs.NewMap[VisualEffects](world)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">          99 :         c.TileTemperature = ecs.NewMap[TileTemperature](world)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">          99 :         c.Player = ecs.NewMap[Player](world)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          99 :         c.Profession = ecs.NewMap[Profession](world)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">          99 :         c.Hunger = ecs.NewMap[Hunger](world)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">          99 :         c.Wallet = ecs.NewMap[Wallet](world)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">          99 :         c.FactionAlly = ecs.NewMap[FactionAlly](world)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          99 :         c.FactionEnemy = ecs.NewMap[FactionEnemy](world)</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">          99 :         c.FactionNeutral = ecs.NewMap[FactionNeutral](world)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">          99 :         c.Boss = ecs.NewMap[Boss](world)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">          99 :         c.Dialog = ecs.NewMap[Dialog](world)</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">          99 :         c.Dead = ecs.NewMap[Dead](world)</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">          99 :         c.TurnBased = ecs.NewMap[TurnBased](world)</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">          99 :         c.HealthStatus = ecs.NewMap[HealthStatus](world)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">          99 :         c.Skills = ecs.NewMap[Skills](world)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">          99 :         c.CharModifiers = ecs.NewMap[CharModifiers](world)</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">          99 :         c.StateChangeRequest = ecs.NewMap[StateChangeRequest](world)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">          99 :         c.StatsChanged = ecs.NewMap[StatsChanged](world)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">          99 :         c.WeightDirty = ecs.NewMap[WeightDirty](world)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">          99 :         c.ProvidesHealing = ecs.NewMap[ProvidesHealing](world)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">          99 :         c.ProvidesNutrition = ecs.NewMap[ProvidesNutrition](world)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          99 :         c.InflictsDamage = ecs.NewMap[InflictsDamage](world)</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          99 :         c.Book = ecs.NewMap[Book](world)</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          99 :         c.CommandTable = ecs.NewMap[CommandTable](world)</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">          99 :         c.DropTable = ecs.NewMap[DropTable](world)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">          99 :         c.SquadMember = ecs.NewMap[SquadMember](world)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">          99 :         c.Activity = ecs.NewMap[Activity](world)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">          99 :         c.LastActivity = ecs.NewMap[LastActivity](world)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">          99 :         c.GameLog = ecs.NewMap[GameLog](world)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">          99 :         c.Dungeon = ecs.NewMap[Dungeon](world)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">          99 :         c.GameProgress = ecs.NewMap[GameProgress](world)</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          99 :         c.TurnState = ecs.NewMap[TurnState](world)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          99 :         c.SpatialIndex = ecs.NewMap[SpatialIndex](world)</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          99 :         return nil</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          99 : }</span></span>
 <span id="L220"><span class="lineNum">     220</span>              : </span>
 <span id="L221"><span class="lineNum">     221</span>              : // AddEntity は EntitySpec から新しいエンティティを生成し、非nilな各フィールドを</span>
 <span id="L222"><span class="lineNum">     222</span>              : // 対応するコンポーネントとして付与する。</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 00:51:23</td>
+            <td class="headerValue">2026-07-20 01:07:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -212,10 +212,10 @@
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         726 : func (c *Components) has(comp hasser) Has {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         726 :         val := reflect.ValueOf(c).Elem()</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         726 :         typ := val.Type()</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       16554 :         for i := range val.NumField() {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       16552 :                 if val.Field(i).Interface() == comp {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         724 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">         724 :                 }</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       17094 :         for i := range val.NumField() {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       17094 :                 if val.Field(i).Interface() == comp {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         726 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">         726 :                 }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              :         }</span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;component not found in Components&quot;)</span></span>
 <span id="L159"><span class="lineNum">     159</span>              : }</span>
@@ -277,15 +277,15 @@
 <span id="L215"><span class="lineNum">     215</span>              : // evalPredSpec は Pred を EntitySpec のリフレクション値に対して評価する</span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">          50 : func evalPredSpec(pred Pred, specVal reflect.Value) bool {</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">          50 :         switch p := pred.(type) {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          49 :         case Has:</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          49 :                 field := specVal.FieldByName(p.Label)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">          49 :                 if !field.IsValid() {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">          50 :         case Has:</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          50 :                 field := specVal.FieldByName(p.Label)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">          50 :                 if !field.IsValid() {</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                         return false</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L223"><span class="lineNum">     223</span>              :                 // ポインタ型のフィールドのみ nil 判定する。値型フィールドは常に「存在する」とみなす</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC tlaBgGNC">          96 :                 if field.Kind() == reflect.Pointer || field.Kind() == reflect.Interface {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">          49 :                         return !field.IsNil()</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">          49 :                 }</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC tlaBgGNC">         100 :                 if field.Kind() == reflect.Pointer || field.Kind() == reflect.Interface {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">          50 :                         return !field.IsNil()</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">          50 :                 }</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC tlaBgUNC">           0 :                 return true</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         case And:</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 for _, sub := range p {</span></span>
