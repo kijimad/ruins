@@ -134,7 +134,6 @@ func dungeonStageKey(depth int) gc.StageKey {
 func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definition, key gc.StageKey) (consts.Coord[consts.Tile], error) {
 	var zero consts.Coord[consts.Tile]
 
-	// ステージ用シードを生成する
 	stageSeed := world.Config.RNG.Uint64()
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
@@ -676,7 +675,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
 		}}, nil
 	default:
-		// GameClear 等、ここで扱わない種別
+		// この switch で扱わない種別。未実装の scaffold もここに落ちる
 		return es.Transition[w.World]{}, fmt.Errorf("未処理のStateChangeRequest: %T", req.Payload)
 	}
 }

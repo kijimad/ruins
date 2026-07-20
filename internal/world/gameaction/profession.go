@@ -11,7 +11,7 @@ import (
 )
 
 // ApplyProfession はプレイヤーエンティティに職業の属性値・スキル・装備を適用する。
-// 職業選択時とラン終了時の再適用で使う。
+// 職業選択時に使う。
 func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) error {
 	// 職業IDを保持する。再適用時は既存を更新する
 	if err := gc.Upsert(world.ECS, world.Components.Profession, player, &gc.Profession{ID: prof.Id}); err != nil {

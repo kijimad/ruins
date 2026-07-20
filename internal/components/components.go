@@ -82,7 +82,7 @@ type Player struct{}
 // Boss はボスエンティティを示すマーカーコンポーネント
 type Boss struct{}
 
-// Profession はプレイヤーが選択した職業を保持する。ラン終了時の再適用に使う
+// Profession はプレイヤーが選択した職業を保持する
 type Profession struct {
 	ID string // raw.Profession.ID に対応する
 }
