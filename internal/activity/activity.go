@@ -213,7 +213,7 @@ func isAreaSafe(actor ecs.Entity, world w.World) bool {
 	safeRadius := 1
 	hasHostile := false
 
-	areaQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	areaQuery := query.ActiveFilter1[gc.GridElement](world).Query()
 	for areaQuery.Next() {
 		entity := areaQuery.Entity()
 		if hasHostile {

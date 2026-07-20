@@ -315,7 +315,7 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 // getPassCostAt は指定座標にあるPropのPassCostを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
 	total := 0
-	passCostQuery := ecs.NewFilter2[gc.GridElement, gc.PassCost](world.ECS).Query()
+	passCostQuery := query.ActiveFilter2[gc.GridElement, gc.PassCost](world).Query()
 	for passCostQuery.Next() {
 		entity := passCostQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

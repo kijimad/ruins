@@ -174,7 +174,8 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
 func DeleteDoorLockTriggers(world w.World) {
 	var toDelete []ecs.Entity
-	interactableQuery := ecs.NewFilter1[gc.Interactable](world.ECS).Query()
+	// 退避中ステージの鍵トリガは消さない。現ステージのみ対象にする
+	interactableQuery := query.ActiveFilter1[gc.Interactable](world).Query()
 	for interactableQuery.Next() {
 		triggerEntity := interactableQuery.Entity()
 		interactable := world.Components.Interactable.Get(triggerEntity)

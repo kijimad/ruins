@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -26,7 +27,8 @@ func RecalcSeamAutotile(world w.World, boundaryX consts.Tile) {
 	// 再計算対象の左右隣 boundaryX-2 と boundaryX+1 まで含める
 	tiles := make(map[gc.GridElement]ecs.Entity)
 	hasWest, hasEast := false, false
-	q := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
+	// 帯の継ぎ目再計算は現ステージ(帯)のタイルだけを対象にする
+	q := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()
 	for q.Next() {
 		e := q.Entity()
 		g := *world.Components.GridElement.Get(e)
