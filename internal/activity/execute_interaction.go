@@ -31,6 +31,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー")
 	case gc.InteractionDungeonGate:
 		return executeDungeonGate(world)
+	case gc.InteractionRuinEnter:
+		return executeRuinEnter(target, world)
 	case gc.InteractionDoor:
 		return executeDoor(actor, target, world)
 	case gc.InteractionDoorLock:
@@ -63,6 +65,19 @@ func executeDungeonGate(world w.World) (*ActionResult, error) {
 		return nil, fmt.Errorf("ダンジョン選択状態変更要求エラー: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "ダンジョンゲート発動"}, nil
+}
+
+// executeRuinEnter は遺跡入口の進入先を入口プロップの RuinEntrance から読み、遺跡進入を要求する。
+// 入口ごとに進入先が違うため、イベントに定義名を載せて運ぶ。
+func executeRuinEnter(target ecs.Entity, world w.World) (*ActionResult, error) {
+	if !world.Components.RuinEntrance.Has(target) {
+		return nil, fmt.Errorf("遺跡入口に進入先の遺跡定義がありません")
+	}
+	defName := world.Components.RuinEntrance.Get(target).DefinitionName
+	if err := lifecycle.RequestStateChange(world, gc.WarpRuinEnterEvent(defName)); err != nil {
+		return nil, fmt.Errorf("遺跡進入状態変更要求エラー: %w", err)
+	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "遺跡進入"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

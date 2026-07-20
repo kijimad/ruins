@@ -8,10 +8,32 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestExecuteInteraction_RuinEnter_進入先の遺跡名を要求に載せる は、遺跡入口の相互作用が
+// 入口プロップの RuinEntrance から進入先の遺跡名を読み、WarpRuinEnter 要求へ載せることを確認する。
+// 入口ごとに進入先が違うため、名前を要求に載せて運ぶ。
+func TestExecuteInteraction_RuinEnter_進入先の遺跡名を要求に載せる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	actor := world.ECS.NewEntity()
+	entrance := world.ECS.NewEntity()
+	world.Components.RuinEntrance.Add(entrance, &gc.RuinEntrance{DefinitionName: "森"})
+
+	_, err := ExecuteInteraction(actor, entrance, gc.InteractionRuinEnter, world)
+	require.NoError(t, err)
+
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "状態変更要求が積まれる")
+	payload, ok := req.Payload.(gc.WarpRuinEnter)
+	require.True(t, ok, "WarpRuinEnter が要求される")
+	assert.Equal(t, "森", payload.DefinitionName, "進入先の遺跡名が要求に載る")
+}
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。
 // 平坦化により未知の種類はゼロ値（無効）のConfigを返すため、発動前の検証で拒否される

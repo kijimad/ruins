@@ -162,6 +162,12 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
+		case gc.InteractionRuinEnter:
+			result = append(result, InteractionAction{
+				Label:       "遺跡へ入る",
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
 		case gc.InteractionStorage:
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)

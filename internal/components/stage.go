@@ -103,6 +103,13 @@ type PortalConnection struct {
 	Coord consts.Coord[consts.Tile]
 }
 
+// RuinEntrance は遺跡入口プロップが、どの遺跡定義へ入るかを保持する。
+// 相互作用 InteractionRuinEnter の発動時に DefinitionName を読んで進入先を決める。
+type RuinEntrance struct {
+	// DefinitionName は進入する遺跡の定義名
+	DefinitionName string
+}
+
 // Suspended は現ステージ以外に属し、現在のフレームで稼働しないことを表すマーカー。
 // ステージ跨ぎのシステムは Without(Suspended) で現ステージだけを処理する。
 //
