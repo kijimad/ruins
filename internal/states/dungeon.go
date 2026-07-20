@@ -25,6 +25,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/kijimaD/ruins/internal/world/stage"
+	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -41,9 +42,21 @@ type DungeonState struct {
 	// Resume はセーブからの復帰モード。trueならマップ再生成とプレイヤー再配置を行わず、
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
+
+	// isOverworld はオーバーワールドモード。フロアを作り直さずアクティブ帯をスライドさせ続ける。
+	// OnStart/Update/String がこのフラグで分岐する。以下の帯フィールドはこのとき使う
+	isOverworld bool
+	planner     mapplanner.PlannerType
+	newGame     *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
+	band        *worldstream.Band
+	gen         worldstream.ChunkGen
+	frontCfg    worldstream.FrontConfig
 }
 
 func (st DungeonState) String() string {
+	if st.isOverworld {
+		return "Overworld"
+	}
 	return "Dungeon"
 }
 
@@ -60,6 +73,9 @@ func (st *DungeonState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
+	if st.isOverworld {
+		return st.onStartOverworld(world)
+	}
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
@@ -356,7 +372,16 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	}
 
 	// BaseStateの共通処理を使用
-	return st.ConsumeTransition(), nil
+	transition = st.ConsumeTransition()
+	// オーバーワールドはこのフレームが遷移なしのときだけ前線を進め帯をシフトする。
+	// 死亡やリクエスト遷移で早期 return した場合は帯を触らない。旧 OverworldState.Update と同じ
+	if st.isOverworld && transition.Type == es.TransNone {
+		st.updateFront(world)
+		if serr := st.maybeShift(world); serr != nil {
+			return es.Transition[w.World]{}, serr
+		}
+	}
+	return transition, nil
 }
 
 // Draw はゲームステートの描画処理を行う

@@ -27,7 +27,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: 12345, ChunkW: chunkW, ChunkH: chunkH, K: k})
 	state, err := factory()
 	require.NoError(t, err)
-	st, ok := state.(*OverworldState)
+	st, ok := state.(*DungeonState)
 	require.True(t, ok)
 	require.NoError(t, st.OnStart(world))
 
@@ -66,7 +66,7 @@ func TestOverworldState_セーブ往復で帯状態が復元される(t *testing
 	loadFactory := NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
 	loadState, err := loadFactory()
 	require.NoError(t, err)
-	ow2, ok := loadState.(*OverworldState)
+	ow2, ok := loadState.(*DungeonState)
 	require.True(t, ok)
 	require.NoError(t, ow2.OnStart(world2))
 
@@ -97,7 +97,7 @@ func TestOverworldState_前線が総ターン数で前進する(t *testing.T) {
 	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: 1, ChunkW: chunkW, ChunkH: chunkH, K: 3})
 	state, err := factory()
 	require.NoError(t, err)
-	st, ok := state.(*OverworldState)
+	st, ok := state.(*DungeonState)
 	require.True(t, ok)
 	require.NoError(t, st.OnStart(world))
 

@@ -17,27 +17,12 @@ import (
 	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
-// OverworldState はシームレスワールドを東へ延々と歩く探索ステート。
+// このファイルは DungeonState のオーバーワールドモードの挙動をまとめる。
 //
-// DungeonState を埋め込み、入力・システム列・描画・遷移処理をそのまま再利用する。
-// OverworldState 固有なのは「フロアを作り直さず、アクティブ帯をスライドさせ続ける」点だけ。
-// OnStart で初期帯を生成し、Update のターン境界でシフト判定する。
-type OverworldState struct {
-	*DungeonState
-	planner mapplanner.PlannerType
-	newGame *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
-
-	// 以下は OnStart で確定する実行時状態
-	band     *worldstream.Band
-	gen      worldstream.ChunkGen
-	frontCfg worldstream.FrontConfig
-}
-
-var _ es.State[w.World] = &OverworldState{}
-var _ es.ActionHandler[w.World] = &OverworldState{}
-
-// String はステート名を返す
-func (st *OverworldState) String() string { return "Overworld" }
+// オーバーワールドは「フロアを作り直さず、アクティブ帯をスライドさせ続ける」探索で、
+// 入力・システム列・描画・遷移処理は DungeonState 共通のものをそのまま使う。固有なのは
+// onStartOverworld での帯生成と、Update のターン境界でのシフト判定だけ。DungeonState の
+// isOverworld フラグでこれらへ分岐する。帯フィールド band/gen/frontCfg は DungeonState が持つ。
 
 // NewGameParams は新規オーバーワールド開始時の帯生成パラメータ。
 // chunkW×chunkH のチャンクを K 枚並べた帯を RunSeed から決定的生成する。
@@ -65,10 +50,10 @@ const (
 // 新規開始とロード復元の初期化本体は startNewBand・restoreFromSave に分かれている。
 func NewOverworldState(planner mapplanner.PlannerType, params *NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
-		return &OverworldState{
-			DungeonState: &DungeonState{},
-			planner:      planner,
-			newGame:      params,
+		return &DungeonState{
+			isOverworld: true,
+			planner:     planner,
+			newGame:     params,
 		}, nil
 	}
 }
@@ -76,7 +61,7 @@ func NewOverworldState(planner mapplanner.PlannerType, params *NewGameParams) es
 // OnStart は帯ドライバを用意する。新規開始なら初期帯を生成し、ロード復元なら
 // セーブ済みの SeamlessBand から Band と ChunkGen を作り直す。分岐の本体は
 // startNewBand・restoreFromSave に分けてあり、OnStart 自身はどちらを呼ぶかだけを決める。
-func (st *OverworldState) OnStart(world w.World) error {
+func (st *DungeonState) onStartOverworld(world w.World) error {
 	sw := world.Resources.ScreenDimensions.Width
 	sh := world.Resources.ScreenDimensions.Height
 	if sw > 0 && sh > 0 {
@@ -113,7 +98,7 @@ func (st *OverworldState) OnStart(world w.World) error {
 
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
 // 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
-func (st *OverworldState) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
+func (st *DungeonState) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 	st.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
 	st.gen = overworld.NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, st.planner)
 	st.frontCfg = frontCfgFromBand(sb)
@@ -132,14 +117,14 @@ func frontCfgFromBand(sb *gc.SeamlessBand) worldstream.FrontConfig {
 }
 
 // front は総経過ターン数から寒波前線の現在位置を導出する。
-func (st *OverworldState) front(world w.World) worldstream.Front {
+func (st *DungeonState) front(world w.World) worldstream.Front {
 	totalTurns := query.GetDungeon(world).GameTime.TotalTurns
 	return worldstream.FrontAt(st.frontCfg, totalTurns)
 }
 
 // startNewBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
 // プレイヤーを中央チャンクへ置く。帯パラメータは newGame から取る。nil なら誤用なので弾く。
-func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error {
+func (st *DungeonState) startNewBand(world w.World, sb *gc.SeamlessBand) error {
 	p := st.newGame
 	if p == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
@@ -192,13 +177,13 @@ func (st *OverworldState) startNewBand(world w.World, sb *gc.SeamlessBand) error
 }
 
 // syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す。これでセーブに反映される。
-func (st *OverworldState) syncBandState(world w.World) {
+func (st *DungeonState) syncBandState(world w.World) {
 	query.GetDungeon(world).SeamlessBand.EastIndex = st.band.EastIndex()
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
 // startNewBand から呼ばれる。Level 設定は帯幅が不変なので再設定しても冪等で無害。
-func (st *OverworldState) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
+func (st *DungeonState) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
 	query.GetDungeon(world).Level = gc.Level{TileWidth: st.band.Width(), TileHeight: chunkH}
 	for i := range st.band.K() {
 		if err := st.gen(i, i.Tiles(chunkW)); err != nil {
@@ -218,22 +203,9 @@ func (st *OverworldState) generateBandChunks(world w.World, chunkW, chunkH const
 // 将来オーバーワールドにポータルを足して遺跡へ入れるようにする場合、帯の退避は汎用フックの
 // OnPause ではなく「遺跡進入」専用の経路で行う。汎用フックはオーバーレイと区別できないため。
 
-// Update は DungeonState の共通処理を実行後、寒波前線を進め、ターン境界で帯をシフトする。
-func (st *OverworldState) Update(world w.World) (es.Transition[w.World], error) {
-	trans, err := st.DungeonState.Update(world)
-	if err != nil || trans.Type != es.TransNone {
-		return trans, err
-	}
-	st.updateFront(world)
-	if serr := st.maybeShift(world); serr != nil {
-		return es.Transition[w.World]{}, serr
-	}
-	return trans, nil
-}
-
 // updateFront は総ターン数から導出した寒波前線の現在位置を永続状態へ反映する。
 // 位置は導出値なので毎フレーム書いても冪等。描画や凍結効果はこの FrontEastAbsX を読む。
-func (st *OverworldState) updateFront(world w.World) {
+func (st *DungeonState) updateFront(world w.World) {
 	sb := &query.GetDungeon(world).SeamlessBand
 	if !sb.Front.Active {
 		return
@@ -246,7 +218,7 @@ func (st *OverworldState) updateFront(world w.World) {
 // 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち
 // プレイヤーターンの Player フェーズかつプレイヤーが継続アクティビティ中でないとき。
 // これによりアニメ補間中・移動 Activity 実行中のシフトを避ける。
-func (st *OverworldState) maybeShift(world w.World) error {
+func (st *DungeonState) maybeShift(world w.World) error {
 	if query.GetTurnState(world).Phase != gc.TurnPhasePlayer {
 		return nil
 	}
