@@ -47,7 +47,6 @@ func calculateMaxCarryingWeight(abilities *gc.Abilities) consts.Milligram {
 		return baseCarryingWeight
 	}
 	strength := abilities.Strength.Base + abilities.Strength.Modifier
-	// strength は無次元の整数なので、Milligram との掛け算は次元を変えず mg のまま
 	return baseCarryingWeight + consts.Milligram(strength)*strengthWeightMultiplier
 }
 

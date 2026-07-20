@@ -18,11 +18,6 @@ const MilligramPerGram = 1_000
 // 重量は非負を前提とする。ParseWeight は負値を弾き、通常の計算経路でも負にはならない。
 type Milligram int
 
-// MilligramFromKg は kg を Milligram に変換する。丸めて整数化する
-func MilligramFromKg(kg float64) Milligram {
-	return Milligram(math.Round(kg * MilligramPerKg))
-}
-
 // String は値の大きさに応じた最適な単位（kg/g/mg）で表示する。
 // 単一アイテムの重量など幅の広い値に使う。1kg以上はkg、1g以上はg、それ未満はmg。
 // 数値は FormatFloat の 'f' 最短表記で末尾ゼロを落とす。指数表記にはしない
@@ -70,4 +65,15 @@ func ParseWeight(s string) (Milligram, error) {
 		return 0, fmt.Errorf("重量の単位が不正です: %q（mg/g/kg のいずれか）", s)
 	}
 	return Milligram(math.Round(value * float64(factor))), nil
+}
+
+// MustParseWeight は ParseWeight のパニック版。パース失敗時に panic する。
+// 固定リテラルやテスト値のように失敗があり得ない箇所で使う。regexp.MustCompile と同じ発想。
+// 動的な入力には error を返す ParseWeight を使う
+func MustParseWeight(s string) Milligram {
+	mg, err := ParseWeight(s)
+	if err != nil {
+		panic(err)
+	}
+	return mg
 }

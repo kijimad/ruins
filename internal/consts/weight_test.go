@@ -8,29 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMilligramFromKg(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name string
-		kg   float64
-		want consts.Milligram
-	}{
-		{"1kg", 1.0, 1_000_000},
-		{"1.5kg", 1.5, 1_500_000},
-		{"0.5kg", 0.5, 500_000},
-		{"0.001kg=1g", 0.001, 1_000},
-		{"ゼロ", 0, 0},
-		{"float誤差を丸める", 0.1, 100_000}, // 0.1*1e6 の丸め誤差を排除
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, consts.MilligramFromKg(tt.kg))
-		})
-	}
-}
-
 func TestMilligram_String(t *testing.T) {
 	t.Parallel()
 
@@ -93,6 +70,7 @@ func TestParseWeight(t *testing.T) {
 		{"小数キログラム", "3.5 kg", 3_500_000},
 		{"1kg未満のグラム", "50 g", 50_000},
 		{"小数グラム", "0.5 g", 500},
+		{"float誤差を丸める", "0.1 kg", 100_000}, // 0.1*1e6 の丸め誤差を排除
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

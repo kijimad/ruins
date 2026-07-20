@@ -637,7 +637,7 @@ MaxWeight = "20 kg"
 	require.NoError(t, err)
 
 	assert.NotNil(t, entitySpec.WeightCapacity, "Storage付きPropにはWeightCapacityコンポーネントが設定されるべき")
-	assert.Equal(t, consts.MilligramFromKg(20), entitySpec.WeightCapacity.Max)
+	assert.Equal(t, consts.MustParseWeight("20 kg"), entitySpec.WeightCapacity.Max)
 
 	require.NotNil(t, entitySpec.Interactable, "Storage付きPropにはInteractableが設定されるべき")
 	assert.NotEmpty(t, entitySpec.Interactable.Interactions, "Storage付きPropにはInteractionsが設定されるべき")
