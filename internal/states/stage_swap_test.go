@@ -119,23 +119,46 @@ func TestSwapTo(t *testing.T) {
 	a1 := addStageEntity(t, world, stageA) // 現ステージA のエンティティ、稼働中
 
 	genCalls := 0
-	generate := func(world w.World, key gc.StageKey) {
+	generate := func(world w.World, key gc.StageKey) error {
 		genCalls++
 		addStageEntity(t, world, key)
+		return nil
 	}
 
 	// A → B。B は未訪問なので生成し、A は退避する
-	swapTo(world, stageB, generate)
+	require.NoError(t, swapTo(world, stageB, generate))
 	assert.True(t, world.Components.Suspended.Has(a1), "離れた A は退避される")
 	assert.Equal(t, 1, genCalls, "未訪問の B は生成される")
 	assert.True(t, stageExists(world, stageB))
 	assert.Equal(t, stageB, query.GetDungeon(world).CurrentStage)
 
 	// B → A。A は訪問済みなので再稼働し、生成しない
-	swapTo(world, stageA, generate)
+	require.NoError(t, swapTo(world, stageA, generate))
 	assert.False(t, world.Components.Suspended.Has(a1), "戻った A は再稼働される")
 	assert.Equal(t, 1, genCalls, "訪問済みの A は再生成しない")
 	assert.Equal(t, stageA, query.GetDungeon(world).CurrentStage)
+}
+
+func TestSwapTo_生成失敗時は現ステージを壊さない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	d := query.GetDungeon(world)
+	d.CurrentStage = stageA
+	a1 := addStageEntity(t, world, stageA)
+	d.ExploredTiles = map[gc.GridElement]bool{
+		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
+	}
+
+	// 未訪問 B への生成が失敗する
+	err := swapTo(world, stageB, func(_ w.World, _ gc.StageKey) error {
+		return assert.AnError
+	})
+	require.Error(t, err)
+
+	// 現ステージは壊れない。A は退避されず、CurrentStage も探索履歴も維持される
+	assert.False(t, world.Components.Suspended.Has(a1), "生成失敗時に現ステージA は退避されない")
+	assert.Equal(t, stageA, d.CurrentStage, "生成失敗時に CurrentStage は動かない")
+	assert.NotEmpty(t, d.ExploredTiles, "生成失敗時に探索履歴は消えない")
 }
 
 func TestSwapTo_座標索引を無効化する(t *testing.T) {
@@ -148,9 +171,10 @@ func TestSwapTo_座標索引を無効化する(t *testing.T) {
 	si := world.Components.SpatialIndex.Get(world.Resources.SingletonEntity)
 	require.True(t, si.Built, "前提: 索引は構築済み")
 
-	swapTo(world, stageB, func(world w.World, key gc.StageKey) {
+	require.NoError(t, swapTo(world, stageB, func(world w.World, key gc.StageKey) error {
 		addStageEntity(t, world, key)
-	})
+		return nil
+	}))
 
 	si2 := world.Components.SpatialIndex.Get(world.Resources.SingletonEntity)
 	assert.False(t, si2.Built, "swap 後は索引が無効化され、次アクセスで現ステージ用に再構築される")
@@ -165,8 +189,9 @@ func TestSwapTo_探索履歴をリセットする(t *testing.T) {
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
 	}
 
-	swapTo(world, stageB, func(world w.World, key gc.StageKey) {
+	require.NoError(t, swapTo(world, stageB, func(world w.World, key gc.StageKey) error {
 		addStageEntity(t, world, key)
-	})
+		return nil
+	}))
 	assert.Empty(t, query.GetDungeon(world).ExploredTiles, "swap で探索履歴は空になる")
 }

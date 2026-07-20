@@ -268,7 +268,8 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
 func ProcessContinuousActivities(world w.World) {
 	var entities []ecs.Entity
-	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
+	// 退避中ステージのエンティティのアクティビティは進めない
+	activityQuery := query.ActiveFilter1[gc.Activity](world).Query()
 	for activityQuery.Next() {
 		entities = append(entities, activityQuery.Entity())
 	}

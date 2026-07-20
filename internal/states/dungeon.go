@@ -184,18 +184,17 @@ func (st *DungeonState) descend(world w.World) error {
 	// def 参照も生成時だけに閉じ、訪問済みの再稼働では不要にする
 	var playerPos consts.Coord[consts.Tile]
 	var generated bool
-	var genErr error
-	swapTo(world, target, func(world w.World, key gc.StageKey) {
+	if err := swapTo(world, target, func(world w.World, key gc.StageKey) error {
 		def, found := dungeon.GetDungeon(query.GetDungeon(world).DefinitionName)
 		if !found {
-			genErr = fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
-			return
+			return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
 		}
-		playerPos, genErr = st.spawnFloor(world, nextDepth, def, key)
+		var err error
+		playerPos, err = st.spawnFloor(world, nextDepth, def, key)
 		generated = true
-	})
-	if genErr != nil {
-		return genErr
+		return err
+	}); err != nil {
+		return err
 	}
 
 	st.Depth = nextDepth
@@ -238,12 +237,10 @@ func (st *DungeonState) ascend(world w.World) error {
 	target := dungeonStageKey(prevDepth)
 
 	// 上り先は訪問済み前提。未訪問なら生成でなくエラーにする
-	var genErr error
-	swapTo(world, target, func(_ w.World, _ gc.StageKey) {
-		genErr = fmt.Errorf("上り先の階が存在しません: 深度%d", prevDepth)
-	})
-	if genErr != nil {
-		return genErr
+	if err := swapTo(world, target, func(_ w.World, _ gc.StageKey) error {
+		return fmt.Errorf("上り先の階が存在しません: 深度%d", prevDepth)
+	}); err != nil {
+		return err
 	}
 
 	st.Depth = prevDepth

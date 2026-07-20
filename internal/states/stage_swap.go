@@ -87,18 +87,27 @@ func tagStageMembers(world w.World, key gc.StageKey) {
 // target が訪問済みなら再稼働し、未訪問なら generate で決定的生成する。
 // generate は生成物へ StageMember{target} を付ける責務を負う。
 // プレイヤー配置と前線など時間派生の再導出は、遷移ごとに違うので呼び出し側が続けて行う
-func swapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey)) {
+func swapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey) error) error {
 	d := query.GetDungeon(world)
-	if d.CurrentStage != target {
-		suspendStage(world, d.CurrentStage)
-	}
 	if stageExists(world, target) {
+		// 訪問済み。現ステージを退避してから target を再稼働する
+		if d.CurrentStage != target {
+			suspendStage(world, d.CurrentStage)
+		}
 		resumeStage(world, target)
 	} else {
-		generate(world, target)
+		// 未訪問。先に生成し、失敗したら現ステージを退避せず CurrentStage も動かさない。
+		// 生成中は現ステージがまだ稼働しているが、生成物は新しい StageMember を持つので混ざらない
+		if err := generate(world, target); err != nil {
+			return err
+		}
+		if d.CurrentStage != target {
+			suspendStage(world, d.CurrentStage)
+		}
 	}
 	d.CurrentStage = target
 	resetExploredTiles(world)
 	// 座標索引は現ステージのみで作り直す。swap で無効化し次アクセスで再構築させる
 	query.InvalidateSpatialIndex(world)
+	return nil
 }

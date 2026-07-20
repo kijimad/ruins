@@ -35,7 +35,8 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 // LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
 func LockAllDoors(world w.World) int {
 	var doors []ecs.Entity
-	doorQuery := ecs.NewFilter1[gc.Door](world.ECS).Query()
+	// 退避中ステージの扉は操作しない。現ステージのみ対象にする
+	doorQuery := query.ActiveFilter1[gc.Door](world).Query()
 	for doorQuery.Next() {
 		doors = append(doors, doorQuery.Entity())
 	}
@@ -61,7 +62,8 @@ func LockAllDoors(world w.World) int {
 // UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
 func UnlockAllDoors(world w.World) int {
 	var doors []ecs.Entity
-	doorQuery := ecs.NewFilter1[gc.Door](world.ECS).Query()
+	// 退避中ステージの扉は操作しない。現ステージのみ対象にする
+	doorQuery := query.ActiveFilter1[gc.Door](world).Query()
 	for doorQuery.Next() {
 		doors = append(doors, doorQuery.Entity())
 	}

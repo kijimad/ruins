@@ -33,7 +33,16 @@ func ActiveFilter4[A, B, C, D any](world w.World, exclude ...ecs.Comp) *ecs.Filt
 	return ecs.NewFilter4[A, B, C, D](world.ECS).Without(withSuspended(exclude)...)
 }
 
-// withSuspended は追加除外の先頭に Suspended を足す。除外集合の単一の情報源
+// suspendedExclude は Suspended だけを除外する共有スライス。
+// 追加除外が無い毎フレームのホットパスでスライスの再アロケーションを避ける。
+// Without は読み取り専用で受け取るため共有して安全
+var suspendedExclude = []ecs.Comp{ecs.C[gc.Suspended]()}
+
+// withSuspended は追加除外の先頭に Suspended を足す。除外集合の単一の情報源。
+// 追加除外が無いときは共有スライスを返してアロケーションを起こさない
 func withSuspended(exclude []ecs.Comp) []ecs.Comp {
+	if len(exclude) == 0 {
+		return suspendedExclude
+	}
 	return append([]ecs.Comp{ecs.C[gc.Suspended]()}, exclude...)
 }
