@@ -25,9 +25,10 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 
 	switch interaction {
 	case gc.InteractionPortalNext:
-		return executePortal(world, gc.WarpNextEvent(), "次フロアワープ状態変更要求エラー")
-	case gc.InteractionPortalTown:
-		return executePortal(world, gc.WarpEscapeEvent(), "街帰還状態変更要求エラー")
+		// 共存方式の下り。同一 State 内 swapTo で現階を退避し、再訪で復元できる
+		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー")
+	case gc.InteractionPortalPrev:
+		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー")
 	case gc.InteractionDungeonGate:
 		return executeDungeonGate(world)
 	case gc.InteractionDoor:
@@ -44,9 +45,10 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeStorage(target, world)
 	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
-	default:
-		return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 	}
+	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
+	// panic せず error で loud に落とす
+	return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 }
 
 func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*ActionResult, error) {

@@ -385,13 +385,6 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("探索結果", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{NewAutoSellState()},
-			})
-			return nil
-		}).
 		WithChoice("隊員スポーン", func(world w.World) error {
 			player, err := query.GetPlayerEntity(world)
 			if err != nil {

@@ -287,8 +287,8 @@ model DoorLockTriggerRaw {}
 /** 次階層ワープトリガー */
 model WarpNextTriggerRaw {}
 
-/** 脱出ワープトリガー */
-model WarpEscapeTriggerRaw {}
+/** 前階層ワープトリガー */
+model WarpPrevTriggerRaw {}
 
 /** ダンジョン選択ゲートトリガー */
 model DungeonGateTriggerRaw {}
@@ -319,7 +319,7 @@ model Prop {
   door?: DoorRaw;
   doorLockTrigger?: DoorLockTriggerRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
-  warpEscapeTrigger?: WarpEscapeTriggerRaw;
+  warpPrevTrigger?: WarpPrevTriggerRaw;
   dungeonGateTrigger?: DungeonGateTriggerRaw;
   storage?: StorageRaw;
 }

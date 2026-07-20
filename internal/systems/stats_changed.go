@@ -25,7 +25,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 	var updateErr error
 
 	var targets []ecs.Entity
-	statsQuery := ecs.NewFilter2[gc.StatsChanged, gc.Abilities](world.ECS).Query()
+	statsQuery := query.ActiveFilter2[gc.StatsChanged, gc.Abilities](world).Query()
 	for statsQuery.Next() {
 		targets = append(targets, statsQuery.Entity())
 	}

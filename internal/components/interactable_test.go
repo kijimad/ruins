@@ -144,7 +144,7 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 	t.Parallel()
 
 	kinds := []InteractionKind{
-		InteractionPortalNext, InteractionPortalTown, InteractionDungeonGate, InteractionDoor, InteractionDoorLock,
+		InteractionPortalNext, InteractionPortalPrev, InteractionDungeonGate, InteractionDoor, InteractionDoorLock,
 		InteractionTalk, InteractionItem, InteractionItemAll, InteractionStorage, InteractionMelee,
 	}
 

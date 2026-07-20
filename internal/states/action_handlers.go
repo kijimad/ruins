@@ -63,7 +63,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	var actions []InteractionAction
-	sameTileQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).Query()
+	sameTileQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()
 	for sameTileQuery.Next() {
 		entity := sameTileQuery.Entity()
 		if world.Components.Dead.Has(entity) {
@@ -150,9 +150,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionPortalTown:
+		case gc.InteractionPortalPrev:
 			result = append(result, InteractionAction{
-				Label:       "転移する(帰還)",
+				Label:       "転移する(前階)",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
@@ -180,8 +180,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 					Interaction: interaction,
 				})
 			}
-		default:
-			// アクションメニューに出さない種類は無視する
+		case gc.InteractionDoorLock, gc.InteractionItemAll:
+			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
+			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 		}
 	}
 

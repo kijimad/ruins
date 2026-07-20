@@ -91,8 +91,7 @@ func ExecuteWaitAction(world w.World) error {
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
 	var found *gc.Interactable
 	var foundEntity ecs.Entity
-	interactableQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).
-		Without(ecs.C[gc.Dead]()).Query()
+	interactableQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()
 	for interactableQuery.Next() {
 		entity := interactableQuery.Entity()
 		if found != nil {
@@ -113,7 +112,7 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
 	var results []ecs.Entity
 
-	rangeQuery := ecs.NewFilter2[gc.GridElement, gc.Interactable](world.ECS).Query()
+	rangeQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()
 	for rangeQuery.Next() {
 		entity := rangeQuery.Entity()
 		interactable := world.Components.Interactable.Get(entity)
@@ -183,16 +182,17 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Append("転移ゲートがある。Enterキーで移動。").
 					Log()
-			case gc.InteractionPortalTown:
+			case gc.InteractionPortalPrev:
 				gamelog.New(query.GetGameLog(world)).
-					Append("帰還ゲートがある。Enterキーで脱出。").
+					Append("上り階段がある。Enterキーで移動。").
 					Log()
 			case gc.InteractionDungeonGate:
 				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").
 					Log()
-			default:
-				// ログ表示対象外の種類は何もしない
+			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee:
+				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
+				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}
 		}
 	}

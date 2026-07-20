@@ -63,7 +63,6 @@ func InitTestWorld(tb testing.TB) w.World {
 				"player_0":     {Width: 32, Height: 32},
 				"player_1":     {Width: 32, Height: 32},
 				"warp_next":    {Width: 32, Height: 32},
-				"warp_escape":  {Width: 32, Height: 32},
 				"red_ball":     {Width: 32, Height: 32},
 			},
 		},

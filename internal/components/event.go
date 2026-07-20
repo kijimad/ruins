@@ -9,11 +9,20 @@ import (
 // 非公開メソッドで実装先をこのパッケージ内に限定する。
 type StatePayload interface{ isStatePayload() }
 
-// WarpNext は次の階層への移動
-type WarpNext struct{}
+// WarpDescend は下り階段による1つ下の階への移動
+type WarpDescend struct{}
 
-// WarpEscape は脱出ポータルによる帰還
-type WarpEscape struct{}
+// WarpAscend は上り階段による1つ上の階への移動
+type WarpAscend struct{}
+
+// WarpRuinEnter は遺跡入口からの遺跡進入
+type WarpRuinEnter struct {
+	// DefinitionName は進入する遺跡の定義名
+	DefinitionName string
+}
+
+// WarpRuinExit は遺跡地上からオーバーワールドへの脱出
+type WarpRuinExit struct{}
 
 // GameClear はゲームクリア
 type GameClear struct{}
@@ -32,8 +41,10 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納Propのエンティティ
 }
 
-func (WarpNext) isStatePayload()          {}
-func (WarpEscape) isStatePayload()        {}
+func (WarpDescend) isStatePayload()       {}
+func (WarpAscend) isStatePayload()        {}
+func (WarpRuinEnter) isStatePayload()     {}
+func (WarpRuinExit) isStatePayload()      {}
 func (GameClear) isStatePayload()         {}
 func (OpenDungeonSelect) isStatePayload() {}
 func (ShowDialog) isStatePayload()        {}
@@ -46,11 +57,19 @@ type StateChangeRequest struct {
 	Payload StatePayload
 }
 
-// WarpNextEvent は次の階層への移動リクエストを生成する
-func WarpNextEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpNext{}} }
+// WarpDescendEvent は下り階段による移動リクエストを生成する
+func WarpDescendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpDescend{}} }
 
-// WarpEscapeEvent は脱出ポータルによる帰還リクエストを生成する
-func WarpEscapeEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpEscape{}} }
+// WarpAscendEvent は上り階段による移動リクエストを生成する
+func WarpAscendEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpAscend{}} }
+
+// WarpRuinEnterEvent は遺跡進入リクエストを生成する
+func WarpRuinEnterEvent(definitionName string) StateChangeRequest {
+	return StateChangeRequest{Payload: WarpRuinEnter{DefinitionName: definitionName}}
+}
+
+// WarpRuinExitEvent は遺跡地上からオーバーワールドへの脱出リクエストを生成する
+func WarpRuinExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpRuinExit{}} }
 
 // GameClearEvent はゲームクリアリクエストを生成する
 func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }

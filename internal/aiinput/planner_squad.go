@@ -253,7 +253,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 	var nearestItemGrid *gc.GridElement
 	nearestDist := -1
 
-	itemQuery := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()
+	itemQuery := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Query()
 	for itemQuery.Next() {
 		item := itemQuery.Entity()
 		if !query.IsPickable(item, world) {

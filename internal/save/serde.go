@@ -105,6 +105,28 @@ func reestablishSingleton(world w.World) error {
 	return nil
 }
 
+// validateStages は復元したステージ関連の値の整合を検査する。
+// セーブファイルは信頼境界であり、コンストラクタを通らない不正な StageKey が
+// 紛れうる。StageBound の所属キーと Dungeon.CurrentStage を Validate で弾く。
+// ロックを避けるため先にキーを集め、反復を終えてから検証する
+func validateStages(world w.World) error {
+	var keys []gc.StageKey
+	dq := ecs.NewFilter1[gc.Dungeon](world.ECS).Query()
+	for dq.Next() {
+		keys = append(keys, world.Components.Dungeon.Get(dq.Entity()).CurrentStage)
+	}
+	mq := ecs.NewFilter1[gc.StageBound](world.ECS).Query()
+	for mq.Next() {
+		keys = append(keys, world.Components.StageBound.Get(mq.Entity()).Key)
+	}
+	for _, k := range keys {
+		if err := k.Validate(); err != nil {
+			return fmt.Errorf("復元したステージキーが不正です: %w", err)
+		}
+	}
+	return nil
+}
+
 // extractPlayerName はワールドからプレイヤー名を取得する。存在しなければ空文字を返す。
 // クエリを途中でreturnするとワールドがロックされたままになるため、必ず最後まで反復する
 func extractPlayerName(world w.World) string {

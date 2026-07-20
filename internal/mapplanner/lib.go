@@ -46,8 +46,6 @@ type MetaPlan struct {
 	Tiles []oapi.Tile
 	// NextPortals は次の階へ進むポータルリスト
 	NextPortals []consts.Coord[consts.Tile]
-	// EscapePortals は脱出用ポータルリスト
-	EscapePortals []consts.Coord[consts.Tile]
 	// NPCs は配置予定のNPCリスト
 	NPCs []NPCSpec
 	// Items は配置予定のアイテムリスト
@@ -83,10 +81,6 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool {
 	if slices.Contains(bm.NextPortals, pos) {
-		return true
-	}
-
-	if slices.Contains(bm.EscapePortals, pos) {
 		return true
 	}
 
@@ -302,16 +296,15 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 				TileWidth:  width,
 				TileHeight: height,
 			},
-			Tiles:         tiles,
-			Rooms:         []gc.Rect{},
-			Corridors:     [][]gc.TileIdx{},
-			RNG:           rand.New(rand.NewPCG(seed, seed+1)),
-			NextPortals:   []consts.Coord[consts.Tile]{},
-			EscapePortals: []consts.Coord[consts.Tile]{},
-			NPCs:          []NPCSpec{},
-			Items:         []ItemSpec{},
-			Props:         []PropsSpec{},
-			Doors:         []DoorSpec{},
+			Tiles:       tiles,
+			Rooms:       []gc.Rect{},
+			Corridors:   [][]gc.TileIdx{},
+			RNG:         rand.New(rand.NewPCG(seed, seed+1)),
+			NextPortals: []consts.Coord[consts.Tile]{},
+			NPCs:        []NPCSpec{},
+			Items:       []ItemSpec{},
+			Props:       []PropsSpec{},
+			Doors:       []DoorSpec{},
 		},
 	}
 }

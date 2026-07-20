@@ -335,6 +335,26 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		assert.Equal(t, "攻撃する(木箱)", actions[0].Label)
 	})
 
+	t.Run("上り階段は前階へ転移するアクションを出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		// 上り階段はプレイヤーと同じタイル。SameTile 発動
+		stairs := world.ECS.NewEntity()
+		world.Components.GridElement.Add(stairs, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		world.Components.Interactable.Add(stairs, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionPortalPrev},
+		})
+
+		actions := GetInteractionActions(world)
+		require.Len(t, actions, 1)
+		assert.Equal(t, "転移する(前階)", actions[0].Label)
+	})
+
 	t.Run("敵対NPCもメニューに表示される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

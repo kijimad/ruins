@@ -36,8 +36,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 
 	// プレイヤーの範囲内にある相互作用を検索
 	var interactablesToProcess []ecs.Entity
-	interactableQuery := ecs.NewFilter2[gc.Interactable, gc.GridElement](world.ECS).
-		Without(ecs.C[gc.Dead]()).Query()
+	interactableQuery := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Without(ecs.C[gc.Dead]()).Query()
 	for interactableQuery.Next() {
 		entity := interactableQuery.Entity()
 		interactable := world.Components.Interactable.Get(entity)

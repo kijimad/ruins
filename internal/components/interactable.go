@@ -33,8 +33,8 @@ type InteractionKind string
 const (
 	// InteractionPortalNext は次の階層へ進むポータル
 	InteractionPortalNext InteractionKind = "PORTAL_NEXT"
-	// InteractionPortalTown は街へ帰還するポータル
-	InteractionPortalTown InteractionKind = "PORTAL_TOWN"
+	// InteractionPortalPrev は1つ上の階層へ戻るポータル
+	InteractionPortalPrev InteractionKind = "PORTAL_PREV"
 	// InteractionDungeonGate はダンジョン選択門の相互作用（発動でダンジョン選択メニューを開く）
 	InteractionDungeonGate InteractionKind = "DUNGEON_GATE"
 	// InteractionDoor は扉の相互作用
@@ -53,10 +53,12 @@ const (
 	InteractionMelee InteractionKind = "MELEE"
 )
 
-// Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値を返す
+// Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
+// switch に default を置かず、既知種別の網羅漏れを exhaustive linter に検知させる。
+// 未知入力は raw/save 由来でありうるので panic せず末尾のゼロ値へ graceful に落とす
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
-	case InteractionPortalNext, InteractionPortalTown, InteractionDungeonGate, InteractionItem, InteractionItemAll:
+	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonGate, InteractionItem, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
@@ -64,9 +66,8 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}
 	case InteractionStorage:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
-	default:
-		return InteractionConfig{}
 	}
+	return InteractionConfig{}
 }
 
 // ActivationRange は相互作用の発動範囲を表す

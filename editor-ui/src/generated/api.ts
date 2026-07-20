@@ -813,9 +813,9 @@ export interface Prop {
      */
     'warpNextTrigger'?: object;
     /**
-     * 脱出ワープトリガー
+     * 前階層ワープトリガー
      */
-    'warpEscapeTrigger'?: object;
+    'warpPrevTrigger'?: object;
     /**
      * ダンジョン選択ゲートトリガー
      */

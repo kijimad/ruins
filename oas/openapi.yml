@@ -2443,8 +2443,8 @@ components:
           $ref: '#/components/schemas/DoorLockTriggerRaw'
         warpNextTrigger:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
-        warpEscapeTrigger:
-          $ref: '#/components/schemas/WarpEscapeTriggerRaw'
+        warpPrevTrigger:
+          $ref: '#/components/schemas/WarpPrevTriggerRaw'
         dungeonGateTrigger:
           $ref: '#/components/schemas/DungeonGateTriggerRaw'
         storage:
@@ -3869,12 +3869,12 @@ components:
       minimum: -100
       maximum: 100
       description: 体力。HPに影響する
-    WarpEscapeTriggerRaw:
-      type: object
-      description: 脱出ワープトリガー
     WarpNextTriggerRaw:
       type: object
       description: 次階層ワープトリガー
+    WarpPrevTriggerRaw:
+      type: object
+      description: 前階層ワープトリガー
     WaterType:
       type: number
       enum:

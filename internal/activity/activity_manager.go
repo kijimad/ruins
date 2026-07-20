@@ -268,7 +268,8 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
 func ProcessContinuousActivities(world w.World) {
 	var entities []ecs.Entity
-	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
+	// 退避中ステージのエンティティのアクティビティは進めない
+	activityQuery := query.ActiveFilter1[gc.Activity](world).Query()
 	for activityQuery.Next() {
 		entities = append(entities, activityQuery.Entity())
 	}
@@ -315,7 +316,7 @@ func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destina
 // getPassCostAt は指定座標にあるPropのPassCostを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
 	total := 0
-	passCostQuery := ecs.NewFilter2[gc.GridElement, gc.PassCost](world.ECS).Query()
+	passCostQuery := query.ActiveFilter2[gc.GridElement, gc.PassCost](world).Query()
 	for passCostQuery.Next() {
 		entity := passCostQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

@@ -4,6 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 
 	"github.com/mlange-42/ark/ecs"
 )
@@ -14,7 +15,8 @@ import (
 // バックパック/装備アイテムは GridElement を持たないため対象外で、クエリで自然に除外される。
 // コンポーネント値の書き換えのみでアーキタイプは変えないため、クエリ反復中の更新で安全。
 func TranslateAllEntities(world w.World, dx, dy consts.Tile) {
-	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	// 帯シフトは現ステージ(帯)だけを動かす。退避中ステージの座標は動かさない
+	q := query.ActiveFilter1[gc.GridElement](world).Query()
 	for q.Next() {
 		grid := world.Components.GridElement.Get(q.Entity())
 		grid.X += dx
@@ -29,7 +31,8 @@ func TranslateAllEntities(world w.World, dx, dy consts.Tile) {
 // 反復中の削除を避けるため、対象を収集してから削除する。
 func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {
 	var toRemove []ecs.Entity
-	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	// 西端チャンク破棄は現ステージ(帯)だけが対象。退避中ステージは消さない
+	q := query.ActiveFilter1[gc.GridElement](world).Query()
 	for q.Next() {
 		entity := q.Entity()
 		grid := world.Components.GridElement.Get(entity)

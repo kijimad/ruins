@@ -162,10 +162,10 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 	iSprite := 0
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 	// タイル総数を上限に確保する。viewport カリングで実際に詰めるのは一部だけ
-	countQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
+	countQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	entities := make([]ecs.Entity, countQuery.Count())
 	countQuery.Close()
-	tileQuery := ecs.NewFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world.ECS).Query()
+	tileQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
 		// 画面外のタイルはソートも描画もしない
@@ -213,8 +213,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 
 	// タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む
-	objectQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).
-		Without(ecs.C[gc.Tile]()).Query()
+	objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objectQuery.Next() {
 		entity := objectQuery.Entity()
 		// 画面外は描画しない
@@ -251,7 +250,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 
 	// 物体の影
-	moverShadowQuery := ecs.NewFilter2[gc.SpriteRender, gc.GridElement](world.ECS).Query()
+	moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()
 	for moverShadowQuery.Next() {
 		entity := moverShadowQuery.Entity()
 		// TurnBased または Prop を持つエンティティのみ
@@ -293,7 +292,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 	// 毎フレーム map 化するのを避ける
 	tileMap := make(map[gc.GridElement]ecs.Entity)
 	// 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/Prop を走査から除く
-	tileMapQuery := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
+	tileMapQuery := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()
 	for tileMapQuery.Next() {
 		e := tileMapQuery.Entity()
 		ge := world.Components.GridElement.Get(e)
@@ -303,7 +302,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		tileMap[*ge] = e
 	}
 
-	wallShadowQuery := ecs.NewFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world.ECS).Query()
+	wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world).Query()
 	for wallShadowQuery.Next() {
 		entity := wallShadowQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

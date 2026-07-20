@@ -257,25 +257,6 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 		assert.Equal(t, gc.BehaviorPortal, result.ActivityName)
 	})
 
-	t.Run("街への帰還", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-
-		portalEntity := world.ECS.NewEntity()
-		world.Components.Interactable.Add(portalEntity, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionPortalTown},
-		})
-
-		result, err := ExecuteInteraction(player, portalEntity, gc.InteractionPortalTown, world)
-
-		require.NoError(t, err)
-		require.NotNil(t, result)
-		assert.True(t, result.Success, "帰還ポータル相互作用が成功するべき")
-		assert.Equal(t, gc.BehaviorPortal, result.ActivityName)
-	})
 }
 
 // TestExecuteInteraction_DungeonGate はダンジョンゲート相互作用の動作を確認

@@ -115,6 +115,45 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	assert.NotNil(t, restored.VisibleTiles, "可視マップが空mapで初期化される")
 }
 
+// TestSerde_StageBoundとSuspendedが往復する は共存方式の永続状態が
+// セーブ・ロードで復元されることを検証する。退避中ステージのエンティティは StageBound と
+// Suspended を持ったまま world に残るため、これらが serde 対象で、ロード後も稼働/非稼働の
+// 別が保たれる必要がある。CurrentStage も含めて往復を確認する。
+func TestSerde_StageBoundとSuspendedが往復する(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+
+	key := gc.NewDungeonStage(2)
+	query.GetDungeon(world).CurrentStage = key
+
+	// 退避中ステージのエンティティ相当。StageBound を持ち Suspended で退避されている
+	e := world.ECS.NewEntity()
+	world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
+	world.Components.Suspended.Add(e, &gc.Suspended{})
+
+	require.NoError(t, manager.SaveWorld(world, "stage"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "stage"))
+
+	assert.Equal(t, key, query.GetDungeon(newWorld).CurrentStage, "現ステージが復元される")
+
+	var restored []ecs.Entity
+	q := ecs.NewFilter1[gc.StageBound](newWorld.ECS).Query()
+	for q.Next() {
+		restored = append(restored, q.Entity())
+	}
+	require.Len(t, restored, 1, "StageBound を持つエンティティが1つ復元される")
+	assert.Equal(t, key, newWorld.Components.StageBound.Get(restored[0]).Key, "所属ステージが復元される")
+	assert.True(t, newWorld.Components.Suspended.Has(restored[0]), "退避状態が復元される")
+}
+
 // TestSerde_SoloAITargetEntityRemaps は SoloAI.TargetEntity（*ecs.Entity）が
 // セーブ・ロード往復でエンティティ参照として整合することを検証する。
 // ark-serde はエンティティプール（ID・世代）ごと保存・再構築し、参照を再マッピングするため、

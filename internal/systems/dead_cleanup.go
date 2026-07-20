@@ -31,8 +31,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// Deadコンポーネントを持つエンティティを検索
 	var toDelete []ecs.Entity
-	deadQuery := ecs.NewFilter1[gc.Dead](world.ECS).
-		Without(ecs.C[gc.Player]()).Query()
+	deadQuery := query.ActiveFilter1[gc.Dead](world).Without(ecs.C[gc.Player]()).Query()
 	for deadQuery.Next() {
 		entity := deadQuery.Entity()
 		toDelete = append(toDelete, entity)

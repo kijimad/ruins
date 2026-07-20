@@ -16,21 +16,21 @@ func TestRequestStateChange(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		err := RequestStateChange(world, gc.WarpNextEvent())
+		err := RequestStateChange(world, gc.WarpDescendEvent())
 		require.NoError(t, err)
 
 		req := ConsumeStateChange(world)
-		assert.IsType(t, gc.WarpNext{}, req.Payload)
+		assert.IsType(t, gc.WarpDescend{}, req.Payload)
 	})
 
 	t.Run("既にリクエストが設定されている場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		err := RequestStateChange(world, gc.WarpNextEvent())
+		err := RequestStateChange(world, gc.WarpAscendEvent())
 		require.NoError(t, err)
 
-		err = RequestStateChange(world, gc.WarpEscapeEvent())
+		err = RequestStateChange(world, gc.WarpDescendEvent())
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "リクエストがすでに設定されています")
 	})
@@ -53,10 +53,10 @@ func TestRequestStateChange(t *testing.T) {
 		req := ConsumeStateChange(world)
 		assert.IsType(t, gc.GameClear{}, req.Payload)
 
-		err = RequestStateChange(world, gc.WarpEscapeEvent())
+		err = RequestStateChange(world, gc.WarpDescendEvent())
 		require.NoError(t, err)
 
 		req = ConsumeStateChange(world)
-		assert.IsType(t, gc.WarpEscape{}, req.Payload)
+		assert.IsType(t, gc.WarpDescend{}, req.Payload)
 	})
 }

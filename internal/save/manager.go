@@ -114,6 +114,11 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := reestablishSingleton(world); err != nil {
 		return fmt.Errorf("failed to reestablish singleton: %w", err)
 	}
+
+	// 信頼境界。復元したステージキーの整合を検査する
+	if err := validateStages(world); err != nil {
+		return fmt.Errorf("failed to validate stages: %w", err)
+	}
 	return nil
 }
 

@@ -150,7 +150,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	// AI状態情報と視界範囲情報を抽出
 	var aiStates []hud.AIStateInfo
 	var visionRanges []hud.VisionRangeInfo
-	soloAIQuery := ecs.NewFilter2[gc.GridElement, gc.SoloAI](world.ECS).Query()
+	soloAIQuery := query.ActiveFilter2[gc.GridElement, gc.SoloAI](world).Query()
 	for soloAIQuery.Next() {
 		entity := soloAIQuery.Entity()
 		gridElement := world.Components.GridElement.Get(entity)
@@ -186,7 +186,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 
 	// HP表示情報を抽出（プレイヤー以外のHPを持つエンティティ）
 	var hpDisplays []hud.HPDisplayInfo
-	hpDisplayQuery := ecs.NewFilter2[gc.GridElement, gc.HP](world.ECS).Query()
+	hpDisplayQuery := query.ActiveFilter2[gc.GridElement, gc.HP](world).Query()
 	for hpDisplayQuery.Next() {
 		entity := hpDisplayQuery.Entity()
 		// プレイヤーは除外
@@ -270,7 +270,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 	// 全エンティティをスキャンしてタイル情報をマップに格納
 	tileTypeMap := make(map[gc.GridElement]bool) // true=壁, false=床
 
-	tileQuery := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
+	tileQuery := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

@@ -68,7 +68,7 @@ func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 	}
 
 	hasPickable := false
-	pickableQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	pickableQuery := query.ActiveFilter1[gc.GridElement](world).Query()
 	for pickableQuery.Next() {
 		entity := pickableQuery.Entity()
 		if hasPickable {
@@ -141,7 +141,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 	// 対象タイルの拾得可能なエンティティを検索
 	var toCollect []ecs.Entity
-	collectQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	collectQuery := query.ActiveFilter1[gc.GridElement](world).Query()
 	for collectQuery.Next() {
 		entity := collectQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

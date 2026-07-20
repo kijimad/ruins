@@ -11,7 +11,6 @@
   # Propsの定義
   [palette.props]
     "!" = {id = "door_lock_trigger", tile = "floor"} # ドアロックトリガー
-    "<" = {id = "warp_escape", tile = "floor"}       # 帰還ポータル
 
   # NPCの定義
   [palette.npcs]

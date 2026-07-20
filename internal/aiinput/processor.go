@@ -58,12 +58,14 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 	var targets []ecs.Entity
 	switch plannerType {
 	case gc.PlannerSquad:
-		squadQuery := ecs.NewFilter2[gc.SquadAI, gc.GridElement](world.ECS).Query()
+		// 退避中ステージのAIはターンを取らない
+		squadQuery := query.ActiveFilter2[gc.SquadAI, gc.GridElement](world).Query()
 		for squadQuery.Next() {
 			targets = append(targets, squadQuery.Entity())
 		}
 	case gc.PlannerSolo:
-		soloQuery := ecs.NewFilter2[gc.SoloAI, gc.GridElement](world.ECS).Query()
+		// 退避中ステージのAIはターンを取らない
+		soloQuery := query.ActiveFilter2[gc.SoloAI, gc.GridElement](world).Query()
 		for soloQuery.Next() {
 			targets = append(targets, soloQuery.Entity())
 		}

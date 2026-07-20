@@ -13318,29 +13318,6 @@ spriteKey = "toilet"
 spriteSheetName = "field"
 
 [[props]]
-animKeys = [ "warp_escape_0", "warp_escape_1", "warp_escape_2", "warp_escape_3", "warp_escape_4", "warp_escape_5", "warp_escape_6", "warp_escape_7", "warp_escape_8", "warp_escape_9", "warp_escape_10", "warp_escape_11", "warp_escape_12", "warp_escape_13", "warp_escape_14", "warp_escape_15" ]
-blockPass = false
-blockView = false
-description = "街へと繋がる帰還ポータル"
-name = "warp_escape"
-
-[props.spriteRender]
-depth = 1
-spriteKey = "warp_escape_0"
-spriteSheetName = "field"
-
-[props.lightSource]
-enabled = true
-radius = 2
-
-[props.lightSource.color]
-a = 200
-b = 100
-g = 255
-r = 200
-
-[props.warpEscapeTrigger]
-[[props]]
 animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15" ]
 blockPass = false
 blockView = false
@@ -13363,6 +13340,29 @@ g = 200
 r = 100
 
 [props.warpNextTrigger]
+[[props]]
+animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15" ]
+blockPass = false
+blockView = false
+description = "1つ上の階層へと戻るポータル"
+name = "warp_prev"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "warp_next_0"
+spriteSheetName = "field"
+
+[props.lightSource]
+enabled = true
+radius = 2
+
+[props.lightSource.color]
+a = 200
+b = 255
+g = 200
+r = 100
+
+[props.warpPrevTrigger]
 [[props]]
 blockPass = true
 blockView = false

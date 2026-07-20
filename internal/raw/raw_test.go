@@ -645,6 +645,33 @@ MaxWeight = "20 kg"
 	assert.True(t, ok, "Storage付きPropにはStorageInteractionが設定されるべき")
 }
 
+func TestPropWithWarpPrev(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "上り階段"
+Description = "1つ上の階層へ戻るポータル"
+BlockPass = false
+BlockView = false
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "warp_next_0"
+Depth = 1
+
+[Props.WarpPrevTrigger]
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	entitySpec, err := NewPropSpec(raws, "上り階段")
+	require.NoError(t, err)
+
+	require.NotNil(t, entitySpec.Interactable, "WarpPrevTrigger付きPropにはInteractableが設定されるべき")
+	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionPortalPrev,
+		"WarpPrevTrigger付きPropは InteractionPortalPrev を持つべき")
+}
+
 func TestPropWithoutStorage(t *testing.T) {
 	t.Parallel()
 	str := `

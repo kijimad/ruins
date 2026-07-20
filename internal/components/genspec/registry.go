@@ -51,6 +51,10 @@ var Registry = []Def{
 	{Field: "VisualEffects", Comment: "紐づくビジュアルエフェクトを管理する"},
 	{Field: "TileTemperature", Comment: "タイルの気温修正値を保持する"},
 
+	// stage ================
+	{Field: "StageBound", Comment: "束縛先ステージを保持する。往復するステージの同定に使う"},
+	{Field: "Suspended", Comment: "現ステージ以外に属し稼働しないことを示すマーカー"},
+
 	// member ================
 	{Field: "Player", Comment: "操作対象の主人公であることを示す"},
 	{Field: "Profession", Comment: "選択した職業を保持する"},

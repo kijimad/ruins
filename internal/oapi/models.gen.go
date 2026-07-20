@@ -1284,11 +1284,11 @@ type Prop struct {
 	// Storage 収納ローデータ
 	Storage *StorageRaw `json:"storage,omitempty"`
 
-	// WarpEscapeTrigger 脱出ワープトリガー
-	WarpEscapeTrigger *WarpEscapeTriggerRaw `json:"warpEscapeTrigger,omitempty"`
-
 	// WarpNextTrigger 次階層ワープトリガー
 	WarpNextTrigger *WarpNextTriggerRaw `json:"warpNextTrigger,omitempty"`
+
+	// WarpPrevTrigger 前階層ワープトリガー
+	WarpPrevTrigger *WarpPrevTriggerRaw `json:"warpPrevTrigger,omitempty"`
 }
 
 // PropList 置物一覧
@@ -2257,11 +2257,11 @@ type ViewDistance = int32
 // Vitality 体力。HPに影響する
 type Vitality = int32
 
-// WarpEscapeTriggerRaw 脱出ワープトリガー
-type WarpEscapeTriggerRaw = map[string]interface{}
-
 // WarpNextTriggerRaw 次階層ワープトリガー
 type WarpNextTriggerRaw = map[string]interface{}
+
+// WarpPrevTriggerRaw 前階層ワープトリガー
+type WarpPrevTriggerRaw = map[string]interface{}
 
 // WaterType 水タイプ
 type WaterType float32
