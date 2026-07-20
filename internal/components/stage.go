@@ -6,67 +6,53 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
-// StageKind はステージの種類を表す。往復するステージを種別で区別する
-type StageKind string
-
-const (
-	// StageKindOverworld はオーバーワールド帯を表す
-	StageKindOverworld StageKind = "overworld"
-	// StageKindDungeon はダンジョンの階を表す
-	StageKindDungeon StageKind = "dungeon"
-)
+// OverworldStageName はオーバーワールド帯ステージの識別名。ダンジョン定義
+// DungeonOverworld.Name と一致させ、通常ダンジョン階と区別する。
+const OverworldStageName = "オーバーワールド"
 
 // StageKey はステージを一意に識別する。共存する各ステージのエンティティを同定するのに使う。
-// 比較可能な値だけで構成し、StageBound のフィールドや現在ステージ指標として等値比較する
+// オーバーワールドもダンジョンも同じ探索で、本質的な違いは帯の有無だけなので種別は設けない。
+// オーバーワールドは深度0、ダンジョン階は深度1以上で区別する。比較可能な値だけで構成する。
 type StageKey struct {
-	// Kind はステージの種類を表す
-	Kind StageKind
-	// Name は遺跡定義名を保持する。オーバーワールドから入る遺跡は進入先を区別
-	// するため設定する。1回の潜行スコープの通常ダンジョンでは空でよい
+	// Name はステージ定義名を保持する。オーバーワールドは OverworldStageName、オーバーワールド
+	// から入るダンジョンは進入先を区別する定義名。1回の潜行スコープの通常ダンジョンでは空でよい
 	Name string
-	// Depth は階の深度を表す。オーバーワールドは 0 とする
+	// Depth は階の深度を表す。オーバーワールドは 0、ダンジョン階は 1 以上
 	Depth int
 }
 
-// NewOverworldStage はオーバーワールド帯のステージキーを返す。
-func NewOverworldStage() StageKey { return StageKey{Kind: StageKindOverworld} }
+// NewOverworldStage はオーバーワールド帯のステージキーを返す。深度0で名前を持つ。
+func NewOverworldStage() StageKey { return StageKey{Name: OverworldStageName} }
 
 // NewDungeonStage は深度 depth の名前なしダンジョン階のステージキーを返す。
 func NewDungeonStage(depth int) StageKey {
-	return StageKey{Kind: StageKindDungeon, Depth: depth}
+	return StageKey{Depth: depth}
 }
 
-// NewNamedDungeonStage は遺跡定義 name・深度 depth の遺跡階のステージキーを返す。
-// オーバーワールドから入る遺跡は、複数の入口を区別するため定義名を持たせる。
+// NewNamedDungeonStage は定義 name・深度 depth のダンジョン階のステージキーを返す。
+// オーバーワールドから入るダンジョンは、複数の入口を区別するため定義名を持たせる。
 func NewNamedDungeonStage(name string, depth int) StageKey {
-	return StageKey{Kind: StageKindDungeon, Name: name, Depth: depth}
+	return StageKey{Name: name, Depth: depth}
 }
 
 // Validate はステージキーの整合を検査する。ロード直後など信頼できない入力に使う。
-// Kind ごとに設定してよいフィールドが決まっており、それ以外が埋まっていれば不正とみなす。
-// これでコンストラクタを通さず組み立てられた不正なキーを境界で弾ける。
-// default を置かず既知種別を網羅させ、未知種別は末尾で loud に error にする
+// オーバーワールドは深度0、それ以外の実ステージは深度1以上、という不変条件を守らせる。
 func (k StageKey) Validate() error {
 	// ゼロ値はどのステージにも属さない未設定として許容する。町にいるときの
 	// CurrentStage などステージ未割り当ての状態が正当にありうる
 	if k == (StageKey{}) {
 		return nil
 	}
-	switch k.Kind {
-	case StageKindOverworld:
-		// オーバーワールドは深度も遺跡名も持たない
-		if k.Name != "" || k.Depth != 0 {
-			return fmt.Errorf("オーバーワールドステージに余分な値がある: Name=%q Depth=%d", k.Name, k.Depth)
-		}
-		return nil
-	case StageKindDungeon:
-		// ダンジョンは1階以上の深度を持つ。遺跡名は任意で、オーバーワールドから入るときだけ設定する
-		if k.Depth < 1 {
-			return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)
+	if k.Name == OverworldStageName {
+		if k.Depth != 0 {
+			return fmt.Errorf("オーバーワールドステージの深度が不正: %d", k.Depth)
 		}
 		return nil
 	}
-	return fmt.Errorf("未知のステージ種別: %q", k.Kind)
+	if k.Depth < 1 {
+		return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)
+	}
+	return nil
 }
 
 // StageBound はエンティティがどのステージに束縛され、そのライフサイクルを共にするかを表す。

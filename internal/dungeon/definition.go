@@ -13,6 +13,9 @@ type Definition struct {
 	PlannerPool     []PlannerWeight         // 使用するマップ種類と重み
 	BaseTemperature int                     // 基本気温（摂氏）
 	BossPlannerType *mapplanner.PlannerType // 最終階層で使用するボスフロアプランナー。nilの場合はボスフロアなし
+	// Seamless はフロアを作り直さずアクティブ帯をスライドさせ続けるオーバーワールド型かを表す。
+	// オーバーワールドとダンジョンの本質的な違いはこの帯の有無だけで、他は同じ探索として扱う
+	Seamless bool
 }
 
 // PlannerWeight はマップ種類と出現重みのペアを表す

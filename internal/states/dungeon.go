@@ -43,18 +43,24 @@ type DungeonState struct {
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
 
-	// isOverworld はオーバーワールドモード。フロアを作り直さずアクティブ帯をスライドさせ続ける。
-	// OnStart/Update/String がこのフラグで分岐する。以下の帯フィールドはこのとき使う
-	isOverworld bool
-	planner     mapplanner.PlannerType
-	newGame     *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
-	band        *worldstream.Band
-	gen         worldstream.ChunkGen
-	frontCfg    worldstream.FrontConfig
+	// 帯フィールドはオーバーワールドモード(定義が Seamless)のときだけ使う。
+	// フロアを作り直さずアクティブ帯をスライドさせ続ける
+	planner  mapplanner.PlannerType
+	newGame  *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
+	band     *worldstream.Band
+	gen      worldstream.ChunkGen
+	frontCfg worldstream.FrontConfig
+}
+
+// isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
+// 本質的な違いは帯の有無だけで、それはダンジョン定義の Seamless が表す。
+func (st DungeonState) isSeamless() bool {
+	def, ok := dungeon.GetDungeon(st.DefinitionName)
+	return ok && def.Seamless
 }
 
 func (st DungeonState) String() string {
-	if st.isOverworld {
+	if st.isSeamless() {
 		return "Overworld"
 	}
 	return "Dungeon"
@@ -73,7 +79,7 @@ func (st *DungeonState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
-	if st.isOverworld {
+	if st.isSeamless() {
 		return st.onStartOverworld(world)
 	}
 	screenWidth := world.Resources.ScreenDimensions.Width
@@ -323,9 +329,9 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	st.Depth = target.Depth
 	d := query.GetDungeon(world)
 	d.Depth = target.Depth
-	// オーバーワールドへ戻ったら遺跡定義名をクリアする。残すと OnStart の再構築や
+	// オーバーワールド(深度0)へ戻ったら遺跡定義名をクリアする。残すと OnStart の再構築や
 	// タイトルエフェクトが古い遺跡名を参照しうる
-	if target.Kind == gc.StageKindOverworld {
+	if target.Depth == 0 {
 		d.DefinitionName = ""
 	}
 
@@ -474,10 +480,11 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// BaseStateの共通処理を使用
 	transition = st.ConsumeTransition()
-	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。構築時フラグでなく
-	// 現ステージ種別で判定するのは、遺跡へ入ると同一 State 内で現ステージが遺跡へ変わり、
-	// そのあいだ帯を触ってはならないため。死亡やリクエスト遷移で早期 return したフレームも触らない
-	if query.GetDungeon(world).CurrentStage.Kind == gc.StageKindOverworld && transition.Type == es.TransNone {
+	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯ドライバは
+	// オーバーワールド State だけが持ち、現ステージ深度0がオーバーワールドを表す。遺跡へ入ると
+	// 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。街は band が nil で
+	// 除外される。死亡やリクエスト遷移で早期 return したフレームも触らない
+	if st.band != nil && query.GetDungeon(world).CurrentStage.Depth == 0 && transition.Type == es.TransNone {
 		st.updateFront(world)
 		if serr := st.maybeShift(world); serr != nil {
 			return es.Transition[w.World]{}, serr

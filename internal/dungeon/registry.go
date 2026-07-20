@@ -62,6 +62,15 @@ var (
 		},
 	}
 
+	// DungeonOverworld はオーバーワールド帯を表すダンジョン定義。
+	// Seamless=true でフロアを作り直さず帯をスライドさせ続ける。他のダンジョンとの違いはこれだけ。
+	DungeonOverworld = Definition{
+		Name:            "オーバーワールド",
+		TotalFloors:     1,
+		BaseTemperature: 0,
+		Seamless:        true,
+	}
+
 	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = Definition{
 		Name:            "忘却の廃都",
@@ -105,6 +114,7 @@ func GetAllDungeonNames() []string {
 var internalDungeons = []Definition{
 	DungeonTown,
 	DungeonDebug,
+	DungeonOverworld,
 }
 
 // GetDungeon は名前からダンジョン定義を取得する

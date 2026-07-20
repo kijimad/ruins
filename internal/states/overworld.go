@@ -52,9 +52,10 @@ const (
 func NewOverworldState(planner mapplanner.PlannerType, params *NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &DungeonState{
-			isOverworld: true,
-			planner:     planner,
-			newGame:     params,
+			// 定義名を Seamless なオーバーワールド定義にすることで、OnStart が帯モードへ分岐する
+			DefinitionName: dungeon.DungeonOverworld.Name,
+			planner:        planner,
+			newGame:        params,
 		}, nil
 	}
 }

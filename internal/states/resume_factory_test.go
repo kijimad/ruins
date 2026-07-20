@@ -21,7 +21,7 @@ func TestNewResumeStateFactory_シームレスならOverworld(t *testing.T) {
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
 	require.True(t, ok, "統合後はどちらも DungeonState")
-	assert.True(t, st.isOverworld, "SeamlessBand.Active ならオーバーワールドモードで復帰する")
+	assert.True(t, st.isSeamless(), "SeamlessBand.Active ならオーバーワールドモードで復帰する")
 }
 
 func TestNewResumeStateFactory_通常はDungeon(t *testing.T) {
@@ -34,5 +34,5 @@ func TestNewResumeStateFactory_通常はDungeon(t *testing.T) {
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
 	require.True(t, ok, "通常は DungeonState で復帰する")
-	assert.False(t, st.isOverworld, "SeamlessBand 非アクティブなら通常ダンジョンモード")
+	assert.False(t, st.isSeamless(), "SeamlessBand 非アクティブなら通常ダンジョンモード")
 }
