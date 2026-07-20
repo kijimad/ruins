@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	leakStageA = gc.StageKey{Kind: gc.StageKindDungeon, Depth: 1}
-	leakStageB = gc.StageKey{Kind: gc.StageKindDungeon, Depth: 2}
+	leakStageA = gc.NewDungeonStage(1)
+	leakStageB = gc.NewDungeonStage(2)
 )
 
 // addLeakChar は指定座標・ステージのキャラクターを作る。SoloAI で索引上キャラクター扱いになる

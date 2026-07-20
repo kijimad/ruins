@@ -126,7 +126,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 // dungeonStageKey は指定深度のダンジョン階を表すステージキーを返す。
 // ストアは1回の潜行スコープなので、同一潜行内では深度だけで階を一意に識別できる
 func dungeonStageKey(depth int) gc.StageKey {
-	return gc.StageKey{Kind: gc.StageKindDungeon, Depth: depth}
+	return gc.NewDungeonStage(depth)
 }
 
 // spawnFloor は depth のフロアを生成して world に配置し、生成物に StageMember を付ける。

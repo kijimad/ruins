@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	stageA      = gc.StageKey{Kind: gc.StageKindDungeon, Depth: 1}
-	stageB      = gc.StageKey{Kind: gc.StageKindDungeon, Depth: 2}
-	stageAbsent = gc.StageKey{Kind: gc.StageKindRuin, Ruin: "未訪問", Depth: 1}
+	stageA      = gc.NewDungeonStage(1)
+	stageB      = gc.NewDungeonStage(2)
+	stageAbsent = gc.NewRuinStage("未訪問", 1)
 )
 
 // addStageEntity は指定ステージに属するエンティティを1つ作る

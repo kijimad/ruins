@@ -129,7 +129,7 @@ func TestSerde_StageMemberとSuspendedが往復する(t *testing.T) {
 	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	key := gc.StageKey{Kind: gc.StageKindDungeon, Depth: 2}
+	key := gc.NewDungeonStage(2)
 	query.GetDungeon(world).CurrentStage = key
 
 	// 退避中ステージのエンティティ相当。StageMember を持ち Suspended で退避されている
