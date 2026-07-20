@@ -10,6 +10,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -202,7 +203,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
-					NewOverworldState(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: seed, ChunkW: 50, ChunkH: 50, K: 3}),
+					NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: seed, ChunkW: 50, ChunkH: 50, K: 3}),
 				}})
 			return nil
 		}).

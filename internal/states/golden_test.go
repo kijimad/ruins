@@ -15,6 +15,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -188,7 +189,7 @@ func TestGolden_Dungeon(t *testing.T) {
 
 func TestGolden_Overworld(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &gs.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
@@ -197,7 +198,7 @@ func TestGolden_Overworld(t *testing.T) {
 // 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
 func TestGolden_OverworldFrost(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &gs.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		// 前線が帯へ食い込むところまでターンを進める。updateFront が FrontEastAbsX を導出する

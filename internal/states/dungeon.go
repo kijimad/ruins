@@ -18,6 +18,7 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -25,7 +26,6 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/kijimaD/ruins/internal/world/stage"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -43,13 +43,11 @@ type DungeonState struct {
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
 
-	// 帯フィールドはオーバーワールドモード(定義が Seamless)のときだけ使う。
-	// フロアを作り直さずアクティブ帯をスライドさせ続ける
-	planner  mapplanner.PlannerType
-	newGame  *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
-	band     *worldstream.Band
-	gen      worldstream.ChunkGen
-	frontCfg worldstream.FrontConfig
+	// planner・newGame・session はオーバーワールドモード(定義が Seamless)のときだけ使う。
+	// 帯固有のロジックは overworld.Session に閉じ込め、DungeonState は保持と委譲だけ行う
+	planner mapplanner.PlannerType
+	newGame *overworld.NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
+	session *overworld.Session       // OnStart で構成する帯セッション。通常ダンジョンでは nil
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
@@ -79,14 +77,18 @@ func (st *DungeonState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
-	if st.isSeamless() {
-		return st.onStartOverworld(world)
-	}
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
 		st.baseImage = ebiten.NewImage(screenWidth, screenHeight)
 		st.baseImage.Fill(theme.ScreenBackground)
+	}
+
+	// Seamless なオーバーワールドは帯セッションを構成して委譲する。帯固有のロジックは
+	// overworld.Session に閉じ込め、DungeonState はここで開始を委譲するだけにする
+	if st.isSeamless() {
+		st.session = overworld.NewSession(st.planner, st.newGame)
+		return st.session.Start(world)
 	}
 
 	query.GetDungeon(world).Depth = st.Depth
@@ -480,14 +482,22 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// BaseStateの共通処理を使用
 	transition = st.ConsumeTransition()
-	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯ドライバは
+	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯セッションは
 	// オーバーワールド State だけが持ち、現ステージ深度0がオーバーワールドを表す。遺跡へ入ると
-	// 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。街は band が nil で
-	// 除外される。死亡やリクエスト遷移で早期 return したフレームも触らない
-	if st.band != nil && query.GetDungeon(world).CurrentStage.Depth == 0 && transition.Type == es.TransNone {
-		st.updateFront(world)
-		if serr := st.maybeShift(world); serr != nil {
+	// 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。通常ダンジョンは
+	// session が nil で除外される。死亡やリクエスト遷移で早期 return したフレームも触らない
+	if st.session != nil && query.GetDungeon(world).CurrentStage.Depth == 0 && transition.Type == es.TransNone {
+		st.session.UpdateFront(world)
+		shifted, serr := st.session.MaybeShift(world)
+		if serr != nil {
 			return es.Transition[w.World]{}, serr
+		}
+		if shifted {
+			// リベースでプレイヤーが中央へ動くが、カメラは Update 内で既に旧位置に合わせた後。
+			// カメラを再センタリングしないと、シフトしたフレームで視点がジャンプしてチラつく
+			if err := (&gs.CameraSystem{}).Update(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
 		}
 	}
 	return transition, nil
