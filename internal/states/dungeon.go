@@ -97,7 +97,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
 	if !st.Resume {
 		key := dungeonStageKey(st.Depth)
-		playerPos, err := st.spawnFloor(world, st.Depth, def, key)
+		playerPos, _, err := st.spawnFloor(world, st.Depth, def, key)
 		if err != nil {
 			return err
 		}
@@ -147,9 +147,11 @@ func dungeonStageKey(depth int) gc.StageKey {
 }
 
 // spawnFloor は depth のフロアを生成して world に配置し、生成物に StageBound を付ける。
-// プレイヤー開始位置を返す。プレイヤー配置・探索リセット・現ステージ更新は呼び出し側が行う
-func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definition, key gc.StageKey) (consts.Coord[consts.Tile], error) {
+// プレイヤー開始位置と、開始位置に置いた上り階段エンティティを返す。上り階段には呼び出し側が
+// 戻り先を結線する。プレイヤー配置・探索リセット・現ステージ更新は呼び出し側が行う
+func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definition, key gc.StageKey) (consts.Coord[consts.Tile], ecs.Entity, error) {
 	var zero consts.Coord[consts.Tile]
+	var noEntity ecs.Entity
 
 	stageSeed := world.Config.RNG.Uint64()
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
@@ -163,7 +165,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 		var err error
 		builderType, err = dungeon.SelectPlanner(def, stageRNG)
 		if err != nil {
-			return zero, err
+			return zero, noEntity, err
 		}
 	default:
 		builderType = st.BuilderType
@@ -176,36 +178,43 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 	if err != nil {
-		return zero, err
+		return zero, noEntity, err
 	}
 	level, err := mapspawner.Spawn(world, plan)
 	if err != nil {
-		return zero, err
+		return zero, noEntity, err
 	}
 	query.GetDungeon(world).Level = level
 
 	start, err := plan.GetPlayerStartPosition()
 	if err != nil {
-		return zero, err
+		return zero, noEntity, err
 	}
 
 	// 上り階段を開始位置に置く。降りてきた場所が、上りで戻ってくる場所になる。
 	// 最上階(floor 1)では上り階段がダンジョン脱出口を兼ねる。町(depth 0)には置かない
+	var upStair ecs.Entity
 	if depth > 0 {
-		if _, err := lifecycle.SpawnProp(world, "warp_prev", start.X, start.Y); err != nil {
-			return zero, err
+		e, err := lifecycle.SpawnProp(world, "warp_prev", start.X, start.Y)
+		if err != nil {
+			return zero, noEntity, err
 		}
+		upStair = e
 	}
 
 	// 生成物(上り階段を含む)をこのステージへ束縛して識別できるようにする
 	stage.Bind(world, key)
 
-	return start, nil
+	return start, upStair, nil
 }
 
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
 // TransPush で新ステートを積むのでなく、同一 State 内で現階と入れ替えるのが共存方式の要点
 func (st *DungeonState) descend(world w.World) error {
+	fromStage := dungeonStageKey(st.Depth)
+	// 現階の下り階段の位置。生成する階の上り階段の戻り先として結線する
+	fromDownStairPos, hasDownStair := findPortalPosition(world, gc.InteractionPortalNext)
+
 	nextDepth := st.Depth + 1
 	target := dungeonStageKey(nextDepth)
 
@@ -218,10 +227,20 @@ func (st *DungeonState) descend(world w.World) error {
 		if !found {
 			return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
 		}
-		var err error
-		playerPos, err = st.spawnFloor(world, nextDepth, def, key)
+		start, upStair, err := st.spawnFloor(world, nextDepth, def, key)
+		if err != nil {
+			return err
+		}
+		// 生成した階の上り階段に、降りてきた元階の下り階段への戻り先を焼く。
+		// これで ascend は探索なしに戻り先ステージと座標を引ける
+		if hasDownStair {
+			if cerr := setPortalConnection(world, upStair, fromStage, fromDownStairPos); cerr != nil {
+				return cerr
+			}
+		}
+		playerPos = start
 		generated = true
-		return err
+		return nil
 	}); err != nil {
 		return err
 	}
@@ -240,51 +259,69 @@ func (st *DungeonState) descend(world w.World) error {
 	return nil
 }
 
-// findPortalPosition は現ステージの指定種別ポータルプロップの位置を返す。
-// 帰還位置の算出に使う。退避中ステージのポータルは ActiveFilter で除外される。
-// 先着1件を採用するが、途中 return せず反復は最後まで続ける。Ark のワールドロックを
-// 外すため。実ゲームでは各ステージにポータルは1つなので先着で一意に定まる
-func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[consts.Tile], bool) {
+// findPortal は現ステージの指定種別ポータルのエンティティと位置を返す。
+// 退避中ステージのポータルは ActiveFilter で除外される。先着1件を採用するが、途中 return せず
+// 反復は最後まで続ける。Ark のワールドロックを外すため。実ゲームでは各ステージにポータルは
+// 1つなので先着で一意に定まる
+func findPortal(world w.World, kind gc.InteractionKind) (ecs.Entity, consts.Coord[consts.Tile], bool) {
+	var found ecs.Entity
 	var pos consts.Coord[consts.Tile]
-	found := false
+	ok := false
 	q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
 	for q.Next() {
 		e := q.Entity()
-		if !found && slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {
+		if !ok && slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {
+			found = e
 			pos = world.Components.GridElement.Get(e).Coord
-			found = true
+			ok = true
 		}
 	}
-	return pos, found
+	return found, pos, ok
 }
 
-// ascend は1つ上の階へ swapTo で移動する。上り先は必ず訪問済みなので再稼働する。
-// プレイヤーは上った先の下り階段、すなわち元々降りてきた場所へ戻す
+// findPortalPosition は findPortal のうち位置だけを返す薄いラッパー。
+func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[consts.Tile], bool) {
+	_, pos, ok := findPortal(world, kind)
+	return pos, ok
+}
+
+// setPortalConnection はポータルに行き先ステージと着地座標を結線する。
+// 生成時に両端を結線し、以降の往復は探索でなくこの結線から行き先を引く。
+func setPortalConnection(world w.World, portal ecs.Entity, target gc.StageKey, coord consts.Coord[consts.Tile]) error {
+	return gc.Upsert(world.ECS, world.Components.PortalConnection, portal, &gc.PortalConnection{Stage: target, Coord: coord})
+}
+
+// ascend は上り階段の結線した戻り先へ swapTo で移動する。上り先は訪問済み前提で再稼働する。
+// 戻り先ステージと着地座標は生成時に上り階段へ結線済みなので、探索でなく結線から引く。
 func (st *DungeonState) ascend(world w.World) error {
 	if st.Depth <= 1 {
 		// 最上階からの脱出は呼び出し側が扱う。ここへは来ない前提
 		return nil
 	}
-	prevDepth := st.Depth - 1
-	target := dungeonStageKey(prevDepth)
+	// 現階の上り階段。生成時に戻り先が結線されている
+	upStair, _, ok := findPortal(world, gc.InteractionPortalPrev)
+	if !ok {
+		return fmt.Errorf("上り階段が見つかりません")
+	}
+	if !world.Components.PortalConnection.Has(upStair) {
+		return fmt.Errorf("上り階段に戻り先が結線されていません")
+	}
+	// 行き先を値でコピーする。swapTo が Suspended を付けてアーキタイプが変わると
+	// コンポーネントポインタは無効化されるため、構造変更の前に取り出す
+	conn := *world.Components.PortalConnection.Get(upStair)
+	target := conn.Stage
 
 	// 上り先は訪問済み前提。未訪問なら生成でなくエラーにする
 	if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error {
-		return fmt.Errorf("上り先の階が存在しません: 深度%d", prevDepth)
+		return fmt.Errorf("上り先の階が存在しません: %+v", target)
 	}); err != nil {
 		return err
 	}
 
-	st.Depth = prevDepth
-	query.GetDungeon(world).Depth = prevDepth
+	st.Depth = target.Depth
+	query.GetDungeon(world).Depth = target.Depth
 
-	// 上った先の下り階段へプレイヤーを戻す
-	if pos, ok := findPortalPosition(world, gc.InteractionPortalNext); ok {
-		if err := lifecycle.MovePlayerToPosition(world, pos); err != nil {
-			return err
-		}
-	}
-	return nil
+	return lifecycle.MovePlayerToPosition(world, conn.Coord)
 }
 
 // OnStop はステートが停止される際に呼ばれる。

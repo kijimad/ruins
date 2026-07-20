@@ -1,6 +1,10 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // StageKind はステージの種類を表す。往復するステージを種別で区別する
 type StageKind string
@@ -87,6 +91,16 @@ func (k StageKey) Validate() error {
 type StageBound struct {
 	// Key は束縛先ステージを保持する
 	Key StageKey
+}
+
+// PortalConnection はポータルの行き先を保持する。触れると Stage へ swapTo し Coord へ配置する。
+// 生成時に往復の両端を相互結線する。findPortalPosition の探索を置き換え、遺跡の複数入口でも
+// どのポータルがどこへ繋がるかが曖昧にならない。Stage・Coord とも比較可能で serde 対象。
+type PortalConnection struct {
+	// Stage は行き先ステージ
+	Stage StageKey
+	// Coord は行き先ステージ内の着地座標
+	Coord consts.Coord[consts.Tile]
 }
 
 // Suspended は現ステージ以外に属し、現在のフレームで稼働しないことを表すマーカー。

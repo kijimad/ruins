@@ -53,6 +53,7 @@ var Registry = []Def{
 
 	// stage ================
 	{Field: "StageBound", Comment: "束縛先ステージを保持する。往復するステージの同定に使う"},
+	{Field: "PortalConnection", Comment: "ポータルの行き先ステージと着地座標を保持する"},
 	{Field: "Suspended", Comment: "現ステージ以外に属し稼働しないことを示すマーカー"},
 
 	// member ================

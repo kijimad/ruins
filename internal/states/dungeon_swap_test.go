@@ -56,7 +56,7 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 
 	// floor1 を実生成する。OnStart の生成部相当で、UI は使わない
 	key1 := dungeonStageKey(1)
-	pos1, err := st.spawnFloor(world, 1, def, key1)
+	pos1, _, err := st.spawnFloor(world, 1, def, key1)
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MovePlayerToPosition(world, pos1))
 	d.CurrentStage = key1
@@ -129,15 +129,21 @@ func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
 	d.Depth = 2
 	floor2 := addStageEntity(t, world, dungeonStageKey(2))
 
-	// 1階は訪問済みで退避中。下り階段プロップ InteractionPortalNext を持つ
+	// 戻り先。1階の下り階段の位置
 	stairsPos := consts.Coord[consts.Tile]{X: 7, Y: 8}
-	stairs := world.ECS.NewEntity()
-	world.Components.GridElement.Add(stairs, &gc.GridElement{Coord: stairsPos})
-	world.Components.Interactable.Add(stairs, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
+
+	// 2階の上り階段。生成時に結線された戻り先(1階・下り階段位置)を持つ
+	upStair := world.ECS.NewEntity()
+	world.Components.GridElement.Add(upStair, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
+	world.Components.Interactable.Add(upStair, &gc.Interactable{
+		Interactions: []gc.InteractionKind{gc.InteractionPortalPrev},
 	})
-	world.Components.StageBound.Add(stairs, &gc.StageBound{Key: dungeonStageKey(1)})
-	world.Components.Suspended.Add(stairs, &gc.Suspended{})
+	world.Components.StageBound.Add(upStair, &gc.StageBound{Key: dungeonStageKey(2)})
+	world.Components.PortalConnection.Add(upStair, &gc.PortalConnection{Stage: dungeonStageKey(1), Coord: stairsPos})
+
+	// 1階は訪問済みで退避中。再稼働されることを見る
+	floor1 := addStageEntity(t, world, dungeonStageKey(1))
+	world.Components.Suspended.Add(floor1, &gc.Suspended{})
 
 	// プレイヤーは2階の適当な位置にいる
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
@@ -146,9 +152,9 @@ func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
 	st := &DungeonState{Depth: 2}
 	require.NoError(t, st.ascend(world))
 
-	// 2階退避、1階再稼働、深度1、プレイヤーは1階の下り階段へ戻る
+	// 2階退避、1階再稼働、深度1、プレイヤーは結線の戻り先へ
 	assert.True(t, world.Components.Suspended.Has(floor2), "上った2階は退避される")
-	assert.False(t, world.Components.Suspended.Has(stairs), "1階は再稼働される")
+	assert.False(t, world.Components.Suspended.Has(floor1), "1階は再稼働される")
 	assert.Equal(t, 1, st.Depth)
-	assert.Equal(t, stairsPos, world.Components.GridElement.Get(player).Coord, "プレイヤーは降りてきた下り階段へ戻る")
+	assert.Equal(t, stairsPos, world.Components.GridElement.Get(player).Coord, "プレイヤーは結線した戻り先へ戻る")
 }
