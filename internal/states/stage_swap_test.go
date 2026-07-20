@@ -84,6 +84,34 @@ func TestResetExploredTiles(t *testing.T) {
 	assert.Empty(t, query.GetDungeon(world).ExploredTiles, "入り直しで探索履歴は空になる")
 }
 
+func TestTagStageMembers(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 生成物相当。GridElement を持ち StageMember なし
+	tile := world.ECS.NewEntity()
+	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
+	enemy := world.ECS.NewEntity()
+	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}})
+
+	// Player はステージをまたいで生きるので付けない
+	player := world.ECS.NewEntity()
+	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
+	world.Components.Player.Add(player, &gc.Player{})
+
+	// 既に別ステージに属するエンティティは上書きしない
+	existing := world.ECS.NewEntity()
+	world.Components.GridElement.Add(existing, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}})
+	world.Components.StageMember.Add(existing, &gc.StageMember{Key: stageB})
+
+	tagStageMembers(world, stageA)
+
+	assert.Equal(t, stageA, world.Components.StageMember.Get(tile).Key, "生成タイルは現ステージに属する")
+	assert.Equal(t, stageA, world.Components.StageMember.Get(enemy).Key, "生成した敵は現ステージに属する")
+	assert.False(t, world.Components.StageMember.Has(player), "Player は StageMember を持たない")
+	assert.Equal(t, stageB, world.Components.StageMember.Get(existing).Key, "既存の所属は上書きしない")
+}
+
 func TestSwapTo(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

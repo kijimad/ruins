@@ -66,6 +66,23 @@ func resetExploredTiles(world w.World) {
 	d.ExploredTiles = make(map[gc.GridElement]bool)
 }
 
+// tagStageMembers は StageMember を持たないフィールドエンティティに key を付ける。
+// ステージ生成の直後に呼び、生成物をそのステージの一員として識別できるようにする。
+// GridElement を持つが Player・SquadMember・既存 StageMember でないものが対象。
+// Player・SquadMember はステージをまたいで生きるので付けない。
+// 退避中エンティティは既に StageMember を持つので自然に除外される
+func tagStageMembers(world w.World, key gc.StageKey) {
+	var targets []ecs.Entity
+	q := ecs.NewFilter1[gc.GridElement](world.ECS).
+		Without(ecs.C[gc.StageMember](), ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()
+	for q.Next() {
+		targets = append(targets, q.Entity())
+	}
+	for _, e := range targets {
+		world.Components.StageMember.Add(e, &gc.StageMember{Key: key})
+	}
+}
+
 // swapTo は現ステージを退避し target へ切り替える正典操作。往復のすべてがこれに還元される。
 // target が訪問済みなら再稼働し、未訪問なら generate で決定的生成する。
 // generate は生成物へ StageMember{target} を付ける責務を負う。
