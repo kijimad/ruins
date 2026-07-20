@@ -194,8 +194,9 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").
 					Log()
-			default:
-				// ログ表示対象外の種類は何もしない
+			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee:
+				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
+				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}
 		}
 	}

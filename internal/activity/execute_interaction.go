@@ -47,9 +47,10 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeStorage(target, world)
 	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
-	default:
-		return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 	}
+	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
+	// panic せず error で loud に落とす
+	return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 }
 
 func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*ActionResult, error) {

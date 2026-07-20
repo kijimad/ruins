@@ -37,10 +37,10 @@ description: ruins 固有のレビュー観点チェックリスト。Ark の st
 
 これで新種別の対応漏れが `make lint` で止まる。
 
-- **`InteractionKind` の機能スイッチは exhaustive 強制済み**: `components/interactable.go` の `Config()`（発動方式）と `states/action_handlers.go` の `getInteractionActions`（発動可能アクション。漏れると Enter が無反応）は default を持たない。新種別を足すと lint が漏れを検知する。手動照合は不要。
-- **default を残している相互作用スイッチ**は手動で対応する: `activity/execute_interaction.go`（未処理は実行時 error で loud に落ちる）、`activity/player_actions.go` の足元ログ（cosmetic）。ここは default があるので exhaustive が効かない。新種別を足したら忘れず対応する。
+- **`InteractionKind` は全スイッチ exhaustive 強制済み**: `interactable.go` の `Config()`、`states/action_handlers.go` の `getInteractionActions`、`activity/execute_interaction.go`、`activity/player_actions.go` の足元ログ、いずれも default を持たない。新種別を足すと4箇所すべてで lint が漏れを検知する。手動照合は不要。
+- **default を残すのが正しい enum もある**: `inputmapper.ActionID` の入力ハンドラは多数のアクションから一部だけ処理し残りを default で流すのが正常。exhaustive 強制は不適切なので default を残す。「全 case 列挙が意味を持つドメイン enum」だけ default を外す。
 - **ステージ跨ぎクエリ（Phase 7 共存方式）**: 退避中ステージのエンティティを含みうるクエリは生の `ecs.NewFilterN` でなく `query.ActiveFilter` を使う。`Suspended` 除外を1箇所に集約している。linter 強制は無いので `grep -rn "ecs.NewFilter" internal/ | grep -iE "GridElement|Door|SoloAI|Interactable"` 等で洗う。座標検索・破壊的操作（一括削除/平行移動）の漏れが特に致命的。
-- 一般方針: 新しい enum を足すなら、扱う switch から default を外して exhaustive に強制させるのが最優先。default が必要なら grep で全出現箇所を照合する。
+- 一般方針: 新しい enum を足すなら、全 case 列挙が意味を持つなら扱う switch から default を外して exhaustive に強制させる。多数から一部だけ処理する enum は default を残し、追加時に grep で照合する。
 
 ## 参照
 
