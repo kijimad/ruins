@@ -115,7 +115,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	assert.NotNil(t, restored.VisibleTiles, "可視マップが空mapで初期化される")
 }
 
-// TestSerde_StageMemberとSuspendedが往復する は共存方式 Phase 7 の永続状態が
+// TestSerde_StageMemberとSuspendedが往復する は共存方式の永続状態が
 // セーブ・ロードで復元されることを検証する。退避中ステージのエンティティは StageMember と
 // Suspended を持ったまま world に残るため、これらが serde 対象で、ロード後も稼働/非稼働の
 // 別が保たれる必要がある。CurrentStage も含めて往復を確認する。
