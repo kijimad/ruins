@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -627,7 +628,7 @@ SpriteKey = "wooden_chest"
 Depth = 2
 
 [Props.Storage]
-MaxWeight = 20.0
+MaxWeight = "20 kg"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -636,7 +637,7 @@ MaxWeight = 20.0
 	require.NoError(t, err)
 
 	assert.NotNil(t, entitySpec.WeightCapacity, "Storage付きPropにはWeightCapacityコンポーネントが設定されるべき")
-	assert.Equal(t, 20.0, entitySpec.WeightCapacity.Max)
+	assert.Equal(t, consts.MustParseWeight("20 kg"), entitySpec.WeightCapacity.Max)
 
 	require.NotNil(t, entitySpec.Interactable, "Storage付きPropにはInteractableが設定されるべき")
 	assert.NotEmpty(t, entitySpec.Interactable.Interactions, "Storage付きPropにはInteractionsが設定されるべき")

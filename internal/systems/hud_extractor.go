@@ -33,7 +33,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int
-	var playerWeight, playerMaxWeight float64
+	var playerWeight, playerMaxWeight consts.Milligram
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()

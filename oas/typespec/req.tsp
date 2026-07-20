@@ -88,7 +88,8 @@ model Item {
   spriteKey: SpriteKey;
   animKeys?: SpriteKey[];
   value: ItemValue;
-  weight?: ItemWeight;
+  /** アイテム重量 */
+  weight?: Weight;
   inflictsDamage?: BaseDamage;
   providesNutrition?: NutritionAmount;
   stackable?: Stackable;
@@ -294,7 +295,8 @@ model DungeonGateTriggerRaw {}
 
 /** 収納ローデータ */
 model StorageRaw {
-  maxWeight: StorageMaxWeight;
+  /** 収納の最大格納重量 */
+  maxWeight: Weight;
   /** 初期アイテムの抽選に使うItemTable名 */
   lootTableName?: EntityName;
   /** 初期アイテムの最小数 */

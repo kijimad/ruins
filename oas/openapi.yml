@@ -1947,7 +1947,9 @@ components:
         value:
           $ref: '#/components/schemas/ItemValue'
         weight:
-          $ref: '#/components/schemas/ItemWeight'
+          allOf:
+            - $ref: '#/components/schemas/Weight'
+          description: アイテム重量
         inflictsDamage:
           $ref: '#/components/schemas/BaseDamage'
         providesNutrition:
@@ -2100,12 +2102,6 @@ components:
       minimum: 0
       maximum: 99999
       description: 売買価格
-    ItemWeight:
-      type: number
-      format: double
-      minimum: 0
-      maximum: 1000
-      description: アイテム重量（kg）
     LightEnabled:
       type: boolean
       description: 光源が有効かどうか
@@ -3649,9 +3645,9 @@ components:
         - Current
       properties:
         Max:
-          $ref: '#/components/schemas/SaveData.PoolFloatMax'
+          $ref: '#/components/schemas/SaveData.PoolMax'
         Current:
-          $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
+          $ref: '#/components/schemas/SaveData.PoolCurrent'
       description: 所持重量。最大値と現在値を持つ
     SaveData.WorldSaveData:
       type: object
@@ -3769,19 +3765,15 @@ components:
     Stackable:
       type: boolean
       description: スタック可能かどうか
-    StorageMaxWeight:
-      type: number
-      format: double
-      minimum: 0
-      maximum: 1000
-      description: 収納の最大格納重量（kg）
     StorageRaw:
       type: object
       required:
         - maxWeight
       properties:
         maxWeight:
-          $ref: '#/components/schemas/StorageMaxWeight'
+          allOf:
+            - $ref: '#/components/schemas/Weight'
+          description: 収納の最大格納重量
         lootTableName:
           allOf:
             - $ref: '#/components/schemas/EntityName'
@@ -3907,6 +3899,10 @@ components:
         insulationHeat:
           $ref: '#/components/schemas/InsulationHeat'
       description: 装備可能設定
+    Weight:
+      type: string
+      pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$
+      description: '重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"'
 servers:
   - url: http://localhost:8080
     description: Development server

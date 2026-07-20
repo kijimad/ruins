@@ -75,7 +75,7 @@ func TestGetStorageCurrentWeight(t *testing.T) {
 	require.NoError(t, err)
 
 	// 空の収納の重量は0
-	assert.Equal(t, 0.0, query.GetStorageCurrentWeight(world, storageEntity))
+	assert.Equal(t, consts.Milligram(0), query.GetStorageCurrentWeight(world, storageEntity))
 
 	// 重さを持つアイテムを収納に入れる
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
@@ -86,7 +86,7 @@ func TestGetStorageCurrentWeight(t *testing.T) {
 	query.UpdateWeightCapacity(world, storageEntity)
 
 	weight := query.GetStorageCurrentWeight(world, storageEntity)
-	assert.Greater(t, weight, 0.0, "アイテムの重量が反映されるべき")
+	assert.Greater(t, weight, consts.Milligram(0), "アイテムの重量が反映されるべき")
 }
 
 func TestCanAddToStorage(t *testing.T) {

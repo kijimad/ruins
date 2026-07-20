@@ -22,8 +22,8 @@ type GameInfoData struct {
 	FloorNumber       int              // フロア番号
 	PlayerHP          int              // プレイヤーの現在HP
 	PlayerMaxHP       int              // プレイヤーの最大HP
-	PlayerWeight      float64          // プレイヤーの現在所持重量（kg）
-	PlayerMaxWeight   float64          // プレイヤーの所持可能重量（kg）
+	PlayerWeight      consts.Milligram // プレイヤーの現在所持重量
+	PlayerMaxWeight   consts.Milligram // プレイヤーの所持可能重量
 	MessageAreaHeight int              // メッセージエリアの高さ（ステータス表示位置計算用）
 	ScreenDimensions  ScreenDimensions // 画面サイズ。階層表示位置計算用
 }

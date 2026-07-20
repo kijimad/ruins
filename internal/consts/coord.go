@@ -2,7 +2,7 @@ package consts
 
 import "fmt"
 
-// Numeric は座標で使用可能な数値型を定義する
+// Numeric は int または float64 を基底型とする数値型を表す汎用制約
 type Numeric interface {
 	~int | ~float64
 }

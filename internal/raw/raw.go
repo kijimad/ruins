@@ -300,7 +300,11 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.Value = &gc.Value{Value: int(item.Value)}
 
 	if item.Weight != nil {
-		entitySpec.Weight = &gc.Weight{Kg: *item.Weight}
+		mg, err := consts.ParseWeight(*item.Weight)
+		if err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("アイテム '%s' の重量: %w", name, err)
+		}
+		entitySpec.Weight = &gc.Weight{Milligram: mg}
 	}
 
 	// Stackableフラグがtrueの場合は空のStackableコンポーネントを追加
@@ -680,9 +684,11 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if propRaw.Storage != nil {
-		entitySpec.WeightCapacity = &gc.WeightCapacity{
-			Max: propRaw.Storage.MaxWeight,
+		mg, err := consts.ParseWeight(propRaw.Storage.MaxWeight)
+		if err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("収納 '%s' の最大重量: %w", name, err)
 		}
+		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		interactions = append(interactions, gc.InteractionStorage)
 	}
 

@@ -299,8 +299,8 @@ model HPComponent {
 
 /** 所持重量。最大値と現在値を持つ */
 model WeightCapacityComponent {
-  Max: PoolFloatMax;
-  Current: PoolFloatCurrent;
+  Max: PoolMax;
+  Current: PoolCurrent;
 }
 
 /** 整数プール。最大値と現在値を持つ */

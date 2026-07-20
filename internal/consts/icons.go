@@ -30,6 +30,8 @@ const (
 	IconDegree   = "\u2103"     // 摂氏記号 ℃
 	IconCurrency = "\U000f1aaf" // 通貨記号 nf-md-heating_coil
 	IconKg       = "\u338f"     // ㎏
+	IconG        = "g"          // グラム。単一の合字がないため素の g を使う
+	IconMg       = "\u338e"     // ㎎
 
 	// ゲーム
 	IconHeart    = "\uf004"

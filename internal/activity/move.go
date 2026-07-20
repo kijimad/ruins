@@ -127,7 +127,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// 所持重量が最大の1.5倍を超えていたら動けない
 	if world.Components.WeightCapacity.Has(actor) {
 		cw := world.Components.WeightCapacity.Get(actor)
-		overweightLimit := cw.Max * 1.5
+		overweightLimit := cw.Max * 3 / 2
 		if cw.Current > overweightLimit {
 			if world.Components.Player.Has(actor) {
 				gamelog.New(query.GetGameLog(world)).

@@ -145,7 +145,7 @@ func (st *MemberStatusState) fetchStatusTab(world w.World, member ecs.Entity) me
 
 	if world.Components.WeightCapacity.Has(member) {
 		wc := world.Components.WeightCapacity.Get(member)
-		items = append(items, memberStatusItem{Label: "重量", Value: fmt.Sprintf("%.1f / %.1f", wc.Current, wc.Max)})
+		items = append(items, memberStatusItem{Label: "重量", Value: fmt.Sprintf("%s / %s", wc.Current.KgString(), wc.Max.KgString())})
 	}
 
 	return memberStatusTab{

@@ -216,7 +216,7 @@ func addWeightInfo(targetContainer *widget.Container, weight *gc.Weight, world w
 	columnWidths := []int{70, 80}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"重量", fmt.Sprintf("%.2f%s", weight.Kg, consts.IconKg)}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{"重量", weight.String()}, specTableAligns, nil, res)
 	targetContainer.AddChild(table)
 }
 
