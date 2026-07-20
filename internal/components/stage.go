@@ -56,15 +56,21 @@ func (k StageKey) Validate() error {
 		}
 		return nil
 	case StageKindDungeon:
-		// ダンジョンは深度を持つが遺跡名は持たない
+		// ダンジョンは1階以上の深度を持つが遺跡名は持たない。深度0はオーバーワールドの領分
 		if k.Ruin != "" {
 			return fmt.Errorf("ダンジョンステージに遺跡名がある: %q", k.Ruin)
 		}
+		if k.Depth < 1 {
+			return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)
+		}
 		return nil
 	case StageKindRuin:
-		// 遺跡は遺跡名を必須とする
+		// 遺跡は遺跡名を必須とし、1階以上の深度を持つ
 		if k.Ruin == "" {
 			return fmt.Errorf("遺跡ステージに遺跡名がない")
+		}
+		if k.Depth < 1 {
+			return fmt.Errorf("遺跡ステージの深度が不正: %d", k.Depth)
 		}
 		return nil
 	}

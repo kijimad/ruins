@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/kijimaD/ruins/internal/world/stage"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,9 +49,10 @@ func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 
 	// 別ステージBへ移ると、swapTo 冒頭の Bind が置いたアイテムを現ステージAへ束縛し、
 	// A を離れるので一緒に退避される
+	var stageBEntity ecs.Entity
 	require.NoError(t, stage.SwapTo(world, stageB, func(world w.World, key gc.StageKey) error {
-		e := world.ECS.NewEntity()
-		world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
+		stageBEntity = world.ECS.NewEntity()
+		world.Components.StageBound.Add(stageBEntity, &gc.StageBound{Key: key})
 		return nil
 	}))
 
@@ -65,4 +67,8 @@ func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 	assert.False(t, world.Components.Suspended.Has(item), "階Aへ戻ると置いたアイテムは再稼働する")
 	assert.True(t, world.ECS.Alive(item), "置いたアイテムの現物が残っている")
 	assert.Equal(t, stageA, world.Components.StageBound.Get(item).Key, "置いた階Aへの束縛は保たれる")
+
+	// 離れた階Bのエンティティは破棄されず、退避されたまま共存している
+	assert.True(t, world.ECS.Alive(stageBEntity), "離れた階Bの現物は破棄されず残る")
+	assert.True(t, world.Components.Suspended.Has(stageBEntity), "離れた階Bは退避されたまま")
 }
