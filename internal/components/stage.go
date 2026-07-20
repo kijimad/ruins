@@ -1,15 +1,15 @@
 package components
 
 // StageKind はステージの種類を表す。往復するステージを種別で区別する
-type StageKind uint8
+type StageKind string
 
 const (
 	// StageKindOverworld はオーバーワールド帯を表す
-	StageKindOverworld StageKind = iota
+	StageKindOverworld StageKind = "overworld"
 	// StageKindDungeon は通常ダンジョンの階を表す
-	StageKindDungeon
+	StageKindDungeon StageKind = "dungeon"
 	// StageKindRuin は遺跡の階を表す
-	StageKindRuin
+	StageKindRuin StageKind = "ruin"
 )
 
 // StageKey はステージを一意に識別する。共存する各ステージのエンティティを同定するのに使う。
