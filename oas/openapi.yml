@@ -2443,6 +2443,8 @@ components:
           $ref: '#/components/schemas/DoorLockTriggerRaw'
         warpNextTrigger:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
+        warpPrevTrigger:
+          $ref: '#/components/schemas/WarpPrevTriggerRaw'
         warpEscapeTrigger:
           $ref: '#/components/schemas/WarpEscapeTriggerRaw'
         dungeonGateTrigger:
@@ -3875,6 +3877,9 @@ components:
     WarpNextTriggerRaw:
       type: object
       description: 次階層ワープトリガー
+    WarpPrevTriggerRaw:
+      type: object
+      description: 前階層ワープトリガー
     WaterType:
       type: number
       enum:

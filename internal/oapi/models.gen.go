@@ -1289,6 +1289,9 @@ type Prop struct {
 
 	// WarpNextTrigger 次階層ワープトリガー
 	WarpNextTrigger *WarpNextTriggerRaw `json:"warpNextTrigger,omitempty"`
+
+	// WarpPrevTrigger 前階層ワープトリガー
+	WarpPrevTrigger *WarpPrevTriggerRaw `json:"warpPrevTrigger,omitempty"`
 }
 
 // PropList 置物一覧
@@ -2262,6 +2265,9 @@ type WarpEscapeTriggerRaw = map[string]interface{}
 
 // WarpNextTriggerRaw 次階層ワープトリガー
 type WarpNextTriggerRaw = map[string]interface{}
+
+// WarpPrevTriggerRaw 前階層ワープトリガー
+type WarpPrevTriggerRaw = map[string]interface{}
 
 // WaterType 水タイプ
 type WaterType float32

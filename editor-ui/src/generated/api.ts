@@ -813,6 +813,10 @@ export interface Prop {
      */
     'warpNextTrigger'?: object;
     /**
+     * 前階層ワープトリガー
+     */
+    'warpPrevTrigger'?: object;
+    /**
      * 脱出ワープトリガー
      */
     'warpEscapeTrigger'?: object;

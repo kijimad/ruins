@@ -675,6 +675,10 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionPortalNext)
 	}
 
+	if propRaw.WarpPrevTrigger != nil {
+		interactions = append(interactions, gc.InteractionPortalPrev)
+	}
+
 	if propRaw.WarpEscapeTrigger != nil {
 		interactions = append(interactions, gc.InteractionPortalTown)
 	}
