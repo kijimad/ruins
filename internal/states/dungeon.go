@@ -225,7 +225,9 @@ func (st *DungeonState) descend(world w.World) error {
 }
 
 // findPortalPosition は現ステージの指定種別ポータルプロップの位置を返す。
-// 帰還位置の算出に使う。退避中ステージのポータルは ActiveFilter で除外される
+// 帰還位置の算出に使う。退避中ステージのポータルは ActiveFilter で除外される。
+// 先着1件を採用するが、途中 return せず反復は最後まで続ける。Ark のワールドロックを
+// 外すため。実ゲームでは各ステージにポータルは1つなので先着で一意に定まる
 func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[consts.Tile], bool) {
 	var pos consts.Coord[consts.Tile]
 	found := false
@@ -269,7 +271,15 @@ func (st *DungeonState) ascend(world w.World) error {
 	return nil
 }
 
-// OnStop はステートが停止される際に呼ばれる
+// OnStop はステートが停止される際に呼ばれる。
+//
+// 共存方式では退避中ステージのエンティティも world に残るが、ここでは Without(Suspended)
+// を付けず全ステージのフィールドエンティティを消す。これで正しい理由は OnStop の発火条件にある。
+// OnStop は TransPop/Switch/Replace/Quit すなわちダンジョンからの完全離脱でのみ呼ばれる。
+// 階の上下移動 WarpDescend/WarpAscend は TransNone の in-place swap で OnStop を呼ばない。
+// よって OnStop 時は潜行全体を破棄するのが正しく、退避ステージも含めて消す。
+// 注意: 将来この不変条件を破る変更、たとえば階移動を TransPush 化したり潜行中に State を
+// 停止させると、退避ステージがサイレントに消える。in-place swap は TransNone を保つこと。
 func (st *DungeonState) OnStop(world w.World) error {
 	var toRemove []ecs.Entity
 	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).

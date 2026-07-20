@@ -85,7 +85,12 @@ func tagStageMembers(world w.World, key gc.StageKey) {
 
 // swapTo は現ステージを退避し target へ切り替える正典操作。往復のすべてがこれに還元される。
 // target が訪問済みなら再稼働し、未訪問なら generate で決定的生成する。
-// generate は生成物へ StageMember{target} を付ける責務を負う。
+// target は現ステージと異なる前提。自己スワップは呼ばない。
+//
+// generate は生成物へ **必ず** StageMember{target} を付ける責務を負う。付け忘れると未分類の
+// フィールドエンティティが生じ、以降の退避で漏れる。生成の実体 spawnFloor は末尾の
+// tagStageMembers で付与している。別の generate を実装するときも同様に付けること。
+//
 // プレイヤー配置と前線など時間派生の再導出は、遷移ごとに違うので呼び出し側が続けて行う
 func swapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey) error) error {
 	d := query.GetDungeon(world)
