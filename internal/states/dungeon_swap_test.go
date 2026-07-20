@@ -77,13 +77,60 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	require.NotEmpty(t, stage.BoundEntities(world, dungeonStageKey(2)), "floor2 が生成されている")
 	assert.True(t, hasPortalPrev(world), "floor2 に上り階段がある")
 
-	require.NoError(t, st.ascend(world))
+	handled, aerr := st.ascend(world)
+	require.NoError(t, aerr)
+	require.True(t, handled, "上り階段の結線をたどって上れる")
 	require.Equal(t, 1, st.Depth)
 	require.Equal(t, key1, d.CurrentStage)
 	assert.Len(t, stage.BoundEntities(world, key1), len(floor1), "上って戻っても floor1 は同じ現物")
 	for _, e := range stage.BoundEntities(world, key1) {
 		assert.False(t, world.Components.Suspended.Has(e), "floor1 は再稼働されている")
 	}
+}
+
+// TestEnterRuin_遺跡へ入り上り階段が入口へ結線される は、オーバーワールドから遺跡へ入ると
+// 帯が退避され遺跡1階が生成され、遺跡の上り階段が入った入口座標へ結線されること、そして
+// その上り階段でオーバーワールドの入口へ正確に戻れることを実生成で検証する。
+func TestEnterRuin_遺跡へ入り上り階段が入口へ結線される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	entrancePos := consts.Coord[consts.Tile]{X: 4, Y: 4}
+	player, err := lifecycle.SpawnPlayer(world, entrancePos, "Ash")
+	require.NoError(t, err)
+
+	d := query.GetDungeon(world)
+	d.CurrentStage = gc.NewOverworldStage()
+	// オーバーワールド帯の現物相当。遺跡に入っている間 退避されるべき
+	band := addStageEntity(t, world, gc.NewOverworldStage())
+
+	defName := dungeon.DungeonDebug.Name
+	st := &DungeonState{DefinitionName: defName, BuilderType: mapplanner.PlannerTypeRandom}
+	require.NoError(t, st.enterRuin(world, defName))
+
+	// 遺跡1階が現ステージ、オーバーワールドは退避
+	ruinKey := gc.NewRuinStage(defName, 1)
+	assert.Equal(t, ruinKey, d.CurrentStage, "現ステージは遺跡1階")
+	assert.Equal(t, 1, st.Depth)
+	assert.True(t, world.Components.Suspended.Has(band), "オーバーワールド帯は退避される")
+	assert.NotEmpty(t, stage.BoundEntities(world, ruinKey), "遺跡1階が生成されている")
+
+	// 遺跡の上り階段が入口(オーバーワールド, entrancePos)へ結線されている
+	upStair, _, ok := findPortal(world, gc.InteractionPortalPrev)
+	require.True(t, ok, "遺跡に上り階段がある")
+	require.True(t, world.Components.PortalConnection.Has(upStair), "上り階段は結線を持つ")
+	conn := world.Components.PortalConnection.Get(upStair)
+	assert.Equal(t, gc.NewOverworldStage(), conn.Stage, "上り階段はオーバーワールドへ結線される")
+	assert.Equal(t, entrancePos, conn.Coord, "入った入口座標へ結線される")
+
+	// 上り階段で exit → オーバーワールドへ戻り、入口へ配置される
+	handled, aerr := st.ascend(world)
+	require.NoError(t, aerr)
+	require.True(t, handled, "上り階段の結線で地上へ戻れる")
+	assert.Equal(t, gc.NewOverworldStage(), d.CurrentStage, "地上へ戻る")
+	assert.Equal(t, 0, st.Depth, "地上の深度は0")
+	assert.False(t, world.Components.Suspended.Has(band), "オーバーワールド帯が再稼働する")
+	assert.Equal(t, entrancePos, world.Components.GridElement.Get(player).Coord, "入った入口へ戻る")
 }
 
 // TestDescend_現階を退避し訪問済み階を再稼働する は共存方式の下りを検証する。
@@ -150,7 +197,9 @@ func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
 	require.NoError(t, err)
 
 	st := &DungeonState{Depth: 2}
-	require.NoError(t, st.ascend(world))
+	handled, aerr := st.ascend(world)
+	require.NoError(t, aerr)
+	require.True(t, handled, "結線をたどって上れる")
 
 	// 2階退避、1階再稼働、深度1、プレイヤーは結線の戻り先へ
 	assert.True(t, world.Components.Suspended.Has(floor2), "上った2階は退避される")

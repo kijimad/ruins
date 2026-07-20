@@ -291,20 +291,19 @@ func setPortalConnection(world w.World, portal ecs.Entity, target gc.StageKey, c
 	return gc.Upsert(world.ECS, world.Components.PortalConnection, portal, &gc.PortalConnection{Stage: target, Coord: coord})
 }
 
-// ascend は上り階段の結線した戻り先へ swapTo で移動する。上り先は訪問済み前提で再稼働する。
+// ascend は現階の上り階段の結線した戻り先へ swapTo で移動する。上り先は訪問済み前提で再稼働する。
 // 戻り先ステージと着地座標は生成時に上り階段へ結線済みなので、探索でなく結線から引く。
-func (st *DungeonState) ascend(world w.World) error {
-	if st.Depth <= 1 {
-		// 最上階からの脱出は呼び出し側が扱う。ここへは来ない前提
-		return nil
-	}
+// 上り階段の結線があれば移動して true を返す。結線が無い、たとえば最上階の脱出口なら false を
+// 返し、街やオーバーワールドへの脱出は呼び出し側が扱う。上り先が浅い階でも遺跡→地上でも同一機構。
+func (st *DungeonState) ascend(world w.World) (bool, error) {
 	// 現階の上り階段。生成時に戻り先が結線されている
 	upStair, _, ok := findPortal(world, gc.InteractionPortalPrev)
 	if !ok {
-		return fmt.Errorf("上り階段が見つかりません")
+		return false, nil
 	}
 	if !world.Components.PortalConnection.Has(upStair) {
-		return fmt.Errorf("上り階段に戻り先が結線されていません")
+		// 結線なし。最上階の脱出口。呼び出し側が脱出を扱う
+		return false, nil
 	}
 	// 行き先を値でコピーする。swapTo が Suspended を付けてアーキタイプが変わると
 	// コンポーネントポインタは無効化されるため、構造変更の前に取り出す
@@ -315,13 +314,67 @@ func (st *DungeonState) ascend(world w.World) error {
 	if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error {
 		return fmt.Errorf("上り先の階が存在しません: %+v", target)
 	}); err != nil {
-		return err
+		return false, err
 	}
 
 	st.Depth = target.Depth
 	query.GetDungeon(world).Depth = target.Depth
 
-	return lifecycle.MovePlayerToPosition(world, conn.Coord)
+	if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// enterRuin はオーバーワールドから遺跡へ入る。現在地(入口座標)を上り階段へ結線して戻れるようにする。
+// descend の遺跡版で、行き先が1つ深い階でなく遺跡1階になる。
+func (st *DungeonState) enterRuin(world w.World, defName string) error {
+	fromStage := query.GetDungeon(world).CurrentStage
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
+	fromPos := world.Components.GridElement.Get(player).Coord
+
+	target := gc.NewRuinStage(defName, 1)
+
+	var landing consts.Coord[consts.Tile]
+	var generated bool
+	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
+		def, found := dungeon.GetDungeon(defName)
+		if !found {
+			return fmt.Errorf("遺跡定義が見つかりません: %s", defName)
+		}
+		start, upStair, serr := st.spawnFloor(world, 1, def, key)
+		if serr != nil {
+			return serr
+		}
+		// 遺跡の上り階段(=出口)に、入ってきたオーバーワールドの入口座標を結線する。
+		// これで exit は入った入口へ正確に戻れる。入口が複数でも曖昧にならない
+		if cerr := setPortalConnection(world, upStair, fromStage, fromPos); cerr != nil {
+			return cerr
+		}
+		landing = start
+		generated = true
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	st.Depth = 1
+	d := query.GetDungeon(world)
+	d.Depth = 1
+	d.DefinitionName = defName
+
+	if generated {
+		return lifecycle.MovePlayerToPosition(world, landing)
+	}
+	// 再訪。遺跡の上り階段(入口)へ戻す
+	if pos, ok := findPortalPosition(world, gc.InteractionPortalPrev); ok {
+		return lifecycle.MovePlayerToPosition(world, pos)
+	}
+	return nil
 }
 
 // OnStop はステートが停止される際に呼ばれる。
@@ -410,9 +463,10 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// BaseStateの共通処理を使用
 	transition = st.ConsumeTransition()
-	// オーバーワールドはこのフレームが遷移なしのときだけ前線を進め帯をシフトする。
-	// 死亡やリクエスト遷移で早期 return した場合は帯を触らない。旧 OverworldState.Update と同じ
-	if st.isOverworld && transition.Type == es.TransNone {
+	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。構築時フラグでなく
+	// 現ステージ種別で判定するのは、遺跡へ入ると同一 State 内で現ステージが遺跡へ変わり、
+	// そのあいだ帯を触ってはならないため。死亡やリクエスト遷移で早期 return したフレームも触らない
+	if query.GetDungeon(world).CurrentStage.Kind == gc.StageKindOverworld && transition.Type == es.TransNone {
 		st.updateFront(world)
 		if serr := st.maybeShift(world); serr != nil {
 			return es.Transition[w.World]{}, serr
@@ -712,14 +766,21 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpAscend:
-		if st.Depth <= 1 {
-			// 最上階からの上りはダンジョン脱出。持ち帰り品はそのまま街へ帰還する
-			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				NewFadeoutAnimationState(NewTownState()),
-			}}, nil
+		// 上り階段に結線があればそこへ移動する。浅い階でも遺跡→地上でも同一機構。
+		// 結線が無い＝最上階の脱出口なら handled=false。持ち帰り品はそのまま街へ帰還する
+		handled, err := st.ascend(world)
+		if err != nil {
+			return es.Transition[w.World]{}, err
 		}
-		// 共存方式の上り。上り先は訪問済みなので再稼働する
-		if err := st.ascend(world); err != nil {
+		if handled {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			NewFadeoutAnimationState(NewTownState()),
+		}}, nil
+	case gc.WarpRuinEnter:
+		// オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える
+		if err := st.enterRuin(world, p.DefinitionName); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
