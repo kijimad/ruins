@@ -82,3 +82,44 @@ func TestResetExploredTiles(t *testing.T) {
 	resetExploredTiles(world)
 	assert.Empty(t, query.GetDungeon(world).ExploredTiles, "入り直しで探索履歴は空になる")
 }
+
+func TestSwapTo(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = stageA
+	a1 := addStageEntity(t, world, stageA) // 現ステージA のエンティティ、稼働中
+
+	genCalls := 0
+	generate := func(world w.World, key gc.StageKey) {
+		genCalls++
+		addStageEntity(t, world, key)
+	}
+
+	// A → B。B は未訪問なので生成し、A は退避する
+	swapTo(world, stageB, generate)
+	assert.True(t, world.Components.Suspended.Has(a1), "離れた A は退避される")
+	assert.Equal(t, 1, genCalls, "未訪問の B は生成される")
+	assert.True(t, stageExists(world, stageB))
+	assert.Equal(t, stageB, query.GetDungeon(world).CurrentStage)
+
+	// B → A。A は訪問済みなので再稼働し、生成しない
+	swapTo(world, stageA, generate)
+	assert.False(t, world.Components.Suspended.Has(a1), "戻った A は再稼働される")
+	assert.Equal(t, 1, genCalls, "訪問済みの A は再生成しない")
+	assert.Equal(t, stageA, query.GetDungeon(world).CurrentStage)
+}
+
+func TestSwapTo_探索履歴をリセットする(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	d := query.GetDungeon(world)
+	d.CurrentStage = stageA
+	d.ExploredTiles = map[gc.GridElement]bool{
+		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
+	}
+
+	swapTo(world, stageB, func(world w.World, key gc.StageKey) {
+		addStageEntity(t, world, key)
+	})
+	assert.Empty(t, query.GetDungeon(world).ExploredTiles, "swap で探索履歴は空になる")
+}
