@@ -24,7 +24,7 @@ func addLeakChar(t *testing.T, world w.World, coord consts.Coord[consts.Tile], s
 	e := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e, &gc.GridElement{Coord: coord})
 	world.Components.SoloAI.Add(e, &gc.SoloAI{})
-	world.Components.StageMember.Add(e, &gc.StageMember{Key: stage})
+	world.Components.StageBound.Add(e, &gc.StageBound{Key: stage})
 	if suspended {
 		world.Components.Suspended.Add(e, &gc.Suspended{})
 	}

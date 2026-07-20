@@ -129,7 +129,7 @@ func dungeonStageKey(depth int) gc.StageKey {
 	return gc.NewDungeonStage(depth)
 }
 
-// spawnFloor は depth のフロアを生成して world に配置し、生成物に StageMember を付ける。
+// spawnFloor は depth のフロアを生成して world に配置し、生成物に StageBound を付ける。
 // プレイヤー開始位置を返す。プレイヤー配置・探索リセット・現ステージ更新は呼び出し側が行う
 func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definition, key gc.StageKey) (consts.Coord[consts.Tile], error) {
 	var zero consts.Coord[consts.Tile]
@@ -181,7 +181,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 	}
 
 	// 生成物(上り階段を含む)をこのステージの一員として識別できるようにする
-	tagStageMembers(world, key)
+	bindToStage(world, key)
 
 	return start, nil
 }

@@ -52,7 +52,7 @@ var Registry = []Def{
 	{Field: "TileTemperature", Comment: "タイルの気温修正値を保持する"},
 
 	// stage ================
-	{Field: "StageMember", Comment: "所属ステージを保持する。往復するステージの同定に使う"},
+	{Field: "StageBound", Comment: "束縛先ステージを保持する。往復するステージの同定に使う"},
 	{Field: "Suspended", Comment: "現ステージ以外に属し稼働しないことを示すマーカー"},
 
 	// member ================

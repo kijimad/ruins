@@ -15,7 +15,7 @@ const (
 )
 
 // StageKey はステージを一意に識別する。共存する各ステージのエンティティを同定するのに使う。
-// 比較可能な値だけで構成し、StageMember のフィールドや現在ステージ指標として等値比較する
+// 比較可能な値だけで構成し、StageBound のフィールドや現在ステージ指標として等値比較する
 type StageKey struct {
 	// Kind はステージの種類を表す
 	Kind StageKind
@@ -71,11 +71,15 @@ func (k StageKey) Validate() error {
 	return fmt.Errorf("未知のステージ種別: %q", k.Kind)
 }
 
-// StageMember はエンティティが所属するステージを表す。
-// 往復で退避されるステージの同定と、完全離脱時の一括除去の対象選択に使う。
-// Player・SquadMember・共有シングルトンには付けない
-type StageMember struct {
-	// Key は所属ステージを保持する
+// StageBound はエンティティがどのステージに束縛され、そのライフサイクルを共にするかを表す。
+// これを持つエンティティは、ステージが退避されれば Suspended になり、完全離脱で一括除去される。
+// 地形・敵・アイテムなどステージ固有で作り直せるものが対象。
+//
+// Player・SquadMember・共有シングルトンには付けない。これらはステージを渡り歩く訪問者で、
+// どのステージとも運命を共にしない。束縛しないことで suspend/purge/resume のどの操作からも
+// 自動で外れる。プレイヤーの現在地は Dungeon.CurrentStage が持つ。
+type StageBound struct {
+	// Key は束縛先ステージを保持する
 	Key StageKey
 }
 

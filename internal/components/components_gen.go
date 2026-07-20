@@ -42,7 +42,7 @@ type EntitySpec struct {
 	Interactable       *Interactable       // 相互作用可能であることを示す
 	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *TileTemperature    // タイルの気温修正値を保持する
-	StageMember        *StageMember        // 所属ステージを保持する。往復するステージの同定に使う
+	StageBound         *StageBound         // 束縛先ステージを保持する。往復するステージの同定に使う
 	Suspended          *Suspended          // 現ステージ以外に属し稼働しないことを示すマーカー
 	Player             *Player             // 操作対象の主人公であることを示す
 	Profession         *Profession         // 選択した職業を保持する
@@ -115,7 +115,7 @@ type Components struct {
 	Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す
 	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *ecs.Map[TileTemperature]    // タイルの気温修正値を保持する
-	StageMember        *ecs.Map[StageMember]        // 所属ステージを保持する。往復するステージの同定に使う
+	StageBound         *ecs.Map[StageBound]         // 束縛先ステージを保持する。往復するステージの同定に使う
 	Suspended          *ecs.Map[Suspended]          // 現ステージ以外に属し稼働しないことを示すマーカー
 	Player             *ecs.Map[Player]             // 操作対象の主人公であることを示す
 	Profession         *ecs.Map[Profession]         // 選択した職業を保持する
@@ -188,7 +188,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Interactable = ecs.NewMap[Interactable](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileTemperature = ecs.NewMap[TileTemperature](world)
-	c.StageMember = ecs.NewMap[StageMember](world)
+	c.StageBound = ecs.NewMap[StageBound](world)
 	c.Suspended = ecs.NewMap[Suspended](world)
 	c.Player = ecs.NewMap[Player](world)
 	c.Profession = ecs.NewMap[Profession](world)
@@ -263,7 +263,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Interactable, entity, spec.Interactable)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileTemperature, entity, spec.TileTemperature)
-	addComp(c.StageMember, entity, spec.StageMember)
+	addComp(c.StageBound, entity, spec.StageBound)
 	addComp(c.Suspended, entity, spec.Suspended)
 	addComp(c.Player, entity, spec.Player)
 	addComp(c.Profession, entity, spec.Profession)
