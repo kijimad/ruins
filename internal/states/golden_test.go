@@ -93,15 +93,6 @@ func TestGolden_ShopMenu(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(town, &gs.ShopMenuState{}))
 }
 
-func TestGolden_AutoSell(t *testing.T) {
-	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
-	s, err := gs.NewAutoSellState()()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
-}
-
 func TestGolden_SaveMenu(t *testing.T) {
 	t.Parallel()
 	town, err := gs.NewTownState()()

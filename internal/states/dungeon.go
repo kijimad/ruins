@@ -647,9 +647,9 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpAscend:
 		if st.Depth <= 1 {
-			// 最上階からの上りはダンジョン脱出。精算画面を経由して街へ帰還する
+			// 最上階からの上りはダンジョン脱出。持ち帰り品はそのまま街へ帰還する
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				NewFadeoutAnimationState(NewAutoSellState()),
+				NewFadeoutAnimationState(NewTownState()),
 			}}, nil
 		}
 		// 共存方式の上り。上り先は訪問済みなので再稼働する
