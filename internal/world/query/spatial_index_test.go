@@ -40,6 +40,41 @@ func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *tes
 	assert.True(t, memberInChars, "隊員はCharactersに含まれる")
 }
 
+func TestBuildSpatialIndex_退避中エンティティは索引に含まれない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 現ステージの敵。索引に載るべき
+	activePos := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	active := world.ECS.NewEntity()
+	world.Components.GridElement.Add(active, &gc.GridElement{Coord: activePos})
+	world.Components.SoloAI.Add(active, &gc.SoloAI{})
+
+	// 退避中ステージの敵。索引に載らないべき
+	suspendedPos := consts.Coord[consts.Tile]{X: 6, Y: 6}
+	suspendedChar := world.ECS.NewEntity()
+	world.Components.GridElement.Add(suspendedChar, &gc.GridElement{Coord: suspendedPos})
+	world.Components.SoloAI.Add(suspendedChar, &gc.SoloAI{})
+	world.Components.Suspended.Add(suspendedChar, &gc.Suspended{})
+
+	// 退避中の障害物。BlockPass 索引に載らないべき
+	wallPos := consts.Coord[consts.Tile]{X: 7, Y: 7}
+	wall := world.ECS.NewEntity()
+	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: wallPos})
+	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+	world.Components.Suspended.Add(wall, &gc.Suspended{})
+
+	query.InvalidateSpatialIndex(world)
+	si := query.GetSpatialIndex(world)
+	require.NotNil(t, si)
+
+	_, activeIn := si.Characters[gc.GridElement{Coord: activePos}]
+	assert.True(t, activeIn, "現ステージの敵は索引に含まれる")
+	_, suspendedIn := si.Characters[gc.GridElement{Coord: suspendedPos}]
+	assert.False(t, suspendedIn, "退避中の敵は索引に含まれない")
+	assert.False(t, si.BlockPass[gc.GridElement{Coord: wallPos}], "退避中の障害物は BlockPass に含まれない")
+}
+
 func TestUpdateCharacterPositionInIndex_増分更新でBuiltを保つ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
