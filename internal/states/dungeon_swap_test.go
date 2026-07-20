@@ -3,14 +3,80 @@ package states
 import (
 	"testing"
 
+	"slices"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
+	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// hasPortalPrev は world に上り階段プロップが存在するかを返す
+func hasPortalPrev(world w.World) bool {
+	found := false
+	q := ecs.NewFilter1[gc.Interactable](world.ECS).Query()
+	for q.Next() {
+		if slices.Contains(world.Components.Interactable.Get(q.Entity()).Interactions, gc.InteractionPortalPrev) {
+			found = true
+		}
+	}
+	return found
+}
+
+// TestRoundTrip_実生成で往復し現物が復元される は実際のマップ生成を通して往復を検証する。
+// 降りると現階が退避され現物が残り、上ると同じ現物が復元される。共存方式の実挙動。
+func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
+	require.NoError(t, err)
+
+	d := query.GetDungeon(world)
+	d.DefinitionName = dungeon.DungeonDebug.Name
+	def, ok := dungeon.GetDungeon(d.DefinitionName)
+	require.True(t, ok)
+
+	st := &DungeonState{Depth: 1, DefinitionName: d.DefinitionName, BuilderType: mapplanner.PlannerTypeRandom}
+
+	// floor1 を実生成する。OnStart の生成部相当で、UI は使わない
+	key1 := dungeonStageKey(1)
+	pos1, err := st.spawnFloor(world, 1, def, key1)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.MovePlayerToPosition(world, pos1))
+	d.CurrentStage = key1
+
+	floor1 := stageMembers(world, key1)
+	require.NotEmpty(t, floor1, "floor1 が生成されている")
+
+	// 下る
+	require.NoError(t, st.descend(world))
+	require.Equal(t, 2, st.Depth)
+	require.Equal(t, dungeonStageKey(2), d.CurrentStage)
+
+	// floor1 の現物が残り、すべて退避されている
+	assert.Len(t, stageMembers(world, key1), len(floor1), "floor1 の現物が残る")
+	for _, e := range stageMembers(world, key1) {
+		assert.True(t, world.Components.Suspended.Has(e), "floor1 は退避されている")
+	}
+	require.NotEmpty(t, stageMembers(world, dungeonStageKey(2)), "floor2 が生成されている")
+	assert.True(t, hasPortalPrev(world), "floor2 に上り階段がある")
+
+	// 上る
+	require.NoError(t, st.ascend(world))
+	require.Equal(t, 1, st.Depth)
+	require.Equal(t, key1, d.CurrentStage)
+	assert.Len(t, stageMembers(world, key1), len(floor1), "上って戻っても floor1 は同じ現物")
+	for _, e := range stageMembers(world, key1) {
+		assert.False(t, world.Components.Suspended.Has(e), "floor1 は再稼働されている")
+	}
+}
 
 // TestDescend_現階を退避し訪問済み階を再稼働する は共存方式の下りを検証する。
 // 訪問済みの階へ降りると、現階は破棄されず退避され、行き先は再生成でなく再稼働される。

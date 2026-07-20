@@ -89,6 +89,9 @@ func tagStageMembers(world w.World, key gc.StageKey) {
 // プレイヤー配置と前線など時間派生の再導出は、遷移ごとに違うので呼び出し側が続けて行う
 func swapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey) error) error {
 	d := query.GetDungeon(world)
+	// プレイ中に湧いた未タグのフィールドエンティティを現ステージへ回収する。
+	// ドロップ・置いたアイテム・エフェクトが退避されず次ステージへ漏れるのを防ぐ
+	tagStageMembers(world, d.CurrentStage)
 	if stageExists(world, target) {
 		// 訪問済み。現ステージを退避してから target を再稼働する
 		if d.CurrentStage != target {

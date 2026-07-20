@@ -168,10 +168,23 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 	}
 	query.GetDungeon(world).Level = level
 
-	// 生成物をこのステージの一員として識別できるようにする
+	start, err := plan.GetPlayerStartPosition()
+	if err != nil {
+		return zero, err
+	}
+
+	// 上り階段を開始位置に置く。降りてきた場所が、上りで戻ってくる場所になる。
+	// 最上階(depth<=1)は上れないので置かない
+	if depth > 1 {
+		if _, err := lifecycle.SpawnProp(world, "warp_prev", start.X, start.Y); err != nil {
+			return zero, err
+		}
+	}
+
+	// 生成物(上り階段を含む)をこのステージの一員として識別できるようにする
 	tagStageMembers(world, key)
 
-	return plan.GetPlayerStartPosition()
+	return start, nil
 }
 
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
@@ -200,12 +213,13 @@ func (st *DungeonState) descend(world w.World) error {
 	st.Depth = nextDepth
 	query.GetDungeon(world).Depth = nextDepth
 
-	// 生成したフロアはプレイヤーを開始位置へ置く。
-	// 訪問済みフロアの再訪は上り階段からの帰還位置を使うが、上り階段は未実装のため保留
+	// 生成フロアは開始位置(＝上り階段の位置)へ。訪問済みフロアの再訪は
+	// そのフロアの上り階段、すなわち降りてくる側の位置へ戻す
 	if generated {
-		if err := lifecycle.MovePlayerToPosition(world, playerPos); err != nil {
-			return err
-		}
+		return lifecycle.MovePlayerToPosition(world, playerPos)
+	}
+	if pos, ok := findPortalPosition(world, gc.InteractionPortalPrev); ok {
+		return lifecycle.MovePlayerToPosition(world, pos)
 	}
 	return nil
 }

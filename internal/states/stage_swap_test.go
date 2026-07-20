@@ -139,6 +139,27 @@ func TestSwapTo(t *testing.T) {
 	assert.Equal(t, stageA, query.GetDungeon(world).CurrentStage)
 }
 
+func TestSwapTo_未タグの湧きエンティティを現ステージへ回収する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	d := query.GetDungeon(world)
+	d.CurrentStage = stageA
+
+	// プレイ中に湧いた未タグのフィールドエンティティ。ドロップや置いたアイテム相当
+	drop := world.ECS.NewEntity()
+	world.Components.GridElement.Add(drop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
+
+	require.NoError(t, swapTo(world, stageB, func(world w.World, key gc.StageKey) error {
+		addStageEntity(t, world, key)
+		return nil
+	}))
+
+	// 湧きは現ステージAへ回収され、現階と共に退避される。次ステージへ漏れない
+	require.True(t, world.Components.StageMember.Has(drop), "未タグの湧きは StageMember を得る")
+	assert.Equal(t, stageA, world.Components.StageMember.Get(drop).Key, "現ステージAに回収される")
+	assert.True(t, world.Components.Suspended.Has(drop), "回収された湧きは現階と共に退避される")
+}
+
 func TestSwapTo_生成失敗時は現ステージを壊さない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

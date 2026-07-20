@@ -25,7 +25,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 
 	switch interaction {
 	case gc.InteractionPortalNext:
-		return executePortal(world, gc.WarpNextEvent(), "次フロアワープ状態変更要求エラー")
+		// 共存方式の下り。同一 State 内 swapTo で現階を退避し、再訪で復元できる
+		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー")
 	case gc.InteractionPortalPrev:
 		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー")
 	case gc.InteractionPortalTown:
