@@ -4,7 +4,9 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,4 +41,40 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	assert.Equal(t, 2, st.Depth)
 	assert.Equal(t, 2, query.GetDungeon(world).Depth)
 	assert.Equal(t, dungeonStageKey(2), query.GetDungeon(world).CurrentStage)
+}
+
+// TestAscend_上り先の下り階段へ戻る は上りで訪問済み階を再稼働し、
+// プレイヤーを元々降りてきた下り階段へ戻すことを検証する。
+func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 現在は2階
+	d := query.GetDungeon(world)
+	d.CurrentStage = dungeonStageKey(2)
+	d.Depth = 2
+	floor2 := addStageEntity(t, world, dungeonStageKey(2))
+
+	// 1階は訪問済みで退避中。下り階段プロップ InteractionPortalNext を持つ
+	stairsPos := consts.Coord[consts.Tile]{X: 7, Y: 8}
+	stairs := world.ECS.NewEntity()
+	world.Components.GridElement.Add(stairs, &gc.GridElement{Coord: stairsPos})
+	world.Components.Interactable.Add(stairs, &gc.Interactable{
+		Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
+	})
+	world.Components.StageMember.Add(stairs, &gc.StageMember{Key: dungeonStageKey(1)})
+	world.Components.Suspended.Add(stairs, &gc.Suspended{})
+
+	// プレイヤーは2階の適当な位置にいる
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
+	require.NoError(t, err)
+
+	st := &DungeonState{Depth: 2}
+	require.NoError(t, st.ascend(world))
+
+	// 2階退避、1階再稼働、深度1、プレイヤーは1階の下り階段へ戻る
+	assert.True(t, world.Components.Suspended.Has(floor2), "上った2階は退避される")
+	assert.False(t, world.Components.Suspended.Has(stairs), "1階は再稼働される")
+	assert.Equal(t, 1, st.Depth)
+	assert.Equal(t, stairsPos, world.Components.GridElement.Get(player).Coord, "プレイヤーは降りてきた下り階段へ戻る")
 }

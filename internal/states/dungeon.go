@@ -3,6 +3,7 @@ package states
 import (
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
@@ -204,6 +205,53 @@ func (st *DungeonState) descend(world w.World) error {
 	// 訪問済みフロアの再訪は上り階段からの帰還位置を使うが、上り階段は未実装のため保留
 	if generated {
 		if err := lifecycle.MovePlayerToPosition(world, playerPos); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// findPortalPosition は現ステージの指定種別ポータルプロップの位置を返す。
+// 帰還位置の算出に使う。退避中ステージのポータルは ActiveFilter で除外される
+func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[consts.Tile], bool) {
+	var pos consts.Coord[consts.Tile]
+	found := false
+	q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		if !found && slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {
+			pos = world.Components.GridElement.Get(e).Coord
+			found = true
+		}
+	}
+	return pos, found
+}
+
+// ascend は1つ上の階へ swapTo で移動する。上り先は必ず訪問済みなので再稼働する。
+// プレイヤーは上った先の下り階段、すなわち元々降りてきた場所へ戻す
+func (st *DungeonState) ascend(world w.World) error {
+	if st.Depth <= 1 {
+		// 最上階からは上れない。地上や街への脱出は WarpEscape が担う
+		return nil
+	}
+	prevDepth := st.Depth - 1
+	target := dungeonStageKey(prevDepth)
+
+	// 上り先は訪問済み前提。未訪問なら生成でなくエラーにする
+	var genErr error
+	swapTo(world, target, func(_ w.World, _ gc.StageKey) {
+		genErr = fmt.Errorf("上り先の階が存在しません: 深度%d", prevDepth)
+	})
+	if genErr != nil {
+		return genErr
+	}
+
+	st.Depth = prevDepth
+	query.GetDungeon(world).Depth = prevDepth
+
+	// 上った先の下り階段へプレイヤーを戻す
+	if pos, ok := findPortalPosition(world, gc.InteractionPortalNext); ok {
+		if err := lifecycle.MovePlayerToPosition(world, pos); err != nil {
 			return err
 		}
 	}
@@ -583,6 +631,12 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	case gc.WarpDescend:
 		// 共存方式の下り。同一 State 内で swapTo する。現階は退避され再訪で復元できる
 		if err := st.descend(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case gc.WarpAscend:
+		// 共存方式の上り。上り先は訪問済みなので再稼働する
+		if err := st.ascend(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
