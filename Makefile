@@ -18,11 +18,11 @@ editor: ## ゲームデータエディタを起動する
 	npm run --prefix editor-ui dev
 
 .PHONY: test
-test: ## テストを実行する。COUNT=N で繰り返し実行できる（デフォルト1）
+test: ## テストを実行する。RACE=-race で競合検出、COUNT=N で繰り返し実行できる（デフォルト1）
 	# bwrap: /dev/input を隠してebitenのgamepad初期化エラー(EINTR)を防ぐ
 	# xvfb-run: ebitenのゴールデンテストがウィンドウを開くのを防ぐ
 	RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a go test -race -v -cover -shuffle=on -timeout=60m -count=$(or $(COUNT),1) \
+	$(BWRAP_CMD) xvfb-run -a go test $(RACE) -v -cover -shuffle=on -timeout=60m -count=$(or $(COUNT),1) \
 		$(GO_TEST_PKGS)
 
 .PHONY: updategolden
