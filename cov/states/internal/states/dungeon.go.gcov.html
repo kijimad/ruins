@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 11:26:54</td>
+            <td class="headerValue">2026-07-20 11:46:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -294,9 +294,9 @@
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           3 :         var pos consts.Coord[consts.Tile]</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           3 :         found := false</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           3 :         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          22 :         for q.Next() {</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          19 :                 e := q.Entity()</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">          21 :                 if !found &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          28 :         for q.Next() {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          25 :                 e := q.Entity()</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">          27 :                 if !found &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :                         pos = world.Components.GridElement.Get(e).Coord</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           2 :                         found = true</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           2 :                 }</span></span>

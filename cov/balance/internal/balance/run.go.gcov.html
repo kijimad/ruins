@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 11:26:54</td>
+            <td class="headerValue">2026-07-20 11:46:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -231,10 +231,10 @@
 <span id="L169"><span class="lineNum">     169</span>              :         // mapplanner のアイテム配置ロジック: 15 + rand(0..8)</span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">         999 :         itemCount := 15 + rng.IntN(9)</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">         999 : </span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">       20021 :         for range itemCount {</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">       19022 :                 itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">       19022 : </span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       19022 :                 if err != nil || itemName == &quot;&quot; {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">       20022 :         for range itemCount {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">       19023 :                 itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">       19023 : </span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       19023 :                 if err != nil || itemName == &quot;&quot; {</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L177"><span class="lineNum">     177</span>              :                 }</span>
 <span id="L178"><span class="lineNum">     178</span>              : </span>
