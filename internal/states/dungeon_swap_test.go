@@ -107,7 +107,9 @@ func TestEnterDungeon_遺跡へ入り上り階段が入口へ結線される(t *
 	band := addStageEntity(t, world, gc.NewOverworldStage())
 
 	defName := dungeon.DungeonDebug.Name
-	st := &DungeonState{DefinitionName: defName, BuilderType: mapplanner.PlannerTypeRandom}
+	// 本番同様、オーバーワールド State は BuilderType を持たない。ゼロ値のまま遺跡生成へ
+	// 流れると PlannerFunc が nil で panic するため、その回帰も兼ねる
+	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name}
 	require.NoError(t, st.enterDungeon(world, defName))
 
 	// 遺跡1階が現ステージ、オーバーワールドは退避

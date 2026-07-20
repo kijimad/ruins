@@ -181,7 +181,10 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 	switch {
 	case def.BossPlannerType != nil && depth == def.TotalFloors:
 		builderType = *def.BossPlannerType
-	case st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
+	case st.BuilderType.PlannerFunc == nil || st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
+		// BuilderType 未設定(オーバーワールドから遺跡へ入った State は帯用で BuilderType を
+		// 持たない)か Random なら、定義のプランナープールから選ぶ。ゼロ値をそのまま使うと
+		// PlannerFunc が nil で生成が panic する
 		var err error
 		builderType, err = dungeon.SelectPlanner(def, stageRNG)
 		if err != nil {
