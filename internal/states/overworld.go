@@ -86,6 +86,10 @@ func (st *OverworldState) OnStart(world w.World) error {
 
 	d := query.GetDungeon(world)
 
+	// 現ステージをオーバーワールドに確定する。共存機構が現在地を識別するのに使う。
+	// 遺跡が未実装の間は Suspended が付かないので ActiveFilter は全件を返し挙動は変わらない
+	d.CurrentStage = gc.NewOverworldStage()
+
 	// 視界の強制再計算を促す。VisionSystem は world.Updaters に居座る永続インスタンスで、
 	// Depth/DefinitionName が変わらないと内部キャッシュを無効化しない。オーバーワールドは常に
 	// Depth=0 なのでフロア変化が起きず、ロード復元では serde が空にした VisibleTiles が
