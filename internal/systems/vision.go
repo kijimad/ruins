@@ -336,8 +336,8 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.Ligh
 	var totalR, totalG, totalB float64
 	var totalWeight float64
 
-	// 全ての光源をチェック
-	lightQuery := ecs.NewFilter2[gc.LightSource, gc.GridElement](world.ECS).Query()
+	// 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない
+	lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()
 	for lightQuery.Next() {
 		lightEntity := lightQuery.Entity()
 		lightSource := world.Components.LightSource.Get(lightEntity)
@@ -405,7 +405,8 @@ const (
 // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 	index := make(map[gc.GridElement]bool)
-	blockViewQuery := ecs.NewFilter2[gc.GridElement, gc.BlockView](world.ECS).Query()
+	// 退避中ステージの遮蔽物は現ステージの視界を遮らない
+	blockViewQuery := query.ActiveFilter2[gc.GridElement, gc.BlockView](world).Query()
 	for blockViewQuery.Next() {
 		entity := blockViewQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)

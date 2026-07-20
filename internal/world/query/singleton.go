@@ -108,7 +108,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.PlayerEntity = nil
 
 	// 静的障害物のインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない
-	blockPassQuery := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.ECS).Without(ecs.C[gc.Suspended]()).Query()
+	blockPassQuery := ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
 	for blockPassQuery.Next() {
 		entity := blockPassQuery.Entity()
 		if world.Components.Dead.Has(entity) {
@@ -119,7 +119,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	}
 
 	// キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない
-	characterQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Without(ecs.C[gc.Suspended]()).Query()
+	characterQuery := ActiveFilter1[gc.GridElement](world).Query()
 	for characterQuery.Next() {
 		entity := characterQuery.Entity()
 		if world.Components.Dead.Has(entity) {

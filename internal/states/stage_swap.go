@@ -82,4 +82,6 @@ func swapTo(world w.World, target gc.StageKey, generate func(world w.World, key 
 	}
 	d.CurrentStage = target
 	resetExploredTiles(world)
+	// 座標索引は現ステージのみで作り直す。swap で無効化し次アクセスで再構築させる
+	query.InvalidateSpatialIndex(world)
 }

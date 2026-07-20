@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -107,6 +108,24 @@ func TestSwapTo(t *testing.T) {
 	assert.False(t, world.Components.Suspended.Has(a1), "戻った A は再稼働される")
 	assert.Equal(t, 1, genCalls, "訪問済みの A は再生成しない")
 	assert.Equal(t, stageA, query.GetDungeon(world).CurrentStage)
+}
+
+func TestSwapTo_座標索引を無効化する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = stageA
+
+	// 索引を一度構築しておく
+	query.GetSpatialIndex(world)
+	si := world.Components.SpatialIndex.Get(world.Resources.SingletonEntity)
+	require.True(t, si.Built, "前提: 索引は構築済み")
+
+	swapTo(world, stageB, func(world w.World, key gc.StageKey) {
+		addStageEntity(t, world, key)
+	})
+
+	si2 := world.Components.SpatialIndex.Get(world.Resources.SingletonEntity)
+	assert.False(t, si2.Built, "swap 後は索引が無効化され、次アクセスで現ステージ用に再構築される")
 }
 
 func TestSwapTo_探索履歴をリセットする(t *testing.T) {
