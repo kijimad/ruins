@@ -424,9 +424,9 @@ export interface Item {
      */
     'value': number;
     /**
-     * アイテム重量（kg）
+     * アイテム重量
      */
-    'weight'?: number;
+    'weight'?: string;
     /**
      * 基本ダメージ
      */
@@ -1834,11 +1834,11 @@ export interface SaveDataWearableComponent {
  */
 export interface SaveDataWeightCapacityComponent {
     /**
-     * プール最大値 (浮動小数点)
+     * プール最大値 (整数)
      */
     'Max': number;
     /**
-     * プール現在値 (浮動小数点)
+     * プール現在値 (整数)
      */
     'Current': number;
 }
@@ -1940,9 +1940,9 @@ export interface SpriteSheetList {
  */
 export interface StorageRaw {
     /**
-     * 収納の最大格納重量（kg）
+     * 収納の最大格納重量
      */
-    'maxWeight': number;
+    'maxWeight': string;
     /**
      * 初期アイテムの抽選に使うItemTable名
      */

@@ -127,13 +127,9 @@ scalar ItemCount extends int32;
 @maxValue(99999)
 scalar ItemValue extends int32;
 
-/** アイテム重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg" */
+/** 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg" */
 @pattern("^[0-9]+(\\.[0-9]+)? (mg|g|kg)$")
-scalar ItemWeight extends string;
-
-/** 収納の最大格納重量。単位付き文字列で指定する。例: "20 kg" */
-@pattern("^[0-9]+(\\.[0-9]+)? (mg|g|kg)$")
-scalar StorageMaxWeight extends string;
+scalar Weight extends string;
 
 /** 光源が有効かどうか */
 scalar LightEnabled extends boolean;

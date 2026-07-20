@@ -959,8 +959,8 @@ type Item struct {
 	// Wearable 装備可能設定
 	Wearable *Wearable `json:"wearable,omitempty"`
 
-	// Weight アイテム重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
-	Weight *ItemWeight `json:"weight,omitempty"`
+	// Weight アイテム重量
+	Weight *Weight `json:"weight,omitempty"`
 }
 
 // ItemCount アイテム所持数
@@ -1038,9 +1038,6 @@ type ItemTableList struct {
 
 // ItemValue 売買価格
 type ItemValue = int32
-
-// ItemWeight アイテム重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
-type ItemWeight = string
 
 // LightEnabled 光源が有効かどうか
 type LightEnabled = bool
@@ -2194,9 +2191,6 @@ type SpriteSheetName = string
 // Stackable スタック可能かどうか
 type Stackable = bool
 
-// StorageMaxWeight 収納の最大格納重量。単位付き文字列で指定する。例: "20 kg"
-type StorageMaxWeight = string
-
 // StorageRaw 収納ローデータ
 type StorageRaw struct {
 	// LootCountMax 初期アイテムの最大数
@@ -2208,8 +2202,8 @@ type StorageRaw struct {
 	// LootTableName 初期アイテムの抽選に使うItemTable名
 	LootTableName *EntityName `json:"lootTableName,omitempty"`
 
-	// MaxWeight 収納の最大格納重量。単位付き文字列で指定する。例: "20 kg"
-	MaxWeight StorageMaxWeight `json:"maxWeight"`
+	// MaxWeight 収納の最大格納重量
+	MaxWeight Weight `json:"maxWeight"`
 }
 
 // Strength 筋力。物理ダメージに影響する
@@ -2286,6 +2280,9 @@ type Wearable struct {
 	// InsulationHeat 耐暑性能
 	InsulationHeat InsulationHeat `json:"insulationHeat"`
 }
+
+// Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
+type Weight = string
 
 // CommandTablesCreateJSONRequestBody defines body for CommandTablesCreate for application/json ContentType.
 type CommandTablesCreateJSONRequestBody = CommandTable
