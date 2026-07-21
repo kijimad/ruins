@@ -126,11 +126,6 @@ func TestExtractMinimapData(t *testing.T) {
 
 	// ゲームリソースを設定
 	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
-	query.GetDungeon(world).MinimapSettings = gc.MinimapSettings{
-		Width:  200,
-		Height: 200,
-		Scale:  2,
-	}
 
 	// プレイヤーエンティティを作成
 	playerEntity := world.ECS.NewEntity()
@@ -162,9 +157,9 @@ func TestExtractMinimapData(t *testing.T) {
 	assert.Equal(t, 10, int(minimapData.PlayerTile.X), "プレイヤーのX座標が正しくない")
 	assert.Equal(t, 15, int(minimapData.PlayerTile.Y), "プレイヤーのY座標が正しくない")
 	assert.Len(t, minimapData.ExploredTiles, 3, "探索済みタイル数が正しくない")
-	assert.Equal(t, 200, minimapData.MinimapConfig.Width, "ミニマップ幅が正しくない")
-	assert.Equal(t, 200, minimapData.MinimapConfig.Height, "ミニマップ高さが正しくない")
-	assert.Equal(t, 2, minimapData.MinimapConfig.Scale, "ミニマップスケールが正しくない")
+	assert.Equal(t, consts.MinimapWidth, minimapData.MinimapConfig.Width, "ミニマップ幅が正しくない")
+	assert.Equal(t, consts.MinimapHeight, minimapData.MinimapConfig.Height, "ミニマップ高さが正しくない")
+	assert.Equal(t, consts.MinimapScale, minimapData.MinimapConfig.Scale, "ミニマップスケールが正しくない")
 
 	// タイル色が正しく設定されているか確認
 	wallGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}

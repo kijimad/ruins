@@ -45,6 +45,15 @@ const (
 )
 
 const (
+	// MinimapWidth はミニマップの表示幅。ピクセル単位の固定 UI 値
+	MinimapWidth = 150
+	// MinimapHeight はミニマップの表示高さ
+	MinimapHeight = 150
+	// MinimapScale はミニマップのスケール。何ピクセルで1タイルを表すか
+	MinimapScale = 3
+)
+
+const (
 	// MapTileWidth はマップの横タイル数
 	MapTileWidth Tile = 50
 	// MapTileHeight はマップの縦タイル数

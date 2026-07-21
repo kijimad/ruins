@@ -112,9 +112,9 @@ func extractMinimapData(world w.World) hud.MinimapData {
 		TileColors:     tileColors,
 		SquadPositions: squadPositions,
 		MinimapConfig: hud.MinimapConfig{
-			Width:  query.GetDungeon(world).MinimapSettings.Width,
-			Height: query.GetDungeon(world).MinimapSettings.Height,
-			Scale:  query.GetDungeon(world).MinimapSettings.Scale,
+			Width:  consts.MinimapWidth,
+			Height: consts.MinimapHeight,
+			Scale:  consts.MinimapScale,
 		},
 		ScreenDimensions: screenDimensions,
 	}

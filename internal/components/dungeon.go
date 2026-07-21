@@ -94,8 +94,6 @@ type Dungeon struct {
 	// 探索済みタイルのマップ。座標をキーとして使用。
 	// GridElement(struct)キーのためserde不可、ロード時に再構築する
 	ExploredTiles map[GridElement]bool `json:"-"`
-	// ミニマップの設定
-	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
 	NeedsForceUpdate bool
 	// DefinitionName はダンジョン定義名
@@ -117,15 +115,9 @@ type Dungeon struct {
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
 	return &Dungeon{
-		ExploredTiles:    make(map[GridElement]bool),
-		VisibleTiles:     make(map[GridElement]bool),
-		LightSourceCache: make(map[GridElement]LightInfo),
-		MinimapSettings: MinimapSettings{
-			Width:  150,
-			Height: 150,
-			Offset: consts.Coord[int]{X: 10, Y: 10},
-			Scale:  3,
-		},
+		ExploredTiles:      make(map[GridElement]bool),
+		VisibleTiles:       make(map[GridElement]bool),
+		LightSourceCache:   make(map[GridElement]LightInfo),
 		SelectedWeaponSlot: 1,
 	}
 }
@@ -162,14 +154,3 @@ func (l *Level) Height() consts.WorldPixel {
 	return consts.WorldPixel(int(l.TileHeight) * int(consts.TileSize))
 }
 
-// MinimapSettings はミニマップの設定を管理する
-type MinimapSettings struct {
-	// ミニマップのサイズ（ピクセル単位）
-	Width  int
-	Height int
-	// ミニマップの表示位置。整数ピクセルの画面 UI レイアウト値で、ワールド座標でもタイル座標でもない。
-	// Width/Height/Scale と同じ UI 設定の一員なので Coord[consts.WorldPixel] でなく Coord[int] にする。
-	Offset consts.Coord[int]
-	// ミニマップのスケール（何ピクセルで1タイルを表すか）
-	Scale int
-}
