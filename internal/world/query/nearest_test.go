@@ -124,8 +124,7 @@ func TestFindNearestEntity(t *testing.T) {
 // 最寄りを返すことを固定する（インデックス経由でタイルを走査しない契約）。
 func TestFindNearestCharacter_タイルを無視する(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)})
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 

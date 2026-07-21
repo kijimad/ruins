@@ -15,8 +15,7 @@ import (
 func TestTranslateAllEntities(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)})
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
@@ -38,8 +37,7 @@ func TestTranslateAllEntities(t *testing.T) {
 func TestRemoveEntitiesInXRange(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)})
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
 
 	// プレイヤーは範囲内 [0,10) に居るが keep で残す
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 3, Y: 5}, "Ash")
@@ -62,8 +60,7 @@ func TestRemoveEntitiesInXRange(t *testing.T) {
 func TestRemoveEntitiesInXRange_境界は半開区間(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)})
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
 	if _, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 50, Y: 5}, "Ash"); err != nil {
 		require.NoError(t, err)
 	}

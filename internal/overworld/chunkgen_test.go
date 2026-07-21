@@ -113,10 +113,9 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 	const k = 3
-	testutil.SetStageLevel(world, gc.Level{TileWidth: chunkW * k, TileHeight: chunkH})
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW * k, TileHeight: chunkH}))
 
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
 	// 初期帯: K チャンクを各スロットへ生成

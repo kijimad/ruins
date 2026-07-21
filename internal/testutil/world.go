@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,6 +19,20 @@ var (
 	rawMasterOnce sync.Once
 	rawMaster     oapi.Raws
 )
+
+// initConfig は InitTestWorld の初期化オプションを集約する。
+type initConfig struct {
+	stageLevel gc.Level
+}
+
+// Option は InitTestWorld の初期化オプション。
+type Option func(*initConfig)
+
+// WithStageLevel は現ステージのフィールド寸法を指定する。省略時は 50x50。
+// 実ゲームではフィールド寸法はステージ生成時に一度決まるため、テストも生成相当の初期化時に与える。
+func WithStageLevel(level gc.Level) Option {
+	return func(c *initConfig) { c.stageLevel = level }
+}
 
 // InitTestWorld は軽量なテスト用Worldを初期化する
 // フォントやスプライトシートなどの重いリソースは読み込まず、
@@ -30,8 +43,13 @@ var (
 //   - ゲームロジックのテスト
 //   - アイテムやレシピのテスト
 //   - UIを必要としないテスト
-func InitTestWorld(tb testing.TB) w.World {
+func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	tb.Helper()
+
+	cfg := initConfig{stageLevel: gc.Level{TileWidth: 50, TileHeight: 50}}
+	for _, opt := range opts {
+		opt(&cfg)
+	}
 
 	// 基本的なWorld構造を初期化
 	world, err := w.InitWorld(&gc.Components{})
@@ -71,7 +89,8 @@ func InitTestWorld(tb testing.TB) w.World {
 	world.Resources.SpriteSheets = spriteSheets
 
 	// テスト用の現ステージを用意する。フィールド寸法は現ステージの StageField が持つため、
-	// 現ステージをオーバーワールドに確定し、そのキーに束縛した StageFieldを Level 付きで作る。
+	// 現ステージをオーバーワールドに確定し、そのキーに束縛した StageField を Level 付きで作る。
+	// 実ゲームでも寸法はステージ生成時に一度決まるので、ここで与える。既定は 50x50、WithStageLevel で上書き。
 	// オーバーワールド判定は帯データ SeamlessBand の有無で行うので、帯を付けない既定では
 	// IsOnOverworld は偽のまま。前線テストは EnsureSeamlessBand で帯を付ける。
 	// query の循環 import を避けるため world.Components を直接使う
@@ -80,29 +99,8 @@ func InitTestWorld(tb testing.TB) w.World {
 	fieldEntity := world.ECS.NewEntity()
 	world.Components.StageBound.Add(fieldEntity, &gc.StageBound{Key: d.CurrentStage})
 	field := gc.NewStageField()
-	field.Level = gc.Level{TileWidth: 50, TileHeight: 50}
+	field.Level = cfg.stageLevel
 	world.Components.StageField.Add(fieldEntity, field)
 
 	return world
-}
-
-// SetStageLevel は現ステージの StageField にフィールド寸法を設定する。テストで地形寸法を差し替える用。
-// query の循環 import を避けるため world.Components を直接使う。
-func SetStageLevel(world w.World, level gc.Level) {
-	key := world.Components.Dungeon.Get(world.Resources.SingletonEntity).CurrentStage
-	var found ecs.Entity
-	ok := false
-	q := ecs.NewFilter2[gc.StageField, gc.StageBound](world.ECS).Query()
-	for q.Next() {
-		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
-			found = q.Entity()
-			ok = true
-		}
-	}
-	if !ok {
-		found = world.ECS.NewEntity()
-		world.Components.StageBound.Add(found, &gc.StageBound{Key: key})
-		world.Components.StageField.Add(found, &gc.StageField{})
-	}
-	world.Components.StageField.Get(found).Level = level
 }

@@ -187,8 +187,8 @@ func TestSwapTo_座標索引を無効化する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	query.GetDungeon(world).CurrentStage = stageA
-	// 現ステージのフィールド寸法は StageField が持つ。索引構築が寸法を引けるよう用意する
-	testutil.SetStageLevel(world, gc.Level{TileWidth: 50, TileHeight: 50})
+	// 現ステージ stageA のフィールド寸法を用意する。索引構築が寸法を引けるよう、実ゲームの生成相当で作る
+	query.EnsureStageField(world, stageA).Level = gc.Level{TileWidth: 50, TileHeight: 50}
 
 	// 索引を一度構築しておく
 	query.GetSpatialIndex(world)

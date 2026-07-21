@@ -48,8 +48,7 @@ func BenchmarkProcessAll(b *testing.B) {
 
 	for _, sc := range scenarios {
 		b.Run(sc.name, func(b *testing.B) {
-			world := testutil.InitTestWorld(b)
-			testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(mapSize), TileHeight: consts.Tile(mapSize)})
+			world := testutil.InitTestWorld(b, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(mapSize), TileHeight: consts.Tile(mapSize)}))
 			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash")
 			require.NoError(b, err)
 

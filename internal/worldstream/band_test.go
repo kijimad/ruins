@@ -29,10 +29,9 @@ func TestBand_ShouldShift_ヒステリシス(t *testing.T) {
 func TestBand_ShiftEast(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 300, TileHeight: 60})) // K=3 * chunkW=100
 	field := query.GetCurrentStageField(world)
 	visState := query.GetVisionState(world)
-	testutil.SetStageLevel(world, gc.Level{TileWidth: 300, TileHeight: 60}) // K=3 * chunkW=100
 
 	// プレイヤーは東チャンクへ踏み込んでいる（localX=210）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 210, Y: 30}, "Ash")
@@ -96,8 +95,7 @@ func TestBand_ShiftEast(t *testing.T) {
 func TestBand_ShiftWest(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	testutil.SetStageLevel(world, gc.Level{TileWidth: 300, TileHeight: 60})
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 300, TileHeight: 60}))
 
 	// プレイヤーは西チャンクへ踏み込んでいる（localX=90）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 90, Y: 30}, "Ash")
