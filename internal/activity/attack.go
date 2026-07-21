@@ -201,7 +201,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if world.Components.Player.Has(attacker) {
 		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
-		selectedSlot := query.GetDungeon(world).SelectedWeaponSlot
+		selectedSlot := query.GetWeaponSelection(world).Slot
 		weaponIndex := selectedSlot - 1 // 1-based to 0-based
 		if weaponIndex < 0 || weaponIndex >= 5 {
 			return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)

@@ -13,7 +13,6 @@ func TestNewDungeon(t *testing.T) {
 	d := NewDungeon()
 
 	assert.NotNil(t, d.ExploredTiles, "ExploredTilesが初期化されている")
-	assert.Equal(t, 1, d.SelectedWeaponSlot, "初期武器スロットは1")
 }
 
 func TestLevel_CoordToIndex(t *testing.T) {

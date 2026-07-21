@@ -101,4 +101,5 @@ var Registry = []Def{
 	{Field: "GameProgress", Comment: "ゲーム進行データを保持するシングルトン"},
 	{Field: "TurnState", Comment: "ターン状態を保持するシングルトン"},
 	{Field: "SpatialIndex", Comment: "空間インデックスを保持するシングルトン"},
+	{Field: "WeaponSelection", Comment: "選択中の武器スロットを保持するシングルトン"},
 }

@@ -100,8 +100,6 @@ type Dungeon struct {
 	DefinitionName string
 	// GameTime はゲーム内時間を保持する
 	GameTime GameTime
-	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
-	SelectedWeaponSlot int
 	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される。
 	// GridElement(struct)キーのためserde不可、毎フレーム再構築される
 	VisibleTiles map[GridElement]bool `json:"-"`
@@ -115,10 +113,9 @@ type Dungeon struct {
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
 	return &Dungeon{
-		ExploredTiles:      make(map[GridElement]bool),
-		VisibleTiles:       make(map[GridElement]bool),
-		LightSourceCache:   make(map[GridElement]LightInfo),
-		SelectedWeaponSlot: 1,
+		ExploredTiles:    make(map[GridElement]bool),
+		VisibleTiles:     make(map[GridElement]bool),
+		LightSourceCache: make(map[GridElement]LightInfo),
 	}
 }
 

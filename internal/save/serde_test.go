@@ -198,3 +198,24 @@ func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 	require.True(t, newWorld.ECS.Alive(*ai.TargetEntity), "TargetEntityが生存エンティティを指す")
 	assert.Equal(t, restoredPlayer, *ai.TargetEntity, "TargetEntityが復元後プレイヤーへ整合する")
 }
+
+// TestSerde_WeaponSelectionPersists は選択中の武器スロットがセーブ・ロードで復元されることを
+// 検証する。Dungeon から分離した後もシングルトンとして serde され永続する。
+func TestSerde_WeaponSelectionPersists(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	query.GetWeaponSelection(world).Slot = 4
+
+	require.NoError(t, manager.SaveWorld(world, "weapon"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "weapon"))
+
+	assert.Equal(t, 4, query.GetWeaponSelection(newWorld).Slot, "選択中の武器スロットが復元される")
+}

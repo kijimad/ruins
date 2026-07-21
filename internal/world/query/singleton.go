@@ -32,6 +32,11 @@ func GetDungeon(world w.World) *gc.Dungeon {
 	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
+// GetWeaponSelection はシングルトンから選択中の武器スロットを取得する
+func GetWeaponSelection(world w.World) *gc.WeaponSelection {
+	return GetSingleton[gc.WeaponSelection](world, world.Components.WeaponSelection)
+}
+
 // IsOnOverworld は現在地がオーバーワールドかを返す。オーバーワールド固有の振る舞い
 // (霜・寒波前線の気温/移動効果・帯シフト)の gate に使い、場所判定をこの1関数へ集約する。
 //

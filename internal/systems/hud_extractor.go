@@ -349,7 +349,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		}
 
 		// 現在選択中のスロット（1-5）を0ベース配列インデックスに変換
-		selectedSlot = query.GetDungeon(world).SelectedWeaponSlot - 1
+		selectedSlot = query.GetWeaponSelection(world).Slot - 1
 	})
 
 	return hud.WeaponSlotsData{
