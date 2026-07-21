@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -41,23 +40,15 @@ func initFrostImage() {
 	})
 }
 
-// frostVisible は霜のオーバーレイを描くべきかを返す純関数。
-//
-// 霜は帯を持つオーバーワールド固有の演出で、オーバーワールドでは前線が常に有効。帯を持つのは
-// オーバーワールドだけなので、前線の有効性でなく現ステージがオーバーワールドかで判定する。
-// 共存方式では遺跡へ入っても SeamlessBand は退避されたまま残るため、Front.Active で判定すると
-// 遺跡内でも氷が重なり画面が青くなる。
-func frostVisible(currentStage gc.StageKey) bool {
-	return currentStage == gc.NewOverworldStage()
-}
-
 // Draw は極低温ゾーンに氷のオーバーレイを描く。
+//
+// 霜はオーバーワールド固有の演出。共存方式では遺跡滞在中も SeamlessBand は Active のまま残るため、
+// Front.Active でなくオーバーワールドにいるかで判定する。判定は query.IsOnOverworld に集約する。
 func (sys *FrostRenderSystem) Draw(world w.World, screen *ebiten.Image) error {
-	d := query.GetDungeon(world)
-	if !frostVisible(d.CurrentStage) {
+	if !query.IsOnOverworld(world) {
 		return nil
 	}
-	sb := d.SeamlessBand
+	sb := query.GetDungeon(world).SeamlessBand
 	initFrostImage()
 	if frostTileImage == nil {
 		return nil

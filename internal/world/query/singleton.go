@@ -32,6 +32,19 @@ func GetDungeon(world w.World) *gc.Dungeon {
 	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
+// IsOnOverworld は現在地がオーバーワールドかを返す。オーバーワールド固有の振る舞い
+// (霜・寒波前線の気温/移動効果・帯シフト)の gate に使い、場所判定をこの1関数へ集約する。
+//
+// 共存方式では遺跡へ入っても SeamlessBand は退避されたまま Active に残るため、Front.Active や
+// SeamlessBand.Active を「オーバーワールドにいる」の代理に使うと遺跡内へ効果が漏れる。現ステージが
+// オーバーワールド帯ステージかで判定する。
+//
+// interim: 恒久形(設計 65.md Phase H3)ではオーバーワールド固有データを現ステージのメタが持つかで
+// 判定する。それまでは種別判定の乱立を防ぐためここに集約し、置換点を1箇所に閉じ込める。
+func IsOnOverworld(world w.World) bool {
+	return GetDungeon(world).CurrentStage == gc.NewOverworldStage()
+}
+
 // GetGameLog はシングルトンエンティティからGameLogストアを取得する
 func GetGameLog(world w.World) *gamelog.SafeSlice {
 	gl := GetSingleton[gc.GameLog](world, world.Components.GameLog)

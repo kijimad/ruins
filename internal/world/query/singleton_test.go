@@ -63,3 +63,20 @@ func TestGetDungeon(t *testing.T) {
 		assert.Nil(t, d)
 	})
 }
+
+// TestIsOnOverworld は現在地判定を検証する。共存方式では遺跡滞在中も SeamlessBand は Active の
+// まま残るため、Active を場所判定の代理にしてはいけない。現ステージで判定することを固定する。
+func TestIsOnOverworld(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	d := GetDungeon(world)
+
+	d.CurrentStage = gc.NewOverworldStage()
+	assert.True(t, IsOnOverworld(world), "現ステージがオーバーワールドなら真")
+
+	// 遺跡滞在中。帯・前線が Active のまま残っても、オーバーワールド判定にしてはいけない。
+	d.CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
+	d.SeamlessBand.Active = true
+	d.SeamlessBand.Front.Active = true
+	assert.False(t, IsOnOverworld(world), "遺跡滞在中は SeamlessBand/Front が Active でも偽")
+}

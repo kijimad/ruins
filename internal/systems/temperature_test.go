@@ -48,6 +48,7 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("極低温ゾーン内のタイルに極寒修正を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 		sb := &query.GetDungeon(world).SeamlessBand
 		sb.Front.Active = true
 		sb.EastIndex = 0
@@ -64,6 +65,7 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("帯原点で絶対Xに変換して判定する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 		sb := &query.GetDungeon(world).SeamlessBand
 		sb.Front.Active = true
 		sb.EastIndex = 1 // bandOriginX = 1*40 = 40
@@ -84,12 +86,27 @@ func TestFrostZoneModifier(t *testing.T) {
 		sb.Front.ColdWidth = 20
 		assert.Equal(t, 0, frostZoneModifier(world, 20), "通常ダンジョンでは前線無効")
 	})
+
+	t.Run("遺跡内では前線がActiveでも無効", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 共存方式では遺跡滞在中も帯・前線は Active のまま残る。オーバーワールドにいないので無効。
+		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
+		sb := &query.GetDungeon(world).SeamlessBand
+		sb.Front.Active = true
+		sb.EastIndex = 0
+		sb.ChunkW = 40
+		sb.Front.ColdWidth = 20
+		sb.Front.EastAbsX = 30 // ゾーン内座標でも
+		assert.Equal(t, 0, frostZoneModifier(world, 20), "遺跡内では寒さが漏れない")
+	})
 }
 
 func TestCalculateEnvTemperature_極低温ゾーンで極寒になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	d := query.GetDungeon(world)
+	d.CurrentStage = gc.NewOverworldStage()
 	d.DefinitionName = coldDungeonName // 基本気温0度
 	sb := &d.SeamlessBand
 	sb.Front.Active = true
@@ -116,6 +133,7 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 		d := query.GetDungeon(world)
 		d.DefinitionName = coldDungeonName // 基本気温0度
 		if front {
+			d.CurrentStage = gc.NewOverworldStage()
 			sb := &d.SeamlessBand
 			sb.Front.Active = true
 			sb.EastIndex = 0
