@@ -43,39 +43,39 @@ type DungeonState struct {
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
 
-	// planner・newGame・session はオーバーワールドモード(定義が Seamless)のときだけ使う。
+	// planner・newGame・session・overworldKind はオーバーワールドモードのときだけ使う。
 	// 帯固有のロジックは overworld.Session に閉じ込め、DungeonState は保持と委譲だけ行う
 	planner mapplanner.PlannerType
 	newGame *overworld.NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
 	session *overworld.Session       // OnStart で構成する帯セッション。通常ダンジョンでは nil
+	// overworldKind はオーバーワールドの種別。非 nil ならこの State は帯モード。
+	// 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる
+	overworldKind *dungeon.OverworldKind
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
-// 本質的な違いは帯の有無で、それは種別の型 OverworldKind が表す。フラグでなく型で判定する。
+// 本質的な違いは帯の有無で、それは OverworldKind 種別を持つかで表す。フラグでなく型で判定する。
 func (st DungeonState) isSeamless() bool {
-	kind, ok := dungeon.GetStageKind(st.DefinitionName)
-	if !ok {
-		return false
-	}
-	_, isOverworld := kind.(*dungeon.OverworldKind)
-	return isOverworld
+	return st.overworldKind != nil
 }
 
 // NewOverworldState はオーバーワールド探索ステートのファクトリを返す。
 //
-// オーバーワールドは「帯を持つダンジョン」(DungeonOverworld, Seamless=true)で、専用の State 型は
-// 持たず DungeonState として動く。帯固有のロジックは overworld.Session に閉じ込めてあり、
-// DungeonState は OnStart でセッションを構成して開始を委譲し、Update でシフトを委譲するだけ。
+// オーバーワールドは帯を持つステージ種別 OverworldKind で、専用の State 型は持たず DungeonState
+// として動く。帯固有のロジックは overworld.Session に閉じ込めてあり、DungeonState は OnStart で
+// セッションを構成して開始を委譲し、Update でシフトを委譲するだけ。
 //
+// kind は帯形状の供給元。本番は登録済みの dungeon.DungeonOverworld を渡す。
 // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、
-// 帯パラメータは Session の Start がオーバーワールドのメタの SeamlessBand から読み取って再構築する。
-func NewOverworldState(planner mapplanner.PlannerType, params *overworld.NewGameParams) es.StateFactory[w.World] {
+// 帯形状は Session の Start がオーバーワールドのメタの SeamlessBand から読み取って再構築する。
+func NewOverworldState(planner mapplanner.PlannerType, kind *dungeon.OverworldKind, params *overworld.NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &DungeonState{
-			// 定義名を Seamless なオーバーワールド定義にすることで、OnStart が帯モードへ分岐する
-			DefinitionName: dungeon.DungeonOverworld.Name(),
+			// overworldKind を持たせることで OnStart が帯モードへ分岐する
+			DefinitionName: kind.Name(),
 			planner:        planner,
 			newGame:        params,
+			overworldKind:  kind,
 		}, nil
 	}
 }
@@ -103,7 +103,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// Seamless なオーバーワールドは帯セッションを構成して委譲する。帯固有のロジックは
 	// overworld.Session に閉じ込め、DungeonState はここで開始を委譲するだけにする
 	if st.isSeamless() {
-		st.session = overworld.NewSession(st.planner, st.newGame)
+		st.session = overworld.NewSession(st.planner, st.overworldKind, st.newGame)
 		return st.session.Start(world)
 	}
 

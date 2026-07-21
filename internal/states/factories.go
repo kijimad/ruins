@@ -481,22 +481,13 @@ func NewDemoStartState() (es.State[w.World], error) {
 	return &DemoStartState{}, nil
 }
 
-// 新規ゲームのオーバーワールド帯パラメータ。街を含む開始チャンクを決定的生成する広さ。
-const (
-	newGameChunkW consts.Tile  = 50
-	newGameChunkH consts.Tile  = 50
-	newGameK      consts.Chunk = 3
-)
-
 // newGameOverworldState は新規ゲーム開始用のオーバーワールド探索ステートを返す。
 // 街を含むオーバーワールドを RunSeed から決定的生成し、プレイヤーは街から始まる。
 // キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。
+// 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
 func newGameOverworldState(world w.World) es.StateFactory[w.World] {
-	return NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{
+	return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
 		RunSeed: world.Config.RNG.Uint64(),
-		ChunkW:  newGameChunkW,
-		ChunkH:  newGameChunkH,
-		K:       newGameK,
 	})
 }
 
@@ -649,7 +640,8 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 // 再構築し、通常ダンジョンなら DungeonState で復帰する。定義名・深度から再生成はしない。
 func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	if query.IsOnOverworld(world) {
-		return NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
+		// ロード復元。帯形状は SeamlessBand から復元するので params は nil。種別はマスタを渡す
+		return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	}
 	d := query.GetDungeon(world)
 	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())

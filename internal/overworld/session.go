@@ -13,13 +13,10 @@ import (
 	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
-// NewGameParams は新規オーバーワールド開始時の帯生成パラメータ。
-// chunkW×chunkH のチャンクを K 枚並べた帯を RunSeed から決定的生成する。
+// NewGameParams は新規オーバーワールド開始時のプレイ固有パラメータ。
+// プレイごとに変わるのは RunSeed だけ。帯形状は OverworldKind マスタが持つ。
 type NewGameParams struct {
 	RunSeed uint64
-	ChunkW  consts.Tile
-	ChunkH  consts.Tile
-	K       consts.Chunk
 }
 
 const (
@@ -36,17 +33,20 @@ const (
 // オーバーワールドとダンジョンの本質的な違いは「フロアを作り直さず帯をスライドさせ続ける」点だけで、
 // その帯固有のロジックをこの Session に閉じ込め、states パッケージから分離する。
 type Session struct {
-	planner  mapplanner.PlannerType
-	params   *NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
+	planner mapplanner.PlannerType
+	// kind は帯形状の供給元。新規開始で使い、ロード復元では帯形状を SeamlessBand から得るので不要
+	kind     *dungeon.OverworldKind
+	params   *NewGameParams // 新規開始のプレイ固有パラメータ。ロード復元では nil
 	band     *worldstream.Band
 	gen      worldstream.ChunkGen
 	frontCfg worldstream.FrontConfig
 }
 
 // NewSession は帯セッションを構成する。params が非 nil なら新規開始、nil ならロード復元。
+// kind は新規開始時の帯形状の供給元。ロード復元では帯形状を SeamlessBand から得るので nil でよい。
 // 実際の帯生成・復元は Start で行う。
-func NewSession(planner mapplanner.PlannerType, params *NewGameParams) *Session {
-	return &Session{planner: planner, params: params}
+func NewSession(planner mapplanner.PlannerType, kind *dungeon.OverworldKind, params *NewGameParams) *Session {
+	return &Session{planner: planner, kind: kind, params: params}
 }
 
 // Start は帯ドライバを用意する。新規開始なら初期帯を生成し現ステージをオーバーワールドに
@@ -116,8 +116,13 @@ func (s *Session) startNewBand(world w.World) error {
 	if p == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
 	}
-	s.band = worldstream.NewBand(p.ChunkW, p.K)
-	s.gen = NewChunkGen(world, p.RunSeed, p.ChunkW, p.ChunkH, s.planner)
+	if s.kind == nil {
+		return fmt.Errorf("新規オーバーワールドの開始には帯形状の種別が必要")
+	}
+	// 帯形状はマスタ、すなわち OverworldKind から取る。RunSeed だけがプレイ固有
+	chunkW, chunkH, k := s.kind.BandShape()
+	s.band = worldstream.NewBand(chunkW, k)
+	s.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, s.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドのメタへ確保する。以後この帯データの
 	// 有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
@@ -125,16 +130,16 @@ func (s *Session) startNewBand(world w.World) error {
 	sb.Active = true
 	sb.RunSeed = p.RunSeed
 	sb.EastIndex = s.band.EastIndex()
-	sb.ChunkW = p.ChunkW
-	sb.ChunkH = p.ChunkH
+	sb.ChunkW = chunkW
+	sb.ChunkH = chunkH
 	sb.K = s.band.K()
 
 	// 寒波前線を初期化する。極低温ゾーン東端を西チャンクの東端（プレイヤーの1チャンク背後）に置く。
 	// これで開始時からプレイヤーの背後に霜が見え、西へ戻ると凍える。以東へ進み帯がシフトすると前線は
 	// 絶対軸に留まるため背後へ離れていく。普通に東進する限り触れない遅い地平にする。
 	s.frontCfg = worldstream.FrontConfig{
-		StartEast:    worldstream.BandOriginX(s.band.EastIndex(), p.ChunkW) + consts.AbsTileX(p.ChunkW),
-		ColdWidth:    frontColdWidthChunks.Tiles(p.ChunkW),
+		StartEast:    worldstream.BandOriginX(s.band.EastIndex(), chunkW) + consts.AbsTileX(chunkW),
+		ColdWidth:    frontColdWidthChunks.Tiles(chunkW),
 		AdvanceTurns: frontAdvanceTurns,
 		Step:         frontStep,
 	}
@@ -145,13 +150,13 @@ func (s *Session) startNewBand(world w.World) error {
 	sb.Front.Step = s.frontCfg.Step
 
 	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する。探索履歴はメタが持ち初期化済み
-	if err := s.generateBandChunks(world, p.ChunkW, p.ChunkH); err != nil {
+	if err := s.generateBandChunks(world, chunkW, chunkH); err != nil {
 		return err
 	}
 
 	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
-	cx := (s.band.K() / 2).Tiles(p.ChunkW) + p.ChunkW/2
-	cy := p.ChunkH / 2
+	cx := (s.band.K() / 2).Tiles(chunkW) + chunkW/2
+	cy := chunkH / 2
 	if _, err := query.GetPlayerEntity(world); err != nil {
 		if _, serr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)

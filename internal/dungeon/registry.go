@@ -52,10 +52,8 @@ var (
 
 	// DungeonOverworld はオーバーワールド帯を表す種別。
 	// フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
-	DungeonOverworld = &OverworldKind{
-		name:     "オーバーワールド",
-		baseTemp: 0,
-	}
+	// 帯形状 50x50 のチャンクを3枚並べる。この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
+	DungeonOverworld = NewOverworldKind("オーバーワールド", 0, 50, 50, 3)
 
 	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = &DungeonKind{

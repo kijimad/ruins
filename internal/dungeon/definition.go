@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/raw"
 )
@@ -103,9 +104,20 @@ func (d *DungeonKind) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerType, err
 
 // OverworldKind は帯をスライドし続けるオーバーワールドのマスタ。
 // フロアを生成しないので、ダンジョン専用のテーブルやプランナーを持たない。
+// 帯形状 chunkW/chunkH/k は静的な設定なのでマスタが持つ。RunSeed はプレイごとに変わるため
+// プレイ固有データ SeamlessBand が持ち、ここには含めない。
 type OverworldKind struct {
 	name     string
 	baseTemp int
+	chunkW   consts.Tile
+	chunkH   consts.Tile
+	k        consts.Chunk
+}
+
+// NewOverworldKind はオーバーワールド種別を構成する。帯形状を含む設定を渡す。
+// 本番は登録済みの DungeonOverworld を使い、テストは任意形状の種別を組むのに使う。
+func NewOverworldKind(name string, baseTemp int, chunkW, chunkH consts.Tile, k consts.Chunk) *OverworldKind {
+	return &OverworldKind{name: name, baseTemp: baseTemp, chunkW: chunkW, chunkH: chunkH, k: k}
 }
 
 // Name はオーバーワールドの識別名を返す
@@ -113,3 +125,8 @@ func (o *OverworldKind) Name() string { return o.name }
 
 // BaseTemperature は基本気温を返す
 func (o *OverworldKind) BaseTemperature() int { return o.baseTemp }
+
+// BandShape は帯の形状、1チャンクの幅と高さ、チャンク数を返す。RunSeed は含まない。
+func (o *OverworldKind) BandShape() (chunkW, chunkH consts.Tile, k consts.Chunk) {
+	return o.chunkW, o.chunkH, o.k
+}

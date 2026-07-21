@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -28,7 +29,7 @@ func TestOverworldState_ロード復元で視界が再計算され真っ暗に�
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: 777, ChunkW: chunkW, ChunkH: chunkH, K: 3})
+	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldKind("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -60,7 +61,7 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	const chunkW, chunkH consts.Tile = 30, 20
 	const k = 3
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, &overworld.NewGameParams{RunSeed: 777, ChunkW: chunkW, ChunkH: chunkH, K: k})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldKind("オーバーワールド", 0, chunkW, chunkH, k), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -108,7 +109,7 @@ func TestOverworldState_オーバーレイ進入で帯タイルを消さない(t
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, &overworld.NewGameParams{RunSeed: 777, ChunkW: chunkW, ChunkH: chunkH, K: 3})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldKind("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -133,7 +134,7 @@ func TestOverworldState_オーバーレイ往復で隊員位置が変わらな�
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, &overworld.NewGameParams{RunSeed: 777, ChunkW: chunkW, ChunkH: chunkH, K: 3})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldKind("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)

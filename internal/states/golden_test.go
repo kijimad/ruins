@@ -64,7 +64,7 @@ func TestGolden_CharacterJob(t *testing.T) {
 // 代わりに開始チャンクを背景として使う。決定的な RunSeed で golden を安定させる。
 func newGoldenBackdrop(t *testing.T) es.State[w.World] {
 	t.Helper()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldKind("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	return s
 }
@@ -174,7 +174,7 @@ func TestGolden_Dungeon(t *testing.T) {
 
 func TestGolden_Overworld(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldKind("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
@@ -183,7 +183,7 @@ func TestGolden_Overworld(t *testing.T) {
 // 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
 func TestGolden_OverworldFrost(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldKind("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		// 前線が帯へ食い込むところまでターンを進める。updateFront が FrontEastAbsX を導出する
