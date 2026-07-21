@@ -103,8 +103,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 		return st.session.Start(world)
 	}
 
-	query.GetDungeon(world).Depth = st.Depth
-
 	// 設定されていればリソースに反映する
 	if st.DefinitionName != "" {
 		query.GetDungeon(world).DefinitionName = st.DefinitionName
@@ -263,7 +261,6 @@ func (st *DungeonState) descend(world w.World) error {
 	}
 
 	st.Depth = nextDepth
-	query.GetDungeon(world).Depth = nextDepth
 
 	// 生成フロアは開始位置(＝上り階段の位置)へ。訪問済みフロアの再訪は
 	// そのフロアの上り階段、すなわち降りてくる側の位置へ戻す
@@ -339,10 +336,9 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 
 	st.Depth = target.Depth
 	d := query.GetDungeon(world)
-	d.Depth = target.Depth
-	// オーバーワールド(深度0)へ戻ったら遺跡定義名をクリアする。残すと OnStart の再構築や
-	// タイトルエフェクトが古い遺跡名を参照しうる
-	if target.Depth == 0 {
+	// オーバーワールドへ戻ったら遺跡定義名をクリアする。残すと OnStart の再構築や
+	// タイトルエフェクトが古い遺跡名を参照しうる。SwapTo 後は現ステージ=target なので現在地で判定する
+	if query.IsOnOverworld(world) {
 		d.DefinitionName = ""
 		// 遺跡進入で Level が遺跡寸法に置き換わっている。帯寸法へ戻し、視界を強制再計算する。
 		// 怠るとプレイヤーは帯座標にいるのにマップが遺跡寸法のままになり、真っ暗・ミニマップ
@@ -397,7 +393,6 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 
 	st.Depth = 1
 	d := query.GetDungeon(world)
-	d.Depth = 1
 	d.DefinitionName = defName
 
 	if generated {
@@ -426,7 +421,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// 全ダンジョン踏破の判定。街がオーバーワールドの地物になったため、旧・街帰還時でなく
 	// オーバーワールド滞在時に判定する。判定条件は帯シフトと同じ「session保持かつ現ステージ深度0」。
 	// SetEventActive は冪等で視聴後は再発火しないので、毎フレーム呼んでも一度だけ発火する
-	if st.session != nil && query.GetDungeon(world).CurrentStage.Depth == 0 {
+	if st.session != nil && query.IsOnOverworld(world) {
 		gp := query.GetGameProgress(world)
 		if gp.IsAllCleared(dungeon.GetAllDungeonNames()) {
 			gp.SetEventActive(gc.EventAllCleared)
@@ -488,7 +483,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// オーバーワールド State だけが持ち、現ステージ深度0がオーバーワールドを表す。遺跡へ入ると
 	// 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。通常ダンジョンは
 	// session が nil で除外される。死亡やリクエスト遷移で早期 return したフレームも触らない
-	if st.session != nil && query.GetDungeon(world).CurrentStage.Depth == 0 && transition.Type == es.TransNone {
+	if st.session != nil && query.IsOnOverworld(world) && transition.Type == es.TransNone {
 		st.session.UpdateFront(world)
 		shifted, serr := st.session.MaybeShift(world)
 		if serr != nil {

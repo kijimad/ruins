@@ -88,9 +88,8 @@ func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
 type Dungeon struct {
 	// 現在階のフィールド情報
 	Level Level
-	// 階層数
-	Depth int
-	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える
+	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える。
+	// 階層数は CurrentStage.Depth から導出する。オーバーワールドは深度0
 	CurrentStage StageKey
 	// 探索済みタイルのマップ。座標をキーとして使用。
 	// GridElement(struct)キーのためserde不可、ロード時に再構築する

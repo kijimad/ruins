@@ -29,7 +29,7 @@ func ExtractHUDData(world w.World) hud.Data {
 
 // extractGameInfo はゲーム基本情報を抽出する
 func extractGameInfo(world w.World) hud.GameInfoData {
-	floorNumber := query.GetDungeon(world).Depth
+	floorNumber := query.GetDungeon(world).CurrentStage.Depth
 
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int

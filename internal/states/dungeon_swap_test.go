@@ -148,7 +148,6 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	d := query.GetDungeon(world)
 	d.DefinitionName = dungeon.DungeonDebug.Name
 	d.CurrentStage = dungeonStageKey(dungeon.DungeonDebug.Name, 1)
-	d.Depth = 1
 	floor1 := addStageEntity(t, world, dungeonStageKey(dungeon.DungeonDebug.Name, 1))
 
 	// 2階は訪問済みとして退避中に置く。降りると再稼働されるべき
@@ -178,7 +177,7 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 
 	// 深度と現ステージが更新される
 	assert.Equal(t, 2, st.Depth)
-	assert.Equal(t, 2, query.GetDungeon(world).Depth)
+	assert.Equal(t, 2, query.GetDungeon(world).CurrentStage.Depth)
 	assert.Equal(t, dungeonStageKey(dungeon.DungeonDebug.Name, 2), query.GetDungeon(world).CurrentStage)
 }
 
@@ -191,7 +190,6 @@ func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
 	// 現在は2階
 	d := query.GetDungeon(world)
 	d.CurrentStage = dungeonStageKey(dungeon.DungeonDebug.Name, 2)
-	d.Depth = 2
 	floor2 := addStageEntity(t, world, dungeonStageKey(dungeon.DungeonDebug.Name, 2))
 
 	// 戻り先。1階の下り階段の位置

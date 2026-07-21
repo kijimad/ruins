@@ -289,7 +289,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			return nil
 		}).
 		WithChoice("次の階層に進む", func(world w.World) error {
-			currentDepth := query.GetDungeon(world).Depth
+			currentDepth := query.GetDungeon(world).CurrentStage.Depth
 
 			// 次の階層に遷移
 			messageState.SetTransition(es.Transition[w.World]{
@@ -652,7 +652,7 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	if d.SeamlessBand.Active {
 		return NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
 	}
-	return NewDungeonState(d.Depth, WithDefinitionName(d.DefinitionName), WithResume())
+	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.DefinitionName), WithResume())
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。

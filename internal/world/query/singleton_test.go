@@ -45,12 +45,12 @@ func TestGetDungeon(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		newDungeon := &gc.Dungeon{Depth: 3}
+		newDungeon := &gc.Dungeon{CurrentStage: gc.NewDungeonStage(3)}
 		SetDungeon(world, newDungeon)
 
 		d := GetDungeon(world)
 		require.NotNil(t, d)
-		assert.Equal(t, 3, d.Depth)
+		assert.Equal(t, 3, d.CurrentStage.Depth)
 	})
 
 	t.Run("SetDungeonでnilを設定するとGetDungeonはnilを返す", func(t *testing.T) {

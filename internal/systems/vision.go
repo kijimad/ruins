@@ -46,10 +46,10 @@ func NewVisionSystem() *VisionSystem {
 // invalidateOnFloorChange はフロアが切り替わっていれば内部キャッシュを破棄する。
 // レイキャスト結果は壁配置に依存するため、フロアをまたいで再利用すると誤った視界になる
 func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon) {
-	if dungeon.Depth == sys.lastDepth && dungeon.DefinitionName == sys.lastDefinitionName {
+	if dungeon.CurrentStage.Depth == sys.lastDepth && dungeon.DefinitionName == sys.lastDefinitionName {
 		return
 	}
-	sys.lastDepth = dungeon.Depth
+	sys.lastDepth = dungeon.CurrentStage.Depth
 	sys.lastDefinitionName = dungeon.DefinitionName
 	sys.isInitialized = false
 	sys.raycastCache = make(map[raycastCacheKey]bool)

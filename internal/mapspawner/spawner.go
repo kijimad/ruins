@@ -276,7 +276,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	// ダンジョン深度を取得する。未設定の場合は深度1として扱う
 	depth := 1
 	if d := query.GetDungeon(world); d != nil {
-		depth = d.Depth
+		depth = d.CurrentStage.Depth
 	}
 
 	for range lootCount {

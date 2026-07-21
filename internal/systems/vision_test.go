@@ -316,7 +316,7 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		vs.lastDefinitionName = "old"
 
 		dungeon := gc.NewDungeon()
-		dungeon.Depth = 2
+		dungeon.CurrentStage = gc.NewDungeonStage(2)
 		dungeon.DefinitionName = "new"
 		dungeon.LightSourceCache[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}] = gc.LightInfo{Darkness: 0.5}
 
@@ -338,7 +338,7 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		vs.lastDefinitionName = "same"
 
 		dungeon := gc.NewDungeon()
-		dungeon.Depth = 3
+		dungeon.CurrentStage = gc.NewDungeonStage(3)
 		dungeon.DefinitionName = "same"
 
 		vs.invalidateOnFloorChange(dungeon)
