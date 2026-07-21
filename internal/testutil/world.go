@@ -22,11 +22,18 @@ var (
 
 // initConfig は InitTestWorld の初期化オプションを集約する。
 type initConfig struct {
+	stageKey   gc.StageKey
 	stageLevel gc.Level
 }
 
 // Option は InitTestWorld の初期化オプション。
 type Option func(*initConfig)
+
+// WithCurrentStage は初期化時の現ステージキーを指定する。省略時はオーバーワールド。
+// ステージ跨ぎのテストで、最初から特定のステージ上で始めたいときに使う。
+func WithCurrentStage(key gc.StageKey) Option {
+	return func(c *initConfig) { c.stageKey = key }
+}
 
 // WithStageLevel は現ステージのフィールド寸法を指定する。省略時は 50x50。
 // 実ゲームではフィールド寸法はステージ生成時に一度決まるため、テストも生成相当の初期化時に与える。
@@ -46,7 +53,7 @@ func WithStageLevel(level gc.Level) Option {
 func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	tb.Helper()
 
-	cfg := initConfig{stageLevel: gc.Level{TileWidth: 50, TileHeight: 50}}
+	cfg := initConfig{stageKey: gc.NewOverworldStage(), stageLevel: gc.Level{TileWidth: 50, TileHeight: 50}}
 	for _, opt := range opts {
 		opt(&cfg)
 	}
@@ -89,15 +96,16 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Resources.SpriteSheets = spriteSheets
 
 	// テスト用の現ステージを用意する。フィールド寸法は現ステージの StageField が持つため、
-	// 現ステージをオーバーワールドに確定し、そのキーに束縛した StageField を Level 付きで作る。
-	// 実ゲームでも寸法はステージ生成時に一度決まるので、ここで与える。既定は 50x50、WithStageLevel で上書き。
+	// 現ステージを cfg.stageKey に確定し、そのキーに束縛した StageField を Level 付きで作る。
+	// 実ゲームでも寸法はステージ生成時に一度決まるので、ここで与える。既定は overworld・50x50、
+	// WithCurrentStage/WithStageLevel で上書き。
 	// オーバーワールド判定は帯データ SeamlessBand の有無で行うので、帯を付けない既定では
 	// IsOnOverworld は偽のまま。前線テストは EnsureSeamlessBand で帯を付ける。
 	// query の循環 import を避けるため world.Components を直接使う
 	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.CurrentStage = gc.NewOverworldStage()
+	d.CurrentStage = cfg.stageKey
 	fieldEntity := world.ECS.NewEntity()
-	world.Components.StageBound.Add(fieldEntity, &gc.StageBound{Key: d.CurrentStage})
+	world.Components.StageBound.Add(fieldEntity, &gc.StageBound{Key: cfg.stageKey})
 	field := gc.NewStageField()
 	field.Level = cfg.stageLevel
 	world.Components.StageField.Add(fieldEntity, field)
