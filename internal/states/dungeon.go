@@ -404,36 +404,12 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 
 // OnStop はステートが停止される際に呼ばれる。
 //
-// 共存方式では退避中ステージのエンティティも world に残るが、ここでは Without(Suspended)
-// を付けず全ステージのフィールドエンティティを消す。これで正しい理由は OnStop の発火条件にある。
-// OnStop は TransPop/Switch/Replace/Quit すなわちダンジョンからの完全離脱でのみ呼ばれる。
-// 階の上下移動 WarpDescend/WarpAscend は TransNone の in-place swap で OnStop を呼ばない。
-// よって OnStop 時は潜行全体を破棄するのが正しく、退避ステージも含めて消す。
-// 注意: 将来この不変条件を破る変更、たとえば階移動を TransPush 化したり潜行中に State を
-// 停止させると、退避ステージがサイレントに消える。in-place swap は TransNone を保つこと。
-func (st *DungeonState) OnStop(world w.World) error {
-	var toRemove []ecs.Entity
-	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).
-		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember](), ecs.C[gc.LocationInBackpack](), ecs.C[gc.LocationEquipped]()).Query()
-	for spriteRenderQuery.Next() {
-		toRemove = append(toRemove, spriteRenderQuery.Entity())
-	}
-	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).
-		Without(ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()
-	for gridElementQuery.Next() {
-		toRemove = append(toRemove, gridElementQuery.Entity())
-	}
-	for _, entity := range toRemove {
-		if world.ECS.Alive(entity) {
-			world.ECS.RemoveEntity(entity)
-		}
-	}
-
-	// 未消費のステート遷移リクエストを破棄
-	lifecycle.ConsumeStateChange(world)
-
-	return nil
-}
+// 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持される。
+// かつてここで全フィールドエンティティを一括 purge していたが、これは「潜行を丸ごと捨てる
+// 完全離脱」という旧概念の名残で、共存方式では退避ステージまで消しかねず有害。よって廃止する。
+// world を捨てるのはタイトルへ戻る・ロードのときで、そこは MainMenuState.OnStart の全 entity
+// 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を明示的に呼ぶ。
+func (st *DungeonState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
