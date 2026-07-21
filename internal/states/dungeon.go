@@ -116,7 +116,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
 	if !st.Resume {
-		key := dungeonStageKey(st.Depth)
+		key := dungeonStageKey(query.GetDungeon(world).DefinitionName, st.Depth)
 		playerPos, _, err := st.spawnFloor(world, st.Depth, def, key)
 		if err != nil {
 			return err
@@ -151,10 +151,12 @@ func (st *DungeonState) OnStart(world w.World) error {
 	return nil
 }
 
-// dungeonStageKey は指定深度のダンジョン階を表すステージキーを返す。
-// ストアは1回の潜行スコープなので、同一潜行内では深度だけで階を一意に識別できる
-func dungeonStageKey(depth int) gc.StageKey {
-	return gc.NewDungeonStage(depth)
+// dungeonStageKey は遺跡名と深度でダンジョン階のステージキーを返す。
+// 遺跡はオーバーワールドの入口から名前付きで入り、複数の遺跡が同一 world に共存しうる。
+// よって階のキーは遺跡名で区別する必要がある。enterDungeon が焼く入口(1階)のキーと
+// descend が作る深い階のキーをこの関数で揃え、上り階段の結線が正しい階を指すようにする。
+func dungeonStageKey(defName string, depth int) gc.StageKey {
+	return gc.NewNamedDungeonStage(defName, depth)
 }
 
 // spawnFloor は depth のフロアを生成して world に配置し、生成物に StageBound を付ける。
@@ -225,12 +227,13 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
 // TransPush で新ステートを積むのでなく、同一 State 内で現階と入れ替えるのが共存方式の要点
 func (st *DungeonState) descend(world w.World) error {
-	fromStage := dungeonStageKey(st.Depth)
+	defName := query.GetDungeon(world).DefinitionName
+	fromStage := dungeonStageKey(defName, st.Depth)
 	// 現階の下り階段の位置。生成する階の上り階段の戻り先として結線する
 	fromDownStairPos, hasDownStair := findPortalPosition(world, gc.InteractionPortalNext)
 
 	nextDepth := st.Depth + 1
-	target := dungeonStageKey(nextDepth)
+	target := dungeonStageKey(defName, nextDepth)
 
 	// 生成は swapTo の callback で行う。未訪問のときだけ呼ばれる。
 	// def 参照も生成時だけに閉じ、訪問済みの再稼働では不要にする

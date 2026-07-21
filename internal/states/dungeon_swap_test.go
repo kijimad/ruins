@@ -57,7 +57,7 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	st := &DungeonState{Depth: 1, DefinitionName: d.DefinitionName, BuilderType: mapplanner.PlannerTypeRandom}
 
 	// floor1 を実生成する。OnStart の生成部相当で、UI は使わない
-	key1 := dungeonStageKey(1)
+	key1 := dungeonStageKey(dungeon.DungeonDebug.Name, 1)
 	pos1, _, err := st.spawnFloor(world, 1, def, key1)
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MovePlayerToPosition(world, pos1))
@@ -69,14 +69,14 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 
 	require.NoError(t, st.descend(world))
 	require.Equal(t, 2, st.Depth)
-	require.Equal(t, dungeonStageKey(2), d.CurrentStage)
+	require.Equal(t, dungeonStageKey(dungeon.DungeonDebug.Name, 2), d.CurrentStage)
 
 	// floor1 の現物が残り、すべて退避されている
 	assert.Len(t, stage.BoundEntities(world, key1), len(floor1), "floor1 の現物が残る")
 	for _, e := range stage.BoundEntities(world, key1) {
 		assert.True(t, world.Components.Suspended.Has(e), "floor1 は退避されている")
 	}
-	require.NotEmpty(t, stage.BoundEntities(world, dungeonStageKey(2)), "floor2 が生成されている")
+	require.NotEmpty(t, stage.BoundEntities(world, dungeonStageKey(dungeon.DungeonDebug.Name, 2)), "floor2 が生成されている")
 	assert.True(t, hasPortalPrev(world), "floor2 に上り階段がある")
 
 	handled, aerr := st.ascend(world)
@@ -146,12 +146,13 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 
 	// 現在は1階
 	d := query.GetDungeon(world)
-	d.CurrentStage = dungeonStageKey(1)
+	d.DefinitionName = dungeon.DungeonDebug.Name
+	d.CurrentStage = dungeonStageKey(dungeon.DungeonDebug.Name, 1)
 	d.Depth = 1
-	floor1 := addStageEntity(t, world, dungeonStageKey(1))
+	floor1 := addStageEntity(t, world, dungeonStageKey(dungeon.DungeonDebug.Name, 1))
 
 	// 2階は訪問済みとして退避中に置く。降りると再稼働されるべき
-	floor2 := addStageEntity(t, world, dungeonStageKey(2))
+	floor2 := addStageEntity(t, world, dungeonStageKey(dungeon.DungeonDebug.Name, 2))
 	world.Components.Suspended.Add(floor2, &gc.Suspended{})
 
 	// 実フロア相当。2階には上り階段があり、再訪でプレイヤーはそこへ配置される
@@ -160,7 +161,7 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	world.Components.Interactable.Add(upStair, &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionPortalPrev},
 	})
-	world.Components.StageBound.Add(upStair, &gc.StageBound{Key: dungeonStageKey(2)})
+	world.Components.StageBound.Add(upStair, &gc.StageBound{Key: dungeonStageKey(dungeon.DungeonDebug.Name, 2)})
 	world.Components.Suspended.Add(upStair, &gc.Suspended{})
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
@@ -178,7 +179,7 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	// 深度と現ステージが更新される
 	assert.Equal(t, 2, st.Depth)
 	assert.Equal(t, 2, query.GetDungeon(world).Depth)
-	assert.Equal(t, dungeonStageKey(2), query.GetDungeon(world).CurrentStage)
+	assert.Equal(t, dungeonStageKey(dungeon.DungeonDebug.Name, 2), query.GetDungeon(world).CurrentStage)
 }
 
 // TestAscend_上り先の下り階段へ戻る は上りで訪問済み階を再稼働し、
@@ -189,9 +190,9 @@ func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
 
 	// 現在は2階
 	d := query.GetDungeon(world)
-	d.CurrentStage = dungeonStageKey(2)
+	d.CurrentStage = dungeonStageKey(dungeon.DungeonDebug.Name, 2)
 	d.Depth = 2
-	floor2 := addStageEntity(t, world, dungeonStageKey(2))
+	floor2 := addStageEntity(t, world, dungeonStageKey(dungeon.DungeonDebug.Name, 2))
 
 	// 戻り先。1階の下り階段の位置
 	stairsPos := consts.Coord[consts.Tile]{X: 7, Y: 8}
@@ -202,11 +203,11 @@ func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
 	world.Components.Interactable.Add(upStair, &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionPortalPrev},
 	})
-	world.Components.StageBound.Add(upStair, &gc.StageBound{Key: dungeonStageKey(2)})
-	world.Components.PortalConnection.Add(upStair, &gc.PortalConnection{Stage: dungeonStageKey(1), Coord: stairsPos})
+	world.Components.StageBound.Add(upStair, &gc.StageBound{Key: dungeonStageKey(dungeon.DungeonDebug.Name, 2)})
+	world.Components.PortalConnection.Add(upStair, &gc.PortalConnection{Stage: dungeonStageKey(dungeon.DungeonDebug.Name, 1), Coord: stairsPos})
 
 	// 1階は訪問済みで退避中。再稼働されることを見る
-	floor1 := addStageEntity(t, world, dungeonStageKey(1))
+	floor1 := addStageEntity(t, world, dungeonStageKey(dungeon.DungeonDebug.Name, 1))
 	world.Components.Suspended.Add(floor1, &gc.Suspended{})
 
 	// プレイヤーは2階の適当な位置にいる
