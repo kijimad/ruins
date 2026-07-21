@@ -16,7 +16,8 @@ import (
 
 // 定数定義
 const (
-	cameraNormalScale = 0.6 // カメラの通常スケール
+	cameraNormalScale = 0.6     // カメラの通常スケール
+	fieldSpriteSheet  = "field" // オーバーワールドの地物・アイテムが使うスプライトシート名
 )
 
 // エラー定義
@@ -203,7 +204,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		}(),
 		GridElement: &gc.GridElement{Coord: spawnPos},
 		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: "field",
+			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumPlayer,
 		},

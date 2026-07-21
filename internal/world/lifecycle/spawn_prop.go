@@ -151,7 +151,7 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 		Description: &gc.Description{Description: "遺跡へ通じる入口"},
 		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},
 		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: "field",
+			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       "warp_next_0",
 			Depth:           gc.DepthNumTaller,
 		},
@@ -179,7 +179,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 		Description: &gc.Description{Description: "開閉できる扉"},
 		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},
 		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: "field",
+			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumTaller,
 		},
