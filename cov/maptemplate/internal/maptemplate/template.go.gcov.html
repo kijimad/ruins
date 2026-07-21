@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-21 00:52:17</td>
+            <td class="headerValue">2026-07-21 00:59:14</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,25 +97,25 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         395 :         for y, line := range lines {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         326 :                 runes := []rune(line)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         326 :                 cells[y] = make([]MapCell, len(runes))</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4595 :                 for x, ch := range runes {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4269 :                         charStr := string(ch)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4269 :                         var cell MapCell</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        8006 :                         if palette != nil {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6837 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3100 :                                         cell.Terrain = terrain</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3100 :                                 }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        3831 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4574 :                 for x, ch := range runes {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4248 :                         charStr := string(ch)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4248 :                         var cell MapCell</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        7978 :                         if palette != nil {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6827 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3097 :                                         cell.Terrain = terrain</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3097 :                                 }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">        3825 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">          87 :                                         cell.Prop = prop</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          87 :                                 }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3743 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        3728 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                                         cell.NPC = npc</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                         }</span>
 <span id="L52"><span class="lineNum">      52</span>              :                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5439 :                         if cell.Terrain == &quot;&quot; {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        1169 :                                 cell.Terrain = charStr</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        1169 :                         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4270 :                         cells[y][x] = cell</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5425 :                         if cell.Terrain == &quot;&quot; {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        1168 :                                 cell.Terrain = charStr</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        1168 :                         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4257 :                         cells[y][x] = cell</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                 }</span>
 <span id="L58"><span class="lineNum">      58</span>              :         }</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          69 :         return cells</span></span>
@@ -129,16 +129,16 @@
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">         148 :                 if y &gt; 0 {</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">          72 :                         sb.WriteByte('\n')</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">          72 :                 }</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">        2892 :                 for x, cell := range row {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">        5556 :                         if x &gt; 0 {</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">        2740 :                                 sb.WriteByte(' ')</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        2740 :                         }</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">        2816 :                         sb.WriteString(cell.Terrain)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">        2874 :                         if cell.Prop != &quot;&quot; || cell.NPC != &quot;&quot; {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          58 :                                 sb.WriteByte(':')</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">          58 :                                 sb.WriteString(cell.Prop)</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          58 :                         }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        2816 :                         if cell.NPC != &quot;&quot; {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">        2769 :                 for x, cell := range row {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">        5320 :                         if x &gt; 0 {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">        2626 :                                 sb.WriteByte(' ')</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">        2626 :                         }</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">        2696 :                         sb.WriteString(cell.Terrain)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">        2752 :                         if cell.Prop != &quot;&quot; || cell.NPC != &quot;&quot; {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          56 :                                 sb.WriteByte(':')</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">          56 :                                 sb.WriteString(cell.Prop)</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          56 :                         }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">        2694 :                         if cell.NPC != &quot;&quot; {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC tlaBgUNC">           0 :                                 sb.WriteByte(':')</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                                 sb.WriteString(cell.NPC)</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                         }</span></span>
@@ -688,9 +688,9 @@
 <span id="L626"><span class="lineNum">     626</span>              : // findAllIdentifierPositions は識別子の全出現位置を返す</span>
 <span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">          59 : func findAllIdentifierPositions(lines []string, idChar rune) [][2]int {</span></span>
 <span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">          59 :         var positions [][2]int</span></span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">         482 :         for y, line := range lines {</span></span>
-<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">       10729 :                 for x, ch := range line {</span></span>
-<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">       10367 :                         if ch == idChar {</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">         480 :         for y, line := range lines {</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">       10564 :                 for x, ch := range line {</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">       10204 :                         if ch == idChar {</span></span>
 <span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">          61 :                                 positions = append(positions, [2]int{x, y})</span></span>
 <span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">          61 :                         }</span></span>
 <span id="L634"><span class="lineNum">     634</span>              :                 }</span>
@@ -713,13 +713,13 @@
 <span id="L651"><span class="lineNum">     651</span>              : }</span>
 <span id="L652"><span class="lineNum">     652</span>              : </span>
 <span id="L653"><span class="lineNum">     653</span>              : // calculateRowWidth は行の幅を計算</span>
-<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">         122 : func calculateRowWidth(line string, startX int, placeholder, idChar rune) int {</span></span>
-<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">         122 :         width := 0</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">         690 :         for x := startX; x &lt; len(line); x++ {</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">         568 :                 ch := rune(line[x])</span></span>
-<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">        1060 :                 if ch == placeholder || ch == idChar {</span></span>
-<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">         492 :                         width++</span></span>
-<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">         568 :                 } else {</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">         121 : func calculateRowWidth(line string, startX int, placeholder, idChar rune) int {</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">         121 :         width := 0</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">         683 :         for x := startX; x &lt; len(line); x++ {</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">         562 :                 ch := rune(line[x])</span></span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">        1051 :                 if ch == placeholder || ch == idChar {</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">         489 :                         width++</span></span>
+<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">         565 :                 } else {</span></span>
 <span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">          76 :                         break</span></span>
 <span id="L662"><span class="lineNum">     662</span>              :                 }</span>
 <span id="L663"><span class="lineNum">     663</span>              :         }</span>
@@ -766,18 +766,18 @@
 <span id="L704"><span class="lineNum">     704</span>              : </span>
 <span id="L705"><span class="lineNum">     705</span>              : // validateRectangle は矩形領域全体が@または識別子で埋まっているか検証</span>
 <span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">          61 : func validateRectangle(lines []string, id string, startX, startY, width, height int, placeholder, idChar rune) error {</span></span>
-<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">         267 :         for dy := range height {</span></span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">         206 :                 y := startY + dy</span></span>
-<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">         206 :                 if y &gt;= len(lines) {</span></span>
+<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">         266 :         for dy := range height {</span></span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">         205 :                 y := startY + dy</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">         205 :                 if y &gt;= len(lines) {</span></span>
 <span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;識別子 '%s': 矩形領域が不完全です (y=%d が範囲外)&quot;, id, y)</span></span>
 <span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC tlaBgGNC">        1223 :                 for dx := range width {</span></span>
-<span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">        1017 :                         x := startX + dx</span></span>
-<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">        1017 :                         if x &gt;= len(lines[y]) {</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC tlaBgGNC">        1213 :                 for dx := range width {</span></span>
+<span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">        1008 :                         x := startX + dx</span></span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">        1008 :                         if x &gt;= len(lines[y]) {</span></span>
 <span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;識別子 '%s': 矩形領域が不完全です (x=%d, y=%d が範囲外)&quot;, id, x, y)</span></span>
 <span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC tlaBgGNC">        1017 :                         ch := rune(lines[y][x])</span></span>
-<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">        1018 :                         if ch != placeholder &amp;&amp; ch != idChar {</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC tlaBgGNC">        1006 :                         ch := rune(lines[y][x])</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">        1007 :                         if ch != placeholder &amp;&amp; ch != idChar {</span></span>
 <span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(</span></span>
 <span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           1 :                                         &quot;識別子 '%s': プレースホルダ領域[%d,%d]に不正な文字 '%c' があります（期待: '@' または '%s'）&quot;,</span></span>
 <span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC">           1 :                                         id, x, y, ch, id,</span></span>
