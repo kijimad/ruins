@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.6&nbsp;%</td>
+            <td class="headerCovTableEntryMed">79.1&nbsp;%</td>
             <td class="headerCovTableEntry">321</td>
-            <td class="headerCovTableEntry">246</td>
+            <td class="headerCovTableEntry">254</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-21 00:50:10</td>
+            <td class="headerValue">2026-07-21 00:50:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -300,27 +300,27 @@
 <span id="L238"><span class="lineNum">     238</span>              : // getSkillMult は事前計算済みのスキル倍率(%)を返す。</span>
 <span id="L239"><span class="lineNum">     239</span>              : // isDamageがtrueならWeaponDamage、falseならWeaponAccuracyを参照する。</span>
 <span id="L240"><span class="lineNum">     240</span>              : // Effectsコンポーネントを持たないエンティティでは100(等倍)を返す。</span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC tlaBgGNC">          27 : func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage bool) consts.Percent {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">          28 :         if attack == nil {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC tlaBgGNC">          26 : func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage bool) consts.Percent {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">          27 :         if attack == nil {</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 return consts.PercentBase</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">          38 :         if !world.Components.CharModifiers.Has(entity) {</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">          37 :         if !world.Components.CharModifiers.Has(entity) {</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">          12 :                 return consts.PercentBase</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">          12 :         }</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">          14 :         effects := world.Components.CharModifiers.Get(entity)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">          14 :         skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">          15 :         if !ok {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">          13 :         effects := world.Components.CharModifiers.Get(entity)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">          13 :         skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">          14 :         if !ok {</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 return consts.PercentBase</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">          13 :         var mults map[gc.SkillID]consts.Percent</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">          18 :         if isDamage {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           5 :                 mults = effects.WeaponDamage</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">          13 :         } else {</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">          12 :         var mults map[gc.SkillID]consts.Percent</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">          16 :         if isDamage {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           4 :                 mults = effects.WeaponDamage</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">          12 :         } else {</span></span>
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           8 :                 mults = effects.WeaponAccuracy</span></span>
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           8 :         }</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">          26 :         if mult, ok := mults[skillID]; ok {</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">          13 :                 return mult</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">          13 :         }</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">          24 :         if mult, ok := mults[skillID]; ok {</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">          12 :                 return mult</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">          12 :         }</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC tlaBgUNC">           0 :         return consts.PercentBase</span></span>
 <span id="L263"><span class="lineNum">     263</span>              : }</span>
 <span id="L264"><span class="lineNum">     264</span>              : </span>
@@ -346,25 +346,25 @@
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L285"><span class="lineNum">     285</span>              : </span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC tlaBgGNC">           9 :         hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           9 :         if !hit {</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC tlaBgUNC">           0 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">          10 :         if !hit {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L292"><span class="lineNum">     292</span>              : </span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           9 :         damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           9 : </span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           9 :         logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           9 :         growWeaponSkill(actor, world, attack)</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           9 :         lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           9 :         gameaction.ApplyDamage(world, target, damage, actor)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           9 : </span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           9 :         // 被ダメージで中断可能なアクティビティをキャンセルする</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">          10 :         if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           8 :         damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           8 : </span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           8 :         logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           8 :         growWeaponSkill(actor, world, attack)</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           8 :         lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           8 :         gameaction.ApplyDamage(world, target, damage, actor)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           8 : </span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           8 :         // 被ダメージで中断可能なアクティビティをキャンセルする</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           9 :         if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) {</span></span>
 <span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                 CancelActivity(target, &quot;攻撃を受けた&quot;, world)</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L304"><span class="lineNum">     304</span>              : </span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           9 :         return nil</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           8 :         return nil</span></span>
 <span id="L306"><span class="lineNum">     306</span>              : }</span>
 <span id="L307"><span class="lineNum">     307</span>              : </span>
 <span id="L308"><span class="lineNum">     308</span>              : // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する</span>
@@ -413,62 +413,62 @@
 <span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">          12 : }</span></span>
 <span id="L352"><span class="lineNum">     352</span>              : </span>
 <span id="L353"><span class="lineNum">     353</span>              : // calculateDamage はダメージ計算を行う</span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           9 : func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           9 :         if !world.Components.Abilities.Has(attacker) {</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           8 : func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           8 :         if !world.Components.Abilities.Has(attacker) {</span></span>
 <span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
 <span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC tlaBgGNC">           9 :         attackerAbils := world.Components.Abilities.Get(attacker)</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           9 : </span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           9 :         baseAbil := attackerAbils.Strength.Total</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">          11 :         if attack.GetAttackCategory().Range == gc.AttackRangeRanged {</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           2 :                 baseAbil = attackerAbils.Sensation.Total</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           2 :         }</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC tlaBgGNC">           8 :         attackerAbils := world.Components.Abilities.Get(attacker)</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           8 : </span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           8 :         baseAbil := attackerAbils.Strength.Total</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           9 :         if attack.GetAttackCategory().Range == gc.AttackRangeRanged {</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :                 baseAbil = attackerAbils.Sensation.Total</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L364"><span class="lineNum">     364</span>              : </span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           9 :         targetDefense := 0</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">          17 :         if world.Components.Abilities.Has(target) {</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           8 :                 targetAbilsComp := world.Components.Abilities.Get(target)</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           8 :                 targetDefense = targetAbilsComp.Defense.Total</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           8 :         }</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           8 :         targetDefense := 0</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">          15 :         if world.Components.Abilities.Has(target) {</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           7 :                 targetAbilsComp := world.Components.Abilities.Get(target)</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           7 :                 targetDefense = targetAbilsComp.Defense.Total</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           7 :         }</span></span>
 <span id="L370"><span class="lineNum">     370</span>              : </span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           9 :         baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           9 :         baseDamage += attack.GetDamage()</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           9 :         baseDamage += damageModifier</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           9 : </span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           9 :         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           9 : </span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           8 :         baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           8 :         baseDamage += attack.GetDamage()</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           8 :         baseDamage += damageModifier</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           8 : </span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           8 :         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           8 : </span></span>
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           9 :         if critical {</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC tlaBgUNC">           0 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L380"><span class="lineNum">     380</span>              : </span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC tlaBgGNC">          12 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">          11 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
 <span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           3 :                 baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)</span></span>
 <span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           3 :         }</span></span>
 <span id="L384"><span class="lineNum">     384</span>              : </span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           9 :         finalDamage := max(baseDamage-targetDefense, formula.MinDamage)</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           9 : </span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           9 :         return finalDamage</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           8 :         finalDamage := max(baseDamage-targetDefense, formula.MinDamage)</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           8 : </span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           8 :         return finalDamage</span></span>
 <span id="L388"><span class="lineNum">     388</span>              : }</span>
 <span id="L389"><span class="lineNum">     389</span>              : </span>
 <span id="L390"><span class="lineNum">     390</span>              : // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する</span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">          19 : func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">          26 :         if !world.Components.Skills.Has(actor) {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">          18 : func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">          25 :         if !world.Components.Skills.Has(actor) {</span></span>
 <span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           7 :                 return</span></span>
 <span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           7 :         }</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">          12 :         skills := world.Components.Skills.Get(actor)</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">          12 : </span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">          12 :         skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">          13 :         if !ok {</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">          11 :         skills := world.Components.Skills.Get(actor)</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">          11 : </span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">          11 :         skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">          12 :         if !ok {</span></span>
 <span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">          11 :         s := skills.Get(skillID)</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">          11 : </span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">          12 :         if !world.Components.Abilities.Has(actor) {</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">          10 :         s := skills.Get(skillID)</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">          10 : </span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">          11 :         if !world.Components.Abilities.Has(actor) {</span></span>
 <span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">          10 :         abils := world.Components.Abilities.Get(actor)</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">          10 :         ablID := gc.SkillAbilityID(skillID)</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">          10 : </span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">          12 :         if skill.GainExp(s, abils.ValueOf(ablID)) {</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           9 :         abils := world.Components.Abilities.Get(actor)</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           9 :         ablID := gc.SkillAbilityID(skillID)</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           9 : </span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">          11 :         if skill.GainExp(s, abils.ValueOf(ablID)) {</span></span>
 <span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           2 :                 world.Components.StatsChanged.Add(actor, &amp;gc.StatsChanged{})</span></span>
 <span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           2 : </span></span>
 <span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           2 :                 actorName := query.GetEntityName(actor, world)</span></span>
@@ -502,12 +502,12 @@
 <span id="L440"><span class="lineNum">     440</span>              :                 }).</span>
 <span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           4 :                 Build(func(l *gamelog.Logger) {</span></span>
 <span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           4 :                         switch {</span></span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC tlaBgUNC">           0 :                         case !hit:</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                                 l.Append(&quot; を攻撃したが外れた。&quot;)</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                         case critical:</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :                         case !hit:</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                                 l.Append(&quot; を攻撃したが外れた。&quot;)</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC tlaBgUNC">           0 :                         case critical:</span></span>
 <span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :                                 l.Append(fmt.Sprintf(&quot; にクリティカルヒットし、%d のダメージを与えた！&quot;, damage))</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC tlaBgGNC">           4 :                         default:</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           4 :                                 l.Append(fmt.Sprintf(&quot; を攻撃し、%d のダメージを与えた。&quot;, damage))</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC tlaBgGNC">           3 :                         default:</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           3 :                                 l.Append(fmt.Sprintf(&quot; を攻撃し、%d のダメージを与えた。&quot;, damage))</span></span>
 <span id="L449"><span class="lineNum">     449</span>              :                         }</span>
 <span id="L450"><span class="lineNum">     450</span>              :                 }).</span>
 <span id="L451"><span class="lineNum">     451</span>              :                 Log()</span>
