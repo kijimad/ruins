@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-21 00:50:23</td>
+            <td class="headerValue">2026-07-21 00:51:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -118,23 +118,23 @@
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // spawnTiles はタイルからエンティティを生成する</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           3 : func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">         886 :         for _i, tile := range metaPlan.Tiles {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">         883 :                 i := gc.TileIdx(_i)</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">         883 :                 pos := metaPlan.Level.IndexToCoord(i)</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         883 :                 tileX, tileY := pos.X+offsetX, pos.Y+offsetY</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">         883 : </span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">         883 :                 tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         883 :                 if err != nil {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">         903 :         for _i, tile := range metaPlan.Tiles {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">         900 :                 i := gc.TileIdx(_i)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">         900 :                 pos := metaPlan.Level.IndexToCoord(i)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         900 :                 tileX, tileY := pos.X+offsetX, pos.Y+offsetY</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">         900 : </span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">         900 :                 tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">         900 :                 if err != nil {</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;タイルエンティティ生成エラー (%d, %d): %w&quot;, int(pos.X), int(pos.Y), err)</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              :                 // TileRaw の環境情報を TileTemperature に設定する</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">        1792 :                 if world.Components.TileTemperature.Has(tileEntity) {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">         892 :                         tileTemp := world.Components.TileTemperature.Get(tileEntity)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">         892 :                         tileTemp.Shelter = gc.ShelterType(tile.Shelter)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">         892 :                         tileTemp.Water = gc.WaterType(tile.Water)</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">         892 :                         tileTemp.Foliage = gc.FoliageType(tile.Foliage)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         892 :                 }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">        1799 :                 if world.Components.TileTemperature.Has(tileEntity) {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">         899 :                         tileTemp := world.Components.TileTemperature.Get(tileEntity)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">         899 :                         tileTemp.Shelter = gc.ShelterType(tile.Shelter)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">         899 :                         tileTemp.Water = gc.WaterType(tile.Water)</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">         899 :                         tileTemp.Foliage = gc.FoliageType(tile.Foliage)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         899 :                 }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              :         }</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           3 :         return nil</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : }</span>
@@ -167,26 +167,26 @@
 <span id="L105"><span class="lineNum">     105</span>              : </span>
 <span id="L106"><span class="lineNum">     106</span>              : // spawnTile は1タイルを生成する。</span>
 <span id="L107"><span class="lineNum">     107</span>              : // 通行可否で仕様表を選び、論理名 tile.Name で仕様を引いて実体化する。</span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">         890 : func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">         890 :         specs := passableTileSpecs</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">         890 :         category := &quot;歩行可能&quot;</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">        1175 :         if tile.BlockPass {</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">         285 :                 specs = blockedTileSpecs</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">         285 :                 category = &quot;通行不可&quot;</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">         285 :         }</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">         900 : func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">         900 :         specs := passableTileSpecs</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">         900 :         category := &quot;歩行可能&quot;</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">        1186 :         if tile.BlockPass {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">         286 :                 specs = blockedTileSpecs</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">         286 :                 category = &quot;通行不可&quot;</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">         286 :         }</span></span>
 <span id="L115"><span class="lineNum">     115</span>              : </span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         890 :         spec, ok := specs[tile.Name]</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         890 :         if !ok {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         900 :         spec, ok := specs[tile.Name]</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         900 :         if !ok {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;未対応の%sタイル名: %s (%d, %d)&quot;, category, tile.Name, int(tileX), int(tileY))</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L120"><span class="lineNum">     120</span>              : </span>
 <span id="L121"><span class="lineNum">     121</span>              :         // オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。</span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC tlaBgGNC">         892 :         var indexPtr *int</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">        1689 :         if spec.autotile {</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">         797 :                 index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">         797 :                 indexPtr = &amp;index</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">         797 :         }</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">         895 :         return lifecycle.SpawnTile(world, spec.spawnName, tileX, tileY, indexPtr)</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC tlaBgGNC">         900 :         var indexPtr *int</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">        1704 :         if spec.autotile {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">         804 :                 index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">         804 :                 indexPtr = &amp;index</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">         804 :         }</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">         900 :         return lifecycle.SpawnTile(world, spec.spawnName, tileX, tileY, indexPtr)</span></span>
 <span id="L128"><span class="lineNum">     128</span>              : }</span>
 <span id="L129"><span class="lineNum">     129</span>              : </span>
 <span id="L130"><span class="lineNum">     130</span>              : // spawnNPCs はNPCを生成する</span>

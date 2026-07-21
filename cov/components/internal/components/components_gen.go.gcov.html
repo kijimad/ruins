@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-21 00:50:23</td>
+            <td class="headerValue">2026-07-21 00:51:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -288,78 +288,78 @@
 <span id="L226"><span class="lineNum">     226</span>              : </span>
 <span id="L227"><span class="lineNum">     227</span>              : // AddEntity は EntitySpec から新しいエンティティを生成し、非nilな各フィールドを</span>
 <span id="L228"><span class="lineNum">     228</span>              : // 対応するコンポーネントとして付与する。</span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">          67 : func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">          67 :         entity := world.NewEntity()</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">          67 :         addComp(c.Name, entity, spec.Name)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">          67 :         addComp(c.Description, entity, spec.Description)</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">          67 :         addComp(c.HP, entity, spec.HP)</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">          67 :         addComp(c.Consumable, entity, spec.Consumable)</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          67 :         addComp(c.WeightCapacity, entity, spec.WeightCapacity)</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          67 :         addComp(c.Melee, entity, spec.Melee)</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">          67 :         addComp(c.Fire, entity, spec.Fire)</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">          67 :         addComp(c.Value, entity, spec.Value)</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">          67 :         addComp(c.Weight, entity, spec.Weight)</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">          67 :         addComp(c.Recipe, entity, spec.Recipe)</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">          67 :         addComp(c.Wearable, entity, spec.Wearable)</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">          67 :         addComp(c.Abilities, entity, spec.Abilities)</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">          67 :         addComp(c.Ammo, entity, spec.Ammo)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">          67 :         addComp(c.Stackable, entity, spec.Stackable)</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">          67 :         addComp(c.Material, entity, spec.Material)</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">          67 :         addComp(c.LocationInBackpack, entity, spec.LocationInBackpack)</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">          67 :         addComp(c.LocationEquipped, entity, spec.LocationEquipped)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">          67 :         addComp(c.LocationOnField, entity, spec.LocationOnField)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">          67 :         addComp(c.LocationInStorage, entity, spec.LocationInStorage)</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">          67 :         addComp(c.Tile, entity, spec.Tile)</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">          67 :         addComp(c.SoloAI, entity, spec.SoloAI)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">          67 :         addComp(c.SquadAI, entity, spec.SquadAI)</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">          67 :         addComp(c.Camera, entity, spec.Camera)</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">          67 :         addComp(c.Position, entity, spec.Position)</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">          67 :         addComp(c.GridElement, entity, spec.GridElement)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">          67 :         addComp(c.SpriteRender, entity, spec.SpriteRender)</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">          67 :         addComp(c.BlockView, entity, spec.BlockView)</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">          67 :         addComp(c.BlockPass, entity, spec.BlockPass)</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">          67 :         addComp(c.PassCost, entity, spec.PassCost)</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">          67 :         addComp(c.Door, entity, spec.Door)</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">          67 :         addComp(c.Prop, entity, spec.Prop)</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">          67 :         addComp(c.LightSource, entity, spec.LightSource)</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">          67 :         addComp(c.Interactable, entity, spec.Interactable)</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">          67 :         addComp(c.VisualEffects, entity, spec.VisualEffects)</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">          67 :         addComp(c.TileTemperature, entity, spec.TileTemperature)</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">          67 :         addComp(c.StageBound, entity, spec.StageBound)</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">          67 :         addComp(c.Suspended, entity, spec.Suspended)</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">          67 :         addComp(c.Player, entity, spec.Player)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">          67 :         addComp(c.Profession, entity, spec.Profession)</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">          67 :         addComp(c.Hunger, entity, spec.Hunger)</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">          67 :         addComp(c.Wallet, entity, spec.Wallet)</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">          67 :         addComp(c.FactionAlly, entity, spec.FactionAlly)</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">          67 :         addComp(c.FactionEnemy, entity, spec.FactionEnemy)</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">          67 :         addComp(c.FactionNeutral, entity, spec.FactionNeutral)</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">          67 :         addComp(c.Boss, entity, spec.Boss)</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">          67 :         addComp(c.Dialog, entity, spec.Dialog)</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">          67 :         addComp(c.Dead, entity, spec.Dead)</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">          67 :         addComp(c.TurnBased, entity, spec.TurnBased)</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">          67 :         addComp(c.HealthStatus, entity, spec.HealthStatus)</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">          67 :         addComp(c.Skills, entity, spec.Skills)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">          67 :         addComp(c.CharModifiers, entity, spec.CharModifiers)</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">          67 :         addComp(c.StateChangeRequest, entity, spec.StateChangeRequest)</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">          67 :         addComp(c.StatsChanged, entity, spec.StatsChanged)</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">          67 :         addComp(c.WeightDirty, entity, spec.WeightDirty)</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">          67 :         addComp(c.ProvidesHealing, entity, spec.ProvidesHealing)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">          67 :         addComp(c.ProvidesNutrition, entity, spec.ProvidesNutrition)</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">          67 :         addComp(c.InflictsDamage, entity, spec.InflictsDamage)</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">          67 :         addComp(c.Book, entity, spec.Book)</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">          67 :         addComp(c.CommandTable, entity, spec.CommandTable)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">          67 :         addComp(c.DropTable, entity, spec.DropTable)</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">          67 :         addComp(c.SquadMember, entity, spec.SquadMember)</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">          67 :         addComp(c.Activity, entity, spec.Activity)</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">          67 :         addComp(c.LastActivity, entity, spec.LastActivity)</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">          67 :         addComp(c.GameLog, entity, spec.GameLog)</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">          67 :         addComp(c.Dungeon, entity, spec.Dungeon)</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">          67 :         addComp(c.GameProgress, entity, spec.GameProgress)</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">          67 :         addComp(c.TurnState, entity, spec.TurnState)</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">          67 :         addComp(c.SpatialIndex, entity, spec.SpatialIndex)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">          67 :         return entity</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">          67 : }</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">          68 : func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">          68 :         entity := world.NewEntity()</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">          68 :         addComp(c.Name, entity, spec.Name)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">          68 :         addComp(c.Description, entity, spec.Description)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">          68 :         addComp(c.HP, entity, spec.HP)</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">          68 :         addComp(c.Consumable, entity, spec.Consumable)</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          68 :         addComp(c.WeightCapacity, entity, spec.WeightCapacity)</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          68 :         addComp(c.Melee, entity, spec.Melee)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">          68 :         addComp(c.Fire, entity, spec.Fire)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">          68 :         addComp(c.Value, entity, spec.Value)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">          68 :         addComp(c.Weight, entity, spec.Weight)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">          68 :         addComp(c.Recipe, entity, spec.Recipe)</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">          68 :         addComp(c.Wearable, entity, spec.Wearable)</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">          68 :         addComp(c.Abilities, entity, spec.Abilities)</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">          68 :         addComp(c.Ammo, entity, spec.Ammo)</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">          68 :         addComp(c.Stackable, entity, spec.Stackable)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">          68 :         addComp(c.Material, entity, spec.Material)</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">          68 :         addComp(c.LocationInBackpack, entity, spec.LocationInBackpack)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">          68 :         addComp(c.LocationEquipped, entity, spec.LocationEquipped)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">          68 :         addComp(c.LocationOnField, entity, spec.LocationOnField)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">          68 :         addComp(c.LocationInStorage, entity, spec.LocationInStorage)</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">          68 :         addComp(c.Tile, entity, spec.Tile)</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">          68 :         addComp(c.SoloAI, entity, spec.SoloAI)</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">          68 :         addComp(c.SquadAI, entity, spec.SquadAI)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">          68 :         addComp(c.Camera, entity, spec.Camera)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">          68 :         addComp(c.Position, entity, spec.Position)</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">          68 :         addComp(c.GridElement, entity, spec.GridElement)</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">          68 :         addComp(c.SpriteRender, entity, spec.SpriteRender)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">          68 :         addComp(c.BlockView, entity, spec.BlockView)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">          68 :         addComp(c.BlockPass, entity, spec.BlockPass)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">          68 :         addComp(c.PassCost, entity, spec.PassCost)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">          68 :         addComp(c.Door, entity, spec.Door)</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">          68 :         addComp(c.Prop, entity, spec.Prop)</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">          68 :         addComp(c.LightSource, entity, spec.LightSource)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">          68 :         addComp(c.Interactable, entity, spec.Interactable)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">          68 :         addComp(c.VisualEffects, entity, spec.VisualEffects)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">          68 :         addComp(c.TileTemperature, entity, spec.TileTemperature)</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">          68 :         addComp(c.StageBound, entity, spec.StageBound)</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">          68 :         addComp(c.Suspended, entity, spec.Suspended)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">          68 :         addComp(c.Player, entity, spec.Player)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">          68 :         addComp(c.Profession, entity, spec.Profession)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">          68 :         addComp(c.Hunger, entity, spec.Hunger)</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">          68 :         addComp(c.Wallet, entity, spec.Wallet)</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">          68 :         addComp(c.FactionAlly, entity, spec.FactionAlly)</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">          68 :         addComp(c.FactionEnemy, entity, spec.FactionEnemy)</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">          68 :         addComp(c.FactionNeutral, entity, spec.FactionNeutral)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">          68 :         addComp(c.Boss, entity, spec.Boss)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">          68 :         addComp(c.Dialog, entity, spec.Dialog)</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">          68 :         addComp(c.Dead, entity, spec.Dead)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">          68 :         addComp(c.TurnBased, entity, spec.TurnBased)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">          68 :         addComp(c.HealthStatus, entity, spec.HealthStatus)</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">          68 :         addComp(c.Skills, entity, spec.Skills)</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">          68 :         addComp(c.CharModifiers, entity, spec.CharModifiers)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">          68 :         addComp(c.StateChangeRequest, entity, spec.StateChangeRequest)</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">          68 :         addComp(c.StatsChanged, entity, spec.StatsChanged)</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">          68 :         addComp(c.WeightDirty, entity, spec.WeightDirty)</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">          68 :         addComp(c.ProvidesHealing, entity, spec.ProvidesHealing)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">          68 :         addComp(c.ProvidesNutrition, entity, spec.ProvidesNutrition)</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">          68 :         addComp(c.InflictsDamage, entity, spec.InflictsDamage)</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">          68 :         addComp(c.Book, entity, spec.Book)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">          68 :         addComp(c.CommandTable, entity, spec.CommandTable)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">          68 :         addComp(c.DropTable, entity, spec.DropTable)</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">          68 :         addComp(c.SquadMember, entity, spec.SquadMember)</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">          68 :         addComp(c.Activity, entity, spec.Activity)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">          68 :         addComp(c.LastActivity, entity, spec.LastActivity)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">          68 :         addComp(c.GameLog, entity, spec.GameLog)</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">          68 :         addComp(c.Dungeon, entity, spec.Dungeon)</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">          68 :         addComp(c.GameProgress, entity, spec.GameProgress)</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">          68 :         addComp(c.TurnState, entity, spec.TurnState)</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">          68 :         addComp(c.SpatialIndex, entity, spec.SpatialIndex)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">          68 :         return entity</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">          68 : }</span></span>
         </pre>
               </td>
             </tr>
