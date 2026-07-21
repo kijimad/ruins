@@ -58,7 +58,7 @@ func (s *Session) Start(world w.World) error {
 	// 視界の強制再計算を促す。VisionSystem は Depth/DefinitionName が変わらないとキャッシュを
 	// 無効化しない。オーバーワールドは常に Depth=0 でフロア変化が起きず、ロード復元では serde が
 	// 空にした VisibleTiles が stale なまま再計算されず真っ暗になる。ここで一度だけ強制する。
-	d.NeedsForceUpdate = true
+	query.GetVisionState(world).NeedsForceUpdate = true
 
 	sb := &d.SeamlessBand
 	if sb.Active {

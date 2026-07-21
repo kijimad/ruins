@@ -346,7 +346,7 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 		// でき、次の MovePlayerToPosition の空間インデックス再構築が正しい帯寸法で行われる。
 		sb := d.SeamlessBand
 		d.Level = gc.Level{TileWidth: sb.K.Tiles(sb.ChunkW), TileHeight: sb.ChunkH}
-		d.NeedsForceUpdate = true
+		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 
 	if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {

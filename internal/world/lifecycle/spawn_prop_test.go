@@ -51,7 +51,7 @@ func TestLockAllDoors(t *testing.T) {
 		// ロックした閉扉は視線を遮る（BlockView）べき。ボス部屋の扉が視線を通す不具合の回帰
 		assert.True(t, world.Components.BlockView.Has(door), "ロックした閉扉はBlockViewを持つべき")
 		// BlockView変化を視界システムへ通知するため視界更新フラグが立つべき
-		assert.True(t, query.GetDungeon(world).NeedsForceUpdate, "視界の再計算が要求されるべき")
+		assert.True(t, query.GetVisionState(world).NeedsForceUpdate, "視界の再計算が要求されるべき")
 	})
 
 	t.Run("既にロック済みの扉はスキップする", func(t *testing.T) {

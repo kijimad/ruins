@@ -42,6 +42,11 @@ func GetGameTime(world w.World) *gc.GameTime {
 	return GetSingleton[gc.GameTime](world, world.Components.GameTime)
 }
 
+// GetVisionState はシングルトンから視界計算の一時状態を取得する
+func GetVisionState(world w.World) *gc.VisionState {
+	return GetSingleton[gc.VisionState](world, world.Components.VisionState)
+}
+
 // IsOnOverworld は現在地がオーバーワールドかを返す。オーバーワールド固有の振る舞い
 // (霜・寒波前線の気温/移動効果・帯シフト)の gate に使い、場所判定をこの1関数へ集約する。
 //

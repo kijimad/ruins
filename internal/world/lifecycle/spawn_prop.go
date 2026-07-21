@@ -54,7 +54,7 @@ func LockAllDoors(world w.World) int {
 	}
 	if locked > 0 {
 		// BlockView が変化したので視界を再計算させる
-		query.GetDungeon(world).NeedsForceUpdate = true
+		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 	return locked
 }
@@ -78,7 +78,7 @@ func UnlockAllDoors(world w.World) int {
 	}
 	if opened > 0 {
 		// BlockView が変化したので視界を再計算させる
-		query.GetDungeon(world).NeedsForceUpdate = true
+		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 	return opened
 }

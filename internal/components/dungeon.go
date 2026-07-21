@@ -94,16 +94,8 @@ type Dungeon struct {
 	// 探索済みタイルのマップ。座標をキーとして使用。
 	// GridElement(struct)キーのためserde不可、ロード時に再構築する
 	ExploredTiles map[GridElement]bool `json:"-"`
-	// 視界を更新するか外部から設定するフラグ
-	NeedsForceUpdate bool
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
-	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される。
-	// GridElement(struct)キーのためserde不可、毎フレーム再構築される
-	VisibleTiles map[GridElement]bool `json:"-"`
-	// LightSourceCache は視界内タイルの光源情報。VisionSystemが計算し描画側が参照する。
-	// 視界更新のたびに再構築されるためserde不可
-	LightSourceCache map[GridElement]LightInfo `json:"-"`
 	// SeamlessBand はシームレスワールドの帯の永続状態。通常ダンジョンでは Active=false
 	SeamlessBand SeamlessBand
 }
@@ -111,9 +103,7 @@ type Dungeon struct {
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
 	return &Dungeon{
-		ExploredTiles:    make(map[GridElement]bool),
-		VisibleTiles:     make(map[GridElement]bool),
-		LightSourceCache: make(map[GridElement]LightInfo),
+		ExploredTiles: make(map[GridElement]bool),
 	}
 }
 

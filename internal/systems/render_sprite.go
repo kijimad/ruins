@@ -117,7 +117,7 @@ func (sys RenderSpriteSystem) String() string {
 // w.Renderer interfaceを実装
 func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	// VisionSystemが計算した光源情報を取得する
-	tileRenderMap := computeTileRenderMap(world, query.GetDungeon(world).LightSourceCache)
+	tileRenderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
 
 	initializeShadowImages()
 

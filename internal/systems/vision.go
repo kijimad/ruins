@@ -45,7 +45,7 @@ func NewVisionSystem() *VisionSystem {
 
 // invalidateOnFloorChange はフロアが切り替わっていれば内部キャッシュを破棄する。
 // レイキャスト結果は壁配置に依存するため、フロアをまたいで再利用すると誤った視界になる
-func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon) {
+func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon, vs *gc.VisionState) {
 	if dungeon.CurrentStage.Depth == sys.lastDepth && dungeon.DefinitionName == sys.lastDefinitionName {
 		return
 	}
@@ -53,7 +53,7 @@ func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon) {
 	sys.lastDefinitionName = dungeon.DefinitionName
 	sys.isInitialized = false
 	sys.raycastCache = make(map[raycastCacheKey]bool)
-	dungeon.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
+	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 }
 
 // String はシステム名を返す
@@ -84,9 +84,10 @@ func (sys *VisionSystem) Update(world w.World) error {
 	if dungeon == nil {
 		return nil
 	}
+	vs := query.GetVisionState(world)
 
 	// フロアが切り替わっていれば壁配置依存の内部キャッシュを破棄する
-	sys.invalidateOnFloorChange(dungeon)
+	sys.invalidateOnFloorChange(dungeon, vs)
 
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
@@ -95,9 +96,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.Y-sys.lastPlayer.Y)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
-	if dungeon.NeedsForceUpdate {
+	if vs.NeedsForceUpdate {
 		needsUpdate = true
-		dungeon.NeedsForceUpdate = false
+		vs.NeedsForceUpdate = false
 	}
 
 	if !needsUpdate {
@@ -112,7 +113,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	visibilityData := calculateTileVisibilityWithDistance(playerPos, visionRadius, sys.raycastCache, blockViewIndex)
 
 	// 光源情報を更新前にクリアする
-	dungeon.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
+	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 
 	// 視界内タイルの光源情報を計算し、探索済みマークを行う。
 	// マップ外座標はデータに含めない
@@ -126,11 +127,11 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 
-		dungeon.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
+		vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
 		dungeon.ExploredTiles[gridElement] = true
 		visibleTiles[gridElement] = true
 	}
-	dungeon.VisibleTiles = visibleTiles
+	vs.VisibleTiles = visibleTiles
 
 	sys.lastPlayer = playerPos
 	sys.isInitialized = true
@@ -178,9 +179,10 @@ func (TileRenderRemembered) tileRenderInfo() {}
 func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
 	dungeon := query.GetDungeon(world)
+	vs := query.GetVisionState(world)
 
 	// 現在見えているタイルを設定する
-	for grid := range dungeon.VisibleTiles {
+	for grid := range vs.VisibleTiles {
 		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lights[grid]; ok && li.Darkness < 1.0 {
 			visible.LightColor = li.Color

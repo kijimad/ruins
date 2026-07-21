@@ -112,7 +112,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	// 視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
 	// nilのままだと視界処理で書き込み時にpanicするため非nilであること
 	assert.NotNil(t, restored.ExploredTiles, "探索済みマップが空mapで初期化される")
-	assert.NotNil(t, restored.VisibleTiles, "可視マップが空mapで初期化される")
+	assert.NotNil(t, query.GetVisionState(newWorld).VisibleTiles, "可視マップが空mapで初期化される")
 }
 
 // TestSerde_StageBoundとSuspendedが往復する は共存方式の永続状態が

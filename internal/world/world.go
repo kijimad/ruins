@@ -71,6 +71,7 @@ func (world World) InitSingleton() {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
+	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	world.Resources.SingletonEntity = singleton
 }
 
