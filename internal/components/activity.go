@@ -50,7 +50,6 @@ const (
 	BehaviorOpenDoor    BehaviorName = "OpenDoor"
 	BehaviorCloseDoor   BehaviorName = "CloseDoor"
 	BehaviorPortal      BehaviorName = "Portal"
-	BehaviorDungeonGate BehaviorName = "DungeonGate"
 	BehaviorDoorLock    BehaviorName = "DoorLock"
 	BehaviorStorage     BehaviorName = "Storage"
 	BehaviorRead        BehaviorName = "Read"

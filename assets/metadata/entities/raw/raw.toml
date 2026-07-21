@@ -12961,29 +12961,6 @@ spriteKey = "drawer_chest"
 spriteSheetName = "field"
 
 [[props]]
-animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15" ]
-blockPass = false
-blockView = false
-description = "ダンジョンへの門"
-name = "dungeon_gate"
-
-[props.spriteRender]
-depth = 1
-spriteKey = "warp_next_0"
-spriteSheetName = "field"
-
-[props.lightSource]
-enabled = true
-radius = 2
-
-[props.lightSource.color]
-a = 200
-b = 150
-g = 100
-r = 255
-
-[props.dungeonGateTrigger]
-[[props]]
 blockPass = true
 blockView = false
 description = "電気式のロッカー"

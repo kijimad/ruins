@@ -7,9 +7,6 @@ description = '街用の地形パレット'
 r = 'floor'
 
 [palette.props]
-[palette.props.G]
-id = 'dungeon_gate'
-tile = 'dirt'
 
 [palette.npcs]
 [palette.npcs.'$']

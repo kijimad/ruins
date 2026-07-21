@@ -133,7 +133,6 @@ const optionalSections: Record<string, Record<string, JsonValue>> = {
       color: { r: 255, g: 255, b: 220, a: 255 },
     },
     doorLockTrigger: {},
-    dungeonGateTrigger: {},
     warpNextTrigger: {},
     warpEscapeTrigger: {},
   },

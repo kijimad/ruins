@@ -488,15 +488,6 @@ var (
 		PlannerFunc:       NewOverworldFieldPlanner,
 	}
 
-	// PlannerTypeTown は市街地のプランナータイプ
-	PlannerTypeTown = PlannerType{
-		Name:              "市街地",
-		UseFixedPortalPos: true,
-		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
-		},
-	}
-
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
 	PlannerTypeOfficeBuilding = PlannerType{
 		Name:              "事務所ビル",
@@ -542,7 +533,6 @@ var (
 		PlannerTypeRuins,
 		PlannerTypeForest,
 		PlannerTypeOverworldField,
-		PlannerTypeTown,
 		PlannerTypeOfficeBuilding,
 		PlannerTypeSmallTown,
 		PlannerTypeTownPlaza,

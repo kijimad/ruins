@@ -12940,13 +12940,13 @@
     {
       "blockPass": false,
       "blockView": false,
-      "description": "土",
+      "description": "床",
       "foliage": 0,
-      "name": "dirt",
+      "name": "floor",
       "shelter": 0,
       "spriteRender": {
         "depth": 0,
-        "spriteKey": "dirt",
+        "spriteKey": "floor",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -14072,11 +14072,6 @@
       "X": 27,
       "Y": 17,
       "Name": "stone_pillar"
-    },
-    {
-      "X": 24,
-      "Y": 18,
-      "Name": "dungeon_gate"
     },
     {
       "X": 21,

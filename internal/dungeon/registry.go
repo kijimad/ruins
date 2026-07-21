@@ -4,18 +4,6 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 
 // 全ダンジョン定義
 var (
-	// DungeonTown は拠点用ダンジョン定義
-	DungeonTown = Definition{
-		Name:            "晶営地",
-		TotalFloors:     1,
-		EnemyTableName:  "",
-		ItemTableName:   "",
-		BaseTemperature: 0, // デバッグ用
-		PlannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.PlannerTypeTown, Weight: 1},
-		},
-	}
-
 	// DungeonDebug はデバッグ用ダンジョン定義
 	DungeonDebug = Definition{
 		Name:            "デバッグ",
@@ -112,7 +100,6 @@ func GetAllDungeonNames() []string {
 
 // internalDungeons は選択画面に表示しない内部用ダンジョン定義
 var internalDungeons = []Definition{
-	DungeonTown,
 	DungeonDebug,
 	DungeonOverworld,
 }

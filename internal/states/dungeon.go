@@ -148,15 +148,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
-	// 街に帰還した際の全クリア判定
-	if def.Name == dungeon.DungeonTown.Name {
-		gp := query.GetGameProgress(world)
-		dungeonNames := dungeon.GetAllDungeonNames()
-		if gp.IsAllCleared(dungeonNames) {
-			gp.SetEventActive(gc.EventAllCleared)
-		}
-	}
-
 	return nil
 }
 
@@ -446,6 +437,16 @@ func (st *DungeonState) OnStop(world w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
+	// 全ダンジョン踏破の判定。街がオーバーワールドの地物になったため、旧・街帰還時でなく
+	// オーバーワールド滞在時に判定する。判定条件は帯シフトと同じ「session保持かつ現ステージ深度0」。
+	// SetEventActive は冪等で視聴後は再発火しないので、毎フレーム呼んでも一度だけ発火する
+	if st.session != nil && query.GetDungeon(world).CurrentStage.Depth == 0 {
+		gp := query.GetGameProgress(world)
+		if gp.IsAllCleared(dungeon.GetAllDungeonNames()) {
+			gp.SetEventActive(gc.EventAllCleared)
+		}
+	}
+
 	// 全クリアイベントの表示
 	if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
 		query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
@@ -810,26 +811,22 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpAscend:
 		// 上り階段に結線があればそこへ移動する。浅い階でも遺跡→地上でも同一機構。
-		// 結線が無い＝最上階の脱出口なら handled=false。持ち帰り品はそのまま街へ帰還する
+		// 全ダンジョンはオーバーワールド入口から入り、生成時に戻り先が結線される。よって
+		// handled=false は結線焼き込みの取りこぼし＝バグであり、黙って握り潰さず error で落とす
 		handled, err := st.ascend(world)
 		if err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		if handled {
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+		if !handled {
+			return es.Transition[w.World]{}, fmt.Errorf("最上階の上り階段に戻り先の結線がありません")
 		}
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewFadeoutAnimationState(NewTownState()),
-		}}, nil
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpDungeonEnter:
 		// オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える
 		if err := st.enterDungeon(world, p.DefinitionName); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case gc.OpenDungeonSelect:
-		// ダンジョン選択画面を開く
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
 	case gc.OpenStorage:
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{

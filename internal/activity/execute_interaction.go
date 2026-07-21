@@ -29,8 +29,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー")
 	case gc.InteractionPortalPrev:
 		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー")
-	case gc.InteractionDungeonGate:
-		return executeDungeonGate(world)
 	case gc.InteractionDungeonEnter:
 		return executeDungeonEnter(target, world)
 	case gc.InteractionDoor:
@@ -58,13 +56,6 @@ func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*
 		return nil, fmt.Errorf("%s: %w", errMsg, err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "ポータル移動"}, nil
-}
-
-func executeDungeonGate(world w.World) (*ActionResult, error) {
-	if err := lifecycle.RequestStateChange(world, gc.OpenDungeonSelectEvent()); err != nil {
-		return nil, fmt.Errorf("ダンジョン選択状態変更要求エラー: %w", err)
-	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "ダンジョンゲート発動"}, nil
 }
 
 // executeDungeonEnter は遺跡入口の進入先を入口プロップの DungeonEntrance から読み、遺跡進入を要求する。

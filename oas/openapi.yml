@@ -1693,9 +1693,6 @@ components:
           type: integer
           format: int32
       description: ドロップテーブル一覧
-    DungeonGateTriggerRaw:
-      type: object
-      description: ダンジョン選択ゲートトリガー
     Element:
       type: string
       enum:
@@ -2445,8 +2442,6 @@ components:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
         warpPrevTrigger:
           $ref: '#/components/schemas/WarpPrevTriggerRaw'
-        dungeonGateTrigger:
-          $ref: '#/components/schemas/DungeonGateTriggerRaw'
         storage:
           $ref: '#/components/schemas/StorageRaw'
       description: 置物

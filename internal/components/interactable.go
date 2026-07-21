@@ -35,8 +35,6 @@ const (
 	InteractionPortalNext InteractionKind = "PORTAL_NEXT"
 	// InteractionPortalPrev は1つ上の階層へ戻るポータル
 	InteractionPortalPrev InteractionKind = "PORTAL_PREV"
-	// InteractionDungeonGate はダンジョン選択門の相互作用（発動でダンジョン選択メニューを開く）
-	InteractionDungeonGate InteractionKind = "DUNGEON_GATE"
 	// InteractionDungeonEnter は遺跡入口の相互作用（発動でオーバーワールドから遺跡へ入る）
 	InteractionDungeonEnter InteractionKind = "DUNGEON_ENTER"
 	// InteractionDoor は扉の相互作用
@@ -60,7 +58,7 @@ const (
 // 未知入力は raw/save 由来でありうるので panic せず末尾のゼロ値へ graceful に落とす
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
-	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonGate, InteractionDungeonEnter, InteractionItem, InteractionItemAll:
+	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItem, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}

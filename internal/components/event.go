@@ -24,9 +24,6 @@ type WarpDungeonEnter struct {
 // GameClear はゲームクリア
 type GameClear struct{}
 
-// OpenDungeonSelect はダンジョン選択メニューを開く
-type OpenDungeonSelect struct{}
-
 // ShowDialog は会話メッセージの表示
 type ShowDialog struct {
 	MessageKey    string
@@ -40,11 +37,10 @@ type OpenStorage struct {
 
 func (WarpDescend) isStatePayload()       {}
 func (WarpAscend) isStatePayload()        {}
-func (WarpDungeonEnter) isStatePayload()  {}
-func (GameClear) isStatePayload()         {}
-func (OpenDungeonSelect) isStatePayload() {}
-func (ShowDialog) isStatePayload()        {}
-func (OpenStorage) isStatePayload()       {}
+func (WarpDungeonEnter) isStatePayload() {}
+func (GameClear) isStatePayload()        {}
+func (ShowDialog) isStatePayload()       {}
+func (OpenStorage) isStatePayload()      {}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -70,11 +66,6 @@ func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: Ga
 // ShowDialogEvent は会話メッセージ表示リクエストを生成する
 func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: ShowDialog{MessageKey: messageKey, SpeakerEntity: speaker}}
-}
-
-// OpenDungeonSelectEvent はダンジョン選択メニューを開くリクエストを生成する
-func OpenDungeonSelectEvent() StateChangeRequest {
-	return StateChangeRequest{Payload: OpenDungeonSelect{}}
 }
 
 // OpenStorageEvent は収納メニューを開くリクエストを生成する

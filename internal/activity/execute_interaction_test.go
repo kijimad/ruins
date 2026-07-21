@@ -281,28 +281,6 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 
 }
 
-// TestExecuteInteraction_DungeonGate はダンジョンゲート相互作用の動作を確認
-func TestExecuteInteraction_DungeonGate(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-
-	gateEntity := world.ECS.NewEntity()
-	world.Components.Interactable.Add(gateEntity, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionDungeonGate},
-	})
-
-	result, err := ExecuteInteraction(player, gateEntity, gc.InteractionDungeonGate, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "ダンジョンゲート相互作用が成功するべき")
-	assert.Equal(t, gc.BehaviorDungeonGate, result.ActivityName)
-}
-
 // TestExecuteInteraction_DoorLock はドアロック相互作用の動作を確認
 func TestExecuteInteraction_DoorLock(t *testing.T) {
 	t.Parallel()

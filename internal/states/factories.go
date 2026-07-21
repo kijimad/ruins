@@ -128,13 +128,6 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("ダンジョン選択", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState},
-			})
-			return nil
-		}).
 		WithChoice("全ダンジョン踏破", func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
 				query.GetGameProgress(world).MarkDungeonCleared(name)
@@ -142,75 +135,11 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
 		}).
-		WithChoice("ダンジョン開始(大部屋)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeBigRoom)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(小部屋)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeSmallRoom)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(洞窟)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeCave)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(廃墟)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeRuins)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(森)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeForest)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(小さな町)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeSmallTown)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(ボス部屋)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeBossFloor)),
-				}})
-			return nil
-		}).
 		WithChoice("オーバーワールド開始", func(world w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
 					newGameOverworldState(world),
-				}})
-			return nil
-		}).
-		WithChoice("市街地開始", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewTownState(),
 				}})
 			return nil
 		}).
@@ -516,13 +445,6 @@ func spawnEnemyNearPlayer(world w.World, name string) error {
 // DungeonStateOption はDungeonStateのオプション設定関数
 type DungeonStateOption func(*DungeonState)
 
-// WithBuilderType はマップビルダータイプを設定するオプション
-func WithBuilderType(builderType mapplanner.PlannerType) DungeonStateOption {
-	return func(ds *DungeonState) {
-		ds.BuilderType = builderType
-	}
-}
-
 // WithDefinitionName はダンジョン定義名を設定するオプション
 func WithDefinitionName(name string) DungeonStateOption {
 	return func(ds *DungeonState) {
@@ -576,22 +498,6 @@ func newGameOverworldState(world w.World) es.StateFactory[w.World] {
 		ChunkH:  newGameChunkH,
 		K:       newGameK,
 	})
-}
-
-// NewTownState は街のステートを作成するファクトリー関数
-func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
-	allOpts := make([]DungeonStateOption, 0, 2+len(opts))
-	allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeTown))
-	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonTown.Name))
-	allOpts = append(allOpts, opts...)
-
-	// 街は常に深度0
-	return NewDungeonState(0, allOpts...)
-}
-
-// NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
-func NewDungeonSelectState() (es.State[w.World], error) {
-	return &DungeonSelectState{}, nil
 }
 
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
