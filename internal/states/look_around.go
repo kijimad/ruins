@@ -122,7 +122,7 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
 	next := st.cursor.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
 
-	level := query.GetDungeon(world).Level
+	level := query.GetCurrentStageMeta(world).Level
 	if next.X >= 0 && next.X < level.TileWidth && next.Y >= 0 && next.Y < level.TileHeight {
 		st.cursor = next
 	}

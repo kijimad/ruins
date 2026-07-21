@@ -47,17 +47,79 @@ func GetVisionState(world w.World) *gc.VisionState {
 	return GetSingleton[gc.VisionState](world, world.Components.VisionState)
 }
 
+// stageMetaEntity は key に束縛された StageMeta エンティティを返す。
+// クエリ反復は途中 return するとワールドロックが残るため、最後まで回してから返す。
+func stageMetaEntity(world w.World, key gc.StageKey) (ecs.Entity, bool) {
+	var found ecs.Entity
+	ok := false
+	q := ecs.NewFilter2[gc.StageMeta, gc.StageBound](world.ECS).Query()
+	for q.Next() {
+		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
+			found = q.Entity()
+			ok = true
+		}
+	}
+	return found, ok
+}
+
+// currentStageEntity は現ステージ CurrentStage のメタエンティティを返す。
+func currentStageEntity(world w.World) (ecs.Entity, bool) {
+	return stageMetaEntity(world, GetDungeon(world).CurrentStage)
+}
+
+// EnsureStageMeta は key に束縛された StageMeta を確保して返す。無ければ生成する。
+// ステージ生成時に呼び、そのステージのフィールド寸法などを書き込む。
+// StageBound を直接付けるため、生成物を束縛する stage.Bind の対象からは外れる。
+func EnsureStageMeta(world w.World, key gc.StageKey) *gc.StageMeta {
+	if e, ok := stageMetaEntity(world, key); ok {
+		return world.Components.StageMeta.Get(e)
+	}
+	e := world.ECS.NewEntity()
+	world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
+	world.Components.StageMeta.Add(e, &gc.StageMeta{})
+	return world.Components.StageMeta.Get(e)
+}
+
+// GetCurrentStageMeta は現ステージのメタを返す。未生成なら nil。
+func GetCurrentStageMeta(world w.World) *gc.StageMeta {
+	e, ok := currentStageEntity(world)
+	if !ok {
+		return nil
+	}
+	return world.Components.StageMeta.Get(e)
+}
+
+// GetSeamlessBand は現ステージが持つ帯の永続状態を返す。持たなければ nil。
+// nil はオーバーワールドでないことを意味する。
+func GetSeamlessBand(world w.World) *gc.SeamlessBand {
+	e, ok := currentStageEntity(world)
+	if !ok || !world.Components.SeamlessBand.Has(e) {
+		return nil
+	}
+	return world.Components.SeamlessBand.Get(e)
+}
+
+// EnsureSeamlessBand は現ステージのメタに帯の永続状態を確保して返す。
+// オーバーワールドを現ステージに確定してから呼ぶ。以後この帯データの有無が
+// オーバーワールド判定を兼ねる。
+func EnsureSeamlessBand(world w.World) *gc.SeamlessBand {
+	EnsureStageMeta(world, GetDungeon(world).CurrentStage)
+	e, _ := currentStageEntity(world)
+	if !world.Components.SeamlessBand.Has(e) {
+		world.Components.SeamlessBand.Add(e, &gc.SeamlessBand{})
+	}
+	return world.Components.SeamlessBand.Get(e)
+}
+
 // IsOnOverworld は現在地がオーバーワールドかを返す。オーバーワールド固有の振る舞い
 // (霜・寒波前線の気温/移動効果・帯シフト)の gate に使い、場所判定をこの1関数へ集約する。
 //
-// 共存方式では遺跡へ入っても SeamlessBand は退避されたまま Active に残るため、Front.Active や
-// SeamlessBand.Active を「オーバーワールドにいる」の代理に使うと遺跡内へ効果が漏れる。現ステージが
-// オーバーワールド帯ステージかで判定する。
-//
-// interim: 恒久形(設計 65.md Phase H3)ではオーバーワールド固有データを現ステージのメタが持つかで
-// 判定する。それまでは種別判定の乱立を防ぐためここに集約し、置換点を1箇所に閉じ込める。
+// 種別・深度・名前で判定せず、現ステージのメタが帯データ SeamlessBand を持つかで判定する。
+// オーバーワールドもダンジョン階も同じ「ステージ」で、違いは保有データだけという設計に従う。
+// 帯データは遺跡進入で退避され現ステージから外れるため、遺跡内へ効果が漏れない。
 func IsOnOverworld(world w.World) bool {
-	return GetDungeon(world).CurrentStage == gc.NewOverworldStage()
+	e, ok := currentStageEntity(world)
+	return ok && world.Components.SeamlessBand.Has(e)
 }
 
 // GetGameLog はシングルトンエンティティからGameLogストアを取得する
@@ -126,11 +188,12 @@ func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to c
 // buildSpatialIndex は壁・キャラクター・プレイヤーの位置をスキャンしてインデックスを構築する
 func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	dungeon := GetDungeon(world)
-	if dungeon == nil {
+	meta := GetCurrentStageMeta(world)
+	if dungeon == nil || meta == nil {
 		return
 	}
-	si.MapWidth = dungeon.Level.TileWidth
-	si.MapHeight = dungeon.Level.TileHeight
+	si.MapWidth = meta.Level.TileWidth
+	si.MapHeight = meta.Level.TileHeight
 	si.BlockPass = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil

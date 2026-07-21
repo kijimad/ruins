@@ -60,18 +60,19 @@ func (s *Session) Start(world w.World) error {
 	// 空にした VisibleTiles が stale なまま再計算されず真っ暗になる。ここで一度だけ強制する。
 	query.GetVisionState(world).NeedsForceUpdate = true
 
-	sb := &d.SeamlessBand
-	if sb.Active {
-		// ロード復元。CurrentStage は serde で復元済みなので触らない。共存方式では遺跡滞在中も
-		// SeamlessBand.Active なので、ここで無条件にオーバーワールドへ書き換えると、遺跡内で
-		// 保存したセーブのロードで現在地が壊れ、遺跡なのに前線の霜が誤って描かれる。
+	// 帯データは現ステージのメタが持つ。ロード復元なら serde で戻っており、新規開始なら未生成で nil。
+	sb := query.GetSeamlessBand(world)
+	if sb != nil && sb.Active {
+		// ロード復元。CurrentStage は serde で復元済みなので触らない。帯データは
+		// オーバーワールドのメタにしか無く、遺跡滞在中のセーブは現ステージが遺跡なので
+		// ここには到達しない。newResumeStateFactory が DungeonState を選ぶ。
 		if err := s.restoreFromSave(world, sb); err != nil {
 			return err
 		}
 	} else {
 		// 新規開始。オーバーワールドから始める。共存機構が現在地を識別するのに使う。
 		d.CurrentStage = gc.NewOverworldStage()
-		if err := s.startNewBand(world, sb); err != nil {
+		if err := s.startNewBand(world); err != nil {
 			return err
 		}
 	}
@@ -110,7 +111,7 @@ func (s *Session) front(world w.World) worldstream.Front {
 
 // startNewBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
 // プレイヤーを中央チャンクへ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。
-func (s *Session) startNewBand(world w.World, sb *gc.SeamlessBand) error {
+func (s *Session) startNewBand(world w.World) error {
 	p := s.params
 	if p == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
@@ -118,7 +119,9 @@ func (s *Session) startNewBand(world w.World, sb *gc.SeamlessBand) error {
 	s.band = worldstream.NewBand(p.ChunkW, p.K)
 	s.gen = NewChunkGen(world, p.RunSeed, p.ChunkW, p.ChunkH, s.planner)
 
-	// 帯状態を Dungeon に記録してセーブに対応する
+	// 帯データを現ステージ、すなわちオーバーワールドのメタへ確保する。以後この帯データの
+	// 有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
+	sb := query.EnsureSeamlessBand(world)
 	sb.Active = true
 	sb.RunSeed = p.RunSeed
 	sb.EastIndex = s.band.EastIndex()
@@ -176,13 +179,13 @@ func (s *Session) startNewBand(world w.World, sb *gc.SeamlessBand) error {
 
 // syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す。これでセーブに反映される。
 func (s *Session) syncBandState(world w.World) {
-	query.GetDungeon(world).SeamlessBand.EastIndex = s.band.EastIndex()
+	query.GetSeamlessBand(world).EastIndex = s.band.EastIndex()
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
 // Level 設定は帯幅が不変なので再設定しても冪等で無害。
 func (s *Session) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
-	query.GetDungeon(world).Level = gc.Level{TileWidth: s.band.Width(), TileHeight: chunkH}
+	query.EnsureStageMeta(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: s.band.Width(), TileHeight: chunkH}
 	for i := range s.band.K() {
 		if err := s.gen(i, i.Tiles(chunkW)); err != nil {
 			return fmt.Errorf("チャンク生成失敗 (slot=%d): %w", i, err)
@@ -199,8 +202,8 @@ func (s *Session) EastIndex() consts.Chunk {
 // UpdateFront は総ターン数から導出した寒波前線の現在位置を永続状態へ反映する。
 // 位置は導出値なので毎フレーム書いても冪等。描画や凍結効果はこの FrontEastAbsX を読む。
 func (s *Session) UpdateFront(world w.World) {
-	sb := &query.GetDungeon(world).SeamlessBand
-	if !sb.Front.Active {
+	sb := query.GetSeamlessBand(world)
+	if sb == nil || !sb.Front.Active {
 		return
 	}
 	sb.Front.EastAbsX = s.front(world).East

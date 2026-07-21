@@ -49,7 +49,7 @@ func TestFrostZoneModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 0
 		sb.ChunkW = 40
@@ -66,7 +66,7 @@ func TestFrostZoneModifier(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 1 // bandOriginX = 1*40 = 40
 		sb.ChunkW = 40
@@ -80,7 +80,7 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("FrontActiveでないと無効", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = false
 		sb.Front.EastAbsX = 30
 		sb.Front.ColdWidth = 20
@@ -90,14 +90,15 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("遺跡内では前線がActiveでも無効", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// 共存方式では遺跡滞在中も帯・前線は Active のまま残る。オーバーワールドにいないので無効。
-		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
-		sb := &query.GetDungeon(world).SeamlessBand
+		// 帯・前線はオーバーワールドのメタに持たせる。遺跡へ移ると帯データは現ステージから外れる。
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 0
 		sb.ChunkW = 40
 		sb.Front.ColdWidth = 20
 		sb.Front.EastAbsX = 30 // ゾーン内座標でも
+		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
 		assert.Equal(t, 0, frostZoneModifier(world, 20), "遺跡内では寒さが漏れない")
 	})
 }
@@ -108,7 +109,7 @@ func TestCalculateEnvTemperature_極低温ゾーンで極寒になる(t *testing
 	d := query.GetDungeon(world)
 	d.CurrentStage = gc.NewOverworldStage()
 	d.DefinitionName = coldDungeonName // 基本気温0度
-	sb := &d.SeamlessBand
+	sb := query.EnsureSeamlessBand(world)
 	sb.Front.Active = true
 	sb.EastIndex = 0
 	sb.ChunkW = 40
@@ -134,7 +135,7 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 		d.DefinitionName = coldDungeonName // 基本気温0度
 		if front {
 			d.CurrentStage = gc.NewOverworldStage()
-			sb := &d.SeamlessBand
+			sb := query.EnsureSeamlessBand(world)
 			sb.Front.Active = true
 			sb.EastIndex = 0
 			sb.ChunkW = 40

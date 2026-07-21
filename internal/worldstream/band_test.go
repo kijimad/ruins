@@ -32,7 +32,7 @@ func TestBand_ShiftEast(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	d := query.GetDungeon(world)
 	visState := query.GetVisionState(world)
-	d.Level = gc.Level{TileWidth: 300, TileHeight: 60} // K=3 * chunkW=100
+	testutil.SetStageLevel(world, gc.Level{TileWidth: 300, TileHeight: 60}) // K=3 * chunkW=100
 
 	// プレイヤーは東チャンクへ踏み込んでいる（localX=210）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 210, Y: 30}, "Ash")
@@ -97,8 +97,7 @@ func TestBand_ShiftWest(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	d := query.GetDungeon(world)
-	d.Level = gc.Level{TileWidth: 300, TileHeight: 60}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: 300, TileHeight: 60})
 
 	// プレイヤーは西チャンクへ踏み込んでいる（localX=90）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 90, Y: 30}, "Ash")

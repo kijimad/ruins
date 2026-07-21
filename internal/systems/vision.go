@@ -84,6 +84,10 @@ func (sys *VisionSystem) Update(world w.World) error {
 	if dungeon == nil {
 		return nil
 	}
+	meta := query.GetCurrentStageMeta(world)
+	if meta == nil {
+		return nil
+	}
 	vs := query.GetVisionState(world)
 
 	// フロアが切り替わっていれば壁配置依存の内部キャッシュを破棄する
@@ -123,7 +127,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 		gridElement := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}}
-		if !isInMapBounds(gridElement, dungeon.Level) {
+		if !isInMapBounds(gridElement, meta.Level) {
 			continue
 		}
 

@@ -70,14 +70,14 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 const FrostZoneTempModifier = -100
 
 // frostZoneModifier はタイル x が寒波前線の極低温ゾーン内なら極寒修正を返す。
-// 前線はオーバーワールド固有の演出。共存方式では遺跡滞在中も SeamlessBand は Active のまま残るため、
-// オーバーワールドにいるかで先に gate しないと遺跡内へ寒さが漏れる。ゾーン判定は SeamlessBand の
-// メソッドに集約している。
+// 前線はオーバーワールド固有の演出。帯データは遺跡進入で退避され現ステージから外れるため、
+// 現ステージが帯データを持つか、すなわちオーバーワールドにいるかで先に gate しないと遺跡内へ
+// 寒さが漏れる。ゾーン判定は SeamlessBand のメソッドに集約している。
 func frostZoneModifier(world w.World, x consts.Tile) int {
 	if !query.IsOnOverworld(world) {
 		return 0
 	}
-	sb := query.GetDungeon(world).SeamlessBand
+	sb := *query.GetSeamlessBand(world)
 	if sb.Front.Active && sb.Front.InColdZone(sb.LocalToAbsX(x)) {
 		return FrostZoneTempModifier
 	}

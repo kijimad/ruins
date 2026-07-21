@@ -86,18 +86,15 @@ func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
 // 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
 type Dungeon struct {
-	// 現在階のフィールド情報
-	Level Level
 	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える。
-	// 階層数は CurrentStage.Depth から導出する。オーバーワールドは深度0
+	// 階層数は CurrentStage.Depth から導出する。オーバーワールドは深度0。
+	// フィールド寸法や帯データは各ステージの StageMeta が持ち、ここは identity だけを指す。
 	CurrentStage StageKey
 	// 探索済みタイルのマップ。座標をキーとして使用。
 	// GridElement(struct)キーのためserde不可、ロード時に再構築する
 	ExploredTiles map[GridElement]bool `json:"-"`
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
-	// SeamlessBand はシームレスワールドの帯の永続状態。通常ダンジョンでは Active=false
-	SeamlessBand SeamlessBand
 }
 
 // NewDungeon は初期化されたDungeonを返す

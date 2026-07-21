@@ -274,7 +274,7 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 0
 		sb.ChunkW = 40
@@ -291,7 +291,7 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 1 // bandOriginX = 40
 		sb.ChunkW = 40
@@ -305,7 +305,7 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 	t.Run("FrontActiveでないと常に許可", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = false
 		sb.Front.EastAbsX = 1000
 		sb.Front.ColdWidth = 20
@@ -315,14 +315,15 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 	t.Run("遺跡内では前線がActiveでも常に許可", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// 共存方式では遺跡滞在中も帯・前線は Active のまま残る。オーバーワールドにいないので制限なし。
-		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
-		sb := &query.GetDungeon(world).SeamlessBand
+		// 帯・前線はオーバーワールドのメタに持たせる。遺跡へ移ると帯データは現ステージから外れる。
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 0
 		sb.ChunkW = 40
 		sb.Front.ColdWidth = 20
 		sb.Front.EastAbsX = 30 // 進入不可ライン以西の座標でも
+		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
 		assert.True(t, frontAllowsMoveTo(world, 5), "遺跡内では前線の移動制限が漏れない")
 	})
 }
@@ -335,7 +336,7 @@ func TestCanMoveTo_前線の進入不可ラインで西へ進めない(t *testin
 	require.NoError(t, err)
 
 	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
-	sb := &query.GetDungeon(world).SeamlessBand
+	sb := query.EnsureSeamlessBand(world)
 	sb.Front.Active = true
 	sb.EastIndex = 0
 	sb.ChunkW = 40

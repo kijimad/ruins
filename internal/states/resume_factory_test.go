@@ -15,13 +15,14 @@ func TestNewResumeStateFactory_シームレスならOverworld(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	query.GetDungeon(world).SeamlessBand.Active = true
+	// 現ステージのメタに帯データを持たせる。以後この帯データの有無がオーバーワールド判定を兼ねる
+	query.EnsureSeamlessBand(world).Active = true
 
 	state, err := newResumeStateFactory(world)()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
 	require.True(t, ok, "統合後はどちらも DungeonState")
-	assert.True(t, st.isSeamless(), "SeamlessBand.Active ならオーバーワールドモードで復帰する")
+	assert.True(t, st.isSeamless(), "現ステージが帯データを持てばオーバーワールドモードで復帰する")
 }
 
 func TestNewResumeStateFactory_通常はDungeon(t *testing.T) {

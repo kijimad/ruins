@@ -64,7 +64,7 @@ func (st DungeonState) isSeamless() bool {
 // DungeonState は OnStart でセッションを構成して開始を委譲し、Update でシフトを委譲するだけ。
 //
 // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、
-// 帯パラメータは Session の Start が Dungeon.SeamlessBand から読み取って再構築する。
+// 帯パラメータは Session の Start がオーバーワールドのメタの SeamlessBand から読み取って再構築する。
 func NewOverworldState(planner mapplanner.PlannerType, params *overworld.NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &DungeonState{
@@ -198,7 +198,9 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 	if err != nil {
 		return zero, noEntity, err
 	}
-	query.GetDungeon(world).Level = level
+	// フィールド寸法をこの階のステージメタへ記録する。生成物と同じ明示 key に束縛するため、
+	// SwapTo が CurrentStage を最後に更新する順序に依存しない
+	query.EnsureStageMeta(world, key).Level = level
 
 	start, err := plan.GetPlayerStartPosition()
 	if err != nil {
@@ -340,12 +342,9 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	// タイトルエフェクトが古い遺跡名を参照しうる。SwapTo 後は現ステージ=target なので現在地で判定する
 	if query.IsOnOverworld(world) {
 		d.DefinitionName = ""
-		// 遺跡進入で Level が遺跡寸法に置き換わっている。帯寸法へ戻し、視界を強制再計算する。
-		// 怠るとプレイヤーは帯座標にいるのにマップが遺跡寸法のままになり、真っ暗・ミニマップ
-		// No Data・隊員配置が範囲外で失敗する。SeamlessBand は永続値なので session なしでも復元
-		// でき、次の MovePlayerToPosition の空間インデックス再構築が正しい帯寸法で行われる。
-		sb := d.SeamlessBand
-		d.Level = gc.Level{TileWidth: sb.K.Tiles(sb.ChunkW), TileHeight: sb.ChunkH}
+		// 各ステージが自分の Level を StageMeta として保持するため、地上のメタが resume で
+		// そのまま戻り、帯寸法を手で復元する必要はない。以前はグローバルな Level 1枚が遺跡進入で
+		// 置き換わり、地上帰還で真っ暗・No Data・隊員配置失敗を招いていた。視界だけ強制再計算する
 		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 

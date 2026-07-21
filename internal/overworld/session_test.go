@@ -106,7 +106,7 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, shifted)
 	require.Equal(t, 1, int(s.EastIndex()))
-	require.Equal(t, 1, int(query.GetDungeon(world).SeamlessBand.EastIndex), "永続状態に同期される")
+	require.Equal(t, 1, int(query.GetSeamlessBand(world).EastIndex), "永続状態に同期される")
 
 	// セーブ往復（メモリ内）
 	sm, err := save.NewSerializationManager()
@@ -118,7 +118,7 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	require.NoError(t, sm.RestoreWorldFromJSON(world2, jsonData))
 
 	// SeamlessBand が復元されている
-	sb := query.GetDungeon(world2).SeamlessBand
+	sb := *query.GetSeamlessBand(world2)
 	assert.True(t, sb.Active, "Active が復元される")
 	assert.Equal(t, 1, int(sb.EastIndex), "EastIndex が復元される")
 	assert.Equal(t, uint64(12345), sb.RunSeed, "RunSeed が復元される")
@@ -135,7 +135,7 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	s2 := NewSession(mapplanner.PlannerTypeOverworldField, nil)
 	require.NoError(t, s2.Start(world2))
 	assert.Equal(t, 1, int(s2.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
-	assert.Equal(t, chunkW*k, query.GetDungeon(world2).Level.TileWidth, "帯全幅の Level が保たれる")
+	assert.Equal(t, chunkW*k, query.GetCurrentStageMeta(world2).Level.TileWidth, "帯全幅の Level が保たれる")
 	assert.True(t, s2.frontCfg.AdvanceTurns == frontAdvanceTurns && s2.frontCfg.Step == frontStep,
 		"ロード復元で寒波前線 config も再構築される")
 
@@ -187,23 +187,23 @@ func TestSession_前線が総ターン数で前進する(t *testing.T) {
 	s := NewSession(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: 1, ChunkW: chunkW, ChunkH: chunkH, K: 3})
 	require.NoError(t, s.Start(world))
 
-	d := query.GetDungeon(world)
+	sb := query.GetSeamlessBand(world)
 	// 開始時（TotalTurns=0）は StartEast のまま。StartEast = bandOriginX(0) + chunkW = +chunkW
 	query.GetGameTime(world).TotalTurns = 0
 	s.UpdateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.Front.EastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
+	assert.Equal(t, consts.AbsTileX(chunkW), sb.Front.EastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
 
 	// frontAdvanceTurns ごとに frontStep 前進する。AdvanceTurns 未満は動かない
 	query.GetGameTime(world).TotalTurns = frontAdvanceTurns - 1
 	s.UpdateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.Front.EastAbsX, "AdvanceTurns 未満は前進しない")
+	assert.Equal(t, consts.AbsTileX(chunkW), sb.Front.EastAbsX, "AdvanceTurns 未満は前進しない")
 
 	query.GetGameTime(world).TotalTurns = frontAdvanceTurns
 	s.UpdateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW)+consts.AbsTileX(frontStep), d.SeamlessBand.Front.EastAbsX, "AdvanceTurns で 1 段前進する")
+	assert.Equal(t, consts.AbsTileX(chunkW)+consts.AbsTileX(frontStep), sb.Front.EastAbsX, "AdvanceTurns で 1 段前進する")
 
 	// 決定的: 同じターン数なら同じ位置
-	before := d.SeamlessBand.Front.EastAbsX
+	before := sb.Front.EastAbsX
 	s.UpdateFront(world)
-	assert.Equal(t, before, d.SeamlessBand.Front.EastAbsX, "冪等（導出値）")
+	assert.Equal(t, before, sb.Front.EastAbsX, "冪等（導出値）")
 }

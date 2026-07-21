@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -117,7 +116,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 	const k = 3
-	query.GetDungeon(world).Level = gc.Level{TileWidth: chunkW * k, TileHeight: chunkH}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: chunkW * k, TileHeight: chunkH})
 
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
 	// 初期帯: K チャンクを各スロットへ生成

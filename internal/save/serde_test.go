@@ -147,6 +147,10 @@ func TestSerde_StageBoundとSuspendedが往復する(t *testing.T) {
 	var restored []ecs.Entity
 	q := ecs.NewFilter1[gc.StageBound](newWorld.ECS).Query()
 	for q.Next() {
+		// StageMeta はステージ基盤エンティティで最小の world にも含まれるため、対象外にする
+		if newWorld.Components.StageMeta.Has(q.Entity()) {
+			continue
+		}
 		restored = append(restored, q.Entity())
 	}
 	require.Len(t, restored, 1, "StageBound を持つエンティティが1つ復元される")

@@ -11,8 +11,31 @@ import (
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/require"
 )
+
+// SetStageLevel は現ステージのメタにフィールド寸法を設定する。テストで地形寸法を差し替える用。
+// フィールド寸法は StageMeta が持つため、Dungeon へ直接書いていた箇所の置き換えに使う。
+// query の循環 import を避けるため world.Components を直接使う。
+func SetStageLevel(world w.World, level gc.Level) {
+	key := world.Components.Dungeon.Get(world.Resources.SingletonEntity).CurrentStage
+	var found ecs.Entity
+	ok := false
+	q := ecs.NewFilter2[gc.StageMeta, gc.StageBound](world.ECS).Query()
+	for q.Next() {
+		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
+			found = q.Entity()
+			ok = true
+		}
+	}
+	if !ok {
+		found = world.ECS.NewEntity()
+		world.Components.StageBound.Add(found, &gc.StageBound{Key: key})
+		world.Components.StageMeta.Add(found, &gc.StageMeta{})
+	}
+	world.Components.StageMeta.Get(found).Level = level
+}
 
 // 共有リソースをキャッシュ（一度だけ読み込む）
 var (
@@ -69,12 +92,18 @@ func InitTestWorld(tb testing.TB) w.World {
 	}
 	world.Resources.SpriteSheets = spriteSheets
 
-	// テスト用のLevel設定。worldhelperの循環importを避けるため直接設定する
+	// テスト用の現ステージを用意する。フィールド寸法は現ステージの StageMeta が持つため、
+	// 現ステージをオーバーワールドに確定し、そのキーに束縛したメタを Level 付きで作る。
+	// オーバーワールド判定は帯データ SeamlessBand の有無で行うので、帯を付けない既定では
+	// IsOnOverworld は偽のまま。前線テストは EnsureSeamlessBand で帯を付ける。
+	// query の循環 import を避けるため world.Components を直接使う
 	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.Level = gc.Level{
-		TileWidth:  50,
-		TileHeight: 50,
-	}
+	d.CurrentStage = gc.NewOverworldStage()
+	metaEntity := world.ECS.NewEntity()
+	world.Components.StageBound.Add(metaEntity, &gc.StageBound{Key: d.CurrentStage})
+	world.Components.StageMeta.Add(metaEntity, &gc.StageMeta{
+		Level: gc.Level{TileWidth: 50, TileHeight: 50},
+	})
 
 	return world
 }

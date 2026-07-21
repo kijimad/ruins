@@ -171,8 +171,7 @@ func TestCullDistantSolo(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.Level = gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)})
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 
@@ -208,8 +207,7 @@ func TestCullDistantSolo_PlayerApproachActivates(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.Level = gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)})
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 
@@ -252,8 +250,7 @@ func TestProcessAll_大規模でpanicしない(t *testing.T) {
 	t.Parallel()
 	// 敵が重ならず配置でき移動も破綻しないよう大きめのマップにする
 	world := testutil.InitTestWorld(t)
-	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.Level = gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(100)}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(100)})
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "Ash")
 	require.NoError(t, err)
 
@@ -278,8 +275,7 @@ func TestProcessAll_大規模でpanicしない(t *testing.T) {
 func TestProcessAll_AIフェーズで空間インデックスを再構築しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.Level = gc.Level{TileWidth: consts.Tile(60), TileHeight: consts.Tile(60)}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(60), TileHeight: consts.Tile(60)})
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "Ash")
 	require.NoError(t, err)
 
@@ -316,8 +312,7 @@ func TestCullDistantSolo_ScalingInvariant(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.Level = gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)})
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "Ash")
 	require.NoError(t, err)
 

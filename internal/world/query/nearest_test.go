@@ -125,8 +125,7 @@ func TestFindNearestEntity(t *testing.T) {
 func TestFindNearestCharacter_タイルを無視する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-	d.Level = gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}
+	testutil.SetStageLevel(world, gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)})
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 

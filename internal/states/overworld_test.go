@@ -68,7 +68,7 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	require.NoError(t, st.OnStart(world))
 
 	// Level は帯全幅
-	assert.Equal(t, chunkW*k, query.GetDungeon(world).Level.TileWidth, "Levelは帯全幅")
+	assert.Equal(t, chunkW*k, query.GetCurrentStageMeta(world).Level.TileWidth, "Levelは帯全幅")
 
 	// 各スロットにタイルが存在する（初期帯 K チャンクが埋まっている）
 	slotCounts := make([]int, k)

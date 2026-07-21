@@ -71,14 +71,15 @@ func TestIsOnOverworld(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	d := GetDungeon(world)
 
+	// オーバーワールドのメタに帯データを持たせる。以後この帯データの有無で判定する
 	d.CurrentStage = gc.NewOverworldStage()
-	assert.True(t, IsOnOverworld(world), "現ステージがオーバーワールドなら真")
+	EnsureSeamlessBand(world)
+	assert.True(t, IsOnOverworld(world), "現ステージが帯データを持てば真")
 
-	// 遺跡滞在中。帯・前線が Active のまま残っても、オーバーワールド判定にしてはいけない。
+	// 遺跡滞在中。現ステージのメタは帯データを持たないので偽。帯データはオーバーワールドの
+	// メタにしか無く、退避されて現ステージから外れる
 	d.CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
-	d.SeamlessBand.Active = true
-	d.SeamlessBand.Front.Active = true
-	assert.False(t, IsOnOverworld(world), "遺跡滞在中は SeamlessBand/Front が Active でも偽")
+	assert.False(t, IsOnOverworld(world), "現ステージが帯データを持たなければ偽")
 }
 
 // TestGetWeaponSelection は武器選択シングルトンの初期値と更新を検証する。
