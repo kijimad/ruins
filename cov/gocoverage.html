@@ -787,7 +787,7 @@ func progressHunger(actor ecs.Entity, world w.World) <span class="cov10" title="
         // HungerProgress は耐性スキルが高いと 0 以下に達し、空腹が進まなくなる。比較が常に偽になるためだ。
         // 下限を設けるかは進行系倍率の Hunger・Cold・Heat 共通の課題として
         // 将来のバランス設計でまとめて検討する。ここでは意図的に下限を置かない。
-        <span class="cov9" title="3014">if world.Config.RNG.IntN(int(consts.PercentBase)*gc.HungerDrainTurns) &lt; int(hungerPct) </span><span class="cov8" title="987">{
+        <span class="cov9" title="3014">if world.Config.RNG.IntN(int(consts.PercentBase)*gc.HungerDrainTurns) &lt; int(hungerPct) </span><span class="cov8" title="984">{
                 hunger.Decrease(1)
         }</span>
 }
@@ -9468,8 +9468,8 @@ const (
 func (c *Components) has(comp hasser) Has <span class="cov7" title="726">{
         val := reflect.ValueOf(c).Elem()
         typ := val.Type()
-        for i := range val.NumField() </span><span class="cov10" title="16764">{
-                if val.Field(i).Interface() == comp </span><span class="cov7" title="726">{
+        for i := range val.NumField() </span><span class="cov10" title="16417">{
+                if val.Field(i).Interface() == comp </span><span class="cov7" title="725">{
                         return Has{Label: typ.Field(i).Name, Comp: comp}
                 }</span>
         }
@@ -12396,7 +12396,7 @@ func NewSafeSlice(maxSize int) *SafeSlice <span class="cov5" title="36">{
 }
 
 // Push は新しいログを追加
-func (s *SafeSlice) Push(message string) <span class="cov9" title="2067">{
+func (s *SafeSlice) Push(message string) <span class="cov9" title="2058">{
         // 単純な文字列を色付きログエントリに変換
         entry := LogEntry{
                 Fragments: []LogFragment{{
@@ -12461,7 +12461,7 @@ func (s *SafeSlice) MaxHistory() int <span class="cov1" title="1">{
 }</span>
 
 // pushColoredEntry は色付きエントリを内部的に追加する
-func (s *SafeSlice) pushColoredEntry(entry LogEntry) <span class="cov10" title="2102">{
+func (s *SafeSlice) pushColoredEntry(entry LogEntry) <span class="cov10" title="2094">{
         s.mu.Lock()
         defer s.mu.Unlock()
 
@@ -14042,13 +14042,13 @@ func (b BigRoomDraw) PlanMeta(planData *MetaPlan) error <span class="cov4" title
         switch variantType </span>{
         case 0:<span class="cov2" title="8"></span>
                 // 通常の大部屋（何も追加しない）
-        case 1:<span class="cov2" title="11">
+        case 1:<span class="cov2" title="10">
                 // 柱を追加
                 b.applyPillars(planData)</span>
         case 2:<span class="cov2" title="6">
                 // 障害物を追加
                 b.applyObstacles(planData)</span>
-        case 3:<span class="cov2" title="9">
+        case 3:<span class="cov2" title="10">
                 // 迷路パターンを追加
                 b.applyMazePattern(planData)</span>
         case 4:<span class="cov2" title="10">
@@ -14107,18 +14107,18 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) <span class="cov4" tit
 }
 
 // applyPillars は部屋に柱を追加する
-func (b BigRoomDraw) applyPillars(planData *MetaPlan) <span class="cov2" title="11">{
+func (b BigRoomDraw) applyPillars(planData *MetaPlan) <span class="cov2" title="10">{
         // 柱の間隔をランダムに決定（3-6の範囲）
         spacing := 3 + planData.RNG.IntN(4)
 
-        for _, room := range planData.Rooms </span><span class="cov2" title="11">{
+        for _, room := range planData.Rooms </span><span class="cov2" title="10">{
                 // 柱の開始位置を計算（部屋の中心から対称に配置）
                 startX := int(room.Min.X) + spacing
                 startY := int(room.Min.Y) + spacing
 
                 // 規則的に柱を配置
-                for x := startX; x &lt; int(room.Max.X); x += spacing + 1 </span><span class="cov4" title="76">{
-                        for y := startY; y &lt; int(room.Max.Y); y += spacing + 1 </span><span class="cov6" title="602">{
+                for x := startX; x &lt; int(room.Max.X); x += spacing + 1 </span><span class="cov4" title="69">{
+                        for y := startY; y &lt; int(room.Max.Y); y += spacing + 1 </span><span class="cov6" title="553">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
                                 planData.Tiles[idx] = planData.GetTile("wall")
                         }</span>
@@ -14149,15 +14149,15 @@ func (b BigRoomDraw) applyObstacles(planData *MetaPlan) <span class="cov2" title
 }
 
 // applyMazePattern は部屋に迷路パターンを追加する
-func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) <span class="cov2" title="9">{
-        for _, room := range planData.Rooms </span><span class="cov2" title="9">{
+func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) <span class="cov2" title="10">{
+        for _, room := range planData.Rooms </span><span class="cov2" title="10">{
                 // 格子状に壁を配置し、ランダムに開口部を作る
                 // 上端行・下端行には壁を配置しない。上下端への接続性を保証するため
                 // 縦の壁を部屋の右端から逆向きに配置
-                for x := int(room.Max.X); x &gt;= int(room.Min.X)+2; x -= 3 </span><span class="cov4" title="114">{
-                        for y := int(room.Min.Y) + 1; y &lt;= int(room.Max.Y)-1; y++ </span><span class="cov7" title="4932">{
+                for x := int(room.Max.X); x &gt;= int(room.Min.X)+2; x -= 3 </span><span class="cov4" title="130">{
+                        for y := int(room.Min.Y) + 1; y &lt;= int(room.Max.Y)-1; y++ </span><span class="cov7" title="5700">{
                                 // 縦の壁を配置（ランダムに開口部を作る）
-                                if planData.RNG.Float64() &gt; 0.3 </span><span class="cov7" title="3485">{
+                                if planData.RNG.Float64() &gt; 0.3 </span><span class="cov7" title="3994">{
                                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
                                         planData.Tiles[idx] = planData.GetTile("wall")
                                 }</span>
@@ -14165,10 +14165,10 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) <span class="cov2" tit
                 }
 
                 // 横の壁を部屋の下端から逆向きに配置
-                <span class="cov2" title="9">for y := int(room.Max.Y) - 1; y &gt;= int(room.Min.Y)+2; y -= 3 </span><span class="cov4" title="114">{
-                        for x := int(room.Min.X); x &lt;= int(room.Max.X); x++ </span><span class="cov7" title="5160">{
+                <span class="cov2" title="10">for y := int(room.Max.Y) - 1; y &gt;= int(room.Min.Y)+2; y -= 3 </span><span class="cov4" title="130">{
+                        for x := int(room.Min.X); x &lt;= int(room.Max.X); x++ </span><span class="cov7" title="5960">{
                                 // 横の壁を配置（ランダムに開口部を作る）
-                                if planData.RNG.Float64() &gt; 0.3 </span><span class="cov7" title="3607">{
+                                if planData.RNG.Float64() &gt; 0.3 </span><span class="cov7" title="4163">{
                                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
                                         planData.Tiles[idx] = planData.GetTile("wall")
                                 }</span>
@@ -14225,9 +14225,9 @@ type CavePlanner struct{}
 func (c CavePlanner) PlanInitial(planData *MetaPlan) error <span class="cov3" title="34">{
         // 初期状態をランダムに設定（30%の確率で壁、より広い空間を確保）
         for i := range planData.Tiles </span><span class="cov7" title="76600">{
-                if planData.RNG.Float64() &lt; 0.30 </span><span class="cov7" title="22743">{
+                if planData.RNG.Float64() &lt; 0.30 </span><span class="cov7" title="22778">{
                         planData.Tiles[i] = planData.GetTile("wall")
-                }</span> else<span class="cov7" title="53857"> {
+                }</span> else<span class="cov7" title="53822"> {
                         planData.Tiles[i] = planData.GetTile("floor")
                 }</span>
         }
@@ -14256,7 +14256,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error <span class="co
                 newTiles := make([]oapi.Tile, len(planData.Tiles))
 
                 for x := range width </span><span class="cov6" title="4740">{
-                        for y := range height </span><span class="cov8" title="229516">{
+                        for y := range height </span><span class="cov8" title="229777">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
                                 // 左右端は壁にする
@@ -14267,12 +14267,12 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error <span class="co
                                 }
 
                                 // 周囲の壁の数を数える
-                                <span class="cov8" title="220100">wallCount := c.countWallsInRadius(planData, x, y, 1)
+                                <span class="cov8" title="220303">wallCount := c.countWallsInRadius(planData, x, y, 1)
 
                                 // ルール：周囲に6つ以上の壁があれば壁、そうでなければ床（より通路を確保）
-                                if wallCount &gt;= 6 </span><span class="cov5" title="2981">{
+                                if wallCount &gt;= 6 </span><span class="cov5" title="3049">{
                                         newTiles[idx] = planData.GetTile("wall")
-                                }</span> else<span class="cov8" title="216836"> {
+                                }</span> else<span class="cov8" title="217232"> {
                                         newTiles[idx] = planData.GetTile("floor")
                                 }</span>
                         }
@@ -14287,27 +14287,27 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error <span class="co
 }
 
 // countWallsInRadius は指定半径内の壁タイル数を数える
-func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, centerY, radius int) int <span class="cov8" title="220096">{
+func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, centerY, radius int) int <span class="cov8" title="220302">{
         wallCount := 0
         width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
 
-        for x := centerX - radius; x &lt;= centerX+radius; x++ </span><span class="cov9" title="657817">{
-                for y := centerY - radius; y &lt;= centerY+radius; y++ </span><span class="cov10" title="1963146">{
+        for x := centerX - radius; x &lt;= centerX+radius; x++ </span><span class="cov9" title="660717">{
+                for y := centerY - radius; y &lt;= centerY+radius; y++ </span><span class="cov10" title="1981534">{
                         // 境界外は壁とみなす
-                        if x &lt; 0 || x &gt;= width || y &lt; 0 || y &gt;= height </span><span class="cov7" title="27205">{
+                        if x &lt; 0 || x &gt;= width || y &lt; 0 || y &gt;= height </span><span class="cov7" title="27216">{
                                 wallCount++
                                 continue</span>
                         }
 
-                        <span class="cov9" title="1935609">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                        if planData.Tiles[idx].BlockPass </span><span class="cov8" title="232982">{
+                        <span class="cov9" title="1954374">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
+                        if planData.Tiles[idx].BlockPass </span><span class="cov8" title="234330">{
                                 wallCount++
                         }</span>
                 }
         }
 
-        <span class="cov8" title="219747">return wallCount</span>
+        <span class="cov8" title="220274">return wallCount</span>
 }
 
 // extractCaveRooms は洞窟から部屋領域を抽出する
@@ -14331,18 +14331,18 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) <span class="
                                         minX, maxX := x, x
                                         minY, maxY := y, y
 
-                                        for _, tilePos := range floorTiles </span><span class="cov7" title="73274">{
+                                        for _, tilePos := range floorTiles </span><span class="cov7" title="73255">{
                                                 pos := planData.Level.IndexToCoord(gc.TileIdx(tilePos))
                                                 if int(pos.X) &lt; minX </span><span class="cov0" title="0">{
                                                         minX = int(pos.X)
                                                 }</span>
-                                                <span class="cov7" title="73274">if int(pos.X) &gt; maxX </span><span class="cov5" title="1478">{
+                                                <span class="cov7" title="73255">if int(pos.X) &gt; maxX </span><span class="cov5" title="1478">{
                                                         maxX = int(pos.X)
                                                 }</span>
-                                                <span class="cov7" title="73274">if int(pos.Y) &lt; minY </span><span class="cov2" title="8">{
+                                                <span class="cov7" title="73255">if int(pos.Y) &lt; minY </span><span class="cov2" title="8">{
                                                         minY = int(pos.Y)
                                                 }</span>
-                                                <span class="cov7" title="73274">if int(pos.Y) &gt; maxY </span><span class="cov5" title="1538">{
+                                                <span class="cov7" title="73255">if int(pos.Y) &gt; maxY </span><span class="cov5" title="1538">{
                                                         maxY = int(pos.Y)
                                                 }</span>
                                         }
@@ -14371,7 +14371,7 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
         // 4方向の隣接タイル
         directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
 
-        for len(queue) &gt; 0 </span><span class="cov7" title="73120">{
+        for len(queue) &gt; 0 </span><span class="cov7" title="73255">{
                 current := queue[0]
                 queue = queue[1:]
 
@@ -14380,13 +14380,13 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
                 result = append(result, int(idx))
 
                 // 隣接タイルをチェック
-                for _, dir := range directions </span><span class="cov8" title="291134">{
+                for _, dir := range directions </span><span class="cov8" title="293020">{
                         nx, ny := x+dir[0], y+dir[1]
 
-                        if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height </span><span class="cov8" title="288402">{
+                        if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height </span><span class="cov8" title="290158">{
                                 nIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 
-                                if !visited[nIdx] &amp;&amp; !planData.Tiles[nIdx].BlockPass </span><span class="cov7" title="73079">{
+                                if !visited[nIdx] &amp;&amp; !planData.Tiles[nIdx].BlockPass </span><span class="cov7" title="73221">{
                                         visited[nIdx] = true
                                         queue = append(queue, [2]int{nx, ny})
                                 }</span>
@@ -14414,7 +14414,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error <span class="cov3" t
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
                         // 現在が壁で、隣接に床がある場合
-                        if planData.Tiles[idx].BlockPass </span><span class="cov2" title="17">{
+                        if planData.Tiles[idx].BlockPass </span><span class="cov2" title="23">{
                                 adjacentFloorCount := c.countAdjacentFloors(planData, x, y)
 
                                 // 隣接する床が2個以上ある場合、30%の確率で床にする
@@ -14430,7 +14430,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error <span class="cov3" t
 }
 
 // countAdjacentFloors は隣接する床タイルの数を数える
-func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int <span class="cov2" title="17">{
+func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int <span class="cov2" title="23">{
         count := 0
         width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
@@ -14438,18 +14438,18 @@ func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, center
         // 4方向の隣接タイルをチェック
         directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
 
-        for _, dir := range directions </span><span class="cov3" title="68">{
+        for _, dir := range directions </span><span class="cov3" title="92">{
                 x, y := centerX+dir[0], centerY+dir[1]
 
-                if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span><span class="cov3" title="68">{
+                if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span><span class="cov3" title="92">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                        if !planData.Tiles[idx].BlockPass </span><span class="cov3" title="29">{
+                        if !planData.Tiles[idx].BlockPass </span><span class="cov3" title="38">{
                                 count++
                         }</span>
                 }
         }
 
-        <span class="cov2" title="17">return count</span>
+        <span class="cov2" title="23">return count</span>
 }
 
 // CaveStalactites は鍾乳石や岩の障害物を配置する
@@ -14465,9 +14465,9 @@ func (c CaveStalactites) PlanMeta(planData *MetaPlan) error <span class="cov3" t
                 for y := 2; y &lt; height-2; y++ </span><span class="cov7" title="64504">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-                        if !planData.Tiles[idx].BlockPass </span><span class="cov7" title="64504">{
+                        if !planData.Tiles[idx].BlockPass </span><span class="cov7" title="64503">{
                                 // 2%の確率で鍾乳石を配置（確率を下げてより通行可能に）
-                                if planData.RNG.Float64() &lt; 0.02 </span><span class="cov5" title="1292">{
+                                if planData.RNG.Float64() &lt; 0.02 </span><span class="cov5" title="1288">{
                                         planData.Tiles[idx] = planData.GetTile("wall")
                                 }</span>
                         }
@@ -14584,23 +14584,23 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error <span class="co
 
         // 変換が他のタイルの判定に影響しないように、まず変換すべきタイルを特定
         tilesToConvert := make([]int, 0)
-        for i := range planData.Tiles </span><span class="cov10" title="437160">{
+        for i := range planData.Tiles </span><span class="cov10" title="437663">{
                 tile := planData.Tiles[i]
 
                 // マップの端にあるタイルは変換対象外（境界として残す）
                 pos := planData.Level.IndexToCoord(gc.TileIdx(i))
-                if int(pos.X) == 0 || int(pos.X) == width-1 || int(pos.Y) == 0 || int(pos.Y) == height-1 </span><span class="cov8" title="37238">{
+                if int(pos.X) == 0 || int(pos.X) == width-1 || int(pos.Y) == 0 || int(pos.Y) == height-1 </span><span class="cov8" title="37240">{
                         continue</span>
                 }
 
                 // wallタイルで床に隣接していない場合、変換対象とする
-                <span class="cov9" title="399785">if tile.Name == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) </span><span class="cov8" title="71798">{
+                <span class="cov9" title="400427">if tile.Name == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) </span><span class="cov8" title="72146">{
                         tilesToConvert = append(tilesToConvert, i)
                 }</span>
         }
 
         // 特定したタイルを変換
-        <span class="cov4" title="225">for _, i := range tilesToConvert </span><span class="cov8" title="71998">{
+        <span class="cov4" title="225">for _, i := range tilesToConvert </span><span class="cov8" title="72172">{
                 planData.Tiles[i] = planData.GetTile(c.ReplacementTile)
         }</span>
 
@@ -14627,21 +14627,21 @@ func (p DoorPlanner) PlanMeta(mp *MetaPlan) error <span class="cov4" title="72">
         height := int(mp.Level.TileHeight)
 
         for y := 1; y &lt; height-1; y++ </span><span class="cov7" title="2521">{
-                for x := 1; x &lt; width-1; x++ </span><span class="cov10" title="99231">{
+                for x := 1; x &lt; width-1; x++ </span><span class="cov10" title="100253">{
                         idx := y*width + x
-                        if mp.Tiles[idx].BlockPass </span><span class="cov9" title="72029">{
+                        if mp.Tiles[idx].BlockPass </span><span class="cov9" title="72535">{
                                 continue</span>
                         }
 
-                        <span class="cov8" title="27628">if !isDoorPattern(mp, x, y, width) </span><span class="cov8" title="27021">{
+                        <span class="cov8" title="27718">if !isDoorPattern(mp, x, y, width) </span><span class="cov8" title="27121">{
                                 continue</span>
                         }
 
-                        <span class="cov6" title="600">if mp.RNG.Float64() &gt;= p.DoorChance </span><span class="cov4" title="131">{
+                        <span class="cov5" title="597">if mp.RNG.Float64() &gt;= p.DoorChance </span><span class="cov4" title="132">{
                                 continue</span>
                         }
 
-                        <span class="cov5" title="469">mp.Doors = append(mp.Doors, DoorSpec{
+                        <span class="cov5" title="465">mp.Doors = append(mp.Doors, DoorSpec{
                                 Coord:       consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},
                                 Orientation: doorOrientation(mp, x, y, width),
                         })</span>
@@ -14652,7 +14652,7 @@ func (p DoorPlanner) PlanMeta(mp *MetaPlan) error <span class="cov4" title="72">
 
 // isDoorPattern は床タイルがドア配置可能なパターンかを判定する。
 // 左右が壁かつ上下が床、または上下が壁かつ左右が床の場合にtrueを返す
-func isDoorPattern(mp *MetaPlan, x, y, width int) bool <span class="cov8" title="27626">{
+func isDoorPattern(mp *MetaPlan, x, y, width int) bool <span class="cov8" title="27721">{
         idx := y*width + x
         left := mp.Tiles[idx-1]
         right := mp.Tiles[idx+1]
@@ -14660,24 +14660,24 @@ func isDoorPattern(mp *MetaPlan, x, y, width int) bool <span class="cov8" title=
         bottom := mp.Tiles[idx+width]
 
         // 左右が壁、上下が床 → 縦向きドア
-        if left.BlockPass &amp;&amp; right.BlockPass &amp;&amp; !top.BlockPass &amp;&amp; !bottom.BlockPass </span><span class="cov5" title="301">{
+        if left.BlockPass &amp;&amp; right.BlockPass &amp;&amp; !top.BlockPass &amp;&amp; !bottom.BlockPass </span><span class="cov5" title="298">{
                 return true
         }</span>
         // 上下が壁、左右が床 → 横向きドア
-        <span class="cov8" title="27310">if top.BlockPass &amp;&amp; bottom.BlockPass &amp;&amp; !left.BlockPass &amp;&amp; !right.BlockPass </span><span class="cov5" title="301">{
+        <span class="cov8" title="27423">if top.BlockPass &amp;&amp; bottom.BlockPass &amp;&amp; !left.BlockPass &amp;&amp; !right.BlockPass </span><span class="cov5" title="301">{
                 return true
         }</span>
 
-        <span class="cov8" title="27027">return false</span>
+        <span class="cov8" title="27122">return false</span>
 }
 
 // doorOrientation はドア位置の隣接タイルから向きを判定する
-func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation <span class="cov5" title="469">{
+func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation <span class="cov5" title="465">{
         idx := y*width + x
-        if mp.Tiles[idx-1].BlockPass &amp;&amp; mp.Tiles[idx+1].BlockPass </span><span class="cov5" title="218">{
+        if mp.Tiles[idx-1].BlockPass &amp;&amp; mp.Tiles[idx+1].BlockPass </span><span class="cov5" title="216">{
                 return gc.DoorOrientationVertical
         }</span>
-        <span class="cov5" title="251">return gc.DoorOrientationHorizontal</span>
+        <span class="cov5" title="249">return gc.DoorOrientationHorizontal</span>
 }
 </pre>
 		
@@ -14697,15 +14697,15 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error <span class="cov4" titl
         outdoor := p.floodFillOutdoor(mp)
 
         // 各タイルの環境情報を設定する
-        for i := range mp.Tiles </span><span class="cov9" title="441532">{
-                if outdoor[i] </span><span class="cov8" title="272032">{
+        for i := range mp.Tiles </span><span class="cov9" title="442150">{
+                if outdoor[i] </span><span class="cov8" title="271080">{
                         mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterNone)
-                }</span> else<span class="cov8" title="169807"> {
+                }</span> else<span class="cov8" title="171153"> {
                         mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterFull)
                 }</span>
 
                 // Water: 隣接する水タイルから計算
-                <span class="cov9" title="441549">mp.Tiles[i].Water = oapi.WaterType(p.calcWater(mp, i))
+                <span class="cov9" title="442154">mp.Tiles[i].Water = oapi.WaterType(p.calcWater(mp, i))
 
                 // Foliage: タイル名から計算
                 mp.Tiles[i].Foliage = oapi.FoliageType(p.calcFoliage(mp, i))</span>
@@ -14736,33 +14736,33 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool <span class="c
         }</span>
 
         // BFS: 壁以外を辿り、到達可能な領域を屋外としてマーク
-        <span class="cov4" title="229">for len(queue) &gt; 0 </span><span class="cov9" title="1099499">{
+        <span class="cov4" title="229">for len(queue) &gt; 0 </span><span class="cov9" title="1097846">{
                 idx := queue[0]
                 queue = queue[1:]
 
-                if idx &lt; 0 || idx &gt;= len(mp.Tiles) || visited[idx] </span><span class="cov9" title="772043">{
+                if idx &lt; 0 || idx &gt;= len(mp.Tiles) || visited[idx] </span><span class="cov9" title="769476">{
                         continue</span>
                 }
-                <span class="cov8" title="328235">visited[idx] = true
+                <span class="cov8" title="328370">visited[idx] = true
 
-                if mp.Tiles[idx].BlockPass </span><span class="cov7" title="56517">{
+                if mp.Tiles[idx].BlockPass </span><span class="cov7" title="57280">{
                         continue</span> // 壁は通過しない
                 }
 
-                <span class="cov8" title="271896">outdoor[idx] = true
+                <span class="cov8" title="271090">outdoor[idx] = true
 
                 // 4方向の隣接タイルをキューに追加
                 x, y := idx%width, idx/width
-                if x &gt; 0 </span><span class="cov8" title="266713">{
+                if x &gt; 0 </span><span class="cov8" title="265953">{
                         queue = append(queue, idx-1)
                 }</span>
-                <span class="cov8" title="271821">if x &lt; width-1 </span><span class="cov8" title="266749">{
+                <span class="cov8" title="271090">if x &lt; width-1 </span><span class="cov8" title="266035">{
                         queue = append(queue, idx+1)
                 }</span>
-                <span class="cov8" title="271789">if y &gt; 0 </span><span class="cov8" title="264909">{
+                <span class="cov8" title="271090">if y &gt; 0 </span><span class="cov8" title="264191">{
                         queue = append(queue, idx-width)
                 }</span>
-                <span class="cov8" title="271748">if y &lt; height-1 </span><span class="cov8" title="264605">{
+                <span class="cov8" title="271090">if y &lt; height-1 </span><span class="cov8" title="263919">{
                         queue = append(queue, idx+width)
                 }</span>
         }
@@ -14771,43 +14771,43 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool <span class="c
 }
 
 // calcWater は隣接タイルから水の影響を計算する
-func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType <span class="cov9" title="441393">{
+func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType <span class="cov9" title="442132">{
         // 現在のタイルが水タイルかチェック
         if isWaterTile(mp.Tiles[idx].Name) </span><span class="cov1" title="1">{
                 return gc.WaterSubmerged
         }</span>
 
         // 隣接タイルに水があるかチェック
-        <span class="cov9" title="441198">width := int(mp.Level.TileWidth)
+        <span class="cov9" title="442074">width := int(mp.Level.TileWidth)
         height := int(mp.Level.TileHeight)
         x, y := idx%width, idx/width
 
         adjacentIndices := []int{}
-        if x &gt; 0 </span><span class="cov9" title="431625">{
+        if x &gt; 0 </span><span class="cov9" title="432453">{
                 adjacentIndices = append(adjacentIndices, idx-1)
         }</span>
-        <span class="cov9" title="440849">if x &lt; width-1 </span><span class="cov9" title="431312">{
+        <span class="cov9" title="442004">if x &lt; width-1 </span><span class="cov9" title="432386">{
                 adjacentIndices = append(adjacentIndices, idx+1)
         }</span>
-        <span class="cov9" title="440914">if y &gt; 0 </span><span class="cov9" title="431289">{
+        <span class="cov9" title="442018">if y &gt; 0 </span><span class="cov9" title="432339">{
                 adjacentIndices = append(adjacentIndices, idx-width)
         }</span>
-        <span class="cov9" title="440974">if y &lt; height-1 </span><span class="cov9" title="431357">{
+        <span class="cov9" title="442025">if y &lt; height-1 </span><span class="cov9" title="432333">{
                 adjacentIndices = append(adjacentIndices, idx+width)
         }</span>
 
-        <span class="cov9" title="441020">for _, adjIdx := range adjacentIndices </span><span class="cov9" title="1720119">{
+        <span class="cov9" title="442045">for _, adjIdx := range adjacentIndices </span><span class="cov9" title="1728156">{
                 if isWaterTile(mp.Tiles[adjIdx].Name) </span><span class="cov1" title="4">{
                         return gc.WaterNearby
                 }</span>
         }
 
-        <span class="cov9" title="441350">return gc.WaterNone</span>
+        <span class="cov9" title="442116">return gc.WaterNone</span>
 }
 
 // calcFoliage はタイル名から植生の影響を計算する
 // TODO: 名前ではなくタイルの属性で判定する
-func (p EnvironmentPlanner) calcFoliage(mp *MetaPlan, idx int) gc.FoliageType <span class="cov9" title="441336">{
+func (p EnvironmentPlanner) calcFoliage(mp *MetaPlan, idx int) gc.FoliageType <span class="cov9" title="442110">{
         name := mp.Tiles[idx].Name
 
         switch name </span>{
@@ -14815,18 +14815,18 @@ func (p EnvironmentPlanner) calcFoliage(mp *MetaPlan, idx int) gc.FoliageType <s
                 return gc.FoliageForest</span>
         case "grass":<span class="cov1" title="1">
                 return gc.FoliageGrass</span>
-        default:<span class="cov9" title="441541">
+        default:<span class="cov9" title="442130">
                 return gc.FoliageNone</span>
         }
 }
 
 // isWaterTile はタイル名が水タイルかを判定する
 // TODO: 名前ではなくタイルの属性で判定する
-func isWaterTile(name string) bool <span class="cov10" title="2157991">{
+func isWaterTile(name string) bool <span class="cov10" title="2169452">{
         switch name </span>{
         case "water", "deep_water", "river", "pond":<span class="cov1" title="5">
                 return true</span>
-        default:<span class="cov9" title="2157937">
+        default:<span class="cov9" title="2169433">
                 return false</span>
         }
 }
@@ -14854,7 +14854,7 @@ func (b FillAll) PlanMeta(planData *MetaPlan) error <span class="cov4" title="15
 
 func (b FillAll) build(planData *MetaPlan) <span class="cov4" title="154">{
         // 全体を指定したタイルで埋める
-        for i := range planData.Tiles </span><span class="cov10" title="296446">{
+        for i := range planData.Tiles </span><span class="cov10" title="296865">{
                 planData.Tiles[i] = planData.GetTile(b.TileName)
         }</span>
 }
@@ -14911,7 +14911,7 @@ type ForestTerrain struct{}
 // PlanMeta は森の基本地形をタイルに描画する
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error <span class="cov3" title="44">{
         // まず全体を床で埋める（森の地面）
-        for i := range planData.Tiles </span><span class="cov9" title="92879">{
+        for i := range planData.Tiles </span><span class="cov9" title="93225">{
                 planData.Tiles[i] = planData.GetTile("floor")
         }</span>
 
@@ -14928,11 +14928,11 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
         centerY := float64(clearing.Min.Y+clearing.Max.Y) / 2.0
         radius := math.Min(float64(clearing.Max.X-clearing.Min.X), float64(clearing.Max.Y-clearing.Min.Y)) / 2.0
 
-        for x := clearing.Min.X - 1; x &lt;= clearing.Max.X+1; x++ </span><span class="cov6" title="1602">{
-                for y := clearing.Min.Y - 1; y &lt;= clearing.Max.Y+1; y++ </span><span class="cov7" title="13152">{
+        for x := clearing.Min.X - 1; x &lt;= clearing.Max.X+1; x++ </span><span class="cov6" title="1594">{
+                for y := clearing.Min.Y - 1; y &lt;= clearing.Max.Y+1; y++ </span><span class="cov7" title="13016">{
                         distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
-                        if distance &lt;= radius </span><span class="cov7" title="4276">{
+                        if distance &lt;= radius </span><span class="cov7" title="4208">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
                                 planData.Tiles[idx] = planData.GetTile("floor")
                         }</span>
@@ -14950,19 +14950,19 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error <span class="cov3" title
 
         // 森全体に木を配置（60%の密度）
         for x := 1; x &lt; width-1; x++ </span><span class="cov6" title="1887">{
-                for y := 1; y &lt; height-1; y++ </span><span class="cov9" title="85484">{
+                for y := 1; y &lt; height-1; y++ </span><span class="cov9" title="85452">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-                        if !planData.Tiles[idx].BlockPass </span><span class="cov8" title="58613">{
+                        if !planData.Tiles[idx].BlockPass </span><span class="cov8" title="58700">{
                                 // 空き地の近くでは木の密度を下げる
                                 treeDensity := f.calculateTreeDensity(planData, x, y)
 
-                                if planData.RNG.Float64() &lt; treeDensity </span><span class="cov8" title="27777">{
+                                if planData.RNG.Float64() &lt; treeDensity </span><span class="cov8" title="27815">{
                                         // TODO: 木エンティティとして追加する
                                         planData.Tiles[idx] = planData.GetTile("wall")
 
                                         // 大きな木の場合、周囲にも追加の木を配置
-                                        if planData.RNG.Float64() &lt; 0.2 </span><span class="cov7" title="5507">{ // 20%の確率で大木
+                                        if planData.RNG.Float64() &lt; 0.2 </span><span class="cov7" title="5501">{ // 20%の確率で大木
                                                 f.placeLargeTree(planData, x, y)
                                         }</span>
                                 }
@@ -14973,48 +14973,48 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error <span class="cov3" title
 }
 
 // calculateTreeDensity は位置に基づいて木の密度を計算する
-func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 <span class="cov8" title="58612">{
+func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 <span class="cov8" title="58699">{
         baseDensity := 0.6 // 基本密度60%
 
         // 空き地からの距離に基づいて密度を調整
         minDistanceToClearing := 1000.0
 
-        for _, clearing := range planData.Rooms </span><span class="cov10" title="260843">{
+        for _, clearing := range planData.Rooms </span><span class="cov10" title="261130">{
                 centerX := float64(clearing.Min.X+clearing.Max.X) / 2.0
                 centerY := float64(clearing.Min.Y+clearing.Max.Y) / 2.0
 
                 distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
-                if distance &lt; minDistanceToClearing </span><span class="cov9" title="128001">{
+                if distance &lt; minDistanceToClearing </span><span class="cov9" title="127870">{
                         minDistanceToClearing = distance
                 }</span>
         }
 
         // 空き地に近いほど木の密度を下げる
-        <span class="cov8" title="58601">if minDistanceToClearing &lt; 5 </span><span class="cov7" title="9478">{
+        <span class="cov8" title="58689">if minDistanceToClearing &lt; 5 </span><span class="cov7" title="9507">{
                 return baseDensity * 0.3 // 空き地の近くは30%
-        }</span> else<span class="cov8" title="49123"> if minDistanceToClearing &lt; 10 </span><span class="cov8" title="18347">{
+        }</span> else<span class="cov8" title="49195"> if minDistanceToClearing &lt; 10 </span><span class="cov8" title="18406">{
                 return baseDensity * 0.7 // 中距離は70%
         }</span>
-        <span class="cov8" title="30787">return baseDensity</span> // 遠くは基本密度
+        <span class="cov8" title="30801">return baseDensity</span> // 遠くは基本密度
 }
 
 // placeLargeTree は大きな木を配置する
-func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) <span class="cov7" title="5507">{
+func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) <span class="cov7" title="5501">{
         width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
 
         // 大木の周囲2x2または3x3エリアに追加の木を配置
         size := 1 + planData.RNG.IntN(2) // 1または2
 
-        for dx := -size; dx &lt;= size; dx++ </span><span class="cov8" title="22202">{
-                for dy := -size; dy &lt;= size; dy++ </span><span class="cov9" title="95004">{
+        for dx := -size; dx &lt;= size; dx++ </span><span class="cov8" title="22137">{
+                for dy := -size; dy &lt;= size; dy++ </span><span class="cov9" title="94567">{
                         x, y := centerX+dx, centerY+dy
 
-                        if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span><span class="cov9" title="93359">{
+                        if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span><span class="cov9" title="92909">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-                                if !planData.Tiles[idx].BlockPass &amp;&amp; planData.RNG.Float64() &lt; 0.7 </span><span class="cov8" title="39190">{
+                                if !planData.Tiles[idx].BlockPass &amp;&amp; planData.RNG.Float64() &lt; 0.7 </span><span class="cov8" title="39032">{
                                         planData.Tiles[idx] = planData.GetTile("wall")
                                 }</span>
                         }
@@ -15038,7 +15038,7 @@ func (f ForestPaths) PlanMeta(planData *MetaPlan) error <span class="cov3" title
                 for i := range len(planData.Rooms) </span><span class="cov4" title="200">{
                         for j := i + 1; j &lt; len(planData.Rooms); j++ </span><span class="cov5" title="380">{
                                 // 距離が近い空き地のみ繋ぐ（50%の確率）
-                                if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) </span><span class="cov4" title="204">{
+                                if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) </span><span class="cov4" title="203">{
                                         f.createNaturalPath(planData, planData.Rooms[i], planData.Rooms[j])
                                 }</span>
                         }
@@ -15062,19 +15062,19 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
         // 上から下まで確実に通路を作る
         <span class="cov3" title="44">for y := range height </span><span class="cov6" title="1975">{
                 // 通路とその左右1タイルを床にする（幅3の通路）
-                for dx := -1; dx &lt;= 1; dx++ </span><span class="cov7" title="5925">{
+                for dx := -1; dx &lt;= 1; dx++ </span><span class="cov7" title="5920">{
                         x := pathX + dx
-                        if x &gt;= 0 &amp;&amp; x &lt; width </span><span class="cov7" title="5925">{
+                        if x &gt;= 0 &amp;&amp; x &lt; width </span><span class="cov7" title="5922">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
                                 planData.Tiles[idx] = planData.GetTile("floor")
                         }</span>
                 }
 
                 // 通路に自然な蛇行を追加（20%の確率で左右に移動）
-                <span class="cov6" title="1975">if y &gt; 0 &amp;&amp; y &lt; height-1 &amp;&amp; planData.RNG.Float64() &lt; 0.2 </span><span class="cov5" title="371">{
-                        if planData.RNG.Float64() &lt; 0.5 </span><span class="cov4" title="193">{
+                <span class="cov6" title="1975">if y &gt; 0 &amp;&amp; y &lt; height-1 &amp;&amp; planData.RNG.Float64() &lt; 0.2 </span><span class="cov5" title="374">{
+                        if planData.RNG.Float64() &lt; 0.5 </span><span class="cov4" title="194">{
                                 pathX = min(pathX+1, width-2)
-                        }</span> else<span class="cov4" title="178"> {
+                        }</span> else<span class="cov4" title="180"> {
                                 pathX = max(pathX-1, 1)
                         }</span>
                 }
@@ -15094,14 +15094,14 @@ func (f ForestPaths) shouldCreatePath(planData *MetaPlan, room1, room2 gc.Rect) 
         // 近い空き地ほど繋がりやすい
         if distance &lt; 15 </span><span class="cov4" title="200">{
                 return planData.RNG.Float64() &lt; 0.8
-        }</span> else<span class="cov4" title="180"> if distance &lt; 25 </span><span class="cov4" title="116">{
+        }</span> else<span class="cov4" title="180"> if distance &lt; 25 </span><span class="cov4" title="115">{
                 return planData.RNG.Float64() &lt; 0.4
         }</span>
-        <span class="cov4" title="64">return planData.RNG.Float64() &lt; 0.1</span>
+        <span class="cov4" title="65">return planData.RNG.Float64() &lt; 0.1</span>
 }
 
 // createNaturalPath は自然な曲線状の通路を作成する
-func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect) <span class="cov4" title="204">{
+func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect) <span class="cov4" title="203">{
         width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
 
@@ -15112,7 +15112,7 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 
         // ベジェ曲線風の自然な通路を作成
         steps := 50
-        for i := 0; i &lt;= steps; i++ </span><span class="cov7" title="10404">{
+        for i := 0; i &lt;= steps; i++ </span><span class="cov7" title="10351">{
                 t := float64(i) / float64(steps)
 
                 // 制御点を追加してカーブを作る
@@ -15128,14 +15128,14 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
                 y := int((1-t)*(1-t)*float64(center1Y) + 2*(1-t)*t*float64(midY+randomOffsetY) + t*t*float64(center2Y))
 
                 // 通路を作成（少し幅を持たせる）
-                for dx := -1; dx &lt;= 1; dx++ </span><span class="cov8" title="31212">{
-                        for dy := -1; dy &lt;= 1; dy++ </span><span class="cov9" title="93636">{
+                for dx := -1; dx &lt;= 1; dx++ </span><span class="cov8" title="31026">{
+                        for dy := -1; dy &lt;= 1; dy++ </span><span class="cov9" title="92917">{
                                 nx, ny := x+dx, y+dy
-                                if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height </span><span class="cov9" title="93636">{
+                                if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height </span><span class="cov9" title="92918">{
                                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 
                                         // 70%の確率で通路を作成（自然な感じに）
-                                        if planData.RNG.Float64() &lt; 0.7 </span><span class="cov9" title="65880">{
+                                        if planData.RNG.Float64() &lt; 0.7 </span><span class="cov8" title="65231">{
                                                 planData.Tiles[idx] = planData.GetTile("floor")
                                         }</span>
                                 }
@@ -15165,13 +15165,13 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error <span class="cov3" ti
                 // 小さな円形の空き地を作成
                 radius := 1 + planData.RNG.IntN(2)
 
-                for dx := -radius; dx &lt;= radius; dx++ </span><span class="cov5" title="596">{
-                        for dy := -radius; dy &lt;= radius; dy++ </span><span class="cov6" title="2578">{
+                for dx := -radius; dx &lt;= radius; dx++ </span><span class="cov5" title="594">{
+                        for dy := -radius; dy &lt;= radius; dy++ </span><span class="cov6" title="2562">{
                                 nx, ny := x+dx, y+dy
                                 // 上端・下端行には描画しない（ForestPathsで保証した接続性を壊さないため）
-                                if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt; 0 &amp;&amp; ny &lt; height-1 </span><span class="cov6" title="2543">{
+                                if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt; 0 &amp;&amp; ny &lt; height-1 </span><span class="cov6" title="2532">{
                                         distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
-                                        if distance &lt;= float64(radius) </span><span class="cov6" title="1355">{
+                                        if distance &lt;= float64(radius) </span><span class="cov6" title="1348">{
                                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
                                                 planData.Tiles[idx] = planData.GetTile("floor")
                                         }</span>
@@ -15642,58 +15642,58 @@ type MetaPlan struct {
 }
 
 // IsSpawnableTile は指定タイル座標がスポーン可能かを返す
-func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool <span class="cov6" title="3338">{
+func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool <span class="cov6" title="3344">{
         pos := consts.Coord[consts.Tile]{X: tx, Y: ty}
         idx := bm.Level.CoordToIndex(pos)
         tile := bm.Tiles[idx]
         // 通行不可なのでスポーン不可
-        if tile.BlockPass </span><span class="cov5" title="1543">{
+        if tile.BlockPass </span><span class="cov5" title="1545">{
                 return false
         }</span>
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
-        <span class="cov5" title="1795">if bm.existPlannedEntityOnTile(pos) </span><span class="cov0" title="0">{
+        <span class="cov5" title="1799">if bm.existPlannedEntityOnTile(pos) </span><span class="cov0" title="0">{
                 return false
         }</span>
 
-        <span class="cov5" title="1795">return true</span>
+        <span class="cov5" title="1799">return true</span>
 }
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
-func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool <span class="cov6" title="3392">{
+func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool <span class="cov6" title="3477">{
         if slices.Contains(bm.NextPortals, pos) </span><span class="cov0" title="0">{
                 return true
         }</span>
 
         // NPCをチェック
-        <span class="cov6" title="3392">for _, npc := range bm.NPCs </span><span class="cov4" title="119">{
+        <span class="cov6" title="3477">for _, npc := range bm.NPCs </span><span class="cov4" title="119">{
                 if npc.Coord == pos </span><span class="cov1" title="1">{
                         return true
                 }</span>
         }
 
         // アイテムをチェック
-        <span class="cov6" title="3391">for _, item := range bm.Items </span><span class="cov3" title="50">{
+        <span class="cov6" title="3476">for _, item := range bm.Items </span><span class="cov3" title="50">{
                 if item.Coord == pos </span><span class="cov0" title="0">{
                         return true
                 }</span>
         }
 
         // Propsをチェック
-        <span class="cov6" title="3391">for _, prop := range bm.Props </span><span class="cov0" title="0">{
+        <span class="cov6" title="3476">for _, prop := range bm.Props </span><span class="cov0" title="0">{
                 if prop.Coord == pos </span><span class="cov0" title="0">{
                         return true
                 }</span>
         }
 
         // ドアをチェック
-        <span class="cov6" title="3391">for _, door := range bm.Doors </span><span class="cov6" title="2713">{
+        <span class="cov6" title="3476">for _, door := range bm.Doors </span><span class="cov6" title="2685">{
                 if door.Coord == pos </span><span class="cov0" title="0">{
                         return true
                 }</span>
         }
 
-        <span class="cov6" title="3391">return false</span>
+        <span class="cov6" title="3476">return false</span>
 }
 
 // UpTile は上にあるタイルを調べる
@@ -15755,7 +15755,7 @@ func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile <span class="cov2" title=
 }
 
 // AdjacentAnyFloor は直交・斜めを含む近傍8タイルに床があるか判定する
-func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool <span class="cov8" title="143115">{
+func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool <span class="cov8" title="144575">{
         pos := bm.Level.IndexToCoord(idx)
         width := int(bm.Level.TileWidth)
         height := int(bm.Level.TileHeight)
@@ -15767,7 +15767,7 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool <span class="cov8" titl
                 {1, -1}, {1, 0}, {1, 1}, // 下段
         }
 
-        for _, dir := range directions </span><span class="cov9" title="763539">{
+        for _, dir := range directions </span><span class="cov9" title="772438">{
                 nx, ny := int(pos.X)+dir[0], int(pos.Y)+dir[1]
 
                 // 境界チェック
@@ -15775,16 +15775,16 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool <span class="cov8" titl
                         continue</span>
                 }
 
-                <span class="cov9" title="764195">neighborIdx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
+                <span class="cov9" title="772821">neighborIdx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
                 tile := bm.Tiles[neighborIdx]
 
                 // 歩行可能
-                if !tile.BlockPass </span><span class="cov8" title="71538">{
+                if !tile.BlockPass </span><span class="cov8" title="72404">{
                         return true
                 }</span>
         }
 
-        <span class="cov8" title="71835">return false</span>
+        <span class="cov8" title="72151">return false</span>
 }
 
 // GetWallType は近傍パターンから適切な壁タイプを判定する
@@ -16242,25 +16242,25 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 
 // GetTile はタイルを生成する
 // TODO: エラーを潰しているだけなので直す
-func (bm *MetaPlan) GetTile(name string) oapi.Tile <span class="cov9" title="1120205">{
+func (bm *MetaPlan) GetTile(name string) oapi.Tile <span class="cov9" title="1124420">{
         if bm.RawMaster == nil </span><span class="cov0" title="0">{
                 panic("RawMasterが設定されていない。TOMLからのタイル生成が必須である")</span>
         }
-        <span class="cov9" title="1120268">tile, err := raw.GetTile(*bm.RawMaster, name)
+        <span class="cov9" title="1124489">tile, err := raw.GetTile(*bm.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
                 panic(fmt.Sprintf("タイル生成エラー: %v", err))</span>
         }
-        <span class="cov10" title="1124084">return tile</span>
+        <span class="cov10" title="1126158">return tile</span>
 }
 
 // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
-func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool <span class="cov5" title="1725">{
-        for _, room := range bm.Rooms </span><span class="cov6" title="6280">{
+func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool <span class="cov5" title="1729">{
+        for _, room := range bm.Rooms </span><span class="cov6" title="6293">{
                 if x &gt;= room.Min.X &amp;&amp; x &lt; room.Max.X &amp;&amp; y &gt;= room.Min.Y &amp;&amp; y &lt; room.Max.Y </span><span class="cov4" title="220">{
                         return true
                 }</span>
         }
-        <span class="cov5" title="1505">return false</span>
+        <span class="cov5" title="1509">return false</span>
 }
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
@@ -16295,28 +16295,28 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) <span class="cov
         // 接続済みの部屋。通路を2重に計算しないようにする
         connected := map[int]bool{}
         // 廊下のスライス
-        for i, room := range planData.Rooms </span><span class="cov5" title="570">{
+        for i, room := range planData.Rooms </span><span class="cov5" title="569">{
                 roomDistances := map[int]float64{}
                 centerX, centerY := room.Center()
-                for j, otherRoom := range planData.Rooms </span><span class="cov7" title="5351">{
+                for j, otherRoom := range planData.Rooms </span><span class="cov7" title="5343">{
                         isExist := connected[j]
-                        if i != j &amp;&amp; !isExist </span><span class="cov7" title="2395">{
+                        if i != j &amp;&amp; !isExist </span><span class="cov7" title="2387">{
                                 oCenterX, oCenterY := otherRoom.Center()
                                 distance := geometry.Distance(float64(centerX), float64(centerY), float64(oCenterX), float64(oCenterY))
                                 roomDistances[j] = float64(distance)
                         }</span>
                 }
 
-                <span class="cov5" title="570">if len(roomDistances) &gt; 0 </span><span class="cov5" title="501">{
+                <span class="cov5" title="569">if len(roomDistances) &gt; 0 </span><span class="cov5" title="500">{
                         closestIdx := -1
                         closestDist := math.MaxFloat64
-                        for k, v := range roomDistances </span><span class="cov7" title="2394">{
-                                if v &lt; closestDist </span><span class="cov6" title="1043">{
+                        for k, v := range roomDistances </span><span class="cov7" title="2387">{
+                                if v &lt; closestDist </span><span class="cov6" title="1036">{
                                         closestDist = v
                                         closestIdx = k
                                 }</span>
                         }
-                        <span class="cov5" title="501">destCenterX, destCenterY := planData.Rooms[closestIdx].Center()
+                        <span class="cov5" title="500">destCenterX, destCenterY := planData.Rooms[closestIdx].Center()
 
                         // 中心線のL字型廊下を生成する
                         centerStart := consts.Coord[consts.Tile]{X: centerX, Y: centerY}
@@ -16326,100 +16326,100 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) <span class="cov
                         // サイドのL字型廊下を生成する
                         const corridorWidth = 3
                         var sidePoints []consts.Coord[consts.Tile]
-                        for offsetX := -(corridorWidth / 2); offsetX &lt;= corridorWidth/2; offsetX++ </span><span class="cov6" title="1502">{
-                                for offsetY := -(corridorWidth / 2); offsetY &lt;= corridorWidth/2; offsetY++ </span><span class="cov7" title="4506">{
-                                        if offsetX == 0 &amp;&amp; offsetY == 0 </span><span class="cov5" title="501">{
+                        for offsetX := -(corridorWidth / 2); offsetX &lt;= corridorWidth/2; offsetX++ </span><span class="cov6" title="1500">{
+                                for offsetY := -(corridorWidth / 2); offsetY &lt;= corridorWidth/2; offsetY++ </span><span class="cov7" title="4500">{
+                                        if offsetX == 0 &amp;&amp; offsetY == 0 </span><span class="cov5" title="500">{
                                                 continue</span>
                                         }
-                                        <span class="cov7" title="4006">start := consts.Coord[consts.Tile]{X: centerX + consts.Tile(offsetX), Y: centerY + consts.Tile(offsetY)}
+                                        <span class="cov7" title="4000">start := consts.Coord[consts.Tile]{X: centerX + consts.Tile(offsetX), Y: centerY + consts.Tile(offsetY)}
                                         end := consts.Coord[consts.Tile]{X: destCenterX + consts.Tile(offsetX), Y: destCenterY + consts.Tile(offsetY)}
                                         sidePoints = append(sidePoints, createLShapedCorridor(start, end)...)</span>
                                 }
                         }
 
-                        <span class="cov5" title="501">corridor := make([]gc.TileIdx, 0, len(centerPoints)+len(sidePoints))
+                        <span class="cov5" title="500">corridor := make([]gc.TileIdx, 0, len(centerPoints)+len(sidePoints))
 
                         // 中心線は無条件に床に変換する
-                        for _, p := range centerPoints </span><span class="cov8" title="8426">{
+                        for _, p := range centerPoints </span><span class="cov8" title="8402">{
                                 idx := planData.Level.CoordToIndex(p)
-                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall </span><span class="cov7" title="4428">{
+                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall </span><span class="cov7" title="4400">{
                                         planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
                                 }</span>
-                                <span class="cov8" title="8426">corridor = append(corridor, idx)</span>
+                                <span class="cov8" title="8402">corridor = append(corridor, idx)</span>
                         }
 
                         // サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
-                        <span class="cov5" title="501">for _, p := range sidePoints </span><span class="cov9" title="67251">{
+                        <span class="cov5" title="500">for _, p := range sidePoints </span><span class="cov9" title="67216">{
                                 idx := planData.Level.CoordToIndex(p)
-                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall </span><span class="cov8" title="12693">{
-                                        if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) </span><span class="cov7" title="5750">{
+                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall </span><span class="cov8" title="12660">{
+                                        if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) </span><span class="cov7" title="5755">{
                                                 continue</span>
                                         }
-                                        <span class="cov7" title="6941">planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)</span>
+                                        <span class="cov7" title="6905">planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)</span>
                                 }
-                                <span class="cov9" title="61540">corridor = append(corridor, idx)</span>
+                                <span class="cov9" title="61461">corridor = append(corridor, idx)</span>
                         }
 
-                        <span class="cov5" title="501">planData.Corridors = append(planData.Corridors, corridor)</span>
+                        <span class="cov5" title="500">planData.Corridors = append(planData.Corridors, corridor)</span>
                 }
-                <span class="cov5" title="570">connected[i] = true</span>
+                <span class="cov5" title="569">connected[i] = true</span>
         }
 }
 
-func isValidTileIdx(planData *MetaPlan, idx gc.TileIdx) bool <span class="cov9" title="75648">{
+func isValidTileIdx(planData *MetaPlan, idx gc.TileIdx) bool <span class="cov9" title="75618">{
         return int(idx) &gt;= 0 &amp;&amp; int(idx) &lt; int(planData.Level.TileWidth)*int(planData.Level.TileHeight)
 }</span>
 
 // isAdjacentToRoom はタイルが部屋内または部屋に隣接しているかを判定する。
 // 部屋の矩形を上下左右に1タイル膨張させた範囲に含まれるかで判定する。
 // 対角方向も含めることで、部屋の角付近でサイドタイルが部屋壁を上書きするのを防ぐ
-func isAdjacentToRoom(rooms []gc.Rect, x, y int) bool <span class="cov8" title="12698">{
-        for _, room := range rooms </span><span class="cov10" title="98652">{
-                if x &gt;= int(room.Min.X)-1 &amp;&amp; x &lt;= int(room.Max.X)+1 &amp;&amp; y &gt;= int(room.Min.Y)-1 &amp;&amp; y &lt;= int(room.Max.Y)+1 </span><span class="cov7" title="5754">{
+func isAdjacentToRoom(rooms []gc.Rect, x, y int) bool <span class="cov8" title="12666">{
+        for _, room := range rooms </span><span class="cov10" title="98464">{
+                if x &gt;= int(room.Min.X)-1 &amp;&amp; x &lt;= int(room.Max.X)+1 &amp;&amp; y &gt;= int(room.Min.Y)-1 &amp;&amp; y &lt;= int(room.Max.Y)+1 </span><span class="cov7" title="5759">{
                         return true
                 }</span>
         }
-        <span class="cov7" title="6943">return false</span>
+        <span class="cov7" title="6907">return false</span>
 }
 
 // createLShapedCorridor は横と縦のみのL字型廊下を生成する
-func createLShapedCorridor(start, end consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] <span class="cov7" title="4507">{
+func createLShapedCorridor(start, end consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] <span class="cov7" title="4500">{
         var points []consts.Coord[consts.Tile]
 
         // 開始点から水平に移動
         current := start
-        if start.X &lt; end.X </span><span class="cov7" title="2826">{
-                for current.X &lt;= end.X </span><span class="cov8" title="24317">{
+        if start.X &lt; end.X </span><span class="cov7" title="2844">{
+                for current.X &lt;= end.X </span><span class="cov8" title="24705">{
                         points = append(points, current)
-                        if current.X == end.X </span><span class="cov7" title="2826">{
+                        if current.X == end.X </span><span class="cov7" title="2844">{
                                 break</span>
                         }
-                        <span class="cov8" title="21492">current.X++</span>
+                        <span class="cov8" title="21861">current.X++</span>
                 }
-        } else<span class="cov6" title="1683"> {
-                for current.X &gt;= end.X </span><span class="cov8" title="15224">{
+        } else<span class="cov6" title="1656"> {
+                for current.X &gt;= end.X </span><span class="cov8" title="14949">{
                         points = append(points, current)
-                        if current.X == end.X </span><span class="cov6" title="1683">{
+                        if current.X == end.X </span><span class="cov6" title="1656">{
                                 break</span>
                         }
-                        <span class="cov8" title="13546">current.X--</span>
+                        <span class="cov8" title="13293">current.X--</span>
                 }
         }
 
         // 水平移動後の位置から垂直に移動
-        <span class="cov7" title="4507">if start.Y &lt; end.Y </span><span class="cov7" title="2313">{
-                for current.Y &lt; end.Y </span><span class="cov8" title="19159">{
+        <span class="cov7" title="4500">if start.Y &lt; end.Y </span><span class="cov7" title="2295">{
+                for current.Y &lt; end.Y </span><span class="cov8" title="19206">{
                         current.Y++
                         points = append(points, current)
                 }</span>
-        } else<span class="cov7" title="2196"> if start.Y &gt; end.Y </span><span class="cov6" title="2034">{
-                for current.Y &gt; end.Y </span><span class="cov8" title="17118">{
+        } else<span class="cov7" title="2205"> if start.Y &gt; end.Y </span><span class="cov6" title="2043">{
+                for current.Y &gt; end.Y </span><span class="cov8" title="16758">{
                         current.Y--
                         points = append(points, current)
                 }</span>
         }
 
-        <span class="cov7" title="4505">return points</span>
+        <span class="cov7" title="4500">return points</span>
 }
 </pre>
 		
@@ -16545,13 +16545,13 @@ func NewPathFinder(planData *MetaPlan) *PathFinder <span class="cov4" title="650
 var fourDirs = []consts.Coord[consts.Tile]{{X: 0, Y: 1}, {X: 1, Y: 0}, {X: 0, Y: -1}, {X: -1, Y: 0}}
 
 // IsWalkable は指定座標が歩行可能かを判定する
-func (pf *PathFinder) IsWalkable(pos consts.Coord[consts.Tile]) bool <span class="cov9" title="1851335">{
+func (pf *PathFinder) IsWalkable(pos consts.Coord[consts.Tile]) bool <span class="cov9" title="1850779">{
         // 境界チェック
-        if pos.X &lt; 0 || pos.X &gt;= pf.planData.Level.TileWidth || pos.Y &lt; 0 || pos.Y &gt;= pf.planData.Level.TileHeight </span><span class="cov7" title="74430">{
+        if pos.X &lt; 0 || pos.X &gt;= pf.planData.Level.TileWidth || pos.Y &lt; 0 || pos.Y &gt;= pf.planData.Level.TileHeight </span><span class="cov7" title="74344">{
                 return false
         }</span>
 
-        <span class="cov9" title="1777444">idx := pf.planData.Level.CoordToIndex(pos)
+        <span class="cov9" title="1776713">idx := pf.planData.Level.CoordToIndex(pos)
         return !pf.planData.Tiles[idx].BlockPass</span>
 }
 
@@ -16567,7 +16567,7 @@ func (pf *PathFinder) FindPath(start, goal consts.Coord[consts.Tile]) []consts.C
         visited := map[consts.Coord[consts.Tile]]bool{start: true}
         queue := []consts.Coord[consts.Tile]{start}
 
-        for len(queue) &gt; 0 </span><span class="cov9" title="615518">{
+        for len(queue) &gt; 0 </span><span class="cov9" title="605972">{
                 cur := queue[0]
                 queue = queue[1:]
 
@@ -16575,13 +16575,13 @@ func (pf *PathFinder) FindPath(start, goal consts.Coord[consts.Tile]) []consts.C
                         return pf.reconstructPath(parent, start, goal)
                 }</span>
 
-                <span class="cov9" title="614704">for _, d := range fourDirs </span><span class="cov9" title="2440214">{
+                <span class="cov9" title="605200">for _, d := range fourDirs </span><span class="cov9" title="2411036">{
                         next := cur.Add(d)
                         // IsWalkable が境界外を false にするので境界チェックは兼ねる
-                        if visited[next] || !pf.IsWalkable(next) </span><span class="cov9" title="1808687">{
+                        if visited[next] || !pf.IsWalkable(next) </span><span class="cov9" title="1783282">{
                                 continue</span>
                         }
-                        <span class="cov9" title="644694">visited[next] = true
+                        <span class="cov9" title="635061">visited[next] = true
                         parent[next] = cur
                         queue = append(queue, next)</span>
                 }
@@ -16593,7 +16593,7 @@ func (pf *PathFinder) FindPath(start, goal consts.Coord[consts.Tile]) []consts.C
 // reconstructPath は親マップからスタート→ゴール順のパスを復元する
 func (pf *PathFinder) reconstructPath(parent map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile], start, goal consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] <span class="cov5" title="787">{
         var path []consts.Coord[consts.Tile]
-        for cur := goal; ; cur = parent[cur] </span><span class="cov7" title="25857">{
+        for cur := goal; ; cur = parent[cur] </span><span class="cov7" title="25932">{
                 path = append(path, cur)
                 if cur == start </span><span class="cov5" title="787">{
                         break</span>
@@ -16601,7 +16601,7 @@ func (pf *PathFinder) reconstructPath(parent map[consts.Coord[consts.Tile]]const
         }
 
         // スタートからゴールの順序にする
-        <span class="cov5" title="787">for i, j := 0, len(path)-1; i &lt; j; i, j = i+1, j-1 </span><span class="cov6" title="12708">{
+        <span class="cov5" title="787">for i, j := 0, len(path)-1; i &lt; j; i, j = i+1, j-1 </span><span class="cov6" title="12748">{
                 path[i], path[j] = path[j], path[i]
         }</span>
 
@@ -16614,41 +16614,41 @@ func (pf *PathFinder) IsReachable(start, goal consts.Coord[consts.Tile]) bool <s
 }</span>
 
 // countReachableFrom は指定位置からBFSで到達可能な歩行可能タイル数を返す
-func (pf *PathFinder) countReachableFrom(start consts.Coord[consts.Tile]) int <span class="cov5" title="783">{
+func (pf *PathFinder) countReachableFrom(start consts.Coord[consts.Tile]) int <span class="cov5" title="816">{
         if !pf.IsWalkable(start) </span><span class="cov0" title="0">{
                 return 0
         }</span>
 
-        <span class="cov5" title="783">visited := map[consts.Coord[consts.Tile]]bool{start: true}
+        <span class="cov5" title="816">visited := map[consts.Coord[consts.Tile]]bool{start: true}
         queue := []consts.Coord[consts.Tile]{start}
         count := 0
 
-        for len(queue) &gt; 0 </span><span class="cov9" title="756933">{
+        for len(queue) &gt; 0 </span><span class="cov9" title="754430">{
                 cur := queue[0]
                 queue = queue[1:]
                 count++
 
-                for _, d := range fourDirs </span><span class="cov10" title="2999004">{
+                for _, d := range fourDirs </span><span class="cov10" title="3004695">{
                         next := cur.Add(d)
-                        if !visited[next] &amp;&amp; pf.IsWalkable(next) </span><span class="cov9" title="756240">{
+                        if !visited[next] &amp;&amp; pf.IsWalkable(next) </span><span class="cov9" title="753796">{
                                 visited[next] = true
                                 queue = append(queue, next)
                         }</span>
                 }
         }
 
-        <span class="cov5" title="783">return count</span>
+        <span class="cov5" title="816">return count</span>
 }
 
 // hasAdjacentFreeTile は隣接4方向のうち少なくとも1つが歩行可能かつ計画済みエンティティがないかを判定する
-func (pf *PathFinder) hasAdjacentFreeTile(pos consts.Coord[consts.Tile]) bool <span class="cov5" title="816">{
-        for _, d := range fourDirs </span><span class="cov5" title="1267">{
+func (pf *PathFinder) hasAdjacentFreeTile(pos consts.Coord[consts.Tile]) bool <span class="cov5" title="864">{
+        for _, d := range fourDirs </span><span class="cov5" title="1396">{
                 next := pos.Add(d)
-                if pf.IsWalkable(next) &amp;&amp; !pf.planData.existPlannedEntityOnTile(next) </span><span class="cov5" title="780">{
+                if pf.IsWalkable(next) &amp;&amp; !pf.planData.existPlannedEntityOnTile(next) </span><span class="cov5" title="813">{
                         return true
                 }</span>
         }
-        <span class="cov3" title="36">return false</span>
+        <span class="cov3" title="51">return false</span>
 }
 
 // minReachableTiles はスポーン位置から到達可能なタイルの最小数。
@@ -16677,17 +16677,17 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
                 {X: 3 * width / 4, Y: 3 * height / 4},
         }
 
-        for _, pos := range attempts </span><span class="cov5" title="920">{
-                if pf.isValidSpawnPosition(pos) </span><span class="cov4" title="428">{
+        for _, pos := range attempts </span><span class="cov5" title="947">{
+                if pf.isValidSpawnPosition(pos) </span><span class="cov4" title="422">{
                         return pos, nil
                 }</span>
         }
 
         // 見つからない場合は全体をスキャン
-        <span class="cov3" title="52">for _i, tile := range planData.Tiles </span><span class="cov5" title="1084">{
-                if !tile.BlockPass </span><span class="cov4" title="291">{
+        <span class="cov3" title="58">for _i, tile := range planData.Tiles </span><span class="cov5" title="1189">{
+                if !tile.BlockPass </span><span class="cov4" title="336">{
                         pos := planData.Level.IndexToCoord(gc.TileIdx(_i))
-                        if pf.isValidSpawnPosition(pos) </span><span class="cov3" title="50">{
+                        if pf.isValidSpawnPosition(pos) </span><span class="cov3" title="56">{
                                 return pos, nil
                         }</span>
                 }
@@ -16697,27 +16697,27 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
 }
 
 // isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する
-func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool <span class="cov5" title="1211">{
+func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool <span class="cov5" title="1283">{
         planData := pf.planData
         idx := planData.Level.CoordToIndex(pos)
-        if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass </span><span class="cov4" title="394">{
+        if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass </span><span class="cov4" title="418">{
                 return false
         }</span>
 
         // NPC・アイテム・ポータルなど計画済みエンティティとの重複を防ぐ
-        <span class="cov5" title="817">if planData.existPlannedEntityOnTile(pos) </span><span class="cov1" title="1">{
+        <span class="cov5" title="865">if planData.existPlannedEntityOnTile(pos) </span><span class="cov1" title="1">{
                 return false
         }</span>
 
         // 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。
         // 敵エンティティはBlockPassを持つため、全隣接タイルが占有されるとプレイヤーが移動不能になる
-        <span class="cov5" title="816">if !pf.hasAdjacentFreeTile(pos) </span><span class="cov3" title="36">{
+        <span class="cov5" title="864">if !pf.hasAdjacentFreeTile(pos) </span><span class="cov3" title="51">{
                 return false
         }</span>
 
         // 到達可能なタイル数が十分であることを確認する。
         // 単一BFSで済むため、複数BFSを要するポータル到達性チェックより先に行う
-        <span class="cov5" title="780">if pf.countReachableFrom(pos) &lt; minReachableTiles </span><span class="cov4" title="302">{
+        <span class="cov5" title="813">if pf.countReachableFrom(pos) &lt; minReachableTiles </span><span class="cov4" title="335">{
                 return false
         }</span>
 
@@ -16921,10 +16921,10 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
 // 部屋内かつ全基準点から到達可能かつ最低歩数以上離れた位置を返す
 func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord[consts.Tile], minDist int, maxAttempts int) positionSelector <span class="cov6" title="161">{
         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) </span><span class="cov6" title="161">{
-                for range maxAttempts </span><span class="cov10" title="2468">{
+                for range maxAttempts </span><span class="cov10" title="2474">{
                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
-                        if !planData.IsSpawnableTile(world, x, y) || !planData.isInAnyRoom(x, y) </span><span class="cov9" title="2272">{
+                        if !planData.IsSpawnableTile(world, x, y) || !planData.isInAnyRoom(x, y) </span><span class="cov9" title="2278">{
                                 continue</span>
                         }
                         <span class="cov7" title="196">farEnough := true
@@ -16979,7 +16979,7 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) <span class="cov7" title=
 
         // 残りの部屋はランダム配置
         maxRooms := 4 + planData.RNG.IntN(10)
-        for range maxRooms </span><span class="cov9" title="432">{
+        for range maxRooms </span><span class="cov9" title="431">{
                 y := planData.RNG.IntN(height)
                 rooms = append(rooms, b.createRoom(planData, width, height, y))
         }</span>
@@ -16988,7 +16988,7 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) <span class="cov7" title=
 }
 
 // createRoom は指定のY座標から部屋を生成する
-func (b RectRoomPlanner) createRoom(planData *MetaPlan, width, height, y int) gc.Rect <span class="cov10" title="500">{
+func (b RectRoomPlanner) createRoom(planData *MetaPlan, width, height, y int) gc.Rect <span class="cov10" title="499">{
         x := planData.RNG.IntN(width)
         w := 2 + planData.RNG.IntN(8)
         h := 2 + planData.RNG.IntN(8)
@@ -17084,16 +17084,16 @@ func (b RoomDraw) PlanMeta(planData *MetaPlan) error <span class="cov4" title="6
 }</span>
 
 func (b RoomDraw) build(planData *MetaPlan) <span class="cov4" title="68">{
-        for _, room := range planData.Rooms </span><span class="cov6" title="568">{
+        for _, room := range planData.Rooms </span><span class="cov6" title="567">{
                 b.rectangle(planData, room)
         }</span>
 }
 
-func (b RoomDraw) rectangle(planData *MetaPlan, room gc.Rect) <span class="cov6" title="568">{
-        for x := room.Min.X; x &lt;= room.Max.X; x++ </span><span class="cov8" title="3355">{
-                for y := room.Min.Y; y &lt;= room.Max.Y; y++ </span><span class="cov10" title="21750">{
+func (b RoomDraw) rectangle(planData *MetaPlan, room gc.Rect) <span class="cov6" title="567">{
+        for x := room.Min.X; x &lt;= room.Max.X; x++ </span><span class="cov8" title="3357">{
+                for y := room.Min.Y; y &lt;= room.Max.Y; y++ </span><span class="cov10" title="21721">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                        if 0 &lt; int(idx) &amp;&amp; int(idx) &lt; int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 </span><span class="cov9" title="21068">{
+                        if 0 &lt; int(idx) &amp;&amp; int(idx) &lt; int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 </span><span class="cov9" title="21035">{
                                 planData.Tiles[idx] = planData.GetTile("floor")
                         }</span>
                 }
@@ -17120,7 +17120,7 @@ func (r RuinsPlanner) PlanInitial(planData *MetaPlan) error <span class="cov3" t
         // まず大きな廃墟建物の基盤を作成（3-5個の大きな矩形）
         ruinCount := 3 + planData.RNG.IntN(3)
 
-        for range ruinCount </span><span class="cov4" title="127">{
+        for range ruinCount </span><span class="cov4" title="126">{
                 // ランダムな位置とサイズで廃墟の基盤を作成
                 buildingWidth := 8 + planData.RNG.IntN(10)
                 buildingHeight := 6 + planData.RNG.IntN(8)
@@ -17153,47 +17153,47 @@ func (r RuinsDraw) PlanMeta(planData *MetaPlan) error <span class="cov3" title="
         }</span>
 
         // 各廃墟建物を処理
-        <span class="cov3" title="32">for _, room := range planData.Rooms </span><span class="cov4" title="127">{
+        <span class="cov3" title="32">for _, room := range planData.Rooms </span><span class="cov4" title="126">{
                 r.drawRuinedBuilding(planData, room)
         }</span>
         <span class="cov3" title="32">return nil</span>
 }
 
 // drawRuinedBuilding は破損した建物を描画する
-func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) <span class="cov4" title="127">{
+func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) <span class="cov4" title="126">{
         // 建物の外壁を描画（一部欠損あり）
-        for x := building.Min.X; x &lt;= building.Max.X; x++ </span><span class="cov6" title="1544">{
+        for x := building.Min.X; x &lt;= building.Max.X; x++ </span><span class="cov6" title="1540">{
                 // 上辺
-                if y := building.Min.Y; planData.RNG.Float64() &gt; 0.3 </span><span class="cov6" title="1093">{ // 70%の確率で壁
+                if y := building.Min.Y; planData.RNG.Float64() &gt; 0.3 </span><span class="cov6" title="1092">{ // 70%の確率で壁
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
                         planData.Tiles[idx] = planData.GetTile(r.WallTile)
                 }</span>
                 // 下辺
-                <span class="cov6" title="1544">if y := building.Max.Y; planData.RNG.Float64() &gt; 0.3 </span><span class="cov6" title="1092">{
+                <span class="cov6" title="1540">if y := building.Max.Y; planData.RNG.Float64() &gt; 0.3 </span><span class="cov6" title="1089">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
                         planData.Tiles[idx] = planData.GetTile(r.WallTile)
                 }</span>
         }
 
-        <span class="cov4" title="127">for y := building.Min.Y; y &lt;= building.Max.Y; y++ </span><span class="cov6" title="1131">{
+        <span class="cov4" title="126">for y := building.Min.Y; y &lt;= building.Max.Y; y++ </span><span class="cov6" title="1130">{
                 // 左辺
-                if x := building.Min.X; planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="815">{
+                if x := building.Min.X; planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="813">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
                         planData.Tiles[idx] = planData.GetTile(r.WallTile)
                 }</span>
                 // 右辺
-                <span class="cov6" title="1131">if x := building.Max.X; planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="807">{
+                <span class="cov6" title="1130">if x := building.Max.X; planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="802">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
                         planData.Tiles[idx] = planData.GetTile(r.WallTile)
                 }</span>
         }
 
         // 建物内部に部屋の仕切りを作成（一部破損）
-        <span class="cov4" title="127">r.addInteriorWalls(planData, building)</span>
+        <span class="cov4" title="126">r.addInteriorWalls(planData, building)</span>
 }
 
 // addInteriorWalls は建物内部に仕切り壁を追加する
-func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) <span class="cov4" title="127">{
+func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) <span class="cov4" title="126">{
         buildingWidth := int(building.Width() + 1)
         buildingHeight := int(building.Height() + 1)
 
@@ -17201,8 +17201,8 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) <span 
         if buildingWidth &gt;= 10 &amp;&amp; buildingHeight &gt;= 8 </span><span class="cov3" title="59">{
                 // 縦の仕切り
                 midX := building.Min.X + consts.Tile(buildingWidth/2)
-                for y := building.Min.Y + 2; y &lt;= building.Max.Y-2; y++ </span><span class="cov5" title="362">{
-                        if planData.RNG.Float64() &gt; 0.4 </span><span class="cov4" title="231">{ // 60%の確率で壁
+                for y := building.Min.Y + 2; y &lt;= building.Max.Y-2; y++ </span><span class="cov5" title="368">{
+                        if planData.RNG.Float64() &gt; 0.4 </span><span class="cov4" title="238">{ // 60%の確率で壁
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: midX, Y: y})
                                 planData.Tiles[idx] = planData.GetTile(r.WallTile)
                         }</span>
@@ -17210,8 +17210,8 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) <span 
 
                 // 横の仕切り
                 <span class="cov3" title="59">midY := building.Min.Y + consts.Tile(buildingHeight/2)
-                for x := building.Min.X + 2; x &lt;= building.Max.X-2; x++ </span><span class="cov5" title="546">{
-                        if planData.RNG.Float64() &gt; 0.4 </span><span class="cov5" title="311">{ // 60%の確率で壁
+                for x := building.Min.X + 2; x &lt;= building.Max.X-2; x++ </span><span class="cov5" title="550">{
+                        if planData.RNG.Float64() &gt; 0.4 </span><span class="cov5" title="318">{ // 60%の確率で壁
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: midY})
                                 planData.Tiles[idx] = planData.GetTile(r.WallTile)
                         }</span>
@@ -17232,14 +17232,14 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error <span class="cov3" title
 
         // 屋外エリアに瓦礫を散乱させる
         for x := 1; x &lt; width-1; x++ </span><span class="cov6" title="1476">{
-                for y := 1; y &lt; height-1; y++ </span><span class="cov9" title="69765">{
+                for y := 1; y &lt; height-1; y++ </span><span class="cov9" title="69768">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-                        if planData.Tiles[idx].Name == r.FloorTile </span><span class="cov9" title="65843">{
+                        if planData.Tiles[idx].Name == r.FloorTile </span><span class="cov9" title="65841">{
                                 // 建物から離れた場所ほど瓦礫が少ない
                                 debrisChance := r.calculateDebrisChance(planData, x, y)
 
-                                if planData.RNG.Float64() &lt; debrisChance </span><span class="cov6" title="3588">{
+                                if planData.RNG.Float64() &lt; debrisChance </span><span class="cov6" title="3602">{
                                         planData.Tiles[idx] = planData.GetTile(r.WallTile) // 瓦礫として壁タイルを使用
                                 }</span>
                         }
@@ -17249,11 +17249,11 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error <span class="cov3" title
 }
 
 // calculateDebrisChance は瓦礫の配置確率を計算する
-func (r RuinsDebris) calculateDebrisChance(planData *MetaPlan, x, y int) float64 <span class="cov9" title="65842">{
+func (r RuinsDebris) calculateDebrisChance(planData *MetaPlan, x, y int) float64 <span class="cov9" title="65841">{
         // 最寄りの建物までの距離を計算
         minDistance := 1000.0
 
-        for _, room := range planData.Rooms </span><span class="cov10" title="262504">{
+        for _, room := range planData.Rooms </span><span class="cov10" title="260383">{
                 // 建物の中心からの距離
                 centerX := float64(room.Min.X+room.Max.X) / 2.0
                 centerY := float64(room.Min.Y+room.Max.Y) / 2.0
@@ -17262,19 +17262,19 @@ func (r RuinsDebris) calculateDebrisChance(planData *MetaPlan, x, y int) float64
                 dy := float64(y) - centerY
                 distance := dx*dx + dy*dy // 平方根は不要
 
-                if distance &lt; minDistance </span><span class="cov9" title="120174">{
+                if distance &lt; minDistance </span><span class="cov9" title="120020">{
                         minDistance = distance
                 }</span>
         }
 
         // 距離に基づいて瓦礫確率を計算（近いほど高確率）
-        <span class="cov9" title="65835">if minDistance &lt; 25 </span><span class="cov7" title="6423">{ // 建物の近く
+        <span class="cov9" title="65841">if minDistance &lt; 25 </span><span class="cov7" title="6392">{ // 建物の近く
                 return 0.15
-        }</span> else<span class="cov8" title="59413"> if minDistance &lt; 100 </span><span class="cov8" title="17013">{ // 中距離
+        }</span> else<span class="cov8" title="59449"> if minDistance &lt; 100 </span><span class="cov8" title="16971">{ // 中距離
                 return 0.08
         }</span>
         // 遠距離
-        <span class="cov8" title="42406">return 0.03</span>
+        <span class="cov8" title="42478">return 0.03</span>
 }
 
 // RuinsCorridors は廃墟間を繋ぐ通路を作成する
@@ -17290,13 +17290,13 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error <span class="cov3" ti
         }</span>
 
         // 各建物間に通路を作成
-        <span class="cov3" title="32">for i := range len(planData.Rooms) </span><span class="cov4" title="127">{
-                for j := i + 1; j &lt; len(planData.Rooms); j++ </span><span class="cov4" title="200">{
+        <span class="cov3" title="32">for i := range len(planData.Rooms) </span><span class="cov4" title="126">{
+                for j := i + 1; j &lt; len(planData.Rooms); j++ </span><span class="cov4" title="196">{
                         room1 := planData.Rooms[i]
                         room2 := planData.Rooms[j]
 
                         // 30%の確率で通路を作成（すべての建物を繋ぐわけではない）
-                        if planData.RNG.Float64() &lt; 0.3 </span><span class="cov3" title="48">{
+                        if planData.RNG.Float64() &lt; 0.3 </span><span class="cov3" title="46">{
                                 r.createRuinedPath(planData, room1, room2)
                         }</span>
                 }
@@ -17305,7 +17305,7 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error <span class="cov3" ti
 }
 
 // createRuinedPath は破損した通路を作成する
-func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) <span class="cov3" title="48">{
+func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) <span class="cov3" title="46">{
         // 各建物の中心を計算
         center1X := (room1.Min.X + room1.Max.X) / 2
         center1Y := (room1.Min.Y + room1.Max.Y) / 2
@@ -17316,34 +17316,34 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
         currentX, currentY := center1X, center1Y
 
         // 水平方向に移動
-        for currentX != center2X </span><span class="cov5" title="488">{
-                if currentX &lt; center2X </span><span class="cov5" title="289">{
+        for currentX != center2X </span><span class="cov5" title="467">{
+                if currentX &lt; center2X </span><span class="cov5" title="271">{
                         currentX++
-                }</span> else<span class="cov4" title="199"> {
+                }</span> else<span class="cov4" title="196"> {
                         currentX--
                 }</span>
 
                 // 70%の確率で通路を作成（部分的に破損）
-                <span class="cov5" title="488">if planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="320">{
+                <span class="cov5" title="467">if planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="308">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-                        if planData.Tiles[idx].Name == r.WallTile </span><span class="cov4" title="100">{
+                        if planData.Tiles[idx].Name == r.WallTile </span><span class="cov4" title="95">{
                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)
                         }</span>
                 }
         }
 
         // 垂直方向に移動
-        <span class="cov3" title="48">for currentY != center2Y </span><span class="cov5" title="525">{
-                if currentY &lt; center2Y </span><span class="cov5" title="267">{
+        <span class="cov3" title="46">for currentY != center2Y </span><span class="cov5" title="506">{
+                if currentY &lt; center2Y </span><span class="cov4" title="252">{
                         currentY++
-                }</span> else<span class="cov5" title="258"> {
+                }</span> else<span class="cov4" title="254"> {
                         currentY--
                 }</span>
 
                 // 70%の確率で通路を作成
-                <span class="cov5" title="525">if planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="387">{
+                <span class="cov5" title="506">if planData.RNG.Float64() &gt; 0.3 </span><span class="cov5" title="369">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-                        if planData.Tiles[idx].Name == r.WallTile </span><span class="cov4" title="115">{
+                        if planData.Tiles[idx].Name == r.WallTile </span><span class="cov4" title="114">{
                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)
                         }</span>
                 }
@@ -17922,7 +17922,7 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
                 }</span>
 
                 // TileRaw の環境情報を TileTemperature に設定する
-                <span class="cov10" title="900">if world.Components.TileTemperature.Has(tileEntity) </span><span class="cov9" title="899">{
+                <span class="cov10" title="900">if world.Components.TileTemperature.Has(tileEntity) </span><span class="cov10" title="900">{
                         tileTemp := world.Components.TileTemperature.Get(tileEntity)
                         tileTemp.Shelter = gc.ShelterType(tile.Shelter)
                         tileTemp.Water = gc.WaterType(tile.Water)
@@ -18299,8 +18299,8 @@ func MergePalettes(palettes ...*Palette) *Palette <span class="cov5" title="42">
 
 // GetTerrain は文字から地形名を取得する。
 // Terrain定義を優先し、なければProps/NPCsのTileフィールドを参照する
-func (p *Palette) GetTerrain(char string) (string, bool) <span class="cov10" title="3746">{
-        if terrain, ok := p.Terrain[char]; ok </span><span class="cov9" title="3017">{
+func (p *Palette) GetTerrain(char string) (string, bool) <span class="cov10" title="3748">{
+        if terrain, ok := p.Terrain[char]; ok </span><span class="cov9" title="3015">{
                 return terrain, true
         }</span>
         <span class="cov8" title="734">if entry, ok := p.Props[char]; ok &amp;&amp; entry.Tile != "" </span><span class="cov5" title="87">{
@@ -18313,18 +18313,18 @@ func (p *Palette) GetTerrain(char string) (string, bool) <span class="cov10" tit
 }
 
 // GetProp は文字からProp名を取得する
-func (p *Palette) GetProp(char string) (string, bool) <span class="cov9" title="3744">{
+func (p *Palette) GetProp(char string) (string, bool) <span class="cov9" title="3746">{
         entry, ok := p.Props[char]
-        if !ok </span><span class="cov9" title="3657">{
+        if !ok </span><span class="cov9" title="3659">{
                 return "", false
         }</span>
         <span class="cov5" title="88">return entry.ID, true</span>
 }
 
 // GetNPC は文字からNPC種別を取得する
-func (p *Palette) GetNPC(char string) (string, bool) <span class="cov9" title="3744">{
+func (p *Palette) GetNPC(char string) (string, bool) <span class="cov9" title="3742">{
         entry, ok := p.NPCs[char]
-        if !ok </span><span class="cov9" title="3743">{
+        if !ok </span><span class="cov9" title="3745">{
                 return "", false
         }</span>
         <span class="cov0" title="0">return entry.ID, true</span>
@@ -18368,14 +18368,14 @@ func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell <span class="c
         for y, line := range lines </span><span class="cov6" title="326">{
                 runes := []rune(line)
                 cells[y] = make([]MapCell, len(runes))
-                for x, ch := range runes </span><span class="cov9" title="4266">{
+                for x, ch := range runes </span><span class="cov9" title="4269">{
                         charStr := string(ch)
                         var cell MapCell
-                        if palette != nil </span><span class="cov9" title="3741">{
-                                if terrain, ok := palette.GetTerrain(charStr); ok </span><span class="cov8" title="3099">{
+                        if palette != nil </span><span class="cov9" title="3737">{
+                                if terrain, ok := palette.GetTerrain(charStr); ok </span><span class="cov8" title="3100">{
                                         cell.Terrain = terrain
                                 }</span>
-                                <span class="cov9" title="3743">if prop, ok := palette.GetProp(charStr); ok </span><span class="cov5" title="87">{
+                                <span class="cov9" title="3744">if prop, ok := palette.GetProp(charStr); ok </span><span class="cov5" title="87">{
                                         cell.Prop = prop
                                 }</span>
                                 <span class="cov9" title="3743">if npc, ok := palette.GetNPC(charStr); ok </span><span class="cov0" title="0">{
@@ -18383,10 +18383,10 @@ func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell <span class="c
                                 }</span>
                         }
                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する
-                        <span class="cov9" title="4267">if cell.Terrain == "" </span><span class="cov7" title="1169">{
+                        <span class="cov9" title="4270">if cell.Terrain == "" </span><span class="cov7" title="1169">{
                                 cell.Terrain = charStr
                         }</span>
-                        <span class="cov9" title="4267">cells[y][x] = cell</span>
+                        <span class="cov9" title="4270">cells[y][x] = cell</span>
                 }
         }
         <span class="cov5" title="69">return cells</span>
@@ -18533,7 +18533,7 @@ func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error <span class="
                 return fmt.Errorf("チャンク名は '{幅}x{高さ}_名前' 形式である必要があります: %s", t.Name)
         }</span>
 
-        <span class="cov5" title="62">width, err := strconv.Atoi(dimensions[0])
+        <span class="cov5" title="63">width, err := strconv.Atoi(dimensions[0])
         if err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("幅のパースに失敗: %s", dimensions[0])
         }</span>
@@ -18543,7 +18543,7 @@ func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error <span class="
                 return fmt.Errorf("高さのパースに失敗: %s", dimensions[1])
         }</span>
 
-        <span class="cov5" title="62">t.Size = Size{W: width, H: height}
+        <span class="cov5" title="63">t.Size = Size{W: width, H: height}
         return nil</span>
 }
 
@@ -28526,19 +28526,19 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, depth
 }
 
 // SelectEnemyByWeight は敵テーブルから深度を考慮して重み付きランダム選択する
-func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) <span class="cov8" title="13205">{
+func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) <span class="cov8" title="13170">{
         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
-        for _, entry := range et.Entries </span><span class="cov9" title="39607">{
+        for _, entry := range et.Entries </span><span class="cov9" title="39322">{
                 if depth &lt; int(entry.MinDepth) || depth &gt; int(entry.MaxDepth) </span><span class="cov7" title="5004">{
                         continue</span>
                 }
-                <span class="cov9" title="34603">filtered = append(filtered, entry)</span>
+                <span class="cov9" title="34420">filtered = append(filtered, entry)</span>
         }
 
-        <span class="cov8" title="13205">return SelectByWeightFunc(
+        <span class="cov8" title="13193">return SelectByWeightFunc(
                 filtered,
-                func(e oapi.EnemyTableEntry) float64 </span><span class="cov9" title="57060">{ return e.Weight }</span>,
-                func(e oapi.EnemyTableEntry) string <span class="cov8" title="13201">{ return e.EnemyName }</span>,
+                func(e oapi.EnemyTableEntry) float64 </span><span class="cov9" title="56728">{ return e.Weight }</span>,
+                func(e oapi.EnemyTableEntry) string <span class="cov8" title="13166">{ return e.EnemyName }</span>,
                 rng,
         )
 }
@@ -28596,27 +28596,27 @@ import (
 // SelectByWeightFunc は重み付き抽選で値を選択する汎用関数
 // getWeight: 各要素から重みを取得する関数
 // getValue: 各要素から戻り値を取得する関数
-func SelectByWeightFunc[T any, V any](items []T, getWeight func(T) float64, getValue func(T) V, rng *rand.Rand) (V, error) <span class="cov9" title="45616">{
+func SelectByWeightFunc[T any, V any](items []T, getWeight func(T) float64, getValue func(T) V, rng *rand.Rand) (V, error) <span class="cov9" title="45602">{
         var zero V
         if len(items) == 0 </span><span class="cov2" title="5">{
                 return zero, nil
         }</span>
 
-        <span class="cov9" title="45611">var totalWeight float64
-        for _, item := range items </span><span class="cov10" title="104519">{
+        <span class="cov9" title="45595">var totalWeight float64
+        for _, item := range items </span><span class="cov10" title="104386">{
                 totalWeight += getWeight(item)
         }</span>
 
-        <span class="cov9" title="45611">if totalWeight == 0 </span><span class="cov2" title="4">{
+        <span class="cov9" title="45573">if totalWeight == 0 </span><span class="cov2" title="4">{
                 return zero, nil
         }</span>
 
-        <span class="cov9" title="45607">randomValue := rng.Float64() * totalWeight
+        <span class="cov9" title="45572">randomValue := rng.Float64() * totalWeight
 
         var cumulativeWeight float64
-        for _, item := range items </span><span class="cov9" title="76395">{
+        for _, item := range items </span><span class="cov9" title="76294">{
                 cumulativeWeight += getWeight(item)
-                if randomValue &lt; cumulativeWeight </span><span class="cov9" title="45607">{
+                if randomValue &lt; cumulativeWeight </span><span class="cov9" title="45565">{
                         return getValue(item), nil
                 }</span>
         }
@@ -32332,7 +32332,7 @@ func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[co
         var pos consts.Coord[consts.Tile]
         found := false
         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
-        for q.Next() </span><span class="cov5" title="24">{
+        for q.Next() </span><span class="cov5" title="30">{
                 e := q.Entity()
                 if !found &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) </span><span class="cov1" title="2">{
                         pos = world.Components.GridElement.Get(e).Coord
@@ -49471,10 +49471,10 @@ var (
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile <span class="cov3" title="5">{
-        if rand.IntN(2) == 0 </span><span class="cov1" title="2">{
+        if rand.IntN(2) == 0 </span><span class="cov1" title="1">{
                 return 1
         }</span>
-        <span class="cov2" title="3">return -1</span>
+        <span class="cov2" title="4">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
