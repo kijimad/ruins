@@ -153,4 +153,3 @@ func (l *Level) Width() consts.WorldPixel {
 func (l *Level) Height() consts.WorldPixel {
 	return consts.WorldPixel(int(l.TileHeight) * int(consts.TileSize))
 }
-
