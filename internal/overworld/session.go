@@ -144,8 +144,7 @@ func (s *Session) startNewBand(world w.World) error {
 	sb.Front.AdvanceTurns = s.frontCfg.AdvanceTurns
 	sb.Front.Step = s.frontCfg.Step
 
-	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する
-	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
+	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する。探索履歴はメタが持ち初期化済み
 	if err := s.generateBandChunks(world, p.ChunkW, p.ChunkH); err != nil {
 		return err
 	}

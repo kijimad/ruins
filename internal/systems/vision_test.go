@@ -21,7 +21,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
-		query.GetDungeon(world).ExploredTiles[grid] = true
+		query.GetCurrentStageMeta(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -34,7 +34,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
-		query.GetDungeon(world).ExploredTiles[grid] = true
+		query.GetCurrentStageMeta(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -96,7 +96,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
-		query.GetDungeon(world).ExploredTiles[grid] = true
+		query.GetCurrentStageMeta(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -113,7 +113,7 @@ func TestComputeTileRenderMap_VisibleOverridesRemembered(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 	query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
-	query.GetDungeon(world).ExploredTiles[grid] = true
+	query.GetCurrentStageMeta(world).ExploredTiles[grid] = true
 
 	result := computeTileRenderMap(world, nil)
 
@@ -186,8 +186,8 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	unknown := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
 
 	query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{visible: true}
-	query.GetDungeon(world).ExploredTiles[visible] = true
-	query.GetDungeon(world).ExploredTiles[remembered] = true
+	query.GetCurrentStageMeta(world).ExploredTiles[visible] = true
+	query.GetCurrentStageMeta(world).ExploredTiles[remembered] = true
 
 	result := computeTileRenderMap(world, nil)
 

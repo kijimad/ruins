@@ -7,12 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewDungeon(t *testing.T) {
+func TestNewStageMeta(t *testing.T) {
 	t.Parallel()
 
-	d := NewDungeon()
+	m := NewStageMeta()
 
-	assert.NotNil(t, d.ExploredTiles, "ExploredTilesが初期化されている")
+	assert.NotNil(t, m.ExploredTiles, "ExploredTilesが初期化されている")
 }
 
 func TestLevel_CoordToIndex(t *testing.T) {

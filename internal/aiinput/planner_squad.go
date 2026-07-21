@@ -134,11 +134,11 @@ func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, ctx 
 
 // isOutsideExploredArea は現在位置が探索済みエリア外かを判定する
 func (sp *squadPlanner) isOutsideExploredArea(world w.World, grid *gc.GridElement) bool {
-	dungeon := query.GetDungeon(world)
-	if dungeon == nil || dungeon.ExploredTiles == nil {
+	meta := query.GetCurrentStageMeta(world)
+	if meta == nil || meta.ExploredTiles == nil {
 		return false
 	}
-	return !dungeon.ExploredTiles[*grid]
+	return !meta.ExploredTiles[*grid]
 }
 
 // planReturnToExploredArea は最寄りの探索済みマスへ移動するアクションを計画する
@@ -353,15 +353,15 @@ func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, thre
 
 // tryRandomMove は探索済みエリア内でランダム移動を試みる
 func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
-	dungeon := query.GetDungeon(world)
+	meta := query.GetCurrentStageMeta(world)
 	from := ctx.Grid.Coord
 
 	for _, d := range shuffledEightDirections(sp.rng) {
 		dest := from.Add(d)
 
-		if dungeon != nil && dungeon.ExploredTiles != nil {
+		if meta != nil && meta.ExploredTiles != nil {
 			destGrid := gc.GridElement{Coord: dest}
-			if !dungeon.ExploredTiles[destGrid] {
+			if !meta.ExploredTiles[destGrid] {
 				continue
 			}
 		}

@@ -76,7 +76,7 @@ func EnsureStageMeta(world w.World, key gc.StageKey) *gc.StageMeta {
 	}
 	e := world.ECS.NewEntity()
 	world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
-	world.Components.StageMeta.Add(e, &gc.StageMeta{})
+	world.Components.StageMeta.Add(e, gc.NewStageMeta())
 	return world.Components.StageMeta.Get(e)
 }
 

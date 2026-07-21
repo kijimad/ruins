@@ -98,6 +98,8 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	dungeonState := query.GetDungeon(world)
 	dungeonState.CurrentStage = gc.NewDungeonStage(3)
 	dungeonState.DefinitionName = "遺跡"
+	// 現ステージのメタを用意する。実ゲームでは階生成時に作られる
+	query.EnsureStageMeta(world, dungeonState.CurrentStage)
 
 	require.NoError(t, manager.SaveWorld(world, "location"))
 
@@ -109,9 +111,9 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	assert.Equal(t, 3, restored.CurrentStage.Depth, "階層が復元される")
 	assert.Equal(t, "遺跡", restored.DefinitionName, "ダンジョン定義名が復元される")
 
-	// 視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
+	// 探索履歴・視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
 	// nilのままだと視界処理で書き込み時にpanicするため非nilであること
-	assert.NotNil(t, restored.ExploredTiles, "探索済みマップが空mapで初期化される")
+	assert.NotNil(t, query.GetCurrentStageMeta(newWorld).ExploredTiles, "探索済みマップが空mapで初期化される")
 	assert.NotNil(t, query.GetVisionState(newWorld).VisibleTiles, "可視マップが空mapで初期化される")
 }
 

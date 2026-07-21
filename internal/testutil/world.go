@@ -101,9 +101,9 @@ func InitTestWorld(tb testing.TB) w.World {
 	d.CurrentStage = gc.NewOverworldStage()
 	metaEntity := world.ECS.NewEntity()
 	world.Components.StageBound.Add(metaEntity, &gc.StageBound{Key: d.CurrentStage})
-	world.Components.StageMeta.Add(metaEntity, &gc.StageMeta{
-		Level: gc.Level{TileWidth: 50, TileHeight: 50},
-	})
+	meta := gc.NewStageMeta()
+	meta.Level = gc.Level{TileWidth: 50, TileHeight: 50}
+	world.Components.StageMeta.Add(metaEntity, meta)
 
 	return world
 }

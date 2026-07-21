@@ -251,7 +251,7 @@ func TestIsInVision(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		query.GetDungeon(world).ExploredTiles = map[gc.GridElement]bool{
+		query.GetCurrentStageMeta(world).ExploredTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 		}
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}

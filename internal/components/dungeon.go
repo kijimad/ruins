@@ -88,20 +88,15 @@ func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
 type Dungeon struct {
 	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える。
 	// 階層数は CurrentStage.Depth から導出する。オーバーワールドは深度0。
-	// フィールド寸法や帯データは各ステージの StageMeta が持ち、ここは identity だけを指す。
+	// フィールド寸法・探索履歴・帯データは各ステージの StageMeta が持ち、ここは identity だけを指す。
 	CurrentStage StageKey
-	// 探索済みタイルのマップ。座標をキーとして使用。
-	// GridElement(struct)キーのためserde不可、ロード時に再構築する
-	ExploredTiles map[GridElement]bool `json:"-"`
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
 }
 
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
-	return &Dungeon{
-		ExploredTiles: make(map[GridElement]bool),
-	}
+	return &Dungeon{}
 }
 
 // Level は現在の階層

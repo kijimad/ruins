@@ -12,4 +12,14 @@ type StageMeta struct {
 	// 寸法が resume で自然に戻る。以前はグローバルな1枚で swap のたびに上書きされ、地上帰還時に
 	// 帯寸法へ手で復元する必要があった。
 	Level Level
+	// ExploredTiles は探索済みタイルのマップ。ステージごとに保持する。
+	// GridElement(struct)キーのためserde不可、入場時リセット方針なのでロード後は空で再構築する
+	ExploredTiles map[GridElement]bool `json:"-"`
+}
+
+// NewStageMeta は初期化された StageMeta を返す。ExploredTiles を空 map で確保する。
+func NewStageMeta() *StageMeta {
+	return &StageMeta{
+		ExploredTiles: make(map[GridElement]bool),
+	}
 }

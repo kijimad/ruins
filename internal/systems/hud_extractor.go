@@ -13,6 +13,15 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// exploredTiles は現ステージの探索済みタイルを返す。現ステージのメタが未生成なら nil を返す。
+// 探索履歴は StageMeta が持つため、HUD 抽出はメタ経由で読む
+func exploredTiles(world w.World) map[gc.GridElement]bool {
+	if meta := query.GetCurrentStageMeta(world); meta != nil {
+		return meta.ExploredTiles
+	}
+	return nil
+}
+
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
 	return hud.Data{
@@ -108,7 +117,7 @@ func extractMinimapData(world w.World) hud.MinimapData {
 
 	return hud.MinimapData{
 		PlayerTile:     consts.Coord[consts.Tile]{X: playerTileX, Y: playerTileY},
-		ExploredTiles:  query.GetDungeon(world).ExploredTiles,
+		ExploredTiles:  exploredTiles(world),
 		TileColors:     tileColors,
 		SquadPositions: squadPositions,
 		MinimapConfig: hud.MinimapConfig{
@@ -280,7 +289,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 
 	// 探索済みタイルの色情報を一括生成
 	tileColors := make(map[gc.GridElement]TileColorInfo)
-	for gridElement := range query.GetDungeon(world).ExploredTiles {
+	for gridElement := range exploredTiles(world) {
 		var tileColor color.RGBA
 		if isWall, exists := tileTypeMap[gridElement]; exists {
 			if isWall {

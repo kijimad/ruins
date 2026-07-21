@@ -132,7 +132,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		}
 
 		vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
-		dungeon.ExploredTiles[gridElement] = true
+		meta.ExploredTiles[gridElement] = true
 		visibleTiles[gridElement] = true
 	}
 	vs.VisibleTiles = visibleTiles
@@ -182,7 +182,7 @@ func (TileRenderRemembered) tileRenderInfo() {}
 // 各描画関数が参照するだけで済む描画情報マップを返す
 func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
-	dungeon := query.GetDungeon(world)
+	meta := query.GetCurrentStageMeta(world)
 	vs := query.GetVisionState(world)
 
 	// 現在見えているタイルを設定する
@@ -195,9 +195,11 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
 	}
 
 	// 視界外だが記憶済みのタイルを設定する
-	for grid := range dungeon.ExploredTiles {
-		if _, exists := result[grid]; !exists {
-			result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
+	if meta != nil {
+		for grid := range meta.ExploredTiles {
+			if _, exists := result[grid]; !exists {
+				result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
+			}
 		}
 	}
 

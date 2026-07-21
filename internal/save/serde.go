@@ -95,11 +95,17 @@ func reestablishSingleton(world w.World) error {
 	// 視界計算の一時状態は serde 除外なのでロード後に再構築する
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 
-	// json:"-"で除外された探索履歴を初期化する
-	if world.Components.Dungeon.Has(singleton) {
-		d := world.Components.Dungeon.Get(singleton)
-		if d.ExploredTiles == nil {
-			d.ExploredTiles = make(map[gc.GridElement]bool)
+	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
+	// ロック中の反復では構造変更しないため、対象を集めてから初期化する
+	var metas []ecs.Entity
+	mq := ecs.NewFilter1[gc.StageMeta](world.ECS).Query()
+	for mq.Next() {
+		metas = append(metas, mq.Entity())
+	}
+	for _, e := range metas {
+		meta := world.Components.StageMeta.Get(e)
+		if meta.ExploredTiles == nil {
+			meta.ExploredTiles = make(map[gc.GridElement]bool)
 		}
 	}
 	return nil
