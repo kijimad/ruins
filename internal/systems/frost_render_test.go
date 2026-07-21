@@ -3,8 +3,22 @@ package systems
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/stretchr/testify/assert"
 )
+
+// TestFrostVisible は霜を描くべきかの判定を検証する。霜は帯を持つオーバーワールド固有の演出。
+// 共存方式では遺跡へ入っても SeamlessBand の前線は退避されたまま残るため、現ステージが
+// オーバーワールドかで判定する。遺跡内では描かないことを固定する。
+func TestFrostVisible(t *testing.T) {
+	t.Parallel()
+
+	overworld := gc.NewOverworldStage()
+	ruin := gc.NewNamedDungeonStage("テスト遺跡", 1)
+
+	assert.True(t, frostVisible(overworld), "オーバーワールドでは霜を描く")
+	assert.False(t, frostVisible(ruin), "遺跡内では霜を描かない")
+}
 
 func TestFrostAlpha(t *testing.T) {
 	t.Parallel()
