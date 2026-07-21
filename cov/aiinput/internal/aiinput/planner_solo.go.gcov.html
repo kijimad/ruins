@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-20 11:46:28</td>
+            <td class="headerValue">2026-07-21 00:50:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -132,9 +132,9 @@
 <span id="L70"><span class="lineNum">      70</span>              : // 視界判定は含まない。Chasing状態で視界外の対象を追い続けるため</span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">        1049 : func (rp *soloPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">        1049 :         grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">      400497 :         nearest, _, _ := query.FindNearestCharacter(world, entity, grid, func(target ecs.Entity) bool {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">      399448 :                 return query.FactionRelation(world, entity, target) == query.RelationHostile</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">      399448 :         })</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">      400882 :         nearest, _, _ := query.FindNearestCharacter(world, entity, grid, func(target ecs.Entity) bool {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">      399833 :                 return query.FactionRelation(world, entity, target) == query.RelationHostile</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">      399833 :         })</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">        1049 :         return nearest</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : }</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
