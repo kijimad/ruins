@@ -67,17 +67,23 @@ func currentStageEntity(world w.World) (ecs.Entity, bool) {
 	return stageMetaEntity(world, GetDungeon(world).CurrentStage)
 }
 
-// EnsureStageMeta は key に束縛された StageMeta を確保して返す。無ければ生成する。
-// ステージ生成時に呼び、そのステージのフィールド寸法などを書き込む。
-// StageBound を直接付けるため、生成物を束縛する stage.Bind の対象からは外れる。
-func EnsureStageMeta(world w.World, key gc.StageKey) *gc.StageMeta {
+// ensureStageMetaEntity は key に束縛された StageMeta エンティティを確保して返す。
+// 無ければ生成する。返り値は必ず生存エンティティなので、呼び出し側は Has/Get を安全に使える。
+func ensureStageMetaEntity(world w.World, key gc.StageKey) ecs.Entity {
 	if e, ok := stageMetaEntity(world, key); ok {
-		return world.Components.StageMeta.Get(e)
+		return e
 	}
 	e := world.ECS.NewEntity()
 	world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
 	world.Components.StageMeta.Add(e, gc.NewStageMeta())
-	return world.Components.StageMeta.Get(e)
+	return e
+}
+
+// EnsureStageMeta は key に束縛された StageMeta を確保して返す。無ければ生成する。
+// ステージ生成時に呼び、そのステージのフィールド寸法などを書き込む。
+// StageBound を直接付けるため、生成物を束縛する stage.Bind の対象からは外れる。
+func EnsureStageMeta(world w.World, key gc.StageKey) *gc.StageMeta {
+	return world.Components.StageMeta.Get(ensureStageMetaEntity(world, key))
 }
 
 // GetCurrentStageMeta は現ステージのメタを返す。未生成なら nil。
@@ -103,8 +109,7 @@ func GetSeamlessBand(world w.World) *gc.SeamlessBand {
 // オーバーワールドを現ステージに確定してから呼ぶ。以後この帯データの有無が
 // オーバーワールド判定を兼ねる。
 func EnsureSeamlessBand(world w.World) *gc.SeamlessBand {
-	EnsureStageMeta(world, GetDungeon(world).CurrentStage)
-	e, _ := currentStageEntity(world)
+	e := ensureStageMetaEntity(world, GetDungeon(world).CurrentStage)
 	if !world.Components.SeamlessBand.Has(e) {
 		world.Components.SeamlessBand.Add(e, &gc.SeamlessBand{})
 	}
