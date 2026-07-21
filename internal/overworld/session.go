@@ -49,13 +49,11 @@ func NewSession(planner mapplanner.PlannerType, params *NewGameParams) *Session 
 	return &Session{planner: planner, params: params}
 }
 
-// Start は帯ドライバを用意する。新規開始なら初期帯を生成し、ロード復元なら SeamlessBand から
-// Band と ChunkGen を作り直す。現ステージをオーバーワールドに確定し、前線位置も初回描画前に導出する。
+// Start は帯ドライバを用意する。新規開始なら初期帯を生成し現ステージをオーバーワールドに
+// 確定する。ロード復元なら SeamlessBand から Band と ChunkGen を作り直す。前線位置も初回
+// 描画前に導出する。
 func (s *Session) Start(world w.World) error {
 	d := query.GetDungeon(world)
-
-	// 現ステージをオーバーワールドに確定する。共存機構が現在地を識別するのに使う
-	d.CurrentStage = gc.NewOverworldStage()
 
 	// 視界の強制再計算を促す。VisionSystem は Depth/DefinitionName が変わらないとキャッシュを
 	// 無効化しない。オーバーワールドは常に Depth=0 でフロア変化が起きず、ロード復元では serde が
@@ -64,11 +62,18 @@ func (s *Session) Start(world w.World) error {
 
 	sb := &d.SeamlessBand
 	if sb.Active {
+		// ロード復元。CurrentStage は serde で復元済みなので触らない。共存方式では遺跡滞在中も
+		// SeamlessBand.Active なので、ここで無条件にオーバーワールドへ書き換えると、遺跡内で
+		// 保存したセーブのロードで現在地が壊れ、遺跡なのに前線の霜が誤って描かれる。
 		if err := s.restoreFromSave(world, sb); err != nil {
 			return err
 		}
-	} else if err := s.startNewBand(world, sb); err != nil {
-		return err
+	} else {
+		// 新規開始。オーバーワールドから始める。共存機構が現在地を識別するのに使う。
+		d.CurrentStage = gc.NewOverworldStage()
+		if err := s.startNewBand(world, sb); err != nil {
+			return err
+		}
 	}
 
 	// 前線の現在位置を初回フレームの描画前に確定させる。Update を待つと最初の1フレーム
