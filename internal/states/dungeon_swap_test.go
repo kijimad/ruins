@@ -50,11 +50,10 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	require.NoError(t, err)
 
 	d := query.GetDungeon(world)
-	d.DefinitionName = dungeon.DungeonDebug.Name
-	def, ok := dungeon.GetDungeon(d.DefinitionName)
+	def, ok := dungeon.GetDungeon(dungeon.DungeonDebug.Name)
 	require.True(t, ok)
 
-	st := &DungeonState{Depth: 1, DefinitionName: d.DefinitionName, BuilderType: mapplanner.PlannerTypeRandom}
+	st := &DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name, BuilderType: mapplanner.PlannerTypeRandom}
 
 	// floor1 を実生成する。OnStart の生成部相当で、UI は使わない
 	key1 := dungeonStageKey(dungeon.DungeonDebug.Name, 1)
@@ -144,9 +143,8 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 現在は1階
+	// 現在は1階。定義名は現ステージのキーが持つ
 	d := query.GetDungeon(world)
-	d.DefinitionName = dungeon.DungeonDebug.Name
 	d.CurrentStage = dungeonStageKey(dungeon.DungeonDebug.Name, 1)
 	floor1 := addStageEntity(t, world, dungeonStageKey(dungeon.DungeonDebug.Name, 1))
 

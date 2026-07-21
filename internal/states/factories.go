@@ -652,7 +652,7 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 		return NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
 	}
 	d := query.GetDungeon(world)
-	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.DefinitionName), WithResume())
+	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。

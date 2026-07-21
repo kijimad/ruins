@@ -103,18 +103,20 @@ func (st *DungeonState) OnStart(world w.World) error {
 		return st.session.Start(world)
 	}
 
-	// 設定されていればリソースに反映する
-	if st.DefinitionName != "" {
-		query.GetDungeon(world).DefinitionName = st.DefinitionName
+	// 進入先の遺跡定義名を決める。State に明示指定があればそれを使い、無ければ現ステージ、
+	// すなわち今いる遺跡の名前を引き継ぐ。ダンジョン定義名は CurrentStage.Name から導出する。
+	defName := st.DefinitionName
+	if defName == "" {
+		defName = query.GetDungeon(world).CurrentStage.Name
 	}
 	// ダンジョン定義を取得する
-	def, found := dungeon.GetDungeon(query.GetDungeon(world).DefinitionName)
+	def, found := dungeon.GetDungeon(defName)
 	if !found {
-		return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
+		return fmt.Errorf("ダンジョン定義が見つかりません: %s", defName)
 	}
 	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
 	if !st.Resume {
-		key := dungeonStageKey(query.GetDungeon(world).DefinitionName, st.Depth)
+		key := dungeonStageKey(defName, st.Depth)
 		playerPos, _, err := st.spawnFloor(world, st.Depth, def, key)
 		if err != nil {
 			return err
@@ -227,7 +229,8 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
 // TransPush で新ステートを積むのでなく、同一 State 内で現階と入れ替えるのが共存方式の要点
 func (st *DungeonState) descend(world w.World) error {
-	defName := query.GetDungeon(world).DefinitionName
+	// 今いる遺跡の定義名は現ステージのキーから導出する
+	defName := query.GetDungeon(world).CurrentStage.Name
 	fromStage := dungeonStageKey(defName, st.Depth)
 	// 現階の下り階段の位置。生成する階の上り階段の戻り先として結線する
 	fromDownStairPos, hasDownStair := findPortalPosition(world, gc.InteractionPortalNext)
@@ -240,9 +243,9 @@ func (st *DungeonState) descend(world w.World) error {
 	var playerPos consts.Coord[consts.Tile]
 	var generated bool
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
-		def, found := dungeon.GetDungeon(query.GetDungeon(world).DefinitionName)
+		def, found := dungeon.GetDungeon(defName)
 		if !found {
-			return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
+			return fmt.Errorf("ダンジョン定義が見つかりません: %s", defName)
 		}
 		start, upStair, err := st.spawnFloor(world, nextDepth, def, key)
 		if err != nil {
@@ -337,11 +340,9 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	}
 
 	st.Depth = target.Depth
-	d := query.GetDungeon(world)
-	// オーバーワールドへ戻ったら遺跡定義名をクリアする。残すと OnStart の再構築や
-	// タイトルエフェクトが古い遺跡名を参照しうる。SwapTo 後は現ステージ=target なので現在地で判定する
+	// 遺跡定義名は現ステージのキーから導出するので、地上帰還時に明示的にクリアする必要はない。
+	// SwapTo 後は現ステージ=target なので現在地で判定する
 	if query.IsOnOverworld(world) {
-		d.DefinitionName = ""
 		// 各ステージが自分の Level を StageMeta として保持するため、地上のメタが resume で
 		// そのまま戻り、帯寸法を手で復元する必要はない。以前はグローバルな Level 1枚が遺跡進入で
 		// 置き換わり、地上帰還で真っ暗・No Data・隊員配置失敗を招いていた。視界だけ強制再計算する
@@ -391,8 +392,7 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 	}
 
 	st.Depth = 1
-	d := query.GetDungeon(world)
-	d.DefinitionName = defName
+	// 現ステージ=遺跡1階のキーが定義名を持つため、別途 DefinitionName を記録する必要はない
 
 	if generated {
 		return lifecycle.MovePlayerToPosition(world, landing)

@@ -3,6 +3,8 @@ package states
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -29,11 +31,12 @@ func TestNewResumeStateFactory_通常はDungeon(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	// SeamlessBand.Active は既定 false
+	// 現ステージを通常ダンジョンにする。帯データを持たないのでオーバーワールドと誤判定しない
+	query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage(dungeon.DungeonDebug.Name, 1)
 
 	state, err := newResumeStateFactory(world)()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
 	require.True(t, ok, "通常は DungeonState で復帰する")
-	assert.False(t, st.isSeamless(), "SeamlessBand 非アクティブなら通常ダンジョンモード")
+	assert.False(t, st.isSeamless(), "帯データを持たない現ステージは通常ダンジョンモード")
 }

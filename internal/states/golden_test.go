@@ -167,6 +167,7 @@ func TestGolden_Dungeon(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:       1,
+		DefinitionName: dungeon.DungeonDebug.Name,
 		BuilderType: mapplanner.PlannerTypeSmallRoom,
 	}))
 }
@@ -195,6 +196,7 @@ func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:       1,
+		DefinitionName: dungeon.DungeonDebug.Name,
 		BuilderType: mapplanner.PlannerTypeSmallRoom,
 	}, &gs.LookAroundState{}))
 }
@@ -259,6 +261,7 @@ func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:       1,
+		DefinitionName: dungeon.DungeonDebug.Name,
 		BuilderType: mapplanner.PlannerTypeSmallRoom,
 	}, &gs.ShootingState{}))
 }
@@ -267,6 +270,7 @@ func TestGolden_Pickup(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:       1,
+		DefinitionName: dungeon.DungeonDebug.Name,
 		BuilderType: mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PickupState{}))
 }
@@ -275,6 +279,7 @@ func TestGolden_Place(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:       1,
+		DefinitionName: dungeon.DungeonDebug.Name,
 		BuilderType: mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PlaceState{}))
 }

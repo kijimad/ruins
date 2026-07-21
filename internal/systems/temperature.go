@@ -49,7 +49,7 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 		return 0, errors.New("ダンジョンリソースが設定されていない")
 	}
 
-	def, ok := dungeon.GetDungeon(dungeonRes.DefinitionName)
+	def, ok := dungeon.GetDungeon(dungeonRes.CurrentStage.Name)
 	if !ok {
 		return 0, nil
 	}

@@ -12,7 +12,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/screeneffect"
@@ -20,7 +19,6 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -198,8 +196,6 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 		return w.World{}, err
 	}
 	world.Resources.UIResources = uir
-
-	query.GetDungeon(world).DefinitionName = dungeon.DungeonDebug.Name
 
 	// initialize systems
 	world.Updaters, world.Renderers = gs.InitializeSystems(world)
