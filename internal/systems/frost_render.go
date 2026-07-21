@@ -42,7 +42,7 @@ func initFrostImage() {
 
 // Draw は極低温ゾーンに氷のオーバーレイを描く。
 //
-// 霜はオーバーワールド固有の演出。帯データはオーバーワールドのメタにしか無く遺跡進入で退避される
+// 霜はオーバーワールド固有の演出。帯データはオーバーワールドの StageField にしか無く遺跡進入で退避される
 // ため、現ステージが帯データを持つか、すなわちオーバーワールドにいるかで判定する。判定は
 // query.IsOnOverworld に集約する。
 func (sys *FrostRenderSystem) Draw(world w.World, screen *ebiten.Image) error {
@@ -59,7 +59,7 @@ func (sys *FrostRenderSystem) Draw(world w.World, screen *ebiten.Image) error {
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 
 	// 帯の範囲でクランプして帯外を塗らない
-	level := query.GetCurrentStageMeta(world).Level
+	level := query.GetCurrentStageField(world).Level
 	bandW, bandH := int(level.TileWidth), int(level.TileHeight)
 	minX, minY = max(minX, 0), max(minY, 0)
 	maxX, maxY = min(maxX, bandW-1), min(maxY, bandH-1)

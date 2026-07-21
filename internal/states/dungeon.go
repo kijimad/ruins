@@ -57,7 +57,7 @@ func (st DungeonState) isSeamless() bool {
 //
 // kind は帯形状の供給元。本番は登録済みの dungeon.DungeonOverworld を渡す。
 // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、
-// 帯形状は Session の Start がオーバーワールドのメタの SeamlessBand から読み取って再構築する。
+// 帯形状は Session の Start がオーバーワールドの StageField の SeamlessBand から読み取って再構築する。
 func NewOverworldState(planner mapplanner.PlannerType, kind *dungeon.OverworldKind, params *overworld.NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &DungeonState{

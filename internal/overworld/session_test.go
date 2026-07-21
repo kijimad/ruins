@@ -136,7 +136,7 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	s2 := NewSession(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	require.NoError(t, s2.Start(world2))
 	assert.Equal(t, 1, int(s2.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
-	assert.Equal(t, chunkW*k, query.GetCurrentStageMeta(world2).Level.TileWidth, "帯全幅の Level が保たれる")
+	assert.Equal(t, chunkW*k, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
 	assert.True(t, s2.frontCfg.AdvanceTurns == frontAdvanceTurns && s2.frontCfg.Step == frontStep,
 		"ロード復元で寒波前線 config も再構築される")
 

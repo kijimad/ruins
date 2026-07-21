@@ -10,7 +10,7 @@ import (
 )
 
 // StageKind はステージ種別の静的マスタ。セーブに含めず StageKey.Name で引く。
-// マスタ、すなわち不変の設定と、プレイ固有データ、すなわち StageKey・StageMeta・SeamlessBand などの
+// マスタ、すなわち不変の設定と、プレイ固有データ、すなわち StageKey・StageField・SeamlessBand などの
 // 可変でセーブ対象のデータを分ける境界。種別はフラグでなく実装する型で表す。
 type StageKind interface {
 	// Name は種別の識別名。StageKey.Name と一致し、登録表を引くキーになる

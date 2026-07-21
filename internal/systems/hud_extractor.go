@@ -13,10 +13,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// exploredTiles は現ステージの探索済みタイルを返す。現ステージのメタが未生成なら nil を返す。
-// 探索履歴は StageMeta が持つため、HUD 抽出はメタ経由で読む
+// exploredTiles は現ステージの探索済みタイルを返す。現ステージの StageField が未生成なら nil を返す。
+// 探索履歴は StageField が持つため、HUD 抽出はStageField 経由で読む
 func exploredTiles(world w.World) map[gc.GridElement]bool {
-	if meta := query.GetCurrentStageMeta(world); meta != nil {
+	if meta := query.GetCurrentStageField(world); meta != nil {
 		return meta.ExploredTiles
 	}
 	return nil

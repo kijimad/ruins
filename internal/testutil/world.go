@@ -70,29 +70,29 @@ func InitTestWorld(tb testing.TB) w.World {
 	}
 	world.Resources.SpriteSheets = spriteSheets
 
-	// テスト用の現ステージを用意する。フィールド寸法は現ステージの StageMeta が持つため、
-	// 現ステージをオーバーワールドに確定し、そのキーに束縛したメタを Level 付きで作る。
+	// テスト用の現ステージを用意する。フィールド寸法は現ステージの StageField が持つため、
+	// 現ステージをオーバーワールドに確定し、そのキーに束縛した StageFieldを Level 付きで作る。
 	// オーバーワールド判定は帯データ SeamlessBand の有無で行うので、帯を付けない既定では
 	// IsOnOverworld は偽のまま。前線テストは EnsureSeamlessBand で帯を付ける。
 	// query の循環 import を避けるため world.Components を直接使う
 	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
 	d.CurrentStage = gc.NewOverworldStage()
-	metaEntity := world.ECS.NewEntity()
-	world.Components.StageBound.Add(metaEntity, &gc.StageBound{Key: d.CurrentStage})
-	meta := gc.NewStageMeta()
-	meta.Level = gc.Level{TileWidth: 50, TileHeight: 50}
-	world.Components.StageMeta.Add(metaEntity, meta)
+	fieldEntity := world.ECS.NewEntity()
+	world.Components.StageBound.Add(fieldEntity, &gc.StageBound{Key: d.CurrentStage})
+	field := gc.NewStageField()
+	field.Level = gc.Level{TileWidth: 50, TileHeight: 50}
+	world.Components.StageField.Add(fieldEntity, field)
 
 	return world
 }
 
-// SetStageLevel は現ステージのメタにフィールド寸法を設定する。テストで地形寸法を差し替える用。
+// SetStageLevel は現ステージの StageField にフィールド寸法を設定する。テストで地形寸法を差し替える用。
 // query の循環 import を避けるため world.Components を直接使う。
 func SetStageLevel(world w.World, level gc.Level) {
 	key := world.Components.Dungeon.Get(world.Resources.SingletonEntity).CurrentStage
 	var found ecs.Entity
 	ok := false
-	q := ecs.NewFilter2[gc.StageMeta, gc.StageBound](world.ECS).Query()
+	q := ecs.NewFilter2[gc.StageField, gc.StageBound](world.ECS).Query()
 	for q.Next() {
 		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
 			found = q.Entity()
@@ -102,7 +102,7 @@ func SetStageLevel(world w.World, level gc.Level) {
 	if !ok {
 		found = world.ECS.NewEntity()
 		world.Components.StageBound.Add(found, &gc.StageBound{Key: key})
-		world.Components.StageMeta.Add(found, &gc.StageMeta{})
+		world.Components.StageField.Add(found, &gc.StageField{})
 	}
-	world.Components.StageMeta.Get(found).Level = level
+	world.Components.StageField.Get(found).Level = level
 }

@@ -98,14 +98,14 @@ func reestablishSingleton(world w.World) error {
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する
 	var metas []ecs.Entity
-	mq := ecs.NewFilter1[gc.StageMeta](world.ECS).Query()
+	mq := ecs.NewFilter1[gc.StageField](world.ECS).Query()
 	for mq.Next() {
 		metas = append(metas, mq.Entity())
 	}
 	for _, e := range metas {
-		meta := world.Components.StageMeta.Get(e)
-		if meta.ExploredTiles == nil {
-			meta.ExploredTiles = make(map[gc.GridElement]bool)
+		field := world.Components.StageField.Get(e)
+		if field.ExploredTiles == nil {
+			field.ExploredTiles = make(map[gc.GridElement]bool)
 		}
 	}
 	return nil

@@ -17,7 +17,7 @@
 //
 // StageKind はマスタ、すなわち不変の設定であり、セーブには含めない。プレイ中の現在地は
 // StageKey がキーとして持ち、ロード後は名前で GetStageKind から引き直す。可変でセーブ対象の
-// データ、Level・探索履歴・帯状態などは StageMeta や SeamlessBand が別に持つ。
+// データ、Level・探索履歴・帯状態などは StageField や SeamlessBand が別に持つ。
 //
 // # 使い分け
 //

@@ -84,8 +84,8 @@ func (sys *VisionSystem) Update(world w.World) error {
 	if dungeon == nil {
 		return nil
 	}
-	meta := query.GetCurrentStageMeta(world)
-	if meta == nil {
+	field := query.GetCurrentStageField(world)
+	if field == nil {
 		return nil
 	}
 	vs := query.GetVisionState(world)
@@ -127,12 +127,12 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 		gridElement := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}}
-		if !isInMapBounds(gridElement, meta.Level) {
+		if !isInMapBounds(gridElement, field.Level) {
 			continue
 		}
 
 		vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
-		meta.ExploredTiles[gridElement] = true
+		field.ExploredTiles[gridElement] = true
 		visibleTiles[gridElement] = true
 	}
 	vs.VisibleTiles = visibleTiles
@@ -182,7 +182,7 @@ func (TileRenderRemembered) tileRenderInfo() {}
 // 各描画関数が参照するだけで済む描画情報マップを返す
 func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
-	meta := query.GetCurrentStageMeta(world)
+	field := query.GetCurrentStageField(world)
 	vs := query.GetVisionState(world)
 
 	// 現在見えているタイルを設定する
@@ -195,8 +195,8 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
 	}
 
 	// 視界外だが記憶済みのタイルを設定する
-	if meta != nil {
-		for grid := range meta.ExploredTiles {
+	if field != nil {
+		for grid := range field.ExploredTiles {
 			if _, exists := result[grid]; !exists {
 				result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
 			}

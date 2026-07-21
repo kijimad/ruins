@@ -75,12 +75,12 @@ func TestPurge(t *testing.T) {
 func TestResetExploredTiles(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	query.GetCurrentStageMeta(world).ExploredTiles = map[gc.GridElement]bool{
+	query.GetCurrentStageField(world).ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 	}
 
 	ResetExploredTiles(world)
-	assert.Empty(t, query.GetCurrentStageMeta(world).ExploredTiles, "入り直しで探索履歴は空になる")
+	assert.Empty(t, query.GetCurrentStageField(world).ExploredTiles, "入り直しで探索履歴は空になる")
 }
 
 func TestBind(t *testing.T) {
@@ -166,7 +166,7 @@ func TestSwapTo_生成失敗時は現ステージを壊さない(t *testing.T) {
 	d.CurrentStage = stageA
 	a1 := addStageEntity(t, world, stageA)
 	// 現ステージ A のメタに探索履歴を持たせる
-	meta := query.EnsureStageMeta(world, stageA)
+	meta := query.EnsureStageField(world, stageA)
 	meta.ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
 	}
@@ -187,7 +187,7 @@ func TestSwapTo_座標索引を無効化する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	query.GetDungeon(world).CurrentStage = stageA
-	// 現ステージのフィールド寸法は StageMeta が持つ。索引構築が寸法を引けるよう用意する
+	// 現ステージのフィールド寸法は StageField が持つ。索引構築が寸法を引けるよう用意する
 	testutil.SetStageLevel(world, gc.Level{TileWidth: 50, TileHeight: 50})
 
 	// 索引を一度構築しておく
@@ -210,15 +210,15 @@ func TestSwapTo_探索履歴をリセットする(t *testing.T) {
 	d := query.GetDungeon(world)
 	d.CurrentStage = stageA
 	// 現ステージ A のメタに探索履歴を持たせる
-	query.EnsureStageMeta(world, stageA).ExploredTiles = map[gc.GridElement]bool{
+	query.EnsureStageField(world, stageA).ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
 	}
 
 	// 生成した階にもメタを用意する。実ゲームでは spawnFloor がメタを作る
 	require.NoError(t, SwapTo(world, stageB, func(world w.World, key gc.StageKey) error {
 		addStageEntity(t, world, key)
-		query.EnsureStageMeta(world, key)
+		query.EnsureStageField(world, key)
 		return nil
 	}))
-	assert.Empty(t, query.GetCurrentStageMeta(world).ExploredTiles, "swap で現ステージの探索履歴は空になる")
+	assert.Empty(t, query.GetCurrentStageField(world).ExploredTiles, "swap で現ステージの探索履歴は空になる")
 }

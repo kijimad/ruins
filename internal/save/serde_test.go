@@ -99,7 +99,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	// ダンジョン定義名は現ステージのキーが持つ。名前付きキーで現在地を確定する
 	dungeonState.CurrentStage = gc.NewNamedDungeonStage("遺跡", 3)
 	// 現ステージのメタを用意する。実ゲームでは階生成時に作られる
-	query.EnsureStageMeta(world, dungeonState.CurrentStage)
+	query.EnsureStageField(world, dungeonState.CurrentStage)
 
 	require.NoError(t, manager.SaveWorld(world, "location"))
 
@@ -113,7 +113,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 
 	// 探索履歴・視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
 	// nilのままだと視界処理で書き込み時にpanicするため非nilであること
-	assert.NotNil(t, query.GetCurrentStageMeta(newWorld).ExploredTiles, "探索済みマップが空mapで初期化される")
+	assert.NotNil(t, query.GetCurrentStageField(newWorld).ExploredTiles, "探索済みマップが空mapで初期化される")
 	assert.NotNil(t, query.GetVisionState(newWorld).VisibleTiles, "可視マップが空mapで初期化される")
 }
 
@@ -149,8 +149,8 @@ func TestSerde_StageBoundとSuspendedが往復する(t *testing.T) {
 	var restored []ecs.Entity
 	q := ecs.NewFilter1[gc.StageBound](newWorld.ECS).Query()
 	for q.Next() {
-		// StageMeta はステージ基盤エンティティで最小の world にも含まれるため、対象外にする
-		if newWorld.Components.StageMeta.Has(q.Entity()) {
+		// StageField はステージ基盤エンティティで最小の world にも含まれるため、対象外にする
+		if newWorld.Components.StageField.Has(q.Entity()) {
 			continue
 		}
 		restored = append(restored, q.Entity())

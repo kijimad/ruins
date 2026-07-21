@@ -42,7 +42,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	require.NoError(t, err)
 
 	// 敵の位置を探索済みにする
-	query.GetCurrentStageMeta(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 13, Y: 10}}] = true
+	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 13, Y: 10}}] = true
 
 	return world, p, e, we
 }

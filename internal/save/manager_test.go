@@ -72,13 +72,13 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 	require.NoError(t, err)
 
 	// シングルトンと現ステージのメタ以外のゲームエンティティは存在しない。
-	// StageMeta はステージのフィールド寸法を持つ基盤エンティティで、最小の world にも1つ含まれる
+	// StageField はステージのフィールド寸法を持つ基盤エンティティで、最小の world にも1つ含まれる
 	entityCount := 0
 	singleton := newWorld.Resources.SingletonEntity
 	entityQuery := ecs.NewFilter0(newWorld.ECS).Query()
 	for entityQuery.Next() {
 		entity := entityQuery.Entity()
-		if entity != singleton && !newWorld.Components.StageMeta.Has(entity) {
+		if entity != singleton && !newWorld.Components.StageField.Has(entity) {
 			entityCount++
 		}
 	}

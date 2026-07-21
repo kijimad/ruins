@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewStageMeta(t *testing.T) {
+func TestNewStageField(t *testing.T) {
 	t.Parallel()
 
-	m := NewStageMeta()
+	m := NewStageField()
 
 	assert.NotNil(t, m.ExploredTiles, "ExploredTilesが初期化されている")
 }

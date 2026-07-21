@@ -47,12 +47,12 @@ func GetVisionState(world w.World) *gc.VisionState {
 	return GetSingleton[gc.VisionState](world, world.Components.VisionState)
 }
 
-// stageMetaEntity は key に束縛された StageMeta エンティティを返す。
+// stageFieldEntity は key に束縛された StageField エンティティを返す。
 // クエリ反復は途中 return するとワールドロックが残るため、最後まで回してから返す。
-func stageMetaEntity(world w.World, key gc.StageKey) (ecs.Entity, bool) {
+func stageFieldEntity(world w.World, key gc.StageKey) (ecs.Entity, bool) {
 	var found ecs.Entity
 	ok := false
-	q := ecs.NewFilter2[gc.StageMeta, gc.StageBound](world.ECS).Query()
+	q := ecs.NewFilter2[gc.StageField, gc.StageBound](world.ECS).Query()
 	for q.Next() {
 		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
 			found = q.Entity()
@@ -62,37 +62,37 @@ func stageMetaEntity(world w.World, key gc.StageKey) (ecs.Entity, bool) {
 	return found, ok
 }
 
-// currentStageEntity は現ステージ CurrentStage のメタエンティティを返す。
+// currentStageEntity は現ステージ CurrentStage のStageField エンティティを返す。
 func currentStageEntity(world w.World) (ecs.Entity, bool) {
-	return stageMetaEntity(world, GetDungeon(world).CurrentStage)
+	return stageFieldEntity(world, GetDungeon(world).CurrentStage)
 }
 
-// ensureStageMetaEntity は key に束縛された StageMeta エンティティを確保して返す。
+// ensureStageFieldEntity は key に束縛された StageField エンティティを確保して返す。
 // 無ければ生成する。返り値は必ず生存エンティティなので、呼び出し側は Has/Get を安全に使える。
-func ensureStageMetaEntity(world w.World, key gc.StageKey) ecs.Entity {
-	if e, ok := stageMetaEntity(world, key); ok {
+func ensureStageFieldEntity(world w.World, key gc.StageKey) ecs.Entity {
+	if e, ok := stageFieldEntity(world, key); ok {
 		return e
 	}
 	e := world.ECS.NewEntity()
 	world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
-	world.Components.StageMeta.Add(e, gc.NewStageMeta())
+	world.Components.StageField.Add(e, gc.NewStageField())
 	return e
 }
 
-// EnsureStageMeta は key に束縛された StageMeta を確保して返す。無ければ生成する。
+// EnsureStageField は key に束縛された StageField を確保して返す。無ければ生成する。
 // ステージ生成時に呼び、そのステージのフィールド寸法などを書き込む。
 // StageBound を直接付けるため、生成物を束縛する stage.Bind の対象からは外れる。
-func EnsureStageMeta(world w.World, key gc.StageKey) *gc.StageMeta {
-	return world.Components.StageMeta.Get(ensureStageMetaEntity(world, key))
+func EnsureStageField(world w.World, key gc.StageKey) *gc.StageField {
+	return world.Components.StageField.Get(ensureStageFieldEntity(world, key))
 }
 
-// GetCurrentStageMeta は現ステージのメタを返す。未生成なら nil。
-func GetCurrentStageMeta(world w.World) *gc.StageMeta {
+// GetCurrentStageField は現ステージの StageField を返す。未生成なら nil。
+func GetCurrentStageField(world w.World) *gc.StageField {
 	e, ok := currentStageEntity(world)
 	if !ok {
 		return nil
 	}
-	return world.Components.StageMeta.Get(e)
+	return world.Components.StageField.Get(e)
 }
 
 // GetSeamlessBand は現ステージが持つ帯の永続状態を返す。持たなければ nil。
@@ -105,11 +105,11 @@ func GetSeamlessBand(world w.World) *gc.SeamlessBand {
 	return world.Components.SeamlessBand.Get(e)
 }
 
-// EnsureSeamlessBand は現ステージのメタに帯の永続状態を確保して返す。
+// EnsureSeamlessBand は現ステージの StageField エンティティに帯の永続状態を確保して返す。
 // オーバーワールドを現ステージに確定してから呼ぶ。以後この帯データの有無が
 // オーバーワールド判定を兼ねる。
 func EnsureSeamlessBand(world w.World) *gc.SeamlessBand {
-	e := ensureStageMetaEntity(world, GetDungeon(world).CurrentStage)
+	e := ensureStageFieldEntity(world, GetDungeon(world).CurrentStage)
 	if !world.Components.SeamlessBand.Has(e) {
 		world.Components.SeamlessBand.Add(e, &gc.SeamlessBand{})
 	}
@@ -119,7 +119,7 @@ func EnsureSeamlessBand(world w.World) *gc.SeamlessBand {
 // IsOnOverworld は現在地がオーバーワールドかを返す。オーバーワールド固有の振る舞い
 // (霜・寒波前線の気温/移動効果・帯シフト)の gate に使い、場所判定をこの1関数へ集約する。
 //
-// 種別・深度・名前で判定せず、現ステージのメタが帯データ SeamlessBand を持つかで判定する。
+// 種別・深度・名前で判定せず、現ステージの StageField エンティティが帯データ SeamlessBand を持つかで判定する。
 // オーバーワールドもダンジョン階も同じ「ステージ」で、違いは保有データだけという設計に従う。
 // 帯データは遺跡進入で退避され現ステージから外れるため、遺跡内へ効果が漏れない。
 func IsOnOverworld(world w.World) bool {
@@ -193,7 +193,7 @@ func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to c
 // buildSpatialIndex は壁・キャラクター・プレイヤーの位置をスキャンしてインデックスを構築する
 func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	dungeon := GetDungeon(world)
-	meta := GetCurrentStageMeta(world)
+	meta := GetCurrentStageField(world)
 	if dungeon == nil || meta == nil {
 		return
 	}

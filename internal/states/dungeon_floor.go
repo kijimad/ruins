@@ -83,9 +83,9 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	if err != nil {
 		return zero, noEntity, err
 	}
-	// フィールド寸法をこの階のステージメタへ記録する。生成物と同じ明示 key に束縛するため、
+	// フィールド寸法をこの階のStageFieldへ記録する。生成物と同じ明示 key に束縛するため、
 	// SwapTo が CurrentStage を最後に更新する順序に依存しない
-	query.EnsureStageMeta(world, key).Level = level
+	query.EnsureStageField(world, key).Level = level
 
 	start, err := plan.GetPlayerStartPosition()
 	if err != nil {
@@ -225,7 +225,7 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	st.Depth = target.Depth
 	// SwapTo 後は現ステージ=target なので現在地で判定する
 	if query.IsOnOverworld(world) {
-		// 地上のメタが resume で帯寸法の Level を戻すため寸法の手復元は不要。視界だけ強制再計算する
+		// 地上の StageField が resume で帯寸法の Level を戻すため寸法の手復元は不要。視界だけ強制再計算する
 		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 

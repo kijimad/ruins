@@ -60,11 +60,11 @@ func (s *Session) Start(world w.World) error {
 	// 空にした VisibleTiles が stale なまま再計算されず真っ暗になる。ここで一度だけ強制する。
 	query.GetVisionState(world).NeedsForceUpdate = true
 
-	// 帯データは現ステージのメタが持つ。ロード復元なら serde で戻っており、新規開始なら未生成で nil。
+	// 帯データは現ステージの StageField が持つ。ロード復元なら serde で戻っており、新規開始なら未生成で nil。
 	sb := query.GetSeamlessBand(world)
 	if sb != nil && sb.Active {
 		// ロード復元。CurrentStage は serde で復元済みなので触らない。帯データは
-		// オーバーワールドのメタにしか無く、遺跡滞在中のセーブは現ステージが遺跡なので
+		// オーバーワールドの StageField にしか無く、遺跡滞在中のセーブは現ステージが遺跡なので
 		// ここには到達しない。newResumeStateFactory が DungeonState を選ぶ。
 		if err := s.restoreFromSave(world, sb); err != nil {
 			return err
@@ -124,8 +124,8 @@ func (s *Session) startNewBand(world w.World) error {
 	s.band = worldstream.NewBand(chunkW, k)
 	s.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, s.planner)
 
-	// 帯データを現ステージ、すなわちオーバーワールドのメタへ確保する。以後この帯データの
-	// 有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
+	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
+	// 以後この帯データの有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
 	sb := query.EnsureSeamlessBand(world)
 	sb.Active = true
 	sb.RunSeed = p.RunSeed
@@ -149,7 +149,7 @@ func (s *Session) startNewBand(world w.World) error {
 	sb.Front.AdvanceTurns = s.frontCfg.AdvanceTurns
 	sb.Front.Step = s.frontCfg.Step
 
-	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する。探索履歴はメタが持ち初期化済み
+	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する。探索履歴はStageField が持ち初期化済み
 	if err := s.generateBandChunks(world, chunkW, chunkH); err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func (s *Session) syncBandState(world w.World) {
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
 // Level 設定は帯幅が不変なので再設定しても冪等で無害。
 func (s *Session) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
-	query.EnsureStageMeta(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: s.band.Width(), TileHeight: chunkH}
+	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: s.band.Width(), TileHeight: chunkH}
 	for i := range s.band.K() {
 		if err := s.gen(i, i.Tiles(chunkW)); err != nil {
 			return fmt.Errorf("チャンク生成失敗 (slot=%d): %w", i, err)

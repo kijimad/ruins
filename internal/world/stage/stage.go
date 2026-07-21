@@ -60,13 +60,13 @@ func Purge(world w.World, key gc.StageKey) {
 }
 
 // ResetExploredTiles は現ステージの探索履歴を空にする。ステージへ入り直すたびにリセットする方針。
-// 探索履歴は StageMeta が持つため、現ステージのメタの map を貼り替える
+// 探索履歴は StageField が持つため、現ステージの StageField の map を貼り替える
 func ResetExploredTiles(world w.World) {
-	meta := query.GetCurrentStageMeta(world)
-	if meta == nil {
+	field := query.GetCurrentStageField(world)
+	if field == nil {
 		return
 	}
-	meta.ExploredTiles = make(map[gc.GridElement]bool)
+	field.ExploredTiles = make(map[gc.GridElement]bool)
 }
 
 // Bind は StageBound を持たないフィールドエンティティに key を付ける。

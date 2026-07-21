@@ -43,7 +43,7 @@ type EntitySpec struct {
 	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *TileTemperature    // タイルの気温修正値を保持する
 	StageBound         *StageBound         // 束縛先ステージを保持する。往復するステージの同定に使う
-	StageMeta          *StageMeta          // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
+	StageField         *StageField         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
 	SeamlessBand       *SeamlessBand       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
 	PortalConnection   *PortalConnection   // ポータルの行き先ステージと着地座標を保持する
 	DungeonEntrance    *DungeonEntrance    // 遺跡入口が進入先の遺跡定義名を保持する
@@ -123,7 +123,7 @@ type Components struct {
 	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *ecs.Map[TileTemperature]    // タイルの気温修正値を保持する
 	StageBound         *ecs.Map[StageBound]         // 束縛先ステージを保持する。往復するステージの同定に使う
-	StageMeta          *ecs.Map[StageMeta]          // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
+	StageField         *ecs.Map[StageField]         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
 	SeamlessBand       *ecs.Map[SeamlessBand]       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
 	PortalConnection   *ecs.Map[PortalConnection]   // ポータルの行き先ステージと着地座標を保持する
 	DungeonEntrance    *ecs.Map[DungeonEntrance]    // 遺跡入口が進入先の遺跡定義名を保持する
@@ -203,7 +203,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileTemperature = ecs.NewMap[TileTemperature](world)
 	c.StageBound = ecs.NewMap[StageBound](world)
-	c.StageMeta = ecs.NewMap[StageMeta](world)
+	c.StageField = ecs.NewMap[StageField](world)
 	c.SeamlessBand = ecs.NewMap[SeamlessBand](world)
 	c.PortalConnection = ecs.NewMap[PortalConnection](world)
 	c.DungeonEntrance = ecs.NewMap[DungeonEntrance](world)
@@ -285,7 +285,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileTemperature, entity, spec.TileTemperature)
 	addComp(c.StageBound, entity, spec.StageBound)
-	addComp(c.StageMeta, entity, spec.StageMeta)
+	addComp(c.StageField, entity, spec.StageField)
 	addComp(c.SeamlessBand, entity, spec.SeamlessBand)
 	addComp(c.PortalConnection, entity, spec.PortalConnection)
 	addComp(c.DungeonEntrance, entity, spec.DungeonEntrance)

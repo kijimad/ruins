@@ -85,12 +85,12 @@ func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
 
 // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す
 // identity だけを持つ。フィールド寸法・探索履歴・帯データなどステージ固有の状態は各ステージの
-// StageMeta が、時間や視界などグローバルな状態は専用シングルトンが持つ。
+// StageField が、時間や視界などグローバルな状態は専用シングルトンが持つ。
 type Dungeon struct {
 	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える。
 	// 階層数は CurrentStage.Depth から、ダンジョン定義名は CurrentStage.Name から導出する。
 	// オーバーワールドは深度0で Name=OverworldStageName。フィールド寸法・探索履歴・帯データは
-	// 各ステージの StageMeta が持ち、ここは identity だけを指す。
+	// 各ステージの StageField が持ち、ここは identity だけを指す。
 	CurrentStage StageKey
 }
 
