@@ -159,6 +159,12 @@ func (s *Session) startNewBand(world w.World, sb *gc.SeamlessBand) error {
 		return fmt.Errorf("遺跡入口の配置に失敗: %w", err)
 	}
 
+	// 開始チャンクに街を配置する。プレイヤー開始位置を中心に店・雇用・合成・収納を置く。
+	// 街はオーバーワールドの地物なので、新規ゲームはこの街から始まり TownState を経由しない
+	if err := spawnTown(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); err != nil {
+		return fmt.Errorf("街の配置に失敗: %w", err)
+	}
+
 	query.InvalidateSpatialIndex(world)
 	return nil
 }

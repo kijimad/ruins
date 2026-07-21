@@ -199,11 +199,10 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			return nil
 		}).
 		WithChoice("オーバーワールド開始", func(world w.World) error {
-			seed := world.Config.RNG.Uint64()
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
-					NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{RunSeed: seed, ChunkW: 50, ChunkH: 50, K: 3}),
+					newGameOverworldState(world),
 				}})
 			return nil
 		}).
@@ -558,6 +557,25 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 // キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する
 func NewDemoStartState() (es.State[w.World], error) {
 	return &DemoStartState{}, nil
+}
+
+// 新規ゲームのオーバーワールド帯パラメータ。街を含む開始チャンクを決定的生成する広さ。
+const (
+	newGameChunkW consts.Tile  = 50
+	newGameChunkH consts.Tile  = 50
+	newGameK      consts.Chunk = 3
+)
+
+// newGameOverworldState は新規ゲーム開始用のオーバーワールド探索ステートを返す。
+// 街を含むオーバーワールドを RunSeed から決定的生成し、プレイヤーは街から始まる。
+// キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。
+func newGameOverworldState(world w.World) es.StateFactory[w.World] {
+	return NewOverworldState(mapplanner.PlannerTypeOverworldField, &overworld.NewGameParams{
+		RunSeed: world.Config.RNG.Uint64(),
+		ChunkW:  newGameChunkW,
+		ChunkH:  newGameChunkH,
+		K:       newGameK,
+	})
 }
 
 // NewTownState は街のステートを作成するファクトリー関数

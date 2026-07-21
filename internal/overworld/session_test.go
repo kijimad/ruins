@@ -148,6 +148,34 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Positive(t, count, "帯タイルが serde で復元されている")
 }
 
+// TestSession_新規開始で街がオーバーワールドに配置される は、新規開始時に店・雇用・合成の会話NPCと
+// 収納propが開始チャンクへ配置され、いずれもオーバーワールド帯へ束縛されることを固定する。
+// これで街が専用ステージでなくオーバーワールドの地物として常在し、遺跡進入時に帯とともに退避される。
+func TestSession_新規開始で街がオーバーワールドに配置される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	s := NewSession(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: 42, ChunkW: testChunkW, ChunkH: testChunkH, K: testK})
+	require.NoError(t, s.Start(world))
+
+	// 街の構成物を名前で探し、配置・帯束縛・相互作用の有無を確認する
+	want := map[string]bool{"商人": false, "酒場の主人": false, "怪しい科学者": false, townStorageProp: false}
+	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		name := world.Components.Name.Get(e).Name
+		if _, ok := want[name]; !ok {
+			continue
+		}
+		want[name] = true
+		require.True(t, world.Components.StageBound.Has(e), "%s はステージへ束縛される", name)
+		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "%s はオーバーワールド帯へ束縛される", name)
+		assert.True(t, world.Components.Interactable.Has(e), "%s は相互作用を持つ", name)
+	}
+	for name, found := range want {
+		assert.True(t, found, "街の構成物 %s が配置される", name)
+	}
+}
+
 // TestSession_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns から
 // 決定的に導出され、ターン経過で東へ進み、SeamlessBand.Front.EastAbsX に反映されることを固定する。
 func TestSession_前線が総ターン数で前進する(t *testing.T) {

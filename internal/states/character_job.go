@@ -183,7 +183,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
-		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
+		NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)},
 	})
 
 	return st.ConsumeTransition(), nil
