@@ -9468,7 +9468,7 @@ const (
 func (c *Components) has(comp hasser) Has <span class="cov7" title="726">{
         val := reflect.ValueOf(c).Elem()
         typ := val.Type()
-        for i := range val.NumField() </span><span class="cov10" title="16658">{
+        for i := range val.NumField() </span><span class="cov10" title="16387">{
                 if val.Field(i).Interface() == comp </span><span class="cov7" title="726">{
                         return Has{Label: typ.Field(i).Name, Comp: comp}
                 }</span>
@@ -9735,7 +9735,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
         e := &amp;CharModifiers{}
         src := make(map[ModifierKey][]ModifierSource)
 
-        calcEffect := func(key ModifierKey, skillID SkillID, coeff int) consts.Percent </span><span class="cov9" title="414">{
+        calcEffect := func(key ModifierKey, skillID SkillID, coeff int) consts.Percent </span><span class="cov10" title="416">{
                 v := skills.Get(skillID).Value
                 bonus := v * coeff
                 src[key] = append(src[key], ModifierSource{
@@ -9759,7 +9759,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
                         bonus += ablBonus</span>
                 }
 
-                <span class="cov10" title="415">return consts.PercentBase + consts.Percent(bonus)</span>
+                <span class="cov10" title="416">return consts.PercentBase + consts.Percent(bonus)</span>
         }
 
         <span class="cov4" title="13">e.WeaponDamage = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
@@ -9939,7 +9939,7 @@ var skillName = map[SkillID]string{
 }
 
 // SkillName はスキルIDの表示名を返す。未定義ならpanicする
-func SkillName(id SkillID) string <span class="cov9" title="442">{
+func SkillName(id SkillID) string <span class="cov9" title="443">{
         name, ok := skillName[id]
         if !ok </span><span class="cov1" title="1">{
                 panic(fmt.Sprintf("未定義のスキルID: %q", id))</span>
@@ -10043,12 +10043,12 @@ type Skills struct {
 }
 
 // Get は指定されたスキルIDのSkillを返す。未定義ならpanicする
-func (s *Skills) Get(id SkillID) *Skill <span class="cov10" title="459">{
+func (s *Skills) Get(id SkillID) *Skill <span class="cov10" title="460">{
         sk, ok := s.Data[id]
         if !ok </span><span class="cov1" title="1">{
                 panic(fmt.Sprintf("未定義のスキルID: %q", id))</span>
         }
-        <span class="cov9" title="458">return sk</span>
+        <span class="cov9" title="459">return sk</span>
 }
 
 // LevelUpExp はスキルアップに必要な経験値
@@ -18299,32 +18299,32 @@ func MergePalettes(palettes ...*Palette) *Palette <span class="cov5" title="42">
 
 // GetTerrain は文字から地形名を取得する。
 // Terrain定義を優先し、なければProps/NPCsのTileフィールドを参照する
-func (p *Palette) GetTerrain(char string) (string, bool) <span class="cov9" title="3737">{
-        if terrain, ok := p.Terrain[char]; ok </span><span class="cov9" title="3014">{
+func (p *Palette) GetTerrain(char string) (string, bool) <span class="cov10" title="3753">{
+        if terrain, ok := p.Terrain[char]; ok </span><span class="cov9" title="3019">{
                 return terrain, true
         }</span>
         <span class="cov8" title="734">if entry, ok := p.Props[char]; ok &amp;&amp; entry.Tile != "" </span><span class="cov5" title="87">{
                 return entry.Tile, true
         }</span>
-        <span class="cov8" title="646">if entry, ok := p.NPCs[char]; ok &amp;&amp; entry.Tile != "" </span><span class="cov1" title="1">{
+        <span class="cov8" title="647">if entry, ok := p.NPCs[char]; ok &amp;&amp; entry.Tile != "" </span><span class="cov1" title="1">{
                 return entry.Tile, true
         }</span>
-        <span class="cov8" title="645">return "", false</span>
+        <span class="cov8" title="646">return "", false</span>
 }
 
 // GetProp は文字からProp名を取得する
-func (p *Palette) GetProp(char string) (string, bool) <span class="cov10" title="3740">{
+func (p *Palette) GetProp(char string) (string, bool) <span class="cov9" title="3749">{
         entry, ok := p.Props[char]
-        if !ok </span><span class="cov9" title="3644">{
+        if !ok </span><span class="cov9" title="3661">{
                 return "", false
         }</span>
         <span class="cov5" title="88">return entry.ID, true</span>
 }
 
 // GetNPC は文字からNPC種別を取得する
-func (p *Palette) GetNPC(char string) (string, bool) <span class="cov9" title="3728">{
+func (p *Palette) GetNPC(char string) (string, bool) <span class="cov9" title="3747">{
         entry, ok := p.NPCs[char]
-        if !ok </span><span class="cov9" title="3733">{
+        if !ok </span><span class="cov9" title="3747">{
                 return "", false
         }</span>
         <span class="cov0" title="0">return entry.ID, true</span>
@@ -18368,25 +18368,25 @@ func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell <span class="c
         for y, line := range lines </span><span class="cov6" title="326">{
                 runes := []rune(line)
                 cells[y] = make([]MapCell, len(runes))
-                for x, ch := range runes </span><span class="cov9" title="4248">{
+                for x, ch := range runes </span><span class="cov9" title="4272">{
                         charStr := string(ch)
                         var cell MapCell
-                        if palette != nil </span><span class="cov9" title="3730">{
-                                if terrain, ok := palette.GetTerrain(charStr); ok </span><span class="cov8" title="3097">{
+                        if palette != nil </span><span class="cov9" title="3747">{
+                                if terrain, ok := palette.GetTerrain(charStr); ok </span><span class="cov8" title="3103">{
                                         cell.Terrain = terrain
                                 }</span>
-                                <span class="cov9" title="3738">if prop, ok := palette.GetProp(charStr); ok </span><span class="cov5" title="87">{
+                                <span class="cov9" title="3747">if prop, ok := palette.GetProp(charStr); ok </span><span class="cov5" title="87">{
                                         cell.Prop = prop
                                 }</span>
-                                <span class="cov9" title="3728">if npc, ok := palette.GetNPC(charStr); ok </span><span class="cov0" title="0">{
+                                <span class="cov9" title="3747">if npc, ok := palette.GetNPC(charStr); ok </span><span class="cov0" title="0">{
                                         cell.NPC = npc
                                 }</span>
                         }
                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する
-                        <span class="cov9" title="4257">if cell.Terrain == "" </span><span class="cov7" title="1168">{
+                        <span class="cov9" title="4272">if cell.Terrain == "" </span><span class="cov7" title="1169">{
                                 cell.Terrain = charStr
                         }</span>
-                        <span class="cov9" title="4257">cells[y][x] = cell</span>
+                        <span class="cov9" title="4272">cells[y][x] = cell</span>
                 }
         }
         <span class="cov5" title="69">return cells</span>
@@ -18400,16 +18400,16 @@ func FormatResolvedMap(cells [][]MapCell) string <span class="cov2" title="4">{
                 if y &gt; 0 </span><span class="cov5" title="72">{
                         sb.WriteByte('\n')
                 }</span>
-                <span class="cov5" title="75">for x, cell := range row </span><span class="cov8" title="2694">{
-                        if x &gt; 0 </span><span class="cov8" title="2626">{
+                <span class="cov5" title="76">for x, cell := range row </span><span class="cov8" title="2816">{
+                        if x &gt; 0 </span><span class="cov8" title="2740">{
                                 sb.WriteByte(' ')
                         }</span>
-                        <span class="cov8" title="2696">sb.WriteString(cell.Terrain)
-                        if cell.Prop != "" || cell.NPC != "" </span><span class="cov4" title="56">{
+                        <span class="cov8" title="2816">sb.WriteString(cell.Terrain)
+                        if cell.Prop != "" || cell.NPC != "" </span><span class="cov4" title="58">{
                                 sb.WriteByte(':')
                                 sb.WriteString(cell.Prop)
                         }</span>
-                        <span class="cov8" title="2694">if cell.NPC != "" </span><span class="cov0" title="0">{
+                        <span class="cov8" title="2816">if cell.NPC != "" </span><span class="cov0" title="0">{
                                 sb.WriteByte(':')
                                 sb.WriteString(cell.NPC)
                         }</span>
@@ -18959,8 +18959,8 @@ func findAllPlaceholderRegionsByID(lines []string, id string) ([]placeholderRegi
 // findAllIdentifierPositions は識別子の全出現位置を返す
 func findAllIdentifierPositions(lines []string, idChar rune) [][2]int <span class="cov4" title="59">{
         var positions [][2]int
-        for y, line := range lines </span><span class="cov6" title="421">{
-                for x, ch := range line </span><span class="cov10" title="10143">{
+        for y, line := range lines </span><span class="cov6" title="423">{
+                for x, ch := range line </span><span class="cov10" title="10306">{
                         if ch == idChar </span><span class="cov5" title="61">{
                                 positions = append(positions, [2]int{x, y})
                         }</span>
@@ -18984,9 +18984,9 @@ func findLeftEdge(lines []string, idY, idX int, placeholder, idChar rune) int <s
 }
 
 // calculateRowWidth は行の幅を計算
-func calculateRowWidth(line string, startX int, placeholder, idChar rune) int <span class="cov5" title="121">{
+func calculateRowWidth(line string, startX int, placeholder, idChar rune) int <span class="cov5" title="122">{
         width := 0
-        for x := startX; x &lt; len(line); x++ </span><span class="cov7" title="562">{
+        for x := startX; x &lt; len(line); x++ </span><span class="cov7" title="564">{
                 ch := rune(line[x])
                 if ch == placeholder || ch == idChar </span><span class="cov7" title="489">{
                         width++
@@ -19018,15 +19018,15 @@ func findTopEdge(lines []string, idY, startX, tempWidth int, placeholder, idChar
                         break</span>
                 }
         }
-        <span class="cov5" title="61">return startY</span>
+        <span class="cov4" title="60">return startY</span>
 }
 
 // calculateHeight は高さを計算
 func calculateHeight(lines []string, startY, startX int, placeholder, idChar rune) int <span class="cov5" title="61">{
         height := 0
-        for y := startY; y &lt; len(lines) &amp;&amp; startX &lt; len(lines[y]); y++ </span><span class="cov6" title="241">{
+        for y := startY; y &lt; len(lines) &amp;&amp; startX &lt; len(lines[y]); y++ </span><span class="cov6" title="240">{
                 ch := rune(lines[y][startX])
-                if ch == placeholder || ch == idChar </span><span class="cov6" title="207">{
+                if ch == placeholder || ch == idChar </span><span class="cov6" title="206">{
                         height++
                 }</span> else<span class="cov4" title="34"> {
                         break</span>
@@ -19042,12 +19042,12 @@ func validateRectangle(lines []string, id string, startX, startY, width, height 
                 if y &gt;= len(lines) </span><span class="cov0" title="0">{
                         return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (y=%d が範囲外)", id, y)
                 }</span>
-                <span class="cov6" title="205">for dx := range width </span><span class="cov7" title="1008">{
+                <span class="cov6" title="205">for dx := range width </span><span class="cov7" title="1017">{
                         x := startX + dx
                         if x &gt;= len(lines[y]) </span><span class="cov0" title="0">{
                                 return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (x=%d, y=%d が範囲外)", id, x, y)
                         }</span>
-                        <span class="cov7" title="1006">ch := rune(lines[y][x])
+                        <span class="cov7" title="1017">ch := rune(lines[y][x])
                         if ch != placeholder &amp;&amp; ch != idChar </span><span class="cov1" title="1">{
                                 return fmt.Errorf(
                                         "識別子 '%s': プレースホルダ領域[%d,%d]に不正な文字 '%c' があります（期待: '@' または '%s'）",
@@ -32332,7 +32332,7 @@ func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[co
         var pos consts.Coord[consts.Tile]
         found := false
         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
-        for q.Next() </span><span class="cov5" title="23">{
+        for q.Next() </span><span class="cov5" title="31">{
                 e := q.Entity()
                 if !found &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) </span><span class="cov1" title="2">{
                         pos = world.Components.GridElement.Get(e).Coord
