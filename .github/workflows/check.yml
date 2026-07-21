@@ -163,7 +163,7 @@ jobs:
           { echo "bad<<EOF"; echo "$bad"; echo "EOF"; } >> "$GITHUB_OUTPUT"
       - name: sticky comment
         if: always()
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: bench-compare
           path: cmp.md
