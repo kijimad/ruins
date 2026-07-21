@@ -104,7 +104,7 @@ func frontCfgFromBand(sb *gc.SeamlessBand) worldstream.FrontConfig {
 
 // front は総経過ターン数から寒波前線の現在位置を導出する。
 func (s *Session) front(world w.World) worldstream.Front {
-	totalTurns := query.GetDungeon(world).GameTime.TotalTurns
+	totalTurns := query.GetGameTime(world).TotalTurns
 	return worldstream.FrontAt(s.frontCfg, totalTurns)
 }
 

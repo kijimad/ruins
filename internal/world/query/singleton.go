@@ -37,6 +37,11 @@ func GetWeaponSelection(world w.World) *gc.WeaponSelection {
 	return GetSingleton[gc.WeaponSelection](world, world.Components.WeaponSelection)
 }
 
+// GetGameTime はシングルトンからゲーム内時間を取得する
+func GetGameTime(world w.World) *gc.GameTime {
+	return GetSingleton[gc.GameTime](world, world.Components.GameTime)
+}
+
 // IsOnOverworld は現在地がオーバーワールドかを返す。オーバーワールド固有の振る舞い
 // (霜・寒波前線の気温/移動効果・帯シフト)の gate に使い、場所判定をこの1関数へ集約する。
 //

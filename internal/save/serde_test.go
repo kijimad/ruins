@@ -219,3 +219,24 @@ func TestSerde_WeaponSelectionPersists(t *testing.T) {
 
 	assert.Equal(t, 4, query.GetWeaponSelection(newWorld).Slot, "選択中の武器スロットが復元される")
 }
+
+// TestSerde_GameTimePersists はゲーム内時間がセーブ・ロードで復元されることを検証する。
+// TotalTurns は昼夜と寒波前線の位置を決定的に導出する元なので、往復で保たれる必要がある。
+func TestSerde_GameTimePersists(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	query.GetGameTime(world).TotalTurns = 1234
+
+	require.NoError(t, manager.SaveWorld(world, "gametime"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "gametime"))
+
+	assert.Equal(t, consts.Turn(1234), query.GetGameTime(newWorld).TotalTurns, "総ターン数が復元される")
+}

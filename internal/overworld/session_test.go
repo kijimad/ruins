@@ -189,16 +189,16 @@ func TestSession_前線が総ターン数で前進する(t *testing.T) {
 
 	d := query.GetDungeon(world)
 	// 開始時（TotalTurns=0）は StartEast のまま。StartEast = bandOriginX(0) + chunkW = +chunkW
-	d.GameTime.TotalTurns = 0
+	query.GetGameTime(world).TotalTurns = 0
 	s.UpdateFront(world)
 	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.Front.EastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
 
 	// frontAdvanceTurns ごとに frontStep 前進する。AdvanceTurns 未満は動かない
-	d.GameTime.TotalTurns = frontAdvanceTurns - 1
+	query.GetGameTime(world).TotalTurns = frontAdvanceTurns - 1
 	s.UpdateFront(world)
 	assert.Equal(t, consts.AbsTileX(chunkW), d.SeamlessBand.Front.EastAbsX, "AdvanceTurns 未満は前進しない")
 
-	d.GameTime.TotalTurns = frontAdvanceTurns
+	query.GetGameTime(world).TotalTurns = frontAdvanceTurns
 	s.UpdateFront(world)
 	assert.Equal(t, consts.AbsTileX(chunkW)+consts.AbsTileX(frontStep), d.SeamlessBand.Front.EastAbsX, "AdvanceTurns で 1 段前進する")
 

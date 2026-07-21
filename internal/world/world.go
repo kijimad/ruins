@@ -70,6 +70,7 @@ func (world World) InitSingleton() {
 	world.Components.TurnState.Add(singleton, gc.NewTurnState())
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
+	world.Components.GameTime.Add(singleton, &gc.GameTime{})
 	world.Resources.SingletonEntity = singleton
 }
 

@@ -78,6 +78,7 @@ type EntitySpec struct {
 	TurnState          *TurnState          // ターン状態を保持するシングルトン
 	SpatialIndex       *SpatialIndex       // 空間インデックスを保持するシングルトン
 	WeaponSelection    *WeaponSelection    // 選択中の武器スロットを保持するシングルトン
+	GameTime           *GameTime           // ゲーム内時間を保持するシングルトン
 }
 
 // Components はECSコンポーネントのハンドル束。
@@ -154,6 +155,7 @@ type Components struct {
 	TurnState          *ecs.Map[TurnState]          // ターン状態を保持するシングルトン
 	SpatialIndex       *ecs.Map[SpatialIndex]       // 空間インデックスを保持するシングルトン
 	WeaponSelection    *ecs.Map[WeaponSelection]    // 選択中の武器スロットを保持するシングルトン
+	GameTime           *ecs.Map[GameTime]           // ゲーム内時間を保持するシングルトン
 }
 
 // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
@@ -230,6 +232,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
 	c.WeaponSelection = ecs.NewMap[WeaponSelection](world)
+	c.GameTime = ecs.NewMap[GameTime](world)
 	return nil
 }
 
@@ -308,5 +311,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
 	addComp(c.WeaponSelection, entity, spec.WeaponSelection)
+	addComp(c.GameTime, entity, spec.GameTime)
 	return entity
 }

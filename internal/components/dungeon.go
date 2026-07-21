@@ -98,8 +98,6 @@ type Dungeon struct {
 	NeedsForceUpdate bool
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
-	// GameTime はゲーム内時間を保持する
-	GameTime GameTime
 	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される。
 	// GridElement(struct)キーのためserde不可、毎フレーム再構築される
 	VisibleTiles map[GridElement]bool `json:"-"`

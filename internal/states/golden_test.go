@@ -186,7 +186,7 @@ func TestGolden_OverworldFrost(t *testing.T) {
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		// 前線が帯へ食い込むところまでターンを進める。updateFront が FrontEastAbsX を導出する
-		query.GetDungeon(world).GameTime.TotalTurns = 300
+		query.GetGameTime(world).TotalTurns = 300
 		return []es.State[w.World]{s}
 	})
 }
