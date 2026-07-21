@@ -167,7 +167,7 @@ func TestGolden_Dungeon(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name,
+		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}))
 }
@@ -196,7 +196,7 @@ func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name,
+		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.LookAroundState{}))
 }
@@ -261,7 +261,7 @@ func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name,
+		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.ShootingState{}))
 }
@@ -270,7 +270,7 @@ func TestGolden_Pickup(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name,
+		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PickupState{}))
 }
@@ -279,7 +279,7 @@ func TestGolden_Place(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name,
+		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PlaceState{}))
 }
@@ -328,12 +328,12 @@ func collectPlannerTypes() []mapplanner.PlannerType {
 	tableMap := map[string]tableInfo{}
 	dungeons := dungeon.GetAllDungeons()
 	for i := range dungeons {
-		def := &dungeons[i]
-		for _, pw := range def.PlannerPool {
+		def := dungeons[i]
+		for _, pw := range def.PlannerPool() {
 			if _, exists := tableMap[pw.PlannerType.Name]; !exists {
 				tableMap[pw.PlannerType.Name] = tableInfo{
-					EnemyTableName: def.EnemyTableName,
-					ItemTableName:  def.ItemTableName,
+					EnemyTableName: def.EnemyTableName(),
+					ItemTableName:  def.ItemTableName(),
 				}
 			}
 		}

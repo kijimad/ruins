@@ -51,10 +51,14 @@ type DungeonState struct {
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
-// 本質的な違いは帯の有無だけで、それはダンジョン定義の Seamless が表す。
+// 本質的な違いは帯の有無で、それは種別の型 OverworldKind が表す。フラグでなく型で判定する。
 func (st DungeonState) isSeamless() bool {
-	def, ok := dungeon.GetDungeon(st.DefinitionName)
-	return ok && def.Seamless
+	kind, ok := dungeon.GetStageKind(st.DefinitionName)
+	if !ok {
+		return false
+	}
+	_, isOverworld := kind.(*dungeon.OverworldKind)
+	return isOverworld
 }
 
 // NewOverworldState はオーバーワールド探索ステートのファクトリを返す。
@@ -69,7 +73,7 @@ func NewOverworldState(planner mapplanner.PlannerType, params *overworld.NewGame
 	return func() (es.State[w.World], error) {
 		return &DungeonState{
 			// 定義名を Seamless なオーバーワールド定義にすることで、OnStart が帯モードへ分岐する
-			DefinitionName: dungeon.DungeonOverworld.Name,
+			DefinitionName: dungeon.DungeonOverworld.Name(),
 			planner:        planner,
 			newGame:        params,
 		}, nil
@@ -109,10 +113,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if defName == "" {
 		defName = query.GetDungeon(world).CurrentStage.Name
 	}
-	// ダンジョン定義を取得する
-	def, found := dungeon.GetDungeon(defName)
-	if !found {
-		return fmt.Errorf("ダンジョン定義が見つかりません: %s", defName)
+	// ダンジョン種別を取得する。ここは Seamless 判定を抜けた通常ダンジョンなので DungeonKind のはず
+	def, err := resolveDungeonKind(defName)
+	if err != nil {
+		return err
 	}
 	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
 	if !st.Resume {
@@ -137,9 +141,9 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// ダンジョンタイトルエフェクト用エンティティを作成する
 	screenW, screenH := world.Resources.GetScreenDimensions()
-	titleText := def.Name
+	titleText := def.Name()
 	if st.Depth > 0 {
-		titleText = fmt.Sprintf("%s %dF", def.Name, st.Depth)
+		titleText = fmt.Sprintf("%s %dF", def.Name(), st.Depth)
 	}
 	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
@@ -149,6 +153,20 @@ func (st *DungeonState) OnStart(world w.World) error {
 	})
 
 	return nil
+}
+
+// resolveDungeonKind は名前から通常ダンジョン種別を引く。未登録、またはオーバーワールドのような
+// フロアを生成しない種別なら error を返す。フロア生成の入口を1箇所に集約する。
+func resolveDungeonKind(defName string) (*dungeon.DungeonKind, error) {
+	kind, found := dungeon.GetStageKind(defName)
+	if !found {
+		return nil, fmt.Errorf("ステージ定義が見つかりません: %s", defName)
+	}
+	dk, ok := kind.(*dungeon.DungeonKind)
+	if !ok {
+		return nil, fmt.Errorf("フロア生成できないステージ種別です: %s", defName)
+	}
+	return dk, nil
 }
 
 // dungeonStageKey は遺跡名と深度でダンジョン階のステージキーを返す。
@@ -162,24 +180,24 @@ func dungeonStageKey(defName string, depth int) gc.StageKey {
 // spawnFloor は depth のフロアを生成して world に配置し、生成物に StageBound を付ける。
 // プレイヤー開始位置と、開始位置に置いた上り階段エンティティを返す。上り階段には呼び出し側が
 // 戻り先を結線する。プレイヤー配置・探索リセット・現ステージ更新は呼び出し側が行う
-func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definition, key gc.StageKey) (consts.Coord[consts.Tile], ecs.Entity, error) {
+func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.DungeonKind, key gc.StageKey) (consts.Coord[consts.Tile], ecs.Entity, error) {
 	var zero consts.Coord[consts.Tile]
 	var noEntity ecs.Entity
 
 	stageSeed := world.Config.RNG.Uint64()
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
-	// ビルダータイプを決定する。最終階層かつBossPlannerTypeがあればボスフロアにする
+	// ビルダータイプを決定する。最終階層かつボスフロアプランナーがあればボスフロアにする
 	var builderType mapplanner.PlannerType
-	switch {
-	case def.BossPlannerType != nil && depth == def.TotalFloors:
-		builderType = *def.BossPlannerType
+	switch bossPlanner, isBoss := def.BossPlanner(depth); {
+	case isBoss:
+		builderType = bossPlanner
 	case st.BuilderType.PlannerFunc == nil || st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
 		// BuilderType 未設定(オーバーワールドから遺跡へ入った State は帯用で BuilderType を
 		// 持たない)か Random なら、定義のプランナープールから選ぶ。ゼロ値をそのまま使うと
 		// PlannerFunc が nil で生成が panic する
 		var err error
-		builderType, err = dungeon.SelectPlanner(def, stageRNG)
+		builderType, err = def.SelectPlanner(stageRNG)
 		if err != nil {
 			return zero, noEntity, err
 		}
@@ -188,8 +206,8 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def dungeon.Definit
 	}
 
 	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
-	builderType.EnemyTableName = def.EnemyTableName
-	builderType.ItemTableName = def.ItemTableName
+	builderType.EnemyTableName = def.EnemyTableName()
+	builderType.ItemTableName = def.ItemTableName()
 	builderType.Depth = depth
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
@@ -243,9 +261,9 @@ func (st *DungeonState) descend(world w.World) error {
 	var playerPos consts.Coord[consts.Tile]
 	var generated bool
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
-		def, found := dungeon.GetDungeon(defName)
-		if !found {
-			return fmt.Errorf("ダンジョン定義が見つかりません: %s", defName)
+		def, err := resolveDungeonKind(defName)
+		if err != nil {
+			return err
 		}
 		start, upStair, err := st.spawnFloor(world, nextDepth, def, key)
 		if err != nil {
@@ -371,9 +389,9 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 	var landing consts.Coord[consts.Tile]
 	var generated bool
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
-		def, found := dungeon.GetDungeon(defName)
-		if !found {
-			return fmt.Errorf("遺跡定義が見つかりません: %s", defName)
+		def, derr := resolveDungeonKind(defName)
+		if derr != nil {
+			return derr
 		}
 		start, upStair, serr := st.spawnFloor(world, 1, def, key)
 		if serr != nil {

@@ -14,32 +14,32 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("空のプールの場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
-		def := Definition{
-			Name:        "テスト",
-			PlannerPool: []PlannerWeight{},
+		def := DungeonKind{
+			name:        "テスト",
+			plannerPool: []PlannerWeight{},
 		}
 		rng := rand.New(rand.NewPCG(12345, 0))
-		_, err := SelectPlanner(def, rng)
+		_, err := def.SelectPlanner(rng)
 		assert.Error(t, err)
 	})
 
 	t.Run("単一要素のプールはその要素を返す", func(t *testing.T) {
 		t.Parallel()
-		def := Definition{
-			PlannerPool: []PlannerWeight{
+		def := DungeonKind{
+			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 			},
 		}
 		rng := rand.New(rand.NewPCG(12345, 0))
-		result, err := SelectPlanner(def, rng)
+		result, err := def.SelectPlanner(rng)
 		require.NoError(t, err)
 		assert.Equal(t, mapplanner.PlannerTypeCave.Name, result.Name)
 	})
 
 	t.Run("重みに応じて選択される", func(t *testing.T) {
 		t.Parallel()
-		def := Definition{
-			PlannerPool: []PlannerWeight{
+		def := DungeonKind{
+			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeForest, Weight: 100},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 			},
@@ -49,7 +49,7 @@ func TestSelectPlanner(t *testing.T) {
 		caveCount := 0
 		rng := rand.New(rand.NewPCG(12345, 0))
 		for range 100 {
-			result, err := SelectPlanner(def, rng)
+			result, err := def.SelectPlanner(rng)
 			require.NoError(t, err)
 			switch result.Name {
 			case mapplanner.PlannerTypeForest.Name:
@@ -65,22 +65,22 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("重みが0のみの場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
-		def := Definition{
-			Name: "テスト",
-			PlannerPool: []PlannerWeight{
+		def := DungeonKind{
+			name: "テスト",
+			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeRuins, Weight: 0},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 0},
 			},
 		}
 		rng := rand.New(rand.NewPCG(12345, 0))
-		_, err := SelectPlanner(def, rng)
+		_, err := def.SelectPlanner(rng)
 		assert.Error(t, err)
 	})
 
 	t.Run("同じシードで生成された初期状態のRNGでは同じ結果を返す", func(t *testing.T) {
 		t.Parallel()
-		def := Definition{
-			PlannerPool: []PlannerWeight{
+		def := DungeonKind{
+			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeForest, Weight: 1},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 				{PlannerType: mapplanner.PlannerTypeRuins, Weight: 1},
@@ -88,11 +88,11 @@ func TestSelectPlanner(t *testing.T) {
 		}
 
 		rng1 := rand.New(rand.NewPCG(12345, 0))
-		result1, err := SelectPlanner(def, rng1)
+		result1, err := def.SelectPlanner(rng1)
 		require.NoError(t, err)
 
 		rng2 := rand.New(rand.NewPCG(12345, 0))
-		result2, err := SelectPlanner(def, rng2)
+		result2, err := def.SelectPlanner(rng2)
 		require.NoError(t, err)
 
 		assert.Equal(t, result1.Name, result2.Name)
@@ -100,8 +100,8 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("異なるシードのRNGでは異なる結果を返す可能性がある", func(t *testing.T) {
 		t.Parallel()
-		def := Definition{
-			PlannerPool: []PlannerWeight{
+		def := DungeonKind{
+			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeForest, Weight: 1},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 				{PlannerType: mapplanner.PlannerTypeRuins, Weight: 1},
@@ -111,11 +111,11 @@ func TestSelectPlanner(t *testing.T) {
 		differentCount := 0
 		for i := range 100 {
 			rng1 := rand.New(rand.NewPCG(uint64(i), 0))
-			result1, err := SelectPlanner(def, rng1)
+			result1, err := def.SelectPlanner(rng1)
 			require.NoError(t, err)
 
 			rng2 := rand.New(rand.NewPCG(uint64(i+1000), 0))
-			result2, err := SelectPlanner(def, rng2)
+			result2, err := def.SelectPlanner(rng2)
 			require.NoError(t, err)
 
 			if result1.Name != result2.Name {
