@@ -147,11 +147,9 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 // OnStop はステートが停止される際に呼ばれる。
 //
-// 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持される。
-// かつてここで全フィールドエンティティを一括 purge していたが、これは「潜行を丸ごと捨てる
-// 完全離脱」という旧概念の名残で、共存方式では退避ステージまで消しかねず有害。よって廃止する。
-// world を捨てるのはタイトルへ戻る・ロードのときで、そこは MainMenuState.OnStart の全 entity
-// 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を明示的に呼ぶ。
+// 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持するため、
+// ここでは何もしない。world を捨てるのはタイトルへ戻る・ロードのときで、MainMenuState.OnStart
+// の全 entity 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
 func (st *DungeonState) OnStop(_ w.World) error { return nil }
 
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語
@@ -166,9 +164,9 @@ func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
-	// 全ダンジョン踏破の判定。街がオーバーワールドの地物になったため、旧・街帰還時でなく
-	// オーバーワールド滞在時に判定する。判定条件は帯シフトと同じ「session保持かつ現ステージ深度0」。
-	// SetEventActive は冪等で視聴後は再発火しないので、毎フレーム呼んでも一度だけ発火する
+	// 全ダンジョン踏破をオーバーワールド滞在時に判定する。判定条件は帯シフトと同じ
+	// 「session保持かつ現ステージ深度0」。SetEventActive は冪等で視聴後は再発火しないので、
+	// 毎フレーム呼んでも一度だけ発火する
 	if st.session != nil && query.IsOnOverworld(world) {
 		gp := query.GetGameProgress(world)
 		if gp.IsAllCleared(dungeon.GetAllDungeonNames()) {

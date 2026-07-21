@@ -15,28 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// SetStageLevel は現ステージのメタにフィールド寸法を設定する。テストで地形寸法を差し替える用。
-// フィールド寸法は StageMeta が持つため、Dungeon へ直接書いていた箇所の置き換えに使う。
-// query の循環 import を避けるため world.Components を直接使う。
-func SetStageLevel(world w.World, level gc.Level) {
-	key := world.Components.Dungeon.Get(world.Resources.SingletonEntity).CurrentStage
-	var found ecs.Entity
-	ok := false
-	q := ecs.NewFilter2[gc.StageMeta, gc.StageBound](world.ECS).Query()
-	for q.Next() {
-		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
-			found = q.Entity()
-			ok = true
-		}
-	}
-	if !ok {
-		found = world.ECS.NewEntity()
-		world.Components.StageBound.Add(found, &gc.StageBound{Key: key})
-		world.Components.StageMeta.Add(found, &gc.StageMeta{})
-	}
-	world.Components.StageMeta.Get(found).Level = level
-}
-
 // 共有リソースをキャッシュ（一度だけ読み込む）
 var (
 	rawMasterOnce sync.Once
@@ -106,4 +84,25 @@ func InitTestWorld(tb testing.TB) w.World {
 	world.Components.StageMeta.Add(metaEntity, meta)
 
 	return world
+}
+
+// SetStageLevel は現ステージのメタにフィールド寸法を設定する。テストで地形寸法を差し替える用。
+// query の循環 import を避けるため world.Components を直接使う。
+func SetStageLevel(world w.World, level gc.Level) {
+	key := world.Components.Dungeon.Get(world.Resources.SingletonEntity).CurrentStage
+	var found ecs.Entity
+	ok := false
+	q := ecs.NewFilter2[gc.StageMeta, gc.StageBound](world.ECS).Query()
+	for q.Next() {
+		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
+			found = q.Entity()
+			ok = true
+		}
+	}
+	if !ok {
+		found = world.ECS.NewEntity()
+		world.Components.StageBound.Add(found, &gc.StageBound{Key: key})
+		world.Components.StageMeta.Add(found, &gc.StageMeta{})
+	}
+	world.Components.StageMeta.Get(found).Level = level
 }

@@ -223,12 +223,9 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	}
 
 	st.Depth = target.Depth
-	// 遺跡定義名は現ステージのキーから導出するので、地上帰還時に明示的にクリアする必要はない。
 	// SwapTo 後は現ステージ=target なので現在地で判定する
 	if query.IsOnOverworld(world) {
-		// 各ステージが自分の Level を StageMeta として保持するため、地上のメタが resume で
-		// そのまま戻り、帯寸法を手で復元する必要はない。以前はグローバルな Level 1枚が遺跡進入で
-		// 置き換わり、地上帰還で真っ暗・No Data・隊員配置失敗を招いていた。視界だけ強制再計算する
+		// 地上のメタが resume で帯寸法の Level を戻すため寸法の手復元は不要。視界だけ強制再計算する
 		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 

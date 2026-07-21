@@ -9,8 +9,7 @@ package components
 // その有無が「オーバーワールドか」の判別を兼ねる。ダンジョン階のメタは持たない。
 type StageMeta struct {
 	// Level は現ステージのフィールド寸法。ステージごとに保持するため、往復してもステージ固有の
-	// 寸法が resume で自然に戻る。以前はグローバルな1枚で swap のたびに上書きされ、地上帰還時に
-	// 帯寸法へ手で復元する必要があった。
+	// 寸法が resume で自然に戻る。
 	Level Level
 	// ExploredTiles は探索済みタイルのマップ。ステージごとに保持する。
 	// GridElement(struct)キーのためserde不可、入場時リセット方針なのでロード後は空で再構築する

@@ -1,7 +1,7 @@
 package components
 
 // VisionState は視界計算の一時状態を保持するシングルトン。
-// 毎フレーム・視界更新のたびに再構築されるので serde 対象外にし、ダンジョンの永続状態と分離する。
+// 毎フレーム・視界更新のたびに再構築されるので serde 対象外にする。
 type VisionState struct {
 	// VisibleTiles は現在フレームで実際に見えているタイル。struct キーのため serde 不可
 	VisibleTiles map[GridElement]bool
