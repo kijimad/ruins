@@ -12,7 +12,7 @@ import (
 func TestStageConstructors(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, StageKey{Name: OverworldStageName}, NewOverworldStage())
+	assert.Equal(t, StageKey{Name: overworldStageName}, NewOverworldStage())
 	assert.Equal(t, StageKey{Depth: 3}, NewDungeonStage(3))
 	assert.Equal(t, StageKey{Name: "森の奥", Depth: 2}, NewNamedDungeonStage("森の奥", 2))
 
@@ -36,7 +36,7 @@ func TestStageKeyValidate(t *testing.T) {
 		{"名前なしダンジョンは深度1以上で有効", NewDungeonStage(1), false},
 		{"名前ありダンジョンも有効", NewNamedDungeonStage("森", 1), false},
 		{"名前ありダンジョンで深度0は不正", StageKey{Name: "森", Depth: 0}, true},
-		{"オーバーワールドで深度1以上は不正", StageKey{Name: OverworldStageName, Depth: 1}, true},
+		{"オーバーワールドで深度1以上は不正", StageKey{Name: overworldStageName, Depth: 1}, true},
 		{"名前なしダンジョンの負深度は不正", StageKey{Depth: -1}, true},
 	}
 	for _, tt := range tests {

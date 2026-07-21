@@ -6,23 +6,31 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
-// OverworldStageName はオーバーワールド帯ステージの識別名。ダンジョン定義
-// DungeonOverworld.Name と一致させ、通常ダンジョン階と区別する。
-const OverworldStageName = "オーバーワールド"
+// overworldStageName はオーバーワールド帯ステージの固定名。ダンジョン定義 DungeonOverworld.Name と
+// 一致させ、CurrentStage.Name から定義を引けるようにする。
+//
+// あえて非公開にする。公開する overworld の identity は型付きの NewOverworldStage() だけにし、
+// 素の名前を外へ出さない。名前を公開すると CurrentStage.Name == 名前 のような場所判定を誘発するが、
+// それは廃した反パターン。外部からは名前で比較できないよう型で塞ぐ。
+const overworldStageName = "オーバーワールド"
 
 // StageKey はステージを一意に識別する。共存する各ステージのエンティティを同定するのに使う。
 // オーバーワールドもダンジョンも同じ探索で、本質的な違いは帯の有無だけなので種別は設けない。
 // オーバーワールドは深度0、ダンジョン階は深度1以上で区別する。比較可能な値だけで構成する。
 type StageKey struct {
-	// Name はステージ定義名を保持する。オーバーワールドは OverworldStageName、オーバーワールド
-	// から入るダンジョンは進入先を区別する定義名。1回の潜行スコープの通常ダンジョンでは空でよい
+	// Name はステージ定義名を保持する。オーバーワールドは NewOverworldStage() が付ける固定名、
+	// オーバーワールドから入るダンジョンは進入先を区別する定義名。1回の潜行スコープの通常ダンジョンでは空でよい。
+	//
+	// Name で場所を判定しないこと。「今オーバーワールドにいるか」は保有データで判定する
+	// query.IsOnOverworld を使う。Name は定義の引き当てとステージ同定にのみ用いる。
 	Name string
 	// Depth は階の深度を表す。オーバーワールドは 0、ダンジョン階は 1 以上
 	Depth int
 }
 
-// NewOverworldStage はオーバーワールド帯のステージキーを返す。深度0で名前を持つ。
-func NewOverworldStage() StageKey { return StageKey{Name: OverworldStageName} }
+// NewOverworldStage はオーバーワールド帯のステージキーを返す。深度0。
+// オーバーワールドの identity を得る唯一の公開手段。場所判定でなくステージの同定・束縛に使う。
+func NewOverworldStage() StageKey { return StageKey{Name: overworldStageName} }
 
 // NewDungeonStage は深度 depth の名前なしダンジョン階のステージキーを返す。
 func NewDungeonStage(depth int) StageKey {
@@ -43,7 +51,7 @@ func (k StageKey) Validate() error {
 	if k == (StageKey{}) {
 		return nil
 	}
-	if k.Name == OverworldStageName {
+	if k.Name == overworldStageName {
 		if k.Depth != 0 {
 			return fmt.Errorf("オーバーワールドステージの深度が不正: %d", k.Depth)
 		}
