@@ -344,6 +344,13 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	// タイトルエフェクトが古い遺跡名を参照しうる
 	if target.Depth == 0 {
 		d.DefinitionName = ""
+		// 遺跡進入で Level が遺跡寸法に置き換わっている。帯寸法へ戻し、視界を強制再計算する。
+		// 怠るとプレイヤーは帯座標にいるのにマップが遺跡寸法のままになり、真っ暗・ミニマップ
+		// No Data・隊員配置が範囲外で失敗する。SeamlessBand は永続値なので session なしでも復元
+		// でき、次の MovePlayerToPosition の空間インデックス再構築が正しい帯寸法で行われる。
+		sb := d.SeamlessBand
+		d.Level = gc.Level{TileWidth: sb.K.Tiles(sb.ChunkW), TileHeight: sb.ChunkH}
+		d.NeedsForceUpdate = true
 	}
 
 	if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {
