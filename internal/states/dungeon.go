@@ -12,6 +12,7 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -152,6 +153,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 // world を捨てるのはタイトルへ戻る・ロードのときで、そこは MainMenuState.OnStart の全 entity
 // 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を明示的に呼ぶ。
 func (st *DungeonState) OnStop(_ w.World) error { return nil }
+
+// checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語
+func (st *DungeonState) checkPlayerDeath(world w.World) bool {
+	playerDead := false
+	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
+	for playerDeadQuery.Next() {
+		playerDead = true
+	}
+	return playerDead
+}
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {

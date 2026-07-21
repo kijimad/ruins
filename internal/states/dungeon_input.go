@@ -234,16 +234,6 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 // ================
 
-// checkPlayerDeath はプレイヤーの死亡状態をチェックする
-func (st *DungeonState) checkPlayerDeath(world w.World) bool {
-	playerDead := false
-	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
-	for playerDeadQuery.Next() {
-		playerDead = true
-	}
-	return playerDead
-}
-
 // handleStateChangeRequest はステート遷移リクエストを消費し、対応する遷移を返す
 func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w.World], error) {
 	req := lifecycle.ConsumeStateChange(world)
