@@ -166,9 +166,9 @@ func TestGolden_FormationMenu(t *testing.T) {
 func TestGolden_Dungeon(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
+		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}))
 }
 
@@ -195,9 +195,9 @@ func TestGolden_OverworldFrost(t *testing.T) {
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
+		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.LookAroundState{}))
 }
 
@@ -260,27 +260,27 @@ func TestGolden_TavernMenu(t *testing.T) {
 func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
+		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.ShootingState{}))
 }
 
 func TestGolden_Pickup(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
+		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PickupState{}))
 }
 
 func TestGolden_Place(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
+		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PlaceState{}))
 }
 

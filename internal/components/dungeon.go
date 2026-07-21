@@ -83,8 +83,9 @@ func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
 	return absX <= f.ColdZoneWest()
 }
 
-// Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
-// 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
+// Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す
+// identity だけを持つ。フィールド寸法・探索履歴・帯データなどステージ固有の状態は各ステージの
+// StageMeta が、時間や視界などグローバルな状態は専用シングルトンが持つ。
 type Dungeon struct {
 	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える。
 	// 階層数は CurrentStage.Depth から、ダンジョン定義名は CurrentStage.Name から導出する。

@@ -21,7 +21,7 @@ type raycastCacheKey struct {
 }
 
 // VisionSystem はタイルごとの視界を計算するUpdaterシステム。
-// 計算結果の光源情報は Dungeon シングルトンに書き込み、描画側はそこから参照する。
+// 計算結果の光源情報は VisionState シングルトンに書き込み、描画側はそこから参照する。
 // レイキャストキャッシュなどの内部メモは本システムが保持し、フロア変化時に自身で破棄する
 type VisionSystem struct {
 	// プレイヤー位置キャッシュ（タイル移動ごとに更新）

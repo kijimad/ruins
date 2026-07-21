@@ -18,7 +18,6 @@ import (
 	"github.com/kijimaD/ruins/internal/states"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
-
 )
 
 // MainGame はebiten.Game interfaceを満たす
