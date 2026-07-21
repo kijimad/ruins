@@ -35,8 +35,8 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納Propのエンティティ
 }
 
-func (WarpDescend) isStatePayload()       {}
-func (WarpAscend) isStatePayload()        {}
+func (WarpDescend) isStatePayload()      {}
+func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
 func (GameClear) isStatePayload()        {}
 func (ShowDialog) isStatePayload()       {}
