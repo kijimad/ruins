@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	stageA      = gc.NewDungeonStage(1)
-	stageB      = gc.NewDungeonStage(2)
+	stageA      = gc.NewNamedDungeonStage("テスト遺跡", 1)
+	stageB      = gc.NewNamedDungeonStage("テスト遺跡", 2)
 	stageAbsent = gc.NewNamedDungeonStage("未訪問", 1)
 )
 

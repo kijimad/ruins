@@ -41,7 +41,7 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 					t.Parallel()
 					world := testutil.InitTestWorld(t)
 					world.Resources.RawMaster = *CreateTestRawMaster()
-					query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage(5)})
+					query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewNamedDungeonStage("テスト遺跡", 5)})
 
 					plan, err := Plan(world, 50, 50, seed, tc.plannerType)
 					require.NoError(t, err, "Plan失敗")
@@ -70,7 +70,7 @@ func TestConnectivity_TemplatePlanners(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
 			world.Resources.RawMaster = *CreateTestRawMaster()
-			query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage(5)})
+			query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewNamedDungeonStage("テスト遺跡", 5)})
 
 			plan, err := Plan(world, 50, 50, 12345, tc.plannerType)
 			require.NoError(t, err, "Plan失敗")

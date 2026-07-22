@@ -24,7 +24,7 @@ const overworldStageName = "オーバーワールド"
 // Name/Depth はステージ同定と導出、定義の引き当て・階数にのみ使い、場所判定には使わない。
 type StageKey struct {
 	// Name はステージ定義名を保持する。オーバーワールドは NewOverworldStage() が付ける固定名、
-	// オーバーワールドから入るダンジョンは進入先を区別する定義名。1回の潜行スコープの通常ダンジョンでは空でよい。
+	// ダンジョン階は進入先を区別する定義名。実ステージは必ず名前を持つ。ゼロ値のみ未設定として許す。
 	//
 	// Name で場所を判定しないこと。「今オーバーワールドにいるか」は保有データで判定する
 	// query.IsOnOverworld を使う。Name は定義の引き当てとステージ同定にのみ用いる。
@@ -37,13 +37,8 @@ type StageKey struct {
 // オーバーワールドの identity を得る唯一の公開手段。場所判定でなくステージの同定・束縛に使う。
 func NewOverworldStage() StageKey { return StageKey{Name: overworldStageName} }
 
-// NewDungeonStage は深度 depth の名前なしダンジョン階のステージキーを返す。
-func NewDungeonStage(depth int) StageKey {
-	return StageKey{Depth: depth}
-}
-
 // NewNamedDungeonStage は定義 name・深度 depth のダンジョン階のステージキーを返す。
-// オーバーワールドから入るダンジョンは、複数の入口を区別するため定義名を持たせる。
+// ダンジョン階は進入先を区別するため定義名を必ず持たせる。名前なしのダンジョン階は作らない。
 func NewNamedDungeonStage(name string, depth int) StageKey {
 	return StageKey{Name: name, Depth: depth}
 }
@@ -61,6 +56,11 @@ func (k StageKey) Validate() error {
 			return fmt.Errorf("オーバーワールドステージの深度が不正: %d", k.Depth)
 		}
 		return nil
+	}
+	// オーバーワールド以外の実ステージはダンジョン階。定義名を必ず持ち、深度は1以上とする。
+	// 名前なしのダンジョン階は作らないため、ここへ来た空名は破損とみなして弾く
+	if k.Name == "" {
+		return fmt.Errorf("ダンジョンステージに定義名がありません: 深度%d", k.Depth)
 	}
 	if k.Depth < 1 {
 		return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)

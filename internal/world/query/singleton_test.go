@@ -45,7 +45,7 @@ func TestGetDungeon(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		newDungeon := &gc.Dungeon{CurrentStage: gc.NewDungeonStage(3)}
+		newDungeon := &gc.Dungeon{CurrentStage: gc.NewNamedDungeonStage("テスト遺跡", 3)}
 		SetDungeon(world, newDungeon)
 
 		d := GetDungeon(world)
