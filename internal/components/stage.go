@@ -37,9 +37,9 @@ type StageKey struct {
 // オーバーワールドの identity を得る唯一の公開手段。場所判定でなくステージの同定・束縛に使う。
 func NewOverworldStage() StageKey { return StageKey{Name: overworldStageName} }
 
-// NewNamedDungeonStage は定義 name・深度 depth のダンジョン階のステージキーを返す。
+// NewDungeonStage は定義 name・深度 depth のダンジョン階のステージキーを返す。
 // ダンジョン階は進入先を区別するため定義名を必ず持たせる。名前なしのダンジョン階は作らない。
-func NewNamedDungeonStage(name string, depth int) StageKey {
+func NewDungeonStage(name string, depth int) StageKey {
 	return StageKey{Name: name, Depth: depth}
 }
 

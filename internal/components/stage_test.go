@@ -13,9 +13,9 @@ func TestStageConstructors(t *testing.T) {
 	t.Parallel()
 
 	assert.Equal(t, StageKey{Name: overworldStageName}, NewOverworldStage())
-	assert.Equal(t, StageKey{Name: "森の奥", Depth: 2}, NewNamedDungeonStage("森の奥", 2))
+	assert.Equal(t, StageKey{Name: "森の奥", Depth: 2}, NewDungeonStage("森の奥", 2))
 
-	for _, k := range []StageKey{NewOverworldStage(), NewNamedDungeonStage("森の奥", 2)} {
+	for _, k := range []StageKey{NewOverworldStage(), NewDungeonStage("森の奥", 2)} {
 		require.NoError(t, k.Validate(), "コンストラクタ生成のキーは Validate を通る: %+v", k)
 	}
 }
@@ -32,7 +32,7 @@ func TestStageKeyValidate(t *testing.T) {
 	}{
 		{"ゼロ値は未設定として許容", StageKey{}, false},
 		{"オーバーワールドは深度0で有効", NewOverworldStage(), false},
-		{"名前ありダンジョンは深度1以上で有効", NewNamedDungeonStage("森", 1), false},
+		{"名前ありダンジョンは深度1以上で有効", NewDungeonStage("森", 1), false},
 		{"名前なしダンジョンは深度1以上でも不正", StageKey{Depth: 1}, true},
 		{"名前ありダンジョンで深度0は不正", StageKey{Name: "森", Depth: 0}, true},
 		{"オーバーワールドで深度1以上は不正", StageKey{Name: overworldStageName, Depth: 1}, true},

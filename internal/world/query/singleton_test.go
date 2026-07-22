@@ -45,7 +45,7 @@ func TestGetDungeon(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		newDungeon := &gc.Dungeon{CurrentStage: gc.NewNamedDungeonStage("テスト遺跡", 3)}
+		newDungeon := &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 3)}
 		SetDungeon(world, newDungeon)
 
 		d := GetDungeon(world)
@@ -78,7 +78,7 @@ func TestIsOnOverworld(t *testing.T) {
 
 	// 遺跡滞在中。現ステージのメタは帯データを持たないので偽。帯データはオーバーワールドの
 	// メタにしか無く、退避されて現ステージから外れる
-	d.CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
+	d.CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
 	assert.False(t, IsOnOverworld(world), "現ステージが帯データを持たなければ偽")
 }
 

@@ -98,7 +98,7 @@ func TestFrostZoneModifier(t *testing.T) {
 		sb.ChunkW = 40
 		sb.Front.ColdWidth = 20
 		sb.Front.EastAbsX = 30 // ゾーン内座標でも
-		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
 		assert.Equal(t, 0, frostZoneModifier(world, 20), "遺跡内では寒さが漏れない")
 	})
 }
@@ -143,7 +143,7 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 			sb.Front.EastAbsX = 30 // ゾーン (10, 30]。プレイヤー x=20 は内側
 		} else {
 			// 前線なしの通常環境。基本気温0度のダンジョンを現ステージにする
-			d.CurrentStage = gc.NewNamedDungeonStage(coldDungeonName, 1)
+			d.CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 		}
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 0}, "Ash")
 		require.NoError(t, err)
@@ -327,7 +327,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("HealthStatusを持つエンティティの状態が更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage(coldDungeonName, 1) // 基本気温0度
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1) // 基本気温0度
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
 		require.NoError(t, err)
@@ -346,7 +346,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("存在しないダンジョン", 1)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("存在しないダンジョン", 1)
 
 		sys := &TemperatureSystem{}
 		err := sys.Update(world)

@@ -32,7 +32,7 @@ func TestNewResumeStateFactory_通常はDungeon(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	// 現ステージを通常ダンジョンにする。帯データを持たないのでオーバーワールドと誤判定しない
-	query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage(dungeon.DungeonDebug.Name(), 1)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)
 
 	state, err := newResumeStateFactory(world)()
 	require.NoError(t, err)

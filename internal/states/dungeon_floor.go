@@ -39,7 +39,7 @@ func resolveDungeonKind(defName string) (*dungeon.DungeonKind, error) {
 // よって階のキーは遺跡名で区別する必要がある。enterDungeon が焼く入口(1階)のキーと
 // descend が作る深い階のキーをこの関数で揃え、上り階段の結線が正しい階を指すようにする。
 func dungeonStageKey(defName string, depth int) gc.StageKey {
-	return gc.NewNamedDungeonStage(defName, depth)
+	return gc.NewDungeonStage(defName, depth)
 }
 
 // spawnFloor は depth のフロアを生成して world に配置し、生成物に StageBound を付ける。
@@ -257,7 +257,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
 	fromPos := world.Components.GridElement.Get(player).Coord
 
-	target := gc.NewNamedDungeonStage(defName, 1)
+	target := gc.NewDungeonStage(defName, 1)
 	// 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で
 	// 今いる遺跡を選んだ場合など。SwapTo は自己スワップを前提としない
 	if fromStage == target {
@@ -312,7 +312,7 @@ func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, bu
 	st.BuilderType = builderType
 	st.Depth = 1
 
-	target := gc.NewNamedDungeonStage(defName, 1)
+	target := gc.NewDungeonStage(defName, 1)
 	from := query.GetDungeon(world).CurrentStage
 
 	if from != target {

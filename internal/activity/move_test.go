@@ -323,7 +323,7 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 		sb.ChunkW = 40
 		sb.Front.ColdWidth = 20
 		sb.Front.EastAbsX = 30 // 進入不可ライン以西の座標でも
-		query.GetDungeon(world).CurrentStage = gc.NewNamedDungeonStage("テスト遺跡", 1)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
 		assert.True(t, frontAllowsMoveTo(world, 5), "遺跡内では前線の移動制限が漏れない")
 	})
 }

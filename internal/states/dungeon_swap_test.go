@@ -114,7 +114,7 @@ func TestEnterDungeon_遺跡へ入り上り階段が入口へ結線される(t *
 	require.NoError(t, st.enterDungeon(world, defName))
 
 	// 遺跡1階が現ステージ、オーバーワールドは退避
-	dungeonKey := gc.NewNamedDungeonStage(defName, 1)
+	dungeonKey := gc.NewDungeonStage(defName, 1)
 	assert.Equal(t, dungeonKey, d.CurrentStage, "現ステージは遺跡1階")
 	assert.Equal(t, 1, st.Depth)
 	assert.True(t, world.Components.Suspended.Has(band), "オーバーワールド帯は退避される")

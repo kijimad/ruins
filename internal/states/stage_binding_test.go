@@ -29,8 +29,8 @@ func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	stageA := gc.NewNamedDungeonStage("テスト遺跡", 1)
-	stageB := gc.NewNamedDungeonStage("テスト遺跡", 2)
+	stageA := gc.NewDungeonStage("テスト遺跡", 1)
+	stageB := gc.NewDungeonStage("テスト遺跡", 2)
 	query.GetDungeon(world).CurrentStage = stageA
 
 	// バックパックのアイテムを実際の設置経路 DropActivity で足元へ置く

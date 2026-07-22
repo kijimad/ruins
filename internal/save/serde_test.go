@@ -97,7 +97,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 
 	dungeonState := query.GetDungeon(world)
 	// ダンジョン定義名は現ステージのキーが持つ。名前付きキーで現在地を確定する
-	dungeonState.CurrentStage = gc.NewNamedDungeonStage("遺跡", 3)
+	dungeonState.CurrentStage = gc.NewDungeonStage("遺跡", 3)
 	// 現ステージのメタを用意する。実ゲームでは階生成時に作られる
 	query.EnsureStageField(world, dungeonState.CurrentStage)
 
@@ -131,7 +131,7 @@ func TestSerde_StageBoundとSuspendedが往復する(t *testing.T) {
 	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	key := gc.NewNamedDungeonStage("テスト遺跡", 2)
+	key := gc.NewDungeonStage("テスト遺跡", 2)
 	query.GetDungeon(world).CurrentStage = key
 
 	// 退避中ステージのエンティティ相当。StageBound を持ち Suspended で退避されている
