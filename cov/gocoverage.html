@@ -9468,7 +9468,7 @@ const (
 func (c *Components) has(comp hasser) Has <span class="cov7" title="726">{
         val := reflect.ValueOf(c).Elem()
         typ := val.Type()
-        for i := range val.NumField() </span><span class="cov10" title="16387">{
+        for i := range val.NumField() </span><span class="cov10" title="16764">{
                 if val.Field(i).Interface() == comp </span><span class="cov7" title="726">{
                         return Has{Label: typ.Field(i).Name, Comp: comp}
                 }</span>
@@ -9735,7 +9735,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
         e := &amp;CharModifiers{}
         src := make(map[ModifierKey][]ModifierSource)
 
-        calcEffect := func(key ModifierKey, skillID SkillID, coeff int) consts.Percent </span><span class="cov10" title="416">{
+        calcEffect := func(key ModifierKey, skillID SkillID, coeff int) consts.Percent </span><span class="cov10" title="414">{
                 v := skills.Get(skillID).Value
                 bonus := v * coeff
                 src[key] = append(src[key], ModifierSource{
@@ -9759,12 +9759,12 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
                         bonus += ablBonus</span>
                 }
 
-                <span class="cov10" title="416">return consts.PercentBase + consts.Percent(bonus)</span>
+                <span class="cov9" title="413">return consts.PercentBase + consts.Percent(bonus)</span>
         }
 
         <span class="cov4" title="13">e.WeaponDamage = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
         e.WeaponAccuracy = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
-        for _, id := range weaponSkillIDs </span><span class="cov7" title="91">{
+        for _, id := range weaponSkillIDs </span><span class="cov7" title="90">{
                 e.WeaponDamage[id] = calcEffect(WeaponDamageKey(id), id, coeffWeaponDamage)
                 e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)
         }</span>
@@ -9939,12 +9939,12 @@ var skillName = map[SkillID]string{
 }
 
 // SkillName はスキルIDの表示名を返す。未定義ならpanicする
-func SkillName(id SkillID) string <span class="cov9" title="443">{
+func SkillName(id SkillID) string <span class="cov9" title="440">{
         name, ok := skillName[id]
         if !ok </span><span class="cov1" title="1">{
                 panic(fmt.Sprintf("未定義のスキルID: %q", id))</span>
         }
-        <span class="cov9" title="442">return name</span>
+        <span class="cov9" title="438">return name</span>
 }
 
 // HasSkillName はスキルIDの表示名が定義されているかを返す。ロード時のバリデーション用
@@ -10043,12 +10043,12 @@ type Skills struct {
 }
 
 // Get は指定されたスキルIDのSkillを返す。未定義ならpanicする
-func (s *Skills) Get(id SkillID) *Skill <span class="cov10" title="460">{
+func (s *Skills) Get(id SkillID) *Skill <span class="cov10" title="458">{
         sk, ok := s.Data[id]
         if !ok </span><span class="cov1" title="1">{
                 panic(fmt.Sprintf("未定義のスキルID: %q", id))</span>
         }
-        <span class="cov9" title="459">return sk</span>
+        <span class="cov9" title="456">return sk</span>
 }
 
 // LevelUpExp はスキルアップに必要な経験値
@@ -18362,13 +18362,13 @@ type MapCell struct {
 
 // ResolveMapCells はマップ文字列をパレットで解決し、セル配列に変換する。
 // パレットで解決できない文字は文字自体をTerrain名として使用する
-func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell <span class="cov5" title="69">{
+func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell <span class="cov5" title="68">{
         lines := strings.Split(strings.TrimSpace(mapStr), "\n")
         cells := make([][]MapCell, len(lines))
-        for y, line := range lines </span><span class="cov6" title="326">{
+        for y, line := range lines </span><span class="cov6" title="324">{
                 runes := []rune(line)
                 cells[y] = make([]MapCell, len(runes))
-                for x, ch := range runes </span><span class="cov9" title="4272">{
+                for x, ch := range runes </span><span class="cov9" title="4244">{
                         charStr := string(ch)
                         var cell MapCell
                         if palette != nil </span><span class="cov9" title="3747">{
@@ -18383,10 +18383,10 @@ func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell <span class="c
                                 }</span>
                         }
                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する
-                        <span class="cov9" title="4272">if cell.Terrain == "" </span><span class="cov7" title="1169">{
+                        <span class="cov9" title="4248">if cell.Terrain == "" </span><span class="cov7" title="1147">{
                                 cell.Terrain = charStr
                         }</span>
-                        <span class="cov9" title="4272">cells[y][x] = cell</span>
+                        <span class="cov9" title="4247">cells[y][x] = cell</span>
                 }
         }
         <span class="cov5" title="69">return cells</span>
@@ -18759,8 +18759,8 @@ func (l *TemplateLoader) selectChunkByWeight(chunkNames []string, rng *rand.Rand
 }
 
 // buildMergedPalette はパレット名のリストからマージ済みパレットを構築する
-func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette <span class="cov5" title="69">{
-        if len(paletteNames) == 0 </span><span class="cov4" title="35">{
+func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette <span class="cov5" title="68">{
+        if len(paletteNames) == 0 </span><span class="cov4" title="34">{
                 return nil
         }</span>
         <span class="cov4" title="34">palettes := make([]*Palette, 0, len(paletteNames))
@@ -18823,7 +18823,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
         }</span>
 
         // このチャンクのパレットで文字をセルに解決する
-        <span class="cov5" title="69">palette := loader.buildMergedPalette(t.Palettes)
+        <span class="cov5" title="68">palette := loader.buildMergedPalette(t.Palettes)
         cells := ResolveMapCells(t.Map, palette)
 
         if len(t.Placements) == 0 </span><span class="cov4" title="36">{
@@ -18986,9 +18986,9 @@ func findLeftEdge(lines []string, idY, idX int, placeholder, idChar rune) int <s
 // calculateRowWidth は行の幅を計算
 func calculateRowWidth(line string, startX int, placeholder, idChar rune) int <span class="cov5" title="122">{
         width := 0
-        for x := startX; x &lt; len(line); x++ </span><span class="cov7" title="564">{
+        for x := startX; x &lt; len(line); x++ </span><span class="cov7" title="568">{
                 ch := rune(line[x])
-                if ch == placeholder || ch == idChar </span><span class="cov7" title="489">{
+                if ch == placeholder || ch == idChar </span><span class="cov7" title="492">{
                         width++
                 }</span> else<span class="cov5" title="76"> {
                         break</span>
@@ -19018,15 +19018,15 @@ func findTopEdge(lines []string, idY, startX, tempWidth int, placeholder, idChar
                         break</span>
                 }
         }
-        <span class="cov4" title="60">return startY</span>
+        <span class="cov5" title="61">return startY</span>
 }
 
 // calculateHeight は高さを計算
 func calculateHeight(lines []string, startY, startX int, placeholder, idChar rune) int <span class="cov5" title="61">{
         height := 0
-        for y := startY; y &lt; len(lines) &amp;&amp; startX &lt; len(lines[y]); y++ </span><span class="cov6" title="240">{
+        for y := startY; y &lt; len(lines) &amp;&amp; startX &lt; len(lines[y]); y++ </span><span class="cov6" title="241">{
                 ch := rune(lines[y][startX])
-                if ch == placeholder || ch == idChar </span><span class="cov6" title="206">{
+                if ch == placeholder || ch == idChar </span><span class="cov6" title="207">{
                         height++
                 }</span> else<span class="cov4" title="34"> {
                         break</span>
@@ -19037,12 +19037,12 @@ func calculateHeight(lines []string, startY, startX int, placeholder, idChar run
 
 // validateRectangle は矩形領域全体が@または識別子で埋まっているか検証
 func validateRectangle(lines []string, id string, startX, startY, width, height int, placeholder, idChar rune) error <span class="cov5" title="61">{
-        for dy := range height </span><span class="cov6" title="205">{
+        for dy := range height </span><span class="cov6" title="206">{
                 y := startY + dy
                 if y &gt;= len(lines) </span><span class="cov0" title="0">{
                         return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (y=%d が範囲外)", id, y)
                 }</span>
-                <span class="cov6" title="205">for dx := range width </span><span class="cov7" title="1017">{
+                <span class="cov6" title="206">for dx := range width </span><span class="cov7" title="1017">{
                         x := startX + dx
                         if x &gt;= len(lines[y]) </span><span class="cov0" title="0">{
                                 return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (x=%d, y=%d が範囲外)", id, x, y)
@@ -32332,7 +32332,7 @@ func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[co
         var pos consts.Coord[consts.Tile]
         found := false
         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
-        for q.Next() </span><span class="cov5" title="31">{
+        for q.Next() </span><span class="cov5" title="23">{
                 e := q.Entity()
                 if !found &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) </span><span class="cov1" title="2">{
                         pos = world.Components.GridElement.Get(e).Coord
@@ -32559,12 +32559,12 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 // DoAction はActionを実行する
 //
 //nolint:gocyclo // 多くのアクションを処理するためswitch文が大きくなる
-func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov5" title="18">{
+func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov4" title="17">{
         // UI系アクションは常に実行可能
         switch action </span>{
         case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionShoot, inputmapper.ActionPickup, inputmapper.ActionPlace:<span class="cov3" title="7"></span>
                 // UI系はターンチェック不要
-        default:<span class="cov4" title="11">
+        default:<span class="cov4" title="10">
                 // ゲーム内アクション（移動、攻撃など）はターンチェックが必要
                 if !query.CanPlayerAct(world) </span><span class="cov1" title="2">{
                         return es.Transition[w.World]{Type: es.TransNone}, nil

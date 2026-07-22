@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-21 04:29:54</td>
+            <td class="headerValue">2026-07-22 23:30:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -294,9 +294,9 @@
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           3 :         var pos consts.Coord[consts.Tile]</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           3 :         found := false</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           3 :         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          34 :         for q.Next() {</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          31 :                 e := q.Entity()</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">          33 :                 if !found &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          26 :         for q.Next() {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          23 :                 e := q.Entity()</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">          25 :                 if !found &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :                         pos = world.Components.GridElement.Get(e).Coord</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           2 :                         found = true</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           2 :                 }</span></span>
@@ -521,14 +521,14 @@
 <span id="L459"><span class="lineNum">     459</span>              : // DoAction はActionを実行する</span>
 <span id="L460"><span class="lineNum">     460</span>              : //</span>
 <span id="L461"><span class="lineNum">     461</span>              : //nolint:gocyclo // 多くのアクションを処理するためswitch文が大きくなる</span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">          18 : func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">          18 :         // UI系アクションは常に実行可能</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">          18 :         switch action {</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">          17 : func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">          17 :         // UI系アクションは常に実行可能</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">          17 :         switch action {</span></span>
 <span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           7 :         case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionShoot, inputmapper.ActionPickup, inputmapper.ActionPlace:</span></span>
 <span id="L466"><span class="lineNum">     466</span>              :                 // UI系はターンチェック不要</span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">          11 :         default:</span></span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">          11 :                 // ゲーム内アクション（移動、攻撃など）はターンチェックが必要</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">          13 :                 if !query.CanPlayerAct(world) {</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">          10 :         default:</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">          10 :                 // ゲーム内アクション（移動、攻撃など）はターンチェックが必要</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">          12 :                 if !query.CanPlayerAct(world) {</span></span>
 <span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           2 :                         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           2 :                 }</span></span>
 <span id="L472"><span class="lineNum">     472</span>              :                 // プレイヤーが継続アクション中は新しいアクションを受け付けない</span>

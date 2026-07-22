@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-21 04:29:54</td>
+            <td class="headerValue">2026-07-22 23:30:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,16 +91,16 @@
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // ResolveMapCells はマップ文字列をパレットで解決し、セル配列に変換する。</span>
 <span id="L31"><span class="lineNum">      31</span>              : // パレットで解決できない文字は文字自体をTerrain名として使用する</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">          69 : func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          69 :         lines := strings.Split(strings.TrimSpace(mapStr), &quot;\n&quot;)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          69 :         cells := make([][]MapCell, len(lines))</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         395 :         for y, line := range lines {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         326 :                 runes := []rune(line)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         326 :                 cells[y] = make([]MapCell, len(runes))</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4598 :                 for x, ch := range runes {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4272 :                         charStr := string(ch)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4272 :                         var cell MapCell</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        8019 :                         if palette != nil {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">          68 : func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          68 :         lines := strings.Split(strings.TrimSpace(mapStr), &quot;\n&quot;)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          68 :         cells := make([][]MapCell, len(lines))</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         392 :         for y, line := range lines {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         324 :                 runes := []rune(line)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         324 :                 cells[y] = make([]MapCell, len(runes))</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        4568 :                 for x, ch := range runes {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4244 :                         charStr := string(ch)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4244 :                         var cell MapCell</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">        7991 :                         if palette != nil {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        6850 :                                 if terrain, ok := palette.GetTerrain(charStr); ok {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        3103 :                                         cell.Terrain = terrain</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        3103 :                                 }</span></span>
@@ -112,10 +112,10 @@
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                         }</span>
 <span id="L52"><span class="lineNum">      52</span>              :                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5441 :                         if cell.Terrain == &quot;&quot; {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        1169 :                                 cell.Terrain = charStr</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        1169 :                         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4272 :                         cells[y][x] = cell</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">        5395 :                         if cell.Terrain == &quot;&quot; {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        1147 :                                 cell.Terrain = charStr</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        1147 :                         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">        4247 :                         cells[y][x] = cell</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                 }</span>
 <span id="L58"><span class="lineNum">      58</span>              :         }</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          69 :         return cells</span></span>
@@ -488,10 +488,10 @@
 <span id="L426"><span class="lineNum">     426</span>              : }</span>
 <span id="L427"><span class="lineNum">     427</span>              : </span>
 <span id="L428"><span class="lineNum">     428</span>              : // buildMergedPalette はパレット名のリストからマージ済みパレットを構築する</span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">          69 : func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette {</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">         104 :         if len(paletteNames) == 0 {</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">          35 :                 return nil</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">          35 :         }</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">          68 : func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette {</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">         102 :         if len(paletteNames) == 0 {</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">          34 :                 return nil</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">          34 :         }</span></span>
 <span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">          34 :         palettes := make([]*Palette, 0, len(paletteNames))</span></span>
 <span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">          69 :         for _, name := range paletteNames {</span></span>
 <span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">          67 :                 if p, ok := l.paletteCache[name]; ok {</span></span>
@@ -552,10 +552,10 @@
 <span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L491"><span class="lineNum">     491</span>              : </span>
 <span id="L492"><span class="lineNum">     492</span>              :         // このチャンクのパレットで文字をセルに解決する</span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">          69 :         palette := loader.buildMergedPalette(t.Palettes)</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">          69 :         cells := ResolveMapCells(t.Map, palette)</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">          69 : </span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">         105 :         if len(t.Placements) == 0 {</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">          68 :         palette := loader.buildMergedPalette(t.Palettes)</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">          68 :         cells := ResolveMapCells(t.Map, palette)</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">          68 : </span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">         104 :         if len(t.Placements) == 0 {</span></span>
 <span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">          36 :                 return cells, nil</span></span>
 <span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">          36 :         }</span></span>
 <span id="L499"><span class="lineNum">     499</span>              : </span>
@@ -715,11 +715,11 @@
 <span id="L653"><span class="lineNum">     653</span>              : // calculateRowWidth は行の幅を計算</span>
 <span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">         122 : func calculateRowWidth(line string, startX int, placeholder, idChar rune) int {</span></span>
 <span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">         122 :         width := 0</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">         686 :         for x := startX; x &lt; len(line); x++ {</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">         564 :                 ch := rune(line[x])</span></span>
-<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">        1053 :                 if ch == placeholder || ch == idChar {</span></span>
-<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">         489 :                         width++</span></span>
-<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">         565 :                 } else {</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">         690 :         for x := startX; x &lt; len(line); x++ {</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">         568 :                 ch := rune(line[x])</span></span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">        1060 :                 if ch == placeholder || ch == idChar {</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">         492 :                         width++</span></span>
+<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">         568 :                 } else {</span></span>
 <span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">          76 :                         break</span></span>
 <span id="L662"><span class="lineNum">     662</span>              :                 }</span>
 <span id="L663"><span class="lineNum">     663</span>              :         }</span>
@@ -747,17 +747,17 @@
 <span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">          26 :                         break</span></span>
 <span id="L686"><span class="lineNum">     686</span>              :                 }</span>
 <span id="L687"><span class="lineNum">     687</span>              :         }</span>
-<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">          60 :         return startY</span></span>
+<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">          61 :         return startY</span></span>
 <span id="L689"><span class="lineNum">     689</span>              : }</span>
 <span id="L690"><span class="lineNum">     690</span>              : </span>
 <span id="L691"><span class="lineNum">     691</span>              : // calculateHeight は高さを計算</span>
 <span id="L692"><span class="lineNum">     692</span> <span class="tlaGNC">          61 : func calculateHeight(lines []string, startY, startX int, placeholder, idChar rune) int {</span></span>
 <span id="L693"><span class="lineNum">     693</span> <span class="tlaGNC">          61 :         height := 0</span></span>
-<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">         301 :         for y := startY; y &lt; len(lines) &amp;&amp; startX &lt; len(lines[y]); y++ {</span></span>
-<span id="L695"><span class="lineNum">     695</span> <span class="tlaGNC">         240 :                 ch := rune(lines[y][startX])</span></span>
-<span id="L696"><span class="lineNum">     696</span> <span class="tlaGNC">         446 :                 if ch == placeholder || ch == idChar {</span></span>
-<span id="L697"><span class="lineNum">     697</span> <span class="tlaGNC">         206 :                         height++</span></span>
-<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">         240 :                 } else {</span></span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">         302 :         for y := startY; y &lt; len(lines) &amp;&amp; startX &lt; len(lines[y]); y++ {</span></span>
+<span id="L695"><span class="lineNum">     695</span> <span class="tlaGNC">         241 :                 ch := rune(lines[y][startX])</span></span>
+<span id="L696"><span class="lineNum">     696</span> <span class="tlaGNC">         448 :                 if ch == placeholder || ch == idChar {</span></span>
+<span id="L697"><span class="lineNum">     697</span> <span class="tlaGNC">         207 :                         height++</span></span>
+<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">         241 :                 } else {</span></span>
 <span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC">          34 :                         break</span></span>
 <span id="L700"><span class="lineNum">     700</span>              :                 }</span>
 <span id="L701"><span class="lineNum">     701</span>              :         }</span>
@@ -766,12 +766,12 @@
 <span id="L704"><span class="lineNum">     704</span>              : </span>
 <span id="L705"><span class="lineNum">     705</span>              : // validateRectangle は矩形領域全体が@または識別子で埋まっているか検証</span>
 <span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">          61 : func validateRectangle(lines []string, id string, startX, startY, width, height int, placeholder, idChar rune) error {</span></span>
-<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">         266 :         for dy := range height {</span></span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">         205 :                 y := startY + dy</span></span>
-<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">         205 :                 if y &gt;= len(lines) {</span></span>
+<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">         267 :         for dy := range height {</span></span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">         206 :                 y := startY + dy</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">         206 :                 if y &gt;= len(lines) {</span></span>
 <span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;識別子 '%s': 矩形領域が不完全です (y=%d が範囲外)&quot;, id, y)</span></span>
 <span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC tlaBgGNC">        1222 :                 for dx := range width {</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC tlaBgGNC">        1223 :                 for dx := range width {</span></span>
 <span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">        1017 :                         x := startX + dx</span></span>
 <span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">        1017 :                         if x &gt;= len(lines[y]) {</span></span>
 <span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;識別子 '%s': 矩形領域が不完全です (x=%d, y=%d が範囲外)&quot;, id, x, y)</span></span>
