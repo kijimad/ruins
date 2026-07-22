@@ -37,7 +37,7 @@ type DungeonState struct {
 	// 帯固有のロジックは overworld.Driver に閉じ込め、DungeonState は保持と委譲だけ行う
 	planner mapplanner.PlannerType
 	newGame *overworld.NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
-	driver *overworld.Driver       // OnStart で構成する帯ドライバ。通常ダンジョンでは nil
+	driver  *overworld.Driver        // OnStart で構成する帯ドライバ。通常ダンジョンでは nil
 	// overworldDefinition はオーバーワールドの種別。非 nil ならこの State は帯モード。
 	// 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる
 	overworldDefinition *dungeon.OverworldDefinition
