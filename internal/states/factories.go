@@ -101,7 +101,7 @@ func NewEquipMenuState() (es.State[w.World], error) {
 }
 
 // debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
-// マップ生成の見た目を試す用途なので、遺跡定義でなくプランナー(大部屋・小部屋など)で選ぶ。
+// マップ生成の見た目を試す用途なので、遺跡定義でなくプランナー、すなわち大部屋・小部屋などで選ぶ。
 var debugEnterPlanners = []mapplanner.PlannerType{
 	mapplanner.PlannerTypeBigRoom,
 	mapplanner.PlannerTypeSmallRoom,
@@ -110,40 +110,12 @@ var debugEnterPlanners = []mapplanner.PlannerType{
 	mapplanner.PlannerTypeForest,
 }
 
-// NewDungeonEnterDebugState はデバッグ用にプランナーを選んでフロアを生成し入る選択メニューを返す。
-// main と同じくプランナー単位、すなわち大部屋・小部屋などでマップ生成を試すためのもの。
-// 選択するとプランナーを固定した遺跡進入イベント WarpDungeonEnter を積んでゲームへ戻り、
-// DungeonState.Update が enterDungeonWith(SwapTo で現ステージを退避・デバッグ遺跡1階を指定
-// プランナーで生成・上り階段を結線)を通す。共存前のフロアジャンプのように SwapTo を迂回しない。
-func NewDungeonEnterDebugState() (es.State[w.World], error) {
-	messageState := &MessageState{}
-	debugName := dungeon.DungeonDebug.Name()
-
-	md := messagedata.NewSystemMessage("生成するプランナーを選ぶ")
-	for _, pt := range debugEnterPlanners {
-		name := pt.Name // クロージャ捕捉用に反復ごとへ束ねる
-		md = md.WithChoice(name, func(world w.World) error {
-			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithBuilderEvent(debugName, name)); err != nil {
-				return err
-			}
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
-	}
-	md = md.WithChoice("閉じる", func(_ w.World) error {
-		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		return nil
-	})
-	messageState.messageData = md
-
-	return messageState, nil
-}
-
 // NewDebugMenuState は新しいDebugMenuStateインスタンスを作成するファクトリー関数
 func NewDebugMenuState() (es.State[w.World], error) {
 	messageState := &MessageState{}
+	debugName := dungeon.DungeonDebug.Name()
 
-	messageState.messageData = messagedata.NewSystemMessage("").
+	md := messagedata.NewSystemMessage("").
 		WithChoice("回復薬スポーン(インベントリ)", func(world w.World) error {
 			_, err := lifecycle.SpawnBackpackItem(world, "回復薬", 1)
 			if err != nil {
@@ -181,16 +153,24 @@ func NewDebugMenuState() (es.State[w.World], error) {
 					newGameOverworldState(world),
 				}})
 			return nil
-		}).
-		WithChoice("プランナー指定でダンジョンに入る", func(_ w.World) error {
-			// デバッグメニューをプランナー選択サブメニューへ差し替える。選択後は正規の遺跡進入
-			// (WarpDungeonEnter→enterDungeonWith の SwapTo)をプランナー固定で通す
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonEnterDebugState},
-			})
+		})
+
+	// プランナー単位でデバッグ遺跡へ入る選択肢を平坦に追加する。サブメニューにして
+	// TransReplace で開くと、TransReplace が全ステートを消すため戻り先の DungeonState まで
+	// 消え、選択後に空スタックで無言終了する。ここで直接 TransPop してゲームへ戻し、
+	// DungeonState.Update が enterDungeonWith(SwapTo)を指定プランナーで通す
+	for _, pt := range debugEnterPlanners {
+		name := pt.Name // クロージャ捕捉用に反復ごとへ束ねる
+		md = md.WithChoice("デバッグ遺跡を生成 "+name, func(world w.World) error {
+			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithBuilderEvent(debugName, name)); err != nil {
+				return err
+			}
+			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
-		}).
+		})
+	}
+
+	messageState.messageData = md.
 		WithChoice("メッセージ表示テスト", func(_ w.World) error {
 			testMessageData := messagedata.NewSystemMessage("ゲームが自動保存されました。\n\n進行状況は安全に記録されています。")
 			messageState.SetTransition(es.Transition[w.World]{
