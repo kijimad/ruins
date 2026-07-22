@@ -29,10 +29,10 @@ const (
 	frontColdWidthChunks consts.Chunk = 2
 )
 
-// Session はオーバーワールド帯の実行時状態と操作をまとめる。DungeonState が保持し委譲する。
+// Driver はオーバーワールド帯の実行時状態と操作をまとめる。DungeonState が保持し委譲する。
 // オーバーワールドとダンジョンの本質的な違いは「フロアを作り直さず帯をスライドさせ続ける」点だけで、
-// その帯固有のロジックをこの Session に閉じ込め、states パッケージから分離する。
-type Session struct {
+// その帯固有のロジックをこの Driver に閉じ込め、states パッケージから分離する。
+type Driver struct {
 	planner mapplanner.PlannerType
 	// kind は帯形状の供給元。新規開始で使い、ロード復元では帯形状を SeamlessBand から得るので不要
 	kind     *dungeon.OverworldDefinition
@@ -42,17 +42,17 @@ type Session struct {
 	frontCfg worldstream.FrontConfig
 }
 
-// NewSession は帯セッションを構成する。params が非 nil なら新規開始、nil ならロード復元。
+// NewDriver は帯ドライバを構成する。params が非 nil なら新規開始、nil ならロード復元。
 // kind は新規開始時の帯形状の供給元。ロード復元では帯形状を SeamlessBand から得るので nil でよい。
 // 実際の帯生成・復元は Start で行う。
-func NewSession(planner mapplanner.PlannerType, kind *dungeon.OverworldDefinition, params *NewGameParams) *Session {
-	return &Session{planner: planner, kind: kind, params: params}
+func NewDriver(planner mapplanner.PlannerType, kind *dungeon.OverworldDefinition, params *NewGameParams) *Driver {
+	return &Driver{planner: planner, kind: kind, params: params}
 }
 
 // Start は帯ドライバを用意する。新規開始なら初期帯を生成し現ステージをオーバーワールドに
 // 確定する。ロード復元なら SeamlessBand から Band と ChunkGen を作り直す。前線位置も初回
 // 描画前に導出する。
-func (s *Session) Start(world w.World) error {
+func (s *Driver) Start(world w.World) error {
 	d := query.GetDungeon(world)
 
 	// 視界の強制再計算を促す。VisionSystem は現ステージが変わらないとキャッシュを無効化しない。
@@ -85,7 +85,7 @@ func (s *Session) Start(world w.World) error {
 
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
 // 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
-func (s *Session) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
+func (s *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 	s.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
 	s.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, s.planner)
 	s.frontCfg = frontCfgFromBand(sb)
@@ -104,14 +104,14 @@ func frontCfgFromBand(sb *gc.SeamlessBand) worldstream.FrontConfig {
 }
 
 // front は総経過ターン数から寒波前線の現在位置を導出する。
-func (s *Session) front(world w.World) worldstream.Front {
+func (s *Driver) front(world w.World) worldstream.Front {
 	totalTurns := query.GetGameTime(world).TotalTurns
 	return worldstream.FrontAt(s.frontCfg, totalTurns)
 }
 
 // startNewBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
 // プレイヤーを中央チャンクへ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。
-func (s *Session) startNewBand(world w.World) error {
+func (s *Driver) startNewBand(world w.World) error {
 	p := s.params
 	if p == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
@@ -182,13 +182,13 @@ func (s *Session) startNewBand(world w.World) error {
 }
 
 // syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す。これでセーブに反映される。
-func (s *Session) syncBandState(world w.World) {
+func (s *Driver) syncBandState(world w.World) {
 	query.GetSeamlessBand(world).EastIndex = s.band.EastIndex()
 }
 
 // generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
 // Level 設定は帯幅が不変なので再設定しても冪等で無害。
-func (s *Session) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
+func (s *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
 	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: s.band.Width(), TileHeight: chunkH}
 	for i := range s.band.K() {
 		if err := s.gen(i, i.Tiles(chunkW)); err != nil {
@@ -199,13 +199,13 @@ func (s *Session) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
 }
 
 // EastIndex は帯の現在の東インデックスを返す。テストや検証用。
-func (s *Session) EastIndex() consts.Chunk {
+func (s *Driver) EastIndex() consts.Chunk {
 	return s.band.EastIndex()
 }
 
 // UpdateFront は総ターン数から導出した寒波前線の現在位置を永続状態へ反映する。
 // 位置は導出値なので毎フレーム書いても冪等。描画や凍結効果はこの FrontEastAbsX を読む。
-func (s *Session) UpdateFront(world w.World) {
+func (s *Driver) UpdateFront(world w.World) {
 	sb := query.GetSeamlessBand(world)
 	if sb == nil || !sb.Front.Active {
 		return
@@ -218,7 +218,7 @@ func (s *Session) UpdateFront(world w.World) {
 //
 // 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち
 // プレイヤーターンの Player フェーズかつプレイヤーが継続アクティビティ中でないとき。
-func (s *Session) MaybeShift(world w.World) (bool, error) {
+func (s *Driver) MaybeShift(world w.World) (bool, error) {
 	if query.GetTurnState(world).Phase != gc.TurnPhasePlayer {
 		return false, nil
 	}

@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// 帯シフトの単体テストは帯セッションへ移した。internal/overworld/session_test.go を参照。
+// 帯シフトの単体テストは帯ドライバへ移した。internal/overworld/session_test.go を参照。
 // ここでは DungeonState としてのオーバーワールド統合挙動を固める。
 
 // TestOverworldState_ロード復元で視界が再計算され真っ暗にならない は、セーブ→ロードで

@@ -33,11 +33,11 @@ type DungeonState struct {
 	// 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う
 	Resume bool
 
-	// planner・newGame・session・overworldDefinition はオーバーワールドモードのときだけ使う。
-	// 帯固有のロジックは overworld.Session に閉じ込め、DungeonState は保持と委譲だけ行う
+	// planner・newGame・driver・overworldDefinition はオーバーワールドモードのときだけ使う。
+	// 帯固有のロジックは overworld.Driver に閉じ込め、DungeonState は保持と委譲だけ行う
 	planner mapplanner.PlannerType
 	newGame *overworld.NewGameParams // 新規開始の帯パラメータ。ロード復元では nil
-	session *overworld.Session       // OnStart で構成する帯セッション。通常ダンジョンでは nil
+	driver *overworld.Driver       // OnStart で構成する帯ドライバ。通常ダンジョンでは nil
 	// overworldDefinition はオーバーワールドの種別。非 nil ならこの State は帯モード。
 	// 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる
 	overworldDefinition *dungeon.OverworldDefinition
@@ -52,12 +52,12 @@ func (st DungeonState) isSeamless() bool {
 // NewOverworldState はオーバーワールド探索ステートのファクトリを返す。
 //
 // オーバーワールドは帯を持つステージ種別 OverworldDefinition で、専用の State 型は持たず DungeonState
-// として動く。帯固有のロジックは overworld.Session に閉じ込めてあり、DungeonState は OnStart で
-// セッションを構成して開始を委譲し、Update でシフトを委譲するだけ。
+// として動く。帯固有のロジックは overworld.Driver に閉じ込めてあり、DungeonState は OnStart で
+// ドライバを構成して開始を委譲し、Update でシフトを委譲するだけ。
 //
 // kind は帯形状の供給元。本番は登録済みの dungeon.DungeonOverworld を渡す。
 // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、
-// 帯形状は Session の Start がオーバーワールドの StageField の SeamlessBand から読み取って再構築する。
+// 帯形状は Driver の Start がオーバーワールドの StageField の SeamlessBand から読み取って再構築する。
 func NewOverworldState(planner mapplanner.PlannerType, kind *dungeon.OverworldDefinition, params *overworld.NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &DungeonState{
@@ -90,11 +90,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 		st.baseImage.Fill(theme.ScreenBackground)
 	}
 
-	// Seamless なオーバーワールドは帯セッションを構成して委譲する。帯固有のロジックは
-	// overworld.Session に閉じ込め、DungeonState はここで開始を委譲するだけにする
+	// Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは
+	// overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする
 	if st.isSeamless() {
-		st.session = overworld.NewSession(st.planner, st.overworldDefinition, st.newGame)
-		return st.session.Start(world)
+		st.driver = overworld.NewDriver(st.planner, st.overworldDefinition, st.newGame)
+		return st.driver.Start(world)
 	}
 
 	// 進入先の遺跡定義名を決める。State に明示指定があればそれを使い、無ければ現ステージ、
@@ -171,7 +171,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// 全ダンジョン踏破をオーバーワールド滞在時に判定する。判定条件は帯シフトと同じ
 	// 「session保持かつ現ステージ深度0」。SetEventActive は冪等で視聴後は再発火しないので、
 	// 毎フレーム呼んでも一度だけ発火する
-	if st.session != nil && query.IsOnOverworld(world) {
+	if st.driver != nil && query.IsOnOverworld(world) {
 		gp := query.GetGameProgress(world)
 		if gp.IsAllCleared(dungeon.GetAllDungeonNames()) {
 			gp.SetEventActive(gc.EventAllCleared)
@@ -229,13 +229,13 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// BaseStateの共通処理を使用
 	transition = st.ConsumeTransition()
-	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯セッションは
+	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯ドライバは
 	// オーバーワールド State だけが持ち、現ステージ深度0がオーバーワールドを表す。遺跡へ入ると
 	// 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。通常ダンジョンは
-	// session が nil で除外される。死亡やリクエスト遷移で早期 return したフレームも触らない
-	if st.session != nil && query.IsOnOverworld(world) && transition.Type == es.TransNone {
-		st.session.UpdateFront(world)
-		shifted, serr := st.session.MaybeShift(world)
+	// driver が nil で除外される。死亡やリクエスト遷移で早期 return したフレームも触らない
+	if st.driver != nil && query.IsOnOverworld(world) && transition.Type == es.TransNone {
+		st.driver.UpdateFront(world)
+		shifted, serr := st.driver.MaybeShift(world)
 		if serr != nil {
 			return es.Transition[w.World]{}, serr
 		}

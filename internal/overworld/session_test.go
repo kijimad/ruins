@@ -24,7 +24,7 @@ const (
 func TestSession_MaybeShift_東へ進むとシフトする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewSession(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -41,7 +41,7 @@ func TestSession_MaybeShift_東へ進むとシフトする(t *testing.T) {
 func TestSession_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewSession(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -62,7 +62,7 @@ func TestSession_MaybeShift_複数チャンク跨ぎで連続シフト(t *testin
 func TestSession_MaybeShift_開始点より西へはシフトしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewSession(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	require.Equal(t, 0, int(s.EastIndex()), "前提: 開始時 eastIndex=0")
 
@@ -78,7 +78,7 @@ func TestSession_MaybeShift_開始点より西へはシフトしない(t *testin
 func TestSession_MaybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewSession(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	shifted, err := s.MaybeShift(world)
@@ -88,7 +88,7 @@ func TestSession_MaybeShift_中央では動かない(t *testing.T) {
 }
 
 // TestSession_セーブ往復で帯状態が復元される は、SeamlessBand が serde に乗り、ロード後に
-// セッションが同じ eastIndex で再構築できることを固定する。
+// ドライバが同じ eastIndex で再構築できることを固定する。
 func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	t.Parallel()
 
@@ -96,7 +96,7 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	const k = 3
 
 	world := testutil.InitTestWorld(t)
-	s := NewSession(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, k), &NewGameParams{RunSeed: 12345})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, k), &NewGameParams{RunSeed: 12345})
 	require.NoError(t, s.Start(world))
 
 	// 東へ1回シフトして eastIndex=1 にする
@@ -132,8 +132,8 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Equal(t, frontAdvanceTurns, sb.Front.AdvanceTurns, "FrontAdvanceTurns が復元される")
 	assert.Equal(t, frontStep, sb.Front.Step, "FrontStep が復元される")
 
-	// 復元ワールドでロード用セッションを起動 → Band が eastIndex=1 で再構築される
-	s2 := NewSession(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
+	// 復元ワールドでロード用ドライバを起動 → Band が eastIndex=1 で再構築される
+	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	require.NoError(t, s2.Start(world2))
 	assert.Equal(t, 1, int(s2.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
 	assert.Equal(t, chunkW*k, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
@@ -155,7 +155,7 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 func TestSession_新規開始で街がオーバーワールドに配置される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewSession(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 42})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 42})
 	require.NoError(t, s.Start(world))
 
 	// 街の構成物を名前で探し、配置・帯束縛・相互作用の有無を確認する
@@ -185,7 +185,7 @@ func TestSession_前線が総ターン数で前進する(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 40, 20
 
 	world := testutil.InitTestWorld(t)
-	s := NewSession(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &NewGameParams{RunSeed: 1})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &NewGameParams{RunSeed: 1})
 	require.NoError(t, s.Start(world))
 
 	sb := query.GetSeamlessBand(world)
