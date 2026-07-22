@@ -108,6 +108,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
+	// 単一フロアを新規生成して現ステージに確定する。初回進入や golden の単発描画で使う。
+	// これは共存を作らない: 他ステージの suspend も上り階段の結線もしないので、ゲーム中の
+	// 階層移動(地上⇄遺跡・階の上り下り)には使わないこと。それらは enterDungeon/descend の
+	// SwapTo を通し、退避と結線を伴って往復する。
 	// 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う
 	if !st.Resume {
 		key := dungeonStageKey(defName, st.Depth)

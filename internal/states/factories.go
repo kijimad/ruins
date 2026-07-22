@@ -288,18 +288,6 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("次の階層に進む", func(world w.World) error {
-			currentDepth := query.GetDungeon(world).CurrentStage.Depth
-
-			// 次の階層に遷移
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(currentDepth + 1),
-				},
-			})
-			return nil
-		}).
 		WithChoice("名前入力", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
