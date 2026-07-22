@@ -68,6 +68,9 @@ func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerTy
 		chain.PlanData.RawMaster = &world.Resources.RawMaster
 	}
 
+	// 生成中フロアの深度をプランへ焼き込む。深度依存の抽選が世界の現在地に依存しないようにする
+	chain.PlanData.Depth = plannerType.Depth
+
 	chain.With(NewHostileNPCPlanner(world, plannerType))
 	chain.With(NewItemPlanner(world, plannerType))
 	chain.With(NewPortalPlanner(world, plannerType))

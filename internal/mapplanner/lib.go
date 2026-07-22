@@ -31,6 +31,9 @@ type DoorSpec struct {
 
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
+	// Depth はこのプランが生成する階層の深度。生成中フロアの深度で、世界の現在地に依存しない。
+	// 収納loot など深度依存の抽選はこれを使う。プレイヤーがまだ移動していない生成時点でも正しい。
+	Depth int
 	// 階層情報
 	Level gc.Level
 	// 部屋群。部屋は長方形の移動可能な空間のことをいう。
