@@ -160,9 +160,8 @@ func NewDebugMenuState() (es.State[w.World], error) {
 	// 消え、選択後に空スタックで無言終了する。ここで直接 TransPop してゲームへ戻し、
 	// DungeonState.Update が enterDungeonWith(SwapTo)を指定プランナーで通す
 	for _, pt := range debugEnterPlanners {
-		name := pt.Name // クロージャ捕捉用に反復ごとへ束ねる
-		md = md.WithChoice("デバッグ遺跡を生成 "+name, func(world w.World) error {
-			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithBuilderEvent(debugName, name)); err != nil {
+		md = md.WithChoice("デバッグ遺跡を生成 "+pt.Name, func(world w.World) error {
+			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithBuilderEvent(debugName, pt.Name)); err != nil {
 				return err
 			}
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
