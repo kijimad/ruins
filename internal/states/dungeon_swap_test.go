@@ -50,9 +50,9 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	require.NoError(t, err)
 
 	d := query.GetDungeon(world)
-	kind, ok := dungeon.GetStageKind(dungeon.DungeonDebug.Name())
+	kind, ok := dungeon.GetStageDefinition(dungeon.DungeonDebug.Name())
 	require.True(t, ok)
-	def, ok := kind.(*dungeon.DungeonKind)
+	def, ok := kind.(*dungeon.DungeonDefinition)
 	require.True(t, ok)
 
 	st := &DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: mapplanner.PlannerTypeRandom}

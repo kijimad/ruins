@@ -14,7 +14,7 @@ import (
 )
 
 // NewGameParams は新規オーバーワールド開始時のプレイ固有パラメータ。
-// プレイごとに変わるのは RunSeed だけ。帯形状は OverworldKind マスタが持つ。
+// プレイごとに変わるのは RunSeed だけ。帯形状は OverworldDefinition マスタが持つ。
 type NewGameParams struct {
 	RunSeed uint64
 }
@@ -35,7 +35,7 @@ const (
 type Session struct {
 	planner mapplanner.PlannerType
 	// kind は帯形状の供給元。新規開始で使い、ロード復元では帯形状を SeamlessBand から得るので不要
-	kind     *dungeon.OverworldKind
+	kind     *dungeon.OverworldDefinition
 	params   *NewGameParams // 新規開始のプレイ固有パラメータ。ロード復元では nil
 	band     *worldstream.Band
 	gen      worldstream.ChunkGen
@@ -45,7 +45,7 @@ type Session struct {
 // NewSession は帯セッションを構成する。params が非 nil なら新規開始、nil ならロード復元。
 // kind は新規開始時の帯形状の供給元。ロード復元では帯形状を SeamlessBand から得るので nil でよい。
 // 実際の帯生成・復元は Start で行う。
-func NewSession(planner mapplanner.PlannerType, kind *dungeon.OverworldKind, params *NewGameParams) *Session {
+func NewSession(planner mapplanner.PlannerType, kind *dungeon.OverworldDefinition, params *NewGameParams) *Session {
 	return &Session{planner: planner, kind: kind, params: params}
 }
 
@@ -119,7 +119,7 @@ func (s *Session) startNewBand(world w.World) error {
 	if s.kind == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯形状の種別が必要")
 	}
-	// 帯形状はマスタ、すなわち OverworldKind から取る。RunSeed だけがプレイ固有
+	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
 	chunkW, chunkH, k := s.kind.BandShape()
 	s.band = worldstream.NewBand(chunkW, k)
 	s.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, s.planner)

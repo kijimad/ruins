@@ -20,7 +20,7 @@ const overworldStageName = "オーバーワールド"
 // あえて interface でなく比較可能な struct にする。StageBound・PortalConnection・Dungeon に埋め込まれる
 // 保存対象で、arkserde は interface を保存できず、共存機構は Key == key の等値比較に依存するため、
 // identity は素の値でなければならない。オーバーワールドとダンジョンの振る舞い・設定の多態は、Name で
-// 引く StageKind(OverworldKind/DungeonKind)が担う。ここは identity だけを持ち種別で分岐しない。
+// 引く StageDefinition(OverworldDefinition/DungeonDefinition)が担う。ここは identity だけを持ち種別で分岐しない。
 // Name/Depth はステージ同定と導出、定義の引き当て・階数にのみ使い、場所判定には使わない。
 type StageKey struct {
 	// Name はステージ定義名を保持する。オーバーワールドは NewOverworldStage() が付ける固定名、

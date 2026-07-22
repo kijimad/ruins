@@ -14,7 +14,7 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("空のプールの場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
-		def := DungeonKind{
+		def := DungeonDefinition{
 			name:        "テスト",
 			plannerPool: []PlannerWeight{},
 		}
@@ -25,7 +25,7 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("単一要素のプールはその要素を返す", func(t *testing.T) {
 		t.Parallel()
-		def := DungeonKind{
+		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 			},
@@ -38,7 +38,7 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("重みに応じて選択される", func(t *testing.T) {
 		t.Parallel()
-		def := DungeonKind{
+		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeForest, Weight: 100},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
@@ -65,7 +65,7 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("重みが0のみの場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
-		def := DungeonKind{
+		def := DungeonDefinition{
 			name: "テスト",
 			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeRuins, Weight: 0},
@@ -79,7 +79,7 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("同じシードで生成された初期状態のRNGでは同じ結果を返す", func(t *testing.T) {
 		t.Parallel()
-		def := DungeonKind{
+		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeForest, Weight: 1},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
@@ -100,7 +100,7 @@ func TestSelectPlanner(t *testing.T) {
 
 	t.Run("異なるシードのRNGでは異なる結果を返す可能性がある", func(t *testing.T) {
 		t.Parallel()
-		def := DungeonKind{
+		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeForest, Weight: 1},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},

@@ -20,14 +20,14 @@ import (
 // ダンジョンのフロア生成・階層遷移・ポータル配線を dungeon.go から分離する。
 // DungeonState のメソッドはこのファイルにも置く。
 
-// resolveDungeonKind は名前から通常ダンジョン種別を引く。未登録、またはオーバーワールドのような
+// resolveDungeonDefinition は名前から通常ダンジョン種別を引く。未登録、またはオーバーワールドのような
 // フロアを生成しない種別なら error を返す。フロア生成の入口を1箇所に集約する。
-func resolveDungeonKind(defName string) (*dungeon.DungeonKind, error) {
-	kind, found := dungeon.GetStageKind(defName)
+func resolveDungeonDefinition(defName string) (*dungeon.DungeonDefinition, error) {
+	kind, found := dungeon.GetStageDefinition(defName)
 	if !found {
 		return nil, fmt.Errorf("ステージ定義が見つかりません: %s", defName)
 	}
-	dk, ok := kind.(*dungeon.DungeonKind)
+	dk, ok := kind.(*dungeon.DungeonDefinition)
 	if !ok {
 		return nil, fmt.Errorf("フロア生成できないステージ種別です: %s", defName)
 	}
@@ -45,7 +45,7 @@ func dungeonStageKey(defName string, depth int) gc.StageKey {
 // spawnFloor は depth のフロアを生成して world に配置し、生成物に StageBound を付ける。
 // プレイヤー開始位置と、開始位置に置いた上り階段エンティティを返す。上り階段には呼び出し側が
 // 戻り先を結線する。プレイヤー配置・探索リセット・現ステージ更新は呼び出し側が行う
-func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.DungeonKind, key gc.StageKey) (consts.Coord[consts.Tile], ecs.Entity, error) {
+func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.DungeonDefinition, key gc.StageKey) (consts.Coord[consts.Tile], ecs.Entity, error) {
 	var zero consts.Coord[consts.Tile]
 	var noEntity ecs.Entity
 
@@ -126,7 +126,7 @@ func (st *DungeonState) descend(world w.World) error {
 	var playerPos consts.Coord[consts.Tile]
 	var generated bool
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
-		def, err := resolveDungeonKind(defName)
+		def, err := resolveDungeonDefinition(defName)
 		if err != nil {
 			return err
 		}
@@ -267,7 +267,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	var landing consts.Coord[consts.Tile]
 	var generated bool
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
-		def, derr := resolveDungeonKind(defName)
+		def, derr := resolveDungeonDefinition(defName)
 		if derr != nil {
 			return derr
 		}
@@ -324,7 +324,7 @@ func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, bu
 
 	// 既にその遺跡にいる。SwapTo は自己スワップを前提としないので、その場で作り直す。
 	// 上り階段の戻り先結線を引き継がないと ascend が結線なしで失敗するため、Purge 前に控える
-	def, err := resolveDungeonKind(defName)
+	def, err := resolveDungeonDefinition(defName)
 	if err != nil {
 		return err
 	}

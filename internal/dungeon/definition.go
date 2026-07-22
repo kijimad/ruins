@@ -9,10 +9,10 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// StageKind はステージ種別の静的マスタ。セーブに含めず StageKey.Name で引く。
+// StageDefinition はステージ種別の静的マスタ。セーブに含めず StageKey.Name で引く。
 // マスタ、すなわち不変の設定と、プレイ固有データ、すなわち StageKey・StageField・SeamlessBand などの
 // 可変でセーブ対象のデータを分ける境界。種別はフラグでなく実装する型で表す。
-type StageKind interface {
+type StageDefinition interface {
 	// Name は種別の識別名。StageKey.Name と一致し、登録表を引くキーになる
 	Name() string
 	// BaseTemperature は基本気温。摂氏
@@ -25,14 +25,14 @@ type PlannerWeight struct {
 	Weight      float64
 }
 
-// DungeonKind はフロアを生成して潜る通常ダンジョンのマスタ。
+// DungeonDefinition はフロアを生成して潜る通常ダンジョンのマスタ。
 // フィールドは不変なので非公開にし、アクセサ経由でのみ読む。
 //
-// 型名は OverworldKind と対になる Kind 系で、両者が同じ StageKind を実装することを表す。
+// 型名は OverworldDefinition と対になる Definition 系で、両者が同じ StageDefinition を実装することを表す。
 // パッケージ名との stutter より、対称な命名で種別の並びを読みやすくする方を優先する。
 //
-//nolint:revive // DungeonKind は OverworldKind と対称にするため意図的にこの名前にする
-type DungeonKind struct {
+//nolint:revive // DungeonDefinition は OverworldDefinition と対称にするため意図的にこの名前にする
+type DungeonDefinition struct {
 	name        string
 	description string
 	imageKey    string
@@ -46,32 +46,32 @@ type DungeonKind struct {
 }
 
 // Name はダンジョン名を返す
-func (d *DungeonKind) Name() string { return d.name }
+func (d *DungeonDefinition) Name() string { return d.name }
 
 // BaseTemperature は基本気温を返す
-func (d *DungeonKind) BaseTemperature() int { return d.baseTemp }
+func (d *DungeonDefinition) BaseTemperature() int { return d.baseTemp }
 
 // Description はダンジョン説明文を返す
-func (d *DungeonKind) Description() string { return d.description }
+func (d *DungeonDefinition) Description() string { return d.description }
 
 // ImageKey は背景画像のスプライトキーを返す
-func (d *DungeonKind) ImageKey() string { return d.imageKey }
+func (d *DungeonDefinition) ImageKey() string { return d.imageKey }
 
 // TotalFloors は総階層数を返す
-func (d *DungeonKind) TotalFloors() int { return d.totalFloors }
+func (d *DungeonDefinition) TotalFloors() int { return d.totalFloors }
 
 // EnemyTableName は敵テーブル名を返す
-func (d *DungeonKind) EnemyTableName() string { return d.enemyTable }
+func (d *DungeonDefinition) EnemyTableName() string { return d.enemyTable }
 
 // ItemTableName はアイテムテーブル名を返す
-func (d *DungeonKind) ItemTableName() string { return d.itemTable }
+func (d *DungeonDefinition) ItemTableName() string { return d.itemTable }
 
 // PlannerPool は使用するマップ種類と重みの一覧を返す。表示や検証での読み取り用。
-func (d *DungeonKind) PlannerPool() []PlannerWeight { return d.plannerPool }
+func (d *DungeonDefinition) PlannerPool() []PlannerWeight { return d.plannerPool }
 
 // BossPlanner は depth が最終階のときボスフロアプランナーを返す。
 // ボスフロアがない、または最終階でなければ ok=false を返す。
-func (d *DungeonKind) BossPlanner(depth int) (mapplanner.PlannerType, bool) {
+func (d *DungeonDefinition) BossPlanner(depth int) (mapplanner.PlannerType, bool) {
 	if d.bossPlanner != nil && depth == d.totalFloors {
 		return *d.bossPlanner, true
 	}
@@ -80,7 +80,7 @@ func (d *DungeonKind) BossPlanner(depth int) (mapplanner.PlannerType, bool) {
 
 // SelectPlanner は PlannerPool から重み付き抽選で PlannerType を選ぶ。
 // プランナー抽選はフロアを生成するダンジョン固有の振る舞いなのでこの型のメソッドにする。
-func (d *DungeonKind) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerType, error) {
+func (d *DungeonDefinition) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerType, error) {
 	if len(d.plannerPool) == 0 {
 		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPoolが空です: %s", d.name)
 	}
@@ -102,11 +102,11 @@ func (d *DungeonKind) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerType, err
 	return result, nil
 }
 
-// OverworldKind は帯をスライドし続けるオーバーワールドのマスタ。
+// OverworldDefinition は帯をスライドし続けるオーバーワールドのマスタ。
 // フロアを生成しないので、ダンジョン専用のテーブルやプランナーを持たない。
 // 帯形状 chunkW/chunkH/k は静的な設定なのでマスタが持つ。RunSeed はプレイごとに変わるため
 // プレイ固有データ SeamlessBand が持ち、ここには含めない。
-type OverworldKind struct {
+type OverworldDefinition struct {
 	name     string
 	baseTemp int
 	chunkW   consts.Tile
@@ -114,19 +114,19 @@ type OverworldKind struct {
 	k        consts.Chunk
 }
 
-// NewOverworldKind はオーバーワールド種別を構成する。帯形状を含む設定を渡す。
+// NewOverworldDefinition はオーバーワールド種別を構成する。帯形状を含む設定を渡す。
 // 本番は登録済みの DungeonOverworld を使い、テストは任意形状の種別を組むのに使う。
-func NewOverworldKind(name string, baseTemp int, chunkW, chunkH consts.Tile, k consts.Chunk) *OverworldKind {
-	return &OverworldKind{name: name, baseTemp: baseTemp, chunkW: chunkW, chunkH: chunkH, k: k}
+func NewOverworldDefinition(name string, baseTemp int, chunkW, chunkH consts.Tile, k consts.Chunk) *OverworldDefinition {
+	return &OverworldDefinition{name: name, baseTemp: baseTemp, chunkW: chunkW, chunkH: chunkH, k: k}
 }
 
 // Name はオーバーワールドの識別名を返す
-func (o *OverworldKind) Name() string { return o.name }
+func (o *OverworldDefinition) Name() string { return o.name }
 
 // BaseTemperature は基本気温を返す
-func (o *OverworldKind) BaseTemperature() int { return o.baseTemp }
+func (o *OverworldDefinition) BaseTemperature() int { return o.baseTemp }
 
 // BandShape は帯の形状、1チャンクの幅と高さ、チャンク数を返す。RunSeed は含まない。
-func (o *OverworldKind) BandShape() (chunkW, chunkH consts.Tile, k consts.Chunk) {
+func (o *OverworldDefinition) BandShape() (chunkW, chunkH consts.Tile, k consts.Chunk) {
 	return o.chunkW, o.chunkH, o.k
 }

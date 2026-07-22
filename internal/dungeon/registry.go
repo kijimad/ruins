@@ -5,7 +5,7 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 // 全ステージ種別のマスタ定義
 var (
 	// DungeonDebug はデバッグ用ダンジョン定義
-	DungeonDebug = &DungeonKind{
+	DungeonDebug = &DungeonDefinition{
 		name:        "デバッグ",
 		totalFloors: 99,
 		enemyTable:  "森",
@@ -17,7 +17,7 @@ var (
 	}
 
 	// DungeonForest は森ダンジョン定義
-	DungeonForest = &DungeonKind{
+	DungeonForest = &DungeonDefinition{
 		name:        "亡者の森",
 		description: "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。",
 		imageKey:    "forest1",
@@ -34,7 +34,7 @@ var (
 	}
 
 	// DungeonCave は洞窟ダンジョン定義
-	DungeonCave = &DungeonKind{
+	DungeonCave = &DungeonDefinition{
 		name:        "灰の洞窟",
 		description: "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。",
 		imageKey:    "cave1",
@@ -53,10 +53,10 @@ var (
 	// DungeonOverworld はオーバーワールド帯を表す種別。
 	// フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
 	// 帯形状 50x50 のチャンクを3枚並べる。この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
-	DungeonOverworld = NewOverworldKind("オーバーワールド", 0, 50, 50, 3)
+	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3)
 
 	// DungeonRuins は廃墟ダンジョン定義
-	DungeonRuins = &DungeonKind{
+	DungeonRuins = &DungeonDefinition{
 		name:        "忘却の廃都",
 		description: "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。",
 		imageKey:    "city1",
@@ -74,7 +74,7 @@ var (
 )
 
 // allDungeons は選択画面に表示する登録済みダンジョンの一覧
-var allDungeons = []*DungeonKind{
+var allDungeons = []*DungeonDefinition{
 	DungeonForest,
 	DungeonCave,
 	DungeonRuins,
@@ -82,7 +82,7 @@ var allDungeons = []*DungeonKind{
 
 // GetAllDungeons は選択画面に表示する全ダンジョン定義を返す。
 // オーバーワールドやデバッグなどの内部用種別は含まない。
-func GetAllDungeons() []*DungeonKind {
+func GetAllDungeons() []*DungeonDefinition {
 	return allDungeons
 }
 
@@ -95,16 +95,16 @@ func GetAllDungeonNames() []string {
 	return names
 }
 
-// internalKinds は選択画面に表示しない内部用の種別
-var internalKinds = []StageKind{
+// internalDefinitions は選択画面に表示しない内部用の種別
+var internalDefinitions = []StageDefinition{
 	DungeonDebug,
 	DungeonOverworld,
 }
 
-// GetStageKind は名前からステージ種別のマスタを取得する。
-func GetStageKind(name string) (StageKind, bool) {
+// GetStageDefinition は名前からステージ種別のマスタを取得する。
+func GetStageDefinition(name string) (StageDefinition, bool) {
 	// 内部用種別を先にチェックする
-	for _, k := range internalKinds {
+	for _, k := range internalDefinitions {
 		if k.Name() == name {
 			return k, true
 		}
