@@ -247,6 +247,11 @@ func (st *DungeonState) enterDungeon(world w.World, defName string) error {
 	fromPos := world.Components.GridElement.Get(player).Coord
 
 	target := gc.NewNamedDungeonStage(defName, 1)
+	// 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で
+	// 今いる遺跡を選んだ場合など。SwapTo は自己スワップを前提としない
+	if fromStage == target {
+		return nil
+	}
 
 	var landing consts.Coord[consts.Tile]
 	var generated bool
