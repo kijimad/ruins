@@ -161,7 +161,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 	// DungeonState.Update が enterDungeonWith(SwapTo)を指定プランナーで通す
 	for _, pt := range debugEnterPlanners {
 		md = md.WithChoice("デバッグ遺跡を生成 "+pt.Name, func(world w.World) error {
-			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithBuilderEvent(debugName, pt.Name)); err != nil {
+			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, pt.Name)); err != nil {
 				return err
 			}
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})

@@ -19,11 +19,11 @@ type WarpAscend struct{}
 type WarpDungeonEnter struct {
 	// DefinitionName は進入する遺跡の定義名
 	DefinitionName string
-	// BuilderTypeName は生成に使うプランナー名。空なら遺跡定義のプールから選ぶ。
+	// PlannerName は生成に使うプランナー名。空なら遺跡定義のプールから選ぶ。
 	// デバッグでプランナーを固定してフロアを試すときだけ指定する。
 	// プランナー型そのものでなく名前で運ぶのは、mapplanner が components を import しており
 	// 逆向きの依存を持てないため。名前から型への解決は states 側で行う
-	BuilderTypeName string
+	PlannerName string
 }
 
 // GameClear はゲームクリア
@@ -65,10 +65,10 @@ func WarpDungeonEnterEvent(definitionName string) StateChangeRequest {
 	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName}}
 }
 
-// WarpDungeonEnterWithBuilderEvent はプランナーを固定した遺跡進入リクエストを生成する。
+// WarpDungeonEnterWithPlannerEvent はプランナーを固定した遺跡進入リクエストを生成する。
 // デバッグでプランナー単位にフロアを生成して試すときに使う
-func WarpDungeonEnterWithBuilderEvent(definitionName, builderTypeName string) StateChangeRequest {
-	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName, BuilderTypeName: builderTypeName}}
+func WarpDungeonEnterWithPlannerEvent(definitionName, plannerName string) StateChangeRequest {
+	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName, PlannerName: plannerName}}
 }
 
 // GameClearEvent はゲームクリアリクエストを生成する
