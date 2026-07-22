@@ -543,6 +543,17 @@ var (
 	}
 )
 
+// PlannerTypeByName は名前から PlannerType を引く。対象は PlannerFunc を持つ AllPlannerTypes で、
+// 見つからなければ ok=false を返す。デバッグでプランナー名を指定してフロアを生成するときに使う。
+func PlannerTypeByName(name string) (PlannerType, bool) {
+	for _, pt := range AllPlannerTypes {
+		if pt.Name == name {
+			return pt, true
+		}
+	}
+	return PlannerType{}, false
+}
+
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
 func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	// シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される

@@ -238,6 +238,17 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 // enterDungeon はオーバーワールドから遺跡へ入る。現在地(入口座標)を上り階段へ結線して戻れるようにする。
 // descend の遺跡版で、行き先が1つ深い階でなく遺跡1階になる。
 func (st *DungeonState) enterDungeon(world w.World, defName string) error {
+	// プランナーは遺跡定義のプールから選ぶ。Random を渡すと spawnFloor がプール抽選へ回す
+	return st.enterDungeonWith(world, defName, mapplanner.PlannerTypeRandom)
+}
+
+// enterDungeonWith はプランナーを固定して遺跡へ入る。デバッグのプランナー単位進入で使う。
+// builderType が Random または PlannerFunc 未設定なら spawnFloor が遺跡定義のプールから選ぶ。
+// それ以外は指定プランナーで生成する。共存機構の往復は enterDungeon と同じ。
+func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderType mapplanner.PlannerType) error {
+	// spawnFloor は st.BuilderType を読んでプランナーを決める。ここで進入ごとに確定する
+	st.BuilderType = builderType
+
 	fromStage := query.GetDungeon(world).CurrentStage
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {

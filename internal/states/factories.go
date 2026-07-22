@@ -100,18 +100,30 @@ func NewEquipMenuState() (es.State[w.World], error) {
 	return &EquipMenuState{}, nil
 }
 
-// NewDungeonEnterDebugState はデバッグ用に任意のダンジョンへ入る選択メニューを返す。
-// 選択すると正規の遺跡進入イベント WarpDungeonEnter を積んでゲームへ戻り、DungeonState.Update が
-// enterDungeon(SwapTo で現ステージを退避・遺跡1階を生成・上り階段を結線)を通す。共存前の
-// フロアジャンプのように SwapTo を迂回しない。オーバーワールドからの進入を想定する。
+// debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
+// マップ生成の見た目を試す用途なので、遺跡定義でなくプランナー(大部屋・小部屋など)で選ぶ。
+var debugEnterPlanners = []mapplanner.PlannerType{
+	mapplanner.PlannerTypeBigRoom,
+	mapplanner.PlannerTypeSmallRoom,
+	mapplanner.PlannerTypeCave,
+	mapplanner.PlannerTypeRuins,
+	mapplanner.PlannerTypeForest,
+}
+
+// NewDungeonEnterDebugState はデバッグ用にプランナーを選んでフロアを生成し入る選択メニューを返す。
+// main と同じくプランナー単位、すなわち大部屋・小部屋などでマップ生成を試すためのもの。
+// 選択するとプランナーを固定した遺跡進入イベント WarpDungeonEnter を積んでゲームへ戻り、
+// DungeonState.Update が enterDungeonWith(SwapTo で現ステージを退避・デバッグ遺跡1階を指定
+// プランナーで生成・上り階段を結線)を通す。共存前のフロアジャンプのように SwapTo を迂回しない。
 func NewDungeonEnterDebugState() (es.State[w.World], error) {
 	messageState := &MessageState{}
+	debugName := dungeon.DungeonDebug.Name()
 
-	md := messagedata.NewSystemMessage("入る遺跡を選ぶ")
-	for _, d := range dungeon.GetAllDungeons() {
-		name := d.Name() // クロージャ捕捉用に反復ごとへ束ねる
+	md := messagedata.NewSystemMessage("生成するプランナーを選ぶ")
+	for _, pt := range debugEnterPlanners {
+		name := pt.Name // クロージャ捕捉用に反復ごとへ束ねる
 		md = md.WithChoice(name, func(world w.World) error {
-			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(name)); err != nil {
+			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithBuilderEvent(debugName, name)); err != nil {
 				return err
 			}
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
@@ -170,9 +182,9 @@ func NewDebugMenuState() (es.State[w.World], error) {
 				}})
 			return nil
 		}).
-		WithChoice("任意ダンジョンに入る", func(_ w.World) error {
-			// デバッグメニューを遺跡選択サブメニューへ差し替える。選択後は正規の遺跡進入
-			// (WarpDungeonEnter→enterDungeon の SwapTo)を通す
+		WithChoice("プランナー指定でダンジョンに入る", func(_ w.World) error {
+			// デバッグメニューをプランナー選択サブメニューへ差し替える。選択後は正規の遺跡進入
+			// (WarpDungeonEnter→enterDungeonWith の SwapTo)をプランナー固定で通す
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonEnterDebugState},
