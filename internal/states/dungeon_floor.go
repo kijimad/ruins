@@ -301,3 +301,51 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	}
 	return lifecycle.MovePlayerToPosition(world, pos)
 }
+
+// enterDebugPlannerFloor はデバッグ遺跡1階を指定プランナーで毎回作り直して入る。
+//
+// 共存方式では StageKey が永続し、再訪時 SwapTo は再生成せず既存ステージを resume する。
+// プランナーを変えて見た目を試すこの用途では、それだと最初に作った階が resume され続けて
+// 変わらない。そこで既存の階を Purge してから作り直す。現在地がその遺跡かどうかで分岐する。
+func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, builderType mapplanner.PlannerType) error {
+	// spawnFloor は st.BuilderType を読む。自己スワップ経路でも効くよう先に確定する
+	st.BuilderType = builderType
+	st.Depth = 1
+
+	target := gc.NewNamedDungeonStage(defName, 1)
+	from := query.GetDungeon(world).CurrentStage
+
+	if from != target {
+		// 他ステージから入る。既存のデバッグ階を消してから通常の進入経路に載せる。
+		// Purge 済みなので SwapTo は resume でなく generate を通り、新プランナーで作り直す
+		stage.Purge(world, target)
+		return st.enterDungeonWith(world, defName, builderType)
+	}
+
+	// 既にその遺跡にいる。SwapTo は自己スワップを前提としないので、その場で作り直す。
+	// 上り階段の戻り先結線を引き継がないと ascend が結線なしで失敗するため、Purge 前に控える
+	def, err := resolveDungeonKind(defName)
+	if err != nil {
+		return err
+	}
+	var carriedBack *gc.PortalConnection
+	if up, _, ok := findPortal(world, gc.InteractionPortalPrev); ok && world.Components.PortalConnection.Has(up) {
+		conn := *world.Components.PortalConnection.Get(up)
+		carriedBack = &conn
+	}
+
+	stage.Purge(world, target)
+	landing, upStair, err := st.spawnFloor(world, 1, def, target)
+	if err != nil {
+		return err
+	}
+	// 控えた戻り先を新しい上り階段へ移す。これで作り直しても元の階へ ascend できる
+	if carriedBack != nil {
+		if cerr := setPortalConnection(world, upStair, carriedBack.Stage, carriedBack.Coord); cerr != nil {
+			return cerr
+		}
+	}
+	stage.ResetExploredTiles(world)
+	query.InvalidateSpatialIndex(world)
+	return lifecycle.MovePlayerToPosition(world, landing)
+}

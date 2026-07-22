@@ -298,7 +298,8 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			if !ok {
 				return es.Transition[w.World]{}, fmt.Errorf("不明なプランナー名: %s", p.BuilderTypeName)
 			}
-			if err := st.enterDungeonWith(world, p.DefinitionName, builderType); err != nil {
+			// デバッグはプランナーを変えて見た目を試す用途なので、選ぶたびに作り直す
+			if err := st.enterDebugPlannerFloor(world, p.DefinitionName, builderType); err != nil {
 				return es.Transition[w.World]{}, err
 			}
 			return es.Transition[w.World]{Type: es.TransNone}, nil
