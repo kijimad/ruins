@@ -113,8 +113,8 @@ func reestablishSingleton(world w.World) error {
 
 // validateStages は復元したステージ関連の値の整合を検査する。
 // セーブファイルは信頼境界であり、コンストラクタを通らない不正な StageKey が
-// 紛れうる。StageBound の所属キーと Dungeon.CurrentStage を Validate で弾く。
-// ロックを避けるため先にキーを集め、反復を終えてから検証する
+// 紛れうる。StageKey を内包する全コンポーネント、Dungeon.CurrentStage・StageBound.Key・
+// PortalConnection.Stage を Validate で弾く。ロックを避けるため先にキーを集め、反復を終えてから検証する
 func validateStages(world w.World) error {
 	var keys []gc.StageKey
 	dq := ecs.NewFilter1[gc.Dungeon](world.ECS).Query()
@@ -124,6 +124,10 @@ func validateStages(world w.World) error {
 	mq := ecs.NewFilter1[gc.StageBound](world.ECS).Query()
 	for mq.Next() {
 		keys = append(keys, world.Components.StageBound.Get(mq.Entity()).Key)
+	}
+	pq := ecs.NewFilter1[gc.PortalConnection](world.ECS).Query()
+	for pq.Next() {
+		keys = append(keys, world.Components.PortalConnection.Get(pq.Entity()).Stage)
 	}
 	for _, k := range keys {
 		if err := k.Validate(); err != nil {
