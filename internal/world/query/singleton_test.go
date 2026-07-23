@@ -71,13 +71,13 @@ func TestIsOnOverworld(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	d := GetDungeon(world)
 
-	// オーバーワールドのメタに帯データを持たせる。以後この帯データの有無で判定する
+	// オーバーワールドの StageField に帯データを持たせる。以後この帯データの有無で判定する
 	d.CurrentStage = gc.NewOverworldStage()
 	EnsureSeamlessBand(world)
 	assert.True(t, IsOnOverworld(world), "現ステージが帯データを持てば真")
 
-	// 遺跡滞在中。現ステージのメタは帯データを持たないので偽。帯データはオーバーワールドの
-	// メタにしか無く、退避されて現ステージから外れる
+	// 遺跡滞在中。現ステージの StageField は帯データを持たないので偽。帯データはオーバーワールドの
+	// StageField にしか無く、退避されて現ステージから外れる
 	d.CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
 	assert.False(t, IsOnOverworld(world), "現ステージが帯データを持たなければ偽")
 }

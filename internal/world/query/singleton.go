@@ -193,12 +193,12 @@ func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to c
 // buildSpatialIndex は壁・キャラクター・プレイヤーの位置をスキャンしてインデックスを構築する
 func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	dungeon := GetDungeon(world)
-	meta := GetCurrentStageField(world)
-	if dungeon == nil || meta == nil {
+	field := GetCurrentStageField(world)
+	if dungeon == nil || field == nil {
 		return
 	}
-	si.MapWidth = meta.Level.TileWidth
-	si.MapHeight = meta.Level.TileHeight
+	si.MapWidth = field.Level.TileWidth
+	si.MapHeight = field.Level.TileHeight
 	si.BlockPass = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil

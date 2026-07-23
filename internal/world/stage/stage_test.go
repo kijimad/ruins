@@ -165,9 +165,9 @@ func TestSwapTo_生成失敗時は現ステージを壊さない(t *testing.T) {
 	d := query.GetDungeon(world)
 	d.CurrentStage = stageA
 	a1 := addStageEntity(t, world, stageA)
-	// 現ステージ A のメタに探索履歴を持たせる
-	meta := query.EnsureStageField(world, stageA)
-	meta.ExploredTiles = map[gc.GridElement]bool{
+	// 現ステージ A の StageField に探索履歴を持たせる
+	field := query.EnsureStageField(world, stageA)
+	field.ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
 	}
 
@@ -180,7 +180,7 @@ func TestSwapTo_生成失敗時は現ステージを壊さない(t *testing.T) {
 	// 現ステージは壊れない。A は退避されず、CurrentStage も探索履歴も維持される
 	assert.False(t, world.Components.Suspended.Has(a1), "生成失敗時に現ステージA は退避されない")
 	assert.Equal(t, stageA, d.CurrentStage, "生成失敗時に CurrentStage は動かない")
-	assert.NotEmpty(t, meta.ExploredTiles, "生成失敗時に探索履歴は消えない")
+	assert.NotEmpty(t, field.ExploredTiles, "生成失敗時に探索履歴は消えない")
 }
 
 func TestSwapTo_座標索引を無効化する(t *testing.T) {
@@ -207,12 +207,12 @@ func TestSwapTo_探索履歴をリセットする(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	d := query.GetDungeon(world)
 	d.CurrentStage = stageA
-	// 現ステージ A のメタに探索履歴を持たせる
+	// 現ステージ A の StageField に探索履歴を持たせる
 	query.EnsureStageField(world, stageA).ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
 	}
 
-	// 生成した階にもメタを用意する。実ゲームでは spawnFloor がメタを作る
+	// 生成した階にも StageField を用意する。実ゲームでは spawnFloor が StageField を作る
 	require.NoError(t, SwapTo(world, stageB, func(world w.World, key gc.StageKey) error {
 		addStageEntity(t, world, key)
 		query.EnsureStageField(world, key)

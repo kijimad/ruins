@@ -98,7 +98,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	dungeonState := query.GetDungeon(world)
 	// ダンジョン定義名は現ステージのキーが持つ。名前付きキーで現在地を確定する
 	dungeonState.CurrentStage = gc.NewDungeonStage("遺跡", 3)
-	// 現ステージのメタを用意する。実ゲームでは階生成時に作られる
+	// 現ステージの StageField を用意する。実ゲームでは階生成時に作られる
 	query.EnsureStageField(world, dungeonState.CurrentStage)
 
 	require.NoError(t, manager.SaveWorld(world, "location"))

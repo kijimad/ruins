@@ -17,7 +17,7 @@ func TestNewResumeStateFactory_シームレスならOverworld(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	// 現ステージのメタに帯データを持たせる。以後この帯データの有無がオーバーワールド判定を兼ねる
+	// 現ステージに帯データを持たせる。以後この帯データの有無がオーバーワールド判定を兼ねる
 	query.EnsureSeamlessBand(world).Active = true
 
 	state, err := newResumeStateFactory(world)()

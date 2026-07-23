@@ -90,7 +90,7 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("遺跡内では前線がActiveでも無効", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// 帯・前線はオーバーワールドのメタに持たせる。遺跡へ移ると帯データは現ステージから外れる。
+		// 帯・前線はオーバーワールドの StageField に持たせる。遺跡へ移ると帯データは現ステージから外れる。
 		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
