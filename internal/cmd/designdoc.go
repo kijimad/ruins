@@ -13,7 +13,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// errValidation は frontmatter 検証で Error が見つかったことを表す。
+// errValidation は frontmatter 検証で問題が見つかったことを表す。
 var errValidation = errors.New("設計ドキュメントの検証に失敗した")
 
 // CmdDesignDoc は設計ドキュメントの frontmatter を扱うサブコマンド

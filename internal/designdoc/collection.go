@@ -16,7 +16,7 @@ const DefaultDir = "docs/design"
 const templateFile = "tmpl.md"
 
 // listMarkdownFiles は dir 直下の設計ドキュメントのパスをファイル名昇順で返す。
-// tmpl.md と .md 以外は除外する。LoadDir と BackfillDir が同じ絞り込みを共有する。
+// tmpl.md と .md 以外は除外する。
 func listMarkdownFiles(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -36,7 +36,7 @@ func listMarkdownFiles(dir string) ([]string, error) {
 	return paths, nil
 }
 
-// LoadDir は dir 直下の設計ドキュメントを解析して返す。tmpl.md と .md 以外は除外し、ファイル名昇順で並べる。
+// LoadDir は dir 直下の設計ドキュメントを解析して返す。
 func LoadDir(dir string) ([]*Document, error) {
 	paths, err := listMarkdownFiles(dir)
 	if err != nil {

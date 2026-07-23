@@ -61,8 +61,8 @@ func (a Auto) Valid() bool {
 	return false
 }
 
-// KnownTags は tags に使う推奨語彙。未知タグは検証で警告する。表記ゆれを抑えるための緩い辞書であり、
-// 厳格な制約ではない。
+// KnownTags は tags に使える語彙。ここに無いタグは Validate が弾く。表記ゆれを構造的に防ぐため、
+// タグを増やすときはここに追加する。
 var KnownTags = []string{
 	"refactor",   // リファクタリング、責務分割、用語統一
 	"ecs",        // Ark ECS、コンポーネント、シングルトン

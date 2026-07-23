@@ -123,7 +123,7 @@ func Render(front Frontmatter, body string) (string, error) {
 
 	var b strings.Builder
 	b.WriteString(fence + "\n")
-	// strings.Builder.Write は仕様上エラーを返さないが、戻り値を捨てている意図を明示する。
+	// strings.Builder.Write はエラーを返さない。
 	_, _ = b.Write(yamlPart)
 	b.WriteString(fence + "\n\n")
 	b.WriteString(body)
