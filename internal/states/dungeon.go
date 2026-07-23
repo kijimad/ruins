@@ -128,6 +128,13 @@ func (st *DungeonState) OnStart(world w.World) error {
 		query.GetDungeon(world).CurrentStage = key
 	}
 
+	if st.Resume {
+		// ロード復元では serde が VisionState を空にする。現ステージは保存前と同じなので
+		// VisionSystem のフロア変化検知が働かず、空の VisibleTiles が再計算されないまま真っ暗になる。
+		// オーバーワールド復元の Driver.Start と同じく、ここで一度だけ強制再計算させる。
+		query.GetVisionState(world).NeedsForceUpdate = true
+	}
+
 	// 前フロア・復元前のSpatialIndexが残っている可能性があるため無効化して作り直す。
 	// SpatialIndexはTurnPhaseEndでのみ無効化されるが、フロア遷移はTurnPhasePlayer中に
 	// 発生するため、古いデータが残り移動不能になることがある
