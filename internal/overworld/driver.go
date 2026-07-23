@@ -34,8 +34,8 @@ const (
 // その帯固有のロジックをこの Driver に閉じ込め、states パッケージから分離する。
 type Driver struct {
 	planner mapplanner.PlannerType
-	// kind は帯形状の供給元。新規開始で使い、ロード復元では帯形状を SeamlessBand から得るので不要
-	kind     *dungeon.OverworldDefinition
+	// definition は帯形状の供給元。新規開始で使い、ロード復元では帯形状を SeamlessBand から得るので不要
+	definition *dungeon.OverworldDefinition
 	params   *NewGameParams // 新規開始のプレイ固有パラメータ。ロード復元では nil
 	band     *worldstream.Band
 	gen      worldstream.ChunkGen
@@ -43,10 +43,10 @@ type Driver struct {
 }
 
 // NewDriver は帯ドライバを構成する。params が非 nil なら新規開始、nil ならロード復元。
-// kind は新規開始時の帯形状の供給元。ロード復元では帯形状を SeamlessBand から得るので nil でよい。
+// definition は新規開始時の帯形状の供給元。ロード復元では帯形状を SeamlessBand から得るので nil でよい。
 // 実際の帯生成・復元は Start で行う。
-func NewDriver(planner mapplanner.PlannerType, kind *dungeon.OverworldDefinition, params *NewGameParams) *Driver {
-	return &Driver{planner: planner, kind: kind, params: params}
+func NewDriver(planner mapplanner.PlannerType, definition *dungeon.OverworldDefinition, params *NewGameParams) *Driver {
+	return &Driver{planner: planner, definition: definition, params: params}
 }
 
 // Start は帯ドライバを用意する。新規開始なら初期帯を生成し現ステージをオーバーワールドに
@@ -114,11 +114,11 @@ func (dr *Driver) startNewBand(world w.World) error {
 	if p == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
 	}
-	if dr.kind == nil {
-		return fmt.Errorf("新規オーバーワールドの開始には帯形状の種別が必要")
+	if dr.definition == nil {
+		return fmt.Errorf("新規オーバーワールドの開始には帯形状の定義が必要")
 	}
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
-	chunkW, chunkH, k := dr.kind.BandShape()
+	chunkW, chunkH, k := dr.definition.BandShape()
 	dr.band = worldstream.NewBand(chunkW, k)
 	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, dr.planner)
 

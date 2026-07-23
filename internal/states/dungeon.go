@@ -55,17 +55,17 @@ func (st DungeonState) isSeamless() bool {
 // として動く。帯固有のロジックは overworld.Driver に閉じ込めてあり、DungeonState は OnStart で
 // ドライバを構成して開始を委譲し、Update でシフトを委譲するだけ。
 //
-// kind は帯形状の供給元。本番は登録済みの dungeon.DungeonOverworld を渡す。
+// definition は帯形状の供給元。本番は登録済みの dungeon.DungeonOverworld を渡す。
 // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、
 // 帯形状は Driver の Start がオーバーワールドの StageField の SeamlessBand から読み取って再構築する。
-func NewOverworldState(planner mapplanner.PlannerType, kind *dungeon.OverworldDefinition, params *overworld.NewGameParams) es.StateFactory[w.World] {
+func NewOverworldState(planner mapplanner.PlannerType, definition *dungeon.OverworldDefinition, params *overworld.NewGameParams) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &DungeonState{
 			// overworldDefinition を持たせることで OnStart が帯モードへ分岐する
-			DefinitionName:      kind.Name(),
+			DefinitionName:      definition.Name(),
 			planner:             planner,
 			newGame:             params,
-			overworldDefinition: kind,
+			overworldDefinition: definition,
 		}, nil
 	}
 }

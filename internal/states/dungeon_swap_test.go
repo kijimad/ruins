@@ -50,16 +50,16 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	require.NoError(t, err)
 
 	d := query.GetDungeon(world)
-	kind, ok := dungeon.GetStageDefinition(dungeon.DungeonDebug.Name())
+	def, ok := dungeon.GetStageDefinition(dungeon.DungeonDebug.Name())
 	require.True(t, ok)
-	def, ok := kind.(*dungeon.DungeonDefinition)
+	dungeonDef, ok := def.(*dungeon.DungeonDefinition)
 	require.True(t, ok)
 
 	st := &DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: mapplanner.PlannerTypeRandom}
 
 	// floor1 を実生成する。OnStart の生成部相当で、UI は使わない
 	key1 := dungeonStageKey(dungeon.DungeonDebug.Name(), 1)
-	pos1, _, err := st.spawnFloor(world, 1, def, key1)
+	pos1, _, err := st.spawnFloor(world, 1, dungeonDef, key1)
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MovePlayerToPosition(world, pos1))
 	d.CurrentStage = key1

@@ -20,16 +20,16 @@ import (
 // ダンジョンのフロア生成・階層遷移・ポータル配線を dungeon.go から分離する。
 // DungeonState のメソッドはこのファイルにも置く。
 
-// resolveDungeonDefinition は名前から通常ダンジョン種別を引く。未登録、またはオーバーワールドのような
-// フロアを生成しない種別なら error を返す。フロア生成の入口を1箇所に集約する。
+// resolveDungeonDefinition は名前から通常ダンジョン定義を引く。未登録、またはオーバーワールドのような
+// フロアを生成しない定義なら error を返す。フロア生成の入口を1箇所に集約する。
 func resolveDungeonDefinition(defName string) (*dungeon.DungeonDefinition, error) {
-	kind, found := dungeon.GetStageDefinition(defName)
+	def, found := dungeon.GetStageDefinition(defName)
 	if !found {
 		return nil, fmt.Errorf("ステージ定義が見つかりません: %s", defName)
 	}
-	dk, ok := kind.(*dungeon.DungeonDefinition)
+	dk, ok := def.(*dungeon.DungeonDefinition)
 	if !ok {
-		return nil, fmt.Errorf("フロア生成できないステージ種別です: %s", defName)
+		return nil, fmt.Errorf("フロア生成できないステージ定義です: %s", defName)
 	}
 	return dk, nil
 }

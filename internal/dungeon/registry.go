@@ -2,7 +2,7 @@ package dungeon
 
 import "github.com/kijimaD/ruins/internal/mapplanner"
 
-// 全ステージ種別のマスタ定義
+// 全ステージのマスタ定義
 var (
 	// DungeonDebug はデバッグ用ダンジョン定義
 	DungeonDebug = &DungeonDefinition{
@@ -50,7 +50,7 @@ var (
 		},
 	}
 
-	// DungeonOverworld はオーバーワールド帯を表す種別。
+	// DungeonOverworld はオーバーワールド帯を表す定義。
 	// フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
 	// 帯形状 50x50 のチャンクを3枚並べる。この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
 	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3)
@@ -81,7 +81,7 @@ var allDungeons = []*DungeonDefinition{
 }
 
 // GetAllDungeons は選択画面に表示する全ダンジョン定義を返す。
-// オーバーワールドやデバッグなどの内部用種別は含まない。
+// オーバーワールドやデバッグなどの内部用の定義は含まない。
 func GetAllDungeons() []*DungeonDefinition {
 	return allDungeons
 }
@@ -95,15 +95,15 @@ func GetAllDungeonNames() []string {
 	return names
 }
 
-// internalDefinitions は選択画面に表示しない内部用の種別
+// internalDefinitions は選択画面に表示しない内部用の定義
 var internalDefinitions = []StageDefinition{
 	DungeonDebug,
 	DungeonOverworld,
 }
 
-// GetStageDefinition は名前からステージ種別のマスタを取得する。
+// GetStageDefinition は名前からステージ定義のマスタを取得する。
 func GetStageDefinition(name string) (StageDefinition, bool) {
-	// 内部用種別を先にチェックする
+	// 内部用の定義を先にチェックする
 	for _, k := range internalDefinitions {
 		if k.Name() == name {
 			return k, true

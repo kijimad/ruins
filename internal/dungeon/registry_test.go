@@ -40,19 +40,19 @@ func TestGetDungeonByName(t *testing.T) {
 
 	t.Run("存在するダンジョンを取得できる", func(t *testing.T) {
 		t.Parallel()
-		kind, found := GetStageDefinition("亡者の森")
+		def, found := GetStageDefinition("亡者の森")
 		require.True(t, found)
-		assert.Equal(t, "亡者の森", kind.Name())
-		d, ok := kind.(*DungeonDefinition)
+		assert.Equal(t, "亡者の森", def.Name())
+		d, ok := def.(*DungeonDefinition)
 		require.True(t, ok, "通常ダンジョンは DungeonDefinition")
 		assert.Equal(t, 20, d.TotalFloors())
 	})
 
 	t.Run("オーバーワールドは OverworldDefinition として引ける", func(t *testing.T) {
 		t.Parallel()
-		kind, found := GetStageDefinition("オーバーワールド")
+		def, found := GetStageDefinition("オーバーワールド")
 		require.True(t, found)
-		_, ok := kind.(*OverworldDefinition)
+		_, ok := def.(*OverworldDefinition)
 		assert.True(t, ok, "オーバーワールドは OverworldDefinition でフロアを生成しない別の型")
 	})
 
