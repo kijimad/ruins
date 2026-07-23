@@ -19,18 +19,18 @@ var errValidation = errors.New("設計ドキュメントの検証に失敗した
 // CmdDesignDoc は設計ドキュメントの frontmatter を扱うサブコマンド
 var CmdDesignDoc = &cli.Command{
 	Name:        "designdoc",
-	Usage:       "designdoc [validate|backfill|list]",
-	Description: "docs/design の frontmatter を検証・付与・一覧する",
+	Usage:       "designdoc [gen|validate|list]",
+	Description: "docs/design の frontmatter を生成・検証・一覧する",
 	Commands: []*cli.Command{
+		{
+			Name:   "gen",
+			Usage:  "frontmatter を欠くドキュメントに既定値を決定的に付与する",
+			Action: runDesignDocGen,
+		},
 		{
 			Name:   "validate",
 			Usage:  "frontmatter の有無と妥当性、進捗との整合を検証する",
 			Action: runDesignDocValidate,
-		},
-		{
-			Name:   "backfill",
-			Usage:  "frontmatter を欠くドキュメントに既定値を決定的に付与する",
-			Action: runDesignDocBackfill,
 		},
 		{
 			Name:  "list",
@@ -65,7 +65,7 @@ func runDesignDocValidate(_ context.Context, _ *cli.Command) error {
 	return nil
 }
 
-func runDesignDocBackfill(_ context.Context, _ *cli.Command) error {
+func runDesignDocGen(_ context.Context, _ *cli.Command) error {
 	changed, err := designdoc.BackfillDir(designdoc.DefaultDir)
 	if err != nil {
 		return err
