@@ -63,6 +63,16 @@ linters:
       forbid:
         # テストは t.Error/Errorf/Fatal/Fatalf でなく testify の assert/require を使う
         - pattern: '^testing\.(T|B|TB)\.(Errorf?|Fatalf?)$'
+        # 掃除コードは事故のもと。再帰削除と手動の一時ディレクトリ生成を禁止し、
+        # テストの一時領域は t.TempDir に一本化する。t.TempDir は終了時に自動で消え、
+        # 消し忘れも実ファイルの誤削除も構造的に起きない。単一ファイル削除の os.Remove は
+        # セーブ/設定で正当に使うため許容する。
+        - pattern: '^os\.RemoveAll$'
+          msg: 再帰削除は禁止。テストの一時ディレクトリは t.TempDir を使う。自動で後片付けされる
+        - pattern: '^os\.MkdirTemp$'
+          msg: 手動の一時ディレクトリ生成は禁止。テストでは t.TempDir を使う。後片付け漏れと誤削除を防ぐ
+        - pattern: '^ioutil\.TempDir$'
+          msg: ioutil は非推奨。テストの一時ディレクトリは t.TempDir を使う
     exhaustive:
       check:
         - switch
