@@ -12,7 +12,6 @@ import (
 
 //go:generate go run . gencomponents
 //go:generate go run . genreadme
-//go:generate go run . designdoc validate
 
 func main() {
 	app := cmd.NewMainApp()
