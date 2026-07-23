@@ -32,6 +32,101 @@ func GetDungeon(world w.World) *gc.Dungeon {
 	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
+// GetWeaponSelection はシングルトンから選択中の武器スロットを取得する
+func GetWeaponSelection(world w.World) *gc.WeaponSelection {
+	return GetSingleton[gc.WeaponSelection](world, world.Components.WeaponSelection)
+}
+
+// GetGameTime はシングルトンからゲーム内時間を取得する
+func GetGameTime(world w.World) *gc.GameTime {
+	return GetSingleton[gc.GameTime](world, world.Components.GameTime)
+}
+
+// GetVisionState はシングルトンから視界計算の一時状態を取得する
+func GetVisionState(world w.World) *gc.VisionState {
+	return GetSingleton[gc.VisionState](world, world.Components.VisionState)
+}
+
+// stageFieldEntity は key に束縛された StageField エンティティを返す。
+// クエリ反復は途中 return するとワールドロックが残るため、最後まで回してから返す。
+func stageFieldEntity(world w.World, key gc.StageKey) (ecs.Entity, bool) {
+	var found ecs.Entity
+	ok := false
+	q := ecs.NewFilter2[gc.StageField, gc.StageBound](world.ECS).Query()
+	for q.Next() {
+		if !ok && world.Components.StageBound.Get(q.Entity()).Key == key {
+			found = q.Entity()
+			ok = true
+		}
+	}
+	return found, ok
+}
+
+// currentStageEntity は現ステージ CurrentStage のStageField エンティティを返す。
+func currentStageEntity(world w.World) (ecs.Entity, bool) {
+	return stageFieldEntity(world, GetDungeon(world).CurrentStage)
+}
+
+// ensureStageFieldEntity は key に束縛された StageField エンティティを確保して返す。
+// 無ければ生成する。返り値は必ず生存エンティティなので、呼び出し側は Has/Get を安全に使える。
+func ensureStageFieldEntity(world w.World, key gc.StageKey) ecs.Entity {
+	if e, ok := stageFieldEntity(world, key); ok {
+		return e
+	}
+	e := world.ECS.NewEntity()
+	world.Components.StageBound.Add(e, &gc.StageBound{Key: key})
+	world.Components.StageField.Add(e, gc.NewStageField())
+	return e
+}
+
+// EnsureStageField は key に束縛された StageField を確保して返す。無ければ生成する。
+// ステージ生成時に呼び、そのステージのフィールド寸法などを書き込む。
+// StageBound を直接付けるため、生成物を束縛する stage.Bind の対象からは外れる。
+func EnsureStageField(world w.World, key gc.StageKey) *gc.StageField {
+	return world.Components.StageField.Get(ensureStageFieldEntity(world, key))
+}
+
+// GetCurrentStageField は現ステージの StageField を返す。未生成なら nil。
+func GetCurrentStageField(world w.World) *gc.StageField {
+	e, ok := currentStageEntity(world)
+	if !ok {
+		return nil
+	}
+	return world.Components.StageField.Get(e)
+}
+
+// GetSeamlessBand は現ステージが持つ帯の永続状態を返す。持たなければ nil。
+// nil はオーバーワールドでないことを意味する。
+func GetSeamlessBand(world w.World) *gc.SeamlessBand {
+	e, ok := currentStageEntity(world)
+	if !ok || !world.Components.SeamlessBand.Has(e) {
+		return nil
+	}
+	return world.Components.SeamlessBand.Get(e)
+}
+
+// EnsureSeamlessBand は現ステージの StageField エンティティに帯の永続状態を確保して返す。
+// オーバーワールドを現ステージに確定してから呼ぶ。以後この帯データの有無が
+// オーバーワールド判定を兼ねる。
+func EnsureSeamlessBand(world w.World) *gc.SeamlessBand {
+	e := ensureStageFieldEntity(world, GetDungeon(world).CurrentStage)
+	if !world.Components.SeamlessBand.Has(e) {
+		world.Components.SeamlessBand.Add(e, &gc.SeamlessBand{})
+	}
+	return world.Components.SeamlessBand.Get(e)
+}
+
+// IsOnOverworld は現在地がオーバーワールドかを返す。オーバーワールド固有の振る舞い
+// (霜・寒波前線の気温/移動効果・帯シフト)の gate に使い、場所判定をこの1関数へ集約する。
+//
+// 種別・深度・名前で判定せず、現ステージの StageField エンティティが帯データ SeamlessBand を持つかで判定する。
+// オーバーワールドもダンジョン階も同じ「ステージ」で、違いは保有データだけという設計に従う。
+// 帯データは遺跡進入で退避され現ステージから外れるため、遺跡内へ効果が漏れない。
+func IsOnOverworld(world w.World) bool {
+	e, ok := currentStageEntity(world)
+	return ok && world.Components.SeamlessBand.Has(e)
+}
+
 // GetGameLog はシングルトンエンティティからGameLogストアを取得する
 func GetGameLog(world w.World) *gamelog.SafeSlice {
 	gl := GetSingleton[gc.GameLog](world, world.Components.GameLog)
@@ -98,11 +193,12 @@ func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to c
 // buildSpatialIndex は壁・キャラクター・プレイヤーの位置をスキャンしてインデックスを構築する
 func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	dungeon := GetDungeon(world)
-	if dungeon == nil {
+	field := GetCurrentStageField(world)
+	if dungeon == nil || field == nil {
 		return
 	}
-	si.MapWidth = dungeon.Level.TileWidth
-	si.MapHeight = dungeon.Level.TileHeight
+	si.MapWidth = field.Level.TileWidth
+	si.MapHeight = field.Level.TileHeight
 	si.BlockPass = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil

@@ -114,9 +114,8 @@ func TestLoadRealFiles(t *testing.T) {
 		assert.Contains(t, plaza.Palettes, "standard")
 		assert.Contains(t, plaza.Palettes, "town")
 
-		// マップにランタンとゲートが含まれているか確認
+		// マップにランタンが含まれているか確認
 		assert.Contains(t, plaza.Map, "L") // ランタン
-		assert.Contains(t, plaza.Map, "G") // ダンジョン選択ゲート
 
 		// マップサイズが正しいか確認
 		lines := splitMapLines(plaza.Map)

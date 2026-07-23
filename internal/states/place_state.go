@@ -51,10 +51,6 @@ func (st *PlaceState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-func (st PlaceState) String() string {
-	return "Place"
-}
-
 var _ es.State[w.World] = &PlaceState{}
 var _ Configurable = &PlaceState{}
 

@@ -290,9 +290,6 @@ model WarpNextTriggerRaw {}
 /** 前階層ワープトリガー */
 model WarpPrevTriggerRaw {}
 
-/** ダンジョン選択ゲートトリガー */
-model DungeonGateTriggerRaw {}
-
 /** 収納ローデータ */
 model StorageRaw {
   /** 収納の最大格納重量 */
@@ -320,7 +317,6 @@ model Prop {
   doorLockTrigger?: DoorLockTriggerRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
-  dungeonGateTrigger?: DungeonGateTriggerRaw;
   storage?: StorageRaw;
 }
 

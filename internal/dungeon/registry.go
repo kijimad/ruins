@@ -2,43 +2,31 @@ package dungeon
 
 import "github.com/kijimaD/ruins/internal/mapplanner"
 
-// 全ダンジョン定義
+// 全ステージのマスタ定義
 var (
-	// DungeonTown は拠点用ダンジョン定義
-	DungeonTown = Definition{
-		Name:            "晶営地",
-		TotalFloors:     1,
-		EnemyTableName:  "",
-		ItemTableName:   "",
-		BaseTemperature: 0, // デバッグ用
-		PlannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.PlannerTypeTown, Weight: 1},
-		},
-	}
-
 	// DungeonDebug はデバッグ用ダンジョン定義
-	DungeonDebug = Definition{
-		Name:            "デバッグ",
-		TotalFloors:     99,
-		EnemyTableName:  "森",
-		ItemTableName:   "森",
-		BaseTemperature: 10,
-		PlannerPool: []PlannerWeight{
+	DungeonDebug = &DungeonDefinition{
+		name:        "デバッグ",
+		totalFloors: 99,
+		enemyTable:  "森",
+		itemTable:   "森",
+		baseTemp:    10,
+		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
 	}
 
 	// DungeonForest は森ダンジョン定義
-	DungeonForest = Definition{
-		Name:            "亡者の森",
-		Description:     "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。",
-		ImageKey:        "forest1",
-		TotalFloors:     20,
-		EnemyTableName:  "森",
-		ItemTableName:   "森",
-		BaseTemperature: 0, // 寒い
-		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
-		PlannerPool: []PlannerWeight{
+	DungeonForest = &DungeonDefinition{
+		name:        "亡者の森",
+		description: "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。",
+		imageKey:    "forest1",
+		totalFloors: 20,
+		enemyTable:  "森",
+		itemTable:   "森",
+		baseTemp:    0, // 寒い
+		bossPlanner: &mapplanner.PlannerTypeBossFloor,
+		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 2},
 			{PlannerType: mapplanner.PlannerTypeBigRoom, Weight: 1},
@@ -46,33 +34,38 @@ var (
 	}
 
 	// DungeonCave は洞窟ダンジョン定義
-	DungeonCave = Definition{
-		Name:            "灰の洞窟",
-		Description:     "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。",
-		ImageKey:        "cave1",
-		TotalFloors:     20,
-		EnemyTableName:  "洞窟",
-		ItemTableName:   "洞窟",
-		BaseTemperature: 5, // 寒い
-		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
-		PlannerPool: []PlannerWeight{
+	DungeonCave = &DungeonDefinition{
+		name:        "灰の洞窟",
+		description: "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。",
+		imageKey:    "cave1",
+		totalFloors: 20,
+		enemyTable:  "洞窟",
+		itemTable:   "洞窟",
+		baseTemp:    5, // 寒い
+		bossPlanner: &mapplanner.PlannerTypeBossFloor,
+		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeCave, Weight: 6},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 			{PlannerType: mapplanner.PlannerTypeBigRoom, Weight: 2},
 		},
 	}
 
+	// DungeonOverworld はオーバーワールド帯を表す定義。
+	// フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
+	// 帯形状 50x50 のチャンクを3枚並べる。この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
+	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3)
+
 	// DungeonRuins は廃墟ダンジョン定義
-	DungeonRuins = Definition{
-		Name:            "忘却の廃都",
-		Description:     "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。",
-		ImageKey:        "city1",
-		TotalFloors:     20,
-		EnemyTableName:  "廃墟",
-		ItemTableName:   "廃墟",
-		BaseTemperature: 15, // やや快適
-		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
-		PlannerPool: []PlannerWeight{
+	DungeonRuins = &DungeonDefinition{
+		name:        "忘却の廃都",
+		description: "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。",
+		imageKey:    "city1",
+		totalFloors: 20,
+		enemyTable:  "廃墟",
+		itemTable:   "廃墟",
+		baseTemp:    15, // やや快適
+		bossPlanner: &mapplanner.PlannerTypeBossFloor,
+		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 4},
 			{PlannerType: mapplanner.PlannerTypeRuins, Weight: 3},
 			{PlannerType: mapplanner.PlannerTypeBigRoom, Weight: 2},
@@ -80,15 +73,16 @@ var (
 	}
 )
 
-// allDungeons は登録済みダンジョンの一覧
-var allDungeons = []Definition{
+// allDungeons は選択画面に表示する登録済みダンジョンの一覧
+var allDungeons = []*DungeonDefinition{
 	DungeonForest,
 	DungeonCave,
 	DungeonRuins,
 }
 
-// GetAllDungeons は全ダンジョン定義を返す
-func GetAllDungeons() []Definition {
+// GetAllDungeons は選択画面に表示する全ダンジョン定義を返す。
+// オーバーワールドやデバッグなどの内部用の定義は含まない。
+func GetAllDungeons() []*DungeonDefinition {
 	return allDungeons
 }
 
@@ -96,29 +90,29 @@ func GetAllDungeons() []Definition {
 func GetAllDungeonNames() []string {
 	names := make([]string, len(allDungeons))
 	for i := range allDungeons {
-		names[i] = allDungeons[i].Name
+		names[i] = allDungeons[i].Name()
 	}
 	return names
 }
 
-// internalDungeons は選択画面に表示しない内部用ダンジョン定義
-var internalDungeons = []Definition{
-	DungeonTown,
+// internalDefinitions は選択画面に表示しない内部用の定義
+var internalDefinitions = []StageDefinition{
 	DungeonDebug,
+	DungeonOverworld,
 }
 
-// GetDungeon は名前からダンジョン定義を取得する
-func GetDungeon(name string) (Definition, bool) {
-	// 内部用定義を先にチェック
-	for i := range internalDungeons {
-		if internalDungeons[i].Name == name {
-			return internalDungeons[i], true
+// GetStageDefinition は名前からステージ定義のマスタを取得する。
+func GetStageDefinition(name string) (StageDefinition, bool) {
+	// 内部用の定義を先にチェックする
+	for _, k := range internalDefinitions {
+		if k.Name() == name {
+			return k, true
 		}
 	}
-	for i := range allDungeons {
-		if allDungeons[i].Name == name {
-			return allDungeons[i], true
+	for _, d := range allDungeons {
+		if d.Name() == name {
+			return d, true
 		}
 	}
-	return Definition{}, false
+	return nil, false
 }

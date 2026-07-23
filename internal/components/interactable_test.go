@@ -22,7 +22,6 @@ func TestInteractionKind_Config(t *testing.T) {
 		{InteractionItem, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionItemAll, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual},
-		{InteractionDungeonGate, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
 		{InteractionDoorLock, ActivationRangeSameTile, ActivationWayAuto},
 	}
@@ -144,7 +143,7 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 	t.Parallel()
 
 	kinds := []InteractionKind{
-		InteractionPortalNext, InteractionPortalPrev, InteractionDungeonGate, InteractionDoor, InteractionDoorLock,
+		InteractionPortalNext, InteractionPortalPrev, InteractionDoor, InteractionDoorLock,
 		InteractionTalk, InteractionItem, InteractionItemAll, InteractionStorage, InteractionMelee,
 	}
 

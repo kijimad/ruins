@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -45,6 +44,38 @@ func TestNewChunkGen_オフセット配置(t *testing.T) {
 		count++
 	}
 	assert.GreaterOrEqual(t, count, int(chunkW*chunkH), "全タイルぶん配置される")
+}
+
+func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	const chunkW, chunkH consts.Tile = 30, 20
+
+	// プレイヤーはステージをまたぐ訪問者で束縛されない
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+
+	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
+	require.NoError(t, gen(0, 0))
+
+	overworldKey := gc.NewOverworldStage()
+
+	// 生成したチャンクのフィールドエンティティは全てオーバーワールドへ束縛される。
+	// これが無いと遺跡へ入るとき帯を退避できない
+	boundCount := 0
+	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if e == player {
+			continue
+		}
+		require.True(t, world.Components.StageBound.Has(e), "生成物は StageBound を持つ")
+		assert.Equal(t, overworldKey, world.Components.StageBound.Get(e).Key, "オーバーワールドへ束縛される")
+		boundCount++
+	}
+	assert.Positive(t, boundCount, "束縛された生成物がある")
+	assert.False(t, world.Components.StageBound.Has(player), "Player は StageBound を持たない")
 }
 
 func TestNewChunkGen_決定的レイアウト(t *testing.T) {
@@ -82,10 +113,9 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 	const k = 3
-	query.GetDungeon(world).Level = gc.Level{TileWidth: chunkW * k, TileHeight: chunkH}
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW * k, TileHeight: chunkH}))
 
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
 	// 初期帯: K チャンクを各スロットへ生成

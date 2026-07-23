@@ -44,7 +44,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 			return err
 		}
 		// AIターン完了後に視界を再計算させる
-		query.GetDungeon(world).NeedsForceUpdate = true
+		query.GetVisionState(world).NeedsForceUpdate = true
 		turnState.Phase = gc.TurnPhaseEnd
 	case gc.TurnPhaseEnd:
 		// ターン終了処理
@@ -56,7 +56,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 		turnState.TurnNumber++
 		// ゲーム内時間を1ターン進める。昼夜・気温の時間修正・寒波前線の前進がこれに依存する。
 		// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
-		query.GetDungeon(world).GameTime.Advance()
+		query.GetGameTime(world).Advance()
 		turnState.Phase = gc.TurnPhasePlayer
 	}
 	return nil

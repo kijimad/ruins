@@ -29,9 +29,9 @@ func TestBand_ShouldShift_ヒステリシス(t *testing.T) {
 func TestBand_ShiftEast(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	d := query.GetDungeon(world)
-	d.Level = gc.Level{TileWidth: 300, TileHeight: 60} // K=3 * chunkW=100
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 300, TileHeight: 60})) // K=3 * chunkW=100
+	field := query.GetCurrentStageField(world)
+	visState := query.GetVisionState(world)
 
 	// プレイヤーは東チャンクへ踏み込んでいる（localX=210）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 210, Y: 30}, "Ash")
@@ -44,12 +44,12 @@ func TestBand_ShiftEast(t *testing.T) {
 	require.NoError(t, err)
 
 	// 探索済み: 中央(150,30)は生存→(50,30)へ、西(50,30)は破棄ゾーンへ落ちて消える
-	d.ExploredTiles = map[gc.GridElement]bool{
+	field.ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}: true,
 		{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}:  true,
 	}
 	// 視界も付け替え対象（チラつき防止のためクリアでなく平行移動する）
-	d.VisibleTiles = map[gc.GridElement]bool{{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}: true}
+	visState.VisibleTiles = map[gc.GridElement]bool{{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}: true}
 
 	b := worldstream.NewBand(100, 3)
 	require.True(t, b.ShouldShiftEast(210), "前提: 東シフト条件を満たす")
@@ -82,22 +82,20 @@ func TestBand_ShiftEast(t *testing.T) {
 	assert.Equal(t, consts.Tile(200), gotOffsetX, "東スラブのオフセット")
 
 	// ExploredTiles 追従: (150,30)→(50,30) 生存、(50,30)→(-50,30) は帯外で破棄
-	assert.True(t, d.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}], "中央の探索済みは付け替わって残る")
-	assert.False(t, d.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}], "元キーは残らない")
-	assert.Len(t, d.ExploredTiles, 1, "帯外に落ちた探索済みキーは捨てられる")
+	assert.True(t, field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}], "中央の探索済みは付け替わって残る")
+	assert.False(t, field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}], "元キーは残らない")
+	assert.Len(t, field.ExploredTiles, 1, "帯外に落ちた探索済みキーは捨てられる")
 
 	// 視界も付け替えられる（クリアでなく平行移動。シフトフレームの暗転＝チラつきを防ぐ）
-	assert.True(t, d.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}], "VisibleTiles も付け替わって残る")
-	assert.False(t, d.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}], "元キーは残らない")
+	assert.True(t, visState.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}], "VisibleTiles も付け替わって残る")
+	assert.False(t, visState.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}], "元キーは残らない")
 }
 
 // TestBand_ShiftWest は西へ1回シフトする対称動作を固定する（短い寄り道の復帰）。
 func TestBand_ShiftWest(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	d := query.GetDungeon(world)
-	d.Level = gc.Level{TileWidth: 300, TileHeight: 60}
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 300, TileHeight: 60}))
 
 	// プレイヤーは西チャンクへ踏み込んでいる（localX=90）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 90, Y: 30}, "Ash")

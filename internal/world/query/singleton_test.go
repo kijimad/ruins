@@ -45,12 +45,12 @@ func TestGetDungeon(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		newDungeon := &gc.Dungeon{Depth: 3}
+		newDungeon := &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 3)}
 		SetDungeon(world, newDungeon)
 
 		d := GetDungeon(world)
 		require.NotNil(t, d)
-		assert.Equal(t, 3, d.Depth)
+		assert.Equal(t, 3, d.CurrentStage.Depth)
 	})
 
 	t.Run("SetDungeonでnilを設定するとGetDungeonはnilを返す", func(t *testing.T) {
@@ -62,4 +62,34 @@ func TestGetDungeon(t *testing.T) {
 		d := GetDungeon(world)
 		assert.Nil(t, d)
 	})
+}
+
+// TestIsOnOverworld は現在地判定を検証する。
+func TestIsOnOverworld(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	d := GetDungeon(world)
+
+	// オーバーワールドの StageField に帯データを持たせる。以後この帯データの有無で判定する
+	d.CurrentStage = gc.NewOverworldStage()
+	EnsureSeamlessBand(world)
+	assert.True(t, IsOnOverworld(world), "現ステージが帯データを持てば真")
+
+	// 遺跡滞在中。現ステージの StageField は帯データを持たないので偽。帯データはオーバーワールドの
+	// StageField にしか無く、退避されて現ステージから外れる
+	d.CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
+	assert.False(t, IsOnOverworld(world), "現ステージが帯データを持たなければ偽")
+}
+
+// TestGetWeaponSelection は武器選択シングルトンの初期値と更新を検証する。
+func TestGetWeaponSelection(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	ws := GetWeaponSelection(world)
+	require.NotNil(t, ws)
+	assert.Equal(t, 1, ws.Slot, "初期武器スロットは1")
+
+	ws.Slot = 3
+	assert.Equal(t, 3, GetWeaponSelection(world).Slot, "更新がシングルトンに反映される")
 }

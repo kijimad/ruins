@@ -8,10 +8,32 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せる は、遺跡入口の相互作用が
+// 入口プロップの DungeonEntrance から進入先の遺跡名を読み、WarpDungeonEnter 要求へ載せることを確認する。
+// 入口ごとに進入先が違うため、名前を要求に載せて運ぶ。
+func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	actor := world.ECS.NewEntity()
+	entrance := world.ECS.NewEntity()
+	world.Components.DungeonEntrance.Add(entrance, &gc.DungeonEntrance{DefinitionName: "森"})
+
+	_, err := ExecuteInteraction(actor, entrance, gc.InteractionDungeonEnter, world)
+	require.NoError(t, err)
+
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "状態変更要求が積まれる")
+	payload, ok := req.Payload.(gc.WarpDungeonEnter)
+	require.True(t, ok, "WarpDungeonEnter が要求される")
+	assert.Equal(t, "森", payload.DefinitionName, "進入先の遺跡名が要求に載る")
+}
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。
 // 平坦化により未知の種類はゼロ値（無効）のConfigを返すため、発動前の検証で拒否される
@@ -223,7 +245,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	world.Components.HP.Add(enemyEntity, &gc.HP{Max: 10, Current: 10})
 
 	// 武器スロット1を選択
-	query.GetDungeon(world).SelectedWeaponSlot = 1
+	query.GetWeaponSelection(world).Slot = 1
 
 	result, err := ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)
 	require.NoError(t, err)
@@ -257,28 +279,6 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 		assert.Equal(t, gc.BehaviorPortal, result.ActivityName)
 	})
 
-}
-
-// TestExecuteInteraction_DungeonGate はダンジョンゲート相互作用の動作を確認
-func TestExecuteInteraction_DungeonGate(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-
-	gateEntity := world.ECS.NewEntity()
-	world.Components.Interactable.Add(gateEntity, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionDungeonGate},
-	})
-
-	result, err := ExecuteInteraction(player, gateEntity, gc.InteractionDungeonGate, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "ダンジョンゲート相互作用が成功するべき")
-	assert.Equal(t, gc.BehaviorDungeonGate, result.ActivityName)
 }
 
 // TestExecuteInteraction_DoorLock はドアロック相互作用の動作を確認
@@ -471,7 +471,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
 		})
 
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		result, err := ExecuteInteraction(player, prop, gc.InteractionMelee, world)
 		require.NoError(t, err)

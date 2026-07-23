@@ -3,10 +3,12 @@ package overworld
 import (
 	"fmt"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/stage"
 	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
@@ -34,6 +36,10 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, plan
 		if _, err := mapspawner.SpawnAt(world, plan, offsetX, 0); err != nil {
 			return fmt.Errorf("チャンク配置失敗 (index=%d): %w", chunkIndex, err)
 		}
+		// 生成したチャンクのフィールドエンティティをオーバーワールドステージへ束縛する。
+		// 共存方式で遺跡へ入るとき帯を退避できるようにする。シフトで生成される新チャンクも
+		// ここで束縛される。Player・SquadMember・既束縛は Bind が自然に除外する
+		stage.Bind(world, gc.NewOverworldStage())
 		// このチャンクの両境界を接合後に再計算して継ぎ目を消す。
 		// 東シフトでは西境界の offsetX、西シフトでは東境界の offsetX+chunkW が実境界になる。
 		// RecalcSeamAutotile は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。

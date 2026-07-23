@@ -1,80 +1,71 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
 
-// StageKind はステージの種類を表す。往復するステージを種別で区別する
-type StageKind string
-
-const (
-	// StageKindOverworld はオーバーワールド帯を表す
-	StageKindOverworld StageKind = "overworld"
-	// StageKindDungeon は通常ダンジョンの階を表す
-	StageKindDungeon StageKind = "dungeon"
-	// StageKindRuin は遺跡の階を表す
-	StageKindRuin StageKind = "ruin"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
-// StageKey はステージを一意に識別する。共存する各ステージのエンティティを同定するのに使う。
-// 比較可能な値だけで構成し、StageBound のフィールドや現在ステージ指標として等値比較する
+// overworldStageName はオーバーワールド帯ステージの固定名。ダンジョン定義 DungeonOverworld.Name と
+// 一致させ、CurrentStage.Name から定義を引けるようにする。
+//
+// あえて非公開にする。公開する overworld の identity は型付きの NewOverworldStage() だけにし、
+// 素の名前を外へ出さない。名前を公開すると CurrentStage.Name == 名前 のような場所判定を誘発するが、
+// それは廃した反パターン。外部からは名前で比較できないよう型で塞ぐ。
+const overworldStageName = "オーバーワールド"
+
+// StageKey はステージを一意に識別する serde 安全な identity。共存する各ステージのエンティティ同定に使う。
+// オーバーワールドは深度0、ダンジョン階は深度1以上。比較可能な値だけで構成する。
+//
+// あえて interface でなく比較可能な struct にする。StageBound・PortalConnection・Dungeon に埋め込まれる
+// 保存対象で、arkserde は interface を保存できず、共存機構は Key == key の等値比較に依存するため、
+// identity は素の値でなければならない。オーバーワールドとダンジョンの振る舞い・設定の多態は、Name で
+// 引く StageDefinition(OverworldDefinition/DungeonDefinition)が担う。ここは identity だけを持ち種別で分岐しない。
+// Name/Depth はステージ同定と導出、定義の引き当て・階数にのみ使い、場所判定には使わない。
 type StageKey struct {
-	// Kind はステージの種類を表す
-	Kind StageKind
-	// Ruin は遺跡定義名を保持する。Kind が StageKindRuin のときだけ設定し、それ以外は空にする
-	Ruin string
-	// Depth は階の深度を表す。オーバーワールドは 0 とする
+	// Name はステージ定義名を保持する。オーバーワールドは NewOverworldStage() が付ける固定名、
+	// ダンジョン階は進入先を区別する定義名。実ステージは必ず名前を持つ。ゼロ値のみ未設定として許す。
+	//
+	// Name で場所を判定しないこと。「今オーバーワールドにいるか」は保有データで判定する
+	// query.IsOnOverworld を使う。Name は定義の引き当てとステージ同定にのみ用いる。
+	Name string
+	// Depth は階の深度を表す。オーバーワールドは 0、ダンジョン階は 1 以上
 	Depth int
 }
 
-// NewOverworldStage はオーバーワールド帯のステージキーを返す。
-func NewOverworldStage() StageKey { return StageKey{Kind: StageKindOverworld} }
+// NewOverworldStage はオーバーワールド帯のステージキーを返す。深度0。
+// オーバーワールドの identity を得る唯一の公開手段。場所判定でなくステージの同定・束縛に使う。
+func NewOverworldStage() StageKey { return StageKey{Name: overworldStageName} }
 
-// NewDungeonStage は深度 depth の通常ダンジョン階のステージキーを返す。
-func NewDungeonStage(depth int) StageKey {
-	return StageKey{Kind: StageKindDungeon, Depth: depth}
-}
-
-// NewRuinStage は遺跡定義 name・深度 depth の遺跡階のステージキーを返す。
-func NewRuinStage(name string, depth int) StageKey {
-	return StageKey{Kind: StageKindRuin, Ruin: name, Depth: depth}
+// NewDungeonStage は定義 name・深度 depth のダンジョン階のステージキーを返す。
+// ダンジョン階は進入先を区別するため定義名を必ず持たせる。名前なしのダンジョン階は作らない。
+func NewDungeonStage(name string, depth int) StageKey {
+	return StageKey{Name: name, Depth: depth}
 }
 
 // Validate はステージキーの整合を検査する。ロード直後など信頼できない入力に使う。
-// Kind ごとに設定してよいフィールドが決まっており、それ以外が埋まっていれば不正とみなす。
-// これでコンストラクタを通さず組み立てられた不正なキーを境界で弾ける。
-// default を置かず既知種別を網羅させ、未知種別は末尾で loud に error にする
+// オーバーワールドは深度0、それ以外の実ステージは深度1以上、という不変条件を守らせる。
 func (k StageKey) Validate() error {
 	// ゼロ値はどのステージにも属さない未設定として許容する。町にいるときの
 	// CurrentStage などステージ未割り当ての状態が正当にありうる
 	if k == (StageKey{}) {
 		return nil
 	}
-	switch k.Kind {
-	case StageKindOverworld:
-		// オーバーワールドは深度も遺跡名も持たない
-		if k.Ruin != "" || k.Depth != 0 {
-			return fmt.Errorf("オーバーワールドステージに余分な値がある: Ruin=%q Depth=%d", k.Ruin, k.Depth)
-		}
-		return nil
-	case StageKindDungeon:
-		// ダンジョンは1階以上の深度を持つが遺跡名は持たない。深度0はオーバーワールドの領分
-		if k.Ruin != "" {
-			return fmt.Errorf("ダンジョンステージに遺跡名がある: %q", k.Ruin)
-		}
-		if k.Depth < 1 {
-			return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)
-		}
-		return nil
-	case StageKindRuin:
-		// 遺跡は遺跡名を必須とし、1階以上の深度を持つ
-		if k.Ruin == "" {
-			return fmt.Errorf("遺跡ステージに遺跡名がない")
-		}
-		if k.Depth < 1 {
-			return fmt.Errorf("遺跡ステージの深度が不正: %d", k.Depth)
+	if k.Name == overworldStageName {
+		if k.Depth != 0 {
+			return fmt.Errorf("オーバーワールドステージの深度が不正: %d", k.Depth)
 		}
 		return nil
 	}
-	return fmt.Errorf("未知のステージ種別: %q", k.Kind)
+	// オーバーワールド以外の実ステージはダンジョン階。定義名を必ず持ち、深度は1以上とする。
+	// 名前なしのダンジョン階は作らないため、ここへ来た空名は破損とみなして弾く
+	if k.Name == "" {
+		return fmt.Errorf("ダンジョンステージに定義名がありません: 深度%d", k.Depth)
+	}
+	if k.Depth < 1 {
+		return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)
+	}
+	return nil
 }
 
 // StageBound はエンティティがどのステージに束縛され、そのライフサイクルを共にするかを表す。
@@ -87,6 +78,23 @@ func (k StageKey) Validate() error {
 type StageBound struct {
 	// Key は束縛先ステージを保持する
 	Key StageKey
+}
+
+// PortalConnection はポータルの行き先を保持する。触れると Stage へ swapTo し Coord へ配置する。
+// 生成時に往復の両端を相互結線する。findPortalPosition の探索を置き換え、遺跡の複数入口でも
+// どのポータルがどこへ繋がるかが曖昧にならない。Stage・Coord とも比較可能で serde 対象。
+type PortalConnection struct {
+	// Stage は行き先ステージ
+	Stage StageKey
+	// Coord は行き先ステージ内の着地座標
+	Coord consts.Coord[consts.Tile]
+}
+
+// DungeonEntrance は遺跡入口プロップが、どの遺跡定義へ入るかを保持する。
+// 相互作用 InteractionDungeonEnter の発動時に DefinitionName を読んで進入先を決める。
+type DungeonEntrance struct {
+	// DefinitionName は進入する遺跡の定義名
+	DefinitionName string
 }
 
 // Suspended は現ステージ以外に属し、現在のフレームで稼働しないことを表すマーカー。

@@ -43,6 +43,10 @@ type EntitySpec struct {
 	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *TileTemperature    // タイルの気温修正値を保持する
 	StageBound         *StageBound         // 束縛先ステージを保持する。往復するステージの同定に使う
+	StageField         *StageField         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
+	SeamlessBand       *SeamlessBand       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
+	PortalConnection   *PortalConnection   // ポータルの行き先ステージと着地座標を保持する
+	DungeonEntrance    *DungeonEntrance    // 遺跡入口が進入先の遺跡定義名を保持する
 	Suspended          *Suspended          // 現ステージ以外に属し稼働しないことを示すマーカー
 	Player             *Player             // 操作対象の主人公であることを示す
 	Profession         *Profession         // 選択した職業を保持する
@@ -75,6 +79,9 @@ type EntitySpec struct {
 	GameProgress       *GameProgress       // ゲーム進行データを保持するシングルトン
 	TurnState          *TurnState          // ターン状態を保持するシングルトン
 	SpatialIndex       *SpatialIndex       // 空間インデックスを保持するシングルトン
+	WeaponSelection    *WeaponSelection    // 選択中の武器スロットを保持するシングルトン
+	GameTime           *GameTime           // ゲーム内時間を保持するシングルトン
+	VisionState        *VisionState        // 視界計算の一時状態を保持するシングルトン
 }
 
 // Components はECSコンポーネントのハンドル束。
@@ -116,6 +123,10 @@ type Components struct {
 	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
 	TileTemperature    *ecs.Map[TileTemperature]    // タイルの気温修正値を保持する
 	StageBound         *ecs.Map[StageBound]         // 束縛先ステージを保持する。往復するステージの同定に使う
+	StageField         *ecs.Map[StageField]         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
+	SeamlessBand       *ecs.Map[SeamlessBand]       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
+	PortalConnection   *ecs.Map[PortalConnection]   // ポータルの行き先ステージと着地座標を保持する
+	DungeonEntrance    *ecs.Map[DungeonEntrance]    // 遺跡入口が進入先の遺跡定義名を保持する
 	Suspended          *ecs.Map[Suspended]          // 現ステージ以外に属し稼働しないことを示すマーカー
 	Player             *ecs.Map[Player]             // 操作対象の主人公であることを示す
 	Profession         *ecs.Map[Profession]         // 選択した職業を保持する
@@ -148,6 +159,9 @@ type Components struct {
 	GameProgress       *ecs.Map[GameProgress]       // ゲーム進行データを保持するシングルトン
 	TurnState          *ecs.Map[TurnState]          // ターン状態を保持するシングルトン
 	SpatialIndex       *ecs.Map[SpatialIndex]       // 空間インデックスを保持するシングルトン
+	WeaponSelection    *ecs.Map[WeaponSelection]    // 選択中の武器スロットを保持するシングルトン
+	GameTime           *ecs.Map[GameTime]           // ゲーム内時間を保持するシングルトン
+	VisionState        *ecs.Map[VisionState]        // 視界計算の一時状態を保持するシングルトン
 }
 
 // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
@@ -189,6 +203,10 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileTemperature = ecs.NewMap[TileTemperature](world)
 	c.StageBound = ecs.NewMap[StageBound](world)
+	c.StageField = ecs.NewMap[StageField](world)
+	c.SeamlessBand = ecs.NewMap[SeamlessBand](world)
+	c.PortalConnection = ecs.NewMap[PortalConnection](world)
+	c.DungeonEntrance = ecs.NewMap[DungeonEntrance](world)
 	c.Suspended = ecs.NewMap[Suspended](world)
 	c.Player = ecs.NewMap[Player](world)
 	c.Profession = ecs.NewMap[Profession](world)
@@ -221,6 +239,9 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.GameProgress = ecs.NewMap[GameProgress](world)
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
+	c.WeaponSelection = ecs.NewMap[WeaponSelection](world)
+	c.GameTime = ecs.NewMap[GameTime](world)
+	c.VisionState = ecs.NewMap[VisionState](world)
 	return nil
 }
 
@@ -264,6 +285,10 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileTemperature, entity, spec.TileTemperature)
 	addComp(c.StageBound, entity, spec.StageBound)
+	addComp(c.StageField, entity, spec.StageField)
+	addComp(c.SeamlessBand, entity, spec.SeamlessBand)
+	addComp(c.PortalConnection, entity, spec.PortalConnection)
+	addComp(c.DungeonEntrance, entity, spec.DungeonEntrance)
 	addComp(c.Suspended, entity, spec.Suspended)
 	addComp(c.Player, entity, spec.Player)
 	addComp(c.Profession, entity, spec.Profession)
@@ -296,5 +321,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.GameProgress, entity, spec.GameProgress)
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
+	addComp(c.WeaponSelection, entity, spec.WeaponSelection)
+	addComp(c.GameTime, entity, spec.GameTime)
+	addComp(c.VisionState, entity, spec.VisionState)
 	return entity
 }

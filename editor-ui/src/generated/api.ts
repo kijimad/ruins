@@ -816,10 +816,6 @@ export interface Prop {
      * 前階層ワープトリガー
      */
     'warpPrevTrigger'?: object;
-    /**
-     * ダンジョン選択ゲートトリガー
-     */
-    'dungeonGateTrigger'?: object;
     'storage'?: StorageRaw;
 }
 /**

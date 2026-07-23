@@ -16,7 +16,8 @@ import (
 
 // 定数定義
 const (
-	cameraNormalScale = 0.6 // カメラの通常スケール
+	cameraNormalScale = 0.6     // カメラの通常スケール
+	fieldSpriteSheet  = "field" // オーバーワールドの地物・アイテムが使うスプライトシート名
 )
 
 // エラー定義
@@ -178,10 +179,12 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	}
 	leaderGrid := world.Components.GridElement.Get(leader)
 
-	// リーダーの隣接空きタイルを探す
-	spawnPos, err := findAdjacentEmptyTile(world, leaderGrid.Coord, nil)
-	if err != nil {
-		return gc.InvalidEntity, fmt.Errorf("隊員のスポーン位置が見つかりません: %w", err)
+	// リーダーの近くの空きタイルを探す。街や遺跡入口など密集地では隣接が埋まっていることが
+	// あるため、近い順に外側へ広げて探す。それでも無ければリーダーと同じタイルへ退避させ、
+	// 生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。
+	spawnPos, ok := findNearbyEmptyTile(world, leaderGrid.Coord, nil, squadPlacementMaxRadius)
+	if !ok {
+		spawnPos = leaderGrid.Coord
 	}
 
 	skills := gc.NewSkills()
@@ -203,7 +206,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		}(),
 		GridElement: &gc.GridElement{Coord: spawnPos},
 		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: "field",
+			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumPlayer,
 		},

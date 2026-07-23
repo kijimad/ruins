@@ -273,7 +273,8 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 	t.Run("進入不可ライン以西はブロックしゾーン内は許可する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 0
 		sb.ChunkW = 40
@@ -289,7 +290,8 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 	t.Run("帯原点で絶対Xに変換する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 1 // bandOriginX = 40
 		sb.ChunkW = 40
@@ -303,11 +305,26 @@ func TestFrontAllowsMoveTo(t *testing.T) {
 	t.Run("FrontActiveでないと常に許可", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = false
 		sb.Front.EastAbsX = 1000
 		sb.Front.ColdWidth = 20
 		assert.True(t, frontAllowsMoveTo(world, -100), "通常ダンジョンは前線無関係")
+	})
+
+	t.Run("遺跡内では前線がActiveでも常に許可", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 帯・前線はオーバーワールドの StageField に持たせる。遺跡へ移ると帯データは現ステージから外れる。
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
+		sb.Front.Active = true
+		sb.EastIndex = 0
+		sb.ChunkW = 40
+		sb.Front.ColdWidth = 20
+		sb.Front.EastAbsX = 30 // 進入不可ライン以西の座標でも
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
+		assert.True(t, frontAllowsMoveTo(world, 5), "遺跡内では前線の移動制限が漏れない")
 	})
 }
 
@@ -318,7 +335,8 @@ func TestCanMoveTo_前線の進入不可ラインで西へ進めない(t *testin
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "Ash")
 	require.NoError(t, err)
 
-	sb := &query.GetDungeon(world).SeamlessBand
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	sb := query.EnsureSeamlessBand(world)
 	sb.Front.Active = true
 	sb.EastIndex = 0
 	sb.ChunkW = 40

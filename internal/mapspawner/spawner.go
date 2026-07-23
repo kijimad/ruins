@@ -11,7 +11,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -273,11 +272,9 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 		lootCount = countMin + metaPlan.RNG.IntN(countMax-countMin+1)
 	}
 
-	// ダンジョン深度を取得する。未設定の場合は深度1として扱う
-	depth := 1
-	if d := query.GetDungeon(world); d != nil {
-		depth = d.Depth
-	}
+	// 深度は生成中フロアのプランから取る。世界の CurrentStage は生成完了後に確定するため、
+	// ここで参照すると1段ずれる(遺跡進入時は地上の深度0を読んでしまう)。
+	depth := metaPlan.Depth
 
 	for range lootCount {
 		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)

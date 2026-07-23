@@ -3,6 +3,8 @@ package states
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -15,22 +17,26 @@ func TestNewResumeStateFactory_シームレスならOverworld(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	query.GetDungeon(world).SeamlessBand.Active = true
+	// 現ステージに帯データを持たせる。以後この帯データの有無がオーバーワールド判定を兼ねる
+	query.EnsureSeamlessBand(world).Active = true
 
 	state, err := newResumeStateFactory(world)()
 	require.NoError(t, err)
-	_, ok := state.(*OverworldState)
-	assert.True(t, ok, "SeamlessBand.Active なら OverworldState で復帰する")
+	st, ok := state.(*DungeonState)
+	require.True(t, ok, "統合後はどちらも DungeonState")
+	assert.True(t, st.isSeamless(), "現ステージが帯データを持てばオーバーワールドモードで復帰する")
 }
 
 func TestNewResumeStateFactory_通常はDungeon(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	// SeamlessBand.Active は既定 false
+	// 現ステージを通常ダンジョンにする。帯データを持たないのでオーバーワールドと誤判定しない
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)
 
 	state, err := newResumeStateFactory(world)()
 	require.NoError(t, err)
-	_, ok := state.(*DungeonState)
-	assert.True(t, ok, "通常は DungeonState で復帰する")
+	st, ok := state.(*DungeonState)
+	require.True(t, ok, "通常は DungeonState で復帰する")
+	assert.False(t, st.isSeamless(), "帯データを持たない現ステージは通常ダンジョンモード")
 }

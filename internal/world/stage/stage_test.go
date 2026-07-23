@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	stageA      = gc.NewDungeonStage(1)
-	stageB      = gc.NewDungeonStage(2)
-	stageAbsent = gc.NewRuinStage("未訪問", 1)
+	stageA      = gc.NewDungeonStage("テスト遺跡", 1)
+	stageB      = gc.NewDungeonStage("テスト遺跡", 2)
+	stageAbsent = gc.NewDungeonStage("未訪問", 1)
 )
 
 // addStageEntity は指定ステージに束縛されたエンティティを1つ作る
@@ -75,13 +75,12 @@ func TestPurge(t *testing.T) {
 func TestResetExploredTiles(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	d := query.GetDungeon(world)
-	d.ExploredTiles = map[gc.GridElement]bool{
+	query.GetCurrentStageField(world).ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 	}
 
 	ResetExploredTiles(world)
-	assert.Empty(t, query.GetDungeon(world).ExploredTiles, "入り直しで探索履歴は空になる")
+	assert.Empty(t, query.GetCurrentStageField(world).ExploredTiles, "入り直しで探索履歴は空になる")
 }
 
 func TestBind(t *testing.T) {
@@ -166,7 +165,9 @@ func TestSwapTo_生成失敗時は現ステージを壊さない(t *testing.T) {
 	d := query.GetDungeon(world)
 	d.CurrentStage = stageA
 	a1 := addStageEntity(t, world, stageA)
-	d.ExploredTiles = map[gc.GridElement]bool{
+	// 現ステージ A の StageField に探索履歴を持たせる
+	field := query.EnsureStageField(world, stageA)
+	field.ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
 	}
 
@@ -179,13 +180,13 @@ func TestSwapTo_生成失敗時は現ステージを壊さない(t *testing.T) {
 	// 現ステージは壊れない。A は退避されず、CurrentStage も探索履歴も維持される
 	assert.False(t, world.Components.Suspended.Has(a1), "生成失敗時に現ステージA は退避されない")
 	assert.Equal(t, stageA, d.CurrentStage, "生成失敗時に CurrentStage は動かない")
-	assert.NotEmpty(t, d.ExploredTiles, "生成失敗時に探索履歴は消えない")
+	assert.NotEmpty(t, field.ExploredTiles, "生成失敗時に探索履歴は消えない")
 }
 
 func TestSwapTo_座標索引を無効化する(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	query.GetDungeon(world).CurrentStage = stageA
+	// stageA 上で 50x50 のフィールドを持って始める。索引構築が寸法を引けるように用意する
+	world := testutil.InitTestWorld(t, testutil.WithCurrentStage(stageA), testutil.WithStageLevel(gc.Level{TileWidth: 50, TileHeight: 50}))
 
 	// 索引を一度構築しておく
 	query.GetSpatialIndex(world)
@@ -206,13 +207,16 @@ func TestSwapTo_探索履歴をリセットする(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	d := query.GetDungeon(world)
 	d.CurrentStage = stageA
-	d.ExploredTiles = map[gc.GridElement]bool{
+	// 現ステージ A の StageField に探索履歴を持たせる
+	query.EnsureStageField(world, stageA).ExploredTiles = map[gc.GridElement]bool{
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}: true,
 	}
 
+	// 生成した階にも StageField を用意する。実ゲームでは spawnFloor が StageField を作る
 	require.NoError(t, SwapTo(world, stageB, func(world w.World, key gc.StageKey) error {
 		addStageEntity(t, world, key)
+		query.EnsureStageField(world, key)
 		return nil
 	}))
-	assert.Empty(t, query.GetDungeon(world).ExploredTiles, "swap で探索履歴は空になる")
+	assert.Empty(t, query.GetCurrentStageField(world).ExploredTiles, "swap で現ステージの探索履歴は空になる")
 }

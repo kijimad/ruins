@@ -63,7 +63,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		// マガジンを空にする（弾薬アイテムは持っていない）
 		fire := world.Components.Fire.Get(we)
@@ -87,7 +87,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		ra := &ReloadActivity{}
 		comp, err := NewActivity(ra, 1)
@@ -160,7 +160,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		fire := world.Components.Fire.Get(we)
 		fire.Magazine = 0

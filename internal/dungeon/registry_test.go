@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetAllDungeons(t *testing.T) {
@@ -16,9 +17,9 @@ func TestGetAllDungeons(t *testing.T) {
 
 	// 全てのダンジョンが有効な設定を持っている
 	for _, d := range dungeons {
-		assert.NotEmpty(t, d.Name)
-		assert.Positive(t, d.TotalFloors)
-		assert.NotEmpty(t, d.PlannerPool)
+		assert.NotEmpty(t, d.Name())
+		assert.Positive(t, d.TotalFloors())
+		assert.NotEmpty(t, d.PlannerPool())
 	}
 }
 
@@ -39,15 +40,25 @@ func TestGetDungeonByName(t *testing.T) {
 
 	t.Run("存在するダンジョンを取得できる", func(t *testing.T) {
 		t.Parallel()
-		d, found := GetDungeon("亡者の森")
-		assert.True(t, found)
-		assert.Equal(t, "亡者の森", d.Name)
-		assert.Equal(t, 20, d.TotalFloors)
+		def, found := GetStageDefinition("亡者の森")
+		require.True(t, found)
+		assert.Equal(t, "亡者の森", def.Name())
+		d, ok := def.(*DungeonDefinition)
+		require.True(t, ok, "通常ダンジョンは DungeonDefinition")
+		assert.Equal(t, 20, d.TotalFloors())
+	})
+
+	t.Run("オーバーワールドは OverworldDefinition として引ける", func(t *testing.T) {
+		t.Parallel()
+		def, found := GetStageDefinition("オーバーワールド")
+		require.True(t, found)
+		_, ok := def.(*OverworldDefinition)
+		assert.True(t, ok, "オーバーワールドは OverworldDefinition でフロアを生成しない別の型")
 	})
 
 	t.Run("存在しないダンジョンはfalseを返す", func(t *testing.T) {
 		t.Parallel()
-		_, found := GetDungeon("存在しないダンジョン")
+		_, found := GetStageDefinition("存在しないダンジョン")
 		assert.False(t, found)
 	})
 }
@@ -57,28 +68,28 @@ func TestDefinitions(t *testing.T) {
 
 	t.Run("DungeonForestの設定が正しい", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "亡者の森", DungeonForest.Name)
-		assert.Equal(t, 20, DungeonForest.TotalFloors)
-		assert.Equal(t, "森", DungeonForest.EnemyTableName)
-		assert.Equal(t, "森", DungeonForest.ItemTableName)
-		assert.NotEmpty(t, DungeonForest.PlannerPool)
+		assert.Equal(t, "亡者の森", DungeonForest.Name())
+		assert.Equal(t, 20, DungeonForest.TotalFloors())
+		assert.Equal(t, "森", DungeonForest.EnemyTableName())
+		assert.Equal(t, "森", DungeonForest.ItemTableName())
+		assert.NotEmpty(t, DungeonForest.PlannerPool())
 	})
 
 	t.Run("DungeonCaveの設定が正しい", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "灰の洞窟", DungeonCave.Name)
-		assert.Equal(t, 20, DungeonCave.TotalFloors)
-		assert.Equal(t, "洞窟", DungeonCave.EnemyTableName)
-		assert.Equal(t, "洞窟", DungeonCave.ItemTableName)
-		assert.NotEmpty(t, DungeonCave.PlannerPool)
+		assert.Equal(t, "灰の洞窟", DungeonCave.Name())
+		assert.Equal(t, 20, DungeonCave.TotalFloors())
+		assert.Equal(t, "洞窟", DungeonCave.EnemyTableName())
+		assert.Equal(t, "洞窟", DungeonCave.ItemTableName())
+		assert.NotEmpty(t, DungeonCave.PlannerPool())
 	})
 
 	t.Run("DungeonRuinsの設定が正しい", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "忘却の廃都", DungeonRuins.Name)
-		assert.Equal(t, 20, DungeonRuins.TotalFloors)
-		assert.Equal(t, "廃墟", DungeonRuins.EnemyTableName)
-		assert.Equal(t, "廃墟", DungeonRuins.ItemTableName)
-		assert.NotEmpty(t, DungeonRuins.PlannerPool)
+		assert.Equal(t, "忘却の廃都", DungeonRuins.Name())
+		assert.Equal(t, 20, DungeonRuins.TotalFloors())
+		assert.Equal(t, "廃墟", DungeonRuins.EnemyTableName())
+		assert.Equal(t, "廃墟", DungeonRuins.ItemTableName())
+		assert.NotEmpty(t, DungeonRuins.PlannerPool())
 	})
 }

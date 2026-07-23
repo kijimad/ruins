@@ -47,10 +47,6 @@ type CraftMenuState struct {
 	widget      *ebitenui.UI
 }
 
-func (st CraftMenuState) String() string {
-	return "CraftMenu"
-}
-
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}

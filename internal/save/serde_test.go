@@ -96,8 +96,10 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	require.NoError(t, err)
 
 	dungeonState := query.GetDungeon(world)
-	dungeonState.Depth = 3
-	dungeonState.DefinitionName = "遺跡"
+	// ダンジョン定義名は現ステージのキーが持つ。名前付きキーで現在地を確定する
+	dungeonState.CurrentStage = gc.NewDungeonStage("遺跡", 3)
+	// 現ステージの StageField を用意する。実ゲームでは階生成時に作られる
+	query.EnsureStageField(world, dungeonState.CurrentStage)
 
 	require.NoError(t, manager.SaveWorld(world, "location"))
 
@@ -106,13 +108,13 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 
 	restored := query.GetDungeon(newWorld)
 	require.NotNil(t, restored)
-	assert.Equal(t, 3, restored.Depth, "階層が復元される")
-	assert.Equal(t, "遺跡", restored.DefinitionName, "ダンジョン定義名が復元される")
+	assert.Equal(t, 3, restored.CurrentStage.Depth, "階層が復元される")
+	assert.Equal(t, "遺跡", restored.CurrentStage.Name, "ダンジョン定義名が現ステージのキーとして復元される")
 
-	// 視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
+	// 探索履歴・視界マップは json:"-" で除外されるが、reestablishSingleton が空mapで初期化する。
 	// nilのままだと視界処理で書き込み時にpanicするため非nilであること
-	assert.NotNil(t, restored.ExploredTiles, "探索済みマップが空mapで初期化される")
-	assert.NotNil(t, restored.VisibleTiles, "可視マップが空mapで初期化される")
+	assert.NotNil(t, query.GetCurrentStageField(newWorld).ExploredTiles, "探索済みマップが空mapで初期化される")
+	assert.NotNil(t, query.GetVisionState(newWorld).VisibleTiles, "可視マップが空mapで初期化される")
 }
 
 // TestSerde_StageBoundとSuspendedが往復する は共存方式の永続状態が
@@ -129,7 +131,7 @@ func TestSerde_StageBoundとSuspendedが往復する(t *testing.T) {
 	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	key := gc.NewDungeonStage(2)
+	key := gc.NewDungeonStage("テスト遺跡", 2)
 	query.GetDungeon(world).CurrentStage = key
 
 	// 退避中ステージのエンティティ相当。StageBound を持ち Suspended で退避されている
@@ -147,6 +149,10 @@ func TestSerde_StageBoundとSuspendedが往復する(t *testing.T) {
 	var restored []ecs.Entity
 	q := ecs.NewFilter1[gc.StageBound](newWorld.ECS).Query()
 	for q.Next() {
+		// StageField はステージ基盤エンティティで最小の world にも含まれるため、対象外にする
+		if newWorld.Components.StageField.Has(q.Entity()) {
+			continue
+		}
 		restored = append(restored, q.Entity())
 	}
 	require.Len(t, restored, 1, "StageBound を持つエンティティが1つ復元される")
@@ -197,4 +203,46 @@ func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 	require.NotNil(t, ai.TargetEntity, "TargetEntityが復元される")
 	require.True(t, newWorld.ECS.Alive(*ai.TargetEntity), "TargetEntityが生存エンティティを指す")
 	assert.Equal(t, restoredPlayer, *ai.TargetEntity, "TargetEntityが復元後プレイヤーへ整合する")
+}
+
+// TestSerde_WeaponSelectionPersists は選択中の武器スロットがセーブ・ロードで復元されることを
+// 検証する。Dungeon から分離した後もシングルトンとして serde され永続する。
+func TestSerde_WeaponSelectionPersists(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	query.GetWeaponSelection(world).Slot = 4
+
+	require.NoError(t, manager.SaveWorld(world, "weapon"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "weapon"))
+
+	assert.Equal(t, 4, query.GetWeaponSelection(newWorld).Slot, "選択中の武器スロットが復元される")
+}
+
+// TestSerde_GameTimePersists はゲーム内時間がセーブ・ロードで復元されることを検証する。
+// TotalTurns は昼夜と寒波前線の位置を決定的に導出する元なので、往復で保たれる必要がある。
+func TestSerde_GameTimePersists(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	query.GetGameTime(world).TotalTurns = 1234
+
+	require.NoError(t, manager.SaveWorld(world, "gametime"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "gametime"))
+
+	assert.Equal(t, consts.Turn(1234), query.GetGameTime(newWorld).TotalTurns, "総ターン数が復元される")
 }

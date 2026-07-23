@@ -31,6 +31,7 @@ type saveEnvelope struct {
 func skipComponents() []ecs.Comp {
 	return []ecs.Comp{
 		ecs.C[gc.SpatialIndex](),       // struct-keyed map。ロード時に再構築
+		ecs.C[gc.VisionState](),        // struct-keyed map。視界更新で再構築
 		ecs.C[gc.GameLog](),            // sync.Mutex を含むため不可。毎ロード初期化
 		ecs.C[gc.VisualEffects](),      // interfaceスライス・毎フレーム再生成
 		ecs.C[gc.Position](),           // GridElementから毎フレーム算出
@@ -91,15 +92,20 @@ func reestablishSingleton(world w.World) error {
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
+	// 視界計算の一時状態は serde 除外なのでロード後に再構築する
+	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 
-	// json:"-"で除外された視界マップを初期化する
-	if world.Components.Dungeon.Has(singleton) {
-		d := world.Components.Dungeon.Get(singleton)
-		if d.ExploredTiles == nil {
-			d.ExploredTiles = make(map[gc.GridElement]bool)
-		}
-		if d.VisibleTiles == nil {
-			d.VisibleTiles = make(map[gc.GridElement]bool)
+	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
+	// ロック中の反復では構造変更しないため、対象を集めてから初期化する
+	var metas []ecs.Entity
+	mq := ecs.NewFilter1[gc.StageField](world.ECS).Query()
+	for mq.Next() {
+		metas = append(metas, mq.Entity())
+	}
+	for _, e := range metas {
+		field := world.Components.StageField.Get(e)
+		if field.ExploredTiles == nil {
+			field.ExploredTiles = make(map[gc.GridElement]bool)
 		}
 	}
 	return nil
@@ -107,8 +113,8 @@ func reestablishSingleton(world w.World) error {
 
 // validateStages は復元したステージ関連の値の整合を検査する。
 // セーブファイルは信頼境界であり、コンストラクタを通らない不正な StageKey が
-// 紛れうる。StageBound の所属キーと Dungeon.CurrentStage を Validate で弾く。
-// ロックを避けるため先にキーを集め、反復を終えてから検証する
+// 紛れうる。StageKey を内包する全コンポーネント、Dungeon.CurrentStage・StageBound.Key・
+// PortalConnection.Stage を Validate で弾く。ロックを避けるため先にキーを集め、反復を終えてから検証する
 func validateStages(world w.World) error {
 	var keys []gc.StageKey
 	dq := ecs.NewFilter1[gc.Dungeon](world.ECS).Query()
@@ -118,6 +124,10 @@ func validateStages(world w.World) error {
 	mq := ecs.NewFilter1[gc.StageBound](world.ECS).Query()
 	for mq.Next() {
 		keys = append(keys, world.Components.StageBound.Get(mq.Entity()).Key)
+	}
+	pq := ecs.NewFilter1[gc.PortalConnection](world.ECS).Query()
+	for pq.Next() {
+		keys = append(keys, world.Components.PortalConnection.Get(pq.Entity()).Stage)
 	}
 	for _, k := range keys {
 		if err := k.Validate(); err != nil {

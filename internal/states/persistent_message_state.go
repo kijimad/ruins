@@ -14,10 +14,6 @@ type PersistentMessageState struct {
 	MessageState
 }
 
-func (st PersistentMessageState) String() string {
-	return "PersistentMessage"
-}
-
 var _ es.State[w.World] = &PersistentMessageState{}
 
 // Update はゲームステートの更新処理を行う

@@ -25,10 +25,6 @@ type FormationMenuState struct {
 	widget    *ebitenui.UI
 }
 
-func (st FormationMenuState) String() string {
-	return "FormationMenu"
-}
-
 var _ es.State[w.World] = &FormationMenuState{}
 var _ es.ActionHandler[w.World] = &FormationMenuState{}
 

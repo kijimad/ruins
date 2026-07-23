@@ -26,10 +26,6 @@ type SettingsMenuState struct {
 	widget    *ebitenui.UI
 }
 
-func (st SettingsMenuState) String() string {
-	return "SettingsMenu"
-}
-
 // State interface ================
 
 var _ es.State[w.World] = &SettingsMenuState{}

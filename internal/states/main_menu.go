@@ -25,10 +25,6 @@ type MainMenuState struct {
 	widget    *ebitenui.UI
 }
 
-func (st MainMenuState) String() string {
-	return "MainMenu"
-}
-
 // State interface ================
 
 var _ es.State[w.World] = &MainMenuState{}

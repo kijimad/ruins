@@ -25,16 +25,21 @@ import (
 
 const storageItemsPerPage = 20
 
+// tabID は収納メニューのタブ識別子
+type tabID string
+
+// 収納メニューのタブID。タブ定義・転送処理・ヘルプ表示で参照する。定義型にして任意文字列の混入を防ぐ
+const (
+	tabIDRetrieve tabID = "retrieve"
+	tabIDStore    tabID = "store"
+)
+
 // StorageMenuState は収納メニューのゲームステート
 type StorageMenuState struct {
 	es.BaseState[w.World]
 	storageEntity ecs.Entity
 	menuMount     *hooks.Mount[storageProps]
 	widget        *ebitenui.UI
-}
-
-func (st StorageMenuState) String() string {
-	return "StorageMenu"
 }
 
 // State interface ================
@@ -143,7 +148,7 @@ type storageProps struct {
 }
 
 type storageTabData struct {
-	ID    string
+	ID    tabID
 	Label string
 	Items []storageItemData
 }
@@ -172,8 +177,8 @@ func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 
 	return storageProps{
 		Tabs: []storageTabData{
-			{ID: "retrieve", Label: "取得", Items: st.createStorageItemData(world)},
-			{ID: "store", Label: "収納", Items: storeTabs},
+			{ID: tabIDRetrieve, Label: "取得", Items: st.createStorageItemData(world)},
+			{ID: tabIDStore, Label: "収納", Items: storeTabs},
 		},
 		StorageName:    storageName,
 		WeightText:     weightText,
@@ -240,7 +245,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 	item := tab.Items[itemIndex]
 
 	switch tab.ID {
-	case "retrieve":
+	case tabIDRetrieve:
 		// 収納からバックパックへ移動
 		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
@@ -249,7 +254,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 		if err := lifecycle.MoveToBackpack(world, item.Entity, playerEntity); err != nil {
 			return err
 		}
-	case "store":
+	case tabIDStore:
 		// バックパックから収納へ移動
 		if !query.CanAddToStorage(world, st.storageEntity, item.Entity) {
 			return nil // 重量超過の場合は何もしない
@@ -395,7 +400,7 @@ func (st *StorageMenuState) buildReferenceListContainer(props storageProps, tabI
 func (st *StorageMenuState) buildHelpContainer(tabs []storageTabData, tabIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	helpText := "Enter:取り出す  ←→:タブ切替  Esc:閉じる"
-	if tabIndex < len(tabs) && tabs[tabIndex].ID == "store" {
+	if tabIndex < len(tabs) && tabs[tabIndex].ID == tabIDStore {
 		helpText = "Enter:収納する  ←→:タブ切替  Esc:閉じる"
 	}
 	container.AddChild(styled.NewMenuText(helpText, res))

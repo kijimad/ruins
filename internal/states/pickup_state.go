@@ -39,10 +39,6 @@ func (st *PickupState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-func (st PickupState) String() string {
-	return "Pickup"
-}
-
 var _ es.State[w.World] = &PickupState{}
 var _ Configurable = &PickupState{}
 

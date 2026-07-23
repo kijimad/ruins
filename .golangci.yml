@@ -44,6 +44,11 @@ linters:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
 
   settings:
+    goconst:
+      # テストは独立して読めることが重要で、フィクスチャ文字列の重複は許容する。
+      # テストを数えないことで、テストとの合算で誤検知される本体側の指摘も消える。
+      # 残るのは本体コード内で真に重複する文字列だけになり、実用的なシグナルになる。
+      ignore-tests: true
     gocritic:
       # 追加で有効化する
       enabled-checks:
