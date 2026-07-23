@@ -43,6 +43,12 @@
 $ make help
 ```
 
+## 設計ドキュメントの状況
+
+`docs/design` の frontmatter から自動生成される。`go run . designdoc list` で絞り込める。
+
+<!-- DESIGN_STATUS -->
+
 ## Reference
 
 ゲーム作成で参考にしたコード等。

@@ -53,6 +53,22 @@
 $ make help
 ```
 
+## 設計ドキュメントの状況
+
+`docs/design` の frontmatter から自動生成される。`go run . designdoc list` で絞り込める。
+
+| status | 件数 |
+|---|---|
+| in-progress | 1 |
+| done | 62 |
+
+### 進行中
+
+| No. | ドキュメント | 進捗 | tags |
+|---|---|---|---|
+| [64](docs/design/20260719_64.md) | 型ユーティリティによる堅牢化・利便化の調査と適用方針 | 0/9 |  |
+
+
 ## Reference
 
 ゲーム作成で参考にしたコード等。

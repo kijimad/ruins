@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/kijimaD/ruins/internal/designdoc"
 	"github.com/urfave/cli/v3"
 )
 
@@ -19,11 +20,12 @@ var CmdGenReadme = &cli.Command{
 }
 
 const (
-	templateFile = "README.tmpl.md"
-	outputFile   = "README.md"
-	imageDir     = "internal/states/testdata"
-	placeholder  = "<!-- VRT_IMAGES -->"
-	columns      = 4
+	templateFile          = "README.tmpl.md"
+	outputFile            = "README.md"
+	imageDir              = "internal/states/testdata"
+	placeholder           = "<!-- VRT_IMAGES -->"
+	designStatusPlacehldr = "<!-- DESIGN_STATUS -->"
+	columns               = 4
 )
 
 func runGenReadme(_ context.Context, _ *cli.Command) error {
@@ -37,8 +39,15 @@ func runGenReadme(_ context.Context, _ *cli.Command) error {
 		return fmt.Errorf("画像テーブルの生成に失敗: %w", err)
 	}
 
+	docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+	if err != nil {
+		return fmt.Errorf("設計ドキュメントの読み込みに失敗: %w", err)
+	}
+	statusTable := designdoc.RenderStatusSection(docs)
+
 	result := strings.Replace(string(tmpl), placeholder, table, 1)
-	if err := os.WriteFile(outputFile, []byte(result), 0644); err != nil {
+	result = strings.Replace(result, designStatusPlacehldr, statusTable, 1)
+	if err := os.WriteFile(outputFile, []byte(result), 0o644); err != nil {
 		return fmt.Errorf("README.mdの書き込みに失敗: %w", err)
 	}
 
