@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 15:07:05</td>
+            <td class="headerValue">2026-07-23 16:09:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,14 +70,14 @@
 <span id="L8"><span class="lineNum">       8</span>              :         Collection string</span>
 <span id="L9"><span class="lineNum">       9</span>              : }</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">           2 : func (e KeyNotFoundError) Error() string {</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           2 :         return fmt.Sprintf(&quot;key not found: %s in %s&quot;, e.Key, e.Collection)</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           2 : }</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">           3 : func (e KeyNotFoundError) Error() string {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           3 :         return fmt.Sprintf(&quot;key not found: %s in %s&quot;, e.Key, e.Collection)</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           3 : }</span></span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // NewKeyNotFoundError creates a new KeyNotFoundError</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           4 : func NewKeyNotFoundError(key, collection string) error {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           4 :         return KeyNotFoundError{Key: key, Collection: collection}</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           4 : }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           8 : func NewKeyNotFoundError(key, collection string) error {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           8 :         return KeyNotFoundError{Key: key, Collection: collection}</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           8 : }</span></span>
         </pre>
               </td>
             </tr>

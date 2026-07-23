@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 15:07:05</td>
+            <td class="headerValue">2026-07-23 16:09:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -207,11 +207,11 @@
 <span id="L145"><span class="lineNum">     145</span>              : </span>
 <span id="L146"><span class="lineNum">     146</span>              : // GetTerrain は文字から地形名を取得する。</span>
 <span id="L147"><span class="lineNum">     147</span>              : // Terrain定義を優先し、なければProps/NPCsのTileフィールドを参照する</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">        3753 : func (p *Palette) GetTerrain(char string) (string, bool) {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        6772 :         if terrain, ok := p.Terrain[char]; ok {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">        3019 :                 return terrain, true</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">        3019 :         }</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         821 :         if entry, ok := p.Props[char]; ok &amp;&amp; entry.Tile != &quot;&quot; {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">        3747 : func (p *Palette) GetTerrain(char string) (string, bool) {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        6762 :         if terrain, ok := p.Terrain[char]; ok {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">        3015 :                 return terrain, true</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">        3015 :         }</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         820 :         if entry, ok := p.Props[char]; ok &amp;&amp; entry.Tile != &quot;&quot; {</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">          87 :                 return entry.Tile, true</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">          87 :         }</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         648 :         if entry, ok := p.NPCs[char]; ok &amp;&amp; entry.Tile != &quot;&quot; {</span></span>
@@ -221,20 +221,20 @@
 <span id="L159"><span class="lineNum">     159</span>              : }</span>
 <span id="L160"><span class="lineNum">     160</span>              : </span>
 <span id="L161"><span class="lineNum">     161</span>              : // GetProp は文字からProp名を取得する</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">        3749 : func (p *Palette) GetProp(char string) (string, bool) {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">        3749 :         entry, ok := p.Props[char]</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">        7410 :         if !ok {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">        3661 :                 return &quot;&quot;, false</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">        3661 :         }</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">        3741 : func (p *Palette) GetProp(char string) (string, bool) {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">        3741 :         entry, ok := p.Props[char]</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">        7396 :         if !ok {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">        3655 :                 return &quot;&quot;, false</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">        3655 :         }</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          88 :         return entry.ID, true</span></span>
 <span id="L168"><span class="lineNum">     168</span>              : }</span>
 <span id="L169"><span class="lineNum">     169</span>              : </span>
 <span id="L170"><span class="lineNum">     170</span>              : // GetNPC は文字からNPC種別を取得する</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">        3747 : func (p *Palette) GetNPC(char string) (string, bool) {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">        3747 :         entry, ok := p.NPCs[char]</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">        7494 :         if !ok {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">        3747 :                 return &quot;&quot;, false</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">        3747 :         }</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">        3737 : func (p *Palette) GetNPC(char string) (string, bool) {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">        3737 :         entry, ok := p.NPCs[char]</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">        7478 :         if !ok {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">        3741 :                 return &quot;&quot;, false</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">        3741 :         }</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC tlaBgUNC">           0 :         return entry.ID, true</span></span>
 <span id="L177"><span class="lineNum">     177</span>              : }</span>
         </pre>
