@@ -120,10 +120,11 @@ func TestValidate(t *testing.T) {
 	assert.Equal(t, SeverityError, findProblem(t, problems, "bad-status.md").Severity)
 	assert.Equal(t, SeverityError, findProblem(t, problems, "bad-auto.md").Severity)
 	assert.Equal(t, SeverityWarn, findProblem(t, problems, "unknown-tag.md").Severity)
+	// done なのに未チェックが残るのは不変条件違反。Error で弾く。
+	assert.Equal(t, SeverityError, findProblem(t, problems, "done-open.md").Severity)
 
-	// status は人が所有するため、done でも未完タスクが残ることは問題にしない。
+	// ok.md は問題を出さない。
 	for _, p := range problems {
-		assert.NotEqual(t, "done-open.md", p.Path)
 		assert.NotEqual(t, "ok.md", p.Path)
 	}
 }
