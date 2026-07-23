@@ -154,7 +154,7 @@ func TestSpawnItems_未知のアイテム名はエラー(t *testing.T) {
 
 	err := spawnItems(world, plan, 0, 0)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "アイテム生成エラー")
+	assert.ErrorContains(t, err, "存在しないアイテム")
 }
 
 func TestSpawnItems_有効なアイテムを生成する(t *testing.T) {
