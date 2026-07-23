@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 15:01:26</td>
+            <td class="headerValue">2026-07-23 15:07:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -137,9 +137,9 @@
 <span id="L75"><span class="lineNum">      75</span>              : }</span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // SkillAbilityID はスキルに対応する能力値IDを返す</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">         218 : func SkillAbilityID(id SkillID) AbilityID {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">         218 :         ablID, ok := skillAbility[id]</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">         219 :         if !ok {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">         217 : func SkillAbilityID(id SkillID) AbilityID {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">         217 :         ablID, ok := skillAbility[id]</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">         218 :         if !ok {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;スキル%qに対応する能力値が定義されていません&quot;, id))</span></span>
 <span id="L82"><span class="lineNum">      82</span>              :         }</span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         217 :         return ablID</span></span>
@@ -175,12 +175,12 @@
 <span id="L113"><span class="lineNum">     113</span>              : }</span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
 <span id="L115"><span class="lineNum">     115</span>              : // SkillName はスキルIDの表示名を返す。未定義ならpanicする</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         443 : func SkillName(id SkillID) string {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         443 :         name, ok := skillName[id]</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">         444 :         if !ok {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         439 : func SkillName(id SkillID) string {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">         439 :         name, ok := skillName[id]</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">         440 :         if !ok {</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義のスキルID: %q&quot;, id))</span></span>
 <span id="L120"><span class="lineNum">     120</span>              :         }</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">         442 :         return name</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">         438 :         return name</span></span>
 <span id="L122"><span class="lineNum">     122</span>              : }</span>
 <span id="L123"><span class="lineNum">     123</span>              : </span>
 <span id="L124"><span class="lineNum">     124</span>              : // HasSkillName はスキルIDの表示名が定義されているかを返す。ロード時のバリデーション用</span>
@@ -282,12 +282,12 @@
 <span id="L220"><span class="lineNum">     220</span>              : }</span>
 <span id="L221"><span class="lineNum">     221</span>              : </span>
 <span id="L222"><span class="lineNum">     222</span>              : // Get は指定されたスキルIDのSkillを返す。未定義ならpanicする</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">         460 : func (s *Skills) Get(id SkillID) *Skill {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">         460 :         sk, ok := s.Data[id]</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">         461 :         if !ok {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">         452 : func (s *Skills) Get(id SkillID) *Skill {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">         452 :         sk, ok := s.Data[id]</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">         453 :         if !ok {</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義のスキルID: %q&quot;, id))</span></span>
 <span id="L227"><span class="lineNum">     227</span>              :         }</span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">         459 :         return sk</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">         455 :         return sk</span></span>
 <span id="L229"><span class="lineNum">     229</span>              : }</span>
 <span id="L230"><span class="lineNum">     230</span>              : </span>
 <span id="L231"><span class="lineNum">     231</span>              : // LevelUpExp はスキルアップに必要な経験値</span>

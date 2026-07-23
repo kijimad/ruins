@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 15:01:26</td>
+            <td class="headerValue">2026-07-23 15:07:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -191,32 +191,32 @@
 <span id="L129"><span class="lineNum">     129</span>              : }</span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
 <span id="L131"><span class="lineNum">     131</span>              : // moveAction は指定座標への移動アクションを生成する</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">         247 : func moveAction(dest consts.Coord[consts.Tile]) activity.Behavior {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">         247 :         return &amp;activity.MoveActivity{</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">         247 :                 Destination: gc.GridElement{Coord: dest},</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">         247 :         }</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">         247 : }</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">         234 : func moveAction(dest consts.Coord[consts.Tile]) activity.Behavior {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">         234 :         return &amp;activity.MoveActivity{</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">         234 :                 Destination: gc.GridElement{Coord: dest},</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">         234 :         }</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">         234 : }</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : </span>
 <span id="L138"><span class="lineNum">     138</span>              : // waitAction は待機アクションを生成する</span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">         950 : func waitAction(reason string) activity.Behavior {</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">         950 :         return &amp;activity.WaitActivity{Duration: 1, Reason: reason}</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">         950 : }</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">         962 : func waitAction(reason string) activity.Behavior {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">         962 :         return &amp;activity.WaitActivity{Duration: 1, Reason: reason}</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">         962 : }</span></span>
 <span id="L142"><span class="lineNum">     142</span>              : </span>
 <span id="L143"><span class="lineNum">     143</span>              : // shuffledEightDirections は8方向をシャッフルして返す</span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">         181 : func shuffledEightDirections(rng *rand.Rand) []consts.Coord[consts.Tile] {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">         181 :         shuffled := make([]consts.Coord[consts.Tile], len(eightDirections))</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">         181 :         copy(shuffled, eightDirections)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">        1448 :         for i := len(shuffled) - 1; i &gt; 0; i-- {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">        1267 :                 j := rng.IntN(i + 1)</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        1267 :                 shuffled[i], shuffled[j] = shuffled[j], shuffled[i]</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">        1267 :         }</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         181 :         return shuffled</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">         168 : func shuffledEightDirections(rng *rand.Rand) []consts.Coord[consts.Tile] {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">         168 :         shuffled := make([]consts.Coord[consts.Tile], len(eightDirections))</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">         168 :         copy(shuffled, eightDirections)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">        1344 :         for i := len(shuffled) - 1; i &gt; 0; i-- {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">        1176 :                 j := rng.IntN(i + 1)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        1176 :                 shuffled[i], shuffled[j] = shuffled[j], shuffled[i]</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">        1176 :         }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         168 :         return shuffled</span></span>
 <span id="L152"><span class="lineNum">     152</span>              : }</span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
 <span id="L154"><span class="lineNum">     154</span>              : // isAdjacent は2つのタイルが隣接しているかを判定する</span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">          91 : func isAdjacent(a, b *gc.GridElement) bool {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">          91 :         return geometry.IsAdjacent(a.Coord, b.Coord)</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">          91 : }</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">          92 : func isAdjacent(a, b *gc.GridElement) bool {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">          92 :         return geometry.IsAdjacent(a.Coord, b.Coord)</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">          92 : }</span></span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 15:01:26</td>
+            <td class="headerValue">2026-07-23 15:07:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -235,9 +235,9 @@
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">          14 :         var pos consts.Coord[consts.Tile]</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          14 :         ok := false</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">          14 :         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">         294 :         for q.Next() {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">         280 :                 e := q.Entity()</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">         293 :                 if !ok &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">         296 :         for q.Next() {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">         282 :                 e := q.Entity()</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">         295 :                 if !ok &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          13 :                         found = e</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">          13 :                         pos = world.Components.GridElement.Get(e).Coord</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">          13 :                         ok = true</span></span>

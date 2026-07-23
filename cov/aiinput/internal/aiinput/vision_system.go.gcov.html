@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 15:01:26</td>
+            <td class="headerValue">2026-07-23 15:07:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,22 +82,22 @@
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          63 : }</span></span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // CanSeeTarget はターゲットが視界内にいるかチェック</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">        1029 : func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, viewDistance consts.Tile) bool {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">        1029 :         aiGrid := world.Components.GridElement.Get(aiEntity)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">        1029 :         targetGrid := world.Components.GridElement.Get(targetEntity)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">        1029 : </span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">        1029 :         dx := int(aiGrid.X) - int(targetGrid.X)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">        1029 :         dy := int(aiGrid.Y) - int(targetGrid.Y)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">        1029 :         distSq := dx*dx + dy*dy</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">        1029 : </span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">        1029 :         viewDist := float64(viewDistance)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">        1029 : </span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">        2058 :         if world.Components.CharModifiers.Has(targetEntity) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">        1029 :                 mods := world.Components.CharModifiers.Get(targetEntity)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">        1029 :                 viewDist = mods.EnemyVision.ApplyFloat(viewDist)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">        1029 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">        1046 : func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, viewDistance consts.Tile) bool {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">        1046 :         aiGrid := world.Components.GridElement.Get(aiEntity)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">        1046 :         targetGrid := world.Components.GridElement.Get(targetEntity)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">        1046 : </span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">        1046 :         dx := int(aiGrid.X) - int(targetGrid.X)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">        1046 :         dy := int(aiGrid.Y) - int(targetGrid.Y)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">        1046 :         distSq := dx*dx + dy*dy</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">        1046 : </span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">        1046 :         viewDist := float64(viewDistance)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">        1046 : </span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">        2092 :         if world.Components.CharModifiers.Has(targetEntity) {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">        1046 :                 mods := world.Components.CharModifiers.Get(targetEntity)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">        1046 :                 viewDist = mods.EnemyVision.ApplyFloat(viewDist)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">        1046 :         }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        1029 :         return float64(distSq) &lt;= viewDist*viewDist</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        1046 :         return float64(distSq) &lt;= viewDist*viewDist</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : }</span>
         </pre>
               </td>
