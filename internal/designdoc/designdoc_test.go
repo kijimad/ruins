@@ -151,6 +151,75 @@ func TestStatusIsOpen(t *testing.T) {
 	assert.False(t, StatusDone.IsOpen())
 	assert.False(t, StatusSuperseded.IsOpen())
 	assert.False(t, StatusDropped.IsOpen())
+	// 未知の status は開いていないとみなす。
+	assert.False(t, Status("wat").IsOpen())
+}
+
+func TestStatusValid(t *testing.T) {
+	t.Parallel()
+
+	for _, s := range []Status{StatusDraft, StatusAccepted, StatusInProgress, StatusDone, StatusSuperseded, StatusDropped} {
+		assert.True(t, s.Valid(), string(s))
+	}
+	assert.False(t, Status("wat").Valid())
+	assert.False(t, Status("").Valid())
+}
+
+func TestAutoValid(t *testing.T) {
+	t.Parallel()
+
+	assert.True(t, AutoMechanical.Valid())
+	assert.True(t, AutoNeedsDecision.Valid())
+	assert.False(t, Auto("wat").Valid())
+	assert.False(t, Auto("").Valid())
+}
+
+func TestParse_UnclosedFrontmatter(t *testing.T) {
+	t.Parallel()
+
+	// 開始デリミタはあるが閉じデリミタが無い。
+	_, err := Parse("t.md", "---\nstatus: done\n# 閉じデリミタなし\n")
+	require.Error(t, err)
+}
+
+func TestParse_InvalidYAML(t *testing.T) {
+	t.Parallel()
+
+	// frontmatter 内の YAML が壊れている。
+	_, err := Parse("t.md", "---\nstatus: \"閉じない\n---\n\n# T\n")
+	require.Error(t, err)
+}
+
+func TestBackfill_Error(t *testing.T) {
+	t.Parallel()
+
+	// 閉じデリミタが無い frontmatter は解析に失敗し、backfill もエラーを返す。
+	_, _, err := Backfill("---\nstatus: done\n# 閉じデリミタなし\n")
+	require.Error(t, err)
+}
+
+func TestValidate_InProgressWithoutProgress(t *testing.T) {
+	t.Parallel()
+
+	docs := []*Document{
+		{Path: "inprog.md", HasFront: true, Front: Frontmatter{Status: StatusInProgress, Auto: AutoMechanical}, HasProgress: false},
+	}
+	problems := Validate(docs)
+	assert.False(t, HasError(problems))
+	assert.Equal(t, SeverityWarn, findProblem(t, problems, "inprog.md").Severity)
+}
+
+func TestRender_RoundTrip(t *testing.T) {
+	t.Parallel()
+
+	front := Frontmatter{Status: StatusInProgress, Tags: []string{"ecs", "ci"}, Auto: AutoMechanical}
+	out, err := Render(front, "# タイトル\n\n本文\n")
+	require.NoError(t, err)
+
+	doc, err := Parse("t.md", out)
+	require.NoError(t, err)
+	assert.Equal(t, front, doc.Front)
+	assert.Equal(t, "# タイトル\n\n本文\n", doc.Body)
 }
 
 // findProblem は指定パスの最初の問題を返す。無ければテストを落とす。

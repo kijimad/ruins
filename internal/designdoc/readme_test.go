@@ -43,6 +43,23 @@ func TestRenderStatusSection_NoInProgress(t *testing.T) {
 	assert.Contains(t, out, "進行中のドキュメントなし")
 }
 
+func TestNumberCell(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "-", numberCell(&Document{Number: 0}))
+	assert.Equal(t, "58", numberCell(&Document{Number: 58, Path: ""}))
+	assert.Equal(t, "[58](docs/design/x.md)", numberCell(&Document{Number: 58, Path: "docs/design/x.md"}))
+}
+
+func TestProgressCell(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "-", progressCell(&Document{HasProgress: false}))
+	assert.Equal(t, "3/5", progressCell(&Document{HasProgress: true, DoneTasks: 3, OpenTasks: 2}))
+	// 見送りは分母から外し、括弧で添える。
+	assert.Equal(t, "3/3（見送り2）", progressCell(&Document{HasProgress: true, DoneTasks: 3, OpenTasks: 0, SkippedTasks: 2}))
+}
+
 func TestParse_Title(t *testing.T) {
 	t.Parallel()
 
