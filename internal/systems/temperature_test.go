@@ -48,7 +48,8 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("極低温ゾーン内のタイルに極寒修正を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 0
 		sb.ChunkW = 40
@@ -64,7 +65,8 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("帯原点で絶対Xに変換して判定する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = true
 		sb.EastIndex = 1 // bandOriginX = 1*40 = 40
 		sb.ChunkW = 40
@@ -78,11 +80,26 @@ func TestFrostZoneModifier(t *testing.T) {
 	t.Run("FrontActiveでないと無効", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sb := &query.GetDungeon(world).SeamlessBand
+		sb := query.EnsureSeamlessBand(world)
 		sb.Front.Active = false
 		sb.Front.EastAbsX = 30
 		sb.Front.ColdWidth = 20
-		assert.Equal(t, 0, frostZoneModifier(world, 20), "通常ダンジョンでは前線無効")
+		assert.Equal(t, 0, frostZoneModifier(world, 20), "前線が非Activeなら寒さは乗らない")
+	})
+
+	t.Run("前線はオーバーワールドに属し、Activeでも別ステージの遺跡には及ばない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 帯・前線はオーバーワールドの StageField に持たせる。遺跡へ移ると帯データは現ステージから外れる。
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
+		sb.Front.Active = true
+		sb.EastIndex = 0
+		sb.ChunkW = 40
+		sb.Front.ColdWidth = 20
+		sb.Front.EastAbsX = 30 // ゾーン内座標でも
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
+		assert.Equal(t, 0, frostZoneModifier(world, 20), "前線はオーバーワールドに留まり別ステージの遺跡へは及ばない")
 	})
 }
 
@@ -90,8 +107,9 @@ func TestCalculateEnvTemperature_極低温ゾーンで極寒になる(t *testing
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	d := query.GetDungeon(world)
-	d.DefinitionName = coldDungeonName // 基本気温0度
-	sb := &d.SeamlessBand
+	// オーバーワールドで帯・前線を持たせる。基本気温は0度
+	d.CurrentStage = gc.NewOverworldStage()
+	sb := query.EnsureSeamlessBand(world)
 	sb.Front.Active = true
 	sb.EastIndex = 0
 	sb.ChunkW = 40
@@ -114,14 +132,18 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 	setup := func(front bool) *gc.HealthStatus {
 		world := testutil.InitTestWorld(t)
 		d := query.GetDungeon(world)
-		d.DefinitionName = coldDungeonName // 基本気温0度
 		if front {
-			sb := &d.SeamlessBand
+			// オーバーワールドで帯・前線を持たせる。基本気温は0度
+			d.CurrentStage = gc.NewOverworldStage()
+			sb := query.EnsureSeamlessBand(world)
 			sb.Front.Active = true
 			sb.EastIndex = 0
 			sb.ChunkW = 40
 			sb.Front.ColdWidth = 20
 			sb.Front.EastAbsX = 30 // ゾーン (10, 30]。プレイヤー x=20 は内側
+		} else {
+			// 前線なしの通常環境。基本気温0度のダンジョンを現ステージにする
+			d.CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 		}
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 0}, "Ash")
 		require.NoError(t, err)
@@ -305,7 +327,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("HealthStatusを持つエンティティの状態が更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetDungeon(world).DefinitionName = coldDungeonName // 基本気温0度
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1) // 基本気温0度
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
 		require.NoError(t, err)
@@ -324,7 +346,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetDungeon(world).DefinitionName = "存在しないダンジョン"
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("存在しないダンジョン", 1)
 
 		sys := &TemperatureSystem{}
 		err := sys.Update(world)

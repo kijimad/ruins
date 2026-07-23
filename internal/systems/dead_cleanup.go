@@ -98,7 +98,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			lifecycle.DeleteDoorLockTriggers(world)
 
 			// ダンジョンクリアフラグを立てる
-			dungeonName := query.GetDungeon(world).DefinitionName
+			dungeonName := query.GetDungeon(world).CurrentStage.Name
 			query.GetGameProgress(world).MarkDungeonCleared(dungeonName)
 
 			logger.Debug("ボス撃破: 扉アンロック+クリアフラグ", "dungeon", dungeonName)

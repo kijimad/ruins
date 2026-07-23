@@ -54,9 +54,15 @@ func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], movingEntity e
 //
 // 進入不可ラインは極低温ゾーン西端 ColdZoneWest。ここより西は破棄され進入もできない。
 // 極低温ゾーン自体（ライン東〜前線東端）へは進入できる。踏み込むと凍える。
-// ゾーン判定は SeamlessBand のメソッドに集約している。前線が無効な通常ダンジョンでは常に許可する。
+// ゾーン判定は SeamlessBand のメソッドに集約している。
+//
+// 前線はオーバーワールド固有。帯データは遺跡進入で退避され現ステージから外れるため、現ステージが
+// 帯データを持つか、すなわちオーバーワールドにいるかで先に gate する。遺跡では常に許可する。
 func frontAllowsMoveTo(world w.World, localX consts.Tile) bool {
-	sb := query.GetDungeon(world).SeamlessBand
+	if !query.IsOnOverworld(world) {
+		return true
+	}
+	sb := *query.GetSeamlessBand(world)
 	if !sb.Front.Active {
 		return true
 	}

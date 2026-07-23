@@ -54,7 +54,7 @@ func LockAllDoors(world w.World) int {
 	}
 	if locked > 0 {
 		// BlockView が変化したので視界を再計算させる
-		query.GetDungeon(world).NeedsForceUpdate = true
+		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 	return locked
 }
@@ -78,7 +78,7 @@ func UnlockAllDoors(world w.World) int {
 	}
 	if opened > 0 {
 		// BlockView が変化したので視界を再計算させる
-		query.GetDungeon(world).NeedsForceUpdate = true
+		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 	return opened
 }
@@ -141,6 +141,32 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
+// SpawnDungeonEntrance は遺跡入口プロップを生成する。触れて Enter で definitionName の遺跡へ入る。
+// オーバーワールドはコードで入口を配置するため、raw でなく EntitySpec を直接組む。
+// 入口はオーバーワールドの地物なので StageBound{overworld} を直接持たせ、遺跡進入時に帯と共に
+// 退避されるようにする。swapTo の遅延 Bind に頼らず、明示束縛でリファクタリング耐性を上げる。
+func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitionName string) (ecs.Entity, error) {
+	// ダンジョン内の階段ポータルと同じ raw プロップ warp_next を流用し、回転アニメを揃える。
+	// warp_next は次階ポータル用なので、相互作用を遺跡進入へ差し替え、入口固有のコンポーネントを
+	// 足す。オーバーワールドの地物として帯へ明示束縛し、遺跡進入時に帯と共に退避されるようにする。
+	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, "warp_next")
+	if err != nil {
+		return gc.InvalidEntity, err
+	}
+	entitySpec.Name = &gc.Name{Name: "遺跡入口"}
+	entitySpec.Description = &gc.Description{Description: "遺跡へ通じる入口"}
+	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
+	entitySpec.LocationOnField = &gc.LocationOnField{}
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDungeonEnter}}
+	entitySpec.DungeonEntrance = &gc.DungeonEntrance{DefinitionName: definitionName}
+	entitySpec.StageBound = &gc.StageBound{Key: gc.NewOverworldStage()}
+	// warp_next は暗いダンジョン用に光源を持つが、明るいオーバーワールドでは効かないうえ
+	// 入口に不要なので落とす。流用するのはスプライトとアニメフレームだけでよい。
+	entitySpec.LightSource = nil
+
+	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+}
+
 // SpawnDoor は扉を生成する
 func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorOrientation) (ecs.Entity, error) {
 	var spriteKey string
@@ -155,7 +181,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 		Description: &gc.Description{Description: "開閉できる扉"},
 		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},
 		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: "field",
+			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumTaller,
 		},

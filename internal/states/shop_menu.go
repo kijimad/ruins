@@ -44,10 +44,6 @@ type ShopMenuState struct {
 	widget      *ebitenui.UI
 }
 
-func (st ShopMenuState) String() string {
-	return "ShopMenu"
-}
-
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}

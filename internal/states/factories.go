@@ -10,6 +10,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -99,11 +100,22 @@ func NewEquipMenuState() (es.State[w.World], error) {
 	return &EquipMenuState{}, nil
 }
 
+// debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
+// マップ生成の見た目を試す用途なので、遺跡定義でなくプランナー、すなわち大部屋・小部屋などで選ぶ。
+var debugEnterPlanners = []mapplanner.PlannerType{
+	mapplanner.PlannerTypeBigRoom,
+	mapplanner.PlannerTypeSmallRoom,
+	mapplanner.PlannerTypeCave,
+	mapplanner.PlannerTypeRuins,
+	mapplanner.PlannerTypeForest,
+}
+
 // NewDebugMenuState は新しいDebugMenuStateインスタンスを作成するファクトリー関数
 func NewDebugMenuState() (es.State[w.World], error) {
 	messageState := &MessageState{}
+	debugName := dungeon.DungeonDebug.Name()
 
-	messageState.messageData = messagedata.NewSystemMessage("").
+	md := messagedata.NewSystemMessage("").
 		WithChoice("回復薬スポーン(インベントリ)", func(world w.World) error {
 			_, err := lifecycle.SpawnBackpackItem(world, "回復薬", 1)
 			if err != nil {
@@ -127,13 +139,6 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("ダンジョン選択", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState},
-			})
-			return nil
-		}).
 		WithChoice("全ダンジョン踏破", func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
 				query.GetGameProgress(world).MarkDungeonCleared(name)
@@ -141,79 +146,30 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
 		}).
-		WithChoice("ダンジョン開始(大部屋)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeBigRoom)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(小部屋)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeSmallRoom)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(洞窟)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeCave)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(廃墟)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeRuins)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(森)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeForest)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(小さな町)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeSmallTown)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(ボス部屋)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeBossFloor)),
-				}})
-			return nil
-		}).
 		WithChoice("オーバーワールド開始", func(world w.World) error {
-			seed := world.Config.RNG.Uint64()
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
-					NewOverworldState(mapplanner.PlannerTypeOverworldField, &NewGameParams{RunSeed: seed, ChunkW: 50, ChunkH: 50, K: 3}),
+					newGameOverworldState(world),
 				}})
 			return nil
-		}).
-		WithChoice("市街地開始", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewTownState(),
-				}})
+		})
+
+	// プランナー単位でデバッグ遺跡へ入る選択肢を平坦に追加する。サブメニューにして
+	// TransReplace で開くと、TransReplace が全ステートを消すため戻り先の DungeonState まで
+	// 消え、選択後に空スタックで無言終了する。ここで直接 TransPop してゲームへ戻し、
+	// DungeonState.Update が enterDungeonWith(SwapTo)を指定プランナーで通す
+	for _, pt := range debugEnterPlanners {
+		md = md.WithChoice("デバッグ遺跡を生成 "+pt.Name, func(world w.World) error {
+			if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, pt.Name)); err != nil {
+				return err
+			}
+			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
-		}).
+		})
+	}
+
+	messageState.messageData = md.
 		WithChoice("メッセージ表示テスト", func(_ w.World) error {
 			testMessageData := messagedata.NewSystemMessage("ゲームが自動保存されました。\n\n進行状況は安全に記録されています。")
 			messageState.SetTransition(es.Transition[w.World]{
@@ -355,18 +311,6 @@ func NewDebugMenuState() (es.State[w.World], error) {
 				Type: es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{
 					NewAllClearEventState,
-				},
-			})
-			return nil
-		}).
-		WithChoice("次の階層に進む", func(world w.World) error {
-			currentDepth := query.GetDungeon(world).Depth
-
-			// 次の階層に遷移
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(currentDepth + 1),
 				},
 			})
 			return nil
@@ -516,13 +460,6 @@ func spawnEnemyNearPlayer(world w.World, name string) error {
 // DungeonStateOption はDungeonStateのオプション設定関数
 type DungeonStateOption func(*DungeonState)
 
-// WithBuilderType はマップビルダータイプを設定するオプション
-func WithBuilderType(builderType mapplanner.PlannerType) DungeonStateOption {
-	return func(ds *DungeonState) {
-		ds.BuilderType = builderType
-	}
-}
-
 // WithDefinitionName はダンジョン定義名を設定するオプション
 func WithDefinitionName(name string) DungeonStateOption {
 	return func(ds *DungeonState) {
@@ -559,20 +496,14 @@ func NewDemoStartState() (es.State[w.World], error) {
 	return &DemoStartState{}, nil
 }
 
-// NewTownState は街のステートを作成するファクトリー関数
-func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
-	allOpts := make([]DungeonStateOption, 0, 2+len(opts))
-	allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeTown))
-	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonTown.Name))
-	allOpts = append(allOpts, opts...)
-
-	// 街は常に深度0
-	return NewDungeonState(0, allOpts...)
-}
-
-// NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
-func NewDungeonSelectState() (es.State[w.World], error) {
-	return &DungeonSelectState{}, nil
+// newGameOverworldState は新規ゲーム開始用のオーバーワールド探索ステートを返す。
+// 街を含むオーバーワールドを RunSeed から決定的生成し、プレイヤーは街から始まる。
+// キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。
+// 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
+func newGameOverworldState(world w.World) es.StateFactory[w.World] {
+	return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
+		RunSeed: world.Config.RNG.Uint64(),
+	})
 }
 
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
@@ -720,14 +651,15 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 }
 
 // newResumeStateFactory はロード復元時の復帰先ステートを保存内容から選ぶ。
-// SeamlessBand.Active が真ならオーバーワールドなので OverworldState で復帰して帯を再構築し、
-// 通常ダンジョン/町なら DungeonState で復帰する。定義名・深度から再生成はしない。
+// 現ステージが帯データを持つ、すなわちオーバーワールドなら OverworldState で復帰して帯を
+// 再構築し、通常ダンジョンなら DungeonState で復帰する。定義名・深度から再生成はしない。
 func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
-	d := query.GetDungeon(world)
-	if d.SeamlessBand.Active {
-		return NewOverworldState(mapplanner.PlannerTypeOverworldField, nil)
+	if query.IsOnOverworld(world) {
+		// ロード復元。帯形状は SeamlessBand から復元するので params は nil。種別はマスタを渡す
+		return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	}
-	return NewDungeonState(d.Depth, WithDefinitionName(d.DefinitionName), WithResume())
+	d := query.GetDungeon(world)
+	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。

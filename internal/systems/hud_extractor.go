@@ -13,6 +13,15 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// exploredTiles は現ステージの探索済みタイルを返す。現ステージの StageField が未生成なら nil を返す。
+// 探索履歴は StageField が持つため、HUD 抽出は StageField 経由で読む
+func exploredTiles(world w.World) map[gc.GridElement]bool {
+	if field := query.GetCurrentStageField(world); field != nil {
+		return field.ExploredTiles
+	}
+	return nil
+}
+
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
 	return hud.Data{
@@ -29,7 +38,7 @@ func ExtractHUDData(world w.World) hud.Data {
 
 // extractGameInfo はゲーム基本情報を抽出する
 func extractGameInfo(world w.World) hud.GameInfoData {
-	floorNumber := query.GetDungeon(world).Depth
+	floorNumber := query.GetDungeon(world).CurrentStage.Depth
 
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int
@@ -108,13 +117,13 @@ func extractMinimapData(world w.World) hud.MinimapData {
 
 	return hud.MinimapData{
 		PlayerTile:     consts.Coord[consts.Tile]{X: playerTileX, Y: playerTileY},
-		ExploredTiles:  query.GetDungeon(world).ExploredTiles,
+		ExploredTiles:  exploredTiles(world),
 		TileColors:     tileColors,
 		SquadPositions: squadPositions,
 		MinimapConfig: hud.MinimapConfig{
-			Width:  query.GetDungeon(world).MinimapSettings.Width,
-			Height: query.GetDungeon(world).MinimapSettings.Height,
-			Scale:  query.GetDungeon(world).MinimapSettings.Scale,
+			Width:  consts.MinimapWidth,
+			Height: consts.MinimapHeight,
+			Scale:  consts.MinimapScale,
 		},
 		ScreenDimensions: screenDimensions,
 	}
@@ -280,7 +289,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 
 	// 探索済みタイルの色情報を一括生成
 	tileColors := make(map[gc.GridElement]TileColorInfo)
-	for gridElement := range query.GetDungeon(world).ExploredTiles {
+	for gridElement := range exploredTiles(world) {
 		var tileColor color.RGBA
 		if isWall, exists := tileTypeMap[gridElement]; exists {
 			if isWall {
@@ -349,7 +358,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		}
 
 		// 現在選択中のスロット（1-5）を0ベース配列インデックスに変換
-		selectedSlot = query.GetDungeon(world).SelectedWeaponSlot - 1
+		selectedSlot = query.GetWeaponSelection(world).Slot - 1
 	})
 
 	return hud.WeaponSlotsData{

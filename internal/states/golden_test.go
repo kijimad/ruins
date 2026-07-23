@@ -15,6 +15,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -58,45 +59,43 @@ func TestGolden_CharacterJob(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
-func TestGolden_Town(t *testing.T) {
-	t.Parallel()
-	town, err := gs.NewTownState()()
+// newGoldenBackdrop はメニュー系 golden の背景に使うオーバーワールド状態を作る。
+// 街がオーバーワールドの地物になり専用の街ステートが無くなったため、旧 NewTownState の
+// 代わりに開始チャンクを背景として使う。決定的な RunSeed で golden を安定させる。
+func newGoldenBackdrop(t *testing.T) es.State[w.World] {
+	t.Helper()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town))
+	return s
 }
 
 func TestGolden_InventoryMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	vrt.AssertStateGolden(t, vrt.States(town, &gs.InventoryMenuState{}))
 }
 
 func TestGolden_EquipMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	vrt.AssertStateGolden(t, vrt.States(town, &gs.EquipMenuState{}))
 }
 
 func TestGolden_CraftMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	vrt.AssertStateGolden(t, vrt.States(town, &gs.CraftMenuState{}))
 }
 
 func TestGolden_ShopMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	vrt.AssertStateGolden(t, vrt.States(town, &gs.ShopMenuState{}))
 }
 
 func TestGolden_SaveMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	s, err := gs.NewSaveMenuState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
@@ -104,8 +103,7 @@ func TestGolden_SaveMenu(t *testing.T) {
 
 func TestGolden_LoadMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	s, err := gs.NewLoadMenuState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
@@ -113,8 +111,7 @@ func TestGolden_LoadMenu(t *testing.T) {
 
 func TestGolden_DebugMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	s, err := gs.NewDebugMenuState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
@@ -122,8 +119,7 @@ func TestGolden_DebugMenu(t *testing.T) {
 
 func TestGolden_ComponentDebug(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	s, err := gs.NewComponentDebugState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
@@ -138,8 +134,7 @@ func TestGolden_SquadMenu(t *testing.T) {
 		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
 		require.NoError(t, err)
 
-		town, err := gs.NewTownState()()
-		require.NoError(t, err)
+		town := newGoldenBackdrop(t)
 		squad, err := gs.NewSquadMenuState()
 		require.NoError(t, err)
 		return []es.State[w.World]{
@@ -158,8 +153,7 @@ func TestGolden_FormationMenu(t *testing.T) {
 		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
 		require.NoError(t, err)
 
-		town, err := gs.NewTownState()()
-		require.NoError(t, err)
+		town := newGoldenBackdrop(t)
 		formation, err := gs.NewFormationMenuState()
 		require.NoError(t, err)
 		return []es.State[w.World]{
@@ -169,26 +163,18 @@ func TestGolden_FormationMenu(t *testing.T) {
 	})
 }
 
-func TestGolden_DungeonSelect(t *testing.T) {
-	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
-	s, err := gs.NewDungeonSelectState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
-}
-
 func TestGolden_Dungeon(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		Depth:          1,
+		DefinitionName: dungeon.DungeonDebug.Name(),
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}))
 }
 
 func TestGolden_Overworld(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &gs.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
@@ -197,11 +183,11 @@ func TestGolden_Overworld(t *testing.T) {
 // 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
 func TestGolden_OverworldFrost(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, &gs.NewGameParams{RunSeed: 42, ChunkW: 30, ChunkH: 20, K: 3})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		// 前線が帯へ食い込むところまでターンを進める。updateFront が FrontEastAbsX を導出する
-		query.GetDungeon(world).GameTime.TotalTurns = 300
+		query.GetGameTime(world).TotalTurns = 300
 		return []es.State[w.World]{s}
 	})
 }
@@ -209,15 +195,15 @@ func TestGolden_OverworldFrost(t *testing.T) {
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		Depth:          1,
+		DefinitionName: dungeon.DungeonDebug.Name(),
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.LookAroundState{}))
 }
 
 func TestGolden_GameOver(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	s, err := gs.NewGameOverMessageState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
@@ -233,8 +219,7 @@ func TestGolden_Message(t *testing.T) {
 	).WithChoice(
 		"選択肢2", func(_ w.World) error { return nil },
 	)
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	msgState, err := gs.NewMessageState(messageData)
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, msgState))
@@ -242,8 +227,7 @@ func TestGolden_Message(t *testing.T) {
 
 func TestGolden_Status(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	s, err := gs.NewStatusState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
@@ -258,8 +242,7 @@ func TestGolden_MemberStatus(t *testing.T) {
 		member, err := lifecycle.SpawnDefaultSquadMember(world, playerEntity)
 		require.NoError(t, err)
 
-		town, err := gs.NewTownState()()
-		require.NoError(t, err)
+		town := newGoldenBackdrop(t)
 		status, err := gs.NewMemberStatusState(member)
 		require.NoError(t, err)
 		return []es.State[w.World]{town, status}
@@ -268,8 +251,7 @@ func TestGolden_MemberStatus(t *testing.T) {
 
 func TestGolden_TavernMenu(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	s, err := gs.NewTavernMenuState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
@@ -278,31 +260,33 @@ func TestGolden_TavernMenu(t *testing.T) {
 func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		Depth:          1,
+		DefinitionName: dungeon.DungeonDebug.Name(),
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.ShootingState{}))
 }
 
 func TestGolden_Pickup(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		Depth:          1,
+		DefinitionName: dungeon.DungeonDebug.Name(),
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PickupState{}))
 }
 
 func TestGolden_Place(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:       1,
-		BuilderType: mapplanner.PlannerTypeSmallRoom,
+		Depth:          1,
+		DefinitionName: dungeon.DungeonDebug.Name(),
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.PlaceState{}))
 }
 
 func TestGolden_PersistentMessage(t *testing.T) {
 	t.Parallel()
-	town, err := gs.NewTownState()()
-	require.NoError(t, err)
+	town := newGoldenBackdrop(t)
 	messageData := messagedata.NewDialogMessage(
 		"永続メッセージのVRTテストです。",
 		"テスト",
@@ -319,8 +303,7 @@ func TestGolden_StorageMenu(t *testing.T) {
 		_, err = lifecycle.SpawnStorageItem(world, "回復薬", 1, storageEntity)
 		require.NoError(t, err)
 
-		town, err := gs.NewTownState()()
-		require.NoError(t, err)
+		town := newGoldenBackdrop(t)
 		storageState, stateErr := gs.NewStorageMenuState(storageEntity)
 		require.NoError(t, stateErr)
 
@@ -345,12 +328,12 @@ func collectPlannerTypes() []mapplanner.PlannerType {
 	tableMap := map[string]tableInfo{}
 	dungeons := dungeon.GetAllDungeons()
 	for i := range dungeons {
-		def := &dungeons[i]
-		for _, pw := range def.PlannerPool {
+		def := dungeons[i]
+		for _, pw := range def.PlannerPool() {
 			if _, exists := tableMap[pw.PlannerType.Name]; !exists {
 				tableMap[pw.PlannerType.Name] = tableInfo{
-					EnemyTableName: def.EnemyTableName,
-					ItemTableName:  def.ItemTableName,
+					EnemyTableName: def.EnemyTableName(),
+					ItemTableName:  def.ItemTableName(),
 				}
 			}
 		}

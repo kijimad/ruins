@@ -31,7 +31,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 	require.NoError(t, err)
 	lifecycle.MoveToEquip(world, we, p, gc.SlotWeapon1)
-	query.GetDungeon(world).SelectedWeaponSlot = 1
+	query.GetWeaponSelection(world).Slot = 1
 
 	// 弾薬を持たせる
 	_, err = lifecycle.SpawnBackpackItem(world, "9mm FMJ", 30)
@@ -42,7 +42,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	require.NoError(t, err)
 
 	// 敵の位置を探索済みにする
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 13, Y: 10}}] = true
+	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 13, Y: 10}}] = true
 
 	return world, p, e, we
 }
@@ -113,7 +113,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		// ハンドガンの最大射程(8)より遠くに配置
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
@@ -139,7 +139,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
@@ -265,7 +265,7 @@ func TestExecuteShootAction(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
@@ -298,7 +298,7 @@ func TestCanShootTarget(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		// ハンドガン最大射程(8)より遠く
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
@@ -508,7 +508,7 @@ func TestGetEquippedFire(t *testing.T) {
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
-		query.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetWeaponSelection(world).Slot = 1
 
 		_, _, err = getEquippedFire(player, world)
 		assert.ErrorIs(t, err, ErrShootNoFireWeapon)

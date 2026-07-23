@@ -20,8 +20,8 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
-		query.GetDungeon(world).ExploredTiles[grid] = true
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+		query.GetCurrentStageField(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -33,8 +33,8 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
-		query.GetDungeon(world).ExploredTiles[grid] = true
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
+		query.GetCurrentStageField(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -46,7 +46,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		result := computeTileRenderMap(world, nil)
 
@@ -57,7 +57,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]gc.LightInfo{
 			grid: {
@@ -82,7 +82,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		result := computeTileRenderMap(world, nil)
 
@@ -95,8 +95,8 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
-		query.GetDungeon(world).ExploredTiles[grid] = true
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
+		query.GetCurrentStageField(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -112,8 +112,8 @@ func TestComputeTileRenderMap_VisibleOverridesRemembered(t *testing.T) {
 	// 可視タイルが記憶済みタイルより優先されることを保証する
 	world := testutil.InitTestWorld(t)
 	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
-	query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
-	query.GetDungeon(world).ExploredTiles[grid] = true
+	query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+	query.GetCurrentStageField(world).ExploredTiles[grid] = true
 
 	result := computeTileRenderMap(world, nil)
 
@@ -128,7 +128,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]gc.LightInfo{
 			grid: {
@@ -149,7 +149,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 7, Y: 7}}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]gc.LightInfo{
 			grid: {
@@ -170,7 +170,7 @@ func TestComputeTileRenderMap_EmptyState(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+	query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
 
 	result := computeTileRenderMap(world, nil)
 
@@ -185,9 +185,9 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	remembered := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}}
 	unknown := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}}
 
-	query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{visible: true}
-	query.GetDungeon(world).ExploredTiles[visible] = true
-	query.GetDungeon(world).ExploredTiles[remembered] = true
+	query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{visible: true}
+	query.GetCurrentStageField(world).ExploredTiles[visible] = true
+	query.GetCurrentStageField(world).ExploredTiles[remembered] = true
 
 	result := computeTileRenderMap(world, nil)
 
@@ -206,7 +206,7 @@ func TestComputeTileRenderMap_OutOfBoundsIncluded(t *testing.T) {
 	insideGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}
 	outsideGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}
 
-	query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+	query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
 		insideGrid:  true,
 		outsideGrid: true,
 	}
@@ -316,15 +316,15 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		vs.lastDefinitionName = "old"
 
 		dungeon := gc.NewDungeon()
-		dungeon.Depth = 2
-		dungeon.DefinitionName = "new"
-		dungeon.LightSourceCache[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}] = gc.LightInfo{Darkness: 0.5}
+		dungeon.CurrentStage = gc.NewDungeonStage("new", 2)
+		visionState := gc.NewVisionState()
+		visionState.LightSourceCache[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}] = gc.LightInfo{Darkness: 0.5}
 
-		vs.invalidateOnFloorChange(dungeon)
+		vs.invalidateOnFloorChange(dungeon, visionState)
 
 		assert.False(t, vs.isInitialized)
 		assert.Empty(t, vs.raycastCache)
-		assert.Empty(t, dungeon.LightSourceCache)
+		assert.Empty(t, visionState.LightSourceCache)
 		assert.Equal(t, 2, vs.lastDepth)
 		assert.Equal(t, "new", vs.lastDefinitionName)
 	})
@@ -338,10 +338,9 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		vs.lastDefinitionName = "same"
 
 		dungeon := gc.NewDungeon()
-		dungeon.Depth = 3
-		dungeon.DefinitionName = "same"
+		dungeon.CurrentStage = gc.NewDungeonStage("same", 3)
 
-		vs.invalidateOnFloorChange(dungeon)
+		vs.invalidateOnFloorChange(dungeon, gc.NewVisionState())
 
 		assert.True(t, vs.isInitialized)
 		assert.NotEmpty(t, vs.raycastCache)

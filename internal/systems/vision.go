@@ -21,7 +21,7 @@ type raycastCacheKey struct {
 }
 
 // VisionSystem はタイルごとの視界を計算するUpdaterシステム。
-// 計算結果の光源情報は Dungeon シングルトンに書き込み、描画側はそこから参照する。
+// 計算結果の光源情報は VisionState シングルトンに書き込み、描画側はそこから参照する。
 // レイキャストキャッシュなどの内部メモは本システムが保持し、フロア変化時に自身で破棄する
 type VisionSystem struct {
 	// プレイヤー位置キャッシュ（タイル移動ごとに更新）
@@ -45,15 +45,15 @@ func NewVisionSystem() *VisionSystem {
 
 // invalidateOnFloorChange はフロアが切り替わっていれば内部キャッシュを破棄する。
 // レイキャスト結果は壁配置に依存するため、フロアをまたいで再利用すると誤った視界になる
-func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon) {
-	if dungeon.Depth == sys.lastDepth && dungeon.DefinitionName == sys.lastDefinitionName {
+func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon, vs *gc.VisionState) {
+	if dungeon.CurrentStage.Depth == sys.lastDepth && dungeon.CurrentStage.Name == sys.lastDefinitionName {
 		return
 	}
-	sys.lastDepth = dungeon.Depth
-	sys.lastDefinitionName = dungeon.DefinitionName
+	sys.lastDepth = dungeon.CurrentStage.Depth
+	sys.lastDefinitionName = dungeon.CurrentStage.Name
 	sys.isInitialized = false
 	sys.raycastCache = make(map[raycastCacheKey]bool)
-	dungeon.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
+	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 }
 
 // String はシステム名を返す
@@ -84,9 +84,14 @@ func (sys *VisionSystem) Update(world w.World) error {
 	if dungeon == nil {
 		return nil
 	}
+	field := query.GetCurrentStageField(world)
+	if field == nil {
+		return nil
+	}
+	vs := query.GetVisionState(world)
 
 	// フロアが切り替わっていれば壁配置依存の内部キャッシュを破棄する
-	sys.invalidateOnFloorChange(dungeon)
+	sys.invalidateOnFloorChange(dungeon, vs)
 
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
@@ -95,9 +100,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.Y-sys.lastPlayer.Y)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
-	if dungeon.NeedsForceUpdate {
+	if vs.NeedsForceUpdate {
 		needsUpdate = true
-		dungeon.NeedsForceUpdate = false
+		vs.NeedsForceUpdate = false
 	}
 
 	if !needsUpdate {
@@ -112,7 +117,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	visibilityData := calculateTileVisibilityWithDistance(playerPos, visionRadius, sys.raycastCache, blockViewIndex)
 
 	// 光源情報を更新前にクリアする
-	dungeon.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
+	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 
 	// 視界内タイルの光源情報を計算し、探索済みマークを行う。
 	// マップ外座標はデータに含めない
@@ -122,15 +127,15 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 		gridElement := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}}
-		if !isInMapBounds(gridElement, dungeon.Level) {
+		if !isInMapBounds(gridElement, field.Level) {
 			continue
 		}
 
-		dungeon.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
-		dungeon.ExploredTiles[gridElement] = true
+		vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
+		field.ExploredTiles[gridElement] = true
 		visibleTiles[gridElement] = true
 	}
-	dungeon.VisibleTiles = visibleTiles
+	vs.VisibleTiles = visibleTiles
 
 	sys.lastPlayer = playerPos
 	sys.isInitialized = true
@@ -177,10 +182,11 @@ func (TileRenderRemembered) tileRenderInfo() {}
 // 各描画関数が参照するだけで済む描画情報マップを返す
 func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
-	dungeon := query.GetDungeon(world)
+	field := query.GetCurrentStageField(world)
+	vs := query.GetVisionState(world)
 
 	// 現在見えているタイルを設定する
-	for grid := range dungeon.VisibleTiles {
+	for grid := range vs.VisibleTiles {
 		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lights[grid]; ok && li.Darkness < 1.0 {
 			visible.LightColor = li.Color
@@ -189,9 +195,11 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
 	}
 
 	// 視界外だが記憶済みのタイルを設定する
-	for grid := range dungeon.ExploredTiles {
-		if _, exists := result[grid]; !exists {
-			result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
+	if field != nil {
+		for grid := range field.ExploredTiles {
+			if _, exists := result[grid]; !exists {
+				result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
+			}
 		}
 	}
 

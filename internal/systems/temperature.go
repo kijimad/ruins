@@ -49,14 +49,14 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 		return 0, errors.New("ダンジョンリソースが設定されていない")
 	}
 
-	def, ok := dungeon.GetDungeon(dungeonRes.DefinitionName)
+	def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
 	if !ok {
 		return 0, nil
 	}
 
-	baseTemp := def.BaseTemperature
+	baseTemp := def.BaseTemperature()
 
-	timeModifier := query.GetDungeon(world).GameTime.GetTemperatureModifier()
+	timeModifier := query.GetGameTime(world).GetTemperatureModifier()
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 
@@ -70,9 +70,14 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 const FrostZoneTempModifier = -100
 
 // frostZoneModifier はタイル x が寒波前線の極低温ゾーン内なら極寒修正を返す。
-// ゾーン判定は SeamlessBand のメソッドに集約している。オーバーワールド以外は FrontActive=false で無効。
+// 前線はオーバーワールド固有の演出。帯データは遺跡進入で退避され現ステージから外れるため、
+// 現ステージが帯データを持つか、すなわちオーバーワールドにいるかで先に gate しないと遺跡内へ
+// 寒さが漏れる。ゾーン判定は SeamlessBand のメソッドに集約している。
 func frostZoneModifier(world w.World, x consts.Tile) int {
-	sb := query.GetDungeon(world).SeamlessBand
+	if !query.IsOnOverworld(world) {
+		return 0
+	}
+	sb := *query.GetSeamlessBand(world)
 	if sb.Front.Active && sb.Front.InColdZone(sb.LocalToAbsX(x)) {
 		return FrostZoneTempModifier
 	}

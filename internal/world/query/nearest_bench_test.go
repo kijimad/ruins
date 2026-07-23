@@ -20,9 +20,7 @@ import (
 // キャラクター探索はインデックスの Characters に絞ることで、タイル数に依存しなくなる。
 func BenchmarkFindNearest(b *testing.B) {
 	for _, tiles := range []int{0, 2500} {
-		world := testutil.InitTestWorld(b)
-		d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
-		d.Level = gc.Level{TileWidth: consts.Tile(200), TileHeight: consts.Tile(200)}
+		world := testutil.InitTestWorld(b, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(200), TileHeight: consts.Tile(200)}))
 		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 100, Y: 100}, "Ash")
 		require.NoError(b, err)
 

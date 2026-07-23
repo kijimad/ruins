@@ -33,10 +33,6 @@ type MapGenVisualizerState struct {
 	mapHeight consts.Tile
 }
 
-func (st MapGenVisualizerState) String() string {
-	return "MapGenVisualizer"
-}
-
 var _ es.State[w.World] = &MapGenVisualizerState{}
 
 // OnPause は一時停止時の処理
@@ -191,11 +187,11 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 
 // revealAllTiles は全タイルを可視状態にする
 func (st *MapGenVisualizerState) revealAllTiles(world w.World) {
-	d := query.GetDungeon(world)
-	d.VisibleTiles = make(map[gc.GridElement]bool)
+	vs := query.GetVisionState(world)
+	vs.VisibleTiles = make(map[gc.GridElement]bool)
 	for y := consts.Tile(0); y < st.mapHeight; y++ {
 		for x := consts.Tile(0); x < st.mapWidth; x++ {
-			d.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}] = true
+			vs.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}] = true
 		}
 	}
 }

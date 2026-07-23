@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	gs "github.com/kijimaD/ruins/internal/states"
@@ -35,7 +36,7 @@ func BenchmarkDungeonFrame(b *testing.B) {
 
 	for _, bld := range builders {
 		world := vrt.InitVRTWorld(b)
-		sm, err := es.Init(&gs.DungeonState{Depth: 1, BuilderType: bld.bt}, world)
+		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
 		require.NoError(b, err)
 		for range 5 {
 			require.NoError(b, sm.Update(world))

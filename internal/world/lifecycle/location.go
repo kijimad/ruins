@@ -11,6 +11,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// squadPlacementMaxRadius はステージ遷移で隊員を再配置するときの空きタイル探索の最大半径。
+// 街や遺跡入口の密集地でも近くの空きを拾えるだけの広さを確保する。
+const squadPlacementMaxRadius = 6
+
 // MoveToBackpack はエンティティをバックパックに移動する。
 // Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
 func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
@@ -190,38 +194,46 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 	return nil
 }
 
-// findAdjacentEmptyTile はcenterの隣接タイルから空きタイルを探す。
-// excludeは追加で除外する座標セット。空きがなければエラーを返す
-func findAdjacentEmptyTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) (consts.Coord[consts.Tile], error) {
+// tileAvailable はtileが配置可能かを返す。範囲外・進入不可・キャラ占有・除外指定なら不可。
+// SpatialIndex が未構築(nil)のときは範囲と衝突を判定できないため、除外指定だけで可否を決める。
+func tileAvailable(si *gc.SpatialIndex, tile consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) bool {
+	if tile.X < 0 || tile.Y < 0 {
+		return false
+	}
+	if si != nil {
+		if tile.X >= si.MapWidth || tile.Y >= si.MapHeight {
+			return false
+		}
+		if si.IsBlockPass(tile) {
+			return false
+		}
+		if _, occupied := si.CharacterAt(tile); occupied {
+			return false
+		}
+	}
+	return !exclude[gc.GridElement{Coord: tile}]
+}
+
+// findNearbyEmptyTile はcenterから近い順に空きタイルを探す。隣接(半径1)から外側へリングを
+// 広げ、maxRadius まで探す。密集地でも遠くの空きを拾えるようにするための拡張探索。
+// 見つからなければ ok=false を返す。呼び出し側が最終手段の退避先を決める。
+func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool, maxRadius int) (consts.Coord[consts.Tile], bool) {
 	si := query.GetSpatialIndex(world)
-	// 上下左右を優先し、次に斜めを探す
-	offsets := []consts.Coord[consts.Tile]{
-		{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0},
-		{X: -1, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 1}, {X: 1, Y: 1},
+	for r := 1; r <= maxRadius; r++ {
+		for dy := -r; dy <= r; dy++ {
+			for dx := -r; dx <= r; dx++ {
+				// リングの外周だけを見る。内側の半径は前の反復で探索済み
+				if dx > -r && dx < r && dy > -r && dy < r {
+					continue
+				}
+				tile := center.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
+				if tileAvailable(si, tile, exclude) {
+					return tile, true
+				}
+			}
+		}
 	}
-	for _, off := range offsets {
-		tile := center.Add(off)
-		if tile.X < 0 || tile.Y < 0 {
-			continue
-		}
-		// SpatialIndexが構築済みの場合のみ範囲と衝突をチェックする
-		if si != nil {
-			if tile.X >= si.MapWidth || tile.Y >= si.MapHeight {
-				continue
-			}
-			if si.IsBlockPass(tile) {
-				continue
-			}
-			if _, occupied := si.CharacterAt(tile); occupied {
-				continue
-			}
-		}
-		if exclude[gc.GridElement{Coord: tile}] {
-			continue
-		}
-		return tile, nil
-	}
-	return consts.Coord[consts.Tile]{}, fmt.Errorf("(%d,%d)の隣接に空きタイルがありません", center.X, center.Y)
+	return consts.Coord[consts.Tile]{}, false
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
@@ -251,17 +263,20 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	camera.Pos = consts.TileCenterToWorld(pos)
 	camera.Target = camera.Pos
 
-	// Active隊員をプレイヤーの隣接タイルに配置する
+	// Active隊員をプレイヤーの近くに配置する。街や遺跡入口など密集地へ戻ると隣接が
+	// 埋まっていることがあるため、近い順に外側へ広げて空きを探す。それでも見つからなければ
+	// プレイヤーと同じタイルへ退避させる。隊員配置の失敗で遷移全体を止めるとダンジョンから
+	// 戻れず詰むため、ここは絶対に失敗させない。重なっても次の移動で追従処理が空きへ散らす。
 	exclude := map[gc.GridElement]bool{}
 	for _, member := range query.SquadMembers(world) {
 		memberGrid := world.Components.GridElement.Get(member)
-		adj, err := findAdjacentEmptyTile(world, pos, exclude)
-		if err != nil {
-			return fmt.Errorf("隊員の配置に失敗: %w", err)
+		dest, ok := findNearbyEmptyTile(world, pos, exclude, squadPlacementMaxRadius)
+		if !ok {
+			dest = pos
 		}
-		memberGrid.X = adj.X
-		memberGrid.Y = adj.Y
-		exclude[gc.GridElement{Coord: adj}] = true
+		memberGrid.X = dest.X
+		memberGrid.Y = dest.Y
+		exclude[gc.GridElement{Coord: dest}] = true
 	}
 
 	return nil

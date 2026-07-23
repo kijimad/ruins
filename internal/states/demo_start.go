@@ -15,16 +15,12 @@ import (
 )
 
 // DemoStartState はデモ開始時のプレイヤー初期化を行うステート。
-// OnStartでプレイヤー生成と職業適用を行い、最初のUpdateでTownStateに遷移する
+// OnStartでプレイヤー生成と職業適用を行い、最初のUpdateで街を含むオーバーワールドへ遷移する
 type DemoStartState struct {
 	es.BaseState[w.World]
 }
 
-func (st DemoStartState) String() string {
-	return "DemoStart"
-}
-
-// OnStart はステート開始時にデフォルトプレイヤーを生成し、TownStateへの遷移を設定する
+// OnStart はステート開始時にデフォルトプレイヤーを生成し、オーバーワールドへの遷移を設定する
 func (st *DemoStartState) OnStart(world w.World) error {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	if err != nil {
@@ -44,7 +40,7 @@ func (st *DemoStartState) OnStart(world w.World) error {
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
-		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
+		NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)},
 	})
 
 	return nil
@@ -59,7 +55,7 @@ func (st *DemoStartState) OnPause(_ w.World) error { return nil }
 // OnResume はステートが再開される際に呼ばれる
 func (st *DemoStartState) OnResume(_ w.World) error { return nil }
 
-// Update はOnStartで設定された遷移を消費してTownStateに遷移する
+// Update はOnStartで設定された遷移を消費してオーバーワールドに遷移する
 func (st *DemoStartState) Update(_ w.World) (es.Transition[w.World], error) {
 	return st.ConsumeTransition(), nil
 }

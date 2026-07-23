@@ -50,7 +50,7 @@ func TestBuildTileColors(t *testing.T) {
 				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
 				world.Components.BlockView.Add(entity, &gc.BlockView{})
 				// 探索済みタイルに追加
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}}] = true
+				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}}] = true
 			},
 			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}},
 			expectedColor: color.RGBA{100, 100, 100, 255},
@@ -63,7 +63,7 @@ func TestBuildTileColors(t *testing.T) {
 				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
 				// BlockViewコンポーネントなし = 床
 				// 探索済みタイルに追加
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true
+				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true
 			},
 			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}},
 			expectedColor: color.RGBA{200, 200, 200, 128},
@@ -72,7 +72,7 @@ func TestBuildTileColors(t *testing.T) {
 			name: "エンティティなしの場合は透明",
 			setupEntities: func(world w.World) {
 				// 探索済みタイルに追加してるが、エンティティはない
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 999, Y: 999}}] = true
+				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 999, Y: 999}}] = true
 			},
 			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 999, Y: 999}},
 			expectedColor: color.RGBA{0, 0, 0, 0},
@@ -91,7 +91,7 @@ func TestBuildTileColors(t *testing.T) {
 				world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
 				world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
 				// 探索済みタイルに追加
-				query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}}] = true
+				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}}] = true
 			},
 			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}},
 			expectedColor: color.RGBA{100, 100, 100, 255}, // 壁が優先される
@@ -125,12 +125,7 @@ func TestExtractMinimapData(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// ゲームリソースを設定
-	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
-	query.GetDungeon(world).MinimapSettings = gc.MinimapSettings{
-		Width:  200,
-		Height: 200,
-		Scale:  2,
-	}
+	query.GetCurrentStageField(world).ExploredTiles = make(map[gc.GridElement]bool)
 
 	// プレイヤーエンティティを作成
 	playerEntity := world.ECS.NewEntity()
@@ -138,9 +133,9 @@ func TestExtractMinimapData(t *testing.T) {
 	world.Components.Player.Add(playerEntity, &gc.Player{})
 
 	// 探索済みタイルを設定
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true // プレイヤー位置
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}] = true  // 左のタイル
-	query.GetDungeon(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}}] = true // 右のタイル
+	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true // プレイヤー位置
+	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}] = true  // 左のタイル
+	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}}] = true // 右のタイル
 
 	// 画面リソースを設定
 	world.Resources.SetScreenDimensions(800, 600)
@@ -162,9 +157,9 @@ func TestExtractMinimapData(t *testing.T) {
 	assert.Equal(t, 10, int(minimapData.PlayerTile.X), "プレイヤーのX座標が正しくない")
 	assert.Equal(t, 15, int(minimapData.PlayerTile.Y), "プレイヤーのY座標が正しくない")
 	assert.Len(t, minimapData.ExploredTiles, 3, "探索済みタイル数が正しくない")
-	assert.Equal(t, 200, minimapData.MinimapConfig.Width, "ミニマップ幅が正しくない")
-	assert.Equal(t, 200, minimapData.MinimapConfig.Height, "ミニマップ高さが正しくない")
-	assert.Equal(t, 2, minimapData.MinimapConfig.Scale, "ミニマップスケールが正しくない")
+	assert.Equal(t, consts.MinimapWidth, minimapData.MinimapConfig.Width, "ミニマップ幅が正しくない")
+	assert.Equal(t, consts.MinimapHeight, minimapData.MinimapConfig.Height, "ミニマップ高さが正しくない")
+	assert.Equal(t, consts.MinimapScale, minimapData.MinimapConfig.Scale, "ミニマップスケールが正しくない")
 
 	// タイル色が正しく設定されているか確認
 	wallGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}

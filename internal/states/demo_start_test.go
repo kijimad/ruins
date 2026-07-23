@@ -36,7 +36,7 @@ func TestDemoStartState_Update(t *testing.T) {
 
 	transition, err := state.Update(world)
 	require.NoError(t, err)
-	assert.Equal(t, es.TransReplace, transition.Type, "TownStateへTransReplace")
+	assert.Equal(t, es.TransReplace, transition.Type, "オーバーワールドへTransReplace")
 }
 
 func TestDemoStartState_Update_AfterConsumed(t *testing.T) {

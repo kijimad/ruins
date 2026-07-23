@@ -758,9 +758,6 @@ type DropTableList struct {
 	TotalCount int32       `json:"totalCount"`
 }
 
-// DungeonGateTriggerRaw ダンジョン選択ゲートトリガー
-type DungeonGateTriggerRaw = map[string]interface{}
-
 // Element 攻撃属性
 type Element string
 
@@ -1262,9 +1259,6 @@ type Prop struct {
 
 	// DoorLockTrigger 扉ロックトリガー
 	DoorLockTrigger *DoorLockTriggerRaw `json:"doorLockTrigger,omitempty"`
-
-	// DungeonGateTrigger ダンジョン選択ゲートトリガー
-	DungeonGateTrigger *DungeonGateTriggerRaw `json:"dungeonGateTrigger,omitempty"`
 
 	// Hp 耐久値。設定すると破壊可能になる
 	Hp *HitPoints `json:"hp,omitempty"`

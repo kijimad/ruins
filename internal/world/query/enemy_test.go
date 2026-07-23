@@ -39,7 +39,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Components.Name.Set(enemy, &gc.Name{Name: "ゴブリン"})
 
 		// 可視タイルに設定
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 12, Y: 12}}: true,
 		}
 
@@ -71,7 +71,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "火の玉")
 		require.NoError(t, err)
 
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		enemies, err := query.GetVisibleEnemies(world)
 		require.NoError(t, err)
@@ -87,7 +87,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉")
 		require.NoError(t, err)
 
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		enemies, err := query.GetVisibleEnemies(world)
 
@@ -108,7 +108,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}: true,
 		}
 
@@ -140,7 +140,7 @@ func TestGetVisibleItems(t *testing.T) {
 		require.NoError(t, err)
 
 		// 可視タイルに設定
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 12, Y: 12}}: true,
 		}
 
@@ -177,7 +177,7 @@ func TestGetVisibleItems(t *testing.T) {
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50), 1)
 		require.NoError(t, err)
 
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		items, err := query.GetVisibleItems(world)
 		require.NoError(t, err)
@@ -198,7 +198,7 @@ func TestGetVisibleItems(t *testing.T) {
 		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10), 1)
 		require.NoError(t, err)
 
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}: true,
 		}
 
@@ -220,7 +220,7 @@ func TestIsInVision(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		query.GetDungeon(world).VisibleTiles = nil
+		query.GetVisionState(world).VisibleTiles = nil
 
 		assert.False(t, query.IsInVision(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 5, Y: 5}))
 	})
@@ -229,7 +229,7 @@ func TestIsInVision(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 100, Y: 100}}: true,
 		}
 
@@ -240,7 +240,7 @@ func TestIsInVision(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 		}
 
@@ -251,10 +251,10 @@ func TestIsInVision(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		query.GetDungeon(world).ExploredTiles = map[gc.GridElement]bool{
+		query.GetCurrentStageField(world).ExploredTiles = map[gc.GridElement]bool{
 			{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}: true,
 		}
-		query.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		assert.False(t, query.IsInVision(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 5, Y: 5}), "暗闘のタイルは探索済みでも視界外であるべき")
 	})

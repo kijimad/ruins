@@ -101,8 +101,8 @@ func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 // rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。
 // 永続の ExploredTiles はキーを平行移動し、揮発キャッシュはクリアして次フレーム再構築させる。
 func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {
-	d := query.GetDungeon(world)
-	if d == nil {
+	field := query.GetCurrentStageField(world)
+	if field == nil {
 		return
 	}
 	inBand := func(g gc.GridElement) bool {
@@ -112,9 +112,10 @@ func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {
 	// 視界の VisibleTiles と LightSourceCache もクリアでなく付け替える。こうするとシフトと同じ
 	// フレームの描画で有効なまま保て、チャンク境界越え時のチラつきを防ぐ。チラつきは1フレームの
 	// 暗転として現れる。次フレームの VisionSystem がどのみち再計算するが、その1フレームの穴を無くす。
-	d.ExploredTiles = translateTileKeyMap(d.ExploredTiles, dx, 0, inBand)
-	d.VisibleTiles = translateTileKeyMap(d.VisibleTiles, dx, 0, inBand)
-	d.LightSourceCache = translateTileKeyMap(d.LightSourceCache, dx, 0, inBand)
+	field.ExploredTiles = translateTileKeyMap(field.ExploredTiles, dx, 0, inBand)
+	vs := query.GetVisionState(world)
+	vs.VisibleTiles = translateTileKeyMap(vs.VisibleTiles, dx, 0, inBand)
+	vs.LightSourceCache = translateTileKeyMap(vs.LightSourceCache, dx, 0, inBand)
 	query.InvalidateSpatialIndex(world)
 }
 

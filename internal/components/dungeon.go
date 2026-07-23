@@ -83,52 +83,20 @@ func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {
 	return absX <= f.ColdZoneWest()
 }
 
-// Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
-// 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
+// Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す
+// identity だけを持つ。フィールド寸法・探索履歴・帯データなどステージ固有の状態は各ステージの
+// StageField が、時間や視界などグローバルな状態は専用シングルトンが持つ。
 type Dungeon struct {
-	// 現在階のフィールド情報
-	Level Level
-	// 階層数
-	Depth int
-	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える
+	// CurrentStage は現在稼働しているステージのキー。往復の swap で切り替える。
+	// 階層数は CurrentStage.Depth から、ダンジョン定義名は CurrentStage.Name から導出する。
+	// オーバーワールドは深度0で NewOverworldStage() の固定名を持つ。フィールド寸法・探索履歴・帯データは
+	// 各ステージの StageField が持ち、ここは identity だけを指す。
 	CurrentStage StageKey
-	// 探索済みタイルのマップ。座標をキーとして使用。
-	// GridElement(struct)キーのためserde不可、ロード時に再構築する
-	ExploredTiles map[GridElement]bool `json:"-"`
-	// ミニマップの設定
-	MinimapSettings MinimapSettings
-	// 視界を更新するか外部から設定するフラグ
-	NeedsForceUpdate bool
-	// DefinitionName はダンジョン定義名
-	DefinitionName string
-	// GameTime はゲーム内時間を保持する
-	GameTime GameTime
-	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
-	SelectedWeaponSlot int
-	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される。
-	// GridElement(struct)キーのためserde不可、毎フレーム再構築される
-	VisibleTiles map[GridElement]bool `json:"-"`
-	// LightSourceCache は視界内タイルの光源情報。VisionSystemが計算し描画側が参照する。
-	// 視界更新のたびに再構築されるためserde不可
-	LightSourceCache map[GridElement]LightInfo `json:"-"`
-	// SeamlessBand はシームレスワールドの帯の永続状態。通常ダンジョンでは Active=false
-	SeamlessBand SeamlessBand
 }
 
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
-	return &Dungeon{
-		ExploredTiles:    make(map[GridElement]bool),
-		VisibleTiles:     make(map[GridElement]bool),
-		LightSourceCache: make(map[GridElement]LightInfo),
-		MinimapSettings: MinimapSettings{
-			Width:  150,
-			Height: 150,
-			Offset: consts.Coord[int]{X: 10, Y: 10},
-			Scale:  3,
-		},
-		SelectedWeaponSlot: 1,
-	}
+	return &Dungeon{}
 }
 
 // Level は現在の階層
@@ -161,16 +129,4 @@ func (l *Level) Width() consts.WorldPixel {
 // Height はステージ縦。縦の全体ピクセル数
 func (l *Level) Height() consts.WorldPixel {
 	return consts.WorldPixel(int(l.TileHeight) * int(consts.TileSize))
-}
-
-// MinimapSettings はミニマップの設定を管理する
-type MinimapSettings struct {
-	// ミニマップのサイズ（ピクセル単位）
-	Width  int
-	Height int
-	// ミニマップの表示位置。整数ピクセルの画面 UI レイアウト値で、ワールド座標でもタイル座標でもない。
-	// Width/Height/Scale と同じ UI 設定の一員なので Coord[consts.WorldPixel] でなく Coord[int] にする。
-	Offset consts.Coord[int]
-	// ミニマップのスケール（何ピクセルで1タイルを表すか）
-	Scale int
 }

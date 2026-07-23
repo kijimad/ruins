@@ -53,6 +53,10 @@ var Registry = []Def{
 
 	// stage ================
 	{Field: "StageBound", Comment: "束縛先ステージを保持する。往復するステージの同定に使う"},
+	{Field: "StageField", Comment: "ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く"},
+	{Field: "SeamlessBand", Comment: "オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる"},
+	{Field: "PortalConnection", Comment: "ポータルの行き先ステージと着地座標を保持する"},
+	{Field: "DungeonEntrance", Comment: "遺跡入口が進入先の遺跡定義名を保持する"},
 	{Field: "Suspended", Comment: "現ステージ以外に属し稼働しないことを示すマーカー"},
 
 	// member ================
@@ -99,4 +103,7 @@ var Registry = []Def{
 	{Field: "GameProgress", Comment: "ゲーム進行データを保持するシングルトン"},
 	{Field: "TurnState", Comment: "ターン状態を保持するシングルトン"},
 	{Field: "SpatialIndex", Comment: "空間インデックスを保持するシングルトン"},
+	{Field: "WeaponSelection", Comment: "選択中の武器スロットを保持するシングルトン"},
+	{Field: "GameTime", Comment: "ゲーム内時間を保持するシングルトン"},
+	{Field: "VisionState", Comment: "視界計算の一時状態を保持するシングルトン"},
 }
