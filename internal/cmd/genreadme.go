@@ -47,7 +47,7 @@ func runGenReadme(_ context.Context, _ *cli.Command) error {
 
 	result := strings.Replace(string(tmpl), placeholder, table, 1)
 	result = strings.Replace(result, designStatusPlacehldr, statusTable, 1)
-	if err := os.WriteFile(outputFile, []byte(result), 0644); err != nil {
+	if err := os.WriteFile(outputFile, []byte(result), 0o644); err != nil {
 		return fmt.Errorf("README.mdの書き込みに失敗: %w", err)
 	}
 

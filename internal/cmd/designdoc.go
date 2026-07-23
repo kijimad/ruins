@@ -34,7 +34,7 @@ var CmdDesignDoc = &cli.Command{
 		},
 		{
 			Name:  "list",
-			Usage: "frontmatter で絞り込んで一覧する",
+			Usage: "frontmatter で絞り込んで一覧する。validate を通した状態で使う前提。--open は不正 status を閉じた扱いで除外する",
 			Flags: []cli.Flag{
 				&cli.StringFlag{Name: "status", Usage: "指定 status のみ"},
 				&cli.StringFlag{Name: "auto", Usage: "指定 auto のみ"},
