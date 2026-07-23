@@ -92,6 +92,8 @@ type Frontmatter struct {
 type Document struct {
 	// Path は docs/design からの、あるいは呼び出し側が渡したファイルパス。
 	Path string
+	// Title は本文冒頭の `# ` 見出し。無ければ空。
+	Title string
 	// Front は解析した frontmatter。HasFront が false のときはゼロ値。
 	Front Frontmatter
 	// HasFront は frontmatter を持つかどうか。

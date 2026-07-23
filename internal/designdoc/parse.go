@@ -12,6 +12,7 @@ import (
 const fence = "---"
 
 var (
+	reTitle           = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
 	reProgressHeading = regexp.MustCompile(`(?m)^##\s+進捗\s*$`)
 	reAnyHeading      = regexp.MustCompile(`(?m)^##\s`)
 	reOpenTask        = regexp.MustCompile(`(?m)^- \[ \]`)
@@ -30,6 +31,9 @@ func Parse(path string, content string) (*Document, error) {
 	doc.Front = front
 	doc.Body = body
 
+	if m := reTitle.FindStringSubmatch(body); m != nil {
+		doc.Title = m[1]
+	}
 	countProgress(doc)
 
 	return doc, nil
