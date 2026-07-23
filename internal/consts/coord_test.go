@@ -72,15 +72,16 @@ func TestCoord_Sub(t *testing.T) {
 func TestTileCenterToWorld(t *testing.T) {
 	t.Parallel()
 
+	// タイル中心へ半タイル分ずらした位置になる
+	half := consts.TileSize / 2
 	tests := []struct {
 		name string
 		grid consts.Coord[consts.Tile]
 		want consts.Coord[consts.WorldPixel]
 	}{
-		// タイル中心へ半タイル分ずらした位置になる
-		{"原点タイル", consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.WorldPixel]{X: 16, Y: 16}},
-		{"1マス目", consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.WorldPixel]{X: 48, Y: 48}},
-		{"XとYが異なる", consts.Coord[consts.Tile]{X: 2, Y: 0}, consts.Coord[consts.WorldPixel]{X: 80, Y: 16}},
+		{"原点タイル", consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.WorldPixel]{X: half, Y: half}},
+		{"1マス目", consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.WorldPixel]{X: consts.TileSize + half, Y: consts.TileSize + half}},
+		{"XとYが異なる", consts.Coord[consts.Tile]{X: 2, Y: 0}, consts.Coord[consts.WorldPixel]{X: 2*consts.TileSize + half, Y: half}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -93,6 +94,8 @@ func TestTileCenterToWorld(t *testing.T) {
 func TestWorldToScreen(t *testing.T) {
 	t.Parallel()
 
+	const screenW, screenH = consts.GameWidth, consts.GameHeight
+	centerX, centerY := consts.ScreenPixel(screenW)/2, consts.ScreenPixel(screenH)/2
 	tests := []struct {
 		name      string
 		world     consts.Coord[consts.WorldPixel]
@@ -107,27 +110,27 @@ func TestWorldToScreen(t *testing.T) {
 			world:     consts.Coord[consts.WorldPixel]{X: 0, Y: 0},
 			cameraPos: consts.Coord[consts.WorldPixel]{X: 0, Y: 0},
 			scale:     1,
-			screenW:   960,
-			screenH:   720,
-			want:      consts.Coord[consts.ScreenPixel]{X: 480, Y: 360},
+			screenW:   screenW,
+			screenH:   screenH,
+			want:      consts.Coord[consts.ScreenPixel]{X: centerX, Y: centerY},
 		},
 		{
 			name:      "カメラがずれると相対位置がずれる",
 			world:     consts.Coord[consts.WorldPixel]{X: 100, Y: 0},
 			cameraPos: consts.Coord[consts.WorldPixel]{X: 50, Y: 0},
 			scale:     1,
-			screenW:   960,
-			screenH:   720,
-			want:      consts.Coord[consts.ScreenPixel]{X: 530, Y: 360},
+			screenW:   screenW,
+			screenH:   screenH,
+			want:      consts.Coord[consts.ScreenPixel]{X: centerX + 50, Y: centerY},
 		},
 		{
 			name:      "スケール2倍で差分が拡大する",
 			world:     consts.Coord[consts.WorldPixel]{X: 100, Y: 0},
 			cameraPos: consts.Coord[consts.WorldPixel]{X: 0, Y: 0},
 			scale:     2,
-			screenW:   960,
-			screenH:   720,
-			want:      consts.Coord[consts.ScreenPixel]{X: 680, Y: 360},
+			screenW:   screenW,
+			screenH:   screenH,
+			want:      consts.Coord[consts.ScreenPixel]{X: centerX + 200, Y: centerY},
 		},
 	}
 	for _, tt := range tests {
