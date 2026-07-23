@@ -69,6 +69,23 @@ func TestCoord_Sub(t *testing.T) {
 	}
 }
 
+func TestCoord_Add_float64座標を加算する(t *testing.T) {
+	t.Parallel()
+
+	// WorldPixel/ScreenPixel は float64 基底なので、ジェネリックが float でも動くことを確認する。
+	a := consts.Coord[float64]{X: 1.5, Y: 2.5}
+	b := consts.Coord[float64]{X: 0.5, Y: 1.0}
+	assert.Equal(t, consts.Coord[float64]{X: 2.0, Y: 3.5}, a.Add(b))
+}
+
+func TestCoord_Sub_float64座標を減算する(t *testing.T) {
+	t.Parallel()
+
+	a := consts.Coord[float64]{X: 3.5, Y: 2.0}
+	b := consts.Coord[float64]{X: 1.0, Y: 2.5}
+	assert.Equal(t, consts.Coord[float64]{X: 2.5, Y: -0.5}, a.Sub(b))
+}
+
 func TestTileCenterToWorld(t *testing.T) {
 	t.Parallel()
 
