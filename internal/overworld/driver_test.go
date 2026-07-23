@@ -21,7 +21,7 @@ const (
 	testK      consts.Chunk = 3
 )
 
-func TestSession_MaybeShift_東へ進むとシフトする(t *testing.T) {
+func TestDriver_MaybeShift_東へ進むとシフトする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
@@ -38,7 +38,7 @@ func TestSession_MaybeShift_東へ進むとシフトする(t *testing.T) {
 	assert.Equal(t, testChunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
 }
 
-func TestSession_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
+func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
@@ -57,9 +57,9 @@ func TestSession_MaybeShift_複数チャンク跨ぎで連続シフト(t *testin
 	assert.Less(t, px, consts.Tile(testK/2+1)*testChunkW, "プレイヤーは中央チャンク内に収まる")
 }
 
-// TestSession_MaybeShift_開始点より西へはシフトしない は eastIndex=0 で西へ移動しても
+// TestDriver_MaybeShift_開始点より西へはシフトしない は eastIndex=0 で西へ移動しても
 // eastIndex を負にしないことを固定する。
-func TestSession_MaybeShift_開始点より西へはシフトしない(t *testing.T) {
+func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
@@ -75,7 +75,7 @@ func TestSession_MaybeShift_開始点より西へはシフトしない(t *testin
 	assert.Equal(t, 0, int(s.EastIndex()), "開始点より西へはシフトしない（eastIndex は負にならない）")
 }
 
-func TestSession_MaybeShift_中央では動かない(t *testing.T) {
+func TestDriver_MaybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
@@ -87,9 +87,9 @@ func TestSession_MaybeShift_中央では動かない(t *testing.T) {
 	assert.Equal(t, 0, int(s.EastIndex()), "中央チャンク内では eastIndex 据え置き")
 }
 
-// TestSession_セーブ往復で帯状態が復元される は、SeamlessBand が serde に乗り、ロード後に
+// TestDriver_セーブ往復で帯状態が復元される は、SeamlessBand が serde に乗り、ロード後に
 // ドライバが同じ eastIndex で再構築できることを固定する。
-func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
+func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 40, 20
@@ -149,10 +149,10 @@ func TestSession_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Positive(t, count, "帯タイルが serde で復元されている")
 }
 
-// TestSession_新規開始で街がオーバーワールドに配置される は、新規開始時に店・雇用・合成の会話NPCと
+// TestDriver_新規開始で街がオーバーワールドに配置される は、新規開始時に店・雇用・合成の会話NPCと
 // 収納propが開始チャンクへ配置され、いずれもオーバーワールド帯へ束縛されることを固定する。
 // これで街が専用ステージでなくオーバーワールドの地物として常在し、遺跡進入時に帯とともに退避される。
-func TestSession_新規開始で街がオーバーワールドに配置される(t *testing.T) {
+func TestDriver_新規開始で街がオーバーワールドに配置される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 42})
@@ -177,9 +177,9 @@ func TestSession_新規開始で街がオーバーワールドに配置される
 	}
 }
 
-// TestSession_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns から
+// TestDriver_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns から
 // 決定的に導出され、ターン経過で東へ進み、SeamlessBand.Front.EastAbsX に反映されることを固定する。
-func TestSession_前線が総ターン数で前進する(t *testing.T) {
+func TestDriver_前線が総ターン数で前進する(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 40, 20

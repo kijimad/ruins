@@ -176,7 +176,7 @@ func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// 全ダンジョン踏破をオーバーワールド滞在時に判定する。判定条件は帯シフトと同じ
-	// 「session保持かつ現ステージ深度0」。SetEventActive は冪等で視聴後は再発火しないので、
+	// 「driver保持かつ現ステージ深度0」。SetEventActive は冪等で視聴後は再発火しないので、
 	// 毎フレーム呼んでも一度だけ発火する
 	if st.driver != nil && query.IsOnOverworld(world) {
 		gp := query.GetGameProgress(world)
