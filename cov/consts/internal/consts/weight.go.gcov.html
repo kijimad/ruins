@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">84.8&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">33</td>
-            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">33</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 16:28:16</td>
+            <td class="headerValue">2026-07-23 16:30:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -110,34 +110,34 @@
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // ParseWeight は &quot;500 g&quot; &quot;2 kg&quot; &quot;1 mg&quot; のような単位付き文字列を Milligram に変換する。</span>
 <span id="L50"><span class="lineNum">      50</span>              : // 数値と単位は空白で区切る。単位は mg/g/kg のいずれか。負値は許さない</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          15 : func ParseWeight(s string) (Milligram, error) {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          15 :         fields := strings.Fields(s)</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          19 :         if len(fields) != 2 {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           4 :                 return 0, fmt.Errorf(&quot;重量の形式が不正です: %q（例: \&quot;500 g\&quot;）&quot;, s)</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           4 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">          11 :         value, err := strconv.ParseFloat(fields[0], 64)</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">          12 :         if err != nil {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          17 : func ParseWeight(s string) (Milligram, error) {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          17 :         fields := strings.Fields(s)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          22 :         if len(fields) != 2 {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           5 :                 return 0, fmt.Errorf(&quot;重量の形式が不正です: %q（例: \&quot;500 g\&quot;）&quot;, s)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           5 :         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">          12 :         value, err := strconv.ParseFloat(fields[0], 64)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">          13 :         if err != nil {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;重量の数値が不正です: %q&quot;, s)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">          11 :         if value &lt; 0 {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">          12 :         if value &lt; 0 {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;重量は負にできません: %q&quot;, s)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           9 :         factor, ok := weightUnits[fields[1]]</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">          10 :         if !ok {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">          10 :         factor, ok := weightUnits[fields[1]]</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">          11 :         if !ok {</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;重量の単位が不正です: %q（mg/g/kg のいずれか）&quot;, s)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           8 :         return Milligram(math.Round(value * float64(factor))), nil</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           9 :         return Milligram(math.Round(value * float64(factor))), nil</span></span>
 <span id="L68"><span class="lineNum">      68</span>              : }</span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              : // MustParseWeight は ParseWeight のパニック版。パース失敗時に panic する。</span>
 <span id="L71"><span class="lineNum">      71</span>              : // 固定リテラルやテスト値のように失敗があり得ない箇所で使う。regexp.MustCompile と同じ発想。</span>
 <span id="L72"><span class="lineNum">      72</span>              : // 動的な入力には error を返す ParseWeight を使う</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC tlaBgUNC">           0 : func MustParseWeight(s string) Milligram {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         mg, err := ParseWeight(s)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 panic(err)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 : func MustParseWeight(s string) Milligram {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :         mg, err := ParseWeight(s)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           3 :         if err != nil {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 panic(err)</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :         }</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         return mg</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         return mg</span></span>
 <span id="L79"><span class="lineNum">      79</span>              : }</span>
         </pre>
               </td>

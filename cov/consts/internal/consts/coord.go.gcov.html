@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">19</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">19</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 16:28:16</td>
+            <td class="headerValue">2026-07-23 16:30:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,35 +76,35 @@
 <span id="L14"><span class="lineNum">      14</span>              : }</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // String は (x,y) 形式の文字列を返す。ログや座標表示の整形を一箇所に集約する。</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 : func (c Coord[T]) String() string {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         return fmt.Sprintf(&quot;(%v,%v)&quot;, c.X, c.Y)</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">           3 : func (c Coord[T]) String() string {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           3 :         return fmt.Sprintf(&quot;(%v,%v)&quot;, c.X, c.Y)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           3 : }</span></span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // Add は2つの座標を成分ごとに加算した座標を返す。</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 : func (c Coord[T]) Add(o Coord[T]) Coord[T] {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         return Coord[T]{X: c.X + o.X, Y: c.Y + o.Y}</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           4 : func (c Coord[T]) Add(o Coord[T]) Coord[T] {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           4 :         return Coord[T]{X: c.X + o.X, Y: c.Y + o.Y}</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           4 : }</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // Sub は成分ごとに減算した座標を返す。</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : func (c Coord[T]) Sub(o Coord[T]) Coord[T] {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         return Coord[T]{X: c.X - o.X, Y: c.Y - o.Y}</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           4 : func (c Coord[T]) Sub(o Coord[T]) Coord[T] {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           4 :         return Coord[T]{X: c.X - o.X, Y: c.Y - o.Y}</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           4 : }</span></span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // TileCenterToWorld はタイル座標を、そのタイル中心のワールドピクセル座標へ変換する。</span>
 <span id="L32"><span class="lineNum">      32</span>              : // スプライトはタイル中心に合わせて配置するため中心へ半タイルぶんずらす。</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         half := TileSize / 2</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         return Coord[WorldPixel]{X: WorldPixel(grid.X)*TileSize + half, Y: WorldPixel(grid.Y)*TileSize + half}</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           3 : func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           3 :         half := TileSize / 2</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           3 :         return Coord[WorldPixel]{X: WorldPixel(grid.X)*TileSize + half, Y: WorldPixel(grid.Y)*TileSize + half}</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           3 : }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // WorldToScreen はワールドピクセル座標をカメラ変換して画面のスクリーンピクセル座標へ変換する。</span>
 <span id="L39"><span class="lineNum">      39</span>              : // cameraPos はカメラ中心のワールド位置、scale はズーム率、screen は画面サイズ。</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : func WorldToScreen(world Coord[WorldPixel], cameraPos Coord[WorldPixel], scale float64, screenW, screenH int) Coord[ScreenPixel] {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         return Coord[ScreenPixel]{</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 X: ScreenPixel(float64(world.X-cameraPos.X)*scale + float64(screenW)/2),</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 Y: ScreenPixel(float64(world.Y-cameraPos.Y)*scale + float64(screenH)/2),</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           3 : func WorldToScreen(world Coord[WorldPixel], cameraPos Coord[WorldPixel], scale float64, screenW, screenH int) Coord[ScreenPixel] {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           3 :         return Coord[ScreenPixel]{</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           3 :                 X: ScreenPixel(float64(world.X-cameraPos.X)*scale + float64(screenW)/2),</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           3 :                 Y: ScreenPixel(float64(world.Y-cameraPos.Y)*scale + float64(screenH)/2),</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           3 :         }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           3 : }</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // AbsTileX は東西の絶対タイル X 座標。</span>
 <span id="L48"><span class="lineNum">      48</span>              : //</span>
