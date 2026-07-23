@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 16:09:12</td>
+            <td class="headerValue">2026-07-23 16:28:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,118 +75,118 @@
 <span id="L13"><span class="lineNum">      13</span>              : }</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // NewPathFinder はPathFinderを作成する</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">         647 : func NewPathFinder(planData *MetaPlan) *PathFinder {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">         647 :         return &amp;PathFinder{planData: planData}</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">         647 : }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">         649 : func NewPathFinder(planData *MetaPlan) *PathFinder {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">         649 :         return &amp;PathFinder{planData: planData}</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">         649 : }</span></span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // fourDirs は上下左右の4方向のタイル差分</span>
 <span id="L21"><span class="lineNum">      21</span>              : var fourDirs = []consts.Coord[consts.Tile]{{X: 0, Y: 1}, {X: 1, Y: 0}, {X: 0, Y: -1}, {X: -1, Y: 0}}</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // IsWalkable は指定座標が歩行可能かを判定する</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">     1862887 : func (pf *PathFinder) IsWalkable(pos consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">     1862887 :         // 境界チェック</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">     1938793 :         if pos.X &lt; 0 || pos.X &gt;= pf.planData.Level.TileWidth || pos.Y &lt; 0 || pos.Y &gt;= pf.planData.Level.TileHeight {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">       75906 :                 return false</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       75906 :         }</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">     1852345 : func (pf *PathFinder) IsWalkable(pos consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">     1852345 :         // 境界チェック</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">     1927224 :         if pos.X &lt; 0 || pos.X &gt;= pf.planData.Level.TileWidth || pos.Y &lt; 0 || pos.Y &gt;= pf.planData.Level.TileHeight {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">       74879 :                 return false</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       74879 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">     1787641 :         idx := pf.planData.Level.CoordToIndex(pos)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">     1787641 :         return !pf.planData.Tiles[idx].BlockPass</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">     1778966 :         idx := pf.planData.Level.CoordToIndex(pos)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">     1778966 :         return !pf.planData.Tiles[idx].BlockPass</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // FindPath はBFSでスタート地点からゴールまでのパスを探索する。</span>
 <span id="L35"><span class="lineNum">      35</span>              : // 上下左右の4方向移動のみサポートする。到達できない場合は空を返す</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         838 : func (pf *PathFinder) FindPath(start, goal consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         840 :         if !pf.IsWalkable(start) || !pf.IsWalkable(goal) {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         855 : func (pf *PathFinder) FindPath(start, goal consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">         857 :         if !pf.IsWalkable(start) || !pf.IsWalkable(goal) {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :                 return nil</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           2 :         }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              :         // parent はパス復元用、visited は探索済み。どちらもタイル座標をキーにする</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">         836 :         parent := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">         836 :         visited := map[consts.Coord[consts.Tile]]bool{start: true}</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">         836 :         queue := []consts.Coord[consts.Tile]{start}</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">         836 : </span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">      620194 :         for len(queue) &gt; 0 {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">      619358 :                 cur := queue[0]</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">      619358 :                 queue = queue[1:]</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">      619358 : </span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">      620145 :                 if cur == goal {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">         787 :                         return pf.reconstructPath(parent, start, goal)</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">         787 :                 }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">         853 :         parent := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">         853 :         visited := map[consts.Coord[consts.Tile]]bool{start: true}</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">         853 :         queue := []consts.Coord[consts.Tile]{start}</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">         853 : </span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">      615699 :         for len(queue) &gt; 0 {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">      614846 :                 cur := queue[0]</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">      614846 :                 queue = queue[1:]</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">      614846 : </span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">      615634 :                 if cur == goal {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">         788 :                         return pf.reconstructPath(parent, start, goal)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">         788 :                 }</span></span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">     3084878 :                 for _, d := range fourDirs {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">     2466295 :                         next := cur.Add(d)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">     2466295 :                         // IsWalkable が境界外を false にするので境界チェックは兼ねる</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">     4290227 :                         if visited[next] || !pf.IsWalkable(next) {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">     1823932 :                                 continue</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">     3051093 :                 for _, d := range fourDirs {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">     2437001 :                         next := cur.Add(d)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">     2437001 :                         // IsWalkable が境界外を false にするので境界チェックは兼ねる</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">     4243984 :                         if visited[next] || !pf.IsWalkable(next) {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">     1806983 :                                 continue</span></span>
 <span id="L59"><span class="lineNum">      59</span>              :                         }</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">      648205 :                         visited[next] = true</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">      648205 :                         parent[next] = cur</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">      648205 :                         queue = append(queue, next)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">      644057 :                         visited[next] = true</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">      644057 :                         parent[next] = cur</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">      644057 :                         queue = append(queue, next)</span></span>
 <span id="L63"><span class="lineNum">      63</span>              :                 }</span>
 <span id="L64"><span class="lineNum">      64</span>              :         }</span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          49 :         return nil</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          65 :         return nil</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : // reconstructPath は親マップからスタート→ゴール順のパスを復元する</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">         787 : func (pf *PathFinder) reconstructPath(parent map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile], start, goal consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">         787 :         var path []consts.Coord[consts.Tile]</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">       26959 :         for cur := goal; ; cur = parent[cur] {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">       26172 :                 path = append(path, cur)</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">       26959 :                 if cur == start {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         787 :                         break</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">         788 : func (pf *PathFinder) reconstructPath(parent map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile], start, goal consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">         788 :         var path []consts.Coord[consts.Tile]</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">       26867 :         for cur := goal; ; cur = parent[cur] {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">       26079 :                 path = append(path, cur)</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">       26867 :                 if cur == start {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         788 :                         break</span></span>
 <span id="L76"><span class="lineNum">      76</span>              :                 }</span>
 <span id="L77"><span class="lineNum">      77</span>              :         }</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              :         // スタートからゴールの順序にする</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">       13655 :         for i, j := 0, len(path)-1; i &lt; j; i, j = i+1, j-1 {</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">       12868 :                 path[i], path[j] = path[j], path[i]</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">       12868 :         }</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">       13609 :         for i, j := 0, len(path)-1; i &lt; j; i, j = i+1, j-1 {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">       12821 :                 path[i], path[j] = path[j], path[i]</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">       12821 :         }</span></span>
 <span id="L83"><span class="lineNum">      83</span>              : </span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         787 :         return path</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         788 :         return path</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : }</span>
 <span id="L86"><span class="lineNum">      86</span>              : </span>
 <span id="L87"><span class="lineNum">      87</span>              : // IsReachable はスタート地点からゴール地点まで到達可能かを判定する</span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">         634 : func (pf *PathFinder) IsReachable(start, goal consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">         634 :         return len(pf.FindPath(start, goal)) &gt; 0</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">         634 : }</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">         643 : func (pf *PathFinder) IsReachable(start, goal consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">         643 :         return len(pf.FindPath(start, goal)) &gt; 0</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">         643 : }</span></span>
 <span id="L91"><span class="lineNum">      91</span>              : </span>
 <span id="L92"><span class="lineNum">      92</span>              : // countReachableFrom は指定位置からBFSで到達可能な歩行可能タイル数を返す</span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">         851 : func (pf *PathFinder) countReachableFrom(start consts.Coord[consts.Tile]) int {</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">         851 :         if !pf.IsWalkable(start) {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">         788 : func (pf *PathFinder) countReachableFrom(start consts.Coord[consts.Tile]) int {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">         788 :         if !pf.IsWalkable(start) {</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L97"><span class="lineNum">      97</span>              : </span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC tlaBgGNC">         851 :         visited := map[consts.Coord[consts.Tile]]bool{start: true}</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">         851 :         queue := []consts.Coord[consts.Tile]{start}</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">         851 :         count := 0</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">         851 : </span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">      758835 :         for len(queue) &gt; 0 {</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">      757984 :                 cur := queue[0]</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">      757984 :                 queue = queue[1:]</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">      757984 :                 count++</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">      757984 : </span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">     3779370 :                 for _, d := range fourDirs {</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">     3021386 :                         next := cur.Add(d)</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">     3778141 :                         if !visited[next] &amp;&amp; pf.IsWalkable(next) {</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">      756755 :                                 visited[next] = true</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">      756755 :                                 queue = append(queue, next)</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">      756755 :                         }</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC tlaBgGNC">         788 :         visited := map[consts.Coord[consts.Tile]]bool{start: true}</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">         788 :         queue := []consts.Coord[consts.Tile]{start}</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">         788 :         count := 0</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">         788 : </span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">      758116 :         for len(queue) &gt; 0 {</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">      757328 :                 cur := queue[0]</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">      757328 :                 queue = queue[1:]</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">      757328 :                 count++</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">      757328 : </span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">     3760400 :                 for _, d := range fourDirs {</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">     3003072 :                         next := cur.Add(d)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">     3759608 :                         if !visited[next] &amp;&amp; pf.IsWalkable(next) {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">      756536 :                                 visited[next] = true</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">      756536 :                                 queue = append(queue, next)</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">      756536 :                         }</span></span>
 <span id="L113"><span class="lineNum">     113</span>              :                 }</span>
 <span id="L114"><span class="lineNum">     114</span>              :         }</span>
 <span id="L115"><span class="lineNum">     115</span>              : </span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         851 :         return count</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         788 :         return count</span></span>
 <span id="L117"><span class="lineNum">     117</span>              : }</span>
 <span id="L118"><span class="lineNum">     118</span>              : </span>
 <span id="L119"><span class="lineNum">     119</span>              : // hasAdjacentFreeTile は隣接4方向のうち少なくとも1つが歩行可能かつ計画済みエンティティがないかを判定する</span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">         891 : func (pf *PathFinder) hasAdjacentFreeTile(pos consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">        2302 :         for _, d := range fourDirs {</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">        1411 :                 next := pos.Add(d)</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">        2260 :                 if pf.IsWalkable(next) &amp;&amp; !pf.planData.existPlannedEntityOnTile(next) {</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">         849 :                         return true</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">         849 :                 }</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">         822 : func (pf *PathFinder) hasAdjacentFreeTile(pos consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">        2087 :         for _, d := range fourDirs {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">        1265 :                 next := pos.Add(d)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">        2051 :                 if pf.IsWalkable(next) &amp;&amp; !pf.planData.existPlannedEntityOnTile(next) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">         786 :                         return true</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">         786 :                 }</span></span>
 <span id="L126"><span class="lineNum">     126</span>              :         }</span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">          42 :         return false</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">          36 :         return false</span></span>
 <span id="L128"><span class="lineNum">     128</span>              : }</span>
 <span id="L129"><span class="lineNum">     129</span>              : </span>
 <span id="L130"><span class="lineNum">     130</span>              : // minReachableTiles はスポーン位置から到達可能なタイルの最小数。</span>
@@ -194,40 +194,40 @@
 <span id="L132"><span class="lineNum">     132</span>              : const minReachableTiles = 100</span>
 <span id="L133"><span class="lineNum">     133</span>              : </span>
 <span id="L134"><span class="lineNum">     134</span>              : // FindPlayerStartPosition はプレイヤーの開始位置を探す</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">         484 : func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], error) {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">         484 :         planData := pf.planData</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">         484 : </span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">         484 :         // SpawnPointsが設定されていればそれを使用（テンプレートマップ用）</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">         488 :         if len(planData.SpawnPoints) &gt; 0 {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">         486 : func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], error) {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">         486 :         planData := pf.planData</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">         486 : </span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">         486 :         // SpawnPointsが設定されていればそれを使用（テンプレートマップ用）</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">         490 :         if len(planData.SpawnPoints) &gt; 0 {</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           4 :                 return consts.Coord[consts.Tile]{X: consts.Tile(planData.SpawnPoints[0].X), Y: consts.Tile(planData.SpawnPoints[0].Y)}, nil</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           4 :         }</span></span>
 <span id="L142"><span class="lineNum">     142</span>              : </span>
 <span id="L143"><span class="lineNum">     143</span>              :         // プロシージャルマップ用: 歩行可能でポータルに到達可能な位置を探す</span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">         480 :         width := planData.Level.TileWidth</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">         480 :         height := planData.Level.TileHeight</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">         480 : </span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">         480 :         // 候補位置を試す（中央から外側へ）</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">         480 :         attempts := []consts.Coord[consts.Tile]{</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">         480 :                 {X: width / 2, Y: height / 2},</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         480 :                 {X: width / 4, Y: height / 4},</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         480 :                 {X: 3 * width / 4, Y: height / 4},</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         480 :                 {X: width / 4, Y: 3 * height / 4},</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">         480 :                 {X: 3 * width / 4, Y: 3 * height / 4},</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">         480 :         }</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         480 : </span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">        1424 :         for _, pos := range attempts {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">        1366 :                 if pf.isValidSpawnPosition(pos) {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">         422 :                         return pos, nil</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">         422 :                 }</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">         482 :         width := planData.Level.TileWidth</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">         482 :         height := planData.Level.TileHeight</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">         482 : </span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">         482 :         // 候補位置を試す（中央から外側へ）</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">         482 :         attempts := []consts.Coord[consts.Tile]{</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">         482 :                 {X: width / 2, Y: height / 2},</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">         482 :                 {X: width / 4, Y: height / 4},</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">         482 :                 {X: 3 * width / 4, Y: height / 4},</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">         482 :                 {X: width / 4, Y: 3 * height / 4},</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">         482 :                 {X: 3 * width / 4, Y: 3 * height / 4},</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">         482 :         }</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">         482 : </span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">        1420 :         for _, pos := range attempts {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">        1365 :                 if pf.isValidSpawnPosition(pos) {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">         427 :                         return pos, nil</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">         427 :                 }</span></span>
 <span id="L160"><span class="lineNum">     160</span>              :         }</span>
 <span id="L161"><span class="lineNum">     161</span>              : </span>
 <span id="L162"><span class="lineNum">     162</span>              :         // 見つからない場合は全体をスキャン</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">        1286 :         for _i, tile := range planData.Tiles {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">        1594 :                 if !tile.BlockPass {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">         366 :                         pos := planData.Level.IndexToCoord(gc.TileIdx(_i))</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">         422 :                         if pf.isValidSpawnPosition(pos) {</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          56 :                                 return pos, nil</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">          56 :                         }</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">        1220 :         for _i, tile := range planData.Tiles {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">        1459 :                 if !tile.BlockPass {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">         294 :                         pos := planData.Level.IndexToCoord(gc.TileIdx(_i))</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">         347 :                         if pf.isValidSpawnPosition(pos) {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          53 :                                 return pos, nil</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">          53 :                         }</span></span>
 <span id="L169"><span class="lineNum">     169</span>              :                 }</span>
 <span id="L170"><span class="lineNum">     170</span>              :         }</span>
 <span id="L171"><span class="lineNum">     171</span>              : </span>
@@ -235,38 +235,38 @@
 <span id="L173"><span class="lineNum">     173</span>              : }</span>
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span>              : // isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">        1310 : func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">        1310 :         planData := pf.planData</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">        1310 :         idx := planData.Level.CoordToIndex(pos)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">        1728 :         if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">         418 :                 return false</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">         418 :         }</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">        1232 : func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">        1232 :         planData := pf.planData</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">        1232 :         idx := planData.Level.CoordToIndex(pos)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">        1641 :         if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">         409 :                 return false</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">         409 :         }</span></span>
 <span id="L182"><span class="lineNum">     182</span>              : </span>
 <span id="L183"><span class="lineNum">     183</span>              :         // NPC・アイテム・ポータルなど計画済みエンティティとの重複を防ぐ</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">         893 :         if planData.existPlannedEntityOnTile(pos) {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">         824 :         if planData.existPlannedEntityOnTile(pos) {</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L187"><span class="lineNum">     187</span>              : </span>
 <span id="L188"><span class="lineNum">     188</span>              :         // 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。</span>
 <span id="L189"><span class="lineNum">     189</span>              :         // 敵エンティティはBlockPassを持つため、全隣接タイルが占有されるとプレイヤーが移動不能になる</span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">         933 :         if !pf.hasAdjacentFreeTile(pos) {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">          42 :                 return false</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          42 :         }</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">         858 :         if !pf.hasAdjacentFreeTile(pos) {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">          36 :                 return false</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">          36 :         }</span></span>
 <span id="L193"><span class="lineNum">     193</span>              : </span>
 <span id="L194"><span class="lineNum">     194</span>              :         // 到達可能なタイル数が十分であることを確認する。</span>
 <span id="L195"><span class="lineNum">     195</span>              :         // 単一BFSで済むため、複数BFSを要するポータル到達性チェックより先に行う</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">        1220 :         if pf.countReachableFrom(pos) &lt; minReachableTiles {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">         371 :                 return false</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">         371 :         }</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">        1092 :         if pf.countReachableFrom(pos) &lt; minReachableTiles {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">         306 :                 return false</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">         306 :         }</span></span>
 <span id="L199"><span class="lineNum">     199</span>              : </span>
 <span id="L200"><span class="lineNum">     200</span>              :         // NextPortalsへの到達性をチェック</span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         785 :         for _, portal := range planData.NextPortals {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         787 :         for _, portal := range planData.NextPortals {</span></span>
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">         307 :                 if !pf.IsReachable(pos, portal) {</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC tlaBgUNC">           0 :                         return false</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L205"><span class="lineNum">     205</span>              :         }</span>
 <span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC tlaBgGNC">         478 :         return true</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC tlaBgGNC">         480 :         return true</span></span>
 <span id="L208"><span class="lineNum">     208</span>              : }</span>
 <span id="L209"><span class="lineNum">     209</span>              : </span>
 <span id="L210"><span class="lineNum">     210</span>              : // ValidatePortalReachability はプレイヤー開始位置から全ポータルへの到達性を検証する</span>

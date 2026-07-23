@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 16:09:12</td>
+            <td class="headerValue">2026-07-23 16:28:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -102,18 +102,18 @@
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">          44 :         switch variantType {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           8 :         case 0:</span></span>
 <span id="L42"><span class="lineNum">      42</span>              :                 // 通常の大部屋（何も追加しない）</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          11 :         case 1:</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          11 :                 // 柱を追加</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">          11 :                 b.applyPillars(planData)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          10 :         case 1:</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          10 :                 // 柱を追加</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">          10 :                 b.applyPillars(planData)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           6 :         case 2:</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           6 :                 // 障害物を追加</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           6 :                 b.applyObstacles(planData)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           9 :         case 3:</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           9 :                 // 迷路パターンを追加</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           9 :                 b.applyMazePattern(planData)</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          10 :         case 4:</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          10 :                 // 中央台座を追加</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">          10 :                 b.applyCenterPlatform(planData)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          11 :         case 4:</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          11 :                 // 中央台座を追加</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">          11 :                 b.applyCenterPlatform(planData)</span></span>
 <span id="L55"><span class="lineNum">      55</span>              :         }</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">          44 :         return nil</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : }</span>
@@ -123,10 +123,10 @@
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">          88 :         for _, room := range planData.Rooms {</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">          44 :                 // 部屋の内部を床タイルで埋める</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">        1844 :                 for x := room.Min.X; x &lt;= room.Max.X; x++ {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">       83600 :                         for y := room.Min.Y; y &lt;= room.Max.Y; y++ {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">       81800 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">       81800 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       81800 :                         }</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">       83594 :                         for y := room.Min.Y; y &lt;= room.Max.Y; y++ {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">       81794 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">       81794 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       81794 :                         }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              :                 }</span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              :                 // 部屋の境界を壁で囲む</span>
@@ -167,21 +167,21 @@
 <span id="L105"><span class="lineNum">     105</span>              : }</span>
 <span id="L106"><span class="lineNum">     106</span>              : </span>
 <span id="L107"><span class="lineNum">     107</span>              : // applyPillars は部屋に柱を追加する</span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC tlaBgGNC">          11 : func (b BigRoomDraw) applyPillars(planData *MetaPlan) {</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">          11 :         // 柱の間隔をランダムに決定（3-6の範囲）</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">          11 :         spacing := 3 + planData.RNG.IntN(4)</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">          11 : </span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">          22 :         for _, room := range planData.Rooms {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">          11 :                 // 柱の開始位置を計算（部屋の中心から対称に配置）</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">          11 :                 startX := int(room.Min.X) + spacing</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">          11 :                 startY := int(room.Min.Y) + spacing</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">          11 : </span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">          11 :                 // 規則的に柱を配置</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">          88 :                 for x := startX; x &lt; int(room.Max.X); x += spacing + 1 {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">         694 :                         for y := startY; y &lt; int(room.Max.Y); y += spacing + 1 {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">         617 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">         617 :                                 planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">         617 :                         }</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC tlaBgGNC">          10 : func (b BigRoomDraw) applyPillars(planData *MetaPlan) {</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">          10 :         // 柱の間隔をランダムに決定（3-6の範囲）</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">          10 :         spacing := 3 + planData.RNG.IntN(4)</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">          10 : </span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">          20 :         for _, room := range planData.Rooms {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">          10 :                 // 柱の開始位置を計算（部屋の中心から対称に配置）</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">          10 :                 startX := int(room.Min.X) + spacing</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">          10 :                 startY := int(room.Min.Y) + spacing</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">          10 : </span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">          10 :                 // 規則的に柱を配置</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">          79 :                 for x := startX; x &lt; int(room.Max.X); x += spacing + 1 {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">         622 :                         for y := startY; y &lt; int(room.Max.Y); y += spacing + 1 {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">         553 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">         553 :                                 planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">         553 :                         }</span></span>
 <span id="L123"><span class="lineNum">     123</span>              :                 }</span>
 <span id="L124"><span class="lineNum">     124</span>              :         }</span>
 <span id="L125"><span class="lineNum">     125</span>              : }</span>
@@ -238,28 +238,28 @@
 <span id="L176"><span class="lineNum">     176</span>              : }</span>
 <span id="L177"><span class="lineNum">     177</span>              : </span>
 <span id="L178"><span class="lineNum">     178</span>              : // applyCenterPlatform は部屋に中央台座を追加する</span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          10 : func (b BigRoomDraw) applyCenterPlatform(planData *MetaPlan) {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">          20 :         for _, room := range planData.Rooms {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">          10 :                 centerX := int(room.Min.X+room.Max.X) / 2</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">          10 :                 centerY := int(room.Min.Y+room.Max.Y) / 2</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">          10 : </span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">          10 :                 // 台座のサイズを部屋のサイズに基づいて決定</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">          10 :                 platformSize := 2 + planData.RNG.IntN(3) // 2-4タイルの台座</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">          10 : </span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">          10 :                 // 円形の台座を作成</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          82 :                 for dx := -platformSize; dx &lt;= platformSize; dx++ {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">         626 :                         for dy := -platformSize; dy &lt;= platformSize; dy++ {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">         554 :                                 distance := dx*dx + dy*dy</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">         880 :                                 if distance &lt;= platformSize*platformSize {</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">         326 :                                         x := centerX + dx</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">         326 :                                         y := centerY + dy</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">         326 :                                         if x &gt;= int(room.Min.X) &amp;&amp; x &lt;= int(room.Max.X) &amp;&amp;</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">         652 :                                                 y &gt;= int(room.Min.Y) &amp;&amp; y &lt;= int(room.Max.Y) {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">         326 :                                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">         326 :                                                 // 外周は壁、内部は床のまま</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">         514 :                                                 if distance &gt;= (platformSize-1)*(platformSize-1) {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">         188 :                                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">         188 :                                                 }</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">          11 : func (b BigRoomDraw) applyCenterPlatform(planData *MetaPlan) {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">          22 :         for _, room := range planData.Rooms {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">          11 :                 centerX := int(room.Min.X+room.Max.X) / 2</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">          11 :                 centerY := int(room.Min.Y+room.Max.Y) / 2</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">          11 : </span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">          11 :                 // 台座のサイズを部屋のサイズに基づいて決定</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">          11 :                 platformSize := 2 + planData.RNG.IntN(3) // 2-4タイルの台座</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">          11 : </span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">          11 :                 // 円形の台座を作成</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">          92 :                 for dx := -platformSize; dx &lt;= platformSize; dx++ {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">         716 :                         for dy := -platformSize; dy &lt;= platformSize; dy++ {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">         635 :                                 distance := dx*dx + dy*dy</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">        1010 :                                 if distance &lt;= platformSize*platformSize {</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">         375 :                                         x := centerX + dx</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">         375 :                                         y := centerY + dy</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">         375 :                                         if x &gt;= int(room.Min.X) &amp;&amp; x &lt;= int(room.Max.X) &amp;&amp;</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">         750 :                                                 y &gt;= int(room.Min.Y) &amp;&amp; y &lt;= int(room.Max.Y) {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">         375 :                                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">         375 :                                                 // 外周は壁、内部は床のまま</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">         587 :                                                 if distance &gt;= (platformSize-1)*(platformSize-1) {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">         212 :                                                         planData.Tiles[idx] = planData.GetTile(&quot;wall&quot;)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">         212 :                                                 }</span></span>
 <span id="L201"><span class="lineNum">     201</span>              :                                         }</span>
 <span id="L202"><span class="lineNum">     202</span>              :                                 }</span>
 <span id="L203"><span class="lineNum">     203</span>              :                         }</span>

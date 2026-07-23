@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 16:09:12</td>
+            <td class="headerValue">2026-07-23 16:28:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,23 +85,23 @@
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">         162 :         var lastErr error</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">         162 : </span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">         162 :         // 最大再試行回数まで繰り返す</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">         328 :         for attempt := range MaxPlanRetries {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">         166 :                 // 再試行時は異なるシードを使用</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         166 :                 currentSeed := seed + uint64(attempt*1000)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         166 : </span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">         166 :                 plan, err := attemptMetaPlan(world, width, height, currentSeed, plannerType)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">         328 :                 if err == nil {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">         330 :         for attempt := range MaxPlanRetries {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">         168 :                 // 再試行時は異なるシードを使用</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         168 :                 currentSeed := seed + uint64(attempt*1000)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         168 : </span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">         168 :                 plan, err := attemptMetaPlan(world, width, height, currentSeed, plannerType)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">         330 :                 if err == nil {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">         162 :                         // 成功時にリトライがあった場合は警告ログを出力</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">         166 :                         if attempt &gt; 0 {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           4 :                                 fmt.Printf(&quot;マップ生成成功（試行回数: %d回, PlannerType: %s, 最終seed: %d）\n&quot;, attempt+1, plannerType.Name, currentSeed)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           4 :                         }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">         167 :                         if attempt &gt; 0 {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           5 :                                 fmt.Printf(&quot;マップ生成成功（試行回数: %d回, PlannerType: %s, 最終seed: %d）\n&quot;, attempt+1, plannerType.Name, currentSeed)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           5 :                         }</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">         162 :                         return plan, nil</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :                 }</span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           4 :                 lastErr = err</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           4 : </span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           4 :                 // 接続性エラー以外は即座に失敗</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           4 :                 if !errors.Is(err, ErrConnectivity) {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           6 :                 lastErr = err</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           6 : </span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           6 :                 // 接続性エラー以外は即座に失敗</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           6 :                 if !errors.Is(err, ErrConnectivity) {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, fmt.Errorf(&quot;プラン生成失敗 (PlannerType=%s, seed=%d): %w&quot;, plannerType.Name, seed, err)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              :         }</span>
@@ -113,45 +113,45 @@
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // BuildChain はPlannerChainを構築して返す。</span>
 <span id="L53"><span class="lineNum">      53</span>              : // チェーンの構築ロジックを共有するために公開している</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">         166 : func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*PlannerChain, error) {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">         166 :         var chain *PlannerChain</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">         166 :         var err error</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">         166 :         if plannerType.Name == PlannerTypeRandom.Name {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">         168 : func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*PlannerChain, error) {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">         168 :         var chain *PlannerChain</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">         168 :         var err error</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">         168 :         if plannerType.Name == PlannerTypeRandom.Name {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                 chain, err = NewRandomPlanner(width, height, seed)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">         166 :         } else {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">         166 :                 chain, err = plannerType.PlannerFunc(width, height, seed)</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">         166 :         }</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         166 :         if err != nil {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">         168 :         } else {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">         168 :                 chain, err = plannerType.PlannerFunc(width, height, seed)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">         168 :         }</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         168 :         if err != nil {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              :         // RawMasterを設定</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">         332 :         if world.Resources != nil {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         166 :                 chain.PlanData.RawMaster = &amp;world.Resources.RawMaster</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">         166 :         }</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">         336 :         if world.Resources != nil {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">         168 :                 chain.PlanData.RawMaster = &amp;world.Resources.RawMaster</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">         168 :         }</span></span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
 <span id="L71"><span class="lineNum">      71</span>              :         // 生成する階の深度を成果物 MetaPlan にも記録する。生成後に loot を撒く mapspawner は</span>
 <span id="L72"><span class="lineNum">      72</span>              :         // 完成した MetaPlan だけを受け取り plannerType を持たないため、深度を成果物側へ載せておく。</span>
 <span id="L73"><span class="lineNum">      73</span>              :         // spawnFloor が builderType.Depth に入れた生成入力をそのまま引き継ぐ。</span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">         166 :         chain.PlanData.Depth = plannerType.Depth</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         166 : </span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">         166 :         chain.With(NewHostileNPCPlanner(world, plannerType))</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">         166 :         chain.With(NewItemPlanner(world, plannerType))</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">         166 :         chain.With(NewPortalPlanner(world, plannerType))</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">         166 : </span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">         166 :         return chain, nil</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">         168 :         chain.PlanData.Depth = plannerType.Depth</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">         168 : </span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">         168 :         chain.With(NewHostileNPCPlanner(world, plannerType))</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">         168 :         chain.With(NewItemPlanner(world, plannerType))</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">         168 :         chain.With(NewPortalPlanner(world, plannerType))</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">         168 : </span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">         168 :         return chain, nil</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : }</span>
 <span id="L82"><span class="lineNum">      82</span>              : </span>
 <span id="L83"><span class="lineNum">      83</span>              : // attemptMetaPlan は単一回のメタプラン生成を試行する</span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         166 : func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">         166 :         chain, err := BuildChain(world, width, height, seed, plannerType)</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">         166 :         if err != nil {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         168 : func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">         168 :         chain, err := BuildChain(world, width, height, seed, plannerType)</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">         168 :         if err != nil {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L89"><span class="lineNum">      89</span>              : </span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">         170 :         if err := chain.Plan(); err != nil {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           4 :                 return nil, err</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           4 :         }</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">         174 :         if err := chain.Plan(); err != nil {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           6 :                 return nil, err</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           6 :         }</span></span>
 <span id="L93"><span class="lineNum">      93</span>              : </span>
 <span id="L94"><span class="lineNum">      94</span>              :         // ポータル到達性検証: プレイヤー開始位置から全ポータルへ到達可能かチェック</span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">         162 :         pathFinder := NewPathFinder(&amp;chain.PlanData)</span></span>

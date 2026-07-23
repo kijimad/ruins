@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 16:09:12</td>
+            <td class="headerValue">2026-07-23 16:28:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,10 +98,10 @@
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // rollAttack は1回の攻撃をロールし、与えたダメージを返す。</span>
 <span id="L38"><span class="lineNum">      38</span>              : // 本体（activity/attack.go）と同じ計算順序: 基本ダメージ → クリティカル → 防御減算 → クランプ</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">       15734 : func rollAttack(attacker, defender CombatantStats, weapon WeaponStats, rng *rand.Rand) int {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">       15734 :         hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">       15734 :         roll := rng.IntN(formula.DiceMax) + 1</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">       17096 :         if roll &gt; hitRate {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">       15733 : func rollAttack(attacker, defender CombatantStats, weapon WeaponStats, rng *rand.Rand) int {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">       15733 :         hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">       15733 :         roll := rng.IntN(formula.DiceMax) + 1</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">       17095 :         if roll &gt; hitRate {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        1362 :                 return 0</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">        1362 :         }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
@@ -114,8 +114,8 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">         744 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">         744 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">       14372 :         finalDamage := max(baseDamage-defender.Defense, formula.MinDamage)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">       14372 :         return finalDamage</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">       14371 :         finalDamage := max(baseDamage-defender.Defense, formula.MinDamage)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">       14371 :         return finalDamage</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : }</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              : // SimulateBattle は1戦闘を模擬する</span>
@@ -180,14 +180,14 @@
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L119"><span class="lineNum">     119</span>              : </span>
 <span id="L120"><span class="lineNum">     120</span>              :         // Fireを先にチェックする。MeleeとFireの両方を持つ武器は遠距離として扱う</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">       20279 :         if spec.Fire != nil {</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">       20278 :         if spec.Fire != nil {</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">         356 :                 return WeaponStats{</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">         356 :                         Damage:   spec.Fire.Damage,</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">         356 :                         Accuracy: spec.Fire.Accuracy,</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">         356 :                         IsRanged: true,</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">         356 :                 }, nil</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">         356 :         }</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">       24748 :         if spec.Melee != nil {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">       24747 :         if spec.Melee != nil {</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">        5181 :                 return WeaponStats{</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">        5181 :                         Damage:   spec.Melee.Damage,</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">        5181 :                         Accuracy: spec.Melee.Accuracy,</span></span>
@@ -195,7 +195,7 @@
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">        5181 :                 }, nil</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">        5181 :         }</span></span>
 <span id="L135"><span class="lineNum">     135</span>              : </span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">       14386 :         return WeaponStats{}, fmt.Errorf(&quot;アイテム %q にMeleeもFireもありません&quot;, name)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">       14385 :         return WeaponStats{}, fmt.Errorf(&quot;アイテム %q にMeleeもFireもありません&quot;, name)</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : }</span>
 <span id="L138"><span class="lineNum">     138</span>              : </span>
 <span id="L139"><span class="lineNum">     139</span>              : // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す</span>
