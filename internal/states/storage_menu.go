@@ -25,10 +25,13 @@ import (
 
 const storageItemsPerPage = 20
 
-// 収納メニューのタブID。タブ定義・転送処理・ヘルプ表示で参照するため定数化し、取り違えを防ぐ
+// tabID は収納メニューのタブ識別子
+type tabID string
+
+// 収納メニューのタブID。タブ定義・転送処理・ヘルプ表示で参照する。定義型にして任意文字列の混入を防ぐ
 const (
-	tabIDRetrieve = "retrieve"
-	tabIDStore    = "store"
+	tabIDRetrieve tabID = "retrieve"
+	tabIDStore    tabID = "store"
 )
 
 // StorageMenuState は収納メニューのゲームステート
@@ -145,7 +148,7 @@ type storageProps struct {
 }
 
 type storageTabData struct {
-	ID    string
+	ID    tabID
 	Label string
 	Items []storageItemData
 }
