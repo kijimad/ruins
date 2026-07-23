@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewItemSpecMultipleOptionalComponents(t *testing.T) {
+func TestNewItemSpec_複数のオプション要素が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -57,7 +57,7 @@ ValueType = "PERCENTAGE"
 	assert.Equal(t, int64(200000), int64(spec.Weight.Milligram))
 }
 
-func TestNewItemSpecProvidesHealingNumeral(t *testing.T) {
+func TestNewItemSpec_回復が数値型で設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -81,7 +81,7 @@ ValueType = "NUMERAL"
 	assert.InDelta(t, 15.0, spec.ProvidesHealing.Amount, 0.0001)
 }
 
-func TestNewItemSpecAmmo(t *testing.T) {
+func TestNewItemSpec_弾薬が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -106,7 +106,7 @@ DamageBonus = -2
 	assert.Equal(t, 5, spec.Ammo.AccuracyBonus)
 }
 
-func TestNewItemSpecWearableWithEquipBonus(t *testing.T) {
+func TestNewItemSpec_装備品と装備ボーナスが設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -137,7 +137,7 @@ Dexterity = 1
 	assert.Equal(t, 1, spec.Wearable.EquipBonus.Dexterity)
 }
 
-func TestNewItemSpecBook(t *testing.T) {
+func TestNewItemSpec_本が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -166,7 +166,7 @@ TargetSkill = "exploration"
 	assert.Equal(t, 2, spec.Book.Skill.MaxLevel)
 }
 
-func TestNewItemSpecBookWithoutSkillIsError(t *testing.T) {
+func TestNewItemSpec_本にスキル未指定はエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -185,7 +185,7 @@ TotalEffort = 10
 	assert.Contains(t, err.Error(), "Skillの指定が必要です")
 }
 
-func TestNewItemSpecBookWithUnknownSkillIsError(t *testing.T) {
+func TestNewItemSpec_本に未定義スキルはエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -209,7 +209,7 @@ TargetSkill = "unknown_skill"
 	assert.Contains(t, err.Error(), "未定義のスキルID")
 }
 
-func TestNewItemSpecMaterial(t *testing.T) {
+func TestNewItemSpec_素材が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -226,7 +226,7 @@ Material = true
 	assert.NotNil(t, spec.Material)
 }
 
-func TestNewItemSpecInvalidWeightIsError(t *testing.T) {
+func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -243,7 +243,7 @@ Weight = "abc"
 	assert.Contains(t, err.Error(), "アイテム '不正な重量アイテム' の重量")
 }
 
-func TestNewRecipeSpec(t *testing.T) {
+func TestNewRecipeSpec_レシピが設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -286,7 +286,7 @@ Amount = 2
 	assert.Equal(t, 20, spec.Melee.Damage)
 }
 
-func TestNewRecipeSpecNotFound(t *testing.T) {
+func TestNewRecipeSpec_レシピ未存在はエラー(t *testing.T) {
 	t.Parallel()
 
 	raws, err := DecodeRaws("")
@@ -296,7 +296,7 @@ func TestNewRecipeSpecNotFound(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestNewRecipeSpecWithoutMatchingItemIsError(t *testing.T) {
+func TestNewRecipeSpec_対応アイテム無しはエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -315,7 +315,7 @@ Amount = 1
 	assert.Contains(t, err.Error(), "failed to generate item for recipe")
 }
 
-func TestNewMemberSpecInvalidFactionTypeIsError(t *testing.T) {
+func TestNewMemberSpec_不正な派閥はエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -338,7 +338,7 @@ Defense = 2
 	assert.Contains(t, err.Error(), "無効な派閥タイプ")
 }
 
-func TestNewMemberSpecInvalidCombatPolicyIsError(t *testing.T) {
+func TestNewMemberSpec_不正な戦闘方針はエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -361,7 +361,7 @@ Defense = 2
 	assert.Contains(t, err.Error(), "無効な戦闘ポリシー")
 }
 
-func TestNewMemberSpecLightSource(t *testing.T) {
+func TestNewMemberSpec_光源が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -396,7 +396,7 @@ A = 255
 	assert.Equal(t, 4, int(spec.LightSource.Radius))
 }
 
-func TestNewMemberSpecDialog(t *testing.T) {
+func TestNewMemberSpec_会話が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -425,7 +425,7 @@ MessageKey = "villager_greeting"
 	assert.Contains(t, spec.Interactable.Interactions, gc.InteractionTalk)
 }
 
-func TestGetProfession(t *testing.T) {
+func TestGetProfession_職業を取得する(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -444,7 +444,7 @@ Description = "野外活動に長けた生存者"
 	assert.Equal(t, "野外活動に長けた生存者", prof.Description)
 }
 
-func TestGetProfessionNotFound(t *testing.T) {
+func TestGetProfession_未存在はエラー(t *testing.T) {
 	t.Parallel()
 
 	raws, err := DecodeRaws("")
@@ -454,7 +454,7 @@ func TestGetProfessionNotFound(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestGetItemGroupNotFound(t *testing.T) {
+func TestGetItemGroup_未存在はエラー(t *testing.T) {
 	t.Parallel()
 
 	raws, err := DecodeRaws("")
@@ -465,7 +465,7 @@ func TestGetItemGroupNotFound(t *testing.T) {
 	assert.Contains(t, err.Error(), "アイテムグループが存在しない")
 }
 
-func TestGetPropNotFound(t *testing.T) {
+func TestGetProp_未存在はエラー(t *testing.T) {
 	t.Parallel()
 
 	raws, err := DecodeRaws("")
@@ -475,7 +475,7 @@ func TestGetPropNotFound(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestLoadFromFileNotFound(t *testing.T) {
+func TestLoadFromFile_存在しないパスはエラー(t *testing.T) {
 	t.Parallel()
 
 	_, err := LoadFromFile("metadata/entities/raw/存在しない.toml")
