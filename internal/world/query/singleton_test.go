@@ -64,8 +64,7 @@ func TestGetDungeon(t *testing.T) {
 	})
 }
 
-// TestIsOnOverworld は現在地判定を検証する。共存方式では遺跡滞在中も SeamlessBand は Active の
-// まま残るため、Active を場所判定の代理にしてはいけない。現ステージで判定することを固定する。
+// TestIsOnOverworld は現在地判定を検証する。
 func TestIsOnOverworld(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
