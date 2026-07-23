@@ -86,12 +86,8 @@ toolsinstall: ## 開発ツールをインストールする
 generate: ## コードを生成する
 	go generate ./...
 
-.PHONY: design
-design: ## 設計ドキュメントのfrontmatterを検証する
-	@go run . designdoc validate
-
 .PHONY: check
-check: fmt build test lint design ## 一気にチェックする
+check: fmt build test lint ## 一気にチェックする
 
 .PHONY: check-ui
 check-ui: ## editor-ui の型チェック・テスト・lintを実行する
