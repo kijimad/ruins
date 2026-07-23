@@ -19,7 +19,7 @@ func TestLoadDir(t *testing.T) {
 	write("20260102_2.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# B\n")
 	write("20260101_1.md", "---\nstatus: done\ntags: [ecs]\nauto: mechanical\n---\n\n# A\n")
 	write("tmpl.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# {タイトル}\n") // 雛形は除外
-	write("20260103_3.drawio.svg", "<svg/>")                                                     // .md 以外は除外
+	write("20260103_3.drawio.svg", "<svg/>")                                                  // .md 以外は除外
 
 	docs, err := LoadDir(dir)
 	require.NoError(t, err)
