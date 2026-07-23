@@ -71,19 +71,24 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 	err = manager.LoadWorld(newWorld, "empty_slot")
 	require.NoError(t, err)
 
-	// シングルトンと現ステージのメタ以外のゲームエンティティは存在しない。
-	// StageField はステージのフィールド寸法を持つ基盤エンティティで、最小の world にも1つ含まれる
-	entityCount := 0
+	// 空スロットをロードしても、基盤エンティティ以外は湧かないことを確かめる。
+	// 丸ごと保存方式でも、ゲーム内容がゼロなら復元後もゼロという不変条件。
+	//
+	// 基盤エンティティは2種。全シングルトン成分を載せた singleton が1個と、現ステージの寸法を
+	// 持つ StageField が1個。どちらも world 初期化とロードが必ず作るので、数えずに除外する。
+	// Filter0 は成分を問わず全エンティティを反復する。除外して残るのがゲーム内容で、空セーブなら0。
+	gameEntityCount := 0
 	singleton := newWorld.Resources.SingletonEntity
-	entityQuery := ecs.NewFilter0(newWorld.ECS).Query()
-	for entityQuery.Next() {
-		entity := entityQuery.Entity()
-		if entity != singleton && !newWorld.Components.StageField.Has(entity) {
-			entityCount++
+	allEntities := ecs.NewFilter0(newWorld.ECS).Query()
+	for allEntities.Next() {
+		entity := allEntities.Entity()
+		isInfra := entity == singleton || newWorld.Components.StageField.Has(entity)
+		if !isInfra {
+			gameEntityCount++
 		}
 	}
 
-	assert.Equal(t, 0, entityCount)
+	assert.Equal(t, 0, gameEntityCount, "空セーブのロードでゲーム内容は湧かない")
 }
 
 func TestValidJSONButNoChecksum(t *testing.T) {
