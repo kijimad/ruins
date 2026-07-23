@@ -84,10 +84,10 @@ func TestFrostZoneModifier(t *testing.T) {
 		sb.Front.Active = false
 		sb.Front.EastAbsX = 30
 		sb.Front.ColdWidth = 20
-		assert.Equal(t, 0, frostZoneModifier(world, 20), "通常ダンジョンでは前線無効")
+		assert.Equal(t, 0, frostZoneModifier(world, 20), "前線が非Activeなら寒さは乗らない")
 	})
 
-	t.Run("遺跡内では前線がActiveでも無効", func(t *testing.T) {
+	t.Run("前線はオーバーワールドに属し、Activeでも別ステージの遺跡には及ばない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// 帯・前線はオーバーワールドの StageField に持たせる。遺跡へ移ると帯データは現ステージから外れる。
@@ -99,7 +99,7 @@ func TestFrostZoneModifier(t *testing.T) {
 		sb.Front.ColdWidth = 20
 		sb.Front.EastAbsX = 30 // ゾーン内座標でも
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
-		assert.Equal(t, 0, frostZoneModifier(world, 20), "遺跡内では寒さが漏れない")
+		assert.Equal(t, 0, frostZoneModifier(world, 20), "前線はオーバーワールドに留まり別ステージの遺跡へは及ばない")
 	})
 }
 
