@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewItemSpecOptionalComponents(t *testing.T) {
+func TestNewItemSpecMultipleOptionalComponents(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -240,7 +240,7 @@ Weight = "abc"
 
 	_, err = NewItemSpec(raws, "不正な重量アイテム")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "重量")
+	assert.Contains(t, err.Error(), "アイテム '不正な重量アイテム' の重量")
 }
 
 func TestNewRecipeSpec(t *testing.T) {
@@ -439,7 +439,9 @@ Description = "野外活動に長けた生存者"
 
 	prof, err := GetProfession(raws, "hunter")
 	require.NoError(t, err)
+	assert.Equal(t, "hunter", prof.Id)
 	assert.Equal(t, "猟師", prof.Name)
+	assert.Equal(t, "野外活動に長けた生存者", prof.Description)
 }
 
 func TestGetProfessionNotFound(t *testing.T) {
