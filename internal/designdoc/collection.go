@@ -100,9 +100,7 @@ func Validate(docs []*Document) []Problem {
 				add(doc.Path, SeverityWarn, fmt.Sprintf("未知のタグ %q。KnownTags を確認する", tag))
 			}
 		}
-		if doc.Front.Status == StatusDone && doc.OpenTasks > 0 {
-			add(doc.Path, SeverityWarn, fmt.Sprintf("status=done だが未完タスクが %d 件ある", doc.OpenTasks))
-		}
+		// status は人が所有する権威とみなす。done でも descope した未完タスクが残ることは正常なので警告しない。
 		if doc.Front.Status == StatusInProgress && !doc.HasProgress {
 			add(doc.Path, SeverityWarn, "status=in-progress だが進捗セクションがない")
 		}

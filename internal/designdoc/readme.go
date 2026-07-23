@@ -2,6 +2,7 @@ package designdoc
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -28,22 +29,45 @@ func RenderStatusSection(docs []*Document) string {
 	}
 
 	b.WriteString("\n### 進行中\n\n")
-	b.WriteString("| ドキュメント | 進捗 | tags |\n|---|---|---|\n")
+	b.WriteString("| No. | ドキュメント | 進捗 | tags |\n|---|---|---|---|\n")
 	found := false
 	for _, d := range docs {
 		if d.Front.Status != StatusInProgress {
 			continue
 		}
 		found = true
-		progress := "-"
-		if d.HasProgress {
-			progress = fmt.Sprintf("%d/%d", d.DoneTasks, d.DoneTasks+d.OpenTasks)
-		}
-		fmt.Fprintf(&b, "| %s | %s | %s |\n", d.Title, progress, strings.Join(d.Front.Tags, ", "))
+		fmt.Fprintf(&b, "| %s | %s | %s | %s |\n",
+			numberCell(d), d.Title, progressCell(d), strings.Join(d.Front.Tags, ", "))
 	}
 	if !found {
-		b.WriteString("| 進行中のドキュメントなし |  |  |\n")
+		b.WriteString("| | 進行中のドキュメントなし | | |\n")
 	}
 
 	return b.String()
+}
+
+// numberCell はドキュメント番号のセルを返す。番号があればファイルへのリンクにする。
+func numberCell(d *Document) string {
+	if d.Number == 0 {
+		return "-"
+	}
+	if d.Path == "" {
+		return strconv.Itoa(d.Number)
+	}
+
+	return fmt.Sprintf("[%d](%s)", d.Number, d.Path)
+}
+
+// progressCell は進捗のセルを返す。分母は done+open で、見送りは分母から外して別に添える。
+func progressCell(d *Document) string {
+	if !d.HasProgress {
+		return "-"
+	}
+
+	s := fmt.Sprintf("%d/%d", d.DoneTasks, d.DoneTasks+d.OpenTasks)
+	if d.SkippedTasks > 0 {
+		s += fmt.Sprintf("（見送り%d）", d.SkippedTasks)
+	}
+
+	return s
 }

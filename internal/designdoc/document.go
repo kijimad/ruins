@@ -92,6 +92,8 @@ type Frontmatter struct {
 type Document struct {
 	// Path は docs/design からの、あるいは呼び出し側が渡したファイルパス。
 	Path string
+	// Number は docs/design/YYYYMMDD_NN.md の NN。ドキュメントの連番。取得できなければ 0。
+	Number int
 	// Title は本文冒頭の `# ` 見出し。無ければ空。
 	Title string
 	// Front は解析した frontmatter。HasFront が false のときはゼロ値。
@@ -100,10 +102,12 @@ type Document struct {
 	HasFront bool
 	// HasProgress は `## 進捗` セクションを持つかどうか。
 	HasProgress bool
-	// OpenTasks は進捗の未完タスク数。
+	// OpenTasks は進捗の未完タスク数。`- [ ]`。
 	OpenTasks int
-	// DoneTasks は進捗の完了タスク数。
+	// DoneTasks は進捗の完了タスク数。`- [x]`。
 	DoneTasks int
+	// SkippedTasks は意図的に着手しないタスク数。`- [~]`。open にも done にも数えない。
+	SkippedTasks int
 	// Body は frontmatter を除いた本文。
 	Body string
 }

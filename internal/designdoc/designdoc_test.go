@@ -120,12 +120,25 @@ func TestValidate(t *testing.T) {
 	assert.Equal(t, SeverityError, findProblem(t, problems, "bad-status.md").Severity)
 	assert.Equal(t, SeverityError, findProblem(t, problems, "bad-auto.md").Severity)
 	assert.Equal(t, SeverityWarn, findProblem(t, problems, "unknown-tag.md").Severity)
-	assert.Equal(t, SeverityWarn, findProblem(t, problems, "done-open.md").Severity)
 
-	// ok.md は問題を出さない。
+	// status は人が所有するため、done でも未完タスクが残ることは問題にしない。
 	for _, p := range problems {
+		assert.NotEqual(t, "done-open.md", p.Path)
 		assert.NotEqual(t, "ok.md", p.Path)
 	}
+}
+
+func TestParse_NumberAndSkip(t *testing.T) {
+	t.Parallel()
+
+	content := "# t\n\n## 進捗\n\n- [x] 済\n- [ ] 未\n- [~] 見送り\n"
+	doc, err := Parse("docs/design/20260715_58.md", content)
+	require.NoError(t, err)
+
+	assert.Equal(t, 58, doc.Number)
+	assert.Equal(t, 1, doc.DoneTasks)
+	assert.Equal(t, 1, doc.OpenTasks)
+	assert.Equal(t, 1, doc.SkippedTasks)
 }
 
 func TestStatusIsOpen(t *testing.T) {

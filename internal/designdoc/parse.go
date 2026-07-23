@@ -3,6 +3,7 @@ package designdoc
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -13,10 +14,13 @@ const fence = "---"
 
 var (
 	reTitle           = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
+	reDocNumber       = regexp.MustCompile(`_(\d+)\.md$`)
 	reProgressHeading = regexp.MustCompile(`(?m)^##\s+進捗\s*$`)
 	reAnyHeading      = regexp.MustCompile(`(?m)^##\s`)
 	reOpenTask        = regexp.MustCompile(`(?m)^- \[ \]`)
 	reDoneTask        = regexp.MustCompile(`(?m)^- \[x\]`)
+	// reSkipTask は「意図的に着手しない」タスク。不採用・見送りを表す。open にも done にも数えない。
+	reSkipTask = regexp.MustCompile(`(?m)^- \[~\]`)
 )
 
 // Parse は設計ドキュメントの内容を解析する。path は診断メッセージに使うだけで読み込みはしない。
@@ -33,6 +37,12 @@ func Parse(path string, content string) (*Document, error) {
 
 	if m := reTitle.FindStringSubmatch(body); m != nil {
 		doc.Title = m[1]
+	}
+	if m := reDocNumber.FindStringSubmatch(path); m != nil {
+		// 抽出済みの数字部分なので Atoi は失敗しない。念のため失敗時は 0 のままにする。
+		if n, convErr := strconv.Atoi(m[1]); convErr == nil {
+			doc.Number = n
+		}
 	}
 	countProgress(doc)
 
@@ -80,6 +90,7 @@ func countProgress(doc *Document) {
 
 	doc.OpenTasks = len(reOpenTask.FindAllString(section, -1))
 	doc.DoneTasks = len(reDoneTask.FindAllString(section, -1))
+	doc.SkippedTasks = len(reSkipTask.FindAllString(section, -1))
 }
 
 // InferStatus は進捗チェックボックスから status を決定的に導出する。
