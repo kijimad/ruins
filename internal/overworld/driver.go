@@ -55,10 +55,8 @@ func NewDriver(planner mapplanner.PlannerType, kind *dungeon.OverworldDefinition
 func (dr *Driver) Start(world w.World) error {
 	d := query.GetDungeon(world)
 
-	// 視界の強制再計算を促す。VisionSystem は現ステージが変わらないとキャッシュを無効化しない。
-	// オーバーワールドは常に同一ステージでフロア変化が起きず、ロード復元では serde が
-	// 空にした VisibleTiles が stale なまま再計算されず真っ暗になる。ここで一度だけ強制する。
-	query.GetVisionState(world).NeedsForceUpdate = true
+	// 視界の強制再計算は呼び出し側 DungeonState.OnStart が開始時にまとめて立てる。
+	// オーバーワールドと通常ダンジョンで同じ扱いにするため、ここでは触らない。
 
 	// 帯データは現ステージの StageField が持つ。ロード復元なら serde で戻っており、新規開始なら未生成で nil。
 	sb := query.GetSeamlessBand(world)

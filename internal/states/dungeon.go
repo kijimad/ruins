@@ -90,6 +90,13 @@ func (st *DungeonState) OnStart(world w.World) error {
 		st.baseImage.Fill(theme.ScreenBackground)
 	}
 
+	// 開始時に視界を一度だけ強制再計算させる。VisionSystem は現ステージが変わらないと
+	// キャッシュを無効化しないが、オーバーワールドは常に同一ステージ、通常ダンジョンの
+	// ロード復帰も保存前と同じ現ステージで、いずれも自動再計算が働かない。加えて serde は
+	// VisionState を空で復元するため、放置すると空の VisibleTiles のまま真っ暗になる。
+	// オーバーワールドと通常ダンジョンで同じ扱いにするため、分岐前のここで立てる。
+	query.GetVisionState(world).NeedsForceUpdate = true
+
 	// Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは
 	// overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする
 	if st.isSeamless() {
@@ -126,13 +133,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 		// フロア移動時に探索済みマップをリセットし、現ステージを確定する
 		stage.ResetExploredTiles(world)
 		query.GetDungeon(world).CurrentStage = key
-	}
-
-	if st.Resume {
-		// ロード復元では serde が VisionState を空にする。現ステージは保存前と同じなので
-		// VisionSystem のフロア変化検知が働かず、空の VisibleTiles が再計算されないまま真っ暗になる。
-		// オーバーワールド復元の Driver.Start と同じく、ここで一度だけ強制再計算させる。
-		query.GetVisionState(world).NeedsForceUpdate = true
 	}
 
 	// 前フロア・復元前のSpatialIndexが残っている可能性があるため無効化して作り直す。
