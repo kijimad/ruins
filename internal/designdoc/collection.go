@@ -15,21 +15,36 @@ const DefaultDir = "docs/design"
 // templateFile は雛形。実ドキュメントではないので読み込み対象から除外する。
 const templateFile = "tmpl.md"
 
-// LoadDir は dir 直下の設計ドキュメントを解析して返す。tmpl.md と .md 以外は除外し、ファイル名昇順で並べる。
-func LoadDir(dir string) ([]*Document, error) {
+// listMarkdownFiles は dir 直下の設計ドキュメントのパスをファイル名昇順で返す。
+// tmpl.md と .md 以外は除外する。LoadDir と BackfillDir が同じ絞り込みを共有する。
+func listMarkdownFiles(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("%s の読み込みに失敗: %w", dir, err)
 	}
 
-	var docs []*Document
+	var paths []string
 	for _, e := range entries {
 		name := e.Name()
 		if e.IsDir() || filepath.Ext(name) != ".md" || name == templateFile {
 			continue
 		}
+		paths = append(paths, filepath.Join(dir, name))
+	}
+	sort.Strings(paths)
 
-		path := filepath.Join(dir, name)
+	return paths, nil
+}
+
+// LoadDir は dir 直下の設計ドキュメントを解析して返す。tmpl.md と .md 以外は除外し、ファイル名昇順で並べる。
+func LoadDir(dir string) ([]*Document, error) {
+	paths, err := listMarkdownFiles(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var docs []*Document
+	for _, path := range paths {
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return nil, fmt.Errorf("%s の読み込みに失敗: %w", path, err)
@@ -41,8 +56,6 @@ func LoadDir(dir string) ([]*Document, error) {
 		}
 		docs = append(docs, doc)
 	}
-
-	sort.Slice(docs, func(i, j int) bool { return docs[i].Path < docs[j].Path })
 
 	return docs, nil
 }
@@ -93,19 +106,13 @@ func Validate(docs []*Document) []Problem {
 // BackfillDir は dir 直下の frontmatter を欠くドキュメントに既定値を付与し、変更したファイルのパスを返す。
 // 冪等なので、既に付与済みのファイルには触れない。
 func BackfillDir(dir string) ([]string, error) {
-	entries, err := os.ReadDir(dir)
+	paths, err := listMarkdownFiles(dir)
 	if err != nil {
-		return nil, fmt.Errorf("%s の読み込みに失敗: %w", dir, err)
+		return nil, err
 	}
 
 	var changed []string
-	for _, e := range entries {
-		name := e.Name()
-		if e.IsDir() || filepath.Ext(name) != ".md" || name == templateFile {
-			continue
-		}
-
-		path := filepath.Join(dir, name)
+	for _, path := range paths {
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return nil, fmt.Errorf("%s の読み込みに失敗: %w", path, err)
@@ -119,14 +126,13 @@ func BackfillDir(dir string) ([]string, error) {
 			continue
 		}
 
-		if err := os.WriteFile(path, []byte(result), 0644); err != nil {
+		if err := os.WriteFile(path, []byte(result), 0o644); err != nil {
 			return nil, fmt.Errorf("%s の書き込みに失敗: %w", path, err)
 		}
 		changed = append(changed, path)
 	}
 
-	sort.Strings(changed)
-
+	// paths は既に昇順のため changed も昇順になる。
 	return changed, nil
 }
 

@@ -37,13 +37,25 @@ func RenderStatusSection(docs []*Document) string {
 		}
 		found = true
 		fmt.Fprintf(&b, "| %s | %s | %s | %s |\n",
-			numberCell(d), d.Title, progressCell(d), strings.Join(d.Front.Tags, ", "))
+			numberCell(d), titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))
 	}
 	if !found {
 		b.WriteString("| | 進行中のドキュメントなし | | |\n")
 	}
 
 	return b.String()
+}
+
+// titleCell はタイトルのセルを返す。タイトルが空なら空セルにせずパスで代替し、追跡できるようにする。
+func titleCell(d *Document) string {
+	if d.Title != "" {
+		return d.Title
+	}
+	if d.Path != "" {
+		return d.Path
+	}
+
+	return "(タイトルなし)"
 }
 
 // numberCell はドキュメント番号のセルを返す。番号があればファイルへのリンクにする。

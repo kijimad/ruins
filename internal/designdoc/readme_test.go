@@ -43,6 +43,15 @@ func TestRenderStatusSection_NoInProgress(t *testing.T) {
 	assert.Contains(t, out, "進行中のドキュメントなし")
 }
 
+func TestTitleCell(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "タイトル", titleCell(&Document{Title: "タイトル", Path: "docs/design/x.md"}))
+	// タイトルが空ならパスで代替する。
+	assert.Equal(t, "docs/design/x.md", titleCell(&Document{Title: "", Path: "docs/design/x.md"}))
+	assert.Equal(t, "(タイトルなし)", titleCell(&Document{Title: "", Path: ""}))
+}
+
 func TestNumberCell(t *testing.T) {
 	t.Parallel()
 
