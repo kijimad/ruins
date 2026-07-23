@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-23 12:17:43</td>
+            <td class="headerValue">2026-07-23 15:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,15 +73,17 @@
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
 <span id="L13"><span class="lineNum">      13</span>              : //go:generate go run . gencomponents</span>
-<span id="L14"><span class="lineNum">      14</span>              : //go:generate go run . genreadme</span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC tlaBgUNC">           0 : func main() {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         app := cmd.NewMainApp()</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         err := cmd.RunMainApp(app, os.Args...)</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 log.Fatal(err)</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L22"><span class="lineNum">      22</span>              : }</span>
+<span id="L14"><span class="lineNum">      14</span>              : //go:generate go run . designdoc gen</span>
+<span id="L15"><span class="lineNum">      15</span>              : //go:generate go run . genreadme</span>
+<span id="L16"><span class="lineNum">      16</span>              : //go:generate go run . designdoc validate</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 : func main() {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         app := cmd.NewMainApp()</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         err := cmd.RunMainApp(app, os.Args...)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                 log.Fatal(err)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : }</span>
         </pre>
               </td>
             </tr>

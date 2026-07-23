@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - cmd/internal/cmd/designdoc.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">cmd/internal/cmd</a> - designdoc.go<span style="font-size: 80%;"> (source / <a href="designdoc.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-23 15:01:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package cmd</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;context&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;errors&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;fmt&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;os&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;slices&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;strings&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;text/tabwriter&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/designdoc&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/urfave/cli/v3&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // errValidation は frontmatter 検証で問題が見つかったことを表す。</span>
+<span id="L17"><span class="lineNum">      17</span>              : var errValidation = errors.New(&quot;設計ドキュメントの検証に失敗した&quot;)</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : // CmdDesignDoc は設計ドキュメントの frontmatter を扱うサブコマンド</span>
+<span id="L20"><span class="lineNum">      20</span>              : var CmdDesignDoc = &amp;cli.Command{</span>
+<span id="L21"><span class="lineNum">      21</span>              :         Name:        &quot;designdoc&quot;,</span>
+<span id="L22"><span class="lineNum">      22</span>              :         Usage:       &quot;designdoc [gen|validate|list]&quot;,</span>
+<span id="L23"><span class="lineNum">      23</span>              :         Description: &quot;docs/design の frontmatter を生成・検証・一覧する&quot;,</span>
+<span id="L24"><span class="lineNum">      24</span>              :         Commands: []*cli.Command{</span>
+<span id="L25"><span class="lineNum">      25</span>              :                 {</span>
+<span id="L26"><span class="lineNum">      26</span>              :                         Name:   &quot;gen&quot;,</span>
+<span id="L27"><span class="lineNum">      27</span>              :                         Usage:  &quot;frontmatter を欠くドキュメントに既定値を決定的に付与する&quot;,</span>
+<span id="L28"><span class="lineNum">      28</span>              :                         Action: runDesignDocGen,</span>
+<span id="L29"><span class="lineNum">      29</span>              :                 },</span>
+<span id="L30"><span class="lineNum">      30</span>              :                 {</span>
+<span id="L31"><span class="lineNum">      31</span>              :                         Name:   &quot;validate&quot;,</span>
+<span id="L32"><span class="lineNum">      32</span>              :                         Usage:  &quot;frontmatter の有無と妥当性、進捗との整合を検証する&quot;,</span>
+<span id="L33"><span class="lineNum">      33</span>              :                         Action: runDesignDocValidate,</span>
+<span id="L34"><span class="lineNum">      34</span>              :                 },</span>
+<span id="L35"><span class="lineNum">      35</span>              :                 {</span>
+<span id="L36"><span class="lineNum">      36</span>              :                         Name:  &quot;list&quot;,</span>
+<span id="L37"><span class="lineNum">      37</span>              :                         Usage: &quot;frontmatter で絞り込んで一覧する。validate を通した状態で使う前提。--open は不正 status を閉じた扱いで除外する&quot;,</span>
+<span id="L38"><span class="lineNum">      38</span>              :                         Flags: []cli.Flag{</span>
+<span id="L39"><span class="lineNum">      39</span>              :                                 &amp;cli.StringFlag{Name: &quot;status&quot;, Usage: &quot;指定 status のみ&quot;},</span>
+<span id="L40"><span class="lineNum">      40</span>              :                                 &amp;cli.StringFlag{Name: &quot;auto&quot;, Usage: &quot;指定 auto のみ&quot;},</span>
+<span id="L41"><span class="lineNum">      41</span>              :                                 &amp;cli.StringFlag{Name: &quot;tag&quot;, Usage: &quot;指定タグを含むもののみ&quot;},</span>
+<span id="L42"><span class="lineNum">      42</span>              :                                 &amp;cli.BoolFlag{Name: &quot;open&quot;, Usage: &quot;着手対象、すなわち open な status のみ&quot;},</span>
+<span id="L43"><span class="lineNum">      43</span>              :                         },</span>
+<span id="L44"><span class="lineNum">      44</span>              :                         Action: runDesignDocList,</span>
+<span id="L45"><span class="lineNum">      45</span>              :                 },</span>
+<span id="L46"><span class="lineNum">      46</span>              :         },</span>
+<span id="L47"><span class="lineNum">      47</span>              : }</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 : func runDesignDocValidate(_ context.Context, _ *cli.Command) error {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         docs, err := designdoc.LoadDir(designdoc.DefaultDir)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         problems := designdoc.Validate(docs)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         for _, p := range problems {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 fmt.Printf(&quot;%s: %s\n&quot;, p.Path, p.Message)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         if len(problems) &gt; 0 {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 return errValidation</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;OK: %d 件のドキュメントを検証した\n&quot;, len(docs))</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 : func runDesignDocGen(_ context.Context, _ *cli.Command) error {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         changed, err := designdoc.BackfillDir(designdoc.DefaultDir)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : </span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         for _, path := range changed {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 fmt.Printf(&quot;付与: %s\n&quot;, path)</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;%d 件に frontmatter を付与した\n&quot;, len(changed))</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 : func runDesignDocList(_ context.Context, cmd *cli.Command) error {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         docs, err := designdoc.LoadDir(designdoc.DefaultDir)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : </span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         status := cmd.String(&quot;status&quot;)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         auto := cmd.String(&quot;auto&quot;)</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         tag := cmd.String(&quot;tag&quot;)</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         openOnly := cmd.Bool(&quot;open&quot;)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         _, _ = fmt.Fprintln(w, &quot;PATH\tSTATUS\tAUTO\tPROGRESS\tTAGS&quot;)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         for _, doc := range docs {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 f := doc.Front</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 if status != &quot;&quot; &amp;&amp; string(f.Status) != status {</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L99"><span class="lineNum">      99</span>              :                 }</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :                 if auto != &quot;&quot; &amp;&amp; string(f.Auto) != auto {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L102"><span class="lineNum">     102</span>              :                 }</span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :                 if tag != &quot;&quot; &amp;&amp; !slices.Contains(f.Tags, tag) {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L105"><span class="lineNum">     105</span>              :                 }</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 if openOnly &amp;&amp; !f.Status.IsOpen() {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L108"><span class="lineNum">     108</span>              :                 }</span>
+<span id="L109"><span class="lineNum">     109</span>              : </span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                 progress := &quot;-&quot;</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :                 if doc.HasProgress {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                         progress = fmt.Sprintf(&quot;%d/%d&quot;, doc.DoneTasks, doc.DoneTasks+doc.OpenTasks)</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 _, _ = fmt.Fprintf(w, &quot;%s\t%s\t%s\t%s\t%s\n&quot;, doc.Path, f.Status, f.Auto, progress, strings.Join(f.Tags, &quot;,&quot;))</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :         }</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         return w.Flush()</span></span>
+<span id="L118"><span class="lineNum">     118</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
