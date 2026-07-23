@@ -36,10 +36,10 @@ type Driver struct {
 	planner mapplanner.PlannerType
 	// definition は帯形状の供給元。新規開始で使い、ロード復元では帯形状を SeamlessBand から得るので不要
 	definition *dungeon.OverworldDefinition
-	params   *NewGameParams // 新規開始のプレイ固有パラメータ。ロード復元では nil
-	band     *worldstream.Band
-	gen      worldstream.ChunkGen
-	frontCfg worldstream.FrontConfig
+	params     *NewGameParams // 新規開始のプレイ固有パラメータ。ロード復元では nil
+	band       *worldstream.Band
+	gen        worldstream.ChunkGen
+	frontCfg   worldstream.FrontConfig
 }
 
 // NewDriver は帯ドライバを構成する。params が非 nil なら新規開始、nil ならロード復元。
