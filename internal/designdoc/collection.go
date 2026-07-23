@@ -47,81 +47,47 @@ func LoadDir(dir string) ([]*Document, error) {
 	return docs, nil
 }
 
-// Severity は検証結果の深刻度を表す。
-type Severity int
-
-const (
-	// SeverityError は構造上の不正。CI を落とす。
-	SeverityError Severity = iota
-	// SeverityWarn は表記ゆれや整合の崩れ。表示するが CI は落とさない。
-	SeverityWarn
-)
-
-// String は深刻度のラベルを返す。
-func (s Severity) String() string {
-	switch s {
-	case SeverityError:
-		return "ERROR"
-	case SeverityWarn:
-		return "WARN"
-	}
-
-	return "UNKNOWN"
-}
-
-// Problem は検証で見つかった1件の問題を表す。
+// Problem は検証で見つかった1件の問題を表す。深刻度は設けず、1件でもあれば CI を落とす。
 type Problem struct {
-	Path     string
-	Severity Severity
-	Message  string
+	Path    string
+	Message string
 }
 
 // Validate はドキュメント群の frontmatter を検証して問題の一覧を返す。
-// 構造の不正は Error、表記ゆれや status と進捗の食い違いは Warn とする。
+// 深刻度の区別はしない。1件でも返れば呼び出し側は失敗させる。
 func Validate(docs []*Document) []Problem {
 	var problems []Problem
-	add := func(path string, sev Severity, msg string) {
-		problems = append(problems, Problem{Path: path, Severity: sev, Message: msg})
+	add := func(path string, msg string) {
+		problems = append(problems, Problem{Path: path, Message: msg})
 	}
 
 	for _, doc := range docs {
 		if !doc.HasFront {
-			add(doc.Path, SeverityError, "frontmatter がない。backfill で付与する")
+			add(doc.Path, "frontmatter がない。gen で付与する")
 			continue
 		}
 		if !doc.Front.Status.Valid() {
-			add(doc.Path, SeverityError, fmt.Sprintf("status が不正: %q", doc.Front.Status))
+			add(doc.Path, fmt.Sprintf("status が不正: %q", doc.Front.Status))
 		}
 		if !doc.Front.Auto.Valid() {
-			add(doc.Path, SeverityError, fmt.Sprintf("auto が不正: %q", doc.Front.Auto))
+			add(doc.Path, fmt.Sprintf("auto が不正: %q", doc.Front.Auto))
 		}
 		for _, tag := range doc.Front.Tags {
 			if !slices.Contains(KnownTags, tag) {
-				add(doc.Path, SeverityWarn, fmt.Sprintf("未知のタグ %q。KnownTags を確認する", tag))
+				add(doc.Path, fmt.Sprintf("未知のタグ %q。KnownTags を確認する", tag))
 			}
 		}
 		// done は「open な `- [ ]` がゼロ」を満たす不変条件。裏付けのない done を弾く。
 		// 着手しないと決めたタスクは `- [~]` にすれば open から外れ、done にできる。
 		if doc.Front.Status == StatusDone && doc.OpenTasks > 0 {
-			add(doc.Path, SeverityError, fmt.Sprintf("status=done だが未チェックのタスクが %d 件ある。完了するか `- [~]` にする", doc.OpenTasks))
+			add(doc.Path, fmt.Sprintf("status=done だが未チェックのタスクが %d 件ある。完了するか `- [~]` にする", doc.OpenTasks))
 		}
 		if doc.Front.Status == StatusInProgress && !doc.HasProgress {
-			add(doc.Path, SeverityWarn, "status=in-progress だが進捗セクションがない")
+			add(doc.Path, "status=in-progress だが進捗セクションがない")
 		}
 	}
 
 	return problems
-}
-
-// HasError は問題一覧に Error が含まれるかを返す。
-func HasError(problems []Problem) bool {
-	for _, p := range problems {
-		if p.Severity == SeverityError {
-			return true
-		}
-	}
-
-	return false
 }
 
 // BackfillDir は dir 直下の frontmatter を欠くドキュメントに既定値を付与し、変更したファイルのパスを返す。

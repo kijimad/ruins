@@ -54,10 +54,10 @@ func runDesignDocValidate(_ context.Context, _ *cli.Command) error {
 
 	problems := designdoc.Validate(docs)
 	for _, p := range problems {
-		fmt.Printf("%-5s %s: %s\n", p.Severity, p.Path, p.Message)
+		fmt.Printf("%s: %s\n", p.Path, p.Message)
 	}
 
-	if designdoc.HasError(problems) {
+	if len(problems) > 0 {
 		return errValidation
 	}
 	fmt.Printf("OK: %d 件のドキュメントを検証した\n", len(docs))

@@ -115,18 +115,16 @@ func TestValidate(t *testing.T) {
 	}
 	problems := Validate(docs)
 
-	assert.True(t, HasError(problems))
-	assert.Equal(t, SeverityError, findProblem(t, problems, "no-front.md").Severity)
-	assert.Equal(t, SeverityError, findProblem(t, problems, "bad-status.md").Severity)
-	assert.Equal(t, SeverityError, findProblem(t, problems, "bad-auto.md").Severity)
-	assert.Equal(t, SeverityWarn, findProblem(t, problems, "unknown-tag.md").Severity)
-	// done なのに未チェックが残るのは不変条件違反。Error で弾く。
-	assert.Equal(t, SeverityError, findProblem(t, problems, "done-open.md").Severity)
+	// 深刻度の区別なく、いずれも問題として検出する。
+	assert.True(t, hasProblem(problems, "no-front.md"))
+	assert.True(t, hasProblem(problems, "bad-status.md"))
+	assert.True(t, hasProblem(problems, "bad-auto.md"))
+	assert.True(t, hasProblem(problems, "unknown-tag.md"))
+	// done なのに未チェックが残るのは不変条件違反。
+	assert.True(t, hasProblem(problems, "done-open.md"))
 
 	// ok.md は問題を出さない。
-	for _, p := range problems {
-		assert.NotEqual(t, "ok.md", p.Path)
-	}
+	assert.False(t, hasProblem(problems, "ok.md"))
 }
 
 func TestParse_NumberAndSkip(t *testing.T) {
@@ -205,8 +203,7 @@ func TestValidate_InProgressWithoutProgress(t *testing.T) {
 		{Path: "inprog.md", HasFront: true, Front: Frontmatter{Status: StatusInProgress, Auto: AutoMechanical}, HasProgress: false},
 	}
 	problems := Validate(docs)
-	assert.False(t, HasError(problems))
-	assert.Equal(t, SeverityWarn, findProblem(t, problems, "inprog.md").Severity)
+	assert.True(t, hasProblem(problems, "inprog.md"))
 }
 
 func TestRender_RoundTrip(t *testing.T) {
@@ -222,15 +219,13 @@ func TestRender_RoundTrip(t *testing.T) {
 	assert.Equal(t, "# タイトル\n\n本文\n", doc.Body)
 }
 
-// findProblem は指定パスの最初の問題を返す。無ければテストを落とす。
-func findProblem(t *testing.T, problems []Problem, path string) Problem {
-	t.Helper()
+// hasProblem は指定パスの問題が一覧に含まれるかを返す。
+func hasProblem(problems []Problem, path string) bool {
 	for _, p := range problems {
 		if p.Path == path {
-			return p
+			return true
 		}
 	}
-	require.Failf(t, "問題が見つからない", "path=%s", path)
 
-	return Problem{}
+	return false
 }

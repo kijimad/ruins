@@ -97,18 +97,14 @@ func TestBackfillDir_MalformedDoc(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestSeverityString(t *testing.T) {
+func TestValidate_AllProblemsCounted(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, "ERROR", SeverityError.String())
-	assert.Equal(t, "WARN", SeverityWarn.String())
-	assert.Equal(t, "UNKNOWN", Severity(99).String())
-}
-
-func TestHasError(t *testing.T) {
-	t.Parallel()
-
-	assert.False(t, HasError(nil))
-	assert.False(t, HasError([]Problem{{Severity: SeverityWarn}}))
-	assert.True(t, HasError([]Problem{{Severity: SeverityWarn}, {Severity: SeverityError}}))
+	// 深刻度の区別なく、frontmatter 欠落も未知タグも同じく1件ずつ問題になる。
+	docs := []*Document{
+		{Path: "a.md", HasFront: false},
+		{Path: "b.md", HasFront: true, Front: Frontmatter{Status: StatusDraft, Auto: AutoMechanical, Tags: []string{"未知"}}},
+	}
+	problems := Validate(docs)
+	assert.Len(t, problems, 2)
 }

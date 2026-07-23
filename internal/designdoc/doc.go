@@ -22,7 +22,7 @@
 //
 // # done の不変条件
 //
-// status=done は「open な `- [ ]` がゼロ」であることを要求する。裏付けのない done は Validate が Error で弾く。
+// status=done は「open な `- [ ]` がゼロ」であることを要求する。裏付けのない done は Validate が弾く。
 // 着手しないと決めたタスクは `- [~]` にすれば open から外れ、done にできる。
 //
 // # 設計意図
