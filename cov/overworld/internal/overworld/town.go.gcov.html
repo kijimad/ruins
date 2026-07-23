@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/internal/overworld/town.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">overworld/internal/overworld</a> - town.go<span style="font-size: 80%;"> (source / <a href="town.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">63.6&nbsp;%</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">7</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/world/stage&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              : )</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : // townNPCs は街に配置する会話NPCの定義名と、街中心からの相対座標。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 会話 InteractionTalk で店(商人)・雇用(酒場の主人)・合成(怪しい科学者)を開く。</span>
+<span id="L15"><span class="lineNum">      15</span>              : // 機能は既存の「NPC会話→ダイアログ→メニュー」機構をそのまま使い、街を専用ステージから</span>
+<span id="L16"><span class="lineNum">      16</span>              : // オーバーワールドの地物へ移すことだけを行う。</span>
+<span id="L17"><span class="lineNum">      17</span>              : var townNPCs = []struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         name string</span>
+<span id="L19"><span class="lineNum">      19</span>              :         dx   consts.Tile</span>
+<span id="L20"><span class="lineNum">      20</span>              :         dy   consts.Tile</span>
+<span id="L21"><span class="lineNum">      21</span>              : }{</span>
+<span id="L22"><span class="lineNum">      22</span>              :         {&quot;商人&quot;, -2, -1},</span>
+<span id="L23"><span class="lineNum">      23</span>              :         {&quot;酒場の主人&quot;, -2, 1},</span>
+<span id="L24"><span class="lineNum">      24</span>              :         {&quot;怪しい科学者&quot;, -4, 0},</span>
+<span id="L25"><span class="lineNum">      25</span>              : }</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // townStorageProp は街に置く収納propの raw 名。中身のない倉庫としてプレイヤーが預けるのに使う。</span>
+<span id="L28"><span class="lineNum">      28</span>              : const townStorageProp = &quot;木箱&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // spawnTown はオーバーワールド開始チャンクに街を構成する。center を街の中心として、</span>
+<span id="L31"><span class="lineNum">      31</span>              : // 会話NPC(店・雇用・合成)と収納propを近傍へ決定的に配置し、オーバーワールド帯へ束縛する。</span>
+<span id="L32"><span class="lineNum">      32</span>              : //</span>
+<span id="L33"><span class="lineNum">      33</span>              : // 街はステージでなくオーバーワールドの地物なので、専用の State を持たず prop として常在する。</span>
+<span id="L34"><span class="lineNum">      34</span>              : // これで新規ゲームの開始点を「街を含むオーバーワールド」にでき、TownState への遷移が不要になる。</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           7 : func spawnTown(world w.World, center consts.Coord[consts.Tile]) error {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          28 :         for _, n := range townNPCs {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">          21 :                 pos := consts.Coord[consts.Tile]{X: center.X + n.dx, Y: center.Y + n.dy}</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          21 :                 if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.name); err != nil {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;街NPCの配置に失敗 (%s): %w&quot;, n.name, err)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :         }</span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              :         // 収納。中身のない倉庫として置き、相互作用 InteractionStorage で開ける</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           7 :         if _, err := lifecycle.SpawnProp(world, townStorageProp, center.X-4, center.Y-2); err != nil {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;街の収納の配置に失敗: %w&quot;, err)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              :         // 置いた街エンティティ(未束縛)をオーバーワールド帯へ束縛する。帯タイル・遺跡入口は</span>
+<span id="L49"><span class="lineNum">      49</span>              :         // 既に StageBound を持ち、プレイヤーは除外されるので、街の NPC/prop だけが束縛される。</span>
+<span id="L50"><span class="lineNum">      50</span>              :         // これで遺跡進入時に街も帯とともに退避され、戻ると復元される</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           7 :         stage.Bind(world, gc.NewOverworldStage())</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           7 :         return nil</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

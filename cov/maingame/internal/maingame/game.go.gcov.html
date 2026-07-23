@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">45.4&nbsp;%</td>
-            <td class="headerCovTableEntry">141</td>
-            <td class="headerCovTableEntry">64</td>
+            <td class="headerCovTableEntryLo">44.6&nbsp;%</td>
+            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntry">62</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,200 +74,195 @@
 <span id="L12"><span class="lineNum">      12</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/config&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/dungeon&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
-<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/loader&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/screeneffect&quot;</span>
-<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/states&quot;</span>
-<span id="L20"><span class="lineNum">      20</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
-<span id="L21"><span class="lineNum">      21</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/loader&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/screeneffect&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/states&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : )</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L24"><span class="lineNum">      24</span>              : )</span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // MainGame はebiten.Game interfaceを満たす</span>
-<span id="L27"><span class="lineNum">      27</span>              : type MainGame struct {</span>
-<span id="L28"><span class="lineNum">      28</span>              :         World          w.World</span>
-<span id="L29"><span class="lineNum">      29</span>              :         StateMachine   es.StateMachine[w.World]</span>
-<span id="L30"><span class="lineNum">      30</span>              :         screenPipeline *screeneffect.Pipeline</span>
-<span id="L31"><span class="lineNum">      31</span>              : }</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // NewMainGame はMainGameを初期化する</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 : func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         retroFilter, err := screeneffect.NewRetroFilter()</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;レトロフィルタの初期化に失敗: %w&quot;, err)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         return &amp;MainGame{</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 World:          world,</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 StateMachine:   stateMachine,</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 screenPipeline: screeneffect.NewPipeline(retroFilter),</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }, nil</span></span>
-<span id="L45"><span class="lineNum">      45</span>              : }</span>
-<span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span>              : // Layout は論理解像度を返す。スプライトが32x32固定のため論理解像度は固定とし、</span>
-<span id="L48"><span class="lineNum">      48</span>              : // ウィンドウサイズへの拡大縮小は Ebiten に任せる（ウィンドウは可変）。</span>
-<span id="L49"><span class="lineNum">      49</span>              : // interface method のためシグネチャは変更できない</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           2 : func (game *MainGame) Layout(_, _ int) (int, int) {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         return consts.GameWidth, consts.GameHeight</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           2 : }</span></span>
-<span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              : // Update はゲームの更新処理を行う</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           4 : func (game *MainGame) Update() error {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           4 :         // デバッグ表示をトグルする</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           4 :         if ebiten.IsKeyPressed(ebiten.KeyShift) &amp;&amp; inpututil.IsKeyJustPressed(ebiten.KeyTab) {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                 // パフォーマンスモニターは攻略に関係ないのでトグルできてよい</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 game.World.Config.ShowMonitor = !game.World.Config.ShowMonitor</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L61"><span class="lineNum">      61</span>              : </span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           4 :         if err := game.StateMachine.Update(game.World); err != nil {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span>              :         // ステートが空になったらゲームを終了</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           4 :         if game.StateMachine.GetStateCount() == 0 {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ebiten.Termination</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : // MainGame はebiten.Game interfaceを満たす</span>
+<span id="L24"><span class="lineNum">      24</span>              : type MainGame struct {</span>
+<span id="L25"><span class="lineNum">      25</span>              :         World          w.World</span>
+<span id="L26"><span class="lineNum">      26</span>              :         StateMachine   es.StateMachine[w.World]</span>
+<span id="L27"><span class="lineNum">      27</span>              :         screenPipeline *screeneffect.Pipeline</span>
+<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // NewMainGame はMainGameを初期化する</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 : func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         retroFilter, err := screeneffect.NewRetroFilter()</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;レトロフィルタの初期化に失敗: %w&quot;, err)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         return &amp;MainGame{</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 World:          world,</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 StateMachine:   stateMachine,</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 screenPipeline: screeneffect.NewPipeline(retroFilter),</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : }</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // Layout は論理解像度を返す。スプライトが32x32固定のため論理解像度は固定とし、</span>
+<span id="L45"><span class="lineNum">      45</span>              : // ウィンドウサイズへの拡大縮小は Ebiten に任せる（ウィンドウは可変）。</span>
+<span id="L46"><span class="lineNum">      46</span>              : // interface method のためシグネチャは変更できない</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC tlaBgGNC">           2 : func (game *MainGame) Layout(_, _ int) (int, int) {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         return consts.GameWidth, consts.GameHeight</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 : }</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : // Update はゲームの更新処理を行う</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           4 : func (game *MainGame) Update() error {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           4 :         // デバッグ表示をトグルする</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           4 :         if ebiten.IsKeyPressed(ebiten.KeyShift) &amp;&amp; inpututil.IsKeyJustPressed(ebiten.KeyTab) {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                 // パフォーマンスモニターは攻略に関係ないのでトグルできてよい</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                 game.World.Config.ShowMonitor = !game.World.Config.ShowMonitor</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : </span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">           4 :         if err := game.StateMachine.Update(game.World); err != nil {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              :         // ステートが空になったらゲームを終了</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC tlaBgGNC">           4 :         if game.StateMachine.GetStateCount() == 0 {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ebiten.Termination</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           4 :         return nil</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : }</span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">           4 :         return nil</span></span>
-<span id="L72"><span class="lineNum">      72</span>              : }</span>
-<span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span>              : // Draw はゲームの描画処理を行う</span>
-<span id="L75"><span class="lineNum">      75</span>              : // interface method だからシグネチャは変更できない</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : func (game *MainGame) Draw(screen *ebiten.Image) {</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         bounds := screen.Bounds()</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         offscreen := game.screenPipeline.Begin(bounds.Dx(), bounds.Dy())</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         // パイプラインが未設定の場合は直接screenに描画する</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         target := offscreen</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           2 :         if target == nil {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 target = screen</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span>              :         // stateを描画し、必要に応じてブラーオーバーレイを適用する</span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         stateList := game.StateMachine.GetStates()</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           2 :         for i, state := range stateList {</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 if err := state.Draw(game.World, target); err != nil {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Fatal(err)</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span>              :                 // 最初のstate描画後にブラー処理を呼び出す</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC tlaBgGNC">           2 :                 if i == 0 {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                         applyBlur := len(stateList) &gt; 1</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                         if applyBlur {</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC tlaBgUNC">           0 :                                 topState := stateList[len(stateList)-1]</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                                 if cfg, ok := topState.(states.Configurable); ok &amp;&amp; !cfg.StateConfig().BlurBackground {</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                                         applyBlur = false</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L101"><span class="lineNum">     101</span>              :                         }</span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC tlaBgGNC">           1 :                         applyBlurOverlay(target, len(stateList), applyBlur)</span></span>
-<span id="L103"><span class="lineNum">     103</span>              :                 }</span>
-<span id="L104"><span class="lineNum">     104</span>              :         }</span>
-<span id="L105"><span class="lineNum">     105</span>              : </span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         if game.World.Config.ShowMonitor {</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC tlaBgUNC">           0 :                 msg := getPerformanceInfo()</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                 ebitenutil.DebugPrint(target, msg)</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : // Draw はゲームの描画処理を行う</span>
+<span id="L72"><span class="lineNum">      72</span>              : // interface method だからシグネチャは変更できない</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : func (game *MainGame) Draw(screen *ebiten.Image) {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         bounds := screen.Bounds()</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         offscreen := game.screenPipeline.Begin(bounds.Dx(), bounds.Dy())</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         // パイプラインが未設定の場合は直接screenに描画する</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         target := offscreen</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           2 :         if target == nil {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 target = screen</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : </span>
+<span id="L83"><span class="lineNum">      83</span>              :         // stateを描画し、必要に応じてブラーオーバーレイを適用する</span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         stateList := game.StateMachine.GetStates()</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           2 :         for i, state := range stateList {</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 if err := state.Draw(game.World, target); err != nil {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Fatal(err)</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              :                 // 最初のstate描画後にブラー処理を呼び出す</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC tlaBgGNC">           2 :                 if i == 0 {</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                         applyBlur := len(stateList) &gt; 1</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                         if applyBlur {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC tlaBgUNC">           0 :                                 topState := stateList[len(stateList)-1]</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                                 if cfg, ok := topState.(states.Configurable); ok &amp;&amp; !cfg.StateConfig().BlurBackground {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                                         applyBlur = false</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L98"><span class="lineNum">      98</span>              :                         }</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC tlaBgGNC">           1 :                         applyBlurOverlay(target, len(stateList), applyBlur)</span></span>
+<span id="L100"><span class="lineNum">     100</span>              :                 }</span>
+<span id="L101"><span class="lineNum">     101</span>              :         }</span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         if game.World.Config.ShowMonitor {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC tlaBgUNC">           0 :                 msg := getPerformanceInfo()</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :                 ebitenutil.DebugPrint(target, msg)</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC tlaBgGNC">           1 :         game.screenPipeline.End(screen)</span></span>
+<span id="L109"><span class="lineNum">     109</span>              : }</span>
 <span id="L110"><span class="lineNum">     110</span>              : </span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC tlaBgGNC">           1 :         game.screenPipeline.End(screen)</span></span>
-<span id="L112"><span class="lineNum">     112</span>              : }</span>
-<span id="L113"><span class="lineNum">     113</span>              : </span>
-<span id="L114"><span class="lineNum">     114</span>              : // getPerformanceInfo はパフォーマンス情報を文字列として返す</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC tlaBgUNC">           0 : func getPerformanceInfo() string {</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         var mem runtime.MemStats</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         runtime.ReadMemStats(&amp;mem)</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         // 最後のGCからの経過時間を計算</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         var lastGCTime string</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         if mem.LastGC &gt; 0 {</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 lastGC := time.Unix(0, int64(mem.LastGC))</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 elapsed := time.Since(lastGC)</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 lastGCTime = fmt.Sprintf(&quot;%.2fs&quot;, elapsed.Seconds())</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 lastGCTime = &quot;N/A&quot;</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L128"><span class="lineNum">     128</span>              : </span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         return fmt.Sprintf(`FPS: %.1f</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 : Alloc: %.2fMB</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : HeapInuse: %.2fMB</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 : StackInuse: %.2fMB</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 : Sys: %.2fMB</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 : NextGC: %.2fMB</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 : TotalAlloc: %.2fMB</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 : Mallocs: %d</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : Frees: %d</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 : GC: %d</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 : LastGC: %s</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 : PauseTotalNs: %.2fms</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 : Goroutines: %d</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 : `,</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 ebiten.ActualFPS(),</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 float64(mem.Alloc/1024/1024),      // 現在割り当てられているメモリ</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 float64(mem.HeapInuse/1024/1024),  // ヒープで実際に使用中のメモリ</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 float64(mem.StackInuse/1024/1024), // スタックで使用中のメモリ</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 float64(mem.Sys/1024/1024),        // OSから取得した総メモリ</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 float64(mem.NextGC/1024/1024),     // 次回GC実行予定サイズ</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 float64(mem.TotalAlloc/1024/1024), // 起動後から割り当てられたヒープオブジェクトの累計バイト数</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 mem.Mallocs,                       // 割り当てられたヒープオブジェクトの回数</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 mem.Frees,                         // 解放されたヒープオブジェクトの回数</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 mem.NumGC,                         // GC実行回数</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                 lastGCTime,                        // 最後のGC実行からの経過時間</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :                 float64(mem.PauseTotalNs)/1000000, // GC停止時間の累計（ミリ秒）</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                 runtime.NumGoroutine(),            // 実行中のGoroutine数</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L157"><span class="lineNum">     157</span>              : }</span>
-<span id="L158"><span class="lineNum">     158</span>              : </span>
-<span id="L159"><span class="lineNum">     159</span>              : // InitWorld はゲームワールドを初期化する</span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           5 : func InitWorld(cfg *config.Config) (w.World, error) {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           5 :         world, err := w.InitWorld(&amp;gc.Components{})</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : </span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Config = cfg</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           5 :         // ScreenDimensions は描画の基準（カメラ中心・HUD配置）であり、Layout が返す論理解像度と</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           5 :         // 一致させる。論理解像度は固定のため consts の値を渡す。ウィンドウサイズ（cfg.User）とは</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           5 :         // 分離する。cfg.User で大きなウィンドウを指定しても描画基準がズレないようにする</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           5 :         world.Resources.SetScreenDimensions(consts.GameWidth, consts.GameHeight)</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           5 :         // Rawデータを読み込む</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           5 :         rw, err := loader.LoadRaws()</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.RawMaster = rw</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           5 :         // スプライトシートを読み込む</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           5 :         spriteSheets, err := loader.LoadSpriteSheets(rw)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.SpriteSheets = spriteSheets</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           5 :         // フォントを読み込む</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           5 :         fonts, err := loader.LoadFonts()</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.Fonts = fonts</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           5 :         world.Resources.Faces = loader.BuildFaces(fonts)</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           5 :         // UIリソースを読み込む</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           5 :         uir, err := loader.LoadUIResources(fonts)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.UIResources = uir</span></span>
+<span id="L111"><span class="lineNum">     111</span>              : // getPerformanceInfo はパフォーマンス情報を文字列として返す</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC tlaBgUNC">           0 : func getPerformanceInfo() string {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         var mem runtime.MemStats</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         runtime.ReadMemStats(&amp;mem)</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         // 最後のGCからの経過時間を計算</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         var lastGCTime string</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         if mem.LastGC &gt; 0 {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 lastGC := time.Unix(0, int64(mem.LastGC))</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 elapsed := time.Since(lastGC)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 lastGCTime = fmt.Sprintf(&quot;%.2fs&quot;, elapsed.Seconds())</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 lastGCTime = &quot;N/A&quot;</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         return fmt.Sprintf(`FPS: %.1f</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 : Alloc: %.2fMB</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 : HeapInuse: %.2fMB</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 : StackInuse: %.2fMB</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 : Sys: %.2fMB</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : NextGC: %.2fMB</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 : TotalAlloc: %.2fMB</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 : Mallocs: %d</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 : Frees: %d</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 : GC: %d</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 : LastGC: %s</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : PauseTotalNs: %.2fms</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 : Goroutines: %d</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 : `,</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 ebiten.ActualFPS(),</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 float64(mem.Alloc/1024/1024),      // 現在割り当てられているメモリ</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 float64(mem.HeapInuse/1024/1024),  // ヒープで実際に使用中のメモリ</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 float64(mem.StackInuse/1024/1024), // スタックで使用中のメモリ</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 float64(mem.Sys/1024/1024),        // OSから取得した総メモリ</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 float64(mem.NextGC/1024/1024),     // 次回GC実行予定サイズ</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 float64(mem.TotalAlloc/1024/1024), // 起動後から割り当てられたヒープオブジェクトの累計バイト数</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 mem.Mallocs,                       // 割り当てられたヒープオブジェクトの回数</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 mem.Frees,                         // 解放されたヒープオブジェクトの回数</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 mem.NumGC,                         // GC実行回数</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 lastGCTime,                        // 最後のGC実行からの経過時間</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 float64(mem.PauseTotalNs)/1000000, // GC停止時間の累計（ミリ秒）</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 runtime.NumGoroutine(),            // 実行中のGoroutine数</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : }</span>
+<span id="L155"><span class="lineNum">     155</span>              : </span>
+<span id="L156"><span class="lineNum">     156</span>              : // InitWorld はゲームワールドを初期化する</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC tlaBgGNC">           5 : func InitWorld(cfg *config.Config) (w.World, error) {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           5 :         world, err := w.InitWorld(&amp;gc.Components{})</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Config = cfg</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           5 :         // ScreenDimensions は描画の基準（カメラ中心・HUD配置）であり、Layout が返す論理解像度と</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           5 :         // 一致させる。論理解像度は固定のため consts の値を渡す。ウィンドウサイズ（cfg.User）とは</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           5 :         // 分離する。cfg.User で大きなウィンドウを指定しても描画基準がズレないようにする</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           5 :         world.Resources.SetScreenDimensions(consts.GameWidth, consts.GameHeight)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           5 :         // Rawデータを読み込む</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           5 :         rw, err := loader.LoadRaws()</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.RawMaster = rw</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           5 :         // スプライトシートを読み込む</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           5 :         spriteSheets, err := loader.LoadSpriteSheets(rw)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.SpriteSheets = spriteSheets</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           5 :         // フォントを読み込む</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           5 :         fonts, err := loader.LoadFonts()</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.Fonts = fonts</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           5 :         world.Resources.Faces = loader.BuildFaces(fonts)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           5 :         // UIリソースを読み込む</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           5 :         uir, err := loader.LoadUIResources(fonts)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">           5 :         world.Resources.UIResources = uir</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           5 : </span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           5 :         // initialize systems</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           5 :         world.Updaters, world.Renderers = gs.InitializeSystems(world)</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           5 :         query.GetDungeon(world).DefinitionName = dungeon.DungeonDebug.Name</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           5 :         // initialize systems</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           5 :         world.Updaters, world.Renderers = gs.InitializeSystems(world)</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           5 : </span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           5 :         return world, nil</span></span>
-<span id="L208"><span class="lineNum">     208</span>              : }</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           5 :         return world, nil</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : }</span>
         </pre>
               </td>
             </tr>

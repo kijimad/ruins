@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">65</td>
-            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">67</td>
+            <td class="headerCovTableEntry">67</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,10 +75,10 @@
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">          20 : func BoundEntities(world w.World, key gc.StageKey) []ecs.Entity {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">          20 :         var bound []ecs.Entity</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">          20 :         q := ecs.NewFilter1[gc.StageBound](world.ECS).Query()</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          51 :         for q.Next() {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">          45 :                 if world.Components.StageBound.Get(q.Entity()).Key == key {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          14 :                         bound = append(bound, q.Entity())</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          14 :                 }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          75 :         for q.Next() {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">          71 :                 if world.Components.StageBound.Get(q.Entity()).Key == key {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          16 :                         bound = append(bound, q.Entity())</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          16 :                 }</span></span>
 <span id="L20"><span class="lineNum">      20</span>              :         }</span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          20 :         return bound</span></span>
 <span id="L22"><span class="lineNum">      22</span>              : }</span>
@@ -87,10 +87,10 @@
 <span id="L25"><span class="lineNum">      25</span>              : // Suspended マーカーを付け、ステージ跨ぎのシステムの対象から外す。</span>
 <span id="L26"><span class="lineNum">      26</span>              : // 既に Suspended のエンティティへの二重付与は避ける</span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           7 : func suspend(world w.World, key gc.StageKey) {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          14 :         for _, e := range BoundEntities(world, key) {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          12 :                 if !world.Components.Suspended.Has(e) {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           5 :                         world.Components.Suspended.Add(e, &amp;gc.Suspended{})</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           5 :                 }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          16 :         for _, e := range BoundEntities(world, key) {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          16 :                 if !world.Components.Suspended.Has(e) {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           7 :                         world.Components.Suspended.Add(e, &amp;gc.Suspended{})</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           7 :                 }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              :         }</span>
 <span id="L33"><span class="lineNum">      33</span>              : }</span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
@@ -121,66 +121,69 @@
 <span id="L59"><span class="lineNum">      59</span>              :         }</span>
 <span id="L60"><span class="lineNum">      60</span>              : }</span>
 <span id="L61"><span class="lineNum">      61</span>              : </span>
-<span id="L62"><span class="lineNum">      62</span>              : // ResetExploredTiles は探索履歴を空にする。ステージへ入り直すたびに履歴をリセットする方針。</span>
-<span id="L63"><span class="lineNum">      63</span>              : // ExploredTiles は単一 map だが、入場時 clear で現ステージ分の座標だけが載り衝突しない</span>
+<span id="L62"><span class="lineNum">      62</span>              : // ResetExploredTiles は現ステージの探索履歴を空にする。ステージへ入り直すたびにリセットする方針。</span>
+<span id="L63"><span class="lineNum">      63</span>              : // 探索履歴は StageField が持つため、現ステージの StageField の map を貼り替える</span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           6 : func ResetExploredTiles(world w.World) {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           6 :         d := query.GetDungeon(world)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           6 :         d.ExploredTiles = make(map[gc.GridElement]bool)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           6 : }</span></span>
-<span id="L68"><span class="lineNum">      68</span>              : </span>
-<span id="L69"><span class="lineNum">      69</span>              : // Bind は StageBound を持たないフィールドエンティティに key を付ける。</span>
-<span id="L70"><span class="lineNum">      70</span>              : // ステージ生成の直後に呼び、生成物をそのステージへ束縛して識別できるようにする。</span>
-<span id="L71"><span class="lineNum">      71</span>              : // GridElement を持つが Player・SquadMember・既存 StageBound でないものが対象。</span>
-<span id="L72"><span class="lineNum">      72</span>              : // Player・SquadMember はステージをまたいで生きるので束縛しない。</span>
-<span id="L73"><span class="lineNum">      73</span>              : // 退避中エンティティは既に StageBound を持つので自然に除外される</span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           7 : func Bind(world w.World, key gc.StageKey) {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           7 :         var targets []ecs.Entity</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           7 :         q := ecs.NewFilter1[gc.GridElement](world.ECS).</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           7 :                 Without(ecs.C[gc.StageBound](), ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">          10 :         for q.Next() {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           3 :                 targets = append(targets, q.Entity())</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           3 :         }</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">          10 :         for _, e := range targets {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           3 :                 world.Components.StageBound.Add(e, &amp;gc.StageBound{Key: key})</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           6 :         field := query.GetCurrentStageField(world)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          10 :         if field == nil {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           4 :                 return</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           4 :         }</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           2 :         field.ExploredTiles = make(map[gc.GridElement]bool)</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : }</span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span>              : // Bind は StageBound を持たないフィールドエンティティに key を付ける。</span>
+<span id="L73"><span class="lineNum">      73</span>              : // ステージ生成の直後に呼び、生成物をそのステージへ束縛して識別できるようにする。</span>
+<span id="L74"><span class="lineNum">      74</span>              : // GridElement を持つが Player・SquadMember・既存 StageBound でないものが対象。</span>
+<span id="L75"><span class="lineNum">      75</span>              : // Player・SquadMember はステージをまたいで生きるので束縛しない。</span>
+<span id="L76"><span class="lineNum">      76</span>              : // 退避中エンティティは既に StageBound を持つので自然に除外される</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           7 : func Bind(world w.World, key gc.StageKey) {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           7 :         var targets []ecs.Entity</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           7 :         q := ecs.NewFilter1[gc.GridElement](world.ECS).</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           7 :                 Without(ecs.C[gc.StageBound](), ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">          10 :         for q.Next() {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           3 :                 targets = append(targets, q.Entity())</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           3 :         }</span></span>
-<span id="L84"><span class="lineNum">      84</span>              : }</span>
-<span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span>              : // SwapTo は現ステージを退避し target へ切り替える正典操作。往復のすべてがこれに還元される。</span>
-<span id="L87"><span class="lineNum">      87</span>              : // target が訪問済みなら再稼働し、未訪問なら generate で決定的生成する。</span>
-<span id="L88"><span class="lineNum">      88</span>              : // target は現ステージと異なる前提。自己スワップは呼ばない。</span>
-<span id="L89"><span class="lineNum">      89</span>              : //</span>
-<span id="L90"><span class="lineNum">      90</span>              : // generate は生成物へ **必ず** StageBound{target} を付ける責務を負う。付け忘れると未分類の</span>
-<span id="L91"><span class="lineNum">      91</span>              : // フィールドエンティティが生じ、以降の退避で漏れる。生成側は末尾で Bind を呼び付与する。</span>
-<span id="L92"><span class="lineNum">      92</span>              : // 別の generate を実装するときも同様に付けること。</span>
-<span id="L93"><span class="lineNum">      93</span>              : //</span>
-<span id="L94"><span class="lineNum">      94</span>              : // プレイヤー配置と前線など時間派生の再導出は、遷移ごとに違うので呼び出し側が続けて行う</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           6 : func SwapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey) error) error {</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           6 :         d := query.GetDungeon(world)</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           6 :         // プレイ中に湧いた未束縛のフィールドエンティティを現ステージへ回収する。</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           6 :         // ドロップ・置いたアイテム・エフェクトが退避されず次ステージへ漏れるのを防ぐ</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           6 :         Bind(world, d.CurrentStage)</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           7 :         if exists(world, target) {</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 // 訪問済み。現ステージを退避してから target を再稼働する</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 :                 if d.CurrentStage != target {</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                         suspend(world, d.CurrentStage)</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 resume(world, target)</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           5 :         } else {</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           5 :                 // 未訪問。先に生成し、失敗したら現ステージを退避せず CurrentStage も動かさない。</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           5 :                 // 生成中は現ステージがまだ稼働しているが、生成物は新しい StageBound を持つので混ざらない</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           6 :                 if err := generate(world, target); err != nil {</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :                         return err</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           8 :                 if d.CurrentStage != target {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           4 :                         suspend(world, d.CurrentStage)</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           4 :                 }</span></span>
-<span id="L115"><span class="lineNum">     115</span>              :         }</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           5 :         d.CurrentStage = target</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           5 :         ResetExploredTiles(world)</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           5 :         // 座標索引は現ステージのみで作り直す。swap で無効化し次アクセスで再構築させる</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           5 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           5 :         return nil</span></span>
-<span id="L121"><span class="lineNum">     121</span>              : }</span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">          10 :         for _, e := range targets {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           3 :                 world.Components.StageBound.Add(e, &amp;gc.StageBound{Key: key})</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           3 :         }</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : }</span>
+<span id="L88"><span class="lineNum">      88</span>              : </span>
+<span id="L89"><span class="lineNum">      89</span>              : // SwapTo は現ステージを退避し target へ切り替える正典操作。往復のすべてがこれに還元される。</span>
+<span id="L90"><span class="lineNum">      90</span>              : // target が訪問済みなら再稼働し、未訪問なら generate で決定的生成する。</span>
+<span id="L91"><span class="lineNum">      91</span>              : // target は現ステージと異なる前提。自己スワップは呼ばない。</span>
+<span id="L92"><span class="lineNum">      92</span>              : //</span>
+<span id="L93"><span class="lineNum">      93</span>              : // generate は生成物へ **必ず** StageBound{target} を付ける責務を負う。付け忘れると未分類の</span>
+<span id="L94"><span class="lineNum">      94</span>              : // フィールドエンティティが生じ、以降の退避で漏れる。生成側は末尾で Bind を呼び付与する。</span>
+<span id="L95"><span class="lineNum">      95</span>              : // 別の generate を実装するときも同様に付けること。</span>
+<span id="L96"><span class="lineNum">      96</span>              : //</span>
+<span id="L97"><span class="lineNum">      97</span>              : // プレイヤー配置と前線など時間派生の再導出は、遷移ごとに違うので呼び出し側が続けて行う</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           6 : func SwapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey) error) error {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           6 :         d := query.GetDungeon(world)</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           6 :         // プレイ中に湧いた未束縛のフィールドエンティティを現ステージへ回収する。</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           6 :         // ドロップ・置いたアイテム・エフェクトが退避されず次ステージへ漏れるのを防ぐ</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           6 :         Bind(world, d.CurrentStage)</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           7 :         if exists(world, target) {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 // 訪問済み。現ステージを退避してから target を再稼働する</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           2 :                 if d.CurrentStage != target {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                         suspend(world, d.CurrentStage)</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 resume(world, target)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           5 :         } else {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           5 :                 // 未訪問。先に生成し、失敗したら現ステージを退避せず CurrentStage も動かさない。</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           5 :                 // 生成中は現ステージがまだ稼働しているが、生成物は新しい StageBound を持つので混ざらない</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           6 :                 if err := generate(world, target); err != nil {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           8 :                 if d.CurrentStage != target {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           4 :                         suspend(world, d.CurrentStage)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           4 :                 }</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :         }</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           5 :         d.CurrentStage = target</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           5 :         ResetExploredTiles(world)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           5 :         // 座標索引は現ステージのみで作り直す。swap で無効化し次アクセスで再構築させる</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           5 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           5 :         return nil</span></span>
+<span id="L124"><span class="lineNum">     124</span>              : }</span>
         </pre>
               </td>
             </tr>

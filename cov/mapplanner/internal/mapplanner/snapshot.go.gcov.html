@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,10 +86,10 @@
 <span id="L24"><span class="lineNum">      24</span>              : }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // takeSnapshot はRecordingが有効な場合にMetaPlanの現在の状態をスナップショットとして保存する</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">        2005 : func (b *PlannerChain) takeSnapshot(label string) {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">        4010 :         if !b.Recording {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">        2005 :                 return</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">        2005 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">        1999 : func (b *PlannerChain) takeSnapshot(label string) {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">        3998 :         if !b.Recording {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">        1999 :                 return</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">        1999 :         }</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :         d := &amp;b.PlanData</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         b.Snapshots = append(b.Snapshots, Snapshot{</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 Label:       label,</span></span>

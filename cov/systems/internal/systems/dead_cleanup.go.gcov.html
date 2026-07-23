@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -160,7 +160,7 @@
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                         lifecycle.DeleteDoorLockTriggers(world)</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :                         // ダンジョンクリアフラグを立てる</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                         dungeonName := query.GetDungeon(world).DefinitionName</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                         dungeonName := query.GetDungeon(world).CurrentStage.Name</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                         query.GetGameProgress(world).MarkDungeonCleared(dungeonName)</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                         logger.Debug(&quot;ボス撃破: 扉アンロック+クリアフラグ&quot;, &quot;dungeon&quot;, dungeonName)</span></span>

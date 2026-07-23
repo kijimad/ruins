@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -163,7 +163,7 @@
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC tlaBgGNC">           2 :                 log.Debug(&quot;扉を開きました&quot;, &quot;door&quot;, targetEntity)</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 : </span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           2 :                 // 視界の更新が必要</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :                 query.GetDungeon(world).NeedsForceUpdate = true</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :                 query.GetVisionState(world).NeedsForceUpdate = true</span></span>
 <span id="L105"><span class="lineNum">     105</span>              :         }</span>
 <span id="L106"><span class="lineNum">     106</span>              : </span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           2 :         Complete(comp)</span></span>
@@ -275,7 +275,7 @@
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC tlaBgGNC">           1 :                 log.Debug(&quot;扉を閉じました&quot;, &quot;door&quot;, targetEntity)</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 // 視界の更新が必要であることをマーク（BlockViewが変更されたため）</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 query.GetDungeon(world).NeedsForceUpdate = true</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).NeedsForceUpdate = true</span></span>
 <span id="L217"><span class="lineNum">     217</span>              :         }</span>
 <span id="L218"><span class="lineNum">     218</span>              : </span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         Complete(comp)</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">81.0&nbsp;%</td>
+            <td class="headerCovTableEntryMed">84.0&nbsp;%</td>
+            <td class="headerCovTableEntry">25</td>
             <td class="headerCovTableEntry">21</td>
-            <td class="headerCovTableEntry">17</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,45 +65,51 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         mapplanner &quot;github.com/kijimaD/ruins/internal/mapplanner&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/mapspawner&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/worldstream&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              : )</span>
-<span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span>              : // ChunkSeed は runSeed とチャンクの絶対インデックスから決定的なチャンク seed を導く。</span>
-<span id="L14"><span class="lineNum">      14</span>              : // splitmix64 系の混合で、隣接インデックスでも seed が十分散る。</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">          17 : func ChunkSeed(runSeed uint64, chunkIndex consts.Chunk) uint64 {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          17 :         x := runSeed + uint64(chunkIndex)*0x9E3779B97F4A7C15</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">          17 :         x ^= x &gt;&gt; 30</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          17 :         x *= 0xBF58476D1CE4E5B9</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          17 :         x ^= x &gt;&gt; 27</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          17 :         x *= 0x94D049BB133111EB</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          17 :         x ^= x &gt;&gt; 31</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          17 :         return x</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          17 : }</span></span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。</span>
-<span id="L26"><span class="lineNum">      26</span>              : // chunkIndex ごとに (runSeed, chunkIndex) から決定的に生成し、帯ローカルの offsetX へ配置する。</span>
-<span id="L27"><span class="lineNum">      27</span>              : // 高さ chunkH は固定。南北はストリーミングしない帯。</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           6 : func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, planner mapplanner.PlannerType) worldstream.ChunkGen {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          17 :         return func(chunkIndex consts.Chunk, offsetX consts.Tile) error {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          11 :                 plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed(runSeed, chunkIndex), planner)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          11 :                 if err != nil {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;チャンク生成失敗 (index=%d): %w&quot;, chunkIndex, err)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">          11 :                 if _, err := mapspawner.SpawnAt(world, plan, offsetX, 0); err != nil {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;チャンク配置失敗 (index=%d): %w&quot;, chunkIndex, err)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L37"><span class="lineNum">      37</span>              :                 // このチャンクの両境界を接合後に再計算して継ぎ目を消す。</span>
-<span id="L38"><span class="lineNum">      38</span>              :                 // 東シフトでは西境界の offsetX、西シフトでは東境界の offsetX+chunkW が実境界になる。</span>
-<span id="L39"><span class="lineNum">      39</span>              :                 // RecalcSeamAutotile は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">          11 :                 RecalcSeamAutotile(world, offsetX)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">          11 :                 RecalcSeamAutotile(world, offsetX+chunkW)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">          11 :                 return nil</span></span>
-<span id="L43"><span class="lineNum">      43</span>              :         }</span>
-<span id="L44"><span class="lineNum">      44</span>              : }</span>
+<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         mapplanner &quot;github.com/kijimaD/ruins/internal/mapplanner&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/mapspawner&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/world/stage&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/worldstream&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              : )</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              : // ChunkSeed は runSeed とチャンクの絶対インデックスから決定的なチャンク seed を導く。</span>
+<span id="L16"><span class="lineNum">      16</span>              : // splitmix64 系の混合で、隣接インデックスでも seed が十分散る。</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">          43 : func ChunkSeed(runSeed uint64, chunkIndex consts.Chunk) uint64 {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          43 :         x := runSeed + uint64(chunkIndex)*0x9E3779B97F4A7C15</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          43 :         x ^= x &gt;&gt; 30</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          43 :         x *= 0xBF58476D1CE4E5B9</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          43 :         x ^= x &gt;&gt; 27</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          43 :         x *= 0x94D049BB133111EB</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          43 :         x ^= x &gt;&gt; 31</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          43 :         return x</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          43 : }</span></span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。</span>
+<span id="L28"><span class="lineNum">      28</span>              : // chunkIndex ごとに (runSeed, chunkIndex) から決定的に生成し、帯ローカルの offsetX へ配置する。</span>
+<span id="L29"><span class="lineNum">      29</span>              : // 高さ chunkH は固定。南北はストリーミングしない帯。</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          15 : func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, planner mapplanner.PlannerType) worldstream.ChunkGen {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          52 :         return func(chunkIndex consts.Chunk, offsetX consts.Tile) error {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          37 :                 plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed(runSeed, chunkIndex), planner)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          37 :                 if err != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;チャンク生成失敗 (index=%d): %w&quot;, chunkIndex, err)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">          37 :                 if _, err := mapspawner.SpawnAt(world, plan, offsetX, 0); err != nil {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;チャンク配置失敗 (index=%d): %w&quot;, chunkIndex, err)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L39"><span class="lineNum">      39</span>              :                 // 生成したチャンクのフィールドエンティティをオーバーワールドステージへ束縛する。</span>
+<span id="L40"><span class="lineNum">      40</span>              :                 // 共存方式で遺跡へ入るとき帯を退避できるようにする。シフトで生成される新チャンクも</span>
+<span id="L41"><span class="lineNum">      41</span>              :                 // ここで束縛される。Player・SquadMember・既束縛は Bind が自然に除外する</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">          37 :                 stage.Bind(world, gc.NewOverworldStage())</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          37 :                 // このチャンクの両境界を接合後に再計算して継ぎ目を消す。</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          37 :                 // 東シフトでは西境界の offsetX、西シフトでは東境界の offsetX+chunkW が実境界になる。</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">          37 :                 // RecalcSeamAutotile は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">          37 :                 RecalcSeamAutotile(world, offsetX)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          37 :                 RecalcSeamAutotile(world, offsetX+chunkW)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">          37 :                 return nil</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         }</span>
+<span id="L50"><span class="lineNum">      50</span>              : }</span>
         </pre>
               </td>
             </tr>

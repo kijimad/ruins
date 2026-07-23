@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -248,9 +248,9 @@
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                                         Append(&quot;上り階段がある。Enterキーで移動。&quot;).</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         case gc.InteractionDungeonGate:</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         case gc.InteractionDungeonEnter:</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                                         Append(&quot;ダンジョンへの門がある。Enterキーで選択。&quot;).</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                                         Append(&quot;遺跡の入口がある。Enterキーで入る。&quot;).</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                         case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee:</span></span>
 <span id="L194"><span class="lineNum">     194</span>              :                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を</span>

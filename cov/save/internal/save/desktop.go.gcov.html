@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,33 +72,33 @@
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              : // initImpl はデスクトップ環境での初期化処理</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">          34 : func (sm *SerializationManager) initImpl() error {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">          34 :         if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">          36 : func (sm *SerializationManager) initImpl() error {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">          36 :         if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil {</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;セーブディレクトリの作成に失敗: %w&quot;, err)</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">          34 :         return nil</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">          36 :         return nil</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          29 : func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          29 :         // ファイルに書き込み</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          29 :         fileName := filepath.Join(sm.saveDirectory, slotName+&quot;.json&quot;)</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          29 :         err := os.WriteFile(fileName, data, 0644)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          29 :         if err != nil {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          31 : func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          31 :         // ファイルに書き込み</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          31 :         fileName := filepath.Join(sm.saveDirectory, slotName+&quot;.json&quot;)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          31 :         err := os.WriteFile(fileName, data, 0644)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          31 :         if err != nil {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to write save file: %w&quot;, err)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">          29 :         return nil</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">          31 :         return nil</span></span>
 <span id="L30"><span class="lineNum">      30</span>              : }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // loadDataImpl はデスクトップ環境でファイルシステムからデータを読み込む</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          48 : func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          48 :         fileName := filepath.Join(sm.saveDirectory, slotName+&quot;.json&quot;)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          48 :         data, err := os.ReadFile(fileName)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          49 :         if err != nil {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          50 : func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          50 :         fileName := filepath.Join(sm.saveDirectory, slotName+&quot;.json&quot;)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          50 :         data, err := os.ReadFile(fileName)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          51 :         if err != nil {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to read save file: %w&quot;, err)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          47 :         return data, nil</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          49 :         return data, nil</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : }</span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // saveFileExistsImpl はデスクトップ環境でセーブファイルが存在するかチェックする</span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.9&nbsp;%</td>
-            <td class="headerCovTableEntry">66</td>
-            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntryHi">91.0&nbsp;%</td>
+            <td class="headerCovTableEntry">67</td>
+            <td class="headerCovTableEntry">61</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-22 23:30:48</td>
+            <td class="headerValue">2026-07-23 12:17:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -163,8 +163,8 @@
 <span id="L101"><span class="lineNum">     101</span>              : // rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。</span>
 <span id="L102"><span class="lineNum">     102</span>              : // 永続の ExploredTiles はキーを平行移動し、揮発キャッシュはクリアして次フレーム再構築させる。</span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           2 : func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :         d := query.GetDungeon(world)</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           2 :         if d == nil {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :         field := query.GetCurrentStageField(world)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           2 :         if field == nil {</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC tlaBgGNC">           5 :         inBand := func(g gc.GridElement) bool {</span></span>
@@ -174,28 +174,29 @@
 <span id="L112"><span class="lineNum">     112</span>              :         // 視界の VisibleTiles と LightSourceCache もクリアでなく付け替える。こうするとシフトと同じ</span>
 <span id="L113"><span class="lineNum">     113</span>              :         // フレームの描画で有効なまま保て、チャンク境界越え時のチラつきを防ぐ。チラつきは1フレームの</span>
 <span id="L114"><span class="lineNum">     114</span>              :         // 暗転として現れる。次フレームの VisionSystem がどのみち再計算するが、その1フレームの穴を無くす。</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           2 :         d.ExploredTiles = translateTileKeyMap(d.ExploredTiles, dx, 0, inBand)</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           2 :         d.VisibleTiles = translateTileKeyMap(d.VisibleTiles, dx, 0, inBand)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           2 :         d.LightSourceCache = translateTileKeyMap(d.LightSourceCache, dx, 0, inBand)</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           2 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L119"><span class="lineNum">     119</span>              : }</span>
-<span id="L120"><span class="lineNum">     120</span>              : </span>
-<span id="L121"><span class="lineNum">     121</span>              : // translateTileKeyMap は GridElement キーの map を dx,dy 平行移動した新しい map を返す。</span>
-<span id="L122"><span class="lineNum">     122</span>              : // keep が false を返すキーは捨てる。帯外に落ちたキーが該当する。keep が nil のときはフィルタせず全キーを通す。</span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           6 : func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, keep func(gc.GridElement) bool) map[gc.GridElement]V {</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           6 :         if src == nil {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           6 :         dst := make(map[gc.GridElement]V, len(src))</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           9 :         for k, v := range src {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           3 :                 nk := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: k.X + dx, Y: k.Y + dy}}</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           4 :                 if keep != nil &amp;&amp; !keep(nk) {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L132"><span class="lineNum">     132</span>              :                 }</span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           2 :                 dst[nk] = v</span></span>
-<span id="L134"><span class="lineNum">     134</span>              :         }</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           6 :         return dst</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           2 :         field.ExploredTiles = translateTileKeyMap(field.ExploredTiles, dx, 0, inBand)</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           2 :         vs := query.GetVisionState(world)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           2 :         vs.VisibleTiles = translateTileKeyMap(vs.VisibleTiles, dx, 0, inBand)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           2 :         vs.LightSourceCache = translateTileKeyMap(vs.LightSourceCache, dx, 0, inBand)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           2 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : }</span>
+<span id="L121"><span class="lineNum">     121</span>              : </span>
+<span id="L122"><span class="lineNum">     122</span>              : // translateTileKeyMap は GridElement キーの map を dx,dy 平行移動した新しい map を返す。</span>
+<span id="L123"><span class="lineNum">     123</span>              : // keep が false を返すキーは捨てる。帯外に落ちたキーが該当する。keep が nil のときはフィルタせず全キーを通す。</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           6 : func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, keep func(gc.GridElement) bool) map[gc.GridElement]V {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           6 :         if src == nil {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           6 :         dst := make(map[gc.GridElement]V, len(src))</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           9 :         for k, v := range src {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           3 :                 nk := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: k.X + dx, Y: k.Y + dy}}</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           4 :                 if keep != nil &amp;&amp; !keep(nk) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L133"><span class="lineNum">     133</span>              :                 }</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           2 :                 dst[nk] = v</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :         }</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           6 :         return dst</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : }</span>
         </pre>
               </td>
             </tr>
