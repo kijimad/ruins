@@ -16,7 +16,7 @@ import (
 func TestBand_ShouldShift_ヒステリシス(t *testing.T) {
 	t.Parallel()
 
-	b := worldstream.NewBand(100, 3) // 中央チャンクは帯ローカル [100,200)
+	b := worldstream.NewBand(100, 60, 3, 1) // 中央チャンクは帯ローカル [100,200)
 
 	assert.False(t, b.ShouldShiftEast(199), "中央チャンク内では東シフトしない")
 	assert.True(t, b.ShouldShiftEast(200), "中央チャンクを東へ出たら東シフト")
@@ -51,14 +51,15 @@ func TestBand_ShiftEast(t *testing.T) {
 	// 視界も付け替え対象（チラつき防止のためクリアでなく平行移動する）
 	visState.VisibleTiles = map[gc.GridElement]bool{{Coord: consts.Coord[consts.Tile]{X: 150, Y: 30}}: true}
 
-	b := worldstream.NewBand(100, 3)
+	b := worldstream.NewBand(100, 60, 3, 1)
 	require.True(t, b.ShouldShiftEast(210), "前提: 東シフト条件を満たす")
 
-	var gotChunkIndex consts.Chunk
-	var gotOffsetX consts.Tile
-	gen := func(chunkIndex consts.Chunk, offsetX consts.Tile) error {
-		gotChunkIndex = chunkIndex
+	var gotCoord worldstream.ChunkCoord
+	var gotOffsetX, gotOffsetY consts.Tile
+	gen := func(c worldstream.ChunkCoord, offsetX, offsetY consts.Tile) error {
+		gotCoord = c
 		gotOffsetX = offsetX
+		gotOffsetY = offsetY
 		// 東端に新チャンクのタイルを1枚だけ置く（マーカー）
 		world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: offsetX + 5, Y: 10}})
 		return nil
@@ -77,9 +78,10 @@ func TestBand_ShiftEast(t *testing.T) {
 	assert.Equal(t, consts.Tile(110), world.Components.GridElement.Get(player).X, "プレイヤーは中央へ引き戻される")
 	assert.Equal(t, consts.Tile(150), world.Components.GridElement.Get(eastEnemy).X, "東敵もリベースされる")
 
-	// 生成呼び出し: chunkIndex=eastIndex+K-1=3, offsetX=(K-1)*chunkW=200
-	assert.Equal(t, 3, int(gotChunkIndex), "新チャンクの絶対インデックス")
+	// 生成呼び出し: X=eastIndex+K-1=3, offsetX=(K-1)*chunkW=200。1行帯なので Y=0, offsetY=0
+	assert.Equal(t, worldstream.ChunkCoord{X: 3, Y: 0}, gotCoord, "新チャンクの絶対座標")
 	assert.Equal(t, consts.Tile(200), gotOffsetX, "東スラブのオフセット")
+	assert.Equal(t, consts.Tile(0), gotOffsetY, "1行帯の縦オフセットは0")
 
 	// ExploredTiles 追従: (150,30)→(50,30) 生存、(50,30)→(-50,30) は帯外で破棄
 	assert.True(t, field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 30}}], "中央の探索済みは付け替わって残る")
@@ -107,13 +109,13 @@ func TestBand_ShiftWest(t *testing.T) {
 	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "火の玉")
 	require.NoError(t, err)
 
-	b := worldstream.NewBandAt(100, 3, 1) // 一度東へ進んだ状態から西へ戻る
+	b := worldstream.NewBandAt(100, 60, 3, 1, 1) // 一度東へ進んだ状態から西へ戻る
 	require.True(t, b.ShouldShiftWest(90), "前提: 西シフト条件を満たす")
 
-	var gotChunkIndex consts.Chunk
+	var gotCoord worldstream.ChunkCoord
 	var gotOffsetX consts.Tile
-	gen := func(chunkIndex consts.Chunk, offsetX consts.Tile) error {
-		gotChunkIndex = chunkIndex
+	gen := func(c worldstream.ChunkCoord, offsetX, _ consts.Tile) error {
+		gotCoord = c
 		gotOffsetX = offsetX
 		return nil
 	}
@@ -124,7 +126,7 @@ func TestBand_ShiftWest(t *testing.T) {
 	assert.False(t, world.ECS.Alive(eastEnemy), "東端チャンクの敵は破棄される")
 	assert.Equal(t, consts.Tile(190), world.Components.GridElement.Get(player).X, "プレイヤーは東へリベースされ中央へ")
 	assert.Equal(t, consts.Tile(150), world.Components.GridElement.Get(westEnemy).X, "西敵もリベースされる")
-	assert.Equal(t, 0, int(gotChunkIndex), "新しい西端チャンクの絶対インデックス")
+	assert.Equal(t, worldstream.ChunkCoord{X: 0, Y: 0}, gotCoord, "新しい西端チャンクの絶対座標")
 	assert.Equal(t, consts.Tile(0), gotOffsetX, "西スラブのオフセットは0")
 }
 
@@ -134,9 +136,9 @@ func TestBand_ShiftWest_eastIndex0はエラー(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	b := worldstream.NewBand(100, 3) // eastIndex=0
+	b := worldstream.NewBand(100, 60, 3, 1) // eastIndex=0
 	genCalled := false
-	gen := func(_ consts.Chunk, _ consts.Tile) error {
+	gen := func(_ worldstream.ChunkCoord, _, _ consts.Tile) error {
 		genCalled = true
 		return nil
 	}

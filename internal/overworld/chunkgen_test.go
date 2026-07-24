@@ -16,16 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestChunkSeed_決定的(t *testing.T) {
-	t.Parallel()
-
-	first := overworld.ChunkSeed(42, 5)
-	again := overworld.ChunkSeed(42, 5)
-	assert.Equal(t, first, again, "同じ入力なら同じ seed（決定的）")
-	assert.NotEqual(t, overworld.ChunkSeed(42, 1), overworld.ChunkSeed(42, 2), "隣接インデックスで seed が変わる")
-	assert.NotEqual(t, overworld.ChunkSeed(1, 5), overworld.ChunkSeed(2, 5), "runSeed が変われば seed も変わる")
-}
-
 func TestChunkSeed2D_決定的(t *testing.T) {
 	t.Parallel()
 
@@ -41,7 +31,7 @@ func TestChunkSeed2D_転置と隣接で散る(t *testing.T) {
 	assert.NotEqual(t, overworld.ChunkSeed2D(42, 1, 2), overworld.ChunkSeed2D(42, 2, 1), "転置した座標は別の seed になる")
 
 	// 負を含む近傍グリッド全域で seed が衝突しないことを確認する。
-	// 1次元 ChunkSeed との一致は仕様ではないため検証しない。互換は保証しない
+	// 旧1次元シードとの互換は保証しないため、その関係は検証しない
 	seen := map[uint64]worldstream.ChunkCoord{}
 	for cy := consts.Chunk(-8); cy <= 8; cy++ {
 		for cx := consts.Chunk(-8); cx <= 8; cx++ {
@@ -60,7 +50,7 @@ func TestNewChunkGen_オフセット配置(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 30, 20
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
 
-	require.NoError(t, gen(2, 60)) // chunkIndex=2 を offsetX=60 へ
+	require.NoError(t, gen(worldstream.ChunkCoord{X: 2}, 60, 0)) // X=2 を offsetX=60 へ
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	count := 0
@@ -84,7 +74,7 @@ func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *test
 	require.NoError(t, err)
 
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
-	require.NoError(t, gen(0, 0))
+	require.NoError(t, gen(worldstream.ChunkCoord{}, 0, 0))
 
 	overworldKey := gc.NewOverworldStage()
 
@@ -113,7 +103,7 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 	collect := func() []gc.GridElement {
 		world := testutil.InitTestWorld(t)
 		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
-		require.NoError(t, gen(7, 0))
+		require.NoError(t, gen(worldstream.ChunkCoord{X: 7}, 0, 0))
 
 		var walls []gc.GridElement
 		q := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.ECS).Query()
@@ -131,7 +121,7 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 
 	a := collect()
 	b := collect()
-	assert.Equal(t, a, b, "同じ (runSeed, chunkIndex) は同じ壁配置＝決定的に再生成できる")
+	assert.Equal(t, a, b, "同じ (runSeed, 座標) は同じ壁配置＝決定的に再生成できる")
 	assert.NotEmpty(t, a, "壁が存在する（生成が空でない）")
 }
 
@@ -147,13 +137,13 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, mapplanner.PlannerTypeSmallRoom)
 	// 初期帯: K チャンクを各スロットへ生成
 	for i := range k {
-		require.NoError(t, gen(consts.Chunk(i), consts.Tile(i)*chunkW))
+		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2 * chunkW, Y: chunkH / 2}, "Ash")
 	require.NoError(t, err)
 
-	band := worldstream.NewBand(chunkW, k)
+	band := worldstream.NewBand(chunkW, chunkH, k, 1)
 	require.True(t, band.ShouldShiftEast(world.Components.GridElement.Get(player).X))
 	require.NoError(t, band.ShiftEast(world, gen))
 

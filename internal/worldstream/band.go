@@ -9,30 +9,35 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// Band はアクティブ帯を管理する。アクティブ帯は K個の隣接チャンクを1連続座標空間に並べた単一マップ。
+// Band はアクティブ帯を管理する。アクティブ帯は横 k 列・縦 rows 行の隣接チャンクを
+// 1連続座標空間に並べた単一マップ。東西は無限にストリーミングし、南北は rows に有界で
+// ストリーミングしない。
 //
-// プレイヤーは常に中央チャンクに保たれ、中央チャンクを東へ出るとシフトする。シフトは東端生成・
-// 西端破棄・リベースからなる。これにより帯ローカル座標は常に 0..K*chunkW に収まり、既存の単一
-// マップ機構を変えずに無限東進を実現する。
+// プレイヤーは常に中央チャンク列に保たれ、中央列を東へ出るとシフトする。シフトは東端列の
+// 生成・西端列の破棄・リベースからなる。これにより帯ローカル座標は常に 0..K*chunkW に
+// 収まり、既存の単一マップ機構を変えずに無限東進を実現する。
 type Band struct {
 	chunkW    consts.Tile  // 1チャンクの幅。構築後不変
-	k         consts.Chunk // 帯のチャンク数。奇数で中央チャンクを持つ。構築後不変
+	chunkH    consts.Tile  // 1チャンクの高さ。縦スロットへの配置に使う。構築後不変
+	k         consts.Chunk // X方向のチャンク数。奇数で中央チャンクを持つ。構築後不変
+	rows      consts.Chunk // Y方向のチャンク行数。1 で従来の1行帯と同値。構築後不変
 	eastIndex consts.Chunk // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化
 }
 
-// ChunkGen は絶対チャンクインデックスの地形を帯ローカルの offsetX 位置へ生成・配置する。
+// ChunkGen はチャンク座標 c の地形を帯ローカルの (offsetX, offsetY) 位置へ生成・配置する。
 // 呼び出し側が引数からの決定的生成と mapspawner.SpawnAt を実装する。
 // worldstream を mapplanner/mapspawner に依存させないための注入点。
-type ChunkGen func(chunkIndex consts.Chunk, offsetX consts.Tile) error
+type ChunkGen func(c ChunkCoord, offsetX, offsetY consts.Tile) error
 
-// NewBand は幅 chunkW、チャンク数 k の帯を eastIndex=0 で作る。k は奇数を推奨する。
-func NewBand(chunkW consts.Tile, k consts.Chunk) *Band {
-	return NewBandAt(chunkW, k, 0)
+// NewBand は幅 chunkW・高さ chunkH のチャンクを横 k 列・縦 rows 行並べた帯を eastIndex=0 で作る。
+// k は奇数を推奨する。rows=1 で従来の1行帯と同値になる。
+func NewBand(chunkW, chunkH consts.Tile, k, rows consts.Chunk) *Band {
+	return NewBandAt(chunkW, chunkH, k, rows, 0)
 }
 
 // NewBandAt は eastIndex を指定して帯を作る。セーブからの復元で使う。
-func NewBandAt(chunkW consts.Tile, k, eastIndex consts.Chunk) *Band {
-	return &Band{chunkW: chunkW, k: k, eastIndex: eastIndex}
+func NewBandAt(chunkW, chunkH consts.Tile, k, rows, eastIndex consts.Chunk) *Band {
+	return &Band{chunkW: chunkW, chunkH: chunkH, k: k, rows: rows, eastIndex: eastIndex}
 }
 
 // ChunkW は1チャンクの幅を返す。
@@ -50,6 +55,12 @@ func (b *Band) BandOriginX() consts.AbsTileX { return BandOriginX(b.eastIndex, b
 // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。
 func (b *Band) Width() consts.Tile { return b.k.Tiles(b.chunkW) }
 
+// Rows は Y 方向のチャンク行数を返す。
+func (b *Band) Rows() consts.Chunk { return b.rows }
+
+// Height は帯の総高。帯ローカル Y の有効範囲は [0, Height())。
+func (b *Band) Height() consts.Tile { return b.rows.Tiles(b.chunkH) }
+
 // centerSlot は中央チャンクのスロット番号。K が奇数なら真ん中。
 func (b *Band) centerSlot() consts.Chunk { return b.k / 2 }
 
@@ -64,19 +75,24 @@ func (b *Band) ShouldShiftWest(playerLocalX consts.Tile) bool {
 }
 
 // ShiftEast は帯を東へ1チャンク進める。
-// 西端チャンク破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端チャンク生成。
+// 西端列の破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端列の生成。
 func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
-	// 1. 西端チャンクを破棄する。前線が呑む。プレイヤーと隊員は残す
+	// 1. 西端の列を全行破棄する。前線が呑む。プレイヤーと隊員は残す
 	RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayerAndSquad(world))
 	// 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す
 	TranslateAllEntities(world, -b.chunkW, 0)
 	// 3. 座標キー Map を追従させる。
 	b.rebaseCoordMaps(world, -b.chunkW)
-	// 4. eastIndex 前進 → 新しい東端チャンクを生成・配置
+	// 4. eastIndex 前進 → 新しい東端の列を全行生成・配置する
 	b.eastIndex++
-	newChunkIndex := b.eastIndex + b.k - 1
+	newChunkX := b.eastIndex + b.k - 1
 	offsetX := (b.k - 1).Tiles(b.chunkW)
-	return gen(newChunkIndex, offsetX)
+	for cy := range b.rows {
+		if err := gen(ChunkCoord{X: newChunkX, Y: cy}, offsetX, cy.Tiles(b.chunkH)); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ShiftWest は帯を西へ1チャンク戻す。ShiftEast の対称で、短い寄り道からの復帰時のみ使う。
@@ -87,15 +103,19 @@ func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 	if b.eastIndex <= 0 {
 		return fmt.Errorf("ShiftWest は eastIndex > 0 のときのみ呼べる: eastIndex=%d", b.eastIndex)
 	}
-	// 東端チャンク破棄
+	// 東端の列を全行破棄する
 	RemoveEntitiesInXRange(world, (b.k - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))
 	// リベース：全エンティティを東へ chunkW
 	TranslateAllEntities(world, b.chunkW, 0)
 	b.rebaseCoordMaps(world, b.chunkW)
-	// eastIndex 後退 → 西端チャンクを生成・配置
+	// eastIndex 後退 → 新しい西端の列を全行生成・配置する
 	b.eastIndex--
-	newChunkIndex := b.eastIndex
-	return gen(newChunkIndex, 0)
+	for cy := range b.rows {
+		if err := gen(ChunkCoord{X: b.eastIndex, Y: cy}, 0, cy.Tiles(b.chunkH)); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。

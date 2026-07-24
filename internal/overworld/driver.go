@@ -84,7 +84,8 @@ func (dr *Driver) Start(world w.World) error {
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
 // 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
-	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
+	// 行数は縦チャンク対応がマスタと serde に及ぶまで1に固定する
+	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.K, 1, sb.EastIndex)
 	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, dr.planner)
 	dr.frontCfg = frontCfgFromBand(sb)
 	query.InvalidateSpatialIndex(world)
@@ -117,9 +118,10 @@ func (dr *Driver) startNewBand(world w.World) error {
 	if dr.definition == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯形状の定義が必要")
 	}
-	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
+	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有。
+	// 行数は縦チャンク対応がマスタと serde に及ぶまで1に固定する
 	chunkW, chunkH, k := dr.definition.BandShape()
-	dr.band = worldstream.NewBand(chunkW, k)
+	dr.band = worldstream.NewBand(chunkW, chunkH, k, 1)
 	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, dr.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
@@ -152,9 +154,9 @@ func (dr *Driver) startNewBand(world w.World) error {
 		return err
 	}
 
-	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
+	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動。行が増えたら中央行から始める
 	cx := (dr.band.K() / 2).Tiles(chunkW) + chunkW/2
-	cy := chunkH / 2
+	cy := (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2
 	if _, err := query.GetPlayerEntity(world); err != nil {
 		if _, serr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
@@ -184,13 +186,16 @@ func (dr *Driver) syncBandState(world w.World) {
 	query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
 }
 
-// generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
-// Level 設定は帯幅が不変なので再設定しても冪等で無害。
+// generateBandChunks は Level を帯全域に設定し、rows × K のチャンクを各スロットへ決定的生成する。
+// Level 設定は帯寸法が不変なので再設定しても冪等で無害。
 func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
-	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: chunkH}
-	for i := range dr.band.K() {
-		if err := dr.gen(i, i.Tiles(chunkW)); err != nil {
-			return fmt.Errorf("チャンク生成失敗 (slot=%d): %w", i, err)
+	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
+	for cy := range dr.band.Rows() {
+		for i := range dr.band.K() {
+			c := worldstream.ChunkCoord{X: dr.band.EastIndex() + i, Y: cy}
+			if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {
+				return fmt.Errorf("チャンク生成失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
+			}
 		}
 	}
 	return nil
