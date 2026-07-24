@@ -117,6 +117,63 @@ func TestRecalcSeamAutotile(t *testing.T) {
 	}
 }
 
+// TestRecalcSeamAutotileY は縦境界2行のオートタイルが接合後に隣チャンクを見て再計算されることを固定する。
+func TestRecalcSeamAutotileY(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	const boundaryY consts.Tile = 40
+
+	// 境界の周囲に dirt の 3x4 ブロックを敷く。端スプライトを模して autoTileIndex=0 で生成する
+	zero := 0
+	for y := boundaryY - 2; y <= boundaryY+1; y++ {
+		for x := consts.Tile(4); x <= 6; x++ {
+			_, err := lifecycle.SpawnTile(world, "dirt", x, y, &zero)
+			require.NoError(t, err)
+		}
+	}
+
+	overworld.RecalcSeamAutotileY(world, boundaryY)
+
+	// 境界タイル (5, boundaryY-1) と (5, boundaryY) は4近傍すべて dirt なので _15 になる
+	for _, by := range []consts.Tile{boundaryY - 1, boundaryY} {
+		key := spriteKeyAt(t, world, 5, by)
+		assert.Truef(t, strings.HasSuffix(key, "_15"),
+			"境界タイル y=%d は近傍反映で全接続(_15)になる。実際: %s", by, key)
+	}
+}
+
+// TestChunkGen_縦の継ぎ目は生成順に依存しない は、縦に積んだ2チャンクの境界2行が
+// 生成順（上→下 / 下→上）に依存しないことを固定する。行が増えたときの縦版の対称性。
+func TestChunkGen_縦の継ぎ目は生成順に依存しない(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 30, 20
+	const runSeed uint64 = 42
+	planner := mapplanner.PlannerTypeOverworldField
+
+	// 上→下の順
+	wTop := testutil.InitTestWorld(t)
+	genA := overworld.NewChunkGen(wTop, runSeed, chunkW, chunkH, planner)
+	require.NoError(t, genA(worldstream.ChunkCoord{X: 0, Y: 0}, 0, 0))
+	require.NoError(t, genA(worldstream.ChunkCoord{X: 0, Y: 1}, 0, chunkH))
+
+	// 下→上の順
+	wBottom := testutil.InitTestWorld(t)
+	genB := overworld.NewChunkGen(wBottom, runSeed, chunkW, chunkH, planner)
+	require.NoError(t, genB(worldstream.ChunkCoord{X: 0, Y: 1}, 0, chunkH))
+	require.NoError(t, genB(worldstream.ChunkCoord{X: 0, Y: 0}, 0, 0))
+
+	// 境界2行(chunkH-1 = 上チャンク南端, chunkH = 下チャンク北端)の SpriteKey が一致する
+	for _, y := range []consts.Tile{chunkH - 1, chunkH} {
+		for x := range chunkW {
+			ka := spriteKeyAtOrEmpty(wTop, x, y)
+			kb := spriteKeyAtOrEmpty(wBottom, x, y)
+			assert.Equalf(t, ka, kb, "境界(%d,%d)の SpriteKey は生成順に依存しない", x, y)
+		}
+	}
+}
+
 // spriteKeyAt は指定座標のタイルの SpriteKey を返す。
 func spriteKeyAt(t *testing.T, world w.World, x, y consts.Tile) string {
 	t.Helper()

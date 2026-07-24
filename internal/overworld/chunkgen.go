@@ -49,6 +49,9 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, plan
 		// RecalcSeamAutotile は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。
 		RecalcSeamAutotile(world, offsetX)
 		RecalcSeamAutotile(world, offsetX+chunkW)
+		// 縦境界も同様に再計算する。行が1つの帯では上下とも帯端なので自己スキップされる
+		RecalcSeamAutotileY(world, offsetY)
+		RecalcSeamAutotileY(world, offsetY+chunkH)
 		return nil
 	}
 }

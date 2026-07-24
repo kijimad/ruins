@@ -23,27 +23,43 @@ import (
 // 最東端で隣チャンクが無い場合が該当する。これにより呼び出し側は東西どちらの境界かを気にせず
 // 両境界を無条件に呼べる。東シフトは西境界、西シフトは東境界が実境界になる。
 func RecalcSeamAutotile(world w.World, boundaryX consts.Tile) {
-	// 境界周辺の列 boundaryX-2..boundaryX+1 のタイルを位置引きできるよう集める。
-	// 再計算対象の左右隣 boundaryX-2 と boundaryX+1 まで含める
+	recalcSeamAutotileAlong(world, boundaryX, func(g gc.GridElement) consts.Tile { return g.X })
+}
+
+// RecalcSeamAutotileY はチャンク境界 y=boundaryY をまたぐ2行のタイルのオートタイルを再計算する。
+// RecalcSeamAutotile の縦境界版で、boundaryY-1 が北チャンク南端、boundaryY が南チャンク北端。
+// 境界の両側にタイルが揃っている内部境界だけを処理し、帯の最上端・最下端では自己スキップする。
+// 呼び出し側は上下どちらの境界かを気にせず両境界を無条件に呼べる。
+func RecalcSeamAutotileY(world w.World, boundaryY consts.Tile) {
+	recalcSeamAutotileAlong(world, boundaryY, func(g gc.GridElement) consts.Tile { return g.Y })
+}
+
+// recalcSeamAutotileAlong は境界をまたぐ2ラインのオートタイル再計算の共通実装。
+// axis が返す座標軸に沿って boundary-1 と boundary の2ラインを対象にする。
+// 横境界なら axis は X を、縦境界なら Y を返す。
+func recalcSeamAutotileAlong(world w.World, boundary consts.Tile, axis func(g gc.GridElement) consts.Tile) {
+	// 境界周辺の boundary-2..boundary+1 のタイルを位置引きできるよう集める。
+	// 再計算対象の両隣 boundary-2 と boundary+1 まで含める
 	tiles := make(map[gc.GridElement]ecs.Entity)
-	hasWest, hasEast := false, false
+	hasLow, hasHigh := false, false
 	// 帯の継ぎ目再計算は現ステージ(帯)のタイルだけを対象にする
 	q := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()
 	for q.Next() {
 		e := q.Entity()
 		g := *world.Components.GridElement.Get(e)
-		if g.X >= boundaryX-2 && g.X <= boundaryX+1 {
+		c := axis(g)
+		if c >= boundary-2 && c <= boundary+1 {
 			tiles[g] = e
-			if g.X == boundaryX-1 {
-				hasWest = true
+			if c == boundary-1 {
+				hasLow = true
 			}
-			if g.X == boundaryX {
-				hasEast = true
+			if c == boundary {
+				hasHigh = true
 			}
 		}
 	}
 	// 片側が空なら帯端の外周であり、直すべき継ぎ目は無い
-	if !hasWest || !hasEast {
+	if !hasLow || !hasHigh {
 		return
 	}
 
@@ -55,10 +71,11 @@ func RecalcSeamAutotile(world w.World, boundaryX consts.Tile) {
 		return world.Components.Name.Get(e).Name, true
 	}
 
-	// 境界の2列を再計算する
+	// 境界の2ラインを再計算する
 	for _, e := range tiles {
 		g := *world.Components.GridElement.Get(e)
-		if g.X != boundaryX-1 && g.X != boundaryX {
+		c := axis(g)
+		if c != boundary-1 && c != boundary {
 			continue
 		}
 		recalcTileAutotile(world, e, g, nameOf)
