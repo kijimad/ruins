@@ -34,6 +34,35 @@ func RecalcSeamAutotileY(world w.World, boundaryY consts.Tile) {
 	recalcSeamAutotileAlong(world, boundaryY, func(g gc.GridElement) consts.Tile { return g.Y })
 }
 
+// RecalcAutotileInXRange は X 範囲 [loX, hiX) のタイルのオートタイルを、実エンティティの
+// 近傍から再計算する。地物の層がタイルを置換した後に呼び、置換タイル自身と周囲の土の
+// 添字を実状態へ揃える。近傍参照のため範囲の外側1列も集めるが、再計算は範囲内に限る。
+func RecalcAutotileInXRange(world w.World, loX, hiX consts.Tile) {
+	tiles := make(map[gc.GridElement]ecs.Entity)
+	q := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		g := *world.Components.GridElement.Get(e)
+		if g.X >= loX-1 && g.X <= hiX {
+			tiles[g] = e
+		}
+	}
+	nameOf := func(g gc.GridElement) (string, bool) {
+		e, ok := tiles[g]
+		if !ok || !world.Components.Name.Has(e) {
+			return "", false
+		}
+		return world.Components.Name.Get(e).Name, true
+	}
+	for _, e := range tiles {
+		g := *world.Components.GridElement.Get(e)
+		if g.X < loX || g.X >= hiX {
+			continue
+		}
+		recalcTileAutotile(world, e, g, nameOf)
+	}
+}
+
 // recalcSeamAutotileAlong は境界をまたぐ2ラインのオートタイル再計算の共通実装。
 // axis が返す座標軸に沿って boundary-1 と boundary の2ラインを対象にする。
 // 横境界なら axis は X を、縦境界なら Y を返す。

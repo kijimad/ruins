@@ -45,6 +45,9 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 		if err := PlaceFeatures(world, runSeed, c, start, rows, offsetX, offsetY, chunkW, chunkH); err != nil {
 			return err
 		}
+		// 地物がタイルを置換した後、チャンク全域のオートタイルを実状態から再計算する。
+		// 置換タイル自身と、隣接する土の添字がここで揃う
+		RecalcAutotileInXRange(world, offsetX, offsetX+chunkW)
 		// 生成したチャンクのフィールドエンティティをオーバーワールドステージへ束縛する。
 		// 共存方式で遺跡へ入るとき帯を退避できるようにする。シフトで生成される新チャンクも
 		// ここで束縛される。Player・SquadMember・既束縛は Bind が自然に除外する

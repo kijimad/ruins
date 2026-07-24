@@ -49,4 +49,7 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 	key := spriteKeyAtOrEmpty(world, mid, west.Y)
 	assert.True(t, strings.HasPrefix(key, consts.TileNameFloor),
 		"集落間の中間 (%d,%d) が舗装される。実際: %q", mid, west.Y, key)
+	// 水平路の中間は左右にだけ床が続くため、オートタイルは左8|右2=10 になる。
+	// 添字が仮の 0 のままなら孤立タイル絵が並ぶ退行なので、ここで固定する
+	assert.True(t, strings.HasSuffix(key, "_10"), "水平路の中間は左右接続の添字10。実際: %q", key)
 }

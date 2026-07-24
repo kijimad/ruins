@@ -97,25 +97,6 @@ func cityTiles(citySeed uint64, width consts.Chunk, cityW, cityH consts.Tile) ma
 	return m
 }
 
-// cityWallAutotile は壁マスのオートタイル番号を市街地レイアウト内の4近傍から計算する。
-// ビット割り当ては CalculateAutoTileIndex と同じ、上1・右2・下4・左8。
-func cityWallAutotile(m map[consts.Coord[consts.Tile]]cityTile, p consts.Coord[consts.Tile]) int {
-	bit := 0
-	if m[consts.Coord[consts.Tile]{X: p.X, Y: p.Y - 1}] == cityWall {
-		bit |= 1
-	}
-	if m[consts.Coord[consts.Tile]{X: p.X + 1, Y: p.Y}] == cityWall {
-		bit |= 2
-	}
-	if m[consts.Coord[consts.Tile]{X: p.X, Y: p.Y + 1}] == cityWall {
-		bit |= 4
-	}
-	if m[consts.Coord[consts.Tile]{X: p.X - 1, Y: p.Y}] == cityWall {
-		bit |= 8
-	}
-	return bit
-}
-
 // place は c が市街地の一部なら自分の断片を描く。開始チャンクを含む市街地は丸ごと
 // スキップし、新規ゲームの開始点を安全に保つ。
 func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
@@ -133,7 +114,8 @@ func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstrea
 	fragIdx := c.X - anchor.X
 	fragOrigin := fragIdx.Tiles(g.chunkW) // 市街地ローカルでの自断片の西端 X
 
-	// 断片範囲に重なる壁・床を置換する。壁のオートタイルはレイアウト内の近傍から計算する
+	// 断片範囲に重なる壁・床を置換する。オートタイル添字は置換後にチャンク全域の
+	// 再計算が実状態から揃えるため、ここでは仮の 0 で置いてよい
 	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
 	layout := cityTiles(citySeed, width, width.Tiles(g.chunkW), g.chunkH)
 	for p, kind := range layout {
@@ -142,11 +124,11 @@ func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstrea
 		}
 		wx := g.offsetX + (p.X - fragOrigin)
 		wy := g.offsetY + p.Y
-		name, idx := consts.TileNameFloor, 0
+		name := consts.TileNameFloor
 		if kind == cityWall {
-			name, idx = consts.TileNameDWall, cityWallAutotile(layout, p)
+			name = consts.TileNameDWall
 		}
-		if err := replaceTile(world, tiles, wx, wy, name, idx); err != nil {
+		if err := replaceTile(world, tiles, wx, wy, name); err != nil {
 			return fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", wx, wy, err)
 		}
 	}
@@ -182,13 +164,15 @@ func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement
 }
 
 // replaceTile は座標のタイルを取り除き、tileName のタイルへ置き換える。
-func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, x, y consts.Tile, tileName string, autoTileIdx int) error {
+// オートタイル添字は仮の 0 で置き、後段の RecalcAutotileInXRange が実状態から揃える。
+func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, x, y consts.Tile, tileName string) error {
 	g := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	if e, ok := tiles[g]; ok && world.ECS.Alive(e) {
 		world.ECS.RemoveEntity(e)
 		delete(tiles, g)
 	}
-	if _, err := lifecycle.SpawnTile(world, tileName, x, y, &autoTileIdx); err != nil {
+	zero := 0
+	if _, err := lifecycle.SpawnTile(world, tileName, x, y, &zero); err != nil {
 		return err
 	}
 	return nil
