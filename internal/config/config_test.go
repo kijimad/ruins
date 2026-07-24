@@ -68,7 +68,7 @@ func TestConfig_StringGolden(t *testing.T) {
 func assertGoldenText(t *testing.T, name, actual string) {
 	t.Helper()
 
-	g := goldie.New(t, goldie.WithFixtureDir("testdata"), goldie.WithNameSuffix(".golden"))
+	g := goldie.New(t)
 	if v := os.Getenv("GOLDIE_UPDATE"); v == "1" || v == "true" {
 		require.NoError(t, g.Update(t, name, []byte(actual)))
 		return
