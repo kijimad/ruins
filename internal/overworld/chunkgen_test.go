@@ -167,13 +167,16 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	}
 }
 
+// merchantName は小集落の店NPC名。テスト間で共有する。
+const merchantName = "商人"
+
 // townBucket は 商人 が立つチャンクスロットを返す。無ければ -1。
 func townBucket(world w.World) int {
 	const chunkW consts.Tile = 30
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.Name.Get(e).Name != "商人" {
+		if world.Components.Name.Get(e).Name != merchantName {
 			continue
 		}
 		x := world.Components.GridElement.Get(e).X
@@ -199,7 +202,7 @@ func TestNewChunkGen_小集落はリージョンにちょうど1つ生成され�
 	count := 0
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
-		if world.Components.Name.Get(q.Entity()).Name == "商人" {
+		if world.Components.Name.Get(q.Entity()).Name == merchantName {
 			count++
 		}
 	}

@@ -1,0 +1,43 @@
+package overworld
+
+import (
+	"fmt"
+	"math/rand/v2"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/worldstream"
+)
+
+// 遺跡入口は帯全域に点在する階層ステージへの進入口。触れて Enter で潜り、上り階段で
+// 地上へ戻る。往復の結線は進入時に Phase 8 のポータル機構が戻り先を焼き込むため、
+// 配置側は入口 prop と遺跡定義名を決定的に置くだけでよい。
+const ruinSalt = 0x4e01
+
+// ruinPlacement は遺跡入口のリージョン配置。小集落と市街地の中間の疎らさで置く。
+var ruinPlacement = Placement{Spacing: 12, Separation: 3, Salt: ruinSalt}
+
+// ruinEntranceFeature は遺跡入口の feature 実装。
+type ruinEntranceFeature struct{}
+
+// place は当選チャンクの中心付近へ遺跡入口を置く。進入先の遺跡定義は登録済み一覧から
+// チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途
+// 置くため、ここでは重複を避けてスキップする。
+func (ruinEntranceFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+	if !ruinPlacement.At(runSeed, c, rows) || c == start {
+		return nil
+	}
+	defs := dungeon.GetAllDungeons()
+	if len(defs) == 0 {
+		return nil
+	}
+	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^ruinSalt, c.X, c.Y), 0))
+	def := defs[rng.IntN(len(defs))]
+	pos := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
+	if _, err := lifecycle.SpawnDungeonEntrance(world, pos.X, pos.Y, def.Name()); err != nil {
+		return fmt.Errorf("遺跡入口の配置に失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
+	}
+	return nil
+}

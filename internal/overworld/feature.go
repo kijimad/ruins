@@ -23,12 +23,18 @@ type Placement struct {
 // 有界なのでリージョンで割らず、帯の全行から当選行を1つ引く。こうしないと行数より大きい
 // オフセットを引いたリージョンの当選が帯の外へ落ち、行数の少ない帯に地物がほぼ出なくなる。
 func (p Placement) At(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) bool {
+	return c == p.WinnerOf(runSeed, floorDiv(c.X, p.Spacing), rows)
+}
+
+// WinnerOf はリージョン rx の当選チャンク座標を返す。生成を伴わない純関数なので、
+// 道の結線や情報サービスが近傍の地物位置を「生成せずに算出」する基盤になる。
+func (p Placement) WinnerOf(runSeed uint64, rx, rows consts.Chunk) worldstream.ChunkCoord {
 	span := uint64(p.Spacing - p.Separation)
-	rx := floorDiv(c.X, p.Spacing)
 	h := ChunkSeed2D(runSeed^p.Salt, rx, 0)
-	ox := consts.Chunk(h % span)
-	oy := consts.Chunk((h / span) % uint64(rows))
-	return c.X == rx*p.Spacing+ox && c.Y == oy
+	return worldstream.ChunkCoord{
+		X: rx*p.Spacing + consts.Chunk(h%span),
+		Y: consts.Chunk((h / span) % uint64(rows)),
+	}
 }
 
 // floorDiv は負の座標でもリージョン割りが連続になる床除算。Go の / はゼロ方向へ丸めるため、
@@ -55,7 +61,8 @@ type feature interface {
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
 func features() []feature {
-	return []feature{settlementFeature{}, urbanRuinFeature{}}
+	// 道は他の地物の上を舗装しないよう最後に評価する
+	return []feature{settlementFeature{}, urbanRuinFeature{}, ruinEntranceFeature{}, roadFeature{}}
 }
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
