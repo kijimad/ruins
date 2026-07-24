@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -8,7 +9,31 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli/v3"
 )
+
+// TestRunGenReadme_テンプレートが存在しない場合はエラーになる はREADME.tmpl.mdの
+// 読み込み失敗が即座にエラーとして返ることを確認する。テストのカレントディレクトリ
+// である internal/cmd には README.tmpl.md が存在しないため決定的にエラーになる
+func TestRunGenReadme_テンプレートが存在しない場合はエラーになる(t *testing.T) {
+	t.Parallel()
+
+	err := runGenReadme(context.Background(), &cli.Command{})
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "テンプレートの読み込みに失敗")
+}
+
+// TestBuildImageTable_存在しないディレクトリの場合はエラーになる はbuildImageTableが
+// 既定の imageDir を buildImageTableFrom にそのまま委譲することを確認する
+func TestBuildImageTable_存在しないディレクトリの場合はエラーになる(t *testing.T) {
+	t.Parallel()
+
+	_, err := buildImageTable()
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, imageDir)
+}
 
 func TestBuildImageTableFrom_Empty(t *testing.T) {
 	t.Parallel()
