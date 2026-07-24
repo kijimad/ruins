@@ -24,6 +24,22 @@ func ChunkSeed(runSeed uint64, chunkIndex consts.Chunk) uint64 {
 	return x
 }
 
+// ChunkSeed2D は runSeed とチャンク座標 (cx, cy) から決定的なチャンク seed を導く。
+// ChunkSeed の2次元版で、cx と cy を異なる奇数定数で混ぜてから splitmix64 系で撹拌する。
+// 隣接や転置の座標でも seed は十分散る。
+//
+// 1次元の ChunkSeed との互換は保証しない。縦の行数を増やす移行は世界形状そのものの
+// 変更なので全チャンクの再生成を許容し、互換の約束で定数設計を縛らない。
+func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
+	x := runSeed + uint64(cx)*0x9E3779B97F4A7C15 + uint64(cy)*0xC2B2AE3D27D4EB4F
+	x ^= x >> 30
+	x *= 0xBF58476D1CE4E5B9
+	x ^= x >> 27
+	x *= 0x94D049BB133111EB
+	x ^= x >> 31
+	return x
+}
+
 // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。
 // chunkIndex ごとに (runSeed, chunkIndex) から決定的に生成し、帯ローカルの offsetX へ配置する。
 // 高さ chunkH は固定。南北はストリーミングしない帯。
