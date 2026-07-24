@@ -86,6 +86,7 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
+	// AttackRifle は enum.go の rangeParams に登録済みなので、射程行が表示される前提が成り立つ
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackRifle, Cost: 150,
@@ -131,8 +132,9 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 		EquipmentCategory: gc.EquipmentTorso,
 		InsulationCold:    3,
 		InsulationHeat:    2,
+		// 各項目の値をすべて別々にし、"+N" の一致がどの行由来か一意に特定できるようにする
 		EquipBonus: gc.EquipBonus{
-			Vitality: 2, Strength: 1, Sensation: 0, Dexterity: 4, Agility: -1,
+			Vitality: 6, Strength: 1, Sensation: 0, Dexterity: 4, Agility: -1,
 		},
 	})
 
@@ -144,6 +146,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	assert.Contains(t, labels, "+3", "耐寒値が表示される")
 	assert.Contains(t, labels, "耐熱", "耐熱ラベルが表示される")
 	assert.Contains(t, labels, "+2", "耐熱値が表示される")
+	assert.Contains(t, labels, "+6", "体力ボーナスが表示される")
 	assert.Contains(t, labels, "+1", "筋力ボーナスが表示される")
 	assert.Contains(t, labels, "+4", "器用ボーナスが表示される")
 	assert.Contains(t, labels, "-1", "敏捷ボーナスが負値でも表示される")
