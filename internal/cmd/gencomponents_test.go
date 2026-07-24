@@ -34,6 +34,8 @@ func TestGenerateComponents_Golden(t *testing.T) {
 func TestRunGenComponents_出力ファイルへ書き込む(t *testing.T) {
 	outPath := filepath.Join(t.TempDir(), "components_gen.go")
 
+	// RunMainApp経由ではなくCmdGenComponents.Runを直接呼ぶ。--outを明示するためフラグの
+	// デフォルト値解決には依存しない
 	err := CmdGenComponents.Run(context.Background(), []string{"gencomponents", "--out", outPath})
 	require.NoError(t, err)
 
