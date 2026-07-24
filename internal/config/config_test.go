@@ -3,6 +3,7 @@ package config
 import (
 	"testing"
 
+	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -42,6 +43,23 @@ func TestApplyProfileDefaults_UnknownProfile(t *testing.T) {
 	// 不明なプロファイルは本番設定にフォールバックする
 	assert.False(t, cfg.Debug)
 	assert.False(t, cfg.SkipOpening)
+}
+
+func TestConfig_StringGolden(t *testing.T) {
+	t.Parallel()
+
+	c := &Config{
+		Profile:     ProfileDevelopment,
+		User:        UserConfig{WindowWidth: 800, WindowHeight: 600},
+		Debug:       true,
+		LogLevel:    "debug",
+		Seed:        42,
+		TargetFPS:   30,
+		PProfPort:   6060,
+		ProfilePath: ".",
+	}
+
+	goldie.New(t).Assert(t, "config_string", []byte(c.String()))
 }
 
 func TestLoad(t *testing.T) {
