@@ -71,8 +71,9 @@
   <div class="maps">
     <h2>今回の変更と設計の対応</h2>
     <ul>
-      <li><b>大型構造は複数チャンク</b> … 基地・廃工場・ダム・研究所は多タイル footprint。CDDA の overmap_special（多 OMT）翻案。<code>FeatureSpec.Footprint</code></li>
-      <li><b>規模の幅を拡大</b> … 集落は2〜4軒、大都市は半径5で数十施設が密集。<code>Settlement.Size</code> の分布を広げた</li>
+      <li><b>大型構造は複数チャンク</b> … 基地・廃工場・ダム・研究所は多タイル footprint。CDDA の overmap_special（多 OMT）翻案。doc 69 では citySeed 一括導出＋Connection 層が担う</li>
+      <li><b>規模の幅を拡大</b> … 集落は2〜4軒、大都市は半径5で数十施設が密集。doc 69 では規模 gate の重み付き施設テーブル（Content）が担う</li>
+      <li><b>注意（旧モデル）</b> … 本モックは類型分離以前のイメージ。確定設計（doc 69）では小集落（Settlement・補給）と市街地・大都市（UrbanRuin・補給の場でない攻略対象）は<b>別カテゴリ</b>で、大都市に補給施設が並ぶ本図の描写は旧モデル。施設の具体性・規模感・大型構造の見せ方の参考として残す</li>
       <li><b>自然の構造物</b> … 集落外にも農家・廃屋・山小屋・神社・灯台が点在。荒野向けの <code>FeatureSpec</code> 群</li>
     </ul>
   </div>
