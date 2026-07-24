@@ -8,9 +8,10 @@ runs:
       run: |
         sudo apt update -y
         sudo apt install -y libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
-        echo "DISPLAY=:99" >> $GITHUB_ENV
-        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-        sleep 1
+        # 仮想ディスプレイはここでは起動しない。make の各ターゲットが xvfb-run -a で
+        # その都度立てるため、ここでも Xvfb :99 を立てると画面が二重になり、xvfb-run が
+        # 別ディスプレイ :100 を新規起動する。その一斉接続で稀に "Failed to open display" になる。
+        # ローカルと CI で表示経路を xvfb-run に一本化して二重起動を避ける。
         # ebitenのgamepad初期化がEINTRでパニックするのを防ぐ
         sudo mount -t tmpfs tmpfs /dev/input
     - name: set up go
