@@ -132,8 +132,9 @@ func TestEnsureUserConfigFile_既にあれば上書きしない(t *testing.T) {
 	require.NoError(t, writeSettings([]byte("window_width = 1280\n")))
 	require.NoError(t, EnsureUserConfigFile())
 
-	data, _, err := readSettings()
+	data, ok, err := readSettings()
 	require.NoError(t, err)
+	require.True(t, ok)
 	assert.Equal(t, "window_width = 1280\n", string(data))
 }
 
