@@ -60,6 +60,7 @@ $ make help
 | status | 件数 |
 |---|---|
 | in-progress | 1 |
+| draft | 1 |
 | done | 62 |
 
 ### 進行中
