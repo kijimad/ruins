@@ -39,62 +39,68 @@ func newTestProfession() oapi.Profession {
 	}
 }
 
-func TestApplyProfession_成功時に能力値スキル装備アイテムが反映される(t *testing.T) {
+func TestApplyProfession(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
-	require.NoError(t, err)
 
-	prof := newTestProfession()
-	err = ApplyProfession(world, player, prof)
-	require.NoError(t, err)
+	t.Run("能力値スキル装備アイテムが反映される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		require.NoError(t, err)
 
-	profComp := world.Components.Profession.Get(player)
-	assert.Equal(t, "test-profession", profComp.ID, "職業IDが反映されるべき")
+		prof := newTestProfession()
+		err = ApplyProfession(world, player, prof)
+		require.NoError(t, err)
 
-	abils := world.Components.Abilities.Get(player)
-	assert.Equal(t, 10, abils.Strength.Base, "筋力が反映されるべき")
-	assert.Equal(t, 11, abils.Sensation.Base, "感覚が反映されるべき")
-	assert.Equal(t, 12, abils.Dexterity.Base, "器用さが反映されるべき")
-	assert.Equal(t, 13, abils.Agility.Base, "敏捷性が反映されるべき")
-	assert.Equal(t, 14, abils.Vitality.Base, "体力が反映されるべき")
-	assert.Equal(t, 15, abils.Defense.Base, "防御力が反映されるべき")
+		profComp := world.Components.Profession.Get(player)
+		assert.Equal(t, "test-profession", profComp.ID, "職業IDが反映されるべき")
 
-	skills := world.Components.Skills.Get(player)
-	assert.Equal(t, 5, skills.Get(gc.SkillSword).Value, "職業のスキル初期値が反映されるべき")
+		abils := world.Components.Abilities.Get(player)
+		assert.Equal(t, 10, abils.Strength.Base, "筋力が反映されるべき")
+		assert.Equal(t, 11, abils.Sensation.Base, "感覚が反映されるべき")
+		assert.Equal(t, 12, abils.Dexterity.Base, "器用さが反映されるべき")
+		assert.Equal(t, 13, abils.Agility.Base, "敏捷性が反映されるべき")
+		assert.Equal(t, 14, abils.Vitality.Base, "体力が反映されるべき")
+		assert.Equal(t, 15, abils.Defense.Base, "防御力が反映されるべき")
 
-	assert.True(t, world.Components.CharModifiers.Has(player), "CharModifiersが再計算され付与されるべき")
+		skills := world.Components.Skills.Get(player)
+		assert.Equal(t, 5, skills.Get(gc.SkillSword).Value, "職業のスキル初期値が反映されるべき")
 
-	_, ok := query.FindStackableInInventory(world, "木の棒")
-	assert.True(t, ok, "初期アイテムがバックパックに生成されるべき")
+		assert.True(t, world.Components.CharModifiers.Has(player), "CharModifiersが再計算され付与されるべき")
 
-	weapons := query.GetWeapons(world, player)
-	require.NotNil(t, weapons[0], "WEAPON1スロットに初期装備が装備されるべき")
-	name := world.Components.Name.Get(*weapons[0])
-	assert.Equal(t, "木刀", name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
-}
+		item, ok := query.FindStackableInInventory(world, "木の棒")
+		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")
+		assert.Equal(t, 3, world.Components.Stackable.Get(item).Count, "指定した個数の初期アイテムが生成されるべき")
 
-func TestApplyProfession_職業を再適用すると職業IDが上書きされる(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
-	require.NoError(t, err)
+		// GetWeaponsは常に長さ5のスライスを返す
+		weapons := query.GetWeapons(world, player)
+		require.NotNil(t, weapons[0], "WEAPON1スロットに初期装備が装備されるべき")
+		name := world.Components.Name.Get(*weapons[0])
+		assert.Equal(t, "木刀", name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
+	})
 
-	first := newTestProfession()
-	require.NoError(t, ApplyProfession(world, player, first))
+	t.Run("再適用すると能力値と職業IDが上書きされる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		require.NoError(t, err)
 
-	second := newTestProfession()
-	second.Id = "second-profession"
-	second.Items = nil
-	second.Equips = nil
-	require.NoError(t, ApplyProfession(world, player, second))
+		first := newTestProfession()
+		require.NoError(t, ApplyProfession(world, player, first))
 
-	profComp := world.Components.Profession.Get(player)
-	assert.Equal(t, "second-profession", profComp.ID, "再適用時は既存のProfessionが更新されるべき")
-}
+		second := newTestProfession()
+		second.Id = "second-profession"
+		second.Abilities.Strength = 99
+		second.Items = nil
+		second.Equips = nil
+		require.NoError(t, ApplyProfession(world, player, second))
 
-func TestApplyProfession_異常系(t *testing.T) {
-	t.Parallel()
+		profComp := world.Components.Profession.Get(player)
+		assert.Equal(t, "second-profession", profComp.ID, "再適用時は既存のProfessionが更新されるべき")
+
+		abils := world.Components.Abilities.Get(player)
+		assert.Equal(t, 99, abils.Strength.Base, "再適用時は能力値も新しい値で上書きされるべき")
+	})
 
 	tests := []struct {
 		name        string
