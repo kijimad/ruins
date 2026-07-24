@@ -1,8 +1,10 @@
 package config
 
 import (
+	"os"
 	"testing"
 
+	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -44,7 +46,7 @@ func TestApplyProfileDefaults_UnknownProfile(t *testing.T) {
 	assert.False(t, cfg.SkipOpening)
 }
 
-func TestConfig_String(t *testing.T) {
+func TestConfig_StringGolden(t *testing.T) {
 	t.Parallel()
 
 	c := &Config{
@@ -58,11 +60,20 @@ func TestConfig_String(t *testing.T) {
 		ProfilePath: ".",
 	}
 
-	s := c.String()
-	assert.Contains(t, s, "Profile: development")
-	assert.Contains(t, s, "WindowWidth: 800, WindowHeight: 600")
-	assert.Contains(t, s, "Seed: 42")
-	assert.Contains(t, s, "TargetFPS: 30")
+	assertGoldenText(t, "config_string", c.String())
+}
+
+// assertGoldenText は文字列を testdata/<name>.golden と比較する。
+// GOLDIE_UPDATE=1 で golden を更新する。make updategolden から拾えるようテスト名には Golden を含める。
+func assertGoldenText(t *testing.T, name, actual string) {
+	t.Helper()
+
+	g := goldie.New(t, goldie.WithFixtureDir("testdata"), goldie.WithNameSuffix(".golden"))
+	if v := os.Getenv("GOLDIE_UPDATE"); v == "1" || v == "true" {
+		require.NoError(t, g.Update(t, name, []byte(actual)))
+		return
+	}
+	g.Assert(t, name, []byte(actual))
 }
 
 func TestLoad(t *testing.T) {

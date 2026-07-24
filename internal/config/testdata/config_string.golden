@@ -1,0 +1,9 @@
+Config{
+	Profile: development,
+	WindowWidth: 800, WindowHeight: 600,
+	Debug: true, LogLevel: debug, LogCategories: , DebugPProf: false, PProfPort: 6060,
+	Seed: 42,
+	TargetFPS: 30,
+	ProfileMemory: false, ProfileCPU: false, ProfileMutex: false, ProfileTrace: false,
+	ProfilePath: .
+}
