@@ -38,7 +38,6 @@ bench: ## ベンチマークを全て実行する
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
-	# go test は ebiten を実行するため xvfb-run で仮想ディスプレイを与える。cover はディスプレイ不要
 	RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a go test -coverprofile=coverage.out $(GO_TEST_PKGS)
 	go tool cover -func=coverage.out
@@ -85,7 +84,6 @@ toolsinstall: ## 開発ツールをインストールする
 
 .PHONY: generate
 generate: ## コードを生成する
-	# ジェネレータは ebiten を import し init 時に画面接続を要求するため xvfb-run で仮想ディスプレイを与える
 	$(BWRAP_CMD) xvfb-run -a go generate ./...
 
 .PHONY: check
