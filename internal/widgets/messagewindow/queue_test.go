@@ -105,8 +105,9 @@ func TestQueueManager_Dequeue(t *testing.T) {
 
 		// 連鎖メッセージが先頭に追加され、元からキューにあったafterより先に出てくる
 		require.Equal(t, 3, q.Size())
-		assert.Same(t, chained.GetNextMessages()[0], q.Dequeue())
-		assert.Same(t, chained.GetNextMessages()[1], q.Dequeue())
+		nextMsgs := chained.GetNextMessages()
+		assert.Same(t, nextMsgs[0], q.Dequeue())
+		assert.Same(t, nextMsgs[1], q.Dequeue())
 		assert.Same(t, after, q.Dequeue())
 	})
 }

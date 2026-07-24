@@ -275,6 +275,8 @@ func Test_calculateItemsPerPage(t *testing.T) {
 
 		got := win.calculateItemsPerPage(100)
 
+		// 画面高720*0.8=576 から overhead 265 を引いた 311 を choiceItemHeight40 で割ると 7 になる。
+		// overhead の内訳は message150 top20 bottom15 title40 spacing10 indicator30
 		assert.Equal(t, 7, got)
 	})
 
@@ -404,5 +406,6 @@ func TestWindow_Close(t *testing.T) {
 		win.Close()
 
 		assert.Equal(t, 0, onCloseCalledCount, "二重に閉じてもonCloseは呼ばれない")
+		assert.True(t, win.IsClosed(), "二重に閉じても閉じたまま")
 	})
 }
