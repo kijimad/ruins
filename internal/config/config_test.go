@@ -59,7 +59,6 @@ func TestConfig_StringGolden(t *testing.T) {
 		ProfilePath: ".",
 	}
 
-	// goldie は GOLDIE_UPDATE=1 のとき golden を更新する。make updategolden から拾えるようテスト名に Golden を含める。
 	goldie.New(t).Assert(t, "config_string", []byte(c.String()))
 }
 
