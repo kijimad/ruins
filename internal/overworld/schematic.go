@@ -82,8 +82,8 @@ func ChunkSchematic(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk,
 	case ruinPlacement.At(runSeed, c, rows):
 		set(cx, cy, GlyphRuin)
 	case settlementPlacement.At(runSeed, c, rows):
-		if settlementIsVillage(runSeed, c, c) {
-			// c==start 相当ではないので村判定のみ流用する。開始特例は俯瞰図には無関係
+		// 開始特例は俯瞰図に無関係なので、開始チャンクを含まない規模抽選をそのまま使う
+		if settlementVillageRoll(runSeed, c) {
 			set(cx, cy, GlyphVillage)
 		} else {
 			set(cx, cy, GlyphHamlet)
@@ -135,8 +135,9 @@ func RegionSchematic(runSeed uint64, c0 worldstream.ChunkCoord, numChunks int, r
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。
 func SchematicLegend() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "%c 原野  %c 舗装路  %c 村  %c 一軒家  %c 遺跡入口  %c 点在POI\n",
-		GlyphField, GlyphRoad, GlyphVillage, GlyphHamlet, GlyphRuin, GlyphPOI)
+	// 舗装路 GlyphRoad はまだ俯瞰図に描かないので凡例からも外す。道の描画を入れたら戻す
+	fmt.Fprintf(&b, "%c 原野  %c 村  %c 一軒家  %c 遺跡入口  %c 点在POI\n",
+		GlyphField, GlyphVillage, GlyphHamlet, GlyphRuin, GlyphPOI)
 	// 施設は種別の enum 順で安定させる
 	kinds := make([]facilityKind, 0, len(facilityGlyphs))
 	for k := range facilityGlyphs {

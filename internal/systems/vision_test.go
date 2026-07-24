@@ -371,3 +371,25 @@ func TestConsumeForceUpdate(t *testing.T) {
 		assert.NotEmpty(t, sys.raycastCache)
 	})
 }
+
+func TestConsumeVisionRefresh(t *testing.T) {
+	t.Parallel()
+
+	t.Run("軽量更新は消費してもレイキャストキャッシュを破棄しない", func(t *testing.T) {
+		t.Parallel()
+		sys := NewVisionSystem()
+		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
+		visionState := gc.NewVisionState()
+		visionState.NeedsVisionRefresh = true
+
+		assert.True(t, sys.consumeVisionRefresh(visionState))
+		assert.False(t, visionState.NeedsVisionRefresh, "フラグは消費される")
+		assert.NotEmpty(t, sys.raycastCache, "壁は変わらないのでレイは再利用のため保持する")
+	})
+
+	t.Run("フラグが立っていなければ何もしない", func(t *testing.T) {
+		t.Parallel()
+		sys := NewVisionSystem()
+		assert.False(t, sys.consumeVisionRefresh(gc.NewVisionState()))
+	})
+}

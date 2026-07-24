@@ -69,8 +69,10 @@ func TestChunkSchematic_遺跡入口と集落が地物の文字で出る(t *test
 	const chunkW, chunkH consts.Tile = 50, 50
 	const rows = 1
 
-	foundRuin, foundSettlement := false, false
-	for s := uint64(1); s < 200 && (!foundRuin || !foundSettlement); s++ {
+	foundRuin, foundVillage, foundHamlet := false, false, false
+	// 広めに走査し、村と一軒家の両方が俯瞰図に現れることを確かめる。
+	// 開始特例を踏むと集落が常に村になる退行を防ぐため、両方の出現を要求する
+	for s := uint64(1); s < 400 && (!foundRuin || !foundVillage || !foundHamlet); s++ {
 		for x := range consts.Chunk(8) {
 			c := worldstream.ChunkCoord{X: x}
 			// 市街地に上書きされないチャンクだけ見る
@@ -83,13 +85,16 @@ func TestChunkSchematic_遺跡入口と集落が地物の文字で出る(t *test
 				foundRuin = true
 			}
 			if settlementPlacement.At(s, c, rows) {
-				hasVillage := strings.ContainsRune(joined, GlyphVillage)
-				hasHamlet := strings.ContainsRune(joined, GlyphHamlet)
-				assert.Truef(t, hasVillage || hasHamlet, "集落チャンクに村か一軒家の文字が出る")
-				foundSettlement = true
+				if strings.ContainsRune(joined, GlyphVillage) {
+					foundVillage = true
+				}
+				if strings.ContainsRune(joined, GlyphHamlet) {
+					foundHamlet = true
+				}
 			}
 		}
 	}
 	assert.True(t, foundRuin, "前提: 遺跡入口チャンクが見つかる")
-	assert.True(t, foundSettlement, "前提: 集落チャンクが見つかる")
+	assert.True(t, foundVillage, "村の集落が村の文字で出る")
+	assert.True(t, foundHamlet, "一軒家の集落が一軒家の文字で出る。開始特例で常に村になる退行の検知")
 }

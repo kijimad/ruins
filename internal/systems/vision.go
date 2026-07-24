@@ -69,6 +69,17 @@ func (sys *VisionSystem) consumeForceUpdate(vs *gc.VisionState) bool {
 	return true
 }
 
+// consumeVisionRefresh は遮蔽が変わらない軽量更新フラグを消費し、立っていたかを返す。
+// consumeForceUpdate と違いレイキャストキャッシュは破棄しない。AIターンごとの光源・明暗の
+// 更新に使い、静止中に同じ視線を毎ターン引き直さないで済ませる
+func (sys *VisionSystem) consumeVisionRefresh(vs *gc.VisionState) bool {
+	if !vs.NeedsVisionRefresh {
+		return false
+	}
+	vs.NeedsVisionRefresh = false
+	return true
+}
+
 // String はシステム名を返す
 // w.Updater interfaceを実装
 func (sys VisionSystem) String() string {
@@ -112,8 +123,13 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.X-sys.lastPlayer.X)) >= updateThreshold ||
 		geometry.Abs(int(playerPos.Y-sys.lastPlayer.Y)) >= updateThreshold
 
-	// 外部から設定された視界更新フラグをチェックする。扉開閉や帯シフトで立てられる
+	// 外部から設定された視界更新フラグをチェックする。扉開閉や帯シフトで立てられる。
+	// 壁が変わる強制更新はレイキャストキャッシュも破棄する
 	if sys.consumeForceUpdate(vs) {
+		needsUpdate = true
+	}
+	// 遮蔽が変わらない軽量更新。レイキャストキャッシュは保持したまま視界だけ引き直す
+	if sys.consumeVisionRefresh(vs) {
 		needsUpdate = true
 	}
 

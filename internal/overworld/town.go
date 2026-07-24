@@ -68,13 +68,17 @@ func (settlementFeature) place(world w.World, runSeed uint64, c, start worldstre
 	return spawnTown(world, center, settlementIsVillage(runSeed, c, start))
 }
 
+// settlementVillageRoll は開始特例を除いた集落の規模抽選。真なら村、偽なら一軒家。
+// 純粋に (runSeed, 座標) の関数で、開始チャンクの扱いを含まない。俯瞰図のように
+// 開始特例を反映したくない用途はこちらを直接使う。
+func settlementVillageRoll(runSeed uint64, c worldstream.ChunkCoord) bool {
+	return ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y)%10 < 6
+}
+
 // settlementIsVillage は集落の規模を決定的に選ぶ。真なら村、偽なら一軒家。
 // 開始チャンクは交易・雇用・合成の必須サービスを保証するため必ず村にする。
 func settlementIsVillage(runSeed uint64, c, start worldstream.ChunkCoord) bool {
-	if c == start {
-		return true
-	}
-	return ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y)%10 < 6
+	return c == start || settlementVillageRoll(runSeed, c)
 }
 
 // spawnTown は小集落を構成する。center を集落の中心として会話NPCと生活感の prop を
