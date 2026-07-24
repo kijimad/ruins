@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:14:04</td>
+            <td class="headerValue">2026-07-24 16:33:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -595,7 +595,7 @@
 <span id="L533"><span class="lineNum">     533</span>              : </span>
 <span id="L534"><span class="lineNum">     534</span>              : // GetItemGroup は指定された名前のアイテムグループを取得する</span>
 <span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">       10234 : func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">       25814 :         ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Name }, name)</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">       25813 :         ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Name }, name)</span></span>
 <span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">       10235 :         if !ok {</span></span>
 <span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :                 return oapi.ItemGroup{}, fmt.Errorf(&quot;アイテムグループが存在しない: %s&quot;, name)</span></span>
 <span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           1 :         }</span></span>
