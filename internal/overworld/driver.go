@@ -85,12 +85,10 @@ func (dr *Driver) Start(world w.World) error {
 // 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 	// 旧セーブに Rows は無くゼロ値になる。1へ正規化して従来の1行帯として復元する
-	rows := sb.Rows
-	if rows < 1 {
-		rows = 1
-	}
+	rows := max(sb.Rows, 1)
 	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.K, rows, sb.EastIndex)
-	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, dr.planner)
+	start := worldstream.ChunkCoord{X: sb.K / 2, Y: rows / 2}
+	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, rows, start, dr.planner)
 	dr.frontCfg = frontCfgFromBand(sb)
 	query.InvalidateSpatialIndex(world)
 	return nil
@@ -125,7 +123,9 @@ func (dr *Driver) startNewBand(world w.World) error {
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
 	chunkW, chunkH, k, rows := dr.definition.BandShape()
 	dr.band = worldstream.NewBand(chunkW, chunkH, k, rows)
-	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, dr.planner)
+	// 開始チャンクは帯の中央。PlaceFeatures の特例で必ず小集落になる
+	start := worldstream.ChunkCoord{X: k / 2, Y: rows / 2}
+	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, rows, start, dr.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
 	// 以後この帯データの有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
@@ -173,12 +173,6 @@ func (dr *Driver) startNewBand(world w.World) error {
 	// 触れて Enter で遺跡へ入れる
 	if _, err := lifecycle.SpawnDungeonEntrance(world, cx+2, cy, dungeon.DungeonForest.Name()); err != nil {
 		return fmt.Errorf("遺跡入口の配置に失敗: %w", err)
-	}
-
-	// 開始チャンクに街を配置する。プレイヤー開始位置を中心に店・雇用・合成・収納を置く。
-	// 街はオーバーワールドの地物なので、新規ゲームはこの街から始まり TownState を経由しない
-	if err := spawnTown(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); err != nil {
-		return fmt.Errorf("街の配置に失敗: %w", err)
 	}
 
 	query.InvalidateSpatialIndex(world)

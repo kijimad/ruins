@@ -159,8 +159,9 @@ func TestDriver_新規開始で街がオーバーワールドに配置される(
 	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: 42})
 	require.NoError(t, s.Start(world))
 
-	// 街の構成物を名前で探し、配置・帯束縛・相互作用の有無を確認する
-	want := map[string]bool{"商人": false, "酒場の主人": false, "怪しい科学者": false, townStorageProp: false}
+	// 集落の構成物を名前で探し、配置・帯束縛・相互作用の有無を確認する。
+	// 小集落は無状態で stash を持たないため、収納 prop は置かれない
+	want := map[string]bool{"商人": false, "酒場の主人": false, "怪しい科学者": false}
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
