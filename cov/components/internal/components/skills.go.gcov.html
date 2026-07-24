@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 15:06:53</td>
+            <td class="headerValue">2026-07-24 15:14:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -296,9 +296,9 @@
 <span id="L234"><span class="lineNum">     234</span>              : // NewSkills は全スキルを0で初期化したSkillsを返す</span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          16 : func NewSkills() *Skills {</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          16 :         data := make(map[SkillID]*Skill, len(AllSkillIDs))</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">         416 :         for _, id := range AllSkillIDs {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">         400 :                 data[id] = &amp;Skill{Exp: IntPool{Max: LevelUpExp}}</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">         400 :         }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">         412 :         for _, id := range AllSkillIDs {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">         396 :                 data[id] = &amp;Skill{Exp: IntPool{Max: LevelUpExp}}</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">         396 :         }</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">          16 :         return &amp;Skills{Data: data}</span></span>
 <span id="L241"><span class="lineNum">     241</span>              : }</span>
 <span id="L242"><span class="lineNum">     242</span>              : </span>

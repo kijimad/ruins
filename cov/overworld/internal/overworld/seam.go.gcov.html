@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 15:06:53</td>
+            <td class="headerValue">2026-07-24 15:14:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,10 +91,10 @@
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          76 :         hasWest, hasEast := false, false</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          76 :         // 帯の継ぎ目再計算は現ステージ(帯)のタイルだけを対象にする</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          76 :         q := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">       93532 :         for q.Next() {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">       93456 :                 e := q.Entity()</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">       93456 :                 g := *world.Components.GridElement.Get(e)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">       97354 :                 if g.X &gt;= boundaryX-2 &amp;&amp; g.X &lt;= boundaryX+1 {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">       93694 :         for q.Next() {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">       93618 :                 e := q.Entity()</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">       93618 :                 g := *world.Components.GridElement.Get(e)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">       97516 :                 if g.X &gt;= boundaryX-2 &amp;&amp; g.X &lt;= boundaryX+1 {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">        3898 :                         tiles[g] = e</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">        5081 :                         if g.X == boundaryX-1 {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">        1183 :                                 hasWest = true</span></span>
@@ -109,18 +109,18 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          52 :                 return</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">          52 :         }</span></span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">        3726 :         nameOf := func(g gc.GridElement) (string, bool) {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">        3702 :                 e, ok := tiles[g]</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">        3798 :                 if !ok || !world.Components.Name.Has(e) {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">        3728 :         nameOf := func(g gc.GridElement) (string, bool) {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">        3704 :                 e, ok := tiles[g]</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">        3800 :                 if !ok || !world.Components.Name.Has(e) {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          96 :                         return &quot;&quot;, false</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">          96 :                 }</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        3601 :                 return world.Components.Name.Get(e).Name, true</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">        3608 :                 return world.Components.Name.Get(e).Name, true</span></span>
 <span id="L56"><span class="lineNum">      56</span>              :         }</span>
 <span id="L57"><span class="lineNum">      57</span>              : </span>
 <span id="L58"><span class="lineNum">      58</span>              :         // 境界の2列を再計算する</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">        1874 :         for _, e := range tiles {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">        1850 :                 g := *world.Components.GridElement.Get(e)</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">        2776 :                 if g.X != boundaryX-1 &amp;&amp; g.X != boundaryX {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">        1876 :         for _, e := range tiles {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">        1852 :                 g := *world.Components.GridElement.Get(e)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">        2778 :                 if g.X != boundaryX-1 &amp;&amp; g.X != boundaryX {</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         926 :                         continue</span></span>
 <span id="L63"><span class="lineNum">      63</span>              :                 }</span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">         926 :                 recalcTileAutotile(world, e, g, nameOf)</span></span>
@@ -140,14 +140,14 @@
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L79"><span class="lineNum">      79</span>              : </span>
 <span id="L80"><span class="lineNum">      80</span>              :         // CalculateAutoTileIndex と同じビット割り当て: 上1・右2・下4・左8</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">         925 :         bit := 0</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">        1744 :         if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y - 1}}); ok &amp;&amp; n == self {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         819 :                 bit |= 1</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         819 :         }</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">        1483 :         if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X + 1, Y: g.Y}}); ok &amp;&amp; n == self {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">         926 :         bit := 0</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">        1746 :         if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y - 1}}); ok &amp;&amp; n == self {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         820 :                 bit |= 1</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         820 :         }</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">        1484 :         if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X + 1, Y: g.Y}}); ok &amp;&amp; n == self {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">         558 :                 bit |= 2</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">         558 :         }</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">        1745 :         if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y + 1}}); ok &amp;&amp; n == self {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">        1746 :         if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y + 1}}); ok &amp;&amp; n == self {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">         820 :                 bit |= 4</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">         820 :         }</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">        1628 :         if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X - 1, Y: g.Y}}); ok &amp;&amp; n == self {</span></span>
@@ -157,15 +157,15 @@
 <span id="L95"><span class="lineNum">      95</span>              : }</span>
 <span id="L96"><span class="lineNum">      96</span>              : </span>
 <span id="L97"><span class="lineNum">      97</span>              : // autotileBase は &quot;dirt_15&quot; → (&quot;dirt&quot;, true) を返す。サフィックスが数値でなければ false。</span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">         925 : func autotileBase(key string) (string, bool) {</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">         925 :         i := strings.LastIndex(key, &quot;_&quot;)</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">         925 :         if i &lt; 0 {</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">         926 : func autotileBase(key string) (string, bool) {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">         926 :         i := strings.LastIndex(key, &quot;_&quot;)</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">         926 :         if i &lt; 0 {</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, false</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC tlaBgGNC">         926 :         if _, err := strconv.Atoi(key[i+1:]); err != nil {</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, false</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC tlaBgGNC">         925 :         return key[:i], true</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC tlaBgGNC">         926 :         return key[:i], true</span></span>
 <span id="L107"><span class="lineNum">     107</span>              : }</span>
         </pre>
               </td>
