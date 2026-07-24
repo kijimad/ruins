@@ -29,7 +29,7 @@ func TestOverworldState_ロード復元で視界が再計算され真っ暗に�
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -61,7 +61,7 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	const chunkW, chunkH consts.Tile = 30, 20
 	const k = 3
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, k), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, k, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -109,7 +109,7 @@ func TestOverworldState_オーバーレイ進入で帯タイルを消さない(t
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -134,7 +134,7 @@ func TestOverworldState_オーバーレイ往復で隊員位置が変わらな�
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)

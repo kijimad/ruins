@@ -53,7 +53,7 @@ var (
 	// DungeonOverworld はオーバーワールド帯を表す定義。
 	// フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
 	// 帯形状 50x50 のチャンクを3枚並べる。この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
-	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3)
+	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3, 1)
 
 	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = &DungeonDefinition{

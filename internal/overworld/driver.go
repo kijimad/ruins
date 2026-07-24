@@ -84,8 +84,12 @@ func (dr *Driver) Start(world w.World) error {
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
 // 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
-	// 行数は縦チャンク対応がマスタと serde に及ぶまで1に固定する
-	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.K, 1, sb.EastIndex)
+	// 旧セーブに Rows は無くゼロ値になる。1へ正規化して従来の1行帯として復元する
+	rows := sb.Rows
+	if rows < 1 {
+		rows = 1
+	}
+	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.K, rows, sb.EastIndex)
 	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, dr.planner)
 	dr.frontCfg = frontCfgFromBand(sb)
 	query.InvalidateSpatialIndex(world)
@@ -118,10 +122,9 @@ func (dr *Driver) startNewBand(world w.World) error {
 	if dr.definition == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯形状の定義が必要")
 	}
-	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有。
-	// 行数は縦チャンク対応がマスタと serde に及ぶまで1に固定する
-	chunkW, chunkH, k := dr.definition.BandShape()
-	dr.band = worldstream.NewBand(chunkW, chunkH, k, 1)
+	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
+	chunkW, chunkH, k, rows := dr.definition.BandShape()
+	dr.band = worldstream.NewBand(chunkW, chunkH, k, rows)
 	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, dr.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
@@ -133,6 +136,7 @@ func (dr *Driver) startNewBand(world w.World) error {
 	sb.ChunkW = chunkW
 	sb.ChunkH = chunkH
 	sb.K = dr.band.K()
+	sb.Rows = dr.band.Rows()
 
 	// 寒波前線を初期化する。極低温ゾーン東端を西チャンクの東端（プレイヤーの1チャンク背後）に置く。
 	// これで開始時からプレイヤーの背後に霜が見え、西へ戻ると凍える。以東へ進み帯がシフトすると前線は

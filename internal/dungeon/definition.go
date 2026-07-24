@@ -112,12 +112,14 @@ type OverworldDefinition struct {
 	chunkW   consts.Tile
 	chunkH   consts.Tile
 	k        consts.Chunk
+	rows     consts.Chunk
 }
 
 // NewOverworldDefinition はオーバーワールド種別を構成する。帯形状を含む設定を渡す。
+// rows は帯の縦チャンク行数で、1 なら従来の1行帯になる。
 // 本番は登録済みの DungeonOverworld を使い、テストは任意形状の種別を組むのに使う。
-func NewOverworldDefinition(name string, baseTemp int, chunkW, chunkH consts.Tile, k consts.Chunk) *OverworldDefinition {
-	return &OverworldDefinition{name: name, baseTemp: baseTemp, chunkW: chunkW, chunkH: chunkH, k: k}
+func NewOverworldDefinition(name string, baseTemp int, chunkW, chunkH consts.Tile, k, rows consts.Chunk) *OverworldDefinition {
+	return &OverworldDefinition{name: name, baseTemp: baseTemp, chunkW: chunkW, chunkH: chunkH, k: k, rows: rows}
 }
 
 // Name はオーバーワールドの識別名を返す
@@ -126,7 +128,7 @@ func (o *OverworldDefinition) Name() string { return o.name }
 // BaseTemperature は基本気温を返す
 func (o *OverworldDefinition) BaseTemperature() int { return o.baseTemp }
 
-// BandShape は帯の形状、1チャンクの幅と高さ、チャンク数を返す。RunSeed は含まない。
-func (o *OverworldDefinition) BandShape() (chunkW, chunkH consts.Tile, k consts.Chunk) {
-	return o.chunkW, o.chunkH, o.k
+// BandShape は帯の形状、1チャンクの幅と高さ、横のチャンク数、縦の行数を返す。RunSeed は含まない。
+func (o *OverworldDefinition) BandShape() (chunkW, chunkH consts.Tile, k, rows consts.Chunk) {
+	return o.chunkW, o.chunkH, o.k, o.rows
 }

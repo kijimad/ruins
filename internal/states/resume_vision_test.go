@@ -48,7 +48,7 @@ func TestOverworldResume_視界を強制再計算する(t *testing.T) {
 	// Seamless 分岐は帯ドライバへ委譲して return するため、タイトルエフェクトには到達しない
 	factory := gs.NewOverworldState(
 		mapplanner.PlannerTypeOverworldField,
-		dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3),
+		dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
 		&overworld.NewGameParams{RunSeed: 1},
 	)
 	state, err := factory()
