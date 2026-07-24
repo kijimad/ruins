@@ -34,5 +34,6 @@ func TestNewChunkGen_遺跡入口が帯全域に決定的に配置される(t *t
 		assert.NotEmpty(t, world.Components.DungeonEntrance.Get(e).DefinitionName, "進入先の定義名を持つ")
 		require.True(t, world.Components.StageBound.Has(e), "入口は帯へ束縛される")
 	}
-	assert.Equal(t, 1, count, "1リージョンに入口はちょうど1つ")
+	// 12チャンクは Spacing 4 のリージョン3つぶんで、各リージョンにちょうど1つずつ現れる
+	assert.Equal(t, 3, count, "リージョンごとに入口はちょうど1つ")
 }

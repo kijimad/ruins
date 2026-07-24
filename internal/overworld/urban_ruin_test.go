@@ -1,6 +1,8 @@
 package overworld_test
 
 import (
+	"fmt"
+	"slices"
 	"sort"
 	"testing"
 
@@ -16,6 +18,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// isHostile は敵エンティティかを近接攻撃の相互作用とターン参加の有無で判別する。
+// 敵の種類は敵テーブル抽選で変わるため、名前でなく振る舞いで見る。破壊可能な prop も
+// 近接の相互作用を持つため、ターンに参加する TurnBased を併せて要求する。
+func isHostile(world w.World, e ecs.Entity) bool {
+	if !world.Components.TurnBased.Has(e) || !world.Components.Interactable.Has(e) {
+		return false
+	}
+	return slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionMelee)
+}
+
 // snapshotWorld は全タイルの SpriteKey とソート済みの敵座標を集める。
 func snapshotWorld(world w.World) (map[gc.GridElement]string, []consts.Coord[consts.Tile]) {
 	tiles := map[gc.GridElement]string{}
@@ -28,7 +40,7 @@ func snapshotWorld(world w.World) (map[gc.GridElement]string, []consts.Coord[con
 	nq := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
 	for nq.Next() {
 		e := nq.Entity()
-		if world.Components.Name.Get(e).Name == "火の玉" {
+		if isHostile(world, e) {
 			enemies = append(enemies, world.Components.GridElement.Get(e).Coord)
 		}
 	}
@@ -41,6 +53,20 @@ func snapshotWorld(world w.World) (map[gc.GridElement]string, []consts.Coord[con
 	return tiles, enemies
 }
 
+// snapshotNamed は名前を持つ全エンティティを「名前@座標」のソート済み文字列で集める。
+// 内装 prop・NPC・入口を含む配置全体の決定性を比較するために使う。
+func snapshotNamed(world w.World) []string {
+	var named []string
+	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		p := world.Components.GridElement.Get(e).Coord
+		named = append(named, fmt.Sprintf("%s@%d,%d", world.Components.Name.Get(e).Name, p.X, p.Y))
+	}
+	sort.Strings(named)
+	return named
+}
+
 // TestNewChunkGen_市街地の断片は生成順に依存しない は、市街地をまたぐチャンク群を
 // 西→東と東→西で生成しても、全タイルと全敵が一致することを固定する。断片が citySeed の
 // 一括導出から描かれる不変条件の検証で、帯ストリーミングの再訪に耐える根拠になる。
@@ -51,7 +77,7 @@ func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing
 	const window = 16 // 市街地リージョン1つぶん
 	const runSeed uint64 = 77
 
-	build := func(reverse bool) (map[gc.GridElement]string, []consts.Coord[consts.Tile]) {
+	build := func(reverse bool) (map[gc.GridElement]string, []consts.Coord[consts.Tile], []string) {
 		world := testutil.InitTestWorld(t)
 		gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
 		for i := range window {
@@ -61,13 +87,15 @@ func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing
 			}
 			require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(x)}, consts.Tile(x)*chunkW, 0))
 		}
-		return snapshotWorld(world)
+		tiles, enemies := snapshotWorld(world)
+		return tiles, enemies, snapshotNamed(world)
 	}
 
-	tilesA, enemiesA := build(false)
-	tilesB, enemiesB := build(true)
+	tilesA, enemiesA, namedA := build(false)
+	tilesB, enemiesB, namedB := build(true)
 	assert.Equal(t, tilesA, tilesB, "全タイルの SpriteKey は生成順に依存しない")
 	assert.Equal(t, enemiesA, enemiesB, "敵の配置は生成順に依存しない")
+	assert.Equal(t, namedA, namedB, "内装propやNPCを含む全配置が生成順に依存しない")
 	assert.NotEmpty(t, enemiesA, "リージョン内に市街地の敵が存在する")
 }
 
@@ -87,7 +115,7 @@ func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T)
 	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.Name.Get(e).Name != "火の玉" {
+		if !isHostile(world, e) {
 			continue
 		}
 		found++
@@ -104,11 +132,14 @@ func TestNewChunkGen_開始チャンクを含む市街地はスキップされ�
 
 	const chunkW, chunkH consts.Tile = 30, 20
 	const runSeed uint64 = 77
+	// 市街地リージョン1つぶんに窓を絞る。窓に市街地が2つあると、開始特例で消えるのは
+	// 一方だけなので「敵ゼロ」の検証が成り立たない
+	const window = 6
 
 	// まず市街地の位置を敵の湧いたチャンクから特定する
 	scout := testutil.InitTestWorld(t)
 	genScout := overworld.NewChunkGen(scout, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
-	for i := range 16 {
+	for i := range window {
 		require.NoError(t, genScout(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 	_, enemies := snapshotWorld(scout)
@@ -118,7 +149,7 @@ func TestNewChunkGen_開始チャンクを含む市街地はスキップされ�
 	// 市街地の断片を開始チャンクに指定すると、市街地ごとスキップされ敵が出ない
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, cityChunk, mapplanner.PlannerTypeOverworldField)
-	for i := range 16 {
+	for i := range window {
 		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 	_, after := snapshotWorld(world)

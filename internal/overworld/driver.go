@@ -169,12 +169,6 @@ func (dr *Driver) startNewBand(world w.World) error {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}
 
-	// 開始チャンクに遺跡入口を1つ置く。プレイヤーの数タイル東、歩いて到達できる位置。
-	// 触れて Enter で遺跡へ入れる
-	if _, err := lifecycle.SpawnDungeonEntrance(world, cx+2, cy, dungeon.DungeonForest.Name()); err != nil {
-		return fmt.Errorf("遺跡入口の配置に失敗: %w", err)
-	}
-
 	query.InvalidateSpatialIndex(world)
 	return nil
 }

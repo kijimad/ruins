@@ -17,7 +17,9 @@ import (
 const ruinSalt = 0x4e01
 
 // ruinPlacement は遺跡入口のリージョン配置。小集落と市街地の中間の疎らさで置く。
-var ruinPlacement = Placement{Spacing: 12, Separation: 3, Salt: ruinSalt}
+// チャンクは50タイルあるため、Spacing 4 で200タイルに1つの体感密度になる。
+// 開始付近にも歩いて到達できる入口が必ず出る
+var ruinPlacement = Placement{Spacing: 4, Separation: 1, Salt: ruinSalt}
 
 // ruinEntranceFeature は遺跡入口の feature 実装。
 type ruinEntranceFeature struct{}

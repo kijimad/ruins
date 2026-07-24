@@ -43,13 +43,24 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 	sort.Slice(centers, func(i, j int) bool { return centers[i].X < centers[j].X })
 	require.GreaterOrEqual(t, len(centers), 2, "前提: 隣接リージョンに集落が2つある")
 
-	// 西集落の中心 Y の高さで、両集落の中間地点が舗装されている
+	// 西集落の中心 Y の高さの水平路から、上下が原野のままの区間を探す。地物が密になった
+	// ため固定座標では市街地やPOIと重なりうるが、集落間の全区間が覆われることはない
 	west, east := centers[0], centers[1]
-	mid := (west.X + east.X) / 2
-	key := spriteKeyAtOrEmpty(world, mid, west.Y)
-	assert.True(t, strings.HasPrefix(key, consts.TileNameFloor),
-		"集落間の中間 (%d,%d) が舗装される。実際: %q", mid, west.Y, key)
-	// 水平路の中間は左右にだけ床が続くため、オートタイルは左8|右2=10 になる。
-	// 添字が仮の 0 のままなら孤立タイル絵が並ぶ退行なので、ここで固定する
-	assert.True(t, strings.HasSuffix(key, "_10"), "水平路の中間は左右接続の添字10。実際: %q", key)
+	isFloor := func(x, y consts.Tile) bool {
+		return strings.HasPrefix(spriteKeyAtOrEmpty(world, x, y), consts.TileNameFloor)
+	}
+	found := false
+	for x := west.X + 1; x < east.X; x++ {
+		if !isFloor(x, west.Y) || !isFloor(x-1, west.Y) || !isFloor(x+1, west.Y) ||
+			isFloor(x, west.Y-1) || isFloor(x, west.Y+1) {
+			continue
+		}
+		// 左右にだけ床が続く区間なので、オートタイルは左8|右2=10 になる。
+		// 添字が仮の 0 のままなら孤立タイル絵が並ぶ退行なので、ここで固定する
+		key := spriteKeyAtOrEmpty(world, x, west.Y)
+		assert.True(t, strings.HasSuffix(key, "_10"), "水平路の中間は左右接続の添字10。実際: %q", key)
+		found = true
+		break
+	}
+	require.True(t, found, "集落間に上下が原野のままの舗装区間がある")
 }

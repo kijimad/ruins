@@ -61,8 +61,8 @@ type feature interface {
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
 func features() []feature {
-	// 道は他の地物の上を舗装しないよう最後に評価する
-	return []feature{settlementFeature{}, urbanRuinFeature{}, ruinEntranceFeature{}, roadFeature{}}
+	// 点在POIは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう最後に評価する
+	return []feature{settlementFeature{}, urbanRuinFeature{}, ruinEntranceFeature{}, wildernessPOIFeature{}, roadFeature{}}
 }
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
