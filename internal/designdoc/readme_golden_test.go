@@ -1,24 +1,18 @@
 package designdoc
 
 import (
-	"os"
 	"testing"
 
 	"github.com/sebdah/goldie/v2"
-	"github.com/stretchr/testify/require"
 )
 
-// assertGoldenMarkdown は markdown 文字列をゴールデンファイルと比較する。
-// GOLDIE_UPDATE=1 で実行すると testdata/<name>.golden.md を更新する。make updategolden から拾えるよう
-// テスト名には Golden を含める。
+// assertGoldenMarkdown は markdown 文字列を testdata/<name>.golden.md と比較する。
+// goldie が GOLDIE_UPDATE=1 のとき golden を更新する。make updategolden から拾えるようテスト名には Golden を含める。
 func assertGoldenMarkdown(t *testing.T, name, actual string) {
 	t.Helper()
 
-	g := goldie.New(t, goldie.WithFixtureDir("testdata"), goldie.WithNameSuffix(".golden.md"))
-	if v := os.Getenv("GOLDIE_UPDATE"); v == "1" || v == "true" {
-		require.NoError(t, g.Update(t, name, []byte(actual)))
-		return
-	}
+	// 拡張子はエディタで開きやすいよう .golden.md にする。goldie 既定の .golden から変える
+	g := goldie.New(t, goldie.WithNameSuffix(".golden.md"))
 	g.Assert(t, name, []byte(actual))
 }
 
