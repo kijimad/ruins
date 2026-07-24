@@ -59,7 +59,7 @@ func TestSettingsExistAt(t *testing.T) {
 // 以下は XDG_CONFIG_HOME を書き換えてパス解決を検証するため、
 // t.Setenv の制約上 t.Parallel は呼ばない。
 
-func TestUserConfigPath_XDG_CONFIG_HOME配下にrunisディレクトリを作る(t *testing.T) {
+func TestUserConfigPath_XDG_CONFIG_HOME配下にruinsディレクトリを作る(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)
 
