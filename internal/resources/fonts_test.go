@@ -69,6 +69,7 @@ func TestLoadFonts_成功時は4サイズ分のFaceを持つ(t *testing.T) {
 	fs, err := loadFonts([]*text.GoTextFaceSource{src})
 
 	require.NoError(t, err)
+	// fonts は非公開型で外部から個別サイズを取り出す手段がないため、同一パッケージのテストとしてフィールドへ直接アクセスする
 	assert.NotNil(t, fs.smallFace)
 	assert.NotNil(t, fs.bodyFace)
 	assert.NotNil(t, fs.titleFontFace)

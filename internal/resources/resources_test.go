@@ -43,5 +43,10 @@ func TestInitializeResources_エラーなくフィールドを置き換える(t 
 
 	require.NoError(t, err)
 	assert.NotNil(t, r.SpriteSheets)
-	assert.Equal(t, ScreenDimensions{}, r.ScreenDimensions)
+	assert.NotNil(t, r.Fonts)
+	assert.NotNil(t, r.Faces)
+	// SetScreenDimensions で設定した値は *r 全体の置き換えにより消える
+	w, h := r.GetScreenDimensions()
+	assert.Zero(t, w)
+	assert.Zero(t, h)
 }

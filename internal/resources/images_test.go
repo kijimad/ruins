@@ -79,8 +79,8 @@ func TestLoadImageNineSlice_中央サイズを引いた最小サイズになる(
 
 	require.NoError(t, err)
 	minW, minH := ns.MinSize()
-	// widths/heights は (w-center)/2 と w-(w-center)/2-center に分割されるため、
-	// 両端の合計は常に w-centerWidth, h-centerHeight になる
+	// widths[0] は (w-center)/2 の整数除算結果になるが、widths[2] はその同じ値を
+	// w-center から引いて求めるため、両端の合計は端数に関わらず常に w-centerWidth になる
 	assert.Equal(t, w-centerWidth, minW)
 	assert.Equal(t, h-centerHeight, minH)
 }
