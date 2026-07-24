@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 15:15:15</td>
+            <td class="headerValue">2026-07-24 15:40:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -259,9 +259,9 @@
 <span id="L197"><span class="lineNum">     197</span>              :         // HungerProgress は耐性スキルが高いと 0 以下に達し、空腹が進まなくなる。比較が常に偽になるためだ。</span>
 <span id="L198"><span class="lineNum">     198</span>              :         // 下限を設けるかは進行系倍率の Hunger・Cold・Heat 共通の課題として</span>
 <span id="L199"><span class="lineNum">     199</span>              :         // 将来のバランス設計でまとめて検討する。ここでは意図的に下限を置かない。</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">        4001 :         if world.Config.RNG.IntN(int(consts.PercentBase)*gc.HungerDrainTurns) &lt; int(hungerPct) {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         987 :                 hunger.Decrease(1)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">         987 :         }</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">        4000 :         if world.Config.RNG.IntN(int(consts.PercentBase)*gc.HungerDrainTurns) &lt; int(hungerPct) {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         986 :                 hunger.Decrease(1)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">         986 :         }</span></span>
 <span id="L203"><span class="lineNum">     203</span>              : }</span>
 <span id="L204"><span class="lineNum">     204</span>              : </span>
 <span id="L205"><span class="lineNum">     205</span>              : // isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする</span>

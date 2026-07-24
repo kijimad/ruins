@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryLo">1.7&nbsp;%</td>
             <td class="headerCovTableEntry">581</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 15:15:15</td>
+            <td class="headerValue">2026-07-24 15:40:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -899,18 +899,18 @@
 <span id="L837"><span class="lineNum">     837</span> <span class="tlaUNC">           0 :         }, nil</span></span>
 <span id="L838"><span class="lineNum">     838</span>              : }</span>
 <span id="L839"><span class="lineNum">     839</span>              : </span>
-<span id="L840"><span class="lineNum">     840</span> <span class="tlaUNC">           0 : func hexToColor(h string) color.Color {</span></span>
-<span id="L841"><span class="lineNum">     841</span> <span class="tlaUNC">           0 :         u, err := strconv.ParseUint(h, 16, 0)</span></span>
-<span id="L842"><span class="lineNum">     842</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L843"><span class="lineNum">     843</span> <span class="tlaUNC">           0 :                 panic(err)</span></span>
+<span id="L840"><span class="lineNum">     840</span> <span class="tlaGNC tlaBgGNC">           6 : func hexToColor(h string) color.Color {</span></span>
+<span id="L841"><span class="lineNum">     841</span> <span class="tlaGNC">           6 :         u, err := strconv.ParseUint(h, 16, 0)</span></span>
+<span id="L842"><span class="lineNum">     842</span> <span class="tlaGNC">           7 :         if err != nil {</span></span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaGNC">           1 :                 panic(err)</span></span>
 <span id="L844"><span class="lineNum">     844</span>              :         }</span>
 <span id="L845"><span class="lineNum">     845</span>              : </span>
-<span id="L846"><span class="lineNum">     846</span> <span class="tlaUNC">           0 :         return color.NRGBA{</span></span>
-<span id="L847"><span class="lineNum">     847</span> <span class="tlaUNC">           0 :                 R: uint8((u &amp; 0xff0000) &gt;&gt; 16),</span></span>
-<span id="L848"><span class="lineNum">     848</span> <span class="tlaUNC">           0 :                 G: uint8((u &amp; 0xff00) &gt;&gt; 8),</span></span>
-<span id="L849"><span class="lineNum">     849</span> <span class="tlaUNC">           0 :                 B: uint8(u &amp; 0xff),</span></span>
-<span id="L850"><span class="lineNum">     850</span> <span class="tlaUNC">           0 :                 A: 255,</span></span>
-<span id="L851"><span class="lineNum">     851</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC">           5 :         return color.NRGBA{</span></span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaGNC">           5 :                 R: uint8((u &amp; 0xff0000) &gt;&gt; 16),</span></span>
+<span id="L848"><span class="lineNum">     848</span> <span class="tlaGNC">           5 :                 G: uint8((u &amp; 0xff00) &gt;&gt; 8),</span></span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaGNC">           5 :                 B: uint8(u &amp; 0xff),</span></span>
+<span id="L850"><span class="lineNum">     850</span> <span class="tlaGNC">           5 :                 A: 255,</span></span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaGNC">           5 :         }</span></span>
 <span id="L852"><span class="lineNum">     852</span>              : }</span>
         </pre>
               </td>
