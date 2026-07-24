@@ -80,7 +80,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		full[y] = make([]rune, tilesW)
 	}
 	for i := range winChunksX {
-		for cy := consts.Chunk(0); cy < rows; cy++ {
+		for cy := range rows {
 			c := worldstream.ChunkCoord{X: winX0 + consts.Chunk(i), Y: cy}
 			chunk := overworld.ChunkSchematic(sb.RunSeed, c, rows, sb.ChunkW, sb.ChunkH)
 			baseX := consts.Tile(i) * sb.ChunkW
