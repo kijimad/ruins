@@ -346,3 +346,28 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 		assert.NotEmpty(t, vs.raycastCache)
 	})
 }
+
+func TestConsumeForceUpdate(t *testing.T) {
+	t.Parallel()
+
+	t.Run("フラグ消費時に壁配置依存のレイキャストキャッシュを破棄する", func(t *testing.T) {
+		t.Parallel()
+		sys := NewVisionSystem()
+		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
+		visionState := gc.NewVisionState()
+		visionState.NeedsForceUpdate = true
+
+		assert.True(t, sys.consumeForceUpdate(visionState))
+		assert.False(t, visionState.NeedsForceUpdate, "フラグは消費される")
+		assert.Empty(t, sys.raycastCache, "旧壁配置のレイ結果を再利用しないよう破棄する")
+	})
+
+	t.Run("フラグが立っていなければキャッシュを保持する", func(t *testing.T) {
+		t.Parallel()
+		sys := NewVisionSystem()
+		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
+
+		assert.False(t, sys.consumeForceUpdate(gc.NewVisionState()))
+		assert.NotEmpty(t, sys.raycastCache)
+	})
+}

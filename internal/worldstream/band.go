@@ -136,6 +136,9 @@ func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {
 	vs := query.GetVisionState(world)
 	vs.VisibleTiles = translateTileKeyMap(vs.VisibleTiles, dx, 0, inBand)
 	vs.LightSourceCache = translateTileKeyMap(vs.LightSourceCache, dx, 0, inBand)
+	// シフトで帯ローカル座標に対する壁配置が変わるため、視界の強制再計算を要求する。
+	// これにより VisionSystem は壁配置依存のレイキャストキャッシュも破棄する
+	vs.NeedsForceUpdate = true
 	query.InvalidateSpatialIndex(world)
 }
 

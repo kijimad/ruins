@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -299,5 +300,45 @@ func TestDriver_3行帯の通し(t *testing.T) {
 	assert.Equal(t, rows.Tiles(testChunkH), query.GetCurrentStageField(world2).Level.TileHeight, "帯全高の Level が保たれる")
 	for r, c := range countRows(world2) {
 		assert.Positivef(t, c, "復元後も行%d にタイルがある", r)
+	}
+}
+
+// TestDriver_シフト後もタイルは座標ごとに1枚 は、市街地を含む帯を東へ複数回シフトしても
+// タイルエンティティが座標ごとに1枚のままであることを固定する。置換や破棄の取りこぼしが
+// あると同一座標に古いタイルが残留し、見えない壁の影などの怪奇現象になる。
+func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
+	t.Parallel()
+
+	// 初期帯の視界内に市街地の断片が入る seed を選ぶ。開始チャンク(スロット1)は避ける
+	var seed uint64
+	for s := uint64(1); s < 500; s++ {
+		if urbanPlacement.At(s, worldstream.ChunkCoord{X: 2}, 1) {
+			seed = s
+			break
+		}
+	}
+	require.NotZero(t, seed, "前提: 市街地がスロット2に当たる seed がある")
+
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: seed})
+	require.NoError(t, s.Start(world))
+
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+
+	for range 3 {
+		world.Components.GridElement.Get(player).X = 2 * testChunkW
+		shifted, err := s.MaybeShift(world)
+		require.NoError(t, err)
+		require.True(t, shifted)
+	}
+
+	counts := map[gc.GridElement]int{}
+	q := ecs.NewFilter2[gc.GridElement, gc.Tile](world.ECS).Query()
+	for q.Next() {
+		counts[*world.Components.GridElement.Get(q.Entity())]++
+	}
+	for g, c := range counts {
+		assert.Equalf(t, 1, c, "座標 (%d,%d) のタイルは1枚", g.X, g.Y)
 	}
 }

@@ -56,6 +56,19 @@ func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon, vs *gc.Vis
 	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 }
 
+// consumeForceUpdate は外部から立てられた強制更新フラグを消費し、立っていたかを返す。
+// 強制更新は扉開閉・帯シフトなど遮蔽の変化を意味するため、壁配置に依存するレイキャスト
+// 結果も破棄する。破棄しないと、帯シフトでプレイヤーが同じ帯ローカル座標へ戻ったとき
+// 旧壁配置のレイ結果が座標キー一致で再利用され、実壁の無い場所に幽霊の遮蔽影が出る
+func (sys *VisionSystem) consumeForceUpdate(vs *gc.VisionState) bool {
+	if !vs.NeedsForceUpdate {
+		return false
+	}
+	vs.NeedsForceUpdate = false
+	sys.raycastCache = make(map[raycastCacheKey]bool)
+	return true
+}
+
 // String はシステム名を返す
 // w.Updater interfaceを実装
 func (sys VisionSystem) String() string {
@@ -99,10 +112,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.X-sys.lastPlayer.X)) >= updateThreshold ||
 		geometry.Abs(int(playerPos.Y-sys.lastPlayer.Y)) >= updateThreshold
 
-	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
-	if vs.NeedsForceUpdate {
+	// 外部から設定された視界更新フラグをチェックする。扉開閉や帯シフトで立てられる
+	if sys.consumeForceUpdate(vs) {
 		needsUpdate = true
-		vs.NeedsForceUpdate = false
 	}
 
 	if !needsUpdate {
