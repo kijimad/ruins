@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 15:40:48</td>
+            <td class="headerValue">2026-07-24 16:14:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,53 +72,53 @@
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/ebitenutil&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">          11 : func newImageFromFile(path string) (*ebiten.Image, error) {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">          11 :         f, err := embeddedAssets.Open(path)</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">          15 :         if err != nil {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">          64 : func newImageFromFile(path string) (*ebiten.Image, error) {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">          64 :         f, err := embeddedAssets.Open(path)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">          68 :         if err != nil {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           4 :                 return nil, err</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           4 :         }</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          14 :         defer func() {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           7 :                 if err := f.Close(); err != nil {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">         120 :         defer func() {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          60 :                 if err := f.Close(); err != nil {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 :                         // ログ出力するが、エラーは元の処理に影響させない</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                         // この関数は読み取り専用なので、Close失敗は通常問題ない</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                         log.Print(err)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              :         }()</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           7 :         i, _, err := ebitenutil.NewImageFromReader(f)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           7 :         return i, err</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">          60 :         i, _, err := ebitenutil.NewImageFromReader(f)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">          60 :         return i, err</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
 <span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           4 : func loadGraphicImages(idle string, disabled string) (*widget.GraphicImage, error) {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           4 :         idleImage, err := newImageFromFile(idle)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           5 : func loadGraphicImages(idle string, disabled string) (*widget.GraphicImage, error) {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           5 :         idleImage, err := newImageFromFile(idle)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           6 :         if err != nil {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           3 :         var disabledImage *ebiten.Image</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           5 :         if disabled != &quot;&quot; {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :                 disabledImage, err = newImageFromFile(disabled)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           3 :                 if err != nil {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           4 :         var disabledImage *ebiten.Image</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           7 :         if disabled != &quot;&quot; {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           3 :                 disabledImage, err = newImageFromFile(disabled)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           4 :                 if err != nil {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                         return nil, err</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              :         }</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           2 :         return &amp;widget.GraphicImage{</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :                 Idle:     idleImage,</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :                 Disabled: disabledImage,</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :         }, nil</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           3 :         return &amp;widget.GraphicImage{</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           3 :                 Idle:     idleImage,</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           3 :                 Disabled: disabledImage,</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           3 :         }, nil</span></span>
 <span id="L47"><span class="lineNum">      47</span>              : }</span>
 <span id="L48"><span class="lineNum">      48</span>              : </span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 : func loadImageNineSlice(path string, centerWidth int, centerHeight int) (*image.NineSlice, error) {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           2 :         i, err := newImageFromFile(path)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           3 :         if err != nil {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">          25 : func loadImageNineSlice(path string, centerWidth int, centerHeight int) (*image.NineSlice, error) {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">          25 :         i, err := newImageFromFile(path)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">          26 :         if err != nil {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         w := i.Bounds().Dx()</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         h := i.Bounds().Dy()</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return image.NewNineSlice(i,</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                         [3]int{(w - centerWidth) / 2, centerWidth, w - (w-centerWidth)/2 - centerWidth},</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         [3]int{(h - centerHeight) / 2, centerHeight, h - (h-centerHeight)/2 - centerHeight}),</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 nil</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">          24 :         w := i.Bounds().Dx()</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">          24 :         h := i.Bounds().Dy()</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">          24 :         return image.NewNineSlice(i,</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">          24 :                         [3]int{(w - centerWidth) / 2, centerWidth, w - (w-centerWidth)/2 - centerWidth},</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">          24 :                         [3]int{(h - centerHeight) / 2, centerHeight, h - (h-centerHeight)/2 - centerHeight}),</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          24 :                 nil</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : }</span>
         </pre>
               </td>

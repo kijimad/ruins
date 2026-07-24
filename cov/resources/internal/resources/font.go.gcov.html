@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 15:40:48</td>
+            <td class="headerValue">2026-07-24 16:14:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,21 +75,21 @@
 <span id="L13"><span class="lineNum">      13</span>              : }</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // NewFont はフォントパスからフォントを読み込む</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           6 : func NewFont(fontPath string) (Font, error) {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           6 :         fontFile, err := assets.FS.Open(fontPath)</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           7 :         if err != nil {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           7 : func NewFont(fontPath string) (Font, error) {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           7 :         fontFile, err := assets.FS.Open(fontPath)</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           8 :         if err != nil {</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 return Font{}, err</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           5 :         s, err := text.NewGoTextFaceSource(fontFile)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           5 :         if err != nil {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           6 :         s, err := text.NewGoTextFaceSource(fontFile)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           6 :         if err != nil {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 :                 return Font{}, err</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           5 :         return Font{</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           5 :                 FaceSource: s,</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           5 :                 Font:       &amp;text.GoTextFace{Source: s, Size: 24},</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           5 :         }, nil</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           6 :         return Font{</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           6 :                 FaceSource: s,</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           6 :                 Font:       &amp;text.GoTextFace{Source: s, Size: 24},</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           6 :         }, nil</span></span>
 <span id="L31"><span class="lineNum">      31</span>              : }</span>
         </pre>
               </td>

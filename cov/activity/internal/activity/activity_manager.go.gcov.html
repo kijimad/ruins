@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 15:40:48</td>
+            <td class="headerValue">2026-07-24 16:14:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -194,15 +194,15 @@
 <span id="L132"><span class="lineNum">     132</span>              : }</span>
 <span id="L133"><span class="lineNum">     133</span>              : </span>
 <span id="L134"><span class="lineNum">     134</span>              : // setLastResult はエンティティの直近アクティビティ結果を設定する</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">          66 : func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">          66 :         lastResult := &amp;gc.LastActivity{</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">          66 :                 BehaviorName: result.ActivityName,</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">          66 :                 State:        result.State,</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">          66 :                 Success:      result.Success,</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">          66 :                 Message:      result.Message,</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">          66 :         }</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">          66 : </span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">          66 :         if err := gc.Upsert(world.ECS, world.Components.LastActivity, actor, lastResult); err != nil {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">          65 : func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">          65 :         lastResult := &amp;gc.LastActivity{</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">          65 :                 BehaviorName: result.ActivityName,</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">          65 :                 State:        result.State,</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">          65 :                 Success:      result.Success,</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">          65 :                 Message:      result.Message,</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">          65 :         }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">          65 : </span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">          65 :         if err := gc.Upsert(world.ECS, world.Components.LastActivity, actor, lastResult); err != nil {</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Warn(&quot;直近アクティビティ結果の記録に失敗&quot;, &quot;actor&quot;, actor, &quot;error&quot;, err.Error())</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L146"><span class="lineNum">     146</span>              : }</span>
@@ -285,44 +285,44 @@
 <span id="L223"><span class="lineNum">     223</span>              : }</span>
 <span id="L224"><span class="lineNum">     224</span>              : </span>
 <span id="L225"><span class="lineNum">     225</span>              : // CancelActivity は指定されたエンティティのアクティビティをキャンセルする</span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           3 : func CancelActivity(entity ecs.Entity, reason string, world w.World) {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           3 :         comp := query.GetActivity(world, entity)</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           4 :         if comp == nil {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           2 : func CancelActivity(entity ecs.Entity, reason string, world w.World) {</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           2 :         comp := query.GetActivity(world, entity)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           3 :         if comp == nil {</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L231"><span class="lineNum">     231</span>              : </span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           2 :         behavior, err := GetBehavior(comp.BehaviorName)</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         behavior, err := GetBehavior(comp.BehaviorName)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Warn(&quot;Behaviorの取得に失敗&quot;, &quot;entity&quot;, entity, &quot;error&quot;, err.Error())</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 query.RemoveActivity(world, entity)</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 return</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L238"><span class="lineNum">     238</span>              : </span>
 <span id="L239"><span class="lineNum">     239</span>              :         // BehaviorのCanceled処理を実行</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC tlaBgGNC">           2 :         if err := behavior.Canceled(comp, entity, world); err != nil {</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := behavior.Canceled(comp, entity, world); err != nil {</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Warn(&quot;アクティビティキャンセル処理エラー&quot;,</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                         &quot;entity&quot;, entity,</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         &quot;error&quot;, err.Error())</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L245"><span class="lineNum">     245</span>              : </span>
 <span id="L246"><span class="lineNum">     246</span>              :         // アクティビティ自体をキャンセル状態に</span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC tlaBgGNC">           2 :         Cancel(comp, reason)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           2 : </span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           2 :         // 結果を記録</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           2 :         result := &amp;ActionResult{</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           2 :                 Success:      false,</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           2 :                 State:        gc.ActivityStateCanceled,</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           2 :                 ActivityName: comp.BehaviorName,</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           2 :                 Message:      reason,</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           2 :         }</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           2 :         setLastResult(entity, result, world)</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           2 : </span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           2 :         query.RemoveActivity(world, entity)</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           2 : </span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           2 :         log.Debug(&quot;アクティビティキャンセル&quot;,</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           2 :                 &quot;entity&quot;, entity,</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           2 :                 &quot;type&quot;, comp.BehaviorName,</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           2 :                 &quot;reason&quot;, reason)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC tlaBgGNC">           1 :         Cancel(comp, reason)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         // 結果を記録</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         result := &amp;ActionResult{</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 Success:      false,</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 State:        gc.ActivityStateCanceled,</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 ActivityName: comp.BehaviorName,</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 Message:      reason,</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         setLastResult(entity, result, world)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         query.RemoveActivity(world, entity)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         log.Debug(&quot;アクティビティキャンセル&quot;,</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 &quot;entity&quot;, entity,</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                 &quot;type&quot;, comp.BehaviorName,</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 &quot;reason&quot;, reason)</span></span>
 <span id="L264"><span class="lineNum">     264</span>              : }</span>
 <span id="L265"><span class="lineNum">     265</span>              : </span>
 <span id="L266"><span class="lineNum">     266</span>              : // ProcessContinuousActivities は継続中の全アクティビティを1ターン分進める。</span>
