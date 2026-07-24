@@ -513,6 +513,8 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
 
+		query.GetWeaponSelection(world).Slot = 1
+
 		data := extractWeaponSlotsData(world)
 
 		require.Len(t, data.Slots, 5)
@@ -521,7 +523,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 			assert.Empty(t, slot.SpriteSheet)
 			assert.Empty(t, slot.SpriteName)
 		}
-		// デフォルトのWeaponSelection.Slotは1なので選択スロットは0
+		// Slot=1は0ベースで0になる
 		assert.Equal(t, 0, data.SelectedSlot)
 	})
 
