@@ -2,7 +2,7 @@ package overworld
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -14,15 +14,15 @@ import (
 // 施設の種別で塗り分ける。生成は (runSeed, 座標) の純関数なので、ECS のタイルを生成せずに
 // 種別だけを算出できる。生成挙動の確認とゴールデンテストの可読な表現に使う。
 
-// glyph は種別マップ上の1文字表記と、凡例に出す名前。
-type glyph struct {
-	label rune
-	name  string
+// GlyphInfo は種別マップ上の1文字表記と、凡例に出す名前。UI の着色や凡例に使う。
+type GlyphInfo struct {
+	Label rune
+	Name  string
 }
 
 // facilityGlyphs は施設種別の1文字表記。文字は種別の頭文字などから選び、衝突を避ける。
 // 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。
-var facilityGlyphs = map[facilityKind]glyph{
+var facilityGlyphs = map[facilityKind]GlyphInfo{
 	facilityHouse:   {'h', "住宅"},
 	facilityStore:   {'S', "商店"},
 	facilityOffice:  {'O', "事務所"},
@@ -32,16 +32,31 @@ var facilityGlyphs = map[facilityKind]glyph{
 	facilityLab:     {'L', "研究施設"},
 }
 
-// 地物レベルの表記。建物より粗い単位で、チャンク中心などに置く。
+// 地物レベルの表記。建物より粗い単位で、チャンク中心などに置く。UI と共有するため公開する。
 const (
-	glyphField   = '.' // 原野
-	glyphRoad    = '=' // 舗装路
-	glyphVillage = 'T' // 村
-	glyphHamlet  = 't' // 一軒家
-	glyphRuin    = '>' // 遺跡入口
-	glyphPOI     = '*' // 自然の点在POI
-	glyphUnknown = '?' // 未分類
+	GlyphField   = '.' // 原野
+	GlyphRoad    = '=' // 舗装路
+	GlyphVillage = 'T' // 村
+	GlyphHamlet  = 't' // 一軒家
+	GlyphRuin    = '>' // 遺跡入口
+	GlyphPOI     = '*' // 自然の点在POI
+	GlyphUnknown = '?' // 未分類
 )
+
+// FacilityGlyphs は施設種別の文字と名前を種別順で返す。UI の凡例や着色で建物を種別ごとに
+// 扱うために使う。地物レベルの記号は Glyph 定数を直接参照する。
+func FacilityGlyphs() []GlyphInfo {
+	kinds := make([]facilityKind, 0, len(facilityGlyphs))
+	for k := range facilityGlyphs {
+		kinds = append(kinds, k)
+	}
+	slices.Sort(kinds)
+	out := make([]GlyphInfo, 0, len(kinds))
+	for _, k := range kinds {
+		out = append(out, facilityGlyphs[k])
+	}
+	return out
+}
 
 // ChunkSchematic は1チャンクを種別文字で表す俯瞰図を返す。各行が1文字ずつ chunkW 分並び、
 // chunkH 行になる。市街地の建物はその施設種別の文字で塗り、原野は '.' にする。
@@ -51,7 +66,7 @@ func ChunkSchematic(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk,
 	for y := range grid {
 		grid[y] = make([]rune, chunkW)
 		for x := range grid[y] {
-			grid[y][x] = glyphField
+			grid[y][x] = GlyphField
 		}
 	}
 	set := func(x, y consts.Tile, r rune) {
@@ -65,16 +80,16 @@ func ChunkSchematic(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk,
 	cx, cy := chunkW/2, chunkH/2
 	switch {
 	case ruinPlacement.At(runSeed, c, rows):
-		set(cx, cy, glyphRuin)
+		set(cx, cy, GlyphRuin)
 	case settlementPlacement.At(runSeed, c, rows):
 		if settlementIsVillage(runSeed, c, c) {
 			// c==start 相当ではないので村判定のみ流用する。開始特例は俯瞰図には無関係
-			set(cx, cy, glyphVillage)
+			set(cx, cy, GlyphVillage)
 		} else {
-			set(cx, cy, glyphHamlet)
+			set(cx, cy, GlyphHamlet)
 		}
 	case poiPlacement.At(runSeed, c, rows):
-		set(cx, cy, glyphPOI)
+		set(cx, cy, GlyphPOI)
 	}
 
 	// 市街地の建物を施設種別の文字で塗る。断片に入る footprint だけをクリップする
@@ -84,9 +99,9 @@ func ChunkSchematic(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk,
 		fragOrigin := (c.X - anchor.X).Tiles(chunkW)
 		for _, b := range buildings {
 			g, ok := facilityGlyphs[facilityCatalog[b.facility].kind]
-			label := glyphUnknown
+			label := GlyphUnknown
 			if ok {
-				label = g.label
+				label = g.Label
 			}
 			for ly := b.y; ly < b.y+b.h; ly++ {
 				for lx := b.x; lx < b.x+b.w; lx++ {
@@ -121,17 +136,17 @@ func RegionSchematic(runSeed uint64, c0 worldstream.ChunkCoord, numChunks int, r
 func SchematicLegend() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "%c 原野  %c 舗装路  %c 村  %c 一軒家  %c 遺跡入口  %c 点在POI\n",
-		glyphField, glyphRoad, glyphVillage, glyphHamlet, glyphRuin, glyphPOI)
+		GlyphField, GlyphRoad, GlyphVillage, GlyphHamlet, GlyphRuin, GlyphPOI)
 	// 施設は種別の enum 順で安定させる
 	kinds := make([]facilityKind, 0, len(facilityGlyphs))
 	for k := range facilityGlyphs {
 		kinds = append(kinds, k)
 	}
-	sort.Slice(kinds, func(i, j int) bool { return kinds[i] < kinds[j] })
+	slices.Sort(kinds)
 	parts := make([]string, 0, len(kinds))
 	for _, k := range kinds {
 		g := facilityGlyphs[k]
-		parts = append(parts, fmt.Sprintf("%c %s", g.label, g.name))
+		parts = append(parts, fmt.Sprintf("%c %s", g.Label, g.Name))
 	}
 	b.WriteString(strings.Join(parts, "  "))
 	return b.String()

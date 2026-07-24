@@ -16,7 +16,7 @@ func findCityAnchor(t *testing.T, wantWidth consts.Chunk) (uint64, worldstream.C
 	t.Helper()
 	const rows = 1
 	for s := uint64(1); s < 2000; s++ {
-		for x := consts.Chunk(0); x < 12; x++ {
+		for x := range consts.Chunk(12) {
 			c := worldstream.ChunkCoord{X: x}
 			if !urbanPlacement.At(s, c, rows) {
 				continue
@@ -40,10 +40,10 @@ func TestChunkSchematic_市街地の建物が施設種別の文字で塗られ�
 	joined := strings.Join(region, "\n")
 
 	// 施設の文字が少なくとも数種類は現れる。原野と建物が塗り分けられている
-	assert.Contains(t, joined, string(glyphField), "原野のマスがある")
+	assert.Contains(t, joined, string(GlyphField), "原野のマスがある")
 	distinct := 0
 	for k := range facilityGlyphs {
-		if strings.ContainsRune(joined, facilityGlyphs[k].label) {
+		if strings.ContainsRune(joined, facilityGlyphs[k].Label) {
 			distinct++
 		}
 	}
@@ -71,7 +71,7 @@ func TestChunkSchematic_遺跡入口と集落が地物の文字で出る(t *test
 
 	foundRuin, foundSettlement := false, false
 	for s := uint64(1); s < 200 && (!foundRuin || !foundSettlement); s++ {
-		for x := consts.Chunk(0); x < 8; x++ {
+		for x := range consts.Chunk(8) {
 			c := worldstream.ChunkCoord{X: x}
 			// 市街地に上書きされないチャンクだけ見る
 			if _, _, ok := urbanAnchorOf(s, c, rows); ok {
@@ -79,12 +79,12 @@ func TestChunkSchematic_遺跡入口と集落が地物の文字で出る(t *test
 			}
 			joined := strings.Join(ChunkSchematic(s, c, rows, chunkW, chunkH), "\n")
 			if ruinPlacement.At(s, c, rows) {
-				assert.Contains(t, joined, string(glyphRuin), "遺跡入口チャンクに > が出る")
+				assert.Contains(t, joined, string(GlyphRuin), "遺跡入口チャンクに > が出る")
 				foundRuin = true
 			}
 			if settlementPlacement.At(s, c, rows) {
-				hasVillage := strings.ContainsRune(joined, glyphVillage)
-				hasHamlet := strings.ContainsRune(joined, glyphHamlet)
+				hasVillage := strings.ContainsRune(joined, GlyphVillage)
+				hasHamlet := strings.ContainsRune(joined, GlyphHamlet)
 				assert.Truef(t, hasVillage || hasHamlet, "集落チャンクに村か一軒家の文字が出る")
 				foundSettlement = true
 			}
