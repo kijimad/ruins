@@ -44,6 +44,27 @@ func TestApplyProfileDefaults_UnknownProfile(t *testing.T) {
 	assert.False(t, cfg.SkipOpening)
 }
 
+func TestConfig_String(t *testing.T) {
+	t.Parallel()
+
+	c := &Config{
+		Profile:     ProfileDevelopment,
+		User:        UserConfig{WindowWidth: 800, WindowHeight: 600},
+		Debug:       true,
+		LogLevel:    "debug",
+		Seed:        42,
+		TargetFPS:   30,
+		PProfPort:   6060,
+		ProfilePath: ".",
+	}
+
+	s := c.String()
+	assert.Contains(t, s, "Profile: development")
+	assert.Contains(t, s, "WindowWidth: 800, WindowHeight: 600")
+	assert.Contains(t, s, "Seed: 42")
+	assert.Contains(t, s, "TargetFPS: 30")
+}
+
 func TestLoad(t *testing.T) {
 	t.Parallel()
 
