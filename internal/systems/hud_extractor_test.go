@@ -7,7 +7,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -374,4 +376,369 @@ func TestExploredTilesKeyConsistency(t *testing.T) {
 	expectedKey := "15,20"
 	assert.Equal(t, expectedKey, renderKey, "renderシステムのキー形式が正しくない")
 	assert.Equal(t, expectedKey, visionKey, "visionシステムのキー形式が正しくない")
+}
+
+func TestGetHungerBadgeColor(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		level    gc.HungerLevel
+		expected color.RGBA
+	}{
+		{
+			name:     "満腹状態は緑",
+			level:    gc.HungerSatiated,
+			expected: color.RGBA{100, 200, 100, 255},
+		},
+		{
+			name:     "空腹状態は黄色",
+			level:    gc.HungerHungry,
+			expected: color.RGBA{255, 200, 0, 255},
+		},
+		{
+			name:     "飢餓状態は赤",
+			level:    gc.HungerStarving,
+			expected: color.RGBA{255, 50, 50, 255},
+		},
+		{
+			name:     "普通状態はデフォルトの白",
+			level:    gc.HungerNormal,
+			expected: color.RGBA{255, 255, 255, 255},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, getHungerBadgeColor(tt.level))
+		})
+	}
+}
+
+func TestExploredTiles_現ステージの探索済みタイルを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	field := query.GetCurrentStageField(world)
+	field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 2}}] = true
+
+	tiles := exploredTiles(world)
+
+	assert.True(t, tiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 2}}])
+
+	// 同一マップへの参照であることを、書き込みが反映されるかで確認する
+	tiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}] = true
+	assert.True(t, field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}])
+}
+
+func TestExtractGameInfo(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤー情報とフロア番号を反映する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t, testutil.WithCurrentStage(gc.NewDungeonStage("test", 3)))
+		world.Resources.SetScreenDimensions(800, 600)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.HP.Add(player, &gc.HP{Current: 30, Max: 50})
+		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{Current: 1000, Max: 5000})
+
+		info := extractGameInfo(world)
+
+		assert.Equal(t, 3, info.FloorNumber)
+		assert.Equal(t, 30, info.PlayerHP)
+		assert.Equal(t, 50, info.PlayerMaxHP)
+		assert.Equal(t, consts.Milligram(1000), info.PlayerWeight)
+		assert.Equal(t, consts.Milligram(5000), info.PlayerMaxWeight)
+		assert.Equal(t, 800, info.ScreenDimensions.Width)
+		assert.Equal(t, 600, info.ScreenDimensions.Height)
+
+		config := hud.DefaultMessageAreaConfig
+		expectedHeight := config.LogAreaMargin*2 + config.MaxLogLines*config.LineHeight + config.YPadding*2
+		assert.Equal(t, expectedHeight, info.MessageAreaHeight)
+	})
+
+	t.Run("プレイヤー不在時はゼロ値になる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		info := extractGameInfo(world)
+
+		assert.Equal(t, 0, info.PlayerHP)
+		assert.Equal(t, 0, info.PlayerMaxHP)
+		assert.Equal(t, consts.Milligram(0), info.PlayerWeight)
+		assert.Equal(t, consts.Milligram(0), info.PlayerMaxWeight)
+	})
+}
+
+func TestExtractCurrencyData(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーの所持金を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.SetScreenDimensions(320, 240)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 12345})
+
+		data := extractCurrencyData(world)
+
+		assert.Equal(t, 12345, data.Currency)
+		assert.Equal(t, 320, data.ScreenDimensions.Width)
+		assert.Equal(t, 240, data.ScreenDimensions.Height)
+	})
+
+	t.Run("プレイヤー不在時は0を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		data := extractCurrencyData(world)
+
+		assert.Equal(t, 0, data.Currency)
+	})
+}
+
+func TestExtractWeaponSlotsData(t *testing.T) {
+	t.Parallel()
+
+	t.Run("武器未装備なら空スロットを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
+
+		data := extractWeaponSlotsData(world)
+
+		require.Len(t, data.Slots, 5)
+		for _, slot := range data.Slots {
+			assert.Empty(t, slot.WeaponName)
+			assert.Empty(t, slot.SpriteSheet)
+			assert.Empty(t, slot.SpriteName)
+		}
+		// デフォルトのWeaponSelection.Slotは1なので選択スロットは0
+		assert.Equal(t, 0, data.SelectedSlot)
+	})
+
+	t.Run("装備した武器のスロットに情報を反映する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
+
+		weapon := world.ECS.NewEntity()
+		world.Components.Melee.Add(weapon, &gc.Melee{})
+		world.Components.Name.Add(weapon, &gc.Name{Name: "レイピア"})
+		world.Components.SpriteRender.Add(weapon, &gc.SpriteRender{SpriteSheetName: "weapons", SpriteKey: "rapier"})
+		world.Components.LocationEquipped.Add(weapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotWeapon1})
+
+		query.GetWeaponSelection(world).Slot = 3
+
+		data := extractWeaponSlotsData(world)
+
+		require.Len(t, data.Slots, 5)
+		assert.Equal(t, "レイピア", data.Slots[0].WeaponName)
+		assert.Equal(t, "weapons", data.Slots[0].SpriteSheet)
+		assert.Equal(t, "rapier", data.Slots[0].SpriteName)
+		for i := 1; i < 5; i++ {
+			assert.Empty(t, data.Slots[i].WeaponName, "他のスロットは空のまま")
+		}
+		assert.Equal(t, 2, data.SelectedSlot, "Slot=3は0ベースで2になる")
+	})
+}
+
+func TestExtractStatusBadgesData(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		hunger     gc.Hunger
+		wantBadges int
+	}{
+		{
+			name:       "普通状態ではバッジが付かない",
+			hunger:     gc.Hunger{Current: 400, Max: 500},
+			wantBadges: 0,
+		},
+		{
+			name:       "空腹状態ではバッジが付く",
+			hunger:     gc.Hunger{Current: 100, Max: 500},
+			wantBadges: 1,
+		},
+		{
+			name:       "飢餓状態ではバッジが付く",
+			hunger:     gc.Hunger{Current: 10, Max: 500},
+			wantBadges: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			world.Resources.SetScreenDimensions(640, 480)
+
+			player := world.ECS.NewEntity()
+			world.Components.Player.Add(player, &gc.Player{})
+			hunger := tt.hunger
+			world.Components.Hunger.Add(player, &hunger)
+
+			data := extractStatusBadgesData(world)
+
+			require.Len(t, data.Badges, tt.wantBadges)
+			if tt.wantBadges > 0 {
+				assert.Equal(t, hunger.GetLevel().String(), data.Badges[0].Text)
+				assert.Equal(t, getHungerBadgeColor(hunger.GetLevel()), data.Badges[0].Color)
+			}
+			assert.Equal(t, 640, data.ScreenDimensions.Width)
+			assert.Equal(t, 480, data.ScreenDimensions.Height)
+		})
+	}
+}
+
+func TestExtractSquadHUDData(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤー不在時は空データを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.SetScreenDimensions(100, 200)
+
+		data := extractSquadHUDData(world)
+
+		assert.Empty(t, data.Members)
+		assert.Equal(t, 100, data.ScreenDimensions.Width)
+		assert.Equal(t, 200, data.ScreenDimensions.Height)
+	})
+
+	t.Run("生存している隊員情報を反映する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+
+		member := world.ECS.NewEntity()
+		world.Components.SquadMember.Add(member, &gc.SquadMember{})
+		world.Components.FactionAlly.Add(member, &gc.FactionAlly{})
+		world.Components.Name.Add(member, &gc.Name{Name: "アッシュ"})
+		world.Components.HP.Add(member, &gc.HP{Current: 8, Max: 20})
+
+		// 死亡した隊員は除外される
+		deadMember := world.ECS.NewEntity()
+		world.Components.SquadMember.Add(deadMember, &gc.SquadMember{})
+		world.Components.FactionAlly.Add(deadMember, &gc.FactionAlly{})
+		world.Components.Name.Add(deadMember, &gc.Name{Name: "死者"})
+		world.Components.HP.Add(deadMember, &gc.HP{Current: 0, Max: 10})
+		world.Components.Dead.Add(deadMember, &gc.Dead{})
+
+		data := extractSquadHUDData(world)
+
+		require.Len(t, data.Members, 1)
+		assert.Equal(t, "アッシュ", data.Members[0].Name)
+		assert.Equal(t, 8, data.Members[0].CurrentHP)
+		assert.Equal(t, 20, data.Members[0].MaxHP)
+	})
+}
+
+func TestExtractMessageData_メッセージ履歴と画面情報を反映する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetScreenDimensions(1024, 768)
+
+	store := gamelog.NewSafeSlice(10)
+	store.Push("メッセージ1")
+	store.Push("メッセージ2")
+
+	data := extractMessageData(world, store)
+
+	assert.Equal(t, []string{"メッセージ1", "メッセージ2"}, data.Messages)
+	assert.Equal(t, 1024, data.ScreenDimensions.Width)
+	assert.Equal(t, 768, data.ScreenDimensions.Height)
+	assert.Equal(t, hud.DefaultMessageAreaConfig, data.Config)
+}
+
+func TestExtractDebugOverlay(t *testing.T) {
+	t.Parallel()
+
+	t.Run("無効時はEnabledがfalseになる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Config.ShowAIDebug = false
+
+		data := extractDebugOverlay(world)
+
+		assert.False(t, data.Enabled)
+		assert.Empty(t, data.AIStates)
+		assert.Empty(t, data.VisionRanges)
+		assert.Empty(t, data.HPDisplays)
+	})
+
+	t.Run("有効時はAI状態と視界範囲とHP表示を反映する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Config.ShowAIDebug = true
+		world.Resources.SetScreenDimensions(800, 600)
+
+		camera := world.ECS.NewEntity()
+		world.Components.Camera.Add(camera, &gc.Camera{Scale: 1.0})
+		world.Components.GridElement.Add(camera, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+
+		soloAI := world.ECS.NewEntity()
+		world.Components.GridElement.Add(soloAI, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
+		world.Components.SoloAI.Add(soloAI, &gc.SoloAI{SubState: gc.AIStateChasing, ViewDistance: 5})
+
+		enemy := world.ECS.NewEntity()
+		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}})
+		world.Components.HP.Add(enemy, &gc.HP{Current: 3, Max: 10})
+		world.Components.Name.Add(enemy, &gc.Name{Name: "敵"})
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+		world.Components.HP.Add(player, &gc.HP{Current: 40, Max: 40})
+
+		data := extractDebugOverlay(world)
+
+		require.True(t, data.Enabled)
+		require.Len(t, data.AIStates, 1)
+		assert.Equal(t, "CHASING", data.AIStates[0].StateText)
+
+		require.Len(t, data.VisionRanges, 1)
+		assert.Equal(t, float32(5*consts.TileSize), data.VisionRanges[0].ScaledRadius)
+
+		// プレイヤーはHP表示対象から除外され、敵のみ残る
+		require.Len(t, data.HPDisplays, 1)
+		assert.Equal(t, 3, data.HPDisplays[0].CurrentHP)
+		assert.Equal(t, 10, data.HPDisplays[0].MaxHP)
+		assert.Equal(t, "敵", data.HPDisplays[0].EntityName)
+	})
+}
+
+func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetScreenDimensions(800, 600)
+
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
+	world.Components.HP.Add(player, &gc.HP{Current: 10, Max: 10})
+	world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{Current: 0, Max: 100})
+	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 500})
+	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
+
+	data := ExtractHUDData(world)
+
+	assert.Equal(t, 10, data.GameInfo.PlayerHP)
+	assert.Equal(t, 500, data.CurrencyData.Currency)
+	require.Len(t, data.WeaponSlotsData.Slots, 5)
+	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
 }
