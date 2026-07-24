@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 14:42:19</td>
+            <td class="headerValue">2026-07-24 15:06:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,16 +84,16 @@
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;プレイヤーにGridElementコンポーネントがありません&quot;)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          12 :         gridElement := world.Components.GridElement.Get(entity)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">          12 :         current := gridElement.Coord</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          12 : </span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          12 :         next := current.Add(direction.GetDelta())</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          12 : </span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          12 :         // 移動先にOnCollision方式のInteractableがある場合は自動実行</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          12 :         targetGrid := &amp;gc.GridElement{Coord: next}</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          12 :         interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          12 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          14 :         if interactable != nil {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          13 :         gridElement := world.Components.GridElement.Get(entity)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">          13 :         current := gridElement.Coord</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">          13 : </span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">          13 :         next := current.Add(direction.GetDelta())</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          13 : </span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          13 :         // 移動先にOnCollision方式のInteractableがある場合は自動実行</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          13 :         targetGrid := &amp;gc.GridElement{Coord: next}</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          13 :         interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          13 : </span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          15 :         if interactable != nil {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           4 :                 for _, interaction := range interactable.Interactions {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :                         if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>

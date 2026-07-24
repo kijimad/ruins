@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 14:42:19</td>
+            <td class="headerValue">2026-07-24 15:06:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -123,10 +123,10 @@
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">          88 :         for _, room := range planData.Rooms {</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">          44 :                 // 部屋の内部を床タイルで埋める</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">        1844 :                 for x := room.Min.X; x &lt;= room.Max.X; x++ {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">       83454 :                         for y := room.Min.Y; y &lt;= room.Max.Y; y++ {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">       81654 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">       81654 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       81654 :                         }</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">       83570 :                         for y := room.Min.Y; y &lt;= room.Max.Y; y++ {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">       81770 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">       81770 :                                 planData.Tiles[idx] = planData.GetTile(b.FloorTile)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       81770 :                         }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              :                 }</span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              :                 // 部屋の境界を壁で囲む</span>
