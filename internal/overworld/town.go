@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
 // townNPCs は小集落に配置する会話NPCの定義名と、集落中心からの相対座標。
@@ -22,12 +23,19 @@ var townNPCs = []struct {
 	{"怪しい科学者", -4, 0},
 }
 
-// settlementSpec は小集落の FeatureSpec。リージョン方式でおおよそ Spacing チャンクに
-// 1つ当選し、開始チャンクは PlaceFeatures の特例で必ず小集落になる。
-var settlementSpec = FeatureSpec{
-	Kind:      FeatureSettlement,
-	Placement: Placement{Spacing: 8, Separation: 2, Salt: 0x5e77},
-	Content:   spawnTown,
+// settlementPlacement は小集落のリージョン配置。おおよそ Spacing チャンクに1つ当選する。
+var settlementPlacement = Placement{Spacing: 8, Separation: 2, Salt: 0x5e77}
+
+// settlementFeature は小集落の feature 実装。開始チャンクは特例で必ず当選し、
+// 新規ゲームの開始点に交易・雇用・合成の必須サービスを保証する。
+type settlementFeature struct{}
+
+func (settlementFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+	if !settlementPlacement.At(runSeed, c, rows) && c != start {
+		return nil
+	}
+	center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
+	return spawnTown(world, center)
 }
 
 // spawnTown は小集落を構成する。center を集落の中心として会話NPCを近傍へ決定的に配置する。

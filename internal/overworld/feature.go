@@ -1,19 +1,9 @@
 package overworld
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldstream"
-)
-
-// FeatureKind は地物の種類。種類の追加は spec のインスタンス追加に還元し、分岐は増やさない。
-type FeatureKind int
-
-const (
-	// FeatureSettlement は小集落。交易・雇用・合成の補給地で、比較的安全
-	FeatureSettlement FeatureKind = iota
 )
 
 // Placement はリージョン方式の配置ルール。世界を Spacing チャンク四方のリージョンに分け、
@@ -51,34 +41,31 @@ func floorDiv(a, b consts.Chunk) consts.Chunk {
 	return q
 }
 
-// FeatureSpec は1種類の地物の「どこに・何を」をまとめた宣言。
-// Content は当選チャンクの中心座標を受けて中身を配置する。
-type FeatureSpec struct {
-	Kind      FeatureKind
-	Placement Placement
-	Content   func(world w.World, center consts.Coord[consts.Tile]) error
+// chunkGeom は生成中チャンクの帯ローカル配置。地物が中身を置く座標計算に使う。
+type chunkGeom struct {
+	offsetX, offsetY consts.Tile
+	chunkW, chunkH   consts.Tile
 }
 
-// featureSpecs は登録済みの地物一覧。種類を増やすときはここへ spec を足す。
-func featureSpecs() []FeatureSpec {
-	return []FeatureSpec{settlementSpec}
+// feature は1種類の地物。c がその地物に該当するかを (runSeed, 座標, rows) の純関数で判定し、
+// 該当すれば中身を配置する。種類の追加は実装を1つ足すことに還元し、分岐は増やさない。
+type feature interface {
+	place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error
 }
 
-// PlaceFeatures は登録済みの地物 spec を評価し、当選したチャンクへ中身を配置する。
-// 判定は (runSeed, 座標) の純関数。start は開始チャンク特例で、新規ゲームの開始点に
-// 必須サービスを保証するため、リージョン抽選に関わらず必ず小集落になる。
+// features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
+func features() []feature {
+	return []feature{settlementFeature{}, urbanRuinFeature{}}
+}
+
+// PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
+// 判定はすべて (runSeed, 座標, rows) の純関数で、start は開始チャンクの座標。
+// 小集落は開始特例で必ず置かれ、市街地は開始チャンクを避ける。
 func PlaceFeatures(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
-	center := consts.Coord[consts.Tile]{X: offsetX + chunkW/2, Y: offsetY + chunkH/2}
-	for _, spec := range featureSpecs() {
-		hit := spec.Placement.At(runSeed, c, rows)
-		if spec.Kind == FeatureSettlement && c == start {
-			hit = true
-		}
-		if !hit {
-			continue
-		}
-		if err := spec.Content(world, center); err != nil {
-			return fmt.Errorf("地物配置失敗 (kind=%d, x=%d, y=%d): %w", spec.Kind, c.X, c.Y, err)
+	g := chunkGeom{offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH}
+	for _, f := range features() {
+		if err := f.place(world, runSeed, c, start, rows, g); err != nil {
+			return err
 		}
 	}
 	return nil
