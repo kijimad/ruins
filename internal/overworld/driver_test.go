@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -232,4 +233,70 @@ func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
 	sb3 := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, K: testK, Rows: 3}
 	require.NoError(t, dr3.restoreFromSave(world3, sb3))
 	assert.Equal(t, consts.Chunk(3), dr3.band.Rows(), "Rows=3 のセーブは3行で復元される")
+}
+
+// TestDriver_3行帯の通し は rows=3 の帯で、新規開始の全行生成・列単位の東シフト・
+// セーブ復元までが一貫して3行のまま保たれることを固定する。
+func TestDriver_3行帯の通し(t *testing.T) {
+	t.Parallel()
+
+	const rows consts.Chunk = 3
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, rows), &NewGameParams{RunSeed: 900})
+	require.NoError(t, s.Start(world))
+
+	countRows := func(wld w.World) []int {
+		counts := make([]int, int(rows))
+		q := ecs.NewFilter1[gc.GridElement](wld.ECS).Query()
+		for q.Next() {
+			y := wld.Components.GridElement.Get(q.Entity()).Y
+			if y < 0 || y >= rows.Tiles(testChunkH) {
+				continue
+			}
+			counts[int(y/testChunkH)]++
+		}
+		return counts
+	}
+
+	// Level は帯全域になり、全3行にタイルが生成されている
+	field := query.GetCurrentStageField(world)
+	assert.Equal(t, testK.Tiles(testChunkW), field.Level.TileWidth, "幅は K*chunkW")
+	assert.Equal(t, rows.Tiles(testChunkH), field.Level.TileHeight, "高さは rows*chunkH")
+	for r, c := range countRows(world) {
+		assert.Positivef(t, c, "行%d にタイルが生成されている", r)
+	}
+
+	// プレイヤーは中央チャンク・中央行に立つ
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	pg := world.Components.GridElement.Get(player)
+	assert.Equal(t, (testK/2).Tiles(testChunkW)+testChunkW/2, pg.X, "中央チャンクの中央 X")
+	assert.Equal(t, (rows/2).Tiles(testChunkH)+testChunkH/2, pg.Y, "中央行の中央 Y")
+
+	// 東シフトは列単位で全行を入れ替え、3行とも埋まったまま
+	pg.X = 2 * testChunkW
+	shifted, err := s.MaybeShift(world)
+	require.NoError(t, err)
+	require.True(t, shifted, "東へ踏み込むとシフトする")
+	assert.Equal(t, 1, int(s.EastIndex()), "eastIndex が進む")
+	for r, c := range countRows(world) {
+		assert.Positivef(t, c, "シフト後も行%d にタイルがある", r)
+	}
+
+	// セーブ往復で Rows=3 が復元され、帯も3行で再構築される
+	sm, err := save.NewSerializationManager()
+	require.NoError(t, err)
+	jsonData, err := sm.GenerateWorldJSON(world)
+	require.NoError(t, err)
+	world2 := testutil.InitTestWorld(t)
+	require.NoError(t, sm.RestoreWorldFromJSON(world2, jsonData))
+	assert.Equal(t, rows, query.GetSeamlessBand(world2).Rows, "Rows が復元される")
+
+	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, nil, nil)
+	require.NoError(t, s2.Start(world2))
+	assert.Equal(t, rows, s2.band.Rows(), "ロード復元で帯が3行で再構築される")
+	assert.Equal(t, rows.Tiles(testChunkH), query.GetCurrentStageField(world2).Level.TileHeight, "帯全高の Level が保たれる")
+	for r, c := range countRows(world2) {
+		assert.Positivef(t, c, "復元後も行%d にタイルがある", r)
+	}
 }
