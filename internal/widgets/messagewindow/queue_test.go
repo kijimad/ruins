@@ -111,6 +111,7 @@ func TestQueueManager_Dequeue(t *testing.T) {
 		assert.Equal(t, chained.GetNextMessages()[0], next1)
 		assert.Equal(t, chained.GetNextMessages()[1], next2)
 		assert.Equal(t, after, last)
+		assert.Equal(t, 0, q.Size())
 	})
 }
 
