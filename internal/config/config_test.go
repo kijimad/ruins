@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"testing"
 
 	"github.com/sebdah/goldie/v2"
@@ -60,20 +59,8 @@ func TestConfig_StringGolden(t *testing.T) {
 		ProfilePath: ".",
 	}
 
-	assertGoldenText(t, "config_string", c.String())
-}
-
-// assertGoldenText は文字列を testdata/<name>.golden と比較する。
-// GOLDIE_UPDATE=1 で golden を更新する。make updategolden から拾えるようテスト名には Golden を含める。
-func assertGoldenText(t *testing.T, name, actual string) {
-	t.Helper()
-
-	g := goldie.New(t)
-	if v := os.Getenv("GOLDIE_UPDATE"); v == "1" || v == "true" {
-		require.NoError(t, g.Update(t, name, []byte(actual)))
-		return
-	}
-	g.Assert(t, name, []byte(actual))
+	// goldie は GOLDIE_UPDATE=1 のとき golden を更新する。make updategolden から拾えるようテスト名に Golden を含める。
+	goldie.New(t).Assert(t, "config_string", []byte(c.String()))
 }
 
 func TestLoad(t *testing.T) {
