@@ -6,12 +6,11 @@ import (
 	"github.com/sebdah/goldie/v2"
 )
 
-// assertGoldenMarkdown は markdown 文字列を testdata/<name>.golden.md と比較する。
-// goldie が GOLDIE_UPDATE=1 のとき golden を更新する。make updategolden から拾えるようテスト名には Golden を含める。
+// assertGoldenMarkdown は markdown をゴールデンファイルと比較する。
 func assertGoldenMarkdown(t *testing.T, name, actual string) {
 	t.Helper()
 
-	// 拡張子はエディタで開きやすいよう .golden.md にする。goldie 既定の .golden から変える
+	// エディタで markdown として開けるよう拡張子を .golden.md にする
 	g := goldie.New(t, goldie.WithNameSuffix(".golden.md"))
 	g.Assert(t, name, []byte(actual))
 }
