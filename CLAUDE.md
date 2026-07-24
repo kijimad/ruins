@@ -8,6 +8,7 @@
 - コマンドは基本的に Makefile に定義されている。生の `go`/`npm` を直接叩かず、対応する make ターゲットを使う（`make check` / `make test` / `make generate` / `make lint` / `make build` など。一覧は `make help`）
 - 実装変更後は `make check` で壊していないか検証する（テストは `make test`。Ebiten のウィンドウ抑止のため）
 - git push・PR 作成は指示したときのみ行う
+- GitHub へのコメントは禁止する
 - タスクでブランチを切ってworktree下で行う
 
 ## skill（詳細手順・知見）

@@ -97,7 +97,7 @@
 
   <!-- STEP 2 -->
   <div class="sec">
-    <div class="steplabel"><span class="num">2</span>地形区画マップ ── 設計リファレンス（読み物）<span class="hint">＝ 1区画 ≒ 100×100 タイル。西の母港から東の目標地点まで、区画が連なってワールドを構成する</span></div>
+    <div class="steplabel"><span class="num">2</span>地形区画マップ ── 設計リファレンス（読み物）<span class="hint">＝ 1区画 ≒ 100×100 タイル。西の母港から東へ、区画が連なって一方向にワールドが延びる。固定の目標地点は無い</span></div>
   </div>
   <div class="maparea">
     <div class="maplbl">ワールド概観 ── 到達不可の稜線が合流点を強制し、その間の開けた帯が分岐（回り込み先）を誘う</div>
@@ -106,7 +106,7 @@
       <div><span class="sw" style="background:#151f1c;border:2px dashed #7fd6ff"></span>侵食中の区画（境界）</div>
       <div><span class="sw" style="background:#241a16"></span>到達不可（稜線・断崖。迂回必須）</div>
       <div><span class="sw" style="background:#151f1c"></span>未到達区画（平常）</div>
-      <div><span class="sw" style="background:#e5c675"></span>目標地点</div>
+      <div><span class="sw" style="background:#e5c675"></span>母港（出発点）</div>
     </div>
     <svg id="svg" viewBox="0 0 1000 400" preserveAspectRatio="none"></svg>
   </div>
@@ -139,7 +139,7 @@
 
   <!-- 原則ノート -->
   <div class="notes">
-    <div class="nt"><div class="h">ズーム切替なし</div><div class="d">母港・集落・遺跡・野営地・目標地点は同じ座標空間・同じ解像度。専用のマクロ画面を持たない。</div></div>
+    <div class="nt"><div class="h">ズーム切替なし</div><div class="d">母港・集落・遺跡・野営地は同じ座標空間・同じ解像度。専用のマクロ画面を持たない。</div></div>
     <div class="nt"><div class="h">境界＝即死ではない</div><div class="d">前線に触れても即ゲームオーバーにしない。近いほど段階的に極寒（tile_temperature の悪化）。「際どく粘る」判断が残る。</div></div>
     <div class="nt"><div class="h">前線速度は地形依存</div><div class="d">開けた雪原は速く、山地・森は遅く進む。地形そのものが経路選択の材料になり、一直線の競走に潰れない。</div></div>
     <div class="nt"><div class="h">自動巡航で移動を圧縮</div><div class="d">距離は実タイルのまま、退屈な区間だけ高速化。CDDA の auto-travel を採用し「移動の不便さ」を解決する。</div></div>
@@ -252,7 +252,7 @@ const pois=[
   {r:2.5, c:6.5,  type:'camp', label:'谷の野営地（中央）'},
   {r:4.5, c:6.5,  type:'ruin', label:'忘却の廃都（南回り）'},
   {r:2.5, c:10.5, type:'town', label:'集落ハラム'},
-  {r:2.5, c:11.6, type:'goal', label:'氷都リーゲン'},
+  {r:2.5, c:11.6, type:'camp', label:'東へ続く（一方向・前線から逃げ続ける）'},
 ];
 pois.forEach(function(p){
   const x=cellX(p.c)+cw/2, y=cellY(p.r)+ch/2;
