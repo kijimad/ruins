@@ -60,7 +60,7 @@ func (settlementFeature) place(world w.World, runSeed uint64, c, start worldstre
 			return nil
 		}
 		// 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
-		if _, _, ok := urbanAnchorOf(runSeed, c, rows); ok {
+		if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {
 			return nil
 		}
 	}

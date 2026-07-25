@@ -52,9 +52,10 @@ var (
 
 	// DungeonOverworld はオーバーワールド帯を表す定義。
 	// フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
-	// 帯形状 50x50 のチャンクを横3枚・縦5枚並べる。縦5レーンで北/中央/南のルート選択が生まれる。
+	// 帯形状 20x20 のチャンクを横7枚・縦9枚並べる。1チャンク=1建物=地図の1マスの縮尺で、
+	// CDDA の OMT に相当する。縦9レーンで北/中央/南のルート選択が生まれる。
 	// この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
-	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3, 5)
+	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 20, 20, 7, 9)
 
 	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = &DungeonDefinition{

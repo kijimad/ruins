@@ -18,15 +18,15 @@ import (
 )
 
 // OverworldMapState はオーバーワールドの種別俯瞰図を全画面で表示するステート。
-// タイルの材質ではなく「そのマスがどの種別の場所か」を色で示す。帯の生成は純関数なので、
-// 現在地の周辺チャンクを ECS を生成せずに算出して描ける。
+// 1チャンク=1建物の縮尺に合わせ、各チャンクを1マスの色と文字で示す。CDDA のオーバーマップ
+// 同様、1マス=1つの場所。生成は純関数なので ECS のタイルを生成せずに算出して描ける。
 type OverworldMapState struct {
 	es.BaseState[w.World]
 
-	grid      [][]rune // ダウンサンプル済みの種別文字グリッド
-	playerCol int      // 現在地のグリッド列。範囲外なら -1
-	playerRow int      // 現在地のグリッド行
-	playerAbs consts.Coord[consts.Chunk]
+	glyphs    [][]rune                   // 各チャンクの種別文字。行 = Y、列 = 東西の窓
+	playerCol int                        // 現在地の列。範囲外なら -1
+	playerRow int                        // 現在地の行
+	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標
 }
 
 var _ es.State[w.World] = &OverworldMapState{}
@@ -46,16 +46,14 @@ func (st *OverworldMapState) OnResume(_ w.World) error { return nil }
 // OnStop はステートが終了する際に呼ばれる。
 func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 
-// マップ描画の寸法。論理解像度 960x720 に収める。凡例を右端に置く余白を残す。
+// マップ描画の寸法。1チャンクを1セルで描く。
 const (
-	mapCellPx    = 6   // ダウンサンプル1マスの一辺ピクセル
-	mapAreaW     = 760 // 俯瞰図領域の最大幅。右に凡例の帯を残す
-	mapAreaH     = 560 // 俯瞰図領域の最大高
-	mapContextCh = 2   // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
+	mapCellPx    = 22 // 1チャンクのセルの一辺ピクセル
+	mapContextCh = 6  // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
 )
 
-// OnStart は現在地周辺の俯瞰図をダウンサンプルして構築する。マップ表示中はプレイヤーが
-// 動かないため、ここで一度だけ計算して保持する。
+// OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため
+// 一度だけ計算する。
 func (st *OverworldMapState) OnStart(world w.World) error {
 	sb := query.GetSeamlessBand(world)
 	if sb == nil || !sb.Active {
@@ -63,49 +61,29 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	}
 	rows := max(sb.Rows, 1)
 
-	// 帯の Rows 行と、K 列に東西の文脈チャンクを足した窓を対象にする
+	// 帯の Rows 行と、K 列に東西の文脈チャンクを足した窓の各チャンクを種別文字にする
 	winChunksX := int(sb.K) + 2*mapContextCh
 	winX0 := sb.EastIndex - consts.Chunk(mapContextCh)
-	tilesW := consts.Tile(winChunksX) * sb.ChunkW
-	tilesH := rows.Tiles(sb.ChunkH)
 
-	// 領域に収まるダウンサンプル率を決める。行数が増えても自動で縮尺が合う
-	maxCols := mapAreaW / mapCellPx
-	maxRows := mapAreaH / mapCellPx
-	dsample := max(1, ceilDiv(int(tilesW), maxCols), ceilDiv(int(tilesH), maxRows))
-
-	// 窓の全タイル種別を1枚のグリッドへ展開する
-	full := make([][]rune, tilesH)
-	for y := range full {
-		full[y] = make([]rune, tilesW)
-	}
-	for i := range winChunksX {
-		for cy := range rows {
+	st.glyphs = make([][]rune, rows)
+	for cy := range rows {
+		st.glyphs[cy] = make([]rune, winChunksX)
+		for i := range winChunksX {
 			c := worldstream.ChunkCoord{X: winX0 + consts.Chunk(i), Y: cy}
-			chunk := overworld.ChunkSchematic(sb.RunSeed, c, rows, sb.ChunkW, sb.ChunkH)
-			baseX := consts.Tile(i) * sb.ChunkW
-			baseY := cy.Tiles(sb.ChunkH)
-			for y, line := range chunk {
-				copy(full[int(baseY)+y][int(baseX):], []rune(line))
-			}
+			st.glyphs[cy][i] = overworld.ChunkPlace(sb.RunSeed, c, rows)
 		}
 	}
 
-	// ダウンサンプル。各ブロックの代表は原野でない最初の文字にし、地物を優先して残す
-	st.grid = downsampleRunes(full, dsample)
-
-	// 現在地のグリッド座標を求める。プレイヤー座標は帯ローカルで、窓の原点は西へ mapContextCh
+	// 現在地のチャンク。プレイヤー座標は帯ローカルで、窓の原点は西へ mapContextCh
+	st.playerCol = -1
 	if player, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
 		g := world.Components.GridElement.Get(player)
-		winTileX := int(g.X) + mapContextCh*int(sb.ChunkW)
-		st.playerCol = winTileX / dsample
-		st.playerRow = int(g.Y) / dsample
+		st.playerCol = int(g.X)/int(sb.ChunkW) + mapContextCh
+		st.playerRow = int(g.Y) / int(sb.ChunkH)
 		st.playerAbs = consts.Coord[consts.Chunk]{
 			X: sb.EastIndex + consts.Chunk(int(g.X)/int(sb.ChunkW)),
 			Y: consts.Chunk(int(g.Y) / int(sb.ChunkH)),
 		}
-	} else {
-		st.playerCol = -1
 	}
 	return nil
 }
@@ -121,7 +99,7 @@ func (st *OverworldMapState) Update(_ w.World) (es.Transition[w.World], error) {
 	return st.ConsumeTransition(), nil
 }
 
-// Draw は俯瞰図をカラーのミニマップとして描き、現在地と凡例を添える。
+// Draw は各チャンクを色と文字のセルで描き、現在地と凡例を添える。
 func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	screen.Fill(color.RGBA{R: 12, G: 14, B: 18, A: 255})
 	face := world.Resources.UIResources.Text.BodyFace
@@ -135,30 +113,31 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 
 	drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
-	// ミニマップ本体
 	const originX, originY = 16, 44
-	for row := range st.grid {
-		for col, r := range st.grid[row] {
-			x := float32(originX + col*mapCellPx)
-			y := float32(originY + row*mapCellPx)
-			vector.FillRect(screen, x, y, mapCellPx, mapCellPx, glyphColor(r), false)
+	for row := range st.glyphs {
+		for col, r := range st.glyphs[row] {
+			x := originX + col*mapCellPx
+			y := originY + row*mapCellPx
+			vector.FillRect(screen, float32(x), float32(y), mapCellPx-1, mapCellPx-1, glyphColor(r), false)
+			// 原野以外は種別の文字を重ねて、色だけでなく記号でも読めるようにする
+			if r != overworld.GlyphField {
+				drawText(string(r), x+5, y+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
+			}
 		}
 	}
-	// 現在地マーカー
+	// 現在地マーカー。白枠でセルを囲む
 	if st.playerCol >= 0 {
-		x := float32(originX + st.playerCol*mapCellPx - 1)
-		y := float32(originY + st.playerRow*mapCellPx - 1)
-		vector.FillRect(screen, x, y, mapCellPx+2, mapCellPx+2, color.RGBA{R: 255, G: 255, B: 255, A: 255}, false)
+		x := float32(originX + st.playerCol*mapCellPx)
+		y := float32(originY + st.playerRow*mapCellPx)
+		vector.StrokeRect(screen, x-1, y-1, mapCellPx+1, mapCellPx+1, 2, color.RGBA{R: 255, G: 255, B: 255, A: 255}, false)
 	}
 
-	// 凡例
-	st.drawLegend(screen, drawText)
+	st.drawLegend(screen, drawText, originY+len(st.glyphs)*mapCellPx+16)
 	return nil
 }
 
-// drawLegend は色と種別名の対応を右端に縦並びで描く。
-func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, int, int, color.Color)) {
-	const legendX, legendY = mapAreaW + 32, 44
+// drawLegend は色と種別名の対応を俯瞰図の下に並べて描く。
+func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, int, int, color.Color), top int) {
 	type entry struct {
 		r    rune
 		name string
@@ -166,7 +145,6 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
 	facilities := overworld.FacilityGlyphs()
 	entries := make([]entry, 0, 5+len(facilities))
 	entries = append(entries,
-		entry{overworld.GlyphField, "原野"},
 		entry{overworld.GlyphVillage, "村"},
 		entry{overworld.GlyphHamlet, "一軒家"},
 		entry{overworld.GlyphRuin, "遺跡入口"},
@@ -175,16 +153,16 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
 	for _, g := range facilities {
 		entries = append(entries, entry{g.Label, g.Name})
 	}
-	y := legendY
+	x, y := 16, top
 	for _, e := range entries {
-		vector.FillRect(screen, float32(legendX), float32(y), 14, 14, glyphColor(e.r), false)
-		drawText(e.name, legendX+20, y-2, theme.TextPrimary)
-		y += 22
+		vector.FillRect(screen, float32(x), float32(y), 14, 14, glyphColor(e.r), false)
+		drawText(e.name, x+20, y-2, theme.TextPrimary)
+		x += 120
+		if x > 720 {
+			x, y = 16, y+22
+		}
 	}
-	vector.FillRect(screen, float32(legendX), float32(y+2), 14, 14, color.RGBA{R: 255, G: 255, B: 255, A: 255}, false)
-	drawText("現在地", legendX+20, y+2, color.RGBA{R: 255, G: 255, B: 255, A: 255})
-
-	drawText("N / Esc で閉じる", 16, mapAreaH+52, theme.TextPrimary)
+	drawText("N / Esc で閉じる", 16, y+26, theme.TextPrimary)
 }
 
 // facilityPalette は施設種別の色。overworld.FacilityGlyphs() の種別順に対応する。
@@ -203,7 +181,6 @@ var glyphColorTable = map[rune]color.RGBA{}
 
 func init() {
 	glyphColorTable[overworld.GlyphField] = color.RGBA{R: 46, G: 59, B: 46, A: 255}
-	glyphColorTable[overworld.GlyphRoad] = color.RGBA{R: 138, G: 138, B: 106, A: 255}
 	glyphColorTable[overworld.GlyphVillage] = color.RGBA{R: 255, G: 210, B: 74, A: 255}
 	glyphColorTable[overworld.GlyphHamlet] = color.RGBA{R: 208, G: 168, B: 58, A: 255}
 	glyphColorTable[overworld.GlyphRuin] = color.RGBA{R: 224, G: 69, B: 58, A: 255}
@@ -221,41 +198,4 @@ func glyphColor(r rune) color.RGBA {
 		return c
 	}
 	return color.RGBA{R: 90, G: 90, B: 90, A: 255}
-}
-
-// downsampleRunes は step マスごとに、原野でない最初の文字を代表として縮約する。
-// 地物や建物を原野より優先して残すので、縮尺を上げても存在が消えにくい。
-func downsampleRunes(full [][]rune, step int) [][]rune {
-	if step < 1 {
-		step = 1
-	}
-	out := make([][]rune, 0, len(full)/step+1)
-	for y := 0; y < len(full); y += step {
-		var line []rune
-		for x := 0; x < len(full[y]); x += step {
-			r := overworld.GlyphField
-			for dy := 0; dy < step && y+dy < len(full); dy++ {
-				for dx := 0; dx < step && x+dx < len(full[y+dy]); dx++ {
-					if full[y+dy][x+dx] != overworld.GlyphField && full[y+dy][x+dx] != 0 {
-						r = full[y+dy][x+dx]
-						break
-					}
-				}
-				if r != overworld.GlyphField {
-					break
-				}
-			}
-			line = append(line, r)
-		}
-		out = append(out, line)
-	}
-	return out
-}
-
-// ceilDiv は切り上げ除算。b>0 を前提にする。
-func ceilDiv(a, b int) int {
-	if b <= 0 {
-		return a
-	}
-	return (a + b - 1) / b
 }

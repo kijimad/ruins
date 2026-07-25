@@ -25,7 +25,7 @@ func findPOIChunk(t *testing.T) (uint64, worldstream.ChunkCoord) {
 			if !poiPlacement.At(s, c, rows) || settlementPlacement.At(s, c, rows) || ruinPlacement.At(s, c, rows) {
 				continue
 			}
-			if _, _, ok := urbanAnchorOf(s, c, rows); ok {
+			if _, _, _, ok := urbanRegionOf(s, c, rows); ok {
 				continue
 			}
 			return s, c

@@ -33,15 +33,18 @@ func (wildernessPOIFeature) place(world w.World, runSeed uint64, c, start worlds
 	if settlementPlacement.At(runSeed, c, rows) || ruinPlacement.At(runSeed, c, rows) {
 		return nil
 	}
-	if _, _, ok := urbanAnchorOf(runSeed, c, rows); ok {
+	if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {
 		return nil
 	}
 
 	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^poiSalt, c.X, c.Y), 0))
-	// 構造物がチャンク境界をはみ出さないよう内側に寄せる。最大の小屋 7x5 ぶんの余白を取る
-	const margin = 10
-	ox := g.offsetX + consts.Tile(margin+rng.IntN(max(1, int(g.chunkW)-2*margin)))
-	oy := g.offsetY + consts.Tile(margin+rng.IntN(max(1, int(g.chunkH)-2*margin)))
+	// 構造物がチャンク境界をはみ出さないよう内側に収める。最大の小屋 7x5 ぶんの余地を残し、
+	// 残り範囲でずらす。小さなチャンクでも境界越えの残留を作らない
+	const margin, maxHut = 2, 8
+	spanX := max(1, int(g.chunkW)-2*margin-maxHut)
+	spanY := max(1, int(g.chunkH)-2*margin-maxHut)
+	ox := g.offsetX + consts.Tile(margin+rng.IntN(spanX))
+	oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
 
 	roll := rng.IntN(100)
 	switch {

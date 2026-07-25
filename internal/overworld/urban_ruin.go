@@ -14,61 +14,59 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 市街地は複数チャンクに及ぶ地表の危険地帯。補給の場ではなく、変質した群れが徘徊する
-// 攻略対象で、舗装跡の床ブロック・施設種別を持つ街区・敵で表す。
-//
-// レイアウトは citySeed から市街地全体を一括導出し、各チャンクは自分の断片だけを描く。
-// 断片の導出は (runSeed, アンカー座標) の純関数なので、隣接チャンクを生成せずに断片どうしが
-// 一致する。帯ストリーミングで市街地の一部だけが先に生成されても矛盾しない。
+// 市街地は建物チャンクの2次元格子。CDDA の街が OMT ごとに1つの建物で埋まり街路で
+// 区切られるのを翻案し、1チャンク = 1建物にする。市街地はアンカーから東と南へ w×h
+// チャンク広がり、各チャンクは自分の建物を (citySeed, チャンクのローカル座標) から独立に
+// 決める。全体一括導出や断片クリップは要らず、各チャンクが自己完結する。
+// 街路は各チャンクの北辺・西辺に敷き、隣接チャンクと連続して格子状の街並みになる。
 const (
-	urbanSalt                  = 0x0b17
-	urbanMaxWidth consts.Chunk = 3 // 市街地の最大横幅。チャンク数
+	urbanSalt                 = 0x0b17
+	urbanMaxSpan consts.Chunk = 3 // 市街地の一辺の最大チャンク数
 
-	// 街区の格子。CDDA の街が OMT ごとに建物で埋まり街路で区切られるのを翻案する。
-	// 市街地を cityLotPitch 間隔の区画に切り、各区画をほぼ埋める大きな建物を置き、
-	// 区画の西辺と北辺に幅 cityStreetW の街路を敷いて格子状の街並みにする。
-	cityLotPitch   consts.Tile = 18 // 区画の間隔。建物 + 街路
-	cityStreetW    consts.Tile = 4  // 街路の幅。CDDA の2車線+歩道に相当する広さにする
-	cityMaxSetback consts.Tile = 4  // 区画内で建物を縮めてよい最大量。前庭や隙間を作る
-	cityVacancy                = 2  // 10 区画あたり空き地にする数。単調さを崩す
+	cityStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。CDDA の2車線+歩道に相当
+	cityMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
 	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
 	urbanEnemyTable = "廃墟"
 )
 
-// urbanWidthOf は市街地の横幅チャンク数を citySeed から決定的に選ぶ。2..urbanMaxWidth。
-// 規模が大きいほど敵も多く、リスクとリターンが規模に比例する。
-func urbanWidthOf(citySeed uint64) consts.Chunk {
-	return 2 + consts.Chunk((citySeed>>8)%uint64(urbanMaxWidth-1))
+// urbanSizeOf は市街地の縦横のチャンク数を citySeed から決定的に選ぶ。各辺 2..urbanMaxSpan。
+// 規模が大きいほど敵も戦利品も多く、レアな施設が混ざる。リスクとリターンが規模に比例する。
+func urbanSizeOf(citySeed uint64) (w, h consts.Chunk) {
+	span := uint64(urbanMaxSpan - 1)
+	w = 2 + consts.Chunk((citySeed>>8)%span)
+	h = 2 + consts.Chunk((citySeed>>16)%span)
+	return w, h
 }
 
 // urbanPlacement は市街地アンカーのリージョン配置。小集落より疎に置く。
-// チャンクは50タイルあるため、Spacing 6 で300タイルに1つの体感密度になる。
+// 最大辺 urbanMaxSpan より広い間隔にして、隣り合う市街地が重ならないようにする。
 var urbanPlacement = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
 
 // urbanRuinFeature は市街地の feature 実装。
 type urbanRuinFeature struct{}
 
-// urbanAnchorOf は c を含む市街地のアンカーと横幅を返す。市街地はアンカーから東へ
-// width チャンク続く。該当しなければ ok=false。Spacing が最大幅より大きいので、
-// 走査範囲に当選アンカーは高々1つしか無い。
-func urbanAnchorOf(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (anchor worldstream.ChunkCoord, width consts.Chunk, ok bool) {
-	for dx := range urbanMaxWidth {
-		a := worldstream.ChunkCoord{X: c.X - dx, Y: c.Y}
-		if !urbanPlacement.At(runSeed, a, rows) {
-			continue
+// urbanRegionOf は c を含む市街地のアンカーと大きさを返す。市街地はアンカーから東と南へ
+// w×h チャンク広がる。該当しなければ ok=false。走査窓に当選アンカーが複数入りうるので、
+// 早期に false を返さず、c を覆うアンカーを探し続けて最も近いものを採る。
+func urbanRegionOf(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (anchor worldstream.ChunkCoord, w, h consts.Chunk, ok bool) {
+	for dy := range urbanMaxSpan {
+		for dx := range urbanMaxSpan {
+			a := worldstream.ChunkCoord{X: c.X - dx, Y: c.Y - dy}
+			if !urbanPlacement.At(runSeed, a, rows) {
+				continue
+			}
+			cw, ch := urbanSizeOf(ChunkSeed2D(runSeed^urbanSalt, a.X, a.Y))
+			if dx < cw && dy < ch {
+				return a, cw, ch, true
+			}
 		}
-		w := urbanWidthOf(ChunkSeed2D(runSeed^urbanSalt, a.X, a.Y))
-		if dx < w {
-			return a, w, true
-		}
-		return worldstream.ChunkCoord{}, 0, false
 	}
-	return worldstream.ChunkCoord{}, 0, false
+	return worldstream.ChunkCoord{}, 0, 0, false
 }
 
-// facilityKind は街区1棟の施設種別。規模で gate した重み付き抽選で決まり、内装の prop の
-// 差になる。v1 は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
+// facilityKind は建物の施設種別。規模で gate した重み付き抽選で決まり、内装の prop の差になる。
+// v1 は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
 type facilityKind uint8
 
 const (
@@ -81,14 +79,14 @@ const (
 	facilityLab                         // 研究施設
 )
 
-// facilityCatalog は施設の抽選重みと規模 gate と内装。minWidth は市街地の横幅がこの値以上の
-// ときだけ抽選対象になる。CDDA の city_size gate の翻案で、大都市(幅3)でだけ専門施設と
+// facilityCatalog は施設の抽選重みと規模 gate と内装。minSpan は市街地の一辺がこの値以上の
+// ときだけ抽選対象になる。CDDA の city_size gate の翻案で、大きな市街地でだけ専門施設と
 // レアの研究施設が混ざる。現代日本の市街地をイメージした語彙にする。
 var facilityCatalog = []struct {
-	kind     facilityKind
-	weight   int
-	minWidth consts.Chunk
-	props    []string
+	kind    facilityKind
+	weight  int
+	minSpan consts.Chunk
+	props   []string
 }{
 	{facilityHouse, 40, 2, []string{"bed", "closet", "table", "refrigerator"}},
 	{facilityStore, 20, 2, []string{"register", "goods_shelf", "goods_shelf", "refrigerator"}},
@@ -100,16 +98,16 @@ var facilityCatalog = []struct {
 }
 
 // rollFacility は規模 gate を通った施設を重みで1つ抽選し、facilityCatalog の添字を返す。
-func rollFacility(rng *rand.Rand, width consts.Chunk) int {
+func rollFacility(rng *rand.Rand, span consts.Chunk) int {
 	total := 0
 	for _, f := range facilityCatalog {
-		if width >= f.minWidth {
+		if span >= f.minSpan {
 			total += f.weight
 		}
 	}
 	roll := rng.IntN(total)
 	for i, f := range facilityCatalog {
-		if width < f.minWidth {
+		if span < f.minSpan {
 			continue
 		}
 		roll -= f.weight
@@ -120,214 +118,145 @@ func rollFacility(rng *rand.Rand, width consts.Chunk) int {
 	return 0
 }
 
-// cityProp は街区の内装 prop の1つ。座標は市街地ローカル。
-type cityProp struct {
-	name string
-	x, y consts.Tile
+// cityChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
+// 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。
+func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (facility int, size consts.Chunk, ok bool) {
+	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
+	if !ok {
+		return 0, 0, false
+	}
+	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
+	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
+	size = max(cw, ch)
+	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする
+	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
+	return rollFacility(frng, size), size, true
 }
 
-// cityBuilding は市街地レイアウト上の街区1棟。座標は市街地ローカル。
-type cityBuilding struct {
-	x, y, w, h consts.Tile
-	door       consts.Tile // 南辺の出入口の X
-	facility   int         // facilityCatalog の添字
-	props      []cityProp
-}
-
-// cityTile は市街地レイアウト上の1マスの種別。
-type cityTile uint8
-
-const (
-	cityFloor cityTile = iota + 1 // 舗装跡・屋内の床
-	cityWall                      // 廃屋の壁
-)
-
-// cityLayout は citySeed から市街地全体の街区一覧を一括導出する純関数。
-// 市街地を cityLotPitch 間隔の区画格子に切り、各区画に区画をほぼ埋める建物を1棟置く。
-// 一部の区画は空き地にして単調さを崩す。区画は市街地ローカル座標で切るので、どの
-// チャンクから生成しても格子と建物が一致し、断片描画が矛盾しない。
-func cityLayout(citySeed uint64, width consts.Chunk, cityW, cityH consts.Tile) []cityBuilding {
-	rng := rand.New(rand.NewPCG(citySeed, 0))
-	var buildings []cityBuilding
-	for lotY := consts.Tile(0); lotY+cityLotPitch <= cityH; lotY += cityLotPitch {
-		for lotX := consts.Tile(0); lotX+cityLotPitch <= cityW; lotX += cityLotPitch {
-			if rng.IntN(10) < cityVacancy {
-				continue // 空き地。それでも rng 列は進めないので断片間で一致する
+// place は c が市街地の建物チャンクなら自分の建物を1棟描く。市街地が開始チャンクを含むなら
+// 丸ごとスキップし、新規ゲームの開始点を安全に保つ。各チャンクは自己完結するので生成順に
+// 依存しない。
+func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
+	if !ok {
+		return nil
+	}
+	for dy := range ch {
+		for dx := range cw {
+			if (worldstream.ChunkCoord{X: anchor.X + dx, Y: anchor.Y + dy}) == start {
+				return nil
 			}
-			// 区画内部の使える範囲。西辺・北辺の街路を避ける
-			span := cityLotPitch - cityStreetW
-			// 建物の大きさをばらつかせ、区画内で余白を残す。均一な格子の違和感を崩す。
-			// 余白ぶん建物を区画内でずらすので、前庭や隣家との隙間ができる
-			bw := span - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
-			bh := span - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
-			ox := consts.Tile(rng.IntN(int(span-bw) + 1))
-			oy := consts.Tile(rng.IntN(int(span-bh) + 1))
-			b := cityBuilding{
-				x: lotX + cityStreetW + ox,
-				y: lotY + cityStreetW + oy,
-				w: bw,
-				h: bh,
-			}
-			b.facility = rollFacility(rng, width)
-			b.door = b.x + 1 + consts.Tile(rng.IntN(int(b.w-2))) // 南辺の出入口
-			b.props = rollBuildingProps(rng, b)
-			buildings = append(buildings, b)
 		}
 	}
-	return buildings
+
+	facility, size, _ := cityChunkInfo(runSeed, c, rows)
+	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
+	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
+	return renderCityChunk(world, g, chunkSeed, facility, size)
 }
 
-// rollBuildingProps は街区の内装 prop の配置を決定的に選ぶ。施設種別の内装候補から、
-// 屋内の空きマスへ順に置く。出入口の直上マスは通行のため空ける。屋内が狭ければ置ける
-// ぶんだけで打ち切る。
-func rollBuildingProps(rng *rand.Rand, b cityBuilding) []cityProp {
+// renderCityChunk は1チャンクに、北辺・西辺の街路と、敷地をほぼ埋める建物を1棟描く。
+// 建物は外周が壁・内側が床で、南辺に見える扉を持つ。街路は隣接チャンクと連続して格子になる。
+func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size consts.Chunk) error {
+	rng := rand.New(rand.NewPCG(seed, 0x2))
+	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
+
+	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る
+	spanX := g.chunkW - cityStreetW
+	spanY := g.chunkH - cityStreetW
+	bw := spanX - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
+	bh := spanY - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
+	bx := cityStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
+	by := cityStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
+	door := bx + 1 + consts.Tile(rng.IntN(int(bw-2)))
+
+	inBuilding := func(lx, ly consts.Tile) bool {
+		return lx >= bx && lx < bx+bw && ly >= by && ly < by+bh
+	}
+	isWall := func(lx, ly consts.Tile) bool {
+		if !inBuilding(lx, ly) {
+			return false
+		}
+		perimeter := lx == bx || lx == bx+bw-1 || ly == by || ly == by+bh-1
+		return perimeter && (ly != by+bh-1 || lx != door)
+	}
+	for ly := range g.chunkH {
+		for lx := range g.chunkW {
+			name := ""
+			switch {
+			case lx < cityStreetW || ly < cityStreetW:
+				name = consts.TileNameFloor // 街路
+			case isWall(lx, ly):
+				name = consts.TileNameDWall
+			case inBuilding(lx, ly):
+				name = consts.TileNameFloor // 屋内・出入口
+			}
+			if name == "" {
+				continue // 前庭・空き地は土のまま残す
+			}
+			if err := replaceTile(world, tiles, g.offsetX+lx, g.offsetY+ly, name); err != nil {
+				return fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+			}
+		}
+	}
+
+	if err := spawnBuildingProps(world, g, rng, facility, bx, by, bw, bh, door); err != nil {
+		return err
+	}
+	// 南辺の開口に見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
+	if _, err := lifecycle.SpawnDoor(world, g.offsetX+door, g.offsetY+by+bh-1, gc.DoorOrientationHorizontal); err != nil {
+		return fmt.Errorf("市街地の扉配置に失敗: %w", err)
+	}
+	return spawnCityEnemies(world, g, rng, size, isWall)
+}
+
+// spawnBuildingProps は建物の屋内へ施設種別の内装 prop をまばらに置く。広い屋内を埋めるため
+// 内装候補を循環させ、空きマスに面積比例で配置する。出入口の直上は導線として空ける。
+func spawnBuildingProps(world w.World, g chunkGeom, rng *rand.Rand, facility int, bx, by, bw, bh, door consts.Tile) error {
 	type cell struct{ x, y consts.Tile }
 	var free []cell
-	for ly := b.y + 1; ly < b.y+b.h-1; ly++ {
-		for lx := b.x + 1; lx < b.x+b.w-1; lx++ {
-			if lx == b.door && ly == b.y+b.h-2 {
-				continue // 出入口の直上
+	for ly := by + 1; ly < by+bh-1; ly++ {
+		for lx := bx + 1; lx < bx+bw-1; lx++ {
+			if lx == door && ly == by+bh-2 {
+				continue
 			}
 			free = append(free, cell{lx, ly})
 		}
 	}
-	names := facilityCatalog[b.facility].props
-	// 広い屋内をまばらに埋める。内装候補を循環させ、面積に比例した数を置く。
-	// 密度を抑えるため空きマス 8 につき 1 個ほど、上限は 16 個にする
+	names := facilityCatalog[facility].props
 	count := min(len(free)/8, 16)
-	props := make([]cityProp, 0, count)
 	for i := range count {
 		if len(free) == 0 {
 			break
 		}
 		pick := rng.IntN(len(free))
-		props = append(props, cityProp{name: names[i%len(names)], x: free[pick].x, y: free[pick].y})
+		p := free[pick]
 		free[pick] = free[len(free)-1]
 		free = free[:len(free)-1]
+		if _, err := lifecycle.SpawnProp(world, names[i%len(names)], g.offsetX+p.x, g.offsetY+p.y); err != nil {
+			return fmt.Errorf("市街地の内装配置に失敗 (%s): %w", names[i%len(names)], err)
+		}
 	}
-	return props
+	return nil
 }
 
-// cityTilesOf は街区一覧と市街地の寸法から壁・床レイアウトを導出する。
-// まず区画格子の街路を舗装し、次に各建物の外周を壁・内側を床にして南辺に出入口を開ける。
-// 建物は自区画の内部だけを占め互いに重ならないので、街路と建物は排他になる。
-// 空き地の区画は地物を置かず、断片描画時に土のまま残る。
-func cityTilesOf(buildings []cityBuilding, cityW, cityH consts.Tile) map[consts.Coord[consts.Tile]]cityTile {
-	m := map[consts.Coord[consts.Tile]]cityTile{}
-	// 街路の格子。各区画の西辺と北辺に幅 cityStreetW の舗装を敷く
-	for y := range cityH {
-		for x := range cityW {
-			if x%cityLotPitch < cityStreetW || y%cityLotPitch < cityStreetW {
-				m[consts.Coord[consts.Tile]{X: x, Y: y}] = cityFloor
-			}
-		}
-	}
-	// 建物。外周を壁、内側を床にし、南辺中央に出入口を開ける
-	for _, b := range buildings {
-		for ly := b.y; ly < b.y+b.h; ly++ {
-			for lx := b.x; lx < b.x+b.w; lx++ {
-				p := consts.Coord[consts.Tile]{X: lx, Y: ly}
-				perimeter := lx == b.x || lx == b.x+b.w-1 || ly == b.y || ly == b.y+b.h-1
-				switch {
-				case perimeter && ly == b.y+b.h-1 && lx == b.door:
-					m[p] = cityFloor // 出入口
-				case perimeter:
-					m[p] = cityWall
-				default:
-					m[p] = cityFloor
-				}
-			}
-		}
-	}
-	return m
-}
-
-// place は c が市街地の一部なら自分の断片を描く。開始チャンクを含む市街地は丸ごと
-// スキップし、新規ゲームの開始点を安全に保つ。
-func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
-	anchor, width, ok := urbanAnchorOf(runSeed, c, rows)
-	if !ok {
-		return nil
-	}
-	for dx := range width {
-		if (worldstream.ChunkCoord{X: anchor.X + dx, Y: anchor.Y}) == start {
-			return nil
-		}
-	}
-
-	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
-	fragIdx := c.X - anchor.X
-	fragOrigin := fragIdx.Tiles(g.chunkW) // 市街地ローカルでの自断片の西端 X
-
-	// 断片範囲に重なる壁・床を置換する。オートタイル添字は置換後にチャンク全域の
-	// 再計算が実状態から揃えるため、ここでは仮の 0 で置いてよい
-	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
-	cityW := width.Tiles(g.chunkW)
-	buildings := cityLayout(citySeed, width, cityW, g.chunkH)
-	layout := cityTilesOf(buildings, cityW, g.chunkH)
-	inFrag := func(x consts.Tile) bool { return x >= fragOrigin && x < fragOrigin+g.chunkW }
-	for p, kind := range layout {
-		if !inFrag(p.X) {
-			continue
-		}
-		wx := g.offsetX + (p.X - fragOrigin)
-		wy := g.offsetY + p.Y
-		name := consts.TileNameFloor
-		if kind == cityWall {
-			name = consts.TileNameDWall
-		}
-		if err := replaceTile(world, tiles, wx, wy, name); err != nil {
-			return fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", wx, wy, err)
-		}
-	}
-
-	// 内装 prop は市街地全体で一括導出済みなので、自断片に入るものだけを実体化する。
-	// 街区が断片境界をまたいでも、両断片の導出結果が一致するので矛盾しない
-	for _, b := range buildings {
-		for _, p := range b.props {
-			if !inFrag(p.x) {
-				continue
-			}
-			wx := g.offsetX + (p.x - fragOrigin)
-			wy := g.offsetY + p.y
-			if _, err := lifecycle.SpawnProp(world, p.name, wx, wy); err != nil {
-				return fmt.Errorf("市街地の内装配置に失敗 (%s): %w", p.name, err)
-			}
-		}
-	}
-
-	// 各建物の南辺の開口に見える扉を置く。1マスの床の切れ目だけでは入口と分からないため、
-	// 開閉できる扉エンティティで入口を明示する。扉のXが自断片に入るときだけ実体化する
-	for _, b := range buildings {
-		if !inFrag(b.door) {
-			continue
-		}
-		wx := g.offsetX + (b.door - fragOrigin)
-		wy := g.offsetY + (b.y + b.h - 1)
-		if _, err := lifecycle.SpawnDoor(world, wx, wy, gc.DoorOrientationHorizontal); err != nil {
-			return fmt.Errorf("市街地の扉配置に失敗 (x=%d, y=%d): %w", wx, wy, err)
-		}
-	}
-
-	// 断片ごとの独立ストリームで敵を湧かせる。断片単位のシードなので生成順に依存しない。
-	// 敵の数は規模(横幅)に比例し、大きな市街地ほど高リスク高リターンになる。
-	// 種類は敵テーブルから規模を深度とみなして重み抽選する
+// spawnCityEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
+// 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。
+func spawnCityEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool) error {
 	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
 	if err != nil {
 		return fmt.Errorf("市街地の敵テーブル取得に失敗: %w", err)
 	}
-	fragRng := rand.New(rand.NewPCG(citySeed, uint64(fragIdx)+1))
-	enemyCount := int(width-1) * (2 + fragRng.IntN(3))
-	for range enemyCount {
-		lx := consts.Tile(fragRng.IntN(int(g.chunkW)))
-		ly := consts.Tile(fragRng.IntN(int(g.chunkH)))
-		enemyName, err := raw.SelectEnemyByWeight(enemyTable, fragRng, int(width))
+	count := 1 + rng.IntN(int(size))
+	for range count {
+		lx := consts.Tile(rng.IntN(int(g.chunkW)))
+		ly := consts.Tile(rng.IntN(int(g.chunkH)))
+		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))
 		if err != nil {
 			return fmt.Errorf("市街地の敵抽選に失敗: %w", err)
 		}
-		// 壁マスに埋まる位置は湧かせない。抽選は消費済みなので決定性は保たれる
-		if layout[consts.Coord[consts.Tile]{X: fragOrigin + lx, Y: ly}] == cityWall {
-			continue
+		if isWall(lx, ly) {
+			continue // 抽選は消費済みなので決定性は保たれる
 		}
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}
 		if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {
