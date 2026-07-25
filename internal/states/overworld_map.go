@@ -47,9 +47,8 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 
 // マップ描画の寸法。1チャンクを1セルで描く。
 const (
-	mapCellPx    = 22  // 1チャンクのセルの一辺ピクセル
-	mapContextCh = 6   // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
-	fieldGlyph   = '.' // 荒れ地の記号。overworld 側の placeField と同じ。荒れ地は色だけで文字を重ねない
+	mapCellPx    = 22 // 1チャンクのセルの一辺ピクセル
+	mapContextCh = 6  // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
 )
 
 // OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため
@@ -113,14 +112,16 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 
 	drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
+	// 荒れ地の記号は overworld を唯一の源にする。荒れ地は背景なので文字を重ねない
+	fieldLabel := overworld.FieldGlyph().Label
 	const originX, originY = 16, 44
 	for row := range st.glyphs {
 		for col, r := range st.glyphs[row] {
 			x := originX + col*mapCellPx
 			y := originY + row*mapCellPx
 			vector.FillRect(screen, float32(x), float32(y), mapCellPx-1, mapCellPx-1, glyphColor(r), false)
-			// 原野以外は種別の文字を重ねて、色だけでなく記号でも読めるようにする
-			if r != fieldGlyph {
+			// 荒れ地以外は種別の文字を重ねて、色だけでなく記号でも読めるようにする
+			if r != fieldLabel {
 				drawText(string(r), x+5, y+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
 			}
 		}

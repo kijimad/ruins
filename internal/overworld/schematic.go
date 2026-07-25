@@ -90,6 +90,13 @@ func PlaceGlyphs() []GlyphInfo {
 	return out
 }
 
+// FieldGlyph は荒れ地の記号と名前を返す。荒れ地は俯瞰図の背景にあたるため、UI 側が地図に
+// 文字を重ねない判定に使う。荒れ地の記号もほかの記号と同じく placeGlyphs を唯一の源にし、
+// UI 側が '.' を直書きしないための公開。placeType は private なのでこの1点だけ公開する。
+func FieldGlyph() GlyphInfo {
+	return placeGlyphs[placeField]
+}
+
 // FacilityGlyphs は施設種別の文字と名前を表示順で返す。UI の凡例や着色で建物を種別ごとに
 // 扱うために使う。地物レベルの記号は PlaceGlyphs が対で返す。
 func FacilityGlyphs() []GlyphInfo {
