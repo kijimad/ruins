@@ -24,16 +24,12 @@ var poiPlacement = Placement{Spacing: 3, Separation: 1, Salt: poiSalt}
 // wildernessPOIFeature は自然の点在POIの feature 実装。
 type wildernessPOIFeature struct{}
 
-// place は当選チャンクの原野に小構造物を1つ置く。他地物の当選チャンクと開始チャンクは
-// 譲る。景色の脇役なので、主役の地物と同居して構図を壊さないため。
+// place は当選チャンクの原野に小構造物を1つ置く。景色の脇役なので主役の地物と開始チャンクは
+// 譲り、構図を壊さない。地物の優先度は ChunkPlace が一元管理するので、POI は「このチャンクの
+// 種別が POI か」を問い合わせるだけにする。上位地物を足しても ChunkPlace を直せば済み、POI 側の
+// 変更は要らない。ChunkPlace は開始特例を知らないため開始チャンクだけ明示的に譲る。
 func (wildernessPOIFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
-	if c == start || !poiPlacement.At(runSeed, c, rows) {
-		return nil
-	}
-	if settlementPlacement.At(runSeed, c, rows) || ruinPlacement.At(runSeed, c, rows) {
-		return nil
-	}
-	if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {
+	if c == start || ChunkPlace(runSeed, c, rows) != GlyphPOI {
 		return nil
 	}
 
@@ -70,7 +66,7 @@ func (wildernessPOIFeature) place(world w.World, runSeed uint64, c, start worlds
 // stampHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
 // 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
 func stampHut(world w.World, g chunkGeom, rng *rand.Rand, ox, oy, hw, hh consts.Tile, props []string) error {
-	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
+	tiles := g.tiles.get()
 	door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
 	for ly := oy; ly < oy+hh; ly++ {
 		for lx := ox; lx < ox+hw; lx++ {

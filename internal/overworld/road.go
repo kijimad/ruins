@@ -18,7 +18,7 @@ type roadFeature struct{}
 
 func (roadFeature) place(world w.World, runSeed uint64, c, _ worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
 	r := floorDiv(c.X, settlementPlacement.Spacing)
-	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
+	tiles := g.tiles.get()
 	// c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ
 	for _, pr := range []consts.Chunk{r - 1, r} {
 		a := settlementPlacement.WinnerOf(runSeed, pr, rows)

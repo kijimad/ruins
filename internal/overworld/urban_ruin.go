@@ -225,7 +225,7 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk)
 // 内側が床で、道路に面した見える扉を持つ。街路は隣接チャンクと連続して格子になる。内装は持たない。
 // 壁判定の関数を返し、敵配置が壁マスを避けるのに使う。
 func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, error) {
-	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
+	tiles := g.tiles.get()
 
 	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る。
 	// 建物は最小 3×3 を保証する。扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が
@@ -308,6 +308,24 @@ func spawnCityEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Ch
 	return nil
 }
 
+// tileIndex はチャンク生成中に地物が共有するタイルの座標引き索引。地物が壁や道を置換する
+// とき使う。最初に必要とした地物が全域スキャンで構築し、以降の地物は再利用する。壁を置かない
+// 荒れ地では一度も構築されず、全域スキャンの無駄を避ける。replaceTile が置換後の実体を書き
+// 戻すので、地物をまたいでも索引は実状態を映し続け、二重残留を防ぐ。
+type tileIndex struct {
+	world    w.World
+	loX, hiX consts.Tile
+	tiles    map[gc.GridElement]ecs.Entity
+}
+
+// get は索引を返す。未構築なら遅延構築する。壁を置く地物が現れて初めてスキャンが走る。
+func (ix *tileIndex) get() map[gc.GridElement]ecs.Entity {
+	if ix.tiles == nil {
+		ix.tiles = tileEntitiesInRange(ix.world, ix.loX, ix.hiX)
+	}
+	return ix.tiles
+}
+
 // tileEntitiesInRange は X 範囲 [loX, hiX) のタイルエンティティを座標引きできるよう集める。
 func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement]ecs.Entity {
 	tiles := make(map[gc.GridElement]ecs.Entity)
@@ -328,11 +346,14 @@ func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, x, y consts
 	g := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	if e, ok := tiles[g]; ok && world.ECS.Alive(e) {
 		world.ECS.RemoveEntity(e)
-		delete(tiles, g)
 	}
 	zero := 0
-	if _, err := lifecycle.SpawnTile(world, tileName, x, y, &zero); err != nil {
+	e, err := lifecycle.SpawnTile(world, tileName, x, y, &zero)
+	if err != nil {
 		return err
 	}
+	// 置換後の実体を索引へ書き戻す。索引を地物間で共有するため、後続の地物が同じ座標を
+	// 正しく再置換でき、旧タイルの二重残留を防ぐ
+	tiles[g] = e
 	return nil
 }

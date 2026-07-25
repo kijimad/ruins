@@ -52,10 +52,12 @@ func floorDiv(a, b consts.Chunk) consts.Chunk {
 	return q
 }
 
-// chunkGeom は生成中チャンクの帯ローカル配置。地物が中身を置く座標計算に使う。
+// chunkGeom は生成中チャンクの帯ローカル配置と、地物が共有するタイル索引。座標計算と
+// タイル置換に使う。tiles は複数地物が同じ全域スキャンを繰り返さないための遅延共有索引。
 type chunkGeom struct {
 	offsetX, offsetY consts.Tile
 	chunkW, chunkH   consts.Tile
+	tiles            *tileIndex
 }
 
 // feature は1種類の地物。c がその地物に該当するかを (runSeed, 座標, rows) の純関数で判定し、
@@ -74,7 +76,10 @@ func features() []feature {
 // 判定はすべて (runSeed, 座標, rows) の純関数で、start は開始チャンクの座標。
 // 小集落は開始特例で必ず置かれ、市街地は開始チャンクを避ける。
 func PlaceFeatures(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
-	g := chunkGeom{offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH}
+	g := chunkGeom{
+		offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,
+		tiles: &tileIndex{world: world, loX: offsetX, hiX: offsetX + chunkW},
+	}
 	for _, f := range features() {
 		if err := f.place(world, runSeed, c, start, rows, g); err != nil {
 			return err
