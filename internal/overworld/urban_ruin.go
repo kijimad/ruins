@@ -23,7 +23,13 @@ import (
 const (
 	urbanSalt                   = 0x0b17
 	urbanMaxWidth  consts.Chunk = 3 // 市街地の最大横幅。チャンク数
-	urbanBuildings              = 7 // 街区ブロック数の基準
+
+	// 街区の格子。CDDA の街が OMT ごとに建物で埋まり街路で区切られるのを翻案する。
+	// 市街地を cityLotPitch 間隔の区画に切り、各区画をほぼ埋める大きな建物を置き、
+	// 区画の西辺と北辺に幅 cityStreetW の街路を敷いて格子状の街並みにする。
+	cityLotPitch consts.Tile = 16 // 区画の間隔。建物 + 街路
+	cityStreetW  consts.Tile = 2  // 街路の幅
+	cityVacancy              = 2  // 10 区画あたり空き地にする数。単調さを崩す
 
 	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
 	urbanEnemyTable = "廃墟"
@@ -136,23 +142,29 @@ const (
 )
 
 // cityLayout は citySeed から市街地全体の街区一覧を一括導出する純関数。
-// 街区数は幅に比例させ、規模が大きいほど密になる。施設種別と内装 prop の位置も
-// ここで一括で決めるので、どのチャンクから生成しても同じ市街地になる。
+// 市街地を cityLotPitch 間隔の区画格子に切り、各区画に区画をほぼ埋める建物を1棟置く。
+// 一部の区画は空き地にして単調さを崩す。区画は市街地ローカル座標で切るので、どの
+// チャンクから生成しても格子と建物が一致し、断片描画が矛盾しない。
 func cityLayout(citySeed uint64, width consts.Chunk, cityW, cityH consts.Tile) []cityBuilding {
 	rng := rand.New(rand.NewPCG(citySeed, 0))
-	n := urbanBuildings * int(width) / 2
-	buildings := make([]cityBuilding, 0, n)
-	for range n {
-		b := cityBuilding{
-			w: consts.Tile(5 + rng.IntN(6)),
-			h: consts.Tile(4 + rng.IntN(4)),
+	var buildings []cityBuilding
+	for lotY := consts.Tile(0); lotY+cityLotPitch <= cityH; lotY += cityLotPitch {
+		for lotX := consts.Tile(0); lotX+cityLotPitch <= cityW; lotX += cityLotPitch {
+			if rng.IntN(10) < cityVacancy {
+				continue // 空き地。それでも rng 列は進めないので断片間で一致する
+			}
+			b := cityBuilding{
+				// 区画の西辺・北辺の街路を避け、区画内部をほぼ埋める大きさにする
+				x: lotX + cityStreetW,
+				y: lotY + cityStreetW,
+				w: cityLotPitch - cityStreetW,
+				h: cityLotPitch - cityStreetW,
+			}
+			b.facility = rollFacility(rng, width)
+			b.door = b.x + b.w/2 // 南辺中央。真下の区画北辺の街路に面する
+			b.props = rollBuildingProps(rng, b)
+			buildings = append(buildings, b)
 		}
-		b.x = consts.Tile(1 + rng.IntN(max(1, int(cityW-b.w-2))))
-		b.y = consts.Tile(1 + rng.IntN(max(1, int(cityH-b.h-2))))
-		b.door = b.x + 1 + consts.Tile(rng.IntN(max(1, int(b.w-2))))
-		b.facility = rollFacility(rng, width)
-		b.props = rollBuildingProps(rng, b)
-		buildings = append(buildings, b)
 	}
 	return buildings
 }
@@ -172,22 +184,37 @@ func rollBuildingProps(rng *rand.Rand, b cityBuilding) []cityProp {
 		}
 	}
 	names := facilityCatalog[b.facility].props
-	count := min(len(names), len(free)/3)
+	// 広い屋内をまばらに埋める。内装候補を循環させ、面積に比例した数を置く。
+	// 密度を抑えるため空きマス 8 につき 1 個ほど、上限は 16 個にする
+	count := min(len(free)/8, 16)
 	props := make([]cityProp, 0, count)
 	for i := range count {
+		if len(free) == 0 {
+			break
+		}
 		pick := rng.IntN(len(free))
-		props = append(props, cityProp{name: names[i], x: free[pick].x, y: free[pick].y})
+		props = append(props, cityProp{name: names[i%len(names)], x: free[pick].x, y: free[pick].y})
 		free[pick] = free[len(free)-1]
 		free = free[:len(free)-1]
 	}
 	return props
 }
 
-// cityTilesOf は街区一覧から市街地全体の壁・床レイアウトを導出する。
-// 街区ごとに外周を壁、内側を床にし、南辺に1マスの出入口を開ける。後から重なった街区の
-// 壁は先の街区の床を上書きしない。断片描画はこの結果を自チャンク範囲へクリップするだけ。
-func cityTilesOf(buildings []cityBuilding) map[consts.Coord[consts.Tile]]cityTile {
+// cityTilesOf は街区一覧と市街地の寸法から壁・床レイアウトを導出する。
+// まず区画格子の街路を舗装し、次に各建物の外周を壁・内側を床にして南辺に出入口を開ける。
+// 建物は自区画の内部だけを占め互いに重ならないので、街路と建物は排他になる。
+// 空き地の区画は地物を置かず、断片描画時に土のまま残る。
+func cityTilesOf(buildings []cityBuilding, cityW, cityH consts.Tile) map[consts.Coord[consts.Tile]]cityTile {
 	m := map[consts.Coord[consts.Tile]]cityTile{}
+	// 街路の格子。各区画の西辺と北辺に幅 cityStreetW の舗装を敷く
+	for y := consts.Tile(0); y < cityH; y++ {
+		for x := consts.Tile(0); x < cityW; x++ {
+			if x%cityLotPitch < cityStreetW || y%cityLotPitch < cityStreetW {
+				m[consts.Coord[consts.Tile]{X: x, Y: y}] = cityFloor
+			}
+		}
+	}
+	// 建物。外周を壁、内側を床にし、南辺中央に出入口を開ける
 	for _, b := range buildings {
 		for ly := b.y; ly < b.y+b.h; ly++ {
 			for lx := b.x; lx < b.x+b.w; lx++ {
@@ -197,9 +224,7 @@ func cityTilesOf(buildings []cityBuilding) map[consts.Coord[consts.Tile]]cityTil
 				case perimeter && ly == b.y+b.h-1 && lx == b.door:
 					m[p] = cityFloor // 出入口
 				case perimeter:
-					if m[p] != cityFloor {
-						m[p] = cityWall
-					}
+					m[p] = cityWall
 				default:
 					m[p] = cityFloor
 				}
@@ -229,8 +254,9 @@ func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstrea
 	// 断片範囲に重なる壁・床を置換する。オートタイル添字は置換後にチャンク全域の
 	// 再計算が実状態から揃えるため、ここでは仮の 0 で置いてよい
 	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
-	buildings := cityLayout(citySeed, width, width.Tiles(g.chunkW), g.chunkH)
-	layout := cityTilesOf(buildings)
+	cityW := width.Tiles(g.chunkW)
+	buildings := cityLayout(citySeed, width, cityW, g.chunkH)
+	layout := cityTilesOf(buildings, cityW, g.chunkH)
 	inFrag := func(x consts.Tile) bool { return x >= fragOrigin && x < fragOrigin+g.chunkW }
 	for p, kind := range layout {
 		if !inFrag(p.X) {
