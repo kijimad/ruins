@@ -18,8 +18,8 @@ import (
 func genFacilityChunk(t *testing.T, kind facilityKind) w.World {
 	t.Helper()
 	const rows consts.Chunk = 9
-	for cy := consts.Chunk(0); cy < rows; cy++ {
-		for cx := consts.Chunk(0); cx < 80; cx++ {
+	for cy := range rows {
+		for cx := range consts.Chunk(80) {
 			c := worldstream.ChunkCoord{X: cx, Y: cy}
 			if f, _, ok := cityChunkInfo(7, c, rows); ok && facilityCatalog[f].kind == kind {
 				world := testutil.InitTestWorld(t)

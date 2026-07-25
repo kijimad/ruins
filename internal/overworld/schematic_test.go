@@ -14,8 +14,8 @@ import (
 func findCityChunk(t *testing.T, rows consts.Chunk) (uint64, worldstream.ChunkCoord) {
 	t.Helper()
 	for s := uint64(1); s < 500; s++ {
-		for y := consts.Chunk(0); y < rows; y++ {
-			for x := consts.Chunk(0); x < 12; x++ {
+		for y := range rows {
+			for x := range consts.Chunk(12) {
 				c := worldstream.ChunkCoord{X: x, Y: y}
 				if _, _, ok := cityChunkInfo(s, c, rows); ok {
 					return s, c
@@ -57,8 +57,8 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 
 	foundRuin, foundVillage, foundHamlet := false, false, false
 	for s := uint64(1); s < 400 && (!foundRuin || !foundVillage || !foundHamlet); s++ {
-		for y := consts.Chunk(0); y < rows; y++ {
-			for x := consts.Chunk(0); x < 8; x++ {
+		for y := range rows {
+			for x := range consts.Chunk(8) {
 				c := worldstream.ChunkCoord{X: x, Y: y}
 				// 市街地に上書きされないチャンクだけ見る
 				if _, _, ok := cityChunkInfo(s, c, rows); ok {
