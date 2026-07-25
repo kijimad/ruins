@@ -103,7 +103,7 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	screen.Fill(color.RGBA{R: 12, G: 14, B: 18, A: 255})
 	face := world.Resources.UIResources.Text.BodyFace
 
-	drawText := func(str string, x, y int, c color.Color) {
+	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
 		op := &text.DrawOptions{}
 		op.GeoM.Translate(float64(x), float64(y))
 		op.ColorScale.ScaleWithColor(c)
@@ -120,24 +120,24 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			// 全チャンクを同一に扱う。色を塗り、種別の文字を重ねて記号でも読めるようにする。
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
-			drawText(string(r), int(x)+5, int(y)+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
+			drawText(string(r), x+5, y+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
 		}
 	}
 	// 現在地マーカー。白枠でセルを囲む
 	if st.playerCol >= 0 {
-		x := float32(originX + consts.ScreenPixel(st.playerCol)*mapCellPx)
-		y := float32(originY + consts.ScreenPixel(st.playerRow)*mapCellPx)
-		vector.StrokeRect(screen, x-1, y-1, float32(mapCellPx+1), float32(mapCellPx+1), 2, color.RGBA{R: 255, G: 255, B: 255, A: 255}, false)
+		x := originX + consts.ScreenPixel(st.playerCol)*mapCellPx
+		y := originY + consts.ScreenPixel(st.playerRow)*mapCellPx
+		vector.StrokeRect(screen, float32(x-1), float32(y-1), float32(mapCellPx+1), float32(mapCellPx+1), 2, color.RGBA{R: 255, G: 255, B: 255, A: 255}, false)
 	}
 
-	st.drawLegend(screen, drawText, int(originY)+len(st.glyphs)*int(mapCellPx)+16)
+	st.drawLegend(screen, drawText, originY+consts.ScreenPixel(len(st.glyphs))*mapCellPx+16)
 	return nil
 }
 
 // drawLegend は色と種別名の対応を俯瞰図の下に並べて描く。凡例の記号と名前は overworld が
 // 唯一の源として持つので、ここで種別名を直書きしない。
-func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, int, int, color.Color), top int) {
-	x, y := 16, top
+func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
+	x, y := consts.ScreenPixel(16), top
 	for _, g := range overworld.LegendGlyphs() {
 		vector.FillRect(screen, float32(x), float32(y), 14, 14, glyphColor(g.Label), false)
 		drawText(g.Name, x+20, y-2, theme.TextPrimary)
