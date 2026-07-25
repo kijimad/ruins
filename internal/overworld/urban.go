@@ -92,12 +92,13 @@ type facilityWeight struct {
 // zone は市街地内の地区。中心からの位置で決まり、地区ごとに施設抽選の重みを変える。
 // per-chunk 独立の抽選では隣接同種率がランダムと変わらずごま塩になるため、地区で重みを
 // 揃えて空間相関を作り「地区」を生む。現代日本の市街地をイメージした語彙にする。
-type zone uint8
+// 実体は文字列。%v やログで数値でなく地区名が出て、デバッグで読みやすい。
+type zone string
 
 const (
-	zoneDowntown    zone = iota // 都心。商業と専門施設。最大規模の市街地の中心にだけ現れる
-	zoneResidential             // 住宅地。住宅が中心
-	zoneIndustrial              // 産業区。倉庫が中心
+	zoneDowntown    zone = "downtown"    // 都心。商業と専門施設。最大規模の市街地の中心にだけ現れる
+	zoneResidential zone = "residential" // 住宅地。住宅が中心
+	zoneIndustrial  zone = "industrial"  // 産業区。倉庫が中心
 )
 
 // zoneCatalog は地区ごとの施設抽選重み。地区で重みが揃うので同じ地区の隣接チャンクは同種へ
