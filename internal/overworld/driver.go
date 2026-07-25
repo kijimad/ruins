@@ -173,11 +173,6 @@ func (dr *Driver) startNewBand(world w.World) error {
 	return nil
 }
 
-// syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す。これでセーブに反映される。
-func (dr *Driver) syncBandState(world w.World) {
-	query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
-}
-
 // generateBandChunks は Level を帯全域に設定し、rows × K のチャンクを各スロットへ決定的生成する。
 // Level 設定は帯寸法が不変なので再設定しても冪等で無害。
 func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
@@ -233,7 +228,6 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 			if err := dr.band.ShiftEast(world, dr.gen); err != nil {
 				return shifted, err
 			}
-			dr.syncBandState(world)
 			shifted = true
 			continue
 		}
@@ -243,11 +237,15 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 			if err := dr.band.ShiftWest(world, dr.gen); err != nil {
 				return shifted, err
 			}
-			dr.syncBandState(world)
 			shifted = true
 			continue
 		}
 		break
+	}
+	if shifted {
+		// Band の最終 eastIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
+		// シフトのたびでなくループを抜けてから一度だけ同期する
+		query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
 	}
 	return shifted, nil
 }
