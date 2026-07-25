@@ -23,8 +23,8 @@ type OverworldMapState struct {
 	es.BaseState[w.World]
 
 	glyphs    [][]rune                   // 各チャンクの種別文字。行 = Y、列 = 東西の窓
-	playerCol int                        // 現在地の列。範囲外なら -1
-	playerRow int                        // 現在地の行
+	playerCol consts.Chunk               // 現在地の窓ローカル列。範囲外なら -1
+	playerRow consts.Chunk               // 現在地の窓ローカル行
 	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標
 }
 
@@ -77,12 +77,12 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	st.playerCol = -1
 	if player, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
 		g := world.Components.GridElement.Get(player)
-		st.playerCol = int(g.X)/int(sb.ChunkW) + mapContextCh
-		st.playerRow = int(g.Y) / int(sb.ChunkH)
-		st.playerAbs = consts.Coord[consts.Chunk]{
-			X: sb.EastIndex + consts.Chunk(int(g.X)/int(sb.ChunkW)),
-			Y: consts.Chunk(int(g.Y) / int(sb.ChunkH)),
-		}
+		// プレイヤーの帯ローカルなチャンク座標。窓ローカル列は西へ mapContextCh ぶんずらす
+		localCol := consts.Chunk(int(g.X) / int(sb.ChunkW))
+		localRow := consts.Chunk(int(g.Y) / int(sb.ChunkH))
+		st.playerCol = localCol + mapContextCh
+		st.playerRow = localRow
+		st.playerAbs = consts.Coord[consts.Chunk]{X: sb.EastIndex + localCol, Y: localRow}
 	}
 	return nil
 }
