@@ -69,6 +69,15 @@ func newGoldenBackdrop(t *testing.T) es.State[w.World] {
 	return s
 }
 
+// TestGolden_OverworldMap は N キーで開く種別俯瞰図の描画を固定する。記号の色表・凡例・
+// 現在地マーカー・荒れ地の文字非重畳を含む描画経路を覆い、配色や記号の集約を変えたときの
+// 退行を捕らえる。俯瞰図は帯から純関数で算出するので、決定的 RunSeed で golden が安定する。
+func TestGolden_OverworldMap(t *testing.T) {
+	t.Parallel()
+	backdrop := newGoldenBackdrop(t)
+	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
+}
+
 func TestGolden_InventoryMenu(t *testing.T) {
 	t.Parallel()
 	town := newGoldenBackdrop(t)
