@@ -35,8 +35,8 @@ func TestZoneOf_都心は奇数辺市街地の中心にだけ出る(t *testing.T
 	}
 
 	// 偶数辺 2×2 には中心マスが存在せず、どのマスも都心にならない
-	for lx := consts.Chunk(0); lx < 2; lx++ {
-		for ly := consts.Chunk(0); ly < 2; ly++ {
+	for lx := range consts.Chunk(2) {
+		for ly := range consts.Chunk(2) {
 			assert.NotEqualf(t, zoneDowntown, zoneOf(lx, ly, 2, 2, 0), "2×2 の (%d,%d) は都心でない", lx, ly)
 		}
 	}
