@@ -47,7 +47,7 @@ var (
 const settlementSalt = 0x5e77
 
 // settlementPlacement は小集落のリージョン配置。おおよそ Spacing チャンクに1つ当選する。
-// チャンクは50タイルあるため、Spacing 5 で250タイルに1つの体感密度になる。
+// チャンクは20タイルなので、Spacing 5 で100タイルに1つの体感密度になる。
 var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
 
 // settlementFeature は小集落の feature 実装。開始チャンクは特例で必ず当選し、
