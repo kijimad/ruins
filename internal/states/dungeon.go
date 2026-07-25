@@ -95,7 +95,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// ロード復帰も保存前と同じ現ステージで、いずれも自動再計算が働かない。加えて serde は
 	// VisionState を空で復元するため、放置すると空の VisibleTiles のまま真っ暗になる。
 	// オーバーワールドと通常ダンジョンで同じ扱いにするため、分岐前のここで立てる。
-	query.GetVisionState(world).NeedsForceUpdate = true
+	query.GetVisionState(world).RequestUpdate(gc.VisionUpdateForce)
 
 	// Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは
 	// overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする

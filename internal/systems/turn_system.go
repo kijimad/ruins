@@ -44,8 +44,8 @@ func (sys *TurnSystem) Update(world w.World) error {
 			return err
 		}
 		// AIターン完了後に視界を再計算させる。壁は変わらないのでレイキャストは再利用する軽量更新。
-		// AIが扉を開けるなど遮蔽が変わる操作は、その操作側が NeedsForceUpdate を立てる
-		query.GetVisionState(world).NeedsVisionRefresh = true
+		// AIが扉を開けるなど遮蔽が変わる操作は、その操作側が Force を要求する
+		query.GetVisionState(world).RequestUpdate(gc.VisionUpdateRefresh)
 		turnState.Phase = gc.TurnPhaseEnd
 	case gc.TurnPhaseEnd:
 		// ターン終了処理

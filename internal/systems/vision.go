@@ -56,28 +56,17 @@ func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon, vs *gc.Vis
 	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 }
 
-// consumeForceUpdate は外部から立てられた強制更新フラグを消費し、立っていたかを返す。
-// 強制更新は扉開閉・帯シフトなど遮蔽の変化を意味するため、壁配置に依存するレイキャスト
-// 結果も破棄する。破棄しないと、帯シフトでプレイヤーが同じ帯ローカル座標へ戻ったとき
-// 旧壁配置のレイ結果が座標キー一致で再利用され、実壁の無い場所に幽霊の遮蔽影が出る
-func (sys *VisionSystem) consumeForceUpdate(vs *gc.VisionState) bool {
-	if !vs.NeedsForceUpdate {
-		return false
+// consumePendingUpdate は要求された視界更新を消費し、再計算が要るかを返す。Force のときは
+// 壁配置に依存するレイキャストキャッシュも破棄する。破棄しないと、帯シフトでプレイヤーが
+// 同じ帯ローカル座標へ戻ったとき旧壁配置のレイ結果が座標キー一致で再利用され、実壁の無い
+// 場所に幽霊の遮蔽影が出る。Refresh はレイを保持し、静止中に同じ視線を毎ターン引き直さない
+func (sys *VisionSystem) consumePendingUpdate(vs *gc.VisionState) bool {
+	u := vs.PendingUpdate
+	vs.PendingUpdate = gc.VisionUpdateNone
+	if u == gc.VisionUpdateForce {
+		sys.raycastCache = make(map[raycastCacheKey]bool)
 	}
-	vs.NeedsForceUpdate = false
-	sys.raycastCache = make(map[raycastCacheKey]bool)
-	return true
-}
-
-// consumeVisionRefresh は遮蔽が変わらない軽量更新フラグを消費し、立っていたかを返す。
-// consumeForceUpdate と違いレイキャストキャッシュは破棄しない。AIターンごとの光源・明暗の
-// 更新に使い、静止中に同じ視線を毎ターン引き直さないで済ませる
-func (sys *VisionSystem) consumeVisionRefresh(vs *gc.VisionState) bool {
-	if !vs.NeedsVisionRefresh {
-		return false
-	}
-	vs.NeedsVisionRefresh = false
-	return true
+	return u != gc.VisionUpdateNone
 }
 
 // String はシステム名を返す
@@ -123,13 +112,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.X-sys.lastPlayer.X)) >= updateThreshold ||
 		geometry.Abs(int(playerPos.Y-sys.lastPlayer.Y)) >= updateThreshold
 
-	// 外部から設定された視界更新フラグをチェックする。扉開閉や帯シフトで立てられる。
-	// 壁が変わる強制更新はレイキャストキャッシュも破棄する
-	if sys.consumeForceUpdate(vs) {
-		needsUpdate = true
-	}
-	// 遮蔽が変わらない軽量更新。レイキャストキャッシュは保持したまま視界だけ引き直す
-	if sys.consumeVisionRefresh(vs) {
+	// 外部から要求された視界更新を消費する。Force は遮蔽が変わったのでレイキャッシュも破棄し、
+	// Refresh は遮蔽が変わらないのでレイを保持して視界だけ引き直す
+	if sys.consumePendingUpdate(vs) {
 		needsUpdate = true
 	}
 

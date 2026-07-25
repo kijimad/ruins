@@ -226,7 +226,7 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 	// SwapTo 後は現ステージ=target なので現在地で判定する
 	if query.IsOnOverworld(world) {
 		// 地上の StageField が resume で帯寸法の Level を戻すため寸法の手復元は不要。視界だけ強制再計算する
-		query.GetVisionState(world).NeedsForceUpdate = true
+		query.GetVisionState(world).RequestUpdate(gc.VisionUpdateForce)
 	}
 
 	if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {

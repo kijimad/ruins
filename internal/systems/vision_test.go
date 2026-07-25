@@ -347,49 +347,53 @@ func TestInvalidateOnFloorChange(t *testing.T) {
 	})
 }
 
-func TestConsumeForceUpdate(t *testing.T) {
+func TestConsumePendingUpdate(t *testing.T) {
 	t.Parallel()
 
-	t.Run("フラグ消費時に壁配置依存のレイキャストキャッシュを破棄する", func(t *testing.T) {
+	t.Run("Force は消費時に壁配置依存のレイキャストキャッシュを破棄する", func(t *testing.T) {
 		t.Parallel()
 		sys := NewVisionSystem()
 		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
 		visionState := gc.NewVisionState()
-		visionState.NeedsForceUpdate = true
+		visionState.RequestUpdate(gc.VisionUpdateForce)
 
-		assert.True(t, sys.consumeForceUpdate(visionState))
-		assert.False(t, visionState.NeedsForceUpdate, "フラグは消費される")
+		assert.True(t, sys.consumePendingUpdate(visionState))
+		assert.Equal(t, gc.VisionUpdateNone, visionState.PendingUpdate, "要求は消費される")
 		assert.Empty(t, sys.raycastCache, "旧壁配置のレイ結果を再利用しないよう破棄する")
 	})
 
-	t.Run("フラグが立っていなければキャッシュを保持する", func(t *testing.T) {
+	t.Run("Refresh は消費してもレイキャストキャッシュを破棄しない", func(t *testing.T) {
+		t.Parallel()
+		sys := NewVisionSystem()
+		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
+		visionState := gc.NewVisionState()
+		visionState.RequestUpdate(gc.VisionUpdateRefresh)
+
+		assert.True(t, sys.consumePendingUpdate(visionState))
+		assert.Equal(t, gc.VisionUpdateNone, visionState.PendingUpdate, "要求は消費される")
+		assert.NotEmpty(t, sys.raycastCache, "壁は変わらないのでレイは再利用のため保持する")
+	})
+
+	t.Run("None は再計算を要求せずキャッシュも保持する", func(t *testing.T) {
 		t.Parallel()
 		sys := NewVisionSystem()
 		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
 
-		assert.False(t, sys.consumeForceUpdate(gc.NewVisionState()))
+		assert.False(t, sys.consumePendingUpdate(gc.NewVisionState()))
 		assert.NotEmpty(t, sys.raycastCache)
 	})
 }
 
-func TestConsumeVisionRefresh(t *testing.T) {
+func TestRequestUpdate_強い要求が勝つ(t *testing.T) {
 	t.Parallel()
 
-	t.Run("軽量更新は消費してもレイキャストキャッシュを破棄しない", func(t *testing.T) {
-		t.Parallel()
-		sys := NewVisionSystem()
-		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
-		visionState := gc.NewVisionState()
-		visionState.NeedsVisionRefresh = true
+	vs := gc.NewVisionState()
+	vs.RequestUpdate(gc.VisionUpdateRefresh)
+	vs.RequestUpdate(gc.VisionUpdateForce)
+	assert.Equal(t, gc.VisionUpdateForce, vs.PendingUpdate, "Refresh のあと Force なら Force が残る")
 
-		assert.True(t, sys.consumeVisionRefresh(visionState))
-		assert.False(t, visionState.NeedsVisionRefresh, "フラグは消費される")
-		assert.NotEmpty(t, sys.raycastCache, "壁は変わらないのでレイは再利用のため保持する")
-	})
-
-	t.Run("フラグが立っていなければ何もしない", func(t *testing.T) {
-		t.Parallel()
-		sys := NewVisionSystem()
-		assert.False(t, sys.consumeVisionRefresh(gc.NewVisionState()))
-	})
+	vs2 := gc.NewVisionState()
+	vs2.RequestUpdate(gc.VisionUpdateForce)
+	vs2.RequestUpdate(gc.VisionUpdateRefresh)
+	assert.Equal(t, gc.VisionUpdateForce, vs2.PendingUpdate, "Force のあと Refresh でも Force が残り降格しない")
 }
