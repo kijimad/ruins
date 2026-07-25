@@ -112,18 +112,15 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 
 	drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
-	// 荒れ地の記号は overworld を唯一の源にする。荒れ地は背景なので文字を重ねない
-	fieldLabel := overworld.FieldGlyph().Label
 	const originX, originY consts.ScreenPixel = 16, 44
 	for row := range st.glyphs {
 		for col, r := range st.glyphs[row] {
 			x := originX + consts.ScreenPixel(col)*mapCellPx
 			y := originY + consts.ScreenPixel(row)*mapCellPx
+			// 全チャンクを同一に扱う。色を塗り、種別の文字を重ねて記号でも読めるようにする。
+			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
-			// 荒れ地以外は種別の文字を重ねて、色だけでなく記号でも読めるようにする
-			if r != fieldLabel {
-				drawText(string(r), int(x)+5, int(y)+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
-			}
+			drawText(string(r), int(x)+5, int(y)+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
 		}
 	}
 	// 現在地マーカー。白枠でセルを囲む
