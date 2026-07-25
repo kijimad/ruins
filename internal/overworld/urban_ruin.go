@@ -3,6 +3,7 @@ package overworld
 import (
 	"fmt"
 	"math/rand/v2"
+	"sort"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -115,44 +116,63 @@ type furnishSpec struct {
 	fill   bool
 }
 
-// roomFurnish は施設の部屋の役割ごとの内装規則。front は入口を含む表の部屋、back は奥の部屋。
-// 部屋分割で表と奥に別の家具を置くので、店舗フロアと在庫置き場、居間と寝室のように読める。
-type roomFurnish struct {
-	front []furnishSpec // 表の部屋。店舗フロア・居間・受付
-	back  []furnishSpec // 奥の部屋。在庫置き場・寝室・機械室
+// roomRole は部屋・エリアの意味。家具規則と戦利品を1つの概念で束ねる真実の源。
+// 役割を1つ決めれば置く家具も湧くアイテムも決まるので、家具と戦利品が食い違わない。
+type roomRole uint8
+
+const (
+	roleLiving      roomRole = iota // 居間
+	roleBedroom                     // 寝室
+	roleKitchen                     // キッチン・厨房
+	roleBathroom                    // トイレ・浴室
+	roleSalesFloor                  // 売場。レジ
+	roleAntiqueFloor                // 骨董品店の売場。武器を扱う
+	roleStoreroom                   // 倉庫・バックヤード
+	roleExam                        // 診察室
+	roleMachine                     // 機械室
+	roleOffice                      // 事務
+)
+
+// roleSpec は役割ごとの家具規則と戦利品。家具と戦利品を同じ役割から導くので不整合が出ない。
+type roleSpec struct {
+	furniture []furnishSpec // 何をどこに置くか
+	loot      string        // itemGroup 名。空なら戦利品なし
+	lootMax   int           // 部屋に湧く最大数
 }
 
-// facilityFurnish は施設種別ごとの内装配置規則。完成マップでなく規則を authoring する。
-// 「レジは入口脇」「棚は通路状」「寝室は奥」という少数の規則が、無限の建物を店や住居らしく見せる。
-var facilityFurnish = map[facilityKind]roomFurnish{
-	facilityHouse: {
-		front: []furnishSpec{{"sofa", anchorAlongWall, false}, {"table", anchorCenter, false}, {"chair", anchorCenter, false}, {"tall_lamp", anchorCorner, false}},
-		back:  []furnishSpec{{"bed", anchorCorner, false}, {"closet", anchorCorner, false}, {"drawer_chest", anchorAlongWall, false}},
-	},
-	facilityStore: {
-		front: []furnishSpec{{"register", anchorNearDoor, false}, {"goods_shelf", anchorAisle, true}},
-		back:  []furnishSpec{{"crate", anchorAlongWall, true}, {"barrel", anchorCorner, false}},
-	},
-	facilityOffice: {
-		front: []furnishSpec{{"desk", anchorCenter, false}, {"desktop_pc", anchorCenter, false}, {"chair", anchorCenter, false}},
-		back:  []furnishSpec{{"bookshelf", anchorAlongWall, true}, {"electric_locker", anchorCorner, false}},
-	},
-	facilityDepot: {
-		front: []furnishSpec{{"iron_shelf", anchorAisle, true}},
-		back:  []furnishSpec{{"crate", anchorAlongWall, true}, {"barrel", anchorCorner, false}},
-	},
-	facilityAntique: {
-		front: []furnishSpec{{"register", anchorNearDoor, false}, {"artistic_shelf", anchorAlongWall, true}, {"book_showcase", anchorAlongWall, false}},
-		back:  []furnishSpec{{"黒い花瓶", anchorCorner, false}, {"old_lamp", anchorCorner, false}},
-	},
-	facilityClinic: {
-		front: []furnishSpec{{"bed", anchorAlongWall, true}, {"sink", anchorCorner, false}},
-		back:  []furnishSpec{{"ロッカー", anchorCorner, false}, {"electric_locker", anchorCorner, false}},
-	},
-	facilityLab: {
-		front: []furnishSpec{{"gauge_machine", anchorAlongWall, true}, {"desktop_pc", anchorCenter, false}},
-		back:  []furnishSpec{{"generator_green", anchorCorner, false}, {"electric_locker", anchorCorner, false}},
-	},
+// roleSpecs は役割ごとの内装と戦利品。CDDA の mapgen が location に furniture と item_group を
+// 結ぶのを翻案する。戦利品が場所の意味と一致する。診察室に薬、キッチンに食料、骨董品店に武器。
+var roleSpecs = map[roomRole]roleSpec{
+	roleLiving:      {furniture: []furnishSpec{{"sofa", anchorAlongWall, false}, {"table", anchorCenter, false}, {"chair", anchorCenter, false}, {"tall_lamp", anchorCorner, false}}},
+	roleBedroom:     {furniture: []furnishSpec{{"bed", anchorCorner, false}, {"closet", anchorCorner, false}, {"drawer_chest", anchorAlongWall, false}}, loot: "素材類", lootMax: 1},
+	roleKitchen:     {furniture: []furnishSpec{{"sink", anchorAlongWall, false}, {"refrigerator", anchorAlongWall, false}, {"microwave", anchorAlongWall, false}, {"table", anchorCenter, false}}, loot: "食料", lootMax: 3},
+	roleBathroom:    {furniture: []furnishSpec{{"toilet", anchorCorner, false}, {"sink", anchorCorner, false}, {"bathtub", anchorAlongWall, false}}},
+	roleSalesFloor:  {furniture: []furnishSpec{{"register", anchorNearDoor, false}, {"goods_shelf", anchorAisle, true}}, loot: "食料", lootMax: 3},
+	roleAntiqueFloor: {furniture: []furnishSpec{{"register", anchorNearDoor, false}, {"artistic_shelf", anchorAlongWall, true}, {"book_showcase", anchorAlongWall, false}}, loot: "序盤近接武器", lootMax: 2},
+	roleStoreroom:   {furniture: []furnishSpec{{"crate", anchorAlongWall, true}, {"barrel", anchorCorner, false}}, loot: "素材類", lootMax: 4},
+	roleExam:        {furniture: []furnishSpec{{"bed", anchorAlongWall, true}, {"sink", anchorCorner, false}, {"electric_locker", anchorCorner, false}}, loot: "回復アイテム", lootMax: 2},
+	roleMachine:     {furniture: []furnishSpec{{"gauge_machine", anchorAlongWall, true}, {"generator_green", anchorCorner, false}, {"electric_locker", anchorCorner, false}}, loot: "素材類", lootMax: 2},
+	roleOffice:      {furniture: []furnishSpec{{"desk", anchorCenter, false}, {"desktop_pc", anchorCenter, false}, {"chair", anchorCenter, false}, {"bookshelf", anchorAlongWall, true}}},
+}
+
+// facilityRooms は施設が持つべき部屋の役割を宣言する。先頭の役割が入口を含む表の部屋になり、
+// 残りは大きさ順に続きを割り当てる。部屋数が役割数を超えたら末尾の役割を繰り返す。
+var facilityRooms = map[facilityKind][]roomRole{
+	facilityHouse:   {roleLiving, roleBedroom, roleKitchen, roleBathroom},
+	facilityStore:   {roleSalesFloor, roleStoreroom},
+	facilityOffice:  {roleOffice, roleStoreroom},
+	facilityDepot:   {roleStoreroom, roleStoreroom, roleOffice},
+	facilityAntique: {roleAntiqueFloor, roleStoreroom},
+	facilityClinic:  {roleExam, roleExam, roleStoreroom},
+	facilityLab:     {roleMachine, roleMachine, roleOffice},
+}
+
+// roomProgram は施設の部屋役割の並びを返す。未定義なら倉庫だけの無難な既定にする。
+func roomProgram(kind facilityKind) []roomRole {
+	if p, ok := facilityRooms[kind]; ok {
+		return p
+	}
+	return []roomRole{roleStoreroom}
 }
 
 // rollFacility は規模 gate を通った施設を重みで1つ抽選し、facilityCatalog の添字を返す。
@@ -296,19 +316,16 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 		}
 	}
 
-	// 入口の内側マス。この部屋を「表」とし、他は「奥」として別の家具を置く
+	// 入口の内側マス。この部屋を「表」として施設の先頭の役割を割り当てる
 	dinX, dinY := doorX, doorY+1
 	if doorX == bx {
 		dinX, dinY = doorX+1, doorY
 	}
 	kind := facilityCatalog[facility].kind
-	for _, room := range rooms {
+	roles := assignRoomRoles(rooms, roomProgram(kind), dinX, dinY)
+	for i, room := range rooms {
 		isEntrance := room.contains(dinX, dinY)
-		specs := facilityFurnish[kind].back
-		if isEntrance {
-			specs = facilityFurnish[kind].front
-		}
-		if err := furnishRoom(world, g, rng, specs, room, dinX, dinY, isEntrance); err != nil {
+		if err := furnishRoom(world, g, rng, roleSpecs[roles[i]], room, dinX, dinY, isEntrance); err != nil {
 			return nil, err
 		}
 	}
@@ -325,10 +342,48 @@ const cityMinRoom consts.Tile = 3
 // cityRoomDepth は部屋分割の再帰段数。1建物で最大 2^depth 部屋になる。
 const cityRoomDepth = 2
 
-// furnishRoom は1部屋の床範囲 [ix0,ix1]×[iy0,iy1] を役割ベースで内装する。ランダム散布でなく、
-// 家具ごとに定めた位置の意味(壁沿い・入口脇・通路・中央・隅)に従って置く。isEntrance が真の
-// 部屋だけレジ・受付を入口脇に置く。入口の内側1マスは通行のため空ける。すべて決定的な手続き。
-func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, specs []furnishSpec, room rrect, dinX, dinY consts.Tile, isEntrance bool) error {
+// assignRoomRoles は部屋一覧に施設の役割を割り当てる。入口を含む部屋に program の先頭
+// (居間・売場など表の役割)、残りは大きさ降順に program の続きを当てる。部屋数が役割数を
+// 超えたら末尾の役割を繰り返す。戻り値は rooms と同じ順の役割。
+func assignRoomRoles(rooms []rrect, program []roomRole, dinX, dinY consts.Tile) []roomRole {
+	roles := make([]roomRole, len(rooms))
+	// 入口の部屋を先に確定する
+	entrance := -1
+	for i, r := range rooms {
+		if r.contains(dinX, dinY) {
+			entrance = i
+			break
+		}
+	}
+	role := func(k int) roomRole {
+		if k >= len(program) {
+			k = len(program) - 1
+		}
+		return program[k]
+	}
+	if entrance >= 0 {
+		roles[entrance] = role(0)
+	}
+	// 残りを大きさ降順に並べ、program の 1 以降を順に当てる
+	rest := make([]int, 0, len(rooms))
+	for i := range rooms {
+		if i != entrance {
+			rest = append(rest, i)
+		}
+	}
+	sort.SliceStable(rest, func(a, b int) bool {
+		return int(rooms[rest[a]].width())*int(rooms[rest[a]].height()) > int(rooms[rest[b]].width())*int(rooms[rest[b]].height())
+	})
+	for k, idx := range rest {
+		roles[idx] = role(k + 1)
+	}
+	return roles
+}
+
+// furnishRoom は1部屋を役割ベースで内装し、役割に応じた戦利品を床へ置く。ランダム散布でなく、
+// 家具ごとに定めた位置の意味(壁沿い・入口脇・通路・中央・隅)に従う。isEntrance が真の部屋だけ
+// レジ・受付を入口脇に置く。入口の内側1マスは通行のため空ける。すべて決定的な手続き。
+func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, spec roleSpec, room rrect, dinX, dinY consts.Tile, isEntrance bool) error {
 	ix0, iy0, ix1, iy1 := room.x0, room.y0, room.x1, room.y1
 	if ix1 < ix0 || iy1 < iy0 {
 		return nil
@@ -353,7 +408,7 @@ func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, specs []furnishSpec
 		return true, nil
 	}
 
-	for _, s := range specs {
+	for _, s := range spec.furniture {
 		if s.anchor == anchorNearDoor && !isEntrance {
 			continue // レジ・受付は入口のある表の部屋だけ
 		}
@@ -366,6 +421,39 @@ func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, specs []furnishSpec
 			if ok && !s.fill {
 				break // 1個置いたら次の家具へ
 			}
+		}
+	}
+	return spawnRoomLoot(world, g, rng, spec, ix0, iy0, ix1, iy1, occupied)
+}
+
+// spawnRoomLoot は役割の戦利品を、家具の無い床マスへ最大 lootMax 個置く。役割が場所の意味を
+// 持つので、診察室に薬、キッチンに食料、骨董品店に武器、と探索の報酬が場所と一致する。
+func spawnRoomLoot(world w.World, g chunkGeom, rng *rand.Rand, spec roleSpec, ix0, iy0, ix1, iy1 consts.Tile, occupied map[consts.Coord[consts.Tile]]bool) error {
+	if spec.loot == "" || spec.lootMax <= 0 {
+		return nil
+	}
+	var free []consts.Coord[consts.Tile]
+	for y := iy0; y <= iy1; y++ {
+		for x := ix0; x <= ix1; x++ {
+			if !occupied[consts.Coord[consts.Tile]{X: x, Y: y}] {
+				free = append(free, consts.Coord[consts.Tile]{X: x, Y: y})
+			}
+		}
+	}
+	for range spec.lootMax {
+		if len(free) == 0 {
+			break
+		}
+		pick := rng.IntN(len(free))
+		cell := free[pick]
+		free[pick] = free[len(free)-1]
+		free = free[:len(free)-1]
+		name, err := raw.SelectItemFromGroup(world.Resources.RawMaster, spec.loot, rng)
+		if err != nil {
+			return fmt.Errorf("市街地の戦利品抽選に失敗 (%s): %w", spec.loot, err)
+		}
+		if _, err := lifecycle.SpawnFieldItem(world, name, g.offsetX+cell.X, g.offsetY+cell.Y, 1); err != nil {
+			return fmt.Errorf("市街地の戦利品配置に失敗 (%s): %w", name, err)
 		}
 	}
 	return nil

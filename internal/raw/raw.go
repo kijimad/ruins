@@ -540,6 +540,21 @@ func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
 	return ig, nil
 }
 
+// SelectItemFromGroup はアイテムグループ名から重み付きで1品のアイテム名を選ぶ。
+// 役割ベースの戦利品配置のように、テーブルを介さずグループを直接引く用途に使う。
+func SelectItemFromGroup(raws oapi.Raws, groupName string, rng *rand.Rand) (string, error) {
+	group, err := GetItemGroup(raws, groupName)
+	if err != nil {
+		return "", err
+	}
+	return SelectByWeightFunc(
+		group.Entries,
+		func(e oapi.ItemGroupEntry) float64 { return e.Weight },
+		func(e oapi.ItemGroupEntry) string { return e.ItemName },
+		rng,
+	)
+}
+
 // GetItemTable は指定された名前のアイテムテーブルを取得する
 func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
 	it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Name }, name)

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldstream"
@@ -107,6 +108,54 @@ func TestFurnishRoom_棚は通路を挟んで並ぶ(t *testing.T) {
 		}
 	}
 	assert.Positive(t, gaps, "棚の列が2列以上に広がるなら間に通路がある")
+}
+
+// fieldItemNames はフィールドに落ちた戦利品の名前を集める。prop・タイル・プレイヤーは除く。
+func fieldItemNames(world w.World) []string {
+	var out []string
+	q := ecs.NewFilter2[gc.GridElement, gc.LocationOnField](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.Tile.Has(e) || world.Components.Prop.Has(e) || world.Components.Player.Has(e) {
+			continue
+		}
+		if world.Components.Name.Has(e) {
+			out = append(out, world.Components.Name.Get(e).Name)
+		}
+	}
+	return out
+}
+
+// TestFurnishRoom_役割に応じた戦利品が場所と一致する は、部屋の役割が戦利品を意味づけることを
+// 固定する。診療所に回復アイテム、商店に食料、骨董品店に武器。ランダム床落ちへの退行を防ぐ。
+func TestFurnishRoom_役割に応じた戦利品が場所と一致する(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		kind  facilityKind
+		group string
+	}{
+		{facilityClinic, "回復アイテム"},
+		{facilityStore, "食料"},
+		{facilityAntique, "序盤近接武器"},
+	}
+	for _, c := range cases {
+		world := genFacilityChunk(t, c.kind)
+		group, err := raw.GetItemGroup(world.Resources.RawMaster, c.group)
+		require.NoError(t, err)
+		want := map[string]bool{}
+		for _, e := range group.Entries {
+			want[e.ItemName] = true
+		}
+
+		matched := false
+		for _, name := range fieldItemNames(world) {
+			if want[name] {
+				matched = true
+			}
+		}
+		assert.Truef(t, matched, "%s には %s の戦利品が湧く", c.group, c.group)
+	}
 }
 
 // TestFurnishRoom_内装は決定的 は、同じ seed と座標なら内装配置が完全に一致することを固定する。
