@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/mapplanner"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -120,20 +121,17 @@ func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, nameOf fu
 		return // オートタイルでないタイルはスキップする。数値サフィックスが無い void 等が該当する
 	}
 
-	// CalculateAutoTileIndex と同じビット割り当て: 上1・右2・下4・左8
-	bit := 0
-	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y - 1}}); ok && n == self {
-		bit |= 1
+	// 同名タイルとだけ接続する。ビット割り当ては mapplanner.AutoTileBits に集約し、生成時の
+	// CalculateAutoTileIndex と継ぎ目再計算でビットがずれないようにする。
+	same := func(x, y consts.Tile) bool {
+		n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		return ok && n == self
 	}
-	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X + 1, Y: g.Y}}); ok && n == self {
-		bit |= 2
-	}
-	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X, Y: g.Y + 1}}); ok && n == self {
-		bit |= 4
-	}
-	if n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: g.X - 1, Y: g.Y}}); ok && n == self {
-		bit |= 8
-	}
+	up := same(g.X, g.Y-1)
+	right := same(g.X+1, g.Y)
+	down := same(g.X, g.Y+1)
+	left := same(g.X-1, g.Y)
+	bit := int(mapplanner.AutoTileBits(up, right, down, left))
 	sr.SpriteKey = base + "_" + strconv.Itoa(bit)
 }
 

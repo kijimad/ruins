@@ -265,6 +265,47 @@ func TestBuildBlockViewIndex(t *testing.T) {
 	})
 }
 
+func TestCalculateTileVisibility_チャンク境界をまたいで視線が通り壁で遮られる(t *testing.T) {
+	t.Parallel()
+
+	// オーバーワールドは複数チャンクを1つのステージに束ねるため、視界はチャンク境界を透過する。
+	// 視界にはチャンク固有の境界ロジックが無く絶対座標で動くことを、境界座標 x=chunkW を跨ぐ
+	// 水平視線で固定する。遮蔽が無ければ向こう側が見え、境界上の壁で遮られる。
+	const chunkW consts.Tile = 30 // 東西チャンク境界の座標
+	playerTile := consts.Coord[consts.Tile]{X: chunkW - 2, Y: 10}
+	playerPos := consts.TileCenterToWorld(playerTile)
+	radius := consts.WorldPixel(8 * int(consts.TileSize))
+	target := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: chunkW + 3, Y: 10}} // 隣チャンク側
+
+	lookup := func(vis []TileVisibility, g gc.GridElement) (visible bool, found bool) {
+		for _, v := range vis {
+			if v.Col == int(g.X) && v.Row == int(g.Y) {
+				return v.Visible, true
+			}
+		}
+		return false, false
+	}
+
+	t.Run("遮蔽が無ければ隣チャンク側が見える", func(t *testing.T) {
+		t.Parallel()
+		vis := calculateTileVisibilityWithDistance(playerPos, radius, map[gc.GridElement]bool{})
+		visible, found := lookup(vis, target)
+		require.True(t, found, "対象タイルが視界走査範囲に入る")
+		assert.True(t, visible, "境界の向こう側のタイルが見える")
+	})
+
+	t.Run("境界上の壁で視線が遮られる", func(t *testing.T) {
+		t.Parallel()
+		blockIndex := map[gc.GridElement]bool{
+			{Coord: consts.Coord[consts.Tile]{X: chunkW, Y: 10}}: true, // 境界 x=chunkW 上の壁
+		}
+		vis := calculateTileVisibilityWithDistance(playerPos, radius, blockIndex)
+		visible, found := lookup(vis, target)
+		require.True(t, found, "対象タイルが視界走査範囲に入る")
+		assert.False(t, visible, "境界上の壁の向こうは見えない")
+	})
+}
+
 func TestBresenhamLineOfSight(t *testing.T) {
 	t.Parallel()
 
