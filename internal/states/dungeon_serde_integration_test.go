@@ -188,7 +188,7 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 	field := query.GetCurrentStageField(world)
 	assert.Equal(t, sb.K.Tiles(sb.ChunkW), field.Level.TileWidth, "帯幅の Level が復元される")
 	assert.Equal(t, sb.ChunkH, field.Level.TileHeight, "帯高さの Level が復元される")
-	assert.Equal(t, gc.VisionUpdateForce, query.GetVisionState(world).PendingUpdate, "視界の強制再計算が要求される")
+	assert.True(t, query.GetVisionState(world).PendingUpdate, "視界の強制再計算が要求される")
 
 	// 隊員は復元された帯寸法の範囲内に配置される
 	si := query.GetSpatialIndex(world)

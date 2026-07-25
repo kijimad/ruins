@@ -13,59 +13,26 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// raycastCacheKey はレイキャスト結果のキャッシュキー
-type raycastCacheKey struct {
-	Player consts.Coord[int]
-	Target consts.Coord[int]
-}
-
 // VisionSystem はタイルごとの視界を計算するUpdaterシステム。
 // 計算結果の光源情報は VisionState シングルトンに書き込み、描画側はそこから参照する。
-// レイキャストキャッシュなどの内部メモは本システムが保持し、フロア変化時に自身で破棄する
 type VisionSystem struct {
 	// プレイヤー位置キャッシュ（タイル移動ごとに更新）
 	lastPlayer    consts.Coord[consts.WorldPixel]
 	isInitialized bool
-
-	// レイキャスト結果のキャッシュ
-	raycastCache map[raycastCacheKey]bool
-
-	// キャッシュが対象とするフロアの識別情報。変化を検知して内部キャッシュを破棄する
-	lastDepth          int
-	lastDefinitionName string
 }
 
 // NewVisionSystem はVisionSystemを初期化する
 func NewVisionSystem() *VisionSystem {
-	return &VisionSystem{
-		raycastCache: make(map[raycastCacheKey]bool),
-	}
+	return &VisionSystem{}
 }
 
-// invalidateOnFloorChange はフロアが切り替わっていれば内部キャッシュを破棄する。
-// レイキャスト結果は壁配置に依存するため、フロアをまたいで再利用すると誤った視界になる
-func (sys *VisionSystem) invalidateOnFloorChange(dungeon *gc.Dungeon, vs *gc.VisionState) {
-	if dungeon.CurrentStage.Depth == sys.lastDepth && dungeon.CurrentStage.Name == sys.lastDefinitionName {
-		return
-	}
-	sys.lastDepth = dungeon.CurrentStage.Depth
-	sys.lastDefinitionName = dungeon.CurrentStage.Name
-	sys.isInitialized = false
-	sys.raycastCache = make(map[raycastCacheKey]bool)
-	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
-}
-
-// consumePendingUpdate は要求された視界更新を消費し、再計算が要るかを返す。Force のときは
-// 壁配置に依存するレイキャストキャッシュも破棄する。破棄しないと、帯シフトでプレイヤーが
-// 同じ帯ローカル座標へ戻ったとき旧壁配置のレイ結果が座標キー一致で再利用され、実壁の無い
-// 場所に幽霊の遮蔽影が出る。Refresh はレイを保持し、静止中に同じ視線を毎ターン引き直さない
+// consumePendingUpdate は要求された視界更新を消費し、再計算が要るかを返す。
 func (sys *VisionSystem) consumePendingUpdate(vs *gc.VisionState) bool {
-	u := vs.PendingUpdate
-	vs.PendingUpdate = gc.VisionUpdateNone
-	if u == gc.VisionUpdateForce {
-		sys.raycastCache = make(map[raycastCacheKey]bool)
+	if !vs.PendingUpdate {
+		return false
 	}
-	return u != gc.VisionUpdateNone
+	vs.PendingUpdate = false
+	return true
 }
 
 // String はシステム名を返す
@@ -92,8 +59,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	// タイル座標をワールドピクセル座標に変換
 	playerPos := consts.TileCenterToWorld(playerGridElement.Coord)
 
-	dungeon := query.GetDungeon(world)
-	if dungeon == nil {
+	if query.GetDungeon(world) == nil {
 		return nil
 	}
 	field := query.GetCurrentStageField(world)
@@ -101,9 +67,6 @@ func (sys *VisionSystem) Update(world w.World) error {
 		return nil
 	}
 	vs := query.GetVisionState(world)
-
-	// フロアが切り替わっていれば壁配置依存の内部キャッシュを破棄する
-	sys.invalidateOnFloorChange(dungeon, vs)
 
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
@@ -126,7 +89,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 
 	// タイルの可視性マップを更新
 	visionRadius := consts.WorldPixel(consts.VisionRadiusTiles) * consts.TileSize
-	visibilityData := calculateTileVisibilityWithDistance(playerPos, visionRadius, sys.raycastCache, blockViewIndex)
+	visibilityData := calculateTileVisibilityWithDistance(playerPos, visionRadius, blockViewIndex)
 
 	// 光源情報を更新前にクリアする
 	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
@@ -226,7 +189,7 @@ func isInMapBounds(grid gc.GridElement, level gc.Level) bool {
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する。
 // 結果はキーで引かず順に走査するだけなので、マップでなくスライスで返す。座標は各要素の
 // Row・Col が持つ。タイルごとの文字列キー生成を避け、視界内タイル数ぶんの alloc を無くす。
-func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixel], radius consts.WorldPixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) []TileVisibility {
+func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixel], radius consts.WorldPixel, blockIndex map[gc.GridElement]bool) []TileVisibility {
 	// プレイヤーの位置からタイル座標を計算
 	playerTileX := int(playerPos.X) / int(consts.TileSize)
 	playerTileY := int(playerPos.Y) / int(consts.TileSize)
@@ -256,7 +219,7 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixe
 
 			// 視界範囲内のタイルのみ処理
 			if distanceSquared <= radiusSquared {
-				visible := isTileVisibleByRaycast(playerPos, tileCenter, rcCache, blockIndex)
+				visible := isTileVisibleByRaycast(playerPos, tileCenter, blockIndex)
 
 				visibility = append(visibility, TileVisibility{
 					Row:     tileY,
@@ -272,18 +235,7 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixe
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
-func isTileVisibleByRaycast(player, target consts.Coord[consts.WorldPixel], rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
-	// キャッシュキーを生成（4刻みに丸めて近い視線を共有する）
-	cacheKey := raycastCacheKey{
-		Player: consts.Coord[int]{X: int(player.X/4) * 4, Y: int(player.Y/4) * 4},
-		Target: consts.Coord[int]{X: int(target.X/4) * 4, Y: int(target.Y/4) * 4},
-	}
-
-	// キャッシュから結果をチェック
-	if result, exists := rcCache[cacheKey]; exists {
-		return result
-	}
-
+func isTileVisibleByRaycast(player, target consts.Coord[consts.WorldPixel], blockIndex map[gc.GridElement]bool) bool {
 	// タイル座標に変換
 	playerTileX := int(player.X / consts.TileSize)
 	playerTileY := int(player.Y / consts.TileSize)
@@ -292,19 +244,11 @@ func isTileVisibleByRaycast(player, target consts.Coord[consts.WorldPixel], rcCa
 
 	// 同じタイルまたは隣接タイルは常に見える
 	if geometry.Abs(targetTileX-playerTileX) <= 1 && geometry.Abs(targetTileY-playerTileY) <= 1 {
-		rcCache[cacheKey] = true
 		return true
 	}
 
 	// ブレゼンハムのライン描画アルゴリズムでタイルベースの視線判定
-	result := bresenhamLineOfSight(playerTileX, playerTileY, targetTileX, targetTileY, blockIndex)
-
-	// 結果をキャッシュ
-	if len(rcCache) < 15000 {
-		rcCache[cacheKey] = result
-	}
-
-	return result
+	return bresenhamLineOfSight(playerTileX, playerTileY, targetTileX, targetTileY, blockIndex)
 }
 
 // bresenhamLineOfSight はブレゼンハムアルゴリズムを使用したタイルベース視線判定

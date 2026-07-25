@@ -101,7 +101,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 		log.Debug("扉を開きました", "door", targetEntity)
 
 		// 視界の更新が必要
-		query.GetVisionState(world).RequestUpdate(gc.VisionUpdateForce)
+		query.GetVisionState(world).RequestUpdate()
 	}
 
 	Complete(comp)
@@ -213,7 +213,7 @@ func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 		log.Debug("扉を閉じました", "door", targetEntity)
 
 		// 視界の更新が必要であることをマーク（BlockViewが変更されたため）
-		query.GetVisionState(world).RequestUpdate(gc.VisionUpdateForce)
+		query.GetVisionState(world).RequestUpdate()
 	}
 
 	Complete(comp)

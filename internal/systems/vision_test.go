@@ -304,96 +304,22 @@ func TestBresenhamLineOfSight(t *testing.T) {
 	})
 }
 
-func TestInvalidateOnFloorChange(t *testing.T) {
-	t.Parallel()
-
-	t.Run("フロアが変わると壁依存の内部キャッシュを破棄する", func(t *testing.T) {
-		t.Parallel()
-		vs := NewVisionSystem()
-		vs.isInitialized = true
-		vs.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
-		vs.lastDepth = 1
-		vs.lastDefinitionName = "old"
-
-		dungeon := gc.NewDungeon()
-		dungeon.CurrentStage = gc.NewDungeonStage("new", 2)
-		visionState := gc.NewVisionState()
-		visionState.LightSourceCache[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}] = gc.LightInfo{Darkness: 0.5}
-
-		vs.invalidateOnFloorChange(dungeon, visionState)
-
-		assert.False(t, vs.isInitialized)
-		assert.Empty(t, vs.raycastCache)
-		assert.Empty(t, visionState.LightSourceCache)
-		assert.Equal(t, 2, vs.lastDepth)
-		assert.Equal(t, "new", vs.lastDefinitionName)
-	})
-
-	t.Run("同一フロアではキャッシュを保持する", func(t *testing.T) {
-		t.Parallel()
-		vs := NewVisionSystem()
-		vs.isInitialized = true
-		vs.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
-		vs.lastDepth = 3
-		vs.lastDefinitionName = "same"
-
-		dungeon := gc.NewDungeon()
-		dungeon.CurrentStage = gc.NewDungeonStage("same", 3)
-
-		vs.invalidateOnFloorChange(dungeon, gc.NewVisionState())
-
-		assert.True(t, vs.isInitialized)
-		assert.NotEmpty(t, vs.raycastCache)
-	})
-}
-
 func TestConsumePendingUpdate(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Force は消費時に壁配置依存のレイキャストキャッシュを破棄する", func(t *testing.T) {
+	t.Run("要求があれば消費して再計算を要求する", func(t *testing.T) {
 		t.Parallel()
 		sys := NewVisionSystem()
-		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
 		visionState := gc.NewVisionState()
-		visionState.RequestUpdate(gc.VisionUpdateForce)
+		visionState.RequestUpdate()
 
 		assert.True(t, sys.consumePendingUpdate(visionState))
-		assert.Equal(t, gc.VisionUpdateNone, visionState.PendingUpdate, "要求は消費される")
-		assert.Empty(t, sys.raycastCache, "旧壁配置のレイ結果を再利用しないよう破棄する")
+		assert.False(t, visionState.PendingUpdate, "要求は消費されて下がる")
 	})
 
-	t.Run("Refresh は消費してもレイキャストキャッシュを破棄しない", func(t *testing.T) {
+	t.Run("要求がなければ再計算しない", func(t *testing.T) {
 		t.Parallel()
 		sys := NewVisionSystem()
-		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
-		visionState := gc.NewVisionState()
-		visionState.RequestUpdate(gc.VisionUpdateRefresh)
-
-		assert.True(t, sys.consumePendingUpdate(visionState))
-		assert.Equal(t, gc.VisionUpdateNone, visionState.PendingUpdate, "要求は消費される")
-		assert.NotEmpty(t, sys.raycastCache, "壁は変わらないのでレイは再利用のため保持する")
-	})
-
-	t.Run("None は再計算を要求せずキャッシュも保持する", func(t *testing.T) {
-		t.Parallel()
-		sys := NewVisionSystem()
-		sys.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
-
 		assert.False(t, sys.consumePendingUpdate(gc.NewVisionState()))
-		assert.NotEmpty(t, sys.raycastCache)
 	})
-}
-
-func TestRequestUpdate_強い要求が勝つ(t *testing.T) {
-	t.Parallel()
-
-	vs := gc.NewVisionState()
-	vs.RequestUpdate(gc.VisionUpdateRefresh)
-	vs.RequestUpdate(gc.VisionUpdateForce)
-	assert.Equal(t, gc.VisionUpdateForce, vs.PendingUpdate, "Refresh のあと Force なら Force が残る")
-
-	vs2 := gc.NewVisionState()
-	vs2.RequestUpdate(gc.VisionUpdateForce)
-	vs2.RequestUpdate(gc.VisionUpdateRefresh)
-	assert.Equal(t, gc.VisionUpdateForce, vs2.PendingUpdate, "Force のあと Refresh でも Force が残り降格しない")
 }
