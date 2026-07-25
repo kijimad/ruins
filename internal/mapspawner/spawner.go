@@ -207,7 +207,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, door := range metaPlan.Doors {
 		tileX, tileY := door.X+offsetX, door.Y+offsetY
-		_, err := lifecycle.SpawnDoor(world, tileX, tileY, door.Orientation)
+		_, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: tileX, Y: tileY}, door.Orientation)
 		if err != nil {
 			return fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
 		}

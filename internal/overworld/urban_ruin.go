@@ -185,9 +185,8 @@ func cityChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chu
 	return rollFacilityInZone(frng, z, size), size, true
 }
 
-// place は c が市街地の建物チャンクなら自分の建物を1棟描く。市街地が開始チャンクを含むなら
-// 丸ごとスキップし、新規ゲームの開始点を安全に保つ。各チャンクは自己完結するので生成順に
-// 依存しない。
+// place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
+// 生成順に依存しない。
 func (urbanRuinFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
@@ -267,7 +266,7 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly c
 		}
 	}
 	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
-	if _, err := lifecycle.SpawnDoor(world, g.offsetX+doorX, g.offsetY+doorY, doorOrient); err != nil {
+	if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: g.offsetX + doorX, Y: g.offsetY + doorY}, doorOrient); err != nil {
 		return nil, fmt.Errorf("市街地の扉配置に失敗: %w", err)
 	}
 	return isWall, nil
