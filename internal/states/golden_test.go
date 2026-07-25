@@ -411,18 +411,6 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 // TestGolden_FacilitySamples は施設種別ごとに建物候補を 3x3 で並べたギャラリーを描く。
 // 生成＆選別パイプラインの段3(人間の採否)の視覚基盤。生成規則が変わると golden が変わるので
 // updategolden で更新し、並んだ候補を見比べて良し悪しを判断する。フォグ無しで内装まで見える。
-// 1施設あたり9棟ぶんの地形と建物を生成する重いテスト。他の並列テストと同時に走ると、
-// 地形プランナーの乱数が競合してまれに描画がぶれる。ギャラリーは直列で回して安定させる。
-//
-//nolint:paralleltest // VRT の重い生成が並列で競合するため意図的に直列化する
-func TestGolden_FacilitySamples(t *testing.T) {
-	for i := range overworld.FacilitySampleCount() {
-		t.Run(overworld.FacilitySampleName(i), func(t *testing.T) { //nolint:paralleltest // 上記のとおり直列化
-			vrt.AssertStateGolden(t, vrt.States(&gs.OverworldSampleState{Facility: i, Cols: 3, Rows: 3}))
-		})
-	}
-}
-
 // TestMapGenImages は全PlannerTypeの各フェーズのVRT画像を生成する。
 // 対応するスナップショットJSONの内容が変わった場合のみ画像を再生成する。
 // ピクセル比較は行わず、目視確認用の参照画像として保存する

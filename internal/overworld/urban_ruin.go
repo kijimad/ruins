@@ -3,7 +3,6 @@ package overworld
 import (
 	"fmt"
 	"math/rand/v2"
-	"sort"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -97,84 +96,6 @@ var facilityCatalog = []struct {
 	{facilityLab, 3, 3},
 }
 
-// placeAnchor は家具を建物内のどこに置くかの意味。ランダム散布でなく「役割と位置の意味」で
-// 配置する。これが「店に見える／住居に見える」を生む。
-type placeAnchor uint8
-
-const (
-	anchorAlongWall placeAnchor = iota // 壁の内側に沿って
-	anchorNearDoor                     // 入口の内側の脇。レジ・受付
-	anchorAisle                        // 通路状に平行な棚の列
-	anchorCenter                       // 部屋の中央。机・卓
-	anchorCorner                       // 隅。ベッド・ロッカー
-)
-
-// furnishSpec は家具1種の配置規則。fill=true はそのアンカーの空きを埋め、false は1個置く。
-type furnishSpec struct {
-	name   string
-	anchor placeAnchor
-	fill   bool
-}
-
-// roomRole は部屋・エリアの意味。家具規則と戦利品を1つの概念で束ねる真実の源。
-// 役割を1つ決めれば置く家具も湧くアイテムも決まるので、家具と戦利品が食い違わない。
-type roomRole uint8
-
-const (
-	roleLiving      roomRole = iota // 居間
-	roleBedroom                     // 寝室
-	roleKitchen                     // キッチン・厨房
-	roleBathroom                    // トイレ・浴室
-	roleSalesFloor                  // 売場。レジ
-	roleAntiqueFloor                // 骨董品店の売場。武器を扱う
-	roleStoreroom                   // 倉庫・バックヤード
-	roleExam                        // 診察室
-	roleMachine                     // 機械室
-	roleOffice                      // 事務
-)
-
-// roleSpec は役割ごとの家具規則と戦利品。家具と戦利品を同じ役割から導くので不整合が出ない。
-type roleSpec struct {
-	furniture []furnishSpec // 何をどこに置くか
-	loot      string        // itemGroup 名。空なら戦利品なし
-	lootMax   int           // 部屋に湧く最大数
-}
-
-// roleSpecs は役割ごとの内装と戦利品。CDDA の mapgen が location に furniture と item_group を
-// 結ぶのを翻案する。戦利品が場所の意味と一致する。診察室に薬、キッチンに食料、骨董品店に武器。
-var roleSpecs = map[roomRole]roleSpec{
-	roleLiving:      {furniture: []furnishSpec{{"sofa", anchorAlongWall, false}, {"table", anchorCenter, false}, {"chair", anchorCenter, false}, {"tall_lamp", anchorCorner, false}}},
-	roleBedroom:     {furniture: []furnishSpec{{"bed", anchorCorner, false}, {"closet", anchorCorner, false}, {"drawer_chest", anchorAlongWall, false}}, loot: "素材類", lootMax: 1},
-	roleKitchen:     {furniture: []furnishSpec{{"sink", anchorAlongWall, false}, {"refrigerator", anchorAlongWall, false}, {"microwave", anchorAlongWall, false}, {"table", anchorCenter, false}}, loot: "食料", lootMax: 3},
-	roleBathroom:    {furniture: []furnishSpec{{"toilet", anchorCorner, false}, {"sink", anchorCorner, false}, {"bathtub", anchorAlongWall, false}}},
-	roleSalesFloor:  {furniture: []furnishSpec{{"register", anchorNearDoor, false}, {"goods_shelf", anchorAisle, true}}, loot: "食料", lootMax: 3},
-	roleAntiqueFloor: {furniture: []furnishSpec{{"register", anchorNearDoor, false}, {"artistic_shelf", anchorAlongWall, true}, {"book_showcase", anchorAlongWall, false}}, loot: "序盤近接武器", lootMax: 2},
-	roleStoreroom:   {furniture: []furnishSpec{{"crate", anchorAlongWall, true}, {"barrel", anchorCorner, false}}, loot: "素材類", lootMax: 4},
-	roleExam:        {furniture: []furnishSpec{{"bed", anchorAlongWall, true}, {"sink", anchorCorner, false}, {"electric_locker", anchorCorner, false}}, loot: "回復アイテム", lootMax: 2},
-	roleMachine:     {furniture: []furnishSpec{{"gauge_machine", anchorAlongWall, true}, {"generator_green", anchorCorner, false}, {"electric_locker", anchorCorner, false}}, loot: "素材類", lootMax: 2},
-	roleOffice:      {furniture: []furnishSpec{{"desk", anchorCenter, false}, {"desktop_pc", anchorCenter, false}, {"chair", anchorCenter, false}, {"bookshelf", anchorAlongWall, true}}},
-}
-
-// facilityRooms は施設が持つべき部屋の役割を宣言する。先頭の役割が入口を含む表の部屋になり、
-// 残りは大きさ順に続きを割り当てる。部屋数が役割数を超えたら末尾の役割を繰り返す。
-var facilityRooms = map[facilityKind][]roomRole{
-	facilityHouse:   {roleLiving, roleBedroom, roleKitchen, roleBathroom},
-	facilityStore:   {roleSalesFloor, roleStoreroom},
-	facilityOffice:  {roleOffice, roleStoreroom},
-	facilityDepot:   {roleStoreroom, roleStoreroom, roleOffice},
-	facilityAntique: {roleAntiqueFloor, roleStoreroom},
-	facilityClinic:  {roleExam, roleExam, roleStoreroom},
-	facilityLab:     {roleMachine, roleMachine, roleOffice},
-}
-
-// roomProgram は施設の部屋役割の並びを返す。未定義なら倉庫だけの無難な既定にする。
-func roomProgram(kind facilityKind) []roomRole {
-	if p, ok := facilityRooms[kind]; ok {
-		return p
-	}
-	return []roomRole{roleStoreroom}
-}
-
 // rollFacility は規模 gate を通った施設を重みで1つ抽選し、facilityCatalog の添字を返す。
 func rollFacility(rng *rand.Rand, span consts.Chunk) int {
 	total := 0
@@ -227,27 +148,27 @@ func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstrea
 		}
 	}
 
-	facility, size, _ := cityChunkInfo(runSeed, c, rows)
+	// 施設種別は地図(ChunkPlace)が使う。ここでは規模だけ敵配置に使う
+	_, size, _ := cityChunkInfo(runSeed, c, rows)
 	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
-	return renderCityChunk(world, g, chunkSeed, facility, size)
+	return renderCityChunk(world, g, chunkSeed, size)
 }
 
 // renderCityChunk は1チャンクに建物1棟を描き、規模に応じた敵を湧かせる。
-func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size consts.Chunk) error {
+func renderCityChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk) error {
 	rng := rand.New(rand.NewPCG(seed, 0x2))
-	isWall, err := drawCityBuilding(world, g, rng, facility)
+	isWall, err := drawCityBuilding(world, g, rng)
 	if err != nil {
 		return err
 	}
 	return spawnCityEnemies(world, g, rng, size, isWall)
 }
 
-// drawCityBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟を描く。建物は外周が壁・
-// 内側が床で、道路に面した見える扉を持ち、屋内は役割ベースで内装する。街路は隣接チャンクと
-// 連続して格子になる。壁判定の関数を返し、敵配置が壁マスを避けるのに使う。敵は含めないので、
-// 単独の建物サンプル生成からも呼べる。
-func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) (func(lx, ly consts.Tile) bool, error) {
+// drawCityBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟の殻を描く。建物は外周が壁・
+// 内側が床で、道路に面した見える扉を持つ。街路は隣接チャンクと連続して格子になる。内装は持たない。
+// 壁判定の関数を返し、敵配置が壁マスを避けるのに使う。
+func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, error) {
 	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
 
 	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る
@@ -258,29 +179,13 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 	bx := cityStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
 	by := cityStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
 
-	// 街路は各チャンクの北辺・西辺にあるので、扉は道路に面する北壁か西壁のどちらかに開ける。
-	// 向きは壁の走る方向で決める。東西に走る北壁の切れ目は Vertical、南北に走る西壁は Horizontal。
-	// door_planner の doorOrientation と同じ規約に合わせる
+	// 街路が北・西にあるので扉は道路に面する北壁か西壁に開ける。向きは壁の走る方向で決め、
+	// 東西に走る北壁の切れ目は Vertical、南北に走る西壁は Horizontal。door_planner と同じ規約
 	doorX, doorY := bx+1+consts.Tile(rng.IntN(int(bw-2))), by
 	doorOrient := gc.DoorOrientationVertical
 	if rng.IntN(2) == 0 {
 		doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))
 		doorOrient = gc.DoorOrientationHorizontal
-	}
-
-	// 屋内を部屋に分割し、仕切り壁とドアを得る。大部屋を廊下と部屋に割る文法(レバーB)
-	interior := rrect{x0: bx + 1, y0: by + 1, x1: bx + bw - 2, y1: by + bh - 2}
-	rooms, walls := subdivideBuilding(rng, interior)
-	internalWall := map[consts.Coord[consts.Tile]]bool{}
-	for _, seg := range walls {
-		for x := seg.x0; x <= seg.x1; x++ {
-			for y := seg.y0; y <= seg.y1; y++ {
-				if x == seg.doorX && y == seg.doorY {
-					continue // 部屋をつなぐドアの開口
-				}
-				internalWall[consts.Coord[consts.Tile]{X: x, Y: y}] = true
-			}
-		}
 	}
 
 	inBuilding := func(lx, ly consts.Tile) bool {
@@ -291,10 +196,7 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 			return false
 		}
 		perimeter := lx == bx || lx == bx+bw-1 || ly == by || ly == by+bh-1
-		if perimeter {
-			return lx != doorX || ly != doorY
-		}
-		return internalWall[consts.Coord[consts.Tile]{X: lx, Y: ly}]
+		return perimeter && (lx != doorX || ly != doorY)
 	}
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
@@ -305,7 +207,7 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 			case isWall(lx, ly):
 				name = consts.TileNameDWall
 			case inBuilding(lx, ly):
-				name = consts.TileNameFloor // 屋内・出入口・部屋をつなぐドア
+				name = consts.TileNameFloor // 屋内・出入口
 			}
 			if name == "" {
 				continue // 前庭・空き地は土のまま残す
@@ -315,194 +217,11 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 			}
 		}
 	}
-
-	// 入口の内側マス。この部屋を「表」として施設の先頭の役割を割り当てる
-	dinX, dinY := doorX, doorY+1
-	if doorX == bx {
-		dinX, dinY = doorX+1, doorY
-	}
-	kind := facilityCatalog[facility].kind
-	roles := assignRoomRoles(rooms, roomProgram(kind), dinX, dinY)
-	for i, room := range rooms {
-		isEntrance := room.contains(dinX, dinY)
-		if err := furnishRoom(world, g, rng, roleSpecs[roles[i]], room, dinX, dinY, isEntrance); err != nil {
-			return nil, err
-		}
-	}
 	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
 	if _, err := lifecycle.SpawnDoor(world, g.offsetX+doorX, g.offsetY+doorY, doorOrient); err != nil {
 		return nil, fmt.Errorf("市街地の扉配置に失敗: %w", err)
 	}
 	return isWall, nil
-}
-
-// cityMinRoom は部屋の最小の一辺。これを下回る幅には割らない。
-const cityMinRoom consts.Tile = 3
-
-// cityRoomDepth は部屋分割の再帰段数。1建物で最大 2^depth 部屋になる。
-const cityRoomDepth = 2
-
-// assignRoomRoles は部屋一覧に施設の役割を割り当てる。入口を含む部屋に program の先頭
-// (居間・売場など表の役割)、残りは大きさ降順に program の続きを当てる。部屋数が役割数を
-// 超えたら末尾の役割を繰り返す。戻り値は rooms と同じ順の役割。
-func assignRoomRoles(rooms []rrect, program []roomRole, dinX, dinY consts.Tile) []roomRole {
-	roles := make([]roomRole, len(rooms))
-	// 入口の部屋を先に確定する
-	entrance := -1
-	for i, r := range rooms {
-		if r.contains(dinX, dinY) {
-			entrance = i
-			break
-		}
-	}
-	role := func(k int) roomRole {
-		if k >= len(program) {
-			k = len(program) - 1
-		}
-		return program[k]
-	}
-	if entrance >= 0 {
-		roles[entrance] = role(0)
-	}
-	// 残りを大きさ降順に並べ、program の 1 以降を順に当てる
-	rest := make([]int, 0, len(rooms))
-	for i := range rooms {
-		if i != entrance {
-			rest = append(rest, i)
-		}
-	}
-	sort.SliceStable(rest, func(a, b int) bool {
-		return int(rooms[rest[a]].width())*int(rooms[rest[a]].height()) > int(rooms[rest[b]].width())*int(rooms[rest[b]].height())
-	})
-	for k, idx := range rest {
-		roles[idx] = role(k + 1)
-	}
-	return roles
-}
-
-// furnishRoom は1部屋を役割ベースで内装し、役割に応じた戦利品を床へ置く。ランダム散布でなく、
-// 家具ごとに定めた位置の意味(壁沿い・入口脇・通路・中央・隅)に従う。isEntrance が真の部屋だけ
-// レジ・受付を入口脇に置く。入口の内側1マスは通行のため空ける。すべて決定的な手続き。
-func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, spec roleSpec, room rrect, dinX, dinY consts.Tile, isEntrance bool) error {
-	ix0, iy0, ix1, iy1 := room.x0, room.y0, room.x1, room.y1
-	if ix1 < ix0 || iy1 < iy0 {
-		return nil
-	}
-	occupied := map[consts.Coord[consts.Tile]]bool{}
-	if isEntrance {
-		occupied[consts.Coord[consts.Tile]{X: dinX, Y: dinY}] = true // 入口の導線を空ける
-	}
-
-	place := func(name string, x, y consts.Tile) (bool, error) {
-		if x < ix0 || x > ix1 || y < iy0 || y > iy1 {
-			return false, nil
-		}
-		p := consts.Coord[consts.Tile]{X: x, Y: y}
-		if occupied[p] {
-			return false, nil
-		}
-		occupied[p] = true
-		if _, err := lifecycle.SpawnProp(world, name, g.offsetX+x, g.offsetY+y); err != nil {
-			return false, fmt.Errorf("市街地の内装配置に失敗 (%s): %w", name, err)
-		}
-		return true, nil
-	}
-
-	for _, s := range spec.furniture {
-		if s.anchor == anchorNearDoor && !isEntrance {
-			continue // レジ・受付は入口のある表の部屋だけ
-		}
-		cells := anchorCells(s.anchor, ix0, iy0, ix1, iy1, dinX, dinY, rng)
-		for _, c := range cells {
-			ok, err := place(s.name, c.X, c.Y)
-			if err != nil {
-				return err
-			}
-			if ok && !s.fill {
-				break // 1個置いたら次の家具へ
-			}
-		}
-	}
-	return spawnRoomLoot(world, g, rng, spec, ix0, iy0, ix1, iy1, occupied)
-}
-
-// spawnRoomLoot は役割の戦利品を、家具の無い床マスへ最大 lootMax 個置く。役割が場所の意味を
-// 持つので、診察室に薬、キッチンに食料、骨董品店に武器、と探索の報酬が場所と一致する。
-func spawnRoomLoot(world w.World, g chunkGeom, rng *rand.Rand, spec roleSpec, ix0, iy0, ix1, iy1 consts.Tile, occupied map[consts.Coord[consts.Tile]]bool) error {
-	if spec.loot == "" || spec.lootMax <= 0 {
-		return nil
-	}
-	var free []consts.Coord[consts.Tile]
-	for y := iy0; y <= iy1; y++ {
-		for x := ix0; x <= ix1; x++ {
-			if !occupied[consts.Coord[consts.Tile]{X: x, Y: y}] {
-				free = append(free, consts.Coord[consts.Tile]{X: x, Y: y})
-			}
-		}
-	}
-	for range spec.lootMax {
-		if len(free) == 0 {
-			break
-		}
-		pick := rng.IntN(len(free))
-		cell := free[pick]
-		free[pick] = free[len(free)-1]
-		free = free[:len(free)-1]
-		name, err := raw.SelectItemFromGroup(world.Resources.RawMaster, spec.loot, rng)
-		if err != nil {
-			return fmt.Errorf("市街地の戦利品抽選に失敗 (%s): %w", spec.loot, err)
-		}
-		if _, err := lifecycle.SpawnFieldItem(world, name, g.offsetX+cell.X, g.offsetY+cell.Y, 1); err != nil {
-			return fmt.Errorf("市街地の戦利品配置に失敗 (%s): %w", name, err)
-		}
-	}
-	return nil
-}
-
-// anchorCells はアンカーの意味に対応する屋内の候補マスを、置く順に返す。
-// 内寸は [ix0,ix1]×[iy0,iy1] の閉区間。din は入口内側で、通路として避ける。
-func anchorCells(a placeAnchor, ix0, iy0, ix1, iy1, dinX, dinY consts.Tile, rng *rand.Rand) []consts.Coord[consts.Tile] {
-	pt := func(x, y consts.Tile) consts.Coord[consts.Tile] { return consts.Coord[consts.Tile]{X: x, Y: y} }
-	switch a {
-	case anchorCorner:
-		// 4隅。順序を seed で回して建物ごとに散らす
-		cs := []consts.Coord[consts.Tile]{pt(ix0, iy0), pt(ix1, iy0), pt(ix0, iy1), pt(ix1, iy1)}
-		rng.Shuffle(len(cs), func(i, j int) { cs[i], cs[j] = cs[j], cs[i] })
-		return cs
-	case anchorNearDoor:
-		// 入口内側の左右。レジ・受付を入口脇に置く
-		return []consts.Coord[consts.Tile]{pt(dinX-1, dinY), pt(dinX+1, dinY), pt(dinX, dinY+1)}
-	case anchorCenter:
-		var cs []consts.Coord[consts.Tile]
-		for y := iy0 + 1; y <= iy1-1; y++ {
-			for x := ix0 + 1; x <= ix1-1; x++ {
-				cs = append(cs, pt(x, y))
-			}
-		}
-		return cs
-	case anchorAisle:
-		// 1列おきに棚の列を作り、間を通路として空ける。壁から1マス空けて圧迫を避ける
-		var cs []consts.Coord[consts.Tile]
-		for x := ix0 + 1; x <= ix1-1; x += 2 {
-			for y := iy0; y <= iy1; y++ {
-				cs = append(cs, pt(x, y))
-			}
-		}
-		return cs
-	default: // anchorAlongWall
-		// 内寸の外周リングを一周。壁沿いに家具を並べる
-		var cs []consts.Coord[consts.Tile]
-		for x := ix0; x <= ix1; x++ {
-			cs = append(cs, pt(x, iy0))
-		}
-		for x := ix0; x <= ix1; x++ {
-			cs = append(cs, pt(x, iy1))
-		}
-		for y := iy0 + 1; y <= iy1-1; y++ {
-			cs = append(cs, pt(ix0, y), pt(ix1, y))
-		}
-		return cs
-	}
 }
 
 // spawnCityEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから

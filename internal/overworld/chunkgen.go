@@ -2,7 +2,6 @@ package overworld
 
 import (
 	"fmt"
-	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -12,33 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/world/stage"
 	"github.com/kijimaD/ruins/internal/worldstream"
 )
-
-// FacilitySampleCount は生成/選別ツールで扱える施設種別の数を返す。
-func FacilitySampleCount() int { return len(facilityCatalog) }
-
-// FacilitySampleName は施設種別 i の名前を返す。ギャラリーの見出しなどに使う。
-func FacilitySampleName(i int) string { return facilityGlyphs[facilityCatalog[i].kind].Name }
-
-// GenerateSampleBuilding は施設 i の建物候補を1棟だけ、(offsetX, offsetY) を左上に
-// chunkW×chunkH で world へ生成する。地形の土を敷いてから建物を重ね、オートタイルを揃える。
-// 敵は含めない。生成＆選別パイプラインの段1(生成)を単独で呼べるようにし、候補を並べて
-// 目視選別するために使う。
-func GenerateSampleBuilding(world w.World, i int, seed uint64, chunkW, chunkH, offsetX, offsetY consts.Tile, planner mapplanner.PlannerType) error {
-	plan, err := mapplanner.Plan(world, chunkW, chunkH, seed, planner)
-	if err != nil {
-		return fmt.Errorf("サンプル地形の生成に失敗: %w", err)
-	}
-	if _, err := mapspawner.SpawnAt(world, plan, offsetX, offsetY); err != nil {
-		return fmt.Errorf("サンプル地形の配置に失敗: %w", err)
-	}
-	rng := rand.New(rand.NewPCG(seed, 0x2))
-	g := chunkGeom{offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH}
-	if _, err := drawCityBuilding(world, g, rng, i); err != nil {
-		return err
-	}
-	RecalcAutotileInXRange(world, offsetX, offsetX+chunkW)
-	return nil
-}
 
 // ChunkSeed2D は runSeed とチャンク座標 (cx, cy) から決定的なチャンク seed を導く。
 // cx と cy を異なる奇数定数で混ぜてから splitmix64 系で撹拌し、隣接や転置の座標でも
