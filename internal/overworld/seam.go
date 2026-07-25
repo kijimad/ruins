@@ -11,7 +11,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// RecalcSeamAutotile はチャンク境界 x=boundaryX をまたぐ2列のタイルのオートタイルを、
+// RecalcSeamAutotileX はチャンク境界 x=boundaryX をまたぐ2列のタイルのオートタイルを、
 // 両チャンクの実タイルのエンティティを見て再計算する。
 //
 // チャンクは独立生成されるため、生成時は境界列の隣を void 扱いして端スプライトになり、
@@ -22,12 +22,12 @@ import (
 // 境界の両側にタイルが揃っている「内部境界」だけを処理する。片側が空なら何もしない。帯の最西端・
 // 最東端で隣チャンクが無い場合が該当する。これにより呼び出し側は東西どちらの境界かを気にせず
 // 両境界を無条件に呼べる。東シフトは西境界、西シフトは東境界が実境界になる。
-func RecalcSeamAutotile(world w.World, boundaryX consts.Tile) {
+func RecalcSeamAutotileX(world w.World, boundaryX consts.Tile) {
 	recalcSeamAutotileAlong(world, boundaryX, func(g gc.GridElement) consts.Tile { return g.X })
 }
 
 // RecalcSeamAutotileY はチャンク境界 y=boundaryY をまたぐ2行のタイルのオートタイルを再計算する。
-// RecalcSeamAutotile の縦境界版で、boundaryY-1 が北チャンク南端、boundaryY が南チャンク北端。
+// RecalcSeamAutotileX の南北版で、boundaryY-1 が北チャンク南端、boundaryY が南チャンク北端。
 // 境界の両側にタイルが揃っている内部境界だけを処理し、帯の最上端・最下端では自己スキップする。
 // 呼び出し側は上下どちらの境界かを気にせず両境界を無条件に呼べる。
 func RecalcSeamAutotileY(world w.World, boundaryY consts.Tile) {
@@ -65,7 +65,7 @@ func RecalcAutotileInXRange(world w.World, loX, hiX consts.Tile) {
 
 // recalcSeamAutotileAlong は境界をまたぐ2ラインのオートタイル再計算の共通実装。
 // axis が返す座標軸に沿って boundary-1 と boundary の2ラインを対象にする。
-// 横境界なら axis は X を、縦境界なら Y を返す。
+// x 境界(東西チャンク間)なら axis は X を、y 境界(南北チャンク間)なら Y を返す。
 func recalcSeamAutotileAlong(world w.World, boundary consts.Tile, axis func(g gc.GridElement) consts.Tile) {
 	// 境界周辺の boundary-2..boundary+1 のタイルを位置引きできるよう集める。
 	// 再計算対象の両隣 boundary-2 と boundary+1 まで含める

@@ -54,10 +54,10 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 		stage.Bind(world, gc.NewOverworldStage())
 		// このチャンクの両境界を接合後に再計算して継ぎ目を消す。
 		// 東シフトでは西境界の offsetX、西シフトでは東境界の offsetX+chunkW が実境界になる。
-		// RecalcSeamAutotile は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。
-		RecalcSeamAutotile(world, offsetX)
-		RecalcSeamAutotile(world, offsetX+chunkW)
-		// 縦境界も同様に再計算する。行が1つの帯では上下とも帯端なので自己スキップされる
+		// RecalcSeamAutotileX は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。
+		RecalcSeamAutotileX(world, offsetX)
+		RecalcSeamAutotileX(world, offsetX+chunkW)
+		// 南北境界も同様に再計算する。行が1つの帯では上下とも帯端なので自己スキップされる
 		RecalcSeamAutotileY(world, offsetY)
 		RecalcSeamAutotileY(world, offsetY+chunkH)
 		return nil

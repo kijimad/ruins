@@ -48,10 +48,10 @@ func TestChunkGen_継ぎ目は生成順に依存しない(t *testing.T) {
 	}
 }
 
-// TestRecalcSeamAutotile_帯端は自己スキップ は、境界の片側にしかタイルが無い（帯の最端で
-// 隣チャンクが無い）とき RecalcSeamAutotile が何もしないことを固定する。これにより呼び出し側は
+// TestRecalcSeamAutotileX_帯端は自己スキップ は、境界の片側にしかタイルが無い（帯の最端で
+// 隣チャンクが無い）とき RecalcSeamAutotileX が何もしないことを固定する。これにより呼び出し側は
 // 東西どちらの境界かを気にせず両境界を無条件に呼べる。
-func TestRecalcSeamAutotile_帯端は自己スキップ(t *testing.T) {
+func TestRecalcSeamAutotileX_帯端は自己スキップ(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -67,7 +67,7 @@ func TestRecalcSeamAutotile_帯端は自己スキップ(t *testing.T) {
 	}
 	before := spriteKeyAt(t, world, boundaryX, 5)
 
-	overworld.RecalcSeamAutotile(world, boundaryX)
+	overworld.RecalcSeamAutotileX(world, boundaryX)
 
 	after := spriteKeyAt(t, world, boundaryX, 5)
 	assert.Equal(t, before, after, "片側が空の帯端では再計算せず SpriteKey を変えない")
@@ -88,10 +88,10 @@ func spriteKeyAtOrEmpty(world w.World, x, y consts.Tile) string {
 	return ""
 }
 
-// TestRecalcSeamAutotile は境界2列のオートタイルが接合後に隣チャンクを見て再計算されることを固定する。
+// TestRecalcSeamAutotileX は境界2列のオートタイルが接合後に隣チャンクを見て再計算されることを固定する。
 // 境界を跨いで dirt を敷き、端スプライト(_0)で生成した後に再計算すると、近傍がすべて dirt なので
 // 全方向接続(_15)になる。
-func TestRecalcSeamAutotile(t *testing.T) {
+func TestRecalcSeamAutotileX(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -107,7 +107,7 @@ func TestRecalcSeamAutotile(t *testing.T) {
 		}
 	}
 
-	overworld.RecalcSeamAutotile(world, boundaryX)
+	overworld.RecalcSeamAutotileX(world, boundaryX)
 
 	// 境界タイル (boundaryX-1, 5) と (boundaryX, 5) は4近傍すべて dirt なので _15 になる
 	for _, bx := range []consts.Tile{boundaryX - 1, boundaryX} {
@@ -117,7 +117,7 @@ func TestRecalcSeamAutotile(t *testing.T) {
 	}
 }
 
-// TestRecalcSeamAutotileY は縦境界2行のオートタイルが接合後に隣チャンクを見て再計算されることを固定する。
+// TestRecalcSeamAutotileY は南北境界2行のオートタイルが接合後に隣チャンクを見て再計算されることを固定する。
 func TestRecalcSeamAutotileY(t *testing.T) {
 	t.Parallel()
 

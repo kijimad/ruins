@@ -303,4 +303,3 @@ func TestBresenhamLineOfSight(t *testing.T) {
 		assert.True(t, bresenhamLineOfSight(5, 5, 5, 6, blockIndex))
 	})
 }
-
