@@ -30,28 +30,53 @@ var facilityGlyphs = map[facilityKind]GlyphInfo{
 	facilityLab:     {'L', "研究施設"},
 }
 
-// 地物レベルの記号と凡例名。1チャンクを1文字で表す。記号と名前を1箇所で定義し UI と共有する
-// ため公開する。施設レベルは facilityGlyphs が持つ。Go は const で構造体を持てないので var にする。
-var (
-	GlyphField   = GlyphInfo{'.', "荒れ地"}
-	GlyphVillage = GlyphInfo{'T', "村"}
-	GlyphHamlet  = GlyphInfo{'t', "一軒家"}
-	GlyphRuin    = GlyphInfo{'>', "遺跡入口"}
-	GlyphPOI     = GlyphInfo{'*', "点在POI"}
-	GlyphUnknown = GlyphInfo{'?', "未分類"}
+// featureKind は地物レベルの種別。施設の facilityKind と対になる分類で、記号と凡例名を
+// featureGlyphs から引くためのキーにする。chunkType とは1対1ではない。chunkSettlement は
+// 村ロールで featureVillage と featureHamlet に分かれ、chunkUrban は施設記号を使うのでここには無い。
+type featureKind uint8
+
+const (
+	featureField   featureKind = iota // 荒れ地
+	featureVillage                    // 村
+	featureHamlet                     // 一軒家
+	featureRuin                       // 遺跡入口
+	featurePOI                        // 点在POI
+	featureUnknown                    // 分類漏れの保険。凡例には出さない
 )
 
-// featureGlyphs は地物レベルの記号を表示順で並べる。GlyphUnknown は分類漏れの保険なので凡例に出さない。
-var featureGlyphs = []GlyphInfo{GlyphField, GlyphVillage, GlyphHamlet, GlyphRuin, GlyphPOI}
+// featureGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に
+// 集約する。UI の着色や凡例はこれ1つを源にし、記号や名前を別の箇所へ直書きしない。
+var featureGlyphs = map[featureKind]GlyphInfo{
+	featureField:   {'.', "荒れ地"},
+	featureVillage: {'T', "村"},
+	featureHamlet:  {'t', "一軒家"},
+	featureRuin:    {'>', "遺跡入口"},
+	featurePOI:     {'*', "点在POI"},
+	featureUnknown: {'?', "未分類"},
+}
+
+// featureOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
+// featureUnknown は分類漏れの保険なので凡例には含めない。
+var featureOrder = []featureKind{featureField, featureVillage, featureHamlet, featureRuin, featurePOI}
 
 // LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
 // SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。
 func LegendGlyphs() []GlyphInfo {
-	return append(slices.Clone(featureGlyphs), FacilityGlyphs()...)
+	return append(FeatureGlyphs(), FacilityGlyphs()...)
+}
+
+// FeatureGlyphs は地物種別の記号と名前を表示順で返す。UI の凡例や着色で使う。FacilityGlyphs と対で、
+// 施設側と同じ形で地物種別を扱えるようにする。分類漏れの保険 featureUnknown は含めない。
+func FeatureGlyphs() []GlyphInfo {
+	out := make([]GlyphInfo, 0, len(featureOrder))
+	for _, k := range featureOrder {
+		out = append(out, featureGlyphs[k])
+	}
+	return out
 }
 
 // FacilityGlyphs は施設種別の文字と名前を種別順で返す。UI の凡例や着色で建物を種別ごとに
-// 扱うために使う。地物レベルの記号は Glyph 定数を直接参照する。
+// 扱うために使う。地物レベルの記号は FeatureGlyphs が対で返す。
 func FacilityGlyphs() []GlyphInfo {
 	kinds := make([]facilityKind, 0, len(facilityGlyphs))
 	for k := range facilityGlyphs {
@@ -124,20 +149,20 @@ func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk)
 		if g, ok := facilityGlyphs[kind]; ok {
 			return g.Label
 		}
-		return GlyphUnknown.Label
+		return featureGlyphs[featureUnknown].Label
 	case chunkRuinEntrance:
-		return GlyphRuin.Label
+		return featureGlyphs[featureRuin].Label
 	case chunkSettlement:
 		if settlementVillageRoll(runSeed, c) {
-			return GlyphVillage.Label
+			return featureGlyphs[featureVillage].Label
 		}
-		return GlyphHamlet.Label
+		return featureGlyphs[featureHamlet].Label
 	case chunkPOI:
-		return GlyphPOI.Label
+		return featureGlyphs[featurePOI].Label
 	case chunkWasteland:
-		return GlyphField.Label
+		return featureGlyphs[featureField].Label
 	}
-	return GlyphUnknown.Label
+	return featureGlyphs[featureUnknown].Label
 }
 
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。

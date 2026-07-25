@@ -47,8 +47,9 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 
 // マップ描画の寸法。1チャンクを1セルで描く。
 const (
-	mapCellPx    = 22 // 1チャンクのセルの一辺ピクセル
-	mapContextCh = 6  // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
+	mapCellPx    = 22  // 1チャンクのセルの一辺ピクセル
+	mapContextCh = 6   // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
+	fieldGlyph   = '.' // 荒れ地の記号。overworld 側の featureField と同じ。荒れ地は色だけで文字を重ねない
 )
 
 // OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため
@@ -119,7 +120,7 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			y := originY + row*mapCellPx
 			vector.FillRect(screen, float32(x), float32(y), mapCellPx-1, mapCellPx-1, glyphColor(r), false)
 			// 原野以外は種別の文字を重ねて、色だけでなく記号でも読めるようにする
-			if r != overworld.GlyphField.Label {
+			if r != fieldGlyph {
 				drawText(string(r), x+5, y+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
 			}
 		}
@@ -162,16 +163,26 @@ var facilityPalette = map[rune]color.RGBA{
 	'L': {R: 160, G: 106, B: 208, A: 255}, // 研究施設 紫
 }
 
+// featurePalette は地物記号から色への対応。facilityPalette と同じく記号そのものをキーにして、
+// overworld 側の featureKind の並びに依存させない。色の無い記号は glyphColor の既定へ落ちる。
+var featurePalette = map[rune]color.RGBA{
+	'.': {R: 46, G: 59, B: 46, A: 255},    // 荒れ地 暗緑
+	'T': {R: 255, G: 210, B: 74, A: 255},  // 村 黄
+	't': {R: 208, G: 168, B: 58, A: 255},  // 一軒家 濃黄
+	'>': {R: 224, G: 69, B: 58, A: 255},   // 遺跡入口 赤
+	'*': {R: 111, G: 191, B: 111, A: 255}, // 点在POI 緑
+}
+
 // glyphColorTable は文字から色への対応。init で地物と施設の色を1つの表にまとめる。
 var glyphColorTable = map[rune]color.RGBA{}
 
 func init() {
-	glyphColorTable[overworld.GlyphField.Label] = color.RGBA{R: 46, G: 59, B: 46, A: 255}
-	glyphColorTable[overworld.GlyphVillage.Label] = color.RGBA{R: 255, G: 210, B: 74, A: 255}
-	glyphColorTable[overworld.GlyphHamlet.Label] = color.RGBA{R: 208, G: 168, B: 58, A: 255}
-	glyphColorTable[overworld.GlyphRuin.Label] = color.RGBA{R: 224, G: 69, B: 58, A: 255}
-	glyphColorTable[overworld.GlyphPOI.Label] = color.RGBA{R: 111, G: 191, B: 111, A: 255}
-	// 記号キーで引くので FacilityGlyphs() の順序に依存しない。色の無い施設は glyphColor の既定へ落ちる
+	// 記号キーで引くので overworld 側の並び順に依存しない。色の無い記号は glyphColor の既定へ落ちる
+	for _, g := range overworld.FeatureGlyphs() {
+		if c, ok := featurePalette[g.Label]; ok {
+			glyphColorTable[g.Label] = c
+		}
+	}
 	for _, g := range overworld.FacilityGlyphs() {
 		if c, ok := facilityPalette[g.Label]; ok {
 			glyphColorTable[g.Label] = c
