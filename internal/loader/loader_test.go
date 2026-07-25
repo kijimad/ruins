@@ -173,17 +173,10 @@ var externallyReferencedSprites = []string{
 	"door_horizontal_open", "door_vertical_closed", "door_vertical_open",
 }
 
-// knownOrphanSprites は現状 raw からも Go からも参照されない既存スプライト。整理の候補。
-// 新規孤児の混入を防ぐためグランドファザリングする。使うか消すか決めたらここから外す。
-var knownOrphanSprites = []string{
-	"angel", "big_tree", "cake", "chiken", "corn", "cup_tea", "fried_chiken",
-	"grape_soda", "green_soda", "hawai_soda", "hdd", "lemon_soda", "mint",
-	"octahedron", "pepper", "phonograph", "rainbow_ball", "role", "salmon",
-	"tree_a", "tree_b", "violet_card",
-	"warp_escape_0", "warp_escape_1", "warp_escape_2", "warp_escape_3", "warp_escape_4",
-	"warp_escape_5", "warp_escape_6", "warp_escape_7", "warp_escape_8", "warp_escape_9",
-	"warp_escape_10", "warp_escape_11", "warp_escape_12", "warp_escape_13", "warp_escape_14", "warp_escape_15",
-}
+// knownOrphanSprites は raw からも Go からも参照されない既存スプライトの逃げ道。
+// 現状はゼロ。かつての未参照スプライトは全て raw.toml へ登録済みで孤児は無い。
+// やむを得ず孤児化したものだけをここに載せ、原則は空を保つ。
+var knownOrphanSprites = []string{}
 
 // TestSpriteOrphan は field/tile シートの全スプライトが raw から参照されることを検証する。
 // 参照とは spriteKey の直接一致、animKeys、オートタイル(base_N の base が key)、

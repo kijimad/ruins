@@ -14739,3 +14739,318 @@ water = 0
 depth = 0
 spriteKey = "plank_blue"
 spriteSheetName = "tile"
+
+# === 既存スプライトの登録: 従来 raw 未登録だった single シートのスプライトを wire する ===
+# 孤児検査 TestSpriteOrphan の knownOrphanSprites を解消するため、絵に合わせて分類し定義した
+
+[[items]]
+description = "茶色いカップに入った焼き菓子。上に濃い茶色のクリームが渦を巻いて絞られている"
+name = "カップケーキ"
+providesNutrition = 20
+spriteKey = "cake"
+spriteSheetName = "field"
+stackable = true
+value = 20
+weight = "150 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "白い羽毛の鶏。赤いとさかと黄色いくちばしを持つ。食材になる"
+name = "鶏"
+providesNutrition = 30
+spriteKey = "chiken"
+spriteSheetName = "field"
+stackable = true
+value = 40
+weight = "1500 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "黄色く実った細長い穀物の穂"
+name = "とうもろこし"
+providesNutrition = 15
+spriteKey = "corn"
+spriteSheetName = "field"
+stackable = true
+value = 12
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "白い受け皿に乗った紅茶のカップ。琥珀色の液体が入る"
+name = "紅茶"
+providesNutrition = 10
+spriteKey = "cup_tea"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "250 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "きつね色に揚がった鶏肉。表面に衣の凹凸がある"
+name = "からあげ"
+providesNutrition = 30
+spriteKey = "fried_chiken"
+spriteSheetName = "field"
+stackable = true
+value = 30
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "紫色の缶に入った炭酸飲料。側面に白い文字のラベル"
+name = "グレープソーダ"
+providesNutrition = 15
+spriteKey = "grape_soda"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "緑色の瓶に入った炭酸飲料"
+name = "グリーンソーダ"
+providesNutrition = 15
+spriteKey = "green_soda"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "青いトロピカルドリンク。グラスにストローが挿さる"
+name = "ハワイアンソーダ"
+providesNutrition = 15
+spriteKey = "hawai_soda"
+spriteSheetName = "field"
+stackable = true
+value = 18
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "黄色いパッケージの炭酸飲料"
+name = "レモンソーダ"
+providesNutrition = 15
+spriteKey = "lemon_soda"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "鮮やかな緑色のミントの葉"
+name = "ミント"
+providesNutrition = 5
+spriteKey = "mint"
+spriteSheetName = "field"
+stackable = true
+value = 8
+weight = "50 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "赤く細長い唐辛子。先が尖る"
+name = "とうがらし"
+providesNutrition = 5
+spriteKey = "pepper"
+spriteSheetName = "field"
+stackable = true
+value = 10
+weight = "50 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "橙色の身に白い脂の筋が入るサーモンの切り身"
+name = "サーモン"
+providesNutrition = 25
+spriteKey = "salmon"
+spriteSheetName = "field"
+stackable = true
+value = 35
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "海苔で巻いた寿司。二切れが並ぶ"
+name = "巻き寿司"
+providesNutrition = 25
+spriteKey = "role"
+spriteSheetName = "field"
+stackable = true
+value = 30
+weight = "150 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "灰色の外付けハードディスク。前面に小さな表示ランプが灯る"
+name = "ハードディスク"
+spriteKey = "hdd"
+spriteSheetName = "field"
+stackable = true
+value = 50
+weight = "300 g"
+material = true
+
+[[items]]
+description = "紫色の携帯端末。前面に小さな画面とボタンが並ぶ"
+name = "携帯端末"
+spriteKey = "violet_card"
+spriteSheetName = "field"
+stackable = true
+value = 80
+weight = "150 g"
+
+[[items]]
+description = "青く輝く八面体の結晶。鋭い面が光を反射する"
+name = "八面体の結晶"
+spriteKey = "octahedron"
+spriteSheetName = "field"
+stackable = true
+value = 100
+weight = "200 g"
+material = true
+
+[[items]]
+description = "表面が虹色に発光する球体"
+name = "虹色の球"
+spriteKey = "rainbow_ball"
+spriteSheetName = "field"
+stackable = true
+value = 100
+weight = "200 g"
+
+[[items]]
+description = "白い翼を広げた天使をかたどった像"
+name = "天使像"
+spriteKey = "angel"
+spriteSheetName = "field"
+stackable = true
+value = 60
+weight = "500 g"
+
+[[props]]
+blockPass = true
+blockView = true
+description = "こんもりと葉を茂らせた大きな緑の木"
+hp = 30
+name = "big_tree"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "big_tree"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "葉を落とし枝を広げた木"
+hp = 20
+name = "tree_a"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "tree_a"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = true
+description = "緑の葉を茂らせた木"
+hp = 20
+name = "tree_b"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "tree_b"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "大きなラッパ型のホーンが付いた蓄音機。木製の台座に載る"
+hp = 10
+name = "phonograph"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "phonograph"
+spriteSheetName = "field"
+
+[[props]]
+animKeys = [ "warp_escape_0", "warp_escape_1", "warp_escape_2", "warp_escape_3", "warp_escape_4", "warp_escape_5", "warp_escape_6", "warp_escape_7", "warp_escape_8", "warp_escape_9", "warp_escape_10", "warp_escape_11", "warp_escape_12", "warp_escape_13", "warp_escape_14", "warp_escape_15" ]
+blockPass = false
+blockView = false
+description = "青白く明滅する魔法陣。淡い光の輪が脈打つように輝く"
+name = "warp_escape"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "warp_escape_0"
+spriteSheetName = "field"
+
+[props.lightSource]
+enabled = true
+radius = 2
+
+[props.lightSource.color]
+a = 200
+b = 255
+g = 200
+r = 100
