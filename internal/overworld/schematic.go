@@ -17,6 +17,15 @@ type GlyphInfo struct {
 	Name  string
 }
 
+// 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と
+// 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。
+//   - featureKind: チャンク尺度。市街地以外のチャンクを1記号で表す。荒れ地・村・一軒家・遺跡入口・
+//     点在POI。地図の表示専用で、生成には関与しない。
+//   - facilityKind: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
+//     市街地生成の重み抽選にも使う実体のあるドメイン型で、urban.go が持つ。
+// 地図は市街地チャンクを facilityKind の記号で、それ以外を featureKind の記号で描く。凡例 LegendGlyphs は
+// チャンク尺度に続けて建物尺度を並べ、2層を1つの表にする。
+
 // facilityGlyphs は施設種別の1文字表記。1マスに1文字で建物の種別を示す。
 // 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。
 var facilityGlyphs = map[facilityKind]GlyphInfo{
@@ -35,10 +44,10 @@ var facilityOrder = []facilityKind{
 	facilityHouse, facilityStore, facilityOffice, facilityDepot, facilityAntique, facilityClinic, facilityLab,
 }
 
-// featureKind は地物レベルの種別。施設の facilityKind と対になる分類で、記号と凡例名を
-// featureGlyphs から引くためのキーにする。chunkType とは1対1ではない。chunkSettlement は
-// 村ロールで featureVillage と featureHamlet に分かれ、chunkUrban は施設記号を使うのでここには無い。
-// 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
+// featureKind はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と
+// 凡例名を featureGlyphs から引くために使う。生成には関与しない。chunkType とは1対1ではない。
+// chunkSettlement は村ロールで featureVillage と featureHamlet に分かれ、chunkUrban は建物尺度の
+// facilityKind を使うのでここには無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。
 type featureKind string
 
 const (
