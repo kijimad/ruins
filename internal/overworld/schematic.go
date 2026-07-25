@@ -2,7 +2,6 @@ package overworld
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -30,18 +29,25 @@ var facilityGlyphs = map[facilityKind]GlyphInfo{
 	facilityLab:     {'L', "研究施設"},
 }
 
+// facilityOrder は凡例に出す施設種別を表示順で並べる。featureOrder と同じく、map は順序を持たない
+// ので順序だけ別に定義する。string 化で facilityKind は辞書順に落ちるため、表示順はここで固定する。
+var facilityOrder = []facilityKind{
+	facilityHouse, facilityStore, facilityOffice, facilityDepot, facilityAntique, facilityClinic, facilityLab,
+}
+
 // featureKind は地物レベルの種別。施設の facilityKind と対になる分類で、記号と凡例名を
 // featureGlyphs から引くためのキーにする。chunkType とは1対1ではない。chunkSettlement は
 // 村ロールで featureVillage と featureHamlet に分かれ、chunkUrban は施設記号を使うのでここには無い。
-type featureKind uint8
+// 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
+type featureKind string
 
 const (
-	featureField   featureKind = iota // 荒れ地
-	featureVillage                    // 村
-	featureHamlet                     // 一軒家
-	featureRuin                       // 遺跡入口
-	featurePOI                        // 点在POI
-	featureUnknown                    // 分類漏れの保険。凡例には出さない
+	featureField   featureKind = "field"    // 荒れ地
+	featureVillage featureKind = "village"   // 村
+	featureHamlet  featureKind = "hamlet"    // 一軒家
+	featureRuin    featureKind = "ruin"      // 遺跡入口
+	featurePOI     featureKind = "poi"       // 点在POI
+	featureUnknown featureKind = "unknown"   // 分類漏れの保険。凡例には出さない
 )
 
 // featureGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に
@@ -75,16 +81,11 @@ func FeatureGlyphs() []GlyphInfo {
 	return out
 }
 
-// FacilityGlyphs は施設種別の文字と名前を種別順で返す。UI の凡例や着色で建物を種別ごとに
+// FacilityGlyphs は施設種別の文字と名前を表示順で返す。UI の凡例や着色で建物を種別ごとに
 // 扱うために使う。地物レベルの記号は FeatureGlyphs が対で返す。
 func FacilityGlyphs() []GlyphInfo {
-	kinds := make([]facilityKind, 0, len(facilityGlyphs))
-	for k := range facilityGlyphs {
-		kinds = append(kinds, k)
-	}
-	slices.Sort(kinds)
-	out := make([]GlyphInfo, 0, len(kinds))
-	for _, k := range kinds {
+	out := make([]GlyphInfo, 0, len(facilityOrder))
+	for _, k := range facilityOrder {
 		out = append(out, facilityGlyphs[k])
 	}
 	return out
@@ -92,34 +93,16 @@ func FacilityGlyphs() []GlyphInfo {
 
 // chunkType は1チャンクの場所の種別。全チャンクがいずれか1つに分類され、暗黙の既定を持たない。
 // 特徴的な地物が当たらないチャンクは消極的な「残り」でなく、明示的に荒れ地に分類される。
-type chunkType uint8
+// 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。専用の String は要らない。
+type chunkType string
 
 const (
-	chunkWasteland    chunkType = iota // 荒れ地。特徴的な地物が無い開けた地形
-	chunkSettlement                    // 集落。村・一軒家
-	chunkUrban                         // 市街地。建物チャンク
-	chunkRuinEntrance                  // 遺跡入口
-	chunkPOI                           // 自然の点在POI
+	chunkWasteland    chunkType = "wasteland"     // 荒れ地。特徴的な地物が無い開けた地形
+	chunkSettlement   chunkType = "settlement"    // 集落。村・一軒家
+	chunkUrban        chunkType = "urban"         // 市街地。建物チャンク
+	chunkRuinEntrance chunkType = "ruin_entrance" // 遺跡入口
+	chunkPOI          chunkType = "poi"           // 自然の点在POI
 )
-
-// String は種別名を返す。%v や %s のデバッグ表示で数値でなく名前が出る。default を置かず、
-// 種別を1つ足すと網羅を linter が強制する。String は例外整形やログでも呼ばれうるので、未知値は
-// panic でなく数値付きの文字列へ graceful に落とす。
-func (t chunkType) String() string {
-	switch t {
-	case chunkWasteland:
-		return "Wasteland"
-	case chunkSettlement:
-		return "Settlement"
-	case chunkUrban:
-		return "Urban"
-	case chunkRuinEntrance:
-		return "RuinEntrance"
-	case chunkPOI:
-		return "POI"
-	}
-	return fmt.Sprintf("chunkType(%d)", uint8(t))
-}
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在POI > 荒れ地。地図も生成もこの分類を

@@ -87,18 +87,3 @@ func TestSchematicLegend_全ての施設種別を含む(t *testing.T) {
 		assert.Truef(t, strings.ContainsRune(legend, g.Label), "凡例に %s(%c) がある", g.Name, g.Label)
 	}
 }
-
-func TestChunkType_String(t *testing.T) {
-	t.Parallel()
-
-	for ct, want := range map[chunkType]string{
-		chunkWasteland:    "Wasteland",
-		chunkSettlement:   "Settlement",
-		chunkUrban:        "Urban",
-		chunkRuinEntrance: "RuinEntrance",
-		chunkPOI:          "POI",
-	} {
-		assert.Equal(t, want, ct.String())
-	}
-	assert.Equal(t, "chunkType(99)", chunkType(99).String(), "未知値は数値付きで graceful に落ちる")
-}

@@ -66,16 +66,17 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chu
 
 // facilityKind は建物の施設種別。規模で gate した重み付き抽選で決まり、内装の prop の差になる。
 // v1 は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
-type facilityKind uint8
+// 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
+type facilityKind string
 
 const (
-	facilityHouse   facilityKind = iota // 住宅
-	facilityStore                       // 商店
-	facilityOffice                      // 事務所
-	facilityDepot                       // 倉庫
-	facilityAntique                     // 骨董品店
-	facilityClinic                      // 診療所
-	facilityLab                         // 研究施設
+	facilityHouse   facilityKind = "house"   // 住宅
+	facilityStore   facilityKind = "store"   // 商店
+	facilityOffice  facilityKind = "office"  // 事務所
+	facilityDepot   facilityKind = "depot"   // 倉庫
+	facilityAntique facilityKind = "antique" // 骨董品店
+	facilityClinic  facilityKind = "clinic"  // 診療所
+	facilityLab     facilityKind = "lab"     // 研究施設
 )
 
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
@@ -173,7 +174,7 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityKind 
 func cityChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityKind, size consts.Chunk, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
-		return 0, 0, false
+		return "", 0, false
 	}
 	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
