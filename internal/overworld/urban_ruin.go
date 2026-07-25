@@ -86,15 +86,79 @@ var facilityCatalog = []struct {
 	kind    facilityKind
 	weight  int
 	minSpan consts.Chunk
-	props   []string
 }{
-	{facilityHouse, 40, 2, []string{"bed", "closet", "table", "refrigerator"}},
-	{facilityStore, 20, 2, []string{"register", "goods_shelf", "goods_shelf", "refrigerator"}},
-	{facilityOffice, 15, 2, []string{"desk", "desktop_pc", "chair", "bookshelf"}},
-	{facilityDepot, 15, 2, []string{"crate", "crate", "barrel", "iron_shelf"}},
-	{facilityAntique, 8, 3, []string{"artistic_shelf", "book_showcase", "黒い花瓶", "old_lamp"}},
-	{facilityClinic, 8, 3, []string{"bed", "bed", "sink", "ロッカー"}},
-	{facilityLab, 3, 3, []string{"gauge_machine", "generator_green", "electric_locker", "desktop_pc"}},
+	{facilityHouse, 40, 2},
+	{facilityStore, 20, 2},
+	{facilityOffice, 15, 2},
+	{facilityDepot, 15, 2},
+	{facilityAntique, 8, 3},
+	{facilityClinic, 8, 3},
+	{facilityLab, 3, 3},
+}
+
+// placeAnchor は家具を建物内のどこに置くかの意味。ランダム散布でなく「役割と位置の意味」で
+// 配置する。これが「店に見える／住居に見える」を生む。
+type placeAnchor uint8
+
+const (
+	anchorAlongWall placeAnchor = iota // 壁の内側に沿って
+	anchorNearDoor                     // 入口の内側の脇。レジ・受付
+	anchorAisle                        // 通路状に平行な棚の列
+	anchorCenter                       // 部屋の中央。机・卓
+	anchorCorner                       // 隅。ベッド・ロッカー
+)
+
+// furnishSpec は家具1種の配置規則。fill=true はそのアンカーの空きを埋め、false は1個置く。
+type furnishSpec struct {
+	name   string
+	anchor placeAnchor
+	fill   bool
+}
+
+// facilityFurnish は施設種別ごとの内装配置規則。完成マップでなく規則を authoring する。
+// 「レジは入口脇」「棚は通路状」という少数の規則が、無限の建物を店らしく見せる。
+var facilityFurnish = map[facilityKind][]furnishSpec{
+	facilityHouse: {
+		{"bed", anchorCorner, false},
+		{"closet", anchorCorner, false},
+		{"table", anchorCenter, false},
+		{"chair", anchorCenter, false},
+		{"refrigerator", anchorAlongWall, false},
+		{"sink", anchorAlongWall, false},
+	},
+	facilityStore: {
+		{"register", anchorNearDoor, false},
+		{"goods_shelf", anchorAisle, true},
+		{"refrigerator", anchorAlongWall, false},
+	},
+	facilityOffice: {
+		{"desk", anchorCenter, false},
+		{"desktop_pc", anchorCenter, false},
+		{"chair", anchorCenter, false},
+		{"bookshelf", anchorAlongWall, true},
+	},
+	facilityDepot: {
+		{"iron_shelf", anchorAisle, true},
+		{"crate", anchorAlongWall, false},
+		{"barrel", anchorCorner, false},
+	},
+	facilityAntique: {
+		{"register", anchorNearDoor, false},
+		{"artistic_shelf", anchorAlongWall, true},
+		{"book_showcase", anchorAlongWall, false},
+		{"黒い花瓶", anchorCorner, false},
+	},
+	facilityClinic: {
+		{"bed", anchorAlongWall, true},
+		{"sink", anchorCorner, false},
+		{"ロッカー", anchorCorner, false},
+	},
+	facilityLab: {
+		{"gauge_machine", anchorAlongWall, true},
+		{"electric_locker", anchorCorner, false},
+		{"generator_green", anchorCorner, false},
+		{"desktop_pc", anchorCenter, false},
+	},
 }
 
 // rollFacility は規模 gate を通った施設を重みで1つ抽選し、facilityCatalog の添字を返す。
@@ -209,7 +273,7 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size
 		}
 	}
 
-	if err := spawnBuildingProps(world, g, rng, facility, bx, by, bw, bh, doorX, doorY); err != nil {
+	if err := furnishRoom(world, g, rng, facilityCatalog[facility].kind, bx, by, bw, bh, doorX, doorY); err != nil {
 		return err
 	}
 	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
@@ -219,35 +283,96 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size
 	return spawnCityEnemies(world, g, rng, size, isWall)
 }
 
-// spawnBuildingProps は建物の屋内へ施設種別の内装 prop をまばらに置く。広い屋内を埋めるため
-// 内装候補を循環させ、空きマスに面積比例で配置する。出入口の直上は導線として空ける。
-func spawnBuildingProps(world w.World, g chunkGeom, rng *rand.Rand, facility int, bx, by, bw, bh, doorX, doorY consts.Tile) error {
-	type cell struct{ x, y consts.Tile }
-	var free []cell
-	for ly := by + 1; ly < by+bh-1; ly++ {
-		for lx := bx + 1; lx < bx+bw-1; lx++ {
-			// 出入口の内側の1マスは通行のため空ける
-			if (lx == doorX && ly == doorY+1) || (lx == doorX+1 && ly == doorY) {
-				continue
-			}
-			free = append(free, cell{lx, ly})
-		}
+// furnishRoom は建物の屋内を役割ベースで内装する。ランダム散布でなく、家具ごとに定めた
+// 位置の意味(壁沿い・入口脇・通路・中央・隅)に従って置くので、店や住居らしく見える。
+// 入口の内側1マスは通行のため常に空ける。すべて (rng, 座標) の決定的な手続きで、断片間で一致する。
+func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, kind facilityKind, bx, by, bw, bh, doorX, doorY consts.Tile) error {
+	ix0, iy0 := bx+1, by+1        // 内寸の左上
+	ix1, iy1 := bx+bw-2, by+bh-2  // 内寸の右下(閉区間)
+	if ix1 < ix0 || iy1 < iy0 {
+		return nil // 内側が無いほど小さい建物
 	}
-	names := facilityCatalog[facility].props
-	count := min(len(free)/8, 16)
-	for i := range count {
-		if len(free) == 0 {
-			break
+	// 入口の内側マス。ここは通行導線として常に空ける
+	dinX, dinY := doorX, doorY+1
+	if doorX == bx {
+		dinX, dinY = doorX+1, doorY
+	}
+	occupied := map[consts.Coord[consts.Tile]]bool{{X: dinX, Y: dinY}: true}
+
+	place := func(name string, x, y consts.Tile) (bool, error) {
+		if x < ix0 || x > ix1 || y < iy0 || y > iy1 {
+			return false, nil
 		}
-		pick := rng.IntN(len(free))
-		p := free[pick]
-		free[pick] = free[len(free)-1]
-		free = free[:len(free)-1]
-		if _, err := lifecycle.SpawnProp(world, names[i%len(names)], g.offsetX+p.x, g.offsetY+p.y); err != nil {
-			return fmt.Errorf("市街地の内装配置に失敗 (%s): %w", names[i%len(names)], err)
+		p := consts.Coord[consts.Tile]{X: x, Y: y}
+		if occupied[p] {
+			return false, nil
+		}
+		occupied[p] = true
+		if _, err := lifecycle.SpawnProp(world, name, g.offsetX+x, g.offsetY+y); err != nil {
+			return false, fmt.Errorf("市街地の内装配置に失敗 (%s): %w", name, err)
+		}
+		return true, nil
+	}
+
+	for _, s := range facilityFurnish[kind] {
+		cells := anchorCells(s.anchor, ix0, iy0, ix1, iy1, dinX, dinY, rng)
+		for _, c := range cells {
+			ok, err := place(s.name, c.X, c.Y)
+			if err != nil {
+				return err
+			}
+			if ok && !s.fill {
+				break // 1個置いたら次の家具へ
+			}
 		}
 	}
 	return nil
+}
+
+// anchorCells はアンカーの意味に対応する屋内の候補マスを、置く順に返す。
+// 内寸は [ix0,ix1]×[iy0,iy1] の閉区間。din は入口内側で、通路として避ける。
+func anchorCells(a placeAnchor, ix0, iy0, ix1, iy1, dinX, dinY consts.Tile, rng *rand.Rand) []consts.Coord[consts.Tile] {
+	pt := func(x, y consts.Tile) consts.Coord[consts.Tile] { return consts.Coord[consts.Tile]{X: x, Y: y} }
+	switch a {
+	case anchorCorner:
+		// 4隅。順序を seed で回して建物ごとに散らす
+		cs := []consts.Coord[consts.Tile]{pt(ix0, iy0), pt(ix1, iy0), pt(ix0, iy1), pt(ix1, iy1)}
+		rng.Shuffle(len(cs), func(i, j int) { cs[i], cs[j] = cs[j], cs[i] })
+		return cs
+	case anchorNearDoor:
+		// 入口内側の左右。レジ・受付を入口脇に置く
+		return []consts.Coord[consts.Tile]{pt(dinX-1, dinY), pt(dinX+1, dinY), pt(dinX, dinY+1)}
+	case anchorCenter:
+		var cs []consts.Coord[consts.Tile]
+		for y := iy0 + 1; y <= iy1-1; y++ {
+			for x := ix0 + 1; x <= ix1-1; x++ {
+				cs = append(cs, pt(x, y))
+			}
+		}
+		return cs
+	case anchorAisle:
+		// 1列おきに棚の列を作り、間を通路として空ける。壁から1マス空けて圧迫を避ける
+		var cs []consts.Coord[consts.Tile]
+		for x := ix0 + 1; x <= ix1-1; x += 2 {
+			for y := iy0; y <= iy1; y++ {
+				cs = append(cs, pt(x, y))
+			}
+		}
+		return cs
+	default: // anchorAlongWall
+		// 内寸の外周リングを一周。壁沿いに家具を並べる
+		var cs []consts.Coord[consts.Tile]
+		for x := ix0; x <= ix1; x++ {
+			cs = append(cs, pt(x, iy0))
+		}
+		for x := ix0; x <= ix1; x++ {
+			cs = append(cs, pt(x, iy1))
+		}
+		for y := iy0 + 1; y <= iy1-1; y++ {
+			cs = append(cs, pt(ix0, y), pt(ix1, y))
+		}
+		return cs
+	}
 }
 
 // spawnCityEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
