@@ -165,15 +165,16 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
 	drawText("N / Esc で閉じる", 16, y+26, theme.TextPrimary)
 }
 
-// facilityPalette は施設種別の色。overworld.FacilityGlyphs() の種別順に対応する。
-var facilityPalette = []color.RGBA{
-	{R: 154, G: 160, B: 166, A: 255}, // 住宅 灰
-	{R: 74, G: 144, B: 226, A: 255},  // 商店 青
-	{R: 80, G: 200, B: 208, A: 255},  // 事務所 シアン
-	{R: 176, G: 122, B: 58, A: 255},  // 倉庫 茶
-	{R: 212, G: 160, B: 23, A: 255},  // 骨董品店 金
-	{R: 232, G: 106, B: 154, A: 255}, // 診療所 桃
-	{R: 160, G: 106, B: 208, A: 255}, // 研究施設 紫
+// facilityPalette は施設記号から色への対応。FacilityGlyphs() の並び順に依存させず、記号
+// そのものをキーにして、施設種別を iota の途中に足しても色がずれないようにする。
+var facilityPalette = map[rune]color.RGBA{
+	'h': {R: 154, G: 160, B: 166, A: 255}, // 住宅 灰
+	'S': {R: 74, G: 144, B: 226, A: 255},  // 商店 青
+	'O': {R: 80, G: 200, B: 208, A: 255},  // 事務所 シアン
+	'D': {R: 176, G: 122, B: 58, A: 255},  // 倉庫 茶
+	'A': {R: 212, G: 160, B: 23, A: 255},  // 骨董品店 金
+	'C': {R: 232, G: 106, B: 154, A: 255}, // 診療所 桃
+	'L': {R: 160, G: 106, B: 208, A: 255}, // 研究施設 紫
 }
 
 // glyphColorTable は文字から色への対応。init で地物と施設の色を1つの表にまとめる。
@@ -185,9 +186,10 @@ func init() {
 	glyphColorTable[overworld.GlyphHamlet] = color.RGBA{R: 208, G: 168, B: 58, A: 255}
 	glyphColorTable[overworld.GlyphRuin] = color.RGBA{R: 224, G: 69, B: 58, A: 255}
 	glyphColorTable[overworld.GlyphPOI] = color.RGBA{R: 111, G: 191, B: 111, A: 255}
-	for i, g := range overworld.FacilityGlyphs() {
-		if i < len(facilityPalette) {
-			glyphColorTable[g.Label] = facilityPalette[i]
+	// 記号キーで引くので FacilityGlyphs() の順序に依存しない。色の無い施設は glyphColor の既定へ落ちる
+	for _, g := range overworld.FacilityGlyphs() {
+		if c, ok := facilityPalette[g.Label]; ok {
+			glyphColorTable[g.Label] = c
 		}
 	}
 }

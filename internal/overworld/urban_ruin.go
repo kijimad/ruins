@@ -47,8 +47,9 @@ var urbanPlacement = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
 type urbanRuinFeature struct{}
 
 // urbanRegionOf は c を含む市街地のアンカーと大きさを返す。市街地はアンカーから東と南へ
-// w×h チャンク広がる。該当しなければ ok=false。走査窓に当選アンカーが複数入りうるので、
-// 早期に false を返さず、c を覆うアンカーを探し続けて最も近いものを採る。
+// w×h チャンク広がる。該当しなければ ok=false。走査窓には当選アンカーが複数入りうるので
+// 早期に false を返さず探索を続ける。市街地どうしは urbanPlacement の Separation で重ならない
+// ため c を覆うアンカーは高々1つで、最初に見つかったものを返せば一意に定まる。
 func urbanRegionOf(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (anchor worldstream.ChunkCoord, w, h consts.Chunk, ok bool) {
 	for dy := range urbanMaxSpan {
 		for dx := range urbanMaxSpan {
@@ -180,7 +181,8 @@ func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) 
 	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
 	size = max(cw, ch)
 	z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, citySeed)
-	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする
+	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
+	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderCityChunk と揃える
 	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
 	return rollFacilityInZone(frng, z, size), size, true
 }
@@ -210,6 +212,7 @@ func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstrea
 
 // renderCityChunk は1チャンクに建物1棟を描き、規模に応じた敵を湧かせる。
 func renderCityChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk) error {
+	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	isWall, err := drawCityBuilding(world, g, rng)
 	if err != nil {
@@ -224,11 +227,13 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk)
 func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, error) {
 	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
 
-	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る
+	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る。
+	// 建物は最小 3×3 を保証する。扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が
+	// 破綻しない下限で、市街地チャンクは chunkW,chunkH >= cityStreetW+3 を前提にする
 	spanX := g.chunkW - cityStreetW
 	spanY := g.chunkH - cityStreetW
-	bw := spanX - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
-	bh := spanY - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
+	bw := max(3, spanX-consts.Tile(rng.IntN(int(cityMaxSetback)+1)))
+	bh := max(3, spanY-consts.Tile(rng.IntN(int(cityMaxSetback)+1)))
 	bx := cityStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
 	by := cityStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
 

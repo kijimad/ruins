@@ -29,6 +29,11 @@ func (p Placement) At(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chun
 // WinnerOf はリージョン rx の当選チャンク座標を返す。生成を伴わない純関数なので、
 // 道の結線や情報サービスが近傍の地物位置を「生成せずに算出」する基盤になる。
 func (p Placement) WinnerOf(runSeed uint64, rx, rows consts.Chunk) worldstream.ChunkCoord {
+	// Spacing <= Separation だと差が負になり uint64 キャストで巨大値へアンダーフローし、
+	// オフセット抽選が壊れる。Placement は内部定数なので設定ミスは never として弾く
+	if p.Spacing <= p.Separation {
+		panic("Placement: Spacing は Separation より大きいこと")
+	}
 	span := uint64(p.Spacing - p.Separation)
 	h := ChunkSeed2D(runSeed^p.Salt, rx, 0)
 	return worldstream.ChunkCoord{
