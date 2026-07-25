@@ -119,7 +119,7 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			y := originY + row*mapCellPx
 			vector.FillRect(screen, float32(x), float32(y), mapCellPx-1, mapCellPx-1, glyphColor(r), false)
 			// 原野以外は種別の文字を重ねて、色だけでなく記号でも読めるようにする
-			if r != overworld.GlyphField {
+			if r != overworld.GlyphField.Label {
 				drawText(string(r), x+5, y+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
 			}
 		}
@@ -166,11 +166,11 @@ var facilityPalette = map[rune]color.RGBA{
 var glyphColorTable = map[rune]color.RGBA{}
 
 func init() {
-	glyphColorTable[overworld.GlyphField] = color.RGBA{R: 46, G: 59, B: 46, A: 255}
-	glyphColorTable[overworld.GlyphVillage] = color.RGBA{R: 255, G: 210, B: 74, A: 255}
-	glyphColorTable[overworld.GlyphHamlet] = color.RGBA{R: 208, G: 168, B: 58, A: 255}
-	glyphColorTable[overworld.GlyphRuin] = color.RGBA{R: 224, G: 69, B: 58, A: 255}
-	glyphColorTable[overworld.GlyphPOI] = color.RGBA{R: 111, G: 191, B: 111, A: 255}
+	glyphColorTable[overworld.GlyphField.Label] = color.RGBA{R: 46, G: 59, B: 46, A: 255}
+	glyphColorTable[overworld.GlyphVillage.Label] = color.RGBA{R: 255, G: 210, B: 74, A: 255}
+	glyphColorTable[overworld.GlyphHamlet.Label] = color.RGBA{R: 208, G: 168, B: 58, A: 255}
+	glyphColorTable[overworld.GlyphRuin.Label] = color.RGBA{R: 224, G: 69, B: 58, A: 255}
+	glyphColorTable[overworld.GlyphPOI.Label] = color.RGBA{R: 111, G: 191, B: 111, A: 255}
 	// 記号キーで引くので FacilityGlyphs() の順序に依存しない。色の無い施設は glyphColor の既定へ落ちる
 	for _, g := range overworld.FacilityGlyphs() {
 		if c, ok := facilityPalette[g.Label]; ok {

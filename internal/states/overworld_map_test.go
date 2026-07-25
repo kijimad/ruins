@@ -11,8 +11,8 @@ func TestGlyphColor_全ての種別記号に色が割り当てられている(t 
 	t.Parallel()
 
 	features := []rune{
-		overworld.GlyphField, overworld.GlyphVillage,
-		overworld.GlyphHamlet, overworld.GlyphRuin, overworld.GlyphPOI,
+		overworld.GlyphField.Label, overworld.GlyphVillage.Label,
+		overworld.GlyphHamlet.Label, overworld.GlyphRuin.Label, overworld.GlyphPOI.Label,
 	}
 	fallback := glyphColor('\x00') // 未知の文字の色
 	for _, r := range features {
