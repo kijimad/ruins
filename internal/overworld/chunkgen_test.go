@@ -170,8 +170,8 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 // merchantName は小集落の店NPC名。テスト間で共有する。
 const merchantName = "商人"
 
-// townBucket は 商人 が立つチャンクスロットを返す。無ければ -1。
-func townBucket(world w.World) int {
+// townBucket は 商人 が立つチャンクスロットと、商人がいるかを返す。
+func townBucket(world w.World) (int, bool) {
 	const chunkW consts.Tile = 30
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
@@ -181,9 +181,9 @@ func townBucket(world w.World) int {
 		}
 		x := world.Components.GridElement.Get(e).X
 		q.Close()
-		return int(x / chunkW)
+		return int(x / chunkW), true
 	}
-	return -1
+	return 0, false
 }
 
 // TestNewChunkGen_小集落はリージョンにちょうど1つ生成される は、地物レイヤが
@@ -221,21 +221,24 @@ func TestNewChunkGen_開始チャンク特例で必ず小集落が生成され�
 	for i := range 8 {
 		require.NoError(t, genScout(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
-	winner := townBucket(scout)
-	require.NotEqual(t, -1, winner, "前提: 当選チャンクが存在する")
+	winner, ok := townBucket(scout)
+	require.True(t, ok, "前提: 当選チャンクが存在する")
 	loser := worldstream.ChunkCoord{X: consts.Chunk((winner + 1) % 8)}
 
 	// 外れチャンク単体では小集落が出ない
 	plain := testutil.InitTestWorld(t)
 	genPlain := overworld.NewChunkGen(plain, 123, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeSmallRoom)
 	require.NoError(t, genPlain(loser, 0, 0))
-	assert.Equal(t, -1, townBucket(plain), "外れチャンクに小集落は出ない")
+	_, plainOK := townBucket(plain)
+	assert.False(t, plainOK, "外れチャンクに小集落は出ない")
 
 	// 同じチャンクでも開始チャンクに指定すれば小集落が出る
 	startWorld := testutil.InitTestWorld(t)
 	genStart := overworld.NewChunkGen(startWorld, 123, chunkW, chunkH, 1, loser, mapplanner.PlannerTypeSmallRoom)
 	require.NoError(t, genStart(loser, 0, 0))
-	assert.Equal(t, 0, townBucket(startWorld), "開始チャンク特例で小集落が出る")
+	startSlot, startOK := townBucket(startWorld)
+	require.True(t, startOK, "開始チャンク特例で小集落が出る")
+	assert.Equal(t, 0, startSlot, "開始チャンクは先頭スロット")
 }
 
 // TestNewChunkGen_生成は時間に依存しない は、GameTime が進んでいても同じ (runSeed, 座標) から
@@ -247,7 +250,7 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 30, 20
 	c := worldstream.ChunkCoord{X: 3}
 
-	collect := func(advanceTurns consts.Turn) ([]gc.GridElement, int) {
+	collect := func(advanceTurns consts.Turn) ([]gc.GridElement, int, bool) {
 		world := testutil.InitTestWorld(t)
 		query.GetGameTime(world).TotalTurns += advanceTurns
 		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeSmallRoom)
@@ -264,11 +267,13 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 			}
 			return walls[i].Y < walls[j].Y
 		})
-		return walls, townBucket(world)
+		slot, ok := townBucket(world)
+		return walls, slot, ok
 	}
 
-	wallsA, townA := collect(0)
-	wallsB, townB := collect(99999)
+	wallsA, slotA, okA := collect(0)
+	wallsB, slotB, okB := collect(99999)
 	assert.Equal(t, wallsA, wallsB, "時間が進んでも壁配置は同一")
-	assert.Equal(t, townA, townB, "時間が進んでも小集落の有無は同一")
+	assert.Equal(t, okA, okB, "時間が進んでも小集落の有無は同一")
+	assert.Equal(t, slotA, slotB, "時間が進んでも小集落のスロットは同一")
 }
