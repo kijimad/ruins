@@ -6,12 +6,13 @@ import (
 	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
-// Placement はリージョン方式の配置ルール。世界を Spacing チャンク四方のリージョンに分け、
-// リージョンごとに1チャンクを決定的に当選させる。「1リージョンに高々1つ」と最小間隔
-// Separation を O(1) で保証する。リージョンごとに1つ当選させる散布方式。
+// Placement はリージョン方式の配置ルール。世界を X 方向 Spacing チャンク幅の縦帯リージョンに
+// 分け、リージョンごとに1チャンクを決定的に当選させる。Y は帯が有界なので分割せず、リージョンは
+// 帯の全行を覆う。よってリージョンは Spacing(横) × rows(縦) チャンクの縦帯で、そこにちょうど1つ
+// 地物が出る。「1リージョンに高々1つ」と最小間隔 Separation を O(1) で保証する。
 // 密な散布が要る地物が現れたら Scatter モードをここに拡張する。
 type Placement struct {
-	Spacing    consts.Chunk // リージョンの一辺。おおよそ Spacing チャンクに1つ当選する
+	Spacing    consts.Chunk // リージョンの X 幅。おおよそ Spacing チャンクに1つ当選する
 	Separation consts.Chunk // 隣接リージョンの当選どうしが最低これだけ離れる。Spacing より小さいこと
 	Salt       uint64       // 地物の種類ごとに相関を切る
 }
