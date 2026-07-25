@@ -152,42 +152,14 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
 	drawText("N / Esc で閉じる", 16, y+26, theme.TextPrimary)
 }
 
-// facilityPalette は施設記号から色への対応。FacilityGlyphs() の並び順に依存させず、記号
-// そのものをキーにして、施設種別を iota の途中に足しても色がずれないようにする。
-var facilityPalette = map[rune]color.RGBA{
-	'h': {R: 154, G: 160, B: 166, A: 255}, // 住宅 灰
-	'S': {R: 74, G: 144, B: 226, A: 255},  // 商店 青
-	'O': {R: 80, G: 200, B: 208, A: 255},  // 事務所 シアン
-	'D': {R: 176, G: 122, B: 58, A: 255},  // 倉庫 茶
-	'A': {R: 212, G: 160, B: 23, A: 255},  // 骨董品店 金
-	'C': {R: 232, G: 106, B: 154, A: 255}, // 診療所 桃
-	'L': {R: 160, G: 106, B: 208, A: 255}, // 研究施設 紫
-}
-
-// featurePalette は地物記号から色への対応。facilityPalette と同じく記号そのものをキーにして、
-// overworld 側の placeType の並びに依存させない。色の無い記号は glyphColor の既定へ落ちる。
-var featurePalette = map[rune]color.RGBA{
-	'.': {R: 46, G: 59, B: 46, A: 255},    // 荒れ地 暗緑
-	'T': {R: 255, G: 210, B: 74, A: 255},  // 村 黄
-	't': {R: 208, G: 168, B: 58, A: 255},  // 一軒家 濃黄
-	'>': {R: 224, G: 69, B: 58, A: 255},   // 遺跡入口 赤
-	'*': {R: 111, G: 191, B: 111, A: 255}, // 点在POI 緑
-}
-
-// glyphColorTable は文字から色への対応。init で地物と施設の色を1つの表にまとめる。
+// glyphColorTable は文字から色への対応。色は overworld の GlyphInfo が記号と同居して持つので、
+// init で記号定義から引き写すだけにし、states 側で記号ごとの色を別に定義しない。記号を変えても
+// 色定義と同じ1レコードなのでずれない。凡例に出ない記号は表に入らず glyphColor の既定へ落ちる。
 var glyphColorTable = map[rune]color.RGBA{}
 
 func init() {
-	// 記号キーで引くので overworld 側の並び順に依存しない。色の無い記号は glyphColor の既定へ落ちる
-	for _, g := range overworld.PlaceGlyphs() {
-		if c, ok := featurePalette[g.Label]; ok {
-			glyphColorTable[g.Label] = c
-		}
-	}
-	for _, g := range overworld.FacilityGlyphs() {
-		if c, ok := facilityPalette[g.Label]; ok {
-			glyphColorTable[g.Label] = c
-		}
+	for _, g := range overworld.LegendGlyphs() {
+		glyphColorTable[g.Label] = g.Color
 	}
 }
 

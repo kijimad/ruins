@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"image/color"
 	"strings"
 	"testing"
 
@@ -8,6 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestGlyphInfo_凡例の全記号に色が設定されている は、記号を足して色を付け忘れるとゼロ値の透明黒に
+// なる退行を定義元で捕らえる。色は GlyphInfo が記号と同居して持ち、UI 側はこれを引き写すだけ。
+func TestGlyphInfo_凡例の全記号に色が設定されている(t *testing.T) {
+	t.Parallel()
+
+	for _, g := range append(PlaceGlyphs(), FacilityGlyphs()...) {
+		assert.NotEqualf(t, color.RGBA{}, g.Color, "%s(%c) に色が設定されている", g.Name, g.Label)
+	}
+}
 
 // findUrbanChunk は市街地の建物チャンクになる seed と座標を探す。
 func findUrbanChunk(t *testing.T, rows consts.Chunk) (uint64, consts.Coord[consts.Chunk]) {

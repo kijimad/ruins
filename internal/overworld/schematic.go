@@ -2,6 +2,7 @@ package overworld
 
 import (
 	"fmt"
+	"image/color"
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -11,10 +12,12 @@ import (
 // 場所か」の1文字で表す俯瞰図。1チャンク=1記号で場所の種別を示す。生成は (runSeed, 座標) の
 // 純関数なので、ECS のタイルを生成せず種別だけを算出できる。
 
-// GlyphInfo は種別マップ上の1文字表記と、凡例に出す名前。UI の着色や凡例に使う。
+// GlyphInfo は種別マップ上の1文字表記と、凡例に出す名前と色。記号・名前・色を1レコードに同梱し、
+// UI 側が記号ごとに別の色表を持って二重定義でずれるのを防ぐ。UI の着色や凡例に使う。
 type GlyphInfo struct {
 	Label rune
 	Name  string
+	Color color.RGBA
 }
 
 // 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と
@@ -29,13 +32,13 @@ type GlyphInfo struct {
 // facilityGlyphs は施設種別の1文字表記。1マスに1文字で建物の種別を示す。
 // 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。
 var facilityGlyphs = map[facilityType]GlyphInfo{
-	facilityHouse:   {'h', "住宅"},
-	facilityStore:   {'S', "商店"},
-	facilityOffice:  {'O', "事務所"},
-	facilityDepot:   {'D', "倉庫"},
-	facilityAntique: {'A', "骨董品店"},
-	facilityClinic:  {'C', "診療所"},
-	facilityLab:     {'L', "研究施設"},
+	facilityHouse:   {'h', "住宅", color.RGBA{R: 154, G: 160, B: 166, A: 255}},   // 灰
+	facilityStore:   {'S', "商店", color.RGBA{R: 74, G: 144, B: 226, A: 255}},    // 青
+	facilityOffice:  {'O', "事務所", color.RGBA{R: 80, G: 200, B: 208, A: 255}},   // シアン
+	facilityDepot:   {'D', "倉庫", color.RGBA{R: 176, G: 122, B: 58, A: 255}},    // 茶
+	facilityAntique: {'A', "骨董品店", color.RGBA{R: 212, G: 160, B: 23, A: 255}},  // 金
+	facilityClinic:  {'C', "診療所", color.RGBA{R: 232, G: 106, B: 154, A: 255}},  // 桃
+	facilityLab:     {'L', "研究施設", color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫
 }
 
 // facilityOrder は凡例に出す施設種別を表示順で並べる。placeOrder と同じく、map は順序を持たない
@@ -62,12 +65,12 @@ const (
 // placeGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に
 // 集約する。UI の着色や凡例はこれ1つを源にし、記号や名前を別の箇所へ直書きしない。
 var placeGlyphs = map[placeType]GlyphInfo{
-	placeField:   {'.', "荒れ地"},
-	placeVillage: {'T', "村"},
-	placeHamlet:  {'t', "一軒家"},
-	placeRuin:    {'>', "遺跡入口"},
-	placePOI:     {'*', "点在POI"},
-	placeUnknown: {'?', "未分類"},
+	placeField:   {'.', "荒れ地", color.RGBA{R: 46, G: 59, B: 46, A: 255}},      // 暗緑
+	placeVillage: {'T', "村", color.RGBA{R: 255, G: 210, B: 74, A: 255}},      // 黄
+	placeHamlet:  {'t', "一軒家", color.RGBA{R: 208, G: 168, B: 58, A: 255}},    // 濃黄
+	placeRuin:    {'>', "遺跡入口", color.RGBA{R: 224, G: 69, B: 58, A: 255}},    // 赤
+	placePOI:     {'*', "点在POI", color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑
+	placeUnknown: {'?', "未分類", color.RGBA{R: 90, G: 90, B: 90, A: 255}},      // 灰。凡例外なので実際は既定へ落ちる
 }
 
 // placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
