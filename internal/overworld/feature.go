@@ -70,7 +70,7 @@ type feature interface {
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
 func features() []feature {
 	// 点在POIは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう最後に評価する
-	return []feature{settlementFeature{}, urbanRuinFeature{}, ruinEntranceFeature{}, wildernessPOIFeature{}, roadFeature{}}
+	return []feature{settlementFeature{}, urbanFeature{}, ruinEntranceFeature{}, wildernessPOIFeature{}, roadFeature{}}
 }
 
 // 地物ごとのソルト。ハッシュ入力を地物ごとにずらし、配置と抽選を他地物と無相関にするタグ。

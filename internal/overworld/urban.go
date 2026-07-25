@@ -41,8 +41,8 @@ func urbanSizeOf(citySeed uint64) (w, h consts.Chunk) {
 // 最大辺 urbanMaxSpan より広い間隔にして、隣り合う市街地が重ならないようにする。
 var urbanPlacement = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
 
-// urbanRuinFeature は市街地の feature 実装。
-type urbanRuinFeature struct{}
+// urbanFeature は市街地の feature 実装。
+type urbanFeature struct{}
 
 // urbanRegionOf は c を含む市街地のアンカーと大きさを返す。市街地はアンカーから東と南へ
 // w×h チャンク広がる。該当しなければ ok=false。走査窓には当選アンカーが複数入りうるので
@@ -188,7 +188,7 @@ func cityChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chu
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
 // 生成順に依存しない。
-func (urbanRuinFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
+func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return nil
