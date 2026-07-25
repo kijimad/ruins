@@ -108,7 +108,7 @@ const (
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在POI > 荒れ地。地図も生成もこの分類を
 // 唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {
-	if _, _, ok := cityChunkInfo(runSeed, c, rows); ok {
+	if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {
 		return chunkUrban
 	}
 	if ruinPlacement.At(runSeed, c, rows) {
@@ -128,7 +128,7 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, rows) {
 	case chunkUrban:
-		kind, _, _ := cityChunkInfo(runSeed, c, rows)
+		kind, _, _ := urbanChunkInfo(runSeed, c, rows)
 		if g, ok := facilityGlyphs[kind]; ok {
 			return g.Label
 		}

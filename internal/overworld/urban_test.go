@@ -67,7 +67,7 @@ func snapshotNamed(world w.World) []string {
 }
 
 // TestNewChunkGen_市街地の断片は生成順に依存しない は、市街地をまたぐチャンク群を
-// 西→東と東→西で生成しても、全タイルと全敵が一致することを固定する。断片が citySeed の
+// 西→東と東→西で生成しても、全タイルと全敵が一致することを固定する。断片が urbanSeed の
 // 一括導出から描かれる不変条件の検証で、帯ストリーミングの再訪に耐える根拠になる。
 func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing.T) {
 	t.Parallel()

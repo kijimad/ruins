@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestCityZoning_隣接同種率が独立期待を上回る は、ゾーニングで隣接チャンクの施設が空間相関を
+// TestUrbanZoning_隣接同種率が独立期待を上回る は、ゾーニングで隣接チャンクの施設が空間相関を
 // 持つことを固定する。per-chunk 独立抽選なら隣接同種率は施設頻度の二乗和すなわち独立期待に
 // 一致するが、地区で重みを揃えるとそれを有意に上回る。相関ゼロのごま塩への退行を検知する。
-func TestCityZoning_隣接同種率が独立期待を上回る(t *testing.T) {
+func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 	t.Parallel()
 
 	const rows consts.Chunk = 9
@@ -24,7 +24,7 @@ func TestCityZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 		for y := range rows {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if k, _, ok := cityChunkInfo(s, c, rows); ok {
+				if k, _, ok := urbanChunkInfo(s, c, rows); ok {
 					grid[c] = k
 					kindCount[k]++
 					total++

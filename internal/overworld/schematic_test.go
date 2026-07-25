@@ -9,14 +9,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// findCityChunk は市街地の建物チャンクになる seed と座標を探す。
-func findCityChunk(t *testing.T, rows consts.Chunk) (uint64, consts.Coord[consts.Chunk]) {
+// findUrbanChunk は市街地の建物チャンクになる seed と座標を探す。
+func findUrbanChunk(t *testing.T, rows consts.Chunk) (uint64, consts.Coord[consts.Chunk]) {
 	t.Helper()
 	for s := uint64(1); s < 500; s++ {
 		for y := range rows {
 			for x := range consts.Chunk(12) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if _, _, ok := cityChunkInfo(s, c, rows); ok {
+				if _, _, ok := urbanChunkInfo(s, c, rows); ok {
 					return s, c
 				}
 			}
@@ -30,8 +30,8 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 	t.Parallel()
 
 	const rows consts.Chunk = 9
-	seed, c := findCityChunk(t, rows)
-	kind, _, ok := cityChunkInfo(seed, c, rows)
+	seed, c := findUrbanChunk(t, rows)
+	kind, _, ok := urbanChunkInfo(seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
 
 	want := facilityGlyphs[kind].Label
@@ -42,7 +42,7 @@ func TestChunkPlace_純関数で決定的(t *testing.T) {
 	t.Parallel()
 
 	const rows consts.Chunk = 9
-	seed, c := findCityChunk(t, rows)
+	seed, c := findUrbanChunk(t, rows)
 	first := ChunkPlace(seed, c, rows)
 	for range 5 {
 		assert.Equal(t, first, ChunkPlace(seed, c, rows), "同じ引数なら毎回同じ文字")
@@ -60,7 +60,7 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 			for x := range consts.Chunk(8) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				// 市街地に上書きされないチャンクだけ見る
-				if _, _, ok := cityChunkInfo(s, c, rows); ok {
+				if _, _, ok := urbanChunkInfo(s, c, rows); ok {
 					continue
 				}
 				switch ChunkPlace(s, c, rows) {

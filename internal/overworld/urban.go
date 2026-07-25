@@ -15,25 +15,25 @@ import (
 
 // 市街地は建物チャンクの2次元格子。1チャンク = 1建物とし、街路で区切る。
 // 市街地はアンカーから東と南へ w×h
-// チャンク広がり、各チャンクは自分の建物を (citySeed, チャンクのローカル座標) から独立に
+// チャンク広がり、各チャンクは自分の建物を (urbanSeed, チャンクのローカル座標) から独立に
 // 決める。全体一括導出や断片クリップは要らず、各チャンクが自己完結する。
 // 街路は各チャンクの北辺・西辺に敷き、隣接チャンクと連続して格子状の街並みになる。
 const (
 	urbanMaxSpan consts.Chunk = 3 // 市街地の一辺の最大チャンク数
 
-	cityStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
-	cityMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
+	urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
+	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
 	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
 	urbanEnemyTable = "廃墟"
 )
 
-// urbanSizeOf は市街地の縦横のチャンク数を citySeed から決定的に選ぶ。各辺 2..urbanMaxSpan。
+// urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 2..urbanMaxSpan。
 // 規模が大きいほど敵も戦利品も多く、レアな施設が混ざる。リスクとリターンが規模に比例する。
-func urbanSizeOf(citySeed uint64) (w, h consts.Chunk) {
+func urbanSizeOf(urbanSeed uint64) (w, h consts.Chunk) {
 	span := uint64(urbanMaxSpan - 1)
-	w = 2 + consts.Chunk((citySeed>>8)%span)
-	h = 2 + consts.Chunk((citySeed>>16)%span)
+	w = 2 + consts.Chunk((urbanSeed>>8)%span)
+	h = 2 + consts.Chunk((urbanSeed>>16)%span)
 	return w, h
 }
 
@@ -121,14 +121,14 @@ var zoneCatalog = map[zone][]facilityWeight{
 	},
 }
 
-// industrialCityBit は市街地の性格を住宅地寄りか産業区寄りかに振る citySeed のビット。
+// industrialUrbanBit は市街地の性格を住宅地寄りか産業区寄りかに振る urbanSeed のビット。
 // 規模抽選が使う下位ビット urbanSizeOf の >>8・>>16 と衝突しない上位ビットを使う。
-const industrialCityBit = uint64(1) << 32
+const industrialUrbanBit = uint64(1) << 32
 
 // zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。厳密な中心を都心、それ以外を
 // 市街地の性格で住宅地か産業区にする。中心は 2 倍座標のチェビシェフ距離が 0 のマスで、
 // 奇数×奇数すなわち 3×3 の市街地にだけ存在する。都心が必ず最大規模に出るので専門施設を集められる。
-func zoneOf(lx, ly, cw, ch consts.Chunk, citySeed uint64) zone {
+func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) zone {
 	dx := int(lx)*2 - int(cw-1)
 	dy := int(ly)*2 - int(ch-1)
 	if dx < 0 {
@@ -140,7 +140,7 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, citySeed uint64) zone {
 	if max(dx, dy) == 0 {
 		return zoneDowntown
 	}
-	if citySeed&industrialCityBit != 0 {
+	if urbanSeed&industrialUrbanBit != 0 {
 		return zoneIndustrial
 	}
 	return zoneResidential
@@ -168,20 +168,20 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityKind 
 	panic("到達しない: 抽選重みの合計と減算が不整合")
 }
 
-// cityChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
+// urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
 // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
 // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func cityChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityKind, size consts.Chunk, ok bool) {
+func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityKind, size consts.Chunk, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return "", 0, false
 	}
-	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
-	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
+	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
+	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
 	size = max(cw, ch)
-	z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, citySeed)
+	z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, urbanSeed)
 	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
-	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderCityChunk と揃える
+	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
 	return rollFacilityInZone(frng, z, size), size, true
 }
@@ -195,38 +195,38 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	}
 
 	// 施設種別は地図(ChunkPlace)が使う。ここでは規模だけ敵配置に使う
-	_, size, _ := cityChunkInfo(runSeed, c, rows)
-	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
-	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
-	return renderCityChunk(world, g, chunkSeed, size)
+	_, size, _ := urbanChunkInfo(runSeed, c, rows)
+	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
+	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
+	return renderUrbanChunk(world, g, chunkSeed, size)
 }
 
-// renderCityChunk は1チャンクに建物1棟を描き、規模に応じた敵を湧かせる。
-func renderCityChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk) error {
+// renderUrbanChunk は1チャンクに建物1棟を描き、規模に応じた敵を湧かせる。
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
-	isWall, err := drawCityBuilding(world, g, rng)
+	isWall, err := drawUrbanBuilding(world, g, rng)
 	if err != nil {
 		return err
 	}
-	return spawnCityEnemies(world, g, rng, size, isWall)
+	return spawnUrbanEnemies(world, g, rng, size, isWall)
 }
 
-// drawCityBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟の殻を描く。建物は外周が壁・
+// drawUrbanBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟の殻を描く。建物は外周が壁・
 // 内側が床で、道路に面した見える扉を持つ。街路は隣接チャンクと連続して格子になる。内装は持たない。
 // 壁判定の関数を返し、敵配置が壁マスを避けるのに使う。
-func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, error) {
+func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, error) {
 	tiles := g.tiles.get()
 
 	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る。
 	// 建物は最小 3×3 を保証する。扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が
-	// 破綻しない下限で、市街地チャンクは chunkW,chunkH >= cityStreetW+3 を前提にする
-	spanX := g.chunkW - cityStreetW
-	spanY := g.chunkH - cityStreetW
-	bw := max(3, spanX-consts.Tile(rng.IntN(int(cityMaxSetback)+1)))
-	bh := max(3, spanY-consts.Tile(rng.IntN(int(cityMaxSetback)+1)))
-	bx := cityStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
-	by := cityStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
+	// 破綻しない下限で、市街地チャンクは chunkW,chunkH >= urbanStreetW+3 を前提にする
+	spanX := g.chunkW - urbanStreetW
+	spanY := g.chunkH - urbanStreetW
+	bw := max(3, spanX-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))
+	bh := max(3, spanY-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))
+	bx := urbanStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
+	by := urbanStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
 
 	// 街路が北・西にあるので扉は道路に面する北壁か西壁に開ける。向きは壁の走る方向で決め、
 	// 東西に走る北壁の切れ目は Vertical、南北に走る西壁は Horizontal。door_planner と同じ規約
@@ -251,7 +251,7 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly c
 		for lx := range g.chunkW {
 			name := ""
 			switch {
-			case lx < cityStreetW || ly < cityStreetW:
+			case lx < urbanStreetW || ly < urbanStreetW:
 				name = consts.TileNameFloor // 街路
 			case isWall(lx, ly):
 				name = consts.TileNameDWall
@@ -273,9 +273,9 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly c
 	return isWall, nil
 }
 
-// spawnCityEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
+// spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。
-func spawnCityEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool) error {
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool) error {
 	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
 	if err != nil {
 		return fmt.Errorf("市街地の敵テーブル取得に失敗: %w", err)
