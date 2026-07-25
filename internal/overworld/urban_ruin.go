@@ -168,7 +168,16 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size
 	bh := spanY - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
 	bx := cityStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
 	by := cityStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
-	door := bx + 1 + consts.Tile(rng.IntN(int(bw-2)))
+
+	// 街路は各チャンクの北辺・西辺にあるので、扉は道路に面する北壁か西壁のどちらかに開ける。
+	// 向きは壁の走る方向で決める。東西に走る北壁の切れ目は Vertical、南北に走る西壁は Horizontal。
+	// door_planner の doorOrientation と同じ規約に合わせる
+	doorX, doorY := bx+1+consts.Tile(rng.IntN(int(bw-2))), by
+	doorOrient := gc.DoorOrientationVertical
+	if rng.IntN(2) == 0 {
+		doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))
+		doorOrient = gc.DoorOrientationHorizontal
+	}
 
 	inBuilding := func(lx, ly consts.Tile) bool {
 		return lx >= bx && lx < bx+bw && ly >= by && ly < by+bh
@@ -178,7 +187,7 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size
 			return false
 		}
 		perimeter := lx == bx || lx == bx+bw-1 || ly == by || ly == by+bh-1
-		return perimeter && (ly != by+bh-1 || lx != door)
+		return perimeter && (lx != doorX || ly != doorY)
 	}
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
@@ -200,11 +209,11 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size
 		}
 	}
 
-	if err := spawnBuildingProps(world, g, rng, facility, bx, by, bw, bh, door); err != nil {
+	if err := spawnBuildingProps(world, g, rng, facility, bx, by, bw, bh, doorX, doorY); err != nil {
 		return err
 	}
-	// 南辺の開口に見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
-	if _, err := lifecycle.SpawnDoor(world, g.offsetX+door, g.offsetY+by+bh-1, gc.DoorOrientationHorizontal); err != nil {
+	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
+	if _, err := lifecycle.SpawnDoor(world, g.offsetX+doorX, g.offsetY+doorY, doorOrient); err != nil {
 		return fmt.Errorf("市街地の扉配置に失敗: %w", err)
 	}
 	return spawnCityEnemies(world, g, rng, size, isWall)
@@ -212,12 +221,13 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size
 
 // spawnBuildingProps は建物の屋内へ施設種別の内装 prop をまばらに置く。広い屋内を埋めるため
 // 内装候補を循環させ、空きマスに面積比例で配置する。出入口の直上は導線として空ける。
-func spawnBuildingProps(world w.World, g chunkGeom, rng *rand.Rand, facility int, bx, by, bw, bh, door consts.Tile) error {
+func spawnBuildingProps(world w.World, g chunkGeom, rng *rand.Rand, facility int, bx, by, bw, bh, doorX, doorY consts.Tile) error {
 	type cell struct{ x, y consts.Tile }
 	var free []cell
 	for ly := by + 1; ly < by+bh-1; ly++ {
 		for lx := bx + 1; lx < bx+bw-1; lx++ {
-			if lx == door && ly == by+bh-2 {
+			// 出入口の内側の1マスは通行のため空ける
+			if (lx == doorX && ly == doorY+1) || (lx == doorX+1 && ly == doorY) {
 				continue
 			}
 			free = append(free, cell{lx, ly})
