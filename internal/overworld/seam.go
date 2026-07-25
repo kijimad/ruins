@@ -11,27 +11,24 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// RecalcSeamAutotileX はチャンク境界 x=boundaryX をまたぐ2列のタイルのオートタイルを、
-// 両チャンクの実タイルのエンティティを見て再計算する。
+// RecalcChunkSeams はチャンクを接合した後に、そのチャンクの東西南北4つの境界のオートタイルを
+// 再計算して継ぎ目を消す。チャンクは独立生成され、生成時は境界の隣を void 扱いして端スプライトに
+// なるため継ぎ目が見える。接合後に境界の2ラインを実タイルのエンティティから再計算して繋ぐ。
+// 描画は SpriteKey で sprite をフェッチするので、SpriteKey の差し替えだけで見た目が直る。
 //
-// チャンクは独立生成されるため、生成時は境界列の隣を void 扱いして端スプライトになり、
-// 継ぎ目が見える。接合後に境界列を再計算して継ぎ目を消す。boundaryX-1 が西チャンク東端、
-// boundaryX が東チャンク西端。
-// 描画は SpriteKey で sprite をフェッチするため、SpriteKey の差し替えだけで見た目が直る。
+// 東西境界は x=offsetX と x=offsetX+chunkW、南北境界は y=offsetY と y=offsetY+chunkH。
+// boundaryX-1 が西チャンク東端、boundaryX が東チャンク西端で、南北も同様の対応になる。
 //
-// 境界の両側にタイルが揃っている「内部境界」だけを処理する。片側が空なら何もしない。帯の最西端・
-// 最東端で隣チャンクが無い場合が該当する。これにより呼び出し側は東西どちらの境界かを気にせず
-// 両境界を無条件に呼べる。東シフトは西境界、西シフトは東境界が実境界になる。
-func RecalcSeamAutotileX(world w.World, boundaryX consts.Tile) {
-	recalcSeamAutotileAlong(world, boundaryX, func(g gc.GridElement) consts.Tile { return g.X })
-}
-
-// RecalcSeamAutotileY はチャンク境界 y=boundaryY をまたぐ2行のタイルのオートタイルを再計算する。
-// RecalcSeamAutotileX の南北版で、boundaryY-1 が北チャンク南端、boundaryY が南チャンク北端。
-// 境界の両側にタイルが揃っている内部境界だけを処理し、帯の最上端・最下端では自己スキップする。
-// 呼び出し側は上下どちらの境界かを気にせず両境界を無条件に呼べる。
-func RecalcSeamAutotileY(world w.World, boundaryY consts.Tile) {
-	recalcSeamAutotileAlong(world, boundaryY, func(g gc.GridElement) consts.Tile { return g.Y })
+// 各境界は両側にタイルが揃う内部境界だけを処理し、片側が空の帯端では何もしない。帯の最端や
+// 行が1つの帯の上下がこれに当たる。よって呼び出し側は4境界を無条件にまとめて呼べる。東シフトは
+// 西境界、西シフトは東境界が実境界になり、行が増えれば南北境界も同じ扱いになる。
+func RecalcChunkSeams(world w.World, offsetX, offsetY, chunkW, chunkH consts.Tile) {
+	byX := func(g gc.GridElement) consts.Tile { return g.X }
+	byY := func(g gc.GridElement) consts.Tile { return g.Y }
+	recalcSeamAutotileAlong(world, offsetX, byX)
+	recalcSeamAutotileAlong(world, offsetX+chunkW, byX)
+	recalcSeamAutotileAlong(world, offsetY, byY)
+	recalcSeamAutotileAlong(world, offsetY+chunkH, byY)
 }
 
 // RecalcAutotileInXRange は X 範囲 [loX, hiX) のタイルのオートタイルを、実エンティティの

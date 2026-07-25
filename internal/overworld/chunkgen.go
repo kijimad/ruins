@@ -58,14 +58,9 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 		// シフトで生成される新チャンクもここで束縛される。Player・SquadMember・既束縛は
 		// Bind が自然に除外する
 		stage.Bind(world, gc.NewOverworldStage())
-		// このチャンクの両境界を接合後に再計算して継ぎ目を消す。
-		// 東シフトでは西境界の offsetX、西シフトでは東境界の offsetX+chunkW が実境界になる。
-		// RecalcSeamAutotileX は隣チャンクが無い帯端では自己スキップするため無条件に呼べる。
-		RecalcSeamAutotileX(world, offsetX)
-		RecalcSeamAutotileX(world, offsetX+chunkW)
-		// 南北境界も同様に再計算する。行が1つの帯では上下とも帯端なので自己スキップされる
-		RecalcSeamAutotileY(world, offsetY)
-		RecalcSeamAutotileY(world, offsetY+chunkH)
+		// このチャンクの4境界を接合後に再計算して継ぎ目を消す。片側が空の帯端は自己スキップ
+		// されるため、東西南北を無条件にまとめて呼べる。東シフトは西境界、西シフトは東境界が実境界。
+		RecalcChunkSeams(world, offsetX, offsetY, chunkW, chunkH)
 		return nil
 	}
 }

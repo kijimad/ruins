@@ -47,10 +47,10 @@ func TestChunkGen_継ぎ目は生成順に依存しない(t *testing.T) {
 	}
 }
 
-// TestRecalcSeamAutotileX_帯端は自己スキップ は、境界の片側にしかタイルが無い（帯の最端で
-// 隣チャンクが無い）とき RecalcSeamAutotileX が何もしないことを固定する。これにより呼び出し側は
-// 東西どちらの境界かを気にせず両境界を無条件に呼べる。
-func TestRecalcSeamAutotileX_帯端は自己スキップ(t *testing.T) {
+// TestRecalcChunkSeams_帯端は自己スキップ は、境界の片側にしかタイルが無い（帯の最端で
+// 隣チャンクが無い）とき、その境界を再計算せず何もしないことを固定する。これにより呼び出し側は
+// 東西南北どの境界かを気にせず4境界を無条件に呼べる。
+func TestRecalcChunkSeams_帯端は自己スキップ(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -66,7 +66,8 @@ func TestRecalcSeamAutotileX_帯端は自己スキップ(t *testing.T) {
 	}
 	before := spriteKeyAt(t, world, boundaryX, 5)
 
-	overworld.RecalcSeamAutotileX(world, boundaryX)
+	// 原点を境界に置き寸法を大きく取ると、検証したい x=boundaryX 以外の3境界はタイルが無く自己スキップする
+	overworld.RecalcChunkSeams(world, boundaryX, 0, 100, 100)
 
 	after := spriteKeyAt(t, world, boundaryX, 5)
 	assert.Equal(t, before, after, "片側が空の帯端では再計算せず SpriteKey を変えない")
@@ -87,10 +88,10 @@ func spriteKeyAtOrEmpty(world w.World, x, y consts.Tile) string {
 	return ""
 }
 
-// TestRecalcSeamAutotileX は境界2列のオートタイルが接合後に隣チャンクを見て再計算されることを固定する。
-// 境界を跨いで dirt を敷き、端スプライト(_0)で生成した後に再計算すると、近傍がすべて dirt なので
-// 全方向接続(_15)になる。
-func TestRecalcSeamAutotileX(t *testing.T) {
+// TestRecalcChunkSeams_東西境界は隣を見て再計算する は、境界2列のオートタイルが接合後に
+// 隣チャンクを見て再計算されることを固定する。境界を跨いで dirt を敷き、端スプライト(_0)で
+// 生成した後に再計算すると、近傍がすべて dirt なので全方向接続(_15)になる。
+func TestRecalcChunkSeams_東西境界は隣を見て再計算する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -106,7 +107,8 @@ func TestRecalcSeamAutotileX(t *testing.T) {
 		}
 	}
 
-	overworld.RecalcSeamAutotileX(world, boundaryX)
+	// 原点を x=boundaryX に置き寸法を大きく取ると、他3境界はタイルが無く自己スキップし東西境界だけが対象になる
+	overworld.RecalcChunkSeams(world, boundaryX, 0, 100, 100)
 
 	// 境界タイル (boundaryX-1, 5) と (boundaryX, 5) は4近傍すべて dirt なので _15 になる
 	for _, bx := range []consts.Tile{boundaryX - 1, boundaryX} {
@@ -116,8 +118,9 @@ func TestRecalcSeamAutotileX(t *testing.T) {
 	}
 }
 
-// TestRecalcSeamAutotileY は南北境界2行のオートタイルが接合後に隣チャンクを見て再計算されることを固定する。
-func TestRecalcSeamAutotileY(t *testing.T) {
+// TestRecalcChunkSeams_南北境界は隣を見て再計算する は、南北境界2行のオートタイルが接合後に
+// 隣チャンクを見て再計算されることを固定する。
+func TestRecalcChunkSeams_南北境界は隣を見て再計算する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -132,7 +135,8 @@ func TestRecalcSeamAutotileY(t *testing.T) {
 		}
 	}
 
-	overworld.RecalcSeamAutotileY(world, boundaryY)
+	// 原点を y=boundaryY に置き寸法を大きく取ると、他3境界はタイルが無く自己スキップし南北境界だけが対象になる
+	overworld.RecalcChunkSeams(world, 0, boundaryY, 100, 100)
 
 	// 境界タイル (5, boundaryY-1) と (5, boundaryY) は4近傍すべて dirt なので _15 になる
 	for _, by := range []consts.Tile{boundaryY - 1, boundaryY} {

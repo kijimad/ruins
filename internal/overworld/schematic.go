@@ -42,12 +42,12 @@ var facilityOrder = []facilityKind{
 type featureKind string
 
 const (
-	featureField   featureKind = "field"    // 荒れ地
-	featureVillage featureKind = "village"   // 村
-	featureHamlet  featureKind = "hamlet"    // 一軒家
-	featureRuin    featureKind = "ruin"      // 遺跡入口
-	featurePOI     featureKind = "poi"       // 点在POI
-	featureUnknown featureKind = "unknown"   // 分類漏れの保険。凡例には出さない
+	featureField   featureKind = "field"   // 荒れ地
+	featureVillage featureKind = "village" // 村
+	featureHamlet  featureKind = "hamlet"  // 一軒家
+	featureRuin    featureKind = "ruin"    // 遺跡入口
+	featurePOI     featureKind = "poi"     // 点在POI
+	featureUnknown featureKind = "unknown" // 分類漏れの保険。凡例には出さない
 )
 
 // featureGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に
