@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -126,4 +127,58 @@ func TestSelectPlanner(t *testing.T) {
 		// 異なる結果が一定数あるはず
 		assert.Greater(t, differentCount, 10)
 	})
+}
+
+func TestDungeonDefinition_BossPlanner(t *testing.T) {
+	t.Parallel()
+
+	boss := mapplanner.PlannerTypeBossFloor
+
+	t.Run("ボスプランナーがあり最終階なら取得できる", func(t *testing.T) {
+		t.Parallel()
+		def := DungeonDefinition{
+			name:        "テスト",
+			totalFloors: 20,
+			bossPlanner: &boss,
+		}
+		result, ok := def.BossPlanner(20)
+		assert.True(t, ok)
+		assert.Equal(t, boss.Name, result.Name)
+	})
+
+	t.Run("ボスプランナーがあっても最終階でなければ取得できない", func(t *testing.T) {
+		t.Parallel()
+		def := DungeonDefinition{
+			name:        "テスト",
+			totalFloors: 20,
+			bossPlanner: &boss,
+		}
+		result, ok := def.BossPlanner(19)
+		assert.False(t, ok)
+		assert.Equal(t, mapplanner.PlannerType{}, result)
+	})
+
+	t.Run("ボスプランナーが設定されていなければ最終階でも取得できない", func(t *testing.T) {
+		t.Parallel()
+		def := DungeonDefinition{
+			name:        "テスト",
+			totalFloors: 20,
+		}
+		result, ok := def.BossPlanner(20)
+		assert.False(t, ok)
+		assert.Equal(t, mapplanner.PlannerType{}, result)
+	})
+}
+
+func TestNewOverworldDefinition_フィールドを保持する(t *testing.T) {
+	t.Parallel()
+
+	def := NewOverworldDefinition("テスト帯", 7, consts.Tile(30), consts.Tile(40), consts.Chunk(2))
+
+	assert.Equal(t, "テスト帯", def.Name())
+	assert.Equal(t, 7, def.BaseTemperature())
+	chunkW, chunkH, k := def.BandShape()
+	assert.Equal(t, consts.Tile(30), chunkW)
+	assert.Equal(t, consts.Tile(40), chunkH)
+	assert.Equal(t, consts.Chunk(2), k)
 }
