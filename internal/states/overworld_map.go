@@ -150,15 +150,15 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
 }
 
 // glyphColorTable は文字から色への対応。色は overworld の GlyphInfo が記号と同居して持つので、
-// init で記号定義から引き写すだけにし、states 側で記号ごとの色を別に定義しない。記号を変えても
-// 色定義と同じ1レコードなのでずれない。凡例に出ない記号は表に入らず glyphColor の既定へ落ちる。
-var glyphColorTable = map[rune]color.RGBA{}
-
-func init() {
+// 記号定義から一度だけ引き写す。states 側で記号ごとの色を別に定義しない。記号を変えても色定義と
+// 同じ1レコードなのでずれない。凡例に出ない記号は表に入らず glyphColor の既定へ落ちる。
+var glyphColorTable = func() map[rune]color.RGBA {
+	table := map[rune]color.RGBA{}
 	for _, g := range overworld.LegendGlyphs() {
-		glyphColorTable[g.Label] = g.Color
+		table[g.Label] = g.Color
 	}
-}
+	return table
+}()
 
 // glyphColor は種別文字に対応する色を返す。未知の文字は灰色にする。
 func glyphColor(r rune) color.RGBA {
