@@ -26,15 +26,6 @@ func NewVisionSystem() *VisionSystem {
 	return &VisionSystem{}
 }
 
-// consumePendingUpdate は要求された視界更新を消費し、再計算が要るかを返す。
-func (sys *VisionSystem) consumePendingUpdate(vs *gc.VisionState) bool {
-	if !vs.PendingUpdate {
-		return false
-	}
-	vs.PendingUpdate = false
-	return true
-}
-
 // String はシステム名を返す
 // w.Updater interfaceを実装
 func (sys VisionSystem) String() string {
@@ -74,9 +65,8 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.X-sys.lastPlayer.X)) >= updateThreshold ||
 		geometry.Abs(int(playerPos.Y-sys.lastPlayer.Y)) >= updateThreshold
 
-	// 外部から要求された視界更新を消費する。Force は遮蔽が変わったのでレイキャッシュも破棄し、
-	// Refresh は遮蔽が変わらないのでレイを保持して視界だけ引き直す
-	if sys.consumePendingUpdate(vs) {
+	// 外部から要求された視界更新を消費する
+	if vs.ConsumePendingUpdate() {
 		needsUpdate = true
 	}
 

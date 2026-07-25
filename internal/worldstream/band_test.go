@@ -94,7 +94,7 @@ func TestBand_ShiftEast(t *testing.T) {
 
 	// 壁配置が帯ローカル座標に対して変わったので、視界の強制再計算を要求する。
 	// 立てないと VisionSystem のレイキャストキャッシュが旧壁配置の遮蔽結果を再利用し、幽霊影が出る
-	assert.True(t, visState.PendingUpdate, "シフト後は視界の強制再計算が要求される")
+	assert.True(t, visState.ConsumePendingUpdate(), "シフト後は視界の強制再計算が要求される")
 }
 
 // TestBand_ShiftWest は西へ1回シフトする対称動作を固定する（短い寄り道の復帰）。

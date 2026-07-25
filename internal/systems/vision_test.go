@@ -304,22 +304,3 @@ func TestBresenhamLineOfSight(t *testing.T) {
 	})
 }
 
-func TestConsumePendingUpdate(t *testing.T) {
-	t.Parallel()
-
-	t.Run("要求があれば消費して再計算を要求する", func(t *testing.T) {
-		t.Parallel()
-		sys := NewVisionSystem()
-		visionState := gc.NewVisionState()
-		visionState.RequestUpdate()
-
-		assert.True(t, sys.consumePendingUpdate(visionState))
-		assert.False(t, visionState.PendingUpdate, "要求は消費されて下がる")
-	})
-
-	t.Run("要求がなければ再計算しない", func(t *testing.T) {
-		t.Parallel()
-		sys := NewVisionSystem()
-		assert.False(t, sys.consumePendingUpdate(gc.NewVisionState()))
-	})
-}
