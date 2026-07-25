@@ -33,7 +33,7 @@ var facilityGlyphs = map[facilityKind]GlyphInfo{
 
 // 地物レベルの表記。1チャンクを1文字で表す。UI と共有するため公開する。
 const (
-	GlyphField   = '.' // 原野
+	GlyphField   = '.' // 荒れ地
 	GlyphVillage = 'T' // 村
 	GlyphHamlet  = 't' // 一軒家
 	GlyphRuin    = '>' // 遺跡入口
@@ -56,35 +56,66 @@ func FacilityGlyphs() []GlyphInfo {
 	return out
 }
 
-// ChunkPlace は1チャンクの種別を1文字で返す純関数。市街地の建物チャンクはその施設種別、
-// それ以外は当選した地物の記号、何もなければ原野を返す。地図と生成が同じ純関数から導かれる
-// ので、地図の記号と実体が食い違わない。優先度は市街地 > 遺跡入口 > 集落 > 点在POI。
+// chunkType は1チャンクの場所の種別。全チャンクがいずれか1つに分類され、暗黙の既定を持たない。
+// 特徴的な地物が当たらないチャンクは消極的な「残り」でなく、明示的に荒れ地に分類される。
+type chunkType uint8
+
+const (
+	chunkWasteland    chunkType = iota // 荒れ地。特徴的な地物が無い開けた地形
+	chunkSettlement                    // 集落。村・一軒家
+	chunkUrban                         // 市街地。建物チャンク
+	chunkRuinEntrance                  // 遺跡入口
+	chunkPOI                           // 自然の点在POI
+)
+
+// chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
+// 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在POI > 荒れ地。地図も生成もこの分類を
+// 唯一の源にするので、地図の記号と実体が食い違わない。
+func chunkTypeAt(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) chunkType {
+	if _, _, ok := cityChunkInfo(runSeed, c, rows); ok {
+		return chunkUrban
+	}
+	if ruinPlacement.At(runSeed, c, rows) {
+		return chunkRuinEntrance
+	}
+	if settlementPlacement.At(runSeed, c, rows) {
+		return chunkSettlement
+	}
+	if poiPlacement.At(runSeed, c, rows) {
+		return chunkPOI
+	}
+	return chunkWasteland
+}
+
+// ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
+// 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
 func ChunkPlace(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) rune {
-	if kind, _, ok := cityChunkInfo(runSeed, c, rows); ok {
+	switch chunkTypeAt(runSeed, c, rows) {
+	case chunkUrban:
+		kind, _, _ := cityChunkInfo(runSeed, c, rows)
 		if g, ok := facilityGlyphs[kind]; ok {
 			return g.Label
 		}
 		return GlyphUnknown
-	}
-	if ruinPlacement.At(runSeed, c, rows) {
+	case chunkRuinEntrance:
 		return GlyphRuin
-	}
-	if settlementPlacement.At(runSeed, c, rows) {
+	case chunkSettlement:
 		if settlementVillageRoll(runSeed, c) {
 			return GlyphVillage
 		}
 		return GlyphHamlet
-	}
-	if poiPlacement.At(runSeed, c, rows) {
+	case chunkPOI:
 		return GlyphPOI
+	case chunkWasteland:
+		return GlyphField
 	}
-	return GlyphField
+	return GlyphUnknown
 }
 
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。
 func SchematicLegend() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "%c 原野  %c 村  %c 一軒家  %c 遺跡入口  %c 点在POI\n",
+	fmt.Fprintf(&b, "%c 荒れ地  %c 村  %c 一軒家  %c 遺跡入口  %c 点在POI\n",
 		GlyphField, GlyphVillage, GlyphHamlet, GlyphRuin, GlyphPOI)
 	parts := make([]string, 0, len(facilityGlyphs))
 	for _, g := range FacilityGlyphs() {

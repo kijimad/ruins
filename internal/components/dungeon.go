@@ -31,7 +31,7 @@ type SeamlessBand struct {
 	ChunkH consts.Tile
 	// K は帯のチャンク数
 	K consts.Chunk
-	// Rows は帯の縦チャンク行数。旧セーブには無くゼロ値になるため、復元時に 1 へ正規化する
+	// Rows は帯の縦チャンク行数。ゼロ値なら復元時に 1 へ正規化する
 	Rows consts.Chunk
 
 	// Front は寒波前線の永続状態。帯の Active に従属し、帯とセットで復元される。

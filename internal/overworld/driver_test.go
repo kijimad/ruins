@@ -213,7 +213,7 @@ func TestDriver_前線が総ターン数で前進する(t *testing.T) {
 }
 
 // TestDriver_Rowsの書き込みと正規化 は、新規開始が Rows をセーブ対象へ書き込み、
-// 旧セーブのゼロ値 Rows を復元時に 1 へ正規化することを固定する。
+// ゼロ値の Rows を復元時に 1 へ正規化することを固定する。
 func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
 	t.Parallel()
 
