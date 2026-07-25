@@ -13,6 +13,10 @@ scope する。
   いずれも新規ピクセルアートが要る。ここに列挙する。
 - **評価はすぐ始められる施設がある**。下のマトリクスで「評価可」の施設は、既存 prop だけで placement ロジックの
   eyeball 評価に入れる。アート待ちで足踏みする必要はない。
+- **不足分は文字入りダミーで用意済み**。要アートの prop 25・床材 tile 5 を、32x32 の色分けラベル placeholder として
+  生成し、`raw.toml` に wire・`make aseprite` でパック済み。実アートが描かれ次第、`assets/file/textures/{single,tiles}/`
+  の source PNG を差し替えて再パックするだけで本番に載る。placement の実装・評価をアート待ちせず始められる。
+  なお **condition 変種は当面やらない**。
 
 ## 施設別 充足マトリクス
 
@@ -53,15 +57,23 @@ scope する。
 現状の `[[tiles]]` は **dirt / floor / wall / dwall / void の5種のみ**。床は単一の `floor`、壁は autotile(`wall_N`)。
 `20260725_70` の床材・condition 軸を目に見える形にするには、以下の新規タイルアートが要る。
 
-**床材**（施設の材質感）
-- リノリウム(コンビニ・病院), タイル(浴室・厨房), コンクリ/アスファルト(倉庫・地下), フローリング(民家・オフィス), タタミ(和室)
+**床材**（施設の材質感。ダミー用意済み）
+- リノリウム(コンビニ・病院), タイル(浴室・厨房), コンクリ(倉庫・地下), フローリング(民家・オフィス), タタミ(和室)
 
-**condition**（doc 70 の theme condition 軸を表現）
-- 略奪(散乱・欠品), 汚損(染み・埃), 水没(冠水), 瓦礫(崩落)
-- 実装は「床材タイル×condition オーバーレイ」か「材質×状態の直積タイル」。オーバーレイ decal が既存にあるか要確認。
+condition 変種(略奪・汚損・水没・瓦礫)は当面やらない。materialの床材だけを用意する。壁材変種も今回は見送る。
 
-**壁材**
-- コンクリ壁, タイル壁, 内装パネル壁の autotile 変種
+## ダミーで用意済みのアセット
+
+要アートの prop・tile を、施設カテゴリで色分けした文字入り 32x32 placeholder として生成し、`raw.toml` に wire 済み。
+source PNG は `assets/file/textures/{single,tiles}/`、dist は `make aseprite` でパック済み。実アートはこの source を
+差し替えて再パックする。`raw.toml` 内は `# === ダミー内装アセット ===` コメントで一括識別できる。
+
+- **コンビニ**(琥珀): display_cooler, magazine_rack, vending_machine, shopping_basket, gondola_shelf, checkout_counter
+- **診療所**(teal): exam_bed, iv_stand, wheelchair, stretcher, medicine_cabinet, reception_counter, medical_monitor
+- **オフィス**(slate): cubicle_partition, server_rack, printer, whiteboard, water_cooler
+- **倉庫**(rust): pallet, cage
+- **神社**(vermilion): torii_small, offering_box, komainu, ema_rack, incense_burner
+- **床材 tile**(grey): floor_linoleum, floor_tile, floor_concrete, floor_wood, floor_tatami
 
 ## アセットが届いたら —— 追加手順
 
