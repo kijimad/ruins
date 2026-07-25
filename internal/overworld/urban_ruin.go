@@ -27,8 +27,8 @@ const (
 	// 街区の格子。CDDA の街が OMT ごとに建物で埋まり街路で区切られるのを翻案する。
 	// 市街地を cityLotPitch 間隔の区画に切り、各区画をほぼ埋める大きな建物を置き、
 	// 区画の西辺と北辺に幅 cityStreetW の街路を敷いて格子状の街並みにする。
-	cityLotPitch   consts.Tile = 16 // 区画の間隔。建物 + 街路
-	cityStreetW    consts.Tile = 2  // 街路の幅
+	cityLotPitch   consts.Tile = 18 // 区画の間隔。建物 + 街路
+	cityStreetW    consts.Tile = 4  // 街路の幅。CDDA の2車線+歩道に相当する広さにする
 	cityMaxSetback consts.Tile = 4  // 区画内で建物を縮めてよい最大量。前庭や隙間を作る
 	cityVacancy                = 2  // 10 区画あたり空き地にする数。単調さを崩す
 
