@@ -170,8 +170,8 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 // merchantName は小集落の店NPC名。テスト間で共有する。
 const merchantName = "商人"
 
-// townBucket は 商人 が立つチャンクスロットと、商人がいるかを返す。
-func townBucket(world w.World) (int, bool) {
+// settlementBucket は 商人 が立つチャンクスロットと、商人がいるかを返す。
+func settlementBucket(world w.World) (int, bool) {
 	const chunkW consts.Tile = 30
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
@@ -221,7 +221,7 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 	for i := range 8 {
 		require.NoError(t, genScout(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
-	winner, ok := townBucket(scout)
+	winner, ok := settlementBucket(scout)
 	require.True(t, ok, "前提: 当選チャンクが存在する")
 	loser := consts.Coord[consts.Chunk]{X: consts.Chunk((winner + 1) % 8)}
 
@@ -229,7 +229,7 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 	plain := testutil.InitTestWorld(t)
 	genPlain := overworld.NewChunkGen(plain, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 	require.NoError(t, genPlain(loser, 0, 0))
-	_, plainOK := townBucket(plain)
+	_, plainOK := settlementBucket(plain)
 	assert.False(t, plainOK, "外れチャンクに小集落は出ない")
 }
 
@@ -259,7 +259,7 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 			}
 			return walls[i].Y < walls[j].Y
 		})
-		slot, ok := townBucket(world)
+		slot, ok := settlementBucket(world)
 		return walls, slot, ok
 	}
 

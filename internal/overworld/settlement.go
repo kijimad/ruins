@@ -8,8 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
-// townSpot は集落中心からの相対座標に置くエンティティの定義。
-type townSpot struct {
+// relSpot は基準点からの相対座標に置くエンティティの定義。集落の中心や POI の原点を基準に、
+// NPC や prop をずらして配置するのに使う。
+type relSpot struct {
 	name string
 	dx   consts.Tile
 	dy   consts.Tile
@@ -18,25 +19,25 @@ type townSpot struct {
 // villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店(商人)・雇用(酒場の主人)・
 // 合成(怪しい科学者)を開く。小集落は無状態の補給地で、stash となる収納は置かない。
 // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。
-var villageNPCs = []townSpot{
+var villageNPCs = []relSpot{
 	{"商人", -2, -1},
 	{"酒場の主人", -2, 1},
 	{"怪しい科学者", -4, 0},
 }
 
 // hamletNPCs は一軒家に配置する会話NPC。行商の拠点という位置づけで商人だけがいる。
-var hamletNPCs = []townSpot{
+var hamletNPCs = []relSpot{
 	{"商人", -2, -1},
 }
 
 // villageProps と hamletProps は集落の生活感を出す prop。NPC の座標と重ねない。
 var (
-	villageProps = []townSpot{
+	villageProps = []relSpot{
 		{"bonfire", 2, -2},
 		{"bench", 3, 1},
 		{"wooden_sign", 0, -3},
 	}
-	hamletProps = []townSpot{
+	hamletProps = []relSpot{
 		{"bonfire", 2, -2},
 		{"crate", 1, 2},
 	}
@@ -58,7 +59,7 @@ func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[con
 		return nil
 	}
 	center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
-	return spawnTown(world, center, settlementVillageRoll(runSeed, c))
+	return spawnSettlement(world, center, settlementVillageRoll(runSeed, c))
 }
 
 // settlementVillageRoll は集落の規模抽選。真なら村、偽なら一軒家。純粋に (runSeed, 座標) の
@@ -67,11 +68,11 @@ func settlementVillageRoll(runSeed uint64, c consts.Coord[consts.Chunk]) bool {
 	return ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y)%10 < 6
 }
 
-// spawnTown は小集落を構成する。center を集落の中心として会話NPCと生活感の prop を
+// spawnSettlement は小集落を構成する。center を集落の中心として会話NPCと生活感の prop を
 // 近傍へ決定的に配置する。村は全サービスのNPCが揃い、一軒家は商人だけの行商拠点になる。
 // 集落はステージでなくオーバーワールドの地物なので、専用の State を持たず prop として常在する。
 // 帯への束縛は呼び出し元のチャンク生成が一括で行う。
-func spawnTown(world w.World, center consts.Coord[consts.Tile], village bool) error {
+func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bool) error {
 	npcs, props := hamletNPCs, hamletProps
 	if village {
 		npcs, props = villageNPCs, villageProps

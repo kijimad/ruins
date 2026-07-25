@@ -45,13 +45,13 @@ func (wildernessPOIFeature) place(world w.World, runSeed uint64, c consts.Coord[
 	case roll < 55: // 農家跡。納屋に物資の跡
 		return stampHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate", "茶色い樽"})
 	case roll < 75: // 祠。石柱と蝋燭だけの露天の構造物
-		return spawnPOIProps(world, origin, []townSpot{
+		return spawnPOIProps(world, origin, []relSpot{
 			{"stone_pillar", 0, 0},
 			{"candle", -1, 1},
 			{"candle", 1, 1},
 		})
 	default: // キャンプ跡。誰かが夜を越した跡
-		return spawnPOIProps(world, origin, []townSpot{
+		return spawnPOIProps(world, origin, []relSpot{
 			{"bonfire", 0, 0},
 			{"crate", 1, 1},
 			{"bench", -1, 0},
@@ -93,7 +93,7 @@ func stampHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[co
 }
 
 // spawnPOIProps は露天POIの prop 一式を基準座標からの相対で配置する。
-func spawnPOIProps(world w.World, origin consts.Coord[consts.Tile], spots []townSpot) error {
+func spawnPOIProps(world w.World, origin consts.Coord[consts.Tile], spots []relSpot) error {
 	for _, s := range spots {
 		if _, err := lifecycle.SpawnProp(world, s.name, origin.X+s.dx, origin.Y+s.dy); err != nil {
 			return fmt.Errorf("POIの配置に失敗 (%s): %w", s.name, err)

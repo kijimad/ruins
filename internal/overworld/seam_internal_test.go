@@ -16,12 +16,12 @@ func TestAutotileBase(t *testing.T) {
 		wantBase string
 		wantOK   bool
 	}{
-		{"dirt_15", "dirt", true},       // 通常のオートタイル
-		{"dirt_0", "dirt", true},        // 端スプライト
+		{"dirt_15", "dirt", true},            // 通常のオートタイル
+		{"dirt_0", "dirt", true},             // 端スプライト
 		{"grass_wall_3", "grass_wall", true}, // 最後の _ で切るので基底に _ を含んでよい
-		{"void", "", false},             // アンダースコア無しは非オートタイル
-		{"dirt_x", "", false},           // 数値でないサフィックス
-		{"dirt_", "", false},            // 空サフィックス
+		{"void", "", false},                  // アンダースコア無しは非オートタイル
+		{"dirt_x", "", false},                // 数値でないサフィックス
+		{"dirt_", "", false},                 // 空サフィックス
 	}
 	for _, c := range cases {
 		base, ok := autotileBase(c.key)
