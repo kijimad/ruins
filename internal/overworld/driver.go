@@ -157,9 +157,11 @@ func (dr *Driver) startNewBand(world w.World) error {
 
 	// プレイヤーを中央チャンク付近の歩行可能タイルへ湧かせる。開始チャンクの種別に依存せず、
 	// 建物や遺跡入口の上でも壁を避けて安全に置く。居なければ生成、居れば移動
-	cx := (dr.band.K() / 2).Tiles(chunkW) + chunkW/2
-	cy := (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2
-	spawn := walkableSpawnNear(world, cx, cy)
+	center := consts.Coord[consts.Tile]{
+		X: (dr.band.K() / 2).Tiles(chunkW) + chunkW/2,
+		Y: (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2,
+	}
+	spawn := walkableSpawnNear(world, center)
 	if _, err := query.GetPlayerEntity(world); err != nil {
 		if _, serr := lifecycle.SpawnPlayer(world, spawn, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
@@ -175,13 +177,13 @@ func (dr *Driver) startNewBand(world w.World) error {
 // walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を
 // 返す。開始チャンクが荒れ地でなく建物や遺跡入口でも、プレイヤーを壁の中へ湧かせないための安全策。
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
-func walkableSpawnNear(world w.World, cx, cy consts.Tile) consts.Coord[consts.Tile] {
+func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
 	blocked := make(map[gc.GridElement]bool)
 	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
 	for q.Next() {
 		blocked[*world.Components.GridElement.Get(q.Entity())] = true
 	}
-	x0, y0 := int(cx), int(cy)
+	x0, y0 := int(center.X), int(center.Y)
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
 	}

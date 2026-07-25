@@ -260,7 +260,7 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly c
 			if name == "" {
 				continue // 前庭・空き地は土のまま残す
 			}
-			if err := replaceTile(world, tiles, g.offsetX+lx, g.offsetY+ly, name); err != nil {
+			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, name); err != nil {
 				return nil, fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
@@ -332,13 +332,13 @@ func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement
 
 // replaceTile は座標のタイルを取り除き、tileName のタイルへ置き換える。
 // オートタイル添字は仮の 0 で置き、後段の RecalcAutotileInXRange が実状態から揃える。
-func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, x, y consts.Tile, tileName string) error {
-	g := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
+func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string) error {
+	g := gc.GridElement{Coord: pos}
 	if e, ok := tiles[g]; ok && world.ECS.Alive(e) {
 		world.ECS.RemoveEntity(e)
 	}
 	zero := 0
-	e, err := lifecycle.SpawnTile(world, tileName, x, y, &zero)
+	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, &zero)
 	if err != nil {
 		return err
 	}

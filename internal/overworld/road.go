@@ -46,7 +46,7 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 		}
 		wx := g.offsetX + (px - loX)
 		wy := g.offsetY + (py - loY)
-		if err := replaceDirtTile(world, tiles, wx, wy); err != nil {
+		if err := replaceDirtTile(world, tiles, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil {
 			return fmt.Errorf("道の舗装に失敗 (x=%d, y=%d): %w", wx, wy, err)
 		}
 		return nil
@@ -67,8 +67,8 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 
 // replaceDirtTile は座標のタイルが土のときだけ床へ置き換える。土以外は他の地物の
 // 生成物なので触らない。
-func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, x, y consts.Tile) error {
-	g := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
+func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) error {
+	g := gc.GridElement{Coord: pos}
 	e, ok := tiles[g]
 	if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) {
 		return nil
@@ -76,5 +76,5 @@ func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, x, y co
 	if world.Components.Name.Get(e).Name != consts.TileNameDirt {
 		return nil
 	}
-	return replaceTile(world, tiles, x, y, consts.TileNameFloor)
+	return replaceTile(world, tiles, pos, consts.TileNameFloor)
 }
