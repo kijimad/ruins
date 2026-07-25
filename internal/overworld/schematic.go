@@ -60,8 +60,8 @@ func FacilityGlyphs() []GlyphInfo {
 // それ以外は当選した地物の記号、何もなければ原野を返す。地図と生成が同じ純関数から導かれる
 // ので、地図の記号と実体が食い違わない。優先度は市街地 > 遺跡入口 > 集落 > 点在POI。
 func ChunkPlace(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) rune {
-	if facility, _, ok := cityChunkInfo(runSeed, c, rows); ok {
-		if g, ok := facilityGlyphs[facilityCatalog[facility].kind]; ok {
+	if kind, _, ok := cityChunkInfo(runSeed, c, rows); ok {
+		if g, ok := facilityGlyphs[kind]; ok {
 			return g.Label
 		}
 		return GlyphUnknown

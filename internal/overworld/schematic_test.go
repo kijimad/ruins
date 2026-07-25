@@ -32,10 +32,10 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 
 	const rows consts.Chunk = 9
 	seed, c := findCityChunk(t, rows)
-	facility, _, ok := cityChunkInfo(seed, c, rows)
+	kind, _, ok := cityChunkInfo(seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
 
-	want := facilityGlyphs[facilityCatalog[facility].kind].Label
+	want := facilityGlyphs[kind].Label
 	assert.Equal(t, want, ChunkPlace(seed, c, rows), "建物チャンクは施設種別の文字を返す")
 }
 

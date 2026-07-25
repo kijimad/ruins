@@ -79,47 +79,99 @@ const (
 	facilityLab                         // 研究施設
 )
 
-// facilityCatalog は施設の抽選重みと規模 gate と内装。minSpan は市街地の一辺がこの値以上の
-// ときだけ抽選対象になる。CDDA の city_size gate の翻案で、大きな市街地でだけ専門施設と
-// レアの研究施設が混ざる。現代日本の市街地をイメージした語彙にする。
-var facilityCatalog = []struct {
+// facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
+// 抽選対象になる。CDDA の city_size gate の翻案で、大きな市街地でだけ専門施設が混ざる。
+type facilityWeight struct {
 	kind    facilityKind
 	weight  int
 	minSpan consts.Chunk
-}{
-	{facilityHouse, 40, 2},
-	{facilityStore, 20, 2},
-	{facilityOffice, 15, 2},
-	{facilityDepot, 15, 2},
-	{facilityAntique, 8, 3},
-	{facilityClinic, 8, 3},
-	{facilityLab, 3, 3},
 }
 
-// rollFacility は規模 gate を通った施設を重みで1つ抽選し、facilityCatalog の添字を返す。
-func rollFacility(rng *rand.Rand, span consts.Chunk) int {
+// zone は市街地内の地区。中心からの位置で決まり、地区ごとに施設抽選の重みを変える。
+// per-chunk 独立の抽選では隣接同種率がランダムと変わらずごま塩になるため、地区で重みを
+// 揃えて空間相関を作り「地区」を生む。現代日本の市街地をイメージした語彙にする。
+type zone uint8
+
+const (
+	zoneDowntown    zone = iota // 都心。商業と専門施設。最大規模の市街地の中心にだけ現れる
+	zoneResidential             // 住宅地。住宅が中心
+	zoneIndustrial              // 産業区。倉庫が中心
+)
+
+// zoneCatalog は地区ごとの施設抽選重み。地区で重みが揃うので同じ地区の隣接チャンクは同種へ
+// 寄り、地区が生まれる。都心は必ず span=3 で現れるので専門施設の骨董品店・診療所・研究施設を
+// 含められる。各地区とも span=2 の入口を持つので、規模 gate で候補が空になり抽選が壊れることはない。
+var zoneCatalog = map[zone][]facilityWeight{
+	zoneDowntown: {
+		{facilityStore, 25, 2},
+		{facilityOffice, 20, 2},
+		{facilityAntique, 20, 3},
+		{facilityClinic, 20, 3},
+		{facilityLab, 15, 3},
+	},
+	zoneResidential: {
+		{facilityHouse, 65, 2},
+		{facilityStore, 25, 2},
+		{facilityClinic, 10, 3},
+	},
+	zoneIndustrial: {
+		{facilityDepot, 65, 2},
+		{facilityOffice, 25, 2},
+		{facilityHouse, 10, 2},
+	},
+}
+
+// industrialCityBit は市街地の性格を住宅地寄りか産業区寄りかに振る citySeed のビット。
+// 規模抽選が使う下位ビット urbanSizeOf の >>8・>>16 と衝突しない上位ビットを使う。
+const industrialCityBit = uint64(1) << 32
+
+// zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。厳密な中心を都心、それ以外を
+// 市街地の性格で住宅地か産業区にする。中心は 2 倍座標のチェビシェフ距離が 0 のマスで、
+// 奇数×奇数すなわち 3×3 の市街地にだけ存在する。都心が必ず最大規模に出るので専門施設を集められる。
+func zoneOf(lx, ly, cw, ch consts.Chunk, citySeed uint64) zone {
+	dx := int(lx)*2 - int(cw-1)
+	dy := int(ly)*2 - int(ch-1)
+	if dx < 0 {
+		dx = -dx
+	}
+	if dy < 0 {
+		dy = -dy
+	}
+	if max(dx, dy) == 0 {
+		return zoneDowntown
+	}
+	if citySeed&industrialCityBit != 0 {
+		return zoneIndustrial
+	}
+	return zoneResidential
+}
+
+// rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選する。
+func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityKind {
+	cat := zoneCatalog[z]
 	total := 0
-	for _, f := range facilityCatalog {
+	for _, f := range cat {
 		if span >= f.minSpan {
 			total += f.weight
 		}
 	}
 	roll := rng.IntN(total)
-	for i, f := range facilityCatalog {
+	for _, f := range cat {
 		if span < f.minSpan {
 			continue
 		}
 		roll -= f.weight
 		if roll < 0 {
-			return i
+			return f.kind
 		}
 	}
-	return 0
+	panic("到達しない: 抽選重みの合計と減算が不整合")
 }
 
 // cityChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
-// 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。
-func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (facility int, size consts.Chunk, ok bool) {
+// 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
+// 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
+func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (kind facilityKind, size consts.Chunk, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return 0, 0, false
@@ -127,9 +179,10 @@ func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) 
 	citySeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(citySeed, c.X-anchor.X, c.Y-anchor.Y)
 	size = max(cw, ch)
+	z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, citySeed)
 	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする
 	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
-	return rollFacility(frng, size), size, true
+	return rollFacilityInZone(frng, z, size), size, true
 }
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。市街地が開始チャンクを含むなら
