@@ -192,7 +192,7 @@ func TestNewChunkGen_小集落はリージョンにちょうど1つ生成され�
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 30, 20
-	const regionSpan = 8 // settlementSpec の Spacing。1リージョンぶんを生成する
+	const regionSpan = 8 // settlementPlacement の Spacing。1リージョンぶんを生成する
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 	for i := range regionSpan {

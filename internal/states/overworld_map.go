@@ -49,7 +49,7 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 const (
 	mapCellPx    = 22  // 1チャンクのセルの一辺ピクセル
 	mapContextCh = 6   // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
-	fieldGlyph   = '.' // 荒れ地の記号。overworld 側の featureField と同じ。荒れ地は色だけで文字を重ねない
+	fieldGlyph   = '.' // 荒れ地の記号。overworld 側の placeField と同じ。荒れ地は色だけで文字を重ねない
 )
 
 // OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため
@@ -164,7 +164,7 @@ var facilityPalette = map[rune]color.RGBA{
 }
 
 // featurePalette は地物記号から色への対応。facilityPalette と同じく記号そのものをキーにして、
-// overworld 側の featureKind の並びに依存させない。色の無い記号は glyphColor の既定へ落ちる。
+// overworld 側の placeType の並びに依存させない。色の無い記号は glyphColor の既定へ落ちる。
 var featurePalette = map[rune]color.RGBA{
 	'.': {R: 46, G: 59, B: 46, A: 255},    // 荒れ地 暗緑
 	'T': {R: 255, G: 210, B: 74, A: 255},  // 村 黄
@@ -178,7 +178,7 @@ var glyphColorTable = map[rune]color.RGBA{}
 
 func init() {
 	// 記号キーで引くので overworld 側の並び順に依存しない。色の無い記号は glyphColor の既定へ落ちる
-	for _, g := range overworld.FeatureGlyphs() {
+	for _, g := range overworld.PlaceGlyphs() {
 		if c, ok := featurePalette[g.Label]; ok {
 			glyphColorTable[g.Label] = c
 		}

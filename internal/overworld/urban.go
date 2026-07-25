@@ -64,27 +64,27 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chu
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// facilityKind は建物尺度の施設種別。市街地チャンクの中の1建物を表す。規模で gate した重み付き抽選で
-// 決まり、内装の prop の差になる。チャンク尺度で表示専用の featureKind と違い、こちらは表示に加えて
+// facilityType は建物尺度の施設種別。市街地チャンクの中の1建物を表す。規模で gate した重み付き抽選で
+// 決まり、内装の prop の差になる。チャンク尺度で表示専用の placeType と違い、こちらは表示に加えて
 // 市街地生成にも使うドメイン型。schematic.go の記号2層の説明も参照。
 // v1 は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
 // 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
-type facilityKind string
+type facilityType string
 
 const (
-	facilityHouse   facilityKind = "house"   // 住宅
-	facilityStore   facilityKind = "store"   // 商店
-	facilityOffice  facilityKind = "office"  // 事務所
-	facilityDepot   facilityKind = "depot"   // 倉庫
-	facilityAntique facilityKind = "antique" // 骨董品店
-	facilityClinic  facilityKind = "clinic"  // 診療所
-	facilityLab     facilityKind = "lab"     // 研究施設
+	facilityHouse   facilityType = "house"   // 住宅
+	facilityStore   facilityType = "store"   // 商店
+	facilityOffice  facilityType = "office"  // 事務所
+	facilityDepot   facilityType = "depot"   // 倉庫
+	facilityAntique facilityType = "antique" // 骨董品店
+	facilityClinic  facilityType = "clinic"  // 診療所
+	facilityLab     facilityType = "lab"     // 研究施設
 )
 
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
 // 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
 type facilityWeight struct {
-	kind    facilityKind
+	kind    facilityType
 	weight  int
 	minSpan consts.Chunk
 }
@@ -149,7 +149,7 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) zone {
 }
 
 // rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選する。
-func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityKind {
+func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType {
 	cat := zoneCatalog[z]
 	total := 0
 	for _, f := range cat {
@@ -173,7 +173,7 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityKind 
 // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
 // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
 // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityKind, size consts.Chunk, ok bool) {
+func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return "", 0, false

@@ -11,7 +11,7 @@ func TestGlyphColor_全ての種別記号に色が割り当てられている(t 
 	t.Parallel()
 
 	fallback := glyphColor('\x00') // 未知の文字の色
-	for _, g := range overworld.FeatureGlyphs() {
+	for _, g := range overworld.PlaceGlyphs() {
 		assert.NotEqualf(t, fallback, glyphColor(g.Label), "地物 %s(%c) に固有色がある", g.Name, g.Label)
 	}
 	for _, g := range overworld.FacilityGlyphs() {

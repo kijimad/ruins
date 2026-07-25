@@ -64,11 +64,11 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 					continue
 				}
 				switch ChunkPlace(s, c, rows) {
-				case featureGlyphs[featureRuin].Label:
+				case placeGlyphs[placeRuin].Label:
 					foundRuin = true
-				case featureGlyphs[featureVillage].Label:
+				case placeGlyphs[placeVillage].Label:
 					foundVillage = true
-				case featureGlyphs[featureHamlet].Label:
+				case placeGlyphs[placeHamlet].Label:
 					foundHamlet = true
 				}
 			}

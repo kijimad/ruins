@@ -15,12 +15,12 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 	t.Parallel()
 
 	const rows consts.Chunk = 9
-	kindCount := map[facilityKind]int{}
+	kindCount := map[facilityType]int{}
 	total := 0
 	sameAdj, totalAdj := 0, 0
 
 	for s := uint64(1); s <= 120; s++ {
-		grid := map[consts.Coord[consts.Chunk]]facilityKind{}
+		grid := map[consts.Coord[consts.Chunk]]facilityType{}
 		for y := range rows {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
