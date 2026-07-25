@@ -36,13 +36,14 @@ func (wildernessPOIFeature) place(world w.World, runSeed uint64, c consts.Coord[
 	spanY := max(1, int(g.chunkH)-2*margin-maxHut)
 	ox := g.offsetX + consts.Tile(margin+rng.IntN(spanX))
 	oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
+	origin := consts.Coord[consts.Tile]{X: ox, Y: oy}
 
 	roll := rng.IntN(100)
 	switch {
 	case roll < 30: // 廃屋。生活の跡が残る小屋
-		return stampHut(world, g, rng, ox, oy, 6, 5, []string{"bed", "closet"})
+		return stampHut(world, g, rng, origin, 6, 5, []string{"bed", "closet"})
 	case roll < 55: // 農家跡。納屋に物資の跡
-		return stampHut(world, g, rng, ox, oy, 7, 5, []string{"barrel", "crate", "茶色い樽"})
+		return stampHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate", "茶色い樽"})
 	case roll < 75: // 祠。石柱と蝋燭だけの露天の構造物
 		return spawnPOIProps(world, ox, oy, []townSpot{
 			{"stone_pillar", 0, 0},
@@ -60,8 +61,9 @@ func (wildernessPOIFeature) place(world w.World, runSeed uint64, c consts.Coord[
 
 // stampHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
 // 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
-func stampHut(world w.World, g chunkGeom, rng *rand.Rand, ox, oy, hw, hh consts.Tile, props []string) error {
+func stampHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, props []string) error {
 	tiles := g.tiles.get()
+	ox, oy := origin.X, origin.Y
 	door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
 	for ly := oy; ly < oy+hh; ly++ {
 		for lx := ox; lx < ox+hw; lx++ {
