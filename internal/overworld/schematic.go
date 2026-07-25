@@ -83,6 +83,25 @@ const (
 	chunkPOI                           // 自然の点在POI
 )
 
+// String は種別名を返す。%v や %s のデバッグ表示で数値でなく名前が出る。default を置かず、
+// 種別を1つ足すと網羅を linter が強制する。String は例外整形やログでも呼ばれうるので、未知値は
+// panic でなく数値付きの文字列へ graceful に落とす。
+func (t chunkType) String() string {
+	switch t {
+	case chunkWasteland:
+		return "Wasteland"
+	case chunkSettlement:
+		return "Settlement"
+	case chunkUrban:
+		return "Urban"
+	case chunkRuinEntrance:
+		return "RuinEntrance"
+	case chunkPOI:
+		return "POI"
+	}
+	return fmt.Sprintf("chunkType(%d)", uint8(t))
+}
+
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在POI > 荒れ地。地図も生成もこの分類を
 // 唯一の源にするので、地図の記号と実体が食い違わない。
