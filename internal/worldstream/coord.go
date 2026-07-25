@@ -17,11 +17,3 @@ func ToAbs(bandOriginX consts.AbsTileX, localX consts.Tile) consts.AbsTileX {
 func ToLocal(bandOriginX consts.AbsTileX, absX consts.AbsTileX) consts.Tile {
 	return consts.Tile(absX - bandOriginX)
 }
-
-// ChunkCoord は2次元のチャンク座標を表す。X は東西の絶対チャンクインデックスで無限に伸び、
-// Y は帯の行 [0, Rows) に有界でストリーミングしない。比較可能な値型なので、等値比較や
-// map のキーにそのまま使える。
-type ChunkCoord struct {
-	X consts.Chunk
-	Y consts.Chunk
-}

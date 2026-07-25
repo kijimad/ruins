@@ -27,7 +27,7 @@ type Band struct {
 // ChunkGen はチャンク座標 c の地形を帯ローカルの (offsetX, offsetY) 位置へ生成・配置する。
 // 呼び出し側が引数からの決定的生成と mapspawner.SpawnAt を実装する。
 // worldstream を mapplanner/mapspawner に依存させないための注入点。
-type ChunkGen func(c ChunkCoord, offsetX, offsetY consts.Tile) error
+type ChunkGen func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error
 
 // NewBand は幅 chunkW・高さ chunkH のチャンクを横 k 列・縦 rows 行並べた帯を eastIndex=0 で作る。
 // k は奇数を推奨する。rows=1 なら1行の帯になる。
@@ -88,7 +88,7 @@ func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 	newChunkX := b.eastIndex + b.k - 1
 	offsetX := (b.k - 1).Tiles(b.chunkW)
 	for cy := range b.rows {
-		if err := gen(ChunkCoord{X: newChunkX, Y: cy}, offsetX, cy.Tiles(b.chunkH)); err != nil {
+		if err := gen(consts.Coord[consts.Chunk]{X: newChunkX, Y: cy}, offsetX, cy.Tiles(b.chunkH)); err != nil {
 			return err
 		}
 	}
@@ -111,7 +111,7 @@ func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 	// eastIndex 後退 → 新しい西端の列を全行生成・配置する
 	b.eastIndex--
 	for cy := range b.rows {
-		if err := gen(ChunkCoord{X: b.eastIndex, Y: cy}, 0, cy.Tiles(b.chunkH)); err != nil {
+		if err := gen(consts.Coord[consts.Chunk]{X: b.eastIndex, Y: cy}, 0, cy.Tiles(b.chunkH)); err != nil {
 			return err
 		}
 	}

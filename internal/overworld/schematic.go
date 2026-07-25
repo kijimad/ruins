@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
 // チャンクマップ表記は、1チャンク=1建物という縮尺に合わせ、各チャンクを「そこが何の種別の
@@ -71,7 +70,7 @@ const (
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在POI > 荒れ地。地図も生成もこの分類を
 // 唯一の源にするので、地図の記号と実体が食い違わない。
-func chunkTypeAt(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) chunkType {
+func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {
 	if _, _, ok := cityChunkInfo(runSeed, c, rows); ok {
 		return chunkUrban
 	}
@@ -89,7 +88,7 @@ func chunkTypeAt(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) ch
 
 // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
 // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
-func ChunkPlace(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) rune {
+func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, rows) {
 	case chunkUrban:
 		kind, _, _ := cityChunkInfo(runSeed, c, rows)

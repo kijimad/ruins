@@ -12,7 +12,6 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -85,7 +84,7 @@ func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing
 			if reverse {
 				x = window - 1 - i
 			}
-			require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(x)}, consts.Tile(x)*chunkW, 0))
+			require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(x)}, consts.Tile(x)*chunkW, 0))
 		}
 		tiles, enemies := snapshotWorld(world)
 		return tiles, enemies, snapshotNamed(world)
@@ -108,7 +107,7 @@ func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T)
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {
-		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 
 	found := 0
@@ -134,7 +133,7 @@ func TestNewChunkGen_市街地の建物に見える扉が置かれる(t *testing
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {
-		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 
 	doors := 0

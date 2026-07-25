@@ -34,13 +34,13 @@ func TestChunkSeed2D_転置と隣接で散る(t *testing.T) {
 
 	// 負を含む近傍グリッド全域で seed が衝突しないことを確認する。
 	// シードの世代間互換は保証しないため、特定の値との一致は検証しない
-	seen := map[uint64]worldstream.ChunkCoord{}
+	seen := map[uint64]consts.Coord[consts.Chunk]{}
 	for cy := consts.Chunk(-8); cy <= 8; cy++ {
 		for cx := consts.Chunk(-8); cx <= 8; cx++ {
 			s := overworld.ChunkSeed2D(42, cx, cy)
 			prev, dup := seen[s]
 			assert.False(t, dup, "(%d,%d) の seed が (%d,%d) と衝突しない", cx, cy, prev.X, prev.Y)
-			seen[s] = worldstream.ChunkCoord{X: cx, Y: cy}
+			seen[s] = consts.Coord[consts.Chunk]{X: cx, Y: cy}
 		}
 	}
 }
@@ -52,7 +52,7 @@ func TestNewChunkGen_オフセット配置(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 30, 20
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 
-	require.NoError(t, gen(worldstream.ChunkCoord{X: 2}, 60, 0)) // X=2 を offsetX=60 へ
+	require.NoError(t, gen(consts.Coord[consts.Chunk]{X: 2}, 60, 0)) // X=2 を offsetX=60 へ
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	count := 0
@@ -76,7 +76,7 @@ func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *test
 	require.NoError(t, err)
 
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
-	require.NoError(t, gen(worldstream.ChunkCoord{}, 0, 0))
+	require.NoError(t, gen(consts.Coord[consts.Chunk]{}, 0, 0))
 
 	overworldKey := gc.NewOverworldStage()
 
@@ -105,7 +105,7 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 	collect := func() []gc.GridElement {
 		world := testutil.InitTestWorld(t)
 		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
-		require.NoError(t, gen(worldstream.ChunkCoord{X: 7}, 0, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: 7}, 0, 0))
 
 		var walls []gc.GridElement
 		q := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.ECS).Query()
@@ -139,7 +139,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 	// 初期帯: K チャンクを各スロットへ生成
 	for i := range k {
-		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2 * chunkW, Y: chunkH / 2}, "Ash")
@@ -196,7 +196,7 @@ func TestNewChunkGen_小集落はリージョンにちょうど1つ生成され�
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 	for i := range regionSpan {
-		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 
 	count := 0
@@ -219,11 +219,11 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 	scout := testutil.InitTestWorld(t)
 	genScout := overworld.NewChunkGen(scout, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 	for i := range 8 {
-		require.NoError(t, genScout(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, genScout(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 	winner, ok := townBucket(scout)
 	require.True(t, ok, "前提: 当選チャンクが存在する")
-	loser := worldstream.ChunkCoord{X: consts.Chunk((winner + 1) % 8)}
+	loser := consts.Coord[consts.Chunk]{X: consts.Chunk((winner + 1) % 8)}
 
 	// 外れチャンク単体では小集落が出ない
 	plain := testutil.InitTestWorld(t)
@@ -240,7 +240,7 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 30, 20
-	c := worldstream.ChunkCoord{X: 3}
+	c := consts.Coord[consts.Chunk]{X: 3}
 
 	collect := func(advanceTurns consts.Turn) ([]gc.GridElement, int, bool) {
 		world := testutil.InitTestWorld(t)

@@ -38,7 +38,7 @@ func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
 // 帯ローカルの (offsetX, offsetY) へ配置する。東西は無限にストリーミングし、南北は帯の行数に有界。
 // rows は帯の行数で当選行の抽選に使う。
 func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
-	return func(c worldstream.ChunkCoord, offsetX, offsetY consts.Tile) error {
+	return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {
 		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)
 		if err != nil {
 			return fmt.Errorf("チャンク生成失敗 (x=%d, y=%d): %w", c.X, c.Y, err)

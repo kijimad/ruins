@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/overworld"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,11 +13,11 @@ func TestPlacementAt(t *testing.T) {
 
 	p := overworld.Placement{Spacing: 8, Separation: 2, Salt: 0x99}
 
-	winners := func(rows consts.Chunk, regions int) []worldstream.ChunkCoord {
-		var got []worldstream.ChunkCoord
+	winners := func(rows consts.Chunk, regions int) []consts.Coord[consts.Chunk] {
+		var got []consts.Coord[consts.Chunk]
 		for x := consts.Chunk(0); x < p.Spacing*consts.Chunk(regions); x++ {
 			for y := range rows {
-				c := worldstream.ChunkCoord{X: x, Y: y}
+				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				if p.At(42, c, rows) {
 					got = append(got, c)
 				}

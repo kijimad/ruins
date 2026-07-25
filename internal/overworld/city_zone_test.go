@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,10 +20,10 @@ func TestCityZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 	sameAdj, totalAdj := 0, 0
 
 	for s := uint64(1); s <= 120; s++ {
-		grid := map[worldstream.ChunkCoord]facilityKind{}
+		grid := map[consts.Coord[consts.Chunk]]facilityKind{}
 		for y := range rows {
 			for x := range consts.Chunk(60) {
-				c := worldstream.ChunkCoord{X: x, Y: y}
+				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				if k, _, ok := cityChunkInfo(s, c, rows); ok {
 					grid[c] = k
 					kindCount[k]++
@@ -34,7 +33,7 @@ func TestCityZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 		}
 		// 直交隣接の同種を数える。東と南だけ見て各ペアを一度ずつ数える
 		for c, k := range grid {
-			for _, n := range []worldstream.ChunkCoord{{X: c.X + 1, Y: c.Y}, {X: c.X, Y: c.Y + 1}} {
+			for _, n := range []consts.Coord[consts.Chunk]{{X: c.X + 1, Y: c.Y}, {X: c.X, Y: c.Y + 1}} {
 				if nk, ok := grid[n]; ok {
 					totalAdj++
 					if nk == k {

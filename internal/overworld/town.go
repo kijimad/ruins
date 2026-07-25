@@ -6,7 +6,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
 // townSpot は集落中心からの相対座標に置くエンティティの定義。
@@ -53,7 +52,7 @@ var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementS
 // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。
 type settlementFeature struct{}
 
-func (settlementFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	if !settlementPlacement.At(runSeed, c, rows) {
 		return nil
 	}
@@ -67,7 +66,7 @@ func (settlementFeature) place(world w.World, runSeed uint64, c worldstream.Chun
 
 // settlementVillageRoll は集落の規模抽選。真なら村、偽なら一軒家。純粋に (runSeed, 座標) の
 // 関数で、地図の分類と生成の両方がこれを使うので規模の見た目と実体が一致する。
-func settlementVillageRoll(runSeed uint64, c worldstream.ChunkCoord) bool {
+func settlementVillageRoll(runSeed uint64, c consts.Coord[consts.Chunk]) bool {
 	return ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y)%10 < 6
 }
 

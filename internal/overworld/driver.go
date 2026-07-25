@@ -208,7 +208,7 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
 	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
 	for cy := range dr.band.Rows() {
 		for i := range dr.band.K() {
-			c := worldstream.ChunkCoord{X: dr.band.EastIndex() + i, Y: cy}
+			c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}
 			if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {
 				return fmt.Errorf("チャンク生成失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
 			}

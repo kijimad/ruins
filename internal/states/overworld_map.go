@@ -14,7 +14,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
 // OverworldMapState はオーバーワールドの種別俯瞰図を全画面で表示するステート。
@@ -69,7 +68,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	for cy := range rows {
 		st.glyphs[cy] = make([]rune, winChunksX)
 		for i := range winChunksX {
-			c := worldstream.ChunkCoord{X: winX0 + consts.Chunk(i), Y: cy}
+			c := consts.Coord[consts.Chunk]{X: winX0 + consts.Chunk(i), Y: cy}
 			st.glyphs[cy][i] = overworld.ChunkPlace(sb.RunSeed, c, rows)
 		}
 	}

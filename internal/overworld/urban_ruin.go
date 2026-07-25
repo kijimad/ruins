@@ -10,7 +10,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -50,10 +49,10 @@ type urbanRuinFeature struct{}
 // w×h チャンク広がる。該当しなければ ok=false。走査窓には当選アンカーが複数入りうるので
 // 早期に false を返さず探索を続ける。市街地どうしは urbanPlacement の Separation で重ならない
 // ため c を覆うアンカーは高々1つで、最初に見つかったものを返せば一意に定まる。
-func urbanRegionOf(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (anchor worldstream.ChunkCoord, w, h consts.Chunk, ok bool) {
+func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {
 	for dy := range urbanMaxSpan {
 		for dx := range urbanMaxSpan {
-			a := worldstream.ChunkCoord{X: c.X - dx, Y: c.Y - dy}
+			a := c.Sub(consts.Coord[consts.Chunk]{X: dx, Y: dy})
 			if !urbanPlacement.At(runSeed, a, rows) {
 				continue
 			}
@@ -63,7 +62,7 @@ func urbanRegionOf(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) 
 			}
 		}
 	}
-	return worldstream.ChunkCoord{}, 0, 0, false
+	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
 // facilityKind は建物の施設種別。規模で gate した重み付き抽選で決まり、内装の prop の差になる。
@@ -172,7 +171,7 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityKind 
 // cityChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
 // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
 // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) (kind facilityKind, size consts.Chunk, ok bool) {
+func cityChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityKind, size consts.Chunk, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return 0, 0, false
@@ -190,7 +189,7 @@ func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。市街地が開始チャンクを含むなら
 // 丸ごとスキップし、新規ゲームの開始点を安全に保つ。各チャンクは自己完結するので生成順に
 // 依存しない。
-func (urbanRuinFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+func (urbanRuinFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return nil

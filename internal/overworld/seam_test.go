@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -29,14 +28,14 @@ func TestChunkGen_継ぎ目は生成順に依存しない(t *testing.T) {
 	// 西→東の順（通常の初期生成・東シフト相当）
 	wEast := testutil.InitTestWorld(t)
 	genA := overworld.NewChunkGen(wEast, runSeed, chunkW, chunkH, 1, planner)
-	require.NoError(t, genA(worldstream.ChunkCoord{X: 0}, 0, 0))
-	require.NoError(t, genA(worldstream.ChunkCoord{X: 1}, chunkW, 0))
+	require.NoError(t, genA(consts.Coord[consts.Chunk]{X: 0}, 0, 0))
+	require.NoError(t, genA(consts.Coord[consts.Chunk]{X: 1}, chunkW, 0))
 
 	// 東→西の順（西シフト相当: 東チャンクが既に在り、後から西端を生成）
 	wWest := testutil.InitTestWorld(t)
 	genB := overworld.NewChunkGen(wWest, runSeed, chunkW, chunkH, 1, planner)
-	require.NoError(t, genB(worldstream.ChunkCoord{X: 1}, chunkW, 0))
-	require.NoError(t, genB(worldstream.ChunkCoord{X: 0}, 0, 0))
+	require.NoError(t, genB(consts.Coord[consts.Chunk]{X: 1}, chunkW, 0))
+	require.NoError(t, genB(consts.Coord[consts.Chunk]{X: 0}, 0, 0))
 
 	// 境界2列(chunkW-1 = 西チャンク東端, chunkW = 東チャンク西端)の SpriteKey が一致する
 	for _, x := range []consts.Tile{chunkW - 1, chunkW} {
@@ -155,14 +154,14 @@ func TestChunkGen_縦の継ぎ目は生成順に依存しない(t *testing.T) {
 	// 上→下の順
 	wTop := testutil.InitTestWorld(t)
 	genA := overworld.NewChunkGen(wTop, runSeed, chunkW, chunkH, 1, planner)
-	require.NoError(t, genA(worldstream.ChunkCoord{X: 0, Y: 0}, 0, 0))
-	require.NoError(t, genA(worldstream.ChunkCoord{X: 0, Y: 1}, 0, chunkH))
+	require.NoError(t, genA(consts.Coord[consts.Chunk]{X: 0, Y: 0}, 0, 0))
+	require.NoError(t, genA(consts.Coord[consts.Chunk]{X: 0, Y: 1}, 0, chunkH))
 
 	// 下→上の順
 	wBottom := testutil.InitTestWorld(t)
 	genB := overworld.NewChunkGen(wBottom, runSeed, chunkW, chunkH, 1, planner)
-	require.NoError(t, genB(worldstream.ChunkCoord{X: 0, Y: 1}, 0, chunkH))
-	require.NoError(t, genB(worldstream.ChunkCoord{X: 0, Y: 0}, 0, 0))
+	require.NoError(t, genB(consts.Coord[consts.Chunk]{X: 0, Y: 1}, 0, chunkH))
+	require.NoError(t, genB(consts.Coord[consts.Chunk]{X: 0, Y: 0}, 0, 0))
 
 	// 境界2行(chunkH-1 = 上チャンク南端, chunkH = 下チャンク北端)の SpriteKey が一致する
 	for _, y := range []consts.Tile{chunkH - 1, chunkH} {

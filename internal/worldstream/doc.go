@@ -12,4 +12,8 @@
 //
 // mapplanner/mapspawner には依存しない。チャンク生成は ChunkGen 注入で分離する。実生成の
 // アダプタは internal/overworld が提供する。
+//
+// チャンク座標は consts.Coord[consts.Chunk] をそのまま使う。X は東西の絶対チャンクインデックスで
+// 無限に伸び、Y は帯の行 [0, Rows) に有界でストリーミングしない。比較可能な値型なので等値比較や
+// map のキーにそのまま使える。
 package worldstream

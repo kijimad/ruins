@@ -8,7 +8,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
 // 自然の点在POIは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
@@ -27,7 +26,7 @@ type wildernessPOIFeature struct{}
 // place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、POI は「このチャンクの種別が POI か」を
 // 問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済み、POI 側の変更は要らない。
-func (wildernessPOIFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+func (wildernessPOIFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	if chunkTypeAt(runSeed, c, rows) != chunkPOI {
 		return nil
 	}

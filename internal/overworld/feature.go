@@ -3,7 +3,6 @@ package overworld
 import (
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
 // Placement はリージョン方式の配置ルール。世界を X 方向 Spacing チャンク幅の縦帯リージョンに
@@ -24,13 +23,13 @@ type Placement struct {
 // X はリージョンで割り、オフセットを [0, Spacing-Separation) から引く。Y は帯が [0, rows) に
 // 有界なのでリージョンで割らず、帯の全行から当選行を1つ引く。こうしないと行数より大きい
 // オフセットを引いたリージョンの当選が帯の外へ落ち、行数の少ない帯に地物がほぼ出なくなる。
-func (p Placement) At(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) bool {
+func (p Placement) At(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) bool {
 	return c == p.WinnerOf(runSeed, floorDiv(c.X, p.Spacing), rows)
 }
 
 // WinnerOf はリージョン rx の当選チャンク座標を返す。生成を伴わない純関数なので、
 // 道の結線や情報サービスが近傍の地物位置を「生成せずに算出」する基盤になる。
-func (p Placement) WinnerOf(runSeed uint64, rx, rows consts.Chunk) worldstream.ChunkCoord {
+func (p Placement) WinnerOf(runSeed uint64, rx, rows consts.Chunk) consts.Coord[consts.Chunk] {
 	// Spacing <= Separation だと差が負になり uint64 キャストで巨大値へアンダーフローし、
 	// オフセット抽選が壊れる。Placement は内部定数なので設定ミスは never として弾く
 	if p.Spacing <= p.Separation {
@@ -38,7 +37,7 @@ func (p Placement) WinnerOf(runSeed uint64, rx, rows consts.Chunk) worldstream.C
 	}
 	span := uint64(p.Spacing - p.Separation)
 	h := ChunkSeed2D(runSeed^p.Salt, rx, 0)
-	return worldstream.ChunkCoord{
+	return consts.Coord[consts.Chunk]{
 		X: rx*p.Spacing + consts.Chunk(h%span),
 		Y: consts.Chunk((h / span) % uint64(rows)),
 	}
@@ -65,7 +64,7 @@ type chunkGeom struct {
 // feature は1種類の地物。c がその地物に該当するかを (runSeed, 座標, rows) の純関数で判定し、
 // 該当すれば中身を配置する。種類の追加は実装を1つ足すことに還元し、分岐は増やさない。
 type feature interface {
-	place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error
+	place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error
 }
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
@@ -76,7 +75,7 @@ func features() []feature {
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
 // 判定はすべて (runSeed, 座標, rows) の純関数で、開始チャンクの特例は持たない。
-func PlaceFeatures(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
+func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
 	g := chunkGeom{
 		offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,
 		tiles: &tileIndex{world: world, loX: offsetX, hiX: offsetX + chunkW},

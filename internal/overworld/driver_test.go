@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -163,12 +162,12 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	const rows consts.Chunk = 1
 	// chunkTypeAt が集落と分類するチャンクを探す
 	var seed uint64
-	var c worldstream.ChunkCoord
+	var c consts.Coord[consts.Chunk]
 	found := false
 	for s := uint64(1); s < 500 && !found; s++ {
 		for x := range consts.Chunk(12) {
-			if chunkTypeAt(s, worldstream.ChunkCoord{X: x}, rows) == chunkSettlement {
-				seed, c, found = s, worldstream.ChunkCoord{X: x}, true
+			if chunkTypeAt(s, consts.Coord[consts.Chunk]{X: x}, rows) == chunkSettlement {
+				seed, c, found = s, consts.Coord[consts.Chunk]{X: x}, true
 				break
 			}
 		}
@@ -327,7 +326,7 @@ func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 	// 初期帯の視界内に市街地の断片が入る seed を選ぶ。開始チャンク(スロット1)は避ける
 	var seed uint64
 	for s := uint64(1); s < 500; s++ {
-		if urbanPlacement.At(s, worldstream.ChunkCoord{X: 2}, 1) {
+		if urbanPlacement.At(s, consts.Coord[consts.Chunk]{X: 2}, 1) {
 			seed = s
 			break
 		}

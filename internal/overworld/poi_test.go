@@ -9,19 +9,18 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // findPOIChunk はPOIが当選し、他の地物に譲らないチャンクと seed を探す。
-func findPOIChunk(t *testing.T) (uint64, worldstream.ChunkCoord) {
+func findPOIChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	t.Helper()
 	const rows = 1
 	for s := uint64(1); s < 200; s++ {
 		for x := range consts.Chunk(30) {
-			c := worldstream.ChunkCoord{X: x}
+			c := consts.Coord[consts.Chunk]{X: x}
 			if !poiPlacement.At(s, c, rows) || settlementPlacement.At(s, c, rows) || ruinPlacement.At(s, c, rows) {
 				continue
 			}
@@ -32,7 +31,7 @@ func findPOIChunk(t *testing.T) (uint64, worldstream.ChunkCoord) {
 		}
 	}
 	require.Fail(t, "前提: POIだけが当選するチャンクが見つかる")
-	return 0, worldstream.ChunkCoord{}
+	return 0, consts.Coord[consts.Chunk]{}
 }
 
 // poiEntities は名前を持つエンティティを「名前@座標」のソート済み文字列で集める。

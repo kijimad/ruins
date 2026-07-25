@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -16,7 +15,7 @@ import (
 // リージョン順に正規化されているので、どちらのチャンクから生成しても同じ道になる。
 type roadFeature struct{}
 
-func (roadFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	r := floorDiv(c.X, settlementPlacement.Spacing)
 	tiles := g.tiles.get()
 	// c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ
@@ -33,7 +32,7 @@ func (roadFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord
 // drawRoadSegments は集落 a の中心から b の中心への L 字経路のうち、チャンク c に
 // 含まれるマスだけを舗装する。既存タイルが土のマスだけを置き換え、市街地の壁や床、
 // 集落は壊さない。
-func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, c worldstream.ChunkCoord, g chunkGeom) error {
+func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, c consts.Coord[consts.Chunk], g chunkGeom) error {
 	ax := a.X.Tiles(g.chunkW) + g.chunkW/2
 	ay := a.Y.Tiles(g.chunkH) + g.chunkH/2
 	bx := b.X.Tiles(g.chunkW) + g.chunkW/2
