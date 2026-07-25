@@ -356,3 +356,30 @@ func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 		assert.Equalf(t, 1, c, "座標 (%d,%d) のタイルは1枚", g.X, g.Y)
 	}
 }
+
+// TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイルを返す は、開始チャンクが建物や遺跡入口で
+// 中心が壁でも、プレイヤーを壁の中へ湧かせず近傍の歩行可能タイルへ逃がすことを固定する。
+func TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイルを返す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	center := consts.Coord[consts.Tile]{X: 10, Y: 10}
+
+	// 中心とその 3×3 近傍を BlockPass の壁で埋める。raw に依存せず直接コンポーネントを付ける
+	blockedCoords := map[consts.Coord[consts.Tile]]bool{}
+	for dy := consts.Tile(-1); dy <= 1; dy++ {
+		for dx := consts.Tile(-1); dx <= 1; dx++ {
+			pos := consts.Coord[consts.Tile]{X: center.X + dx, Y: center.Y + dy}
+			e := world.ECS.NewEntity()
+			grid := gc.GridElement{Coord: pos}
+			world.Components.GridElement.Add(e, &grid)
+			world.Components.BlockPass.Add(e, &gc.BlockPass{})
+			blockedCoords[pos] = true
+		}
+	}
+
+	got := walkableSpawnNear(world, center)
+
+	assert.Falsef(t, blockedCoords[got], "返り値 %v は壁でない", got)
+	assert.NotEqual(t, center, got, "壁の中心そのものは返さず外へ逃げる")
+}
