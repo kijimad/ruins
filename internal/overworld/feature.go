@@ -73,6 +73,16 @@ func features() []feature {
 	return []feature{settlementFeature{}, urbanRuinFeature{}, ruinEntranceFeature{}, wildernessPOIFeature{}, roadFeature{}}
 }
 
+// 地物ごとのソルト。ハッシュ入力を地物ごとにずらし、配置と抽選を他地物と無相関にするタグ。
+// 互いに異なりさえすればよく、ChunkSeed2D の finalizer が1ビット差でも出力を無相関へ散らす。
+// iota で一意性を自動保証する。値を変えると同じ RunSeed でも別の世界になる。
+const (
+	settlementSalt uint64 = iota + 1
+	urbanSalt
+	ruinSalt
+	poiSalt
+)
+
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
 // 判定はすべて (runSeed, 座標, rows) の純関数で、開始チャンクの特例は持たない。
 func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {

@@ -14,9 +14,6 @@ import (
 // 祠・キャンプ跡を重み抽選し、探索の単調さを崩す。v1 は構造と prop だけを持ち、
 // 戦利品やイベントはアイテム・イベント設計が固まってから続ける。
 
-// poiSalt は点在POIの配置と抽選の相関を他地物と切る。
-const poiSalt = 0x901a
-
 // poiPlacement は点在POIのリージョン配置。地物の中では最も密に置く。
 var poiPlacement = Placement{Spacing: 3, Separation: 1, Salt: poiSalt}
 

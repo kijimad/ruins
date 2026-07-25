@@ -42,9 +42,6 @@ var (
 	}
 )
 
-// settlementSalt は小集落の配置と規模抽選の相関を他地物と切る。
-const settlementSalt = 0x5e77
-
 // settlementPlacement は小集落のリージョン配置。おおよそ Spacing チャンクに1つ当選する。
 // チャンクは20タイルなので、Spacing 5 で100タイルに1つの体感密度になる。
 var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}

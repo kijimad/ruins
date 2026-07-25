@@ -19,7 +19,6 @@ import (
 // 決める。全体一括導出や断片クリップは要らず、各チャンクが自己完結する。
 // 街路は各チャンクの北辺・西辺に敷き、隣接チャンクと連続して格子状の街並みになる。
 const (
-	urbanSalt                 = 0x0b17
 	urbanMaxSpan consts.Chunk = 3 // 市街地の一辺の最大チャンク数
 
 	cityStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
