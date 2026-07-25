@@ -1,8 +1,6 @@
 package overworld
 
 import (
-	"fmt"
-	"sort"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -34,17 +32,16 @@ func findPOIChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	return 0, consts.Coord[consts.Chunk]{}
 }
 
-// poiEntities は名前を持つエンティティを「名前@座標」のソート済み文字列で集める。
-func poiEntities(world w.World) []string {
-	var named []string
+// poiEntities は名前を持つエンティティを 座標 → 名前 の対応で集める。座標を文字列へ畳まず
+// consts.Coord をそのまま map のキーにするので、桁や区切りの表記に依存せず整列も要らない。
+func poiEntities(world w.World) map[consts.Coord[consts.Tile]]string {
+	got := map[consts.Coord[consts.Tile]]string{}
 	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		p := world.Components.GridElement.Get(e).Coord
-		named = append(named, fmt.Sprintf("%s@%d,%d", world.Components.Name.Get(e).Name, p.X, p.Y))
+		got[world.Components.GridElement.Get(e).Coord] = world.Components.Name.Get(e).Name
 	}
-	sort.Strings(named)
-	return named
+	return got
 }
 
 func TestWildernessPOI_原野の当選チャンクに小構造物が決定的に出る(t *testing.T) {
@@ -52,7 +49,7 @@ func TestWildernessPOI_原野の当選チャンクに小構造物が決定的に
 
 	seed, c := findPOIChunk(t)
 
-	build := func() []string {
+	build := func() map[consts.Coord[consts.Tile]]string {
 		world := testutil.InitTestWorld(t)
 		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
 		require.NoError(t, wildernessPOIFeature{}.place(world, seed, c, 1, g))
