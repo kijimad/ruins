@@ -135,27 +135,13 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// drawLegend は色と種別名の対応を俯瞰図の下に並べて描く。
+// drawLegend は色と種別名の対応を俯瞰図の下に並べて描く。凡例の記号と名前は overworld が
+// 唯一の源として持つので、ここで種別名を直書きしない。
 func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, int, int, color.Color), top int) {
-	type entry struct {
-		r    rune
-		name string
-	}
-	facilities := overworld.FacilityGlyphs()
-	entries := make([]entry, 0, 5+len(facilities))
-	entries = append(entries,
-		entry{overworld.GlyphVillage, "村"},
-		entry{overworld.GlyphHamlet, "一軒家"},
-		entry{overworld.GlyphRuin, "遺跡入口"},
-		entry{overworld.GlyphPOI, "点在POI"},
-	)
-	for _, g := range facilities {
-		entries = append(entries, entry{g.Label, g.Name})
-	}
 	x, y := 16, top
-	for _, e := range entries {
-		vector.FillRect(screen, float32(x), float32(y), 14, 14, glyphColor(e.r), false)
-		drawText(e.name, x+20, y-2, theme.TextPrimary)
+	for _, g := range overworld.LegendGlyphs() {
+		vector.FillRect(screen, float32(x), float32(y), 14, 14, glyphColor(g.Label), false)
+		drawText(g.Name, x+20, y-2, theme.TextPrimary)
 		x += 120
 		if x > 720 {
 			x, y = 16, y+22

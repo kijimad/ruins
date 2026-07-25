@@ -40,6 +40,22 @@ const (
 	GlyphUnknown = '?' // 未分類
 )
 
+// featureGlyphs は地物レベルの記号と凡例名を表示順で並べる。施設レベルは facilityGlyphs が持つ。
+// GlyphUnknown は分類漏れの保険なので凡例には出さない。
+var featureGlyphs = []GlyphInfo{
+	{GlyphField, "荒れ地"},
+	{GlyphVillage, "村"},
+	{GlyphHamlet, "一軒家"},
+	{GlyphRuin, "遺跡入口"},
+	{GlyphPOI, "点在POI"},
+}
+
+// LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
+// SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。
+func LegendGlyphs() []GlyphInfo {
+	return append(slices.Clone(featureGlyphs), FacilityGlyphs()...)
+}
+
 // FacilityGlyphs は施設種別の文字と名前を種別順で返す。UI の凡例や着色で建物を種別ごとに
 // 扱うために使う。地物レベルの記号は Glyph 定数を直接参照する。
 func FacilityGlyphs() []GlyphInfo {
@@ -113,13 +129,10 @@ func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk)
 
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。
 func SchematicLegend() string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "%c 荒れ地  %c 村  %c 一軒家  %c 遺跡入口  %c 点在POI\n",
-		GlyphField, GlyphVillage, GlyphHamlet, GlyphRuin, GlyphPOI)
-	parts := make([]string, 0, len(facilityGlyphs))
-	for _, g := range FacilityGlyphs() {
+	glyphs := LegendGlyphs()
+	parts := make([]string, 0, len(glyphs))
+	for _, g := range glyphs {
 		parts = append(parts, fmt.Sprintf("%c %s", g.Label, g.Name))
 	}
-	b.WriteString(strings.Join(parts, "  "))
-	return b.String()
+	return strings.Join(parts, "  ")
 }
