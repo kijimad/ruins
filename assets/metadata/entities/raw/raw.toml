@@ -14351,3 +14351,398 @@ water = 0
 depth = 0
 spriteKey = "floor_tatami"
 spriteSheetName = "tile"
+
+# === DawnLike フロアオートタイル(licenses/DawnLike/Objects/Floor.png より切出) ===
+# 各素材は16枚のオートタイル(_0.._15、4bitエッジ Up1/Right2/Down4/Left8)。実利用には spawner の tileSpec 配線が要る。
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "シアン煉瓦床"
+foliage = 0
+name = "brick_cyan"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_cyan"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青緑の丸石床"
+foliage = 0
+name = "cobble_teal"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_teal"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "金色の丸石床"
+foliage = 0
+name = "cobble_gold"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_gold"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "灰煉瓦床"
+foliage = 0
+name = "brick_gray"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_gray"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "緑草床"
+foliage = 0
+name = "grass_green"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "grass_green"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "クリーム色の丸石床"
+foliage = 0
+name = "cobble_cream"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_cream"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青煉瓦床"
+foliage = 0
+name = "brick_blue"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_blue"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "オリーブ草床"
+foliage = 0
+name = "grass_olive"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "grass_olive"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "赤の丸石床"
+foliage = 0
+name = "cobble_red"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_red"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "紺煉瓦床"
+foliage = 0
+name = "brick_navy"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_navy"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "紫の丸石床"
+foliage = 0
+name = "cobble_purple"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_purple"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "石板色の丸石床"
+foliage = 0
+name = "cobble_slate"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_slate"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "桃色の砂床"
+foliage = 0
+name = "sand_pink"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_pink"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "琥珀煉瓦床"
+foliage = 0
+name = "brick_amber"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_amber"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "クリーム色の滑床"
+foliage = 0
+name = "smooth_cream"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_cream"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "橙の砂床"
+foliage = 0
+name = "sand_orange"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_orange"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "テラコッタ煉瓦床"
+foliage = 0
+name = "brick_terracotta"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_terracotta"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "白の滑床"
+foliage = 0
+name = "smooth_white"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_white"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "赤茶の砂床"
+foliage = 0
+name = "sand_red"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_red"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "ベージュ煉瓦床"
+foliage = 0
+name = "brick_beige"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_beige"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青緑の滑床"
+foliage = 0
+name = "smooth_teal"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_teal"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "石板色の砂床"
+foliage = 0
+name = "sand_slate"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_slate"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "錆色煉瓦床"
+foliage = 0
+name = "brick_rust"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_rust"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青灰の滑床"
+foliage = 0
+name = "smooth_bluegray"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_bluegray"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "橙の板床"
+foliage = 0
+name = "plank_orange"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_orange"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "茶の板床"
+foliage = 0
+name = "plank_brown"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_brown"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "紺の板床"
+foliage = 0
+name = "plank_navy"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_navy"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青の板床"
+foliage = 0
+name = "plank_blue"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_blue"
+spriteSheetName = "tile"

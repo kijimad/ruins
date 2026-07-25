@@ -75,6 +75,20 @@ source PNG は `assets/file/textures/{single,tiles}/`、dist は `make aseprite`
 - **神社**(vermilion): torii_small, offering_box, komainu, ema_rack, incense_burner
 - **床材 tile**(grey): floor_linoleum, floor_tile, floor_concrete, floor_wood, floor_tatami
 
+## DawnLike フロアオートタイルの切出
+
+`licenses/DawnLike/Objects/Floor.png` から**フロアオートタイル28素材**を切り出して `tiles/` に用意した。各素材は16枚の
+オートタイル。ゲームの `internal/mapplanner/autotile.go` と同じ4bitエッジ規約(Up1/Right2/Down4/Left8、ビット=同種隣接)。
+
+- **切出マップ**。DawnLike のキー(Floor.png 左上)がこの規約と一致する。1素材ブロック(7列×3行)内の相対セル→index:
+  `(0,0)=6 (1,0)=14 (2,0)=12 (3,0)=4 (5,0)=0 / (0,1)=7 (1,1)=15 (2,1)=13 (3,1)=5 (4,1)=2 (5,1)=10 (6,1)=8 / (0,2)=3 (1,2)=11 (2,2)=9 (3,2)=1`。
+  16x16 を2倍拡大して 32x32 にする。
+- **命名は素材＋色**。brick_(cyan/gray/blue/navy/amber/terracotta/beige/rust)、cobble_(teal/gold/cream/red/purple/slate)、
+  grass_(green/olive)、sand_(pink/orange/red/slate)、smooth_(cream/white/teal/bluegray)、plank_(orange/brown/navy/blue)。
+- **利用には配線が要る**。オートタイルは `internal/mapspawner/spawner.go` の `passableTileSpecs` に論理名でハードコード
+  される。実際に生成で使うには、そこへ `consts` とマップ項目を足し、planner が `GetTile(素材名)` を呼ぶ必要がある。今回は
+  資産と `[[tiles]]` 定義までで、配線は生成ロジック側の後工程とする。
+
 ## アセットが届いたら —— 追加手順
 
 新規スプライトが Aseprite で描かれ次第、定義を足すだけで器に載る。人手はアートに集中でき、配線は機械的。
