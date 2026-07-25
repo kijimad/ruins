@@ -29,8 +29,8 @@ type SeamlessBand struct {
 	ChunkW consts.Tile
 	// ChunkH は帯の高さ
 	ChunkH consts.Tile
-	// K は帯のチャンク数
-	K consts.Chunk
+	// Cols は帯の横のチャンク列数
+	Cols consts.Chunk
 	// Rows は帯の縦チャンク行数。ゼロ値なら復元時に 1 へ正規化する
 	Rows consts.Chunk
 

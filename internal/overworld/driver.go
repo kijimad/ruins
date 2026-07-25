@@ -86,7 +86,7 @@ func (dr *Driver) Start(world w.World) error {
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 	// Rows がゼロ値なら1へ正規化して1行の帯として復元する
 	rows := max(sb.Rows, 1)
-	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.K, rows, sb.EastIndex)
+	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.Cols, rows, sb.EastIndex)
 	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, rows, dr.planner)
 	dr.frontCfg = frontCfgFromBand(sb)
 	query.InvalidateSpatialIndex(world)
@@ -120,8 +120,8 @@ func (dr *Driver) startNewBand(world w.World) error {
 		return fmt.Errorf("新規オーバーワールドの開始には帯形状の定義が必要")
 	}
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
-	chunkW, chunkH, k, rows := dr.definition.BandShape()
-	dr.band = worldstream.NewBand(chunkW, chunkH, k, rows)
+	chunkW, chunkH, cols, rows := dr.definition.BandShape()
+	dr.band = worldstream.NewBand(chunkW, chunkH, cols, rows)
 	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, rows, dr.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
@@ -132,7 +132,7 @@ func (dr *Driver) startNewBand(world w.World) error {
 	sb.EastIndex = dr.band.EastIndex()
 	sb.ChunkW = chunkW
 	sb.ChunkH = chunkH
-	sb.K = dr.band.K()
+	sb.Cols = dr.band.Cols()
 	sb.Rows = dr.band.Rows()
 
 	// 寒波前線を初期化する。極低温ゾーン東端を西チャンクの東端（プレイヤーの1チャンク背後）に置く。
@@ -150,7 +150,7 @@ func (dr *Driver) startNewBand(world w.World) error {
 	sb.Front.AdvanceTurns = dr.frontCfg.AdvanceTurns
 	sb.Front.Step = dr.frontCfg.Step
 
-	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する。探索履歴はStageField が持ち初期化済み
+	// 初期帯 ＝ cols*chunkW × chunkH の単一マップを決定的生成する。探索履歴はStageField が持ち初期化済み
 	if err := dr.generateBandChunks(world, chunkW, chunkH); err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (dr *Driver) startNewBand(world w.World) error {
 	// プレイヤーを中央チャンク付近の歩行可能タイルへ湧かせる。開始チャンクの種別に依存せず、
 	// 建物や遺跡入口の上でも壁を避けて安全に置く。居なければ生成、居れば移動
 	center := consts.Coord[consts.Tile]{
-		X: (dr.band.K() / 2).Tiles(chunkW) + chunkW/2,
+		X: (dr.band.Cols() / 2).Tiles(chunkW) + chunkW/2,
 		Y: (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2,
 	}
 	spawn := walkableSpawnNear(world, center)
@@ -209,7 +209,7 @@ func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.C
 func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
 	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
 	for cy := range dr.band.Rows() {
-		for i := range dr.band.K() {
+		for i := range dr.band.Cols() {
 			c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}
 			if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {
 				return fmt.Errorf("チャンク生成失敗 (x=%d, y=%d): %w", c.X, c.Y, err)

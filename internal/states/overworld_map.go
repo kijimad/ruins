@@ -60,8 +60,8 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	}
 	rows := max(sb.Rows, 1)
 
-	// 帯の Rows 行と、K 列に東西の文脈チャンクを足した窓の各チャンクを種別文字にする
-	winChunksX := int(sb.K + 2*mapContextCh)
+	// 帯の Rows 行と、Cols 列に東西の文脈チャンクを足した窓の各チャンクを種別文字にする
+	winChunksX := int(sb.Cols + 2*mapContextCh)
 	winX0 := sb.EastIndex - mapContextCh
 
 	st.glyphs = make([][]rune, rows)

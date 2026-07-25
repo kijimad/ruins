@@ -186,7 +186,7 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 	// 帯寸法の Level が復元され、視界の強制再計算が要求される。遺跡寸法のままだと真っ暗・No Data。
 	sb := query.GetSeamlessBand(world)
 	field := query.GetCurrentStageField(world)
-	assert.Equal(t, sb.K.Tiles(sb.ChunkW), field.Level.TileWidth, "帯幅の Level が復元される")
+	assert.Equal(t, sb.Cols.Tiles(sb.ChunkW), field.Level.TileWidth, "帯幅の Level が復元される")
 	assert.Equal(t, sb.ChunkH, field.Level.TileHeight, "帯高さの Level が復元される")
 	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "視界の強制再計算が要求される")
 

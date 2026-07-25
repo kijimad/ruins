@@ -9,17 +9,17 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// Band はアクティブ帯を管理する。アクティブ帯は横 k 列・縦 rows 行の隣接チャンクを
+// Band はアクティブ帯を管理する。アクティブ帯は横 cols 列・縦 rows 行の隣接チャンクを
 // 1連続座標空間に並べた単一マップ。東西は無限にストリーミングし、南北は rows に有界で
 // ストリーミングしない。
 //
 // プレイヤーは常に中央チャンク列に保たれ、中央列を東へ出るとシフトする。シフトは東端列の
-// 生成・西端列の破棄・リベースからなる。これにより帯ローカル座標は常に 0..K*chunkW に
+// 生成・西端列の破棄・リベースからなる。これにより帯ローカル座標は常に 0..cols*chunkW に
 // 収まり、既存の単一マップ機構を変えずに無限東進を実現する。
 type Band struct {
 	chunkW    consts.Tile  // 1チャンクの幅。構築後不変
 	chunkH    consts.Tile  // 1チャンクの高さ。縦スロットへの配置に使う。構築後不変
-	k         consts.Chunk // X方向のチャンク数。奇数で中央チャンクを持つ。構築後不変
+	cols      consts.Chunk // X方向のチャンク列数。奇数で中央チャンクを持つ。構築後不変
 	rows      consts.Chunk // Y方向のチャンク行数。1 なら1行の帯。構築後不変
 	eastIndex consts.Chunk // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化
 }
@@ -29,22 +29,22 @@ type Band struct {
 // worldstream を mapplanner/mapspawner に依存させないための注入点。
 type ChunkGen func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error
 
-// NewBand は幅 chunkW・高さ chunkH のチャンクを横 k 列・縦 rows 行並べた帯を eastIndex=0 で作る。
-// k は奇数を推奨する。rows=1 なら1行の帯になる。
-func NewBand(chunkW, chunkH consts.Tile, k, rows consts.Chunk) *Band {
-	return NewBandAt(chunkW, chunkH, k, rows, 0)
+// NewBand は幅 chunkW・高さ chunkH のチャンクを横 cols 列・縦 rows 行並べた帯を eastIndex=0 で作る。
+// cols は奇数を推奨する。rows=1 なら1行の帯になる。
+func NewBand(chunkW, chunkH consts.Tile, cols, rows consts.Chunk) *Band {
+	return NewBandAt(chunkW, chunkH, cols, rows, 0)
 }
 
 // NewBandAt は eastIndex を指定して帯を作る。セーブからの復元で使う。
-func NewBandAt(chunkW, chunkH consts.Tile, k, rows, eastIndex consts.Chunk) *Band {
-	return &Band{chunkW: chunkW, chunkH: chunkH, k: k, rows: rows, eastIndex: eastIndex}
+func NewBandAt(chunkW, chunkH consts.Tile, cols, rows, eastIndex consts.Chunk) *Band {
+	return &Band{chunkW: chunkW, chunkH: chunkH, cols: cols, rows: rows, eastIndex: eastIndex}
 }
 
 // ChunkW は1チャンクの幅を返す。
 func (b *Band) ChunkW() consts.Tile { return b.chunkW }
 
-// K は帯のチャンク数を返す。
-func (b *Band) K() consts.Chunk { return b.k }
+// Cols は帯の横のチャンク列数を返す。
+func (b *Band) Cols() consts.Chunk { return b.cols }
 
 // EastIndex は東進したチャンク数を返す。帯西端チャンクの絶対インデックス。
 func (b *Band) EastIndex() consts.Chunk { return b.eastIndex }
@@ -53,7 +53,7 @@ func (b *Band) EastIndex() consts.Chunk { return b.eastIndex }
 func (b *Band) BandOriginX() consts.AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }
 
 // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。
-func (b *Band) Width() consts.Tile { return b.k.Tiles(b.chunkW) }
+func (b *Band) Width() consts.Tile { return b.cols.Tiles(b.chunkW) }
 
 // Rows は Y 方向のチャンク行数を返す。
 func (b *Band) Rows() consts.Chunk { return b.rows }
@@ -61,8 +61,8 @@ func (b *Band) Rows() consts.Chunk { return b.rows }
 // Height は帯の総高。帯ローカル Y の有効範囲は [0, Height())。
 func (b *Band) Height() consts.Tile { return b.rows.Tiles(b.chunkH) }
 
-// centerSlot は中央チャンクのスロット番号。K が奇数なら真ん中。
-func (b *Band) centerSlot() consts.Chunk { return b.k / 2 }
+// centerSlot は中央チャンクのスロット番号。cols が奇数なら真ん中。
+func (b *Band) centerSlot() consts.Chunk { return b.cols / 2 }
 
 // ShouldShiftEast はプレイヤーの帯ローカル X が中央チャンクを東へ出たかを返す。判定はヒステリシスを持つ。
 func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {
@@ -85,8 +85,8 @@ func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 	b.rebaseCoordMaps(world, -b.chunkW)
 	// 4. eastIndex 前進 → 新しい東端の列を全行生成・配置する
 	b.eastIndex++
-	newChunkX := b.eastIndex + b.k - 1
-	offsetX := (b.k - 1).Tiles(b.chunkW)
+	newChunkX := b.eastIndex + b.cols - 1
+	offsetX := (b.cols - 1).Tiles(b.chunkW)
 	for cy := range b.rows {
 		if err := gen(consts.Coord[consts.Chunk]{X: newChunkX, Y: cy}, offsetX, cy.Tiles(b.chunkH)); err != nil {
 			return err
@@ -104,7 +104,7 @@ func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 		return fmt.Errorf("ShiftWest は eastIndex > 0 のときのみ呼べる: eastIndex=%d", b.eastIndex)
 	}
 	// 東端の列を全行破棄する
-	RemoveEntitiesInXRange(world, (b.k - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))
+	RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))
 	// リベース：全エンティティを東へ chunkW
 	TranslateAllEntities(world, b.chunkW, 0)
 	b.rebaseCoordMaps(world, b.chunkW)

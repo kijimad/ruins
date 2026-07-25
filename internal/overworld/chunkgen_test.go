@@ -133,19 +133,19 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 30, 20
-	const k = 3
-	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW * k, TileHeight: chunkH}))
+	const cols = 3
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW * cols, TileHeight: chunkH}))
 
 	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
-	// 初期帯: K チャンクを各スロットへ生成
-	for i := range k {
+	// 初期帯: cols チャンクを各スロットへ生成
+	for i := range cols {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2 * chunkW, Y: chunkH / 2}, "Ash")
 	require.NoError(t, err)
 
-	band := worldstream.NewBand(chunkW, chunkH, k, 1)
+	band := worldstream.NewBand(chunkW, chunkH, cols, 1)
 	require.True(t, band.ShouldShiftEast(world.Components.GridElement.Get(player).X))
 	require.NoError(t, band.ShiftEast(world, gen))
 
@@ -153,11 +153,11 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 	assert.Equal(t, chunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
 
 	// 帯を3スロットに分け、各スロットにタイルが存在する（破棄＋生成＋リベース後も全域が埋まる）
-	slotCounts := make([]int, k)
+	slotCounts := make([]int, cols)
 	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for q.Next() {
 		x := world.Components.GridElement.Get(q.Entity()).X
-		if x < 0 || x >= chunkW*k {
+		if x < 0 || x >= chunkW*cols {
 			continue
 		}
 		slotCounts[int(x/chunkW)]++

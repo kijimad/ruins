@@ -19,13 +19,13 @@ import (
 const (
 	testChunkW consts.Tile  = 30
 	testChunkH consts.Tile  = 20
-	testK      consts.Chunk = 3
+	testCols   consts.Chunk = 3
 )
 
 func TestDriver_MaybeShift_東へ進むとシフトする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -42,7 +42,7 @@ func TestDriver_MaybeShift_東へ進むとシフトする(t *testing.T) {
 func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -54,8 +54,8 @@ func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing
 	assert.True(t, shifted)
 	assert.Equal(t, 2, int(s.EastIndex()), "収まるまで連続シフトして eastIndex=2")
 	px := world.Components.GridElement.Get(player).X
-	assert.GreaterOrEqual(t, px, consts.Tile(testK/2)*testChunkW, "プレイヤーは中央チャンク内に収まる")
-	assert.Less(t, px, consts.Tile(testK/2+1)*testChunkW, "プレイヤーは中央チャンク内に収まる")
+	assert.GreaterOrEqual(t, px, consts.Tile(testCols/2)*testChunkW, "プレイヤーは中央チャンク内に収まる")
+	assert.Less(t, px, consts.Tile(testCols/2+1)*testChunkW, "プレイヤーは中央チャンク内に収まる")
 }
 
 // TestDriver_MaybeShift_開始点より西へはシフトしない は eastIndex=0 で西へ移動しても
@@ -63,7 +63,7 @@ func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing
 func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	require.Equal(t, 0, int(s.EastIndex()), "前提: 開始時 eastIndex=0")
 
@@ -79,7 +79,7 @@ func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing
 func TestDriver_MaybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	shifted, err := s.MaybeShift(world)
@@ -94,10 +94,10 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 40, 20
-	const k = 3
+	const cols = 3
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, k, 1), &NewGameParams{RunSeed: 12345})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, 1), &NewGameParams{RunSeed: 12345})
 	require.NoError(t, s.Start(world))
 
 	// 東へ1回シフトして eastIndex=1 にする
@@ -125,7 +125,7 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Equal(t, 1, int(sb.EastIndex), "EastIndex が復元される")
 	assert.Equal(t, uint64(12345), sb.RunSeed, "RunSeed が復元される")
 	assert.Equal(t, chunkW, sb.ChunkW, "ChunkW が復元される")
-	assert.Equal(t, k, int(sb.K), "K が復元される")
+	assert.Equal(t, cols, int(sb.Cols), "Cols が復元される")
 
 	// 寒波前線の config が復元される
 	assert.True(t, sb.Front.Active, "FrontActive が復元される")
@@ -137,7 +137,7 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	require.NoError(t, s2.Start(world2))
 	assert.Equal(t, 1, int(s2.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
-	assert.Equal(t, chunkW*k, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
+	assert.Equal(t, chunkW*cols, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
 	assert.True(t, s2.frontCfg.AdvanceTurns == frontAdvanceTurns && s2.frontCfg.Step == frontStep,
 		"ロード復元で寒波前線 config も再構築される")
 
@@ -232,21 +232,21 @@ func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	assert.Equal(t, consts.Chunk(1), query.GetSeamlessBand(world).Rows, "新規開始で Rows がセーブ対象へ書き込まれる")
 
 	// Rows がゼロ値で復元される場合。1行帯へ正規化される
 	oldWorld := testutil.InitTestWorld(t)
 	drOld := NewDriver(mapplanner.PlannerTypeSmallRoom, nil, nil)
-	sbOld := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, K: testK}
+	sbOld := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, Cols: testCols}
 	require.NoError(t, drOld.restoreFromSave(oldWorld, sbOld))
 	assert.Equal(t, consts.Chunk(1), drOld.band.Rows(), "旧セーブのゼロ値 Rows は 1 へ正規化される")
 
 	// Rows=3 のセーブはそのまま3行で復元される
 	world3 := testutil.InitTestWorld(t)
 	dr3 := NewDriver(mapplanner.PlannerTypeSmallRoom, nil, nil)
-	sb3 := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, K: testK, Rows: 3}
+	sb3 := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, Cols: testCols, Rows: 3}
 	require.NoError(t, dr3.restoreFromSave(world3, sb3))
 	assert.Equal(t, consts.Chunk(3), dr3.band.Rows(), "Rows=3 のセーブは3行で復元される")
 }
@@ -258,7 +258,7 @@ func TestDriver_3行帯の通し(t *testing.T) {
 
 	const rows consts.Chunk = 3
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, rows), &NewGameParams{RunSeed: 900})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, rows), &NewGameParams{RunSeed: 900})
 	require.NoError(t, s.Start(world))
 
 	countRows := func(wld w.World) []int {
@@ -276,7 +276,7 @@ func TestDriver_3行帯の通し(t *testing.T) {
 
 	// Level は帯全域になり、全3行にタイルが生成されている
 	field := query.GetCurrentStageField(world)
-	assert.Equal(t, testK.Tiles(testChunkW), field.Level.TileWidth, "幅は K*chunkW")
+	assert.Equal(t, testCols.Tiles(testChunkW), field.Level.TileWidth, "幅は cols*chunkW")
 	assert.Equal(t, rows.Tiles(testChunkH), field.Level.TileHeight, "高さは rows*chunkH")
 	for r, c := range countRows(world) {
 		assert.Positivef(t, c, "行%d にタイルが生成されている", r)
@@ -286,7 +286,7 @@ func TestDriver_3行帯の通し(t *testing.T) {
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	pg := world.Components.GridElement.Get(player)
-	assert.Equal(t, (testK/2).Tiles(testChunkW)+testChunkW/2, pg.X, "中央チャンクの中央 X")
+	assert.Equal(t, (testCols/2).Tiles(testChunkW)+testChunkW/2, pg.X, "中央チャンクの中央 X")
 	assert.Equal(t, (rows/2).Tiles(testChunkH)+testChunkH/2, pg.Y, "中央行の中央 Y")
 
 	// 東シフトは列単位で全行を入れ替え、3行とも埋まったまま
@@ -334,7 +334,7 @@ func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 	require.NotZero(t, seed, "前提: 市街地がスロット2に当たる seed がある")
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: seed})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: seed})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
