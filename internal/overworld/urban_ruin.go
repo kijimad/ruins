@@ -219,10 +219,21 @@ func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstrea
 	return renderCityChunk(world, g, chunkSeed, facility, size)
 }
 
-// renderCityChunk は1チャンクに、北辺・西辺の街路と、敷地をほぼ埋める建物を1棟描く。
-// 建物は外周が壁・内側が床で、南辺に見える扉を持つ。街路は隣接チャンクと連続して格子になる。
+// renderCityChunk は1チャンクに建物1棟を描き、規模に応じた敵を湧かせる。
 func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size consts.Chunk) error {
 	rng := rand.New(rand.NewPCG(seed, 0x2))
+	isWall, err := drawCityBuilding(world, g, rng, facility)
+	if err != nil {
+		return err
+	}
+	return spawnCityEnemies(world, g, rng, size, isWall)
+}
+
+// drawCityBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟を描く。建物は外周が壁・
+// 内側が床で、道路に面した見える扉を持ち、屋内は役割ベースで内装する。街路は隣接チャンクと
+// 連続して格子になる。壁判定の関数を返し、敵配置が壁マスを避けるのに使う。敵は含めないので、
+// 単独の建物サンプル生成からも呼べる。
+func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) (func(lx, ly consts.Tile) bool, error) {
 	tiles := tileEntitiesInRange(world, g.offsetX, g.offsetX+g.chunkW)
 
 	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る
@@ -268,27 +279,27 @@ func renderCityChunk(world w.World, g chunkGeom, seed uint64, facility int, size
 				continue // 前庭・空き地は土のまま残す
 			}
 			if err := replaceTile(world, tiles, g.offsetX+lx, g.offsetY+ly, name); err != nil {
-				return fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+				return nil, fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
 
 	if err := furnishRoom(world, g, rng, facilityCatalog[facility].kind, bx, by, bw, bh, doorX, doorY); err != nil {
-		return err
+		return nil, err
 	}
 	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
 	if _, err := lifecycle.SpawnDoor(world, g.offsetX+doorX, g.offsetY+doorY, doorOrient); err != nil {
-		return fmt.Errorf("市街地の扉配置に失敗: %w", err)
+		return nil, fmt.Errorf("市街地の扉配置に失敗: %w", err)
 	}
-	return spawnCityEnemies(world, g, rng, size, isWall)
+	return isWall, nil
 }
 
 // furnishRoom は建物の屋内を役割ベースで内装する。ランダム散布でなく、家具ごとに定めた
 // 位置の意味(壁沿い・入口脇・通路・中央・隅)に従って置くので、店や住居らしく見える。
 // 入口の内側1マスは通行のため常に空ける。すべて (rng, 座標) の決定的な手続きで、断片間で一致する。
 func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, kind facilityKind, bx, by, bw, bh, doorX, doorY consts.Tile) error {
-	ix0, iy0 := bx+1, by+1        // 内寸の左上
-	ix1, iy1 := bx+bw-2, by+bh-2  // 内寸の右下(閉区間)
+	ix0, iy0 := bx+1, by+1       // 内寸の左上
+	ix1, iy1 := bx+bw-2, by+bh-2 // 内寸の右下(閉区間)
 	if ix1 < ix0 || iy1 < iy0 {
 		return nil // 内側が無いほど小さい建物
 	}
