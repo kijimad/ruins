@@ -115,49 +115,43 @@ type furnishSpec struct {
 	fill   bool
 }
 
+// roomFurnish は施設の部屋の役割ごとの内装規則。front は入口を含む表の部屋、back は奥の部屋。
+// 部屋分割で表と奥に別の家具を置くので、店舗フロアと在庫置き場、居間と寝室のように読める。
+type roomFurnish struct {
+	front []furnishSpec // 表の部屋。店舗フロア・居間・受付
+	back  []furnishSpec // 奥の部屋。在庫置き場・寝室・機械室
+}
+
 // facilityFurnish は施設種別ごとの内装配置規則。完成マップでなく規則を authoring する。
-// 「レジは入口脇」「棚は通路状」という少数の規則が、無限の建物を店らしく見せる。
-var facilityFurnish = map[facilityKind][]furnishSpec{
+// 「レジは入口脇」「棚は通路状」「寝室は奥」という少数の規則が、無限の建物を店や住居らしく見せる。
+var facilityFurnish = map[facilityKind]roomFurnish{
 	facilityHouse: {
-		{"bed", anchorCorner, false},
-		{"closet", anchorCorner, false},
-		{"table", anchorCenter, false},
-		{"chair", anchorCenter, false},
-		{"refrigerator", anchorAlongWall, false},
-		{"sink", anchorAlongWall, false},
+		front: []furnishSpec{{"sofa", anchorAlongWall, false}, {"table", anchorCenter, false}, {"chair", anchorCenter, false}, {"tall_lamp", anchorCorner, false}},
+		back:  []furnishSpec{{"bed", anchorCorner, false}, {"closet", anchorCorner, false}, {"drawer_chest", anchorAlongWall, false}},
 	},
 	facilityStore: {
-		{"register", anchorNearDoor, false},
-		{"goods_shelf", anchorAisle, true},
-		{"refrigerator", anchorAlongWall, false},
+		front: []furnishSpec{{"register", anchorNearDoor, false}, {"goods_shelf", anchorAisle, true}},
+		back:  []furnishSpec{{"crate", anchorAlongWall, true}, {"barrel", anchorCorner, false}},
 	},
 	facilityOffice: {
-		{"desk", anchorCenter, false},
-		{"desktop_pc", anchorCenter, false},
-		{"chair", anchorCenter, false},
-		{"bookshelf", anchorAlongWall, true},
+		front: []furnishSpec{{"desk", anchorCenter, false}, {"desktop_pc", anchorCenter, false}, {"chair", anchorCenter, false}},
+		back:  []furnishSpec{{"bookshelf", anchorAlongWall, true}, {"electric_locker", anchorCorner, false}},
 	},
 	facilityDepot: {
-		{"iron_shelf", anchorAisle, true},
-		{"crate", anchorAlongWall, false},
-		{"barrel", anchorCorner, false},
+		front: []furnishSpec{{"iron_shelf", anchorAisle, true}},
+		back:  []furnishSpec{{"crate", anchorAlongWall, true}, {"barrel", anchorCorner, false}},
 	},
 	facilityAntique: {
-		{"register", anchorNearDoor, false},
-		{"artistic_shelf", anchorAlongWall, true},
-		{"book_showcase", anchorAlongWall, false},
-		{"黒い花瓶", anchorCorner, false},
+		front: []furnishSpec{{"register", anchorNearDoor, false}, {"artistic_shelf", anchorAlongWall, true}, {"book_showcase", anchorAlongWall, false}},
+		back:  []furnishSpec{{"黒い花瓶", anchorCorner, false}, {"old_lamp", anchorCorner, false}},
 	},
 	facilityClinic: {
-		{"bed", anchorAlongWall, true},
-		{"sink", anchorCorner, false},
-		{"ロッカー", anchorCorner, false},
+		front: []furnishSpec{{"bed", anchorAlongWall, true}, {"sink", anchorCorner, false}},
+		back:  []furnishSpec{{"ロッカー", anchorCorner, false}, {"electric_locker", anchorCorner, false}},
 	},
 	facilityLab: {
-		{"gauge_machine", anchorAlongWall, true},
-		{"electric_locker", anchorCorner, false},
-		{"generator_green", anchorCorner, false},
-		{"desktop_pc", anchorCenter, false},
+		front: []furnishSpec{{"gauge_machine", anchorAlongWall, true}, {"desktop_pc", anchorCenter, false}},
+		back:  []furnishSpec{{"generator_green", anchorCorner, false}, {"electric_locker", anchorCorner, false}},
 	},
 }
 
@@ -254,6 +248,21 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 		doorOrient = gc.DoorOrientationHorizontal
 	}
 
+	// 屋内を部屋に分割し、仕切り壁とドアを得る。大部屋を廊下と部屋に割る文法(レバーB)
+	interior := rrect{x0: bx + 1, y0: by + 1, x1: bx + bw - 2, y1: by + bh - 2}
+	rooms, walls := subdivideBuilding(rng, interior)
+	internalWall := map[consts.Coord[consts.Tile]]bool{}
+	for _, seg := range walls {
+		for x := seg.x0; x <= seg.x1; x++ {
+			for y := seg.y0; y <= seg.y1; y++ {
+				if x == seg.doorX && y == seg.doorY {
+					continue // 部屋をつなぐドアの開口
+				}
+				internalWall[consts.Coord[consts.Tile]{X: x, Y: y}] = true
+			}
+		}
+	}
+
 	inBuilding := func(lx, ly consts.Tile) bool {
 		return lx >= bx && lx < bx+bw && ly >= by && ly < by+bh
 	}
@@ -262,7 +271,10 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 			return false
 		}
 		perimeter := lx == bx || lx == bx+bw-1 || ly == by || ly == by+bh-1
-		return perimeter && (lx != doorX || ly != doorY)
+		if perimeter {
+			return lx != doorX || ly != doorY
+		}
+		return internalWall[consts.Coord[consts.Tile]{X: lx, Y: ly}]
 	}
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
@@ -273,7 +285,7 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 			case isWall(lx, ly):
 				name = consts.TileNameDWall
 			case inBuilding(lx, ly):
-				name = consts.TileNameFloor // 屋内・出入口
+				name = consts.TileNameFloor // 屋内・出入口・部屋をつなぐドア
 			}
 			if name == "" {
 				continue // 前庭・空き地は土のまま残す
@@ -284,8 +296,21 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 		}
 	}
 
-	if err := furnishRoom(world, g, rng, facilityCatalog[facility].kind, bx, by, bw, bh, doorX, doorY); err != nil {
-		return nil, err
+	// 入口の内側マス。この部屋を「表」とし、他は「奥」として別の家具を置く
+	dinX, dinY := doorX, doorY+1
+	if doorX == bx {
+		dinX, dinY = doorX+1, doorY
+	}
+	kind := facilityCatalog[facility].kind
+	for _, room := range rooms {
+		isEntrance := room.contains(dinX, dinY)
+		specs := facilityFurnish[kind].back
+		if isEntrance {
+			specs = facilityFurnish[kind].front
+		}
+		if err := furnishRoom(world, g, rng, specs, room, dinX, dinY, isEntrance); err != nil {
+			return nil, err
+		}
 	}
 	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
 	if _, err := lifecycle.SpawnDoor(world, g.offsetX+doorX, g.offsetY+doorY, doorOrient); err != nil {
@@ -294,21 +319,24 @@ func drawCityBuilding(world w.World, g chunkGeom, rng *rand.Rand, facility int) 
 	return isWall, nil
 }
 
-// furnishRoom は建物の屋内を役割ベースで内装する。ランダム散布でなく、家具ごとに定めた
-// 位置の意味(壁沿い・入口脇・通路・中央・隅)に従って置くので、店や住居らしく見える。
-// 入口の内側1マスは通行のため常に空ける。すべて (rng, 座標) の決定的な手続きで、断片間で一致する。
-func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, kind facilityKind, bx, by, bw, bh, doorX, doorY consts.Tile) error {
-	ix0, iy0 := bx+1, by+1       // 内寸の左上
-	ix1, iy1 := bx+bw-2, by+bh-2 // 内寸の右下(閉区間)
+// cityMinRoom は部屋の最小の一辺。これを下回る幅には割らない。
+const cityMinRoom consts.Tile = 3
+
+// cityRoomDepth は部屋分割の再帰段数。1建物で最大 2^depth 部屋になる。
+const cityRoomDepth = 2
+
+// furnishRoom は1部屋の床範囲 [ix0,ix1]×[iy0,iy1] を役割ベースで内装する。ランダム散布でなく、
+// 家具ごとに定めた位置の意味(壁沿い・入口脇・通路・中央・隅)に従って置く。isEntrance が真の
+// 部屋だけレジ・受付を入口脇に置く。入口の内側1マスは通行のため空ける。すべて決定的な手続き。
+func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, specs []furnishSpec, room rrect, dinX, dinY consts.Tile, isEntrance bool) error {
+	ix0, iy0, ix1, iy1 := room.x0, room.y0, room.x1, room.y1
 	if ix1 < ix0 || iy1 < iy0 {
-		return nil // 内側が無いほど小さい建物
+		return nil
 	}
-	// 入口の内側マス。ここは通行導線として常に空ける
-	dinX, dinY := doorX, doorY+1
-	if doorX == bx {
-		dinX, dinY = doorX+1, doorY
+	occupied := map[consts.Coord[consts.Tile]]bool{}
+	if isEntrance {
+		occupied[consts.Coord[consts.Tile]{X: dinX, Y: dinY}] = true // 入口の導線を空ける
 	}
-	occupied := map[consts.Coord[consts.Tile]]bool{{X: dinX, Y: dinY}: true}
 
 	place := func(name string, x, y consts.Tile) (bool, error) {
 		if x < ix0 || x > ix1 || y < iy0 || y > iy1 {
@@ -325,7 +353,10 @@ func furnishRoom(world w.World, g chunkGeom, rng *rand.Rand, kind facilityKind, 
 		return true, nil
 	}
 
-	for _, s := range facilityFurnish[kind] {
+	for _, s := range specs {
+		if s.anchor == anchorNearDoor && !isEntrance {
+			continue // レジ・受付は入口のある表の部屋だけ
+		}
 		cells := anchorCells(s.anchor, ix0, iy0, ix1, iy1, dinX, dinY, rng)
 		for _, c := range cells {
 			ok, err := place(s.name, c.X, c.Y)
