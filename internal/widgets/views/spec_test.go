@@ -44,8 +44,8 @@ func newSpecWorld(t *testing.T) (w.World, *widget.Container) {
 	return world, root
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -65,8 +65,8 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	assert.Contains(t, labels, gc.ElementTypeFire.String(), "属性名が表示される")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -81,8 +81,8 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 	assert.NotContains(t, labels, "属性", "無属性の場合は属性行が表示されない")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -104,8 +104,8 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	assert.Contains(t, labels, "20", "リロード工数が表示される")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -122,8 +122,8 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 	assert.NotContains(t, labels, "装填", "マガジンサイズが0の場合は装填行が表示されない")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -153,8 +153,8 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	assert.NotContains(t, labels, "感覚", "ゼロの装備ボーナスは表示されない")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -170,8 +170,8 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 	assert.NotContains(t, labels, "耐熱", "耐熱0の場合は行が表示されない")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -184,8 +184,8 @@ func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testi
 	assert.Contains(t, labels, "42", "絶対量がそのまま表示される")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_回復量は割合指定ならパーセントで表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -197,8 +197,8 @@ func TestUpdateSpec_回復量は割合指定ならパーセントで表示する
 	assert.Contains(t, labels, "30%", "割合が百分率表示される")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -212,8 +212,8 @@ func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する
 	assert.Contains(t, labels, "-", "未知の種別はハイフン表示にフォールバックする")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -231,8 +231,8 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	assert.Contains(t, labels, "重量", "重量ラベルが表示される")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -256,8 +256,8 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	assert.Contains(t, labels, "30%", "現在工数から進捗率が計算される")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -273,8 +273,8 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 	assert.NotContains(t, labels, "スキル", "スキル効果未設定の場合はスキル行が表示されない")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の性能を表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	spec := gc.EntitySpec{
@@ -292,8 +292,8 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	assert.Contains(t, labels, gc.ElementTypeThunder.String(), "属性名が表示される")
 }
 
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポーネントを同時に表示する(t *testing.T) {
-	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	spec := gc.EntitySpec{

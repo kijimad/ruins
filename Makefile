@@ -39,7 +39,7 @@ bench: ## ベンチマークを全て実行する
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
 	RUINS_LOG_LEVEL=ignore \
-	go test -coverprofile=coverage.out $(GO_TEST_PKGS)
+	$(BWRAP_CMD) xvfb-run -a go test -coverprofile=coverage.out $(GO_TEST_PKGS)
 	go tool cover -func=coverage.out
 
 .PHONY: build
@@ -84,7 +84,7 @@ toolsinstall: ## 開発ツールをインストールする
 
 .PHONY: generate
 generate: ## コードを生成する
-	go generate ./...
+	$(BWRAP_CMD) xvfb-run -a go generate ./...
 
 .PHONY: check
 check: fmt build test lint ## 一気にチェックする
