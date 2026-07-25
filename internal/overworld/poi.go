@@ -24,12 +24,11 @@ var poiPlacement = Placement{Spacing: 3, Separation: 1, Salt: poiSalt}
 // wildernessPOIFeature は自然の点在POIの feature 実装。
 type wildernessPOIFeature struct{}
 
-// place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物と開始チャンクは
-// 譲り、構図を壊さない。地物の優先度は chunkTypeAt が一元管理するので、POI は「このチャンクの
-// 種別が POI か」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済み、POI 側の
-// 変更は要らない。chunkTypeAt は開始特例を知らないため開始チャンクだけ明示的に譲る。
-func (wildernessPOIFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
-	if c == start || chunkTypeAt(runSeed, c, rows) != chunkPOI {
+// place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
+// 壊さない。地物の優先度は chunkTypeAt が一元管理するので、POI は「このチャンクの種別が POI か」を
+// 問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済み、POI 側の変更は要らない。
+func (wildernessPOIFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+	if chunkTypeAt(runSeed, c, rows) != chunkPOI {
 		return nil
 	}
 

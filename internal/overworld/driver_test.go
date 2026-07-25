@@ -151,33 +151,48 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Positive(t, count, "帯タイルが serde で復元されている")
 }
 
-// TestDriver_新規開始で街がオーバーワールドに配置される は、新規開始時に店・雇用・合成の会話NPCと
-// 収納propが開始チャンクへ配置され、いずれもオーバーワールド帯へ束縛されることを固定する。
-// これで街が専用ステージでなくオーバーワールドの地物として常在し、遺跡進入時に帯とともに退避される。
-func TestDriver_新規開始で街がオーバーワールドに配置される(t *testing.T) {
+// TestNewChunkGen_集落は種別分類と一致し帯へ束縛される は、chunkTypeAt が集落と分類する
+// チャンクに集落の会話NPCが実際に spawn され、オーバーワールド帯へ束縛され相互作用を持つことを
+// 固定する。開始特例が無くなり chunkTypeAt が地図と生成の唯一の分類になったので、種別で追跡して
+// 検証できる。これで街が専用ステージでなくオーバーワールドの地物として常在し、遺跡進入時に帯とともに
+// 退避される。
+func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK, 1), &NewGameParams{RunSeed: 42})
-	require.NoError(t, s.Start(world))
 
-	// 集落の構成物を名前で探し、配置・帯束縛・相互作用の有無を確認する。
-	// 小集落は無状態で stash を持たないため、収納 prop は置かれない
-	want := map[string]bool{"商人": false, "酒場の主人": false, "怪しい科学者": false}
+	const chunkW, chunkH consts.Tile = 30, 20
+	const rows consts.Chunk = 1
+	// chunkTypeAt が集落と分類するチャンクを探す
+	var seed uint64
+	var c worldstream.ChunkCoord
+	found := false
+	for s := uint64(1); s < 500 && !found; s++ {
+		for x := range consts.Chunk(12) {
+			if chunkTypeAt(s, worldstream.ChunkCoord{X: x}, rows) == chunkSettlement {
+				seed, c, found = s, worldstream.ChunkCoord{X: x}, true
+				break
+			}
+		}
+	}
+	require.True(t, found, "前提: 集落と分類されるチャンクが見つかる")
+
+	world := testutil.InitTestWorld(t)
+	gen := NewChunkGen(world, seed, chunkW, chunkH, rows, mapplanner.PlannerTypeSmallRoom)
+	require.NoError(t, gen(c, 0, 0))
+
+	// 商人が spawn され、オーバーワールド帯へ束縛され、相互作用を持つ
+	merchantFound := false
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		name := world.Components.Name.Get(e).Name
-		if _, ok := want[name]; !ok {
+		if world.Components.Name.Get(e).Name != "商人" {
 			continue
 		}
-		want[name] = true
-		require.True(t, world.Components.StageBound.Has(e), "%s はステージへ束縛される", name)
-		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "%s はオーバーワールド帯へ束縛される", name)
-		assert.True(t, world.Components.Interactable.Has(e), "%s は相互作用を持つ", name)
+		merchantFound = true
+		require.True(t, world.Components.StageBound.Has(e), "商人はステージへ束縛される")
+		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "商人はオーバーワールド帯へ束縛される")
+		assert.True(t, world.Components.Interactable.Has(e), "商人は相互作用を持つ")
 	}
-	for name, found := range want {
-		assert.True(t, found, "街の構成物 %s が配置される", name)
-	}
+	assert.True(t, merchantFound, "集落と分類されるチャンクに商人が配置される")
 }
 
 // TestDriver_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns から

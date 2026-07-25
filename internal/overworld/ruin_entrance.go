@@ -27,8 +27,8 @@ type ruinEntranceFeature struct{}
 // place は当選チャンクの中心付近へ遺跡入口を置く。進入先の遺跡定義は登録済み一覧から
 // チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途
 // 置くため、ここでは重複を避けてスキップする。
-func (ruinEntranceFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
-	if !ruinPlacement.At(runSeed, c, rows) || c == start {
+func (ruinEntranceFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+	if !ruinPlacement.At(runSeed, c, rows) {
 		return nil
 	}
 	defs := dungeon.GetAllDungeons()

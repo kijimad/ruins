@@ -52,26 +52,15 @@ func TestWildernessPOI_原野の当選チャンクに小構造物が決定的に
 	t.Parallel()
 
 	seed, c := findPOIChunk(t)
-	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50}
-	start := worldstream.ChunkCoord{X: -99}
 
 	build := func() []string {
 		world := testutil.InitTestWorld(t)
-		require.NoError(t, wildernessPOIFeature{}.place(world, seed, c, start, 1, g))
+		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
+		require.NoError(t, wildernessPOIFeature{}.place(world, seed, c, 1, g))
 		return poiEntities(world)
 	}
 	a := build()
 	b := build()
 	assert.NotEmpty(t, a, "POIの prop が置かれる")
 	assert.Equal(t, a, b, "POIの配置は決定的で再生成しても一致する")
-}
-
-func TestWildernessPOI_開始チャンクには出ない(t *testing.T) {
-	t.Parallel()
-
-	seed, c := findPOIChunk(t)
-	world := testutil.InitTestWorld(t)
-	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50}
-	require.NoError(t, wildernessPOIFeature{}.place(world, seed, c, c, 1, g))
-	assert.Empty(t, poiEntities(world), "開始チャンクではPOIを置かない")
 }

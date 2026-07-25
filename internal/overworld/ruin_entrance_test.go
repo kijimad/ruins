@@ -21,7 +21,7 @@ func TestNewChunkGen_遺跡入口が帯全域に決定的に配置される(t *t
 
 	const chunkW, chunkH consts.Tile = 30, 20
 	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 500, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
+	gen := overworld.NewChunkGen(world, 500, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 12 {
 		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}

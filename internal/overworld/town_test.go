@@ -7,20 +7,10 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestSettlementIsVillage_開始チャンクは必ず村(t *testing.T) {
-	t.Parallel()
-
-	start := worldstream.ChunkCoord{X: 5}
-	for s := uint64(1); s <= 50; s++ {
-		assert.True(t, settlementIsVillage(s, start, start), "開始チャンクは規模抽選によらず村になる")
-	}
-}
 
 // namesInWorld は名前を持つエンティティの名前ごとの数を返す。
 func namesInWorld(world w.World) map[string]int {

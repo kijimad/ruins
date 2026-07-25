@@ -50,35 +50,25 @@ const settlementSalt = 0x5e77
 // チャンクは20タイルなので、Spacing 5 で100タイルに1つの体感密度になる。
 var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
 
-// settlementFeature は小集落の feature 実装。開始チャンクは特例で必ず当選し、
-// 新規ゲームの開始点に交易・雇用・合成の必須サービスを保証する。
+// settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。
 type settlementFeature struct{}
 
-func (settlementFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
-	if c != start {
-		if !settlementPlacement.At(runSeed, c, rows) {
-			return nil
-		}
-		// 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
-		if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {
-			return nil
-		}
+func (settlementFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+	if !settlementPlacement.At(runSeed, c, rows) {
+		return nil
+	}
+	// 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
+	if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {
+		return nil
 	}
 	center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
-	return spawnTown(world, center, settlementIsVillage(runSeed, c, start))
+	return spawnTown(world, center, settlementVillageRoll(runSeed, c))
 }
 
-// settlementVillageRoll は開始特例を除いた集落の規模抽選。真なら村、偽なら一軒家。
-// 純粋に (runSeed, 座標) の関数で、開始チャンクの扱いを含まない。俯瞰図のように
-// 開始特例を反映したくない用途はこちらを直接使う。
+// settlementVillageRoll は集落の規模抽選。真なら村、偽なら一軒家。純粋に (runSeed, 座標) の
+// 関数で、地図の分類と生成の両方がこれを使うので規模の見た目と実体が一致する。
 func settlementVillageRoll(runSeed uint64, c worldstream.ChunkCoord) bool {
 	return ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y)%10 < 6
-}
-
-// settlementIsVillage は集落の規模を決定的に選ぶ。真なら村、偽なら一軒家。
-// 開始チャンクは交易・雇用・合成の必須サービスを保証するため必ず村にする。
-func settlementIsVillage(runSeed uint64, c, start worldstream.ChunkCoord) bool {
-	return c == start || settlementVillageRoll(runSeed, c)
 }
 
 // spawnTown は小集落を構成する。center を集落の中心として会話NPCと生活感の prop を

@@ -28,13 +28,13 @@ func TestChunkGen_継ぎ目は生成順に依存しない(t *testing.T) {
 
 	// 西→東の順（通常の初期生成・東シフト相当）
 	wEast := testutil.InitTestWorld(t)
-	genA := overworld.NewChunkGen(wEast, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, planner)
+	genA := overworld.NewChunkGen(wEast, runSeed, chunkW, chunkH, 1, planner)
 	require.NoError(t, genA(worldstream.ChunkCoord{X: 0}, 0, 0))
 	require.NoError(t, genA(worldstream.ChunkCoord{X: 1}, chunkW, 0))
 
 	// 東→西の順（西シフト相当: 東チャンクが既に在り、後から西端を生成）
 	wWest := testutil.InitTestWorld(t)
-	genB := overworld.NewChunkGen(wWest, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, planner)
+	genB := overworld.NewChunkGen(wWest, runSeed, chunkW, chunkH, 1, planner)
 	require.NoError(t, genB(worldstream.ChunkCoord{X: 1}, chunkW, 0))
 	require.NoError(t, genB(worldstream.ChunkCoord{X: 0}, 0, 0))
 
@@ -154,13 +154,13 @@ func TestChunkGen_縦の継ぎ目は生成順に依存しない(t *testing.T) {
 
 	// 上→下の順
 	wTop := testutil.InitTestWorld(t)
-	genA := overworld.NewChunkGen(wTop, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, planner)
+	genA := overworld.NewChunkGen(wTop, runSeed, chunkW, chunkH, 1, planner)
 	require.NoError(t, genA(worldstream.ChunkCoord{X: 0, Y: 0}, 0, 0))
 	require.NoError(t, genA(worldstream.ChunkCoord{X: 0, Y: 1}, 0, chunkH))
 
 	// 下→上の順
 	wBottom := testutil.InitTestWorld(t)
-	genB := overworld.NewChunkGen(wBottom, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, planner)
+	genB := overworld.NewChunkGen(wBottom, runSeed, chunkW, chunkH, 1, planner)
 	require.NoError(t, genB(worldstream.ChunkCoord{X: 0, Y: 1}, 0, chunkH))
 	require.NoError(t, genB(worldstream.ChunkCoord{X: 0, Y: 0}, 0, 0))
 

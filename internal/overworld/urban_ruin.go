@@ -190,17 +190,10 @@ func cityChunkInfo(runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk) 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。市街地が開始チャンクを含むなら
 // 丸ごとスキップし、新規ゲームの開始点を安全に保つ。各チャンクは自己完結するので生成順に
 // 依存しない。
-func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
-	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
+func (urbanRuinFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+	anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return nil
-	}
-	for dy := range ch {
-		for dx := range cw {
-			if (worldstream.ChunkCoord{X: anchor.X + dx, Y: anchor.Y + dy}) == start {
-				return nil
-			}
-		}
 	}
 
 	// 施設種別は地図(ChunkPlace)が使う。ここでは規模だけ敵配置に使う

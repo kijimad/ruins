@@ -16,7 +16,7 @@ import (
 // リージョン順に正規化されているので、どちらのチャンクから生成しても同じ道になる。
 type roadFeature struct{}
 
-func (roadFeature) place(world w.World, runSeed uint64, c, _ worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
+func (roadFeature) place(world w.World, runSeed uint64, c worldstream.ChunkCoord, rows consts.Chunk, g chunkGeom) error {
 	r := floorDiv(c.X, settlementPlacement.Spacing)
 	tiles := g.tiles.get()
 	// c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ

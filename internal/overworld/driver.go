@@ -87,8 +87,7 @@ func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 	// Rows がゼロ値なら1へ正規化して1行の帯として復元する
 	rows := max(sb.Rows, 1)
 	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.K, rows, sb.EastIndex)
-	start := worldstream.ChunkCoord{X: sb.K / 2, Y: rows / 2}
-	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, rows, start, dr.planner)
+	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, rows, dr.planner)
 	dr.frontCfg = frontCfgFromBand(sb)
 	query.InvalidateSpatialIndex(world)
 	return nil
@@ -123,9 +122,7 @@ func (dr *Driver) startNewBand(world w.World) error {
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
 	chunkW, chunkH, k, rows := dr.definition.BandShape()
 	dr.band = worldstream.NewBand(chunkW, chunkH, k, rows)
-	// 開始チャンクは帯の中央。PlaceFeatures の特例で必ず小集落になる
-	start := worldstream.ChunkCoord{X: k / 2, Y: rows / 2}
-	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, rows, start, dr.planner)
+	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, rows, dr.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
 	// 以後この帯データの有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
@@ -158,19 +155,51 @@ func (dr *Driver) startNewBand(world w.World) error {
 		return err
 	}
 
-	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動。行が増えたら中央行から始める
+	// プレイヤーを中央チャンク付近の歩行可能タイルへ湧かせる。開始チャンクの種別に依存せず、
+	// 建物や遺跡入口の上でも壁を避けて安全に置く。居なければ生成、居れば移動
 	cx := (dr.band.K() / 2).Tiles(chunkW) + chunkW/2
 	cy := (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2
+	spawn := walkableSpawnNear(world, cx, cy)
 	if _, err := query.GetPlayerEntity(world); err != nil {
-		if _, serr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash"); serr != nil {
+		if _, serr := lifecycle.SpawnPlayer(world, spawn, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
 		}
-	} else if merr := lifecycle.MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); merr != nil {
+	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}
 
 	query.InvalidateSpatialIndex(world)
 	return nil
+}
+
+// walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を
+// 返す。開始チャンクが荒れ地でなく建物や遺跡入口でも、プレイヤーを壁の中へ湧かせないための安全策。
+// 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
+func walkableSpawnNear(world w.World, cx, cy consts.Tile) consts.Coord[consts.Tile] {
+	blocked := make(map[gc.GridElement]bool)
+	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
+	for q.Next() {
+		blocked[*world.Components.GridElement.Get(q.Entity())] = true
+	}
+	x0, y0 := int(cx), int(cy)
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	isBlocked := func(x, y int) bool { return blocked[gc.GridElement{Coord: at(x, y)}] }
+	for r := range 100 {
+		for dy := -r; dy <= r; dy++ {
+			for dx := -r; dx <= r; dx++ {
+				// リングの外周だけ見る。内側は前の r で確認済み
+				if r > 0 && dx > -r && dx < r && dy > -r && dy < r {
+					continue
+				}
+				if !isBlocked(x0+dx, y0+dy) {
+					return at(x0+dx, y0+dy)
+				}
+			}
+		}
+	}
+	return at(x0, y0)
 }
 
 // generateBandChunks は Level を帯全域に設定し、rows × K のチャンクを各スロットへ決定的生成する。

@@ -36,8 +36,8 @@ func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
 // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。
 // チャンク座標ごとに (runSeed, 座標) から決定的に、地形→地物の層の順で生成し、
 // 帯ローカルの (offsetX, offsetY) へ配置する。東西は無限にストリーミングし、南北は帯の行数に有界。
-// start は開始チャンクの座標で PlaceFeatures の開始特例に、rows は帯の行数で当選行の抽選に使う。
-func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows consts.Chunk, start worldstream.ChunkCoord, planner mapplanner.PlannerType) worldstream.ChunkGen {
+// rows は帯の行数で当選行の抽選に使う。
+func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
 	return func(c worldstream.ChunkCoord, offsetX, offsetY consts.Tile) error {
 		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)
 		if err != nil {
@@ -47,7 +47,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 			return fmt.Errorf("チャンク配置失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
 		}
 		// 地形の上に地物の層を重ねる。小集落などの当選判定は (runSeed, 座標) の純関数
-		if err := PlaceFeatures(world, runSeed, c, start, rows, offsetX, offsetY, chunkW, chunkH); err != nil {
+		if err := PlaceFeatures(world, runSeed, c, rows, offsetX, offsetY, chunkW, chunkH); err != nil {
 			return err
 		}
 		// 地物がタイルを置換した後、チャンク全域のオートタイルを実状態から再計算する。

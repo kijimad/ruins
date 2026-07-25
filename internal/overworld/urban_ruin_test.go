@@ -79,7 +79,7 @@ func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing
 
 	build := func(reverse bool) (map[gc.GridElement]string, []consts.Coord[consts.Tile], []string) {
 		world := testutil.InitTestWorld(t)
-		gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
+		gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 		for i := range window {
 			x := i
 			if reverse {
@@ -106,7 +106,7 @@ func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T)
 
 	const chunkW, chunkH consts.Tile = 30, 20
 	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
+	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {
 		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
@@ -132,7 +132,7 @@ func TestNewChunkGen_市街地の建物に見える扉が置かれる(t *testing
 
 	const chunkW, chunkH consts.Tile = 30, 20
 	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
+	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {
 		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
@@ -145,35 +145,4 @@ func TestNewChunkGen_市街地の建物に見える扉が置かれる(t *testing
 		}
 	}
 	assert.Positive(t, doors, "市街地の建物に扉が置かれる")
-}
-
-// TestNewChunkGen_開始チャンクを含む市街地はスキップされる は、開始チャンクが市街地の
-// 足あとに重なった場合に市街地が丸ごと生成されず、開始点が安全に保たれることを固定する。
-func TestNewChunkGen_開始チャンクを含む市街地はスキップされる(t *testing.T) {
-	t.Parallel()
-
-	const chunkW, chunkH consts.Tile = 30, 20
-	const runSeed uint64 = 77
-	// 市街地リージョン1つぶんに窓を絞る。窓に市街地が2つあると、開始特例で消えるのは
-	// 一方だけなので「敵ゼロ」の検証が成り立たない
-	const window = 6
-
-	// まず市街地の位置を敵の湧いたチャンクから特定する
-	scout := testutil.InitTestWorld(t)
-	genScout := overworld.NewChunkGen(scout, runSeed, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
-	for i := range window {
-		require.NoError(t, genScout(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
-	}
-	_, enemies := snapshotWorld(scout)
-	require.NotEmpty(t, enemies, "前提: 市街地が存在する")
-	cityChunk := worldstream.ChunkCoord{X: consts.Chunk(enemies[0].X / chunkW)}
-
-	// 市街地の断片を開始チャンクに指定すると、市街地ごとスキップされ敵が出ない
-	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, cityChunk, mapplanner.PlannerTypeOverworldField)
-	for i := range window {
-		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
-	}
-	_, after := snapshotWorld(world)
-	assert.Empty(t, after, "開始チャンクを含む市街地はスキップされ敵が湧かない")
 }
