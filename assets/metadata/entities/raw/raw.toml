@@ -13985,7 +13985,7 @@ slot = "FEET"
 [[props]]
 blockPass = true
 blockView = false
-description = "展示冷蔵ケース"
+description = "[dummy] 展示冷蔵ケース"
 hp = 15
 name = "display_cooler"
 
@@ -13997,7 +13997,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "雑誌ラック"
+description = "[dummy] 雑誌ラック"
 hp = 15
 name = "magazine_rack"
 
@@ -14009,7 +14009,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "自動販売機"
+description = "[dummy] 自動販売機"
 hp = 15
 name = "vending_machine"
 
@@ -14021,7 +14021,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "買い物カゴ"
+description = "[dummy] 買い物カゴ"
 hp = 15
 name = "shopping_basket"
 
@@ -14033,7 +14033,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "ゴンドラ什器"
+description = "[dummy] ゴンドラ什器"
 hp = 15
 name = "gondola_shelf"
 
@@ -14045,7 +14045,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "レジカウンター"
+description = "[dummy] レジカウンター"
 hp = 15
 name = "checkout_counter"
 
@@ -14057,7 +14057,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "診察台"
+description = "[dummy] 診察台"
 hp = 15
 name = "exam_bed"
 
@@ -14069,7 +14069,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "点滴スタンド"
+description = "[dummy] 点滴スタンド"
 hp = 15
 name = "iv_stand"
 
@@ -14081,7 +14081,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "車椅子"
+description = "[dummy] 車椅子"
 hp = 15
 name = "wheelchair"
 
@@ -14093,7 +14093,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "ストレッチャー"
+description = "[dummy] ストレッチャー"
 hp = 15
 name = "stretcher"
 
@@ -14105,7 +14105,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "薬品キャビネット"
+description = "[dummy] 薬品キャビネット"
 hp = 15
 name = "medicine_cabinet"
 
@@ -14117,7 +14117,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "受付カウンター"
+description = "[dummy] 受付カウンター"
 hp = 15
 name = "reception_counter"
 
@@ -14129,7 +14129,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "医療モニタ"
+description = "[dummy] 医療モニタ"
 hp = 15
 name = "medical_monitor"
 
@@ -14141,7 +14141,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "パーティション"
+description = "[dummy] パーティション"
 hp = 15
 name = "cubicle_partition"
 
@@ -14153,7 +14153,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "サーバラック"
+description = "[dummy] サーバラック"
 hp = 15
 name = "server_rack"
 
@@ -14165,7 +14165,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "プリンタ"
+description = "[dummy] プリンタ"
 hp = 15
 name = "printer"
 
@@ -14177,7 +14177,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "ホワイトボード"
+description = "[dummy] ホワイトボード"
 hp = 15
 name = "whiteboard"
 
@@ -14189,7 +14189,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "ウォーターサーバー"
+description = "[dummy] ウォーターサーバー"
 hp = 15
 name = "water_cooler"
 
@@ -14201,7 +14201,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "パレット"
+description = "[dummy] パレット"
 hp = 15
 name = "pallet"
 
@@ -14213,7 +14213,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "保管ケージ"
+description = "[dummy] 保管ケージ"
 hp = 15
 name = "cage"
 
@@ -14225,7 +14225,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "小さな鳥居"
+description = "[dummy] 小さな鳥居"
 hp = 15
 name = "torii_small"
 
@@ -14237,7 +14237,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "賽銭箱"
+description = "[dummy] 賽銭箱"
 hp = 15
 name = "offering_box"
 
@@ -14249,7 +14249,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "狛犬"
+description = "[dummy] 狛犬"
 hp = 15
 name = "komainu"
 
@@ -14261,7 +14261,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "絵馬掛け"
+description = "[dummy] 絵馬掛け"
 hp = 15
 name = "ema_rack"
 
@@ -14273,7 +14273,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "香炉"
+description = "[dummy] 香炉"
 hp = 15
 name = "incense_burner"
 
@@ -14285,7 +14285,7 @@ spriteSheetName = "field"
 [[tiles]]
 blockPass = false
 blockView = false
-description = "リノリウム床"
+description = "[dummy] リノリウム床"
 foliage = 0
 name = "floor_linoleum"
 shelter = 0
@@ -14299,7 +14299,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = false
 blockView = false
-description = "タイル床"
+description = "[dummy] タイル床"
 foliage = 0
 name = "floor_tile"
 shelter = 0
@@ -14313,7 +14313,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = false
 blockView = false
-description = "コンクリート床"
+description = "[dummy] コンクリート床"
 foliage = 0
 name = "floor_concrete"
 shelter = 0
@@ -14327,7 +14327,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = false
 blockView = false
-description = "フローリング床"
+description = "[dummy] フローリング床"
 foliage = 0
 name = "floor_wood"
 shelter = 0
@@ -14341,7 +14341,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = false
 blockView = false
-description = "畳"
+description = "[dummy] 畳"
 foliage = 0
 name = "floor_tatami"
 shelter = 0
