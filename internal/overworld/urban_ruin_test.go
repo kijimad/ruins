@@ -125,6 +125,28 @@ func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T)
 	assert.Positive(t, found, "市街地の敵が存在する")
 }
 
+// TestNewChunkGen_市街地の建物に見える扉が置かれる は、各建物の開口に扉エンティティが
+// 実体化されることを固定する。壁の切れ目だけだと入口が分からない退行を防ぐ。
+func TestNewChunkGen_市街地の建物に見える扉が置かれる(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 30, 20
+	world := testutil.InitTestWorld(t)
+	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, worldstream.ChunkCoord{X: -1}, mapplanner.PlannerTypeOverworldField)
+	for i := range 16 {
+		require.NoError(t, gen(worldstream.ChunkCoord{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+	}
+
+	doors := 0
+	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
+	for q.Next() {
+		if world.Components.Name.Get(q.Entity()).Name == "扉" {
+			doors++
+		}
+	}
+	assert.Positive(t, doors, "市街地の建物に扉が置かれる")
+}
+
 // TestNewChunkGen_開始チャンクを含む市街地はスキップされる は、開始チャンクが市街地の
 // 足あとに重なった場合に市街地が丸ごと生成されず、開始点が安全に保たれることを固定する。
 func TestNewChunkGen_開始チャンクを含む市街地はスキップされる(t *testing.T) {

@@ -21,15 +21,16 @@ import (
 // 断片の導出は (runSeed, アンカー座標) の純関数なので、隣接チャンクを生成せずに断片どうしが
 // 一致する。帯ストリーミングで市街地の一部だけが先に生成されても矛盾しない。
 const (
-	urbanSalt                   = 0x0b17
-	urbanMaxWidth  consts.Chunk = 3 // 市街地の最大横幅。チャンク数
+	urbanSalt                  = 0x0b17
+	urbanMaxWidth consts.Chunk = 3 // 市街地の最大横幅。チャンク数
 
 	// 街区の格子。CDDA の街が OMT ごとに建物で埋まり街路で区切られるのを翻案する。
 	// 市街地を cityLotPitch 間隔の区画に切り、各区画をほぼ埋める大きな建物を置き、
 	// 区画の西辺と北辺に幅 cityStreetW の街路を敷いて格子状の街並みにする。
-	cityLotPitch consts.Tile = 16 // 区画の間隔。建物 + 街路
-	cityStreetW  consts.Tile = 2  // 街路の幅
-	cityVacancy              = 2  // 10 区画あたり空き地にする数。単調さを崩す
+	cityLotPitch   consts.Tile = 16 // 区画の間隔。建物 + 街路
+	cityStreetW    consts.Tile = 2  // 街路の幅
+	cityMaxSetback consts.Tile = 4  // 区画内で建物を縮めてよい最大量。前庭や隙間を作る
+	cityVacancy                = 2  // 10 区画あたり空き地にする数。単調さを崩す
 
 	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
 	urbanEnemyTable = "廃墟"
@@ -153,15 +154,22 @@ func cityLayout(citySeed uint64, width consts.Chunk, cityW, cityH consts.Tile) [
 			if rng.IntN(10) < cityVacancy {
 				continue // 空き地。それでも rng 列は進めないので断片間で一致する
 			}
+			// 区画内部の使える範囲。西辺・北辺の街路を避ける
+			span := cityLotPitch - cityStreetW
+			// 建物の大きさをばらつかせ、区画内で余白を残す。均一な格子の違和感を崩す。
+			// 余白ぶん建物を区画内でずらすので、前庭や隣家との隙間ができる
+			bw := span - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
+			bh := span - consts.Tile(rng.IntN(int(cityMaxSetback)+1))
+			ox := consts.Tile(rng.IntN(int(span-bw) + 1))
+			oy := consts.Tile(rng.IntN(int(span-bh) + 1))
 			b := cityBuilding{
-				// 区画の西辺・北辺の街路を避け、区画内部をほぼ埋める大きさにする
-				x: lotX + cityStreetW,
-				y: lotY + cityStreetW,
-				w: cityLotPitch - cityStreetW,
-				h: cityLotPitch - cityStreetW,
+				x: lotX + cityStreetW + ox,
+				y: lotY + cityStreetW + oy,
+				w: bw,
+				h: bh,
 			}
 			b.facility = rollFacility(rng, width)
-			b.door = b.x + b.w/2 // 南辺中央。真下の区画北辺の街路に面する
+			b.door = b.x + 1 + consts.Tile(rng.IntN(int(b.w-2))) // 南辺の出入口
 			b.props = rollBuildingProps(rng, b)
 			buildings = append(buildings, b)
 		}
@@ -207,8 +215,8 @@ func rollBuildingProps(rng *rand.Rand, b cityBuilding) []cityProp {
 func cityTilesOf(buildings []cityBuilding, cityW, cityH consts.Tile) map[consts.Coord[consts.Tile]]cityTile {
 	m := map[consts.Coord[consts.Tile]]cityTile{}
 	// 街路の格子。各区画の西辺と北辺に幅 cityStreetW の舗装を敷く
-	for y := consts.Tile(0); y < cityH; y++ {
-		for x := consts.Tile(0); x < cityW; x++ {
+	for y := range cityH {
+		for x := range cityW {
 			if x%cityLotPitch < cityStreetW || y%cityLotPitch < cityStreetW {
 				m[consts.Coord[consts.Tile]{X: x, Y: y}] = cityFloor
 			}
@@ -285,6 +293,19 @@ func (urbanRuinFeature) place(world w.World, runSeed uint64, c, start worldstrea
 			if _, err := lifecycle.SpawnProp(world, p.name, wx, wy); err != nil {
 				return fmt.Errorf("市街地の内装配置に失敗 (%s): %w", p.name, err)
 			}
+		}
+	}
+
+	// 各建物の南辺の開口に見える扉を置く。1マスの床の切れ目だけでは入口と分からないため、
+	// 開閉できる扉エンティティで入口を明示する。扉のXが自断片に入るときだけ実体化する
+	for _, b := range buildings {
+		if !inFrag(b.door) {
+			continue
+		}
+		wx := g.offsetX + (b.door - fragOrigin)
+		wy := g.offsetY + (b.y + b.h - 1)
+		if _, err := lifecycle.SpawnDoor(world, wx, wy, gc.DoorOrientationHorizontal); err != nil {
+			return fmt.Errorf("市街地の扉配置に失敗 (x=%d, y=%d): %w", wx, wy, err)
 		}
 	}
 

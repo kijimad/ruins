@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -86,6 +87,11 @@ func stampHut(world w.World, g chunkGeom, rng *rand.Rand, ox, oy, hw, hh consts.
 		if _, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y); err != nil {
 			return fmt.Errorf("POI内装の配置に失敗 (%s): %w", name, err)
 		}
+	}
+	// 南辺の開口に見える扉を置く。壁の切れ目だけだと原野の中の謎の壁に見えるため、
+	// 廃屋としての入口を明示する
+	if _, err := lifecycle.SpawnDoor(world, door, oy+hh-1, gc.DoorOrientationHorizontal); err != nil {
+		return fmt.Errorf("POI小屋の扉配置に失敗: %w", err)
 	}
 	return nil
 }
