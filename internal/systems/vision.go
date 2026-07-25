@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"image/color"
 	"math"
 
@@ -224,16 +223,20 @@ func isInMapBounds(grid gc.GridElement, level gc.Level) bool {
 	return grid.X >= 0 && grid.X < level.TileWidth && grid.Y >= 0 && grid.Y < level.TileHeight
 }
 
-// calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
-func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixel], radius consts.WorldPixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility {
-	visibilityMap := make(map[string]TileVisibility)
-
+// calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する。
+// 結果はキーで引かず順に走査するだけなので、マップでなくスライスで返す。座標は各要素の
+// Row・Col が持つ。タイルごとの文字列キー生成を避け、視界内タイル数ぶんの alloc を無くす。
+func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixel], radius consts.WorldPixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) []TileVisibility {
 	// プレイヤーの位置からタイル座標を計算
 	playerTileX := int(playerPos.X) / int(consts.TileSize)
 	playerTileY := int(playerPos.Y) / int(consts.TileSize)
 
 	// 視界範囲を分割して段階的処理（視界範囲最適化）
 	maxTileDistance := int(radius)/int(consts.TileSize) + 2
+
+	// 走査する正方形のタイル数を上限に事前確保し、追加時の再確保を避ける
+	side := 2*maxTileDistance + 1
+	visibility := make([]TileVisibility, 0, side*side)
 
 	// タイルベース視界判定（Dark Days Ahead風）
 
@@ -251,23 +254,21 @@ func calculateTileVisibilityWithDistance(playerPos consts.Coord[consts.WorldPixe
 			distanceSquared := dxF*dxF + dyF*dyF
 			radiusSquared := float64(radius) * float64(radius)
 
-			tileKey := fmt.Sprintf("%d,%d", tileX, tileY)
-
 			// 視界範囲内のタイルのみ処理
 			if distanceSquared <= radiusSquared {
 				visible := isTileVisibleByRaycast(playerPos, tileCenter, rcCache, blockIndex)
 
-				visibilityMap[tileKey] = TileVisibility{
+				visibility = append(visibility, TileVisibility{
 					Row:     tileY,
 					Col:     tileX,
 					Visible: visible,
-				}
+				})
 			}
 			// 視界外のタイルは処理しない（最適化）
 		}
 	}
 
-	return visibilityMap
+	return visibility
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
