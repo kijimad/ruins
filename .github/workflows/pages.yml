@@ -27,7 +27,7 @@ jobs:
           sudo apt install -y lcov
           go install github.com/jandelgado/gcov2lcov@v1.1.1
           # レポート生成
-          RUINS_LOG_LEVEL=ignore go test -covermode=count ./... -coverprofile=coverage.out
+          make report
           $(go env GOPATH)/bin/gcov2lcov -infile=coverage.out -outfile=coverage.lcov
           genhtml coverage.lcov -o ./wasm/cov
           go tool cover -html=coverage.out -o ./wasm/cov/gocoverage.html
