@@ -116,7 +116,7 @@ type OverworldDefinition struct {
 }
 
 // NewOverworldDefinition はオーバーワールド種別を構成する。帯形状を含む設定を渡す。
-// rows は帯の縦チャンク行数で、1 なら従来の1行帯になる。
+// rows は帯の縦チャンク行数で、北から南へ rows 本のレーンが並ぶ。
 // 本番は登録済みの DungeonOverworld を使い、テストは任意形状の種別を組むのに使う。
 func NewOverworldDefinition(name string, baseTemp int, chunkW, chunkH consts.Tile, k, rows consts.Chunk) *OverworldDefinition {
 	return &OverworldDefinition{name: name, baseTemp: baseTemp, chunkW: chunkW, chunkH: chunkH, k: k, rows: rows}

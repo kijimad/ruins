@@ -222,7 +222,7 @@ func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
 	require.NoError(t, s.Start(world))
 	assert.Equal(t, consts.Chunk(1), query.GetSeamlessBand(world).Rows, "新規開始で Rows がセーブ対象へ書き込まれる")
 
-	// 旧セーブ相当。Rows はゼロ値のまま復元し、1行帯へ正規化される
+	// Rows がゼロ値で復元される場合。1行帯へ正規化される
 	oldWorld := testutil.InitTestWorld(t)
 	drOld := NewDriver(mapplanner.PlannerTypeSmallRoom, nil, nil)
 	sbOld := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, K: testK}

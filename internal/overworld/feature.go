@@ -8,7 +8,7 @@ import (
 
 // Placement はリージョン方式の配置ルール。世界を Spacing チャンク四方のリージョンに分け、
 // リージョンごとに1チャンクを決定的に当選させる。「1リージョンに高々1つ」と最小間隔
-// Separation を O(1) で保証する。Minecraft の RandomSpreadStructurePlacement の翻案。
+// Separation を O(1) で保証する。リージョンごとに1つ当選させる散布方式。
 // 密な散布が要る地物が現れたら Scatter モードをここに拡張する。
 type Placement struct {
 	Spacing    consts.Chunk // リージョンの一辺。おおよそ Spacing チャンクに1つ当選する

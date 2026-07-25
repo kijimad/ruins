@@ -84,7 +84,7 @@ func (dr *Driver) Start(world w.World) error {
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
 // 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
-	// 旧セーブに Rows は無くゼロ値になる。1へ正規化して従来の1行帯として復元する
+	// Rows がゼロ値なら1へ正規化して1行の帯として復元する
 	rows := max(sb.Rows, 1)
 	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.K, rows, sb.EastIndex)
 	start := worldstream.ChunkCoord{X: sb.K / 2, Y: rows / 2}

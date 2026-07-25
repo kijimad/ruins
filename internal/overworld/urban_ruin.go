@@ -14,8 +14,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 市街地は建物チャンクの2次元格子。CDDA の街が OMT ごとに1つの建物で埋まり街路で
-// 区切られるのを翻案し、1チャンク = 1建物にする。市街地はアンカーから東と南へ w×h
+// 市街地は建物チャンクの2次元格子。1チャンク = 1建物とし、街路で区切る。
+// 市街地はアンカーから東と南へ w×h
 // チャンク広がり、各チャンクは自分の建物を (citySeed, チャンクのローカル座標) から独立に
 // 決める。全体一括導出や断片クリップは要らず、各チャンクが自己完結する。
 // 街路は各チャンクの北辺・西辺に敷き、隣接チャンクと連続して格子状の街並みになる。
@@ -23,7 +23,7 @@ const (
 	urbanSalt                 = 0x0b17
 	urbanMaxSpan consts.Chunk = 3 // 市街地の一辺の最大チャンク数
 
-	cityStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。CDDA の2車線+歩道に相当
+	cityStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
 	cityMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
 	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
@@ -81,7 +81,7 @@ const (
 )
 
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
-// 抽選対象になる。CDDA の city_size gate の翻案で、大きな市街地でだけ専門施設が混ざる。
+// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
 type facilityWeight struct {
 	kind    facilityKind
 	weight  int

@@ -33,7 +33,7 @@ func TestChunkSeed2D_転置と隣接で散る(t *testing.T) {
 	assert.NotEqual(t, overworld.ChunkSeed2D(42, 1, 2), overworld.ChunkSeed2D(42, 2, 1), "転置した座標は別の seed になる")
 
 	// 負を含む近傍グリッド全域で seed が衝突しないことを確認する。
-	// 旧1次元シードとの互換は保証しないため、その関係は検証しない
+	// シードの世代間互換は保証しないため、特定の値との一致は検証しない
 	seen := map[uint64]worldstream.ChunkCoord{}
 	for cy := consts.Chunk(-8); cy <= 8; cy++ {
 		for cx := consts.Chunk(-8); cx <= 8; cx++ {

@@ -20,7 +20,7 @@ type Band struct {
 	chunkW    consts.Tile  // 1チャンクの幅。構築後不変
 	chunkH    consts.Tile  // 1チャンクの高さ。縦スロットへの配置に使う。構築後不変
 	k         consts.Chunk // X方向のチャンク数。奇数で中央チャンクを持つ。構築後不変
-	rows      consts.Chunk // Y方向のチャンク行数。1 で従来の1行帯と同値。構築後不変
+	rows      consts.Chunk // Y方向のチャンク行数。1 なら1行の帯。構築後不変
 	eastIndex consts.Chunk // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化
 }
 
@@ -30,7 +30,7 @@ type Band struct {
 type ChunkGen func(c ChunkCoord, offsetX, offsetY consts.Tile) error
 
 // NewBand は幅 chunkW・高さ chunkH のチャンクを横 k 列・縦 rows 行並べた帯を eastIndex=0 で作る。
-// k は奇数を推奨する。rows=1 で従来の1行帯と同値になる。
+// k は奇数を推奨する。rows=1 なら1行の帯になる。
 func NewBand(chunkW, chunkH consts.Tile, k, rows consts.Chunk) *Band {
 	return NewBandAt(chunkW, chunkH, k, rows, 0)
 }
