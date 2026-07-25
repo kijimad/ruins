@@ -100,7 +100,7 @@ func (st *OverworldMapState) Update(_ w.World) (es.Transition[w.World], error) {
 
 // Draw は各チャンクを色と文字のセルで描き、現在地と凡例を添える。
 func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
-	screen.Fill(color.RGBA{R: 12, G: 14, B: 18, A: 255})
+	screen.Fill(theme.OverworldMapBackground)
 	face := world.Resources.UIResources.Text.BodyFace
 
 	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
@@ -120,14 +120,14 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			// 全チャンクを同一に扱う。色を塗り、種別の文字を重ねて記号でも読めるようにする。
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
-			drawText(string(r), x+5, y+2, color.RGBA{R: 20, G: 20, B: 24, A: 255})
+			drawText(string(r), x+5, y+2, theme.OverworldMapGlyphText)
 		}
 	}
 	// 現在地マーカー。白枠でセルを囲む
 	if st.playerCol >= 0 {
 		x := originX + consts.ScreenPixel(st.playerCol)*mapCellPx
 		y := originY + consts.ScreenPixel(st.playerRow)*mapCellPx
-		vector.StrokeRect(screen, float32(x-1), float32(y-1), float32(mapCellPx+1), float32(mapCellPx+1), 2, color.RGBA{R: 255, G: 255, B: 255, A: 255}, false)
+		vector.StrokeRect(screen, float32(x-1), float32(y-1), float32(mapCellPx+1), float32(mapCellPx+1), 2, theme.OverworldMapPlayerMarker, false)
 	}
 
 	st.drawLegend(screen, drawText, originY+consts.ScreenPixel(len(st.glyphs))*mapCellPx+16)
@@ -165,5 +165,5 @@ func glyphColor(r rune) color.RGBA {
 	if c, ok := glyphColorTable[r]; ok {
 		return c
 	}
-	return color.RGBA{R: 90, G: 90, B: 90, A: 255}
+	return theme.OverworldMapUnknownGlyph
 }
