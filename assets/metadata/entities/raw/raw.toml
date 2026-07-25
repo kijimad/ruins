@@ -13978,10 +13978,6 @@ slot = "LEGS"
 name = "革のブーツ"
 slot = "FEET"
 
-# === ダミー内装アセット(docs/plan/interior_assets.md) ===
-# 文字入りプレースホルダ。実アートが描かれ次第、source PNG を差し替えて make aseprite で再パックする。
-# 削除する場合はこのブロックと assets/file/textures/{single,tiles}/ の該当 PNG を消す。
-
 [[props]]
 blockPass = true
 blockView = false
@@ -14351,9 +14347,6 @@ water = 0
 depth = 0
 spriteKey = "floor_tatami"
 spriteSheetName = "tile"
-
-# === DawnLike フロアオートタイル(licenses/DawnLike/Objects/Floor.png より切出) ===
-# 各素材は16枚のオートタイル(_0.._15、4bitエッジ Up1/Right2/Down4/Left8)。実利用には spawner の tileSpec 配線が要る。
 
 [[tiles]]
 blockPass = false
