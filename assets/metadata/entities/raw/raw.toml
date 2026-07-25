@@ -14956,6 +14956,7 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = "150 g"
+material = true
 
 [[items]]
 description = "青く輝く八面体の結晶。鋭い面が光を反射する"
@@ -14975,6 +14976,7 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "200 g"
+material = true
 
 [[items]]
 description = "白い翼を広げた天使をかたどった像"
@@ -14984,6 +14986,7 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = "500 g"
+material = true
 
 [[props]]
 blockPass = true
