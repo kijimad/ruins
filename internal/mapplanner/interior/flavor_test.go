@@ -3,7 +3,6 @@ package interior
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -37,37 +36,5 @@ func TestFlavor_到達性を壊さない(t *testing.T) {
 			}
 			require.Truef(t, reached[tile], "flavor 後も床 %v が戸口から到達できる (seed=%d)", tile, seed)
 		}
-	}
-}
-
-// TestFlavor_蝋燭の輪が中央に束で置かれる は flavor machine が単なる散布でなく scene として置かれることを
-// 固定する。中央の蝋燭を anchor に、隣接へ複数の蝋燭が束で来る。
-func TestFlavor_蝋燭の輪が中央に束で置かれる(t *testing.T) {
-	t.Parallel()
-
-	room := Room{Rect: Rect{X: 0, Y: 0, W: 13, H: 10}, Doorways: []Doorway{{X: 6, Y: 9}}}
-	placed := Flavor(3, room, nil, abandonedFlavor())
-
-	var candles []Vec
-	for _, p := range placed {
-		if p.Ref == "candle" {
-			candles = append(candles, p.Pos)
-		}
-	}
-	require.GreaterOrEqual(t, len(candles), 5, "蝋燭が輪として複数置かれる")
-
-	// どの蝋燭も他のどれかと隣接し、孤立した散布でなく塊をなす
-	for _, c := range candles {
-		adjacent := false
-		for _, o := range candles {
-			if c == o {
-				continue
-			}
-			if max(abs(c.X-o.X), abs(c.Y-o.Y)) == 1 {
-				adjacent = true
-				break
-			}
-		}
-		assert.Truef(t, adjacent, "蝋燭 %v は他の蝋燭と隣接し輪をなす", c)
 	}
 }

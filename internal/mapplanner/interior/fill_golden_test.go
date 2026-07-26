@@ -27,16 +27,17 @@ func clinicRoom() Room {
 	}
 }
 
-// abandonedFlavor は廃墟に生活の痕を足す flavor machine の Content。candleCircle は facility.go にある。蝋燭の輪を中央に、絨毯や箒を隅に置く。
-// 戦利品を増やさず character を与え、空き箱部屋を無くす。Flavor パスで既存配置の隙間へ流し込む。
+// abandonedFlavor は廃墟に生活の痕を足す flavor machine の Content。絨毯・箒・散らばった蝋燭のうち2つを
+// 隅や壁際へ置く。戦利品を増やさず character を与え、空き箱部屋を無くす。Flavor パスで既存配置の隙間へ
+// 流し込む。production の facilityFlavor と同じく儀式の輪は置かない。
 func abandonedFlavor() Content {
 	return Content{
 		ID: "abandoned",
 		Groups: []Group{
-			{Style: PickEach, Items: []Stuff{candleCircle()}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
 				{Kind: KindDecor, Ref: "carpet", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
 				{Kind: KindDecor, Ref: "broom", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindDecor, Ref: "candle", Placement: PlaceFullArea, Amount: Dice{Base: 1, Sides: 2}},
 			}},
 		},
 	}

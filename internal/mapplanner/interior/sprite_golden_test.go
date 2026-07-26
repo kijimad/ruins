@@ -160,8 +160,9 @@ func TestGolden_RoomHouse(t *testing.T) {
 	assertRoomGolden(t, room, "house", placed)
 }
 
-// TestGolden_RoomFlavor は flavor パスの効き目。ベッドと棚だけの生活痕の薄い部屋に蝋燭の輪を足し、
-// 戦利品を増やさず character を与えて空き箱部屋を無くす様子を写す。蝋燭の輪は装飾ゆえ通行を阻まない。
+// TestGolden_RoomFlavor は flavor パスの効き目。ベッドと棚だけの生活痕の薄い部屋へ絨毯・箒・散らばった
+// 蝋燭を足し、戦利品を増やさず character を与えて空き箱部屋を無くす様子を写す。flavor は装飾ゆえ通行を
+// 阻まない。
 func TestGolden_RoomFlavor(t *testing.T) {
 	t.Parallel()
 
