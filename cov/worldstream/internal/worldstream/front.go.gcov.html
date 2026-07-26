@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,20 +78,20 @@
 <span id="L16"><span class="lineNum">      16</span>              : }</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // ColdZoneWest は極低温ゾーンの西端＝破棄/進入不可ラインの絶対 X。</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">          11 : func (f Front) ColdZoneWest() consts.AbsTileX {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          11 :         return f.East - consts.AbsTileX(f.ColdWidth)</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          11 : }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 : func (f Front) ColdZoneWest() consts.AbsTileX {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         return f.East - consts.AbsTileX(f.ColdWidth)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // InColdZone は絶対 X abs が極低温ゾーン (ColdZoneWest, East] 内かを返す。</span>
 <span id="L24"><span class="lineNum">      24</span>              : // 西端は含まない。進入不可ラインの東側から極寒になる。東端は含む。</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           6 : func (f Front) InColdZone(abs consts.AbsTileX) bool {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           6 :         return abs &gt; f.ColdZoneWest() &amp;&amp; abs &lt;= f.East</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           6 : }</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func (f Front) InColdZone(abs consts.AbsTileX) bool {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return abs &gt; f.ColdZoneWest() &amp;&amp; abs &lt;= f.East</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // IsWestOfFront は絶対 X abs が破棄と進入不可ライン、すなわち極低温ゾーン西端以西かを返す。</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           4 : func (f Front) IsWestOfFront(abs consts.AbsTileX) bool {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           4 :         return abs &lt;= f.ColdZoneWest()</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           4 : }</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : func (f Front) IsWestOfFront(abs consts.AbsTileX) bool {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return abs &lt;= f.ColdZoneWest()</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // Advance は前線を dx タイル東進させた新しい Front を返す。値は不変でコピーを返す。</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func (f Front) Advance(dx consts.Tile) Front {</span></span>
@@ -116,12 +116,12 @@
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              : // FrontAt は総経過ターン数 totalTurns 時点の Front を返す純関数。</span>
 <span id="L56"><span class="lineNum">      56</span>              : // AdvanceTurns ごとに Step 前進する階段状の前進。負のターンは前進0として扱う。</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           8 : func FrontAt(cfg FrontConfig, totalTurns consts.Turn) Front {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           8 :         var advanced consts.Tile</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          14 :         if cfg.AdvanceTurns &gt; 0 &amp;&amp; totalTurns &gt; 0 {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           6 :                 advanced = consts.Tile(totalTurns/cfg.AdvanceTurns) * cfg.Step</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           6 :         }</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           8 :         return Front{East: cfg.StartEast + consts.AbsTileX(advanced), ColdWidth: cfg.ColdWidth}</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : func FrontAt(cfg FrontConfig, totalTurns consts.Turn) Front {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         var advanced consts.Tile</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           2 :         if cfg.AdvanceTurns &gt; 0 &amp;&amp; totalTurns &gt; 0 {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 advanced = consts.Tile(totalTurns/cfg.AdvanceTurns) * cfg.Step</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         return Front{East: cfg.StartEast + consts.AbsTileX(advanced), ColdWidth: cfg.ColdWidth}</span></span>
 <span id="L63"><span class="lineNum">      63</span>              : }</span>
         </pre>
               </td>

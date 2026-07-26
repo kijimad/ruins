@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,23 +78,23 @@
 <span id="L16"><span class="lineNum">      16</span>              : // Upsert はコンポーネントを追加または更新する。</span>
 <span id="L17"><span class="lineNum">      17</span>              : // Arkの Add は既存でパニックし、Set は不在でパニックするため、Has判定で使い分ける。</span>
 <span id="L18"><span class="lineNum">      18</span>              : // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           3 : func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *T) error {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           4 :         if !world.Alive(entity) {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 : func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *T) error {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         if !world.Alive(entity) {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;死亡エンティティにコンポーネントを設定できない: entity=%v&quot;, entity)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           3 :         if comp.Has(entity) {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         if comp.Has(entity) {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 comp.Set(entity, data)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         } else {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 comp.Add(entity, data)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         return nil</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // addComp は非nilなら対応するMapにコンポーネントを付与する</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">        5625 : func addComp[T any](m *ecs.Map[T], entity ecs.Entity, v *T) {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">        5700 :         if v != nil {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          75 :                 m.Add(entity, v)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          75 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : func addComp[T any](m *ecs.Map[T], entity ecs.Entity, v *T) {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         if v != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 m.Add(entity, v)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : }</span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // Camera はカメラ</span>
@@ -175,11 +175,11 @@
 <span id="L113"><span class="lineNum">     113</span>              : }</span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
 <span id="L115"><span class="lineNum">     115</span>              : // Calc は基準値(最大HP)から実際の回復量を計算する。絶対量指定の場合baseは無視される</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           7 : func (ph ProvidesHealing) Calc(base int) int {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">          11 :         if ph.Kind == HealRatio {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           4 :                 return int(float64(base) * ph.Amount)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           4 :         }</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           3 :         return int(ph.Amount)</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 : func (ph ProvidesHealing) Calc(base int) int {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           2 :         if ph.Kind == HealRatio {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 return int(float64(base) * ph.Amount)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         return int(ph.Amount)</span></span>
 <span id="L121"><span class="lineNum">     121</span>              : }</span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              : // ProvidesNutrition は空腹度を回復する性質</span>
@@ -273,7 +273,7 @@
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : func (m *Melee) GetCost() int { return m.Cost }</span></span>
 <span id="L212"><span class="lineNum">     212</span>              : </span>
 <span id="L213"><span class="lineNum">     213</span>              : // GetTargetType はAttackerの実装</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 : func (m *Melee) GetTargetType() TargetType { return m.TargetType }</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : func (m *Melee) GetTargetType() TargetType { return m.TargetType }</span></span>
 <span id="L215"><span class="lineNum">     215</span>              : </span>
 <span id="L216"><span class="lineNum">     216</span>              : // Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む</span>
 <span id="L217"><span class="lineNum">     217</span>              : type Fire struct {</span>

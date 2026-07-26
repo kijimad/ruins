@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,19 +73,19 @@
 <span id="L11"><span class="lineNum">      11</span>              : // applyPercent は倍率適用の中核。式を1箇所に集約する。</span>
 <span id="L12"><span class="lineNum">      12</span>              : // Go の / は型で意味が変わるため、int で呼べば整数除算で切り捨て、float で呼べば</span>
 <span id="L13"><span class="lineNum">      13</span>              : // 非切り捨てになり、外皮の ApplyInt/ApplyFloat が期待する丸めが型ごとに自動で決まる。</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           9 : func applyPercent[T ~int | ~float64](base T, p Percent) T {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           9 :         return base * T(p) / T(PercentBase)</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           9 : }</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func applyPercent[T ~int | ~float64](base T, p Percent) T {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         return base * T(p) / T(PercentBase)</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // ApplyInt は base に倍率を適用する。整数計算のため端数は切り捨てる。</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           6 : func (p Percent) ApplyInt(base int) int {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           6 :         return applyPercent(base, p)</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           6 : }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 : func (p Percent) ApplyInt(base int) int {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         return applyPercent(base, p)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // ApplyFloat は base に倍率を適用する(float64)。切り捨ては行わない。</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           3 : func (p Percent) ApplyFloat(base float64) float64 {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           3 :         return applyPercent(base, p)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           3 : }</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : func (p Percent) ApplyFloat(base float64) float64 {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return applyPercent(base, p)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

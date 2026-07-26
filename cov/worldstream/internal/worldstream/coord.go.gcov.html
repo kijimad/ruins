@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,9 +66,9 @@
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : // BandOriginX は eastIndex（東進したチャンク数）と chunkW から帯の絶対原点 X を返す。</span>
 <span id="L6"><span class="lineNum">       6</span>              : // 帯ローカル X=0 が絶対軸で指す位置。</span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC tlaBgGNC">           5 : func BandOriginX(eastIndex consts.Chunk, chunkW consts.Tile) consts.AbsTileX {</span></span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           5 :         return consts.AbsTileX(int(eastIndex) * int(chunkW))</span></span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           5 : }</span></span>
+<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC tlaBgGNC">           1 : func BandOriginX(eastIndex consts.Chunk, chunkW consts.Tile) consts.AbsTileX {</span></span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           1 :         return consts.AbsTileX(int(eastIndex) * int(chunkW))</span></span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // ToAbs は帯ローカル X を絶対 X に変換する。absX = localX + bandOriginX。</span>
 <span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 : func ToAbs(bandOriginX consts.AbsTileX, localX consts.Tile) consts.AbsTileX {</span></span>
@@ -76,9 +76,9 @@
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // ToLocal は絶対 X を帯ローカル X に変換する。localX = absX - bandOriginX。</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           2 : func ToLocal(bandOriginX consts.AbsTileX, absX consts.AbsTileX) consts.Tile {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           2 :         return consts.Tile(absX - bandOriginX)</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 : }</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 : func ToLocal(bandOriginX consts.AbsTileX, absX consts.AbsTileX) consts.Tile {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         return consts.Tile(absX - bandOriginX)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

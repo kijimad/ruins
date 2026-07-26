@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,12 +82,12 @@
 <span id="L20"><span class="lineNum">      20</span>              : }</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // InitResources はジェネリクス型を使用した型安全な実装</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 : func InitResources[T ResourceInitializer](gameResources T) (*Resources[T], error) {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         if err := gameResources.InitializeResources(); err != nil {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to initialize resources: %w&quot;, err)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func InitResources[T ResourceInitializer](gameResources T) (*Resources[T], error) {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :         if err := gameResources.InitializeResources(); err != nil {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to initialize resources: %w&quot;, err)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         return &amp;Resources[T]{Game: gameResources}, nil</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return &amp;Resources[T]{Game: gameResources}, nil</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
         </pre>
               </td>

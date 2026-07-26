@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -244,11 +244,11 @@
 <span id="L182"><span class="lineNum">     182</span>              : }</span>
 <span id="L183"><span class="lineNum">     183</span>              : </span>
 <span id="L184"><span class="lineNum">     184</span>              : // NewUIResources は新しいUIリソースを作成する</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">           2 : func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           2 :         background := image.NewNineSliceColor(hexToColor(backgroundColor))</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           2 : </span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           2 :         fonts, err := loadFonts(sources)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           3 :         if err != nil {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">           1 : func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         background := image.NewNineSliceColor(hexToColor(backgroundColor))</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         fonts, err := loadFonts(sources)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 return UIResources{}, err</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L192"><span class="lineNum">     192</span>              : </span>
@@ -899,18 +899,18 @@
 <span id="L837"><span class="lineNum">     837</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L838"><span class="lineNum">     838</span>              : }</span>
 <span id="L839"><span class="lineNum">     839</span>              : </span>
-<span id="L840"><span class="lineNum">     840</span> <span class="tlaGNC">          31 : func hexToColor(h string) color.Color {</span></span>
-<span id="L841"><span class="lineNum">     841</span> <span class="tlaGNC">          31 :         u, err := strconv.ParseUint(h, 16, 0)</span></span>
-<span id="L842"><span class="lineNum">     842</span> <span class="tlaGNC">          32 :         if err != nil {</span></span>
+<span id="L840"><span class="lineNum">     840</span> <span class="tlaGNC">           1 : func hexToColor(h string) color.Color {</span></span>
+<span id="L841"><span class="lineNum">     841</span> <span class="tlaGNC">           1 :         u, err := strconv.ParseUint(h, 16, 0)</span></span>
+<span id="L842"><span class="lineNum">     842</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
 <span id="L843"><span class="lineNum">     843</span> <span class="tlaGNC">           1 :                 panic(err)</span></span>
 <span id="L844"><span class="lineNum">     844</span>              :         }</span>
 <span id="L845"><span class="lineNum">     845</span>              : </span>
-<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC">          30 :         return color.NRGBA{</span></span>
-<span id="L847"><span class="lineNum">     847</span> <span class="tlaGNC">          30 :                 R: uint8((u &amp; 0xff0000) &gt;&gt; 16),</span></span>
-<span id="L848"><span class="lineNum">     848</span> <span class="tlaGNC">          30 :                 G: uint8((u &amp; 0xff00) &gt;&gt; 8),</span></span>
-<span id="L849"><span class="lineNum">     849</span> <span class="tlaGNC">          30 :                 B: uint8(u &amp; 0xff),</span></span>
-<span id="L850"><span class="lineNum">     850</span> <span class="tlaGNC">          30 :                 A: 255,</span></span>
-<span id="L851"><span class="lineNum">     851</span> <span class="tlaGNC">          30 :         }</span></span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC">           1 :         return color.NRGBA{</span></span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaGNC">           1 :                 R: uint8((u &amp; 0xff0000) &gt;&gt; 16),</span></span>
+<span id="L848"><span class="lineNum">     848</span> <span class="tlaGNC">           1 :                 G: uint8((u &amp; 0xff00) &gt;&gt; 8),</span></span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaGNC">           1 :                 B: uint8(u &amp; 0xff),</span></span>
+<span id="L850"><span class="lineNum">     850</span> <span class="tlaGNC">           1 :                 A: 255,</span></span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L852"><span class="lineNum">     852</span>              : }</span>
         </pre>
               </td>

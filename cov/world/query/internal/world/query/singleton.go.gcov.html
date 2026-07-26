@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,33 +71,33 @@
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // GetSingleton はシングルトンエンティティからコンポーネントを取得する。未初期化の場合はnilを返す</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">         184 : func GetSingleton[T any](world w.World, comp *ecs.Map[T]) *T {</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">         185 :         if !comp.Has(world.Resources.SingletonEntity) {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 : func GetSingleton[T any](world w.World, comp *ecs.Map[T]) *T {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           2 :         if !comp.Has(world.Resources.SingletonEntity) {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">         183 :         return comp.Get(world.Resources.SingletonEntity)</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         return comp.Get(world.Resources.SingletonEntity)</span></span>
 <span id="L17"><span class="lineNum">      17</span>              : }</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // GetTurnState はシングルトンエンティティからターン状態を取得する</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           7 : func GetTurnState(world w.World) *gc.TurnState {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           7 :         return GetSingleton[gc.TurnState](world, world.Components.TurnState)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           7 : }</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : func GetTurnState(world w.World) *gc.TurnState {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return GetSingleton[gc.TurnState](world, world.Components.TurnState)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // GetGameProgress はシングルトンエンティティからGameProgressを取得する</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           3 : func GetGameProgress(world w.World) *gc.GameProgress {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           3 :         return GetSingleton[gc.GameProgress](world, world.Components.GameProgress)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           3 : }</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func GetGameProgress(world w.World) *gc.GameProgress {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return GetSingleton[gc.GameProgress](world, world.Components.GameProgress)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // GetDungeon はシングルトンエンティティからDungeonを取得する</span>
 <span id="L30"><span class="lineNum">      30</span>              : // ダンジョン未開始の場合はnilを返す</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          60 : func GetDungeon(world w.World) *gc.Dungeon {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          60 :         return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          60 : }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : func GetDungeon(world w.World) *gc.Dungeon {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // GetWeaponSelection はシングルトンから選択中の武器スロットを取得する</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 : func GetWeaponSelection(world w.World) *gc.WeaponSelection {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :         return GetSingleton[gc.WeaponSelection](world, world.Components.WeaponSelection)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 : }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func GetWeaponSelection(world w.World) *gc.WeaponSelection {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return GetSingleton[gc.WeaponSelection](world, world.Components.WeaponSelection)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // GetGameTime はシングルトンからゲーム内時間を取得する</span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 : func GetGameTime(world w.World) *gc.GameTime {</span></span>
@@ -105,29 +105,29 @@
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // GetVisionState はシングルトンから視界計算の一時状態を取得する</span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">          18 : func GetVisionState(world w.World) *gc.VisionState {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">          18 :         return GetSingleton[gc.VisionState](world, world.Components.VisionState)</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">          18 : }</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           1 : func GetVisionState(world w.World) *gc.VisionState {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return GetSingleton[gc.VisionState](world, world.Components.VisionState)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
 <span id="L50"><span class="lineNum">      50</span>              : // stageFieldEntity は key に束縛された StageField エンティティを返す。</span>
 <span id="L51"><span class="lineNum">      51</span>              : // クエリ反復は途中 return するとワールドロックが残るため、最後まで回してから返す。</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">          35 : func stageFieldEntity(world w.World, key gc.StageKey) (ecs.Entity, bool) {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">          35 :         var found ecs.Entity</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">          35 :         ok := false</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">          35 :         q := ecs.NewFilter2[gc.StageField, gc.StageBound](world.ECS).Query()</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">          70 :         for q.Next() {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">          69 :                 if !ok &amp;&amp; world.Components.StageBound.Get(q.Entity()).Key == key {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">          34 :                         found = q.Entity()</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">          34 :                         ok = true</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">          34 :                 }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : func stageFieldEntity(world w.World, key gc.StageKey) (ecs.Entity, bool) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         var found ecs.Entity</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         ok := false</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.StageField, gc.StageBound](world.ECS).Query()</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :                 if !ok &amp;&amp; world.Components.StageBound.Get(q.Entity()).Key == key {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         found = q.Entity()</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         ok = true</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L61"><span class="lineNum">      61</span>              :         }</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">          35 :         return found, ok</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         return found, ok</span></span>
 <span id="L63"><span class="lineNum">      63</span>              : }</span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span>              : // currentStageEntity は現ステージ CurrentStage のStageField エンティティを返す。</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">          34 : func currentStageEntity(world w.World) (ecs.Entity, bool) {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">          34 :         return stageFieldEntity(world, GetDungeon(world).CurrentStage)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">          34 : }</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : func currentStageEntity(world w.World) (ecs.Entity, bool) {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return stageFieldEntity(world, GetDungeon(world).CurrentStage)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              : // ensureStageFieldEntity は key に束縛された StageField エンティティを確保して返す。</span>
 <span id="L71"><span class="lineNum">      71</span>              : // 無ければ生成する。返り値は必ず生存エンティティなので、呼び出し側は Has/Get を安全に使える。</span>
@@ -149,12 +149,12 @@
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L88"><span class="lineNum">      88</span>              : </span>
 <span id="L89"><span class="lineNum">      89</span>              : // GetCurrentStageField は現ステージの StageField を返す。未生成なら nil。</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">          22 : func GetCurrentStageField(world w.World) *gc.StageField {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">          22 :         e, ok := currentStageEntity(world)</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">          22 :         if !ok {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">           1 : func GetCurrentStageField(world w.World) *gc.StageField {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         e, ok := currentStageEntity(world)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC tlaBgGNC">          22 :         return world.Components.StageField.Get(e)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.StageField.Get(e)</span></span>
 <span id="L96"><span class="lineNum">      96</span>              : }</span>
 <span id="L97"><span class="lineNum">      97</span>              : </span>
 <span id="L98"><span class="lineNum">      98</span>              : // GetSeamlessBand は現ステージが持つ帯の永続状態を返す。持たなければ nil。</span>
@@ -184,26 +184,26 @@
 <span id="L122"><span class="lineNum">     122</span>              : // 種別・深度・名前で判定せず、現ステージの StageField エンティティが帯データ SeamlessBand を持つかで判定する。</span>
 <span id="L123"><span class="lineNum">     123</span>              : // オーバーワールドもダンジョン階も同じ「ステージ」で、違いは保有データだけという設計に従う。</span>
 <span id="L124"><span class="lineNum">     124</span>              : // 帯データは遺跡進入で退避され現ステージから外れるため、遺跡内へ効果が漏れない。</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">          12 : func IsOnOverworld(world w.World) bool {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">          12 :         e, ok := currentStageEntity(world)</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">          12 :         return ok &amp;&amp; world.Components.SeamlessBand.Has(e)</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">          12 : }</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 : func IsOnOverworld(world w.World) bool {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         e, ok := currentStageEntity(world)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         return ok &amp;&amp; world.Components.SeamlessBand.Has(e)</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L129"><span class="lineNum">     129</span>              : </span>
 <span id="L130"><span class="lineNum">     130</span>              : // GetGameLog はシングルトンエンティティからGameLogストアを取得する</span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           6 : func GetGameLog(world w.World) *gamelog.SafeSlice {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           6 :         gl := GetSingleton[gc.GameLog](world, world.Components.GameLog)</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           6 :         if gl == nil {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 : func GetGameLog(world w.World) *gamelog.SafeSlice {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         gl := GetSingleton[gc.GameLog](world, world.Components.GameLog)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         if gl == nil {</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC tlaBgGNC">           6 :         return gl.Store</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC tlaBgGNC">           1 :         return gl.Store</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : }</span>
 <span id="L138"><span class="lineNum">     138</span>              : </span>
 <span id="L139"><span class="lineNum">     139</span>              : // SetDungeon はシングルトンエンティティにDungeonを設定する。</span>
 <span id="L140"><span class="lineNum">     140</span>              : // nilを渡すとダンジョン未開始として扱い、コンポーネントを取り除く</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           2 : func SetDungeon(world w.World, dungeon *gc.Dungeon) {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :         entity := world.Resources.SingletonEntity</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           2 :         comp := world.Components.Dungeon</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           3 :         if dungeon == nil {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 : func SetDungeon(world w.World, dungeon *gc.Dungeon) {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         entity := world.Resources.SingletonEntity</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         comp := world.Components.Dungeon</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :         if dungeon == nil {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           2 :                 if comp.Has(entity) {</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                         comp.Remove(entity)</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 }</span></span>
@@ -218,56 +218,56 @@
 <span id="L156"><span class="lineNum">     156</span>              : </span>
 <span id="L157"><span class="lineNum">     157</span>              : // GetSpatialIndex はシングルトンから空間インデックスを取得する</span>
 <span id="L158"><span class="lineNum">     158</span>              : // 未構築の場合は構築する</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC tlaBgGNC">          36 : func GetSpatialIndex(world w.World) *gc.SpatialIndex {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">          36 :         si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">          36 :         if si == nil {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC tlaBgGNC">           1 : func GetSpatialIndex(world w.World) *gc.SpatialIndex {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if si == nil {</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">          57 :         if !si.Built {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">          21 :                 buildSpatialIndex(world, si)</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">          21 :         }</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">          36 :         if si.MapWidth == 0 || si.MapHeight == 0 {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           2 :         if !si.Built {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 buildSpatialIndex(world, si)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         if si.MapWidth == 0 || si.MapHeight == 0 {</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">          36 :         return si</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           1 :         return si</span></span>
 <span id="L171"><span class="lineNum">     171</span>              : }</span>
 <span id="L172"><span class="lineNum">     172</span>              : </span>
 <span id="L173"><span class="lineNum">     173</span>              : // InvalidateSpatialIndex は空間インデックスを無効化する。次回アクセス時に再構築される</span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">          43 : func InvalidateSpatialIndex(world w.World) {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">          43 :         si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">          86 :         if si != nil {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">          43 :                 si.Invalidate()</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">          43 :         }</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 : func InvalidateSpatialIndex(world w.World) {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :         if si != nil {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 si.Invalidate()</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L179"><span class="lineNum">     179</span>              : }</span>
 <span id="L180"><span class="lineNum">     180</span>              : </span>
 <span id="L181"><span class="lineNum">     181</span>              : // UpdateCharacterPositionInIndex は移動に伴い空間インデックスのキャラ位置を増分更新する。</span>
 <span id="L182"><span class="lineNum">     182</span>              : // 無効化→全再構築のチャーンを避けるための入口。</span>
 <span id="L183"><span class="lineNum">     183</span>              : // インデックスが未構築なら何もしないため、</span>
 <span id="L184"><span class="lineNum">     184</span>              : // 意図的に GetSpatialIndex ではなく GetSingleton を使う。</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           8 : func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to consts.Coord[consts.Tile]) {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           8 :         si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           8 :         if si == nil {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 : func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to consts.Coord[consts.Tile]) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         if si == nil {</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC tlaBgGNC">           8 :         si.MoveCharacter(from, to, entity)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC tlaBgGNC">           1 :         si.MoveCharacter(from, to, entity)</span></span>
 <span id="L191"><span class="lineNum">     191</span>              : }</span>
 <span id="L192"><span class="lineNum">     192</span>              : </span>
 <span id="L193"><span class="lineNum">     193</span>              : // buildSpatialIndex は壁・キャラクター・プレイヤーの位置をスキャンしてインデックスを構築する</span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">          21 : func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">          21 :         dungeon := GetDungeon(world)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">          21 :         field := GetCurrentStageField(world)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">          21 :         if dungeon == nil || field == nil {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 : func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         dungeon := GetDungeon(world)</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         field := GetCurrentStageField(world)</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         if dungeon == nil || field == nil {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC tlaBgGNC">          21 :         si.MapWidth = field.Level.TileWidth</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">          21 :         si.MapHeight = field.Level.TileHeight</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">          21 :         si.BlockPass = make(map[gc.GridElement]bool)</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">          21 :         si.Characters = make(map[gc.GridElement]ecs.Entity)</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">          21 :         si.PlayerEntity = nil</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">          21 : </span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">          21 :         // 静的障害物のインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">          21 :         blockPassQuery := ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">          21 :         for blockPassQuery.Next() {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC tlaBgGNC">           1 :         si.MapWidth = field.Level.TileWidth</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         si.MapHeight = field.Level.TileHeight</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         si.BlockPass = make(map[gc.GridElement]bool)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         si.Characters = make(map[gc.GridElement]ecs.Entity)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         si.PlayerEntity = nil</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         // 静的障害物のインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         blockPassQuery := ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         for blockPassQuery.Next() {</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC tlaBgUNC">           0 :                 entity := blockPassQuery.Entity()</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 if world.Components.Dead.Has(entity) {</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                         continue</span></span>
@@ -277,29 +277,29 @@
 <span id="L215"><span class="lineNum">     215</span>              :         }</span>
 <span id="L216"><span class="lineNum">     216</span>              : </span>
 <span id="L217"><span class="lineNum">     217</span>              :         // キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない</span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">          21 :         characterQuery := ActiveFilter1[gc.GridElement](world).Query()</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">          99 :         for characterQuery.Next() {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">          78 :                 entity := characterQuery.Entity()</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">          78 :                 if world.Components.Dead.Has(entity) {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 :         characterQuery := ActiveFilter1[gc.GridElement](world).Query()</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :         for characterQuery.Next() {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 entity := characterQuery.Entity()</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 if world.Components.Dead.Has(entity) {</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L223"><span class="lineNum">     223</span>              :                 }</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC tlaBgGNC">          78 :                 isCharacter := world.Components.Player.Has(entity) ||</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">          78 :                         world.Components.SoloAI.Has(entity) ||</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">          78 :                         world.Components.SquadAI.Has(entity) ||</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">          78 :                         world.Components.SquadMember.Has(entity)</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">         128 :                 if !isCharacter {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">          50 :                         continue</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC tlaBgGNC">           1 :                 isCharacter := world.Components.Player.Has(entity) ||</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         world.Components.SoloAI.Has(entity) ||</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         world.Components.SquadAI.Has(entity) ||</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                         world.Components.SquadMember.Has(entity)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           2 :                 if !isCharacter {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L230"><span class="lineNum">     230</span>              :                 }</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">          28 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">          28 :                 si.Characters[*grid] = entity</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">          47 :                 if world.Components.Player.Has(entity) {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">          19 :                         e := entity</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">          19 :                         si.PlayerEntity = &amp;e</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">          19 :                 }</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 si.Characters[*grid] = entity</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :                 if world.Components.Player.Has(entity) {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                         e := entity</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         si.PlayerEntity = &amp;e</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L237"><span class="lineNum">     237</span>              :         }</span>
 <span id="L238"><span class="lineNum">     238</span>              : </span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">          21 :         si.Built = true</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">          21 :         si.BuildCount++ // 再構築チャーン検知用の累積カウンタ</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         si.Built = true</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         si.BuildCount++ // 再構築チャーン検知用の累積カウンタ</span></span>
 <span id="L241"><span class="lineNum">     241</span>              : }</span>
         </pre>
               </td>

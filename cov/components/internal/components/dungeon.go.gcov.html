@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -121,9 +121,9 @@
 <span id="L59"><span class="lineNum">      59</span>              : }</span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
 <span id="L61"><span class="lineNum">      61</span>              : // BandOriginX は帯ローカル X=0 が指す絶対タイル X。</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           2 : func (sb SeamlessBand) BandOriginX() consts.AbsTileX {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           2 :         return consts.AbsTileX(sb.EastIndex.Tiles(sb.ChunkW))</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 : }</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 : func (sb SeamlessBand) BandOriginX() consts.AbsTileX {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return consts.AbsTileX(sb.EastIndex.Tiles(sb.ChunkW))</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              : // LocalToAbsX は帯ローカル X を絶対 X に変換する。</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 : func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.AbsTileX {</span></span>
@@ -131,19 +131,19 @@
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
 <span id="L71"><span class="lineNum">      71</span>              : // ColdZoneWest は極低温ゾーン西端＝破棄/進入不可ラインの絶対 X。</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           8 : func (f SeamlessFront) ColdZoneWest() consts.AbsTileX {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           8 :         return f.EastAbsX - consts.AbsTileX(f.ColdWidth)</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           8 : }</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : func (f SeamlessFront) ColdZoneWest() consts.AbsTileX {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         return f.EastAbsX - consts.AbsTileX(f.ColdWidth)</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // InColdZone は絶対 X が極低温ゾーン (ColdZoneWest, EastAbsX] 内かを返す。西端は含まない。</span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           4 : func (f SeamlessFront) InColdZone(absX consts.AbsTileX) bool {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           4 :         return absX &gt; f.ColdZoneWest() &amp;&amp; absX &lt;= f.EastAbsX</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           4 : }</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : func (f SeamlessFront) InColdZone(absX consts.AbsTileX) bool {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         return absX &gt; f.ColdZoneWest() &amp;&amp; absX &lt;= f.EastAbsX</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L80"><span class="lineNum">      80</span>              : </span>
 <span id="L81"><span class="lineNum">      81</span>              : // IsWestOfFront は絶対 X が進入不可ライン、すなわち極低温ゾーン西端以西かを返す。</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           3 : func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           3 :         return absX &lt;= f.ColdZoneWest()</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           3 : }</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : func (f SeamlessFront) IsWestOfFront(absX consts.AbsTileX) bool {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return absX &lt;= f.ColdZoneWest()</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
 <span id="L86"><span class="lineNum">      86</span>              : // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す</span>
 <span id="L87"><span class="lineNum">      87</span>              : // identity だけを持つ。フィールド寸法・探索履歴・帯データなどステージ固有の状態は各ステージの</span>
@@ -171,17 +171,17 @@
 <span id="L109"><span class="lineNum">     109</span>              : }</span>
 <span id="L110"><span class="lineNum">     110</span>              : </span>
 <span id="L111"><span class="lineNum">     111</span>              : // CoordToIndex はタイル座標から、タイルスライスのインデックスを求める</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC tlaBgGNC">          54 : func (l *Level) CoordToIndex(pos consts.Coord[consts.Tile]) TileIdx {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">          54 :         return TileIdx(int(pos.Y)*int(l.TileWidth) + int(pos.X))</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">          54 : }</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC tlaBgGNC">           1 : func (l *Level) CoordToIndex(pos consts.Coord[consts.Tile]) TileIdx {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         return TileIdx(int(pos.Y)*int(l.TileWidth) + int(pos.X))</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L115"><span class="lineNum">     115</span>              : </span>
 <span id="L116"><span class="lineNum">     116</span>              : // IndexToCoord はタイルスライスのインデックスからタイル座標を求める。CoordToIndex の逆操作</span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">          54 : func (l *Level) IndexToCoord(idx TileIdx) consts.Coord[consts.Tile] {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">          54 :         x := consts.Tile(int(idx) % int(l.TileWidth))</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">          54 :         y := consts.Tile(int(idx) / int(l.TileWidth))</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">          54 : </span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">          54 :         return consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">          54 : }</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 : func (l *Level) IndexToCoord(idx TileIdx) consts.Coord[consts.Tile] {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         x := consts.Tile(int(idx) % int(l.TileWidth))</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         y := consts.Tile(int(idx) / int(l.TileWidth))</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         return consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L123"><span class="lineNum">     123</span>              : </span>
 <span id="L124"><span class="lineNum">     124</span>              : // Width はステージ幅。横の全体ピクセル数</span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 : func (l *Level) Width() consts.WorldPixel {</span></span>

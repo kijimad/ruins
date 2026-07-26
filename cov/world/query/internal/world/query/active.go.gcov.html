@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,14 +87,14 @@
 <span id="L25"><span class="lineNum">      25</span>              : var suspendedExclude = []ecs.Comp{ecs.C[gc.Suspended]()}</span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span>              : // ActiveFilter1 は現ステージ限定の Filter1 を返す。</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">          34 : func ActiveFilter1[A any](world w.World) *ecs.Filter1[A] {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">          34 :         return ecs.NewFilter1[A](world.ECS).Without(suspendedExclude...)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          34 : }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 : func ActiveFilter1[A any](world w.World) *ecs.Filter1[A] {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return ecs.NewFilter1[A](world.ECS).Without(suspendedExclude...)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // ActiveFilter2 は現ステージ限定の Filter2 を返す。</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          37 : func ActiveFilter2[A, B any](world w.World) *ecs.Filter2[A, B] {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          37 :         return ecs.NewFilter2[A, B](world.ECS).Without(suspendedExclude...)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          37 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func ActiveFilter2[A, B any](world w.World) *ecs.Filter2[A, B] {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return ecs.NewFilter2[A, B](world.ECS).Without(suspendedExclude...)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // ActiveFilter3 は現ステージ限定の Filter3 を返す。</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 : func ActiveFilter3[A, B, C any](world w.World) *ecs.Filter3[A, B, C] {</span></span>

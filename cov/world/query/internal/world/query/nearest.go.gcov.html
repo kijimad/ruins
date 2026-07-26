@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-24 16:33:02</td>
+            <td class="headerValue">2026-07-26 00:04:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,35 +73,35 @@
 <span id="L11"><span class="lineNum">      11</span>              : // selfは検索対象から除外されるエンティティで、Deadエンティティも自動的に除外する。</span>
 <span id="L12"><span class="lineNum">      12</span>              : // matchはターゲット候補を絞り込む述語。見つからない場合はnilを返す。</span>
 <span id="L13"><span class="lineNum">      13</span>              : // キャラクター探索のホットパスは FindNearestCharacter を使うこと。本関数は床・壁タイルも走査する。</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           6 : func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           6 :         var nearestEntity *ecs.Entity</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           6 :         var nearestGrid *gc.GridElement</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           6 :         nearestDist := -1</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           6 : </span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           6 :         // 座標が重なる退避中ステージのエンティティを最近傍探索に混ぜない</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           6 :         nearestQuery := ActiveFilter1[gc.GridElement](world).Query()</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          19 :         for nearestQuery.Next() {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          13 :                 entity := nearestQuery.Entity()</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          18 :                 if entity == self {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           5 :                         continue</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         var nearestEntity *ecs.Entity</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         var nearestGrid *gc.GridElement</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         nearestDist := -1</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         // 座標が重なる退避中ステージのエンティティを最近傍探索に混ぜない</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         nearestQuery := ActiveFilter1[gc.GridElement](world).Query()</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :         for nearestQuery.Next() {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 entity := nearestQuery.Entity()</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :                 if entity == self {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L25"><span class="lineNum">      25</span>              :                 }</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           9 :                 if world.Components.Dead.Has(entity) {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :                 if world.Components.Dead.Has(entity) {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L28"><span class="lineNum">      28</span>              :                 }</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           8 :                 if !match(entity) {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :                 if !match(entity) {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L31"><span class="lineNum">      31</span>              :                 }</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           6 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           6 :                 dist := geometry.ChebyshevDistance(from.Coord, grid.Coord)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          10 :                 if nearestDist &lt; 0 || dist &lt; nearestDist {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           4 :                         e := entity</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           4 :                         nearestEntity = &amp;e</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           4 :                         nearestGrid = grid</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           4 :                         nearestDist = dist</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           4 :                 }</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 dist := geometry.ChebyshevDistance(from.Coord, grid.Coord)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :                 if nearestDist &lt; 0 || dist &lt; nearestDist {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         e := entity</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         nearestEntity = &amp;e</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                         nearestGrid = grid</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                         nearestDist = dist</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              :         }</span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           6 :         return nearestEntity, nearestGrid, nearestDist</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return nearestEntity, nearestGrid, nearestDist</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : }</span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // FindNearestCharacter は条件を満たす最寄りのキャラクターを探す。</span>
@@ -125,8 +125,8 @@
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         nearestDist := -1</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         found := false</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           3 :         for _, entity := range si.Characters {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           3 :                 if entity == self || !world.ECS.Alive(entity) || world.Components.Dead.Has(entity) {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           2 :         for _, entity := range si.Characters {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           2 :                 if entity == self || !world.ECS.Alive(entity) || world.Components.Dead.Has(entity) {</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L69"><span class="lineNum">      69</span>              :                 }</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 if !match(entity) {</span></span>
