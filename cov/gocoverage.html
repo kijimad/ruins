@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (74.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.7%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.3%)</option>
 				
@@ -1469,7 +1469,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
