@@ -302,6 +302,17 @@ func bedSet() Stuff {
 	}
 }
 
+// loungeSet は寛ぎの一角を束ねる居間の fixture。ソファを壁際に置き、脇の空いた隣へ観葉を寄せる。食卓と
+// 対になる居間の主家具で、PickOne でどちらが来るかを seed に委ねると、同じ居間が続かない。
+func loungeSet() Stuff {
+	return Stuff{
+		Kind: KindFurniture, Ref: "sofa", Placement: PlaceWall, Amount: Dice{Bonus: 1},
+		Satellites: []Satellite{
+			{Kind: KindDecor, Ref: "plant", Offsets: []Vec{{X: 1}, {X: -1}, {Y: -1}, {Y: 1}}},
+		},
+	}
+}
+
 // kitchenCounter は調理台の一列を束ねる台所の署名 fixture。流し台を壁際に置き、食器棚を横へ連ねて
 // カウンターの列に見せる。流しと棚を別々に散らすと台所と分からないので、束で調理台の連なりに見せる。
 // 食器棚は水平の隣を優先し、横壁沿いなら一列に、縦壁沿いなら anchor の内側へ回り込む。

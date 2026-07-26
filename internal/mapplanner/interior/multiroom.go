@@ -253,8 +253,13 @@ func examRoomContent() Content {
 func houseRoomContents() map[string]Content {
 	bedroom := Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
-			bedSet(), // ベッドとクローゼットを寝床の一角に束ねる
+			bedSet(), // 寝床は常設。寝室の署名
+		}},
+		// 枕元の添え物を seed で1つ。明かり・観葉・物入れのどれかで、同じ寝室が続かないようにする
+		{Style: PickOne, Items: []Stuff{
 			{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
+			{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 		}},
 	}}
 	return map[string]Content{
@@ -269,18 +274,28 @@ func houseRoomContents() map[string]Content {
 		}},
 		"living": {ID: "living", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "sofa", Amount: Dice{Bonus: 1}},
-				diningTable(PlaceCenter),
-				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 2}},
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 2}}, // 明かりは常設
 			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
+			// 主座は食卓か寛ぎのソファのどちらか。seed で選び、同じ居間が続かないようにする
+			{Style: PickOne, Items: []Stuff{
+				diningTable(PlaceCenter),
+				loungeSet(),
+			}},
+			// 添え物を seed で1つ。壁面の棚か観葉
+			{Style: PickOne, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}},
+			}},
 		}},
 		"kitchen": {ID: "kitchen", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				kitchenCounter(), // 流しと食器棚を壁沿いの調理台の列に束ねる
+				kitchenCounter(),                                              // 調理台は常設。台所の署名
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}}, // 明かりは常設
+			}},
+			// 台所の主家具を seed で1つ。食卓か、もう一列の食器棚か
+			{Style: PickOne, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "table", Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "pantry", Placement: PlaceRow, Amount: Dice{Bonus: 2}},
 			}},
 		}},
 		"bedroom": bedroom,
