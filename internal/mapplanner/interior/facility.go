@@ -9,9 +9,38 @@ package interior
 // 内装で満たすための公開入口で、doc 69 の Feature 層が建物ではこの器を呼ぶ。未知の施設種別は汎用の
 // 内装にする。footprint は外周が壁の1部屋とみなし、door はその外周上の入口。
 func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
-	content := facilityContent(facility)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
-	return FillRoom(seed, room, content)
+	placed := FillRoom(seed, room, facilityContent(facility))
+	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
+	return Flavor(seed, room, placed, facilityFlavor(facility))
+}
+
+// facilityFlavor は建物へ足す flavor machine の Content。廃墟に残る生活の痕を PickOne で1つ選ぶので、
+// 建物ごとに蝋燭の輪・絨毯・散らばった蝋燭のいずれかが出て単調にならない。施設別の flavor は今後。
+func facilityFlavor(facility string) Content {
+	_ = facility // 施設別カタログは今後。まずは全施設に共通の廃墟の痕を置く
+	return Content{
+		ID: "flavor",
+		Groups: []Group{
+			{Style: PickOne, Items: []Stuff{
+				candleCircle(), // 儀式の輪は稀。重み1で、ありふれた痕の陰から時々現れる
+				{Kind: KindDecor, Ref: "carpet", Placement: PlaceFarFromDoor, Weight: 3, Amount: Dice{Bonus: 1}},
+				{Kind: KindDecor, Ref: "candle", Placement: PlaceFullArea, Weight: 3, Amount: Dice{Base: 1, Sides: 2}},
+			}},
+		},
+	}
+}
+
+// candleCircle は蝋燭の輪の flavor machine。中心を空け、その周囲8マスへ蝋燭を輪に並べる。廃墟で誰かが
+// 儀式めいた円を組んだ痕を、束の機構で1つの scene として置く。anchor は輪の中心だが raw を持たない印に
+// して spawn されず、中心が空くことで塊でなく輪に見える。装飾なので通行を阻まない。
+func candleCircle() Stuff {
+	offs := []Vec{{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 0}, {X: 1, Y: 0}, {X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1}}
+	ring := make([]Satellite, 0, len(offs))
+	for _, o := range offs {
+		ring = append(ring, Satellite{Kind: KindDecor, Ref: "candle", Offsets: []Vec{o}})
+	}
+	return Stuff{Kind: KindDecor, Ref: "ritual_center", Placement: PlaceCenter, Amount: Dice{Bonus: 1}, Satellites: ring}
 }
 
 // facilityContent は施設種別名から内装 content を引く。overworld の facilityType の文字列と揃える。骨董品店は
