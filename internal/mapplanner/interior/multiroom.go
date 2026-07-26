@@ -18,28 +18,53 @@ func SubdivideBuilding(footprint Rect, seed uint64) []Room {
 	return rooms
 }
 
-// FurnishBuilding は建物外殻を多部屋へ割り、部屋ごとに内装を敷いて、役割付きの部屋と配置を返す。面積最大の
-// 部屋を施設の主室、残りを奥室にして、店なら売り場＋倉庫、民家なら居間＋寝室、の構造にする。door は外殻の
-// 入口で、それに面する部屋へ戸口として足し、家具が入口を塞がないようにする。各室に時間の層と flavor も掛ける。
-// 呼び出し側は返す部屋から InternalWalls で間仕切りタイルを導き、配置を spawn する。
-func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]HouseRoom, []Placed) {
+// FurnishStage は建物内装の加工1段の累積配置。Label は段名、Placed はその段まで適用した全室の配置。
+// plan は空の間取り、fill は什器、age は経年、flavor は装飾を足した段を表す。
+type FurnishStage struct {
+	Label  string
+	Placed []Placed
+}
+
+// FurnishStages は建物内装を加工ステップごとに分けて返す。plan→fill→age→flavor の各段の累積配置を返し、
+// どの段で見た目が壊れたかを段別 VRT で切り分けられるようにする。mapplanner の PlannerChain スナップショットに
+// 倣い、最終形だけでなく途中を残す。FurnishBuilding はこの最終段を返す薄い包みで、両者は同じパイプラインを
+// 共有するので段別 VRT と実生成は乖離しない。
+func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) ([]HouseRoom, []FurnishStage) {
 	rooms, roles := planRooms(footprint, seed, facility)
 	attachEntrance(rooms, footprint, door)
 
 	aged := buildingAged(seed) // 経年は建物ごとに1つ。全室が揃って新品か廃墟になる
-	placed := make([]Placed, 0, len(rooms)*8)
 	labeled := make([]HouseRoom, len(rooms))
+	var fill, decayed, flavored []Placed
 	for i := range rooms {
 		roomSeed := childSeed(seed, 300+i)
-		p := FillRoom(roomSeed, rooms[i], roleContent(facility, roles[i], seed))
+		f := FillRoom(roomSeed, rooms[i], roleContent(facility, roles[i], seed))
+		a := f
 		if aged {
-			p = Age(roomSeed, rooms[i], p)
+			a = Age(roomSeed, rooms[i], f)
 		}
-		p = Flavor(roomSeed, rooms[i], p, facilityFlavor(facility))
-		placed = append(placed, p...)
+		fl := Flavor(roomSeed, rooms[i], a, facilityFlavor(facility))
+		fill = append(fill, f...)
+		decayed = append(decayed, a...)
+		flavored = append(flavored, fl...)
 		labeled[i] = HouseRoom{Room: rooms[i], Role: roles[i]}
 	}
-	return labeled, placed
+	return labeled, []FurnishStage{
+		{Label: "1 plan", Placed: nil},
+		{Label: "2 fill", Placed: fill},
+		{Label: "3 age", Placed: decayed},
+		{Label: "4 flavor", Placed: flavored},
+	}
+}
+
+// FurnishBuilding は建物外殻を多部屋へ割り、部屋ごとに内装を敷いて、役割付きの部屋と最終配置を返す。面積最大の
+// 部屋を施設の主室、残りを奥室にして、店なら売り場＋倉庫、民家なら居間＋寝室、の構造にする。door は外殻の
+// 入口で、それに面する部屋へ戸口として足し、家具が入口を塞がないようにする。各室に時間の層と flavor も掛ける。
+// 加工は FurnishStages が持ち、ここはその最終段 flavor を返す。呼び出し側は返す部屋から InternalWalls で
+// 間仕切りタイルを導き、配置を spawn する。
+func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]HouseRoom, []Placed) {
+	rooms, stages := FurnishStages(seed, footprint, door, facility)
+	return rooms, stages[len(stages)-1].Placed
 }
 
 // InternalWalls は役割付き部屋から建物内部の間仕切りタイルを返す。overworld が壁タイルを描くのに使う。

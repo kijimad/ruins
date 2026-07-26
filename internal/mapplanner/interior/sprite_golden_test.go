@@ -129,6 +129,47 @@ func TestGolden_BuildingClinic(t *testing.T) {
 	}))
 }
 
+// --- 加工段別ゴールデン。1つの建物を plan→fill→age→flavor の各段で並べ、どの加工が犯人かを切り分ける。--
+// recordSeeds が最終形の変種を見るのに対し、こちらは1 seed の加工の流れを追う。mapplanner の段別
+// スナップショット表示に相当する。seed は経年が乗る個体を選び、age 段で差が出るようにする。
+
+// TestGolden_StagesHouse は民家1棟の加工の流れ。空の間取り(plan)に什器(fill)、経年の略奪と崩落(age)、
+// 生活痕の装飾(flavor)が順に乗る様子を並べる。たとえば age で家具が消えすぎる退行は、fill 段と見比べれば
+// どの段の仕業か一目で分かる。
+func TestGolden_StagesHouse(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
+	door := Vec{X: 14, Y: 0}
+	rooms, stages := FurnishStages(1, footprint, door, facHouse)
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), recordStages(t, footprint, rooms, stages))
+}
+
+// TestGolden_StagesStore は店舗1棟の加工の流れ。商品棚と冷蔵ケースの fill、略奪で戦利品が減る age、
+// 散らばった蝋燭や絨毯の flavor を段ごとに追う。
+func TestGolden_StagesStore(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
+	door := Vec{X: 13, Y: 0}
+	rooms, stages := FurnishStages(1, footprint, door, "store")
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), recordStages(t, footprint, rooms, stages))
+}
+
+// TestGolden_StagesClinic は診療所1棟の加工の流れ。診察台と薬棚の fill から、経年と装飾までを追う。
+// guardedLoot の施錠戦利品は別の machine なのでここには含めず、加工パイプラインだけを写す。
+func TestGolden_StagesClinic(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
+	door := Vec{X: 13, Y: 0}
+	rooms, stages := FurnishStages(1, footprint, door, facClinic)
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), recordStages(t, footprint, rooms, stages))
+}
+
 // --- 部屋単位ゴールデン。FillRoom 単体の archetype 配置を testdata/rooms/ で見る目視回帰。-------------
 // 建物のように動線でなく、1部屋の content が「その施設に見える」配置に解決されるかを確認する。
 
@@ -193,22 +234,47 @@ func assertRoomGolden(t *testing.T, room Room, role string, fill func(seed uint6
 }
 
 // recordSeeds は同じ footprint で seed を 1..9 と変えた9枚を 3x3 のモンタージュに合成する記録関数。1枚では
-// 見えない生成の変種を、9マスの並びで一望する。各セルは gen が返す配置を renderStage で描き、上の帯に
-// seed 番号を添える。footprint が全 seed で同じなのでセルが整列する。
+// 見えない生成の変種を、9マスの並びで一望する。各セルは gen が返す配置を renderStage で描く。
 func recordSeeds(t *testing.T, footprint Rect, gen func(seed uint64) ([]HouseRoom, []Placed)) []byte {
 	t.Helper()
-	const cols, rows, gutter, headerH = 3, 3, 6, 16
-	cellW, cellH := footprint.W*cellPx, footprint.H*cellPx
+	labels := make([]string, 9)
+	cells := make([]*image.RGBA, 9)
+	for i := range cells {
+		seed := uint64(i + 1)
+		rooms, placed := gen(seed)
+		labels[i] = "seed " + strconv.FormatUint(seed, 10)
+		cells[i] = renderStage(t, footprint, rooms, placed)
+	}
+	return montage(t, footprint.W*cellPx, footprint.H*cellPx, 3, labels, cells)
+}
+
+// recordStages は1つの建物を加工ステップごとに横一列へ並べる記録関数。plan→fill→age→flavor の各段を
+// 同じ部屋の上に描き、どの段で見た目が壊れたかを切り分けられるようにする。mapplanner の段別スナップショット
+// 表示に倣った VRT で、最終形だけを見る recordSeeds では特定できない「どの加工が犯人か」に答える。
+func recordStages(t *testing.T, footprint Rect, rooms []HouseRoom, stages []FurnishStage) []byte {
+	t.Helper()
+	labels := make([]string, len(stages))
+	cells := make([]*image.RGBA, len(stages))
+	for i, s := range stages {
+		labels[i] = s.Label
+		cells[i] = renderStage(t, footprint, rooms, s.Placed)
+	}
+	return montage(t, footprint.W*cellPx, footprint.H*cellPx, len(stages), labels, cells)
+}
+
+// montage は同じ大きさのセル画像を cols 列のグリッドへ並べ、各セルの上帯にラベルを添えて1枚に合成する。
+// seed 別の変種一覧も加工段別の切り分けも、この1つの並べ方を共有する。セルは全て cellW x cellH で整列する。
+func montage(t *testing.T, cellW, cellH, cols int, labels []string, cells []*image.RGBA) []byte {
+	t.Helper()
+	const gutter, headerH = 6, 16
+	rows := (len(cells) + cols - 1) / cols
 	img := image.NewRGBA(image.Rect(0, 0, cols*cellW+(cols+1)*gutter, rows*(cellH+headerH)+(rows+1)*gutter))
 	draw.Draw(img, img.Bounds(), image.NewUniform(color.RGBA{R: 20, G: 20, B: 24, A: 255}), image.Point{}, draw.Src)
 
-	for i := range cols * rows {
-		seed := uint64(i + 1)
-		rooms, placed := gen(seed)
-		cell := renderStage(t, footprint, rooms, placed)
+	for i, cell := range cells {
 		x0 := gutter + (i%cols)*(cellW+gutter)
 		y0 := gutter + (i/cols)*(cellH+headerH)
-		drawLabel(img, x0+2, y0+2, "seed "+strconv.FormatUint(seed, 10))
+		drawLabel(img, x0+2, y0+2, labels[i])
 		dp := image.Pt(x0, y0+headerH)
 		draw.Draw(img, image.Rectangle{Min: dp, Max: dp.Add(image.Pt(cellW, cellH))}, cell, image.Point{}, draw.Over)
 	}
