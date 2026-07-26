@@ -7,6 +7,7 @@ import (
 	"image/draw"
 	"image/png"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/sebdah/goldie/v2"
@@ -81,88 +82,93 @@ func spriteFileOf(p Placed) string {
 // PlanHouse など VRT 専用経路でなく in-game で生成される建物そのものを写す。VRT と実装が乖離しないための
 // 検証で、実プレイの高コストな確認を VRT で代替する。粗い間仕切りや不自然さはここに現れる。
 
-// TestGolden_BuildingHouse は民家1棟。planRooms が PlanHouseAny で玄関・廊下・水回りの動線を保証し、
-// 役割ごとの content で充填したうえで、確率的に Age と Flavor を掛けた最終形を写す。
+// TestGolden_BuildingHouse は民家1棟を9 seed 並べた目視回帰。planRooms が PlanHouseAny で玄関・廊下・
+// 水回りの動線を保証し、役割ごとの content で充填したうえで、確率的に Age と Flavor を掛けた最終形を写す。
+// 1枚では見えない間取りの変種、横型と縦型・部屋数・経年の有無の幅を、9マスの並びで一望する。
 func TestGolden_BuildingHouse(t *testing.T) {
 	t.Parallel()
 
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := Vec{X: 14, Y: 0} // 北壁の入口
-	rooms, placed := FurnishBuilding(1, footprint, door, facHouse)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordStage(t, footprint, rooms, placed))
+	g.Assert(t, t.Name(), recordSeeds(t, footprint, func(seed uint64) ([]HouseRoom, []Placed) {
+		return FurnishBuilding(seed, footprint, door, facHouse)
+	}))
 }
 
-// TestGolden_BuildingStore は店舗1棟。民家と同じ FurnishBuilding に facility を替えて流すだけで、
-// 主室に商品棚と冷蔵ケース、奥に備品室という別施設の建物が出ることを写す。
+// TestGolden_BuildingStore は店舗1棟を9 seed 並べた目視回帰。民家と同じ FurnishBuilding に facility を
+// 替えて流すだけで、主室に商品棚と冷蔵ケース、奥に備品室という別施設の建物が出ることを写す。variant 抽選で
+// コンビニ・薬局・八百屋のどれになるかの幅も並びに現れる。
 func TestGolden_BuildingStore(t *testing.T) {
 	t.Parallel()
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0}
-	rooms, placed := FurnishBuilding(2, footprint, door, "store")
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordStage(t, footprint, rooms, placed))
+	g.Assert(t, t.Name(), recordSeeds(t, footprint, func(seed uint64) ([]HouseRoom, []Placed) {
+		return FurnishBuilding(seed, footprint, door, "store")
+	}))
 }
 
-// TestGolden_BuildingClinic は診療所1棟に、doc の例そのままの「施錠された薬局奥」を重ねた目視回帰。
+// TestGolden_BuildingClinic は診療所1棟に、doc の例そのままの「施錠された薬局奥」を重ねた9 seed の目視回帰。
 // FurnishBuilding で待合と診察室・備品室へ割ったうえに、最奥へ薬を施錠して置き、入口寄りにキーカード、
-// 奥の戸口にシャッターを足す。鍵と錠を同じ生成が出すので必ず解ける。
+// 奥の戸口にシャッターを足す。鍵と錠を同じ生成が出すので必ず解ける。seed ごとに錠と鍵の位置が動く幅を見る。
 func TestGolden_BuildingClinic(t *testing.T) {
 	t.Parallel()
 
-	const seed = 4
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0}
-	rooms, placed := FurnishBuilding(seed, footprint, door, facClinic)
-	plain := make([]Room, len(rooms))
-	for i, r := range rooms {
-		plain[i] = r.Room
-	}
-	placed = append(placed, guardedLoot(seed, footprint, plain, "meds", 1)...)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordStage(t, footprint, rooms, placed))
+	g.Assert(t, t.Name(), recordSeeds(t, footprint, func(seed uint64) ([]HouseRoom, []Placed) {
+		rooms, placed := FurnishBuilding(seed, footprint, door, facClinic)
+		plain := make([]Room, len(rooms))
+		for i, r := range rooms {
+			plain[i] = r.Room
+		}
+		return rooms, append(placed, guardedLoot(seed, footprint, plain, "meds", 1)...)
+	}))
 }
 
 // --- 部屋単位ゴールデン。FillRoom 単体の archetype 配置を testdata/rooms/ で見る目視回帰。-------------
 // 建物のように動線でなく、1部屋の content が「その施設に見える」配置に解決されるかを確認する。
 
-// TestGolden_RoomConvStore は店の内装。文字の模式図では測れない「自然にその施設に見えるか」を、
-// ゲームと同じ 32px スプライトで確認する。レジが入口近く・冷蔵ケースが奥・ゴンドラが中央という配置。
+// TestGolden_RoomConvStore は店の内装を9 seed 並べた目視回帰。文字の模式図では測れない「自然にその施設に
+// 見えるか」を、ゲームと同じ 32px スプライトで確認する。レジが入口近く・冷蔵ケースが奥・ゴンドラが中央
+// という配置の傾向が、seed をまたいで安定するかを一望する。
 func TestGolden_RoomConvStore(t *testing.T) {
 	t.Parallel()
 
 	room := storeRoom()
-	placed := FillRoom(42, room, storeContent())
-	require.NotEmpty(t, placed, "何か配置される")
-	assertRoomGolden(t, room, "store", placed)
+	assertRoomGolden(t, room, "store", func(seed uint64) []Placed {
+		return FillRoom(seed, room, storeContent())
+	})
 }
 
-// TestGolden_RoomClinic は器の汎用性。store と同じ FillRoom に診療所の content を流すだけで、待合が入口・
-// 診察ベッドが奥・薬棚が壁、という別の施設が出ることを確認する。幾何と中身の分離の実証。
+// TestGolden_RoomClinic は器の汎用性を9 seed で写す。store と同じ FillRoom に診療所の content を流すだけで、
+// 待合が入口・診察ベッドが奥・薬棚が壁、という別の施設が出ることを確認する。幾何と中身の分離の実証。
 func TestGolden_RoomClinic(t *testing.T) {
 	t.Parallel()
 
 	room := clinicRoom()
-	placed := FillRoom(7, room, clinicContent())
-	require.NotEmpty(t, placed, "何か配置される")
-	assertRoomGolden(t, room, "clinic", placed)
+	assertRoomGolden(t, room, "clinic", func(seed uint64) []Placed {
+		return FillRoom(seed, room, clinicContent())
+	})
 }
 
-// TestGolden_RoomHouse は民家の1室。ベッド・机・椅子・棚・ランタンのほぼ既存スプライトで住居が成立し、
-// 什器ダミー無しでも自然に見えるかを確認する。
+// TestGolden_RoomHouse は民家の1室を9 seed で写す。ベッド・机・椅子・棚・ランタンのほぼ既存スプライトで
+// 住居が成立し、什器ダミー無しでも自然に見えるかを確認する。
 func TestGolden_RoomHouse(t *testing.T) {
 	t.Parallel()
 
 	room := houseRoom()
-	placed := FillRoom(3, room, houseContent())
-	require.NotEmpty(t, placed, "何か配置される")
-	assertRoomGolden(t, room, "house", placed)
+	assertRoomGolden(t, room, "house", func(seed uint64) []Placed {
+		return FillRoom(seed, room, houseContent())
+	})
 }
 
-// TestGolden_RoomFlavor は flavor パスの効き目。ベッドと棚だけの生活痕の薄い部屋へ絨毯・箒・散らばった
-// 蝋燭を足し、戦利品を増やさず character を与えて空き箱部屋を無くす様子を写す。flavor は装飾ゆえ通行を
-// 阻まない。
+// TestGolden_RoomFlavor は flavor パスの効き目を9 seed で写す。ベッドと棚だけの生活痕の薄い部屋へ絨毯・
+// 箒・散らばった蝋燭を足し、戦利品を増やさず character を与えて空き箱部屋を無くす様子を確認する。flavor は
+// 装飾ゆえ通行を阻まない。seed ごとに何がどこへ来るかの幅を見る。
 func TestGolden_RoomFlavor(t *testing.T) {
 	t.Parallel()
 
@@ -171,24 +177,48 @@ func TestGolden_RoomFlavor(t *testing.T) {
 		{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
 		{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 2}},
 	}}}}
-	placed := FillRoom(3, room, base)
-	placed = Flavor(3, room, placed, abandonedFlavor())
-	assertRoomGolden(t, room, "flavor", placed)
+	assertRoomGolden(t, room, "flavor", func(seed uint64) []Placed {
+		return Flavor(seed, room, FillRoom(seed, room, base), abandonedFlavor())
+	})
 }
 
-// assertRoomGolden は単室を「部屋1個の建物」として recordStage に通し、testdata/rooms/ のゴールデンと
-// 照合する。role は部屋の役割ラベルで、部屋ゴールデンでも建物と同じく必ず描く。
-func assertRoomGolden(t *testing.T, room Room, role string, placed []Placed) {
+// assertRoomGolden は単室を「部屋1個の建物」として9 seed 分 recordSeeds に通し、testdata/rooms/ のゴールデンと
+// 照合する。role は部屋の役割ラベルで、部屋ゴールデンでも建物と同じく必ず描く。fill は seed から配置を返す。
+func assertRoomGolden(t *testing.T, room Room, role string, fill func(seed uint64) []Placed) {
 	t.Helper()
-	rooms := []HouseRoom{{Room: room, Role: role}}
 	g := goldie.New(t, goldie.WithFixtureDir(roomFixtureDir), goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordStage(t, room.Rect, rooms, placed))
+	g.Assert(t, t.Name(), recordSeeds(t, room.Rect, func(seed uint64) ([]HouseRoom, []Placed) {
+		return []HouseRoom{{Room: room, Role: role}}, fill(seed)
+	}))
 }
 
-// recordStage は建物も単室も共通で描く記録関数。役割付き部屋の集合から下地タイルを導き、実スプライトを
-// 重ね、各部屋に役割ラベルを描く。タイルは「戸口→扉 / 部屋の内側→床 / それ以外→壁」で決める。footprint
-// 全体を走査するので、部屋どうしが共有する間仕切りも外周壁も、共有壁に開けた戸口も1枚の絵に現れる。
-func recordStage(t *testing.T, footprint Rect, rooms []HouseRoom, placed []Placed) []byte {
+// recordSeeds は同じ footprint で seed を 1..9 と変えた9枚を 3x3 のモンタージュに合成する記録関数。1枚では
+// 見えない生成の変種を、9マスの並びで一望する。各セルは gen が返す配置を renderStage で描き、上の帯に
+// seed 番号を添える。footprint が全 seed で同じなのでセルが整列する。
+func recordSeeds(t *testing.T, footprint Rect, gen func(seed uint64) ([]HouseRoom, []Placed)) []byte {
+	t.Helper()
+	const cols, rows, gutter, headerH = 3, 3, 6, 16
+	cellW, cellH := footprint.W*cellPx, footprint.H*cellPx
+	img := image.NewRGBA(image.Rect(0, 0, cols*cellW+(cols+1)*gutter, rows*(cellH+headerH)+(rows+1)*gutter))
+	draw.Draw(img, img.Bounds(), image.NewUniform(color.RGBA{R: 20, G: 20, B: 24, A: 255}), image.Point{}, draw.Src)
+
+	for i := range cols * rows {
+		seed := uint64(i + 1)
+		rooms, placed := gen(seed)
+		cell := renderStage(t, footprint, rooms, placed)
+		x0 := gutter + (i%cols)*(cellW+gutter)
+		y0 := gutter + (i/cols)*(cellH+headerH)
+		drawLabel(img, x0+2, y0+2, "seed "+strconv.FormatUint(seed, 10))
+		dp := image.Pt(x0, y0+headerH)
+		draw.Draw(img, image.Rectangle{Min: dp, Max: dp.Add(image.Pt(cellW, cellH))}, cell, image.Point{}, draw.Over)
+	}
+	return encodePNG(t, img)
+}
+
+// renderStage は役割付き部屋の集合を1枚の *image.RGBA に描く。下地タイルを「戸口→扉 / 部屋の内側→床 /
+// それ以外→壁」で決め、実スプライトを重ね、各部屋に役割ラベルを描く。footprint 全体を走査するので、部屋
+// どうしが共有する間仕切りも外周壁も、共有壁に開けた戸口も1枚に現れる。recordSeeds が各セルの描画に使う。
+func renderStage(t *testing.T, footprint Rect, rooms []HouseRoom, placed []Placed) *image.RGBA {
 	t.Helper()
 	img := image.NewRGBA(image.Rect(0, 0, footprint.W*cellPx, footprint.H*cellPx))
 
@@ -220,7 +250,7 @@ func recordStage(t *testing.T, footprint Rect, rooms []HouseRoom, placed []Place
 		ly := (hr.Room.Rect.Y + 1 - footprint.Y) * cellPx
 		drawLabel(img, lx+2, ly+2, hr.Role)
 	}
-	return encodePNG(t, img)
+	return img
 }
 
 // drawLabel は px,py を左上に役割名の文字を、可読性のため暗い下地の上へ描く。basicfont は ASCII のみ
