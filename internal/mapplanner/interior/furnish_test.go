@@ -64,3 +64,40 @@ func TestSubdivideBuilding_全部屋が連結する(t *testing.T) {
 		assert.Truef(t, allRoomsConnected(rooms), "seed=%d で全部屋が戸口で連結する", seed)
 	}
 }
+
+// TestFurnishBuilding_施設テンプレが多seedで奥室を役割へ分化する は施設固有テンプレが実経路で使われ、
+// BSP フォールバックへ落ちないことを多 seed で固定する。前庭ぶん建物が縮んでテンプレ下限を割り、奥室が
+// 全部 back の樽物置になった退行を検知する。in-game の footprint でテンプレは BSP の "back" を出さず、
+// 施設固有の奥室役割を必ず出す。ゴールデンの目視より前に役割の分化崩れをここで止める。
+func TestFurnishBuilding_施設テンプレが多seedで奥室を役割へ分化する(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		facility  string
+		footprint Rect
+		door      Vec
+		backRoles []string // このどれかが必ず出る施設固有の奥室役割
+	}{
+		{"store", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}, []string{"storeroom", "office", "restroom", "coldroom"}},
+		{"clinic", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}, []string{"exam", "pharmacy", "restroom", "office"}},
+		{"house", Rect{X: 0, Y: 0, W: 28, H: 20}, Vec{X: 14, Y: 0}, []string{"kitchen", "bedroom", "bath", "toilet"}},
+	}
+	for _, c := range cases {
+		for seed := range uint64(30) {
+			site, _ := FurnishBuilding(seed, c.footprint, c.door, c.facility)
+			roles := map[string]int{}
+			for _, r := range site.Rooms {
+				roles[r.Role]++
+			}
+			assert.NotContainsf(t, roles, "back", "%s seed=%d はテンプレを使い BSP フォールバックの back を出さない", c.facility, seed)
+			has := false
+			for _, r := range c.backRoles {
+				if roles[r] > 0 {
+					has = true
+					break
+				}
+			}
+			assert.Truef(t, has, "%s seed=%d は施設固有の奥室役割 %v のどれかを出す (roles=%v)", c.facility, seed, c.backRoles, roles)
+		}
+	}
+}
