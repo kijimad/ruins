@@ -137,3 +137,15 @@ func PlanHouseVertical(footprint Rect, seed uint64) []HouseRoom {
 	}
 	return wireHouse(rectOf, seed, conns, "genkan", bottom, houseOrder)
 }
+
+// houseVariants は民家の間取りプランナの一覧。生成時に seed で1つ選ぶ。型を足すとここへ加えるだけで
+// バリエーションが増える。
+var houseVariants = []func(Rect, uint64) []HouseRoom{PlanHouse, PlanHouseVertical}
+
+// PlanHouseAny は seed から間取りの型を1つ決定的に選び、その民家を生成する。建物ごとに横廊下と縦廊下が
+// 混ざり、間取りに変化が出る。型の選択は childSeed(seed, 0) に閉じ、各プランナ内部の戸口抽選と相関
+// しないようにする。
+func PlanHouseAny(footprint Rect, seed uint64) []HouseRoom {
+	v := houseVariants[int(childSeed(seed, 0)%uint64(len(houseVariants)))]
+	return v(footprint, seed)
+}

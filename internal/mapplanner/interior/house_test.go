@@ -92,6 +92,34 @@ func TestPlanHouse_部屋がfootprint内に収まり重ならない(t *testing.T
 	}
 }
 
+// TestPlanHouseAny_seedで型が選ばれ両方出る は間取り型の抽選を固定する。同じ seed は同じ型で
+// 決定的、seed を振ると横廊下と縦廊下の両方が出て、生成した家はいずれも玄関から連結する。
+func TestPlanHouseAny_seedで型が選ばれ両方出る(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
+	first := PlanHouseAny(footprint, 3)
+	require.Equal(t, first, PlanHouseAny(footprint, 3), "同じ seed なら同じ型で完全一致する")
+
+	seenWide, seenTall := false, false
+	for seed := range uint64(20) {
+		plan := PlanHouseAny(footprint, seed)
+		assert.Truef(t, allRoomsConnected(houseRooms(plan)), "seed=%d の家は玄関から連結する", seed)
+		for _, hr := range plan {
+			if hr.Role != "corridor" {
+				continue
+			}
+			if hr.Room.Rect.W > hr.Room.Rect.H {
+				seenWide = true // 横廊下
+			} else {
+				seenTall = true // 縦廊下
+			}
+		}
+	}
+	assert.True(t, seenWide, "seed を振ると横廊下の家が出る")
+	assert.True(t, seenTall, "seed を振ると縦廊下の家が出る")
+}
+
 // houseRooms は HouseRoom 列から Room 列を取り出す。連結性検査など幾何だけを見る補助で使う。
 func houseRooms(plan []HouseRoom) []Room {
 	rooms := make([]Room, len(plan))
