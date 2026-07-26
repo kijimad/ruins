@@ -54,8 +54,8 @@ var spriteFiles = map[string]string{
 	"lantern": "tall_lamp_",
 	"plant":   "houseplants_",
 	"pantry":  "dish_shelf_",
-	"barrel":  "barrel_brown_",
-	"crate":   "barrel_brown_",
+	"barrel":  "wood_barrel_",
+	"crate":   "wood_barrel_",
 	"bathtub": "bathtub_",
 	"toilet":  "toilet_",
 	"sink":    "sink_",
@@ -292,7 +292,6 @@ func roomOrderByZone(footprint Rect, rooms []Room) []int {
 	})
 	return idx
 }
-
 
 // clinicRoleContents は診療所の部屋役割を入口から奥への順で並べた content。待合と受付・診察室・診察室・
 // 診察室・備品室の順に対応させる。手前は患者が留まる待合と受付、奥は診察と備品という診療所の動線を

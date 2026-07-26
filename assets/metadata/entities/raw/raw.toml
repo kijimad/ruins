@@ -12658,7 +12658,7 @@ name = "barrel"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "prop_barrel"
+spriteKey = "wood_barrel"
 spriteSheetName = "field"
 
 [[props]]
@@ -13578,18 +13578,6 @@ name = "緑のドラム缶"
 [props.spriteRender]
 depth = 2
 spriteKey = "drum_green"
-spriteSheetName = "field"
-
-[[props]]
-blockPass = true
-blockView = false
-description = "茶色の木製樽。物資が入っていることがある"
-hp = 20
-name = "茶色い樽"
-
-[props.spriteRender]
-depth = 2
-spriteKey = "barrel_brown"
 spriteSheetName = "field"
 
 [[props]]

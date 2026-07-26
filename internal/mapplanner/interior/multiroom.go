@@ -150,8 +150,9 @@ func roomOrderByArea(rooms []Room) []int {
 	return idx
 }
 
-// backRoomContent は奥室の内装。施設ごとに、店は倉庫、民家は寝室、診療所は診察室にする。既存の家具を
-// 使い回すので新しい content 語彙は要らない。
+// backRoomContent は奥室の内装。施設ごとに、店は物置、民家は寝室、診療所は診察室にする。既存の家具を
+// 使い回すので新しい content 語彙は要らない。物置は樽を控えめにする。depot 本体の樽詰めとは分け、奥室が
+// 樽だらけで単調になるのを避ける。
 func backRoomContent(facility string) Content {
 	switch facility {
 	case facHouse:
@@ -159,8 +160,17 @@ func backRoomContent(facility string) Content {
 	case facClinic, facLab:
 		return examRoomContent()
 	default:
-		return depotContent()
+		return storageRoomContent()
 	}
+}
+
+// storageRoomContent は奥室の物置。樽を数個だけ置く。倉庫施設 depotContent の樽詰めより疎にする。
+func storageRoomContent() Content {
+	return Content{ID: "storage", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "barrel", Amount: Dice{Bonus: 3}},
+		}},
+	}}
 }
 
 // bedroomContent は民家の奥室。ベッドと物入れ。
