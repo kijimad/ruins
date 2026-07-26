@@ -12675,7 +12675,7 @@ spriteSheetName = "field"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 250
+baseAP = 2500
 
 [[props.disassembly.yields]]
 name = "硬木"
@@ -12909,7 +12909,7 @@ spriteSheetName = "field"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 200
+baseAP = 2000
 
 [[props.disassembly.yields]]
 name = "硬木"
@@ -13120,7 +13120,7 @@ spriteSheetName = "field"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 300
+baseAP = 4000
 
 [[props.disassembly.yields]]
 name = "鉄くず"
@@ -13287,7 +13287,7 @@ spriteSheetName = "field"
 
 [props.disassembly]
 toolCategory = "cutting"
-baseAP = 400
+baseAP = 6000
 
 [[props.disassembly.yields]]
 name = "鉄くず"
@@ -13318,7 +13318,7 @@ name = "register"
 
 [props.disassembly]
 toolCategory = "precision"
-baseAP = 300
+baseAP = 3000
 
 [[props.disassembly.yields]]
 name = "電線"
@@ -13718,7 +13718,7 @@ lootCountMax = 3
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 200
+baseAP = 2000
 
 [[props.disassembly.yields]]
 name = "硬木"
@@ -15091,7 +15091,7 @@ material = true
 
 [items.disassembly]
 toolCategory = "precision"
-baseAP = 100
+baseAP = 1000
 
 [[items.disassembly.yields]]
 name = "鉄くず"
