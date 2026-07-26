@@ -3,6 +3,7 @@ package dungeon
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -72,6 +73,9 @@ func TestDefinitions(t *testing.T) {
 		assert.Equal(t, 20, DungeonForest.TotalFloors())
 		assert.Equal(t, "森", DungeonForest.EnemyTableName())
 		assert.Equal(t, "森", DungeonForest.ItemTableName())
+		assert.Equal(t, "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。", DungeonForest.Description())
+		assert.Equal(t, "forest1", DungeonForest.ImageKey())
+		assert.Equal(t, 0, DungeonForest.BaseTemperature())
 		assert.NotEmpty(t, DungeonForest.PlannerPool())
 	})
 
@@ -81,6 +85,9 @@ func TestDefinitions(t *testing.T) {
 		assert.Equal(t, 20, DungeonCave.TotalFloors())
 		assert.Equal(t, "洞窟", DungeonCave.EnemyTableName())
 		assert.Equal(t, "洞窟", DungeonCave.ItemTableName())
+		assert.Equal(t, "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。", DungeonCave.Description())
+		assert.Equal(t, "cave1", DungeonCave.ImageKey())
+		assert.Equal(t, 5, DungeonCave.BaseTemperature())
 		assert.NotEmpty(t, DungeonCave.PlannerPool())
 	})
 
@@ -90,6 +97,20 @@ func TestDefinitions(t *testing.T) {
 		assert.Equal(t, 20, DungeonRuins.TotalFloors())
 		assert.Equal(t, "廃墟", DungeonRuins.EnemyTableName())
 		assert.Equal(t, "廃墟", DungeonRuins.ItemTableName())
+		assert.Equal(t, "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。", DungeonRuins.Description())
+		assert.Equal(t, "city1", DungeonRuins.ImageKey())
+		assert.Equal(t, 15, DungeonRuins.BaseTemperature())
 		assert.NotEmpty(t, DungeonRuins.PlannerPool())
+	})
+
+	t.Run("DungeonOverworldの設定が正しい", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "オーバーワールド", DungeonOverworld.Name())
+		assert.Equal(t, 0, DungeonOverworld.BaseTemperature())
+		chunkW, chunkH, cols, rows := DungeonOverworld.BandShape()
+		assert.Equal(t, consts.Tile(20), chunkW)
+		assert.Equal(t, consts.Tile(20), chunkH)
+		assert.Equal(t, consts.Chunk(7), cols)
+		assert.Equal(t, consts.Chunk(9), rows)
 	})
 }
