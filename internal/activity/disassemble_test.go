@@ -197,6 +197,39 @@ func TestDisassembleActivity_アイテムを分解すると消費して素材が
 	assert.Contains(t, backpackNames, "鉄くず", "確定枠の鉄くずが所持品に入るべき")
 }
 
+func TestDisassembleActivity_収納propを分解すると中身が足元に出る(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	player := newDisassembleTestPlayer(world)
+
+	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "木箱", 11, 10)
+	require.NoError(t, err)
+
+	// 収納に中身を入れる
+	loot, err := lifecycle.SpawnFieldItem(world, "パン", 12, 12, 1)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.MoveToStorage(world, loot, crate))
+
+	da := &DisassembleActivity{Target: crate}
+	comp, err := da.BuildActivity(player, world)
+	require.NoError(t, err)
+	require.NoError(t, da.Start(comp, player, world))
+	for comp.State == gc.ActivityStateRunning {
+		require.NoError(t, da.DoTurn(comp, player, world))
+	}
+	require.NoError(t, da.Finish(comp, player, world))
+
+	assert.False(t, world.ECS.Alive(crate), "分解した木箱は消えるべき")
+	require.True(t, world.ECS.Alive(loot), "中身は孤児化せず残るべき")
+	assert.True(t, world.Components.LocationOnField.Has(loot), "中身はフィールドに出るべき")
+	lootGrid := world.Components.GridElement.Get(loot)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 10}, lootGrid.Coord, "中身は木箱の足元に落ちるべき")
+}
+
 func TestDisassembleActivity_DoTurn_対象が消えると中断する(t *testing.T) {
 	t.Parallel()
 

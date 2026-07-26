@@ -167,6 +167,8 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 	if world.Components.Prop.Has(target) && world.Components.GridElement.Has(target) {
 		// 座標は除去前に値で控える
 		coord := world.Components.GridElement.Get(target).Coord
+		// 収納propの場合は中身を足元へ出してから取り壊す
+		lifecycle.SpillStorageItems(world, target, coord.X, coord.Y)
 		world.ECS.RemoveEntity(target)
 		query.InvalidateSpatialIndex(world)
 		if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil {

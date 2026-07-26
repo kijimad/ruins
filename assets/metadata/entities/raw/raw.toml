@@ -13716,6 +13716,25 @@ lootTableName = "廃墟"
 lootCountMin = 1
 lootCountMax = 3
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 200
+
+[[props.disassembly.yields]]
+name = "硬木"
+amount = 1
+amountMax = 2
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "硬木"
+amount = 1
+minSkill = 10
+
 [[props]]
 blockPass = true
 blockView = false
