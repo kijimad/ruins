@@ -18,15 +18,31 @@ func TestPlanHouse_同じseedで完全一致する(t *testing.T) {
 	}
 }
 
+// housePlanners は横廊下と縦廊下の両プランナ。廊下の向きが違っても不変条件は共通なので、構造テストは
+// 両方に対して回す。
+var housePlanners = []struct {
+	name string
+	plan func(Rect, uint64) []HouseRoom
+}{
+	{"horizontal", PlanHouse},
+	{"vertical", PlanHouseVertical},
+}
+
 // TestPlanHouse_全室が玄関から戸口で連結する は最重要の不変条件を固定する。廊下の奥や水回りまで、
-// どの部屋にも入口の玄関から戸口を辿って到達できること。連結が壊れると入れない部屋ができる。
+// どの部屋にも入口の玄関から戸口を辿って到達できること。連結が壊れると入れない部屋ができる。縦廊下は
+// 浴室・トイレを脱衣所の奥に nest するので、兄弟経由の到達もここで守る。
 func TestPlanHouse_全室が玄関から戸口で連結する(t *testing.T) {
 	t.Parallel()
 
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
-	for seed := range uint64(20) {
-		rooms := houseRooms(PlanHouse(footprint, seed))
-		assert.Truef(t, allRoomsConnected(rooms), "seed=%d で全室が玄関から連結する", seed)
+	for _, p := range housePlanners {
+		t.Run(p.name, func(t *testing.T) {
+			t.Parallel()
+			for seed := range uint64(20) {
+				rooms := houseRooms(p.plan(footprint, seed))
+				assert.Truef(t, allRoomsConnected(rooms), "seed=%d で全室が玄関から連結する", seed)
+			}
+		})
 	}
 }
 
@@ -57,17 +73,22 @@ func TestPlanHouse_部屋がfootprint内に収まり重ならない(t *testing.T
 	t.Parallel()
 
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
-	seen := make(map[Vec]bool)
-	for _, hr := range PlanHouse(footprint, 1) {
-		r := hr.Room.Rect
-		require.GreaterOrEqual(t, r.X, footprint.X, "左端が footprint 内")
-		require.GreaterOrEqual(t, r.Y, footprint.Y, "上端が footprint 内")
-		require.LessOrEqual(t, r.X+r.W, footprint.X+footprint.W, "右端が footprint 内")
-		require.LessOrEqual(t, r.Y+r.H, footprint.Y+footprint.H, "下端が footprint 内")
-		for _, v := range r.interiorTiles() {
-			require.Falsef(t, seen[v], "内側床 %v が複数部屋に重複しない", v)
-			seen[v] = true
-		}
+	for _, p := range housePlanners {
+		t.Run(p.name, func(t *testing.T) {
+			t.Parallel()
+			seen := make(map[Vec]bool)
+			for _, hr := range p.plan(footprint, 1) {
+				r := hr.Room.Rect
+				require.GreaterOrEqual(t, r.X, footprint.X, "左端が footprint 内")
+				require.GreaterOrEqual(t, r.Y, footprint.Y, "上端が footprint 内")
+				require.LessOrEqual(t, r.X+r.W, footprint.X+footprint.W, "右端が footprint 内")
+				require.LessOrEqual(t, r.Y+r.H, footprint.Y+footprint.H, "下端が footprint 内")
+				for _, v := range r.interiorTiles() {
+					require.Falsef(t, seen[v], "内側床 %v が複数部屋に重複しない", v)
+					seen[v] = true
+				}
+			}
+		})
 	}
 }
 

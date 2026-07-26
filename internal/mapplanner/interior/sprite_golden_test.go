@@ -134,16 +134,32 @@ func TestGolden_InteriorHouse(t *testing.T) {
 	g.Assert(t, t.Name(), renderRoomSprites(t, houseRoom(), placed))
 }
 
-// TestGolden_InteriorHouseBuilding は廊下型の民家1棟の目視回帰。玄関から入って廊下に出て、廊下から
-// 居間・台所・寝室へ、さらに廊下奥の脱衣所から浴室へ、玄関脇のトイレへ、という日本家屋の動線を持つ。
-// 均一な部屋の BSP では作れない、狭い玄関と細い廊下と水回りの小部屋を PlanHouse が保証する。
+// TestGolden_InteriorHouseBuilding は横廊下の民家1棟の目視回帰。玄関から入って廊下に出て、廊下から
+// 居間・台所・寝室へ、さらに廊下沿いの脱衣所から浴室へ、という日本家屋の動線を持つ。均一な部屋の BSP
+// では作れない、狭い玄関と廊下と水回りの小部屋を PlanHouse が保証する。
 func TestGolden_InteriorHouseBuilding(t *testing.T) {
 	t.Parallel()
 
-	const seed = 1
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
-	plan := PlanHouse(footprint, seed)
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderHousePlan(t, footprint, PlanHouse(footprint, 1), 1))
+}
 
+// TestGolden_InteriorHouseVertical は縦廊下でも小部屋を作れることの目視回帰。縦廊下は左右が横長の帯に
+// なりがちだが、右下の水回りを入れ子に再帰分割し、脱衣所だけ廊下に面させ浴室とトイレをその奥へ nest
+// することで、横廊下と同じく小さなトイレ・浴室を得る。廊下の向きは制約でなく選択であることを示す。
+func TestGolden_InteriorHouseVertical(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderHousePlan(t, footprint, PlanHouseVertical(footprint, 1), 1))
+}
+
+// renderHousePlan は民家プランの各部屋を役割 content で充填し、役割ラベル付きで実スプライトに描く。
+// 横型と縦型の目視回帰が同じ経路を共有する。
+func renderHousePlan(t *testing.T, footprint Rect, plan []HouseRoom, seed uint64) []byte {
+	t.Helper()
 	byRole := houseRoomContents()
 	rooms := make([]Room, len(plan))
 	roles := make([]string, len(plan))
@@ -153,8 +169,7 @@ func TestGolden_InteriorHouseBuilding(t *testing.T) {
 		roles[i] = hr.Role
 		placed = append(placed, FillRoom(childSeed(seed, 500+i), hr.Room, byRole[hr.Role])...)
 	}
-	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, roles, placed))
+	return renderBuildingSprites(t, footprint, rooms, roles, placed)
 }
 
 // TestGolden_InteriorClinicBuilding は診療所を建物1棟で生成した目視回帰。単室では待合も診察室も同じ
