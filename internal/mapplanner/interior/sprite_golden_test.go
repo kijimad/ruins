@@ -20,32 +20,56 @@ const spriteDir = "../../../assets/file/textures/single/"
 // cellPx は1タイルの描画辺長。スプライトが 32x32 なのでセルも 32px にして等倍で置く。
 const cellPx = 32
 
-// spriteFileOf は配置の Ref を実スプライトのソース PNG 名へ写す。既存 prop を活かし、無い什器
-// (レジ・冷蔵ケース・陳列棚)は同形式のダミーで補った。スプライトの無い装飾は背景描画で表す。
+// spriteFileOf は配置の Ref を実スプライトのソース PNG 名へ写す。ゲーム本体の豊富な既存スプライトから
+// 什器の実物を当てるので、ダミーは使わない。什器ごとに別の絵になり、施設の見分けが付く。スプライトの
+// 無い装飾は背景描画で表す。
 func spriteFileOf(p Placed) string {
 	switch p.Ref {
+	// 店。gondola_shelf_ / display_cooler_ はゲーム側が未だ仮画像なので、実描画のある goods_shelf_ /
+	// refrigerator_ を当てる
 	case "gondola":
-		return "prop_gondola_"
+		return "goods_shelf_"
 	case "register":
-		return "prop_register_"
+		return "register_"
 	case "walkin_cooler":
-		return "prop_cooler_"
-	case "waitchair", "chair":
-		return "prop_chair_"
-	case "reception", "table":
-		return "prop_table_"
-	case "exam_bed", "bed":
-		return "prop_bed_"
-	case "medcabinet", "closet":
-		return "prop_bookshelf_"
+		return "refrigerator_"
+	case "snacks":
+		return "cookie_"
+	case "drinks":
+		return "bottled_cola_"
+	case "bento":
+		return "hamburger_"
+	// 診療所。reception_counter_ / exam_bed_ / medicine_cabinet_ はゲーム側が未だ仮画像だが、無理に
+	// 寝室の什器で代用すると診療所に見えなくなるため、意味の合う実資産をそのまま当てる
+	case "reception":
+		return "reception_counter_"
+	case "waitchair":
+		return "bench_"
+	case "exam_bed":
+		return "exam_bed_"
+	case "medcabinet":
+		return "medicine_cabinet_"
+	case "meds":
+		return "healing_potion_"
+	case "bandage":
+		return "leather_bandage_"
+	// 民家・建物
+	case "bed":
+		return "bed_"
+	case "table":
+		return "dining_table_"
+	case "chair":
+		return "chair_"
+	case "closet":
+		return "closet_"
 	case "lantern":
-		return "prop_lantern_"
+		return "tall_lamp_"
 	case "plant":
-		return "prop_plant_"
-	case "barrel", "crate", "pantry":
-		return "prop_barrel_"
-	case "snacks", "drinks", "bento", "meds", "bandage":
-		return "prop_goods_"
+		return "houseplants_"
+	case "pantry":
+		return "dish_shelf_"
+	case "barrel", "crate":
+		return "barrel_brown_"
 	default:
 		return ""
 	}
