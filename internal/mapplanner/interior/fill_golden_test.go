@@ -46,6 +46,37 @@ func storeRoom() Room {
 	}
 }
 
+// clinicContent は診療所を模した Content。同じ器に別の content を流すだけで別の施設になることを示す。
+// 受付と待合椅子は入口近く、診察ベッドは奥、薬棚は壁際、という診療所の定石を placement で宣言する。
+func clinicContent() Content {
+	return Content{
+		ID: "clinic",
+		Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "reception", Placement: PlaceNearDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "waitchair", Placement: PlaceNearDoor, Amount: Dice{Bonus: 5}},
+				{Kind: KindFurniture, Ref: "exam_bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: Dice{Bonus: 3}},
+			}},
+			{Style: PickN, Pick: 2, Items: []Stuff{
+				{Kind: KindLoot, Ref: "meds", Placement: PlaceFarFromDoor, Weight: 2, Amount: Dice{Base: 1, Sides: 3}},
+				{Kind: KindLoot, Ref: "bandage", Placement: PlaceWall, Weight: 1, Amount: Dice{Base: 1, Sides: 2}},
+			}},
+			{Style: PickOne, Items: []Stuff{
+				{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 2}},
+			}},
+		},
+	}
+}
+
+// clinicRoom は入口が下辺中央の 16x11 の部屋。
+func clinicRoom() Room {
+	return Room{
+		Rect:     Rect{X: 0, Y: 0, W: 16, H: 11},
+		Doorways: []Doorway{{X: 8, Y: 10}},
+	}
+}
+
 // TestGolden_InteriorRoomLayout は分割文法の出力(部屋レイアウト)の段を目視する中間段 golden。
 // content を流し込む前の、壁と戸口だけの器。以降の段は同じ renderInterior にこの器 + その段までの
 // 配置を渡すことで、パイプラインの各段を1枚ずつ VRT で押さえられる。
@@ -67,6 +98,19 @@ func TestGolden_InteriorConvStore(t *testing.T) {
 
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), renderInterior(storeRoom(), placed))
+}
+
+// TestGolden_InteriorClinic は器の汎用性の目視回帰。store と同じ FillRoom / renderInterior に診療所の
+// content を流すだけで、待合が入口・診察ベッドが奥・薬棚が壁、という別の施設が出ることを確認する。
+// 幾何と中身の分離、すなわち content を器の追加なしで増やせることの実証。
+func TestGolden_InteriorClinic(t *testing.T) {
+	t.Parallel()
+
+	placed := FillRoom(7, clinicRoom(), clinicContent())
+	require.NotEmpty(t, placed, "何か配置される")
+
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderInterior(clinicRoom(), placed))
 }
 
 // TestFillRoom_同じseedで完全一致する は配置まで含めた決定性を固定する。再訪一致と serde の前提。
