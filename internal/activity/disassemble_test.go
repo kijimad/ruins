@@ -24,7 +24,15 @@ func newDisassembleTestPlayer(world w.World) ecs.Entity {
 	world.Components.TurnBased.Add(player, &gc.TurnBased{AP: gc.IntPool{Max: 100, Current: 100}})
 	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 	world.Components.Skills.Add(player, gc.NewSkills())
+	world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
 	return player
+}
+
+// spawnHostileAt は敵対エンティティを指定タイルに置く
+func spawnHostileAt(world w.World, x consts.Tile, y consts.Tile) {
+	hostile := world.ECS.NewEntity()
+	world.Components.FactionEnemy.Add(hostile, &gc.FactionEnemy{})
+	world.Components.GridElement.Add(hostile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 }
 
 func TestRequiredDisassemblyAP(t *testing.T) {
@@ -228,6 +236,155 @@ func TestDisassembleActivity_収納propを分解すると中身が足元に出�
 	assert.True(t, world.Components.LocationOnField.Has(loot), "中身はフィールドに出るべき")
 	lootGrid := world.Components.GridElement.Get(loot)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 10}, lootGrid.Coord, "中身は木箱の足元に落ちるべき")
+}
+
+func TestDisassembleActivity_Finish_対象が既に消えていれば何もしない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player := newDisassembleTestPlayer(world)
+
+	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
+	require.NoError(t, err)
+
+	da := &DisassembleActivity{Target: crate}
+	comp, err := da.BuildActivity(player, world)
+	require.NoError(t, err)
+	require.NoError(t, da.Start(comp, player, world))
+
+	world.ECS.RemoveEntity(crate)
+
+	require.NoError(t, da.Finish(comp, player, world))
+
+	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	count := 0
+	for q.Next() {
+		count++
+	}
+	assert.Equal(t, 0, count, "消えた対象から産出が湧かないべき")
+}
+
+func TestDisassembleActivity_スタックのあるアイテムは1個だけ消費する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	player := newDisassembleTestPlayer(world)
+
+	_, err := lifecycle.SpawnBackpackItem(world, "電動ドライバー", 1)
+	require.NoError(t, err)
+	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 2)
+	require.NoError(t, err)
+
+	da := &DisassembleActivity{Target: hdd}
+	comp, err := da.BuildActivity(player, world)
+	require.NoError(t, err)
+	require.NoError(t, da.Start(comp, player, world))
+	for comp.State == gc.ActivityStateRunning {
+		require.NoError(t, da.DoTurn(comp, player, world))
+	}
+	require.NoError(t, da.Finish(comp, player, world))
+
+	require.True(t, world.ECS.Alive(hdd), "残数があるうちはエンティティが消えないべき")
+	assert.Equal(t, 1, query.GetEntityCount(world, hdd), "1個だけ消費されるべき")
+}
+
+func TestDisassembleActivity_Finish_レベルアップでStatsChangedが付く(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	player := newDisassembleTestPlayer(world)
+
+	// 次の獲得でレベルアップする直前まで経験値を積んでおく
+	mechanic := world.Components.Skills.Get(player).Get(gc.SkillMechanic)
+	mechanic.Exp.Current = mechanic.Exp.Max - 1
+
+	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
+	require.NoError(t, err)
+
+	da := &DisassembleActivity{Target: crate}
+	comp, err := da.BuildActivity(player, world)
+	require.NoError(t, err)
+	require.NoError(t, da.Start(comp, player, world))
+	for comp.State == gc.ActivityStateRunning {
+		require.NoError(t, da.DoTurn(comp, player, world))
+	}
+	require.NoError(t, da.Finish(comp, player, world))
+
+	assert.GreaterOrEqual(t, mechanic.Value, 1, "機械スキルがレベルアップするべき")
+	assert.True(t, world.Components.StatsChanged.Has(player),
+		"レベルアップ時はステータス再計算マーカーが付くべき")
+}
+
+func TestDisassembleActivity_Validate_敵が隣接していると開始できない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player := newDisassembleTestPlayer(world)
+
+	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
+	require.NoError(t, err)
+	spawnHostileAt(world, 9, 10)
+
+	da := &DisassembleActivity{Target: crate}
+	comp := &gc.Activity{Target: &crate}
+	err = da.Validate(comp, player, world)
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "敵")
+}
+
+func TestDisassembleActivity_DoTurn_敵が接近すると中断する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player := newDisassembleTestPlayer(world)
+
+	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
+	require.NoError(t, err)
+
+	da := &DisassembleActivity{Target: crate}
+	comp, err := da.BuildActivity(player, world)
+	require.NoError(t, err)
+	require.NoError(t, da.Validate(comp, player, world))
+	require.NoError(t, da.Start(comp, player, world))
+	require.NoError(t, da.DoTurn(comp, player, world))
+	require.Equal(t, gc.ActivityStateRunning, comp.State, "敵がいなければ継続するべき")
+
+	// 分解の途中で敵が隣接タイルまで近づいてきた
+	spawnHostileAt(world, 10, 11)
+
+	require.NoError(t, da.DoTurn(comp, player, world))
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	assert.Equal(t, "周囲に敵がいるため分解を中断", comp.CancelReason)
+}
+
+func TestFormatYields(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		stacks []lifecycle.YieldStack
+		want   string
+	}{
+		{"空なら何も得られなかった", nil, "何も得られなかった"},
+		{"1件は単独表記", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}}, "鉄くず x2 を得た"},
+		{"複数件は読点で連結", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}, {Name: "硬木", Count: 1}}, "鉄くず x2、硬木 x1 を得た"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, formatYields(tt.stacks))
+		})
+	}
 }
 
 func TestDisassembleActivity_DoTurn_対象が消えると中断する(t *testing.T) {

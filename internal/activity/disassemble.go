@@ -225,7 +225,10 @@ func (da *DisassembleActivity) gainMechanicExp(actor ecs.Entity, world w.World) 
 	}
 
 	if skill.GainExp(s, abilityValue) {
-		world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
+		// 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける
+		if !world.Components.StatsChanged.Has(actor) {
+			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
+		}
 		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("%sスキルが %d に上がった", gc.SkillName(gc.SkillMechanic), s.Value)).
 			Log()

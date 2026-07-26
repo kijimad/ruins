@@ -202,7 +202,10 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 	// スキルアップした場合はCharModifiers再計算
 	if leveledUp {
-		world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
+		// 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける
+		if !world.Components.StatsChanged.Has(actor) {
+			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
+		}
 
 		name := gc.SkillName(effect.TargetSkill)
 		gamelog.New(query.GetGameLog(world)).
