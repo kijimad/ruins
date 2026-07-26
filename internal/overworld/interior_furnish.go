@@ -53,9 +53,20 @@ func furnishBuilding(world w.World, g chunkGeom, shell buildingShell, fac facili
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
 	footprint := interior.Rect{X: int(shell.bx), Y: int(shell.by), W: int(shell.bw), H: int(shell.bh)}
 	door := interior.Vec{X: int(shell.doorX), Y: int(shell.doorY)}
+	walls, placed := interior.FurnishBuilding(iseed, footprint, door, string(fac))
 
+	tiles := g.tiles.get()
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
-	for _, p := range interior.Furnish(iseed, footprint, door, string(fac)) {
+	// 内部間仕切りを壁タイルへ替え、敵が湧かないよう占有にも入れる。外殻の isWall は外周しか知らない
+	for _, wv := range walls {
+		coord := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(wv.X), Y: g.offsetY + consts.Tile(wv.Y)}
+		if err := replaceTile(world, tiles, coord, consts.TileNameDWall); err != nil {
+			return nil, fmt.Errorf("内装の間仕切り配置に失敗: %w", err)
+		}
+		occupied[coord] = true
+	}
+	// 家具と装飾を spawn する。写像できる Ref だけを外殻の内側へ置く
+	for _, p := range placed {
 		name, ok := interiorPropRaw[p.Ref]
 		if !ok {
 			continue // raw の無い戦利品や装飾は置かない
