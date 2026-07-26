@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 00:14:01</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -116,7 +116,7 @@
 <span id="L54"><span class="lineNum">      54</span>              :         }</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :         if locked &gt; 0 {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 // BlockView が変化したので視界を再計算させる</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).NeedsForceUpdate = true</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).RequestUpdate()</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         return locked</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : }</span>
@@ -140,7 +140,7 @@
 <span id="L78"><span class="lineNum">      78</span>              :         }</span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           2 :         if opened &gt; 0 {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 // BlockView が変化したので視界を再計算させる</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).NeedsForceUpdate = true</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).RequestUpdate()</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return opened</span></span>
 <span id="L84"><span class="lineNum">      84</span>              : }</span>
@@ -230,7 +230,7 @@
 <span id="L168"><span class="lineNum">     168</span>              : }</span>
 <span id="L169"><span class="lineNum">     169</span>              : </span>
 <span id="L170"><span class="lineNum">     170</span>              : // SpawnDoor は扉を生成する</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorOrientation) (ecs.Entity, error) {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation) (ecs.Entity, error) {</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         var spriteKey string</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           2 :         if orientation == gc.DoorOrientationHorizontal {</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 spriteKey = &quot;door_horizontal_closed&quot;</span></span>
@@ -241,7 +241,7 @@
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 Name:        &amp;gc.Name{Name: &quot;扉&quot;},</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 Description: &amp;gc.Description{Description: &quot;開閉できる扉&quot;},</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 GridElement: &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 GridElement: &amp;gc.GridElement{Coord: pos},</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                         SpriteSheetName: fieldSpriteSheet,</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         SpriteKey:       spriteKey,</span></span>

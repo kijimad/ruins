@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 00:14:01</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -157,7 +157,7 @@
 <span id="L95"><span class="lineNum">      95</span>              :         // ロード復帰も保存前と同じ現ステージで、いずれも自動再計算が働かない。加えて serde は</span>
 <span id="L96"><span class="lineNum">      96</span>              :         // VisionState を空で復元するため、放置すると空の VisibleTiles のまま真っ暗になる。</span>
 <span id="L97"><span class="lineNum">      97</span>              :         // オーバーワールドと通常ダンジョンで同じ扱いにするため、分岐前のここで立てる。</span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         query.GetVisionState(world).NeedsForceUpdate = true</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         query.GetVisionState(world).RequestUpdate()</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         // Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         // overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする</span></span>

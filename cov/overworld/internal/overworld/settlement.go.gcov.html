@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/internal/overworld/settlement.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">overworld/internal/overworld</a> - settlement.go<span style="font-size: 80%;"> (source / <a href="settlement.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">85.2&nbsp;%</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">23</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // relSpot は基準点からの相対座標に置くエンティティの定義。集落の中心や POI の原点を基準に、</span>
+<span id="L12"><span class="lineNum">      12</span>              : // NPC や prop をずらして配置するのに使う。</span>
+<span id="L13"><span class="lineNum">      13</span>              : type relSpot struct {</span>
+<span id="L14"><span class="lineNum">      14</span>              :         name string</span>
+<span id="L15"><span class="lineNum">      15</span>              :         dx   consts.Tile</span>
+<span id="L16"><span class="lineNum">      16</span>              :         dy   consts.Tile</span>
+<span id="L17"><span class="lineNum">      17</span>              : }</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : // villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店(商人)・雇用(酒場の主人)・</span>
+<span id="L20"><span class="lineNum">      20</span>              : // 合成(怪しい科学者)を開く。小集落は無状態の補給地で、stash となる収納は置かない。</span>
+<span id="L21"><span class="lineNum">      21</span>              : // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。</span>
+<span id="L22"><span class="lineNum">      22</span>              : var villageNPCs = []relSpot{</span>
+<span id="L23"><span class="lineNum">      23</span>              :         {&quot;商人&quot;, -2, -1},</span>
+<span id="L24"><span class="lineNum">      24</span>              :         {&quot;酒場の主人&quot;, -2, 1},</span>
+<span id="L25"><span class="lineNum">      25</span>              :         {&quot;怪しい科学者&quot;, -4, 0},</span>
+<span id="L26"><span class="lineNum">      26</span>              : }</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // hamletNPCs は一軒家に配置する会話NPC。行商の拠点という位置づけで商人だけがいる。</span>
+<span id="L29"><span class="lineNum">      29</span>              : var hamletNPCs = []relSpot{</span>
+<span id="L30"><span class="lineNum">      30</span>              :         {&quot;商人&quot;, -2, -1},</span>
+<span id="L31"><span class="lineNum">      31</span>              : }</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : // villageProps と hamletProps は集落の生活感を出す prop。NPC の座標と重ねない。</span>
+<span id="L34"><span class="lineNum">      34</span>              : var (</span>
+<span id="L35"><span class="lineNum">      35</span>              :         villageProps = []relSpot{</span>
+<span id="L36"><span class="lineNum">      36</span>              :                 {&quot;bonfire&quot;, 2, -2},</span>
+<span id="L37"><span class="lineNum">      37</span>              :                 {&quot;bench&quot;, 3, 1},</span>
+<span id="L38"><span class="lineNum">      38</span>              :                 {&quot;wooden_sign&quot;, 0, -3},</span>
+<span id="L39"><span class="lineNum">      39</span>              :         }</span>
+<span id="L40"><span class="lineNum">      40</span>              :         hamletProps = []relSpot{</span>
+<span id="L41"><span class="lineNum">      41</span>              :                 {&quot;bonfire&quot;, 2, -2},</span>
+<span id="L42"><span class="lineNum">      42</span>              :                 {&quot;crate&quot;, 1, 2},</span>
+<span id="L43"><span class="lineNum">      43</span>              :         }</span>
+<span id="L44"><span class="lineNum">      44</span>              : )</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : // settlementPlacement は小集落のリージョン配置。おおよそ Spacing チャンクに1つ当選する。</span>
+<span id="L47"><span class="lineNum">      47</span>              : // チャンクは20タイルなので、Spacing 5 で100タイルに1つの体感密度になる。</span>
+<span id="L48"><span class="lineNum">      48</span>              : var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}</span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              : // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。</span>
+<span id="L51"><span class="lineNum">      51</span>              : type settlementFeature struct{}</span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 : func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         if !settlementPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :         // 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :         if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         return spawnSettlement(world, center, settlementVillageRoll(runSeed, c))</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : }</span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span>              : // settlementVillageRoll は集落の規模抽選。真なら村、偽なら一軒家。純粋に (runSeed, 座標) の</span>
+<span id="L66"><span class="lineNum">      66</span>              : // 関数で、地図の分類と生成の両方がこれを使うので規模の見た目と実体が一致する。</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 : func settlementVillageRoll(runSeed uint64, c consts.Coord[consts.Chunk]) bool {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y)%10 &lt; 6</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : // spawnSettlement は小集落を構成する。center を集落の中心として会話NPCと生活感の prop を</span>
+<span id="L72"><span class="lineNum">      72</span>              : // 近傍へ決定的に配置する。村は全サービスのNPCが揃い、一軒家は商人だけの行商拠点になる。</span>
+<span id="L73"><span class="lineNum">      73</span>              : // 集落はステージでなくオーバーワールドの地物なので、専用の State を持たず prop として常在する。</span>
+<span id="L74"><span class="lineNum">      74</span>              : // 帯への束縛は呼び出し元のチャンク生成が一括で行う。</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bool) error {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         npcs, props := hamletNPCs, hamletProps</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           2 :         if village {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 npcs, props = villageNPCs, villageProps</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           2 :         for _, n := range npcs {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 pos := consts.Coord[consts.Tile]{X: center.X + n.dx, Y: center.Y + n.dy}</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.name); err != nil {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;集落NPCの配置に失敗 (%s): %w&quot;, n.name, err)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L85"><span class="lineNum">      85</span>              :         }</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC tlaBgGNC">           2 :         for _, p := range props {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, p.name, center.X+p.dx, center.Y+p.dy); err != nil {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;集落propの配置に失敗 (%s): %w&quot;, p.name, err)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L90"><span class="lineNum">      90</span>              :         }</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

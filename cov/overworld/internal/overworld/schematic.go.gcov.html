@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/internal/overworld/schematic.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">overworld/internal/overworld</a> - schematic.go<span style="font-size: 80%;"> (source / <a href="schematic.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">96.4&nbsp;%</td>
+            <td class="headerCovTableEntry">56</td>
+            <td class="headerCovTableEntry">54</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;image/color&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;strings&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // チャンクマップ表記は、1チャンク=1建物という縮尺に合わせ、各チャンクを「そこが何の種別の</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 場所か」の1文字で表す俯瞰図。1チャンク=1記号で場所の種別を示す。生成は (runSeed, 座標) の</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 純関数なので、ECS のタイルを生成せず種別だけを算出できる。</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              : // GlyphInfo は種別マップ上の1文字表記と、凡例に出す名前と色。記号・名前・色を1レコードに同梱し、</span>
+<span id="L16"><span class="lineNum">      16</span>              : // UI 側が記号ごとに別の色表を持って二重定義でずれるのを防ぐ。UI の着色や凡例に使う。</span>
+<span id="L17"><span class="lineNum">      17</span>              : type GlyphInfo struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         Label rune</span>
+<span id="L19"><span class="lineNum">      19</span>              :         Name  string</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Color color.RGBA</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と</span>
+<span id="L24"><span class="lineNum">      24</span>              : // 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。</span>
+<span id="L25"><span class="lineNum">      25</span>              : //   - placeType: チャンク尺度。市街地以外のチャンクを1記号で表す。荒れ地・村・一軒家・遺跡入口・</span>
+<span id="L26"><span class="lineNum">      26</span>              : //     点在POI。地図の表示専用で、生成には関与しない。</span>
+<span id="L27"><span class="lineNum">      27</span>              : //   - facilityType: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく</span>
+<span id="L28"><span class="lineNum">      28</span>              : //     市街地生成の重み抽選にも使う実体のあるドメイン型で、urban.go が持つ。</span>
+<span id="L29"><span class="lineNum">      29</span>              : // 地図は市街地チャンクを facilityType の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は</span>
+<span id="L30"><span class="lineNum">      30</span>              : // チャンク尺度に続けて建物尺度を並べ、2層を1つの表にする。</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // facilityGlyphs は施設種別の1文字表記。1マスに1文字で建物の種別を示す。</span>
+<span id="L33"><span class="lineNum">      33</span>              : // 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。</span>
+<span id="L34"><span class="lineNum">      34</span>              : var facilityGlyphs = map[facilityType]GlyphInfo{</span>
+<span id="L35"><span class="lineNum">      35</span>              :         facilityHouse:   {'h', &quot;住宅&quot;, color.RGBA{R: 154, G: 160, B: 166, A: 255}},   // 灰</span>
+<span id="L36"><span class="lineNum">      36</span>              :         facilityStore:   {'S', &quot;商店&quot;, color.RGBA{R: 74, G: 144, B: 226, A: 255}},    // 青</span>
+<span id="L37"><span class="lineNum">      37</span>              :         facilityOffice:  {'O', &quot;事務所&quot;, color.RGBA{R: 80, G: 200, B: 208, A: 255}},   // シアン</span>
+<span id="L38"><span class="lineNum">      38</span>              :         facilityDepot:   {'D', &quot;倉庫&quot;, color.RGBA{R: 176, G: 122, B: 58, A: 255}},    // 茶</span>
+<span id="L39"><span class="lineNum">      39</span>              :         facilityAntique: {'A', &quot;骨董品店&quot;, color.RGBA{R: 212, G: 160, B: 23, A: 255}},  // 金</span>
+<span id="L40"><span class="lineNum">      40</span>              :         facilityClinic:  {'C', &quot;診療所&quot;, color.RGBA{R: 232, G: 106, B: 154, A: 255}},  // 桃</span>
+<span id="L41"><span class="lineNum">      41</span>              :         facilityLab:     {'L', &quot;研究施設&quot;, color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫</span>
+<span id="L42"><span class="lineNum">      42</span>              : }</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // facilityOrder は凡例に出す施設種別を表示順で並べる。placeOrder と同じく、map は順序を持たない</span>
+<span id="L45"><span class="lineNum">      45</span>              : // ので順序だけ別に定義する。string 化で facilityType は辞書順に落ちるため、表示順はここで固定する。</span>
+<span id="L46"><span class="lineNum">      46</span>              : var facilityOrder = []facilityType{</span>
+<span id="L47"><span class="lineNum">      47</span>              :         facilityHouse, facilityStore, facilityOffice, facilityDepot, facilityAntique, facilityClinic, facilityLab,</span>
+<span id="L48"><span class="lineNum">      48</span>              : }</span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              : // placeType はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と</span>
+<span id="L51"><span class="lineNum">      51</span>              : // 凡例名を placeGlyphs から引くために使う。生成には関与しない。chunkType とは1対1ではない。</span>
+<span id="L52"><span class="lineNum">      52</span>              : // chunkSettlement は村ロールで placeVillage と placeHamlet に分かれ、chunkUrban は建物尺度の</span>
+<span id="L53"><span class="lineNum">      53</span>              : // facilityType を使うのでここには無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。</span>
+<span id="L54"><span class="lineNum">      54</span>              : type placeType string</span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              : const (</span>
+<span id="L57"><span class="lineNum">      57</span>              :         placeField           placeType = &quot;field&quot;            // 荒れ地</span>
+<span id="L58"><span class="lineNum">      58</span>              :         placeVillage         placeType = &quot;village&quot;          // 村</span>
+<span id="L59"><span class="lineNum">      59</span>              :         placeHamlet          placeType = &quot;hamlet&quot;           // 一軒家</span>
+<span id="L60"><span class="lineNum">      60</span>              :         placeDungeonEntrance placeType = &quot;dungeon_entrance&quot; // 遺跡入口</span>
+<span id="L61"><span class="lineNum">      61</span>              :         placePOI             placeType = &quot;poi&quot;              // 点在POI</span>
+<span id="L62"><span class="lineNum">      62</span>              :         placeUnknown         placeType = &quot;unknown&quot;          // 分類漏れの保険。凡例には出さない</span>
+<span id="L63"><span class="lineNum">      63</span>              : )</span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span>              : // placeGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に</span>
+<span id="L66"><span class="lineNum">      66</span>              : // 集約する。UI の着色や凡例はこれ1つを源にし、記号や名前を別の箇所へ直書きしない。</span>
+<span id="L67"><span class="lineNum">      67</span>              : var placeGlyphs = map[placeType]GlyphInfo{</span>
+<span id="L68"><span class="lineNum">      68</span>              :         placeField:           {'.', &quot;荒れ地&quot;, color.RGBA{R: 46, G: 59, B: 46, A: 255}},      // 暗緑</span>
+<span id="L69"><span class="lineNum">      69</span>              :         placeVillage:         {'T', &quot;村&quot;, color.RGBA{R: 255, G: 210, B: 74, A: 255}},      // 黄</span>
+<span id="L70"><span class="lineNum">      70</span>              :         placeHamlet:          {'t', &quot;一軒家&quot;, color.RGBA{R: 208, G: 168, B: 58, A: 255}},    // 濃黄</span>
+<span id="L71"><span class="lineNum">      71</span>              :         placeDungeonEntrance: {'&gt;', &quot;遺跡入口&quot;, color.RGBA{R: 224, G: 69, B: 58, A: 255}},    // 赤</span>
+<span id="L72"><span class="lineNum">      72</span>              :         placePOI:             {'*', &quot;点在POI&quot;, color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑</span>
+<span id="L73"><span class="lineNum">      73</span>              :         placeUnknown:         {'?', &quot;未分類&quot;, color.RGBA{R: 90, G: 90, B: 90, A: 255}},      // 灰。凡例外なので実際は既定へ落ちる</span>
+<span id="L74"><span class="lineNum">      74</span>              : }</span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span>              : // placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。</span>
+<span id="L77"><span class="lineNum">      77</span>              : // placeUnknown は分類漏れの保険なので凡例には含めない。</span>
+<span id="L78"><span class="lineNum">      78</span>              : var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placePOI}</span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              : // LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。</span>
+<span id="L81"><span class="lineNum">      81</span>              : // SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC tlaBgGNC">           1 : func LegendGlyphs() []GlyphInfo {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return append(PlaceGlyphs(), FacilityGlyphs()...)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : // PlaceGlyphs は地物種別の記号と名前を表示順で返す。UI の凡例や着色で使う。FacilityGlyphs と対で、</span>
+<span id="L87"><span class="lineNum">      87</span>              : // 施設側と同じ形で地物種別を扱えるようにする。分類漏れの保険 placeUnknown は含めない。</span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 : func PlaceGlyphs() []GlyphInfo {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         out := make([]GlyphInfo, 0, len(placeOrder))</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :         for _, k := range placeOrder {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 out = append(out, placeGlyphs[k])</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L94"><span class="lineNum">      94</span>              : }</span>
+<span id="L95"><span class="lineNum">      95</span>              : </span>
+<span id="L96"><span class="lineNum">      96</span>              : // FacilityGlyphs は施設種別の文字と名前を表示順で返す。UI の凡例や着色で建物を種別ごとに</span>
+<span id="L97"><span class="lineNum">      97</span>              : // 扱うために使う。地物レベルの記号は PlaceGlyphs が対で返す。</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 : func FacilityGlyphs() []GlyphInfo {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         out := make([]GlyphInfo, 0, len(facilityOrder))</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           2 :         for _, k := range facilityOrder {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 out = append(out, facilityGlyphs[k])</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L104"><span class="lineNum">     104</span>              : }</span>
+<span id="L105"><span class="lineNum">     105</span>              : </span>
+<span id="L106"><span class="lineNum">     106</span>              : // chunkType は1チャンクの場所の種別。全チャンクがいずれか1つに分類され、暗黙の既定を持たない。</span>
+<span id="L107"><span class="lineNum">     107</span>              : // 特徴的な地物が当たらないチャンクは消極的な「残り」でなく、明示的に荒れ地に分類される。</span>
+<span id="L108"><span class="lineNum">     108</span>              : // 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。専用の String は要らない。</span>
+<span id="L109"><span class="lineNum">     109</span>              : type chunkType string</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              : const (</span>
+<span id="L112"><span class="lineNum">     112</span>              :         chunkWasteland       chunkType = &quot;wasteland&quot;        // 荒れ地。特徴的な地物が無い開けた地形</span>
+<span id="L113"><span class="lineNum">     113</span>              :         chunkSettlement      chunkType = &quot;settlement&quot;       // 集落。村・一軒家</span>
+<span id="L114"><span class="lineNum">     114</span>              :         chunkUrban           chunkType = &quot;urban&quot;            // 市街地。建物チャンク</span>
+<span id="L115"><span class="lineNum">     115</span>              :         chunkDungeonEntrance chunkType = &quot;dungeon_entrance&quot; // 遺跡入口</span>
+<span id="L116"><span class="lineNum">     116</span>              :         chunkPOI             chunkType = &quot;poi&quot;              // 自然の点在POI</span>
+<span id="L117"><span class="lineNum">     117</span>              : )</span>
+<span id="L118"><span class="lineNum">     118</span>              : </span>
+<span id="L119"><span class="lineNum">     119</span>              : // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に</span>
+<span id="L120"><span class="lineNum">     120</span>              : // 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在POI &gt; 荒れ地。地図も生成もこの分類を</span>
+<span id="L121"><span class="lineNum">     121</span>              : // 唯一の源にするので、地図の記号と実体が食い違わない。</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           2 :         if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 return chunkUrban</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         if dungeonEntrancePlacement.At(runSeed, c, rows) {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 return chunkDungeonEntrance</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           2 :         if settlementPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 return chunkSettlement</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :         if poiPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 return chunkPOI</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         return chunkWasteland</span></span>
+<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は</span>
+<span id="L139"><span class="lineNum">     139</span>              : // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(runSeed, c, rows) {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         case chunkUrban:</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 kind, _, _ := urbanChunkInfo(runSeed, c, rows)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :                 if g, ok := facilityGlyphs[kind]; ok {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 return placeGlyphs[placeUnknown].Label</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC tlaBgGNC">           1 :         case chunkDungeonEntrance:</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placeDungeonEntrance].Label</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         case chunkSettlement:</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :                 if settlementVillageRoll(runSeed, c) {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         return placeGlyphs[placeVillage].Label</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placeHamlet].Label</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         case chunkPOI:</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placePOI].Label</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         case chunkWasteland:</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placeField].Label</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :         }</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :         return placeGlyphs[placeUnknown].Label</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : }</span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              : // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 : func SchematicLegend() string {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         glyphs := LegendGlyphs()</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, len(glyphs))</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :         for _, g := range glyphs {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 parts = append(parts, fmt.Sprintf(&quot;%c %s&quot;, g.Label, g.Name))</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;  &quot;)</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

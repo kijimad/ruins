@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.0&nbsp;%</td>
-            <td class="headerCovTableEntry">67</td>
-            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntryMed">84.6&nbsp;%</td>
+            <td class="headerCovTableEntry">78</td>
+            <td class="headerCovTableEntry">66</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 00:14:01</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,132 +71,155 @@
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // Band はアクティブ帯を管理する。アクティブ帯は K個の隣接チャンクを1連続座標空間に並べた単一マップ。</span>
-<span id="L13"><span class="lineNum">      13</span>              : //</span>
-<span id="L14"><span class="lineNum">      14</span>              : // プレイヤーは常に中央チャンクに保たれ、中央チャンクを東へ出るとシフトする。シフトは東端生成・</span>
-<span id="L15"><span class="lineNum">      15</span>              : // 西端破棄・リベースからなる。これにより帯ローカル座標は常に 0..K*chunkW に収まり、既存の単一</span>
-<span id="L16"><span class="lineNum">      16</span>              : // マップ機構を変えずに無限東進を実現する。</span>
-<span id="L17"><span class="lineNum">      17</span>              : type Band struct {</span>
-<span id="L18"><span class="lineNum">      18</span>              :         chunkW    consts.Tile  // 1チャンクの幅。構築後不変</span>
-<span id="L19"><span class="lineNum">      19</span>              :         k         consts.Chunk // 帯のチャンク数。奇数で中央チャンクを持つ。構築後不変</span>
-<span id="L20"><span class="lineNum">      20</span>              :         eastIndex consts.Chunk // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化</span>
-<span id="L21"><span class="lineNum">      21</span>              : }</span>
-<span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              : // ChunkGen は絶対チャンクインデックスの地形を帯ローカルの offsetX 位置へ生成・配置する。</span>
-<span id="L24"><span class="lineNum">      24</span>              : // 呼び出し側が引数からの決定的生成と mapspawner.SpawnAt を実装する。</span>
-<span id="L25"><span class="lineNum">      25</span>              : // worldstream を mapplanner/mapspawner に依存させないための注入点。</span>
-<span id="L26"><span class="lineNum">      26</span>              : type ChunkGen func(chunkIndex consts.Chunk, offsetX consts.Tile) error</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // NewBand は幅 chunkW、チャンク数 k の帯を eastIndex=0 で作る。k は奇数を推奨する。</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 : func NewBand(chunkW consts.Tile, k consts.Chunk) *Band {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return NewBandAt(chunkW, k, 0)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // NewBandAt は eastIndex を指定して帯を作る。セーブからの復元で使う。</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func NewBandAt(chunkW consts.Tile, k, eastIndex consts.Chunk) *Band {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return &amp;Band{chunkW: chunkW, k: k, eastIndex: eastIndex}</span></span>
+<span id="L12"><span class="lineNum">      12</span>              : // Band はアクティブ帯を管理する。アクティブ帯は横 cols 列・縦 rows 行の隣接チャンクを</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 1連続座標空間に並べた単一マップ。東西は無限にストリーミングし、南北は rows に有界で</span>
+<span id="L14"><span class="lineNum">      14</span>              : // ストリーミングしない。</span>
+<span id="L15"><span class="lineNum">      15</span>              : //</span>
+<span id="L16"><span class="lineNum">      16</span>              : // プレイヤーは常に中央チャンク列に保たれ、中央列を東へ出るとシフトする。シフトは東端列の</span>
+<span id="L17"><span class="lineNum">      17</span>              : // 生成・西端列の破棄・リベースからなる。これにより帯ローカル座標は常に 0..cols*chunkW に</span>
+<span id="L18"><span class="lineNum">      18</span>              : // 収まり、既存の単一マップ機構を変えずに無限東進を実現する。</span>
+<span id="L19"><span class="lineNum">      19</span>              : type Band struct {</span>
+<span id="L20"><span class="lineNum">      20</span>              :         chunkW    consts.Tile  // 1チャンクの幅。構築後不変</span>
+<span id="L21"><span class="lineNum">      21</span>              :         chunkH    consts.Tile  // 1チャンクの高さ。縦スロットへの配置に使う。構築後不変</span>
+<span id="L22"><span class="lineNum">      22</span>              :         cols      consts.Chunk // X方向のチャンク列数。奇数で中央チャンクを持つ。構築後不変</span>
+<span id="L23"><span class="lineNum">      23</span>              :         rows      consts.Chunk // Y方向のチャンク行数。1 なら1行の帯。構築後不変</span>
+<span id="L24"><span class="lineNum">      24</span>              :         eastIndex consts.Chunk // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化</span>
+<span id="L25"><span class="lineNum">      25</span>              : }</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // ChunkGen はチャンク座標 c の地形を帯ローカルの (offsetX, offsetY) 位置へ生成・配置する。</span>
+<span id="L28"><span class="lineNum">      28</span>              : // 呼び出し側が引数からの決定的生成と mapspawner.SpawnAt を実装する。</span>
+<span id="L29"><span class="lineNum">      29</span>              : // worldstream を mapplanner/mapspawner に依存させないための注入点。</span>
+<span id="L30"><span class="lineNum">      30</span>              : type ChunkGen func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // NewBand は幅 chunkW・高さ chunkH のチャンクを横 cols 列・縦 rows 行並べた帯を eastIndex=0 で作る。</span>
+<span id="L33"><span class="lineNum">      33</span>              : // cols は奇数を推奨する。rows=1 なら1行の帯になる。</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 : func NewBand(chunkW, chunkH consts.Tile, cols, rows consts.Chunk) *Band {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return NewBandAt(chunkW, chunkH, cols, rows, 0)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span>              : // ChunkW は1チャンクの幅を返す。</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC tlaBgUNC">           0 : func (b *Band) ChunkW() consts.Tile { return b.chunkW }</span></span>
-<span id="L40"><span class="lineNum">      40</span>              : </span>
-<span id="L41"><span class="lineNum">      41</span>              : // K は帯のチャンク数を返す。</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 : func (b *Band) K() consts.Chunk { return b.k }</span></span>
-<span id="L43"><span class="lineNum">      43</span>              : </span>
-<span id="L44"><span class="lineNum">      44</span>              : // EastIndex は東進したチャンク数を返す。帯西端チャンクの絶対インデックス。</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC tlaBgGNC">           1 : func (b *Band) EastIndex() consts.Chunk { return b.eastIndex }</span></span>
-<span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span>              : // BandOriginX は帯ローカル X=0 が指す絶対 X。</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func (b *Band) BandOriginX() consts.AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }</span></span>
-<span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span>              : // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : func (b *Band) Width() consts.Tile { return b.k.Tiles(b.chunkW) }</span></span>
-<span id="L52"><span class="lineNum">      52</span>              : </span>
-<span id="L53"><span class="lineNum">      53</span>              : // centerSlot は中央チャンクのスロット番号。K が奇数なら真ん中。</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func (b *Band) centerSlot() consts.Chunk { return b.k / 2 }</span></span>
-<span id="L55"><span class="lineNum">      55</span>              : </span>
-<span id="L56"><span class="lineNum">      56</span>              : // ShouldShiftEast はプレイヤーの帯ローカル X が中央チャンクを東へ出たかを返す。判定はヒステリシスを持つ。</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         return playerLocalX &gt;= (b.centerSlot() + 1).Tiles(b.chunkW)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : // NewBandAt は eastIndex を指定して帯を作る。セーブからの復元で使う。</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func NewBandAt(chunkW, chunkH consts.Tile, cols, rows, eastIndex consts.Chunk) *Band {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return &amp;Band{chunkW: chunkW, chunkH: chunkH, cols: cols, rows: rows, eastIndex: eastIndex}</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              : // ChunkW は1チャンクの幅を返す。</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 : func (b *Band) ChunkW() consts.Tile { return b.chunkW }</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : // Cols は帯の横のチャンク列数を返す。</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : func (b *Band) Cols() consts.Chunk { return b.cols }</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : // EastIndex は東進したチャンク数を返す。帯西端チャンクの絶対インデックス。</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 : func (b *Band) EastIndex() consts.Chunk { return b.eastIndex }</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : // BandOriginX は帯ローカル X=0 が指す絶対 X。</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func (b *Band) BandOriginX() consts.AbsTileX { return BandOriginX(b.eastIndex, b.chunkW) }</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func (b *Band) Width() consts.Tile { return b.cols.Tiles(b.chunkW) }</span></span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : // Rows は Y 方向のチャンク行数を返す。</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC tlaBgUNC">           0 : func (b *Band) Rows() consts.Chunk { return b.rows }</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              : // ShouldShiftWest はプレイヤーが中央チャンクを西へ出たかを返す。短い寄り道からの復帰時のみ使う。</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : func (b *Band) ShouldShiftWest(playerLocalX consts.Tile) bool {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return playerLocalX &lt; b.centerSlot().Tiles(b.chunkW)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span>              : // ShiftEast は帯を東へ1チャンク進める。</span>
-<span id="L67"><span class="lineNum">      67</span>              : // 西端チャンク破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端チャンク生成。</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         // 1. 西端チャンクを破棄する。前線が呑む。プレイヤーと隊員は残す</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayerAndSquad(world))</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         // 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         TranslateAllEntities(world, -b.chunkW, 0)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         // 3. 座標キー Map を追従させる。</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         b.rebaseCoordMaps(world, -b.chunkW)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         // 4. eastIndex 前進 → 新しい東端チャンクを生成・配置</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         b.eastIndex++</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         newChunkIndex := b.eastIndex + b.k - 1</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         offsetX := (b.k - 1).Tiles(b.chunkW)</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         return gen(newChunkIndex, offsetX)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L81"><span class="lineNum">      81</span>              : </span>
-<span id="L82"><span class="lineNum">      82</span>              : // ShiftWest は帯を西へ1チャンク戻す。ShiftEast の対称で、短い寄り道からの復帰時のみ使う。</span>
-<span id="L83"><span class="lineNum">      83</span>              : //</span>
-<span id="L84"><span class="lineNum">      84</span>              : // eastIndex &gt; 0 のときだけ呼ぶこと。ラン開始の eastIndex=0 より西には何も生成されておらず、</span>
-<span id="L85"><span class="lineNum">      85</span>              : // 戻ると eastIndex が負になる。誤用を黙って進めないよう先頭でガードしエラーにする。</span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 : func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           2 :         if b.eastIndex &lt;= 0 {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;ShiftWest は eastIndex &gt; 0 のときのみ呼べる: eastIndex=%d&quot;, b.eastIndex)</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L90"><span class="lineNum">      90</span>              :         // 東端チャンク破棄</span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, (b.k - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         // リベース：全エンティティを東へ chunkW</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         TranslateAllEntities(world, b.chunkW, 0)</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         b.rebaseCoordMaps(world, b.chunkW)</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         // eastIndex 後退 → 西端チャンクを生成・配置</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         b.eastIndex--</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         newChunkIndex := b.eastIndex</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         return gen(newChunkIndex, 0)</span></span>
-<span id="L99"><span class="lineNum">      99</span>              : }</span>
-<span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              : // rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。</span>
-<span id="L102"><span class="lineNum">     102</span>              : // 永続の ExploredTiles はキーを平行移動し、揮発キャッシュはクリアして次フレーム再構築させる。</span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 : func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         field := query.GetCurrentStageField(world)</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         if field == nil {</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC tlaBgGNC">           2 :         inBand := func(g gc.GridElement) bool {</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 return g.X &gt;= 0 &amp;&amp; g.X &lt; b.Width()</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L111"><span class="lineNum">     111</span>              :         // リベースは純粋な座標シフトなので、座標キーの Map はすべてキー付け替えで追従させる。</span>
-<span id="L112"><span class="lineNum">     112</span>              :         // 視界の VisibleTiles と LightSourceCache もクリアでなく付け替える。こうするとシフトと同じ</span>
-<span id="L113"><span class="lineNum">     113</span>              :         // フレームの描画で有効なまま保て、チャンク境界越え時のチラつきを防ぐ。チラつきは1フレームの</span>
-<span id="L114"><span class="lineNum">     114</span>              :         // 暗転として現れる。次フレームの VisionSystem がどのみち再計算するが、その1フレームの穴を無くす。</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         field.ExploredTiles = translateTileKeyMap(field.ExploredTiles, dx, 0, inBand)</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         vs := query.GetVisionState(world)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         vs.VisibleTiles = translateTileKeyMap(vs.VisibleTiles, dx, 0, inBand)</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         vs.LightSourceCache = translateTileKeyMap(vs.LightSourceCache, dx, 0, inBand)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L120"><span class="lineNum">     120</span>              : }</span>
-<span id="L121"><span class="lineNum">     121</span>              : </span>
-<span id="L122"><span class="lineNum">     122</span>              : // translateTileKeyMap は GridElement キーの map を dx,dy 平行移動した新しい map を返す。</span>
-<span id="L123"><span class="lineNum">     123</span>              : // keep が false を返すキーは捨てる。帯外に落ちたキーが該当する。keep が nil のときはフィルタせず全キーを通す。</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, keep func(gc.GridElement) bool) map[gc.GridElement]V {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         if src == nil {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : // Height は帯の総高。帯ローカル Y の有効範囲は [0, Height())。</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 : func (b *Band) Height() consts.Tile { return b.rows.Tiles(b.chunkH) }</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : </span>
+<span id="L64"><span class="lineNum">      64</span>              : // centerSlot は中央チャンクのスロット番号。cols が奇数なら真ん中。</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 : func (b *Band) centerSlot() consts.Chunk { return b.cols / 2 }</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span>              : // ShouldShiftEast はプレイヤーの帯ローカル X が中央チャンクを東へ出たかを返す。判定はヒステリシスを持つ。</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         return playerLocalX &gt;= (b.centerSlot() + 1).Tiles(b.chunkW)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span>              : // ShouldShiftWest はプレイヤーが中央チャンクを西へ出たかを返す。短い寄り道からの復帰時のみ使う。</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : func (b *Band) ShouldShiftWest(playerLocalX consts.Tile) bool {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         return playerLocalX &lt; b.centerSlot().Tiles(b.chunkW)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span>              : // ShiftEast は帯を東へ1チャンク進める。</span>
+<span id="L78"><span class="lineNum">      78</span>              : // 西端列の破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端列の生成。</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         // 1. 西端の列を全行破棄する。前線が呑む。プレイヤーと隊員は残す</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayerAndSquad(world))</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         // 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         TranslateAllEntities(world, -b.chunkW, 0)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         // 3. 座標キー Map を追従させる。</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         b.rebaseCoordMaps(world, -b.chunkW)</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         // 4. eastIndex 前進 → 新しい東端の列を全行生成・配置する</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         b.eastIndex++</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         newChunkX := b.eastIndex + b.cols - 1</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         offsetX := (b.cols - 1).Tiles(b.chunkW)</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :         for cy := range b.rows {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 if err := gen(consts.Coord[consts.Chunk]{X: newChunkX, Y: cy}, offsetX, cy.Tiles(b.chunkH)); err != nil {</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L94"><span class="lineNum">      94</span>              :         }</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : }</span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              : // ShiftWest は帯を西へ1チャンク戻す。ShiftEast の対称で、短い寄り道からの復帰時のみ使う。</span>
+<span id="L99"><span class="lineNum">      99</span>              : //</span>
+<span id="L100"><span class="lineNum">     100</span>              : // eastIndex &gt; 0 のときだけ呼ぶこと。ラン開始の eastIndex=0 より西には何も生成されておらず、</span>
+<span id="L101"><span class="lineNum">     101</span>              : // 戻ると eastIndex が負になる。誤用を黙って進めないよう先頭でガードしエラーにする。</span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 : func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           2 :         if b.eastIndex &lt;= 0 {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;ShiftWest は eastIndex &gt; 0 のときのみ呼べる: eastIndex=%d&quot;, b.eastIndex)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L106"><span class="lineNum">     106</span>              :         // 東端の列を全行破棄する</span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         // リベース：全エンティティを東へ chunkW</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         TranslateAllEntities(world, b.chunkW, 0)</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         b.rebaseCoordMaps(world, b.chunkW)</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         // eastIndex 後退 → 新しい西端の列を全行生成・配置する</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         b.eastIndex--</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         for cy := range b.rows {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 if err := gen(consts.Coord[consts.Chunk]{X: b.eastIndex, Y: cy}, 0, cy.Tiles(b.chunkH)); err != nil {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L117"><span class="lineNum">     117</span>              :         }</span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L119"><span class="lineNum">     119</span>              : }</span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span>              : // rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。</span>
+<span id="L122"><span class="lineNum">     122</span>              : // 永続の ExploredTiles はキーを平行移動し、揮発キャッシュはクリアして次フレーム再構築させる。</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 : func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         field := query.GetCurrentStageField(world)</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         if field == nil {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           1 :         dst := make(map[gc.GridElement]V, len(src))</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           2 :         for k, v := range src {</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 nk := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: k.X + dx, Y: k.Y + dy}}</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           2 :                 if keep != nil &amp;&amp; !keep(nk) {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L133"><span class="lineNum">     133</span>              :                 }</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 dst[nk] = v</span></span>
-<span id="L135"><span class="lineNum">     135</span>              :         }</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         return dst</span></span>
-<span id="L137"><span class="lineNum">     137</span>              : }</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           2 :         inBand := func(g gc.GridElement) bool {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return g.X &gt;= 0 &amp;&amp; g.X &lt; b.Width()</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :         // リベースは純粋な座標シフトなので、座標キーの Map はすべてキー付け替えで追従させる。</span>
+<span id="L132"><span class="lineNum">     132</span>              :         // 視界の VisibleTiles と LightSourceCache もクリアでなく付け替える。こうするとシフトと同じ</span>
+<span id="L133"><span class="lineNum">     133</span>              :         // フレームの描画で有効なまま保て、チャンク境界越え時のチラつきを防ぐ。チラつきは1フレームの</span>
+<span id="L134"><span class="lineNum">     134</span>              :         // 暗転として現れる。次フレームの VisionSystem がどのみち再計算するが、その1フレームの穴を無くす。</span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         field.ExploredTiles = translateTileKeyMap(field.ExploredTiles, dx, 0, inBand)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         vs := query.GetVisionState(world)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         vs.VisibleTiles = translateTileKeyMap(vs.VisibleTiles, dx, 0, inBand)</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         vs.LightSourceCache = translateTileKeyMap(vs.LightSourceCache, dx, 0, inBand)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         // シフトで帯ローカル座標に対する壁配置が変わるため、視界の強制再計算を要求する。</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         // これにより VisionSystem は壁配置依存のレイキャストキャッシュも破棄する</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         vs.RequestUpdate()</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L143"><span class="lineNum">     143</span>              : }</span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span>              : // translateTileKeyMap は GridElement キーの map を dx,dy 平行移動した新しい map を返す。</span>
+<span id="L146"><span class="lineNum">     146</span>              : // keep が false を返すキーは捨てる。帯外に落ちたキーが該当する。keep が nil のときはフィルタせず全キーを通す。</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, keep func(gc.GridElement) bool) map[gc.GridElement]V {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         if src == nil {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 :         dst := make(map[gc.GridElement]V, len(src))</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           2 :         for k, v := range src {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 nk := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: k.X + dx, Y: k.Y + dy}}</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           2 :                 if keep != nil &amp;&amp; !keep(nk) {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :                 }</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 dst[nk] = v</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :         }</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return dst</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : }</span>
         </pre>
               </td>
             </tr>

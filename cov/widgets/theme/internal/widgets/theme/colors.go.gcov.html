@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 00:14:01</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -172,27 +172,40 @@
 <span id="L110"><span class="lineNum">     110</span>              :         HUDWeightWarning = color.RGBA{R: 255, G: 200, B: 0, A: 255}</span>
 <span id="L111"><span class="lineNum">     111</span>              : )</span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
-<span id="L113"><span class="lineNum">     113</span>              : // ========== ステータス色 ==========</span>
+<span id="L113"><span class="lineNum">     113</span>              : // ========== オーバーワールド俯瞰図色 ==========</span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
 <span id="L115"><span class="lineNum">     115</span>              : var (</span>
-<span id="L116"><span class="lineNum">     116</span>              :         // StatusSuccess は成功色</span>
-<span id="L117"><span class="lineNum">     117</span>              :         StatusSuccess = rgb(0x198754)</span>
-<span id="L118"><span class="lineNum">     118</span>              :         // StatusDanger は危険色</span>
-<span id="L119"><span class="lineNum">     119</span>              :         StatusDanger = rgb(0xdc3545)</span>
-<span id="L120"><span class="lineNum">     120</span>              : )</span>
-<span id="L121"><span class="lineNum">     121</span>              : </span>
-<span id="L122"><span class="lineNum">     122</span>              : // ========== 属性色 ==========</span>
-<span id="L123"><span class="lineNum">     123</span>              : </span>
-<span id="L124"><span class="lineNum">     124</span>              : var (</span>
-<span id="L125"><span class="lineNum">     125</span>              :         // ElementFire は炎属性色</span>
-<span id="L126"><span class="lineNum">     126</span>              :         ElementFire = rgb(0xc44303)</span>
-<span id="L127"><span class="lineNum">     127</span>              :         // ElementThunder は雷属性色</span>
-<span id="L128"><span class="lineNum">     128</span>              :         ElementThunder = rgb(0x4169e1)</span>
-<span id="L129"><span class="lineNum">     129</span>              :         // ElementChill は冷気属性色</span>
-<span id="L130"><span class="lineNum">     130</span>              :         ElementChill = rgb(0x00ffff)</span>
-<span id="L131"><span class="lineNum">     131</span>              :         // ElementPhoton は光子属性色</span>
-<span id="L132"><span class="lineNum">     132</span>              :         ElementPhoton = rgb(0xffff00)</span>
+<span id="L116"><span class="lineNum">     116</span>              :         // OverworldMapBackground は俯瞰図の全画面背景色。彩色したチャンクを際立たせる暗い地</span>
+<span id="L117"><span class="lineNum">     117</span>              :         OverworldMapBackground = color.RGBA{R: 12, G: 14, B: 18, A: 255}</span>
+<span id="L118"><span class="lineNum">     118</span>              :         // OverworldMapGlyphText はチャンクセルに重ねる種別記号の文字色</span>
+<span id="L119"><span class="lineNum">     119</span>              :         OverworldMapGlyphText = color.RGBA{R: 20, G: 20, B: 24, A: 255}</span>
+<span id="L120"><span class="lineNum">     120</span>              :         // OverworldMapPlayerMarker は現在地セルを囲む白枠の色</span>
+<span id="L121"><span class="lineNum">     121</span>              :         OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}</span>
+<span id="L122"><span class="lineNum">     122</span>              :         // OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色</span>
+<span id="L123"><span class="lineNum">     123</span>              :         OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}</span>
+<span id="L124"><span class="lineNum">     124</span>              : )</span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span>              : // ========== ステータス色 ==========</span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span>              : var (</span>
+<span id="L129"><span class="lineNum">     129</span>              :         // StatusSuccess は成功色</span>
+<span id="L130"><span class="lineNum">     130</span>              :         StatusSuccess = rgb(0x198754)</span>
+<span id="L131"><span class="lineNum">     131</span>              :         // StatusDanger は危険色</span>
+<span id="L132"><span class="lineNum">     132</span>              :         StatusDanger = rgb(0xdc3545)</span>
 <span id="L133"><span class="lineNum">     133</span>              : )</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span>              : // ========== 属性色 ==========</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span>              : var (</span>
+<span id="L138"><span class="lineNum">     138</span>              :         // ElementFire は炎属性色</span>
+<span id="L139"><span class="lineNum">     139</span>              :         ElementFire = rgb(0xc44303)</span>
+<span id="L140"><span class="lineNum">     140</span>              :         // ElementThunder は雷属性色</span>
+<span id="L141"><span class="lineNum">     141</span>              :         ElementThunder = rgb(0x4169e1)</span>
+<span id="L142"><span class="lineNum">     142</span>              :         // ElementChill は冷気属性色</span>
+<span id="L143"><span class="lineNum">     143</span>              :         ElementChill = rgb(0x00ffff)</span>
+<span id="L144"><span class="lineNum">     144</span>              :         // ElementPhoton は光子属性色</span>
+<span id="L145"><span class="lineNum">     145</span>              :         ElementPhoton = rgb(0xffff00)</span>
+<span id="L146"><span class="lineNum">     146</span>              : )</span>
         </pre>
               </td>
             </tr>

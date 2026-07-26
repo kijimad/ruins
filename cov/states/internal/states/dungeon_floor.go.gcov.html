@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 00:14:01</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -288,7 +288,7 @@
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         // SwapTo 後は現ステージ=target なので現在地で判定する</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           2 :         if query.IsOnOverworld(world) {</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 // 地上の StageField が resume で帯寸法の Level を戻すため寸法の手復元は不要。視界だけ強制再計算する</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).NeedsForceUpdate = true</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).RequestUpdate()</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L231"><span class="lineNum">     231</span>              : </span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 00:14:01</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,17 +69,35 @@
 <span id="L7"><span class="lineNum">       7</span>              :         VisibleTiles map[GridElement]bool</span>
 <span id="L8"><span class="lineNum">       8</span>              :         // LightSourceCache は視界内タイルの光源情報。視界更新のたびに再構築される</span>
 <span id="L9"><span class="lineNum">       9</span>              :         LightSourceCache map[GridElement]LightInfo</span>
-<span id="L10"><span class="lineNum">      10</span>              :         // NeedsForceUpdate は次フレームで視界を強制再計算するフラグ。扉開閉やフロア遷移で立てる</span>
-<span id="L11"><span class="lineNum">      11</span>              :         NeedsForceUpdate bool</span>
-<span id="L12"><span class="lineNum">      12</span>              : }</span>
-<span id="L13"><span class="lineNum">      13</span>              : </span>
-<span id="L14"><span class="lineNum">      14</span>              : // NewVisionState は初期化された VisionState を返す</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC tlaBgUNC">           0 : func NewVisionState() *VisionState {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :         return &amp;VisionState{</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :                 VisibleTiles:     make(map[GridElement]bool),</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :                 LightSourceCache: make(map[GridElement]LightInfo),</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L10"><span class="lineNum">      10</span>              :         // pendingUpdate は次フレームで視界を再計算するか。遮蔽が変わる操作も変わらない操作も</span>
+<span id="L11"><span class="lineNum">      11</span>              :         // 一律に再計算を要求する。更新の強さを段階に分けず常に作り直すことで、更新種別の取り違えで</span>
+<span id="L12"><span class="lineNum">      12</span>              :         // 古い遮蔽が残り幽霊影が出る不具合を構造的に無くす。RequestUpdate で上げ ConsumePendingUpdate</span>
+<span id="L13"><span class="lineNum">      13</span>              :         // で下げる状態機械にして、生の代入で不変条件を破れないよう private にする。</span>
+<span id="L14"><span class="lineNum">      14</span>              :         pendingUpdate bool</span>
+<span id="L15"><span class="lineNum">      15</span>              : }</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // RequestUpdate は次フレームの視界再計算を要求する。</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func (vs *VisionState) RequestUpdate() {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         vs.pendingUpdate = true</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // ConsumePendingUpdate は要求された視界更新を消費する。要求が立っていれば true を返して下げ、</span>
+<span id="L23"><span class="lineNum">      23</span>              : // 無ければ false を返す。視界を再計算するかの判定に使う。</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : func (vs *VisionState) ConsumePendingUpdate() bool {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         if !vs.pendingUpdate {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         vs.pendingUpdate = false</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return true</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // NewVisionState は初期化された VisionState を返す</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func NewVisionState() *VisionState {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return &amp;VisionState{</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 VisibleTiles:     make(map[GridElement]bool),</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 LightSourceCache: make(map[GridElement]LightInfo),</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

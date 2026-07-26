@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/internal/overworld/road.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">overworld/internal/overworld</a> - road.go<span style="font-size: 80%;"> (source / <a href="road.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">79.2&nbsp;%</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">38</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-26 01:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // 道は隣接リージョンの小集落どうしを結ぶ舗装路。Connection 層の v1。</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 集落の位置は Placement.WinnerOf で生成せずに算出できるため、各チャンクは自分を</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 横切る区間だけを独立に描ける。経路は西の集落から東の集落への L 字で、端点が</span>
+<span id="L15"><span class="lineNum">      15</span>              : // リージョン順に正規化されているので、どちらのチャンクから生成しても同じ道になる。</span>
+<span id="L16"><span class="lineNum">      16</span>              : type roadFeature struct{}</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         r := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         tiles := g.tiles.get()</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         // c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :         for _, pr := range []consts.Chunk{r - 1, r} {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 a := settlementPlacement.WinnerOf(runSeed, pr, rows)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 if err := drawRoadSegments(world, tiles, a, b, c, g); err != nil {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         }</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // drawRoadSegments は集落 a の中心から b の中心への L 字経路のうち、チャンク c に</span>
+<span id="L33"><span class="lineNum">      33</span>              : // 含まれるマスだけを舗装する。既存タイルが土のマスだけを置き換え、市街地の壁や床、</span>
+<span id="L34"><span class="lineNum">      34</span>              : // 集落は壊さない。</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, c consts.Coord[consts.Chunk], g chunkGeom) error {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         ax := a.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         ay := a.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         bx := b.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         by := b.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         pave := func(px, py consts.Tile) error {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 loX := c.X.Tiles(g.chunkW)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 loY := c.Y.Tiles(g.chunkH)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :                 if px &lt; loX || px &gt;= loX+g.chunkW || py &lt; loY || py &gt;= loY+g.chunkH {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                         return nil</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 wx := g.offsetX + (px - loX)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 wy := g.offsetY + (py - loY)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 if err := replaceDirtTile(world, tiles, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;道の舗装に失敗 (x=%d, y=%d): %w&quot;, wx, wy, err)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :                 return nil</span></span>
+<span id="L53"><span class="lineNum">      53</span>              :         }</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :         for x := min(ax, bx); x &lt;= max(ax, bx); x++ {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 if err := pave(x, ay); err != nil {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L59"><span class="lineNum">      59</span>              :         }</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           2 :         for y := min(ay, by); y &lt;= max(ay, by); y++ {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 if err := pave(bx, y); err != nil {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         }</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : // replaceDirtTile は座標のタイルが土のときだけ床へ置き換える。土以外は他の地物の</span>
+<span id="L69"><span class="lineNum">      69</span>              : // 生成物なので触らない。</span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 : func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) error {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         g := gc.GridElement{Coord: pos}</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         e, ok := tiles[g]</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           2 :         if world.Components.Name.Get(e).Name != consts.TileNameDirt {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         return replaceTile(world, tiles, pos, consts.TileNameFloor)</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
