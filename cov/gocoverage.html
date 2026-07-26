@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (74.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.7%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.3%)</option>
 				
@@ -449,7 +449,7 @@
 				
 				<option value="file196">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (74.2%)</option>
 				
-				<option value="file197">github.com/kijimaD/ruins/internal/systems/frost_render.go (17.5%)</option>
+				<option value="file197">github.com/kijimaD/ruins/internal/systems/frost_render.go (16.3%)</option>
 				
 				<option value="file198">github.com/kijimaD/ruins/internal/systems/helper.go (0.0%)</option>
 				
@@ -1469,7 +1469,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -43374,6 +43374,7 @@ import (
         "sync"
 
         "github.com/hajimehoshi/ebiten/v2"
+        gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
 
@@ -43437,18 +43438,25 @@ func (sys *FrostRenderSystem) Draw(world w.World, screen *ebiten.Image) error <s
         coldZoneWest := int(sb.Front.ColdZoneWest())
         ts := int(consts.TileSize)
 
+        // 前線は動くため、いま見えているタイルにだけ霜を載せる。記憶済みタイルへ残すと
+        // 前線が去った跡に古い霜が居座り実際の位置とずれる。地形描画と同じ可視判定に揃える。
+        visible := query.GetVisionState(world).VisibleTiles
+
         for x := minX; x &lt;= maxX; x++ </span><span class="cov0" title="0">{
                 alpha, draw := frostAlpha(frontEast, coldZoneWest, int(sb.LocalToAbsX(consts.Tile(x))))
                 if !draw </span><span class="cov0" title="0">{
                         continue</span>
                 }
                 <span class="cov0" title="0">for y := minY; y &lt;= maxY; y++ </span><span class="cov0" title="0">{
-                        op := &amp;ebiten.DrawImageOptions{}
+                        if !visible[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}] </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+                        <span class="cov0" title="0">op := &amp;ebiten.DrawImageOptions{}
                         op.GeoM.Translate(float64(x*ts), float64(y*ts))
                         setTranslate(world, op, camera)
                         op.ColorScale.ScaleAlpha(alpha)
-                        screen.DrawImage(frostTileImage, op)
-                }</span>
+                        screen.DrawImage(frostTileImage, op)</span>
+                }
         }
         <span class="cov0" title="0">return nil</span>
 }
