@@ -26,6 +26,7 @@ func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]
 	rooms := SubdivideBuilding(footprint, seed)
 	attachEntrance(rooms, footprint, door)
 
+	aged := buildingAged(seed) // 経年は建物ごとに1つ。全室が揃って新品か廃墟になる
 	placed := make([]Placed, 0, len(rooms)*8)
 	for rank, ri := range roomOrderByArea(rooms) {
 		content := backRoomContent(facility)
@@ -34,7 +35,9 @@ func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]
 		}
 		roomSeed := childSeed(seed, 300+ri)
 		p := FillRoom(roomSeed, rooms[ri], content)
-		p = Age(roomSeed, rooms[ri], p)
+		if aged {
+			p = Age(roomSeed, rooms[ri], p)
+		}
 		p = Flavor(roomSeed, rooms[ri], p, facilityFlavor(facility))
 		placed = append(placed, p...)
 	}

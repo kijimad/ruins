@@ -11,10 +11,52 @@ package interior
 func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
 	placed := FillRoom(seed, room, facilityContent(facility, seed))
-	// 時間の層。略奪・生活痕・廃墟化で瓦礫や破片を刻み、新品でなく打ち捨てられた見た目にする
-	placed = Age(seed, room, placed)
+	// 時間の層。経年した建物だけ略奪・生活痕・廃墟化で瓦礫や破片を刻む。手つかずの建物は新品のまま
+	if buildingAged(seed) {
+		placed = Age(seed, room, placed)
+	}
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
 	return Flavor(seed, room, placed, facilityFlavor(facility))
+}
+
+// buildingAged は建物が経年しているかを seed で決める。多くは荒れているが、時々手つかずの建物がある。
+// 損傷を建物ごとの独立軸にし、全建物が一律に廃墟化して単調になるのを避ける。
+func buildingAged(seed uint64) bool {
+	// pristine 1 : aged 2。3棟に1棟は新品同様
+	return childSeed(seed, 11_000_000)%3 != 0
+}
+
+// scaleDensity は建物の家具量を密度プロファイルで増減する。疎・普通・密を seed で引き、家具の個数を掛ける。
+// 個数1の必須什器は1を保ち、詰め物の棚だけが増減する。密度プロファイルを直交軸にして、同じ内装でも
+// がらんとした店と品で埋まった店を出し分ける。
+func scaleDensity(c Content, seed uint64) Content {
+	factors := []int{6, 10, 14} // ×/10。疎・普通・密
+	f := factors[int(childSeed(seed, 10_000_000)%uint64(len(factors)))]
+	if f == 10 {
+		return c
+	}
+	for gi := range c.Groups {
+		for ii := range c.Groups[gi].Items {
+			it := &c.Groups[gi].Items[ii]
+			if it.Kind != KindFurniture {
+				continue // 家具だけ密度を変える。戦利品・装飾はそのまま
+			}
+			it.Amount.Base = scaleAmount(it.Amount.Base, f)
+			it.Amount.Bonus = scaleAmount(it.Amount.Bonus, f)
+		}
+	}
+	return c
+}
+
+// scaleAmount は個数を f/10 倍する。元が1以上なら最低1を保ち、必須の1個が密度で消えないようにする。
+func scaleAmount(v, f int) int {
+	if v <= 0 {
+		return v
+	}
+	if s := v * f / 10; s >= 1 {
+		return s
+	}
+	return 1
 }
 
 // facilityFlavor は建物へ足す flavor machine の Content。廃墟に残る生活の痕を PickOne で1つ選ぶので、
@@ -50,7 +92,8 @@ func candleCircle() Stuff {
 // 組み替えだけでデータを足さずに増やす。変種の seed は本体生成と別枠にして相関を避ける。
 func facilityContent(facility string, seed uint64) Content {
 	variants := facilityVariants(facility)
-	return variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
+	c := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
+	return scaleDensity(c, seed)
 }
 
 // facilityVariants は施設種別ごとの内装変種の一覧。骨董品店は商店、研究施設は診療所へ寄せ、未知は汎用に

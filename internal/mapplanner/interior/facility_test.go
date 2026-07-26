@@ -21,6 +21,34 @@ func TestFurnish_施設種別ごとに決定的に内装を返す(t *testing.T) 
 	}
 }
 
+// TestFurnish_密度と経年が建物ごとに変わる は密度プロファイルと経年 condition の直交軸を固定する。seed を
+// 振ると家具の数がばらつき、経年した建物と手つかずの建物の両方が出る。同じ施設でも建物ごとに違って見える。
+func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 18, H: 14}
+	door := Vec{X: 9, Y: 13}
+	counts := make(map[int]bool)
+	aged, pristine := false, false
+	for seed := range uint64(30) {
+		if buildingAged(seed) {
+			aged = true
+		} else {
+			pristine = true
+		}
+		n := 0
+		for _, p := range Furnish(seed, footprint, door, "store") {
+			if p.Kind == KindFurniture {
+				n++
+			}
+		}
+		counts[n] = true
+	}
+	assert.GreaterOrEqual(t, len(counts), 3, "密度と抽選で家具数が建物ごとにばらつく")
+	assert.True(t, aged, "経年した建物が出る")
+	assert.True(t, pristine, "手つかずの建物も出る")
+}
+
 // TestFacilityContent_seedで店の変種が変わる は content 変種の抽選を固定する。seed を振ると同じ店でも
 // コンビニ・薬局・食料品店の別々の内装が出て、いずれも店として分類される。データを足さず配合を変える
 // 変種で、同じ施設種別に多様性が出ることを守る。
