@@ -18,16 +18,17 @@ func SubdivideBuilding(footprint Rect, seed uint64) []Room {
 	return rooms
 }
 
-// FurnishBuilding は建物外殻を多部屋へ割り、部屋ごとに内装を敷いて、内部間仕切りのタイルと配置を返す。
-// 面積最大の部屋を施設の主室、残りを奥室にして、店なら売り場＋倉庫、民家なら居間＋寝室、の構造にする。
-// door は外殻の入口で、それに面する部屋へ戸口として足し、家具が入口を塞がないようにする。各室に時間の層と
-// flavor も掛ける。
-func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]Vec, []Placed) {
+// FurnishBuilding は建物外殻を多部屋へ割り、部屋ごとに内装を敷いて、役割付きの部屋と配置を返す。面積最大の
+// 部屋を施設の主室、残りを奥室にして、店なら売り場＋倉庫、民家なら居間＋寝室、の構造にする。door は外殻の
+// 入口で、それに面する部屋へ戸口として足し、家具が入口を塞がないようにする。各室に時間の層と flavor も掛ける。
+// 呼び出し側は返す部屋から InternalWalls で間仕切りタイルを導き、配置を spawn する。
+func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]HouseRoom, []Placed) {
 	rooms, roles := planRooms(footprint, seed, facility)
 	attachEntrance(rooms, footprint, door)
 
 	aged := buildingAged(seed) // 経年は建物ごとに1つ。全室が揃って新品か廃墟になる
 	placed := make([]Placed, 0, len(rooms)*8)
+	labeled := make([]HouseRoom, len(rooms))
 	for i := range rooms {
 		roomSeed := childSeed(seed, 300+i)
 		p := FillRoom(roomSeed, rooms[i], roleContent(facility, roles[i], seed))
@@ -36,8 +37,18 @@ func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]
 		}
 		p = Flavor(roomSeed, rooms[i], p, facilityFlavor(facility))
 		placed = append(placed, p...)
+		labeled[i] = HouseRoom{Room: rooms[i], Role: roles[i]}
 	}
-	return internalWalls(footprint, rooms, door), placed
+	return labeled, placed
+}
+
+// InternalWalls は役割付き部屋から建物内部の間仕切りタイルを返す。overworld が壁タイルを描くのに使う。
+func InternalWalls(footprint Rect, rooms []HouseRoom, door Vec) []Vec {
+	plain := make([]Room, len(rooms))
+	for i, r := range rooms {
+		plain[i] = r.Room
+	}
+	return internalWalls(footprint, plain, door)
 }
 
 // planRooms は施設に応じて部屋群と各部屋の役割を返す。民家は廊下型の PlanHouse を使い、玄関・廊下・居間・
@@ -45,7 +56,7 @@ func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]
 // 足りない小さな footprint は BSP へ落とす。実経路のこの分岐が、VRT で見た綺麗な間取りを in-game でも出す。
 func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) {
 	if facility == facHouse && footprint.W >= 24 && footprint.H >= 16 {
-		plan := PlanHouse(footprint, seed)
+		plan := PlanHouseAny(footprint, seed)
 		rooms := make([]Room, len(plan))
 		roles := make([]string, len(plan))
 		for i, hr := range plan {

@@ -55,7 +55,8 @@ func furnishBuilding(world w.World, g chunkGeom, shell buildingShell, fac facili
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
 	footprint := interior.Rect{X: int(shell.bx), Y: int(shell.by), W: int(shell.bw), H: int(shell.bh)}
 	door := interior.Vec{X: int(shell.doorX), Y: int(shell.doorY)}
-	walls, placed := interior.FurnishBuilding(iseed, footprint, door, string(fac))
+	rooms, placed := interior.FurnishBuilding(iseed, footprint, door, string(fac))
+	walls := interior.InternalWalls(footprint, rooms, door)
 
 	tiles := g.tiles.get()
 	occupied := make(map[consts.Coord[consts.Tile]]bool)

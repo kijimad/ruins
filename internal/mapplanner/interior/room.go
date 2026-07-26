@@ -21,11 +21,6 @@ func (r Rect) center() Vec {
 	return Vec{X: r.X + r.W/2, Y: r.Y + r.H/2}
 }
 
-// isPerimeter は v が矩形の外周(壁になる縁)かを返す。
-func (r Rect) isPerimeter(v Vec) bool {
-	return v.X == r.X || v.X == r.X+r.W-1 || v.Y == r.Y || v.Y == r.Y+r.H-1
-}
-
 // interiorTiles は外周の壁を除いた内側の床タイルを、y→x の固定順で返す。map を使わず順序を決定的にする。
 func (r Rect) interiorTiles() []Vec {
 	out := make([]Vec, 0, (r.W-2)*(r.H-2))
