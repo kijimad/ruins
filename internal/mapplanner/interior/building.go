@@ -18,7 +18,7 @@ func SplitBuilding(footprint Rect, seed uint64) []Room {
 		rooms[i] = Room{Rect: r}
 	}
 	connectRooms(rooms, seed)
-	addEntrance(footprint, rooms, seed)
+	addEntrance(footprint, rooms)
 	return rooms
 }
 
@@ -105,7 +105,7 @@ func sharedRow(a, b Rect) (int, bool) {
 }
 
 // addEntrance は footprint 下辺の中央に近い部屋へ建物入口を開ける。外から屋内への戸口。
-func addEntrance(footprint Rect, rooms []Room, seed uint64) {
+func addEntrance(footprint Rect, rooms []Room) {
 	bottom := footprint.Y + footprint.H - 1
 	cx := footprint.X + footprint.W/2
 	best := -1
@@ -130,8 +130,65 @@ func addEntrance(footprint Rect, rooms []Room, seed uint64) {
 	if ex <= rr.X || ex >= rr.X+rr.W-1 {
 		ex = rr.X + rr.W/2
 	}
-	_ = seed
 	rooms[best].Doorways = append(rooms[best].Doorways, Doorway{X: ex, Y: bottom})
+}
+
+// onFootprintEdge は戸口が footprint の外周上にあるかを返す。部屋どうしの共有壁は footprint の内側に
+// あるので、外周上の戸口は建物入口だけになる。これで入口を持つ部屋を一意に特定できる。
+func onFootprintEdge(footprint Rect, d Doorway) bool {
+	return d.X == footprint.X || d.X == footprint.X+footprint.W-1 ||
+		d.Y == footprint.Y || d.Y == footprint.Y+footprint.H-1
+}
+
+// roomDepths は建物入口を持つ部屋を起点に、戸口グラフ上の各部屋の入口からの距離を BFS で返す。
+// これがゾーン分類の基礎で、距離 0 は入口の間、距離が増えるほど奥まった私的な部屋になる。手前を公共、
+// 奥を私的とする住居の動線を、面積という幾何量でなく到達構造という位相量で表す。入口が無い、または
+// 入口から孤立した部屋の距離は -1 にする。SplitBuilding は全部屋を連結するので通常 -1 は出ない。
+func roomDepths(footprint Rect, rooms []Room) []int {
+	depths := make([]int, len(rooms))
+	for i := range depths {
+		depths[i] = -1
+	}
+
+	start := -1
+	for i, r := range rooms {
+		for _, d := range r.Doorways {
+			if onFootprintEdge(footprint, d) {
+				start = i
+				break
+			}
+		}
+		if start >= 0 {
+			break
+		}
+	}
+	if start < 0 {
+		return depths
+	}
+
+	// 戸口タイルからそれを共有する部屋群を引く。内部戸口は2部屋、入口は1部屋が持つ
+	doorRooms := make(map[Vec][]int)
+	for i, r := range rooms {
+		for _, d := range r.Doorways {
+			doorRooms[Vec(d)] = append(doorRooms[Vec(d)], i)
+		}
+	}
+
+	depths[start] = 0
+	queue := []int{start}
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		for _, d := range rooms[cur].Doorways {
+			for _, nb := range doorRooms[Vec(d)] {
+				if depths[nb] < 0 {
+					depths[nb] = depths[cur] + 1
+					queue = append(queue, nb)
+				}
+			}
+		}
+	}
+	return depths
 }
 
 // --- union-find ---

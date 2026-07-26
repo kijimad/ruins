@@ -109,40 +109,46 @@ func TestGolden_InteriorHouseBuilding(t *testing.T) {
 	rooms := SplitBuilding(footprint, seed)
 	require.GreaterOrEqual(t, len(rooms), 3, "footprint が複数部屋に割れる")
 
-	placed := fillBuilding(seed, rooms)
+	placed := fillBuilding(seed, footprint, rooms)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, placed))
 }
 
-// fillBuilding は建物の各部屋へ面積順で役割 content を割り当て、部屋ごとに FillRoom を回して全配置を
-// 集める。大部屋を居間、次を寝室、と割ることで、器の汎用性を建物スケールでも示す。部屋数が役割数を
-// 超えたら末尾の物置を繰り返す。
-func fillBuilding(seed uint64, rooms []Room) []Placed {
+// fillBuilding は建物の各部屋へ入口からの距離順で役割 content を割り当て、部屋ごとに FillRoom を回して
+// 全配置を集める。手前を玄関ホール・居間、奥を寝室・物置と割ることで、住居の動線に沿った建物になる。
+// 部屋数が役割数を超えたら末尾の物置を繰り返す。
+func fillBuilding(seed uint64, footprint Rect, rooms []Room) []Placed {
 	contents := houseRoleContents()
 	all := make([]Placed, 0, len(rooms)*8)
-	for rank, ri := range roomOrderByArea(rooms) {
+	for rank, ri := range roomOrderByZone(footprint, rooms) {
 		c := contents[min(rank, len(contents)-1)]
 		all = append(all, FillRoom(childSeed(seed, 500+ri), rooms[ri], c)...)
 	}
 	return all
 }
 
-// roomOrderByArea は部屋を面積降順の添字列で返す。役割割り当てで大部屋を居間などに充てるための代理指標。
-func roomOrderByArea(rooms []Room) []int {
+// roomOrderByZone は入口からの距離を主キー、面積を副キーに部屋の添字を並べる。手前ほど公共、奥ほど
+// 私的、という住居の動線に沿って役割を割り当てるための順序。同じ距離の層では大きい部屋を先にして、
+// 公共の間ほど広く取る住居の傾向に寄せる。
+func roomOrderByZone(footprint Rect, rooms []Room) []int {
+	depths := roomDepths(footprint, rooms)
 	idx := make([]int, len(rooms))
 	for i := range idx {
 		idx[i] = i
 	}
 	sort.SliceStable(idx, func(a, b int) bool {
+		if depths[idx[a]] != depths[idx[b]] {
+			return depths[idx[a]] < depths[idx[b]]
+		}
 		ra, rb := rooms[idx[a]].Rect, rooms[idx[b]].Rect
 		return ra.W*ra.H > rb.W*rb.H
 	})
 	return idx
 }
 
-// houseRoleContents は民家の部屋役割ごとの content。面積降順に居間・台所・寝室・寝室・物置・玄関ホールを
-// 割り当てる。ゾーン分類は entrance からの BFS 距離で決めるのが doc の後続 Stage で、ここでは面積順を
-// 暫定の代理指標に使う。部屋が役割数を超えたら末尾の玄関ホールを繰り返す。
+// houseRoleContents は民家の部屋役割を入口から奥への順で並べた content。玄関ホール・居間・台所・寝室・
+// 寝室・物置の順に、roomOrderByZone の距離順へそのまま対応させる。手前は公共、奥は私的という動線を
+// content 側の並びで表す。部屋が役割数を超えたら末尾の物置を繰り返す。
 func houseRoleContents() []Content {
 	bedroom := Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
@@ -152,6 +158,12 @@ func houseRoleContents() []Content {
 		}},
 	}}
 	return []Content{
+		{ID: "entryhall", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
+			}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
+		}},
 		{ID: "living", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "table", Placement: PlaceCenter, Amount: Dice{Bonus: 1}},
@@ -174,12 +186,6 @@ func houseRoleContents() []Content {
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "barrel", Placement: PlaceRow, Amount: Dice{Bonus: 5}},
 			}},
-		}},
-		{ID: "entryhall", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
-			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
 		}},
 	}
 }

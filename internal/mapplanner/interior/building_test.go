@@ -54,6 +54,32 @@ func TestSplitBuilding_部屋がfootprint内に収まり重ならない(t *testi
 	}
 }
 
+// TestRoomDepths_入口が距離0で全室が到達可能 はゾーン分類の基礎を固定する。入口の間はちょうど1室で
+// 距離 0、全室が入口から到達できて距離が非負、入口より奥の部屋が必ず存在する。役割割り当てはこの距離
+// 順に乗るので、ここが崩れると玄関ホールが奥に、寝室が入口に来るといった動線の破綻になる。
+func TestRoomDepths_入口が距離0で全室が到達可能(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
+	for seed := range uint64(30) {
+		rooms := SplitBuilding(footprint, seed)
+		depths := roomDepths(footprint, rooms)
+
+		zeros, maxDepth := 0, 0
+		for _, d := range depths {
+			require.GreaterOrEqualf(t, d, 0, "seed=%d では全室が入口から到達でき距離が非負", seed)
+			if d == 0 {
+				zeros++
+			}
+			if d > maxDepth {
+				maxDepth = d
+			}
+		}
+		assert.Equalf(t, 1, zeros, "seed=%d では入口の間がちょうど1室", seed)
+		assert.Positivef(t, maxDepth, "seed=%d では入口より奥の部屋が存在する", seed)
+	}
+}
+
 // allRoomsConnected は戸口を共有する部屋を隣接とみなし、0 番から BFS で全部屋に届くかを確かめる。
 func allRoomsConnected(rooms []Room) bool {
 	doorRooms := make(map[Vec][]int)
