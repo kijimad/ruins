@@ -23,25 +23,63 @@ func SubdivideBuilding(footprint Rect, seed uint64) []Room {
 // door は外殻の入口で、それに面する部屋へ戸口として足し、家具が入口を塞がないようにする。各室に時間の層と
 // flavor も掛ける。
 func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]Vec, []Placed) {
-	rooms := SubdivideBuilding(footprint, seed)
+	rooms, roles := planRooms(footprint, seed, facility)
 	attachEntrance(rooms, footprint, door)
 
 	aged := buildingAged(seed) // 経年は建物ごとに1つ。全室が揃って新品か廃墟になる
 	placed := make([]Placed, 0, len(rooms)*8)
-	for rank, ri := range roomOrderByArea(rooms) {
-		content := backRoomContent(facility)
-		if rank == 0 {
-			content = facilityContent(facility, seed) // 面積最大を主室にする
-		}
-		roomSeed := childSeed(seed, 300+ri)
-		p := FillRoom(roomSeed, rooms[ri], content)
+	for i := range rooms {
+		roomSeed := childSeed(seed, 300+i)
+		p := FillRoom(roomSeed, rooms[i], roleContent(facility, roles[i], seed))
 		if aged {
-			p = Age(roomSeed, rooms[ri], p)
+			p = Age(roomSeed, rooms[i], p)
 		}
-		p = Flavor(roomSeed, rooms[ri], p, facilityFlavor(facility))
+		p = Flavor(roomSeed, rooms[i], p, facilityFlavor(facility))
 		placed = append(placed, p...)
 	}
 	return internalWalls(footprint, rooms, door), placed
+}
+
+// planRooms は施設に応じて部屋群と各部屋の役割を返す。民家は廊下型の PlanHouse を使い、玄関・廊下・居間・
+// 寝室・水回りの believable な間取りにする。ほかは BSP で割り、面積最大を主室、残りを奥室にする。PlanHouse に
+// 足りない小さな footprint は BSP へ落とす。実経路のこの分岐が、VRT で見た綺麗な間取りを in-game でも出す。
+func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) {
+	if facility == facHouse && footprint.W >= 24 && footprint.H >= 16 {
+		plan := PlanHouse(footprint, seed)
+		rooms := make([]Room, len(plan))
+		roles := make([]string, len(plan))
+		for i, hr := range plan {
+			rooms[i] = hr.Room
+			roles[i] = hr.Role
+		}
+		return rooms, roles
+	}
+	rooms := SubdivideBuilding(footprint, seed)
+	roles := make([]string, len(rooms))
+	for rank, ri := range roomOrderByArea(rooms) {
+		if rank == 0 {
+			roles[ri] = "main"
+		} else {
+			roles[ri] = "back"
+		}
+	}
+	return rooms, roles
+}
+
+// roleContent は役割から content を引く。main は施設の内装、back は施設別の奥室、それ以外は PlanHouse が
+// 付ける民家の役割別 content。役割名は planRooms が付ける。
+func roleContent(facility, role string, seed uint64) Content {
+	switch role {
+	case "main":
+		return facilityContent(facility, seed)
+	case "back":
+		return backRoomContent(facility)
+	default:
+		if c, ok := houseRoomContents()[role]; ok {
+			return c
+		}
+		return backRoomContent(facility)
+	}
 }
 
 // attachEntrance は外殻の入口 door に面する部屋を見つけ、その部屋へ door を戸口として足す。家具が入口を
@@ -116,9 +154,9 @@ func roomOrderByArea(rooms []Room) []int {
 // 使い回すので新しい content 語彙は要らない。
 func backRoomContent(facility string) Content {
 	switch facility {
-	case "house":
+	case facHouse:
 		return bedroomContent()
-	case "clinic", "lab":
+	case facClinic, facLab:
 		return examRoomContent()
 	default:
 		return depotContent()
@@ -144,4 +182,67 @@ func examRoomContent() Content {
 			{Kind: KindFurniture, Ref: "medcabinet", Amount: Dice{Bonus: 1}},
 		}},
 	}}
+}
+
+// houseRoomContents は民家の部屋役割ごとの content を役割名で引く表。PlanHouse が決めた役割へ中身を
+// 対応させる。廊下はほぼ空けて通路とし、玄関は下足入れと観葉、水回りは各機能の什器を置く。狭い部屋が
+// 多いので個数は控えめにする。VRT の renderHousePlan と in-game の FurnishBuilding が同じ表を共有し、
+// 見た目と生成の乖離を防ぐ。
+func houseRoomContents() map[string]Content {
+	bedroom := Content{ID: "bedroom", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
+		}},
+	}}
+	return map[string]Content{
+		"genkan": {ID: "genkan", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
+			}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
+		}},
+		"corridor": {ID: "corridor", Groups: []Group{
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}}}},
+		}},
+		"living": {ID: "living", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "sofa", Amount: Dice{Bonus: 1}},
+				diningTable(PlaceCenter),
+				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 2}},
+			}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
+		}},
+		"kitchen": {ID: "kitchen", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "table", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "pantry", Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
+			}},
+		}},
+		"bedroom": bedroom,
+		"dressing": {ID: "dressing", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "washer", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "sink", Amount: Dice{Bonus: 1}},
+			}},
+		}},
+		"bath": {ID: "bath", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "bathtub", Amount: Dice{Bonus: 1}},
+			}},
+		}},
+		"toilet": {ID: "toilet", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "toilet", Amount: Dice{Bonus: 1}},
+			}},
+		}},
+		"storage": {ID: "storage", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "barrel", Amount: Dice{Bonus: 2}},
+			}},
+		}},
+	}
 }

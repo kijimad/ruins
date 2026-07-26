@@ -16,16 +16,25 @@ import (
 func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 	t.Parallel()
 
-	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
+	// 単室 Furnish と多部屋 FurnishBuilding の両経路をなめる。多部屋は民家の水回りなど別の家具を出すので
+	// 両方を検査しないと写像漏れを見逃す
+	small := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
+	big := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 10, Y: 13}
-	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
-		for _, p := range interior.Furnish(1, footprint, door, fac) {
+	bigDoor := interior.Vec{X: 14, Y: 0}
+	check := func(fac string, placed []interior.Placed) {
+		for _, p := range placed {
 			if p.Kind != interior.KindFurniture {
 				continue
 			}
 			_, ok := interiorPropRaw[p.Ref]
 			assert.Truef(t, ok, "施設 %q の家具 %q は interiorPropRaw に写像を持つ", fac, p.Ref)
 		}
+	}
+	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
+		check(fac, interior.Furnish(1, small, door, fac))
+		_, placed := interior.FurnishBuilding(1, big, bigDoor, fac)
+		check(fac, placed)
 	}
 }
 

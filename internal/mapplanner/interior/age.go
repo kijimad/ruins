@@ -31,7 +31,7 @@ func applyWear(seed uint64, room Room, placed []Placed) []Placed {
 	occupied := occupiedSet(placed)
 	added := make([]Placed, 0)
 	for i, p := range placed {
-		if p.Kind != KindFurniture || !dropChance(childSeed(seed, i), 0, 35) {
+		if p.Kind != KindFurniture || !dropChance(childSeed(seed, i), 0, 18) {
 			continue
 		}
 		for _, n := range neighbors4(p.Pos) {
@@ -51,7 +51,7 @@ func applyDecay(seed uint64, room Room, placed []Placed) []Placed {
 	rubble := make(map[Vec]bool)
 	// 種。壁際 かつ hash が低いタイル。露出の高い縁から朽ちる
 	for _, t := range room.Rect.interiorTiles() {
-		if nextToPerimeter(room.Rect, t) && norm01(hashTile(seed, t)) < 0.28 {
+		if nextToPerimeter(room.Rect, t) && norm01(hashTile(seed, t)) < 0.14 {
 			rubble[t] = true
 		}
 	}

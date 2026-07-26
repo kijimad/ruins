@@ -33,6 +33,8 @@ var interiorPropRaw = map[string]string{
 	"sofa":          "sofa",
 	"closet":        "closet",
 	"lantern":       "lantern",
+	"plant":         "plant",
+	"washer":        "washer",
 	"pantry":        "dish_shelf",
 	"barrel":        "barrel",
 	"bathtub":       "bathtub",

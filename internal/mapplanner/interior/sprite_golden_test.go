@@ -293,69 +293,6 @@ func roomOrderByZone(footprint Rect, rooms []Room) []int {
 	return idx
 }
 
-// houseRoomContents は民家の部屋役割ごとの content を役割名で引く表。PlanHouse が決めた役割へ中身を
-// 対応させる。廊下はほぼ空けて通路とし、玄関は下足入れと観葉、水回りは各機能の什器を置く。狭い部屋が
-// 多いので個数は控えめにし、FillRoom が入る分だけ置く。
-func houseRoomContents() map[string]Content {
-	// 置き方は archetype 既定に任せ、レシピは Ref と個数だけ言う。ベッドは奥・棚やランタンは壁際、と
-	// いった家具型の自然な置き方が施設をまたいで揃う。廊下の観葉だけ既定の全域でなく奥へ寄せる例外。
-	bedroom := Content{ID: "bedroom", Groups: []Group{
-		{Style: PickEach, Items: []Stuff{
-			{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
-			{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
-			{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
-		}},
-	}}
-	return map[string]Content{
-		"genkan": {ID: "genkan", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
-			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
-		}},
-		"corridor": {ID: "corridor", Groups: []Group{
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}}}},
-		}},
-		"living": {ID: "living", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "sofa", Amount: Dice{Bonus: 1}},
-				diningTable(PlaceCenter),
-				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 2}},
-			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
-		}},
-		"kitchen": {ID: "kitchen", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "table", Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "pantry", Amount: Dice{Bonus: 3}},
-				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
-			}},
-		}},
-		"bedroom": bedroom,
-		"dressing": {ID: "dressing", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "washer", Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "sink", Amount: Dice{Bonus: 1}},
-			}},
-		}},
-		"bath": {ID: "bath", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "bathtub", Amount: Dice{Bonus: 1}},
-			}},
-		}},
-		"toilet": {ID: "toilet", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "toilet", Amount: Dice{Bonus: 1}},
-			}},
-		}},
-		"storage": {ID: "storage", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "barrel", Amount: Dice{Bonus: 2}},
-			}},
-		}},
-	}
-}
 
 // clinicRoleContents は診療所の部屋役割を入口から奥への順で並べた content。待合と受付・診察室・診察室・
 // 診察室・備品室の順に対応させる。手前は患者が留まる待合と受付、奥は診察と備品という診療所の動線を

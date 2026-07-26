@@ -12828,6 +12828,30 @@ spriteKey = "debris"
 spriteSheetName = "field"
 
 [[props]]
+blockPass = false
+blockView = false
+description = "鉢植えの観葉植物。緑を添える室内の装飾"
+hp = 3
+name = "plant"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "houseplants"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "白い前面投入式の洗濯機。脱衣所の水回り什器"
+hp = 15
+name = "washer"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "wash_machine_empty"
+spriteSheetName = "field"
+
+[[props]]
 blockPass = true
 blockView = false
 description = "茶色のオフィス回転椅子。背もたれと脚付き。机まわりに"

@@ -5,6 +5,13 @@ package interior
 // 決定的に返る。戦利品(KindLoot)は content に含むが、spawn するかは呼び出し側が選ぶ。urban の v1 は
 // 家具と装飾だけを置き、施設固有の戦利品はアイテム設計が固まってから足す。
 
+// 施設種別名。overworld の facilityType の文字列と揃える。switch の case で繰り返すので定数にする。
+const (
+	facHouse  = "house"
+	facClinic = "clinic"
+	facLab    = "lab"
+)
+
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。overworld の建物外殻を
 // 内装で満たすための公開入口で、doc 69 の Feature 層が建物ではこの器を呼ぶ。未知の施設種別は汎用の
 // 内装にする。footprint は外周が壁の1部屋とみなし、door はその外周上の入口。
@@ -100,13 +107,13 @@ func facilityContent(facility string, seed uint64) Content {
 // する。変種を足すときはここへ Content を加えるだけでよい。
 func facilityVariants(facility string) []Content {
 	switch facility {
-	case "house":
+	case facHouse:
 		return []Content{houseContent(), studioContent()}
 	case "store":
 		return []Content{storeContent(), pharmacyContent(), groceryContent()}
 	case "antique":
 		return []Content{storeContent()}
-	case "clinic", "lab":
+	case facClinic, facLab:
 		return []Content{clinicContent()}
 	case "office":
 		return []Content{officeContent()}
