@@ -36,7 +36,7 @@ func pickEach(rng *rand.Rand, items []Stuff) []Selection {
 			continue
 		}
 		if n := it.Amount.roll(rng); n > 0 {
-			out = append(out, Selection{Kind: it.Kind, Ref: it.Ref, Count: n})
+			out = append(out, selectionOf(it, n))
 		}
 	}
 	return out
@@ -56,9 +56,14 @@ func pickDistinct(rng *rand.Rand, items []Stuff, n int) []Selection {
 		if count <= 0 {
 			count = 1
 		}
-		out = append(out, Selection{Kind: it.Kind, Ref: it.Ref, Count: count})
+		out = append(out, selectionOf(it, count))
 	}
 	return out
+}
+
+// selectionOf は Stuff と個数から Selection を組む。placement 段が要る Placement もここで引き継ぐ。
+func selectionOf(it Stuff, count int) Selection {
+	return Selection{Kind: it.Kind, Ref: it.Ref, Count: count, Placement: it.Placement}
 }
 
 // weightedIndex は重みに比例して1つの添字を選ぶ。重み0は1とみなす。

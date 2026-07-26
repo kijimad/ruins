@@ -38,13 +38,14 @@ type Dice struct {
 	Bonus int
 }
 
-// Stuff は1つの配置指示。Stage 1 では「何を・いくつ」だけを持つ。どこへ置くか(placement)は後続 Stage。
+// Stuff は1つの配置指示。何を・いくつ・どこへ置くか。
 type Stuff struct {
-	Kind   StuffKind
-	Ref    string // 家具型や戦利品テーブルの参照名
-	Weight int    // PickOne / PickN の抽選重み。0 は 1 とみなす
-	Chance int    // 0..100。PickEach でこの Stuff を置く確率。0 以下は常置
-	Amount Dice   // 置く個数
+	Kind      StuffKind
+	Ref       string    // 家具型や戦利品テーブルの参照名
+	Weight    int       // PickOne / PickN の抽選重み。0 は 1 とみなす
+	Chance    int       // 0..100。PickEach でこの Stuff を置く確率。0 以下は常置
+	Amount    Dice      // 置く個数
+	Placement Placement // どこへ置くか。空なら PlaceFullArea 相当
 }
 
 // Group は抽選単位の束。Style で保証セットとランダム充填を分ける。
@@ -61,9 +62,10 @@ type Content struct {
 	Groups []Group
 }
 
-// Selection は解決済みの1配置。Group 解決の結果で、まだ座標を持たない。placement 段が座標を与える。
+// Selection は解決済みの1配置指示。Group 解決の結果で、まだ座標を持たない。placement 段が座標を与える。
 type Selection struct {
-	Kind  StuffKind
-	Ref   string
-	Count int
+	Kind      StuffKind
+	Ref       string
+	Count     int
+	Placement Placement
 }
