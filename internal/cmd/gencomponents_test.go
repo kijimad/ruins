@@ -13,7 +13,7 @@ import (
 
 // TestGenerateComponents_Golden は登録表からの生成結果を、ゴールデンである
 // コミット済み components_gen.go と突き合わせる。テンプレートや登録表の変更が
-// 生成物に反映されていること（再生成漏れの検出）をローカルの make test で確認する。
+// 生成物に反映されていることをローカルの make test で確認し、再生成漏れを検出する。
 // generateComponents は format.Source を通すため、Goとして妥当でなければ require.NoError で落ちる。
 func TestGenerateComponents_Golden(t *testing.T) {
 	t.Parallel()

@@ -14,10 +14,13 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// captureOutput はos.Stdoutの出力をキャプチャする
-func captureOutput(f func()) string {
+// captureOutput はos.Stdoutの出力をキャプチャする。
+// プロセス全体のos.Stdoutを差し替えるため、並列テストからは呼び出せない。
+func captureOutput(t *testing.T, f func()) string {
+	t.Helper()
 	old := os.Stdout
-	r, w, _ := os.Pipe()
+	r, w, err := os.Pipe()
+	require.NoError(t, err)
 	os.Stdout = w
 
 	f()
@@ -52,7 +55,7 @@ func TestRunDesignDocValidate_問題なしなら件数を報告してnilを返�
 	writeDesignDoc(t, "20260101_01.md", "---\nstatus: draft\ntags: []\nauto: mechanical\n---\n\n# タイトル\n\n本文\n")
 
 	var err error
-	out := captureOutput(func() {
+	out := captureOutput(t, func() {
 		err = runDesignDocSubcommand("designdoc", "validate")
 	})
 
@@ -66,7 +69,7 @@ func TestRunDesignDocValidate_不正なstatusはerrValidationを返す(t *testin
 	writeDesignDoc(t, "20260101_01.md", "---\nstatus: unknown\ntags: []\nauto: mechanical\n---\n\n# タイトル\n\n本文\n")
 
 	var err error
-	out := captureOutput(func() {
+	out := captureOutput(t, func() {
 		err = runDesignDocSubcommand("designdoc", "validate")
 	})
 
@@ -81,7 +84,7 @@ func TestRunDesignDocGen_frontmatter未付与のドキュメントに既定値�
 	writeDesignDoc(t, "20260101_01.md", "# タイトル\n\n本文\n")
 
 	var err error
-	out := captureOutput(func() {
+	out := captureOutput(t, func() {
 		err = runDesignDocSubcommand("designdoc", "gen")
 	})
 
@@ -101,7 +104,7 @@ func TestRunDesignDocGen_既にfrontmatterがあれば変更しない(t *testing
 	writeDesignDoc(t, "20260101_01.md", "---\nstatus: done\ntags: []\nauto: mechanical\n---\n\n# タイトル\n\n本文\n")
 
 	var err error
-	out := captureOutput(func() {
+	out := captureOutput(t, func() {
 		err = runDesignDocSubcommand("designdoc", "gen")
 	})
 
@@ -116,7 +119,7 @@ func TestRunDesignDocList_statusで絞り込む(t *testing.T) {
 	writeDesignDoc(t, "20260101_02.md", "---\nstatus: done\ntags: []\nauto: mechanical\n---\n\n# 完了文書\n\n本文\n")
 
 	var err error
-	out := captureOutput(func() {
+	out := captureOutput(t, func() {
 		err = runDesignDocSubcommand("designdoc", "list", "--status", "done")
 	})
 
@@ -132,7 +135,7 @@ func TestRunDesignDocList_openで未完了のみに絞り込む(t *testing.T) {
 	writeDesignDoc(t, "20260101_02.md", "---\nstatus: done\ntags: []\nauto: mechanical\n---\n\n# 完了文書\n\n本文\n")
 
 	var err error
-	out := captureOutput(func() {
+	out := captureOutput(t, func() {
 		err = runDesignDocSubcommand("designdoc", "list", "--open")
 	})
 
