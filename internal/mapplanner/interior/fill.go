@@ -5,6 +5,9 @@ type Placed struct {
 	Kind StuffKind
 	Ref  string
 	Pos  Vec
+	// MachineID は依存グラフ machine の建物ローカル連番。0 は machine に属さない。鍵と錠と payload を
+	// 同じ番号で結び、鍵で開く錠と、その奥の戦利品の対応を表す。
+	MachineID int
 }
 
 // FillRoom は content を解決し、各 Selection を placement 意味論に従って部屋のタイルへ置く。

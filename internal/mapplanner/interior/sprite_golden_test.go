@@ -23,76 +23,52 @@ const spriteDir = "../../../assets/file/textures/single/"
 // cellPx は1タイルの描画辺長。スプライトが 32x32 なのでセルも 32px にして等倍で置く。
 const cellPx = 32
 
-// spriteFileOf は配置の Ref を実スプライトのソース PNG 名へ写す。ゲーム本体の豊富な既存スプライトから
-// 什器の実物を当てるので、ダミーは使わない。什器ごとに別の絵になり、施設の見分けが付く。スプライトの
-// 無い装飾は背景描画で表す。
-func spriteFileOf(p Placed) string {
-	switch p.Ref {
-	// 店。gondola_shelf_ / display_cooler_ はゲーム側が未だ仮画像なので、実描画のある goods_shelf_ /
-	// refrigerator_ を当てる
-	case "gondola":
-		return "goods_shelf_"
-	case "register":
-		return "register_"
-	case "walkin_cooler":
-		return "refrigerator_"
-	case "snacks":
-		return "cookie_"
-	case "drinks":
-		return "bottled_cola_"
-	case "bento":
-		return "hamburger_"
-	// 診療所。reception_counter_ / exam_bed_ / medicine_cabinet_ はゲーム側が未だ仮画像だが、無理に
-	// 寝室の什器で代用すると診療所に見えなくなるため、意味の合う実資産をそのまま当てる
-	case "reception":
-		return "reception_counter_"
-	case "waitchair":
-		return "bench_"
-	case "exam_bed":
-		return "exam_bed_"
-	case "medcabinet":
-		return "medicine_cabinet_"
-	case "meds":
-		return "healing_potion_"
-	case "bandage":
-		return "leather_bandage_"
+// spriteFiles は配置の Ref を実スプライトのソース PNG 名へ写す表。ゲーム本体の豊富な既存スプライトから
+// 什器の実物を当てるので、ダミーは使わない。什器ごとに別の絵になり、施設の見分けが付く。表に無い装飾は
+// 背景描画で表す。仮画像を避ける置換の理由はコメントに残す。
+var spriteFiles = map[string]string{
+	// 店。gondola_shelf_ / display_cooler_ はゲーム側が未だ仮画像なので、実描画のある代替を当てる
+	"gondola":       "goods_shelf_",
+	"register":      "register_",
+	"walkin_cooler": "refrigerator_",
+	"snacks":        "cookie_",
+	"drinks":        "bottled_cola_",
+	"bento":         "hamburger_",
+	// 診療所。reception_counter_ / exam_bed_ / medicine_cabinet_ は仮画像だが、寝室什器で代用すると
+	// 診療所に見えなくなるため、意味の合う実資産をそのまま当てる
+	"reception":  "reception_counter_",
+	"waitchair":  "bench_",
+	"exam_bed":   "exam_bed_",
+	"medcabinet": "medicine_cabinet_",
+	"meds":       "healing_potion_",
+	"bandage":    "leather_bandage_",
+	// 依存グラフ machine。施錠された戦利品
+	"shutter": "door_vertical_closed_",
+	"keycard": "violet_card_",
 	// 民家・建物
-	case "bed":
-		return "bed_"
-	case "table":
-		return "dining_table_"
-	case "chair":
-		return "chair_"
-	case "sofa":
-		return "sofa_"
-	case "closet":
-		return "closet_"
-	case "lantern":
-		return "tall_lamp_"
-	case "plant":
-		return "houseplants_"
-	case "pantry":
-		return "dish_shelf_"
-	case "barrel", "crate":
-		return "barrel_brown_"
-	case "bathtub":
-		return "bathtub_"
-	case "toilet":
-		return "toilet_"
-	case "sink":
-		return "sink_"
-	case "washer":
-		return "wash_machine_empty_"
+	"bed":     "bed_",
+	"table":   "dining_table_",
+	"chair":   "chair_",
+	"sofa":    "sofa_",
+	"closet":  "closet_",
+	"lantern": "tall_lamp_",
+	"plant":   "houseplants_",
+	"pantry":  "dish_shelf_",
+	"barrel":  "barrel_brown_",
+	"crate":   "barrel_brown_",
+	"bathtub": "bathtub_",
+	"toilet":  "toilet_",
+	"sink":    "sink_",
+	"washer":  "wash_machine_empty_",
 	// flavor。廃墟に残る生活の痕
-	case "candle":
-		return "candle_"
-	case "carpet":
-		return "carpet_"
-	case "broom":
-		return "broom_"
-	default:
-		return ""
-	}
+	"candle": "candle_",
+	"carpet": "carpet_",
+	"broom":  "broom_",
+}
+
+// spriteFileOf は配置の Ref に対応するスプライト名を返す。表に無ければ空を返し、背景描画に委ねる。
+func spriteFileOf(p Placed) string {
+	return spriteFiles[p.Ref]
 }
 
 // TestGolden_InteriorConvStore は内装生成の目視回帰。文字の模式図では測れない「自然にその施設に見えるか
@@ -210,6 +186,9 @@ func TestGolden_InteriorClinicBuilding(t *testing.T) {
 
 	placed := fillBuilding(seed, footprint, rooms, clinicRoleContents())
 	roles := buildingRoles(footprint, rooms, clinicRoleContents())
+	// doc の例そのままの「施錠された薬局奥」。最奥へ薬を施錠して置き、入口寄りにキーカード、奥の戸口に
+	// シャッター。鍵と錠を同じ生成が出すので必ず解ける。
+	placed = append(placed, guardedLoot(seed, footprint, rooms, "meds", 1)...)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, roles, placed))
 }
