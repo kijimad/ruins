@@ -81,6 +81,8 @@ func spriteFileOf(p Placed) string {
 		return "toilet_"
 	case "sink":
 		return "sink_"
+	case "washer":
+		return "wash_machine_empty_"
 	default:
 		return ""
 	}
@@ -132,20 +134,25 @@ func TestGolden_InteriorHouse(t *testing.T) {
 	g.Assert(t, t.Name(), renderRoomSprites(t, houseRoom(), placed))
 }
 
-// TestGolden_InteriorHouseBuilding は分割文法まで含めた建物1棟の目視回帰。1部屋では施設全体を評価
-// できないため、footprint を BSP で複数部屋へ割り、入口からの距離順に居間・寝室・物置の役割 content を
-// 流し込み、戸口で連結した1棟を実スプライトで描く。部屋の連なり・扉の位置・部屋ごとの中身の差が、
-// 建物として自然に見えるかを人が判断する。
+// TestGolden_InteriorHouseBuilding は廊下型の民家1棟の目視回帰。玄関から入って廊下に出て、廊下から
+// 居間・台所・寝室へ、さらに廊下奥の脱衣所から浴室へ、玄関脇のトイレへ、という日本家屋の動線を持つ。
+// 均一な部屋の BSP では作れない、狭い玄関と細い廊下と水回りの小部屋を PlanHouse が保証する。
 func TestGolden_InteriorHouseBuilding(t *testing.T) {
 	t.Parallel()
 
 	const seed = 1
-	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	rooms := SplitBuilding(footprint, seed)
-	require.GreaterOrEqual(t, len(rooms), 3, "footprint が複数部屋に割れる")
+	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
+	plan := PlanHouse(footprint, seed)
 
-	placed := fillBuilding(seed, footprint, rooms, houseRoleContents())
-	roles := buildingRoles(footprint, rooms, houseRoleContents())
+	byRole := houseRoomContents()
+	rooms := make([]Room, len(plan))
+	roles := make([]string, len(plan))
+	placed := make([]Placed, 0, len(plan)*8)
+	for i, hr := range plan {
+		rooms[i] = hr.Room
+		roles[i] = hr.Role
+		placed = append(placed, FillRoom(childSeed(seed, 500+i), hr.Room, byRole[hr.Role])...)
+	}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, roles, placed))
 }
@@ -219,11 +226,10 @@ func roomOrderByZone(footprint Rect, rooms []Room) []int {
 	return idx
 }
 
-// houseRoleContents は民家の部屋役割を入口から奥への順で並べた content。居間・台所・寝室・寝室・浴室・
-// 物置の順に、roomOrderByZone の距離順へ対応させる。玄関の役割は置かない。BSP の部屋はどれも広く、狭い
-// 前室であるべき玄関を割ると空の広間になってしまうため、入って最初の部屋は居間にする。家に入るとまず
-// 居間、という動線に寄せ、広い部屋には家具の多い居間が来て空きが目立たない。
-func houseRoleContents() []Content {
+// houseRoomContents は民家の部屋役割ごとの content を役割名で引く表。PlanHouse が決めた役割へ中身を
+// 対応させる。廊下はほぼ空けて通路とし、玄関は下足入れと観葉、水回りは各機能の什器を置く。狭い部屋が
+// 多いので個数は控えめにし、FillRoom が入る分だけ置く。
+func houseRoomContents() map[string]Content {
 	bedroom := Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
 			{Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
@@ -231,8 +237,17 @@ func houseRoleContents() []Content {
 			{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 		}},
 	}}
-	return []Content{
-		{ID: "living", Groups: []Group{
+	return map[string]Content{
+		"genkan": {ID: "genkan", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
+		}},
+		"corridor": {ID: "corridor", Groups: []Group{
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}}}},
+		}},
+		"living": {ID: "living", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "sofa", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "table", Placement: PlaceCenter, Amount: Dice{Bonus: 1}},
@@ -242,25 +257,33 @@ func houseRoleContents() []Content {
 			}},
 			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
 		}},
-		{ID: "kitchen", Groups: []Group{
+		"kitchen": {ID: "kitchen", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "table", Placement: PlaceCenter, Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "pantry", Placement: PlaceRow, Amount: Dice{Bonus: 3}},
 				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 			}},
 		}},
-		bedroom,
-		bedroom,
-		{ID: "bathroom", Groups: []Group{
+		"bedroom": bedroom,
+		"dressing": {ID: "dressing", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "bathtub", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "toilet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "washer", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "sink", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 			}},
 		}},
-		{ID: "storage", Groups: []Group{
+		"bath": {ID: "bath", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "barrel", Placement: PlaceRow, Amount: Dice{Bonus: 5}},
+				{Kind: KindFurniture, Ref: "bathtub", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+			}},
+		}},
+		"toilet": {ID: "toilet", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "toilet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			}},
+		}},
+		"storage": {ID: "storage", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "barrel", Placement: PlaceRow, Amount: Dice{Bonus: 2}},
 			}},
 		}},
 	}
