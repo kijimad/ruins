@@ -44,9 +44,11 @@ func planSite(footprint Rect, seed uint64, door Vec, facility string) Site {
 	}
 
 	// 入口は建物辺のうち前室の内側に面する位置へ。仕切り列に当たると部屋でなく壁に開くので、前室の内側の
-	// 帯へ寄せる。そのうえで玄関ポーチの凹みを掘り、下げた入口を前室へ戸口として繋ぐ
+	// 帯へ寄せる。玄関を凹ませるかは seed で選ぶ。全ての玄関が凹むと単調なので、半分は直線の開口部にする
 	bdoor := chooseDoor(building, labeled, side, door)
-	bdoor = carvePorch(building, bdoor, side, garden, extra)
+	if childSeed(seed, 8_100_000)%2 == 0 {
+		bdoor = carvePorch(building, bdoor, side, garden, extra)
+	}
 	attachDoor(labeled, bdoor, side)
 
 	// 軸A 坪庭。入口の部屋と廊下を除く広めの1室を庭へ振り替える。家具を置かず内側を庭タイルにする
@@ -160,29 +162,26 @@ func spanDist(lo, hi, v int) int {
 	return 0
 }
 
-// carvePorch は入口を建物内へ1マス下げて玄関ポーチの凹みを作る。元の入口と両隣を庭にして壁を凹ませ、
-// 下げた入口の両隣を壁にして 3幅1奥のポケットにする。凹みを作れない小さな建物では下げず元の door を返す。
+// carvePorch は入口を建物内へ1マス下げて玄関ポーチの凹みを作る。元の入口の1マスだけを庭に開け、両隣の
+// 前壁は残し、下げた入口の両隣を壁にして 1幅1奥のポケットにする。開口を1幅にすると前壁と側壁が直交で
+// 繋がり、角を斜めに視線や移動が抜けない。開口を3幅にすると口の角で前壁と側壁が斜め隣接になり漏れる。
+// 凹みを作れない小さな建物では下げず元の door を返す。
 func carvePorch(building Rect, door Vec, s side, garden, extra map[Vec]bool) Vec {
 	step := porchStep(s)
 	inner := Vec{X: door.X + step.X, Y: door.Y + step.Y}
 	if !building.containsInterior(inner) {
 		return door // 凹みを作る余地がない
 	}
-	// 凹みは入口の走る方向。北・南のポーチは横に、西・東のポーチは縦に3幅
+	// ポケットの側壁は下げた入口の両隣。角に寄りすぎて片側が建物外に出るなら凹ませない
 	along := porchAlong(s)
-	// 口が建物の角に寄ると側壁が外へはみ出す。両隣が建物内に収まらなければ凹ませない
 	for d := -1; d <= 1; d += 2 {
 		if !building.contains(Vec{X: inner.X + along.X*d, Y: inner.Y + along.Y*d}) {
 			return door
 		}
 	}
-	for d := -1; d <= 1; d++ {
-		mouth := Vec{X: door.X + along.X*d, Y: door.Y + along.Y*d}
-		garden[mouth] = true // 元の前壁の3マスをポケットの口として庭に開ける
-		if d != 0 {
-			extra[Vec{X: inner.X + along.X*d, Y: inner.Y + along.Y*d}] = true // 下げた入口の両隣を壁に
-		}
-	}
+	garden[door] = true // 元の入口の1マスだけをポケットの口として庭に開ける。両隣の前壁は残す
+	extra[Vec{X: inner.X + along.X, Y: inner.Y + along.Y}] = true // 下げた入口の両隣を側壁に
+	extra[Vec{X: inner.X - along.X, Y: inner.Y - along.Y}] = true
 	return inner
 }
 
