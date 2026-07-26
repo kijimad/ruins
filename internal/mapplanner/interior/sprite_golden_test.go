@@ -63,6 +63,8 @@ func spriteFileOf(p Placed) string {
 		return "dining_table_"
 	case "chair":
 		return "chair_"
+	case "sofa":
+		return "sofa_"
 	case "closet":
 		return "closet_"
 	case "lantern":
@@ -73,6 +75,12 @@ func spriteFileOf(p Placed) string {
 		return "dish_shelf_"
 	case "barrel", "crate":
 		return "barrel_brown_"
+	case "bathtub":
+		return "bathtub_"
+	case "toilet":
+		return "toilet_"
+	case "sink":
+		return "sink_"
 	default:
 		return ""
 	}
@@ -211,9 +219,10 @@ func roomOrderByZone(footprint Rect, rooms []Room) []int {
 	return idx
 }
 
-// houseRoleContents は民家の部屋役割を入口から奥への順で並べた content。玄関ホール・居間・台所・寝室・
-// 寝室・物置の順に、roomOrderByZone の距離順へそのまま対応させる。手前は公共、奥は私的という動線を
-// content 側の並びで表す。部屋が役割数を超えたら末尾の物置を繰り返す。
+// houseRoleContents は民家の部屋役割を入口から奥への順で並べた content。居間・台所・寝室・寝室・浴室・
+// 物置の順に、roomOrderByZone の距離順へ対応させる。玄関の役割は置かない。BSP の部屋はどれも広く、狭い
+// 前室であるべき玄関を割ると空の広間になってしまうため、入って最初の部屋は居間にする。家に入るとまず
+// 居間、という動線に寄せ、広い部屋には家具の多い居間が来て空きが目立たない。
 func houseRoleContents() []Content {
 	bedroom := Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
@@ -223,16 +232,11 @@ func houseRoleContents() []Content {
 		}},
 	}}
 	return []Content{
-		{ID: "entryhall", Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
-			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
-		}},
 		{ID: "living", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "sofa", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "table", Placement: PlaceCenter, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "chair", Placement: PlaceCenter, Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "chair", Placement: PlaceCenter, Amount: Dice{Bonus: 4}},
 				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
 			}},
@@ -247,6 +251,13 @@ func houseRoleContents() []Content {
 		}},
 		bedroom,
 		bedroom,
+		{ID: "bathroom", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "bathtub", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "toilet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "sink", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			}},
+		}},
 		{ID: "storage", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "barrel", Placement: PlaceRow, Amount: Dice{Bonus: 5}},
