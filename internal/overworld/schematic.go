@@ -54,28 +54,28 @@ var facilityOrder = []facilityType{
 type placeType string
 
 const (
-	placeField   placeType = "field"   // 荒れ地
-	placeVillage placeType = "village" // 村
-	placeHamlet  placeType = "hamlet"  // 一軒家
-	placeRuin    placeType = "ruin"    // 遺跡入口
-	placePOI     placeType = "poi"     // 点在POI
-	placeUnknown placeType = "unknown" // 分類漏れの保険。凡例には出さない
+	placeField           placeType = "field"            // 荒れ地
+	placeVillage         placeType = "village"          // 村
+	placeHamlet          placeType = "hamlet"           // 一軒家
+	placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
+	placePOI             placeType = "poi"              // 点在POI
+	placeUnknown         placeType = "unknown"          // 分類漏れの保険。凡例には出さない
 )
 
 // placeGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に
 // 集約する。UI の着色や凡例はこれ1つを源にし、記号や名前を別の箇所へ直書きしない。
 var placeGlyphs = map[placeType]GlyphInfo{
-	placeField:   {'.', "荒れ地", color.RGBA{R: 46, G: 59, B: 46, A: 255}},      // 暗緑
-	placeVillage: {'T', "村", color.RGBA{R: 255, G: 210, B: 74, A: 255}},      // 黄
-	placeHamlet:  {'t', "一軒家", color.RGBA{R: 208, G: 168, B: 58, A: 255}},    // 濃黄
-	placeRuin:    {'>', "遺跡入口", color.RGBA{R: 224, G: 69, B: 58, A: 255}},    // 赤
-	placePOI:     {'*', "点在POI", color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑
-	placeUnknown: {'?', "未分類", color.RGBA{R: 90, G: 90, B: 90, A: 255}},      // 灰。凡例外なので実際は既定へ落ちる
+	placeField:           {'.', "荒れ地", color.RGBA{R: 46, G: 59, B: 46, A: 255}},      // 暗緑
+	placeVillage:         {'T', "村", color.RGBA{R: 255, G: 210, B: 74, A: 255}},      // 黄
+	placeHamlet:          {'t', "一軒家", color.RGBA{R: 208, G: 168, B: 58, A: 255}},    // 濃黄
+	placeDungeonEntrance: {'>', "遺跡入口", color.RGBA{R: 224, G: 69, B: 58, A: 255}},    // 赤
+	placePOI:             {'*', "点在POI", color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑
+	placeUnknown:         {'?', "未分類", color.RGBA{R: 90, G: 90, B: 90, A: 255}},      // 灰。凡例外なので実際は既定へ落ちる
 }
 
 // placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
 // placeUnknown は分類漏れの保険なので凡例には含めない。
-var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeRuin, placePOI}
+var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placePOI}
 
 // LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
 // SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。
@@ -109,11 +109,11 @@ func FacilityGlyphs() []GlyphInfo {
 type chunkType string
 
 const (
-	chunkWasteland    chunkType = "wasteland"     // 荒れ地。特徴的な地物が無い開けた地形
-	chunkSettlement   chunkType = "settlement"    // 集落。村・一軒家
-	chunkUrban        chunkType = "urban"         // 市街地。建物チャンク
-	chunkRuinEntrance chunkType = "ruin_entrance" // 遺跡入口
-	chunkPOI          chunkType = "poi"           // 自然の点在POI
+	chunkWasteland       chunkType = "wasteland"        // 荒れ地。特徴的な地物が無い開けた地形
+	chunkSettlement      chunkType = "settlement"       // 集落。村・一軒家
+	chunkUrban           chunkType = "urban"            // 市街地。建物チャンク
+	chunkDungeonEntrance chunkType = "dungeon_entrance" // 遺跡入口
+	chunkPOI             chunkType = "poi"              // 自然の点在POI
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
@@ -123,8 +123,8 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 	if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {
 		return chunkUrban
 	}
-	if ruinPlacement.At(runSeed, c, rows) {
-		return chunkRuinEntrance
+	if dungeonEntrancePlacement.At(runSeed, c, rows) {
+		return chunkDungeonEntrance
 	}
 	if settlementPlacement.At(runSeed, c, rows) {
 		return chunkSettlement
@@ -145,8 +145,8 @@ func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk)
 			return g.Label
 		}
 		return placeGlyphs[placeUnknown].Label
-	case chunkRuinEntrance:
-		return placeGlyphs[placeRuin].Label
+	case chunkDungeonEntrance:
+		return placeGlyphs[placeDungeonEntrance].Label
 	case chunkSettlement:
 		if settlementVillageRoll(runSeed, c) {
 			return placeGlyphs[placeVillage].Label

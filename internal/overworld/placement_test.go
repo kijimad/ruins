@@ -51,7 +51,7 @@ func TestPlacements_全登録配置はSpacingがSeparationより大きい(t *tes
 	for name, p := range map[string]Placement{
 		"settlement": settlementPlacement,
 		"urban":      urbanPlacement,
-		"ruin":       ruinPlacement,
+		"ruin":       dungeonEntrancePlacement,
 		"poi":        poiPlacement,
 	} {
 		assert.Greaterf(t, p.Spacing, p.Separation, "%s の Spacing は Separation より大きい", name)

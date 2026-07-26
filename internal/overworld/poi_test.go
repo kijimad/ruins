@@ -19,7 +19,7 @@ func findPOIChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	for s := uint64(1); s < 200; s++ {
 		for x := range consts.Chunk(30) {
 			c := consts.Coord[consts.Chunk]{X: x}
-			if !poiPlacement.At(s, c, rows) || settlementPlacement.At(s, c, rows) || ruinPlacement.At(s, c, rows) {
+			if !poiPlacement.At(s, c, rows) || settlementPlacement.At(s, c, rows) || dungeonEntrancePlacement.At(s, c, rows) {
 				continue
 			}
 			if _, _, _, ok := urbanRegionOf(s, c, rows); ok {
