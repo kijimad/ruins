@@ -46,6 +46,8 @@ var spriteFiles = map[string]string{
 	"medcabinet": "medicine_cabinet_",
 	"meds":       "healing_potion_",
 	"bandage":    "leather_bandage_",
+	// 事務所・受付。desk は raw の spriteKey wood_desk に合わせる
+	"desk": "wood_desk_",
 	// 依存グラフ machine。施錠された戦利品
 	"shutter": "door_vertical_closed_",
 	"keycard": "violet_card_",

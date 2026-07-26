@@ -22,6 +22,9 @@ func TestClassifyRoom_施設が役割どおりに分類される(t *testing.T) {
 		{"寝室", "bedroom", FillRoom(1, houseSmallRoom(), byRole["bedroom"])},
 		{"浴室", "bath", FillRoom(1, houseSmallRoom(), byRole["bath"])},
 		{"台所", "kitchen", FillRoom(1, houseSmallRoom(), byRole["kitchen"])},
+		{"トイレ", "restroom", FillRoom(1, houseSmallRoom(), restroomContent())},
+		{"事務所", "office", FillRoom(1, houseSmallRoom(), officeRoomContent())},
+		{"薬局", "pharmacy", FillRoom(1, houseSmallRoom(), pharmacyRoomContent())},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

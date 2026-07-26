@@ -118,20 +118,113 @@ func facilityPlanner(facility string) (func(Rect, uint64) []HouseRoom, bool) {
 	}
 }
 
-// roleContent は役割から content を引く。main は施設の内装、back は施設別の奥室、それ以外は PlanHouse が
-// 付ける民家の役割別 content。役割名は planRooms が付ける。
+// roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ
+// 民家の共有役割(corridor 等)、それも無ければ施設別の奥室既定へ落とす。民家だけでなく店・診療所も役割名で
+// 部屋を作り分けられるよう、施設カタログを優先して引く。役割名は planRooms とテンプレが付ける。
 func roleContent(facility, role string, seed uint64) Content {
-	switch role {
-	case "main":
+	if role == "main" {
 		return facilityContent(facility, seed)
-	case "back":
-		return backRoomContent(facility)
-	default:
-		if c, ok := houseRoomContents()[role]; ok {
-			return c
-		}
-		return backRoomContent(facility)
 	}
+	if c, ok := facilityRoomContents(facility)[role]; ok {
+		return c
+	}
+	if c, ok := houseRoomContents()[role]; ok {
+		return c
+	}
+	return backRoomContent(facility)
+}
+
+// facilityRoomContents は施設種別ごとの「役割名→content」表を返す。houseRoomContents を民家以外へ横展開
+// したもので、テンプレが付けた役割名で各室の内装を引く。骨董品店は店、研究施設は診療所の表を共有する。
+func facilityRoomContents(facility string) map[string]Content {
+	switch facility {
+	case facHouse:
+		return houseRoomContents()
+	case facStore, facAntique:
+		return storeRoomContents()
+	case facClinic, facLab:
+		return clinicRoomContents()
+	default:
+		return nil
+	}
+}
+
+// storeRoomContents は店の奥室の役割別 content。倉庫だけでなく、事務所・従業員トイレ・冷蔵庫室に作り分け、
+// 奥室が全部同じ樽の物置になる単調さを解く。什器は既存を流用し新しい語彙は要らない。
+func storeRoomContents() map[string]Content {
+	return map[string]Content{
+		"storeroom": storageRoomContent(),
+		"office":    officeRoomContent(),
+		"restroom":  restroomContent(),
+		"coldroom":  coldroomContent(),
+	}
+}
+
+// clinicRoomContents は診療所の各室の役割別 content。待合を診察室と分け、薬局・トイレ・供給室に作り分け、
+// 奥室が全部同じ診察室になる単調さを解く。
+func clinicRoomContents() map[string]Content {
+	return map[string]Content{
+		"waiting":  waitingContent(),
+		"exam":     examRoomContent(),
+		"pharmacy": pharmacyRoomContent(),
+		"restroom": restroomContent(),
+		"office":   officeRoomContent(),
+	}
+}
+
+// officeRoomContent は事務所の内装。机と椅子を列に並べ、壁際に書類棚。店の奥や診療所の医師室に使う。
+func officeRoomContent() Content {
+	return Content{ID: "office", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "desk", Placement: PlaceRow, Amount: Dice{Bonus: 2}},
+			{Kind: KindFurniture, Ref: "chair", Placement: PlaceRow, Amount: Dice{Bonus: 2}},
+			{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+		}},
+	}}
+}
+
+// restroomContent は水回りの小部屋。便器と流し。店の従業員トイレや診療所のトイレに使う。
+func restroomContent() Content {
+	return Content{ID: "restroom", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "toilet", Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "sink", Amount: Dice{Bonus: 1}},
+		}},
+	}}
+}
+
+// coldroomContent は冷蔵庫室。冷蔵ケースを壁沿いに並べる。店の奥の生鮮の保管に使う。
+func coldroomContent() Content {
+	return Content{ID: "coldroom", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "walkin_cooler", Placement: PlaceWall, Amount: Dice{Bonus: 4}},
+		}},
+	}}
+}
+
+// pharmacyRoomContent は薬局・薬品庫。薬棚を壁一面に並べ、奥に薬を置く。診療所の施錠戦利品の受け皿になる
+// 部屋型で、待合の主室に薬棚を積んでいた scope 過大を解く。
+func pharmacyRoomContent() Content {
+	return Content{ID: "pharmacy", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: Dice{Bonus: 4}},
+		}},
+		{Style: PickN, Pick: 1, Items: []Stuff{
+			{Kind: KindLoot, Ref: "meds", Placement: PlaceFarFromDoor, Amount: Dice{Base: 1, Sides: 3}},
+		}},
+	}}
+}
+
+// waitingContent は診療所の待合専用。受付を入口近く、長椅子を列に、観葉を添える。診察台は置かない。単室
+// 診療所の clinicContent が待合に診察台まで積んで「待合に見えない」問題を、多部屋では待合専用へ切り出して解く。
+func waitingContent() Content {
+	return Content{ID: "waiting", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "reception", Placement: PlaceNearDoor, Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "waitchair", Placement: PlaceRow, Amount: Dice{Bonus: 5}},
+		}},
+		{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 2}}}},
+	}}
 }
 
 // attachEntrance は外殻の入口 door に面する部屋を見つけ、その部屋へ door を戸口として足す。家具が入口を

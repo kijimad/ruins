@@ -16,12 +16,15 @@ type roomSignature struct {
 // ので、待合より先に置いて診察室側へ倒す。
 var roomSignatures = []roomSignature{
 	{"store", []string{"register", "gondola", "walkin_cooler"}},
-	{"clinic", []string{"exam_bed", "medcabinet"}},
+	{"clinic", []string{"exam_bed", "medcabinet"}},   // 診察室。exam_bed を持つので薬局より先に置いても奪われない
+	{"pharmacy", []string{"medcabinet", "meds"}},     // 薬局。薬棚＋薬。exam_bed の無い薬品庫
 	{"waiting", []string{"reception", "waitchair"}},
 	{"dressing", []string{"washer", "sink"}},
-	{"bath", []string{"bathtub"}},
-	{"toilet", []string{"toilet"}},
 	{"kitchen", []string{"pantry", "sink"}}, // 流しと食器棚の両方。流し単独は脱衣所と曖昧なので棚で分ける
+	{"bath", []string{"bathtub"}},
+	{"toilet", []string{"toilet"}},             // 便器のみは民家のトイレ
+	{"restroom", []string{"toilet", "sink"}},   // 便器＋流しは店・診療所のトイレ。toilet より後で、両方揃えば勝つ
+	{"office", []string{"desk"}},               // 机は事務所の署名
 	{"bedroom", []string{"bed"}},
 	{"living", []string{"sofa"}},
 	{"storage", []string{"barrel"}},

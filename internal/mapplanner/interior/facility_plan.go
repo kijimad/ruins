@@ -3,7 +3,34 @@ package interior
 // 施設固有の間取りテンプレ。汎用 BSP は均一な部屋しか作れず、店も診療所も同じ骨格になってしまう。店なら
 // 開けた売場＋奥のバックヤード、診療所なら入口の待合＋廊下＋診察室の列、という施設ごとの構造を保証する
 // テンプレを持ち、「言われなくても何の施設か分かる」間取りにする。民家の PlanHouse と同じく HouseRoom を
-// 返し、planRooms が役割ごとに内装を敷く。
+// 返し、planRooms が役割ごとに内装を敷く。奥室も倉庫・診察室の1種に潰さず、事務所・トイレ・薬局などへ
+// 役割を振り分けて、非民家も民家並みの room 多様性にする。
+
+// storeBackRole は店の奥室 i 番目の役割を返す。0番は必ず倉庫にして店に物置が1つは在る不変条件を守り、
+// 以降は事務所・従業員トイレ・冷蔵庫室・倉庫から seed で選んで奥室に多様な役割を出す。
+func storeBackRole(seed uint64, i int) string {
+	if i == 0 {
+		return "storeroom"
+	}
+	pool := []string{"office", "restroom", "coldroom", "storeroom"}
+	return pool[childSeed(seed, 6_100_000+i)%uint64(len(pool))]
+}
+
+// clinicBackRole は診療所の奥室 i 番目(0-indexed, total は奥室総数)の役割を返す。0番は必ず施錠薬局、
+// 3室以上なら末尾をトイレ、4室なら医師室も足し、残りを診察室で埋める。薬局と水回りと医師室を保証しつつ
+// 診察室を主にする。
+func clinicBackRole(i, total int) string {
+	switch {
+	case i == 0:
+		return "pharmacy"
+	case i == total-1 && total >= 3:
+		return "restroom"
+	case i == total-2 && total >= 4:
+		return "office"
+	default:
+		return "exam"
+	}
+}
 
 // PlanStore は店舗の間取りを決定的に生成する。入口側の広い売場を1室で取り、その奥にバックヤードの小部屋を
 // 並べる。売場は商品棚と冷蔵ケースの開けた空間、奥は樽の物置にして、民家の細かい間仕切りとも診療所の廊下型
@@ -45,7 +72,7 @@ func storeBackBottom(footprint Rect, seed uint64) []HouseRoom {
 		}
 		rectOf[keys[i]] = Rect{X: prev, Y: salesBot, W: edge - prev + 1, H: bottom - salesBot + 1}
 		conns = append(conns, [2]string{"sales", keys[i]})
-		order = append(order, roomRole{keys[i], "back"})
+		order = append(order, roomRole{keys[i], storeBackRole(seed, i)})
 		prev = edge
 	}
 	return assembleRooms(rectOf, wireDoorways(rectOf, seed, conns), order)
@@ -93,7 +120,7 @@ func storeBackSide(footprint Rect, seed uint64, left bool) []HouseRoom {
 		}
 		rectOf[keys[i]] = Rect{X: backX0, Y: prev, W: backW + 1, H: edge - prev + 1}
 		conns = append(conns, [2]string{"sales", keys[i]})
-		order = append(order, roomRole{keys[i], "back"})
+		order = append(order, roomRole{keys[i], storeBackRole(seed, i)})
 		prev = edge
 	}
 	return assembleRooms(rectOf, wireDoorways(rectOf, seed, conns), order)
@@ -117,10 +144,16 @@ func PlanClinic(footprint Rect, seed uint64) []HouseRoom {
 		"corridor": {X: cxL, Y: waitBot, W: cxR - cxL + 1, H: bottom - waitBot + 1},
 	}
 	conns := [][2]string{{"waiting", "corridor"}}
-	order := []roomRole{{"waiting", "main"}, {"corridor", "corridor"}}
+	order := []roomRole{{"waiting", "waiting"}, {"corridor", "corridor"}}
 
-	// 廊下の左右の翼へ診察室を割り付ける。翼を上下2室に割ると4診察室、割らないと2診察室になる
+	// 廊下の左右の翼へ診察室を割り付ける。翼を上下2室に割ると4診察室、割らないと2診察室になる。奥室は
+	// clinicBackRole で薬局・トイレ・診察室へ振り分ける
+	total := 2
+	if split {
+		total = 4
+	}
 	midY := waitBot + (bottom-waitBot)/2
+	bi := 0
 	for _, wing := range []struct {
 		key      string
 		xlo, xhi int
@@ -133,11 +166,13 @@ func PlanClinic(footprint Rect, seed uint64) []HouseRoom {
 			rectOf[ka] = Rect{X: wing.xlo, Y: waitBot, W: wing.xhi - wing.xlo + 1, H: midY - waitBot + 1}
 			rectOf[kb] = Rect{X: wing.xlo, Y: midY, W: wing.xhi - wing.xlo + 1, H: bottom - midY + 1}
 			conns = append(conns, [2]string{"corridor", ka}, [2]string{"corridor", kb})
-			order = append(order, roomRole{ka, "back"}, roomRole{kb, "back"})
+			order = append(order, roomRole{ka, clinicBackRole(bi, total)}, roomRole{kb, clinicBackRole(bi+1, total)})
+			bi += 2
 		} else {
 			rectOf[wing.key] = Rect{X: wing.xlo, Y: waitBot, W: wing.xhi - wing.xlo + 1, H: bottom - waitBot + 1}
 			conns = append(conns, [2]string{"corridor", wing.key})
-			order = append(order, roomRole{wing.key, "back"})
+			order = append(order, roomRole{wing.key, clinicBackRole(bi, total)})
+			bi++
 		}
 	}
 	return assembleRooms(rectOf, wireDoorways(rectOf, seed, conns), order)
