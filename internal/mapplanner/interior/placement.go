@@ -20,6 +20,8 @@ const (
 	PlaceNearDoor Placement = "near_door"
 	// PlaceFarFromDoor は入口から遠い奥。冷蔵ケース・貴重品
 	PlaceFarFromDoor Placement = "far_from_door"
+	// PlaceRow は棚を1列おきの平行列に置き、間の列を通路として空ける。ゴンドラ・ラック
+	PlaceRow Placement = "row"
 )
 
 // scoredTile は候補タイルと、placement が与えた密度と決定的ジッタの合成スコア。
@@ -47,11 +49,40 @@ func selectTiles(room Room, p Placement, occupied map[Vec]bool, seed uint64, cou
 		if d <= 0 {
 			continue
 		}
-		// hash 由来のジッタ 0..1 を弱く混ぜ、同 density の並びを決定的かつ非規則に崩す
-		j := norm01(hashTile(seed, t))
-		cands = append(cands, scoredTile{pos: t, score: d + j*0.15})
+		cands = append(cands, scoredTile{pos: t, score: d})
 	}
-	// スコア降順。同点は座標で安定化し、再訪一致を保証する
+
+	if p == PlaceRow {
+		// 棚は列優先で詰め、連続した平行列にする。散らさず x→y の順に埋めるので棚が線に見える
+		sortColumnMajor(cands)
+	} else {
+		// 密度場 + hash ジッタ。同 density の並びを決定的かつ非規則に崩し、スコア降順に安定 sort する
+		for i := range cands {
+			cands[i].score += norm01(hashTile(seed, cands[i].pos)) * 0.15
+		}
+		sortByScore(cands)
+	}
+
+	n := min(count, len(cands))
+	out := make([]Vec, n)
+	for i := range n {
+		out[i] = cands[i].pos
+	}
+	return out
+}
+
+// sortColumnMajor は候補を x→y の順に並べる。棚を左から列ごとに連続で詰め、平行列を線に見せる。
+func sortColumnMajor(cands []scoredTile) {
+	sort.Slice(cands, func(i, j int) bool {
+		if cands[i].pos.X != cands[j].pos.X {
+			return cands[i].pos.X < cands[j].pos.X
+		}
+		return cands[i].pos.Y < cands[j].pos.Y
+	})
+}
+
+// sortByScore はスコア降順に並べ、同点は座標で安定化して再訪一致を保証する。
+func sortByScore(cands []scoredTile) {
 	sort.SliceStable(cands, func(i, j int) bool {
 		if cands[i].score != cands[j].score {
 			return cands[i].score > cands[j].score
@@ -61,13 +92,6 @@ func selectTiles(room Room, p Placement, occupied map[Vec]bool, seed uint64, cou
 		}
 		return cands[i].pos.X < cands[j].pos.X
 	})
-
-	n := min(count, len(cands))
-	out := make([]Vec, n)
-	for i := range n {
-		out[i] = cands[i].pos
-	}
-	return out
 }
 
 // placementDensity は placement ごとの「タイル→スカラ密度」純関数。0 は置かない、大きいほど置きやすい。
@@ -90,6 +114,12 @@ func placementDensity(room Room, p Placement, t, center Vec, maxDist float64) fl
 		return 1 - nearestDoorDist(room, t)/maxDist
 	case PlaceFarFromDoor:
 		return nearestDoorDist(room, t) / maxDist
+	case PlaceRow:
+		// 内側の左端から1列おきを棚列にし、間の列は通路として density 0 で空ける
+		if (t.X-(room.Rect.X+1))%2 != 0 {
+			return 0
+		}
+		return 1
 	}
 	panic("未知の Placement: " + string(p))
 }

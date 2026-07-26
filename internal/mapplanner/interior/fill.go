@@ -26,5 +26,6 @@ func FillRoom(seed uint64, room Room, content Content) []Placed {
 			placed = append(placed, Placed{Kind: sel.Kind, Ref: sel.Ref, Pos: t})
 		}
 	}
-	return placed
+	// 塞がり防止。通路を塞ぐ家具を撤回し、戸口から全床へ到達できるようにする
+	return repairReachability(room, placed)
 }

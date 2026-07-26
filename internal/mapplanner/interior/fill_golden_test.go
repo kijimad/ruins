@@ -24,7 +24,7 @@ func storeContent() Content {
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "walkin_cooler", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 7}},
 				{Kind: KindFurniture, Ref: "register", Placement: PlaceNearDoor, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "gondola", Placement: PlaceCenter, Amount: Dice{Bonus: 8}},
+				{Kind: KindFurniture, Ref: "gondola", Placement: PlaceRow, Amount: Dice{Bonus: 10}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
 				{Kind: KindLoot, Ref: "snacks", Placement: PlaceCenter, Weight: 3, Amount: Dice{Base: 2, Sides: 4}},
