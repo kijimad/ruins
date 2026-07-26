@@ -25,31 +25,37 @@ type FurnishStage struct {
 	Placed []Placed
 }
 
-// FurnishStages は建物内装を加工ステップごとに分けて返す。plan→fill→age→flavor の各段の累積配置を返し、
-// どの段で見た目が壊れたかを段別 VRT で切り分けられるようにする。mapplanner の PlannerChain スナップショットに
-// 倣い、最終形だけでなく途中を残す。FurnishBuilding はこの最終段を返す薄い包みで、両者は同じパイプラインを
-// 共有するので段別 VRT と実生成は乖離しない。
-func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) ([]HouseRoom, []FurnishStage) {
-	rooms, roles := planRooms(footprint, seed, facility)
-	attachEntrance(rooms, footprint, door)
+// FurnishStages は敷地計画と内装を加工ステップごとに分けて返す。footprint を建物と庭に分ける planSite を
+// 前段に置き、建物内の各室へ plan→fill→age→flavor を掛けた累積配置を返す。どの段で見た目が壊れたかを段別
+// VRT で切り分けられるようにする。坪庭の室は家具を置かず観葉だけ置き、経年・flavor を掛けない。FurnishBuilding
+// はこの最終段を返す薄い包みで、両者は同じパイプラインを共有するので段別 VRT と実生成は乖離しない。
+func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site, []FurnishStage) {
+	site := planSite(footprint, seed, door, facility)
 
 	aged := buildingAged(seed) // 経年は建物ごとに1つ。全室が揃って新品か廃墟になる
-	labeled := make([]HouseRoom, len(rooms))
 	var fill, decayed, flavored []Placed
-	for i := range rooms {
+	for i := range site.Rooms {
+		hr := site.Rooms[i]
 		roomSeed := childSeed(seed, 300+i)
-		f := FillRoom(roomSeed, rooms[i], roleContent(facility, roles[i], seed))
+		if hr.Role == roleGarden {
+			// 坪庭。観葉だけ置き、経年も flavor も掛けない。囲われた庭を荒らさない
+			g := FillRoom(roomSeed, hr.Room, gardenContent())
+			fill = append(fill, g...)
+			decayed = append(decayed, g...)
+			flavored = append(flavored, g...)
+			continue
+		}
+		f := FillRoom(roomSeed, hr.Room, roleContent(facility, hr.Role, seed))
 		a := f
 		if aged {
-			a = Age(roomSeed, rooms[i], f)
+			a = Age(roomSeed, hr.Room, f)
 		}
-		fl := Flavor(roomSeed, rooms[i], a, facilityFlavor(facility))
+		fl := Flavor(roomSeed, hr.Room, a, facilityFlavor(facility))
 		fill = append(fill, f...)
 		decayed = append(decayed, a...)
 		flavored = append(flavored, fl...)
-		labeled[i] = HouseRoom{Room: rooms[i], Role: roles[i]}
 	}
-	return labeled, []FurnishStage{
+	return site, []FurnishStage{
 		{Label: "1 plan", Placed: nil},
 		{Label: "2 fill", Placed: fill},
 		{Label: "3 age", Placed: decayed},
@@ -57,23 +63,21 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) ([]Ho
 	}
 }
 
-// FurnishBuilding は建物外殻を多部屋へ割り、部屋ごとに内装を敷いて、役割付きの部屋と最終配置を返す。面積最大の
-// 部屋を施設の主室、残りを奥室にして、店なら売り場＋倉庫、民家なら居間＋寝室、の構造にする。door は外殻の
-// 入口で、それに面する部屋へ戸口として足し、家具が入口を塞がないようにする。各室に時間の層と flavor も掛ける。
-// 加工は FurnishStages が持ち、ここはその最終段 flavor を返す。呼び出し側は返す部屋から InternalWalls で
-// 間仕切りタイルを導き、配置を spawn する。
-func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) ([]HouseRoom, []Placed) {
-	rooms, stages := FurnishStages(seed, footprint, door, facility)
-	return rooms, stages[len(stages)-1].Placed
+// FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を
+// そのまま埋めず、入口側に前庭を空け、1室を坪庭にし、玄関を凹ませる。加工は FurnishStages が持ち、ここは
+// その最終段 flavor を返す。呼び出し側は Site から Walls で壁タイル、Garden で庭タイルを導き、配置を spawn する。
+func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) (Site, []Placed) {
+	site, stages := FurnishStages(seed, footprint, door, facility)
+	return site, stages[len(stages)-1].Placed
 }
 
-// InternalWalls は役割付き部屋から建物内部の間仕切りタイルを返す。overworld が壁タイルを描くのに使う。
-func InternalWalls(footprint Rect, rooms []HouseRoom, door Vec) []Vec {
-	plain := make([]Room, len(rooms))
-	for i, r := range rooms {
-		plain[i] = r.Room
-	}
-	return internalWalls(footprint, plain, door)
+// gardenContent は坪庭の内装。観葉を全域に点在させる。家具は置かない。dirt の地面に緑を散らして庭に見せる。
+func gardenContent() Content {
+	return Content{ID: roleGarden, Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Base: 2, Sides: 3}},
+		}},
+	}}
 }
 
 // planRooms は施設に応じて部屋群と各部屋の役割を返す。施設ごとに固有の間取りテンプレを持ち、民家は廊下型・
@@ -225,61 +229,6 @@ func waitingContent() Content {
 		}},
 		{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 2}}}},
 	}}
-}
-
-// attachEntrance は外殻の入口 door に面する部屋を見つけ、その部屋へ door を戸口として足す。家具が入口を
-// 塞がず、入口近くの配置が入口へ寄るようにする。
-func attachEntrance(rooms []Room, footprint Rect, door Vec) {
-	inner := doorInner(footprint, door)
-	for i := range rooms {
-		if rooms[i].Rect.containsInterior(inner) {
-			rooms[i].Doorways = append(rooms[i].Doorways, Doorway(door))
-			return
-		}
-	}
-}
-
-// doorInner は外壁上の door の1つ内側のタイルを返す。北・南・西・東の壁を判定する。
-func doorInner(footprint Rect, door Vec) Vec {
-	switch {
-	case door.Y == footprint.Y:
-		return Vec{X: door.X, Y: door.Y + 1}
-	case door.Y == footprint.Y+footprint.H-1:
-		return Vec{X: door.X, Y: door.Y - 1}
-	case door.X == footprint.X:
-		return Vec{X: door.X + 1, Y: door.Y}
-	default:
-		return Vec{X: door.X - 1, Y: door.Y}
-	}
-}
-
-// internalWalls は建物内部の間仕切りタイルを返す。footprint の外周は外殻が壁を持つので除き、部屋の内側床
-// でも戸口でもない内側タイルを間仕切りとする。入口の1つ内側は床に保ち、扉を開けたら壁、を避ける。
-func internalWalls(footprint Rect, rooms []Room, door Vec) []Vec {
-	floor := make(map[Vec]bool)
-	doorSet := make(map[Vec]bool)
-	for _, rm := range rooms {
-		for _, v := range rm.Rect.interiorTiles() {
-			floor[v] = true
-		}
-		for _, d := range rm.Doorways {
-			doorSet[Vec(d)] = true
-		}
-	}
-	inner := doorInner(footprint, door)
-
-	right, bottom := footprint.X+footprint.W-1, footprint.Y+footprint.H-1
-	var walls []Vec
-	for y := footprint.Y + 1; y < bottom; y++ {
-		for x := footprint.X + 1; x < right; x++ {
-			v := Vec{X: x, Y: y}
-			if v == inner || floor[v] || doorSet[v] {
-				continue
-			}
-			walls = append(walls, v)
-		}
-	}
-	return walls
 }
 
 // roomOrderByArea は部屋を面積降順の添字列で返す。主室に最大の部屋を選ぶための順序。

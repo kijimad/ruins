@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -208,26 +209,26 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
-	isWall, shell, err := drawUrbanBuilding(world, g, rng)
+	footprint, door, orient, err := planUrbanLot(world, g, rng)
 	if err != nil {
 		return err
 	}
-	occupied, err := furnishBuilding(world, g, shell, fac, seed)
+	isWall, occupied, err := furnishBuilding(world, g, footprint, door, orient, fac, seed)
 	if err != nil {
 		return err
 	}
 	return spawnUrbanEnemies(world, g, rng, size, isWall, occupied)
 }
 
-// drawUrbanBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟の殻を描く。建物は外周が壁・
-// 内側が床で、道路に面した見える扉を持つ。街路は隣接チャンクと連続して格子になる。内装は持たない。
-// 壁判定の関数を返し、敵配置が壁マスを避けるのに使う。
-func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, buildingShell, error) {
+// planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
+// 内装は furnishBuilding が Site から描くので、ここは街路だけ描いて区画・入口・扉の向きを返す。区画の中で
+// 前庭を空け坪庭を作り玄関を凹ませるのは interior の敷地計画に委ねる。
+func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, interior.Vec, gc.DoorOrientation, error) {
 	tiles := g.tiles.get()
 
-	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る。
-	// 建物は最小 3×3 を保証する。扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が
-	// 破綻しない下限で、市街地チャンクは chunkW,chunkH >= urbanStreetW+3 を前提にする
+	// 建物区画の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残す。区画は最小 3×3 を保証する。
+	// 扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が破綻しない下限で、市街地チャンクは
+	// chunkW,chunkH >= urbanStreetW+3 を前提にする
 	spanX := g.chunkW - urbanStreetW
 	spanY := g.chunkH - urbanStreetW
 	bw := max(3, spanX-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))
@@ -235,49 +236,30 @@ func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly 
 	bx := urbanStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
 	by := urbanStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
 
-	// 街路が北・西にあるので扉は道路に面する北壁か西壁に開ける。向きは壁の走る方向で決め、
-	// 東西に走る北壁の切れ目は Vertical、南北に走る西壁は Horizontal。door_planner と同じ規約
+	// 街路が北・西にあるので扉は道路に面する北辺か西辺に開ける。向きは壁の走る方向で決め、東西に走る
+	// 北辺の切れ目は Vertical、南北に走る西辺は Horizontal。door_planner と同じ規約。位置は interior が
+	// 前室の内側へ寄せる
 	doorX, doorY := bx+1+consts.Tile(rng.IntN(int(bw-2))), by
-	doorOrient := gc.DoorOrientationVertical
+	orient := gc.DoorOrientationVertical
 	if rng.IntN(2) == 0 {
 		doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))
-		doorOrient = gc.DoorOrientationHorizontal
+		orient = gc.DoorOrientationHorizontal
 	}
 
-	inBuilding := func(lx, ly consts.Tile) bool {
-		return lx >= bx && lx < bx+bw && ly >= by && ly < by+bh
-	}
-	isWall := func(lx, ly consts.Tile) bool {
-		if !inBuilding(lx, ly) {
-			return false
-		}
-		perimeter := lx == bx || lx == bx+bw-1 || ly == by || ly == by+bh-1
-		return perimeter && (lx != doorX || ly != doorY)
-	}
+	// 街路を描く。建物区画のタイルは furnishBuilding が Site から描くのでここでは触らない
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
-			name := ""
-			switch {
-			case lx < urbanStreetW || ly < urbanStreetW:
-				name = consts.TileNameFloor // 街路
-			case isWall(lx, ly):
-				name = consts.TileNameDWall
-			case inBuilding(lx, ly):
-				name = consts.TileNameFloor // 屋内・出入口
+			if lx >= urbanStreetW && ly >= urbanStreetW {
+				continue
 			}
-			if name == "" {
-				continue // 前庭・空き地は土のまま残す
-			}
-			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, name); err != nil {
-				return nil, buildingShell{}, fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
+				return interior.Rect{}, interior.Vec{}, orient, fmt.Errorf("市街地の街路配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
-	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
-	if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: g.offsetX + doorX, Y: g.offsetY + doorY}, doorOrient); err != nil {
-		return nil, buildingShell{}, fmt.Errorf("市街地の扉配置に失敗: %w", err)
-	}
-	return isWall, buildingShell{bx: bx, by: by, bw: bw, bh: bh, doorX: doorX, doorY: doorY}, nil
+	footprint := interior.Rect{X: int(bx), Y: int(by), W: int(bw), H: int(bh)}
+	door := interior.Vec{X: int(doorX), Y: int(doorY)}
+	return footprint, door, orient, nil
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから

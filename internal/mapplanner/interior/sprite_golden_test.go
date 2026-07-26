@@ -93,7 +93,7 @@ func TestGolden_BuildingHouse(t *testing.T) {
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := Vec{X: 14, Y: 0} // 北壁の入口
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordSeeds(t, footprint, func(seed uint64) ([]HouseRoom, []Placed) {
+	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return FurnishBuilding(seed, footprint, door, facHouse)
 	}))
 }
@@ -107,7 +107,7 @@ func TestGolden_BuildingStore(t *testing.T) {
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordSeeds(t, footprint, func(seed uint64) ([]HouseRoom, []Placed) {
+	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return FurnishBuilding(seed, footprint, door, "store")
 	}))
 }
@@ -121,13 +121,13 @@ func TestGolden_BuildingClinic(t *testing.T) {
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordSeeds(t, footprint, func(seed uint64) ([]HouseRoom, []Placed) {
-		rooms, placed := FurnishBuilding(seed, footprint, door, facClinic)
-		plain := make([]Room, len(rooms))
-		for i, r := range rooms {
+	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
+		site, placed := FurnishBuilding(seed, footprint, door, facClinic)
+		plain := make([]Room, len(site.Rooms))
+		for i, r := range site.Rooms {
 			plain[i] = r.Room
 		}
-		return rooms, append(placed, guardedLoot(seed, footprint, plain, "meds", 1)...)
+		return site, append(placed, guardedLoot(seed, site.Building, plain, "meds", 1)...)
 	}))
 }
 
@@ -143,9 +143,9 @@ func TestGolden_StagesHouse(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := Vec{X: 14, Y: 0}
-	rooms, stages := FurnishStages(1, footprint, door, facHouse)
+	site, stages := FurnishStages(1, footprint, door, facHouse)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordStages(t, footprint, rooms, stages))
+	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
 
 // TestGolden_StagesStore は店舗1棟の加工の流れ。商品棚と冷蔵ケースの fill、略奪で戦利品が減る age、
@@ -155,9 +155,9 @@ func TestGolden_StagesStore(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0}
-	rooms, stages := FurnishStages(1, footprint, door, "store")
+	site, stages := FurnishStages(1, footprint, door, "store")
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordStages(t, footprint, rooms, stages))
+	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
 
 // TestGolden_StagesClinic は診療所1棟の加工の流れ。診察台と薬棚の fill から、経年と装飾までを追う。
@@ -167,9 +167,9 @@ func TestGolden_StagesClinic(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0}
-	rooms, stages := FurnishStages(1, footprint, door, facClinic)
+	site, stages := FurnishStages(1, footprint, door, facClinic)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordStages(t, footprint, rooms, stages))
+	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
 
 // --- 部屋単位ゴールデン。FillRoom 単体の archetype 配置を testdata/rooms/ で見る目視回帰。-------------
@@ -227,41 +227,59 @@ func TestGolden_RoomFlavor(t *testing.T) {
 
 // assertRoomGolden は単室を「部屋1個の建物」として9 seed 分 recordSeeds に通し、testdata/rooms/ のゴールデンと
 // 照合する。role は部屋の役割ラベルで、部屋ゴールデンでも建物と同じく必ず描く。fill は seed から配置を返す。
+// 単室は敷地計画を持たないので庭・ポーチの無い素の Site に包む。
 func assertRoomGolden(t *testing.T, room Room, role string, fill func(seed uint64) []Placed) {
 	t.Helper()
 	g := goldie.New(t, goldie.WithFixtureDir(roomFixtureDir), goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), recordSeeds(t, room.Rect, func(seed uint64) ([]HouseRoom, []Placed) {
-		return []HouseRoom{{Room: room, Role: role}}, fill(seed)
+	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
+		return singleRoomSite(room, role), fill(seed)
 	}))
 }
 
-// recordSeeds は同じ footprint で seed を 1..9 と変えた9枚を 3x3 のモンタージュに合成する記録関数。1枚では
-// 見えない生成の変種を、9マスの並びで一望する。各セルは gen が返す配置を renderStage で描く。
-func recordSeeds(t *testing.T, footprint Rect, gen func(seed uint64) ([]HouseRoom, []Placed)) []byte {
+// singleRoomSite は1部屋を庭・ポーチの無い素の Site に包む。部屋ゴールデンが建物ゴールデンと同じ renderStage
+// を共有するための器。footprint と建物を部屋矩形に一致させ、庭を空にする。
+func singleRoomSite(room Room, role string) Site {
+	door := Vec{}
+	if len(room.Doorways) > 0 {
+		door = Vec(room.Doorways[0])
+	}
+	return Site{
+		Footprint: room.Rect, Building: room.Rect,
+		Garden: map[Vec]bool{}, ExtraWall: map[Vec]bool{},
+		Door: door, Rooms: []HouseRoom{{Room: room, Role: role}},
+	}
+}
+
+// recordSeeds は seed を 1..9 と変えた9枚を 3x3 のモンタージュに合成する記録関数。1枚では見えない生成の
+// 変種を、9マスの並びで一望する。各セルは gen が返す Site と配置を renderStage で描く。全 seed で footprint が
+// 同じなのでセルが整列する。
+func recordSeeds(t *testing.T, gen func(seed uint64) (Site, []Placed)) []byte {
 	t.Helper()
 	labels := make([]string, 9)
 	cells := make([]*image.RGBA, 9)
+	var cellW, cellH int
 	for i := range cells {
 		seed := uint64(i + 1)
-		rooms, placed := gen(seed)
+		site, placed := gen(seed)
 		labels[i] = "seed " + strconv.FormatUint(seed, 10)
-		cells[i] = renderStage(t, footprint, rooms, placed)
+		cells[i] = renderStage(t, site, placed)
+		cellW, cellH = site.Footprint.W*cellPx, site.Footprint.H*cellPx
 	}
-	return montage(t, footprint.W*cellPx, footprint.H*cellPx, 3, labels, cells)
+	return montage(t, cellW, cellH, 3, labels, cells)
 }
 
 // recordStages は1つの建物を加工ステップごとに横一列へ並べる記録関数。plan→fill→age→flavor の各段を
-// 同じ部屋の上に描き、どの段で見た目が壊れたかを切り分けられるようにする。mapplanner の段別スナップショット
+// 同じ Site の上に描き、どの段で見た目が壊れたかを切り分けられるようにする。mapplanner の段別スナップショット
 // 表示に倣った VRT で、最終形だけを見る recordSeeds では特定できない「どの加工が犯人か」に答える。
-func recordStages(t *testing.T, footprint Rect, rooms []HouseRoom, stages []FurnishStage) []byte {
+func recordStages(t *testing.T, site Site, stages []FurnishStage) []byte {
 	t.Helper()
 	labels := make([]string, len(stages))
 	cells := make([]*image.RGBA, len(stages))
 	for i, s := range stages {
 		labels[i] = s.Label
-		cells[i] = renderStage(t, footprint, rooms, s.Placed)
+		cells[i] = renderStage(t, site, s.Placed)
 	}
-	return montage(t, footprint.W*cellPx, footprint.H*cellPx, len(stages), labels, cells)
+	return montage(t, site.Footprint.W*cellPx, site.Footprint.H*cellPx, len(stages), labels, cells)
 }
 
 // montage は同じ大きさのセル画像を cols 列のグリッドへ並べ、各セルの上帯にラベルを添えて1枚に合成する。
@@ -283,43 +301,47 @@ func montage(t *testing.T, cellW, cellH, cols int, labels []string, cells []*ima
 	return encodePNG(t, img)
 }
 
-// renderStage は役割付き部屋の集合を1枚の *image.RGBA に描く。下地タイルを「戸口→扉 / 部屋の内側→床 /
-// それ以外→壁」で決め、実スプライトを重ね、各部屋に役割ラベルを描く。footprint 全体を走査するので、部屋
-// どうしが共有する間仕切りも外周壁も、共有壁に開けた戸口も1枚に現れる。recordSeeds が各セルの描画に使う。
-func renderStage(t *testing.T, footprint Rect, rooms []HouseRoom, placed []Placed) *image.RGBA {
+// renderStage は敷地計画 Site を1枚の *image.RGBA に描く。下地タイルを「庭→土 / 戸口→扉 / 部屋の内側→床 /
+// それ以外→壁」で決め、実スプライトを重ね、各部屋に役割ラベルを描く。footprint 全体を走査するので、前庭や
+// 坪庭・玄関の凹み・間仕切り・共有壁の戸口が1枚に現れる。overworld の描画と同じ分類を使い VRT と実装を揃える。
+func renderStage(t *testing.T, site Site, placed []Placed) *image.RGBA {
 	t.Helper()
-	img := image.NewRGBA(image.Rect(0, 0, footprint.W*cellPx, footprint.H*cellPx))
+	f := site.Footprint
+	img := image.NewRGBA(image.Rect(0, 0, f.W*cellPx, f.H*cellPx))
 
-	floorSet := make(map[Vec]bool)
-	doorSet := make(map[Vec]bool)
-	for _, hr := range rooms {
-		for _, v := range hr.Room.Rect.interiorTiles() {
-			floorSet[v] = true
-		}
-		for _, d := range hr.Room.Doorways {
-			doorSet[Vec(d)] = true
+	floor := site.floorSet()
+	door := site.doorSet()
+	for y := range f.H {
+		for x := range f.W {
+			v := Vec{X: f.X + x, Y: f.Y + y}
+			var c color.RGBA
+			switch {
+			case site.Garden[v]:
+				c = gardenColor
+			case door[v]:
+				c = tileColor(false, true)
+			case floor[v] && !site.ExtraWall[v]:
+				c = tileColor(false, false)
+			default:
+				c = tileColor(true, false)
+			}
+			fillCell(img, x*cellPx, y*cellPx, c)
 		}
 	}
 
-	for y := range footprint.H {
-		for x := range footprint.W {
-			v := Vec{X: footprint.X + x, Y: footprint.Y + y}
-			isDoor := doorSet[v]
-			isWall := !isDoor && !floorSet[v]
-			fillCell(img, x*cellPx, y*cellPx, tileColor(isWall, isDoor))
-		}
-	}
-
-	drawPlaced(t, img, Vec{X: footprint.X, Y: footprint.Y}, placed)
+	drawPlaced(t, img, Vec{X: f.X, Y: f.Y}, placed)
 
 	// 役割ラベルは什器を描いた後に重ね、家具に埋もれず読めるようにする。左上の床側へ寄せて戸口や壁を避ける
-	for _, hr := range rooms {
-		lx := (hr.Room.Rect.X + 1 - footprint.X) * cellPx
-		ly := (hr.Room.Rect.Y + 1 - footprint.Y) * cellPx
+	for _, hr := range site.Rooms {
+		lx := (hr.Room.Rect.X + 1 - f.X) * cellPx
+		ly := (hr.Room.Rect.Y + 1 - f.Y) * cellPx
 		drawLabel(img, lx+2, ly+2, hr.Role)
 	}
 	return img
 }
+
+// gardenColor は庭・前庭・坪庭の下地色。壁や床と分かれる土のくすんだ緑。
+var gardenColor = color.RGBA{R: 54, G: 62, B: 44, A: 255}
 
 // drawLabel は px,py を左上に役割名の文字を、可読性のため暗い下地の上へ描く。basicfont は ASCII のみ
 // なので役割 ID は英字に保つ。
