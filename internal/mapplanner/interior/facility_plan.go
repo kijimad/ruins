@@ -5,17 +5,28 @@ package interior
 // テンプレを持ち、「言われなくても何の施設か分かる」間取りにする。民家の PlanHouse と同じく HouseRoom を
 // 返し、planRooms が役割ごとに内装を敷く。
 
-// PlanStore は店舗の間取りを決定的に生成する。入口側の広い売場を1室で取り、奥の壁沿いにバックヤードの
-// 小部屋を並べる。売場は商品棚と冷蔵ケースの開けた空間、奥は樽の物置にして、民家の細かい間仕切りとも
-// 診療所の廊下型とも違う「店の平面」にする。バックヤードの個数は seed で 2〜3 に変える。
+// PlanStore は店舗の間取りを決定的に生成する。入口側の広い売場を1室で取り、その奥にバックヤードの小部屋を
+// 並べる。売場は商品棚と冷蔵ケースの開けた空間、奥は樽の物置にして、民家の細かい間仕切りとも診療所の廊下型
+// とも違う「店の平面」にする。バックヤードを奥の壁沿いに置くか横の壁沿いに置くかを seed で選び、下ストリップ・
+// 右柱・左柱の3型を出す。どの型でも売場は北の入口に面する。バックヤードの個数も seed で 2〜3 に変える。
 func PlanStore(footprint Rect, seed uint64) []HouseRoom {
+	switch childSeed(seed, 6_000_002) % 3 {
+	case 0:
+		return storeBackBottom(footprint, seed)
+	case 1:
+		return storeBackSide(footprint, seed, false)
+	default:
+		return storeBackSide(footprint, seed, true)
+	}
+}
+
+// storeBackBottom は売場を上いっぱいに取り、バックヤードを下の壁沿いに縦線で 2〜3 室へ並べる型。
+func storeBackBottom(footprint Rect, seed uint64) []HouseRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
 	salesBot := jitterSplit(seed, 20, y0+h*7/10) // 売場の底 兼 バックヤードの上壁
-
-	// バックヤードを奥の壁沿いに縦線で 2〜3 室へ割る。個数を seed で変える
-	n := 2 + int(childSeed(seed, 6_000_000)%2)
+	n := 2 + int(childSeed(seed, 6_000_000)%2)   // バックヤードの個数
 	rectOf := map[string]Rect{
 		"sales": {X: x0, Y: y0, W: w, H: salesBot - y0 + 1},
 	}
@@ -33,6 +44,54 @@ func PlanStore(footprint Rect, seed uint64) []HouseRoom {
 			edge = x0 + w*(i+1)/n
 		}
 		rectOf[keys[i]] = Rect{X: prev, Y: salesBot, W: edge - prev + 1, H: bottom - salesBot + 1}
+		conns = append(conns, [2]string{"sales", keys[i]})
+		order = append(order, roomRole{keys[i], "back"})
+		prev = edge
+	}
+	return assembleRooms(rectOf, wireDoorways(rectOf, seed, conns), order)
+}
+
+// storeBackSide は売場を横いっぱいの高さで取り、バックヤードを横の壁沿いの柱に縦積みで 2〜3 室へ並べる型。
+// left なら左の壁沿い、そうでなければ右の壁沿いに柱を置く。売場は入口のある上辺に面したまま、奥行きでなく
+// 横幅で店と物置を分ける。下ストリップ型と別の平面になり、店の骨格に変種が出る。
+func storeBackSide(footprint Rect, seed uint64, left bool) []HouseRoom {
+	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
+	right, bottom := x0+w-1, y0+h-1
+
+	backW := jitterSplit(seed, 22, w*3/10) // バックヤードの柱の幅
+	n := 2 + int(childSeed(seed, 6_000_000)%2)
+
+	// 売場とバックヤードの共有列 cx を決める。left なら柱が左、そうでなければ柱が右
+	var cx, backX0 int
+	if left {
+		cx = x0 + backW
+		backX0 = x0
+	} else {
+		cx = right - backW
+		backX0 = cx
+	}
+	salesX0, salesW := x0, cx-x0+1
+	if left {
+		salesX0, salesW = cx, right-cx+1
+	}
+
+	rectOf := map[string]Rect{
+		"sales": {X: salesX0, Y: y0, W: salesW, H: h},
+	}
+	order := make([]roomRole, 0, 1+n)
+	order = append(order, roomRole{"sales", "main"})
+	conns := make([][2]string, 0, n)
+
+	// 柱を縦線でなく横線で 2〜3 室へ積む。各室は売場と列 cx を共有して面する。共有壁の行を一致させるため、
+	// 前の室の下端をそのまま次の室の上端にする
+	keys := []string{"back0", "back1", "back2"}
+	prev := y0
+	for i := range n {
+		edge := bottom
+		if i < n-1 {
+			edge = y0 + h*(i+1)/n
+		}
+		rectOf[keys[i]] = Rect{X: backX0, Y: prev, W: backW + 1, H: edge - prev + 1}
 		conns = append(conns, [2]string{"sales", keys[i]})
 		order = append(order, roomRole{keys[i], "back"})
 		prev = edge
