@@ -22,7 +22,7 @@ func TestPlanHouse_同じseedで完全一致する(t *testing.T) {
 // 両方に対して回す。
 var housePlanners = []struct {
 	name string
-	plan func(Rect, uint64) []HouseRoom
+	plan func(Rect, uint64) []PlannedRoom
 }{
 	{"horizontal", PlanHouse},
 	{"vertical", PlanHouseVertical},
@@ -120,8 +120,8 @@ func TestPlanHouseAny_seedで型が選ばれ両方出る(t *testing.T) {
 	assert.True(t, seenTall, "seed を振ると縦廊下の家が出る")
 }
 
-// houseRooms は HouseRoom 列から Room 列を取り出す。連結性検査など幾何だけを見る補助で使う。
-func houseRooms(plan []HouseRoom) []Room {
+// houseRooms は PlannedRoom 列から Room 列を取り出す。連結性検査など幾何だけを見る補助で使う。
+func houseRooms(plan []PlannedRoom) []Room {
 	rooms := make([]Room, len(plan))
 	for i, hr := range plan {
 		rooms[i] = hr.Room

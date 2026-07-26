@@ -3,16 +3,16 @@ package interior
 // 民家は廊下型のテンプレートで間取りを作る。玄関という狭い前室から廊下が背骨として伸び、各室は廊下に
 // 面して開く。浴室・脱衣所・トイレは小部屋クラスタに寄せる。純 BSP は均一な部屋しか作れず、廊下という
 // 多数の部屋に面する通路も狭い前室も表現できないため、住居の believability には間取りの階層を保証する
-// テンプレートを使う。汎用 BSP の SplitBuilding は診療所など他用途に残す。
+// テンプレートを使う。汎用 BSP の SubdivideBuilding はテンプレの無い施設や狭い footprint のフォールバック。
 //
 // 小部屋は廊下の向きに縛られない。要は各室が主廊下に面する必要はなく、兄弟部屋を介して入れれば
 // 小部屋を作れる。脱衣所だけ廊下に面させ、その奥に浴室・トイレを再帰的に分割して nest する。この
 // 「入れ子分割＋兄弟経由アクセス」を使えば横廊下でも縦廊下でも同じ道具で小部屋を作れる。PlanHouse は
 // 横廊下、PlanHouseVertical は縦廊下でそれを示す。
 
-// HouseRoom は役割付きの部屋。廊下型の間取りは幾何と一緒に役割まで決める。ゾーン分類のように距離から
+// PlannedRoom は役割付きの部屋。廊下型の間取りは幾何と一緒に役割まで決める。ゾーン分類のように距離から
 // 役割を推すのでなく、テンプレートが玄関や浴室を名指しする。
-type HouseRoom struct {
+type PlannedRoom struct {
 	Room Room
 	Role string
 }
@@ -34,12 +34,12 @@ func wireDoorways(rectOf map[string]Rect, seed uint64, conns [][2]string) map[st
 	return doors
 }
 
-// assembleRooms は矩形表と戸口表を order の順に HouseRoom へ組む。返す順序が動線の手前から奥へ並ぶよう
+// assembleRooms は矩形表と戸口表を order の順に PlannedRoom へ組む。返す順序が動線の手前から奥へ並ぶよう
 // order を作る。
-func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []roomRole) []HouseRoom {
-	rooms := make([]HouseRoom, 0, len(order))
+func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []roomRole) []PlannedRoom {
+	rooms := make([]PlannedRoom, 0, len(order))
 	for _, o := range order {
-		rooms = append(rooms, HouseRoom{
+		rooms = append(rooms, PlannedRoom{
 			Room: Room{Rect: rectOf[o.key], Doorways: doors[o.key]},
 			Role: o.role,
 		})
@@ -47,9 +47,9 @@ func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []r
 	return rooms
 }
 
-// wireHouse は部屋矩形と接続指定から HouseRoom 列を組む。conns の各対を戸口で繋ぎ、entrance の部屋の
+// wireHouse は部屋矩形と接続指定から PlannedRoom 列を組む。conns の各対を戸口で繋ぎ、entrance の部屋の
 // 下辺中央に建物入口を開ける。横型と縦型の間取りが幾何だけ差し替えて同じ組み立てを共有する。
-func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, entrance string, bottom int, order []roomRole) []HouseRoom {
+func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, entrance string, bottom int, order []roomRole) []PlannedRoom {
 	doors := wireDoorways(rectOf, seed, conns)
 	gk := rectOf[entrance]
 	doors[entrance] = append(doors[entrance], Doorway{X: gk.X + gk.W/2, Y: bottom})
@@ -73,7 +73,7 @@ var houseOrder = []roomRole{
 // PlanHouse は横廊下の民家間取りを決定的に生成する。上段を居室、下段を玄関と水回りにし、いずれも縦線で
 // 分割する。縦線で割ると各室は廊下に面したまま幅を狭められるので、トイレや浴室を小部屋にできる。返す
 // 部屋は戸口で連結され、どの部屋にも入口から到達できる。footprint は概ね 24x16 以上を前提にする。
-func PlanHouse(footprint Rect, seed uint64) []HouseRoom {
+func PlanHouse(footprint Rect, seed uint64) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
@@ -114,7 +114,7 @@ func PlanHouse(footprint Rect, seed uint64) []HouseRoom {
 // PlanHouseVertical は縦廊下の民家間取りを決定的に生成する。縦廊下だと左右の翼は横長の帯になり、素朴に
 // 割ると水回りが広くなる。そこで右下の水回りを入れ子に再帰分割し、脱衣所だけ廊下に面させ、浴室とトイレ
 // は脱衣所の奥へ nest する。全室が主廊下に面する必要はなく、兄弟経由で入れれば縦廊下でも小部屋を作れる。
-func PlanHouseVertical(footprint Rect, seed uint64) []HouseRoom {
+func PlanHouseVertical(footprint Rect, seed uint64) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
@@ -163,8 +163,8 @@ func jitterSplit(seed uint64, index, base int) int {
 // mirrorHouse は民家プランを footprint 内で左右反転する。玄関や水回り・居室の左右が入れ替わり、同じ
 // テンプレから鏡像の間取りが得られる。矩形の左端と戸口の X を折り返し、幅と Y はそのままにするので、
 // 連結と部屋の役割は保たれたまま向きだけが変わる。
-func mirrorHouse(footprint Rect, plan []HouseRoom) []HouseRoom {
-	out := make([]HouseRoom, len(plan))
+func mirrorHouse(footprint Rect, plan []PlannedRoom) []PlannedRoom {
+	out := make([]PlannedRoom, len(plan))
 	for i, hr := range plan {
 		r := hr.Room.Rect
 		mr := Rect{X: footprint.X + footprint.W - (r.X - footprint.X) - r.W, Y: r.Y, W: r.W, H: r.H}
@@ -172,24 +172,24 @@ func mirrorHouse(footprint Rect, plan []HouseRoom) []HouseRoom {
 		for j, d := range hr.Room.Doorways {
 			doors[j] = Doorway{X: footprint.X + footprint.W - 1 - (d.X - footprint.X), Y: d.Y}
 		}
-		out[i] = HouseRoom{Room: Room{Rect: mr, Doorways: doors}, Role: hr.Role}
+		out[i] = PlannedRoom{Room: Room{Rect: mr, Doorways: doors}, Role: hr.Role}
 	}
 	return out
 }
 
 // houseVariants は民家の間取りプランナの一覧。生成時に seed で1つ選ぶ。横廊下・縦廊下と、その左右反転で
 // 4型ある。分割比のジッタと合わさり、同じ型でも seed ごとに部屋サイズが変わる。型を足すとここへ加える。
-var houseVariants = []func(Rect, uint64) []HouseRoom{
+var houseVariants = []func(Rect, uint64) []PlannedRoom{
 	PlanHouse,
 	PlanHouseVertical,
-	func(f Rect, s uint64) []HouseRoom { return mirrorHouse(f, PlanHouse(f, s)) },
-	func(f Rect, s uint64) []HouseRoom { return mirrorHouse(f, PlanHouseVertical(f, s)) },
+	func(f Rect, s uint64) []PlannedRoom { return mirrorHouse(f, PlanHouse(f, s)) },
+	func(f Rect, s uint64) []PlannedRoom { return mirrorHouse(f, PlanHouseVertical(f, s)) },
 }
 
 // PlanHouseAny は seed から間取りの型を1つ決定的に選び、その民家を生成する。建物ごとに横廊下・縦廊下と
 // その鏡像が混ざり、間取りに変化が出る。型の選択は childSeed(seed, 0) に閉じ、各プランナ内部の戸口抽選や
 // 分割比ジッタと相関しないようにする。
-func PlanHouseAny(footprint Rect, seed uint64) []HouseRoom {
+func PlanHouseAny(footprint Rect, seed uint64) []PlannedRoom {
 	v := houseVariants[int(childSeed(seed, 0)%uint64(len(houseVariants)))]
 	return v(footprint, seed)
 }

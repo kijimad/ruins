@@ -25,7 +25,7 @@ type Site struct {
 	Garden    map[Vec]bool
 	ExtraWall map[Vec]bool
 	Door      Vec
-	Rooms     []HouseRoom
+	Rooms     []PlannedRoom
 }
 
 // planSite は footprint を建物と庭に分ける。入口側に前庭を空けて建物を内寄せし、入口を建物辺へ寄せ、玄関を
@@ -38,9 +38,9 @@ func planSite(footprint Rect, seed uint64, door Vec, facility string) Site {
 	extra := make(map[Vec]bool)
 
 	rooms, roles := planRooms(building, seed, facility)
-	labeled := make([]HouseRoom, len(rooms))
+	labeled := make([]PlannedRoom, len(rooms))
 	for i := range rooms {
-		labeled[i] = HouseRoom{Room: rooms[i], Role: roles[i]}
+		labeled[i] = PlannedRoom{Room: rooms[i], Role: roles[i]}
 	}
 
 	// 入口は建物辺のうち前室の内側に面する位置へ。仕切り列に当たると部屋でなく壁に開くので、前室の内側の
@@ -62,7 +62,7 @@ func planSite(footprint Rect, seed uint64, door Vec, facility string) Site {
 
 // attachDoor は入口の内側の部屋へ door を戸口として足す。入口の1マス内側を含む部屋を探す。ポーチで下げた
 // 入口でも、内向きの隣が最前列の部屋の内側に来るので同じ判定で拾える。
-func attachDoor(rooms []HouseRoom, door Vec, s side) {
+func attachDoor(rooms []PlannedRoom, door Vec, s side) {
 	step := porchStep(s)
 	inner := Vec{X: door.X + step.X, Y: door.Y + step.Y}
 	for i := range rooms {
@@ -98,7 +98,7 @@ func insetBuilding(footprint Rect, door Vec) Rect {
 // chooseDoor は建物辺の入口位置を、その辺に面する部屋の内側の帯へ落ちるよう選ぶ。overworld が街路向きに
 // 決めた door の横位置を望みとし、前室の内側に入ればそのまま、仕切り列に当たるなら最も近い前室の内側へ
 // 寄せる。これで入口が壁でなく部屋へ開く。
-func chooseDoor(building Rect, rooms []HouseRoom, s side, desired Vec) Vec {
+func chooseDoor(building Rect, rooms []PlannedRoom, s side, desired Vec) Vec {
 	bottom, right := building.Y+building.H-1, building.X+building.W-1
 	switch s {
 	case sideNorth:
@@ -114,7 +114,7 @@ func chooseDoor(building Rect, rooms []HouseRoom, s side, desired Vec) Vec {
 
 // frontSlot は辺 s に面する部屋の内側の帯のうち、望みの横位置 desired に最も近い座標を返す。望みが前室の
 // 内側にあればそのまま返す。前室が無ければ望みをそのまま返す。
-func frontSlot(building Rect, rooms []HouseRoom, s side, desired int) int {
+func frontSlot(building Rect, rooms []PlannedRoom, s side, desired int) int {
 	bestLo, bestHi, found := 0, 0, false
 	for _, hr := range rooms {
 		lo, hi, ok := frontSpan(hr.Room.Rect, building, s)
@@ -249,7 +249,7 @@ func footprintMinusBuilding(footprint, building Rect) map[Vec]bool {
 
 // pickGardenRoom は坪庭にする部屋の添字を返す。入口の部屋・廊下・狭い部屋は避け、面積最大の居室を選ぶ。
 // 該当が無ければ -1。1棟に坪庭は1つまでにして、部屋を庭で潰しすぎないようにする。
-func pickGardenRoom(rooms []HouseRoom, door Vec, seed uint64) int {
+func pickGardenRoom(rooms []PlannedRoom, door Vec, seed uint64) int {
 	// 3室に満たない小さな建物は坪庭を作らない。部屋が減りすぎる
 	if len(rooms) < 4 {
 		return -1
@@ -302,7 +302,6 @@ func doorSide(footprint Rect, door Vec) side {
 		return sideEast
 	}
 }
-
 
 // porchStep は入口を建物内へ下げる向き。辺の内向き。
 func porchStep(s side) Vec {

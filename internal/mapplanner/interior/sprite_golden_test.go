@@ -246,7 +246,7 @@ func singleRoomSite(room Room, role string) Site {
 	return Site{
 		Footprint: room.Rect, Building: room.Rect,
 		Garden: map[Vec]bool{}, ExtraWall: map[Vec]bool{},
-		Door: door, Rooms: []HouseRoom{{Room: room, Role: role}},
+		Door: door, Rooms: []PlannedRoom{{Room: room, Role: role}},
 	}
 }
 

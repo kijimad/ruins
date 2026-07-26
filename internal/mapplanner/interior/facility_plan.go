@@ -2,7 +2,7 @@ package interior
 
 // 施設固有の間取りテンプレ。汎用 BSP は均一な部屋しか作れず、店も診療所も同じ骨格になってしまう。店なら
 // 開けた売場＋奥のバックヤード、診療所なら入口の待合＋廊下＋診察室の列、という施設ごとの構造を保証する
-// テンプレを持ち、「言われなくても何の施設か分かる」間取りにする。民家の PlanHouse と同じく HouseRoom を
+// テンプレを持ち、「言われなくても何の施設か分かる」間取りにする。民家の PlanHouse と同じく PlannedRoom を
 // 返し、planRooms が役割ごとに内装を敷く。奥室も倉庫・診察室の1種に潰さず、事務所・トイレ・薬局などへ
 // 役割を振り分けて、非民家も民家並みの room 多様性にする。
 
@@ -36,7 +36,7 @@ func clinicBackRole(i, total int) string {
 // 並べる。売場は商品棚と冷蔵ケースの開けた空間、奥は樽の物置にして、民家の細かい間仕切りとも診療所の廊下型
 // とも違う「店の平面」にする。バックヤードを奥の壁沿いに置くか横の壁沿いに置くかを seed で選び、下ストリップ・
 // 右柱・左柱の3型を出す。どの型でも売場は北の入口に面する。バックヤードの個数も seed で 2〜3 に変える。
-func PlanStore(footprint Rect, seed uint64) []HouseRoom {
+func PlanStore(footprint Rect, seed uint64) []PlannedRoom {
 	switch childSeed(seed, 6_000_002) % 3 {
 	case 0:
 		return storeBackBottom(footprint, seed)
@@ -48,7 +48,7 @@ func PlanStore(footprint Rect, seed uint64) []HouseRoom {
 }
 
 // storeBackBottom は売場を上いっぱいに取り、バックヤードを下の壁沿いに縦線で 2〜3 室へ並べる型。
-func storeBackBottom(footprint Rect, seed uint64) []HouseRoom {
+func storeBackBottom(footprint Rect, seed uint64) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
@@ -81,7 +81,7 @@ func storeBackBottom(footprint Rect, seed uint64) []HouseRoom {
 // storeBackSide は売場を横いっぱいの高さで取り、バックヤードを横の壁沿いの柱に縦積みで 2〜3 室へ並べる型。
 // left なら左の壁沿い、そうでなければ右の壁沿いに柱を置く。売場は入口のある上辺に面したまま、奥行きでなく
 // 横幅で店と物置を分ける。下ストリップ型と別の平面になり、店の骨格に変種が出る。
-func storeBackSide(footprint Rect, seed uint64, left bool) []HouseRoom {
+func storeBackSide(footprint Rect, seed uint64, left bool) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
@@ -130,7 +130,7 @@ func storeBackSide(footprint Rect, seed uint64, left bool) []HouseRoom {
 // 中央の縦廊下を通し、廊下の左右に診察室を並べる。待合が手前・診察室が奥・廊下が背骨という動線で、店の
 // 開けた売場とも民家の水回りとも違う「診療所の平面」にする。各翼を seed で上下2室へ割るか1室のまま
 // にするかを変え、診察室が2室の広い診療所と4室の細かい診療所を出す。
-func PlanClinic(footprint Rect, seed uint64) []HouseRoom {
+func PlanClinic(footprint Rect, seed uint64) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 

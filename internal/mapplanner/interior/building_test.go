@@ -7,39 +7,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestSplitBuilding_同じseedで完全一致する は分割文法の決定性を固定する。再訪一致と serde の前提で、
+// TestSubdivideBuilding_同じseedで完全一致する は分割文法の決定性を固定する。再訪一致と serde の前提で、
 // 同じ footprint と seed からは同じ部屋群と戸口が出る。
-func TestSplitBuilding_同じseedで完全一致する(t *testing.T) {
+func TestSubdivideBuilding_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	first := SplitBuilding(footprint, 7)
+	first := SubdivideBuilding(footprint, 7)
 	for range 5 {
-		require.Equal(t, first, SplitBuilding(footprint, 7), "同じ seed なら部屋も戸口も完全一致する")
+		require.Equal(t, first, SubdivideBuilding(footprint, 7), "同じ seed なら部屋も戸口も完全一致する")
 	}
 }
 
-// TestSplitBuilding_全部屋が戸口で連結する は最重要の不変条件を固定する。どの部屋にも建物入口から
-// 戸口を辿って到達できること。実装は union-find の全域木で保証するので、テストは戸口グラフ側から BFS で
-// 独立に検算し、実装とテストで経路を分ける。連結が壊れると入れない部屋ができ、手動プレイまで気づけない。
-func TestSplitBuilding_全部屋が戸口で連結する(t *testing.T) {
-	t.Parallel()
-
-	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	for seed := range uint64(50) {
-		rooms := SplitBuilding(footprint, seed)
-		require.GreaterOrEqualf(t, len(rooms), 2, "seed=%d で複数部屋に割れる", seed)
-		assert.Truef(t, allRoomsConnected(rooms), "seed=%d で全部屋が戸口で連結する", seed)
-	}
-}
-
-// TestSplitBuilding_部屋がfootprint内に収まり重ならない は分割の健全性を固定する。部屋は footprint を
+// TestSubdivideBuilding_部屋がfootprint内に収まり重ならない は分割の健全性を固定する。部屋は footprint を
 // はみ出さず、内側床どうしが重複しない。BSP の共有壁は両隣の周壁なので、内側床だけを見れば排他になる。
-func TestSplitBuilding_部屋がfootprint内に収まり重ならない(t *testing.T) {
+func TestSubdivideBuilding_部屋がfootprint内に収まり重ならない(t *testing.T) {
 	t.Parallel()
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	rooms := SplitBuilding(footprint, 3)
+	rooms := SubdivideBuilding(footprint, 3)
 	seen := make(map[Vec]bool)
 	for _, rm := range rooms {
 		r := rm.Rect
@@ -62,7 +48,8 @@ func TestRoomDepths_入口が距離0で全室が到達可能(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	for seed := range uint64(30) {
-		rooms := SplitBuilding(footprint, seed)
+		rooms := SubdivideBuilding(footprint, seed)
+		addEntrance(footprint, rooms) // roomDepths は入口を距離0の起点にするので建物入口を1つ開ける
 		depths := roomDepths(footprint, rooms)
 
 		zeros, maxDepth := 0, 0

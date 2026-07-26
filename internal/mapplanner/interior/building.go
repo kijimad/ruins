@@ -9,16 +9,16 @@ const (
 	maxSplitDep = 3 // BSP の分割深さ上限。26x18 で概ね 6 室に収まり、住居として読める粒度になる
 )
 
-// SplitBuilding は footprint を BSP で複数の部屋へ決定的に分割し、隣接部屋を戸口で連結し、外周に
-// 建物入口を1つ開ける。返す部屋はすべて入口から戸口を辿って到達できる連結木になる。
-func SplitBuilding(footprint Rect, seed uint64) []Room {
+// SubdivideBuilding は footprint を BSP で複数部屋へ分割し戸口で相互連結する。建物入口は開けない。返す
+// 部屋は相互に連結し、外から入った部屋から全室へ到達できる。テンプレの無い施設や狭い footprint の
+// フォールバックとして planRooms が使う。入口は敷地計画 Site が別に開ける。
+func SubdivideBuilding(footprint Rect, seed uint64) []Room {
 	rects := bspSplit(footprint, seed, 0)
 	rooms := make([]Room, len(rects))
 	for i, r := range rects {
 		rooms[i] = Room{Rect: r}
 	}
 	connectRooms(rooms, seed)
-	addEntrance(footprint, rooms)
 	return rooms
 }
 
@@ -143,7 +143,7 @@ func onFootprintEdge(footprint Rect, d Doorway) bool {
 // roomDepths は建物入口を持つ部屋を起点に、戸口グラフ上の各部屋の入口からの距離を BFS で返す。
 // これがゾーン分類の基礎で、距離 0 は入口の間、距離が増えるほど奥まった私的な部屋になる。手前を公共、
 // 奥を私的とする住居の動線を、面積という幾何量でなく到達構造という位相量で表す。入口が無い、または
-// 入口から孤立した部屋の距離は -1 にする。SplitBuilding は全部屋を連結するので通常 -1 は出ない。
+// 入口から孤立した部屋の距離は -1 にする。SubdivideBuilding は全部屋を連結するので通常 -1 は出ない。
 func roomDepths(footprint Rect, rooms []Room) []int {
 	depths := make([]int, len(rooms))
 	for i := range depths {
