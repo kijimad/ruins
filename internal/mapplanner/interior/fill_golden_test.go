@@ -93,6 +93,32 @@ func diningTable(placement Placement) Stuff {
 	}
 }
 
+// candleCircle は蝋燭の輪の flavor machine。中央の蝋燭を anchor に周囲8マスへ蝋燭を束ねる。廃墟で誰かが
+// 暗がりに身を寄せた痕を、束の機構で1つの scene として置く。装飾なので通行を阻まない。
+func candleCircle() Stuff {
+	offs := []Vec{{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 0}, {X: 1, Y: 0}, {X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1}}
+	ring := make([]Satellite, 0, len(offs))
+	for _, o := range offs {
+		ring = append(ring, Satellite{Kind: KindDecor, Ref: "candle", Offsets: []Vec{o}})
+	}
+	return Stuff{Kind: KindDecor, Ref: "candle", Placement: PlaceCenter, Amount: Dice{Bonus: 1}, Satellites: ring}
+}
+
+// abandonedFlavor は廃墟に生活の痕を足す flavor machine の Content。蝋燭の輪を中央に、絨毯や箒を隅に置く。
+// 戦利品を増やさず character を与え、空き箱部屋を無くす。Flavor パスで既存配置の隙間へ流し込む。
+func abandonedFlavor() Content {
+	return Content{
+		ID: "abandoned",
+		Groups: []Group{
+			{Style: PickEach, Items: []Stuff{candleCircle()}},
+			{Style: PickN, Pick: 2, Items: []Stuff{
+				{Kind: KindDecor, Ref: "carpet", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindDecor, Ref: "broom", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			}},
+		},
+	}
+}
+
 // houseContent は民家を模した Content。既存スプライト、ベッド・机・椅子・棚・ランタンでほぼ成立する。
 // ベッドは奥、食卓の机と椅子は中央、棚とランタンは壁際、という住居の定石を placement で宣言する。
 func houseContent() Content {

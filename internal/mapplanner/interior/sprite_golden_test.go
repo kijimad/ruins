@@ -83,6 +83,13 @@ func spriteFileOf(p Placed) string {
 		return "sink_"
 	case "washer":
 		return "wash_machine_empty_"
+	// flavor。廃墟に残る生活の痕
+	case "candle":
+		return "candle_"
+	case "carpet":
+		return "carpet_"
+	case "broom":
+		return "broom_"
 	default:
 		return ""
 	}
@@ -132,6 +139,23 @@ func TestGolden_InteriorHouse(t *testing.T) {
 	require.NotEmpty(t, placed, "何か配置される")
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), renderRoomSprites(t, houseRoom(), placed))
+}
+
+// TestGolden_InteriorFlavorMachine は flavor machine の目視回帰。ベッドと棚だけの生活痕の薄い部屋に
+// Flavor パスで蝋燭の輪を足し、戦利品を増やさず character を与えて空き箱部屋を無くす様子を確認する。
+// 蝋燭の輪は束の機構で置く1つの scene で、装飾ゆえ通行を阻まない。
+func TestGolden_InteriorFlavorMachine(t *testing.T) {
+	t.Parallel()
+
+	room := Room{Rect: Rect{X: 0, Y: 0, W: 13, H: 10}, Doorways: []Doorway{{X: 6, Y: 9}}}
+	base := Content{ID: "sparse", Groups: []Group{{Style: PickEach, Items: []Stuff{
+		{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
+		{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 2}},
+	}}}}
+	placed := FillRoom(3, room, base)
+	placed = Flavor(3, room, placed, abandonedFlavor())
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderRoomSprites(t, room, placed))
 }
 
 // TestGolden_InteriorHouseBuilding は横廊下の民家1棟の目視回帰。玄関から入って廊下に出て、廊下から
