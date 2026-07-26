@@ -62,10 +62,7 @@ func selectTiles(room Room, p Placement, occupied map[Vec]bool, seed uint64, cou
 		return cands[i].pos.X < cands[j].pos.X
 	})
 
-	n := count
-	if n > len(cands) {
-		n = len(cands)
-	}
+	n := min(count, len(cands))
 	out := make([]Vec, n)
 	for i := range n {
 		out[i] = cands[i].pos
