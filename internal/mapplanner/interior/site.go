@@ -179,7 +179,7 @@ func carvePorch(building Rect, door Vec, s side, garden, extra map[Vec]bool) Vec
 			return door
 		}
 	}
-	garden[door] = true // 元の入口の1マスだけをポケットの口として庭に開ける。両隣の前壁は残す
+	garden[door] = true                                           // 元の入口の1マスだけをポケットの口として庭に開ける。両隣の前壁は残す
 	extra[Vec{X: inner.X + along.X, Y: inner.Y + along.Y}] = true // 下げた入口の両隣を側壁に
 	extra[Vec{X: inner.X - along.X, Y: inner.Y - along.Y}] = true
 	return inner

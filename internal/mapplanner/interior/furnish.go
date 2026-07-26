@@ -64,7 +64,7 @@ func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) (Si
 // 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。実経路のこの分岐が、
 // VRT で見た綺麗な間取りを in-game でも出す。
 func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) {
-	if planner, ok := facilityPlanner(facility); ok && footprint.W >= 24 && footprint.H >= 16 {
+	if planner, minW, minH, ok := facilityPlanner(facility); ok && footprint.W >= minW && footprint.H >= minH {
 		plan := planner(footprint, seed)
 		rooms := make([]Room, len(plan))
 		roles := make([]string, len(plan))
@@ -86,18 +86,20 @@ func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) 
 	return rooms, roles
 }
 
-// facilityPlanner は施設種別に対応する間取りテンプレを返す。テンプレを持つ施設だけ ok を true にし、無い
-// 施設は BSP のフォールバックへ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
-func facilityPlanner(facility string) (func(Rect, uint64) []PlannedRoom, bool) {
+// facilityPlanner は施設種別に対応する間取りテンプレと、テンプレが破綻しない最小寸法を返す。前庭ぶん
+// 内寄せした建物でもテンプレを使えるよう、テンプレごとに下限を分ける。民家は水回りの小部屋が H<16 で
+// 内側床0に潰れるので 24x16、店と診療所は部屋が粗いので 22x12 まで許す。下限を下回る建物と、テンプレの
+// 無い施設は BSP のフォールバックへ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
+func facilityPlanner(facility string) (fn func(Rect, uint64) []PlannedRoom, minW, minH int, ok bool) {
 	switch facility {
 	case facHouse:
-		return PlanHouseAny, true
+		return PlanHouseAny, 24, 16, true
 	case facStore, facAntique:
-		return PlanStore, true
+		return PlanStore, 22, 12, true
 	case facClinic, facLab:
-		return PlanClinic, true
+		return PlanClinic, 22, 12, true
 	default:
-		return nil, false
+		return nil, 0, 0, false
 	}
 }
 
