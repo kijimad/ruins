@@ -24,6 +24,7 @@
   .thumb{width:430px;height:260px;overflow:hidden;position:relative;background:#05070a;border-bottom:1px solid var(--line);}
   .thumb iframe{width:1280px;height:900px;border:0;transform:scale(0.3359);transform-origin:top left;pointer-events:none;}
   .thumb .badge{position:absolute;top:8px;right:8px;font-size:10px;background:rgba(229,198,117,.9);color:#08111a;font-weight:bold;padding:2px 8px;border-radius:3px;z-index:2;}
+  .thumb .badge.reject{background:rgba(74,90,104,.9);color:#c3d2df;}
   .meta{padding:12px 14px 14px;}
   .t{font-size:15px;color:#dce7f0;font-weight:bold;display:flex;align-items:center;gap:8px;}
   .no{color:var(--dim);font-size:12px;font-weight:normal;}
@@ -42,6 +43,7 @@
     <div class="docs">
       関連ドキュメント：
       <a href="../../design/20260712_54.md">design/20260712_54.md（方向性の確定版）</a>
+      <a href="../../design/20260726_72.md">design/20260726_72.md（隊員の方向性）</a>
       <a href="../design.md">plan/design.md</a>
       <a href="../lore.md">plan/lore.md</a>
     </div>
@@ -98,7 +100,7 @@
       <div class="thumb"><span class="badge">感情の核</span><iframe src="camp_layout.html" scrolling="no" tabindex="-1"></iframe></div>
       <div class="meta">
         <div class="t"><span class="no">07</span> 野営レイアウト</div>
-        <div class="d">「場所であってメニューでない」の検証。焚き火を核に天幕・工房・駄獣・見張り、隊員の配置＝ケア。逗留の有限性（資源残量・前線リード）も。</div>
+        <div class="d">「場所であってメニューでない」の検証。焚き火を核に天幕・駄獣・見張り、隊員の配置＝ケア。工房と配置システムは棄却し、焚き火と団欒の情景は1アクションの演出として継続（72.md）。</div>
         <div class="open">▶ 開く</div>
       </div>
     </a>
@@ -140,10 +142,19 @@
     </a>
 
     <a class="card" href="dwell_production.html">
-      <div class="thumb"><span class="badge">ミクロ</span><iframe src="dwell_production.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="thumb"><span class="badge reject">仮説棄却</span><iframe src="dwell_production.html" scrolling="no" tabindex="-1"></iframe></div>
       <div class="meta">
         <div class="t"><span class="no">12</span> 逗留ゾーンの生産</div>
-        <div class="d">生産の手触りがミクロで成立するか。タイル上の採掘→加工→生産、出口の二股（自給/交易）、逗留の有限性（枯渇・前線・強化天井）。</div>
+        <div class="d">生産の手触りがミクロで成立するかの検証。結果、隊員による生産・採掘/加工ジョブは不採用に確定し仮説棄却（72.md）。記録として保存。</div>
+        <div class="open">▶ 開く</div>
+      </div>
+    </a>
+
+    <a class="card" href="dwell_interference.html">
+      <div class="thumb"><span class="badge reject">仮説棄却</span><iframe src="dwell_interference.html" scrolling="no" tabindex="-1"></iframe></div>
+      <div class="meta">
+        <div class="t"><span class="no">15</span> 逗留の干渉（操作検証）</div>
+        <div class="d">建設なしの干渉5様式（配置・指定・配分・ポリシー・引き際）を触って確かめる動くモック。検証で設営と作業割当の反復操作が露呈し、隊員を戦闘の仲間とする方向の確定に寄与（72.md）。</div>
         <div class="open">▶ 開く</div>
       </div>
     </a>
@@ -159,6 +170,6 @@
 
   </div>
 
-  <footer>docs/plan/mock/ — 番号は作成順の目安。到達点は 05（B1）。07〜12 は「感情の核（愛着×死×継承）・世代・ミクロ」の検証モック。</footer>
+  <footer>docs/plan/mock/ — 番号は作成順の目安。到達点は 05（B1）。07〜12 は「感情の核（愛着×死×継承）・世代・ミクロ」の検証モック。12・15 は検証の結果の仮説棄却を記録として残す（72.md）。</footer>
 </body>
 </html>
