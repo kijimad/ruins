@@ -41,6 +41,8 @@ var interiorPropRaw = map[string]string{
 	"desk":          "desk",
 	"candle":        "candle",
 	"carpet":        "carpet",
+	"rubble":        "rubble",
+	"debris":        "debris",
 }
 
 // furnishBuilding は建物外殻の内側を施設種別に応じた内装で満たす。interior.Furnish で決定的に配置を得て、

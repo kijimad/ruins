@@ -11,6 +11,8 @@ package interior
 func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
 	placed := FillRoom(seed, room, facilityContent(facility, seed))
+	// 時間の層。略奪・生活痕・廃墟化で瓦礫や破片を刻み、新品でなく打ち捨てられた見た目にする
+	placed = Age(seed, room, placed)
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
 	return Flavor(seed, room, placed, facilityFlavor(facility))
 }

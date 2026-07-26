@@ -12804,6 +12804,30 @@ spriteKey = "carpet"
 spriteSheetName = "field"
 
 [[props]]
+blockPass = false
+blockView = false
+description = "崩れた壁やコンクリの破片が積もった瓦礫の山。廃墟化の跡"
+hp = 20
+name = "rubble"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "rubble"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "床に散らばった埃と紙片と小さな欠片。人がいた頃の散らかり"
+hp = 1
+name = "debris"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "debris"
+spriteSheetName = "field"
+
+[[props]]
 blockPass = true
 blockView = false
 description = "茶色のオフィス回転椅子。背もたれと脚付き。机まわりに"
