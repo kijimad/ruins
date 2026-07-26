@@ -42,6 +42,32 @@ func TestTurnSystem_Update(t *testing.T) {
 		assert.Equal(t, gc.TurnPhaseAI, turnState.Phase, "APがマイナスならAITurnへ遷移するべき")
 	})
 
+	t.Run("継続アクション中は1ステップごとにAIフェーズへ渡す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		require.NoError(t, err)
+
+		world.Components.Activity.Add(player, &gc.Activity{
+			BehaviorName: gc.BehaviorWait,
+			State:        gc.ActivityStateRunning,
+			TurnsTotal:   5,
+			TurnsLeft:    5,
+		})
+
+		turnState := query.GetTurnState(world)
+		turnState.Phase = gc.TurnPhasePlayer
+
+		sys := &TurnSystem{}
+		err = sys.Update(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, gc.TurnPhaseAI, turnState.Phase,
+			"アクティビティ中も世界が進むよう、ステップ後はAIフェーズへ遷移するべき")
+		assert.True(t, query.HasActivity(world, player), "アクティビティは継続しているべき")
+	})
+
 	t.Run("PlayerTurnでAPが0以上なら遷移しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
