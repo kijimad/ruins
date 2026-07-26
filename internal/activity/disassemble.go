@@ -195,12 +195,16 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 	return nil
 }
 
-// Canceled は分解キャンセル時の処理を実行する
+// Canceled は分解キャンセル時の処理を実行する。
+// 対象消滅による中断もあるため、名前は対象が生きている場合だけ出す
 func (da *DisassembleActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
-		name := query.GetEntityName(*comp.Target, world)
+		message := "分解を中断した"
+		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
+			message = fmt.Sprintf("「%s」の分解を中断した", query.GetEntityName(*comp.Target, world))
+		}
 		gamelog.New(query.GetGameLog(world)).
-			Append(fmt.Sprintf("「%s」の分解を中断した", name)).
+			Append(message).
 			Log()
 	}
 

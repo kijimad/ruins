@@ -332,7 +332,7 @@ model DisassemblyYield {
   chance?: DisassemblyChance;
 }
 
-/** 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する */
+/** 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある */
 model DisassemblyBonus {
   name: EntityName;
   amount: ItemCount;

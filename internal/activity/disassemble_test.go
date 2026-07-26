@@ -251,6 +251,9 @@ func TestDisassembleActivity_DoTurn_対象が消えると中断する(t *testing
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	assert.Equal(t, "分解対象が消えたため中断", comp.CancelReason)
+
+	// 対象が消えた後のキャンセル処理でもエラーにならない
+	require.NoError(t, da.Canceled(comp, player, world))
 }
 
 func TestDisassembleActivity_DoTurn_工具を失うと中断する(t *testing.T) {

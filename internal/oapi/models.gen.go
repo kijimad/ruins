@@ -764,7 +764,7 @@ type Disassembly struct {
 // DisassemblyBaseAP 分解の基礎工数。100が標準1ターンに相当する
 type DisassemblyBaseAP = int32
 
-// DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する
+// DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
 	// Amount アイテム所持数
 	Amount ItemCount `json:"amount"`

@@ -37,7 +37,8 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 		if !full {
 			continue
 		}
-		chance := min(int(*y.Chance)+skillValue+(toolGrade-1)*10, 100)
+		// グレード補正は1を基準とし、想定外の0以下が来ても確率を下げない
+		chance := min(int(*y.Chance)+skillValue+max(0, (toolGrade-1)*10), 100)
 		if rng.IntN(100) < chance {
 			stacks = append(stacks, YieldStack{Name: y.Name, Count: rollAmount(rng, y.Amount, y.AmountMax)})
 		}
@@ -45,11 +46,18 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 
 	if full && def.Bonus != nil {
 		for _, b := range *def.Bonus {
-			met := b.MinSkill != nil && skillValue >= int(*b.MinSkill)
-			met = met || b.MinGrade != nil && toolGrade >= int(*b.MinGrade)
-			if met {
-				stacks = append(stacks, YieldStack{Name: b.Name, Count: rollAmount(rng, b.Amount, b.AmountMax)})
+			// 指定された条件はすべて満たす必要がある。スキーマ上どちらか一方は
+			// 必須だが、両方欠けた定義は無効として出さない
+			if b.MinSkill == nil && b.MinGrade == nil {
+				continue
 			}
+			if b.MinSkill != nil && skillValue < int(*b.MinSkill) {
+				continue
+			}
+			if b.MinGrade != nil && toolGrade < int(*b.MinGrade) {
+				continue
+			}
+			stacks = append(stacks, YieldStack{Name: b.Name, Count: rollAmount(rng, b.Amount, b.AmountMax)})
 		}
 	}
 

@@ -119,6 +119,42 @@ func TestRollDisassemblyYields(t *testing.T) {
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}, {Name: "鉄", Count: 1}}, high)
 	})
 
+	t.Run("ボーナス枠は両方指定なら両方満たす必要がある", func(t *testing.T) {
+		t.Parallel()
+		rng := rand.New(rand.NewPCG(8, 0))
+		def := &oapi.Disassembly{
+			ToolCategory: oapi.Prying,
+			BaseAP:       100,
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+			Bonus: &[]oapi.DisassemblyBonus{
+				{Name: "鉄", Amount: 1, MinSkill: ptr(oapi.SkillLevel(10)), MinGrade: ptr(oapi.ToolGrade(2))},
+			},
+		}
+
+		skillOnly := lifecycle.RollDisassemblyYields(rng, def, 10, 1, true)
+		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, skillOnly, "スキルだけ満たしても出ないべき")
+
+		gradeOnly := lifecycle.RollDisassemblyYields(rng, def, 0, 2, true)
+		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, gradeOnly, "グレードだけ満たしても出ないべき")
+
+		both := lifecycle.RollDisassemblyYields(rng, def, 10, 2, true)
+		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}, {Name: "鉄", Count: 1}}, both)
+	})
+
+	t.Run("ボーナス枠は条件が両方未指定なら出さない", func(t *testing.T) {
+		t.Parallel()
+		rng := rand.New(rand.NewPCG(9, 0))
+		def := &oapi.Disassembly{
+			ToolCategory: oapi.Prying,
+			BaseAP:       100,
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Amount: 1}},
+		}
+
+		stacks := lifecycle.RollDisassemblyYields(rng, def, 100, 3, true)
+		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, stacks, "無条件のボーナス定義は無効として扱うべき")
+	})
+
 	t.Run("破壊回収は確定枠のみを低確率で出す", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(7, 0))

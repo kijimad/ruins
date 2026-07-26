@@ -1694,7 +1694,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/ToolGrade'
           description: 工具グレードがこの値以上で産出に加わる
-      description: 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する
+      description: 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
     DisassemblyChance:
       type: integer
       format: int32
