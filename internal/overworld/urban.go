@@ -212,10 +212,11 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	if err != nil {
 		return err
 	}
-	if err := furnishBuilding(world, g, shell, fac, seed); err != nil {
+	occupied, err := furnishBuilding(world, g, shell, fac, seed)
+	if err != nil {
 		return err
 	}
-	return spawnUrbanEnemies(world, g, rng, size, isWall)
+	return spawnUrbanEnemies(world, g, rng, size, isWall, occupied)
 }
 
 // drawUrbanBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟の殻を描く。建物は外周が壁・
@@ -281,7 +282,7 @@ func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly 
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool) error {
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
 	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
 	if err != nil {
 		return fmt.Errorf("市街地の敵テーブル取得に失敗: %w", err)
@@ -294,10 +295,10 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 		if err != nil {
 			return fmt.Errorf("市街地の敵抽選に失敗: %w", err)
 		}
-		if isWall(lx, ly) {
-			continue // 抽選は消費済みなので決定性は保たれる
-		}
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}
+		if isWall(lx, ly) || occupied[pos] {
+			continue // 壁と家具の上は避ける。抽選は消費済みなので決定性は保たれる
+		}
 		if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {
 			return fmt.Errorf("市街地の敵配置に失敗: %w", err)
 		}

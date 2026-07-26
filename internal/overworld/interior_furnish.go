@@ -45,22 +45,24 @@ var interiorPropRaw = map[string]string{
 
 // furnishBuilding は建物外殻の内側を施設種別に応じた内装で満たす。interior.Furnish で決定的に配置を得て、
 // raw prop 名へ写せる家具と装飾だけを外殻の壁の内側へ spawn する。内装の乱数は建物幾何と別ストリーム
-// 0x3 にして、片方を変えても他方が動かないようにする。
-func furnishBuilding(world w.World, g chunkGeom, shell buildingShell, fac facilityType, seed uint64) error {
+// 0x3 にして、片方を変えても他方が動かないようにする。spawn したタイルの集合を返し、後段の敵配置が
+// 家具の上に湧かないよう避けさせる。
+func furnishBuilding(world w.World, g chunkGeom, shell buildingShell, fac facilityType, seed uint64) (map[consts.Coord[consts.Tile]]bool, error) {
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
 	footprint := interior.Rect{X: int(shell.bx), Y: int(shell.by), W: int(shell.bw), H: int(shell.bh)}
 	door := interior.Vec{X: int(shell.doorX), Y: int(shell.doorY)}
 
+	occupied := make(map[consts.Coord[consts.Tile]]bool)
 	for _, p := range interior.Furnish(iseed, footprint, door, string(fac)) {
 		name, ok := interiorPropRaw[p.Ref]
 		if !ok {
 			continue // raw の無い戦利品や装飾は置かない
 		}
-		x := g.offsetX + consts.Tile(p.Pos.X)
-		y := g.offsetY + consts.Tile(p.Pos.Y)
-		if _, err := lifecycle.SpawnProp(world, name, x, y); err != nil {
-			return fmt.Errorf("内装の配置に失敗 (%s at %d,%d): %w", name, x, y, err)
+		pos := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(p.Pos.X), Y: g.offsetY + consts.Tile(p.Pos.Y)}
+		if _, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y); err != nil {
+			return nil, fmt.Errorf("内装の配置に失敗 (%s at %d,%d): %w", name, pos.X, pos.Y, err)
 		}
+		occupied[pos] = true
 	}
-	return nil
+	return occupied, nil
 }
