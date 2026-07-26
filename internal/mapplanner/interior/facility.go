@@ -287,3 +287,28 @@ func diningTable(placement Placement) Stuff {
 		},
 	}
 }
+
+// bedSet は寝床の一角を束ねる寝室の署名 fixture。ベッドを奥へ置き、脇の空いた隣へクローゼットを寄せる。
+// ベッドとクローゼットを個別に散らすと部屋の別々の壁へ離れて寝室に見えないので、束で1つの寝床に見せる。
+// クローゼットは4方向を順に試し、壁の向きに依らずベッドの空いた隣へ回り込む。
+func bedSet() Stuff {
+	return Stuff{
+		Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1},
+		Satellites: []Satellite{
+			{Kind: KindFurniture, Ref: "closet", Offsets: []Vec{{X: 1}, {X: -1}, {Y: -1}, {Y: 1}}},
+		},
+	}
+}
+
+// kitchenCounter は調理台の一列を束ねる台所の署名 fixture。流し台を壁際に置き、食器棚を横へ連ねて
+// カウンターの列に見せる。流しと棚を別々に散らすと台所と分からないので、束で調理台の連なりに見せる。
+// 食器棚は水平の隣を優先し、横壁沿いなら一列に、縦壁沿いなら anchor の内側へ回り込む。
+func kitchenCounter() Stuff {
+	return Stuff{
+		Kind: KindFurniture, Ref: "sink", Placement: PlaceWall, Amount: Dice{Bonus: 1},
+		Satellites: []Satellite{
+			{Kind: KindFurniture, Ref: "pantry", Offsets: []Vec{{X: 1}, {X: -1}, {Y: 1}, {Y: -1}}},
+			{Kind: KindFurniture, Ref: "pantry", Offsets: []Vec{{X: 2}, {X: -2}, {Y: 2}, {Y: -2}}},
+		},
+	}
+}

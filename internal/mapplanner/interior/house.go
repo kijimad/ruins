@@ -64,18 +64,18 @@ func PlanHouse(footprint Rect, seed uint64) []HouseRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
-	topBot := y0 + h*13/20 // 上段の底 兼 廊下の上壁
-	corrBot := topBot + 3  // 廊下の底 兼 下段の上壁。廊下の内側高は 2
+	topBot := jitterSplit(seed, 0, y0+h*13/20) // 上段の底 兼 廊下の上壁
+	corrBot := topBot + 3                      // 廊下の底 兼 下段の上壁。廊下の内側高は 2
 
-	// 上段を縦線で4室に割る。居間を広めに取る
-	tc1 := x0 + w*9/28
-	tc2 := x0 + w*15/28
-	tc3 := x0 + w*21/28
+	// 上段を縦線で4室に割る。居間を広めに取る。分割線を seed で ±1 揺らし、部屋幅を seed ごとに変える
+	tc1 := jitterSplit(seed, 1, x0+w*9/28)
+	tc2 := jitterSplit(seed, 2, x0+w*15/28)
+	tc3 := jitterSplit(seed, 3, x0+w*21/28)
 	// 下段を縦線で5室に割る。玄関を中央に置き、脱衣所と浴室を隣り合わせる
-	bc1 := x0 + w*6/28
-	bc2 := x0 + w*11/28
-	bc3 := x0 + w*17/28
-	bc4 := x0 + w*22/28
+	bc1 := jitterSplit(seed, 4, x0+w*6/28)
+	bc2 := jitterSplit(seed, 5, x0+w*11/28)
+	bc3 := jitterSplit(seed, 6, x0+w*17/28)
+	bc4 := jitterSplit(seed, 7, x0+w*22/28)
 
 	rectOf := map[string]Rect{
 		"living":    {X: x0, Y: y0, W: tc1 - x0 + 1, H: topBot - y0 + 1},
@@ -105,13 +105,14 @@ func PlanHouseVertical(footprint Rect, seed uint64) []HouseRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
-	cxL := x0 + w*3/7 // 廊下の左壁
-	cxR := cxL + 3    // 廊下の右壁。内側幅 2
+	cxL := jitterSplit(seed, 10, x0+w*3/7) // 廊下の左壁
+	cxR := cxL + 3                         // 廊下の右壁。内側幅 2
 	genkanTop := bottom - 4
 
-	leftMid := y0 + h*2/5 // 左翼を寝室(上)と居間(下)に割る
-	kMid := y0 + h*7/20   // 右翼の台所(上)の底
-	bMid := y0 + h*12/20  // 右翼の寝室(中)の底 兼 水回りポケットの上
+	// 主要な分割線だけ seed で揺らす。水回りポケットの入れ子分割は小部屋なのでジッタで潰れないよう固定する
+	leftMid := jitterSplit(seed, 11, y0+h*2/5) // 左翼を寝室(上)と居間(下)に割る
+	kMid := jitterSplit(seed, 12, y0+h*7/20)   // 右翼の台所(上)の底
+	bMid := jitterSplit(seed, 13, y0+h*12/20)  // 右翼の寝室(中)の底 兼 水回りポケットの上
 	// 水回りポケットを入れ子分割する。脱衣所を廊下沿いの縦長に、浴室とトイレをその奥の小部屋に
 	dwX := cxR + (right-cxR)*2/5 // 脱衣所の右壁 兼 浴室トイレの左壁
 	stX := cxR + (right-cxR)*3/4 // 浴室トイレの右壁 兼 納戸の左壁
@@ -138,13 +139,43 @@ func PlanHouseVertical(footprint Rect, seed uint64) []HouseRoom {
 	return wireHouse(rectOf, seed, conns, "genkan", bottom, houseOrder)
 }
 
-// houseVariants は民家の間取りプランナの一覧。生成時に seed で1つ選ぶ。型を足すとここへ加えるだけで
-// バリエーションが増える。
-var houseVariants = []func(Rect, uint64) []HouseRoom{PlanHouse, PlanHouseVertical}
+// jitterSplit は分割線を seed で ±1 揺らす。固定比率のテンプレでも部屋サイズが seed ごとに変わり、
+// 同一スケルトンの見えを崩す。分割線は隣接2室が共有するので、1本を動かしても両室が揃って動き連結は
+// 保たれる。index は分割線ごとに変え、ジッタ同士・戸口抽選・型選択の相関を避けるため 5_000_000 番台へ
+// 閉じる。戸口抽選は childSeed(seed, 1..9)、型選択は childSeed(seed, 0) を使うのでそれらと衝突しない。
+func jitterSplit(seed uint64, index, base int) int {
+	return base + int(childSeed(seed, 5_000_000+index)%3) - 1
+}
 
-// PlanHouseAny は seed から間取りの型を1つ決定的に選び、その民家を生成する。建物ごとに横廊下と縦廊下が
-// 混ざり、間取りに変化が出る。型の選択は childSeed(seed, 0) に閉じ、各プランナ内部の戸口抽選と相関
-// しないようにする。
+// mirrorHouse は民家プランを footprint 内で左右反転する。玄関や水回り・居室の左右が入れ替わり、同じ
+// テンプレから鏡像の間取りが得られる。矩形の左端と戸口の X を折り返し、幅と Y はそのままにするので、
+// 連結と部屋の役割は保たれたまま向きだけが変わる。
+func mirrorHouse(footprint Rect, plan []HouseRoom) []HouseRoom {
+	out := make([]HouseRoom, len(plan))
+	for i, hr := range plan {
+		r := hr.Room.Rect
+		mr := Rect{X: footprint.X + footprint.W - (r.X - footprint.X) - r.W, Y: r.Y, W: r.W, H: r.H}
+		doors := make([]Doorway, len(hr.Room.Doorways))
+		for j, d := range hr.Room.Doorways {
+			doors[j] = Doorway{X: footprint.X + footprint.W - 1 - (d.X - footprint.X), Y: d.Y}
+		}
+		out[i] = HouseRoom{Room: Room{Rect: mr, Doorways: doors}, Role: hr.Role}
+	}
+	return out
+}
+
+// houseVariants は民家の間取りプランナの一覧。生成時に seed で1つ選ぶ。横廊下・縦廊下と、その左右反転で
+// 4型ある。分割比のジッタと合わさり、同じ型でも seed ごとに部屋サイズが変わる。型を足すとここへ加える。
+var houseVariants = []func(Rect, uint64) []HouseRoom{
+	PlanHouse,
+	PlanHouseVertical,
+	func(f Rect, s uint64) []HouseRoom { return mirrorHouse(f, PlanHouse(f, s)) },
+	func(f Rect, s uint64) []HouseRoom { return mirrorHouse(f, PlanHouseVertical(f, s)) },
+}
+
+// PlanHouseAny は seed から間取りの型を1つ決定的に選び、その民家を生成する。建物ごとに横廊下・縦廊下と
+// その鏡像が混ざり、間取りに変化が出る。型の選択は childSeed(seed, 0) に閉じ、各プランナ内部の戸口抽選や
+// 分割比ジッタと相関しないようにする。
 func PlanHouseAny(footprint Rect, seed uint64) []HouseRoom {
 	v := houseVariants[int(childSeed(seed, 0)%uint64(len(houseVariants)))]
 	return v(footprint, seed)

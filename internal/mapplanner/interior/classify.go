@@ -21,7 +21,7 @@ var roomSignatures = []roomSignature{
 	{"dressing", []string{"washer", "sink"}},
 	{"bath", []string{"bathtub"}},
 	{"toilet", []string{"toilet"}},
-	{"kitchen", []string{"pantry"}},
+	{"kitchen", []string{"pantry", "sink"}}, // 流しと食器棚の両方。流し単独は脱衣所と曖昧なので棚で分ける
 	{"bedroom", []string{"bed"}},
 	{"living", []string{"sofa"}},
 	{"storage", []string{"barrel"}},

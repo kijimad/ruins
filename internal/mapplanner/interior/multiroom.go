@@ -184,12 +184,12 @@ func storageRoomContent() Content {
 	}}
 }
 
-// bedroomContent は民家の奥室。ベッドと物入れ。
+// bedroomContent は民家の奥室。寝床の一角と物入れ。
 func bedroomContent() Content {
 	return Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
-			{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
-			{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 2}},
+			bedSet(), // ベッドとクローゼットを寝床の一角に束ねる
+			{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
 			{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
 		}},
 	}}
@@ -212,8 +212,7 @@ func examRoomContent() Content {
 func houseRoomContents() map[string]Content {
 	bedroom := Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
-			{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
-			{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
+			bedSet(), // ベッドとクローゼットを寝床の一角に束ねる
 			{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
 		}},
 	}}
@@ -238,8 +237,8 @@ func houseRoomContents() map[string]Content {
 		}},
 		"kitchen": {ID: "kitchen", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
+				kitchenCounter(), // 流しと食器棚を壁沿いの調理台の列に束ねる
 				{Kind: KindFurniture, Ref: "table", Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "pantry", Amount: Dice{Bonus: 3}},
 				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
 			}},
 		}},
