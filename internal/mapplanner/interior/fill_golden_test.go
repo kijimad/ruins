@@ -27,15 +27,17 @@ func clinicRoom() Room {
 	}
 }
 
-// candleCircle は蝋燭の輪の flavor machine。中央の蝋燭を anchor に周囲8マスへ蝋燭を束ねる。廃墟で誰かが
-// 暗がりに身を寄せた痕を、束の機構で1つの scene として置く。装飾なので通行を阻まない。
+// candleCircle は蝋燭の輪の flavor machine。中心を空け、その周囲8マスへ蝋燭を輪に並べる。廃墟で誰かが
+// 儀式めいた円を組んだ痕を、束の機構で1つの scene として置く。anchor は輪の中心だがスプライトを持たない
+// 印にして描画されず、中心が空くことで塊でなく輪に見える。装飾なので通行を阻まない。
 func candleCircle() Stuff {
 	offs := []Vec{{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 0}, {X: 1, Y: 0}, {X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1}}
 	ring := make([]Satellite, 0, len(offs))
 	for _, o := range offs {
 		ring = append(ring, Satellite{Kind: KindDecor, Ref: "candle", Offsets: []Vec{o}})
 	}
-	return Stuff{Kind: KindDecor, Ref: "candle", Placement: PlaceCenter, Amount: Dice{Bonus: 1}, Satellites: ring}
+	// anchor の Ref はスプライト表に無いので中心は描画されず床のまま空く。周囲8本だけで輪をなす
+	return Stuff{Kind: KindDecor, Ref: "ritual_center", Placement: PlaceCenter, Amount: Dice{Bonus: 1}, Satellites: ring}
 }
 
 // abandonedFlavor は廃墟に生活の痕を足す flavor machine の Content。蝋燭の輪を中央に、絨毯や箒を隅に置く。
