@@ -60,6 +60,7 @@ func TestContent_Resolve_seedで結果が変わる(t *testing.T) {
 }
 
 // TestContent_Resolve_PickEachは保証枠を全部置く は、店を店たらしめる保証セットが必ず出ることを固定する。
+// あわせて Placement を空にしたレシピが archetype の既定、レジは入口近く・棚は列、で具体化されることも固定する。
 func TestContent_Resolve_PickEachは保証枠を全部置く(t *testing.T) {
 	t.Parallel()
 
@@ -69,8 +70,8 @@ func TestContent_Resolve_PickEachは保証枠を全部置く(t *testing.T) {
 	}}}}
 	got := c.Resolve(7)
 	require.Len(t, got, 2, "Chance の無い PickEach は全 Item を置く")
-	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "register", Count: 1}, got[0])
-	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "gondola", Count: 3}, got[1])
+	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "register", Count: 1, Placement: PlaceNearDoor}, got[0])
+	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "gondola", Count: 3, Placement: PlaceRow}, got[1])
 }
 
 // TestContent_Resolve_PickNはちょうどN個の別種を置く は、N抽選が重複なく Pick 個を選ぶことを固定する。

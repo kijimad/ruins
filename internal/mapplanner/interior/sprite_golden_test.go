@@ -245,59 +245,61 @@ func roomOrderByZone(footprint Rect, rooms []Room) []int {
 // 対応させる。廊下はほぼ空けて通路とし、玄関は下足入れと観葉、水回りは各機能の什器を置く。狭い部屋が
 // 多いので個数は控えめにし、FillRoom が入る分だけ置く。
 func houseRoomContents() map[string]Content {
+	// 置き方は archetype 既定に任せ、レシピは Ref と個数だけ言う。ベッドは奥・棚やランタンは壁際、と
+	// いった家具型の自然な置き方が施設をまたいで揃う。廊下の観葉だけ既定の全域でなく奥へ寄せる例外。
 	bedroom := Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
-			{Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
-			{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
-			{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
 		}},
 	}}
 	return map[string]Content{
 		"genkan": {ID: "genkan", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
 			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
 		}},
 		"corridor": {ID: "corridor", Groups: []Group{
 			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}}}},
 		}},
 		"living": {ID: "living", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "sofa", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "sofa", Amount: Dice{Bonus: 1}},
 				diningTable(PlaceCenter),
-				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
+				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 2}},
 			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
 		}},
 		"kitchen": {ID: "kitchen", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "table", Placement: PlaceCenter, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "pantry", Placement: PlaceRow, Amount: Dice{Bonus: 3}},
-				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "table", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "pantry", Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
 			}},
 		}},
 		"bedroom": bedroom,
 		"dressing": {ID: "dressing", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "washer", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "sink", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "washer", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "sink", Amount: Dice{Bonus: 1}},
 			}},
 		}},
 		"bath": {ID: "bath", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "bathtub", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "bathtub", Amount: Dice{Bonus: 1}},
 			}},
 		}},
 		"toilet": {ID: "toilet", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "toilet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "toilet", Amount: Dice{Bonus: 1}},
 			}},
 		}},
 		"storage": {ID: "storage", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "barrel", Placement: PlaceRow, Amount: Dice{Bonus: 2}},
+				{Kind: KindFurniture, Ref: "barrel", Amount: Dice{Bonus: 2}},
 			}},
 		}},
 	}
@@ -307,20 +309,21 @@ func houseRoomContents() map[string]Content {
 // 診察室・備品室の順に対応させる。手前は患者が留まる待合と受付、奥は診察と備品という診療所の動線を
 // content 側の並びで表す。部屋が役割数を超えたら末尾の備品室を繰り返す。
 func clinicRoleContents() []Content {
+	// 置き方は archetype 既定に任せる。診察室の薬だけ既定の奥でなく壁の棚へ、待合の椅子だけ列に並べる例外。
 	examRoom := Content{ID: "exam", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
-			{Kind: KindFurniture, Ref: "exam_bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
-			{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "exam_bed", Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "medcabinet", Amount: Dice{Bonus: 1}},
 		}},
 		{Style: PickOne, Items: []Stuff{{Kind: KindLoot, Ref: "meds", Placement: PlaceWall, Amount: Dice{Bonus: 1}}}},
 	}}
 	return []Content{
 		{ID: "waiting", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "reception", Placement: PlaceNearDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "reception", Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "waitchair", Placement: PlaceRow, Amount: Dice{Bonus: 4}},
 			}},
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
 		}},
 		examRoom,
 		examRoom,
@@ -328,9 +331,9 @@ func clinicRoleContents() []Content {
 		examRoom,
 		{ID: "supply", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
-				{Kind: KindLoot, Ref: "bandage", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
-				{Kind: KindLoot, Ref: "meds", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "medcabinet", Amount: Dice{Bonus: 2}},
+				{Kind: KindLoot, Ref: "bandage", Amount: Dice{Bonus: 2}},
+				{Kind: KindLoot, Ref: "meds", Amount: Dice{Bonus: 1}},
 			}},
 		}},
 	}

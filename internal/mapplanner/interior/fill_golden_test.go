@@ -14,21 +14,23 @@ import (
 // storeContent はコンビニを模した Content。placement 意味論で「店に見える」配置を宣言する。
 // 冷蔵ケースは奥、レジは入口近く、ゴンドラは中央、雑貨は壁際。
 func storeContent() Content {
+	// placement は archetype 既定、冷蔵ケースは奥・レジは入口近く・ゴンドラは列、に任せ、レシピは Ref と
+	// 個数だけを言う。doc の「レジ1・棚3〜5と言うだけでよい」を体現する。
 	return Content{
 		ID: "conv_store",
 		Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "walkin_cooler", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 7}},
-				{Kind: KindFurniture, Ref: "register", Placement: PlaceNearDoor, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "gondola", Placement: PlaceRow, Amount: Dice{Bonus: 10}},
+				{Kind: KindFurniture, Ref: "walkin_cooler", Amount: Dice{Bonus: 7}},
+				{Kind: KindFurniture, Ref: "register", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "gondola", Amount: Dice{Bonus: 10}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "snacks", Placement: PlaceCenter, Weight: 3, Amount: Dice{Base: 2, Sides: 4}},
-				{Kind: KindLoot, Ref: "drinks", Placement: PlaceFarFromDoor, Weight: 2, Amount: Dice{Base: 1, Sides: 4}},
-				{Kind: KindLoot, Ref: "bento", Placement: PlaceWall, Weight: 1, Amount: Dice{Base: 1, Sides: 3}},
+				{Kind: KindLoot, Ref: "snacks", Weight: 3, Amount: Dice{Base: 2, Sides: 4}},
+				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: Dice{Base: 1, Sides: 4}},
+				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: Dice{Base: 1, Sides: 3}},
 			}},
 			{Style: PickOne, Items: []Stuff{
-				{Kind: KindDecor, Ref: "litter", Placement: PlaceFullArea, Amount: Dice{Base: 1, Sides: 3, Bonus: 1}},
+				{Kind: KindDecor, Ref: "litter", Amount: Dice{Base: 1, Sides: 3, Bonus: 1}},
 			}},
 		},
 	}
@@ -49,17 +51,17 @@ func clinicContent() Content {
 		ID: "clinic",
 		Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "reception", Placement: PlaceNearDoor, Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "waitchair", Placement: PlaceNearDoor, Amount: Dice{Bonus: 5}},
-				{Kind: KindFurniture, Ref: "exam_bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 3}},
-				{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "reception", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "waitchair", Amount: Dice{Bonus: 5}},
+				{Kind: KindFurniture, Ref: "exam_bed", Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "medcabinet", Amount: Dice{Bonus: 3}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "meds", Placement: PlaceFarFromDoor, Weight: 2, Amount: Dice{Base: 1, Sides: 3}},
-				{Kind: KindLoot, Ref: "bandage", Placement: PlaceWall, Weight: 1, Amount: Dice{Base: 1, Sides: 2}},
+				{Kind: KindLoot, Ref: "meds", Weight: 2, Amount: Dice{Base: 1, Sides: 3}},
+				{Kind: KindLoot, Ref: "bandage", Weight: 1, Amount: Dice{Base: 1, Sides: 2}},
 			}},
 			{Style: PickOne, Items: []Stuff{
-				{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 2}},
+				{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 2}},
 			}},
 		},
 	}
@@ -98,13 +100,13 @@ func houseContent() Content {
 		ID: "house",
 		Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
 				diningTable(PlaceCenter),
-				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
-				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
+				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 2}},
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 2}},
 			}},
 			{Style: PickOne, Items: []Stuff{
-				{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 2}},
+				{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 2}},
 			}},
 		},
 	}

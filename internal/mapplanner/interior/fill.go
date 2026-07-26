@@ -15,13 +15,9 @@ func FillRoom(seed uint64, room Room, content Content) []Placed {
 	occupied := make(map[Vec]bool)
 	placed := make([]Placed, 0, len(selections))
 	for i, sel := range selections {
-		p := sel.Placement
-		if p == "" {
-			p = PlaceFullArea
-		}
-		// 配置の seed は解決の seed と別枠にし、片方を変えても他方が動かないようにする
+		// 置き方は解決段で archetype 既定を含め具体化済み。配置の seed は解決の seed と別枠にする
 		s := childSeed(seed, 1_000_000+i)
-		for _, t := range selectTiles(room, p, occupied, s, sel.Count) {
+		for _, t := range selectTiles(room, sel.Placement, occupied, s, sel.Count) {
 			occupied[t] = true
 			placed = append(placed, Placed{Kind: sel.Kind, Ref: sel.Ref, Pos: t})
 			// anchor と一緒に衛星を束で置く。机に対する椅子など
