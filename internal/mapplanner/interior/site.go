@@ -249,7 +249,7 @@ func footprintMinusBuilding(footprint, building Rect) map[Vec]bool {
 // pickGardenRoom は坪庭にする部屋の添字を返す。入口の部屋・廊下・狭い部屋は避け、面積最大の居室を選ぶ。
 // 該当が無ければ -1。1棟に坪庭は1つまでにして、部屋を庭で潰しすぎないようにする。
 func pickGardenRoom(rooms []PlannedRoom, door Vec, seed uint64) int {
-	// 3室に満たない小さな建物は坪庭を作らない。部屋が減りすぎる
+	// 4室に満たない小さな建物は坪庭を作らない。1室を庭に振ると部屋が減りすぎる
 	if len(rooms) < 4 {
 		return -1
 	}

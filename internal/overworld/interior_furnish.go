@@ -57,7 +57,9 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 
 	tiles := g.tiles.get()
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
-	// 建物区画のタイルを Site から描く。庭→土、壁→壁、残り(部屋の床・戸口)→床。敵が湧かないよう壁は占有に入れる
+	// 建物区画のタイルを Site から描く。庭→土、壁→壁、残り(部屋の床・戸口)→床。footprint 全体を占有に入れ、
+	// 街の敵が封鎖された建物の内側や庭・坪庭に湧かないようにする。敵は街路を歩くもので、建物の中は入口の
+	// 扉を通ってのみ入るため、壁だけでなく屋内の床・庭も敵の湧き先から外す
 	for y := footprint.Y; y < footprint.Y+footprint.H; y++ {
 		for x := footprint.X; x < footprint.X+footprint.W; x++ {
 			v := interior.Vec{X: x, Y: y}
@@ -72,9 +74,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			if err := replaceTile(world, tiles, coord, name); err != nil {
 				return nil, nil, fmt.Errorf("内装のタイル配置に失敗 (x=%d, y=%d): %w", coord.X, coord.Y, err)
 			}
-			if wallSet[v] {
-				occupied[coord] = true
-			}
+			occupied[coord] = true
 		}
 	}
 

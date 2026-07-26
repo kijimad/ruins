@@ -15,7 +15,8 @@ func TestBuildGuardMachine_鍵は錠より手前で同じIDで結ばれる(t *te
 
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
 	rooms := houseRooms(PlanHouse(footprint, 1))
-	depths := roomDepths(footprint, rooms)
+	addEntrance(footprint, rooms) // 単体テストは Site を通さないので建物入口を1つ開ける
+	depths := roomDepths(rooms)
 
 	m, ok := buildGuardMachine(5, rooms, depths, "meds", 1)
 	require.True(t, ok, "複数の深さの部屋があれば machine が組める")
@@ -39,7 +40,8 @@ func TestBuildGuardMachine_同じseedで完全一致する(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
 	rooms := houseRooms(PlanHouse(footprint, 1))
-	depths := roomDepths(footprint, rooms)
+	addEntrance(footprint, rooms) // 単体テストは Site を通さないので建物入口を1つ開ける
+	depths := roomDepths(rooms)
 
 	first, ok := buildGuardMachine(5, rooms, depths, "meds", 1)
 	require.True(t, ok)
@@ -57,7 +59,7 @@ func TestGuardedLoot_部屋が足りなければ非施錠へフォールバッ�
 	footprint := Rect{X: 0, Y: 0, W: 10, H: 10}
 	single := []Room{{Rect: footprint, Doorways: []Doorway{{X: 5, Y: 9}}}}
 
-	placed := guardedLoot(3, footprint, single, "meds", 1)
+	placed := guardedLoot(3, single, "meds", 1)
 	require.Len(t, placed, 1, "bare は payload だけを置く")
 	assert.Equal(t, "meds", placed[0].Ref)
 	assert.Equal(t, 0, placed[0].MachineID, "非施錠なので machine に属さない")

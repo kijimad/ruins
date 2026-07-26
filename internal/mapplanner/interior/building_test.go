@@ -50,7 +50,7 @@ func TestRoomDepths_入口が距離0で全室が到達可能(t *testing.T) {
 	for seed := range uint64(30) {
 		rooms := SubdivideBuilding(footprint, seed)
 		addEntrance(footprint, rooms) // roomDepths は入口を距離0の起点にするので建物入口を1つ開ける
-		depths := roomDepths(footprint, rooms)
+		depths := roomDepths(rooms)
 
 		zeros, maxDepth := 0, 0
 		for _, d := range depths {
@@ -65,6 +65,36 @@ func TestRoomDepths_入口が距離0で全室が到達可能(t *testing.T) {
 		assert.Equalf(t, 1, zeros, "seed=%d では入口の間がちょうど1室", seed)
 		assert.Positivef(t, maxDepth, "seed=%d では入口より奥の部屋が存在する", seed)
 	}
+}
+
+// addEntrance は footprint 下辺の中央に近い部屋へ建物入口を開ける。外から屋内への戸口。production の入口は
+// 敷地計画 Site が開けるのでこれは使わないが、roomDepths の起点にする建物入口を持つ部屋群をテストで作る。
+func addEntrance(footprint Rect, rooms []Room) {
+	bottom := footprint.Y + footprint.H - 1
+	cx := footprint.X + footprint.W/2
+	best := -1
+	bestDist := 1 << 30
+	for i, r := range rooms {
+		if r.Rect.Y+r.Rect.H-1 != bottom {
+			continue // 下辺に接する部屋だけ
+		}
+		if cx <= r.Rect.X || cx >= r.Rect.X+r.Rect.W-1 {
+			continue // 中央列がその部屋の内側にある
+		}
+		d := abs(cx - (r.Rect.X + r.Rect.W/2))
+		if d < bestDist {
+			bestDist, best = d, i
+		}
+	}
+	if best < 0 {
+		best = 0 // 保険。どれかに開ける
+	}
+	rr := rooms[best].Rect
+	ex := cx
+	if ex <= rr.X || ex >= rr.X+rr.W-1 {
+		ex = rr.X + rr.W/2
+	}
+	rooms[best].Doorways = append(rooms[best].Doorways, Doorway{X: ex, Y: bottom})
 }
 
 // allRoomsConnected は戸口を共有する部屋を隣接とみなし、0 番から BFS で全部屋に届くかを確かめる。

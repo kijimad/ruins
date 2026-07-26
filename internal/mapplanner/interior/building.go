@@ -104,56 +104,29 @@ func sharedRow(a, b Rect) (int, bool) {
 	return 0, false
 }
 
-// addEntrance は footprint 下辺の中央に近い部屋へ建物入口を開ける。外から屋内への戸口。
-func addEntrance(footprint Rect, rooms []Room) {
-	bottom := footprint.Y + footprint.H - 1
-	cx := footprint.X + footprint.W/2
-	best := -1
-	bestDist := 1 << 30
-	for i, r := range rooms {
-		if r.Rect.Y+r.Rect.H-1 != bottom {
-			continue // 下辺に接する部屋だけ
-		}
-		if cx <= r.Rect.X || cx >= r.Rect.X+r.Rect.W-1 {
-			continue // 中央列がその部屋の内側にある
-		}
-		d := abs(cx - (r.Rect.X + r.Rect.W/2))
-		if d < bestDist {
-			bestDist, best = d, i
-		}
-	}
-	if best < 0 {
-		best = 0 // 保険。どれかに開ける
-	}
-	rr := rooms[best].Rect
-	ex := cx
-	if ex <= rr.X || ex >= rr.X+rr.W-1 {
-		ex = rr.X + rr.W/2
-	}
-	rooms[best].Doorways = append(rooms[best].Doorways, Doorway{X: ex, Y: bottom})
-}
-
-// onFootprintEdge は戸口が footprint の外周上にあるかを返す。部屋どうしの共有壁は footprint の内側に
-// あるので、外周上の戸口は建物入口だけになる。これで入口を持つ部屋を一意に特定できる。
-func onFootprintEdge(footprint Rect, d Doorway) bool {
-	return d.X == footprint.X || d.X == footprint.X+footprint.W-1 ||
-		d.Y == footprint.Y || d.Y == footprint.Y+footprint.H-1
-}
-
 // roomDepths は建物入口を持つ部屋を起点に、戸口グラフ上の各部屋の入口からの距離を BFS で返す。
 // これがゾーン分類の基礎で、距離 0 は入口の間、距離が増えるほど奥まった私的な部屋になる。手前を公共、
 // 奥を私的とする住居の動線を、面積という幾何量でなく到達構造という位相量で表す。入口が無い、または
 // 入口から孤立した部屋の距離は -1 にする。SubdivideBuilding は全部屋を連結するので通常 -1 は出ない。
-func roomDepths(footprint Rect, rooms []Room) []int {
+func roomDepths(rooms []Room) []int {
 	depths := make([]int, len(rooms))
 	for i := range depths {
 		depths[i] = -1
 	}
 
+	// 戸口タイルからそれを共有する部屋群を引く。部屋どうしの内部戸口は2部屋が持ち、建物入口は1部屋だけが
+	// 持つ。だから共有されない戸口を持つ部屋が入口の間になる。玄関ポーチで入口が外周から1マス内へ下がっても、
+	// 入口はやはり1部屋しか持たないので、外周判定でなく共有数で入口を特定すればポーチに強い
+	doorRooms := make(map[Vec][]int)
+	for i, r := range rooms {
+		for _, d := range r.Doorways {
+			doorRooms[Vec(d)] = append(doorRooms[Vec(d)], i)
+		}
+	}
 	start := -1
 	for i, r := range rooms {
 		for _, d := range r.Doorways {
-			if onFootprintEdge(footprint, d) {
+			if len(doorRooms[Vec(d)]) == 1 {
 				start = i
 				break
 			}
@@ -164,14 +137,6 @@ func roomDepths(footprint Rect, rooms []Room) []int {
 	}
 	if start < 0 {
 		return depths
-	}
-
-	// 戸口タイルからそれを共有する部屋群を引く。内部戸口は2部屋、入口は1部屋が持つ
-	doorRooms := make(map[Vec][]int)
-	for i, r := range rooms {
-		for _, d := range r.Doorways {
-			doorRooms[Vec(d)] = append(doorRooms[Vec(d)], i)
-		}
 	}
 
 	depths[start] = 0

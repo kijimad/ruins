@@ -47,13 +47,11 @@ func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []r
 	return rooms
 }
 
-// wireHouse は部屋矩形と接続指定から PlannedRoom 列を組む。conns の各対を戸口で繋ぎ、entrance の部屋の
-// 下辺中央に建物入口を開ける。横型と縦型の間取りが幾何だけ差し替えて同じ組み立てを共有する。
-func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, entrance string, bottom int, order []roomRole) []PlannedRoom {
-	doors := wireDoorways(rectOf, seed, conns)
-	gk := rectOf[entrance]
-	doors[entrance] = append(doors[entrance], Doorway{X: gk.X + gk.W/2, Y: bottom})
-	return assembleRooms(rectOf, doors, order)
+// wireHouse は部屋矩形と接続指定から PlannedRoom 列を組む。conns の各対を戸口で繋ぐだけで、建物入口は
+// 開けない。入口は敷地計画 Site が街路向きの辺へ1つ開けるので、テンプレが別に入口を焼き込むと裏壁に
+// 穴が二重に開く。横型と縦型の間取りが幾何だけ差し替えて同じ組み立てを共有する。
+func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, order []roomRole) []PlannedRoom {
+	return assembleRooms(rectOf, wireDoorways(rectOf, seed, conns), order)
 }
 
 // houseOrder は横型と縦型で共通の返却順と役割ラベル。動線の手前から奥へ並べる。
@@ -110,7 +108,7 @@ func PlanHouse(footprint Rect, seed uint64) []PlannedRoom {
 		{"corridor", "bedroom_b"}, {"corridor", "genkan"}, {"corridor", "dressing"},
 		{"corridor", "toilet"}, {"corridor", "storage"}, {"dressing", "bath"},
 	}
-	return wireHouse(rectOf, seed, conns, "genkan", bottom, houseOrder)
+	return wireHouse(rectOf, seed, conns, houseOrder)
 }
 
 // PlanHouseVertical は縦廊下の民家間取りを決定的に生成する。縦廊下だと左右の翼は横長の帯になり、素朴に
@@ -151,7 +149,7 @@ func PlanHouseVertical(footprint Rect, seed uint64) []PlannedRoom {
 		{"corridor", "kitchen"}, {"corridor", "bedroom_b"}, {"corridor", "dressing"},
 		{"dressing", "bath"}, {"dressing", "toilet"}, {"bath", "storage"},
 	}
-	return wireHouse(rectOf, seed, conns, "genkan", bottom, houseOrder)
+	return wireHouse(rectOf, seed, conns, houseOrder)
 }
 
 // jitterSplit は分割線を seed で ±1 揺らす。固定比率のテンプレでも部屋サイズが seed ごとに変わり、

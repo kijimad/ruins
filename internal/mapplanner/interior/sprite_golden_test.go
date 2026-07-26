@@ -127,7 +127,7 @@ func TestGolden_BuildingClinic(t *testing.T) {
 		for i, r := range site.Rooms {
 			plain[i] = r.Room
 		}
-		return site, append(placed, guardedLoot(seed, site.Building, plain, "meds", 1)...)
+		return site, append(placed, guardedLoot(seed, plain, "meds", 1)...)
 	}))
 }
 

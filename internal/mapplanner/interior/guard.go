@@ -41,8 +41,8 @@ func buildGuardMachine(seed uint64, rooms []Room, depths []int, payloadRef strin
 
 // guardedLoot は施錠戦利品の依存グラフを Placed 列にして返す。elaborate を組めれば錠・鍵・payload の三つ、
 // 組めなければ payload だけを最奥へ非施錠で置く bare へ決定的にフォールバックする。
-func guardedLoot(seed uint64, footprint Rect, rooms []Room, payloadRef string, id int) []Placed {
-	depths := roomDepths(footprint, rooms)
+func guardedLoot(seed uint64, rooms []Room, payloadRef string, id int) []Placed {
+	depths := roomDepths(rooms)
 	if m, ok := buildGuardMachine(seed, rooms, depths, payloadRef, id); ok {
 		return []Placed{m.Lock, m.Key, m.Payload}
 	}
