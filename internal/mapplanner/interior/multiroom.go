@@ -289,7 +289,7 @@ func houseRoomContents() map[string]Content {
 		}},
 		"kitchen": {ID: "kitchen", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				kitchenCounter(),                                              // 調理台は常設。台所の署名
+				kitchenCounter(), // 調理台は常設。台所の署名
 				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}}, // 明かりは常設
 			}},
 			// 台所の主家具を seed で1つ。食卓か、もう一列の食器棚か
