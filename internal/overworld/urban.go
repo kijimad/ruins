@@ -197,19 +197,22 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 
-	// 施設種別は地図(ChunkPlace)が使う。ここでは規模だけ敵配置に使う
-	_, size, _ := urbanChunkInfo(runSeed, c, rows)
+	// 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
+	fac, size, _ := urbanChunkInfo(runSeed, c, rows)
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-	return renderUrbanChunk(world, g, chunkSeed, size)
+	return renderUrbanChunk(world, g, chunkSeed, size, fac)
 }
 
-// renderUrbanChunk は1チャンクに建物1棟を描き、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk) error {
-	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1 と分けて相互干渉を避ける
+// renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType) error {
+	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
-	isWall, err := drawUrbanBuilding(world, g, rng)
+	isWall, shell, err := drawUrbanBuilding(world, g, rng)
 	if err != nil {
+		return err
+	}
+	if err := furnishBuilding(world, g, shell, fac, seed); err != nil {
 		return err
 	}
 	return spawnUrbanEnemies(world, g, rng, size, isWall)
@@ -218,7 +221,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 // drawUrbanBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟の殻を描く。建物は外周が壁・
 // 内側が床で、道路に面した見える扉を持つ。街路は隣接チャンクと連続して格子になる。内装は持たない。
 // 壁判定の関数を返し、敵配置が壁マスを避けるのに使う。
-func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, error) {
+func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, buildingShell, error) {
 	tiles := g.tiles.get()
 
 	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る。
@@ -265,15 +268,15 @@ func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly 
 				continue // 前庭・空き地は土のまま残す
 			}
 			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, name); err != nil {
-				return nil, fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+				return nil, buildingShell{}, fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
 	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
 	if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: g.offsetX + doorX, Y: g.offsetY + doorY}, doorOrient); err != nil {
-		return nil, fmt.Errorf("市街地の扉配置に失敗: %w", err)
+		return nil, buildingShell{}, fmt.Errorf("市街地の扉配置に失敗: %w", err)
 	}
-	return isWall, nil
+	return isWall, buildingShell{bx: bx, by: by, bw: bw, bh: bh, doorX: doorX, doorY: doorY}, nil
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
