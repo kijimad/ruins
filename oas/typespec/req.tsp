@@ -102,6 +102,8 @@ model Item {
   fire?: Fire;
   book?: Book;
   material?: boolean;
+  disassembly?: Disassembly;
+  disassemblyTool?: DisassemblyTool;
 }
 
 // ================== メンバー ==================
@@ -318,6 +320,41 @@ model Prop {
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
+  disassembly?: Disassembly;
+}
+
+/** 分解の産出エントリ。chance 省略は確定枠 */
+model DisassemblyYield {
+  name: EntityName;
+  amount: ItemCount;
+  /** 省略時は amount 固定。指定時は amount..amountMax の一様抽選 */
+  amountMax?: ItemCount;
+  chance?: DisassemblyChance;
+}
+
+/** 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する */
+model DisassemblyBonus {
+  name: EntityName;
+  amount: ItemCount;
+  amountMax?: ItemCount;
+  /** 機械スキルがこの値以上で産出に加わる */
+  minSkill?: SkillLevel;
+  /** 工具グレードがこの値以上で産出に加わる */
+  minGrade?: ToolGrade;
+}
+
+/** 分解定義。これを持つ prop・item は対応工具で分解できる */
+model Disassembly {
+  toolCategory: ToolCategory;
+  baseAP: DisassemblyBaseAP;
+  yields: DisassemblyYield[];
+  bonus?: DisassemblyBonus[];
+}
+
+/** 分解工具。分類の対応とグレードを持つ */
+model DisassemblyTool {
+  categories: ToolCategory[];
+  grade: ToolGrade;
 }
 
 // ================== 職業 ==================

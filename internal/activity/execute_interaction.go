@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -45,6 +46,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeStorage(target, world)
 	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
+	case gc.InteractionDisassemble:
+		return executeDisassemble(actor, target, world)
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
@@ -128,4 +131,21 @@ func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, err
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
 	return Execute(&AttackActivity{Target: target}, actor, world)
+}
+
+// executeDisassemble は工具の有無を先に確かめ、無ければエラーでなくログで知らせる。
+// 工具不足はプレイヤーの通常操作で起きる状態であり、異常系ではないため
+func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
+	name := query.GetEntityName(target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, name)
+	if !ok {
+		return nil, fmt.Errorf("対象は分解定義を持っていません")
+	}
+	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
+		gamelog.New(query.GetGameLog(world)).
+			Append(fmt.Sprintf("「%s」を分解できる工具を持っていない", name)).
+			Log()
+		return &ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "工具がない"}, nil
+	}
+	return Execute(&DisassembleActivity{Target: target}, actor, world)
 }

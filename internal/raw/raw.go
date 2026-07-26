@@ -688,11 +688,35 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionStorage)
 	}
 
+	if propRaw.Disassembly != nil {
+		interactions = append(interactions, gc.InteractionDisassemble)
+	}
+
 	if len(interactions) > 0 {
 		entitySpec.Interactable = &gc.Interactable{Interactions: interactions}
 	}
 
 	return entitySpec, nil
+}
+
+// FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す
+func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
+	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name); ok && prop.Disassembly != nil {
+		return prop.Disassembly, true
+	}
+	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name); ok && item.Disassembly != nil {
+		return item.Disassembly, true
+	}
+	return nil, false
+}
+
+// FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す
+func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {
+	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)
+	if !ok || item.DisassemblyTool == nil {
+		return nil, false
+	}
+	return item.DisassemblyTool, true
 }
 
 // GetProfession は指定されたIDの職業データを返す

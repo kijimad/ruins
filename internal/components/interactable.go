@@ -51,6 +51,8 @@ const (
 	InteractionStorage InteractionKind = "STORAGE"
 	// InteractionMelee は近接攻撃の相互作用
 	InteractionMelee InteractionKind = "MELEE"
+	// InteractionDisassemble は工具による分解の相互作用
+	InteractionDisassemble InteractionKind = "DISASSEMBLE"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -64,7 +66,7 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
 	case InteractionDoorLock:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}
-	case InteractionStorage:
+	case InteractionStorage, InteractionDisassemble:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	}
 	return InteractionConfig{}

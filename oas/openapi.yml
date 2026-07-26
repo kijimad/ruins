@@ -1648,6 +1648,89 @@ components:
         messageKey:
           $ref: '#/components/schemas/MessageKey'
       description: 会話データ
+    Disassembly:
+      type: object
+      required:
+        - toolCategory
+        - baseAP
+        - yields
+      properties:
+        toolCategory:
+          $ref: '#/components/schemas/ToolCategory'
+        baseAP:
+          $ref: '#/components/schemas/DisassemblyBaseAP'
+        yields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisassemblyYield'
+        bonus:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisassemblyBonus'
+      description: 分解定義。これを持つ prop・item は対応工具で分解できる
+    DisassemblyBaseAP:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 9999
+      description: 分解の基礎工数。100が標準1ターンに相当する
+    DisassemblyBonus:
+      type: object
+      required:
+        - name
+        - amount
+      properties:
+        name:
+          $ref: '#/components/schemas/EntityName'
+        amount:
+          $ref: '#/components/schemas/ItemCount'
+        amountMax:
+          $ref: '#/components/schemas/ItemCount'
+        minSkill:
+          allOf:
+            - $ref: '#/components/schemas/SkillLevel'
+          description: 機械スキルがこの値以上で産出に加わる
+        minGrade:
+          allOf:
+            - $ref: '#/components/schemas/ToolGrade'
+          description: 工具グレードがこの値以上で産出に加わる
+      description: 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する
+    DisassemblyChance:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 100
+      description: 分解産出の確率。百分率
+    DisassemblyTool:
+      type: object
+      required:
+        - categories
+        - grade
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCategory'
+        grade:
+          $ref: '#/components/schemas/ToolGrade'
+      description: 分解工具。分類の対応とグレードを持つ
+    DisassemblyYield:
+      type: object
+      required:
+        - name
+        - amount
+      properties:
+        name:
+          $ref: '#/components/schemas/EntityName'
+        amount:
+          $ref: '#/components/schemas/ItemCount'
+        amountMax:
+          allOf:
+            - $ref: '#/components/schemas/ItemCount'
+          description: 省略時は amount 固定。指定時は amount..amountMax の一様抽選
+        chance:
+          $ref: '#/components/schemas/DisassemblyChance'
+      description: 分解の産出エントリ。chance 省略は確定枠
     DoorLockTriggerRaw:
       type: object
       description: 扉ロックトリガー
@@ -1971,6 +2054,10 @@ components:
           $ref: '#/components/schemas/Book'
         material:
           type: boolean
+        disassembly:
+          $ref: '#/components/schemas/Disassembly'
+        disassemblyTool:
+          $ref: '#/components/schemas/DisassemblyTool'
       description: アイテム
     ItemCount:
       type: integer
@@ -2444,6 +2531,8 @@ components:
           $ref: '#/components/schemas/WarpPrevTriggerRaw'
         storage:
           $ref: '#/components/schemas/StorageRaw'
+        disassembly:
+          $ref: '#/components/schemas/Disassembly'
       description: 置物
     PropList:
       type: object
@@ -3845,6 +3934,19 @@ components:
           type: integer
           format: int32
       description: タイル一覧
+    ToolCategory:
+      type: string
+      enum:
+        - prying
+        - precision
+        - cutting
+      description: 分解工具の分類
+    ToolGrade:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 3
+      description: 分解工具のグレード。高いほど速く多く得る
     UsableScene:
       type: string
       enum:
