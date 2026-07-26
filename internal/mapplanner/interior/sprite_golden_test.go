@@ -12,6 +12,9 @@ import (
 
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 )
 
 // spriteDir はスプライトのソース PNG(32x32)の場所。テストはパッケージ直下で走るのでリポジトリ根へ遡る。
@@ -134,8 +137,9 @@ func TestGolden_InteriorHouseBuilding(t *testing.T) {
 	require.GreaterOrEqual(t, len(rooms), 3, "footprint が複数部屋に割れる")
 
 	placed := fillBuilding(seed, footprint, rooms, houseRoleContents())
+	roles := buildingRoles(footprint, rooms, houseRoleContents())
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, placed))
+	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, roles, placed))
 }
 
 // TestGolden_InteriorClinicBuilding は診療所を建物1棟で生成した目視回帰。単室では待合も診察室も同じ
@@ -151,21 +155,41 @@ func TestGolden_InteriorClinicBuilding(t *testing.T) {
 	require.GreaterOrEqual(t, len(rooms), 3, "footprint が複数部屋に割れる")
 
 	placed := fillBuilding(seed, footprint, rooms, clinicRoleContents())
+	roles := buildingRoles(footprint, rooms, clinicRoleContents())
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, placed))
+	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, roles, placed))
 }
 
-// fillBuilding は建物の各部屋へ入口からの距離順で役割 content を割り当て、部屋ごとに FillRoom を回して
-// 全配置を集める。手前を公共、奥を私的の役割に割ることで、施設の動線に沿った建物になる。contents は
-// 入口から奥への順に並べた役割の列で、部屋数が役割数を超えたら末尾を繰り返す。content セットを差し替え
-// れば同じ器で別施設の建物になる。
+// assignContents は各部屋へ入口からの距離順で役割 content を割り当て、部屋の添字順に返す。手前を公共、
+// 奥を私的の役割に割ることで施設の動線に沿う。contents は入口から奥への順に並べた役割の列で、部屋数が
+// 役割数を超えたら末尾を繰り返す。充填とラベル表示がこの1関数を共有し、役割の二重管理を防ぐ。
+func assignContents(footprint Rect, rooms []Room, contents []Content) []Content {
+	out := make([]Content, len(rooms))
+	for rank, ri := range roomOrderByZone(footprint, rooms) {
+		out[ri] = contents[min(rank, len(contents)-1)]
+	}
+	return out
+}
+
+// fillBuilding は assignContents の割り当てに従い、部屋ごとに FillRoom を回して全配置を集める。content
+// セットを差し替えれば同じ器で別施設の建物になる。
 func fillBuilding(seed uint64, footprint Rect, rooms []Room, contents []Content) []Placed {
 	all := make([]Placed, 0, len(rooms)*8)
-	for rank, ri := range roomOrderByZone(footprint, rooms) {
-		c := contents[min(rank, len(contents)-1)]
+	for ri, c := range assignContents(footprint, rooms, contents) {
 		all = append(all, FillRoom(childSeed(seed, 500+ri), rooms[ri], c)...)
 	}
 	return all
+}
+
+// buildingRoles は各部屋に割り当てた役割 ID を部屋の添字順に返す。VRT のラベル表示に使い、ゾーン分類の
+// 意図が什器の結果と噛み合っているかを人が照合できるようにする。
+func buildingRoles(footprint Rect, rooms []Room, contents []Content) []string {
+	assigned := assignContents(footprint, rooms, contents)
+	roles := make([]string, len(assigned))
+	for i, c := range assigned {
+		roles[i] = c.ID
+	}
+	return roles
 }
 
 // roomOrderByZone は入口からの距離を主キー、面積を副キーに部屋の添字を並べる。手前ほど公共、奥ほど
@@ -286,8 +310,9 @@ func renderRoomSprites(t *testing.T, room Room, placed []Placed) []byte {
 
 // renderBuildingSprites は建物1棟を描く。footprint 全体を走査し、いずれかの部屋の内側なら床、そうで
 // なければ壁、戸口なら扉として塗り、その上に実スプライトを合成する。部屋どうしが共有する壁も、その壁
-// 上に開けた戸口も、1枚の絵として現れる。
-func renderBuildingSprites(t *testing.T, footprint Rect, rooms []Room, placed []Placed) []byte {
+// 上に開けた戸口も、1枚の絵として現れる。各部屋の左上に割り当て役割のラベルを重ね、ゾーン分類の意図と
+// 什器の結果を人が照合できるようにする。
+func renderBuildingSprites(t *testing.T, footprint Rect, rooms []Room, roles []string, placed []Placed) []byte {
 	t.Helper()
 	img := image.NewRGBA(image.Rect(0, 0, footprint.W*cellPx, footprint.H*cellPx))
 
@@ -311,7 +336,31 @@ func renderBuildingSprites(t *testing.T, footprint Rect, rooms []Room, placed []
 	}
 
 	drawPlaced(t, img, Vec{X: footprint.X, Y: footprint.Y}, placed)
+
+	for i, rm := range rooms {
+		lx := (rm.Rect.X + 1 - footprint.X) * cellPx
+		ly := (rm.Rect.Y + 1 - footprint.Y) * cellPx
+		drawLabel(img, lx+2, ly+2, roles[i])
+	}
 	return encodePNG(t, img)
+}
+
+// drawLabel は px,py を左上に役割名の文字を、可読性のため暗い下地の上へ描く。basicfont は ASCII のみ
+// なので役割 ID は英字に保つ。
+func drawLabel(img *image.RGBA, px, py int, s string) {
+	w := len(s)*7 + 3
+	for yy := py; yy < py+14 && yy < img.Bounds().Dy(); yy++ {
+		for xx := px; xx < px+w && xx < img.Bounds().Dx(); xx++ {
+			img.SetRGBA(xx, yy, color.RGBA{R: 18, G: 18, B: 22, A: 235})
+		}
+	}
+	d := &font.Drawer{
+		Dst:  img,
+		Src:  image.NewUniform(color.RGBA{R: 236, G: 224, B: 140, A: 255}),
+		Face: basicfont.Face7x13,
+		Dot:  fixed.P(px+2, py+11),
+	}
+	d.DrawString(s)
 }
 
 // drawPlaced は placed を origin を原点とする 32px セルへ描く。スプライトのある什器は実画像を重ね、
