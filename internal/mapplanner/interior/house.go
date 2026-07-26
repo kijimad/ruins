@@ -5,8 +5,8 @@ package interior
 // いう多数の部屋に面する通路も狭い前室も表現できないため、住居の believability には間取りの階層を保証
 // するテンプレートを使う。汎用 BSP の SplitBuilding は診療所など他用途に残す。
 //
-// 動線: 入口 → 玄関 → 廊下 → 居間・台所・寝室・脱衣所。脱衣所 → 浴室。玄関 → トイレ → 納戸。
-// どの部屋も玄関から辿れる連結木になる。
+// 動線: 入口 → 玄関 → 横廊下 → 居間・台所・寝室・トイレ・脱衣所・納戸。脱衣所 → 浴室。廊下は建物を
+// 横断する背骨で、上段の居室と下段の玄関・水回りがともに面する。どの部屋も玄関から辿れる連結木になる。
 
 // HouseRoom は役割付きの部屋。廊下型の間取りは幾何と一緒に役割まで決める。ゾーン分類のように距離から
 // 役割を推すのでなく、テンプレートが玄関や浴室を名指しする。
@@ -21,28 +21,32 @@ func PlanHouse(footprint Rect, seed uint64) []HouseRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
-	// 縦の廊下を中央やや左に通し、左右に部屋を並べる
-	lx := x0 + w*2/5 // 左翼の右壁 兼 廊下の左壁
-	rx := lx + 3     // 廊下の右壁 兼 右翼の左壁。廊下の内側幅は 2
-	// 横の分割線
-	leftSplit := y0 + h/3    // 左翼を寝室(上)と居間(下)に割る
-	kitchenBot := y0 + h*2/5 // 右翼の台所(上)の底
-	midBot := y0 + h*13/20   // 右翼の寝室(中)の底 兼 水回り(下)の上
-	genkanTop := y0 + h - 5  // 玄関(下)の上
-	waterMid := y0 + h - 4   // 水回りを上下段に割る
-	splitX := rx + (right-rx)/2
+	// 横の廊下を中央に通す。上段を居室、下段を玄関と水回りにし、いずれも縦線で分割する。縦線で割ると
+	// 各室は廊下に面したまま幅を狭められるので、トイレや浴室を小部屋にできる。
+	topBot := y0 + h*13/20 // 上段の底 兼 廊下の上壁
+	corrBot := topBot + 3  // 廊下の底 兼 下段の上壁。廊下の内側高は 2
+
+	// 上段を縦線で4室に割る。居間を広めに取る
+	tc1 := x0 + w*9/28
+	tc2 := x0 + w*15/28
+	tc3 := x0 + w*21/28
+	// 下段を縦線で5室に割る。玄関を中央に置き、脱衣所と浴室を隣り合わせる
+	bc1 := x0 + w*6/28
+	bc2 := x0 + w*11/28
+	bc3 := x0 + w*17/28
+	bc4 := x0 + w*22/28
 
 	rectOf := map[string]Rect{
-		"bedroom_a": {X: x0, Y: y0, W: lx - x0 + 1, H: leftSplit - y0 + 1},
-		"living":    {X: x0, Y: leftSplit, W: lx - x0 + 1, H: bottom - leftSplit + 1},
-		"corridor":  {X: lx, Y: y0, W: rx - lx + 1, H: genkanTop - y0 + 1},
-		"genkan":    {X: lx, Y: genkanTop, W: rx - lx + 1, H: bottom - genkanTop + 1},
-		"kitchen":   {X: rx, Y: y0, W: right - rx + 1, H: kitchenBot - y0 + 1},
-		"bedroom_b": {X: rx, Y: kitchenBot, W: right - rx + 1, H: midBot - kitchenBot + 1},
-		"dressing":  {X: rx, Y: midBot, W: splitX - rx + 1, H: waterMid - midBot + 1},
-		"bath":      {X: splitX, Y: midBot, W: right - splitX + 1, H: waterMid - midBot + 1},
-		"toilet":    {X: rx, Y: waterMid, W: splitX - rx + 1, H: bottom - waterMid + 1},
-		"storage":   {X: splitX, Y: waterMid, W: right - splitX + 1, H: bottom - waterMid + 1},
+		"living":    {X: x0, Y: y0, W: tc1 - x0 + 1, H: topBot - y0 + 1},
+		"kitchen":   {X: tc1, Y: y0, W: tc2 - tc1 + 1, H: topBot - y0 + 1},
+		"bedroom_a": {X: tc2, Y: y0, W: tc3 - tc2 + 1, H: topBot - y0 + 1},
+		"bedroom_b": {X: tc3, Y: y0, W: right - tc3 + 1, H: topBot - y0 + 1},
+		"corridor":  {X: x0, Y: topBot, W: w, H: corrBot - topBot + 1},
+		"dressing":  {X: x0, Y: corrBot, W: bc1 - x0 + 1, H: bottom - corrBot + 1},
+		"bath":      {X: bc1, Y: corrBot, W: bc2 - bc1 + 1, H: bottom - corrBot + 1},
+		"genkan":    {X: bc2, Y: corrBot, W: bc3 - bc2 + 1, H: bottom - corrBot + 1},
+		"toilet":    {X: bc3, Y: corrBot, W: bc4 - bc3 + 1, H: bottom - corrBot + 1},
+		"storage":   {X: bc4, Y: corrBot, W: right - bc4 + 1, H: bottom - corrBot + 1},
 	}
 
 	doors := map[string][]Doorway{}
@@ -52,15 +56,17 @@ func PlanHouse(footprint Rect, seed uint64) []HouseRoom {
 			doors[b] = append(doors[b], d)
 		}
 	}
-	connect("corridor", "genkan", 1)
-	connect("corridor", "bedroom_a", 2)
-	connect("corridor", "living", 3)
-	connect("corridor", "kitchen", 4)
-	connect("corridor", "bedroom_b", 5)
+	// 廊下が背骨。上段の居室と下段の玄関・トイレ・脱衣所・納戸が廊下に面する
+	connect("corridor", "living", 1)
+	connect("corridor", "kitchen", 2)
+	connect("corridor", "bedroom_a", 3)
+	connect("corridor", "bedroom_b", 4)
+	connect("corridor", "genkan", 5)
 	connect("corridor", "dressing", 6)
-	connect("dressing", "bath", 7)
-	connect("genkan", "toilet", 8)
-	connect("toilet", "storage", 9)
+	connect("corridor", "toilet", 7)
+	connect("corridor", "storage", 8)
+	// 浴室は廊下に面さず脱衣所の奥。廊下→脱衣所→浴室の順に通る
+	connect("dressing", "bath", 9)
 
 	// 建物入口。玄関の下辺中央、footprint の外周上
 	gk := rectOf["genkan"]
@@ -71,9 +77,9 @@ func PlanHouse(footprint Rect, seed uint64) []HouseRoom {
 		{"genkan", "genkan"},
 		{"corridor", "corridor"},
 		{"living", "living"},
+		{"kitchen", "kitchen"},
 		{"bedroom_a", "bedroom"},
 		{"bedroom_b", "bedroom"},
-		{"kitchen", "kitchen"},
 		{"dressing", "dressing"},
 		{"bath", "bath"},
 		{"toilet", "toilet"},
