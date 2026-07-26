@@ -76,12 +76,13 @@ func InternalWalls(footprint Rect, rooms []HouseRoom, door Vec) []Vec {
 	return internalWalls(footprint, plain, door)
 }
 
-// planRooms は施設に応じて部屋群と各部屋の役割を返す。民家は廊下型の PlanHouse を使い、玄関・廊下・居間・
-// 寝室・水回りの believable な間取りにする。ほかは BSP で割り、面積最大を主室、残りを奥室にする。PlanHouse に
-// 足りない小さな footprint は BSP へ落とす。実経路のこの分岐が、VRT で見た綺麗な間取りを in-game でも出す。
+// planRooms は施設に応じて部屋群と各部屋の役割を返す。施設ごとに固有の間取りテンプレを持ち、民家は廊下型・
+// 店は売場＋バックヤード・診療所は待合＋診察室の列にして、「何の施設か分かる」平面にする。テンプレに足りない
+// 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。実経路のこの分岐が、
+// VRT で見た綺麗な間取りを in-game でも出す。
 func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) {
-	if facility == facHouse && footprint.W >= 24 && footprint.H >= 16 {
-		plan := PlanHouseAny(footprint, seed)
+	if planner, ok := facilityPlanner(facility); ok && footprint.W >= 24 && footprint.H >= 16 {
+		plan := planner(footprint, seed)
 		rooms := make([]Room, len(plan))
 		roles := make([]string, len(plan))
 		for i, hr := range plan {
@@ -100,6 +101,21 @@ func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) 
 		}
 	}
 	return rooms, roles
+}
+
+// facilityPlanner は施設種別に対応する間取りテンプレを返す。テンプレを持つ施設だけ ok を true にし、無い
+// 施設は BSP のフォールバックへ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
+func facilityPlanner(facility string) (func(Rect, uint64) []HouseRoom, bool) {
+	switch facility {
+	case facHouse:
+		return PlanHouseAny, true
+	case facStore, facAntique:
+		return PlanStore, true
+	case facClinic, facLab:
+		return PlanClinic, true
+	default:
+		return nil, false
+	}
 }
 
 // roleContent は役割から content を引く。main は施設の内装、back は施設別の奥室、それ以外は PlanHouse が

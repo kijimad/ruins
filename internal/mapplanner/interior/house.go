@@ -20,9 +20,10 @@ type HouseRoom struct {
 // roomRole は返す部屋の順序と役割ラベルの対応。寝室2室を同じ bedroom に、納戸を storage にまとめる。
 type roomRole struct{ key, role string }
 
-// wireHouse は部屋矩形と接続指定から HouseRoom 列を組む。conns の各対を戸口で繋ぎ、entrance の部屋の
-// 下辺中央に建物入口を開ける。横型と縦型の間取りが幾何だけ差し替えて同じ組み立てを共有する。
-func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, entrance string, bottom int, order []roomRole) []HouseRoom {
+// wireDoorways は conns の各対を共有壁の戸口で繋ぎ、部屋キー→戸口列の対応を返す。戸口の位置抽選は
+// childSeed(seed, i+1) に閉じ、分割比ジッタの 5_000_000 番台や型選択の 0 と相関しない。民家・店・診療所の
+// どのテンプレも部屋間の連結にこの1関数を共有する。
+func wireDoorways(rectOf map[string]Rect, seed uint64, conns [][2]string) map[string][]Doorway {
 	doors := map[string][]Doorway{}
 	for i, c := range conns {
 		if d, ok := sharedDoorway(rectOf[c[0]], rectOf[c[1]], childSeed(seed, i+1)); ok {
@@ -30,9 +31,12 @@ func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, entrance 
 			doors[c[1]] = append(doors[c[1]], d)
 		}
 	}
-	gk := rectOf[entrance]
-	doors[entrance] = append(doors[entrance], Doorway{X: gk.X + gk.W/2, Y: bottom})
+	return doors
+}
 
+// assembleRooms は矩形表と戸口表を order の順に HouseRoom へ組む。返す順序が動線の手前から奥へ並ぶよう
+// order を作る。
+func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []roomRole) []HouseRoom {
 	rooms := make([]HouseRoom, 0, len(order))
 	for _, o := range order {
 		rooms = append(rooms, HouseRoom{
@@ -41,6 +45,15 @@ func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, entrance 
 		})
 	}
 	return rooms
+}
+
+// wireHouse は部屋矩形と接続指定から HouseRoom 列を組む。conns の各対を戸口で繋ぎ、entrance の部屋の
+// 下辺中央に建物入口を開ける。横型と縦型の間取りが幾何だけ差し替えて同じ組み立てを共有する。
+func wireHouse(rectOf map[string]Rect, seed uint64, conns [][2]string, entrance string, bottom int, order []roomRole) []HouseRoom {
+	doors := wireDoorways(rectOf, seed, conns)
+	gk := rectOf[entrance]
+	doors[entrance] = append(doors[entrance], Doorway{X: gk.X + gk.W/2, Y: bottom})
+	return assembleRooms(rectOf, doors, order)
 }
 
 // houseOrder は横型と縦型で共通の返却順と役割ラベル。動線の手前から奥へ並べる。
