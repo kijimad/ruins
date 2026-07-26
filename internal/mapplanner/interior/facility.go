@@ -10,7 +10,7 @@ package interior
 // 内装にする。footprint は外周が壁の1部屋とみなし、door はその外周上の入口。
 func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
-	placed := FillRoom(seed, room, facilityContent(facility))
+	placed := FillRoom(seed, room, facilityContent(facility, seed))
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
 	return Flavor(seed, room, placed, facilityFlavor(facility))
 }
@@ -43,22 +43,32 @@ func candleCircle() Stuff {
 	return Stuff{Kind: KindDecor, Ref: "ritual_center", Placement: PlaceCenter, Amount: Dice{Bonus: 1}, Satellites: ring}
 }
 
-// facilityContent は施設種別名から内装 content を引く。overworld の facilityType の文字列と揃える。骨董品店は
-// 商店、研究施設は診療所へ寄せ、未知は汎用の内装にする。
-func facilityContent(facility string) Content {
+// facilityContent は施設種別名から内装 content を1つ引く。同じ施設種別でも複数の変種を持ち、seed で
+// 引くことで同じ店が薬局にも食料品店にもなる。doc L694 の最優先「部屋アーキタイプ数」を、既存家具の
+// 組み替えだけでデータを足さずに増やす。変種の seed は本体生成と別枠にして相関を避ける。
+func facilityContent(facility string, seed uint64) Content {
+	variants := facilityVariants(facility)
+	return variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
+}
+
+// facilityVariants は施設種別ごとの内装変種の一覧。骨董品店は商店、研究施設は診療所へ寄せ、未知は汎用に
+// する。変種を足すときはここへ Content を加えるだけでよい。
+func facilityVariants(facility string) []Content {
 	switch facility {
 	case "house":
-		return houseContent()
-	case "store", "antique":
-		return storeContent()
+		return []Content{houseContent(), studioContent()}
+	case "store":
+		return []Content{storeContent(), pharmacyContent(), groceryContent()}
+	case "antique":
+		return []Content{storeContent()}
 	case "clinic", "lab":
-		return clinicContent()
+		return []Content{clinicContent()}
 	case "office":
-		return officeContent()
+		return []Content{officeContent()}
 	case "depot":
-		return depotContent()
+		return []Content{depotContent()}
 	default:
-		return genericContent()
+		return []Content{genericContent()}
 	}
 }
 
@@ -134,6 +144,60 @@ func officeContent() Content {
 				{Kind: KindFurniture, Ref: "desk", Placement: PlaceRow, Amount: Dice{Bonus: 4}},
 				{Kind: KindFurniture, Ref: "chair", Placement: PlaceRow, Amount: Dice{Bonus: 4}},
 				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 2}},
+			}},
+		},
+	}
+}
+
+// pharmacyContent は薬局の store 変種。薬棚を壁一面に並べ、ゴンドラは控えめ。同じ「店」でも薬局に見える。
+func pharmacyContent() Content {
+	return Content{
+		ID: "pharmacy",
+		Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "medcabinet", Amount: Dice{Bonus: 6}},
+				{Kind: KindFurniture, Ref: "register", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "gondola", Amount: Dice{Bonus: 4}},
+			}},
+			{Style: PickN, Pick: 2, Items: []Stuff{
+				{Kind: KindLoot, Ref: "meds", Weight: 3, Amount: Dice{Base: 2, Sides: 4}},
+				{Kind: KindLoot, Ref: "bandage", Weight: 1, Amount: Dice{Base: 1, Sides: 3}},
+			}},
+		},
+	}
+}
+
+// groceryContent は食料品店の store 変種。ゴンドラを大量に並べ、冷蔵ケースを増やす。売り場が広く見える。
+func groceryContent() Content {
+	return Content{
+		ID: "grocery",
+		Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "gondola", Amount: Dice{Bonus: 14}},
+				{Kind: KindFurniture, Ref: "walkin_cooler", Amount: Dice{Bonus: 4}},
+				{Kind: KindFurniture, Ref: "register", Amount: Dice{Bonus: 2}},
+			}},
+			{Style: PickN, Pick: 2, Items: []Stuff{
+				{Kind: KindLoot, Ref: "snacks", Weight: 2, Amount: Dice{Base: 2, Sides: 4}},
+				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: Dice{Base: 2, Sides: 4}},
+			}},
+		},
+	}
+}
+
+// studioContent は民家の house 変種。食卓を持たず、ベッドと物入れが詰まったワンルーム。狭い暮らしに見える。
+func studioContent() Content {
+	return Content{
+		ID: "studio",
+		Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "table", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
+			}},
+			{Style: PickOne, Items: []Stuff{
+				{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}},
 			}},
 		},
 	}
