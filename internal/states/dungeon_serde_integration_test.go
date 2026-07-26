@@ -41,7 +41,7 @@ func TestPhaseG_遺跡滞在中にセーブロードしても共存が復元さ�
 
 	// 実オーバーワールドと街を生成する。Start が現ステージをオーバーワールドに確定し、
 	// プレイヤーと街の会話NPC・収納 prop を開始チャンクへ配置する。
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
 	require.NoError(t, drv.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -104,7 +104,7 @@ func TestPhaseG_多層の共存がセーブロードを跨いで保持され順�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 7})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 7})
 	require.NoError(t, drv.Start(world))
 
 	// 遺跡へ入り、さらに1つ深い階へ降りる。3ステージが共存する。
@@ -164,7 +164,7 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 	world := testutil.InitTestWorld(t)
 
 	// 街中心はNPC・収納で密集する。実ゲームの帯パラメータで新規開始し隊員を1体連れる。
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3), &overworld.NewGameParams{RunSeed: 1})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3, 1), &overworld.NewGameParams{RunSeed: 1})
 	require.NoError(t, drv.Start(world))
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
@@ -186,9 +186,9 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 	// 帯寸法の Level が復元され、視界の強制再計算が要求される。遺跡寸法のままだと真っ暗・No Data。
 	sb := query.GetSeamlessBand(world)
 	field := query.GetCurrentStageField(world)
-	assert.Equal(t, sb.K.Tiles(sb.ChunkW), field.Level.TileWidth, "帯幅の Level が復元される")
+	assert.Equal(t, sb.Cols.Tiles(sb.ChunkW), field.Level.TileWidth, "帯幅の Level が復元される")
 	assert.Equal(t, sb.ChunkH, field.Level.TileHeight, "帯高さの Level が復元される")
-	assert.True(t, query.GetVisionState(world).NeedsForceUpdate, "視界の強制再計算が要求される")
+	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "視界の強制再計算が要求される")
 
 	// 隊員は復元された帯寸法の範囲内に配置される
 	si := query.GetSpatialIndex(world)
@@ -208,7 +208,7 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 func TestPhaseG_遺跡内で保存しロード復元しても現ステージが遺跡のまま(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 3})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 3})
 	require.NoError(t, drv.Start(world))
 
 	// 遺跡へ入る。現ステージは遺跡、帯データはオーバーワールドの StageField ごと退避される。
@@ -248,7 +248,7 @@ func TestPhaseG_遺跡内で保存しロード復元しても現ステージが�
 func TestDebug_遺跡進入イベントで正規経路を通って遺跡へ入る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 9})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 9})
 	require.NoError(t, drv.Start(world))
 
 	// デバッグ選択相当: 遺跡進入イベントを積む
@@ -276,7 +276,7 @@ func TestDebug_遺跡進入イベントで正規経路を通って遺跡へ入�
 func TestDebug_プランナー指定進入で指定プランナーが固定される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 11})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 11})
 	require.NoError(t, drv.Start(world))
 
 	// デバッグのプランナー選択相当: 大部屋を固定してデバッグ遺跡へ入る
@@ -302,7 +302,7 @@ func TestDebug_プランナー指定進入で指定プランナーが固定さ�
 func TestDebug_プランナー指定は選ぶたびにフロアを作り直す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 13})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 13})
 	require.NoError(t, drv.Start(world))
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
 	ruinKey := gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)

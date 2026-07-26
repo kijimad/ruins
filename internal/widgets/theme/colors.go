@@ -110,6 +110,19 @@ var (
 	HUDWeightWarning = color.RGBA{R: 255, G: 200, B: 0, A: 255}
 )
 
+// ========== オーバーワールド俯瞰図色 ==========
+
+var (
+	// OverworldMapBackground は俯瞰図の全画面背景色。彩色したチャンクを際立たせる暗い地
+	OverworldMapBackground = color.RGBA{R: 12, G: 14, B: 18, A: 255}
+	// OverworldMapGlyphText はチャンクセルに重ねる種別記号の文字色
+	OverworldMapGlyphText = color.RGBA{R: 20, G: 20, B: 24, A: 255}
+	// OverworldMapPlayerMarker は現在地セルを囲む白枠の色
+	OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}
+	// OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色
+	OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}
+)
+
 // ========== ステータス色 ==========
 
 var (

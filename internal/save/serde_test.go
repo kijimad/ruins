@@ -30,7 +30,7 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 	// 回復薬は平坦化された ProvidesHealing を持つ。serde 往復で保存されることを確認する
 	_, err = lifecycle.SpawnFieldItem(world, "回復薬", 3, 3, 2)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnDoor(world, 4, 4, gc.DoorOrientationHorizontal)
+	_, err = lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 4, Y: 4}, gc.DoorOrientationHorizontal)
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnProp(world, "木箱", 6, 6)
 	require.NoError(t, err)

@@ -28,12 +28,12 @@ func TestDungeonResume_視界を強制再計算する(t *testing.T) {
 	world.Resources.UIResources = vrt.SharedUIResources(t)
 	// ロード直後を模す。現ステージは通常ダンジョンで、視界フラグは未設定
 	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 3)
-	query.GetVisionState(world).NeedsForceUpdate = false
+	query.GetVisionState(world).ConsumePendingUpdate()
 
 	st := &gs.DungeonState{Depth: 3, DefinitionName: dungeon.DungeonDebug.Name(), Resume: true}
 	require.NoError(t, st.OnStart(world))
 
-	assert.True(t, query.GetVisionState(world).NeedsForceUpdate, "通常ダンジョンの復帰は視界を強制再計算する")
+	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "通常ダンジョンの復帰は視界を強制再計算する")
 }
 
 // TestOverworldResume_視界を強制再計算する は、オーバーワールド開始/復帰で暗転しないことを固定する。
@@ -42,18 +42,18 @@ func TestOverworldResume_視界を強制再計算する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	query.GetVisionState(world).NeedsForceUpdate = false
+	query.GetVisionState(world).ConsumePendingUpdate()
 
 	// オーバーワールドの State は非公開フィールドを持つのでファクトリ経由で構成する。
 	// Seamless 分岐は帯ドライバへ委譲して return するため、タイトルエフェクトには到達しない
 	factory := gs.NewOverworldState(
 		mapplanner.PlannerTypeOverworldField,
-		dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3),
+		dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
 		&overworld.NewGameParams{RunSeed: 1},
 	)
 	state, err := factory()
 	require.NoError(t, err)
 	require.NoError(t, state.OnStart(world))
 
-	assert.True(t, query.GetVisionState(world).NeedsForceUpdate, "オーバーワールド開始も視界を強制再計算する")
+	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "オーバーワールド開始も視界を強制再計算する")
 }

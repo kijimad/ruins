@@ -64,9 +64,18 @@ func TestGolden_CharacterJob(t *testing.T) {
 // 代わりに開始チャンクを背景として使う。決定的な RunSeed で golden を安定させる。
 func newGoldenBackdrop(t *testing.T) es.State[w.World] {
 	t.Helper()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	return s
+}
+
+// TestGolden_OverworldMap は N キーで開く種別俯瞰図の描画を固定する。記号の色表・凡例・
+// 現在地マーカー・荒れ地の文字非重畳を含む描画経路を覆い、配色や記号の集約を変えたときの
+// 退行を捕らえる。俯瞰図は帯から純関数で算出するので、決定的 RunSeed で golden が安定する。
+func TestGolden_OverworldMap(t *testing.T) {
+	t.Parallel()
+	backdrop := newGoldenBackdrop(t)
+	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
 }
 
 func TestGolden_InventoryMenu(t *testing.T) {
@@ -174,7 +183,7 @@ func TestGolden_Dungeon(t *testing.T) {
 
 func TestGolden_Overworld(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
@@ -183,7 +192,7 @@ func TestGolden_Overworld(t *testing.T) {
 // 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
 func TestGolden_OverworldFrost(t *testing.T) {
 	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3), &overworld.NewGameParams{RunSeed: 42})()
+	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		// 前線が帯へ食い込むところまでターンを進める。updateFront が FrontEastAbsX を導出する
@@ -408,6 +417,9 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 	}
 }
 
+// TestGolden_FacilitySamples は施設種別ごとに建物候補を 3x3 で並べたギャラリーを描く。
+// 生成＆選別パイプラインの段3(人間の採否)の視覚基盤。生成規則が変わると golden が変わるので
+// updategolden で更新し、並んだ候補を見比べて良し悪しを判断する。フォグ無しで内装まで見える。
 // TestMapGenImages は全PlannerTypeの各フェーズのVRT画像を生成する。
 // 対応するスナップショットJSONの内容が変わった場合のみ画像を再生成する。
 // ピクセル比較は行わず、目視確認用の参照画像として保存する

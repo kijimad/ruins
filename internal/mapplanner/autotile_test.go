@@ -86,6 +86,22 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	assert.Equal(t, AutoTileCenter, autoTileIndex, "中央タイルの判定が間違っています")
 }
 
+func TestAutoTileBits_各方向が独立したビットに対応する(t *testing.T) {
+	t.Parallel()
+
+	// 上1・右2・下4・左8 の割り当てを1方向ずつ立てて固定する。_15 のような対称値では方向の
+	// 取り違えを検知できないため、各方向を単独および非対称な組で突く。
+	assert.Equal(t, AutoTileIsolated, AutoTileBits(false, false, false, false), "無接続")
+	assert.Equal(t, AutoTileUp, AutoTileBits(true, false, false, false), "上だけ")
+	assert.Equal(t, AutoTileRight, AutoTileBits(false, true, false, false), "右だけ")
+	assert.Equal(t, AutoTileDown, AutoTileBits(false, false, true, false), "下だけ")
+	assert.Equal(t, AutoTileLeft, AutoTileBits(false, false, false, true), "左だけ")
+	assert.Equal(t, AutoTileUpRight, AutoTileBits(true, true, false, false), "上右")
+	assert.Equal(t, AutoTileDownLeft, AutoTileBits(false, false, true, true), "下左")
+	assert.Equal(t, AutoTileUpDownRight, AutoTileBits(true, true, true, false), "上右下")
+	assert.Equal(t, AutoTileCenter, AutoTileBits(true, true, true, true), "全接続")
+}
+
 func TestAutoTileIndexString(t *testing.T) {
 	t.Parallel()
 

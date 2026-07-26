@@ -84,8 +84,10 @@ func (dr *Driver) Start(world w.World) error {
 // restoreFromSave はセーブ済みの SeamlessBand から Band ドライバと ChunkGen を再構築する。
 // 帯タイル・Level・プレイヤーは serde で復元済みなので再生成はしない。
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
-	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.K, sb.EastIndex)
-	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, dr.planner)
+	// Rows がゼロ値なら1へ正規化して1行の帯として復元する
+	rows := max(sb.Rows, 1)
+	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.Cols, rows, sb.EastIndex)
+	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, rows, dr.planner)
 	dr.frontCfg = frontCfgFromBand(sb)
 	query.InvalidateSpatialIndex(world)
 	return nil
@@ -118,9 +120,9 @@ func (dr *Driver) startNewBand(world w.World) error {
 		return fmt.Errorf("新規オーバーワールドの開始には帯形状の定義が必要")
 	}
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
-	chunkW, chunkH, k := dr.definition.BandShape()
-	dr.band = worldstream.NewBand(chunkW, k)
-	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, dr.planner)
+	chunkW, chunkH, cols, rows := dr.definition.BandShape()
+	dr.band = worldstream.NewBand(chunkW, chunkH, cols, rows)
+	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, rows, dr.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
 	// 以後この帯データの有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
@@ -130,7 +132,8 @@ func (dr *Driver) startNewBand(world w.World) error {
 	sb.EastIndex = dr.band.EastIndex()
 	sb.ChunkW = chunkW
 	sb.ChunkH = chunkH
-	sb.K = dr.band.K()
+	sb.Cols = dr.band.Cols()
+	sb.Rows = dr.band.Rows()
 
 	// 寒波前線を初期化する。極低温ゾーン東端を西チャンクの東端（プレイヤーの1チャンク背後）に置く。
 	// これで開始時からプレイヤーの背後に霜が見え、西へ戻ると凍える。以東へ進み帯がシフトすると前線は
@@ -147,50 +150,70 @@ func (dr *Driver) startNewBand(world w.World) error {
 	sb.Front.AdvanceTurns = dr.frontCfg.AdvanceTurns
 	sb.Front.Step = dr.frontCfg.Step
 
-	// 初期帯 ＝ K*chunkW × chunkH の単一マップを決定的生成する。探索履歴はStageField が持ち初期化済み
+	// 初期帯 ＝ cols*chunkW × chunkH の単一マップを決定的生成する。探索履歴はStageField が持ち初期化済み
 	if err := dr.generateBandChunks(world, chunkW, chunkH); err != nil {
 		return err
 	}
 
-	// プレイヤーを中央チャンクの中央へ。居なければ生成、居れば移動
-	cx := (dr.band.K() / 2).Tiles(chunkW) + chunkW/2
-	cy := chunkH / 2
+	// プレイヤーを中央チャンク付近の歩行可能タイルへ湧かせる。開始チャンクの種別に依存せず、
+	// 建物や遺跡入口の上でも壁を避けて安全に置く。居なければ生成、居れば移動
+	center := consts.Coord[consts.Tile]{
+		X: (dr.band.Cols() / 2).Tiles(chunkW) + chunkW/2,
+		Y: (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2,
+	}
+	spawn := walkableSpawnNear(world, center)
 	if _, err := query.GetPlayerEntity(world); err != nil {
-		if _, serr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash"); serr != nil {
+		if _, serr := lifecycle.SpawnPlayer(world, spawn, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
 		}
-	} else if merr := lifecycle.MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); merr != nil {
+	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
-	}
-
-	// 開始チャンクに遺跡入口を1つ置く。プレイヤーの数タイル東、歩いて到達できる位置。
-	// 触れて Enter で遺跡へ入れる
-	if _, err := lifecycle.SpawnDungeonEntrance(world, cx+2, cy, dungeon.DungeonForest.Name()); err != nil {
-		return fmt.Errorf("遺跡入口の配置に失敗: %w", err)
-	}
-
-	// 開始チャンクに街を配置する。プレイヤー開始位置を中心に店・雇用・合成・収納を置く。
-	// 街はオーバーワールドの地物なので、新規ゲームはこの街から始まり TownState を経由しない
-	if err := spawnTown(world, consts.Coord[consts.Tile]{X: cx, Y: cy}); err != nil {
-		return fmt.Errorf("街の配置に失敗: %w", err)
 	}
 
 	query.InvalidateSpatialIndex(world)
 	return nil
 }
 
-// syncBandState は Band の現在 eastIndex を Dungeon の永続状態へ書き戻す。これでセーブに反映される。
-func (dr *Driver) syncBandState(world w.World) {
-	query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
+// walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を
+// 返す。開始チャンクが荒れ地でなく建物や遺跡入口でも、プレイヤーを壁の中へ湧かせないための安全策。
+// 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
+func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
+	blocked := make(map[gc.GridElement]bool)
+	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
+	for q.Next() {
+		blocked[*world.Components.GridElement.Get(q.Entity())] = true
+	}
+	x0, y0 := int(center.X), int(center.Y)
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	isBlocked := func(x, y int) bool { return blocked[gc.GridElement{Coord: at(x, y)}] }
+	for r := range 100 {
+		for dy := -r; dy <= r; dy++ {
+			for dx := -r; dx <= r; dx++ {
+				// リングの外周だけ見る。内側は前の r で確認済み
+				if r > 0 && dx > -r && dx < r && dy > -r && dy < r {
+					continue
+				}
+				if !isBlocked(x0+dx, y0+dy) {
+					return at(x0+dx, y0+dy)
+				}
+			}
+		}
+	}
+	return at(x0, y0)
 }
 
-// generateBandChunks は Level を帯全幅に設定し、K チャンクを各スロットへ決定的生成する。
-// Level 設定は帯幅が不変なので再設定しても冪等で無害。
+// generateBandChunks は Level を帯全域に設定し、rows × K のチャンクを各スロットへ決定的生成する。
+// Level 設定は帯寸法が不変なので再設定しても冪等で無害。
 func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
-	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: chunkH}
-	for i := range dr.band.K() {
-		if err := dr.gen(i, i.Tiles(chunkW)); err != nil {
-			return fmt.Errorf("チャンク生成失敗 (slot=%d): %w", i, err)
+	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
+	for cy := range dr.band.Rows() {
+		for i := range dr.band.Cols() {
+			c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}
+			if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {
+				return fmt.Errorf("チャンク生成失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
+			}
 		}
 	}
 	return nil
@@ -236,7 +259,6 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 			if err := dr.band.ShiftEast(world, dr.gen); err != nil {
 				return shifted, err
 			}
-			dr.syncBandState(world)
 			shifted = true
 			continue
 		}
@@ -246,11 +268,15 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 			if err := dr.band.ShiftWest(world, dr.gen); err != nil {
 				return shifted, err
 			}
-			dr.syncBandState(world)
 			shifted = true
 			continue
 		}
 		break
+	}
+	if shifted {
+		// Band の最終 eastIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
+		// シフトのたびでなくループを抜けてから一度だけ同期する
+		query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
 	}
 	return shifted, nil
 }
