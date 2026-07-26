@@ -72,36 +72,35 @@ func (ati AutoTileIndex) String() string {
 	}
 }
 
+// AutoTileBits は4方向の接続の有無からオートタイルのビットマスクを組む。上1・右2・下4・左8。
+// プランナ格子を見る CalculateAutoTileIndex と、生成後の ECS 実体を見る overworld の継ぎ目再計算が
+// この規則を1箇所から共有し、両者のビット割り当てがずれないようにする。純関数なので単体で検証できる。
+func AutoTileBits(up, right, down, left bool) AutoTileIndex {
+	bitmask := 0
+	if up {
+		bitmask |= 1
+	}
+	if right {
+		bitmask |= 2
+	}
+	if down {
+		bitmask |= 4
+	}
+	if left {
+		bitmask |= 8
+	}
+	return AutoTileIndex(bitmask)
+}
+
 // CalculateAutoTileIndex は4方向の隣接情報からオートタイルインデックスを計算
 // 同じタイル名のタイルとのみ接続する
 func (mp *MetaPlan) CalculateAutoTileIndex(idx gc.TileIdx, tileType string) AutoTileIndex {
 	// 4方向の隣接チェック - 同じタイル名の場合のみ接続
-	upTile := mp.UpTile(idx)
-	downTile := mp.DownTile(idx)
-	leftTile := mp.LeftTile(idx)
-	rightTile := mp.RightTile(idx)
-
-	up := upTile.Name == tileType
-	down := downTile.Name == tileType
-	left := leftTile.Name == tileType
-	right := rightTile.Name == tileType
-
-	// ビットマスク計算（標準16タイルパターン）
-	bitmask := 0
-	if up {
-		bitmask |= 1
-	} // bit 0: 上
-	if right {
-		bitmask |= 2
-	} // bit 1: 右
-	if down {
-		bitmask |= 4
-	} // bit 2: 下
-	if left {
-		bitmask |= 8
-	} // bit 3: 左
-
-	return AutoTileIndex(bitmask)
+	up := mp.UpTile(idx).Name == tileType
+	right := mp.RightTile(idx).Name == tileType
+	down := mp.DownTile(idx).Name == tileType
+	left := mp.LeftTile(idx).Name == tileType
+	return AutoTileBits(up, right, down, left)
 }
 
 // IsValidIndex はインデックスが有効範囲内かチェック

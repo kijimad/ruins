@@ -173,12 +173,13 @@ func TestDungeonDefinition_BossPlanner(t *testing.T) {
 func TestNewOverworldDefinition_フィールドを保持する(t *testing.T) {
 	t.Parallel()
 
-	def := NewOverworldDefinition("テスト帯", 7, consts.Tile(30), consts.Tile(40), consts.Chunk(2))
+	def := NewOverworldDefinition("テスト帯", 7, consts.Tile(30), consts.Tile(40), consts.Chunk(2), consts.Chunk(3))
 
 	assert.Equal(t, "テスト帯", def.Name())
 	assert.Equal(t, 7, def.BaseTemperature())
-	chunkW, chunkH, k := def.BandShape()
+	chunkW, chunkH, cols, rows := def.BandShape()
 	assert.Equal(t, consts.Tile(30), chunkW)
 	assert.Equal(t, consts.Tile(40), chunkH)
-	assert.Equal(t, consts.Chunk(2), k)
+	assert.Equal(t, consts.Chunk(2), cols)
+	assert.Equal(t, consts.Chunk(3), rows)
 }

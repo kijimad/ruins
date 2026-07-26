@@ -322,7 +322,7 @@ func TestSpawnDoor(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		door, err := SpawnDoor(world, 10, 10, gc.DoorOrientationVertical)
+		door, err := SpawnDoor(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, gc.DoorOrientationVertical)
 		require.NoError(t, err, "SpawnDoor should not return an error")
 
 		// SpriteRenderを確認（entity=0は有効なエンティティIDなので、コンポーネントの存在でチェック）
@@ -347,7 +347,7 @@ func TestSpawnDoor(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		door, err := SpawnDoor(world, 10, 10, gc.DoorOrientationHorizontal)
+		door, err := SpawnDoor(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 
 		// SpriteRenderを確認

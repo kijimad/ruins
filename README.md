@@ -18,10 +18,10 @@
 | <img src="internal/states/testdata/TestGolden_DebugMenu.png" width="200" /><br>DebugMenu | <img src="internal/states/testdata/TestGolden_Dungeon.png" width="200" /><br>Dungeon | <img src="internal/states/testdata/TestGolden_EquipMenu.png" width="200" /><br>EquipMenu | <img src="internal/states/testdata/TestGolden_FormationMenu.png" width="200" /><br>FormationMenu |
 | <img src="internal/states/testdata/TestGolden_GameOver.png" width="200" /><br>GameOver | <img src="internal/states/testdata/TestGolden_InventoryMenu.png" width="200" /><br>InventoryMenu | <img src="internal/states/testdata/TestGolden_LanguageMenu.png" width="200" /><br>LanguageMenu | <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu |
 | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu | <img src="internal/states/testdata/TestGolden_MemberStatus.png" width="200" /><br>MemberStatus | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message |
-| <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldFrost.png" width="200" /><br>OverworldFrost | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_Pickup.png" width="200" /><br>Pickup |
-| <img src="internal/states/testdata/TestGolden_Place.png" width="200" /><br>Place | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting |
-| <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu | <img src="internal/states/testdata/TestGolden_SquadMenu.png" width="200" /><br>SquadMenu | <img src="internal/states/testdata/TestGolden_Status.png" width="200" /><br>Status | <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu |
-| <img src="internal/states/testdata/TestGolden_TavernMenu.png" width="200" /><br>TavernMenu | | | |
+| <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldFrost.png" width="200" /><br>OverworldFrost | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage |
+| <img src="internal/states/testdata/TestGolden_Pickup.png" width="200" /><br>Pickup | <img src="internal/states/testdata/TestGolden_Place.png" width="200" /><br>Place | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu |
+| <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu | <img src="internal/states/testdata/TestGolden_SquadMenu.png" width="200" /><br>SquadMenu | <img src="internal/states/testdata/TestGolden_Status.png" width="200" /><br>Status |
+| <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu | <img src="internal/states/testdata/TestGolden_TavernMenu.png" width="200" /><br>TavernMenu | | |
 
 
 各画像はゴールデンテストで自動生成される。
@@ -60,7 +60,7 @@ $ make help
 | status | 件数 |
 |---|---|
 | in-progress | 2 |
-| draft | 1 |
+| draft | 2 |
 | done | 62 |
 
 ### 進行中
@@ -68,7 +68,7 @@ $ make help
 | No. | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | [64](docs/design/20260719_64.md) | 型ユーティリティによる堅牢化・利便化の調査と適用方針 | 0/9 |  |
-| [69](docs/design/20260724_69.md) | オーバーワールド生成の統合設計 | 2/13 | worldgen |
+| [69](docs/design/20260724_69.md) | オーバーワールド生成の統合設計 | 15/21 | worldgen |
 
 
 ## Reference

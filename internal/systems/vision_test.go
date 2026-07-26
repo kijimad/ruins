@@ -265,6 +265,47 @@ func TestBuildBlockViewIndex(t *testing.T) {
 	})
 }
 
+func TestCalculateTileVisibility_チャンク境界をまたいで視線が通り壁で遮られる(t *testing.T) {
+	t.Parallel()
+
+	// オーバーワールドは複数チャンクを1つのステージに束ねるため、視界はチャンク境界を透過する。
+	// 視界にはチャンク固有の境界ロジックが無く絶対座標で動くことを、境界座標 x=chunkW を跨ぐ
+	// 水平視線で固定する。遮蔽が無ければ向こう側が見え、境界上の壁で遮られる。
+	const chunkW consts.Tile = 30 // 東西チャンク境界の座標
+	playerTile := consts.Coord[consts.Tile]{X: chunkW - 2, Y: 10}
+	playerPos := consts.TileCenterToWorld(playerTile)
+	radius := consts.WorldPixel(8 * int(consts.TileSize))
+	target := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: chunkW + 3, Y: 10}} // 隣チャンク側
+
+	lookup := func(vis []TileVisibility, g gc.GridElement) (visible bool, found bool) {
+		for _, v := range vis {
+			if v.Col == int(g.X) && v.Row == int(g.Y) {
+				return v.Visible, true
+			}
+		}
+		return false, false
+	}
+
+	t.Run("遮蔽が無ければ隣チャンク側が見える", func(t *testing.T) {
+		t.Parallel()
+		vis := calculateTileVisibilityWithDistance(playerPos, radius, map[gc.GridElement]bool{})
+		visible, found := lookup(vis, target)
+		require.True(t, found, "対象タイルが視界走査範囲に入る")
+		assert.True(t, visible, "境界の向こう側のタイルが見える")
+	})
+
+	t.Run("境界上の壁で視線が遮られる", func(t *testing.T) {
+		t.Parallel()
+		blockIndex := map[gc.GridElement]bool{
+			{Coord: consts.Coord[consts.Tile]{X: chunkW, Y: 10}}: true, // 境界 x=chunkW 上の壁
+		}
+		vis := calculateTileVisibilityWithDistance(playerPos, radius, blockIndex)
+		visible, found := lookup(vis, target)
+		require.True(t, found, "対象タイルが視界走査範囲に入る")
+		assert.False(t, visible, "境界上の壁の向こうは見えない")
+	})
+}
+
 func TestBresenhamLineOfSight(t *testing.T) {
 	t.Parallel()
 
@@ -301,48 +342,5 @@ func TestBresenhamLineOfSight(t *testing.T) {
 
 		assert.True(t, bresenhamLineOfSight(5, 5, 6, 5, blockIndex))
 		assert.True(t, bresenhamLineOfSight(5, 5, 5, 6, blockIndex))
-	})
-}
-
-func TestInvalidateOnFloorChange(t *testing.T) {
-	t.Parallel()
-
-	t.Run("フロアが変わると壁依存の内部キャッシュを破棄する", func(t *testing.T) {
-		t.Parallel()
-		vs := NewVisionSystem()
-		vs.isInitialized = true
-		vs.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
-		vs.lastDepth = 1
-		vs.lastDefinitionName = "old"
-
-		dungeon := gc.NewDungeon()
-		dungeon.CurrentStage = gc.NewDungeonStage("new", 2)
-		visionState := gc.NewVisionState()
-		visionState.LightSourceCache[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 99, Y: 99}}] = gc.LightInfo{Darkness: 0.5}
-
-		vs.invalidateOnFloorChange(dungeon, visionState)
-
-		assert.False(t, vs.isInitialized)
-		assert.Empty(t, vs.raycastCache)
-		assert.Empty(t, visionState.LightSourceCache)
-		assert.Equal(t, 2, vs.lastDepth)
-		assert.Equal(t, "new", vs.lastDefinitionName)
-	})
-
-	t.Run("同一フロアではキャッシュを保持する", func(t *testing.T) {
-		t.Parallel()
-		vs := NewVisionSystem()
-		vs.isInitialized = true
-		vs.raycastCache[raycastCacheKey{Player: consts.Coord[int]{X: 1}}] = true
-		vs.lastDepth = 3
-		vs.lastDefinitionName = "same"
-
-		dungeon := gc.NewDungeon()
-		dungeon.CurrentStage = gc.NewDungeonStage("same", 3)
-
-		vs.invalidateOnFloorChange(dungeon, gc.NewVisionState())
-
-		assert.True(t, vs.isInitialized)
-		assert.NotEmpty(t, vs.raycastCache)
 	})
 }
