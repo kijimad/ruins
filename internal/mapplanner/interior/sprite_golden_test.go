@@ -214,6 +214,55 @@ func fillBuilding(seed uint64, footprint Rect, rooms []Room, contents []Content)
 	return all
 }
 
+// TestGolden_InteriorFurnishHouse と TestGolden_InteriorFurnishStore は overworld が実際に呼ぶ経路
+// FurnishBuilding をそのまま描く目視回帰。ほかの building golden が PlanHouse など VRT 専用の経路を描くのに
+// 対し、これは in-game で生成される建物そのものを写す。VRT と実装が乖離しないための検証で、実プレイの
+// 高コストな確認を VRT で代替する。粗い間仕切りや不自然さはここに現れる。
+func TestGolden_InteriorFurnishHouse(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
+	door := Vec{X: 13, Y: 0} // 北壁の入口
+	walls, placed := FurnishBuilding(1, footprint, door, "house")
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderFurnishedBuilding(t, footprint, door, walls, placed))
+}
+
+func TestGolden_InteriorFurnishStore(t *testing.T) {
+	t.Parallel()
+
+	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
+	door := Vec{X: 13, Y: 0}
+	walls, placed := FurnishBuilding(2, footprint, door, "store")
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderFurnishedBuilding(t, footprint, door, walls, placed))
+}
+
+// renderFurnishedBuilding は FurnishBuilding の出力、内部間仕切りのタイルと配置を、外殻ごと描く。外周と
+// 間仕切りを壁、入口を扉、残りを床にして、その上に実スプライトを合成する。overworld のタイル配置と同じ
+// 見え方を VRT で再現する。
+func renderFurnishedBuilding(t *testing.T, footprint Rect, door Vec, walls []Vec, placed []Placed) []byte {
+	t.Helper()
+	img := image.NewRGBA(image.Rect(0, 0, footprint.W*cellPx, footprint.H*cellPx))
+
+	wallSet := make(map[Vec]bool)
+	for _, w := range walls {
+		wallSet[w] = true
+	}
+	right, bottom := footprint.X+footprint.W-1, footprint.Y+footprint.H-1
+	for y := range footprint.H {
+		for x := range footprint.W {
+			v := Vec{X: footprint.X + x, Y: footprint.Y + y}
+			isDoor := v == door
+			onOuter := v.X == footprint.X || v.X == right || v.Y == footprint.Y || v.Y == bottom
+			isWall := (onOuter || wallSet[v]) && !isDoor
+			fillCell(img, x*cellPx, y*cellPx, tileColor(isWall, isDoor))
+		}
+	}
+	drawPlaced(t, img, Vec{X: footprint.X, Y: footprint.Y}, placed)
+	return encodePNG(t, img)
+}
+
 // buildingRoles は各部屋に割り当てた役割 ID を部屋の添字順に返す。VRT のラベル表示に使い、ゾーン分類の
 // 意図が什器の結果と噛み合っているかを人が照合できるようにする。
 func buildingRoles(footprint Rect, rooms []Room, contents []Content) []string {
