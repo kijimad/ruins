@@ -77,6 +77,34 @@ func clinicRoom() Room {
 	}
 }
 
+// houseContent は民家を模した Content。既存スプライト(ベッド/机/椅子/棚/ランタン)でほぼ成立する。
+// ベッドは奥、食卓の机と椅子は中央、棚とランタンは壁際、という住居の定石を placement で宣言する。
+func houseContent() Content {
+	return Content{
+		ID: "house",
+		Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "table", Placement: PlaceCenter, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "chair", Placement: PlaceCenter, Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
+				{Kind: KindFurniture, Ref: "lantern", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
+			}},
+			{Style: PickOne, Items: []Stuff{
+				{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 2}},
+			}},
+		},
+	}
+}
+
+// houseRoom は入口が下辺中央の 13x9 の部屋。
+func houseRoom() Room {
+	return Room{
+		Rect:     Rect{X: 0, Y: 0, W: 13, H: 9},
+		Doorways: []Doorway{{X: 6, Y: 8}},
+	}
+}
+
 // TestGolden_InteriorRoomLayout は分割文法の出力(部屋レイアウト)の段を目視する中間段 golden。
 // content を流し込む前の、壁と戸口だけの器。以降の段は同じ renderInterior にこの器 + その段までの
 // 配置を渡すことで、パイプラインの各段を1枚ずつ VRT で押さえられる。

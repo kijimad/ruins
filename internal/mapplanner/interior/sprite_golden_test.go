@@ -26,7 +26,19 @@ func spriteFileOf(p Placed) string {
 		return "prop_register_"
 	case "walkin_cooler":
 		return "prop_cooler_"
-	case "snacks", "drinks", "bento":
+	case "waitchair", "chair":
+		return "prop_chair_"
+	case "reception", "table":
+		return "prop_table_"
+	case "exam_bed", "bed":
+		return "prop_bed_"
+	case "medcabinet", "closet":
+		return "prop_bookshelf_"
+	case "lantern":
+		return "prop_lantern_"
+	case "plant":
+		return "prop_plant_"
+	case "snacks", "drinks", "bento", "meds", "bandage":
 		return "prop_goods_"
 	default:
 		return ""
@@ -41,6 +53,26 @@ func TestGolden_InteriorConvStoreSprites(t *testing.T) {
 	placed := FillRoom(42, storeRoom(), storeContent())
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), renderInteriorSprites(t, storeRoom(), placed))
+}
+
+// TestGolden_InteriorClinicSprites は診療所を実スプライトで描く。待合椅子・受付机は既存スプライト、
+// 診察ベッド・薬棚はダミーで、店とは別の施設に見えることを実スプライトで確認する。
+func TestGolden_InteriorClinicSprites(t *testing.T) {
+	t.Parallel()
+
+	placed := FillRoom(7, clinicRoom(), clinicContent())
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderInteriorSprites(t, clinicRoom(), placed))
+}
+
+// TestGolden_InteriorHouseSprites は民家を実スプライトで描く。ベッド・机・椅子・棚・ランタンの
+// ほぼ既存スプライトで住居が成立し、什器ダミー無しでも自然に見えるかを確認する。
+func TestGolden_InteriorHouseSprites(t *testing.T) {
+	t.Parallel()
+
+	placed := FillRoom(3, houseRoom(), houseContent())
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderInteriorSprites(t, houseRoom(), placed))
 }
 
 // renderInteriorSprites は床・壁・戸口の上に実スプライトを 32px セルへ合成して内装を描く。
