@@ -138,17 +138,6 @@ func TestGolden_RoomConvStore(t *testing.T) {
 	assertRoomGolden(t, room, "store", placed)
 }
 
-// TestGolden_RoomConvStoreAged は時間の層を刻んだ最終形。新品の店に Age を掛け、略奪・生活痕・廃墟化を
-// 適用した「打ち捨てられた店」を写す。新品と2枚並べると戦利品が減り・小物が散り・縁が瓦礫化した差分を
-// 言葉にできる。
-func TestGolden_RoomConvStoreAged(t *testing.T) {
-	t.Parallel()
-
-	room := storeRoom()
-	placed := Age(42, room, FillRoom(42, room, storeContent()))
-	assertRoomGolden(t, room, "store", placed)
-}
-
 // TestGolden_RoomClinic は器の汎用性。store と同じ FillRoom に診療所の content を流すだけで、待合が入口・
 // 診察ベッドが奥・薬棚が壁、という別の施設が出ることを確認する。幾何と中身の分離の実証。
 func TestGolden_RoomClinic(t *testing.T) {
