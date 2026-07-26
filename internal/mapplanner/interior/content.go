@@ -38,14 +38,24 @@ type Dice struct {
 	Bonus int
 }
 
-// Stuff は1つの配置指示。何を・いくつ・どこへ置くか。
+// Stuff は1つの配置指示。何を・いくつ・どこへ置くか。Satellites があれば anchor と衛星を1回で束ねて置く。
 type Stuff struct {
-	Kind      StuffKind
-	Ref       string    // 家具型や戦利品テーブルの参照名
-	Weight    int       // PickOne / PickN の抽選重み。0 は 1 とみなす
-	Chance    int       // 0..100。PickEach でこの Stuff を置く確率。0 以下は常置
-	Amount    Dice      // 置く個数
-	Placement Placement // どこへ置くか。空なら PlaceFullArea 相当
+	Kind       StuffKind
+	Ref        string      // 家具型や戦利品テーブルの参照名
+	Weight     int         // PickOne / PickN の抽選重み。0 は 1 とみなす
+	Chance     int         // 0..100。PickEach でこの Stuff を置く確率。0 以下は常置
+	Amount     Dice        // 置く個数
+	Placement  Placement   // どこへ置くか。空なら PlaceFullArea 相当
+	Satellites []Satellite // anchor 相対に一緒に置く衛星。机に対する椅子など
+}
+
+// Satellite は anchor 相対に一緒に置く衛星。Offsets を前から試し、部屋内の空きに置ければ確定し、尽きたら
+// その衛星を諦める。抽選の単位を単品でなく束にすることで、机だけあって椅子が無いといった抽選事故を構造で
+// 防ぐ。1つの Satellite が椅子1脚に対応し、複数並べれば机を囲む複数脚になる。
+type Satellite struct {
+	Kind    StuffKind
+	Ref     string
+	Offsets []Vec // anchor 相対の候補座標。前から試し、置ければ確定、尽きたら諦める
 }
 
 // Group は抽選単位の束。Style で保証セットとランダム充填を分ける。
@@ -64,8 +74,9 @@ type Content struct {
 
 // Selection は解決済みの1配置指示。Group 解決の結果で、まだ座標を持たない。placement 段が座標を与える。
 type Selection struct {
-	Kind      StuffKind
-	Ref       string
-	Count     int
-	Placement Placement
+	Kind       StuffKind
+	Ref        string
+	Count      int
+	Placement  Placement
+	Satellites []Satellite // anchor ごとに一緒に置く衛星。placement 段が anchor 相対に置く
 }

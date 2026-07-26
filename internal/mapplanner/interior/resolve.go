@@ -61,9 +61,9 @@ func pickDistinct(rng *rand.Rand, items []Stuff, n int) []Selection {
 	return out
 }
 
-// selectionOf は Stuff と個数から Selection を組む。placement 段が要る Placement もここで引き継ぐ。
+// selectionOf は Stuff と個数から Selection を組む。placement 段が要る Placement と衛星束も引き継ぐ。
 func selectionOf(it Stuff, count int) Selection {
-	return Selection{Kind: it.Kind, Ref: it.Ref, Count: count, Placement: it.Placement}
+	return Selection{Kind: it.Kind, Ref: it.Ref, Count: count, Placement: it.Placement, Satellites: it.Satellites}
 }
 
 // weightedIndex は重みに比例して1つの添字を選ぶ。重み0は1とみなす。
