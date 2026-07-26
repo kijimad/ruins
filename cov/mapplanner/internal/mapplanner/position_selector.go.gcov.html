@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">74.5&nbsp;%</td>
+            <td class="headerCovTableEntryMed">78.4&nbsp;%</td>
             <td class="headerCovTableEntry">51</td>
-            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 00:04:39</td>
+            <td class="headerValue">2026-07-26 00:11:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -120,11 +120,11 @@
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                                 planData.isInAnyRoom(x, y) &amp;&amp;</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                                 pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return x, y, true</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           2 :                                 pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                                 return x, y, true</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L64"><span class="lineNum">      64</span>              :                 }</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :                 return 0, 0, false</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 return 0, 0, false</span></span>
 <span id="L66"><span class="lineNum">      66</span>              :         }</span>
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>

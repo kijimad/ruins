@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (74.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.7%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.7%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.3%)</option>
 				
@@ -289,7 +289,7 @@
 				
 				<option value="file116">github.com/kijimaD/ruins/internal/mapplanner/plan.go (82.9%)</option>
 				
-				<option value="file117">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
+				<option value="file117">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
 				
 				<option value="file118">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -527,7 +527,7 @@
 				
 				<option value="file235">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (86.3%)</option>
 				
-				<option value="file236">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.6%)</option>
+				<option value="file236">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.0%)</option>
 				
 				<option value="file237">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.6%)</option>
 				
@@ -1469,7 +1469,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
                 CancelActivity(target, "攻撃を受けた", world)
         }</span>
 
@@ -1611,7 +1611,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }).
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
                         switch </span>{
-                        case !hit:<span class="cov0" title="0">
+                        case !hit:<span class="cov8" title="1">
                                 l.Append(" を攻撃したが外れた。")</span>
                         case critical:<span class="cov0" title="0">
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))</span>
@@ -17693,7 +17693,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
-                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov0" title="0">{
+                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov8" title="1">{
                                 return x, y, true
                         }</span>
                 }
@@ -50103,7 +50103,7 @@ func initialPatrolDir() consts.Tile <span class="cov8" title="1">{
         if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
