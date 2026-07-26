@@ -100,6 +100,17 @@ func TestGolden_InteriorConvStore(t *testing.T) {
 	g.Assert(t, t.Name(), renderInterior(storeRoom(), placed))
 }
 
+// TestGolden_InteriorConvStoreAged は時間の層を刻んだ最終形の目視回帰。新品の店(FillRoom)に Age を
+// 掛け、略奪・生活痕・廃墟化を適用した「打ち捨てられた店」を確認する。ruins の実際の見た目はこれで、
+// 新品(ConvStore)と2枚並べると「戦利品が減り・小物が散り・縁が瓦礫化した」差分を言葉にできる。
+func TestGolden_InteriorConvStoreAged(t *testing.T) {
+	t.Parallel()
+
+	placed := Age(42, storeRoom(), FillRoom(42, storeRoom(), storeContent()))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderInterior(storeRoom(), placed))
+}
+
 // TestGolden_InteriorClinic は器の汎用性の目視回帰。store と同じ FillRoom / renderInterior に診療所の
 // content を流すだけで、待合が入口・診察ベッドが奥・薬棚が壁、という別の施設が出ることを確認する。
 // 幾何と中身の分離、すなわち content を器の追加なしで増やせることの実証。
@@ -155,9 +166,13 @@ func renderInterior(room Room, placed []Placed) []byte {
 		fillCell(img, d.X-r.X, d.Y-r.Y, door)
 	}
 
-	// 置かれた stuff。セルに種別色の淡い下地を敷き、Ref 先頭文字を種別色で重ねる
+	// 置かれた stuff。瓦礫は塗りつぶしで崩壊を示し、他はセルに種別色の淡い下地 + Ref 先頭文字を重ねる
 	for _, p := range placed {
 		cx, cy := p.Pos.X-r.X, p.Pos.Y-r.Y
+		if p.Ref == "rubble" {
+			fillCell(img, cx, cy, color.RGBA{R: 92, G: 84, B: 74, A: 255})
+			continue
+		}
 		kc := kindColor(p.Kind)
 		fillCell(img, cx, cy, tint(floor, kc, 0.35))
 		drawGlyph(img, cx*cellPx, cy*cellPx, glyphOf(p), kc)
