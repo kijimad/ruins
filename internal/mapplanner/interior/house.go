@@ -77,8 +77,10 @@ func PlanHouse(footprint Rect, seed uint64) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
-	topBot := jitterSplit(seed, 0, y0+h*13/20) // 上段の底 兼 廊下の上壁
-	corrBot := topBot + 3                      // 廊下の底 兼 下段の上壁。廊下の内側高は 2
+	// 上段の底 兼 廊下の上壁。前庭ぶん建物高が縮むと下段の水回りが内側床0に潰れるので、下段が H>=3 を
+	// 保つよう topBot に上限 bottom-5 を掛ける。廊下は topBot+3、下段は corrBot..bottom で最低 H=3 になる
+	topBot := min(jitterSplit(seed, 0, y0+h*13/20), bottom-5)
+	corrBot := topBot + 3 // 廊下の底 兼 下段の上壁。廊下の内側高は 2
 
 	// 上段を縦線で4室に割る。居間を広めに取る。分割線を seed で ±1 揺らし、部屋幅を seed ごとに変える
 	tc1 := jitterSplit(seed, 1, x0+w*9/28)

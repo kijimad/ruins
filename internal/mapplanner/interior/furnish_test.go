@@ -101,3 +101,31 @@ func TestFurnishBuilding_施設テンプレが多seedで奥室を役割へ分化
 		}
 	}
 }
+
+// TestFurnishBuilding_部屋が退化しない は生成される部屋が内側床を必ず持つことを多 seed で固定する。前庭で
+// 建物が縮むとテンプレの比率割りで薄い部屋が H<3 の内側床0に潰れ、床が描かれずラベルだけ浮く退行が出た。
+// 全施設の全 seed で、庭でない部屋は内側床が1タイル以上あり、ラベルの下に必ず部屋があることを守る。
+func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		facility  string
+		footprint Rect
+		door      Vec
+	}{
+		{"house", Rect{X: 0, Y: 0, W: 28, H: 20}, Vec{X: 14, Y: 0}},
+		{"store", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}},
+		{"clinic", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}},
+	}
+	for _, c := range cases {
+		for seed := range uint64(50) {
+			site, _ := FurnishBuilding(seed, c.footprint, c.door, c.facility)
+			for _, hr := range site.Rooms {
+				if hr.Role == "garden" {
+					continue // 坪庭は内側が庭タイルで床を持たない
+				}
+				assert.NotEmptyf(t, hr.Room.Rect.interiorTiles(), "%s seed=%d の部屋 %s %+v が内側床を持つ", c.facility, seed, hr.Role, hr.Room.Rect)
+			}
+		}
+	}
+}
