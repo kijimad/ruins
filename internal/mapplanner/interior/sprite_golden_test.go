@@ -122,7 +122,7 @@ func TestGolden_InteriorHouse(t *testing.T) {
 }
 
 // TestGolden_InteriorHouseBuilding は分割文法まで含めた建物1棟の目視回帰。1部屋では施設全体を評価
-// できないため、footprint を BSP で複数部屋へ割り、面積順に居間・寝室・台所・物置の役割 content を
+// できないため、footprint を BSP で複数部屋へ割り、入口からの距離順に居間・寝室・物置の役割 content を
 // 流し込み、戸口で連結した1棟を実スプライトで描く。部屋の連なり・扉の位置・部屋ごとの中身の差が、
 // 建物として自然に見えるかを人が判断する。
 func TestGolden_InteriorHouseBuilding(t *testing.T) {
@@ -133,16 +133,33 @@ func TestGolden_InteriorHouseBuilding(t *testing.T) {
 	rooms := SplitBuilding(footprint, seed)
 	require.GreaterOrEqual(t, len(rooms), 3, "footprint が複数部屋に割れる")
 
-	placed := fillBuilding(seed, footprint, rooms)
+	placed := fillBuilding(seed, footprint, rooms, houseRoleContents())
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
+	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, placed))
+}
+
+// TestGolden_InteriorClinicBuilding は診療所を建物1棟で生成した目視回帰。単室では待合も診察室も同じ
+// 部屋に同居して施設に見えないため、複数部屋へ割り、入口の待合と受付・中間の診察室・奥の備品室と、
+// ゾーンごとに役割を分ける。動線に沿って部屋を通ると診療所の体をなすかを人が判断する。同じ SplitBuilding /
+// fillBuilding に別の content セットを流すだけで別施設の建物になることの実証でもある。
+func TestGolden_InteriorClinicBuilding(t *testing.T) {
+	t.Parallel()
+
+	const seed = 4
+	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
+	rooms := SplitBuilding(footprint, seed)
+	require.GreaterOrEqual(t, len(rooms), 3, "footprint が複数部屋に割れる")
+
+	placed := fillBuilding(seed, footprint, rooms, clinicRoleContents())
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), renderBuildingSprites(t, footprint, rooms, placed))
 }
 
 // fillBuilding は建物の各部屋へ入口からの距離順で役割 content を割り当て、部屋ごとに FillRoom を回して
-// 全配置を集める。手前を玄関ホール・居間、奥を寝室・物置と割ることで、住居の動線に沿った建物になる。
-// 部屋数が役割数を超えたら末尾の物置を繰り返す。
-func fillBuilding(seed uint64, footprint Rect, rooms []Room) []Placed {
-	contents := houseRoleContents()
+// 全配置を集める。手前を公共、奥を私的の役割に割ることで、施設の動線に沿った建物になる。contents は
+// 入口から奥への順に並べた役割の列で、部屋数が役割数を超えたら末尾を繰り返す。content セットを差し替え
+// れば同じ器で別施設の建物になる。
+func fillBuilding(seed uint64, footprint Rect, rooms []Room, contents []Content) []Placed {
 	all := make([]Placed, 0, len(rooms)*8)
 	for rank, ri := range roomOrderByZone(footprint, rooms) {
 		c := contents[min(rank, len(contents)-1)]
@@ -209,6 +226,39 @@ func houseRoleContents() []Content {
 		{ID: "storage", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "barrel", Placement: PlaceRow, Amount: Dice{Bonus: 5}},
+			}},
+		}},
+	}
+}
+
+// clinicRoleContents は診療所の部屋役割を入口から奥への順で並べた content。待合と受付・診察室・診察室・
+// 診察室・備品室の順に対応させる。手前は患者が留まる待合と受付、奥は診察と備品という診療所の動線を
+// content 側の並びで表す。部屋が役割数を超えたら末尾の備品室を繰り返す。
+func clinicRoleContents() []Content {
+	examRoom := Content{ID: "exam", Groups: []Group{
+		{Style: PickEach, Items: []Stuff{
+			{Kind: KindFurniture, Ref: "exam_bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+		}},
+		{Style: PickOne, Items: []Stuff{{Kind: KindLoot, Ref: "meds", Placement: PlaceWall, Amount: Dice{Bonus: 1}}}},
+	}}
+	return []Content{
+		{ID: "waiting", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "reception", Placement: PlaceNearDoor, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "waitchair", Placement: PlaceRow, Amount: Dice{Bonus: 4}},
+			}},
+			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Bonus: 1}}}},
+		}},
+		examRoom,
+		examRoom,
+		examRoom,
+		examRoom,
+		{ID: "supply", Groups: []Group{
+			{Style: PickEach, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
+				{Kind: KindLoot, Ref: "bandage", Placement: PlaceWall, Amount: Dice{Bonus: 2}},
+				{Kind: KindLoot, Ref: "meds", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
 			}},
 		}},
 	}
