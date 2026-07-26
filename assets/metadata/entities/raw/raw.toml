@@ -13759,6 +13759,10 @@ name = "ビスケット"
 count = 1
 name = "回復薬"
 
+[[professions.items]]
+count = 1
+name = "モンキーレンチ"
+
 [[professions.equips]]
 name = "布の帽子"
 slot = "HEAD"
