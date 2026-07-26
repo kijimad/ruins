@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -68,12 +69,19 @@ func (sys *FrostRenderSystem) Draw(world w.World, screen *ebiten.Image) error {
 	coldZoneWest := int(sb.Front.ColdZoneWest())
 	ts := int(consts.TileSize)
 
+	// 前線は動くため、いま見えているタイルにだけ霜を載せる。記憶済みタイルへ残すと
+	// 前線が去った跡に古い霜が居座り実際の位置とずれる。地形描画と同じ可視判定に揃える。
+	visible := query.GetVisionState(world).VisibleTiles
+
 	for x := minX; x <= maxX; x++ {
 		alpha, draw := frostAlpha(frontEast, coldZoneWest, int(sb.LocalToAbsX(consts.Tile(x))))
 		if !draw {
 			continue
 		}
 		for y := minY; y <= maxY; y++ {
+			if !visible[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}] {
+				continue
+			}
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64(x*ts), float64(y*ts))
 			setTranslate(world, op, camera)
