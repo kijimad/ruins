@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -46,10 +47,13 @@ func TestBuyItem_交渉スキルで買値が変わる(t *testing.T) {
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 	world.Components.CharModifiers.Add(player, &gc.CharModifiers{BuyPrice: 50})
 
+	itemDef, err := raw.FindItem(world.Resources.RawMaster, "木刀")
+	require.NoError(t, err)
+
 	require.NoError(t, BuyItem(world, player, "木刀"))
 
 	currency := query.GetCurrency(world, player)
-	normalPrice := query.CalculateBuyPrice(80)
+	normalPrice := query.CalculateBuyPrice(int(itemDef.Value))
 	discountedPrice := normalPrice / 2
 	assert.Equal(t, 1000-discountedPrice, currency, "買値倍率50%で半額になる")
 }
@@ -61,12 +65,10 @@ func TestSellItem_価値0のアイテムは売却できない(t *testing.T) {
 
 	player := world.ECS.NewEntity()
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
-	// Valueコンポーネントを持たないため、GetItemValueは0を返す
 	item := world.ECS.NewEntity()
 
 	err := SellItem(world, player, item)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "売却できません")
+	require.ErrorContains(t, err, "売却できません")
 
 	currency := query.GetCurrency(world, player)
 	assert.Equal(t, 0, currency, "売却失敗時は通貨が変動しない")

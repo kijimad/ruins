@@ -23,9 +23,9 @@ func TestReactToHostileAction_SquadAIも反応する(t *testing.T) {
 	assert.Equal(t, gc.CombatAttack, squad.CombatCurrent)
 }
 
-// TestApplyDamage_プレイヤーも隊員も関与しない場合はログを出力しない は
-// logDeathのisRelevant判定がfalseになる経路がpanicせず何もしないことを確認する。
-func TestApplyDamage_プレイヤーも隊員も関与しない場合はログを出力しない(t *testing.T) {
+// TestApplyDamage_プレイヤーも隊員も関与しない場合でもpanicせず死亡処理は行われる は
+// logDeathのisRelevant判定がfalseになる経路がpanicせず死亡処理自体は完了することを確認する。
+func TestApplyDamage_プレイヤーも隊員も関与しない場合でもpanicせず死亡処理は行われる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
