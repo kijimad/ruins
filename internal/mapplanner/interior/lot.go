@@ -17,11 +17,14 @@ func lotElements(s Site, facility string) []Placed {
 	}
 
 	var out []Placed
-	for a := lo; a <= hi; a++ {
-		if abs(a-doorAxis) <= 1 { // 門の隙間。街路から前庭へ入る
-			continue
+	// 塀で敷地を囲い、入口の軸を門として開ける。商店街は街路に面して開くので塀を張らない
+	if s.Type != siteShopfront {
+		for a := lo; a <= hi; a++ {
+			if abs(a-doorAxis) <= 1 { // 門の隙間。街路から前庭へ入る
+				continue
+			}
+			out = append(out, facadeAt(a, fixed, horiz, "fence"))
 		}
-		out = append(out, facadeAt(a, fixed, horiz, "fence"))
 	}
 	// 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く
 	if spot, ok := yardSpot(s, fside, doorAxis); ok {

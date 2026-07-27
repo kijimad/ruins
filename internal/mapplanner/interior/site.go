@@ -22,12 +22,14 @@ type Site struct {
 	ExtraWall map[Vec]bool
 	Door      Vec
 	Rooms     []PlannedRoom
+	Type      siteType
 }
 
-// planSite は footprint を建物と庭に分ける。入口側に前庭を空けて建物を内寄せし、入口を建物辺へ寄せ、玄関を
-// 凹ませ、建物内の1室を坪庭にする。建物が施設テンプレに満たない狭さなら軸を抑え、最低限の建物は必ず作る。
+// planSite は footprint を建物と庭に分ける。敷地類型で前庭の深さを変え、入口側に前庭を空けて建物を内寄せし、
+// 入口を建物辺へ寄せ、玄関を凹ませる。建物が施設テンプレに満たない狭さなら内寄せを諦め、最低限の建物は必ず作る。
 func planSite(footprint Rect, seed uint64, door Vec, facility string) Site {
-	building := insetBuilding(footprint, door)
+	st := rollSiteType(facility, seed)
+	building := insetBuilding(footprint, door, frontYardOf(st))
 	side := doorSide(footprint, door)
 
 	garden := footprintMinusBuilding(footprint, building)
@@ -47,7 +49,7 @@ func planSite(footprint Rect, seed uint64, door Vec, facility string) Site {
 	}
 	attachDoor(labeled, bdoor, side)
 
-	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled}
+	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled, Type: st}
 }
 
 // attachDoor は入口の内側の部屋へ door を戸口として足す。入口の1マス内側を含む部屋を探す。ポーチで下げた
@@ -66,18 +68,18 @@ func attachDoor(rooms []PlannedRoom, door Vec, s side) {
 // insetBuilding は footprint を入口側の一辺だけ前庭ぶん内寄せした建物矩形を返す。他の3辺は footprint の縁
 // まで建物で埋め、庭を道路側の一辺に集める。狭くて前庭を取ると建物がテンプレ下限を割る footprint では、
 // 内寄せを諦めて footprint をそのまま建物にする。
-func insetBuilding(footprint Rect, door Vec) Rect {
+func insetBuilding(footprint Rect, door Vec, fy int) Rect {
 	f := footprint
 	var b Rect
 	switch doorSide(footprint, door) {
 	case sideNorth:
-		b = Rect{X: f.X, Y: f.Y + frontYard, W: f.W, H: f.H - frontYard}
+		b = Rect{X: f.X, Y: f.Y + fy, W: f.W, H: f.H - fy}
 	case sideSouth:
-		b = Rect{X: f.X, Y: f.Y, W: f.W, H: f.H - frontYard}
+		b = Rect{X: f.X, Y: f.Y, W: f.W, H: f.H - fy}
 	case sideWest:
-		b = Rect{X: f.X + frontYard, Y: f.Y, W: f.W - frontYard, H: f.H}
+		b = Rect{X: f.X + fy, Y: f.Y, W: f.W - fy, H: f.H}
 	default: // sideEast
-		b = Rect{X: f.X, Y: f.Y, W: f.W - frontYard, H: f.H}
+		b = Rect{X: f.X, Y: f.Y, W: f.W - fy, H: f.H}
 	}
 	// 建物が小さすぎると部屋も戸口も作れない。最小 5x5 を割るなら内寄せをやめる
 	if b.W < 5 || b.H < 5 {
