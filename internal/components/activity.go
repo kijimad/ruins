@@ -56,6 +56,8 @@ const (
 	BehaviorShoot     BehaviorName = "Shoot"
 	BehaviorReload    BehaviorName = "Reload"
 	BehaviorTransfer  BehaviorName = "Transfer"
+	// BehaviorDisassemble は工具でpropやアイテムを分解して素材を得る
+	BehaviorDisassemble BehaviorName = "Disassemble"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

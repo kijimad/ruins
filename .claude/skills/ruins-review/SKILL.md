@@ -42,6 +42,14 @@ description: ruins 固有のレビュー観点チェックリスト。Ark の st
 - **ステージ跨ぎクエリ（Phase 7 共存方式）**: 退避中ステージのエンティティを含みうるクエリは生の `ecs.NewFilterN` でなく `query.ActiveFilter` を使う。`Suspended` 除外を1箇所に集約している。linter 強制は無いので `grep -rn "ecs.NewFilter" internal/ | grep -iE "GridElement|Door|SoloAI|Interactable"` 等で洗う。座標検索・破壊的操作（一括削除/平行移動）の漏れが特に致命的。
 - 一般方針: 新しい enum を足すなら、全 case 列挙が意味を持つなら扱う switch から default を外して exhaustive に強制させる。多数から一部だけ処理する enum は default を残し、追加時に grep で照合する。
 
+## 継続アクティビティ（複数ターンの Behavior）
+
+- **DoTurn の冒頭で毎ターン検査する**: 対象エンティティの生存（`world.ECS.Alive`）→ 周囲の安全（`isAreaSafe`）→ 必要資源の保持。検証時と実行時で世界が変わるのは継続系だけで、即時系（TurnsTotal=1）は Execute 内で原子的に完結するため不要。
+- **Finish にも生存ガードを置く**: 対象が消えていたら産出せず nil を返す。分解・読書が実例。
+- **エンティティ参照を Activity に持ち越さない**: 工具・装備などの資源は毎ターン所持品から再解決する。serde の参照解決が不要になり、喪失時も次ターン検査で自然に中断する。分解の工具解決とリロードの装備解決が実例。
+- **Canceled のログは対象の生存を確認してから名前を出す**: 対象消滅による中断では `GetEntityName` が "Unknown" を返し表示が壊れる。
+- **StatsChanged 等のマーカーは `Has` ガード付きで Add する**: 同一ターン内の別処理が既に付けていると Ark の二重 Add パニックになる。
+
 ## 参照
 
 - 設計・コード規約の詳細は CLAUDE.md。

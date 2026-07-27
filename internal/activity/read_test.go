@@ -356,3 +356,44 @@ func TestReadActivity_NoSkillsComponent(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 10, book.Effort.Current, "工数は進む")
 }
+
+func TestReadActivity_DoTurn_本が消えると中断する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	bookEntity := world.ECS.NewEntity()
+	world.Components.Book.Add(bookEntity, &gc.Book{
+		Effort: gc.IntPool{Max: 10, Current: 0},
+	})
+
+	ra := &ReadActivity{}
+	comp := &gc.Activity{Target: &bookEntity, State: gc.ActivityStateRunning, TurnsTotal: 5, TurnsLeft: 5}
+
+	world.ECS.RemoveEntity(bookEntity)
+
+	require.NoError(t, ra.DoTurn(comp, actor, world))
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	assert.Equal(t, "本が消えたため中断", comp.CancelReason)
+
+	// 消えた対象へのキャンセル処理でもエラーにならない
+	require.NoError(t, ra.Canceled(comp, actor, world))
+}
+
+func TestReadActivity_Finish_本が消えていれば何もしない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	bookEntity := world.ECS.NewEntity()
+	world.Components.Book.Add(bookEntity, &gc.Book{
+		Effort: gc.IntPool{Max: 10, Current: 10},
+	})
+
+	ra := &ReadActivity{}
+	comp := &gc.Activity{Target: &bookEntity, State: gc.ActivityStateCompleted}
+
+	world.ECS.RemoveEntity(bookEntity)
+
+	require.NoError(t, ra.Finish(comp, actor, world))
+}

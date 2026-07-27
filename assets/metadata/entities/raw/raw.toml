@@ -276,6 +276,10 @@ spriteSheetName = "field"
 value = 70
 weight = "1.5 kg"
 
+[items.disassemblyTool]
+categories = ["prying"]
+grade = 1
+
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -961,6 +965,10 @@ spriteSheetName = "field"
 value = 50
 weight = "800 g"
 
+[items.disassemblyTool]
+categories = ["cutting"]
+grade = 3
+
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -996,6 +1004,10 @@ spriteKey = "electric_driver"
 spriteSheetName = "field"
 value = 60
 weight = "500 g"
+
+[items.disassemblyTool]
+categories = ["precision"]
+grade = 2
 
 [items.melee]
 accuracy = 85
@@ -12887,6 +12899,25 @@ depth = 2
 spriteKey = "wood_barrel"
 spriteSheetName = "field"
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2500
+
+[[props.disassembly.yields]]
+name = "硬木"
+amount = 1
+amountMax = 3
+
+[[props.disassembly.yields]]
+name = "錆びた鎖"
+amount = 1
+chance = 40
+
+[[props.disassembly.bonus]]
+name = "硬木"
+amount = 1
+minSkill = 10
+
 [[props]]
 blockPass = false
 blockView = false
@@ -13162,6 +13193,25 @@ depth = 2
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2000
+
+[[props.disassembly.yields]]
+name = "硬木"
+amount = 1
+amountMax = 2
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "硬木"
+amount = 1
+minSkill = 10
+
 [[props]]
 blockPass = true
 blockView = false
@@ -13371,6 +13421,31 @@ name = "iron_shelf"
 depth = 2
 spriteKey = "iron_shelf"
 spriteSheetName = "field"
+
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 4000
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 2
+amountMax = 3
+
+[[props.disassembly.yields]]
+name = "鉄"
+amount = 1
+chance = 60
+
+[[props.disassembly.bonus]]
+name = "鉄"
+amount = 1
+minSkill = 10
+
+[[props.disassembly.bonus]]
+name = "鉄"
+amount = 1
+amountMax = 2
+minGrade = 2
 
 [[props]]
 blockPass = true
@@ -13592,12 +13667,55 @@ lootTableName = "食料庫"
 lootCountMin = 1
 lootCountMax = 3
 
+[props.disassembly]
+toolCategory = "cutting"
+baseAP = 6000
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 2
+amountMax = 4
+
+[[props.disassembly.yields]]
+name = "鉄"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "コード束"
+amount = 1
+minSkill = 10
+
+[[props.disassembly.bonus]]
+name = "鉄"
+amount = 1
+minGrade = 3
+
 [[props]]
 blockPass = true
 blockView = false
 description = "橙色の低いレジカウンター。上面に暗色のレジ機。店舗の会計"
 hp = 15
 name = "register"
+
+[props.disassembly]
+toolCategory = "precision"
+baseAP = 3000
+
+[[props.disassembly.yields]]
+name = "電線"
+amount = 1
+amountMax = 2
+
+[[props.disassembly.yields]]
+name = "コード束"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "フェライトコア"
+amount = 1
+minSkill = 10
 
 [props.spriteRender]
 depth = 2
@@ -13980,6 +14098,25 @@ lootTableName = "廃墟"
 lootCountMin = 1
 lootCountMax = 3
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2000
+
+[[props.disassembly.yields]]
+name = "硬木"
+amount = 1
+amountMax = 2
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "硬木"
+amount = 1
+minSkill = 10
+
 [[props]]
 blockPass = true
 blockView = false
@@ -14022,6 +14159,10 @@ name = "ビスケット"
 [[professions.items]]
 count = 1
 name = "回復薬"
+
+[[professions.items]]
+count = 1
+name = "モンキーレンチ"
 
 [[professions.equips]]
 name = "布の帽子"
@@ -15335,6 +15476,24 @@ stackable = true
 value = 50
 weight = "300 g"
 material = true
+
+[items.disassembly]
+toolCategory = "precision"
+baseAP = 1000
+
+[[items.disassembly.yields]]
+name = "鉄くず"
+amount = 1
+
+[[items.disassembly.yields]]
+name = "電線"
+amount = 1
+chance = 50
+
+[[items.disassembly.bonus]]
+name = "フェライトコア"
+amount = 1
+minSkill = 10
 
 [[items]]
 description = "紫色の携帯端末。前面に小さな画面とボタンが並ぶ"

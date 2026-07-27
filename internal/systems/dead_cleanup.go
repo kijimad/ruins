@@ -84,6 +84,23 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
+	// 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、
+	// 確定枠のみを低確率で落とす。工具分解より明確に不利な入手経路にする
+	for _, entity := range toDelete {
+		if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) {
+			continue
+		}
+		def, ok := raw.FindDisassembly(rawMaster, query.GetEntityName(entity, world))
+		if !ok {
+			continue
+		}
+		grid := world.Components.GridElement.Get(entity)
+		stacks := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
+		if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil {
+			logger.Debug("破壊回収アイテム生成失敗", "error", err)
+		}
+	}
+
 	// ボス撃破時の処理: 扉アンロック + クリアフラグ
 	for _, entity := range toDelete {
 		if world.Components.Boss.Has(entity) {

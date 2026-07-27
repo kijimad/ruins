@@ -151,7 +151,7 @@ var skillDescription = map[SkillID]SkillInfo{
 	SkillCrafting:      {Summary: "素材からアイテムを作る技術", GainedBy: "アイテムを合成すると上がる", Effect: "合成時の素材消費が減少する"},
 	SkillSmithing:      {Summary: "素材を精製・調合する技術", GainedBy: "素材を調合すると上がる", Effect: "調合時の品質が上昇する"},
 	SkillNegotiation:   {Summary: "有利な取引をする話術", GainedBy: "取引を行うと上がる", Effect: "売買の価格が有利になる"},
-	SkillMechanic:      {Summary: "機械を理解し修理する技術", GainedBy: "機械関連の本を読むと上がる", Effect: "機械系アイテムの合成効率が上昇する"},
+	SkillMechanic:      {Summary: "機械を理解し修理する技術", GainedBy: "分解を行うか機械関連の本を読むと上がる", Effect: "分解が速くなり産出が増える"},
 	SkillSprinting:     {Summary: "長距離を素早く移動する能力", GainedBy: gainedByEquipmentOrBook, Effect: "移動時のAPコストが減少する"},
 	SkillStealth:       {Summary: "敵に気づかれずに行動する技術", GainedBy: gainedByEquipmentOrBook, Effect: "敵に発見される距離が短くなる"},
 	SkillNightVision:   {Summary: "暗所での視認能力", GainedBy: gainedByEquipmentOrBook, Effect: "暗所での視界が広がる"},

@@ -448,3 +448,28 @@ enum HealingValueType {
   /** 数値で回復 */
   NUMERAL,
 }
+
+/** 分解の基礎工数。100が標準1ターンに相当する */
+@minValue(1)
+@maxValue(9999)
+scalar DisassemblyBaseAP extends int32;
+
+/** 分解産出の確率。百分率 */
+@minValue(1)
+@maxValue(100)
+scalar DisassemblyChance extends int32;
+
+/** 分解工具のグレード。高いほど速く多く得る */
+@minValue(1)
+@maxValue(3)
+scalar ToolGrade extends int32;
+
+/** 分解工具の分類 */
+enum ToolCategory {
+  /** こじ開け。木製家具・棚など */
+  prying,
+  /** 精密。電子機器・機械など */
+  precision,
+  /** 切断。金属大物など */
+  cutting,
+}
