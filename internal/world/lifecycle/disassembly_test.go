@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// ptr は値のコピーへのポインタを返す。new の式形式は Go 1.26 から有効で &v と等価
 func ptr[T any](v T) *T { return new(v) }
 
 func TestRollDisassemblyYields(t *testing.T) {

@@ -29,11 +29,9 @@ git branch -d <branch>
 
 正のグラフは本体ルートの `graphify-out/` に1つだけ持つ。グラフは main 時点のコードの姿を表す。
 
-- main 更新後に `/graphify internal --update` を本体ルートで実行する。差分ファイルのみ AST 再抽出されるので数十秒で済む。
-- 閲覧用コピーを更新する: `cp graphify-out/graph.html graph.html`
+- main 更新後に `/graphify internal --update` を本体ルートで実行する。差分ファイルのみ AST 再抽出されるので数十秒で済む。閲覧は `graphify-out/graph.html` を直接開く。
 
 ## 注意
 
 - worktree 内でグラフを構築しない。構造の質問は本体ルートのグラフに `/graphify query` する。
 - 大規模リファクタ中に作業ブランチのグラフが欲しい場合のみ worktree 内に使い捨て構築し、worktree ごと捨てる。
-- `graphify-out/` と `/graph.html` は gitignore 済みの生成物であり、コミットしない。

@@ -34,4 +34,3 @@ oas/redoc/
 balance.json
 # graphify(コード知識グラフ)が出力する
 graphify-out/
-/graph.html
