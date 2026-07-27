@@ -11588,8 +11588,130 @@ weight = 0.8
 packMin = 1
 packMax = 1
 
+[[items]]
+description = "「第三避難所は満員。西の学校へ向かえ」インクは滲み、日付はもう読めない。"
+name = "避難所の張り紙"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+
+[[items]]
+description = "壁からはがした落書き。「水は南の給水所。夜は動くな」子どもの字だ。"
+name = "落書きのメモ"
+spriteKey = "photo"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+
+[[items]]
+description = "色褪せたレシート。カップ麺2・水4本・ガムテープ。日付は災害の三日前。"
+name = "手書きのレシート"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "5 g"
+
+[[items]]
+description = "「今日も誰も来なかった。備蓄はあと五日分」続きは破れて読めない。"
+name = "日記の切れ端"
+spriteKey = "diary"
+spriteSheetName = "field"
+value = 3
+weight = "10 g"
+
+[[items]]
+description = "「先に北へ行く。生きてたら祖母の家で。—父」画鋲の跡が四つ残る。"
+name = "家族への伝言"
+spriteKey = "photo"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+
+[[items]]
+description = "「解体作業員 急募 日給応相談」電話番号は塗り潰されている。"
+name = "求人の貼り紙"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+
+[[items]]
+description = "「この先 崩落につき通行止め 市」錆びたバリケードに括られていた。"
+name = "通行止めの告知"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "20 g"
+
+[[items]]
+description = "隅にメモ。「あいつを信じるな。物資は自分で隠せ」筆圧が強い。"
+name = "誰かの走り書き"
+spriteKey = "diary"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+
+[[itemGroups]]
+name = "紙片"
+subtype = "collection"
+
+[[itemGroups.entries]]
+itemName = "避難所の張り紙"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "落書きのメモ"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "手書きのレシート"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "日記の切れ端"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "家族への伝言"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "求人の貼り紙"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "通行止めの告知"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "誰かの走り書き"
+weight = 1
+packMin = 1
+packMax = 1
+
 [[itemTables]]
 name = "廃墟"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
 
 [[itemTables.entries]]
 groupName = "回復アイテム"
@@ -11794,6 +11916,12 @@ weight = 0.5
 name = "食料庫"
 
 [[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables.entries]]
 groupName = "食料"
 maxDepth = 30
 minDepth = 1
@@ -11809,6 +11937,12 @@ weight = 2
 name = "薬棚"
 
 [[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables.entries]]
 groupName = "回復アイテム"
 maxDepth = 30
 minDepth = 1
@@ -11822,6 +11956,12 @@ weight = 1
 
 [[itemTables]]
 name = "物入れ"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
 
 [[itemTables.entries]]
 groupName = "素材類"
@@ -11843,6 +11983,12 @@ weight = 2
 
 [[itemTables]]
 name = "商品棚"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
 
 [[itemTables.entries]]
 groupName = "食料"
