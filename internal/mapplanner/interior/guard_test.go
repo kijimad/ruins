@@ -13,8 +13,8 @@ import (
 func TestBuildGuardMachine_鍵は錠より手前で同じIDで結ばれる(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
-	rooms := houseRooms(PlanHouse(footprint, 1))
+	footprint := Rect{X: 0, Y: 0, W: 18, H: 18}
+	rooms := houseRooms(PlanHouseMid(footprint, 1))
 	addEntrance(footprint, rooms) // 単体テストは Site を通さないので建物入口を1つ開ける
 	depths := roomDepths(rooms)
 
@@ -38,8 +38,8 @@ func TestBuildGuardMachine_鍵は錠より手前で同じIDで結ばれる(t *te
 func TestBuildGuardMachine_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
-	rooms := houseRooms(PlanHouse(footprint, 1))
+	footprint := Rect{X: 0, Y: 0, W: 18, H: 18}
+	rooms := houseRooms(PlanHouseMid(footprint, 1))
 	addEntrance(footprint, rooms) // 単体テストは Site を通さないので建物入口を1つ開ける
 	depths := roomDepths(rooms)
 
