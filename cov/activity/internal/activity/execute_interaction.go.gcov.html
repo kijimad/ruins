@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">58.1&nbsp;%</td>
-            <td class="headerCovTableEntry">105</td>
+            <td class="headerCovTableEntryLo">57.5&nbsp;%</td>
+            <td class="headerCovTableEntry">106</td>
             <td class="headerCovTableEntry">61</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-27 14:29:42</td>
+            <td class="headerValue">2026-07-27 14:35:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -205,12 +205,13 @@
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                         Append(fmt.Sprintf(&quot;「%s」を分解できる工具を持っていない&quot;, name)).</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                         Log()</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 return &amp;ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: &quot;工具がない&quot;}, nil</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         return Execute(&amp;DisassembleActivity{Target: target}, actor, world)</span></span>
-<span id="L151"><span class="lineNum">     151</span>              : }</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                         ItemName(name).</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                         Append(&quot;を分解できる工具を持っていない&quot;).</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                         Log()</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 return &amp;ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: &quot;工具がない&quot;}, nil</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         return Execute(&amp;DisassembleActivity{Target: target}, actor, world)</span></span>
+<span id="L152"><span class="lineNum">     152</span>              : }</span>
         </pre>
               </td>
             </tr>

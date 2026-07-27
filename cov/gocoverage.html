@@ -59,9 +59,9 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.2%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.8%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.1%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.6%)</option>
 				
 				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (75.3%)</option>
 				
@@ -351,9 +351,9 @@
 				
 				<option value="file147">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
-				<option value="file148">github.com/kijimaD/ruins/internal/raw/raw.go (85.9%)</option>
+				<option value="file148">github.com/kijimaD/ruins/internal/raw/raw.go (85.2%)</option>
 				
-				<option value="file149">github.com/kijimaD/ruins/internal/raw/validate.go (72.2%)</option>
+				<option value="file149">github.com/kijimaD/ruins/internal/raw/validate.go (91.0%)</option>
 				
 				<option value="file150">github.com/kijimaD/ruins/internal/raw/weighted.go (93.3%)</option>
 				
@@ -449,7 +449,7 @@
 				
 				<option value="file196">github.com/kijimaD/ruins/internal/systems/camera_system.go (75.8%)</option>
 				
-				<option value="file197">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (68.4%)</option>
+				<option value="file197">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (69.3%)</option>
 				
 				<option value="file198">github.com/kijimaD/ruins/internal/systems/frost_render.go (16.3%)</option>
 				
@@ -1565,7 +1565,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1652,7 +1652,6 @@ import (
         "fmt"
         "math"
         "slices"
-        "strings"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -1756,7 +1755,10 @@ func (da *DisassembleActivity) Start(comp *gc.Activity, actor ecs.Entity, world 
 
         <span class="cov8" title="1">name := query.GetEntityName(*comp.Target, world)
         gamelog.New(query.GetGameLog(world)).
-                Append(fmt.Sprintf("%sで「%s」の分解を始めた", toolName, name)).
+                ItemName(toolName).
+                Append("で").
+                ItemName(name).
+                Append("の分解を始めた").
                 Log()
 
         log.Debug("分解開始", "actor", actor, "target", name, "tool", toolName)
@@ -1833,9 +1835,11 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
                 }
         }
 
-        <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
-                Append(fmt.Sprintf("「%s」を分解した。%s", name, formatYields(stacks))).
-                Log()
+        <span class="cov8" title="1">logger := gamelog.New(query.GetGameLog(world)).
+                ItemName(name).
+                Append("を分解した。")
+        appendYields(logger, stacks)
+        logger.Log()
 
         da.gainMechanicExp(actor, world)
 
@@ -1847,13 +1851,13 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 // 対象消滅による中断もあるため、名前は対象が生きている場合だけ出す
 func (da *DisassembleActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         if world.Components.Player.Has(actor) </span><span class="cov8" title="1">{
-                message := "分解を中断した"
+                logger := gamelog.New(query.GetGameLog(world))
                 if comp.Target != nil &amp;&amp; world.ECS.Alive(*comp.Target) </span><span class="cov0" title="0">{
-                        message = fmt.Sprintf("「%s」の分解を中断した", query.GetEntityName(*comp.Target, world))
+                        logger.ItemName(query.GetEntityName(*comp.Target, world)).Append("の分解を中断した")
+                }</span> else<span class="cov8" title="1"> {
+                        logger.Append("分解を中断した")
                 }</span>
-                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
-                        Append(message).
-                        Log()</span>
+                <span class="cov8" title="1">logger.Log()</span>
         }
 
         <span class="cov8" title="1">log.Debug("分解中断", "reason", comp.CancelReason)
@@ -1940,16 +1944,19 @@ func mechanicSkillValue(actor ecs.Entity, world w.World) int <span class="cov8" 
         <span class="cov8" title="1">return world.Components.Skills.Get(actor).Get(gc.SkillMechanic).Value</span>
 }
 
-// formatYields は産出一覧をログ表示用の文字列にする
-func formatYields(stacks []lifecycle.YieldStack) string <span class="cov8" title="1">{
+// appendYields は産出一覧をアイテム名の色付きでログへ追記する
+func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack) <span class="cov8" title="1">{
         if len(stacks) == 0 </span><span class="cov8" title="1">{
-                return "何も得られなかった"
+                logger.Append("何も得られなかった")
+                return
         }</span>
-        <span class="cov8" title="1">parts := make([]string, 0, len(stacks))
-        for _, s := range stacks </span><span class="cov8" title="1">{
-                parts = append(parts, fmt.Sprintf("%s x%d", s.Name, s.Count))
-        }</span>
-        <span class="cov8" title="1">return strings.Join(parts, "、") + " を得た"</span>
+        <span class="cov8" title="1">for i, s := range stacks </span><span class="cov8" title="1">{
+                if i &gt; 0 </span><span class="cov8" title="1">{
+                        logger.Append("、")
+                }</span>
+                <span class="cov8" title="1">logger.ItemName(s.Name).Append(fmt.Sprintf(" x%d", s.Count))</span>
+        }
+        <span class="cov8" title="1">logger.Append(" を得た")</span>
 }
 </pre>
 		
@@ -2464,7 +2471,8 @@ func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*Ac
         }</span>
         <span class="cov0" title="0">if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok </span><span class="cov0" title="0">{
                 gamelog.New(query.GetGameLog(world)).
-                        Append(fmt.Sprintf("「%s」を分解できる工具を持っていない", name)).
+                        ItemName(name).
+                        Append("を分解できる工具を持っていない").
                         Log()
                 return &amp;ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "工具がない"}, nil
         }</span>
@@ -30311,6 +30319,9 @@ func LoadFromFile(path string) (oapi.Raws, error) <span class="cov8" title="1">{
         <span class="cov8" title="1">if err := ValidateRaws(raws); err != nil </span><span class="cov0" title="0">{
                 return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
         }</span>
+        <span class="cov8" title="1">if err := ValidateReferences(raws); err != nil </span><span class="cov0" title="0">{
+                return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
+        }</span>
         <span class="cov8" title="1">return raws, nil</span>
 }
 
@@ -30688,18 +30699,21 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span cla
                 entitySpec.Player = &amp;gc.Player{}
         }</span>
 
+        // テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
         <span class="cov8" title="1">if member.CommandTableName != nil &amp;&amp; *member.CommandTableName != "" </span><span class="cov0" title="0">{
                 ct, err := GetCommandTable(raws, *member.CommandTableName)
-                if err == nil </span><span class="cov0" title="0">{
-                        entitySpec.CommandTable = &amp;gc.CommandTable{Name: ct.Name}
+                if err != nil </span><span class="cov0" title="0">{
+                        return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のコマンドテーブル取得に失敗: %w", name, err)
                 }</span>
+                <span class="cov0" title="0">entitySpec.CommandTable = &amp;gc.CommandTable{Name: ct.Name}</span>
         }
 
         <span class="cov8" title="1">if member.DropTableName != nil &amp;&amp; *member.DropTableName != "" </span><span class="cov0" title="0">{
                 dt, err := GetDropTable(raws, *member.DropTableName)
-                if err == nil </span><span class="cov0" title="0">{
-                        entitySpec.DropTable = &amp;gc.DropTable{Name: dt.Name}
+                if err != nil </span><span class="cov0" title="0">{
+                        return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のドロップテーブル取得に失敗: %w", name, err)
                 }</span>
+                <span class="cov0" title="0">entitySpec.DropTable = &amp;gc.DropTable{Name: dt.Name}</span>
         }
 
         <span class="cov8" title="1">entitySpec.LightSource = toGCLightSource(member.LightSource)
@@ -31107,6 +31121,119 @@ func ValidateRaws(raws oapi.Raws) error <span class="cov8" title="1">{
                 return fmt.Errorf("バリデーションエラー: %w", err)
         }</span>
 
+        <span class="cov8" title="1">return nil</span>
+}
+
+// ValidateReferences は定義間の名前参照の整合を検証する。
+// スキーマ検証は名前の参照整合を見ないため、ここで補う。実行時の解決失敗を
+// ロード時エラーに前倒しする
+func ValidateReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        if err := validateDisassemblyReferences(raws); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateDropTableReferences(raws); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return validateCommandTableReferences(raws)</span>
+}
+
+// validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する
+func validateDisassemblyReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        items := PtrSlice(raws.Items)
+        itemNames := make(map[string]struct{}, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                itemNames[items[i].Name] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">check := func(ownerKind string, ownerName string, def *oapi.Disassembly) error </span><span class="cov8" title="1">{
+                if def == nil </span><span class="cov8" title="1">{
+                        return nil
+                }</span>
+                <span class="cov8" title="1">for _, y := range def.Yields </span><span class="cov8" title="1">{
+                        if _, ok := itemNames[y.Name]; !ok </span><span class="cov8" title="1">{
+                                return fmt.Errorf("%s '%s' の分解産出 '%s' がアイテム定義に存在しません", ownerKind, ownerName, y.Name)
+                        }</span>
+                }
+                <span class="cov8" title="1">if def.Bonus == nil </span><span class="cov8" title="1">{
+                        return nil
+                }</span>
+                <span class="cov8" title="1">for _, b := range *def.Bonus </span><span class="cov8" title="1">{
+                        if _, ok := itemNames[b.Name]; !ok </span><span class="cov8" title="1">{
+                                return fmt.Errorf("%s '%s' の分解ボーナス '%s' がアイテム定義に存在しません", ownerKind, ownerName, b.Name)
+                        }</span>
+                }
+                <span class="cov8" title="1">return nil</span>
+        }
+
+        <span class="cov8" title="1">props := PtrSlice(raws.Props)
+        for i := range props </span><span class="cov8" title="1">{
+                if err := check("prop", props[i].Name, props[i].Disassembly); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">for i := range items </span><span class="cov8" title="1">{
+                if err := check("item", items[i].Name, items[i].Disassembly); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateDropTableReferences はドロップテーブルの素材名がアイテム定義に存在すること、
+// メンバーの dropTableName がテーブル定義に存在することを検証する
+func validateDropTableReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        items := PtrSlice(raws.Items)
+        itemNames := make(map[string]struct{}, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                itemNames[items[i].Name] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">dropTables := PtrSlice(raws.DropTables)
+        tableNames := make(map[string]struct{}, len(dropTables))
+        for i := range dropTables </span><span class="cov8" title="1">{
+                tableNames[dropTables[i].Name] = struct{}{}
+                for _, entry := range dropTables[i].Entries </span><span class="cov8" title="1">{
+                        // 空文字はドロップなしを意味する正規の値
+                        if entry.Material == "" </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if _, ok := itemNames[entry.Material]; !ok </span><span class="cov8" title="1">{
+                                return fmt.Errorf("ドロップテーブル '%s' の素材 '%s' がアイテム定義に存在しません", dropTables[i].Name, entry.Material)
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">members := PtrSlice(raws.Members)
+        for i := range members </span><span class="cov8" title="1">{
+                // 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
+                if members[i].DropTableName == nil || *members[i].DropTableName == "" </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">if _, ok := tableNames[*members[i].DropTableName]; !ok </span><span class="cov8" title="1">{
+                        return fmt.Errorf("メンバー '%s' のドロップテーブル '%s' が定義に存在しません", members[i].Name, *members[i].DropTableName)
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateCommandTableReferences はメンバーの commandTableName がテーブル定義に存在することを検証する
+func validateCommandTableReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        commandTables := PtrSlice(raws.CommandTables)
+        tableNames := make(map[string]struct{}, len(commandTables))
+        for i := range commandTables </span><span class="cov8" title="1">{
+                tableNames[commandTables[i].Name] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">members := PtrSlice(raws.Members)
+        for i := range members </span><span class="cov8" title="1">{
+                // 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
+                if members[i].CommandTableName == nil || *members[i].CommandTableName == "" </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">if _, ok := tableNames[*members[i].CommandTableName]; !ok </span><span class="cov8" title="1">{
+                        return fmt.Errorf("メンバー '%s' のコマンドテーブル '%s' が定義に存在しません", members[i].Name, *members[i].CommandTableName)
+                }</span>
+        }
         <span class="cov8" title="1">return nil</span>
 }
 </pre>
@@ -43742,6 +43869,8 @@ func (sys *CameraSystem) Update(world w.World) error <span class="cov8" title="1
 		<pre class="file" id="file197" style="display: none">package systems
 
 import (
+        "fmt"
+
         "github.com/kijimaD/ruins/internal/activity"
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -43800,11 +43929,11 @@ func (sys *DeadCleanupSystem) Update(world w.World) error <span class="cov8" tit
                 <span class="cov8" title="1">dropTableComp := world.Components.DropTable.Get(entity)
                 gridElement := world.Components.GridElement.Get(entity)
 
+                // テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
                 dropTable, err := raw.GetDropTable(rawMaster, dropTableComp.Name)
                 if err != nil </span><span class="cov0" title="0">{
-                        logger.Debug("ドロップテーブル取得失敗", "error", err, "table_name", dropTableComp.Name)
-                        continue</span>
-                }
+                        return fmt.Errorf("ドロップテーブルの取得に失敗: %w", err)
+                }</span>
 
                 // アイテム選択
                 <span class="cov8" title="1">materialName, err := raw.SelectDropByWeight(dropTable, world.Config.RNG)
@@ -43816,13 +43945,12 @@ func (sys *DeadCleanupSystem) Update(world w.World) error <span class="cov8" tit
                         continue</span>
                 }
 
-                // フィールドにアイテムをスポーン
+                // フィールドにアイテムをスポーン。素材名はロード時に参照検証済み
                 <span class="cov8" title="1">_, err = lifecycle.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y, 1)
                 if err != nil </span><span class="cov0" title="0">{
-                        logger.Debug("ドロップアイテム生成失敗", "error", err, "material", materialName)
-                }</span> else<span class="cov8" title="1"> {
-                        logger.Debug("ドロップアイテム生成", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
+                        return fmt.Errorf("ドロップアイテムの生成に失敗: %w", err)
                 }</span>
+                <span class="cov8" title="1">logger.Debug("ドロップアイテム生成", "material", materialName, "x", gridElement.X, "y", gridElement.Y)</span>
         }
 
         // 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、
@@ -43837,8 +43965,10 @@ func (sys *DeadCleanupSystem) Update(world w.World) error <span class="cov8" tit
                 }
                 <span class="cov0" title="0">grid := world.Components.GridElement.Get(entity)
                 stacks := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
+                // 産出名はロード時に参照検証済みで、ここで失敗するのは整合性バグ。
+                // 握りつぶすと産出が静かに消えるため loud に返す
                 if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil </span><span class="cov0" title="0">{
-                        logger.Debug("破壊回収アイテム生成失敗", "error", err)
+                        return fmt.Errorf("破壊回収アイテムの生成に失敗: %w", err)
                 }</span>
         }
 
@@ -45768,7 +45898,7 @@ func (sys *TurnSystem) Update(world w.World) error <span class="cov8" title="1">
                 // プレイヤーが継続アクション中かチェック
                 if processPlayerContinuousActivity(world) </span><span class="cov8" title="1">{
                         // 継続アクションの1ステップを1ゲームターンとして扱い、AIフェーズへ渡す。
-                        // これでアクティビティ中も敵・NPC・時間が同じ速さで進み、
+                        // アクティビティ中も敵・NPC・時間が同じ速さで進み、
                         // 敵接近による中断判定が毎ターン意味を持つ
                         turnState.Phase = gc.TurnPhaseAI
                         return nil
