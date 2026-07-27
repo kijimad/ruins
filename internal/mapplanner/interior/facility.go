@@ -36,7 +36,7 @@ func Furnish(seed uint64, footprint Rect, door Vec, facility FacilityKind) []Pla
 }
 
 // facilityContent は施設種別名から内装 content を1つ引く。同じ施設種別でも複数の変種を持ち、seed で
-// 引くことで同じ店が薬局にも食料品店にもなる。doc L694 の最優先「部屋アーキタイプ数」を、既存家具の
+// 引くことで同じ店が薬局にも食料品店にもなる。最優先の「部屋アーキタイプ数」を、既存家具の
 // 組み替えだけでデータを足さずに増やす。変種の seed は本体生成と別枠にして相関を避ける。
 func facilityContent(facility FacilityKind, seed uint64) Content {
 	variants := facilityVariants(facility)

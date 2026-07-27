@@ -7,7 +7,7 @@ type Vec struct{ X, Y int }
 type Rect struct{ X, Y, W, H int }
 
 // Room は分割文法の出力の契約。content システムはこの契約のみに依存し、部屋の形の作り方は知らない。
-// docs/design/20260725_70.md の layout↔content 契約。ゾーン印は後続 Stage で足す。
+// layout↔content の契約。ゾーン印は後続 Stage で足す。
 type Room struct {
 	Rect     Rect
 	Doorways []Doorway

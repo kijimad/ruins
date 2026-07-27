@@ -31,7 +31,7 @@ func sampleContent() Content {
 	}
 }
 
-// TestContent_Resolve_同じseedで完全一致する は doc 70 が CI 必須にする決定性の不変条件を固定する。
+// TestContent_Resolve_同じseedで完全一致する は CI が必須にする決定性の不変条件を固定する。
 // 内装は再訪で一致し serde 安全であること。抽選が map や可変乱数器に漏れると再訪ごとに家具が入れ替わる。
 func TestContent_Resolve_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()

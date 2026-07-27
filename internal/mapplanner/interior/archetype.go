@@ -3,7 +3,7 @@ package interior
 // Archetype は家具型が自分の配置作法を知る定義。content レシピは Ref と個数だけ言えばよく、置き方は
 // archetype が既定する。同じ家具型は施設をまたいでも同じ置き方になり、レシピ間の重複と食い違いを防ぐ。
 //
-// doc の Archetype は footprint / clearance / needs_wall / tags まで持つが、まず消費する Default だけを
+// Archetype は footprint / clearance / needs_wall / tags まで持ちうるが、まず消費する Default だけを
 // 置き、残りは使う段で足す。将来は raw/TOML の語彙へ移す。
 type Archetype struct {
 	Default Placement // 既定の置き方。Stuff が Placement を空にしたとき使う

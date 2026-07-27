@@ -1,8 +1,7 @@
 package interior
 
 // 到達性は有界インスタンスでは必須のガード。塞がった部屋はその seed で永久に塞がる。配置後に
-// 戸口から歩行可能な床が全て到達できるかを flood-fill で検査する。docs/design/20260725_70.md の
-// 到達性ガード。ここでは検査だけを提供し、失敗時の修復は後続 Stage で足す。
+// 戸口から歩行可能な床が全て到達できるかを flood-fill で検査する。ここでは検査だけを提供し、失敗時の修復は後続 Stage で足す。
 
 // containsInterior は v が外周の壁を除いた内側タイルかを返す。
 func (r Rect) containsInterior(v Vec) bool {
@@ -49,7 +48,7 @@ func reachableFloor(room Room, blocked map[Vec]bool) map[Vec]bool {
 
 // repairReachability は歩行可能な床が戸口から全て到達できるよう、通路を塞ぐ家具を最小限撤回する。
 // 到達領域と未到達床の境目に立つ家具を固定順で1つ外して開通させ、全床が繋がるまで繰り返す。
-// 各回で必ず到達領域が広がるので有限回で止まる。doc の「blocker を固定順で撤回」の最小実装。
+// 各回で必ず到達領域が広がるので有限回で止まる。「blocker を固定順で撤回」の最小実装。
 func repairReachability(room Room, placed []Placed) []Placed {
 	for {
 		blocked := blockingTiles(placed)
