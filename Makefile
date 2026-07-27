@@ -21,8 +21,10 @@ editor: ## ゲームデータエディタを起動する
 test: ## テストを実行する。RACE=-race で競合検出、COUNT=N で繰り返し実行できる（デフォルト1）
 	# bwrap: /dev/input を隠してebitenのgamepad初期化エラー(EINTR)を防ぐ
 	# xvfb-run: ebitenのゴールデンテストがウィンドウを開くのを防ぐ
+	# coverprofile: カバレッジをテスト実行と同時に採る。別実行にすると
+	# xvfbセッションが2本立ち、2本目のディスプレイ初期化が稀に失敗する
 	RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a go test $(RACE) -v -cover -shuffle=on -timeout=60m -count=$(or $(COUNT),1) \
+	$(BWRAP_CMD) xvfb-run -a go test $(RACE) -v -cover -coverprofile=coverage.out -shuffle=on -timeout=60m -count=$(or $(COUNT),1) \
 		$(GO_TEST_PKGS)
 
 .PHONY: updategolden
@@ -37,9 +39,7 @@ bench: ## ベンチマークを全て実行する
 		$(GO_TEST_PKGS)
 
 .PHONY: report
-report: ## AIが読みやすい形でカバレッジレポートを表示する
-	RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a go test -coverprofile=coverage.out $(GO_TEST_PKGS)
+report: test ## AIが読みやすい形でカバレッジレポートを表示する
 	go tool cover -func=coverage.out
 
 .PHONY: build

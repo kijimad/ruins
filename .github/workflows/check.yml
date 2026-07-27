@@ -83,9 +83,9 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-go-with-x
       - name: test
+        # カバレッジは make test が coverage.out に出力し octocov が読む。
+        # テストの別実行を挟まないことで xvfb セッションを1本に保つ
         run: make test
-      - name: coverage for octocov
-        run: make report
       - uses: k1LoW/octocov-action@v1
 
   flaky-check:
