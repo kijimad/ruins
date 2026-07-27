@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">30.0&nbsp;%</td>
+            <td class="headerCovTableEntryLo">70.0&nbsp;%</td>
             <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">14</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-27 12:33:45</td>
+            <td class="headerValue">2026-07-27 12:50:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,21 +90,21 @@
 <span id="L28"><span class="lineNum">      28</span>              :         Action: runGenComponents,</span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 : func runGenComponents(_ context.Context, c *cli.Command) error {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         formatted, err := generateComponents()</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 : func runGenComponents(_ context.Context, c *cli.Command) error {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         formatted, err := generateComponents()</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         if err := os.WriteFile(c.String(&quot;out&quot;), formatted, 0o644); err != nil {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;生成コードの書き込みに失敗した: %w&quot;, err)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;Generated %s\n&quot;, c.String(&quot;out&quot;))</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           2 :         if err := os.WriteFile(c.String(&quot;out&quot;), formatted, 0o644); err != nil {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;生成コードの書き込みに失敗した: %w&quot;, err)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         fmt.Printf(&quot;Generated %s\n&quot;, c.String(&quot;out&quot;))</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : }</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              : // generateComponents は登録表から整形済みの生成コードを返す。</span>
 <span id="L44"><span class="lineNum">      44</span>              : // format.Source を通すため、返り値がGoとして妥当でなければエラーになる。</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC tlaBgGNC">           1 : func generateComponents() ([]byte, error) {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : func generateComponents() ([]byte, error) {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         var buf bytes.Buffer</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if err := componentsTmpl.Execute(&amp;buf, genspec.Registry); err != nil {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;テンプレート展開に失敗した: %w&quot;, err)</span></span>

@@ -113,11 +113,11 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/balance/stats.go (92.3%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/cmd/cmd.go (0.0%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/cmd/cmd.go (100.0%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/cmd/designdoc.go (0.0%)</option>
 				
-				<option value="file31">github.com/kijimaD/ruins/internal/cmd/gencomponents.go (35.7%)</option>
+				<option value="file31">github.com/kijimaD/ruins/internal/cmd/gencomponents.go (78.6%)</option>
 				
 				<option value="file32">github.com/kijimaD/ruins/internal/cmd/genreadme.go (64.6%)</option>
 				
@@ -6830,7 +6830,7 @@ const splash = `─────────────────────�
 `
 
 // NewMainApp は新しいメインアプリケーションを作成する
-func NewMainApp() *cli.Command <span class="cov0" title="0">{
+func NewMainApp() *cli.Command <span class="cov8" title="1">{
         app := &amp;cli.Command{
                 Name:        "ruins",
                 Usage:       "ruins [subcommand] [args]",
@@ -6849,13 +6849,13 @@ func NewMainApp() *cli.Command <span class="cov0" title="0">{
 }</span>
 
 // RunMainApp はメインアプリケーションを実行する
-func RunMainApp(app *cli.Command, args ...string) error <span class="cov0" title="0">{
+func RunMainApp(app *cli.Command, args ...string) error <span class="cov8" title="1">{
         err := app.Run(context.Background(), args)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("コマンド実行が失敗した: %w", err)
         }</span>
 
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -7009,15 +7009,15 @@ var CmdGenComponents = &amp;cli.Command{
         Action: runGenComponents,
 }
 
-func runGenComponents(_ context.Context, c *cli.Command) error <span class="cov0" title="0">{
+func runGenComponents(_ context.Context, c *cli.Command) error <span class="cov8" title="1">{
         formatted, err := generateComponents()
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">if err := os.WriteFile(c.String("out"), formatted, 0o644); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err := os.WriteFile(c.String("out"), formatted, 0o644); err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("生成コードの書き込みに失敗した: %w", err)
         }</span>
-        <span class="cov0" title="0">fmt.Printf("Generated %s\n", c.String("out"))
+        <span class="cov8" title="1">fmt.Printf("Generated %s\n", c.String("out"))
         return nil</span>
 }
 

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">23</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">23</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-27 12:33:45</td>
+            <td class="headerValue">2026-07-27 12:50:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,32 +80,32 @@
 <span id="L18"><span class="lineNum">      18</span>              : `</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // NewMainApp は新しいメインアプリケーションを作成する</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC tlaBgUNC">           0 : func NewMainApp() *cli.Command {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         app := &amp;cli.Command{</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 Name:        &quot;ruins&quot;,</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 Usage:       &quot;ruins [subcommand] [args]&quot;,</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 Description: splash + &quot;\nThis is Roguelike!&quot;,</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :                 Version:     consts.AppVersion,</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 Commands: []*cli.Command{</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                         CmdPlay,</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                         CmdSimulateBalance,</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                         CmdGenReadme,</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                         CmdGenComponents,</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                         CmdDesignDoc,</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         return app</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func NewMainApp() *cli.Command {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         app := &amp;cli.Command{</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 Name:        &quot;ruins&quot;,</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 Usage:       &quot;ruins [subcommand] [args]&quot;,</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 Description: splash + &quot;\nThis is Roguelike!&quot;,</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 Version:     consts.AppVersion,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Commands: []*cli.Command{</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                         CmdPlay,</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         CmdSimulateBalance,</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         CmdGenReadme,</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         CmdGenComponents,</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                         CmdDesignDoc,</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return app</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // RunMainApp はメインアプリケーションを実行する</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : func RunMainApp(app *cli.Command, args ...string) error {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         err := app.Run(context.Background(), args)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;コマンド実行が失敗した: %w&quot;, err)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : func RunMainApp(app *cli.Command, args ...string) error {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         err := app.Run(context.Background(), args)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;コマンド実行が失敗した: %w&quot;, err)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L47"><span class="lineNum">      47</span>              : }</span>
         </pre>
               </td>
