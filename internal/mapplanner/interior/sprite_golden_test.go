@@ -25,9 +25,9 @@ const spriteDir = "../../../assets/file/textures/single/"
 const cellPx = 32
 
 // prodFootprint は本番の市街地チャンク(24x24)が生む建物区画の最大サイズ。overworld の chunkW=24 から街路
-// urbanStreetW=4 を引いて区画は最大 20x20、setback でさらに縮む。CDDA の1建物=1OMT=24タイルと同縮尺。
+// urbanStreetW=4 を引いて区画は最大 20x20、setback でさらに縮む。1建物=24タイル四方を基準の縮尺にする。
 // 建物ゴールデンはこの本番サイズで回し、in-game と同じ経路を写す。施設テンプレ(PlanStore・PlanClinic・
-// コンパクト民家 PlanHouseCompact)が発火し、CDDA の寝室〜居間サイズの部屋を持つ施設を描く。
+// コンパクト民家 PlanHouseCompact)が発火し、寝室〜居間サイズの部屋を持つ施設を描く。
 const prodFootprint = 20
 
 // roomFixtureDir は部屋単位ゴールデンの置き場。建物単位ゴールデンとは検証の関心が違うので別ディレクトリに

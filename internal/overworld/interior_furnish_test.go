@@ -26,7 +26,7 @@ func countStoredItems(world w.World) int {
 }
 
 // TestPopulateStorageLoot_収納家具に戦利品が入る は収納 loot の配線を固定する。収納 prop(押入れ)には ruins の
-// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。CDDA の SUS_* 相当を ruins 既存の
+// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。家具別の loot を ruins 既存の
 // DropTable/ItemTable 機構で実現していることを守る。
 func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 	t.Parallel()

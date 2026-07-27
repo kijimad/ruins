@@ -57,7 +57,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 
 	// 家具と装飾を spawn する。写像できる Ref だけを建物の内側へ置く。坪庭の観葉もここで庭の土の上へ乗る。
 	// 写像は interior.PropRawName が持つ単一のソースで、VRT の描画も同じ判定を共有する。収納家具には戦利品を
-	// 格納するので、建物ごとに別ストリーム 0x4 の決定的 RNG で引く。CDDA のグローバル乱数と違い建物ローカルで
+	// 格納するので、建物ごとに別ストリーム 0x4 の決定的 RNG で引く。グローバル乱数でなく建物ローカルで
 	// 決定的にし、再訪で一致させる
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
 	for _, p := range placed {
@@ -81,8 +81,8 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 }
 
 // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableName を持てば、その item
-// テーブルから件数ぶん重み抽選して収納エンティティへ入れる。CDDA の家具別 loot テーブル(SUS_*)相当を、ruins
-// 既存の DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
+// テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の
+// DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
 // overworld は建物ローカルの決定的 RNG を使う。地上フロアなので深度は 0。
 func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng *rand.Rand) error {
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)

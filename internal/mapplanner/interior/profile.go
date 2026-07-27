@@ -1,9 +1,9 @@
 package interior
 
-// 建物単位の生活感プロファイル。CDDA の palette 直交合成の翻案で、変種・散らかり・損傷・密度の独立軸を
-// 建物ごとに1回引き、全室へ一様に効かせる。少量の語彙を数千通りの見えに乗算し「同じ家を二度見ない」感を
-// 機構で作る。docs/design/20260725_70.md 追記その4 収穫4・追記その12。各軸は独立の childSeed ストリームで
-// 引き相関を避ける。比率は CDDA 実測を初期値にする。
+// 建物単位の生活感プロファイル。変種・散らかり・損傷・密度の独立軸を建物ごとに1回引き、全室へ一様に
+// 効かせる。少量の語彙を数千通りの見えに乗算し「同じ家を二度見ない」感を機構で作る。
+// docs/design/20260725_70.md 追記その4 収穫4・追記その12。各軸は独立の childSeed ストリームで引き相関を
+// 避ける。比率は実測ベースのチューニング初期値。
 
 // damageLevel は建物の損傷段階。無傷は経年を掛けず、大破ほど略奪と瓦礫が増える。
 type damageLevel int
@@ -76,7 +76,7 @@ func rollProfile(seed uint64) buildingProfile {
 	return p
 }
 
-// rollDamage は損傷軸を引く。CDDA 実測 無傷2:小破3:大破1。3分の2の建物が何らかの損傷を持つ。
+// rollDamage は損傷軸を引く。無傷2:小破3:大破1。3分の2の建物が何らかの損傷を持つ。
 func rollDamage(seed uint64) damageLevel {
 	switch r := childSeed(seed, 1) % 6; {
 	case r < 2:
@@ -88,7 +88,7 @@ func rollDamage(seed uint64) damageLevel {
 	}
 }
 
-// rollClutter は散らかり軸を引く。CDDA 実測 整頓6:乱雑3:汚部屋1。
+// rollClutter は散らかり軸を引く。整頓6:乱雑3:汚部屋1。
 func rollClutter(seed uint64) clutterLevel {
 	switch r := childSeed(seed, 1) % 10; {
 	case r < 6:
@@ -100,8 +100,8 @@ func rollClutter(seed uint64) clutterLevel {
 	}
 }
 
-// rollVariant は変種軸を引く。CDDA 実測を per-mille に写す。標準970・放棄6・建築中10・サバイバリスト9・
-// ためこみ5。数十軒に1軒だけ事情のある家が出る。
+// rollVariant は変種軸を引く。per-mille で 標準970・放棄6・建築中10・サバイバリスト9・ためこみ5。
+// 数十軒に1軒だけ事情のある家が出る。
 func rollVariant(seed uint64) variantKind {
 	switch r := childSeed(seed, 1) % 1000; {
 	case r < 970:
@@ -136,7 +136,7 @@ func clutterFurniturePct(level clutterLevel) int {
 	}
 }
 
-// clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。CDDA の乱雑「あるべきでない場所の物」を、寝室には
+// clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。「あるべきでない場所の物」を、寝室には
 // 洗濯かご、その他は木箱、というふうに役割へ寄せて believability を上げる。すべて SpawnProp が要る実在の prop で
 // 仮画像でないものだけを使う。食器・写真などの拾える item を家具の上へ載せるのは item spawn 経路が要るので今後。
 func clutterRefs(role string) []string {

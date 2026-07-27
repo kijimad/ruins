@@ -20,7 +20,7 @@ func TestRollProfile_同じseedで完全一致する(t *testing.T) {
 }
 
 // TestRollProfile_直交軸がseedで散らばる は変種・散らかり・損傷の各軸が seed を振ると分布することを固定する。
-// CDDA 実測比率の翻案で、標準が大多数・稀に事情のある建物、損傷は3分の2、散らかりは1割が汚部屋という
+// 標準が大多数・稀に事情のある建物、損傷は3分の2、散らかりは1割が汚部屋という
 // 分布のレンジ内であることを多 seed で確かめる。全建物が一律になる退行を止める。
 func TestRollProfile_直交軸がseedで散らばる(t *testing.T) {
 	t.Parallel()
