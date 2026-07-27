@@ -53,11 +53,13 @@ func placeSelections(seed uint64, room Room, selections []Selection, occupied ma
 }
 
 // placeSatellite は anchor から sat.Offsets を順に試し、部屋の内側の空きタイルに置ければその座標を返す。
-// 候補が尽きたら諦める。前から試すので Offsets が優先順、机の四辺のうち空いた辺へ椅子が回り込む。
+// 候補が尽きたら諦める。前から試すので Offsets が優先順、机の四辺のうち空いた辺へ椅子が回り込む。戸口とその
+// 直前は避ける。ここを塞ぐと部屋の唯一の入口が家具で埋まり、到達性修復は塞がれた戸口内側から flood を始められず
+// 空振りして、部屋ごと入れなくなる softlock になる。anchor の selectTiles と同じ除外を衛星にも掛ける。
 func placeSatellite(room Room, occupied map[Vec]bool, anchor Vec, sat Satellite) (Vec, bool) {
 	for _, off := range sat.Offsets {
 		p := Vec{X: anchor.X + off.X, Y: anchor.Y + off.Y}
-		if room.Rect.containsInterior(p) && !occupied[p] {
+		if room.Rect.containsInterior(p) && !occupied[p] && !isDoorwayAdjacent(room, p) {
 			return p, true
 		}
 	}

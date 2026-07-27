@@ -19,8 +19,13 @@ func blockingTiles(placed []Placed) map[Vec]bool {
 	return blocked
 }
 
-// reachableFloor は戸口から歩行可能な内側タイルを4近傍 BFS で塗って返す。blocked のタイルは通れない。
+// reachableFloor は最初の戸口から歩行可能な内側タイルを4近傍 BFS で塗って返す。blocked のタイルは通れない。
 // 戸口が無い部屋は空を返す。map は集合の membership 判定にのみ使い、抽選には使わない。
+//
+// 起点を全戸口でなく最初の1戸口に絞るのが要点。全戸口から同時に塗ると、家具で二分された部屋の両半分が
+// それぞれ別の戸口から「到達」扱いになり、部屋内の分断を見逃す。すると建物全体では、入口側の半分しか歩けず
+// 別の戸口にしか繋がらない奥半分へ入れない softlock になる。1つの戸口を起点に全床が繋がることを求めれば、
+// 分断は未到達床として現れ、repairReachability が仕切りの家具を外して1つの連結成分にする。
 func reachableFloor(room Room, blocked map[Vec]bool) map[Vec]bool {
 	seen := make(map[Vec]bool)
 	queue := make([]Vec, 0, room.Rect.W*room.Rect.H)
@@ -30,9 +35,9 @@ func reachableFloor(room Room, blocked map[Vec]bool) map[Vec]bool {
 			queue = append(queue, t)
 		}
 	}
-	// 各戸口の内側隣接タイルを起点にする
-	for _, d := range room.Doorways {
-		for _, n := range neighbors4(Vec(d)) {
+	// 最初の戸口の内側隣接タイルだけを起点にする
+	if len(room.Doorways) > 0 {
+		for _, n := range neighbors4(Vec(room.Doorways[0])) {
 			enqueue(n)
 		}
 	}

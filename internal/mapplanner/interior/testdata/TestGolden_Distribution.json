@@ -165,7 +165,7 @@
       "komainu": 1,
       "laundry": 12,
       "plant": 234,
-      "rubble": 777,
+      "rubble": 776,
       "window": 500
     },
     "Loot": {},
@@ -266,7 +266,7 @@
       "chair": 63,
       "closet": 43,
       "desk": 69,
-      "gondola": 820,
+      "gondola": 818,
       "medcabinet": 191,
       "register": 120,
       "sink": 31,
@@ -278,7 +278,7 @@
       "candle": 178,
       "carpet": 177,
       "chest": 2,
-      "crate": 144,
+      "crate": 145,
       "debris": 341,
       "fence": 918,
       "komainu": 1,
@@ -292,9 +292,9 @@
     "Loot": {
       "bandage": 57,
       "bento": 9,
-      "drinks": 161,
+      "drinks": 162,
       "meds": 138,
-      "snacks": 207
+      "snacks": 206
     },
     "Heroes": 4
   }
