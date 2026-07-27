@@ -24,8 +24,8 @@ func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
 	placed = Age(seed, room, placed, prof.damage)
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
 	placed = Flavor(seed, room, placed, facilityFlavor(facility))
-	// 散らかりの小物を空き床へ撒き、生活感を足す
-	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter)
+	// 散らかりの小物を家具の隣へ落とし、生活感を足す
+	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter, roleMain)
 }
 
 // facilityContent は施設種別名から内装 content を1つ引く。同じ施設種別でも複数の変種を持ち、seed で

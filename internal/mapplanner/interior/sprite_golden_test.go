@@ -71,6 +71,9 @@ var spriteFiles = map[string]string{
 	// Age。時間が刻む崩落と散乱。in-game の raw と同じスプライトを当て、VRT と実装を揃える
 	"rubble": "rubble_",
 	"debris": "debris_",
+	// 散らかりの小物。家具の脇に溜まる洗濯物・木箱。仮画像でない実在の prop スプライトを当てる
+	"laundry": "laundry_",
+	"crate":   "wooden_crate_",
 }
 
 // spriteFileOf は配置の Ref に対応するスプライト名を返す。表に無ければ空を返し、背景描画に委ねる。

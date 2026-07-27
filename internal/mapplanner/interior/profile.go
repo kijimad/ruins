@@ -123,35 +123,68 @@ func densityFactor(seed uint64) int {
 	return factors[int(childSeed(seed, 1)%uint64(len(factors)))]
 }
 
-// clutterPct は散らかりレベルごとに、空き床タイルへ小物を落とす割合を返す。整頓は0で、汚部屋ほど多い。
-// 通行と可読性を損なわないよう汚部屋でも上限を抑える。
-func clutterPct(level clutterLevel) int {
+// clutterFurniturePct は散らかりレベルごとに、家具1つの隣へ小物を落とす割合を返す。机の上・たんすの脇に物が
+// 溜まる因果を作る。整頓は0で、汚部屋ほど多い。
+func clutterFurniturePct(level clutterLevel) int {
 	switch level {
 	case clutterMessy:
-		return 8
+		return 35
 	case clutterFilthy:
-		return 20
+		return 70
 	default:
 		return 0
 	}
 }
 
-// applyClutter は散らかりの小物を空き床へ撒く。あるべきでない場所に落ちた物を表し、既存 decor の debris を
-// 使うので新規アセットは要らない。装飾で通行は阻まず、戸口前は避ける。呼び出し側が廊下・狭室を除外する。
-func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel) []Placed {
-	pct := clutterPct(level)
-	if pct == 0 {
+// clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。CDDA の乱雑「あるべきでない場所の物」を、寝室には
+// 洗濯かご、その他は木箱、というふうに役割へ寄せて believability を上げる。すべて SpawnProp が要る実在の prop で
+// 仮画像でないものだけを使う。食器・写真などの拾える item を家具の上へ載せるのは item spawn 経路が要るので今後。
+func clutterRefs(role string) []string {
+	switch role {
+	case "bedroom":
+		return []string{"laundry", "crate", "debris"}
+	default:
+		return []string{"crate", "debris"}
+	}
+}
+
+// applyClutter は散らかりの小物を配置する。物は床の孤立した位置だけに置くと不自然なので、主に家具の隣へ
+// 落とし、机の上・たんすの脇に物が溜まる因果を作る。汚部屋のときだけ、加えて床にもまばらに散らす。役割別
+// プールから引き、既存の実スプライトへ写る Ref だけを使う。装飾で通行は阻まず、戸口前は避ける。呼び出し側が
+// 廊下・狭室を除外する。
+func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, role string) []Placed {
+	furnPct := clutterFurniturePct(level)
+	if furnPct == 0 {
 		return placed
 	}
+	pool := clutterRefs(role)
 	occupied := occupiedSet(placed)
 	added := make([]Placed, 0)
-	for i, t := range room.Rect.interiorTiles() {
-		if occupied[t] || isDoorwayAdjacent(room, t) {
+	// 主。家具の隣の空きタイルへ小物を落とす。机やたんすの周りに物が集まる
+	for i, p := range placed {
+		if p.Kind != KindFurniture || !dropChance(childSeed(seed, i), 0, furnPct) {
 			continue
 		}
-		if dropChance(childSeed(seed, i), 0, pct) {
-			occupied[t] = true
-			added = append(added, Placed{Kind: KindDecor, Ref: "debris", Pos: t})
+		for _, n := range neighbors4(p.Pos) {
+			if room.Rect.containsInterior(n) && !occupied[n] && !isDoorwayAdjacent(room, n) {
+				ref := pool[int(childSeed(seed, 2_000+i)%uint64(len(pool)))]
+				occupied[n] = true
+				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: n})
+				break
+			}
+		}
+	}
+	// 補。汚部屋は家具から離れた床にもまばらに散らす。家具の無い部屋でも散らかるようにする
+	if level == clutterFilthy {
+		for i, t := range room.Rect.interiorTiles() {
+			if occupied[t] || isDoorwayAdjacent(room, t) {
+				continue
+			}
+			if dropChance(childSeed(seed, 7_000+i), 0, 7) {
+				ref := pool[int(childSeed(seed, 8_000+i)%uint64(len(pool)))]
+				occupied[t] = true
+				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: t})
+			}
 		}
 	}
 	return append(placed, added...)

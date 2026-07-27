@@ -31,6 +31,11 @@ var propRaw = map[string]string{
 	"carpet":        "carpet",
 	"rubble":        "rubble",
 	"debris":        "debris",
+	// 散らかりの小物。家具の脇に溜まる物。SpawnProp が要るので item でなく実在の prop へ写す。仮画像でない
+	// 実スプライトのある prop だけを使う。食器・写真などの拾える item を家具の上へ載せるのは item spawn 経路が
+	// 要るので今後
+	"laundry": "laundry",
+	"crate":   "crate",
 }
 
 // PropRawName は Ref に対応する raw prop 名と、それが in-game に spawn されるかを返す。overworld の spawn と

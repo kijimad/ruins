@@ -68,7 +68,7 @@ func storeBackBottom(footprint Rect, seed uint64) []PlannedRoom {
 
 	salesBot := jitterSplit(seed, 20, y0+h*7/10) // 売場の底 兼 バックヤードの上壁
 	n := 2 + int(childSeed(seed, 6_000_000)%2)   // バックヤードの個数
-	l.room("sales", "main", Rect{X: x0, Y: y0, W: w, H: salesBot - y0 + 1})
+	l.room("sales", roleMain, Rect{X: x0, Y: y0, W: w, H: salesBot - y0 + 1})
 	l.strip(Rect{X: x0, Y: salesBot, W: w, H: bottom - salesBot + 1}, splitCols, "sales", storeBackCells(seed, n))
 	return l.build()
 }
@@ -91,7 +91,7 @@ func storeBackSide(footprint Rect, seed uint64, left bool) []PlannedRoom {
 		backCol = Rect{X: right - backW + 1, Y: y0, W: backW, H: h}
 		sales = Rect{X: x0, Y: y0, W: w - backW + 1, H: h}
 	}
-	l.room("sales", "main", sales)
+	l.room("sales", roleMain, sales)
 	l.strip(backCol, splitRows, "sales", storeBackCells(seed, n))
 	return l.build()
 }

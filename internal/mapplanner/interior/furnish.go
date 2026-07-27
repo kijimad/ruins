@@ -34,8 +34,8 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
 		if hr.Role != "corridor" && !isNarrowRoom(hr.Room.Rect) {
 			fl = Flavor(roomSeed, hr.Room, a, facilityFlavor(facility))
-			// 散らかりの小物を空き床へ撒き、生活感を足す。整頓の建物では何も足さない
-			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter)
+			// 散らかりの小物を家具の隣へ落とし、生活感を足す。整頓の建物では何も足さない
+			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter, hr.Role)
 		}
 		fill = append(fill, f...)
 		decayed = append(decayed, a...)
@@ -48,6 +48,9 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 		{Label: "4 flavor", Placed: flavored},
 	}
 }
+
+// roleMain は主室の役割名。売場・待合など施設の顔の部屋。BSP フォールバックは面積最大をこれにする。
+const roleMain = "main"
 
 // isNarrowRoom は部屋の内側が幅1以下の通路状かを返す。1マス幅の廊下や薄い水回りにフレーバーを置くと
 // 唯一の歩行帯を塞ぐので、その判定に使う。
@@ -82,7 +85,7 @@ func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) 
 	roles := make([]string, len(rooms))
 	for rank, ri := range roomOrderByArea(rooms) {
 		if rank == 0 {
-			roles[ri] = "main"
+			roles[ri] = roleMain
 		} else {
 			roles[ri] = "back"
 		}
@@ -112,7 +115,7 @@ func facilityPlanner(facility string) (fn func(Rect, uint64) []PlannedRoom, minW
 // 民家の共有役割(corridor 等)、それも無ければ施設別の奥室既定へ落とす。民家だけでなく店・診療所も役割名で
 // 部屋を作り分けられるよう、施設カタログを優先して引く。役割名は planRooms とテンプレが付ける。
 func roleContent(facility, role string, seed uint64) Content {
-	if role == "main" {
+	if role == roleMain {
 		return facilityContent(facility, seed)
 	}
 	if c, ok := roomCatalog(facility)[role]; ok {

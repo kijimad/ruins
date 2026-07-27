@@ -61,9 +61,9 @@ func TestApplyClutter_整頓は何も足さず戸口を塞がない(t *testing.T
 	room := storeRoom()
 	base := FillRoom(1, room, storeContent())
 
-	assert.Len(t, applyClutter(1, room, base, clutterTidy), len(base), "整頓では小物を足さない")
+	assert.Len(t, applyClutter(1, room, base, clutterTidy, "main"), len(base), "整頓では小物を足さない")
 
-	filthy := applyClutter(1, room, base, clutterFilthy)
+	filthy := applyClutter(1, room, base, clutterFilthy, "main")
 	assert.Greater(t, len(filthy), len(base), "汚部屋では小物が増える")
 	for _, p := range filthy {
 		assert.Falsef(t, isDoorwayAdjacent(room, p.Pos), "小物 %v は戸口前に置かない", p.Pos)
