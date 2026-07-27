@@ -11595,6 +11595,7 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
+material = true
 
 [[items]]
 description = "壁からはがした落書き。「水は南の給水所。夜は動くな」子どもの字だ。"
@@ -11603,6 +11604,7 @@ spriteKey = "photo"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
+material = true
 
 [[items]]
 description = "色褪せたレシート。カップ麺2・水4本・ガムテープ。日付は災害の三日前。"
@@ -11611,6 +11613,7 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "5 g"
+material = true
 
 [[items]]
 description = "「今日も誰も来なかった。備蓄はあと五日分」続きは破れて読めない。"
@@ -11619,6 +11622,7 @@ spriteKey = "diary"
 spriteSheetName = "field"
 value = 3
 weight = "10 g"
+material = true
 
 [[items]]
 description = "「先に北へ行く。生きてたら祖母の家で。—父」画鋲の跡が四つ残る。"
@@ -11627,6 +11631,7 @@ spriteKey = "photo"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
+material = true
 
 [[items]]
 description = "「解体作業員 急募 日給応相談」電話番号は塗り潰されている。"
@@ -11635,6 +11640,7 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
+material = true
 
 [[items]]
 description = "「この先 崩落につき通行止め 市」錆びたバリケードに括られていた。"
@@ -11643,6 +11649,7 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "20 g"
+material = true
 
 [[items]]
 description = "隅にメモ。「あいつを信じるな。物資は自分で隠せ」筆圧が強い。"
@@ -11651,6 +11658,7 @@ spriteKey = "diary"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
+material = true
 
 [[itemGroups]]
 name = "紙片"
