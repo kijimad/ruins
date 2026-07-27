@@ -52,9 +52,10 @@ func TestRoomDepths_入口が距離0で全室が到達可能(t *testing.T) {
 		addEntrance(footprint, rooms) // roomDepths は入口を距離0の起点にするので建物入口を1つ開ける
 		depths := roomDepths(rooms)
 
-		zeros, maxDepth := 0, 0
+		zeros := 0
+		maxDepth := roomDepth(0)
 		for _, d := range depths {
-			require.GreaterOrEqualf(t, d, 0, "seed=%d では全室が入口から到達でき距離が非負", seed)
+			require.NotEqualf(t, depthUnreachable, d, "seed=%d では全室が入口から到達できる", seed)
 			if d == 0 {
 				zeros++
 			}

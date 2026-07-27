@@ -18,9 +18,9 @@ type GuardMachine struct {
 // buildGuardMachine は rooms から施錠戦利品を1つ組む。最奥と手前で depth の異なる2部屋が要り、無ければ
 // ok=false を返して呼び出し側の bare フォールバックへ委ねる。錠は最奥の戸口、payload は最奥の奥、鍵は
 // 最も手前の部屋の入口近くへ置く。
-func buildGuardMachine(seed uint64, rooms []Room, depths []int, payloadRef string, id int) (GuardMachine, bool) {
+func buildGuardMachine(seed uint64, rooms []Room, depths []roomDepth, payloadRef string, id int) (GuardMachine, bool) {
 	deep, shallow := deepestRoom(depths), shallowestRoom(depths)
-	if deep < 0 || shallow < 0 || depths[deep] == depths[shallow] || len(rooms[deep].Doorways) == 0 {
+	if deep == noRoom || shallow == noRoom || depths[deep] == depths[shallow] || len(rooms[deep].Doorways) == 0 {
 		return GuardMachine{}, false
 	}
 
@@ -48,7 +48,7 @@ func guardedLoot(seed uint64, rooms []Room, payloadRef string, id int) []Placed 
 	}
 	// bare フォールバック。最奥へ非施錠で payload だけ置く
 	deep := deepestRoom(depths)
-	if deep < 0 {
+	if deep == noRoom {
 		return nil
 	}
 	tiles := selectTiles(rooms[deep], PlaceFarFromDoor, map[Vec]bool{}, childSeed(seed, 3), 1)
@@ -58,29 +58,31 @@ func guardedLoot(seed uint64, rooms []Room, payloadRef string, id int) []Placed 
 	return []Placed{{Kind: KindLoot, Ref: payloadRef, Pos: tiles[0]}}
 }
 
-// deepestRoom は入口から最も遠い部屋の添字を返す。到達不能(-1)は除く。同 depth は添字の小さい方。
-func deepestRoom(depths []int) int {
-	best := -1
+// deepestRoom は入口から最も遠い部屋の添字を返す。到達不能な部屋は除く。同 depth は添字の小さい方。
+// 該当が無ければ noRoom。
+func deepestRoom(depths []roomDepth) roomIndex {
+	best := noRoom
 	for i, d := range depths {
-		if d < 0 {
+		if d == depthUnreachable {
 			continue
 		}
-		if best < 0 || d > depths[best] {
-			best = i
+		if best == noRoom || d > depths[best] {
+			best = roomIndex(i)
 		}
 	}
 	return best
 }
 
-// shallowestRoom は入口に最も近い部屋の添字を返す。到達不能(-1)は除く。同 depth は添字の小さい方。
-func shallowestRoom(depths []int) int {
-	best := -1
+// shallowestRoom は入口に最も近い部屋の添字を返す。到達不能な部屋は除く。同 depth は添字の小さい方。
+// 該当が無ければ noRoom。
+func shallowestRoom(depths []roomDepth) roomIndex {
+	best := noRoom
 	for i, d := range depths {
-		if d < 0 {
+		if d == depthUnreachable {
 			continue
 		}
-		if best < 0 || d < depths[best] {
-			best = i
+		if best == noRoom || d < depths[best] {
+			best = roomIndex(i)
 		}
 	}
 	return best

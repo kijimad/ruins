@@ -49,13 +49,14 @@ func connectRooms(rooms []Room, seed uint64) {
 	uf := newUnionFind(len(rooms))
 	for i := range rooms {
 		for j := i + 1; j < len(rooms); j++ {
-			if uf.find(i) == uf.find(j) {
+			ri, rj := roomIndex(i), roomIndex(j)
+			if uf.find(ri) == uf.find(rj) {
 				continue
 			}
 			if d, ok := sharedDoorway(rooms[i].Rect, rooms[j].Rect, childSeed(seed, i*97+j)); ok {
 				rooms[i].Doorways = append(rooms[i].Doorways, d)
 				rooms[j].Doorways = append(rooms[j].Doorways, d)
-				uf.union(i, j)
+				uf.union(ri, rj)
 			}
 		}
 	}
@@ -104,49 +105,63 @@ func sharedRow(a, b Rect) (int, bool) {
 	return 0, false
 }
 
+// roomIndex は rooms スライスの添字で、部屋を1つ指す。連結・BFS・union-find が部屋を参照するのに使い、
+// 距離や個数など他の int と混ざらないよう型で区別する。
+type roomIndex int
+
+// noRoom は該当する部屋が無いことを表す番兵。入口が見つからない、到達不能などに使う。
+const noRoom roomIndex = -1
+
+// roomDepth は入口部屋からの戸口グラフ上のホップ数。タイル距離ではなく、戸口を1つ通るごとに1増える位相量。
+// 0 が入口の間で、増えるほど奥まった私的な部屋になる。
+type roomDepth int
+
+// depthUnreachable は入口から戸口で辿れない部屋の深さを表す番兵。
+const depthUnreachable roomDepth = -1
+
 // roomDepths は建物入口を持つ部屋を起点に、戸口グラフ上の各部屋の入口からの距離を BFS で返す。
 // これがゾーン分類の基礎で、距離 0 は入口の間、距離が増えるほど奥まった私的な部屋になる。手前を公共、
 // 奥を私的とする住居の動線を、面積という幾何量でなく到達構造という位相量で表す。入口が無い、または
-// 入口から孤立した部屋の距離は -1 にする。SubdivideBuilding は全部屋を連結するので通常 -1 は出ない。
-func roomDepths(rooms []Room) []int {
-	depths := make([]int, len(rooms))
+// 入口から孤立した部屋は depthUnreachable にする。SubdivideBuilding は全部屋を連結するので通常は出ない。
+func roomDepths(rooms []Room) []roomDepth {
+	depths := make([]roomDepth, len(rooms))
 	for i := range depths {
-		depths[i] = -1
+		depths[i] = depthUnreachable
 	}
 
 	// 戸口タイルからそれを共有する部屋群を引く。部屋どうしの内部戸口は2部屋が持ち、建物入口は1部屋だけが
 	// 持つ。だから共有されない戸口を持つ部屋が入口の間になる。玄関ポーチで入口が外周から1マス内へ下がっても、
 	// 入口はやはり1部屋しか持たないので、外周判定でなく共有数で入口を特定すればポーチに強い
-	doorRooms := make(map[Vec][]int)
+	doorRooms := make(map[Vec][]roomIndex)
 	for i, r := range rooms {
 		for _, d := range r.Doorways {
-			doorRooms[Vec(d)] = append(doorRooms[Vec(d)], i)
+			doorRooms[Vec(d)] = append(doorRooms[Vec(d)], roomIndex(i))
 		}
 	}
-	start := -1
+	start := noRoom
 	for i, r := range rooms {
 		for _, d := range r.Doorways {
 			if len(doorRooms[Vec(d)]) == 1 {
-				start = i
+				start = roomIndex(i)
 				break
 			}
 		}
-		if start >= 0 {
+		if start != noRoom {
 			break
 		}
 	}
-	if start < 0 {
+	if start == noRoom {
 		return depths
 	}
 
 	depths[start] = 0
-	queue := []int{start}
+	queue := []roomIndex{start}
 	for len(queue) > 0 {
 		cur := queue[0]
 		queue = queue[1:]
 		for _, d := range rooms[cur].Doorways {
 			for _, nb := range doorRooms[Vec(d)] {
-				if depths[nb] < 0 {
+				if depths[nb] == depthUnreachable {
 					depths[nb] = depths[cur] + 1
 					queue = append(queue, nb)
 				}
@@ -158,17 +173,17 @@ func roomDepths(rooms []Room) []int {
 
 // --- union-find ---
 
-type unionFind struct{ parent []int }
+type unionFind struct{ parent []roomIndex }
 
 func newUnionFind(n int) *unionFind {
-	p := make([]int, n)
+	p := make([]roomIndex, n)
 	for i := range p {
-		p[i] = i
+		p[i] = roomIndex(i)
 	}
 	return &unionFind{parent: p}
 }
 
-func (u *unionFind) find(i int) int {
+func (u *unionFind) find(i roomIndex) roomIndex {
 	for u.parent[i] != i {
 		u.parent[i] = u.parent[u.parent[i]]
 		i = u.parent[i]
@@ -176,4 +191,4 @@ func (u *unionFind) find(i int) int {
 	return i
 }
 
-func (u *unionFind) union(i, j int) { u.parent[u.find(i)] = u.find(j) }
+func (u *unionFind) union(i, j roomIndex) { u.parent[u.find(i)] = u.find(j) }

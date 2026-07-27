@@ -29,8 +29,8 @@ func TestBuildGuardMachine_鍵は錠より手前で同じIDで結ばれる(t *te
 
 	keyDepth := roomDepthOf(rooms, depths, m.Key.Pos)
 	payloadDepth := roomDepthOf(rooms, depths, m.Payload.Pos)
-	require.GreaterOrEqual(t, keyDepth, 0, "鍵が部屋の内側にある")
-	require.GreaterOrEqual(t, payloadDepth, 0, "payload が部屋の内側にある")
+	require.NotEqual(t, depthUnreachable, keyDepth, "鍵が部屋の内側にある")
+	require.NotEqual(t, depthUnreachable, payloadDepth, "payload が部屋の内側にある")
 	assert.Less(t, keyDepth, payloadDepth, "鍵の部屋は payload の部屋より入口に近い")
 }
 
@@ -65,12 +65,12 @@ func TestGuardedLoot_部屋が足りなければ非施錠へフォールバッ�
 	assert.Equal(t, 0, placed[0].MachineID, "非施錠なので machine に属さない")
 }
 
-// roomDepthOf は座標を内側に含む部屋の入口からの距離を返す。戸口など周壁上や部屋外は -1。
-func roomDepthOf(rooms []Room, depths []int, p Vec) int {
+// roomDepthOf は座標を内側に含む部屋の入口からの距離を返す。戸口など周壁上や部屋外は depthUnreachable。
+func roomDepthOf(rooms []Room, depths []roomDepth, p Vec) roomDepth {
 	for i, r := range rooms {
 		if r.Rect.containsInterior(p) {
 			return depths[i]
 		}
 	}
-	return -1
+	return depthUnreachable
 }
