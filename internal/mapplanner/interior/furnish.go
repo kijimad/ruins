@@ -97,8 +97,7 @@ func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility FacilityKin
 
 // planRooms は施設に応じて部屋群と各部屋の役割を返す。施設ごとに固有の間取りテンプレを持ち、民家は廊下型・
 // 店は売場＋バックヤード・診療所は待合＋診察室の列にして、「何の施設か分かる」平面にする。テンプレに足りない
-// 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。実経路のこの分岐が、
-// VRT で見た綺麗な間取りを in-game でも出す。
+// 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。
 func planRooms(footprint Rect, seed uint64, facility FacilityKind) ([]Room, []roleName) {
 	if planner, minW, minH, ok := facilityPlanner(facility); ok && footprint.W >= minW && footprint.H >= minH {
 		plan := planner(footprint, seed)
