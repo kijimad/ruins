@@ -39,6 +39,13 @@ func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 	require.NoError(t, populateStorageLoot(world, closet, "closet", rng))
 	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が1つ以上入る")
 
+	// 家具別テーブルの分化。冷蔵庫は食料庫テーブルから引く。テーブル解決と loot 産出を確かめる
+	beforeFridge := countStoredItems(world)
+	fridge, err := lifecycle.SpawnProp(world, "refrigerator", 2, 2)
+	require.NoError(t, err)
+	require.NoError(t, populateStorageLoot(world, fridge, "refrigerator", rng))
+	assert.Greater(t, countStoredItems(world), beforeFridge, "冷蔵庫に食料庫テーブルの戦利品が入る")
+
 	before := countStoredItems(world)
 	candle, err := lifecycle.SpawnProp(world, "candle", 1, 1)
 	require.NoError(t, err)

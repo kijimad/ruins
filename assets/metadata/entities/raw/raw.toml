@@ -11790,6 +11790,78 @@ minDepth = 8
 weight = 0.5
 
 
+[[itemTables]]
+name = "食料庫"
+
+[[itemTables.entries]]
+groupName = "食料"
+maxDepth = 30
+minDepth = 1
+weight = 5
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables]]
+name = "薬棚"
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 5
+
+[[itemTables.entries]]
+groupName = "食料"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables]]
+name = "物入れ"
+
+[[itemTables.entries]]
+groupName = "素材類"
+maxDepth = 30
+minDepth = 1
+weight = 3
+
+[[itemTables.entries]]
+groupName = "序盤防具"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables]]
+name = "商品棚"
+
+[[itemTables.entries]]
+groupName = "食料"
+maxDepth = 30
+minDepth = 1
+weight = 3
+
+[[itemTables.entries]]
+groupName = "素材類"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
 [[enemyTables]]
 name = "廃墟"
 
@@ -12780,7 +12852,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "物入れ"
 lootCountMin = 1
 lootCountMax = 2
 
@@ -12895,7 +12967,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "物入れ"
 lootCountMin = 1
 lootCountMax = 3
 
@@ -12986,7 +13058,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "食料庫"
 lootCountMin = 1
 lootCountMax = 3
 
@@ -13028,7 +13100,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "物入れ"
 lootCountMin = 1
 lootCountMax = 3
 
@@ -13130,7 +13202,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "商品棚"
 lootCountMin = 2
 lootCountMax = 5
 
@@ -13362,7 +13434,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "食料庫"
 lootCountMin = 1
 lootCountMax = 3
 
@@ -13380,7 +13452,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "商品棚"
 lootCountMin = 1
 lootCountMax = 2
 
@@ -13576,7 +13648,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "物入れ"
 lootCountMin = 1
 lootCountMax = 3
 
@@ -14268,7 +14340,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "廃墟"
+lootTableName = "薬棚"
 lootCountMin = 1
 lootCountMax = 3
 
