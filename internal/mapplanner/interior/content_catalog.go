@@ -85,6 +85,11 @@ func officeContent() Content {
 				{Kind: KindFurniture, Ref: "chair", Placement: PlaceRow, Amount: Dice{Bonus: 4}},
 				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 2}},
 			}},
+			// 事務機の添え物を seed で1つ。ホワイトボードかプリンタでオフィスらしさを足す
+			{Style: PickOne, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "whiteboard", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "printer", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			}},
 		},
 	}
 }
@@ -198,11 +203,13 @@ func houseRoomContents() map[string]Content {
 		{Style: PickEach, Items: []Stuff{
 			bedSet(), // 寝床は常設。寝室の署名
 		}},
-		// 枕元の添え物を seed で1つ。明かり・観葉・物入れのどれかで、同じ寝室が続かないようにする
+		// 枕元の添え物を seed で1つ。明かり・観葉・物入れ・鏡台・ナイトテーブルで、同じ寝室が続かないようにする
 		{Style: PickOne, Items: []Stuff{
 			{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 1}},
 			{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}},
 			{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "dresser", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+			{Kind: KindFurniture, Ref: "bedside", Amount: Dice{Bonus: 1}},
 		}},
 	}}
 	return map[string]Content{
@@ -223,12 +230,15 @@ func houseRoomContents() map[string]Content {
 				diningTable(PlaceCenter),
 				loungeSet(),
 			}},
-			// 添え物を seed で1つ。壁面の棚・観葉・和室の仏壇や神棚。和家具が出ると民家らしさが増す
+			// 添え物を seed で1つ。壁面の棚・観葉・和室の仏壇や神棚・本棚・暖炉・時計。出る家具で居間が変わる
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 				{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "butsudan", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "kamidana", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "bookshelf", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "fireplace", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "clock", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 			}},
 		}},
 		"kitchen": {ID: "kitchen", Groups: []Group{
@@ -240,6 +250,11 @@ func houseRoomContents() map[string]Content {
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "table", Amount: Dice{Bonus: 1}},
 				{Kind: KindFurniture, Ref: "pantry", Placement: PlaceRow, Amount: Dice{Bonus: 2}},
+			}},
+			// 家電の添え物を seed で1つ。電子レンジかコーヒーメーカーで台所の生活感を足す
+			{Style: PickOne, Items: []Stuff{
+				{Kind: KindFurniture, Ref: "microwave", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "coffeemaker", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 			}},
 		}},
 		"bedroom": bedroom,

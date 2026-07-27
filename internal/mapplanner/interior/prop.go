@@ -55,6 +55,16 @@ var propRaw = map[string]string{
 	"butsudan": "仏壇",
 	"kamidana": "神棚",
 	"getabako": "下駄箱",
+	// 部屋の語彙拡充。既存の実物 prop を room content の添え物へ回し、家具プールを増やす
+	"dresser":     "ドレッサー",
+	"bedside":     "ベッドサイド",
+	"bookshelf":   "bookshelf",
+	"fireplace":   "暖炉",
+	"clock":       "clock",
+	"microwave":   "microwave",
+	"coffeemaker": "coffee_maker",
+	"whiteboard":  "whiteboard",
+	"printer":     "printer",
 }
 
 // PropRawName は Ref に対応する raw prop 名と、それが in-game に spawn されるかを返す。overworld の spawn と

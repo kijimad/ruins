@@ -93,6 +93,16 @@ var spriteFiles = map[string]string{
 	"butsudan": "butsudan_",
 	"kamidana": "kamidana_",
 	"getabako": "getabako_",
+	// 部屋の語彙拡充。既存の実物スプライトを添え物に回す
+	"dresser":     "dresser_",
+	"bedside":     "bedside_",
+	"bookshelf":   "wooden_bookshelf_",
+	"fireplace":   "fireplace_",
+	"clock":       "clock_",
+	"microwave":   "microwave_",
+	"coffeemaker": "coffee_maker_",
+	"whiteboard":  "whiteboard_",
+	"printer":     "printer_",
 }
 
 // spriteFileOf は配置の Ref に対応するスプライト名を返す。表に無ければ空を返し、背景描画に委ねる。
