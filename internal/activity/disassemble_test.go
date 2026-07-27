@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -367,7 +368,7 @@ func TestDisassembleActivity_DoTurn_敵が接近すると中断する(t *testing
 	assert.Equal(t, "周囲に敵がいるため分解を中断", comp.CancelReason)
 }
 
-func TestFormatYields(t *testing.T) {
+func TestAppendYields(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -382,7 +383,15 @@ func TestFormatYields(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, formatYields(tt.stacks))
+			world := testutil.InitTestWorld(t)
+			store := query.GetGameLog(world)
+			logger := gamelog.New(store)
+			appendYields(logger, tt.stacks)
+			logger.Log()
+
+			recent := store.GetRecent(1)
+			require.Len(t, recent, 1)
+			assert.Equal(t, tt.want, recent[0])
 		})
 	}
 }

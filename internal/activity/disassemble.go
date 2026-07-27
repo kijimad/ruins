@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"slices"
-	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -108,7 +107,10 @@ func (da *DisassembleActivity) Start(comp *gc.Activity, actor ecs.Entity, world 
 
 	name := query.GetEntityName(*comp.Target, world)
 	gamelog.New(query.GetGameLog(world)).
-		Append(fmt.Sprintf("%sで「%s」の分解を始めた", toolName, name)).
+		ItemName(toolName).
+		Append("で").
+		ItemName(name).
+		Append("の分解を始めた").
 		Log()
 
 	log.Debug("分解開始", "actor", actor, "target", name, "tool", toolName)
@@ -185,9 +187,11 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 		}
 	}
 
-	gamelog.New(query.GetGameLog(world)).
-		Append(fmt.Sprintf("「%s」を分解した。%s", name, formatYields(stacks))).
-		Log()
+	logger := gamelog.New(query.GetGameLog(world)).
+		ItemName(name).
+		Append("を分解した。")
+	appendYields(logger, stacks)
+	logger.Log()
 
 	da.gainMechanicExp(actor, world)
 
@@ -199,13 +203,13 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 // 対象消滅による中断もあるため、名前は対象が生きている場合だけ出す
 func (da *DisassembleActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
-		message := "分解を中断した"
+		logger := gamelog.New(query.GetGameLog(world))
 		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
-			message = fmt.Sprintf("「%s」の分解を中断した", query.GetEntityName(*comp.Target, world))
+			logger.ItemName(query.GetEntityName(*comp.Target, world)).Append("の分解を中断した")
+		} else {
+			logger.Append("分解を中断した")
 		}
-		gamelog.New(query.GetGameLog(world)).
-			Append(message).
-			Log()
+		logger.Log()
 	}
 
 	log.Debug("分解中断", "reason", comp.CancelReason)
@@ -292,14 +296,17 @@ func mechanicSkillValue(actor ecs.Entity, world w.World) int {
 	return world.Components.Skills.Get(actor).Get(gc.SkillMechanic).Value
 }
 
-// formatYields は産出一覧をログ表示用の文字列にする
-func formatYields(stacks []lifecycle.YieldStack) string {
+// appendYields は産出一覧をアイテム名の色付きでログへ追記する
+func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack) {
 	if len(stacks) == 0 {
-		return "何も得られなかった"
+		logger.Append("何も得られなかった")
+		return
 	}
-	parts := make([]string, 0, len(stacks))
-	for _, s := range stacks {
-		parts = append(parts, fmt.Sprintf("%s x%d", s.Name, s.Count))
+	for i, s := range stacks {
+		if i > 0 {
+			logger.Append("、")
+		}
+		logger.ItemName(s.Name).Append(fmt.Sprintf(" x%d", s.Count))
 	}
-	return strings.Join(parts, "、") + " を得た"
+	logger.Append(" を得た")
 }
