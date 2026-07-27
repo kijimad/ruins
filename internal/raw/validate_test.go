@@ -148,7 +148,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				},
 			}},
 		}
-		require.NoError(t, ValidateDisassemblyReferences(raws))
+		require.NoError(t, validateDisassemblyReferences(raws))
 	})
 
 	t.Run("propの産出名が存在しないとエラー", func(t *testing.T) {
@@ -164,7 +164,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				},
 			}},
 		}
-		err := ValidateDisassemblyReferences(raws)
+		err := validateDisassemblyReferences(raws)
 		require.Error(t, err)
 		require.ErrorContains(t, err, "存在しない素材")
 		require.ErrorContains(t, err, "棚")
@@ -181,8 +181,57 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: &minSkill}},
 		}
 		raws := oapi.Raws{Items: &items}
-		err := ValidateDisassemblyReferences(raws)
+		err := validateDisassemblyReferences(raws)
 		require.Error(t, err)
 		require.ErrorContains(t, err, "存在しないボーナス")
+	})
+}
+
+func TestValidateDropTableReferences(t *testing.T) {
+	t.Parallel()
+
+	items := &[]oapi.Item{{Name: "鉄くず"}}
+
+	t.Run("実在する素材と空文字は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: items,
+			DropTables: &[]oapi.DropTable{{
+				Name: "廃墟",
+				Entries: []oapi.DropTableEntry{
+					{Material: "鉄くず", Weight: 1},
+					{Material: "", Weight: 3},
+				},
+			}},
+		}
+		require.NoError(t, validateDropTableReferences(raws))
+	})
+
+	t.Run("素材名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: items,
+			DropTables: &[]oapi.DropTable{{
+				Name:    "廃墟",
+				Entries: []oapi.DropTableEntry{{Material: "存在しない素材", Weight: 1}},
+			}},
+		}
+		err := validateDropTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "存在しない素材")
+		require.ErrorContains(t, err, "廃墟")
+	})
+
+	t.Run("メンバーのテーブル名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		tableName := oapi.EntityName("未定義テーブル")
+		raws := oapi.Raws{
+			Items:   items,
+			Members: &[]oapi.Member{{Name: "スライム", DropTableName: &tableName}},
+		}
+		err := validateDropTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義テーブル")
+		require.ErrorContains(t, err, "スライム")
 	})
 }

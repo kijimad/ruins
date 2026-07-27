@@ -45,7 +45,7 @@ func LoadFromFile(path string) (oapi.Raws, error) {
 	if err := ValidateRaws(raws); err != nil {
 		return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
 	}
-	if err := ValidateDisassemblyReferences(raws); err != nil {
+	if err := ValidateReferences(raws); err != nil {
 		return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
 	}
 	return raws, nil

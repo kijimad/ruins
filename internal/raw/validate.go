@@ -40,10 +40,18 @@ func ValidateRaws(raws oapi.Raws) error {
 	return nil
 }
 
-// ValidateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する。
-// スキーマ検証は名前の参照整合を見ないため、ここで補う。実行時のスポーン失敗を
+// ValidateReferences は定義間の名前参照の整合を検証する。
+// スキーマ検証は名前の参照整合を見ないため、ここで補う。実行時の解決失敗を
 // ロード時エラーに前倒しする
-func ValidateDisassemblyReferences(raws oapi.Raws) error {
+func ValidateReferences(raws oapi.Raws) error {
+	if err := validateDisassemblyReferences(raws); err != nil {
+		return err
+	}
+	return validateDropTableReferences(raws)
+}
+
+// validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する
+func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
@@ -79,6 +87,42 @@ func ValidateDisassemblyReferences(raws oapi.Raws) error {
 	for i := range items {
 		if err := check("item", items[i].Name, items[i].Disassembly); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// validateDropTableReferences はドロップテーブルの素材名がアイテム定義に存在すること、
+// メンバーの dropTableName がテーブル定義に存在することを検証する
+func validateDropTableReferences(raws oapi.Raws) error {
+	items := PtrSlice(raws.Items)
+	itemNames := make(map[string]struct{}, len(items))
+	for i := range items {
+		itemNames[items[i].Name] = struct{}{}
+	}
+
+	dropTables := PtrSlice(raws.DropTables)
+	tableNames := make(map[string]struct{}, len(dropTables))
+	for i := range dropTables {
+		tableNames[dropTables[i].Name] = struct{}{}
+		for _, entry := range dropTables[i].Entries {
+			// 空文字はドロップなしを意味する正規の値
+			if entry.Material == "" {
+				continue
+			}
+			if _, ok := itemNames[entry.Material]; !ok {
+				return fmt.Errorf("ドロップテーブル '%s' の素材 '%s' がアイテム定義に存在しません", dropTables[i].Name, entry.Material)
+			}
+		}
+	}
+
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		if members[i].DropTableName == nil {
+			continue
+		}
+		if _, ok := tableNames[*members[i].DropTableName]; !ok {
+			return fmt.Errorf("メンバー '%s' のドロップテーブル '%s' が定義に存在しません", members[i].Name, *members[i].DropTableName)
 		}
 	}
 	return nil

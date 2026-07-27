@@ -61,10 +61,10 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		dropTableComp := world.Components.DropTable.Get(entity)
 		gridElement := world.Components.GridElement.Get(entity)
 
+		// テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
 		dropTable, err := raw.GetDropTable(rawMaster, dropTableComp.Name)
 		if err != nil {
-			logger.Debug("ドロップテーブル取得失敗", "error", err, "table_name", dropTableComp.Name)
-			continue
+			return fmt.Errorf("ドロップテーブルの取得に失敗: %w", err)
 		}
 
 		// アイテム選択
@@ -77,13 +77,12 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			continue
 		}
 
-		// フィールドにアイテムをスポーン
+		// フィールドにアイテムをスポーン。素材名はロード時に参照検証済み
 		_, err = lifecycle.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y, 1)
 		if err != nil {
-			logger.Debug("ドロップアイテム生成失敗", "error", err, "material", materialName)
-		} else {
-			logger.Debug("ドロップアイテム生成", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
+			return fmt.Errorf("ドロップアイテムの生成に失敗: %w", err)
 		}
+		logger.Debug("ドロップアイテム生成", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
 	}
 
 	// 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、
