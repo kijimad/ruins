@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.2&nbsp;%</td>
+            <td class="headerCovTableEntryMed">76.5&nbsp;%</td>
             <td class="headerCovTableEntry">234</td>
-            <td class="headerCovTableEntry">176</td>
+            <td class="headerCovTableEntry">179</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 14:22:52</td>
+            <td class="headerValue">2026-07-27 12:33:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -391,11 +391,11 @@
 <span id="L329"><span class="lineNum">     329</span>              : }</span>
 <span id="L330"><span class="lineNum">     330</span>              : </span>
 <span id="L331"><span class="lineNum">     331</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC tlaBgUNC">           0 : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         if !world.Components.TurnBased.Has(entity) {</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 return 0, fmt.Errorf(&quot;TurnBasedコンポーネントが見つからない: entity=%v&quot;, entity)</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         if !world.Components.TurnBased.Has(entity) {</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, fmt.Errorf(&quot;TurnBasedコンポーネントが見つからない: entity=%v&quot;, entity)</span></span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
 <span id="L337"><span class="lineNum">     337</span>              : }</span>
         </pre>
               </td>

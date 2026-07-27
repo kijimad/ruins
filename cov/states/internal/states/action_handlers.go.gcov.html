@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">66.4&nbsp;%</td>
-            <td class="headerCovTableEntry">143</td>
+            <td class="headerCovTableEntryLo">62.5&nbsp;%</td>
+            <td class="headerCovTableEntry">152</td>
             <td class="headerCovTableEntry">95</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 14:22:52</td>
+            <td class="headerValue">2026-07-27 12:33:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -242,14 +242,23 @@
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                                         Interaction: interaction,</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                                 })</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.InteractionDoorLock, gc.InteractionItemAll:</span></span>
-<span id="L184"><span class="lineNum">     184</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
-<span id="L185"><span class="lineNum">     185</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
-<span id="L186"><span class="lineNum">     186</span>              :                 }</span>
-<span id="L187"><span class="lineNum">     187</span>              :         }</span>
-<span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
-<span id="L190"><span class="lineNum">     190</span>              : }</span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.InteractionDisassemble:</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(interactableEntity) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                                 name := world.Components.Name.Get(interactableEntity)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                                 result = append(result, InteractionAction{</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                                         Label:       &quot;分解する(&quot; + name.Name + &quot;)&quot;,</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                                         Target:      interactableEntity,</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                                         Interaction: interaction,</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                                 })</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 case gc.InteractionDoorLock, gc.InteractionItemAll:</span></span>
+<span id="L193"><span class="lineNum">     193</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
+<span id="L194"><span class="lineNum">     194</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
+<span id="L195"><span class="lineNum">     195</span>              :                 }</span>
+<span id="L196"><span class="lineNum">     196</span>              :         }</span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
+<span id="L199"><span class="lineNum">     199</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.9&nbsp;%</td>
-            <td class="headerCovTableEntry">321</td>
-            <td class="headerCovTableEntry">250</td>
+            <td class="headerCovTableEntryMed">76.7&nbsp;%</td>
+            <td class="headerCovTableEntry">322</td>
+            <td class="headerCovTableEntry">247</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-26 14:22:52</td>
+            <td class="headerValue">2026-07-27 12:33:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -346,13 +346,13 @@
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L285"><span class="lineNum">     285</span>              : </span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC tlaBgGNC">           1 :         hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           2 :         if !hit {</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         if !hit {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC tlaBgUNC">           0 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L292"><span class="lineNum">     292</span>              : </span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           1 :         damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :         growWeaponSkill(actor, world, attack)</span></span>
@@ -469,49 +469,52 @@
 <span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         ablID := gc.SkillAbilityID(skillID)</span></span>
 <span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           2 :         if skill.GainExp(s, abils.ValueOf(ablID)) {</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                 world.Components.StatsChanged.Add(actor, &amp;gc.StatsChanged{})</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 actorName := query.GetEntityName(actor, world)</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :                         Append(fmt.Sprintf(&quot;%s のスキルが上がった！（%s Lv%d）&quot;, actorName, string(skillID), s.Value)).</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :                         Log()</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L417"><span class="lineNum">     417</span>              : }</span>
-<span id="L418"><span class="lineNum">     418</span>              : </span>
-<span id="L419"><span class="lineNum">     419</span>              : // logAttackResult は攻撃結果をログに出力する</span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 : func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :         attackerRelevant := query.IsAlly(world, attacker)</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         targetRelevant := query.IsAlly(world, target)</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           2 :         if !attackerRelevant &amp;&amp; !targetRelevant {</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L426"><span class="lineNum">     426</span>              : </span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         attackerName := query.GetEntityName(attacker, world)</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         targetName := query.GetEntityName(target, world)</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           2 :                 Build(func(l *gamelog.Logger) {</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                         query.AppendNameWithColor(l, attacker, attackerName, world)</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                 }).</span></span>
-<span id="L434"><span class="lineNum">     434</span>              :                 Append(&quot; は &quot;).</span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :                 Build(func(l *gamelog.Logger) {</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           2 :                         if attackMethodName != &quot;&quot; {</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                                 l.Append(attackMethodName).Append(&quot; で &quot;)</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                         query.AppendNameWithColor(l, target, targetName, world)</span></span>
-<span id="L440"><span class="lineNum">     440</span>              :                 }).</span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 Build(func(l *gamelog.Logger) {</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                         switch {</span></span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC tlaBgUNC">           0 :                         case !hit:</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                                 l.Append(&quot; を攻撃したが外れた。&quot;)</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                         case critical:</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :                                 l.Append(fmt.Sprintf(&quot; にクリティカルヒットし、%d のダメージを与えた！&quot;, damage))</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC tlaBgGNC">           1 :                         default:</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                                 l.Append(fmt.Sprintf(&quot; を攻撃し、%d のダメージを与えた。&quot;, damage))</span></span>
-<span id="L449"><span class="lineNum">     449</span>              :                         }</span>
-<span id="L450"><span class="lineNum">     450</span>              :                 }).</span>
-<span id="L451"><span class="lineNum">     451</span>              :                 Log()</span>
-<span id="L452"><span class="lineNum">     452</span>              : }</span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                 // 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           2 :                 if !world.Components.StatsChanged.Has(actor) {</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                         world.Components.StatsChanged.Add(actor, &amp;gc.StatsChanged{})</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L414"><span class="lineNum">     414</span>              : </span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :                 actorName := query.GetEntityName(actor, world)</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :                         Append(fmt.Sprintf(&quot;%s のスキルが上がった！（%s Lv%d）&quot;, actorName, string(skillID), s.Value)).</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :                         Log()</span></span>
+<span id="L419"><span class="lineNum">     419</span>              :         }</span>
+<span id="L420"><span class="lineNum">     420</span>              : }</span>
+<span id="L421"><span class="lineNum">     421</span>              : </span>
+<span id="L422"><span class="lineNum">     422</span>              : // logAttackResult は攻撃結果をログに出力する</span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 : func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :         attackerRelevant := query.IsAlly(world, attacker)</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :         targetRelevant := query.IsAlly(world, target)</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           2 :         if !attackerRelevant &amp;&amp; !targetRelevant {</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         attackerName := query.GetEntityName(attacker, world)</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :         targetName := query.GetEntityName(target, world)</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :         gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           2 :                 Build(func(l *gamelog.Logger) {</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :                         query.AppendNameWithColor(l, attacker, attackerName, world)</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :                 }).</span></span>
+<span id="L437"><span class="lineNum">     437</span>              :                 Append(&quot; は &quot;).</span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 Build(func(l *gamelog.Logger) {</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           2 :                         if attackMethodName != &quot;&quot; {</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                                 l.Append(attackMethodName).Append(&quot; で &quot;)</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                         query.AppendNameWithColor(l, target, targetName, world)</span></span>
+<span id="L443"><span class="lineNum">     443</span>              :                 }).</span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                 Build(func(l *gamelog.Logger) {</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                         switch {</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC tlaBgUNC">           0 :                         case !hit:</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :                                 l.Append(&quot; を攻撃したが外れた。&quot;)</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :                         case critical:</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                                 l.Append(fmt.Sprintf(&quot; にクリティカルヒットし、%d のダメージを与えた！&quot;, damage))</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC tlaBgGNC">           1 :                         default:</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                                 l.Append(fmt.Sprintf(&quot; を攻撃し、%d のダメージを与えた。&quot;, damage))</span></span>
+<span id="L452"><span class="lineNum">     452</span>              :                         }</span>
+<span id="L453"><span class="lineNum">     453</span>              :                 }).</span>
+<span id="L454"><span class="lineNum">     454</span>              :                 Log()</span>
+<span id="L455"><span class="lineNum">     455</span>              : }</span>
         </pre>
               </td>
             </tr>
