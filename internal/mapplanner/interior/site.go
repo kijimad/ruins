@@ -7,15 +7,10 @@ package interior
 //   - 軸A 坪庭: 建物内の1室を庭にして家具を置かない。囲われた光庭になり広い1室の余剰を消す
 //   - 軸C 玄関ポーチの凹み: 入口の壁を1マス凹ませ、外形を非矩形にして玄関を読ませる
 
-// frontYard は入口側に空ける前庭の奥行き。sideYard は他辺の余白。建物を内寄せして庭を作る。本番の建物区画は
-// 狭い(~16)ので、前庭を深く取りすぎると建物がテンプレ下限を割る。前庭2・他辺1に抑え、庭と施設テンプレを両立する。
-const (
-	frontYard = 2
-	sideYard  = 1
-)
-
-// roleGarden は坪庭の部屋の役割名。内側を庭タイルにして家具を置かない。
-const roleGarden = "garden"
+// frontYard は入口側に空ける前庭の奥行き。建物を入口側だけ内寄せし、道路に面した一辺に開放的な前庭を作る。
+// CDDA の前庭は道路側の一辺に広く取るもので、建物を全周で囲む細い帯ではない。他の3辺は footprint の縁まで
+// 建物で埋め、庭が壁に囲まれた堀に見えないようにする。
+const frontYard = 3
 
 // Site は footprint 内の敷地計画。建物輪郭・庭・部屋・入口を分ける。overworld と VRT が同じ Site を描き、
 // footprint をそのまま埋めず建物を内側へ取る。Garden は建物外のタイルで dirt として描き観葉を点在させる。
@@ -52,14 +47,6 @@ func planSite(footprint Rect, seed uint64, door Vec, facility string) Site {
 	}
 	attachDoor(labeled, bdoor, side)
 
-	// 軸A 坪庭。入口の部屋と廊下を除く広めの1室を庭へ振り替える。家具を置かず内側を庭タイルにする
-	if gi := pickGardenRoom(labeled, bdoor, seed); gi >= 0 {
-		labeled[gi].Role = roleGarden
-		for _, v := range labeled[gi].Room.Rect.interiorTiles() {
-			garden[v] = true
-		}
-	}
-
 	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled}
 }
 
@@ -76,20 +63,21 @@ func attachDoor(rooms []PlannedRoom, door Vec, s side) {
 	}
 }
 
-// insetBuilding は footprint を入口側に前庭ぶん、他辺に余白ぶん内寄せした建物矩形を返す。狭くて前庭を
-// 取ると建物がテンプレ下限を割る footprint では、内寄せを諦めて footprint をそのまま建物にする。
+// insetBuilding は footprint を入口側の一辺だけ前庭ぶん内寄せした建物矩形を返す。他の3辺は footprint の縁
+// まで建物で埋め、庭を道路側の一辺に集める。狭くて前庭を取ると建物がテンプレ下限を割る footprint では、
+// 内寄せを諦めて footprint をそのまま建物にする。
 func insetBuilding(footprint Rect, door Vec) Rect {
 	f := footprint
 	var b Rect
 	switch doorSide(footprint, door) {
 	case sideNorth:
-		b = Rect{X: f.X + sideYard, Y: f.Y + frontYard, W: f.W - 2*sideYard, H: f.H - frontYard - sideYard}
+		b = Rect{X: f.X, Y: f.Y + frontYard, W: f.W, H: f.H - frontYard}
 	case sideSouth:
-		b = Rect{X: f.X + sideYard, Y: f.Y + sideYard, W: f.W - 2*sideYard, H: f.H - frontYard - sideYard}
+		b = Rect{X: f.X, Y: f.Y, W: f.W, H: f.H - frontYard}
 	case sideWest:
-		b = Rect{X: f.X + frontYard, Y: f.Y + sideYard, W: f.W - frontYard - sideYard, H: f.H - 2*sideYard}
+		b = Rect{X: f.X + frontYard, Y: f.Y, W: f.W - frontYard, H: f.H}
 	default: // sideEast
-		b = Rect{X: f.X + sideYard, Y: f.Y + sideYard, W: f.W - frontYard - sideYard, H: f.H - 2*sideYard}
+		b = Rect{X: f.X, Y: f.Y, W: f.W - frontYard, H: f.H}
 	}
 	// 建物が小さすぎると部屋も戸口も作れない。最小 5x5 を割るなら内寄せをやめる
 	if b.W < 5 || b.H < 5 {
@@ -186,13 +174,10 @@ func carvePorch(building Rect, door Vec, s side, garden, extra map[Vec]bool) Vec
 	return inner
 }
 
-// floorSet は坪庭でない部屋の内側床タイルの集合を返す。坪庭の室の内側は Garden に入るのでここには来ない。
+// floorSet は全部屋の内側床タイルの集合を返す。
 func (s Site) floorSet() map[Vec]bool {
 	floor := make(map[Vec]bool)
 	for _, hr := range s.Rooms {
-		if hr.Role == roleGarden {
-			continue
-		}
 		for _, v := range hr.Room.Rect.interiorTiles() {
 			floor[v] = true
 		}
@@ -245,38 +230,6 @@ func footprintMinusBuilding(footprint, building Rect) map[Vec]bool {
 		}
 	}
 	return garden
-}
-
-// pickGardenRoom は坪庭にする部屋の添字を返す。入口の部屋・廊下・狭い部屋は避け、面積最大の居室を選ぶ。
-// 該当が無ければ -1。1棟に坪庭は1つまでにして、部屋を庭で潰しすぎないようにする。
-func pickGardenRoom(rooms []PlannedRoom, door Vec, seed uint64) int {
-	// 4室に満たない小さな建物は坪庭を作らない。1室を庭に振ると部屋が減りすぎる
-	if len(rooms) < 4 {
-		return -1
-	}
-	// 半分の建物だけ坪庭を持つ。全棟に庭があると単調
-	if childSeed(seed, 8_000_000)%2 != 0 {
-		return -1
-	}
-	best, bestArea := -1, 0
-	for i, hr := range rooms {
-		r := hr.Room.Rect
-		if hr.Role == "corridor" || containsDoor(r, door) {
-			continue // 入口の部屋と廊下は残す
-		}
-		if r.W < 6 || r.H < 6 {
-			continue // 狭い部屋は坪庭にしない。水回りを潰さない
-		}
-		if a := r.W * r.H; a > bestArea {
-			best, bestArea = i, a
-		}
-	}
-	return best
-}
-
-// containsDoor は矩形が door を戸口として面するかを、外周1マスの近さで判定する。
-func containsDoor(r Rect, door Vec) bool {
-	return door.X >= r.X-1 && door.X <= r.X+r.W && door.Y >= r.Y-1 && door.Y <= r.Y+r.H
 }
 
 // side は建物・区画の辺の向き。

@@ -66,10 +66,9 @@ func TestSubdivideBuilding_全部屋が連結する(t *testing.T) {
 }
 
 // TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割へ分化する は施設固有テンプレが in-game の建物
-// サイズで発火し、BSP フォールバックへ落ちないことを固定する。本番の市街地チャンクが生む footprint 14〜16
-// では建物がテンプレ下限を満たし、店・診療所・民家(コンパクト)の役割ごとに部屋が分化する。奥室が全部
-// back の樽物置に落ちる退行を、ゴールデンの目視より前にここで止める。footprint 13 以下は BSP に落ちるので
-// 対象外。
+// サイズで発火し、BSP フォールバックへ落ちないことを固定する。本番の市街地チャンク(24x24)が生む footprint
+// 17〜20 では建物がテンプレ下限を満たし、店・診療所・民家(コンパクト)の役割ごとに部屋が分化する。奥室が
+// 全部 back の樽物置に落ちる退行を、ゴールデンの目視より前にここで止める。
 func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割へ分化する(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +81,7 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 		{"house", []string{"kitchen", "bedroom", "bath"}},
 	}
 	for _, c := range cases {
-		for fp := 14; fp <= 16; fp++ { // 本番でテンプレが発火する footprint 範囲
+		for fp := 17; fp <= 20; fp++ { // 本番でテンプレが発火する footprint 範囲
 			for seed := range uint64(20) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				site, _ := FurnishBuilding(seed, footprint, Vec{X: fp / 2, Y: 0}, c.facility)
@@ -106,20 +105,16 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 
 // TestFurnishBuilding_部屋が退化しない は生成される部屋が内側床を必ず持つことを多 seed で固定する。前庭で
 // 建物が縮むとテンプレの比率割りで薄い部屋が H<3 の内側床0に潰れ、床が描かれずラベルだけ浮く退行が出た。
-// 本番の footprint 13〜16 の全 seed で、庭でない部屋は内側床が1タイル以上あり、ラベルの下に必ず部屋がある
-// ことを守る。BSP に落ちる 13 も含めて舐める。
+// 本番の footprint 17〜20 の全 seed で、全室が内側床を1タイル以上持ち、ラベルの下に必ず部屋があることを守る。
 func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	t.Parallel()
 
 	for _, fac := range []string{"house", "store", "clinic"} {
-		for fp := 13; fp <= 16; fp++ {
+		for fp := 17; fp <= 20; fp++ {
 			for seed := range uint64(30) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				site, _ := FurnishBuilding(seed, footprint, Vec{X: fp / 2, Y: 0}, fac)
 				for _, hr := range site.Rooms {
-					if hr.Role == "garden" {
-						continue // 坪庭は内側が庭タイルで床を持たない
-					}
 					assert.NotEmptyf(t, hr.Room.Rect.interiorTiles(), "%s fp=%d seed=%d の部屋 %s %+v が内側床を持つ", fac, fp, seed, hr.Role, hr.Room.Rect)
 				}
 			}

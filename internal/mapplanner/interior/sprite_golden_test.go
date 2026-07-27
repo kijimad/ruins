@@ -24,11 +24,11 @@ const spriteDir = "../../../assets/file/textures/single/"
 // cellPx は1タイルの描画辺長。スプライトが 32x32 なのでセルも 32px にして等倍で置く。
 const cellPx = 32
 
-// prodFootprint は本番の市街地チャンク(20x20)が生む建物区画の最大サイズ。overworld の chunkW=20 から街路
-// urbanStreetW=4 を引いて区画は最大 16x16、setback でさらに縮む。建物ゴールデンはこの本番サイズで回し、
-// in-game と同じ経路を写す。テンプレ下限を 12x9 まで下げたので、この本番サイズで施設テンプレ(PlanStore・
-// PlanClinic・コンパクト民家 PlanHouseCompact)が発火し、ゴールデンは施設と分かる間取りを描く。
-const prodFootprint = 16
+// prodFootprint は本番の市街地チャンク(24x24)が生む建物区画の最大サイズ。overworld の chunkW=24 から街路
+// urbanStreetW=4 を引いて区画は最大 20x20、setback でさらに縮む。CDDA の1建物=1OMT=24タイルと同縮尺。
+// 建物ゴールデンはこの本番サイズで回し、in-game と同じ経路を写す。施設テンプレ(PlanStore・PlanClinic・
+// コンパクト民家 PlanHouseCompact)が発火し、CDDA の寝室〜居間サイズの部屋を持つ施設を描く。
+const prodFootprint = 20
 
 // roomFixtureDir は部屋単位ゴールデンの置き場。建物単位ゴールデンとは検証の関心が違うので別ディレクトリに
 // 分ける。建物は overworld が呼ぶ実経路の believability を、部屋は FillRoom 単体の archetype 配置を見る。
@@ -351,7 +351,7 @@ func renderStage(t *testing.T, site Site, placed []Placed) *image.RGBA {
 	return img
 }
 
-// gardenColor は庭・前庭・坪庭の下地色。壁や床と分かれる土のくすんだ緑。
+// gardenColor は前庭の下地色。壁や床と分かれる土のくすんだ緑。
 var gardenColor = color.RGBA{R: 54, G: 62, B: 44, A: 255}
 
 // drawLabel は px,py を左上に役割名の文字を、可読性のため暗い下地の上へ描く。basicfont は ASCII のみ

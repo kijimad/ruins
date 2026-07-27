@@ -187,15 +187,6 @@ func facilityFlavor(facility string) Content {
 	}
 }
 
-// gardenContent は坪庭の内装。観葉を全域に点在させる。家具は置かない。dirt の地面に緑を散らして庭に見せる。
-func gardenContent() Content {
-	return Content{ID: roleGarden, Groups: []Group{
-		{Style: PickEach, Items: []Stuff{
-			{Kind: KindDecor, Ref: "plant", Placement: PlaceFullArea, Amount: Dice{Base: 2, Sides: 3}},
-		}},
-	}}
-}
-
 // --- 役割別カタログ。テンプレが付けた役割名で奥室の内装を引く。民家だけでなく店・診療所も部屋を作り分ける。--
 
 // houseRoomContents は民家の部屋役割ごとの content を役割名で引く表。PlanHouse が決めた役割へ中身を

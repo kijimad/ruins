@@ -25,14 +25,6 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 	for i := range site.Rooms {
 		hr := site.Rooms[i]
 		roomSeed := childSeed(seed, 300+i)
-		if hr.Role == roleGarden {
-			// 坪庭。観葉だけ置き、経年も flavor も掛けない。囲われた庭を荒らさない
-			g := FillRoom(roomSeed, hr.Room, gardenContent())
-			fill = append(fill, g...)
-			decayed = append(decayed, g...)
-			flavored = append(flavored, g...)
-			continue
-		}
 		f := FillRoom(roomSeed, hr.Room, roleContent(facility, hr.Role, seed))
 		a := f
 		if aged {
