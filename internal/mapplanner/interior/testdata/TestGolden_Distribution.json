@@ -1,0 +1,301 @@
+{
+  "antique": {
+    "Runs": 100,
+    "RoomCount": {
+      "3": 44,
+      "4": 56
+    },
+    "Roles": {
+      "coldroom": 41,
+      "main": 100,
+      "office": 43,
+      "restroom": 31,
+      "storeroom": 141
+    },
+    "Furniture": {
+      "barrel": 330,
+      "chair": 63,
+      "closet": 43,
+      "desk": 69,
+      "gondola": 918,
+      "register": 99,
+      "sink": 31,
+      "toilet": 29,
+      "walkin_cooler": 715
+    },
+    "Decor": {
+      "cage": 1,
+      "candle": 178,
+      "carpet": 177,
+      "chest": 2,
+      "crate": 143,
+      "debris": 362,
+      "fence": 918,
+      "komainu": 1,
+      "litter": 289,
+      "rubble": 497,
+      "shutter": 85,
+      "sign": 100,
+      "vending": 54,
+      "window": 415
+    },
+    "Loot": {
+      "bento": 44,
+      "drinks": 139,
+      "snacks": 311
+    },
+    "Heroes": 4
+  },
+  "clinic": {
+    "Runs": 100,
+    "RoomCount": {
+      "4": 50,
+      "6": 50
+    },
+    "Roles": {
+      "corridor": 100,
+      "exam": 100,
+      "office": 50,
+      "pharmacy": 100,
+      "restroom": 50,
+      "waiting": 100
+    },
+    "Furniture": {
+      "chair": 79,
+      "closet": 50,
+      "desk": 72,
+      "exam_bed": 96,
+      "medcabinet": 432,
+      "reception": 100,
+      "sink": 50,
+      "toilet": 48,
+      "waitchair": 449
+    },
+    "Decor": {
+      "cage": 1,
+      "candle": 208,
+      "carpet": 192,
+      "chest": 2,
+      "crate": 110,
+      "debris": 257,
+      "fence": 1700,
+      "komainu": 1,
+      "plant": 300,
+      "rubble": 793,
+      "window": 500
+    },
+    "Loot": {
+      "meds": 156
+    },
+    "Heroes": 4
+  },
+  "depot": {
+    "Runs": 100,
+    "RoomCount": {
+      "4": 53,
+      "6": 47
+    },
+    "Roles": {
+      "back": 394,
+      "main": 100
+    },
+    "Furniture": {
+      "barrel": 1647
+    },
+    "Decor": {
+      "cage": 1,
+      "candle": 249,
+      "carpet": 245,
+      "chest": 2,
+      "crate": 120,
+      "debris": 289,
+      "fence": 1700,
+      "komainu": 1,
+      "plant": 100,
+      "rubble": 669,
+      "window": 500
+    },
+    "Loot": {},
+    "Heroes": 4
+  },
+  "house": {
+    "Runs": 100,
+    "RoomCount": {
+      "7": 100
+    },
+    "Roles": {
+      "bath": 100,
+      "bedroom": 100,
+      "corridor": 100,
+      "genkan": 100,
+      "kitchen": 100,
+      "living": 100,
+      "toilet": 100
+    },
+    "Furniture": {
+      "bathtub": 82,
+      "bed": 100,
+      "bedside": 20,
+      "bookshelf": 11,
+      "butsudan": 17,
+      "chair": 210,
+      "clock": 15,
+      "closet": 132,
+      "coffeemaker": 57,
+      "dresser": 19,
+      "fireplace": 12,
+      "getabako": 48,
+      "kamidana": 16,
+      "lantern": 261,
+      "microwave": 41,
+      "pantry": 262,
+      "sink": 96,
+      "sofa": 47,
+      "table": 104,
+      "toilet": 86
+    },
+    "Decor": {
+      "cage": 1,
+      "candle": 219,
+      "carpet": 240,
+      "chest": 2,
+      "crate": 99,
+      "debris": 282,
+      "fence": 1700,
+      "komainu": 1,
+      "laundry": 12,
+      "plant": 234,
+      "rubble": 777,
+      "window": 500
+    },
+    "Loot": {},
+    "Heroes": 4
+  },
+  "lab": {
+    "Runs": 100,
+    "RoomCount": {
+      "4": 50,
+      "6": 50
+    },
+    "Roles": {
+      "corridor": 100,
+      "exam": 100,
+      "office": 50,
+      "pharmacy": 100,
+      "restroom": 50,
+      "waiting": 100
+    },
+    "Furniture": {
+      "chair": 79,
+      "closet": 50,
+      "desk": 72,
+      "exam_bed": 96,
+      "medcabinet": 432,
+      "reception": 100,
+      "sink": 50,
+      "toilet": 48,
+      "waitchair": 449
+    },
+    "Decor": {
+      "cage": 1,
+      "candle": 208,
+      "carpet": 192,
+      "chest": 2,
+      "crate": 110,
+      "debris": 257,
+      "fence": 1700,
+      "komainu": 1,
+      "plant": 300,
+      "rubble": 793,
+      "window": 500
+    },
+    "Loot": {
+      "meds": 156
+    },
+    "Heroes": 4
+  },
+  "office": {
+    "Runs": 100,
+    "RoomCount": {
+      "4": 53,
+      "6": 47
+    },
+    "Roles": {
+      "back": 394,
+      "main": 100
+    },
+    "Furniture": {
+      "barrel": 949,
+      "chair": 338,
+      "closet": 156,
+      "desk": 339,
+      "printer": 45,
+      "whiteboard": 55
+    },
+    "Decor": {
+      "cage": 1,
+      "candle": 249,
+      "carpet": 245,
+      "chest": 2,
+      "crate": 138,
+      "debris": 316,
+      "fence": 1700,
+      "komainu": 1,
+      "plant": 100,
+      "rubble": 645,
+      "window": 500
+    },
+    "Loot": {},
+    "Heroes": 4
+  },
+  "store": {
+    "Runs": 100,
+    "RoomCount": {
+      "3": 44,
+      "4": 56
+    },
+    "Roles": {
+      "coldroom": 41,
+      "main": 100,
+      "office": 43,
+      "restroom": 31,
+      "storeroom": 141
+    },
+    "Furniture": {
+      "barrel": 330,
+      "chair": 63,
+      "closet": 43,
+      "desk": 69,
+      "gondola": 820,
+      "medcabinet": 191,
+      "register": 120,
+      "sink": 31,
+      "toilet": 29,
+      "walkin_cooler": 411
+    },
+    "Decor": {
+      "cage": 1,
+      "candle": 178,
+      "carpet": 177,
+      "chest": 2,
+      "crate": 144,
+      "debris": 341,
+      "fence": 918,
+      "komainu": 1,
+      "litter": 83,
+      "rubble": 493,
+      "shutter": 85,
+      "sign": 100,
+      "vending": 54,
+      "window": 415
+    },
+    "Loot": {
+      "bandage": 57,
+      "bento": 9,
+      "drinks": 161,
+      "meds": 138,
+      "snacks": 207
+    },
+    "Heroes": 4
+  }
+}
