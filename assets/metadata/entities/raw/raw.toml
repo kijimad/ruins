@@ -13177,6 +13177,18 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
+description = "低い木の塀。敷地の境界を囲う。門で出入りする。仮画像"
+hp = 25
+name = "fence"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "fence"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
 description = "白い電子レンジ。前面に扉と操作パネル。台所や給湯"
 hp = 20
 name = "microwave"

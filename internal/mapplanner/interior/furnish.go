@@ -45,6 +45,8 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 	// 廃業した店のシャッターを決める。壁の上に載る prop なので室内の充填とは別に足す
 	facade := facadeElements(site, facility, prof.damage)
 	flavored = append(flavored, facade...)
+	// lot pass。敷地を塀で囲い門で開け、前庭に外構を置く。建物を裸で地面に置かない
+	flavored = append(flavored, lotElements(site, facility)...)
 	return site, []FurnishStage{
 		{Label: "1 plan", Placed: nil},
 		{Label: "2 fill", Placed: fill},
