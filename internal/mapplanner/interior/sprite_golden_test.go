@@ -89,6 +89,10 @@ var spriteFiles = map[string]string{
 	"pillar":     "stone_pillar_",
 	"cage":       "cage_",
 	"poison":     "barrel_poison_",
+	// 和家具。民家の believability を上げる
+	"butsudan": "butsudan_",
+	"kamidana": "kamidana_",
+	"getabako": "getabako_",
 }
 
 // spriteFileOf は配置の Ref に対応するスプライト名を返す。表に無ければ空を返し、背景描画に委ねる。

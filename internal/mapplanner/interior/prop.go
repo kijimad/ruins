@@ -51,6 +51,10 @@ var propRaw = map[string]string{
 	"pillar":     "stone_pillar",
 	"cage":       "cage",
 	"poison":     "毒樽",
+	// 和家具。民家の believability を上げる。仮画像。raw 名は日本語
+	"butsudan": "仏壇",
+	"kamidana": "神棚",
+	"getabako": "下駄箱",
 }
 
 // PropRawName は Ref に対応する raw prop 名と、それが in-game に spawn されるかを返す。overworld の spawn と

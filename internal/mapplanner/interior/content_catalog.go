@@ -208,7 +208,7 @@ func houseRoomContents() map[string]Content {
 	return map[string]Content{
 		"genkan": {ID: "genkan", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "getabako", Placement: PlaceWall, Amount: Dice{Bonus: 1}}, // 下駄箱は玄関の署名
 			}},
 			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
 		}},
@@ -223,10 +223,12 @@ func houseRoomContents() map[string]Content {
 				diningTable(PlaceCenter),
 				loungeSet(),
 			}},
-			// 添え物を seed で1つ。壁面の棚か観葉
+			// 添え物を seed で1つ。壁面の棚・観葉・和室の仏壇や神棚。和家具が出ると民家らしさが増す
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 				{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "butsudan", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
+				{Kind: KindFurniture, Ref: "kamidana", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
 			}},
 		}},
 		"kitchen": {ID: "kitchen", Groups: []Group{

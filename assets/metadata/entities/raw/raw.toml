@@ -13189,6 +13189,42 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
+description = "濃い木の観音扉に金の内陣の仏壇。和室の一角。仮画像"
+hp = 25
+name = "仏壇"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "butsudan"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "壁上に祀る宮形の神棚。榊と御札。仮画像"
+hp = 15
+name = "神棚"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "kamidana"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "玄関の木の下駄箱。格子の棚に履物。仮画像"
+hp = 20
+name = "下駄箱"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "getabako"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
 description = "白い電子レンジ。前面に扉と操作パネル。台所や給湯"
 hp = 20
 name = "microwave"
