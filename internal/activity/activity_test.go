@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -150,6 +151,8 @@ func TestActivityDoTurn(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
+	// 長い待機の敵接近チェックは位置を前提とするため、実際のアクターと同様に座標を与える
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	behavior := &WaitActivity{}
 	comp, err := NewActivity(behavior, 3)
 	require.NoError(t, err)

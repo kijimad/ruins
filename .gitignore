@@ -32,3 +32,5 @@ oas/redoc/
 /report.json
 # ゲームバランスコマンドが出力する
 balance.json
+# graphify(コード知識グラフ)が出力する
+graphify-out/

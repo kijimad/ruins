@@ -553,6 +553,27 @@ func (e TargetNum) Valid() bool {
 	}
 }
 
+// Defines values for ToolCategory.
+const (
+	Cutting   ToolCategory = "cutting"
+	Precision ToolCategory = "precision"
+	Prying    ToolCategory = "prying"
+)
+
+// Valid indicates whether the value is a known member of the ToolCategory enum.
+func (e ToolCategory) Valid() bool {
+	switch e {
+	case Cutting:
+		return true
+	case Precision:
+		return true
+	case Prying:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for UsableScene.
 const (
 	ANY    UsableScene = "ANY"
@@ -727,6 +748,64 @@ type Dexterity = int32
 type Dialog struct {
 	// MessageKey メッセージリソースのキー
 	MessageKey MessageKey `json:"messageKey"`
+}
+
+// Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
+type Disassembly struct {
+	// BaseAP 分解の基礎工数。100が標準1ターンに相当する
+	BaseAP DisassemblyBaseAP   `json:"baseAP"`
+	Bonus  *[]DisassemblyBonus `json:"bonus,omitempty"`
+
+	// ToolCategory 分解工具の分類
+	ToolCategory ToolCategory       `json:"toolCategory"`
+	Yields       []DisassemblyYield `json:"yields"`
+}
+
+// DisassemblyBaseAP 分解の基礎工数。100が標準1ターンに相当する
+type DisassemblyBaseAP = int32
+
+// DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
+type DisassemblyBonus struct {
+	// Amount アイテム所持数
+	Amount ItemCount `json:"amount"`
+
+	// AmountMax アイテム所持数
+	AmountMax *ItemCount `json:"amountMax,omitempty"`
+
+	// MinGrade 工具グレードがこの値以上で産出に加わる
+	MinGrade *ToolGrade `json:"minGrade,omitempty"`
+
+	// MinSkill 機械スキルがこの値以上で産出に加わる
+	MinSkill *SkillLevel `json:"minSkill,omitempty"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+}
+
+// DisassemblyChance 分解産出の確率。百分率
+type DisassemblyChance = int32
+
+// DisassemblyTool 分解工具。分類の対応とグレードを持つ
+type DisassemblyTool struct {
+	Categories []ToolCategory `json:"categories"`
+
+	// Grade 分解工具のグレード。高いほど速く多く得る
+	Grade ToolGrade `json:"grade"`
+}
+
+// DisassemblyYield 分解の産出エントリ。chance 省略は確定枠
+type DisassemblyYield struct {
+	// Amount アイテム所持数
+	Amount ItemCount `json:"amount"`
+
+	// AmountMax 省略時は amount 固定。指定時は amount..amountMax の一様抽選
+	AmountMax *ItemCount `json:"amountMax,omitempty"`
+
+	// Chance 分解産出の確率。百分率
+	Chance *DisassemblyChance `json:"chance,omitempty"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // DoorLockTriggerRaw 扉ロックトリガー
@@ -918,6 +997,12 @@ type Item struct {
 
 	// Description 説明文
 	Description EntityDescription `json:"description"`
+
+	// Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
+	Disassembly *Disassembly `json:"disassembly,omitempty"`
+
+	// DisassemblyTool 分解工具。分類の対応とグレードを持つ
+	DisassemblyTool *DisassemblyTool `json:"disassemblyTool,omitempty"`
 
 	// EquipBonus 装備ボーナス
 	EquipBonus *EquipBonus `json:"equipBonus,omitempty"`
@@ -1253,6 +1338,9 @@ type Prop struct {
 
 	// Description 説明文
 	Description EntityDescription `json:"description"`
+
+	// Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
+	Disassembly *Disassembly `json:"disassembly,omitempty"`
 
 	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
@@ -2241,6 +2329,12 @@ type TileList struct {
 	Data       []Tile `json:"data"`
 	TotalCount int32  `json:"totalCount"`
 }
+
+// ToolCategory 分解工具の分類
+type ToolCategory string
+
+// ToolGrade 分解工具のグレード。高いほど速く多く得る
+type ToolGrade = int32
 
 // UsableScene 使用可能シーン
 type UsableScene string

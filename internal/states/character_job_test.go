@@ -41,7 +41,7 @@ func TestProfessionItems(t *testing.T) {
 		professionID string
 		itemCount    int
 	}{
-		{professionID: "evacuee", itemCount: 3},
+		{professionID: "evacuee", itemCount: 4},
 		{professionID: "soldier", itemCount: 1},
 		{professionID: "sniper", itemCount: 3},
 		{professionID: "mechanic", itemCount: 2},

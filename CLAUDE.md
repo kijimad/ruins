@@ -20,6 +20,7 @@
 - `add-component`: ECS コンポーネント追加手順（登録表 + `make generate`・serde 除外・クエリ設計）
 - `new-design-doc`: 設計ドキュメント作成（採番・雛形・必須セクション・進捗）
 - `manage-skill`: 学びから skill を新規作成・更新する（下記「フィードバックの昇格」を実行する手順）
+- `post-merge`: PRマージ後の後片付け（worktree破棄・コード知識グラフの更新）
 
 ## フィードバックの昇格
 
