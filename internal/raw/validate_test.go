@@ -126,3 +126,63 @@ func makeItemRaws(modify func(*oapi.Item)) oapi.Raws {
 	items := []oapi.Item{item}
 	return oapi.Raws{Items: &items}
 }
+
+func TestValidateDisassemblyReferences(t *testing.T) {
+	t.Parallel()
+
+	validItems := &[]oapi.Item{
+		{Name: "鉄くず"},
+		{Name: "分解対象"},
+	}
+
+	t.Run("実在する産出名なら通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: validItems,
+			Props: &[]oapi.Prop{{
+				Name: "棚",
+				Disassembly: &oapi.Disassembly{
+					ToolCategory: oapi.Prying,
+					BaseAP:       100,
+					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+				},
+			}},
+		}
+		require.NoError(t, ValidateDisassemblyReferences(raws))
+	})
+
+	t.Run("propの産出名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: validItems,
+			Props: &[]oapi.Prop{{
+				Name: "棚",
+				Disassembly: &oapi.Disassembly{
+					ToolCategory: oapi.Prying,
+					BaseAP:       100,
+					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Amount: 1}},
+				},
+			}},
+		}
+		err := ValidateDisassemblyReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "存在しない素材")
+		require.ErrorContains(t, err, "棚")
+	})
+
+	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		minSkill := oapi.SkillLevel(10)
+		items := append([]oapi.Item{}, *validItems...)
+		items[1].Disassembly = &oapi.Disassembly{
+			ToolCategory: oapi.Precision,
+			BaseAP:       100,
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: &minSkill}},
+		}
+		raws := oapi.Raws{Items: &items}
+		err := ValidateDisassemblyReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "存在しないボーナス")
+	})
+}

@@ -1,6 +1,8 @@
 package systems
 
 import (
+	"fmt"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -96,8 +98,10 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 		grid := world.Components.GridElement.Get(entity)
 		stacks := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
+		// 産出名はロード時に参照検証済みで、ここで失敗するのは整合性バグ。
+		// 握りつぶすと産出が静かに消えるため loud に返す
 		if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil {
-			logger.Debug("破壊回収アイテム生成失敗", "error", err)
+			return fmt.Errorf("破壊回収アイテムの生成に失敗: %w", err)
 		}
 	}
 
