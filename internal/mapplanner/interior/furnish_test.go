@@ -125,3 +125,45 @@ func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 		}
 	}
 }
+
+// TestFurnishBuilding_民家は浴室とトイレを持ち居間より小さい は民家の間取りに浴室とトイレが必ず別室であり、
+// かつ水回りが居間より小さく保たれることを本番サイズの多 seed で固定する。建物を広げた際に民家が田の字4室へ
+// 落ちてトイレが消えた退行と、水回りが居室並みに広すぎた退行の両方を止める。玄関は街路のある北・西の両辺を舐める。
+func TestFurnishBuilding_民家は浴室とトイレを持ち居間より小さい(t *testing.T) {
+	t.Parallel()
+
+	interiorArea := func(r Rect) int {
+		w, h := r.W-2, r.H-2
+		if w < 0 || h < 0 {
+			return 0
+		}
+		return w * h
+	}
+	const wcMaxInterior = 12 // 浴室・トイレの内側面積の上限。居室並みに広がる退行を止める
+	for fp := 17; fp <= 20; fp++ {
+		doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
+		for dside, door := range doors {
+			for seed := range uint64(30) {
+				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
+				site, _ := FurnishBuilding(seed, footprint, door, "house")
+				rect := map[string]Rect{}
+				for _, hr := range site.Rooms {
+					rect[hr.Role] = hr.Room.Rect
+				}
+				bath, hasBath := rect["bath"]
+				toilet, hasToilet := rect["toilet"]
+				living, hasLiving := rect["living"]
+				assert.Truef(t, hasBath, "民家 fp=%d 玄関=%s seed=%d は浴室を持つ", fp, dside, seed)
+				assert.Truef(t, hasToilet, "民家 fp=%d 玄関=%s seed=%d はトイレを持つ", fp, dside, seed)
+				if !hasBath || !hasToilet || !hasLiving {
+					continue
+				}
+				ab, at, al := interiorArea(bath), interiorArea(toilet), interiorArea(living)
+				assert.LessOrEqualf(t, ab, wcMaxInterior, "民家 fp=%d 玄関=%s seed=%d の浴室 %+v が広すぎない", fp, dside, seed, bath)
+				assert.LessOrEqualf(t, at, wcMaxInterior, "民家 fp=%d 玄関=%s seed=%d のトイレ %+v が広すぎない", fp, dside, seed, toilet)
+				assert.Lessf(t, ab, al, "民家 fp=%d 玄関=%s seed=%d の浴室は居間より小さい", fp, dside, seed)
+				assert.Lessf(t, at, al, "民家 fp=%d 玄関=%s seed=%d のトイレは居間より小さい", fp, dside, seed)
+			}
+		}
+	}
+}
