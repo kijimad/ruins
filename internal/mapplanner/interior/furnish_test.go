@@ -65,66 +65,63 @@ func TestSubdivideBuilding_全部屋が連結する(t *testing.T) {
 	}
 }
 
-// TestFurnishBuilding_施設テンプレが多seedで奥室を役割へ分化する は施設固有テンプレが実経路で使われ、
-// BSP フォールバックへ落ちないことを多 seed で固定する。前庭ぶん建物が縮んでテンプレ下限を割り、奥室が
-// 全部 back の樽物置になった退行を検知する。in-game の footprint でテンプレは BSP の "back" を出さず、
-// 施設固有の奥室役割を必ず出す。ゴールデンの目視より前に役割の分化崩れをここで止める。
-func TestFurnishBuilding_施設テンプレが多seedで奥室を役割へ分化する(t *testing.T) {
+// TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割へ分化する は施設固有テンプレが in-game の建物
+// サイズで発火し、BSP フォールバックへ落ちないことを固定する。本番の市街地チャンクが生む footprint 14〜16
+// では建物がテンプレ下限を満たし、店・診療所・民家(コンパクト)の役割ごとに部屋が分化する。奥室が全部
+// back の樽物置に落ちる退行を、ゴールデンの目視より前にここで止める。footprint 13 以下は BSP に落ちるので
+// 対象外。
+func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割へ分化する(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		facility  string
-		footprint Rect
-		door      Vec
-		backRoles []string // このどれかが必ず出る施設固有の奥室役割
+		facility string
+		roles    []string // このどれかが必ず出る施設固有の役割
 	}{
-		{"store", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}, []string{"storeroom", "office", "restroom", "coldroom"}},
-		{"clinic", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}, []string{"exam", "pharmacy", "restroom", "office"}},
-		{"house", Rect{X: 0, Y: 0, W: 28, H: 20}, Vec{X: 14, Y: 0}, []string{"kitchen", "bedroom", "bath", "toilet"}},
+		{"store", []string{"storeroom", "office", "restroom", "coldroom"}},
+		{"clinic", []string{"exam", "pharmacy", "restroom", "office"}},
+		{"house", []string{"kitchen", "bedroom", "bath"}},
 	}
 	for _, c := range cases {
-		for seed := range uint64(30) {
-			site, _ := FurnishBuilding(seed, c.footprint, c.door, c.facility)
-			roles := map[string]int{}
-			for _, r := range site.Rooms {
-				roles[r.Role]++
-			}
-			assert.NotContainsf(t, roles, "back", "%s seed=%d はテンプレを使い BSP フォールバックの back を出さない", c.facility, seed)
-			has := false
-			for _, r := range c.backRoles {
-				if roles[r] > 0 {
-					has = true
-					break
+		for fp := 14; fp <= 16; fp++ { // 本番でテンプレが発火する footprint 範囲
+			for seed := range uint64(20) {
+				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
+				site, _ := FurnishBuilding(seed, footprint, Vec{X: fp / 2, Y: 0}, c.facility)
+				roles := map[string]int{}
+				for _, r := range site.Rooms {
+					roles[r.Role]++
 				}
+				assert.NotContainsf(t, roles, "back", "%s fp=%d seed=%d はテンプレを使い BSP の back を出さない", c.facility, fp, seed)
+				has := false
+				for _, r := range c.roles {
+					if roles[r] > 0 {
+						has = true
+						break
+					}
+				}
+				assert.Truef(t, has, "%s fp=%d seed=%d は施設固有の役割 %v のどれかを出す (roles=%v)", c.facility, fp, seed, c.roles, roles)
 			}
-			assert.Truef(t, has, "%s seed=%d は施設固有の奥室役割 %v のどれかを出す (roles=%v)", c.facility, seed, c.backRoles, roles)
 		}
 	}
 }
 
 // TestFurnishBuilding_部屋が退化しない は生成される部屋が内側床を必ず持つことを多 seed で固定する。前庭で
 // 建物が縮むとテンプレの比率割りで薄い部屋が H<3 の内側床0に潰れ、床が描かれずラベルだけ浮く退行が出た。
-// 全施設の全 seed で、庭でない部屋は内側床が1タイル以上あり、ラベルの下に必ず部屋があることを守る。
+// 本番の footprint 13〜16 の全 seed で、庭でない部屋は内側床が1タイル以上あり、ラベルの下に必ず部屋がある
+// ことを守る。BSP に落ちる 13 も含めて舐める。
 func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	t.Parallel()
 
-	cases := []struct {
-		facility  string
-		footprint Rect
-		door      Vec
-	}{
-		{"house", Rect{X: 0, Y: 0, W: 28, H: 20}, Vec{X: 14, Y: 0}},
-		{"store", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}},
-		{"clinic", Rect{X: 0, Y: 0, W: 26, H: 18}, Vec{X: 13, Y: 0}},
-	}
-	for _, c := range cases {
-		for seed := range uint64(50) {
-			site, _ := FurnishBuilding(seed, c.footprint, c.door, c.facility)
-			for _, hr := range site.Rooms {
-				if hr.Role == "garden" {
-					continue // 坪庭は内側が庭タイルで床を持たない
+	for _, fac := range []string{"house", "store", "clinic"} {
+		for fp := 13; fp <= 16; fp++ {
+			for seed := range uint64(30) {
+				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
+				site, _ := FurnishBuilding(seed, footprint, Vec{X: fp / 2, Y: 0}, fac)
+				for _, hr := range site.Rooms {
+					if hr.Role == "garden" {
+						continue // 坪庭は内側が庭タイルで床を持たない
+					}
+					assert.NotEmptyf(t, hr.Room.Rect.interiorTiles(), "%s fp=%d seed=%d の部屋 %s %+v が内側床を持つ", fac, fp, seed, hr.Role, hr.Room.Rect)
 				}
-				assert.NotEmptyf(t, hr.Room.Rect.interiorTiles(), "%s seed=%d の部屋 %s %+v が内側床を持つ", c.facility, seed, hr.Role, hr.Room.Rect)
 			}
 		}
 	}

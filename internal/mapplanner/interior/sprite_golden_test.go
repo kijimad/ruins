@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/sebdah/goldie/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
@@ -23,34 +24,33 @@ const spriteDir = "../../../assets/file/textures/single/"
 // cellPx は1タイルの描画辺長。スプライトが 32x32 なのでセルも 32px にして等倍で置く。
 const cellPx = 32
 
+// prodFootprint は本番の市街地チャンク(20x20)が生む建物区画の最大サイズ。overworld の chunkW=20 から街路
+// urbanStreetW=4 を引いて区画は最大 16x16、setback でさらに縮む。建物ゴールデンはこの本番サイズで回し、
+// in-game と同じ経路を写す。テンプレ下限を 12x9 まで下げたので、この本番サイズで施設テンプレ(PlanStore・
+// PlanClinic・コンパクト民家 PlanHouseCompact)が発火し、ゴールデンは施設と分かる間取りを描く。
+const prodFootprint = 16
+
 // roomFixtureDir は部屋単位ゴールデンの置き場。建物単位ゴールデンとは検証の関心が違うので別ディレクトリに
 // 分ける。建物は overworld が呼ぶ実経路の believability を、部屋は FillRoom 単体の archetype 配置を見る。
 const roomFixtureDir = "testdata/rooms"
 
 // spriteFiles は配置の Ref を実スプライトのソース PNG 名へ写す表。ゲーム本体の豊富な既存スプライトから
-// 什器の実物を当てるので、ダミーは使わない。什器ごとに別の絵になり、施設の見分けが付く。表に無い装飾は
-// 背景描画で表す。仮画像を避ける置換の理由はコメントに残す。
+// 什器の実物を当てるので、ダミーは使わない。什器ごとに別の絵になり、施設の見分けが付く。in-game で spawn
+// される prop すなわち PropRawName が写像を持つ Ref だけを載せ、VRT が in-game に無い戦利品や装飾を描いて
+// 乖離するのを防ぐ。TestSpriteFiles_全てのin-game_propにスプライトがある が両者の集合一致を固定する。
 var spriteFiles = map[string]string{
 	// 店。gondola_shelf_ / display_cooler_ はゲーム側が未だ仮画像なので、実描画のある代替を当てる
 	"gondola":       "goods_shelf_",
 	"register":      "register_",
 	"walkin_cooler": "refrigerator_",
-	"snacks":        "cookie_",
-	"drinks":        "bottled_cola_",
-	"bento":         "hamburger_",
 	// 診療所。reception_counter_ / exam_bed_ / medicine_cabinet_ は仮画像だが、寝室什器で代用すると
 	// 診療所に見えなくなるため、意味の合う実資産をそのまま当てる
 	"reception":  "reception_counter_",
 	"waitchair":  "bench_",
 	"exam_bed":   "exam_bed_",
 	"medcabinet": "medicine_cabinet_",
-	"meds":       "healing_potion_",
-	"bandage":    "leather_bandage_",
 	// 事務所・受付。desk は raw の spriteKey wood_desk に合わせる
 	"desk": "wood_desk_",
-	// 依存グラフ machine。施錠された戦利品
-	"shutter": "door_vertical_closed_",
-	"keycard": "violet_card_",
 	// 民家・建物
 	"bed":     "bed_",
 	"table":   "dining_table_",
@@ -61,15 +61,13 @@ var spriteFiles = map[string]string{
 	"plant":   "houseplants_",
 	"pantry":  "dish_shelf_",
 	"barrel":  "wood_barrel_",
-	"crate":   "wood_barrel_",
 	"bathtub": "bathtub_",
 	"toilet":  "toilet_",
 	"sink":    "sink_",
 	"washer":  "wash_machine_empty_",
-	// flavor。廃墟に残る生活の痕
+	// flavor。廃墟に残る生活の痕。in-game でも spawn する装飾だけ
 	"candle": "candle_",
 	"carpet": "carpet_",
-	"broom":  "broom_",
 	// Age。時間が刻む崩落と散乱。in-game の raw と同じスプライトを当て、VRT と実装を揃える
 	"rubble": "rubble_",
 	"debris": "debris_",
@@ -80,54 +78,67 @@ func spriteFileOf(p Placed) string {
 	return spriteFiles[p.Ref]
 }
 
+// TestSpriteFiles_描画対象とin-game_spawnが一致する は VRT の描画対象と in-game の spawn 対象が同じ Ref
+// 集合であることを固定する。PropRawName が写像を持つ Ref はすべて spriteFiles にスプライトがあり、逆に
+// spriteFiles に載る Ref はすべて in-game で spawn される。片方だけに Ref があると、VRT が in-game に無い物を
+// 描く、または in-game の prop が VRT に映らない乖離になる。両集合を突き合わせて乖離を機械的に止める。
+func TestSpriteFiles_描画対象とingameのspawnが一致する(t *testing.T) {
+	t.Parallel()
+	for ref := range PropRaws() {
+		_, ok := spriteFiles[ref]
+		assert.Truef(t, ok, "in-game で spawn される %q は VRT スプライトを持つ", ref)
+	}
+	for ref := range spriteFiles {
+		_, ok := PropRawName(ref)
+		assert.Truef(t, ok, "VRT スプライトを持つ %q は in-game で spawn される", ref)
+	}
+}
+
 // --- 建物単位ゴールデン。overworld が実際に呼ぶ FurnishBuilding をそのまま描く目視回帰。--------------
 // PlanHouse など VRT 専用経路でなく in-game で生成される建物そのものを写す。VRT と実装が乖離しないための
 // 検証で、実プレイの高コストな確認を VRT で代替する。粗い間仕切りや不自然さはここに現れる。
 
 // TestGolden_BuildingHouse は民家1棟を9 seed 並べた目視回帰。planRooms が PlanHouseAny で玄関・廊下・
 // 水回りの動線を保証し、役割ごとの content で充填したうえで、確率的に Age と Flavor を掛けた最終形を写す。
-// 1枚では見えない間取りの変種、横型と縦型・部屋数・経年の有無の幅を、9マスの並びで一望する。
+// 本番サイズ(prodFootprint)で回すので、in-game と同じくコンパクト民家 PlanHouseCompact が living・bedroom・
+// kitchen・bath の田の字へ割れる。setback の前庭・玄関ポーチの凹み・確率的な坪庭・経年の有無の幅を、9マスの
+// 並びで一望する。VRT と in-game の footprint と描画を揃え、乖離しない。
 func TestGolden_BuildingHouse(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
-	door := Vec{X: 14, Y: 0} // 北壁の入口
+	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
+	door := Vec{X: prodFootprint / 2, Y: 0} // 北壁の入口
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return FurnishBuilding(seed, footprint, door, facHouse)
 	}))
 }
 
-// TestGolden_BuildingStore は店舗1棟を9 seed 並べた目視回帰。民家と同じ FurnishBuilding に facility を
-// 替えて流すだけで、主室に商品棚と冷蔵ケース、奥に備品室という別施設の建物が出ることを写す。variant 抽選で
-// コンビニ・薬局・八百屋のどれになるかの幅も並びに現れる。
+// TestGolden_BuildingStore は店舗1棟を9 seed 並べた目視回帰。本番サイズで in-game と同じ BSP に割れ、主室に
+// 商品棚と冷蔵ケース、奥室に樽の備品が並ぶ。同じ FurnishBuilding に facility を替えて流すだけで店の content に
+// なる。variant 抽選でコンビニ・薬局・八百屋のどれになるかの幅も並びに現れる。
 func TestGolden_BuildingStore(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	door := Vec{X: 13, Y: 0}
+	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
+	door := Vec{X: prodFootprint / 2, Y: 0}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return FurnishBuilding(seed, footprint, door, "store")
 	}))
 }
 
-// TestGolden_BuildingClinic は診療所1棟に、doc の例そのままの「施錠された薬局奥」を重ねた9 seed の目視回帰。
-// FurnishBuilding で待合と診察室・備品室へ割ったうえに、最奥へ薬を施錠して置き、入口寄りにキーカード、
-// 奥の戸口にシャッターを足す。鍵と錠を同じ生成が出すので必ず解ける。seed ごとに錠と鍵の位置が動く幅を見る。
+// TestGolden_BuildingClinic は診療所1棟を9 seed 並べた目視回帰。本番サイズで in-game と同じ BSP に割れ、主室に
+// 受付と診察台、奥室に薬棚が並ぶ。guardedLoot の施錠戦利品は production の furnishBuilding が呼ばないので
+// ここでも重ねず、VRT を in-game と揃える。
 func TestGolden_BuildingClinic(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	door := Vec{X: 13, Y: 0}
+	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
+	door := Vec{X: prodFootprint / 2, Y: 0}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
-		site, placed := FurnishBuilding(seed, footprint, door, facClinic)
-		plain := make([]Room, len(site.Rooms))
-		for i, r := range site.Rooms {
-			plain[i] = r.Room
-		}
-		return site, append(placed, guardedLoot(seed, plain, "meds", 1)...)
+		return FurnishBuilding(seed, footprint, door, facClinic)
 	}))
 }
 
@@ -141,8 +152,8 @@ func TestGolden_BuildingClinic(t *testing.T) {
 func TestGolden_StagesHouse(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 28, H: 20}
-	door := Vec{X: 14, Y: 0}
+	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
+	door := Vec{X: prodFootprint / 2, Y: 0}
 	site, stages := FurnishStages(1, footprint, door, facHouse)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
@@ -153,8 +164,8 @@ func TestGolden_StagesHouse(t *testing.T) {
 func TestGolden_StagesStore(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	door := Vec{X: 13, Y: 0}
+	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
+	door := Vec{X: prodFootprint / 2, Y: 0}
 	site, stages := FurnishStages(1, footprint, door, "store")
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
@@ -165,8 +176,8 @@ func TestGolden_StagesStore(t *testing.T) {
 func TestGolden_StagesClinic(t *testing.T) {
 	t.Parallel()
 
-	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
-	door := Vec{X: 13, Y: 0}
+	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
+	door := Vec{X: prodFootprint / 2, Y: 0}
 	site, stages := FurnishStages(1, footprint, door, facClinic)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
@@ -361,12 +372,16 @@ func drawLabel(img *image.RGBA, px, py int, s string) {
 	d.DrawString(s)
 }
 
-// drawPlaced は placed を origin を原点とする 32px セルへ描く。スプライトのある什器は実画像を重ね、
-// 表に無い装飾は下地の床のままにする。
+// drawPlaced は placed を origin を原点とする 32px セルへ描く。in-game に spawn される prop だけを描き、
+// PropRawName が写像を持たない Ref(戦利品・raw の無い装飾)は overworld と同じく置かない。これで VRT が
+// in-game に無い物を描いて乖離することが構造的に起きない。スプライトのある什器は実画像を重ねる。
 func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 	t.Helper()
 	cache := make(map[string]image.Image)
 	for _, p := range placed {
+		if _, ok := PropRawName(p.Ref); !ok {
+			continue // in-game で spawn されない Ref は VRT でも描かない。overworld の spawn 判定と共有する
+		}
 		name := spriteFileOf(p)
 		if name == "" {
 			continue // スプライトの無い装飾は下地に委ねる

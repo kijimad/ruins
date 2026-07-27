@@ -186,10 +186,40 @@ var houseVariants = []func(Rect, uint64) []PlannedRoom{
 	func(f Rect, s uint64) []PlannedRoom { return mirrorHouse(f, PlanHouseVertical(f, s)) },
 }
 
-// PlanHouseAny は seed から間取りの型を1つ決定的に選び、その民家を生成する。建物ごとに横廊下・縦廊下と
-// その鏡像が混ざり、間取りに変化が出る。型の選択は childSeed(seed, 0) に閉じ、各プランナ内部の戸口抽選や
-// 分割比ジッタと相関しないようにする。
+// PlanHouseCompact は狭い footprint 向けの小さな民家。廊下型の10室は 24x16 未満に入らないので、居間・
+// 寝室・台所・浴室の田の字4室にする。本番の市街地チャンク(20x20)が生む ~14x12 の建物でも、BSP の
+// のっぺりした main/back でなく民家らしい部屋の作り分けを保つ。入口は敷地計画 Site が居間側へ開ける。
+func PlanHouseCompact(footprint Rect, seed uint64) []PlannedRoom {
+	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
+	right, bottom := x0+w-1, y0+h-1
+
+	mx := jitterSplit(seed, 40, x0+w/2) // 縦の仕切り。左右を分ける
+	my := jitterSplit(seed, 41, y0+h/2) // 横の仕切り。上下を分ける
+
+	rectOf := map[string]Rect{
+		"living":  {X: x0, Y: y0, W: mx - x0 + 1, H: my - y0 + 1},
+		"bedroom": {X: mx, Y: y0, W: right - mx + 1, H: my - y0 + 1},
+		"kitchen": {X: x0, Y: my, W: mx - x0 + 1, H: bottom - my + 1},
+		"bath":    {X: mx, Y: my, W: right - mx + 1, H: bottom - my + 1},
+	}
+	// 田の字の隣接を戸口で繋ぐ。居間から寝室・台所へ、台所から浴室へ。全室が居間から到達できる
+	conns := [][2]string{
+		{"living", "bedroom"}, {"living", "kitchen"}, {"kitchen", "bath"},
+	}
+	order := []roomRole{
+		{"living", "living"}, {"bedroom", "bedroom"}, {"kitchen", "kitchen"}, {"bath", "bath"},
+	}
+	return assembleRooms(rectOf, wireDoorways(rectOf, seed, conns), order)
+}
+
+// PlanHouseAny は seed から間取りの型を1つ決定的に選び、その民家を生成する。24x16 以上あれば横廊下・縦廊下と
+// その鏡像の廊下型4種から seed で選び、間取りに変化を出す。それ未満は廊下型が入らないので田の字のコンパクト
+// 民家にする。本番の建物は狭いのでたいていコンパクトになる。型の選択は childSeed(seed, 0) に閉じ、各プランナ
+// 内部の戸口抽選や分割比ジッタと相関しないようにする。
 func PlanHouseAny(footprint Rect, seed uint64) []PlannedRoom {
+	if footprint.W < 24 || footprint.H < 16 {
+		return PlanHouseCompact(footprint, seed)
+	}
 	v := houseVariants[int(childSeed(seed, 0)%uint64(len(houseVariants)))]
 	return v(footprint, seed)
 }

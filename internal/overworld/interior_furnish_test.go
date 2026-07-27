@@ -11,7 +11,7 @@ import (
 )
 
 // TestInteriorPropRaw_全施設の家具refが写像を持つ は、施設 content が生む家具が in-game で無言に欠落
-// しないことを守る。各施設種別を Furnish し、KindFurniture の Ref がすべて interiorPropRaw にあることを
+// しないことを守る。各施設種別を Furnish し、KindFurniture の Ref がすべて 写像 PropRawName にあることを
 // 確かめる。content へ家具を足して写像を忘れると、ここで落ちて気付ける。
 func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 	t.Parallel()
@@ -27,8 +27,8 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 			if p.Kind != interior.KindFurniture {
 				continue
 			}
-			_, ok := interiorPropRaw[p.Ref]
-			assert.Truef(t, ok, "施設 %q の家具 %q は interiorPropRaw に写像を持つ", fac, p.Ref)
+			_, ok := interior.PropRawName(p.Ref)
+			assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
 		}
 	}
 	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
@@ -44,7 +44,7 @@ func TestInteriorPropRaw_写像先のrawが実在する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	for ref, name := range interiorPropRaw {
+	for ref, name := range interior.PropRaws() {
 		_, err := raw.GetProp(world.Resources.RawMaster, name)
 		require.NoErrorf(t, err, "Ref %q の写像先 raw %q が実在する", ref, name)
 	}

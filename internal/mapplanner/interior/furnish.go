@@ -86,18 +86,19 @@ func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) 
 	return rooms, roles
 }
 
-// facilityPlanner は施設種別に対応する間取りテンプレと、テンプレが破綻しない最小寸法を返す。前庭ぶん
-// 内寄せした建物でもテンプレを使えるよう、テンプレごとに下限を分ける。民家は水回りの小部屋が H<16 で
-// 内側床0に潰れるので 24x16、店と診療所は部屋が粗いので 22x12 まで許す。下限を下回る建物と、テンプレの
-// 無い施設は BSP のフォールバックへ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
+// facilityPlanner は施設種別に対応する間取りテンプレと、テンプレが破綻しない最小寸法を返す。本番の市街地
+// チャンク(20x20)が生む建物は前庭ぶん内寄せして ~14x12 と狭いので、下限を 12x9 まで下げ、その狭さでも
+// 施設テンプレを発火させる。民家は 24x16 未満なら PlanHouseAny が田の字のコンパクト民家へ切り替える。店・
+// 診療所は部屋数が少ないので狭くても成立する。下限を下回る建物とテンプレの無い施設は BSP へ委ねる。
+// 骨董品店は店、研究施設は診療所のテンプレを共有する。
 func facilityPlanner(facility string) (fn func(Rect, uint64) []PlannedRoom, minW, minH int, ok bool) {
 	switch facility {
 	case facHouse:
-		return PlanHouseAny, 24, 16, true
+		return PlanHouseAny, 12, 9, true
 	case facStore, facAntique:
-		return PlanStore, 22, 12, true
+		return PlanStore, 12, 9, true
 	case facClinic, facLab:
-		return PlanClinic, 22, 12, true
+		return PlanClinic, 12, 9, true
 	default:
 		return nil, 0, 0, false
 	}
