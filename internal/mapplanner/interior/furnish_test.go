@@ -105,17 +105,21 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 
 // TestFurnishBuilding_部屋が退化しない は生成される部屋が内側床を必ず持つことを多 seed で固定する。前庭で
 // 建物が縮むとテンプレの比率割りで薄い部屋が H<3 の内側床0に潰れ、床が描かれずラベルだけ浮く退行が出た。
-// 本番の footprint 17〜20 の全 seed で、全室が内側床を1タイル以上持ち、ラベルの下に必ず部屋があることを守る。
+// 本番の footprint 17〜20 の全 seed で全室が内側床を1タイル以上持つことを守る。玄関は街路のある北・西の
+// 両辺を舐める。西玄関は前庭ぶん建物幅が縮み建物14幅になるので、狭い側の退化も捕まえる。
 func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	t.Parallel()
 
 	for _, fac := range []string{"house", "store", "clinic"} {
 		for fp := 17; fp <= 20; fp++ {
-			for seed := range uint64(30) {
-				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
-				site, _ := FurnishBuilding(seed, footprint, Vec{X: fp / 2, Y: 0}, fac)
-				for _, hr := range site.Rooms {
-					assert.NotEmptyf(t, hr.Room.Rect.interiorTiles(), "%s fp=%d seed=%d の部屋 %s %+v が内側床を持つ", fac, fp, seed, hr.Role, hr.Room.Rect)
+			doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
+			for dside, door := range doors {
+				for seed := range uint64(30) {
+					footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
+					site, _ := FurnishBuilding(seed, footprint, door, fac)
+					for _, hr := range site.Rooms {
+						assert.NotEmptyf(t, hr.Room.Rect.interiorTiles(), "%s fp=%d 玄関=%s seed=%d の部屋 %s %+v が内側床を持つ", fac, fp, dside, seed, hr.Role, hr.Room.Rect)
+					}
 				}
 			}
 		}

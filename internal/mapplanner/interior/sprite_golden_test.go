@@ -100,9 +100,9 @@ func TestSpriteFiles_描画対象とingameのspawnが一致する(t *testing.T) 
 
 // TestGolden_BuildingHouse は民家1棟を9 seed 並べた目視回帰。planRooms が PlanHouseAny で玄関・廊下・
 // 水回りの動線を保証し、役割ごとの content で充填したうえで、確率的に Age と Flavor を掛けた最終形を写す。
-// 本番サイズ(prodFootprint)で回すので、in-game と同じくコンパクト民家 PlanHouseCompact が living・bedroom・
-// kitchen・bath の田の字へ割れる。setback の前庭・玄関ポーチの凹み・確率的な坪庭・経年の有無の幅を、9マスの
-// 並びで一望する。VRT と in-game の footprint と描画を揃え、乖離しない。
+// 本番サイズ(prodFootprint)で回すので、in-game と同じく中型民家 PlanHouseMid/MidV が玄関・廊下・居間・寝室・
+// 台所・浴室・トイレの7室へ割れる。横廊下・縦廊下とその鏡像でseedごとに間取りが変わる。setback の前庭・玄関
+// ポーチの凹み・経年の有無の幅を、9マスの並びで一望する。VRT と in-game の footprint と描画を揃え、乖離しない。
 func TestGolden_BuildingHouse(t *testing.T) {
 	t.Parallel()
 
