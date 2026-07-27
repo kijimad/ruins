@@ -9,13 +9,15 @@ package interior
 // コンパイルが通らないよう型で区別する。
 type FacilityKind string
 
-// 施設種別名。switch の case で繰り返すので定数にする。
+// 施設種別名。switch の case で繰り返すので定数にする。overworld の facilityType の値と1対1で揃える。
 const (
 	facHouse   FacilityKind = "house"
 	facStore   FacilityKind = "store"
 	facAntique FacilityKind = "antique"
 	facClinic  FacilityKind = "clinic"
 	facLab     FacilityKind = "lab"
+	facOffice  FacilityKind = "office"
+	facDepot   FacilityKind = "depot"
 )
 
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
@@ -53,9 +55,9 @@ func facilityVariants(facility FacilityKind) []Content {
 		return []Content{storeContent()}
 	case facClinic, facLab:
 		return []Content{clinicContent()}
-	case "office":
+	case facOffice:
 		return []Content{officeContent()}
-	case "depot":
+	case facDepot:
 		return []Content{depotContent()}
 	default:
 		return []Content{genericContent()}
