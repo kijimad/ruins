@@ -10,11 +10,8 @@ package interior
 // 店なら自販機、民家なら観葉を1つ置く。
 func lotElements(s Site, facility string) []Placed {
 	fside := frontSide(s)
-	lo, hi, fixed, horiz := lotEdgeSpan(s.Footprint, fside)
-	doorAxis := s.Door.X
-	if !horiz {
-		doorAxis = s.Door.Y
-	}
+	lo, hi, edge := lotEdgeSpan(s.Footprint, fside)
+	doorAxis := edge.along(s.Door)
 
 	var out []Placed
 	// 塀で敷地を囲い、入口の軸を門として開ける。商店街は街路に面して開くので塀を張らない
@@ -23,7 +20,7 @@ func lotElements(s Site, facility string) []Placed {
 			if abs(a-doorAxis) <= 1 { // 門の隙間。街路から前庭へ入る
 				continue
 			}
-			out = append(out, facadeAt(a, fixed, horiz, "fence"))
+			out = append(out, Placed{Kind: KindDecor, Ref: "fence", Pos: edge.at(a)})
 		}
 	}
 	// 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く
@@ -37,18 +34,18 @@ func lotElements(s Site, facility string) []Placed {
 	return out
 }
 
-// lotEdgeSpan は footprint の街路側の縁を、縁に沿う軸の範囲[lo,hi]・固定座標 fixed・横方向かで返す。塀は角も
-// 含めて敷地をぐるりと閉じるので corners を除かない。
-func lotEdgeSpan(f Rect, fside side) (lo, hi, fixed int, horiz bool) {
+// lotEdgeSpan は footprint の街路側の縁を、縁に沿う軸の範囲[lo,hi]と縁のラインで返す。塀は角も含めて敷地を
+// ぐるりと閉じるので corners を除かない。
+func lotEdgeSpan(f Rect, fside side) (lo, hi int, edge tileLine) {
 	switch fside {
 	case sideNorth:
-		return f.X, f.X + f.W - 1, f.Y, true
+		return f.X, f.X + f.W - 1, tileLine{cross: f.Y, horiz: true}
 	case sideSouth:
-		return f.X, f.X + f.W - 1, f.Y + f.H - 1, true
+		return f.X, f.X + f.W - 1, tileLine{cross: f.Y + f.H - 1, horiz: true}
 	case sideWest:
-		return f.Y, f.Y + f.H - 1, f.X, false
+		return f.Y, f.Y + f.H - 1, tileLine{cross: f.X, horiz: false}
 	default: // sideEast
-		return f.Y, f.Y + f.H - 1, f.X + f.W - 1, false
+		return f.Y, f.Y + f.H - 1, tileLine{cross: f.X + f.W - 1, horiz: false}
 	}
 }
 

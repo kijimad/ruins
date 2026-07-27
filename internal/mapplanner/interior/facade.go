@@ -9,11 +9,8 @@ package interior
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
 func facadeElements(s Site, facility string, dmg damageLevel) []Placed {
-	lo, hi, fixed, horiz := frontWallSpan(s.Building, frontSide(s))
-	doorAxis := s.Door.X
-	if !horiz {
-		doorAxis = s.Door.Y
-	}
+	lo, hi, wall := frontWallSpan(s.Building, frontSide(s))
+	doorAxis := wall.along(s.Door)
 	winRef := "window"
 	if isShop(facility) && dmg == dmgMajor {
 		winRef = "shutter" // 廃業した店はシャッターを下ろす
@@ -27,14 +24,14 @@ func facadeElements(s Site, facility string, dmg damageLevel) []Placed {
 		if (a-lo)%3 != 1 { // 角から1つ内で始め、3タイルおきに1枚
 			continue
 		}
-		out = append(out, facadeAt(a, fixed, horiz, winRef))
+		out = append(out, Placed{Kind: KindDecor, Ref: winRef, Pos: wall.at(a)})
 	}
 	// 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力
 	if isShop(facility) {
 		if a := doorAxis + 2; a <= hi {
-			out = append(out, facadeAt(a, fixed, horiz, "sign"))
+			out = append(out, Placed{Kind: KindDecor, Ref: "sign", Pos: wall.at(a)})
 		} else if a := doorAxis - 2; a >= lo {
-			out = append(out, facadeAt(a, fixed, horiz, "sign"))
+			out = append(out, Placed{Kind: KindDecor, Ref: "sign", Pos: wall.at(a)})
 		}
 	}
 	return out
@@ -43,12 +40,28 @@ func facadeElements(s Site, facility string, dmg damageLevel) []Placed {
 // isShop は看板とシャッターを付ける店かを返す。骨董品店も店に含める。
 func isShop(facility string) bool { return facility == facStore || facility == facAntique }
 
-// facadeAt は壁に沿う軸の座標 a と固定座標 fixed から外皮 prop を1つ作る。horiz は前壁が横方向(北/南)か。
-func facadeAt(a, fixed int, horiz bool, ref string) Placed {
-	if horiz {
-		return Placed{Kind: KindDecor, Ref: ref, Pos: Vec{X: a, Y: fixed}}
+// tileLine は1本の軸に沿ったタイル列。cross は列の固定座標、horiz は列が横方向すなわち X に沿うか。壁や敷地縁の
+// ように、固定座標と向きが常にセットで決まるものを1つの値にまとめる。along を渡すと列上の1タイルを返すので、
+// 呼び出し側は列に沿う位置だけを渡せばよく、along と cross の取り違えが型で起きなくなる。
+type tileLine struct {
+	cross int
+	horiz bool
+}
+
+// at は列に沿う位置 along のタイル座標を返す。
+func (l tileLine) at(along int) Vec {
+	if l.horiz {
+		return Vec{X: along, Y: l.cross}
 	}
-	return Placed{Kind: KindDecor, Ref: ref, Pos: Vec{X: fixed, Y: a}}
+	return Vec{X: l.cross, Y: along}
+}
+
+// along は v の列に沿う成分を取り出す。入口の軸座標を得るのに使う。
+func (l tileLine) along(v Vec) int {
+	if l.horiz {
+		return v.X
+	}
+	return v.Y
 }
 
 // frontSide は建物が footprint から内寄せされた辺、すなわち街路に面する前面の辺を返す。insetBuilding は入口側の
@@ -69,16 +82,16 @@ func frontSide(s Site) side {
 	return doorSide(b, s.Door)
 }
 
-// frontWallSpan は前壁のタイル列を、壁に沿う軸の範囲[lo,hi](角を除く)・固定座標 fixed・横方向かで返す。
-func frontWallSpan(b Rect, fside side) (lo, hi, fixed int, horiz bool) {
+// frontWallSpan は前壁のタイル列を、壁に沿う軸の範囲[lo,hi](角を除く)と壁のラインで返す。
+func frontWallSpan(b Rect, fside side) (lo, hi int, wall tileLine) {
 	switch fside {
 	case sideNorth:
-		return b.X + 1, b.X + b.W - 2, b.Y, true
+		return b.X + 1, b.X + b.W - 2, tileLine{cross: b.Y, horiz: true}
 	case sideSouth:
-		return b.X + 1, b.X + b.W - 2, b.Y + b.H - 1, true
+		return b.X + 1, b.X + b.W - 2, tileLine{cross: b.Y + b.H - 1, horiz: true}
 	case sideWest:
-		return b.Y + 1, b.Y + b.H - 2, b.X, false
+		return b.Y + 1, b.Y + b.H - 2, tileLine{cross: b.X, horiz: false}
 	default: // sideEast
-		return b.Y + 1, b.Y + b.H - 2, b.X + b.W - 1, false
+		return b.Y + 1, b.Y + b.H - 2, tileLine{cross: b.X + b.W - 1, horiz: false}
 	}
 }
