@@ -103,9 +103,18 @@ func chooseDoor(building Rect, rooms []PlannedRoom, s side, desired Vec) Vec {
 	}
 }
 
-// frontSlot は辺 s に面する部屋の内側の帯のうち、望みの横位置 desired に最も近い座標を返す。望みが前室の
-// 内側にあればそのまま返す。前室が無ければ望みをそのまま返す。
+// frontSlot は辺 s に面する部屋の内側の帯のうち、望みの横位置 desired に最も近い座標を返す。玄関がこの辺に
+// 面していれば入口を玄関の帯へ寄せ、入口が必ず玄関へ開くようにする。玄関は建物の街路側の角に置くので、北
+// 玄関でも西玄関でも同じ玄関へスナップする。玄関が無ければ望みに最も近い前室の帯へ、前室も無ければ望みを返す。
 func frontSlot(building Rect, rooms []PlannedRoom, s side, desired int) int {
+	for _, hr := range rooms {
+		if hr.Role != "genkan" {
+			continue
+		}
+		if lo, hi, ok := frontSpan(hr.Room.Rect, building, s); ok {
+			return clamp(desired, lo, hi)
+		}
+	}
 	bestLo, bestHi, found := 0, 0, false
 	for _, hr := range rooms {
 		lo, hi, ok := frontSpan(hr.Room.Rect, building, s)

@@ -181,7 +181,8 @@ func facilityFlavor(facility string) Content {
 		Groups: []Group{
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindDecor, Ref: "carpet", Placement: PlaceFarFromDoor, Weight: 1, Amount: Dice{Bonus: 1}},
-				{Kind: KindDecor, Ref: "candle", Placement: PlaceFullArea, Weight: 1, Amount: Dice{Base: 1, Sides: 2}},
+				// 蝋燭は壁際に寄せる。床の真ん中に散らすと意味不明な位置に浮くので PlaceWall で壁沿いに置く
+				{Kind: KindDecor, Ref: "candle", Placement: PlaceWall, Weight: 1, Amount: Dice{Bonus: 1}},
 			}},
 		},
 	}
@@ -211,9 +212,8 @@ func houseRoomContents() map[string]Content {
 			}},
 			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Amount: Dice{Bonus: 1}}}},
 		}},
-		"corridor": {ID: "corridor", Groups: []Group{
-			{Style: PickOne, Items: []Stuff{{Kind: KindDecor, Ref: "plant", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}}}},
-		}},
+		// 廊下は通路として空ける。幅1の通路に什器や観葉を置くと歩行を塞ぐので何も置かない
+		"corridor": {ID: "corridor"},
 		"living": {ID: "living", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "lantern", Amount: Dice{Bonus: 2}}, // 明かりは常設

@@ -30,7 +30,12 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 		if aged {
 			a = Age(roomSeed, hr.Room, f)
 		}
-		fl := Flavor(roomSeed, hr.Room, a, facilityFlavor(facility))
+		fl := a
+		// flavor は到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が1マス幅しか
+		// ない狭室にはフレーバーを足さない。通路を蝋燭や絨毯で埋めない
+		if hr.Role != "corridor" && !isNarrowRoom(hr.Room.Rect) {
+			fl = Flavor(roomSeed, hr.Room, a, facilityFlavor(facility))
+		}
 		fill = append(fill, f...)
 		decayed = append(decayed, a...)
 		flavored = append(flavored, fl...)
@@ -41,6 +46,12 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 		{Label: "3 age", Placed: decayed},
 		{Label: "4 flavor", Placed: flavored},
 	}
+}
+
+// isNarrowRoom は部屋の内側が幅1以下の通路状かを返す。1マス幅の廊下や薄い水回りにフレーバーを置くと
+// 唯一の歩行帯を塞ぐので、その判定に使う。
+func isNarrowRoom(r Rect) bool {
+	return r.W-2 <= 1 || r.H-2 <= 1
 }
 
 // FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を

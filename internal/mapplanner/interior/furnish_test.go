@@ -126,6 +126,39 @@ func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	}
 }
 
+// TestFurnishBuilding_民家の入口は玄関に開く は建物の入口が必ず玄関の部屋へ開くことを本番サイズの多 seed で
+// 固定する。玄関を建物の奥に置き入口が居室へ開いていた退行を止める。玄関は街路のある北・西の両辺を舐める。
+func TestFurnishBuilding_民家の入口は玄関に開く(t *testing.T) {
+	t.Parallel()
+
+	for fp := 17; fp <= 20; fp++ {
+		doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
+		for dside, door := range doors {
+			for seed := range uint64(30) {
+				site, _ := FurnishBuilding(seed, Rect{X: 0, Y: 0, W: fp, H: fp}, door, "house")
+				var genkan *PlannedRoom
+				for i := range site.Rooms {
+					if site.Rooms[i].Role == "genkan" {
+						genkan = &site.Rooms[i]
+						break
+					}
+				}
+				if !assert.NotNilf(t, genkan, "民家 fp=%d 玄関=%s seed=%d は玄関の部屋を持つ", fp, dside, seed) {
+					continue
+				}
+				opensToGenkan := false
+				for _, dw := range genkan.Room.Doorways {
+					if Vec(dw) == site.Door {
+						opensToGenkan = true
+						break
+					}
+				}
+				assert.Truef(t, opensToGenkan, "民家 fp=%d 玄関=%s seed=%d の入口 %+v は玄関 %+v へ開く", fp, dside, seed, site.Door, genkan.Room.Rect)
+			}
+		}
+	}
+}
+
 // TestFurnishBuilding_民家は浴室とトイレを持ち居間より小さい は民家の間取りに浴室とトイレが必ず別室であり、
 // かつ水回りが居間より小さく保たれることを本番サイズの多 seed で固定する。建物を広げた際に民家が田の字4室へ
 // 落ちてトイレが消えた退行と、水回りが居室並みに広すぎた退行の両方を止める。玄関は街路のある北・西の両辺を舐める。

@@ -201,79 +201,81 @@ var houseMidOrder = []roomRole{
 // 浴室とトイレは1〜2タイルの什器しか置かないので、居室と同じ大きさに割ると不自然に広い。
 const wcBlockW = 4
 
-// PlanHouseMid は横廊下の中型民家。本番のチャンク24が生む建物 ~17x14〜20x17 に合わせ、10室の廊下型を
-// 幅いっぱいに詰めて水回りが潰れる退行を避けるため7室にする。上段3室(居間・寝室・台所)を廊下で繋ぎ、下段は
-// 玄関を広く取り、右下の幅4の小ブロックへ浴室(上)とトイレ(下)を寄せる。田の字と違い水回りが別室で、かつ小さい。
+// 玄関は建物の街路側の左上角に置く。市街地の街路は北辺・西辺にあり入口は北か西へ開くので、両辺に接する
+// 左上角へ玄関を置けば、どちらの向きの入口も必ず玄関へスナップして開く。玄関を奥に置くと入口が玄関でない
+// 部屋へ開いて不自然になる退行を、角固定で防ぐ。鏡像は玄関を右上へ動かし西入口で崩れるので中型では使わない。
+// かわりに横廊下・縦廊下の2骨格で構造の変化を出す。
+
+// PlanHouseMid は横廊下の中型民家。玄関を左上角に置き、上段(玄関・居間・台所)を全幅の横廊下で繋ぎ、下段は
+// 寝室を広く取り右下の幅4の小ブロックへ浴室(上)とトイレ(下)を寄せる。水回りは小さく、入口は必ず玄関へ開く。
 func PlanHouseMid(footprint Rect, seed uint64) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
 	// 上段の底 兼 廊下の上壁。下段が水回りを上下2室へ割れる高さ(内側1以上ずつ)を残すよう bottom-6 で上限
-	topBot := min(jitterSplit(seed, 20, y0+h*10/20), bottom-6)
+	topBot := min(jitterSplit(seed, 20, y0+h*9/20), bottom-6)
 	corrBot := topBot + 2 // 廊下の底。内側高1の通路
 
-	// 上段を縦線で3室に割る。分割線を clamp し、隣り合う2線が近づいて中列が潰れるのを防ぐ。各列が幅3以上
-	tc1 := clamp(jitterSplit(seed, 21, x0+w*2/5), x0+3, right-6)
-	tc2 := clamp(jitterSplit(seed, 22, x0+w*3/5), tc1+3, right-3)
-	wcX := right - wcBlockW + 1         // 水回り小ブロックの左壁。玄関はこの左を全高で占める
-	wcMid := (corrBot + bottom + 1) / 2 // 浴室(上)とトイレ(下)を割る
+	gRight := x0 + 4                                                  // 玄関の右壁。左上角の小玄関、幅5
+	tMid := clamp(jitterSplit(seed, 21, x0+w*2/3), gRight+3, right-3) // 上段の居間/台所の境
+	wcX := right - wcBlockW + 1                                       // 下段右端の水回り小ブロック左壁
+	wcMid := (corrBot + bottom + 1) / 2                               // 浴室(上)とトイレ(下)を割る
 
 	rectOf := map[string]Rect{
-		"living":   {X: x0, Y: y0, W: tc1 - x0 + 1, H: topBot - y0 + 1},
-		"bedroom":  {X: tc1, Y: y0, W: tc2 - tc1 + 1, H: topBot - y0 + 1},
-		"kitchen":  {X: tc2, Y: y0, W: right - tc2 + 1, H: topBot - y0 + 1},
+		"genkan":   {X: x0, Y: y0, W: gRight - x0 + 1, H: topBot - y0 + 1},
+		"living":   {X: gRight, Y: y0, W: tMid - gRight + 1, H: topBot - y0 + 1},
+		"kitchen":  {X: tMid, Y: y0, W: right - tMid + 1, H: topBot - y0 + 1},
 		"corridor": {X: x0, Y: topBot, W: w, H: corrBot - topBot + 1},
-		"genkan":   {X: x0, Y: corrBot, W: wcX - x0, H: bottom - corrBot + 1},
+		"bedroom":  {X: x0, Y: corrBot, W: wcX - x0, H: bottom - corrBot + 1},
 		"bath":     {X: wcX, Y: corrBot, W: right - wcX + 1, H: wcMid - corrBot + 1},
 		"toilet":   {X: wcX, Y: wcMid, W: right - wcX + 1, H: bottom - wcMid + 1},
 	}
-	// 廊下が背骨。上段の居室と下段の玄関・浴室が面する。トイレは浴室の奥に nest する
+	// 廊下が背骨。玄関と上段の居室、下段の寝室・浴室が面する。トイレは浴室の奥に nest する
 	conns := [][2]string{
-		{"corridor", "living"}, {"corridor", "bedroom"}, {"corridor", "kitchen"},
-		{"corridor", "genkan"}, {"corridor", "bath"}, {"bath", "toilet"},
+		{"corridor", "genkan"}, {"corridor", "living"}, {"corridor", "kitchen"},
+		{"corridor", "bedroom"}, {"corridor", "bath"}, {"bath", "toilet"},
 	}
 	return wireHouse(rectOf, seed, conns, houseMidOrder)
 }
 
-// PlanHouseMidV は縦廊下の中型民家。左翼を寝室と居間、右翼を台所と、その下端の高さ4の小ブロックへ寄せた
-// 浴室・トイレにし、中央の縦廊下とその下端の玄関で繋ぐ7室。横型の PlanHouseMid と同じ部屋構成を縦廊下で示し、
-// 鏡像と合わせて間取りに変化を出す。水回りは右翼の隅の小ブロックに固定し、台所が上の余剰を吸って小さく保つ。
+// PlanHouseMidV は縦廊下の中型民家。玄関を左上角に置き、その下へ縦廊下を伸ばす。右側に居間・台所・寝室を縦に
+// 積み、右下の高さ4の小ブロックへ浴室(左)とトイレ(右)を寄せる。横型と骨格が違い、入口は必ず玄関へ開く。
 func PlanHouseMidV(footprint Rect, seed uint64) []PlannedRoom {
 	x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H
 	right, bottom := x0+w-1, y0+h-1
 
-	cxL := jitterSplit(seed, 30, x0+w*2/5) // 廊下の左壁
-	cxR := cxL + 2                         // 廊下の右壁。内側幅1の通路
-	genkanTop := bottom - 3                // 玄関を廊下の下端に置く
+	cxR := x0 + 3  // 左の縦廊下の右壁 兼 右エリアの左壁。廊下幅4、内側2。玄関も幅4になり、西入口のポーチの
+	gBot := y0 + 3 // 凹み1マスを吸っても入口が玄関の内側に残る。玄関の底。左上角の玄関 4x4
 
-	leftMid := jitterSplit(seed, 31, y0+h/2) // 左翼を寝室(上)と居間(下)に割る
-	wcTop := bottom - 3                      // 右翼下端の水回り小ブロックの上壁。高さ4に固定
-	wcMidX := cxR + (right-cxR+1)/2          // 浴室(左)とトイレ(右)を割る
+	// 居間の底。居間は上端 y0 から始まるが廊下は gBot から始まるので、居間が廊下と2マス以上重なって戸口を
+	// 開けるよう下限を gBot+3 にする。これを割ると居間が廊下と接せず孤立する。縦積みは建物高16以上で使う
+	r1 := clamp(jitterSplit(seed, 30, y0+h*1/3), gBot+3, bottom-8) // 右エリア 居間の底
+	r2 := clamp(jitterSplit(seed, 31, y0+h*2/3), r1+4, bottom-5)   // 右エリア 台所の底 兼 下段の上壁
+	wcX := right - wcBlockW + 1                                    // 下段右端の水回り小ブロック左壁
+	wcMid := (r2 + bottom + 1) / 2                                 // 浴室(上)とトイレ(下)を割る
 
 	rectOf := map[string]Rect{
-		"bedroom":  {X: x0, Y: y0, W: cxL - x0 + 1, H: leftMid - y0 + 1},
-		"living":   {X: x0, Y: leftMid, W: cxL - x0 + 1, H: bottom - leftMid + 1},
-		"corridor": {X: cxL, Y: y0, W: cxR - cxL + 1, H: genkanTop - y0 + 1},
-		"genkan":   {X: cxL, Y: genkanTop, W: cxR - cxL + 1, H: bottom - genkanTop + 1},
-		"kitchen":  {X: cxR, Y: y0, W: right - cxR + 1, H: wcTop - y0},
-		"bath":     {X: cxR, Y: wcTop, W: wcMidX - cxR, H: bottom - wcTop + 1},
-		"toilet":   {X: wcMidX, Y: wcTop, W: right - wcMidX + 1, H: bottom - wcTop + 1},
+		"genkan":   {X: x0, Y: y0, W: cxR - x0 + 1, H: gBot - y0 + 1},
+		"corridor": {X: x0, Y: gBot, W: cxR - x0 + 1, H: bottom - gBot + 1},
+		"living":   {X: cxR, Y: y0, W: right - cxR + 1, H: r1 - y0 + 1},
+		"kitchen":  {X: cxR, Y: r1, W: right - cxR + 1, H: r2 - r1 + 1},
+		"bedroom":  {X: cxR, Y: r2, W: wcX - cxR, H: bottom - r2 + 1},
+		"bath":     {X: wcX, Y: r2, W: right - wcX + 1, H: wcMid - r2 + 1},
+		"toilet":   {X: wcX, Y: wcMid, W: right - wcX + 1, H: bottom - wcMid + 1},
 	}
-	// 廊下が背骨。左翼の寝室・居間、右翼の台所、下端の玄関が面する。浴室は台所の奥、トイレは浴室の隣に nest
+	// 縦廊下が背骨。玄関と、左壁で廊下に面する居間・台所・寝室が繋がる。浴室は寝室の隣、トイレは浴室の奥に nest
 	conns := [][2]string{
-		{"corridor", "genkan"}, {"corridor", "bedroom"}, {"corridor", "living"},
-		{"corridor", "kitchen"}, {"kitchen", "bath"}, {"bath", "toilet"},
+		{"corridor", "genkan"}, {"corridor", "living"}, {"corridor", "kitchen"},
+		{"corridor", "bedroom"}, {"bedroom", "bath"}, {"bath", "toilet"},
 	}
 	return wireHouse(rectOf, seed, conns, houseMidOrder)
 }
 
-// houseVariantsMid は中型民家の間取りプランナ一覧。横廊下・縦廊下とその左右反転で4型。分割比のジッタと
-// 合わさり、同じ型でも seed ごとに部屋サイズが変わる。本番の建物サイズではこの中型を使う。
+// houseVariantsMid は中型民家の間取りプランナ一覧。横廊下・縦廊下の2骨格。玄関を左上角に固定するため鏡像は
+// 使わず、骨格の違いと分割比のジッタで seed ごとに間取りを変える。本番の建物サイズではこの中型を使う。
 var houseVariantsMid = []func(Rect, uint64) []PlannedRoom{
 	PlanHouseMid,
 	PlanHouseMidV,
-	func(f Rect, s uint64) []PlannedRoom { return mirrorHouse(f, PlanHouseMid(f, s)) },
-	func(f Rect, s uint64) []PlannedRoom { return mirrorHouse(f, PlanHouseMidV(f, s)) },
 }
 
 // PlanHouseCompact は狭い footprint 向けの小さな民家。廊下型の10室は 24x16 未満に入らないので、居間・
@@ -312,9 +314,14 @@ func PlanHouseAny(footprint Rect, seed uint64) []PlannedRoom {
 	case footprint.W >= 24 && footprint.H >= 16:
 		v := houseVariants[int(childSeed(seed, 0)%uint64(len(houseVariants)))]
 		return v(footprint, seed)
-	case footprint.W >= 14 && footprint.H >= 13:
+	case footprint.W >= 14 && footprint.H >= 16:
+		// 縦積みの MidV は右エリアに居間・台所・寝室・水回りを縦に積むので建物高16以上が要る。高い建物では
+		// 横型と縦型を seed で選び、骨格の違いで間取りを変える
 		v := houseVariantsMid[int(childSeed(seed, 0)%uint64(len(houseVariantsMid)))]
 		return v(footprint, seed)
+	case footprint.W >= 14 && footprint.H >= 13:
+		// 低い建物は縦積みが入らないので横廊下の中型に限る
+		return PlanHouseMid(footprint, seed)
 	default:
 		return PlanHouseCompact(footprint, seed)
 	}
