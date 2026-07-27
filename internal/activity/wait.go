@@ -69,6 +69,13 @@ func (wa *WaitActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 
 // DoTurn は待機アクティビティの1ターン分の処理を実行する
 func (wa *WaitActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	// 長い待機は敵が近づいたら中断する。1ターンのターン送りとAIの手番調整は
+	// その場で完結する行動なので対象にしない
+	if comp.TurnsTotal > 1 && !isAreaSafe(actor, world) {
+		Cancel(comp, "周囲に敵がいるため待機を中断")
+		return nil
+	}
+
 	// 環境を観察
 	wa.observeEnvironment(comp, actor, world)
 

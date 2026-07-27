@@ -2,6 +2,7 @@ package systems
 
 import (
 	"math/rand/v2"
+	"slices"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/activity"
@@ -161,13 +162,7 @@ func TestTurnSystem_隊員が分解産出を拾いに来る(t *testing.T) {
 		}
 		require.NoError(t, runCoordFrame(world))
 		names := fieldItemNames(world)
-		found := false
-		for _, n := range names {
-			if n == "硬木" {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(names, "硬木")
 		if !found {
 			picked = true
 			break

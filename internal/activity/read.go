@@ -101,8 +101,14 @@ func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 	return nil
 }
 
-// DoTurn は読書アクティビティの1ターン分の処理を実行する
+// DoTurn は読書アクティビティの1ターン分の処理を実行する。
+// スタック統合などで本エンティティが消えている可能性があるため、毎ターン先頭で生存を確認する
 func (ra *ReadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if !world.ECS.Alive(*comp.Target) {
+		Cancel(comp, "本が消えたため中断")
+		return nil
+	}
+
 	// 安全性チェック
 	if !isAreaSafe(actor, world) {
 		Cancel(comp, "周囲に敵がいるため読書を中断")
@@ -145,6 +151,10 @@ func (ra *ReadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish は読書完了時の処理を実行する
 func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if !world.ECS.Alive(*comp.Target) {
+		return nil
+	}
+
 	book := ra.getBook(*comp.Target, world)
 	name := query.GetEntityName(*comp.Target, world)
 
@@ -163,17 +173,20 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	return nil
 }
 
-// Canceled は読書キャンセル時の処理を実行する
+// Canceled は読書キャンセル時の処理を実行する。
+// 本が消えたことによる中断もあるため、名前は本が残っている場合だけ出す
 func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	name := query.GetEntityName(*comp.Target, world)
-
 	if world.Components.Player.Has(actor) {
+		message := "読書を中断した"
+		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
+			message = fmt.Sprintf("「%s」の読書を中断した", query.GetEntityName(*comp.Target, world))
+		}
 		gamelog.New(query.GetGameLog(world)).
-			Append(fmt.Sprintf("「%s」の読書を中断した", name)).
+			Append(message).
 			Log()
 	}
 
-	log.Debug("読書中断", "reason", comp.CancelReason, "book", name)
+	log.Debug("読書中断", "reason", comp.CancelReason)
 	return nil
 }
 

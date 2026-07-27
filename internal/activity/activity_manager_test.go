@@ -201,10 +201,13 @@ func TestProcessContinuousActivities(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
+	// 長い待機の敵接近チェックは位置を前提とするため、実際のアクターと同様に座標を与える
 	actor1 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor1, &gc.TurnBased{})
+	world.Components.GridElement.Add(actor1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	actor2 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
+	world.Components.GridElement.Add(actor2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 
 	// 短いアクティビティと長いアクティビティを開始
 	shortComp, err := NewActivity(&WaitActivity{}, 2) // 2ターンで完了
