@@ -47,7 +47,10 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateDisassemblyReferences(raws); err != nil {
 		return err
 	}
-	return validateDropTableReferences(raws)
+	if err := validateDropTableReferences(raws); err != nil {
+		return err
+	}
+	return validateCommandTableReferences(raws)
 }
 
 // validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する
@@ -118,11 +121,33 @@ func validateDropTableReferences(raws oapi.Raws) error {
 
 	members := PtrSlice(raws.Members)
 	for i := range members {
-		if members[i].DropTableName == nil {
+		// 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
+		if members[i].DropTableName == nil || *members[i].DropTableName == "" {
 			continue
 		}
 		if _, ok := tableNames[*members[i].DropTableName]; !ok {
 			return fmt.Errorf("メンバー '%s' のドロップテーブル '%s' が定義に存在しません", members[i].Name, *members[i].DropTableName)
+		}
+	}
+	return nil
+}
+
+// validateCommandTableReferences はメンバーの commandTableName がテーブル定義に存在することを検証する
+func validateCommandTableReferences(raws oapi.Raws) error {
+	commandTables := PtrSlice(raws.CommandTables)
+	tableNames := make(map[string]struct{}, len(commandTables))
+	for i := range commandTables {
+		tableNames[commandTables[i].Name] = struct{}{}
+	}
+
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		// 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
+		if members[i].CommandTableName == nil || *members[i].CommandTableName == "" {
+			continue
+		}
+		if _, ok := tableNames[*members[i].CommandTableName]; !ok {
+			return fmt.Errorf("メンバー '%s' のコマンドテーブル '%s' が定義に存在しません", members[i].Name, *members[i].CommandTableName)
 		}
 	}
 	return nil

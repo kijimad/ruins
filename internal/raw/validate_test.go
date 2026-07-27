@@ -173,12 +173,14 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		minSkill := oapi.SkillLevel(10)
-		items := append([]oapi.Item{}, *validItems...)
-		items[1].Disassembly = &oapi.Disassembly{
-			ToolCategory: oapi.Precision,
-			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: &minSkill}},
+		items := []oapi.Item{
+			{Name: "鉄くず"},
+			{Name: "分解対象", Disassembly: &oapi.Disassembly{
+				ToolCategory: oapi.Precision,
+				BaseAP:       100,
+				Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: &minSkill}},
+			}},
 		}
 		raws := oapi.Raws{Items: &items}
 		err := validateDisassemblyReferences(raws)
@@ -230,6 +232,37 @@ func TestValidateDropTableReferences(t *testing.T) {
 			Members: &[]oapi.Member{{Name: "スライム", DropTableName: &tableName}},
 		}
 		err := validateDropTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義テーブル")
+		require.ErrorContains(t, err, "スライム")
+	})
+}
+
+func TestValidateCommandTableReferences(t *testing.T) {
+	t.Parallel()
+
+	t.Run("実在するテーブル名と未指定と空文字は通る", func(t *testing.T) {
+		t.Parallel()
+		empty := oapi.EntityName("")
+		tableName := oapi.EntityName("素手")
+		raws := oapi.Raws{
+			CommandTables: &[]oapi.CommandTable{{Name: "素手"}},
+			Members: &[]oapi.Member{
+				{Name: "戦うNPC", CommandTableName: &tableName},
+				{Name: "未指定NPC"},
+				{Name: "空文字NPC", CommandTableName: &empty},
+			},
+		}
+		require.NoError(t, validateCommandTableReferences(raws))
+	})
+
+	t.Run("テーブル名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		tableName := oapi.EntityName("未定義テーブル")
+		raws := oapi.Raws{
+			Members: &[]oapi.Member{{Name: "スライム", CommandTableName: &tableName}},
+		}
+		err := validateCommandTableReferences(raws)
 		require.Error(t, err)
 		require.ErrorContains(t, err, "未定義テーブル")
 		require.ErrorContains(t, err, "スライム")

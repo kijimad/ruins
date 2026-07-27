@@ -425,18 +425,21 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Player = &gc.Player{}
 	}
 
+	// テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
 	if member.CommandTableName != nil && *member.CommandTableName != "" {
 		ct, err := GetCommandTable(raws, *member.CommandTableName)
-		if err == nil {
-			entitySpec.CommandTable = &gc.CommandTable{Name: ct.Name}
+		if err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のコマンドテーブル取得に失敗: %w", name, err)
 		}
+		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Name}
 	}
 
 	if member.DropTableName != nil && *member.DropTableName != "" {
 		dt, err := GetDropTable(raws, *member.DropTableName)
-		if err == nil {
-			entitySpec.DropTable = &gc.DropTable{Name: dt.Name}
+		if err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のドロップテーブル取得に失敗: %w", name, err)
 		}
+		entitySpec.DropTable = &gc.DropTable{Name: dt.Name}
 	}
 
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
