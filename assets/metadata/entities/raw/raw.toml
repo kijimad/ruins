@@ -12778,6 +12778,12 @@ depth = 2
 spriteKey = "wooden_bookshelf"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 2
+
 [[props]]
 blockPass = false
 blockView = false
@@ -12887,6 +12893,12 @@ depth = 2
 spriteKey = "closet"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 3
+
 [[props]]
 blockPass = false
 blockView = false
@@ -12972,6 +12984,12 @@ depth = 2
 spriteKey = "dish_shelf"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 3
+
 [[props]]
 blockPass = true
 blockView = false
@@ -13007,6 +13025,12 @@ name = "drawer_chest"
 depth = 2
 spriteKey = "drawer_chest"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 3
 
 [[props]]
 blockPass = true
@@ -13103,6 +13127,12 @@ name = "goods_shelf"
 depth = 2
 spriteKey = "goods_shelf"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 2
+lootCountMax = 5
 
 [[props]]
 blockPass = true
@@ -13330,6 +13360,12 @@ depth = 2
 spriteKey = "refrigerator"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 3
+
 [[props]]
 blockPass = true
 blockView = false
@@ -13341,6 +13377,12 @@ name = "register"
 depth = 2
 spriteKey = "register"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 2
 
 [[props]]
 blockPass = true
@@ -13531,6 +13573,12 @@ name = "ドレッサー"
 depth = 2
 spriteKey = "dresser"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 3
 
 [[props]]
 blockPass = false
@@ -14217,6 +14265,12 @@ name = "medicine_cabinet"
 depth = 0
 spriteKey = "medicine_cabinet"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 3
 
 [[props]]
 blockPass = true

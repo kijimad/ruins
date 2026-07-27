@@ -1,14 +1,50 @@
 package overworld
 
 import (
+	"math/rand/v2"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// countStoredItems は収納に入っているアイテムの数を返す。LocationInStorage を持つエンティティを数える。
+func countStoredItems(world w.World) int {
+	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+	n := 0
+	for q.Next() {
+		n++
+	}
+	return n
+}
+
+// TestPopulateStorageLoot_収納家具に戦利品が入る は収納 loot の配線を固定する。収納 prop(押入れ)には ruins の
+// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。CDDA の SUS_* 相当を ruins 既存の
+// DropTable/ItemTable 機構で実現していることを守る。
+func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	rng := rand.New(rand.NewPCG(1, 0x4))
+
+	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
+	require.NoError(t, err)
+	require.NoError(t, populateStorageLoot(world, closet, "closet", rng))
+	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が1つ以上入る")
+
+	before := countStoredItems(world)
+	candle, err := lifecycle.SpawnProp(world, "candle", 1, 1)
+	require.NoError(t, err)
+	require.NoError(t, populateStorageLoot(world, candle, "candle", rng))
+	assert.Equal(t, before, countStoredItems(world), "収納でない蝋燭は戦利品を入れない")
+}
 
 // TestInteriorPropRaw_全施設の家具refが写像を持つ は、施設 content が生む家具が in-game で無言に欠落
 // しないことを守る。各施設種別を Furnish し、KindFurniture の Ref がすべて 写像 PropRawName にあることを
