@@ -81,6 +81,14 @@ var spriteFiles = map[string]string{
 	// lot pass。敷地の塀と前庭の自販機
 	"fence":   "fence_",
 	"vending": "vending_machine_",
+	// hero 部屋の目玉 landmark
+	"chest":      "wood_chest_",
+	"torii":      "torii_small_",
+	"phonograph": "phonograph_",
+	"komainu":    "komainu_",
+	"pillar":     "stone_pillar_",
+	"cage":       "cage_",
+	"poison":     "barrel_poison_",
 }
 
 // spriteFileOf は配置の Ref に対応するスプライト名を返す。表に無ければ空を返し、背景描画に委ねる。

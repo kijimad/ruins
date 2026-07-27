@@ -43,6 +43,14 @@ var propRaw = map[string]string{
 	// lot pass。敷地を囲う塀と前庭の外構。塀は仮画像、自販機は実物
 	"fence":   "fence",
 	"vending": "vending_machine",
+	// hero 部屋の目玉。稀な1棟の主室に据える landmark。すべて実在の prop
+	"chest":      "wood_chest",
+	"torii":      "torii_small",
+	"phonograph": "phonograph",
+	"komainu":    "komainu",
+	"pillar":     "stone_pillar",
+	"cage":       "cage",
+	"poison":     "毒樽",
 }
 
 // PropRawName は Ref に対応する raw prop 名と、それが in-game に spawn されるかを返す。overworld の spawn と

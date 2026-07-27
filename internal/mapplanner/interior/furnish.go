@@ -32,7 +32,7 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 		fl := a
 		// flavor と散らかりは到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が
 		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
-		if hr.Role != "corridor" && !isNarrowRoom(hr.Room.Rect) {
+		if hr.Role != roleCorridor && !isNarrowRoom(hr.Room.Rect) {
 			fl = Flavor(roomSeed, hr.Room, a, facilityFlavor(facility))
 			// 散らかりの小物を家具の隣へ落とし、生活感を足す。整頓の建物では何も足さない
 			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter, hr.Role)
@@ -47,6 +47,12 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 	flavored = append(flavored, facade...)
 	// lot pass。敷地を塀で囲い門で開け、前庭に外構を置く。建物を裸で地面に置かない
 	flavored = append(flavored, lotElements(site, facility)...)
+	// hero 部屋。稀な1棟の主室中央へ landmark を1つ据え、記憶に残る見せ場にする
+	if ref, ok := heroCenterpiece(seed); ok {
+		if pos, ok := heroSpot(site); ok {
+			flavored = append(flavored, Placed{Kind: KindDecor, Ref: ref, Pos: pos})
+		}
+	}
 	return site, []FurnishStage{
 		{Label: "1 plan", Placed: nil},
 		{Label: "2 fill", Placed: fill},
@@ -57,6 +63,9 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 
 // roleMain は主室の役割名。売場・待合など施設の顔の部屋。BSP フォールバックは面積最大をこれにする。
 const roleMain = "main"
+
+// roleCorridor は廊下の役割名。通路として空け、フレーバーや hero の目玉を置かない。
+const roleCorridor = "corridor"
 
 // isNarrowRoom は部屋の内側が幅1以下の通路状かを返す。1マス幅の廊下や薄い水回りにフレーバーを置くと
 // 唯一の歩行帯を塞ぐので、その判定に使う。

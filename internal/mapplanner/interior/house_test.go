@@ -105,7 +105,7 @@ func TestPlanHouseAny_seedで型が選ばれ両方出る(t *testing.T) {
 		plan := PlanHouseAny(footprint, seed)
 		assert.Truef(t, allRoomsConnected(houseRooms(plan)), "seed=%d の家は連結する", seed)
 		for _, hr := range plan {
-			if hr.Role != "corridor" {
+			if hr.Role != roleCorridor {
 				continue
 			}
 			if hr.Room.Rect.W > hr.Room.Rect.H {
