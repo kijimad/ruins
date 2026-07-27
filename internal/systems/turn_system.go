@@ -30,7 +30,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 		// プレイヤーが継続アクション中かチェック
 		if processPlayerContinuousActivity(world) {
 			// 継続アクションの1ステップを1ゲームターンとして扱い、AIフェーズへ渡す。
-			// これでアクティビティ中も敵・NPC・時間が同じ速さで進み、
+			// アクティビティ中も敵・NPC・時間が同じ速さで進み、
 			// 敵接近による中断判定が毎ターン意味を持つ
 			turnState.Phase = gc.TurnPhaseAI
 			return nil
