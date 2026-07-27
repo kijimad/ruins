@@ -41,7 +41,7 @@ func TestClassifyRoom_多seedで店と診療所は役割どおりに見える(t 
 	t.Parallel()
 
 	for seed := range uint64(50) {
-		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), storeContent()))
+		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), storeContent()), dmgMinor)
 		assert.Equalf(t, "store", classifyRoom(store), "seed=%d の店は店に見える", seed)
 
 		clinic := FillRoom(seed, clinicRoom(), clinicContent())

@@ -31,10 +31,10 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 	counts := make(map[int]bool)
 	aged, pristine := false, false
 	for seed := range uint64(30) {
-		if buildingAged(seed) {
-			aged = true
-		} else {
+		if rollProfile(seed).damage == dmgIntact {
 			pristine = true
+		} else {
+			aged = true
 		}
 		n := 0
 		for _, p := range Furnish(seed, footprint, door, "store") {
@@ -45,8 +45,8 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 		counts[n] = true
 	}
 	assert.GreaterOrEqual(t, len(counts), 3, "密度と抽選で家具数が建物ごとにばらつく")
-	assert.True(t, aged, "経年した建物が出る")
-	assert.True(t, pristine, "手つかずの建物も出る")
+	assert.True(t, aged, "損傷した建物が出る")
+	assert.True(t, pristine, "無傷の建物も出る")
 }
 
 // TestFacilityContent_seedで店の変種が変わる は content 変種の抽選を固定する。seed を振ると同じ店でも

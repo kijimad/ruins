@@ -6,18 +6,26 @@ package interior
 //
 // 略奪は anchor 温存・衛星欠損で表す。構造(家具)を残し中身(戦利品)を欠くと、部屋の可読性を保ったまま
 // 「荒らされた」を出せる。廃墟化は瓦礫を撒くが、瓦礫は装飾で通行は阻まないので到達性は保たれる。
-func Age(seed uint64, room Room, placed []Placed) []Placed {
-	placed = applyLooting(childSeed(seed, 1), placed)
+func Age(seed uint64, room Room, placed []Placed, dmg damageLevel) []Placed {
+	if dmg == dmgIntact {
+		return placed // 無傷の建物は新品のまま経年を掛けない
+	}
+	// 損傷レベルで強度を変える。大破は略奪と瓦礫が増える
+	lootPct, decayThresh := 45, 0.10
+	if dmg == dmgMajor {
+		lootPct, decayThresh = 70, 0.20
+	}
+	placed = applyLooting(childSeed(seed, 1), placed, lootPct)
 	placed = applyWear(childSeed(seed, 2), room, placed)
-	placed = applyDecay(childSeed(seed, 3), room, placed)
+	placed = applyDecay(childSeed(seed, 3), room, placed, decayThresh)
 	return placed
 }
 
-// applyLooting は戦利品の一部を撤去する。家具(anchor)は残し戦利品(衛星)を欠かせる。
-func applyLooting(seed uint64, placed []Placed) []Placed {
+// applyLooting は戦利品の一部を撤去する。家具(anchor)は残し戦利品(衛星)を欠かせる。pct は撤去率。
+func applyLooting(seed uint64, placed []Placed, pct int) []Placed {
 	out := make([]Placed, 0, len(placed))
 	for i, p := range placed {
-		if p.Kind == KindLoot && dropChance(seed, i, 55) {
+		if p.Kind == KindLoot && dropChance(seed, i, pct) {
 			continue
 		}
 		out = append(out, p)
@@ -47,11 +55,11 @@ func applyWear(seed uint64, room Room, placed []Placed) []Placed {
 
 // applyDecay は廃墟化。壁際の露出が高いタイルに瓦礫の種を撒き、固定K世代の CA で近傍へ伝播させ、
 // しきい値で瓦礫を置く。反復手法を固定手数へ還元した決定的な崩壊伝播。瓦礫は装飾で通行を阻まない。
-func applyDecay(seed uint64, room Room, placed []Placed) []Placed {
+func applyDecay(seed uint64, room Room, placed []Placed, seedThresh float64) []Placed {
 	rubble := make(map[Vec]bool)
-	// 種。壁際 かつ hash が低いタイル。露出の高い縁から朽ちる
+	// 種。壁際 かつ hash が低いタイル。露出の高い縁から朽ちる。seedThresh が高いほど瓦礫が広がる
 	for _, t := range room.Rect.interiorTiles() {
-		if nextToPerimeter(room.Rect, t) && norm01(hashTile(seed, t)) < 0.14 {
+		if nextToPerimeter(room.Rect, t) && norm01(hashTile(seed, t)) < seedThresh {
 			rubble[t] = true
 		}
 	}

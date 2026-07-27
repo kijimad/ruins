@@ -17,14 +17,15 @@ const (
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
 // facilityContent の変種・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
 func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
+	prof := rollProfile(seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
-	placed := FillRoom(seed, room, facilityContent(facility, seed))
-	// 時間の層。経年した建物だけ略奪・生活痕・廃墟化で瓦礫や破片を刻む。手つかずの建物は新品のまま
-	if buildingAged(seed) {
-		placed = Age(seed, room, placed)
-	}
+	placed := FillRoom(seed, room, applyDensity(facilityContent(facility, seed), prof.density))
+	// 時間の層。損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷の建物は新品のまま
+	placed = Age(seed, room, placed, prof.damage)
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
-	return Flavor(seed, room, placed, facilityFlavor(facility))
+	placed = Flavor(seed, room, placed, facilityFlavor(facility))
+	// 散らかりの小物を空き床へ撒き、生活感を足す
+	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter)
 }
 
 // facilityContent は施設種別名から内装 content を1つ引く。同じ施設種別でも複数の変種を持ち、seed で
@@ -32,8 +33,7 @@ func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
 // 組み替えだけでデータを足さずに増やす。変種の seed は本体生成と別枠にして相関を避ける。
 func facilityContent(facility string, seed uint64) Content {
 	variants := facilityVariants(facility)
-	c := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
-	return scaleDensity(c, seed)
+	return variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
 }
 
 // facilityVariants は施設種別ごとの内装変種の一覧。骨董品店は商店、研究施設は診療所へ寄せ、未知は汎用に
@@ -57,20 +57,11 @@ func facilityVariants(facility string) []Content {
 	}
 }
 
-// buildingAged は建物が経年しているかを seed で決める。多くは荒れているが、時々手つかずの建物がある。
-// 損傷を建物ごとの独立軸にし、全建物が一律に廃墟化して単調になるのを避ける。
-func buildingAged(seed uint64) bool {
-	// pristine 1 : aged 2。3棟に1棟は新品同様
-	return childSeed(seed, 11_000_000)%3 != 0
-}
-
-// scaleDensity は建物の家具量を密度プロファイルで増減する。疎・普通・密を seed で引き、家具の個数を掛ける。
-// 個数1の必須什器は1を保ち、詰め物の棚だけが増減する。密度プロファイルを直交軸にして、同じ内装でも
-// がらんとした店と品で埋まった店を出し分ける。
-func scaleDensity(c Content, seed uint64) Content {
-	factors := []int{6, 10, 14} // ×/10。疎・普通・密
-	f := factors[int(childSeed(seed, 10_000_000)%uint64(len(factors)))]
-	if f == 10 {
+// applyDensity は content の家具量を密度係数 factor(×/10)で増減する。個数1の必須什器は1を保ち、詰め物の
+// 棚だけが増減する。密度は buildingProfile が建物ごとに引く直交軸で、同じ内装でもがらんとした店と品で
+// 埋まった店を出し分ける。factor==10 は等倍で素通し。
+func applyDensity(c Content, factor int) Content {
+	if factor == 10 {
 		return c
 	}
 	for gi := range c.Groups {
@@ -79,8 +70,8 @@ func scaleDensity(c Content, seed uint64) Content {
 			if it.Kind != KindFurniture {
 				continue // 家具だけ密度を変える。戦利品・装飾はそのまま
 			}
-			it.Amount.Base = scaleAmount(it.Amount.Base, f)
-			it.Amount.Bonus = scaleAmount(it.Amount.Bonus, f)
+			it.Amount.Base = scaleAmount(it.Amount.Base, factor)
+			it.Amount.Bonus = scaleAmount(it.Amount.Bonus, factor)
 		}
 	}
 	return c

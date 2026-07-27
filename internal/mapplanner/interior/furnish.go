@@ -20,21 +20,22 @@ type FurnishStage struct {
 func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site, []FurnishStage) {
 	site := planSite(footprint, seed, door, facility)
 
-	aged := buildingAged(seed) // 経年は建物ごとに1つ。全室が揃って新品か廃墟になる
+	prof := rollProfile(seed) // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
 	var fill, decayed, flavored []Placed
 	for i := range site.Rooms {
 		hr := site.Rooms[i]
 		roomSeed := childSeed(seed, 300+i)
-		f := FillRoom(roomSeed, hr.Room, roleContent(facility, hr.Role, seed))
-		a := f
-		if aged {
-			a = Age(roomSeed, hr.Room, f)
-		}
+		// 密度は全室へ一様に効かせる。同じ内装でもがらんとした家と物で埋まった家を出し分ける
+		f := FillRoom(roomSeed, hr.Room, applyDensity(roleContent(facility, hr.Role, seed), prof.density))
+		// 損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷なら素通し
+		a := Age(roomSeed, hr.Room, f, prof.damage)
 		fl := a
-		// flavor は到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が1マス幅しか
-		// ない狭室にはフレーバーを足さない。通路を蝋燭や絨毯で埋めない
+		// flavor と散らかりは到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が
+		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
 		if hr.Role != "corridor" && !isNarrowRoom(hr.Room.Rect) {
 			fl = Flavor(roomSeed, hr.Room, a, facilityFlavor(facility))
+			// 散らかりの小物を空き床へ撒き、生活感を足す。整頓の建物では何も足さない
+			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter)
 		}
 		fill = append(fill, f...)
 		decayed = append(decayed, a...)
