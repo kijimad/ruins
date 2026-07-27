@@ -52,7 +52,8 @@ func facadeAt(a, fixed int, horiz bool, ref string) Placed {
 }
 
 // frontSide は建物が footprint から内寄せされた辺、すなわち街路に面する前面の辺を返す。insetBuilding は入口側の
-// 一辺だけ内寄せするので、footprint と縁がずれた辺がちょうど1つある。内寄せが無い建物は北を既定にする。
+// 一辺だけ内寄せするので、footprint と縁がずれた辺がちょうど1つある。内寄せが無い建物は辺がずれないので、
+// 入口のある辺を前面にする。既定の一辺へ倒すと入口と逆の壁に窓や塀を付けてしまうため、doorSide で補う。
 func frontSide(s Site) side {
 	b, f := s.Building, s.Footprint
 	switch {
@@ -62,9 +63,10 @@ func frontSide(s Site) side {
 		return sideSouth
 	case b.X > f.X:
 		return sideWest
-	default:
+	case b.X+b.W < f.X+f.W:
 		return sideEast
 	}
+	return doorSide(b, s.Door)
 }
 
 // frontWallSpan は前壁のタイル列を、壁に沿う軸の範囲[lo,hi](角を除く)・固定座標 fixed・横方向かで返す。

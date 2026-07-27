@@ -47,10 +47,20 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 	flavored = append(flavored, facade...)
 	// lot pass。敷地を塀で囲い門で開け、前庭に外構を置く。建物を裸で地面に置かない
 	flavored = append(flavored, lotElements(site, facility)...)
-	// hero 部屋。稀な1棟の主室中央へ landmark を1つ据え、記憶に残る見せ場にする
+	// hero 部屋。稀な1棟の主室中央へ landmark を1つ据え、記憶に残る見せ場にする。主室中央には食卓など
+	// 中央配置の什器が既にあることが多いので、目玉は showpiece としてそのタイルの既存 prop を退けて1つだけ
+	// 置き、スプライトの重なりを防ぐ。占有は1タイルのままなので歩行性は変わらない
 	if ref, ok := heroCenterpiece(seed); ok {
 		if pos, ok := heroSpot(site); ok {
-			flavored = append(flavored, Placed{Kind: KindDecor, Ref: ref, Pos: pos})
+			kept := flavored[:0]
+			for _, p := range flavored {
+				if p.Pos == pos {
+					continue
+				}
+				kept = append(kept, p)
+			}
+			kept = append(kept, Placed{Kind: KindDecor, Ref: ref, Pos: pos})
+			flavored = kept
 		}
 	}
 	return site, []FurnishStage{
@@ -109,10 +119,10 @@ func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) 
 }
 
 // facilityPlanner は施設種別に対応する間取りテンプレと、テンプレが破綻しない最小寸法を返す。本番の市街地
-// チャンク(20x20)が生む建物は前庭ぶん内寄せして ~14x12 と狭いので、下限を 12x9 まで下げ、その狭さでも
-// 施設テンプレを発火させる。民家は 24x16 未満なら PlanHouseAny が田の字のコンパクト民家へ切り替える。店・
-// 診療所は部屋数が少ないので狭くても成立する。下限を下回る建物とテンプレの無い施設は BSP へ委ねる。
-// 骨董品店は店、研究施設は診療所のテンプレを共有する。
+// チャンク 24x24 が生む建物は街路と前庭ぶん内寄せして概ね 17〜20 タイル角なので、下限を 12x9 まで下げ、
+// その狭さでも施設テンプレを発火させる。民家は幅14・高さ13 のどちらかを欠くと PlanHouseAny が田の字の
+// コンパクト民家へ切り替える。店・診療所は部屋数が少ないので狭くても成立する。下限を下回る建物とテンプレの
+// 無い施設は BSP へ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
 func facilityPlanner(facility string) (fn func(Rect, uint64) []PlannedRoom, minW, minH int, ok bool) {
 	switch facility {
 	case facHouse:

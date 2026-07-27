@@ -6,7 +6,7 @@ package interior
 // docs/design/20260725_70.md 追記その5 収穫5・追記その16。
 
 // heroCenterpiece は建物が hero なら主室に据える目玉 prop の Ref を返す。大半の建物は hero でない。予算配分で
-// 報酬(宝箱)・雰囲気(鳥居や蓄音機の landmark)・リスクリワード(檻の中の獲物)・危険(毒樽)を引く。
+// 4種を引く。報酬は宝箱、雰囲気は鳥居や蓄音機の landmark、リスクリワードは檻の中の獲物、危険は毒樽。
 func heroCenterpiece(seed uint64) (string, bool) {
 	if childSeed(seed, 13_000_000)%12 != 0 {
 		return "", false // 12棟に1棟だけ見せ場を持つ。rare を孤立させる

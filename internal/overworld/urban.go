@@ -271,22 +271,32 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 	}
 	count := 1 + rng.IntN(int(size))
 	for range count {
-		lx := consts.Tile(rng.IntN(int(g.chunkW)))
-		ly := consts.Tile(rng.IntN(int(g.chunkH)))
 		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))
 		if err != nil {
 			return fmt.Errorf("市街地の敵抽選に失敗: %w", err)
 		}
-		pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}
-		if isWall(lx, ly) || occupied[pos] {
-			continue // 壁と家具の上は避ける。抽選は消費済みなので決定性は保たれる
-		}
-		if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {
-			return fmt.Errorf("市街地の敵配置に失敗: %w", err)
+		// 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて
+		// 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその
+		// 1体は諦める。抽選順は固定なので同じ seed なら同じ結果になる
+		for range urbanSpawnTries {
+			lx := consts.Tile(rng.IntN(int(g.chunkW)))
+			ly := consts.Tile(rng.IntN(int(g.chunkH)))
+			pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}
+			if isWall(lx, ly) || occupied[pos] {
+				continue
+			}
+			if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {
+				return fmt.Errorf("市街地の敵配置に失敗: %w", err)
+			}
+			break
 		}
 	}
 	return nil
 }
+
+// urbanSpawnTries は敵1体あたり街路の空きタイルを探す最大試行数。建物が footprint 全域を占有し有効タイルが
+// 減るので、数回の引き直しで目標数をほぼ満たせるだけの余裕を持たせる。
+const urbanSpawnTries = 24
 
 // tileIndex はチャンク生成中に地物が共有するタイルの座標引き索引。地物が壁や道を置換する
 // とき使う。最初に必要とした地物が全域スキャンで構築し、以降の地物は再利用する。壁を置かない

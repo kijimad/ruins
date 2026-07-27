@@ -104,7 +104,9 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		countMax = int(*propRaw.Storage.LootCountMax)
 	}
 	if countMin > countMax {
-		countMin = countMax
+		// min だけ設定され max が既定の1 のままだと、下限を切り捨ててしまう。設定された下限を尊重して
+		// max を min まで引き上げる
+		countMax = countMin
 	}
 	n := countMin
 	if countMax > countMin {
