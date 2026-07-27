@@ -13151,6 +13151,30 @@ spriteKey = "laundry"
 spriteSheetName = "field"
 
 [[props]]
+blockPass = false
+blockView = false
+description = "建物の外壁の窓。木枠にガラス。居室や店舗の正面。仮画像"
+hp = 15
+name = "window"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "window"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = true
+description = "閉じた金属シャッター。廃業した店舗の正面。仮画像"
+hp = 40
+name = "shutter"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "shutter"
+spriteSheetName = "field"
+
+[[props]]
 blockPass = true
 blockView = false
 description = "白い電子レンジ。前面に扉と操作パネル。台所や給湯"

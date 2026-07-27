@@ -74,6 +74,10 @@ var spriteFiles = map[string]string{
 	// 散らかりの小物。家具の脇に溜まる洗濯物・木箱。仮画像でない実在の prop スプライトを当てる
 	"laundry": "laundry_",
 	"crate":   "wooden_crate_",
+	// 外皮 FacadePass。前壁の窓・シャッターと店の看板
+	"window":  "window_",
+	"shutter": "shutter_",
+	"sign":    "wooden_sign_",
 }
 
 // spriteFileOf は配置の Ref に対応するスプライト名を返す。表に無ければ空を返し、背景描画に委ねる。

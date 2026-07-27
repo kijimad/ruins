@@ -36,6 +36,10 @@ var propRaw = map[string]string{
 	// 要るので今後
 	"laundry": "laundry",
 	"crate":   "crate",
+	// 外皮 FacadePass。街路側の前壁に付ける窓・シャッターと店の看板。窓とシャッターは仮画像
+	"window":  "window",
+	"shutter": "shutter",
+	"sign":    "wooden_sign",
 }
 
 // PropRawName は Ref に対応する raw prop 名と、それが in-game に spawn されるかを返す。overworld の spawn と

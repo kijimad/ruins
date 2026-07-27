@@ -41,6 +41,10 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 		decayed = append(decayed, a...)
 		flavored = append(flavored, fl...)
 	}
+	// 外皮 FacadePass。街路側の前壁へ窓・シャッター・看板を付け、閉じた箱を正面のある建物にする。損傷レベルで
+	// 廃業した店のシャッターを決める。壁の上に載る prop なので室内の充填とは別に足す
+	facade := facadeElements(site, facility, prof.damage)
+	flavored = append(flavored, facade...)
 	return site, []FurnishStage{
 		{Label: "1 plan", Placed: nil},
 		{Label: "2 fill", Placed: fill},
