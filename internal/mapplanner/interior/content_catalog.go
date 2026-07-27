@@ -179,7 +179,7 @@ func genericContent() Content {
 // facilityFlavor は建物へ足す flavor machine の Content。廃墟に残る生活の痕を PickOne で1つ選ぶので、
 // 建物ごとに絨毯か散らばった蝋燭のいずれかが出て単調にならない。蝋燭を輪に組む儀式の scene は宗教施設の
 // archetype が来たときに足す。今は宗教施設が無く、民家や店に儀式の輪が出ると意味をなさないので置かない。
-func facilityFlavor(facility string) Content {
+func facilityFlavor(facility FacilityKind) Content {
 	_ = facility // 施設別カタログは今後。まずは全施設に共通の廃墟の痕を置く
 	return Content{
 		ID: "flavor",
@@ -198,7 +198,7 @@ func facilityFlavor(facility string) Content {
 // houseRoomContents は民家の部屋役割ごとの content を役割名で引く表。PlanHouse が決めた役割へ中身を
 // 対応させる。廊下はほぼ空けて通路とし、玄関は下足入れと観葉、水回りは各機能の什器を置く。狭い部屋が
 // 多いので個数は控えめにする。VRT と in-game が同じ表を共有し、見た目と生成の乖離を防ぐ。
-func houseRoomContents() map[string]Content {
+func houseRoomContents() map[roleName]Content {
 	bedroom := Content{ID: "bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
 			bedSet(), // 寝床は常設。寝室の署名
@@ -212,7 +212,7 @@ func houseRoomContents() map[string]Content {
 			{Kind: KindFurniture, Ref: "bedside", Amount: Dice{Bonus: 1}},
 		}},
 	}}
-	return map[string]Content{
+	return map[roleName]Content{
 		"genkan": {ID: "genkan", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "getabako", Placement: PlaceWall, Amount: Dice{Bonus: 1}}, // 下駄箱は玄関の署名
@@ -284,8 +284,8 @@ func houseRoomContents() map[string]Content {
 
 // storeRoomContents は店の奥室の役割別 content。倉庫だけでなく、事務所・従業員トイレ・冷蔵庫室に作り分け、
 // 奥室が全部同じ樽の物置になる単調さを解く。什器は既存を流用し新しい語彙は要らない。
-func storeRoomContents() map[string]Content {
-	return map[string]Content{
+func storeRoomContents() map[roleName]Content {
+	return map[roleName]Content{
 		"storeroom": storageRoomContent(),
 		"office":    officeRoomContent(),
 		"restroom":  restroomContent(),
@@ -295,8 +295,8 @@ func storeRoomContents() map[string]Content {
 
 // clinicRoomContents は診療所の各室の役割別 content。待合を診察室と分け、薬局・トイレ・医師室に作り分け、
 // 奥室が全部同じ診察室になる単調さを解く。
-func clinicRoomContents() map[string]Content {
-	return map[string]Content{
+func clinicRoomContents() map[roleName]Content {
+	return map[roleName]Content{
 		"waiting":  waitingContent(),
 		"exam":     examRoomContent(),
 		"pharmacy": pharmacyRoomContent(),

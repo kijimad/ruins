@@ -73,23 +73,23 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 	t.Parallel()
 
 	cases := []struct {
-		facility string
-		roles    []string // このどれかが必ず出る施設固有の役割
+		facility FacilityKind
+		roles    []roleName // このどれかが必ず出る施設固有の役割
 	}{
-		{"store", []string{"storeroom", "office", "restroom", "coldroom"}},
-		{"clinic", []string{"exam", "pharmacy", "restroom", "office"}},
-		{"house", []string{"kitchen", "bedroom", "bath"}},
+		{"store", []roleName{"storeroom", "office", "restroom", "coldroom"}},
+		{"clinic", []roleName{"exam", "pharmacy", "restroom", "office"}},
+		{"house", []roleName{"kitchen", "bedroom", "bath"}},
 	}
 	for _, c := range cases {
 		for fp := 17; fp <= 20; fp++ { // 本番でテンプレが発火する footprint 範囲
 			for seed := range uint64(20) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				site, _ := FurnishBuilding(seed, footprint, Vec{X: fp / 2, Y: 0}, c.facility)
-				roles := map[string]int{}
+				roles := map[roleName]int{}
 				for _, r := range site.Rooms {
 					roles[r.Role]++
 				}
-				assert.NotContainsf(t, roles, "back", "%s fp=%d seed=%d はテンプレを使い BSP の back を出さない", c.facility, fp, seed)
+				assert.NotContainsf(t, roles, roleName("back"), "%s fp=%d seed=%d はテンプレを使い BSP の back を出さない", c.facility, fp, seed)
 				has := false
 				for _, r := range c.roles {
 					if roles[r] > 0 {
@@ -110,7 +110,7 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	t.Parallel()
 
-	for _, fac := range []string{"house", "store", "clinic"} {
+	for _, fac := range []FacilityKind{"house", "store", "clinic"} {
 		for fp := 17; fp <= 20; fp++ {
 			doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
 			for dside, door := range doors {
@@ -179,7 +179,7 @@ func TestFurnishBuilding_民家は浴室とトイレを持ち居間より小さ�
 			for seed := range uint64(30) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				site, _ := FurnishBuilding(seed, footprint, door, "house")
-				rect := map[string]Rect{}
+				rect := map[roleName]Rect{}
 				for _, hr := range site.Rooms {
 					rect[hr.Role] = hr.Room.Rect
 				}

@@ -4,19 +4,24 @@ package interior
 // 決める関数を持つ。content レシピそのものは content_catalog.go、束什器は fixtures.go、多部屋の加工パイプは
 // furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
 
-// 施設種別名。overworld の facilityType の文字列と揃える。switch の case で繰り返すので定数にする。
+// FacilityKind は建物の施設種別。overworld の facilityType の文字列と揃える。公開 API は overworld から
+// 素の string を受けて境界で FacilityKind へ変換し、内部はこの型で扱う。role など他の文字列と取り違えると
+// コンパイルが通らないよう型で区別する。
+type FacilityKind string
+
+// 施設種別名。switch の case で繰り返すので定数にする。
 const (
-	facHouse   = "house"
-	facStore   = "store"
-	facAntique = "antique"
-	facClinic  = "clinic"
-	facLab     = "lab"
+	facHouse   FacilityKind = "house"
+	facStore   FacilityKind = "store"
+	facAntique FacilityKind = "antique"
+	facClinic  FacilityKind = "clinic"
+	facLab     FacilityKind = "lab"
 )
 
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
 // facilityContent の変種・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
-func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
+func Furnish(seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
 	prof := rollProfile(seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
 	placed := FillRoom(seed, room, applyDensity(facilityContent(facility, seed), prof.density))
@@ -31,14 +36,14 @@ func Furnish(seed uint64, footprint Rect, door Vec, facility string) []Placed {
 // facilityContent は施設種別名から内装 content を1つ引く。同じ施設種別でも複数の変種を持ち、seed で
 // 引くことで同じ店が薬局にも食料品店にもなる。doc L694 の最優先「部屋アーキタイプ数」を、既存家具の
 // 組み替えだけでデータを足さずに増やす。変種の seed は本体生成と別枠にして相関を避ける。
-func facilityContent(facility string, seed uint64) Content {
+func facilityContent(facility FacilityKind, seed uint64) Content {
 	variants := facilityVariants(facility)
 	return variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
 }
 
 // facilityVariants は施設種別ごとの内装変種の一覧。骨董品店は商店、研究施設は診療所へ寄せ、未知は汎用に
 // する。変種を足すときはここへ Content を加えるだけでよい。レシピの実体は content_catalog.go にある。
-func facilityVariants(facility string) []Content {
+func facilityVariants(facility FacilityKind) []Content {
 	switch facility {
 	case facHouse:
 		return []Content{houseContent(), studioContent()}

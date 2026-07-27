@@ -8,7 +8,7 @@ package interior
 
 // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には
 // 店なら自販機、民家なら観葉を1つ置く。
-func lotElements(s Site, facility string) []Placed {
+func lotElements(s Site, facility FacilityKind) []Placed {
 	fside := frontSide(s)
 	lo, hi, edge := lotEdgeSpan(s.Footprint, fside)
 	doorAxis := edge.along(s.Door)

@@ -23,7 +23,7 @@ const wetBlockSide = 4
 // cell は帯の1室。key は矩形表の鍵、role は役割ラベル、weight は帯内の面積比。
 type cell struct {
 	key    string
-	role   string
+	role   roleName
 	weight int
 }
 
@@ -42,7 +42,7 @@ func newLayout(seed uint64) *layout {
 }
 
 // room は葉の部屋を1つ足す。
-func (l *layout) room(key, role string, r Rect) {
+func (l *layout) room(key string, role roleName, r Rect) {
 	l.rect[key] = r
 	l.order = append(l.order, roomRole{key: key, role: role})
 }

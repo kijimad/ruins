@@ -8,7 +8,7 @@ package interior
 // facadeElements は街路側の前壁に付ける外皮 prop を返す。前庭ぶん内寄せした建物の街路側の壁へ、入口と角を
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
-func facadeElements(s Site, facility string, dmg damageLevel) []Placed {
+func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
 	lo, hi, wall := frontWallSpan(s.Building, frontSide(s))
 	doorAxis := wall.along(s.Door)
 	winRef := "window"
@@ -38,7 +38,7 @@ func facadeElements(s Site, facility string, dmg damageLevel) []Placed {
 }
 
 // isShop は看板とシャッターを付ける店かを返す。骨董品店も店に含める。
-func isShop(facility string) bool { return facility == facStore || facility == facAntique }
+func isShop(facility FacilityKind) bool { return facility == facStore || facility == facAntique }
 
 // tileLine は1本の軸に沿ったタイル列。cross は列の固定座標、horiz は列が横方向すなわち X に沿うか。壁や敷地縁の
 // ように、固定座標と向きが常にセットで決まるものを1つの値にまとめる。along を渡すと列上の1タイルを返すので、

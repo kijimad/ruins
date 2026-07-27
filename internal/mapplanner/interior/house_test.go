@@ -55,11 +55,11 @@ func TestPlanHouse_玄関と廊下と水回りの小部屋を持つ(t *testing.T
 
 	plan := PlanHouseMid(midBuilding, 1)
 
-	area := map[string]int{}
+	area := map[roleName]int{}
 	for _, hr := range plan {
 		area[hr.Role] = hr.Room.Rect.W * hr.Room.Rect.H
 	}
-	for _, role := range []string{"genkan", "corridor", "living", "kitchen", "bedroom", "bath", "toilet"} {
+	for _, role := range []roleName{"genkan", "corridor", "living", "kitchen", "bedroom", "bath", "toilet"} {
 		assert.Containsf(t, area, role, "役割 %s の部屋がある", role)
 	}
 	assert.Less(t, area["genkan"], area["living"], "玄関は居間より狭い前室")

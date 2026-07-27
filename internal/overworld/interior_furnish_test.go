@@ -65,7 +65,7 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 	big := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 10, Y: 13}
 	bigDoor := interior.Vec{X: 14, Y: 0}
-	check := func(fac string, placed []interior.Placed) {
+	check := func(fac interior.FacilityKind, placed []interior.Placed) {
 		for _, p := range placed {
 			if p.Kind != interior.KindFurniture {
 				continue
@@ -74,7 +74,7 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 			assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
 		}
 	}
-	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
+	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
 		check(fac, interior.Furnish(1, small, door, fac))
 		_, placed := interior.FurnishBuilding(1, big, bigDoor, fac)
 		check(fac, placed)

@@ -9,11 +9,14 @@ package interior
 // 推すのでなく、テンプレが玄関や浴室を名指しする。
 type PlannedRoom struct {
 	Room Room
-	Role string
+	Role roleName
 }
 
 // roomRole は返す部屋の順序と役割ラベルの対応。
-type roomRole struct{ key, role string }
+type roomRole struct {
+	key  string
+	role roleName
+}
 
 // wireDoorways は conns の各対を共有壁の戸口で繋ぎ、部屋キー→戸口列の対応を返す。戸口の位置抽選は
 // childSeed(seed, i+1) に閉じ、分割比ジッタの 5_000_000 番台や型選択の 0 と相関しない。民家・店・診療所の

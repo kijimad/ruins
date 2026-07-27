@@ -19,7 +19,7 @@ import (
 // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。
 func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, orient gc.DoorOrientation, fac facilityType, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
-	site, placed := interior.FurnishBuilding(iseed, footprint, door, string(fac))
+	site, placed := interior.FurnishBuilding(iseed, footprint, door, interior.FacilityKind(fac))
 
 	wallSet := make(map[interior.Vec]bool)
 	for _, wv := range site.Walls() {

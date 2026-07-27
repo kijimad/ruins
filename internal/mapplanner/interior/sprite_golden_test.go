@@ -271,7 +271,7 @@ func TestGolden_RoomFlavor(t *testing.T) {
 // assertRoomGolden は単室を「部屋1個の建物」として9 seed 分 recordSeeds に通し、testdata/rooms/ のゴールデンと
 // 照合する。role は部屋の役割ラベルで、部屋ゴールデンでも建物と同じく必ず描く。fill は seed から配置を返す。
 // 単室は敷地計画を持たないので庭・ポーチの無い素の Site に包む。
-func assertRoomGolden(t *testing.T, room Room, role string, fill func(seed uint64) []Placed) {
+func assertRoomGolden(t *testing.T, room Room, role roleName, fill func(seed uint64) []Placed) {
 	t.Helper()
 	g := goldie.New(t, goldie.WithFixtureDir(roomFixtureDir), goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
@@ -281,7 +281,7 @@ func assertRoomGolden(t *testing.T, room Room, role string, fill func(seed uint6
 
 // singleRoomSite は1部屋を庭・ポーチの無い素の Site に包む。部屋ゴールデンが建物ゴールデンと同じ renderStage
 // を共有するための器。footprint と建物を部屋矩形に一致させ、庭を空にする。
-func singleRoomSite(room Room, role string) Site {
+func singleRoomSite(room Room, role roleName) Site {
 	door := Vec{}
 	if len(room.Doorways) > 0 {
 		door = Vec(room.Doorways[0])
@@ -378,7 +378,7 @@ func renderStage(t *testing.T, site Site, placed []Placed) *image.RGBA {
 	for _, hr := range site.Rooms {
 		lx := (hr.Room.Rect.X + 1 - f.X) * cellPx
 		ly := (hr.Room.Rect.Y + 1 - f.Y) * cellPx
-		drawLabel(img, lx+2, ly+2, hr.Role)
+		drawLabel(img, lx+2, ly+2, string(hr.Role))
 	}
 	return img
 }

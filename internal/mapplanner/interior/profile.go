@@ -139,7 +139,7 @@ func clutterFurniturePct(level clutterLevel) int {
 // clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。「あるべきでない場所の物」を、寝室には
 // 洗濯かご、その他は木箱、というふうに役割へ寄せて believability を上げる。すべて SpawnProp が要る実在の prop で
 // 仮画像でないものだけを使う。食器・写真などの拾える item を家具の上へ載せるのは item spawn 経路が要るので今後。
-func clutterRefs(role string) []string {
+func clutterRefs(role roleName) []string {
 	switch role {
 	case "bedroom":
 		return []string{"laundry", "crate", "debris"}
@@ -152,7 +152,7 @@ func clutterRefs(role string) []string {
 // 落とし、机の上・たんすの脇に物が溜まる因果を作る。汚部屋のときだけ、加えて床にもまばらに散らす。役割別
 // プールから引き、既存の実スプライトへ写る Ref だけを使う。装飾で通行は阻まず、戸口前は避ける。呼び出し側が
 // 廊下・狭室を除外する。
-func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, role string) []Placed {
+func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, role roleName) []Placed {
 	furnPct := clutterFurniturePct(level)
 	if furnPct == 0 {
 		return placed

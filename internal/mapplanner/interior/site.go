@@ -27,7 +27,7 @@ type Site struct {
 
 // planSite は footprint を建物と庭に分ける。敷地類型で前庭の深さを変え、入口側に前庭を空けて建物を内寄せし、
 // 入口を建物辺へ寄せ、玄関を凹ませる。建物が施設テンプレに満たない狭さなら内寄せを諦め、最低限の建物は必ず作る。
-func planSite(footprint Rect, seed uint64, door Vec, facility string) Site {
+func planSite(footprint Rect, seed uint64, door Vec, facility FacilityKind) Site {
 	st := rollSiteType(facility, seed)
 	building := insetBuilding(footprint, door, frontYardOf(st))
 	side := doorSide(footprint, door)

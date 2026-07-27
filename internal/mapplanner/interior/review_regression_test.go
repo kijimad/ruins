@@ -14,7 +14,7 @@ func TestFurnishBuilding_同じタイルに複数のpropを置かない(t *testi
 
 	footprint := Rect{X: 0, Y: 0, W: 20, H: 18}
 	door := Vec{X: 10, Y: 0}
-	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
+	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
 		for seed := range uint64(300) {
 			_, placed := FurnishBuilding(seed, footprint, door, fac)
 			seen := map[Vec]string{}

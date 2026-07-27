@@ -17,7 +17,7 @@ type FurnishStage struct {
 // 前段に置き、建物内の各室へ plan→fill→age→flavor を掛けた累積配置を返す。どの段で見た目が壊れたかを段別
 // VRT で切り分けられるようにする。坪庭の室は家具を置かず観葉だけ置き、経年・flavor を掛けない。FurnishBuilding
 // はこの最終段を返す薄い包みで、両者は同じパイプラインを共有するので段別 VRT と実生成は乖離しない。
-func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site, []FurnishStage) {
+func FurnishStages(seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage) {
 	site := planSite(footprint, seed, door, facility)
 
 	prof := rollProfile(seed) // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
@@ -71,11 +71,15 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility string) (Site
 	}
 }
 
+// roleName は部屋の役割ラベル。主室・廊下・寝室・薬局といった部屋の意味を表す。facility と隣り合って
+// roleContent に渡るので、型で分けて引数の取り違えを防ぐ。
+type roleName string
+
 // roleMain は主室の役割名。売場・待合など施設の顔の部屋。BSP フォールバックは面積最大をこれにする。
-const roleMain = "main"
+const roleMain roleName = "main"
 
 // roleCorridor は廊下の役割名。通路として空け、フレーバーや hero の目玉を置かない。
-const roleCorridor = "corridor"
+const roleCorridor roleName = "corridor"
 
 // isNarrowRoom は部屋の内側が幅1以下の通路状かを返す。1マス幅の廊下や薄い水回りにフレーバーを置くと
 // 唯一の歩行帯を塞ぐので、その判定に使う。
@@ -86,7 +90,7 @@ func isNarrowRoom(r Rect) bool {
 // FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を
 // そのまま埋めず、入口側に前庭を空け、1室を坪庭にし、玄関を凹ませる。加工は FurnishStages が持ち、ここは
 // その最終段 flavor を返す。呼び出し側は Site から Walls で壁タイル、Garden で庭タイルを導き、配置を spawn する。
-func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) (Site, []Placed) {
+func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed) {
 	site, stages := FurnishStages(seed, footprint, door, facility)
 	return site, stages[len(stages)-1].Placed
 }
@@ -95,11 +99,11 @@ func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility string) (Si
 // 店は売場＋バックヤード・診療所は待合＋診察室の列にして、「何の施設か分かる」平面にする。テンプレに足りない
 // 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。実経路のこの分岐が、
 // VRT で見た綺麗な間取りを in-game でも出す。
-func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) {
+func planRooms(footprint Rect, seed uint64, facility FacilityKind) ([]Room, []roleName) {
 	if planner, minW, minH, ok := facilityPlanner(facility); ok && footprint.W >= minW && footprint.H >= minH {
 		plan := planner(footprint, seed)
 		rooms := make([]Room, len(plan))
-		roles := make([]string, len(plan))
+		roles := make([]roleName, len(plan))
 		for i, hr := range plan {
 			rooms[i] = hr.Room
 			roles[i] = hr.Role
@@ -107,7 +111,7 @@ func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) 
 		return rooms, roles
 	}
 	rooms := SubdivideBuilding(footprint, seed)
-	roles := make([]string, len(rooms))
+	roles := make([]roleName, len(rooms))
 	for rank, ri := range roomOrderByArea(rooms) {
 		if rank == 0 {
 			roles[ri] = roleMain
@@ -123,7 +127,7 @@ func planRooms(footprint Rect, seed uint64, facility string) ([]Room, []string) 
 // その狭さでも施設テンプレを発火させる。民家は幅14・高さ13 のどちらかを欠くと PlanHouseAny が田の字の
 // コンパクト民家へ切り替える。店・診療所は部屋数が少ないので狭くても成立する。下限を下回る建物とテンプレの
 // 無い施設は BSP へ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
-func facilityPlanner(facility string) (fn func(Rect, uint64) []PlannedRoom, minW, minH int, ok bool) {
+func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom, minW, minH int, ok bool) {
 	switch facility {
 	case facHouse:
 		return PlanHouseAny, 12, 9, true
@@ -139,7 +143,7 @@ func facilityPlanner(facility string) (fn func(Rect, uint64) []PlannedRoom, minW
 // roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ
 // 民家の共有役割(corridor 等)、それも無ければ施設別の奥室既定へ落とす。民家だけでなく店・診療所も役割名で
 // 部屋を作り分けられるよう、施設カタログを優先して引く。役割名は planRooms とテンプレが付ける。
-func roleContent(facility, role string, seed uint64) Content {
+func roleContent(facility FacilityKind, role roleName, seed uint64) Content {
 	if role == roleMain {
 		return facilityContent(facility, seed)
 	}
@@ -154,7 +158,7 @@ func roleContent(facility, role string, seed uint64) Content {
 
 // roomCatalog は施設種別ごとの「役割名→content」表を返す。houseRoomContents を民家以外へ横展開したもので、
 // テンプレが付けた役割名で各室の内装を引く。骨董品店は店、研究施設は診療所の表を共有する。
-func roomCatalog(facility string) map[string]Content {
+func roomCatalog(facility FacilityKind) map[roleName]Content {
 	switch facility {
 	case facHouse:
 		return houseRoomContents()
@@ -169,7 +173,7 @@ func roomCatalog(facility string) map[string]Content {
 
 // backRoomContent は奥室の内装。施設ごとに、店は物置、民家は寝室、診療所は診察室にする。既存の家具を
 // 使い回すので新しい content 語彙は要らない。役割カタログに無い役割のフォールバック。
-func backRoomContent(facility string) Content {
+func backRoomContent(facility FacilityKind) Content {
 	switch facility {
 	case facHouse:
 		return bedroomContent()

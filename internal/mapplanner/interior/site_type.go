@@ -16,7 +16,7 @@ const (
 
 // rollSiteType は施設種別と seed から敷地類型を1つ引く。民家は戸建。店は商店街かロードサイドを seed で選び、
 // 街路に面した店と郊外の駐車場付き店を出し分ける。
-func rollSiteType(facility string, seed uint64) siteType {
+func rollSiteType(facility FacilityKind, seed uint64) siteType {
 	if !isShop(facility) {
 		return siteDetached
 	}

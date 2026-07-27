@@ -9,18 +9,18 @@ package interior
 
 // storeBackRole は店の奥室 i 番目の役割を返す。0番は必ず倉庫にして店に物置が1つは在る不変条件を守り、
 // 以降は事務所・従業員トイレ・冷蔵庫室・倉庫から seed で選んで奥室に多様な役割を出す。
-func storeBackRole(seed uint64, i int) string {
+func storeBackRole(seed uint64, i int) roleName {
 	if i == 0 {
 		return "storeroom"
 	}
-	pool := []string{"office", "restroom", "coldroom", "storeroom"}
+	pool := []roleName{"office", "restroom", "coldroom", "storeroom"}
 	return pool[childSeed(seed, 6_100_000+i)%uint64(len(pool))]
 }
 
 // clinicBackRole は診療所の奥室 i 番目(0-indexed, total は奥室総数)の役割を返す。0番は必ず施錠薬局、
 // 3室以上なら末尾をトイレ、4室なら医師室も足し、残りを診察室で埋める。薬局と水回りと医師室を保証しつつ
 // 診察室を主にする。
-func clinicBackRole(i, total int) string {
+func clinicBackRole(i, total int) roleName {
 	switch {
 	case i == 0:
 		return "pharmacy"
