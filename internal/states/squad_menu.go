@@ -180,26 +180,34 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 	}
 
 	for _, member := range query.SquadMembers(world) {
-		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member)
-		squad := query.GetSquadAI(world, member)
-		if squad == nil {
+		data, ok := buildSquadMemberData(world, member)
+		if !ok {
 			continue
 		}
-
-		members = append(members, squadMemberData{
-			Entity:       member,
-			Name:         name,
-			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     squad.Movement.String(),
-			Combat:       squad.CombatCurrent.String(),
-			ItemPickup:   squad.ItemPickup.String(),
-			ItemHandling: squad.ItemHandling.String(),
-			Supply:       squad.Supply.String(),
-		})
+		members = append(members, data)
 	}
 
 	return squadProps{BatchCommands: batchCommands, Members: members}
+}
+
+// buildSquadMemberData は隊員の表示データを組み立てる。
+// 一覧表示とポリシー変更後の再表示で同じ構築を共有し、項目の入れ忘れを防ぐ
+func buildSquadMemberData(world w.World, member ecs.Entity) (squadMemberData, bool) {
+	squad := query.GetSquadAI(world, member)
+	if squad == nil {
+		return squadMemberData{}, false
+	}
+	hp := world.Components.HP.Get(member)
+	return squadMemberData{
+		Entity:       member,
+		Name:         query.GetEntityName(member, world),
+		HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
+		Position:     squad.Movement.String(),
+		Combat:       squad.CombatCurrent.String(),
+		ItemPickup:   squad.ItemPickup.String(),
+		ItemHandling: squad.ItemHandling.String(),
+		Supply:       squad.Supply.String(),
+	}, true
 }
 
 // ================
@@ -394,24 +402,11 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 }
 
 func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
-	name := query.GetEntityName(member, world)
-	hp := world.Components.HP.Get(member)
-	squad := query.GetSquadAI(world, member)
-	if squad == nil {
+	data, ok := buildSquadMemberData(world, member)
+	if !ok {
 		return
 	}
-
-	st.windowMount.SetProps(squadWindowProps{
-		Member: squadMemberData{
-			Entity:       member,
-			Name:         name,
-			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     squad.Movement.String(),
-			Combat:       squad.CombatCurrent.String(),
-			ItemPickup:   squad.ItemPickup.String(),
-			ItemHandling: squad.ItemHandling.String(),
-		},
-	})
+	st.windowMount.SetProps(squadWindowProps{Member: data})
 }
 
 // ================
