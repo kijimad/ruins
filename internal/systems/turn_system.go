@@ -29,7 +29,10 @@ func (sys *TurnSystem) Update(world w.World) error {
 	case gc.TurnPhasePlayer:
 		// プレイヤーが継続アクション中かチェック
 		if processPlayerContinuousActivity(world) {
-			// 継続アクション中はターンを進める
+			// 継続アクションの1ステップを1ゲームターンとして扱い、AIフェーズへ渡す。
+			// アクティビティ中も敵・NPC・時間が同じ速さで進み、
+			// 敵接近による中断判定が毎ターン意味を持つ
+			turnState.Phase = gc.TurnPhaseAI
 			return nil
 		}
 		// APが最小行動コストを満たさない場合は自動でターンを終了
@@ -44,7 +47,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 			return err
 		}
 		// AIターン完了後に視界を再計算させる
-		query.GetVisionState(world).NeedsForceUpdate = true
+		query.GetVisionState(world).RequestUpdate()
 		turnState.Phase = gc.TurnPhaseEnd
 	case gc.TurnPhaseEnd:
 		// ターン終了処理
@@ -124,8 +127,8 @@ func runTurnEndSystems(world w.World) error {
 	return nil
 }
 
-// processPlayerContinuousActivity はプレイヤーの継続アクションを処理する
-// 継続アクションが進行中の場合は true を返し、ターンを進める
+// processPlayerContinuousActivity はプレイヤーの継続アクションを1ステップ処理する。
+// 進行中なら true を返し、呼び出し側がAIフェーズへ遷移させて世界を1ターン進める
 func processPlayerContinuousActivity(world w.World) bool {
 	// プレイヤーエンティティを取得
 	playerEntity, err := query.GetPlayerEntity(world)

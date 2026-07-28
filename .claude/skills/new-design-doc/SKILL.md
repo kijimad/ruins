@@ -7,8 +7,9 @@ description: docs/design/YYYYMMDD_NN.md の設計ドキュメントを規約ど�
 
 ## 手順
 
-1. **採番する**: `docs/design/YYYYMMDD_NN.md`。日付は当日、`NN` は同日既存の最大 + 1（2桁ゼロ埋め）。
-   - `ls docs/design/$(date +%Y%m%d)_*.md` で当日の既存を確認する。
+1. **採番する**: `docs/design/YYYYMMDD_NN.md`。日付は当日、`NN` は全 doc を通した連番で既存の最大 + 1。ゼロ埋めしない。例 `_1`, `_2`, … `_65`, `_66`, `_67`。
+   - 日ごとにリセットしない。同じ日に2本作るなら連番が2つ進む。
+   - `ls docs/design/*.md | sed -E 's/.*_([0-9]+)\.md/\1/' | sort -n | tail -1` で全体の最大番号を確認する。
 2. **雛形を使う**: `docs/design/tmpl.md` を土台にする。冒頭の frontmatter を必ず埋める。
    - `status`: 新規は基本 `draft`。方針だけ合意済みなら `accepted`。
    - `tags`: 領域ラベル。使える語彙は `internal/designdoc` の `KnownTags`。ここに無いタグは検証で弾かれるので、増やすときは `KnownTags` に追加する。
@@ -20,6 +21,7 @@ description: docs/design/YYYYMMDD_NN.md の設計ドキュメントを規約ど�
 5. **末尾に `## 進捗`** を設け、変更箇所テーブルの各行に対応するタスクを管理する。粒度が粗ければサブタスクに分解する。
    - チェックボックスの対応フォーマットは3種類に限る。`- [ ]` 未着手 / `- [x]` 完了 / `- [~]` 意図的に着手しない、すなわち不採用・見送り。
    - `- [~]` は進捗の分母から外れる。`- [-]` や `- [/]` は使わず `- [~]` に統一する。
+6. **`make generate` を実行する**: doc を追加すると README の設計ドキュメント状況テーブルが変わるので再生成し、README も一緒にコミットする。CI の generate-check が README の再生成を要求するため、怠ると失敗する。frontmatter の検証 `designdoc validate` も make generate に含まれる。
 
 ## 注意
 

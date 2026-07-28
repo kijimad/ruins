@@ -115,3 +115,19 @@ func TestParseWeight_Stringラウンドトリップ(t *testing.T) {
 	assert.Equal(t, "3.5"+consts.IconKg, mg.String())    // 最適単位
 	assert.Equal(t, "3.50"+consts.IconKg, mg.KgString()) // kg固定
 }
+
+func TestMustParseWeight(t *testing.T) {
+	t.Parallel()
+
+	// 成功時は ParseWeight と同じ値を返す
+	assert.Equal(t, consts.Milligram(2_000_000), consts.MustParseWeight("2 kg"))
+}
+
+func TestMustParseWeight_パニック(t *testing.T) {
+	t.Parallel()
+
+	// パース失敗時はパニックする
+	assert.Panics(t, func() {
+		consts.MustParseWeight("不正な値")
+	})
+}

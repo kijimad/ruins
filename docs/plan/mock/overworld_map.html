@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生成される地図 — 規模・大型構造・自然の施設</title>
+<style>
+  :root{--bg:#e9ecee;--surface:#fff;--ink:#1c2530;--ink-soft:#4a5866;--muted:#7a8792;--border:#d3d8dc;
+    --accent:#bf7016;--accent-ink:#9a5a11;--accent-soft:#f4e6d2;--shadow:0 1px 2px rgba(28,37,48,.06),0 10px 30px -14px rgba(28,37,48,.25);--radius:12px;}
+  @media (prefers-color-scheme:dark){:root{--bg:#12181d;--surface:#19222a;--ink:#e8edf1;--ink-soft:#aab6c1;--muted:#6f7d89;--border:#263039;--accent:#e0983f;--accent-ink:#eeb673;--accent-soft:#3a2b16;--shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px -16px rgba(0,0,0,.7);}}
+  :root[data-theme="light"]{--bg:#e9ecee;--surface:#fff;--ink:#1c2530;--ink-soft:#4a5866;--muted:#7a8792;--border:#d3d8dc;--accent:#bf7016;--accent-ink:#9a5a11;--accent-soft:#f4e6d2;}
+  :root[data-theme="dark"]{--bg:#12181d;--surface:#19222a;--ink:#e8edf1;--ink-soft:#aab6c1;--muted:#6f7d89;--border:#263039;--accent:#e0983f;--accent-ink:#eeb673;--accent-soft:#3a2b16;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.75;font-size:16px;
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans JP","Meiryo",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:66rem;margin:0 auto;padding:clamp(1.5rem,4vw,3rem) clamp(1rem,4vw,2rem) 4rem;}
+  .eyebrow{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-ink);font-weight:700;margin:0 0 .8rem;}
+  h1{font-size:clamp(1.5rem,4vw,2.2rem);line-height:1.2;letter-spacing:-.01em;font-weight:800;margin:0 0 .8rem;text-wrap:balance;}
+  .sub{color:var(--ink-soft);max-width:48rem;margin:0 0 1.6rem;} .sub b{color:var(--ink);}
+  .screen{background:#0c1116;border:1px solid var(--border);border-radius:var(--radius);padding:.7rem;box-shadow:var(--shadow);overflow-x:auto;}
+  .hud{display:flex;justify-content:space-between;align-items:center;gap:1rem;color:#9db0bf;font-size:.72rem;letter-spacing:.06em;padding:.15rem .35rem .55rem;font-family:"SF Mono","Consolas",ui-monospace,monospace;flex-wrap:wrap;}
+  .hud .west{color:#8fb9d6;} .hud .east{color:#d99a5a;}
+  canvas{display:block;width:100%;height:auto;border-radius:6px;}
+  .controls{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:1rem 0 1.4rem;}
+  button{font:inherit;font-size:.85rem;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.45rem .9rem;cursor:pointer;box-shadow:var(--shadow);}
+  button:hover{border-color:var(--accent);color:var(--accent-ink);}
+  .seedtag{font-family:"SF Mono","Consolas",ui-monospace,monospace;font-size:.8rem;color:var(--muted);} .seedtag b{color:var(--accent-ink);}
+  .legend{margin:1.2rem 0 0;padding:1rem 1.1rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .legend h3{margin:.7rem 0 .5rem;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;} .legend h3:first-child{margin-top:0;}
+  .legrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr));gap:.35rem .9rem;}
+  .li{display:flex;align-items:center;gap:.45rem;font-size:.82rem;color:var(--ink-soft);}
+  .gl{width:1.35rem;height:1.35rem;border-radius:4px;flex:none;display:grid;place-items:center;color:#fff;font-weight:700;font-size:.78rem;border:1px solid rgba(0,0,0,.25);}
+  .gl.rare{outline:2px solid #ffd54a;outline-offset:-2px;} .gl.big{border-radius:3px;}
+  .sw{width:.95rem;height:.95rem;border-radius:3px;flex:none;border:1px solid rgba(0,0,0,.2);}
+  .maps{margin:1.6rem 0 0;} .maps h2{font-size:1rem;font-weight:700;margin:0 0 .5rem;}
+  .maps li{margin:.25rem 0;color:var(--ink-soft);} .maps li b{color:var(--ink);}
+  .maps code{font-family:"SF Mono","Consolas",ui-monospace,monospace;font-size:.85em;background:var(--accent-soft);color:var(--accent-ink);padding:.05em .4em;border-radius:5px;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow">ruins / 生成される地図の実物</p>
+  <h1>2〜3軒の集落から、超過密の大都市まで</h1>
+  <p class="sub">
+    街の規模は<b>数軒の集落から超過密の大都市</b>まで大きく振れる。規模が施設と密集度と危険を決める。
+    <b>基地・研究所・廃工場・ダムのような大型構造は複数チャンクにまたがり</b>、地図でも大きな塊で建つ。
+    そして<b>自然の中にも構造物がある</b>——農家・廃屋・山小屋・神社・灯台。世界観は現代日本、武器は骨董品店。
+    既定は<b>固定サンプル seed 1118</b>で、4規模すべてと大型構造 基地 を含む代表例。ランダム生成も維持。
+  </p>
+
+  <div class="controls">
+    <button id="samplebtn">固定サンプル 1118 に戻る</button>
+    <button id="reseed">別の seed で生成</button>
+    <button id="same">同じ seed で再生成</button>
+    <span class="seedtag">seed = <b id="seedval">—</b> <span id="samptag"></span></span>
+  </div>
+
+  <div class="screen">
+    <div class="hud">
+      <span class="west">◀ 西 · 前線・開始拠点</span>
+      <span>OVERWORLD BAND · 集落 → 町 → 市 → 大都市 · 大型構造は複数チャンク</span>
+      <span class="east">高難度 · 東 ▶</span>
+    </div>
+    <canvas id="map" width="900" height="480" role="img" aria-label="規模と大型構造と自然の施設が変化するオーバーワールド"></canvas>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="maps">
+    <h2>今回の変更と設計の対応</h2>
+    <ul>
+      <li><b>大型構造は複数チャンク</b> … 基地・廃工場・ダム・研究所は多タイル footprint。CDDA の overmap_special（多 OMT）翻案。doc 69 では citySeed 一括導出＋Connection 層が担う</li>
+      <li><b>規模の幅を拡大</b> … 集落は2〜4軒、大都市は半径5で数十施設が密集。doc 69 では規模 gate の重み付き施設テーブル（Content）が担う</li>
+      <li><b>注意（旧モデル）</b> … 本モックは類型分離以前のイメージ。確定設計（doc 69）では小集落（Settlement・補給）と市街地・大都市（UrbanRuin・補給の場でない攻略対象）は<b>別カテゴリ</b>で、大都市に補給施設が並ぶ本図の描写は旧モデル。施設の具体性・規模感・大型構造の見せ方の参考として残す</li>
+      <li><b>自然の構造物</b> … 集落外にも農家・廃屋・山小屋・神社・灯台が点在。荒野向けの <code>FeatureSpec</code> 群</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  const TILE=15, W=60, H=32, CHUNK=16;
+  const cv=document.getElementById('map'), ctx=cv.getContext('2d'); cv.width=W*TILE; cv.height=H*TILE;
+
+  function hash(x,y,s){let h=(2166136261^(s>>>0))>>>0;
+    h=Math.imul(h^(x&0xffff),16777619);h=Math.imul(h^(y&0xffff),16777619);
+    h=Math.imul(h^((x>>>16)&0xffff),16777619);h=Math.imul(h^((y>>>16)&0xffff),16777619);
+    h^=h>>>13;h=Math.imul(h,0x5bd1e995);h^=h>>>15;return (h>>>0)/4294967296;}
+  const sm=t=>t*t*(3-2*t);
+  function noise(x,y,s){const x0=Math.floor(x),y0=Math.floor(y),fx=sm(x-x0),fy=sm(y-y0);
+    const a=hash(x0,y0,s),b=hash(x0+1,y0,s),c=hash(x0,y0+1,s),d=hash(x0+1,y0+1,s);
+    const nx0=a+(b-a)*fx,nx1=c+(d-c)*fx;return nx0+(nx1-nx0)*fy;}
+  function fbm(x,y,s){return 0.6*noise(x,y,s)+0.3*noise(x*2+5,y*2+9,s^0x9e37)+0.1*noise(x*4+1,y*4,s^0x51ed);}
+  const COL={water:'#2e6a8c',grass:'#6f9a55',forest:'#4c7742',desert:'#c6ad6f',rock:'#8b8577',wasteE:'#6d6152',
+    road:'#c1a978',ruin:'#2f2937',ore:'#9aa0a6',oreFleck:'#e0913a',hazard:'#b0472f',player:'#ffcf4d'};
+  function biome(x,y,s){const e=fbm(x/12,y/12,s),m=fbm(x/16+50,y/16,s^0x333);
+    if(e<0.34)return'water';if(e>0.72)return'rock';if(m<0.38)return'desert';if(m<0.58)return'grass';return'forest';}
+  const isLand=b=>b!=='water';
+
+  const FAC=[
+    {g:'家',n:'民家',c:'#9c8f7a',t:0,w:52},{g:'コ',n:'コンビニ',c:'#3f8f6a',t:0,w:42},{g:'店',n:'商店',c:'#b98a52',t:0,w:34},
+    {g:'薬',n:'ドラッグストア',c:'#d1683f',t:1,w:26},{g:'食',n:'食堂',c:'#c9a23a',t:1,w:24},{g:'宿',n:'ホテル',c:'#5f8fbf',t:1,w:20},{g:'交',n:'交番',c:'#d24a4a',t:1,w:14},{g:'ガ',n:'ガソリン',c:'#7d7fae',t:1,w:14},
+    {g:'ス',n:'スーパー',c:'#4fa06a',t:2,w:18,s:2},{g:'病',n:'病院',c:'#cf5a6a',t:2,w:14,s:2},{g:'学',n:'学校',c:'#8a9a5a',t:2,w:12},{g:'骨',n:'骨董品店',c:'#8a5a3a',t:2,w:11},{g:'銀',n:'銀行',c:'#6a7a8a',t:2,w:11},{g:'社',n:'神社',c:'#b0553a',t:2,w:8},
+    {g:'百',n:'百貨店',c:'#a86a9a',t:3,w:10,s:2},{g:'駅',n:'鉄道駅',c:'#4a6a9a',t:3,w:9,s:2},{g:'役',n:'役所',c:'#6a6a7a',t:3,w:8,s:2}
+  ];
+  const TIERS=[{t:0,name:'集落',r:1,cnt:[2,4],w:44},{t:1,name:'町',r:2,cnt:[8,13],w:30},{t:2,name:'市',r:3,cnt:[20,30],w:18},{t:3,name:'大都市',r:5,cnt:[48,72],w:8}];
+  const pickTier=r=>{let x=r*TIERS.reduce((s,t)=>s+t.w,0);for(const t of TIERS){if((x-=t.w)<0)return t;}return TIERS[0];};
+  function pickFac(r,maxT,eastBias){const list=FAC.filter(f=>f.t<=maxT);let x=r*list.reduce((s,o)=>s+o.w,0);for(const o of list){if((x-=o.w)<0)return o;}return list[0];}
+  // 自然の小構造（1x1、biome 条件つき）
+  const WILD=[{g:'農',n:'農家',c:'#b0894a',b:['grass'],w:30},{g:'廃',n:'廃屋',c:'#6d6558',b:[],w:26},{g:'小',n:'山小屋',c:'#7a6a4a',b:['rock','forest'],w:20},
+    {g:'社',n:'神社',c:'#b0553a',b:['forest'],w:16},{g:'塔',n:'電波塔',c:'#8a8a9a',b:['rock','desert'],w:12},{g:'洞',n:'洞窟',c:'#4a4640',b:['rock'],w:14},{g:'灯',n:'灯台',c:'#c9c2b0',b:['_water'],w:10}];
+  // 大型構造（複数チャンク、レア、東ほど）
+  const BIG=[{g:'基地',n:'自衛隊基地',c:'#4a5a4a',fw:4,fh:3,w:5},{g:'研究所',n:'研究所',c:'#8a5aa8',fw:2,fh:2,w:6},{g:'工場',n:'廃工場',c:'#6a5a4a',fw:3,fh:3,w:6},{g:'ダム',n:'ダム',c:'#5a7a8a',fw:4,fh:2,w:5,water:1}];
+
+  const SAMPLE=1118; let seed=SAMPLE;
+  const key=(x,y)=>x+','+y;
+  function waterAdj(x,y){for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const b=biome(x+dx,y+dy,seed);if(b==='water')return true;}return false;}
+
+  function gen(){
+    const frontEast=Math.round(W*0.13), occ=new Set(), setts=[], bigs=[], wilds=[], ruins=[];
+    function fits(x,y,w,h){if(x<0||y<0||x+w>W||y+h>H)return false;for(let j=0;j<h;j++)for(let i=0;i<w;i++){if(occ.has(key(x+i,y+j))||!isLand(biome(x+i,y+j,seed)))return false;}return true;}
+    function mark(x,y,w,h){for(let j=0;j<h;j++)for(let i=0;i<w;i++)occ.add(key(x+i,y+j));}
+    function nearSett(x,y,pad){for(const s of setts){if(Math.abs(s.x-x)+Math.abs(s.y-y)<s.tier.r+pad)return true;}return false;}
+
+    // 集落
+    const sp=17,sep=3;
+    for(let ry=0;ry*sp<H+sp;ry++)for(let rx=0;rx*sp<W+sp;rx++){
+      const ox=Math.floor(hash(rx,ry,seed^0x7a11)*(sp-sep)),oy=Math.floor(hash(rx,ry,seed^0x7a11^0x55)*(sp-sep));
+      const tier=pickTier(hash(rx,ry,seed^0x5123)); const cx=rx*sp+ox+2,cy=ry*sp+oy+1;
+      if(cx<frontEast+3||cx>W-2-tier.r||cy<1+tier.r||cy>H-2-tier.r)continue; if(!isLand(biome(cx,cy,seed)))continue;
+      const east=cx/W, cnt=tier.cnt[0]+Math.floor(hash(rx,ry,seed^0xabc)*(tier.cnt[1]-tier.cnt[0]+1));
+      const spots=[]; for(let dy=-tier.r;dy<=tier.r;dy++)for(let dx=-tier.r;dx<=tier.r;dx++)spots.push([dx,dy,Math.max(Math.abs(dx),Math.abs(dy))*3+hash(cx+dx,cy+dy,seed)]);
+      spots.sort((a,b)=>a[2]-b[2]); const cells=[]; let placed=0;
+      for(const[dx,dy]of spots){if(placed>=cnt)break; const x=cx+dx,y=cy+dy; const f=pickFac(hash(x*13+7,y*13+3,seed^0xf00d),tier.t,east); const s=f.s||1;
+        if(dx===0&&dy===0&&tier.t>=2)continue; if(!fits(x,y,s,s))continue; mark(x,y,s,s); cells.push({x,y,f}); placed++;}
+      if(cells.length) setts.push({x:cx,y:cy,tier,cells,danger:Math.min(3,Math.round(tier.t*0.75+east*2))});
+    }
+    // 大型構造（複数チャンク）
+    const bsp=19;
+    for(let ry=0;ry*bsp<H+bsp;ry++)for(let rx=0;rx*bsp<W+bsp;rx++){
+      const east=(rx*bsp)/W; if(hash(rx,ry,seed^0xB16)>0.16+east*0.26)continue;
+      let x=rx*bsp+Math.floor(hash(rx,ry,seed^0xB16^1)*bsp), y=ry*bsp+Math.floor(hash(rx,ry,seed^0xB16^2)*bsp);
+      const list=BIG.map(b=>({b,w:b.w*(1+east)})); let xx=hash(rx,ry,seed^0xB16^3)*list.reduce((s,o)=>s+o.w,0),pick=list[0].b;
+      for(const o of list){if((xx-=o.w)<0){pick=o.b;break;}}
+      if(x<frontEast+4)x=frontEast+4; if(pick.water){ if(!waterAdj(x,y)&&!waterAdj(x+1,y)) continue; }
+      if(!fits(x,y,pick.fw,pick.fh)||nearSett(x,y,4))continue; mark(x,y,pick.fw,pick.fh); bigs.push({x,y,pick});
+    }
+    // 自然の小構造
+    const wsp=6;
+    for(let ry=0;ry*wsp<H+wsp;ry++)for(let rx=0;rx*wsp<W+wsp;rx++){
+      if(hash(rx,ry,seed^0x5501)>0.33)continue;
+      const x=rx*wsp+Math.floor(hash(rx,ry,seed^0x5501^1)*wsp), y=ry*wsp+Math.floor(hash(rx,ry,seed^0x5501^2)*wsp);
+      if(x<frontEast+2||x>W-1||y<0||y>=H||occ.has(key(x,y))||!isLand(biome(x,y,seed))||nearSett(x,y,3))continue;
+      const b=biome(x,y,seed); const cand=WILD.filter(s=> s.b.length===0 ? true : (s.b[0]==='_water'? waterAdj(x,y) : s.b.includes(b)) );
+      if(!cand.length)continue; let xx=hash(x,y,seed^0x5501^9)*cand.reduce((s,o)=>s+o.w,0),pick=cand[0];
+      for(const o of cand){if((xx-=o.w)<0){pick=o;break;}} mark(x,y,1,1); wilds.push({x,y,pick});
+    }
+    // 遺跡入口
+    const rsp=13,rsep=4;
+    for(let ry=0;ry*rsp<H+rsp;ry++)for(let rx=0;rx*rsp<W+rsp;rx++){
+      const tx=rx*rsp+Math.floor(hash(rx,ry,seed^0x4e01)*(rsp-rsep)),ty=ry*rsp+Math.floor(hash(rx,ry,seed^0x4e01^0x21)*(rsp-rsep));
+      if(tx<frontEast+1||tx>W-2||ty<1||ty>H-2||occ.has(key(tx,ty))||!isLand(biome(tx,ty,seed)))continue; mark(tx,ty,1,1); ruins.push({x:tx,y:ty});
+    }
+    return {frontEast,occ,setts,bigs,wilds,ruins};
+  }
+
+  function struct(x,y,w,h,c,label,rare){
+    const px=x*TILE,py=y*TILE,pw=w*TILE-2,ph=h*TILE-2;
+    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(px+2,py+3,pw,ph);
+    ctx.fillStyle=c;ctx.fillRect(px+1,py+1,pw,ph);
+    ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(px+1,py+1,pw,Math.floor(ph*0.36));
+    ctx.fillStyle='#fff';const fs=Math.max(9,Math.min(TILE-4,Math.floor(pw/label.length*0.92)));
+    ctx.font='700 '+fs+'px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(label,px+w*TILE/2,py+h*TILE/2+1);
+    if(rare){ctx.strokeStyle='#ffd54a';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,pw-2,ph-2);}
+  }
+  function label(cx,cy,r,txt,danger){
+    ctx.font='700 10px "Hiragino Kaku Gothic ProN",sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+    const tw=ctx.measureText(txt).width,w=tw+18;let px=cx*TILE+TILE/2-w/2,py=(cy-r)*TILE-9;
+    if(py<8)py=(cy+r)*TILE+11;px=Math.max(2,Math.min(W*TILE-w-2,px));
+    ctx.fillStyle='rgba(10,15,20,.86)';ctx.fillRect(px,py-8,w,16);
+    ctx.fillStyle=['#6bbf88','#e6c34a','#e08a3a','#d9503a'][danger];ctx.beginPath();ctx.arc(px+7,py,3.2,0,7);ctx.fill();
+    ctx.fillStyle='#fff';ctx.fillText(txt,px+13,py+.5);
+  }
+  function mix(a,b,t){const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);
+    return'rgb('+Math.round((pa>>16)+(((pb>>16)-(pa>>16))*t))+','+Math.round(((pa>>8)&255)+((((pb>>8)&255)-((pa>>8)&255))*t))+','+Math.round((pa&255)+(((pb&255)-(pa&255))*t))+')';}
+
+  function draw(){
+    document.getElementById('seedval').textContent=seed;
+    document.getElementById('samptag').textContent=(seed===SAMPLE?'（固定サンプル・4規模と基地を含む）':'（ランダム）');
+    const G=gen();
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){let b=biome(x,y,seed),col=COL[b],east=x/W;
+      if(b!=='water'&&east>0.6)col=mix(col,COL.wasteE,(east-0.6)/0.4*0.5); ctx.fillStyle=col;ctx.fillRect(x*TILE,y*TILE,TILE,TILE);
+      const n=hash(x,y,seed^0xa1)*0.10-0.05; ctx.fillStyle=n>0?'rgba(0,0,0,'+n.toFixed(3)+')':'rgba(255,255,255,'+(-n).toFixed(3)+')';ctx.fillRect(x*TILE,y*TILE,TILE,TILE);}
+    for(let y=0;y<H;y++)for(let x=0;x<G.frontEast;x++){const t=1-x/G.frontEast;ctx.fillStyle='rgba(200,224,238,'+(0.14+0.42*t).toFixed(3)+')';ctx.fillRect(x*TILE,y*TILE,TILE,TILE);}
+    ctx.fillStyle='rgba(228,244,252,.85)';for(let y=0;y<H;y++){const j=Math.floor((noise(y/5,seed/100,seed^7)-0.5)*3);ctx.fillRect((G.frontEast+j)*TILE,y*TILE,2,TILE);}
+    for(const s of G.setts){if(s.danger<1)continue;const cx=s.x*TILE+TILE/2,cy=s.y*TILE+TILE/2,R=(s.tier.r+2.5)*TILE,g=ctx.createRadialGradient(cx,cy,TILE,cx,cy,R),a=[0,.10,.18,.30][s.danger];
+      g.addColorStop(0,'rgba(176,44,32,'+a+')');g.addColorStop(1,'rgba(176,44,32,0)');ctx.fillStyle=g;ctx.fillRect(cx-R,cy-R,2*R,2*R);}
+    // 道
+    const so=G.setts.slice().sort((a,b)=>a.x-b.x);
+    for(let i=0;i<so.length;i++){let best=null,bd=1e9;for(let j=0;j<so.length;j++){if(i===j)continue;const d=Math.abs(so[i].x-so[j].x)+Math.abs(so[i].y-so[j].y);if(so[j].x>=so[i].x-2&&d<bd){bd=d;best=so[j];}}
+      if(best&&bd<34){const a=so[i],b=best,x0=Math.min(a.x,b.x),x1=Math.max(a.x,b.x);for(let x=x0;x<=x1;x++)rt(x,a.y);const y0=Math.min(a.y,b.y),y1=Math.max(a.y,b.y);for(let y=y0;y<=y1;y++)rt(b.x,y);}}
+    function rt(x,y){if(x<0||x>=W||y<0||y>=H||biome(x,y,seed)==='water'||G.occ.has(key(x,y)))return;ctx.fillStyle=COL.road;ctx.fillRect(x*TILE+4,y*TILE+4,TILE-8,TILE-8);}
+    // 資源・危険物
+    const bigC=G.setts.filter(s=>s.tier.t>=2);
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(x<G.frontEast||G.occ.has(key(x,y)))continue;const b=biome(x,y,seed);if(b==='water')continue;
+      if((b==='forest'||b==='rock')&&hash(x,y,seed^0x9d0e)<0.024){ctx.fillStyle=COL.ore;ctx.fillRect(x*TILE+5,y*TILE+5,TILE-10,TILE-10);ctx.fillStyle=COL.oreFleck;ctx.fillRect(x*TILE+7,y*TILE+7,3,3);}
+      let boost=0;for(const s of bigC){if(Math.max(Math.abs(s.x-x),Math.abs(s.y-y))<s.tier.r+3){boost=s.tier.t*0.5;break;}}
+      if(hash(x,y,seed^0xb2fa)<0.004*(0.5+x/W*1.4+boost)){ctx.fillStyle=COL.hazard;ctx.beginPath();ctx.moveTo(x*TILE+TILE/2,y*TILE+3);ctx.lineTo(x*TILE+TILE-3,y*TILE+TILE-3);ctx.lineTo(x*TILE+3,y*TILE+TILE-3);ctx.closePath();ctx.fill();}}
+    // 遺跡・自然・大型・集落
+    for(const r of G.ruins){ctx.fillStyle=COL.ruin;ctx.fillRect(r.x*TILE+1,r.y*TILE+1,TILE-2,TILE-2);ctx.fillStyle='#fff';ctx.font='700 '+(TILE-7)+'px "Hiragino Kaku Gothic ProN",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('遺',r.x*TILE+TILE/2,r.y*TILE+TILE/2+1);}
+    for(const w of G.wilds)struct(w.x,w.y,1,1,w.pick.c,w.pick.g,false);
+    for(const b of G.bigs)struct(b.x,b.y,b.pick.fw,b.pick.fh,b.pick.c,b.pick.g,true);
+    for(const s of G.setts)for(const c of s.cells)struct(c.x,c.y,c.f.s||1,c.f.s||1,c.f.c,c.f.g,false);
+    for(const s of G.setts)label(s.x,s.y,s.tier.r,s.tier.name,s.danger);
+    // 自機
+    let start=null;for(const s of so){if(s.x>G.frontEast+2){start=s;break;}}
+    if(start){const px=Math.min(W-1,start.x+start.tier.r+1),py=start.y;ctx.fillStyle='rgba(0,0,0,.55)';ctx.beginPath();ctx.arc(px*TILE+TILE/2,py*TILE+TILE/2,TILE*0.5,0,7);ctx.fill();ctx.fillStyle=COL.player;ctx.beginPath();ctx.arc(px*TILE+TILE/2,py*TILE+TILE/2,TILE*0.33,0,7);ctx.fill();}
+    ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+    for(let x=0;x<=W;x+=CHUNK){ctx.beginPath();ctx.moveTo(x*TILE+.5,0);ctx.lineTo(x*TILE+.5,H*TILE);ctx.stroke();}
+    for(let y=0;y<=H;y+=CHUNK){ctx.beginPath();ctx.moveTo(0,y*TILE+.5);ctx.lineTo(W*TILE,y*TILE+.5);ctx.stroke();}
+  }
+
+  const leg=document.getElementById('legend');
+  function row(arr,cls){let h='<div class="legrow">';for(const f of arr)h+='<div class="li"><span class="gl'+(cls||'')+'" style="background:'+f.c+'">'+(f.g.length>1?f.g[0]:f.g)+'</span>'+f.n+'</div>';return h+'</div>';}
+  let lh='<h3>集落から（規模0）</h3>'+row(FAC.filter(f=>f.t===0));
+  lh+='<h3>町から（規模1）</h3>'+row(FAC.filter(f=>f.t===1));
+  lh+='<h3>市から（規模2）— 骨董品店で武器</h3>'+row(FAC.filter(f=>f.t===2));
+  lh+='<h3>大都市のみ（規模3）</h3>'+row(FAC.filter(f=>f.t===3));
+  lh+='<h3>自然の構造物</h3>'+row(WILD);
+  lh+='<h3>大型構造（複数チャンク・レア・金枠）</h3>'+row(BIG,' rare big');
+  lh+='<h3>地形と地物</h3><div class="legrow">';
+  for(const[c,l]of[[COL.grass,'草原'],[COL.forest,'森'],[COL.desert,'砂漠'],[COL.rock,'岩地'],[COL.water,'水'],['#dfe9ef','凍土・前線'],[COL.ruin,'遺跡入口'],[COL.ore,'資源'],[COL.hazard,'危険物'],['rgba(176,44,32,.5)','危険域'],[COL.road,'道'],[COL.player,'自機']])lh+='<div class="li"><span class="sw" style="background:'+c+'"></span>'+l+'</div>';
+  lh+='</div>';leg.innerHTML=lh;
+
+  document.getElementById('reseed').onclick=()=>{seed=((Math.floor(performance.now()*1000)>>>0)^Math.imul(seed,2654435761))>>>0;seed=seed%900000+1000;draw();};
+  document.getElementById('same').onclick=draw;
+  document.getElementById('samplebtn').onclick=()=>{seed=SAMPLE;draw();};
+  draw();
+})();
+</script>
+
+</body>
+</html>

@@ -180,6 +180,15 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 					Interaction: interaction,
 				})
 			}
+		case gc.InteractionDisassemble:
+			if world.Components.Name.Has(interactableEntity) {
+				name := world.Components.Name.Get(interactableEntity)
+				result = append(result, InteractionAction{
+					Label:       "分解する(" + name.Name + ")",
+					Target:      interactableEntity,
+					Interaction: interaction,
+				})
+			}
 		case gc.InteractionDoorLock, gc.InteractionItemAll:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する

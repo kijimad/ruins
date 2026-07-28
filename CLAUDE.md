@@ -8,6 +8,7 @@
 - コマンドは基本的に Makefile に定義されている。生の `go`/`npm` を直接叩かず、対応する make ターゲットを使う（`make check` / `make test` / `make generate` / `make lint` / `make build` など。一覧は `make help`）
 - 実装変更後は `make check` で壊していないか検証する（テストは `make test`。Ebiten のウィンドウ抑止のため）
 - git push・PR 作成は指示したときのみ行う
+- GitHub へのコメントは禁止する
 - タスクでブランチを切ってworktree下で行う
 
 ## skill（詳細手順・知見）
@@ -19,6 +20,7 @@
 - `add-component`: ECS コンポーネント追加手順（登録表 + `make generate`・serde 除外・クエリ設計）
 - `new-design-doc`: 設計ドキュメント作成（採番・雛形・必須セクション・進捗）
 - `manage-skill`: 学びから skill を新規作成・更新する（下記「フィードバックの昇格」を実行する手順）
+- `post-merge`: PRマージ後の後片付け（worktree破棄・コード知識グラフの更新）
 
 ## フィードバックの昇格
 

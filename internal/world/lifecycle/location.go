@@ -57,6 +57,24 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	}
 }
 
+// SpillStorageItems は収納の中身をすべて指定タイルのフィールドへ落とす。
+// 収納エンティティを取り壊す前に呼び、中身が孤児化するのを防ぐ
+func SpillStorageItems(world w.World, storage ecs.Entity, x consts.Tile, y consts.Tile) {
+	// クエリ走査中の構造変更を避けるため、先に集めてから移動する
+	var items []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
+		if world.Components.LocationInStorage.Get(entity).Owner == storage {
+			items = append(items, entity)
+		}
+	}
+	for _, item := range items {
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		MoveToField(world, item, &storage)
+	}
+}
+
 // MoveToStorage はエンティティを収納に移動する。
 // Stackableアイテムの場合、収納内の同名アイテムと自動的に統合する
 func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {

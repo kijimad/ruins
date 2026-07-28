@@ -29,7 +29,7 @@ func TestOverworldState_ロード復元で視界が再計算され真っ暗に�
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -59,9 +59,9 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
-	const k = 3
+	const cols = 3
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, k), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -69,14 +69,14 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	require.NoError(t, st.OnStart(world))
 
 	// Level は帯全幅
-	assert.Equal(t, chunkW*k, query.GetCurrentStageField(world).Level.TileWidth, "Levelは帯全幅")
+	assert.Equal(t, chunkW*cols, query.GetCurrentStageField(world).Level.TileWidth, "Levelは帯全幅")
 
-	// 各スロットにタイルが存在する（初期帯 K チャンクが埋まっている）
-	slotCounts := make([]int, k)
+	// 各スロットにタイルが存在する（初期帯 cols チャンクが埋まっている）
+	slotCounts := make([]int, cols)
 	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for q.Next() {
 		x := world.Components.GridElement.Get(q.Entity()).X
-		if x >= 0 && x < chunkW*k {
+		if x >= 0 && x < chunkW*cols {
 			slotCounts[int(x/chunkW)]++
 		}
 	}
@@ -88,9 +88,10 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	pg := world.Components.GridElement.Get(player)
-	assert.Equal(t, consts.Tile(k/2)*chunkW+chunkW/2, pg.X, "プレイヤーX は中央チャンク中央")
+	assert.Equal(t, consts.Tile(cols/2)*chunkW+chunkW/2, pg.X, "プレイヤーX は中央チャンク中央")
 
-	// 開始チャンクに遺跡入口が1つ置かれ、進入先の遺跡名を持つ
+	// 開始チャンク近傍の入口に加え、帯全域の feature 配置でも入口が置かれうる。
+	// 少なくとも1つ存在し、いずれも進入先の遺跡名と相互作用を持つ
 	entranceCount := 0
 	eq := ecs.NewFilter1[gc.DungeonEntrance](world.ECS).Query()
 	for eq.Next() {
@@ -98,7 +99,7 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 		assert.NotEmpty(t, world.Components.DungeonEntrance.Get(eq.Entity()).DefinitionName, "遺跡入口は進入先を持つ")
 		assert.True(t, world.Components.Interactable.Has(eq.Entity()), "遺跡入口は相互作用を持つ")
 	}
-	assert.Equal(t, 1, entranceCount, "開始チャンクに遺跡入口が1つ置かれる")
+	assert.GreaterOrEqual(t, entranceCount, 1, "遺跡入口が少なくとも1つ置かれる")
 }
 
 // TestOverworldState_オーバーレイ進入で帯タイルを消さない は、射撃/観察等のオーバーレイ
@@ -109,7 +110,7 @@ func TestOverworldState_オーバーレイ進入で帯タイルを消さない(t
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -134,7 +135,7 @@ func TestOverworldState_オーバーレイ往復で隊員位置が変わらな�
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)

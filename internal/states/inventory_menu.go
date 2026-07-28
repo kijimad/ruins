@@ -13,6 +13,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
@@ -449,10 +450,11 @@ func (st *InventoryMenuState) handleItemSelection() error {
 type actionKind int
 
 const (
-	actionUse   actionKind = iota // 使う
-	actionRead                    // 読む
-	actionDrop                    // 捨てる
-	actionClose                   // 閉じる
+	actionUse         actionKind = iota // 使う
+	actionRead                          // 読む
+	actionDisassemble                   // 分解する
+	actionDrop                          // 捨てる
+	actionClose                         // 閉じる
 )
 
 // actionItem はアクションメニューの1項目を表す
@@ -489,6 +491,16 @@ func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) [
 		if err := book.CanRead(skills); err != nil {
 			item.Enabled = false
 			item.Reason = consts.IconWarning + err.Error()
+		}
+		actions = append(actions, item)
+	}
+	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityName(entity, world)); ok {
+		item := actionItem{Kind: actionDisassemble, Label: "分解する", Enabled: true}
+		if playerEntity, err := query.GetPlayerEntity(world); err == nil {
+			if _, _, found := activity.FindBestDisassemblyTool(world, playerEntity, def.ToolCategory); !found {
+				item.Enabled = false
+				item.Reason = consts.IconWarning + "分解できる工具を持っていない"
+			}
 		}
 		actions = append(actions, item)
 	}
@@ -570,6 +582,20 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			remaining = 1
 		}
 		_, err = activity.Execute(&activity.ReadActivity{Target: entity, Duration: remaining}, playerEntity, world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
+		}
+
+		st.subState = invSubStateMenu
+	case actionDisassemble:
+		playerEntity, err := query.GetPlayerEntity(world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
+		}
+
+		_, err = activity.Execute(&activity.DisassembleActivity{Target: entity}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err

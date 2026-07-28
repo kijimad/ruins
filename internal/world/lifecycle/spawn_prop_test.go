@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -18,9 +19,9 @@ func TestLockAllDoors(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		door1, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		door1, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
-		door2, err := lifecycle.SpawnDoor(world, 6, 6, gc.DoorOrientationVertical)
+		door2, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 6, Y: 6}, gc.DoorOrientationVertical)
 		require.NoError(t, err)
 
 		locked := lifecycle.LockAllDoors(world)
@@ -34,7 +35,7 @@ func TestLockAllDoors(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.OpenDoor(world, door))
 
@@ -51,14 +52,14 @@ func TestLockAllDoors(t *testing.T) {
 		// ロックした閉扉は視線を遮る（BlockView）べき。ボス部屋の扉が視線を通す不具合の回帰
 		assert.True(t, world.Components.BlockView.Has(door), "ロックした閉扉はBlockViewを持つべき")
 		// BlockView変化を視界システムへ通知するため視界更新フラグが立つべき
-		assert.True(t, query.GetVisionState(world).NeedsForceUpdate, "視界の再計算が要求されるべき")
+		assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "視界の再計算が要求されるべき")
 	})
 
 	t.Run("既にロック済みの扉はスキップする", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 		world.Components.Door.Get(door).Locked = true
 
@@ -84,9 +85,9 @@ func TestUnlockAllDoors(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		door1, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		door1, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
-		door2, err := lifecycle.SpawnDoor(world, 6, 6, gc.DoorOrientationVertical)
+		door2, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 6, Y: 6}, gc.DoorOrientationVertical)
 		require.NoError(t, err)
 
 		// ロックする
@@ -108,7 +109,7 @@ func TestUnlockAllDoors(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.OpenDoor(world, door))
 		world.Components.Door.Get(door).Locked = true

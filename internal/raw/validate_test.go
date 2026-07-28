@@ -126,3 +126,145 @@ func makeItemRaws(modify func(*oapi.Item)) oapi.Raws {
 	items := []oapi.Item{item}
 	return oapi.Raws{Items: &items}
 }
+
+func TestValidateDisassemblyReferences(t *testing.T) {
+	t.Parallel()
+
+	validItems := &[]oapi.Item{
+		{Name: "鉄くず"},
+		{Name: "分解対象"},
+	}
+
+	t.Run("実在する産出名なら通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: validItems,
+			Props: &[]oapi.Prop{{
+				Name: "棚",
+				Disassembly: &oapi.Disassembly{
+					ToolCategory: oapi.Prying,
+					BaseAP:       100,
+					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+				},
+			}},
+		}
+		require.NoError(t, validateDisassemblyReferences(raws))
+	})
+
+	t.Run("propの産出名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: validItems,
+			Props: &[]oapi.Prop{{
+				Name: "棚",
+				Disassembly: &oapi.Disassembly{
+					ToolCategory: oapi.Prying,
+					BaseAP:       100,
+					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Amount: 1}},
+				},
+			}},
+		}
+		err := validateDisassemblyReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "存在しない素材")
+		require.ErrorContains(t, err, "棚")
+	})
+
+	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		minSkill := oapi.SkillLevel(10)
+		items := []oapi.Item{
+			{Name: "鉄くず"},
+			{Name: "分解対象", Disassembly: &oapi.Disassembly{
+				ToolCategory: oapi.Precision,
+				BaseAP:       100,
+				Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: &minSkill}},
+			}},
+		}
+		raws := oapi.Raws{Items: &items}
+		err := validateDisassemblyReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "存在しないボーナス")
+	})
+}
+
+func TestValidateDropTableReferences(t *testing.T) {
+	t.Parallel()
+
+	items := &[]oapi.Item{{Name: "鉄くず"}}
+
+	t.Run("実在する素材と空文字は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: items,
+			DropTables: &[]oapi.DropTable{{
+				Name: "廃墟",
+				Entries: []oapi.DropTableEntry{
+					{Material: "鉄くず", Weight: 1},
+					{Material: "", Weight: 3},
+				},
+			}},
+		}
+		require.NoError(t, validateDropTableReferences(raws))
+	})
+
+	t.Run("素材名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: items,
+			DropTables: &[]oapi.DropTable{{
+				Name:    "廃墟",
+				Entries: []oapi.DropTableEntry{{Material: "存在しない素材", Weight: 1}},
+			}},
+		}
+		err := validateDropTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "存在しない素材")
+		require.ErrorContains(t, err, "廃墟")
+	})
+
+	t.Run("メンバーのテーブル名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		tableName := oapi.EntityName("未定義テーブル")
+		raws := oapi.Raws{
+			Items:   items,
+			Members: &[]oapi.Member{{Name: "スライム", DropTableName: &tableName}},
+		}
+		err := validateDropTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義テーブル")
+		require.ErrorContains(t, err, "スライム")
+	})
+}
+
+func TestValidateCommandTableReferences(t *testing.T) {
+	t.Parallel()
+
+	t.Run("実在するテーブル名と未指定と空文字は通る", func(t *testing.T) {
+		t.Parallel()
+		empty := oapi.EntityName("")
+		tableName := oapi.EntityName("素手")
+		raws := oapi.Raws{
+			CommandTables: &[]oapi.CommandTable{{Name: "素手"}},
+			Members: &[]oapi.Member{
+				{Name: "戦うNPC", CommandTableName: &tableName},
+				{Name: "未指定NPC"},
+				{Name: "空文字NPC", CommandTableName: &empty},
+			},
+		}
+		require.NoError(t, validateCommandTableReferences(raws))
+	})
+
+	t.Run("テーブル名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		tableName := oapi.EntityName("未定義テーブル")
+		raws := oapi.Raws{
+			Members: &[]oapi.Member{{Name: "スライム", CommandTableName: &tableName}},
+		}
+		err := validateCommandTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義テーブル")
+		require.ErrorContains(t, err, "スライム")
+	})
+}

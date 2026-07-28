@@ -165,3 +165,34 @@ func TestWaitActivity_Finish(t *testing.T) {
 		assert.Contains(t, recent[0], "待機を終了した")
 	})
 }
+
+func TestWaitActivity_長い待機は敵接近で中断する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := newDisassembleTestPlayer(world)
+	spawnHostileAt(world, 11, 10)
+
+	wa := &WaitActivity{}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, TurnsTotal: 5, TurnsLeft: 5}
+
+	require.NoError(t, wa.DoTurn(comp, actor, world))
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	assert.Equal(t, "周囲に敵がいるため待機を中断", comp.CancelReason)
+}
+
+func TestWaitActivity_1ターンの待機は敵が隣接していても完結する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := newDisassembleTestPlayer(world)
+	spawnHostileAt(world, 11, 10)
+
+	wa := &WaitActivity{}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, TurnsTotal: 1, TurnsLeft: 1}
+
+	require.NoError(t, wa.DoTurn(comp, actor, world))
+	require.NoError(t, wa.DoTurn(comp, actor, world))
+	assert.Equal(t, gc.ActivityStateCompleted, comp.State,
+		"ターン送りやAIの手番調整は中断の対象外にするべき")
+}

@@ -276,6 +276,10 @@ spriteSheetName = "field"
 value = 70
 weight = "1.5 kg"
 
+[items.disassemblyTool]
+categories = ["prying"]
+grade = 1
+
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -961,6 +965,10 @@ spriteSheetName = "field"
 value = 50
 weight = "800 g"
 
+[items.disassemblyTool]
+categories = ["cutting"]
+grade = 3
+
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -996,6 +1004,10 @@ spriteKey = "electric_driver"
 spriteSheetName = "field"
 value = 60
 weight = "500 g"
+
+[items.disassemblyTool]
+categories = ["precision"]
+grade = 2
 
 [items.melee]
 accuracy = 85
@@ -12558,7 +12570,7 @@ path = "file/textures/dist/tiles.json"
 [[tiles]]
 blockPass = false
 blockView = false
-description = "土"
+description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
 foliage = 0
 name = "dirt"
 shelter = 0
@@ -12572,7 +12584,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = true
 blockView = true
-description = "ダンジョン壁"
+description = "濃灰のダンジョン壁のオートタイル。通行不可"
 foliage = 0
 name = "dwall"
 shelter = 0
@@ -12586,7 +12598,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = false
 blockView = false
-description = "床"
+description = "灰色の石床のオートタイル。屋内の歩行可能タイル"
 foliage = 0
 name = "floor"
 shelter = 0
@@ -12600,7 +12612,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = true
 blockView = false
-description = "暗闇"
+description = "暗闇。単一絵柄の通行不可タイル"
 foliage = 0
 name = "void"
 shelter = 0
@@ -12614,7 +12626,7 @@ spriteSheetName = "tile"
 [[tiles]]
 blockPass = true
 blockView = true
-description = "壁"
+description = "灰色の石壁のオートタイル。通行不可"
 foliage = 0
 name = "wall"
 shelter = 0
@@ -12628,7 +12640,7 @@ spriteSheetName = "tile"
 [[props]]
 blockPass = false
 blockView = false
-description = "目覚まし時計"
+description = "金色の丸い目覚まし時計。上部に2つのベル、白い文字盤。机や棚に置く小物"
 hp = 5
 name = "alarm_clock"
 
@@ -12640,7 +12652,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "デザイナーズ本棚"
+description = "濃茶のジグザグに組まれた装飾的な木製オープン棚。洒落た室内の飾り棚"
 hp = 20
 name = "artistic_shelf"
 
@@ -12652,7 +12664,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "何か入っているかもしれない樽"
+description = "茶色の木製樽。上面に濃色の栓。倉庫や酒場の保管用。中身が入っていることがある"
 hp = 20
 name = "barrel"
 
@@ -12661,10 +12673,29 @@ depth = 2
 spriteKey = "prop_barrel"
 spriteSheetName = "field"
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2500
+
+[[props.disassembly.yields]]
+name = "硬木"
+amount = 1
+amountMax = 3
+
+[[props.disassembly.yields]]
+name = "錆びた鎖"
+amount = 1
+chance = 40
+
+[[props.disassembly.bonus]]
+name = "硬木"
+amount = 1
+minSkill = 10
+
 [[props]]
 blockPass = false
 blockView = false
-description = "バスタブ"
+description = "白い猫足の浴槽。内側は水色。浴室に置く"
 hp = 30
 name = "bathtub"
 
@@ -12676,7 +12707,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "簡素だが清潔な寝台"
+description = "茶の木枠に白いマットレスと枕、赤茶の掛布団。寝室・宿・診療所の寝台"
 hp = 25
 name = "bed"
 
@@ -12688,7 +12719,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "ベッドランプ"
+description = "黄色い笠の小型スタンドランプ。ベッド脇や卓上を照らす"
 hp = 5
 name = "bed_lamp"
 
@@ -12710,7 +12741,7 @@ r = 255
 [[props]]
 blockPass = true
 blockView = false
-description = "ベンチ"
+description = "茶の木製の背もたれ付き長椅子。公園・待合・通路に"
 hp = 20
 name = "bench"
 
@@ -12723,7 +12754,7 @@ spriteSheetName = "field"
 animKeys = [ "bonfire_0", "bonfire_1", "bonfire_2", "bonfire_3", "bonfire_4", "bonfire_5", "bonfire_6", "bonfire_7", "bonfire_8", "bonfire_9", "bonfire_10", "bonfire_11", "bonfire_12", "bonfire_13", "bonfire_14", "bonfire_15" ]
 blockPass = true
 blockView = false
-description = "焚き火"
+description = "石で囲った中でオレンジから黄に揺れる炎。屋外や野営の光源"
 hp = 15
 name = "bonfire"
 
@@ -12745,7 +12776,7 @@ r = 255
 [[props]]
 blockPass = true
 blockView = false
-description = "本がぎっしり詰まった本棚"
+description = "濃茶の木枠に色とりどりの本がぎっしり詰まった本棚。書斎・図書室"
 hp = 25
 name = "book_shelf_2"
 
@@ -12757,7 +12788,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "ガラス扉のついた本棚"
+description = "茶枠にガラス扉が付き中の本が見える飾り本棚"
 hp = 20
 name = "book_showcase"
 
@@ -12769,7 +12800,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = true
-description = "たくさんの本が並んだ本棚"
+description = "茶の木製オープン棚に本が並ぶ。書斎向け"
 hp = 25
 name = "bookshelf"
 
@@ -12781,7 +12812,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "蝋燭。微かな光を灯す"
+description = "真鍮の燭台に立てた白い蝋燭と小さな炎。卓上や祭壇の微光源"
 hp = 3
 name = "candle"
 
@@ -12793,7 +12824,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "敷かれた絨毯"
+description = "赤地に金の縁飾りが入った四角い敷物。床の装飾"
 hp = 10
 name = "carpet"
 passCost = 10
@@ -12806,7 +12837,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "座り心地の良い椅子"
+description = "茶色のオフィス回転椅子。背もたれと脚付き。机まわりに"
 hp = 15
 name = "chair"
 
@@ -12818,7 +12849,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "壁掛け時計"
+description = "白文字盤の丸い壁掛け時計。壁に掛ける"
 hp = 5
 name = "clock"
 
@@ -12830,7 +12861,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "収納用のクローゼット"
+description = "茶の木製の両開き戸棚。衣類などの収納"
 hp = 25
 name = "closet"
 
@@ -12842,7 +12873,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "コーヒーメーカー"
+description = "黒い本体にガラスポットのコーヒーメーカー。台所や給湯コーナー"
 hp = 8
 name = "coffee_maker"
 
@@ -12854,7 +12885,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "工事中の標識"
+description = "黄色い看板に赤字、三脚スタンド付きの工事標識。屋外の封鎖表示"
 hp = 10
 name = "construction_sign"
 passCost = 30
@@ -12867,7 +12898,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "頑丈そうな木箱"
+description = "茶の木製の箱、金具付き。倉庫の保管用。中身が入っていることがある"
 hp = 30
 name = "crate"
 
@@ -12876,10 +12907,29 @@ depth = 2
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2000
+
+[[props.disassembly.yields]]
+name = "硬木"
+amount = 1
+amountMax = 2
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "硬木"
+amount = 1
+minSkill = 10
+
 [[props]]
 blockPass = true
 blockView = false
-description = "書類や文具が置かれた机"
+description = "茶の木製の作業机。脚付きの平机。書斎・オフィス"
 hp = 20
 name = "desk"
 
@@ -12891,7 +12941,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "デスクランプ"
+description = "赤い笠のアーム式デスクランプ。机上を照らす"
 hp = 5
 name = "desk_light"
 
@@ -12903,7 +12953,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "デスクトップPC"
+description = "黒いモニタとキーボードのデスクトップPC。オフィスや自室"
 hp = 20
 name = "desktop_pc"
 
@@ -12915,7 +12965,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "食器棚"
+description = "茶の木製食器棚。上段はガラス扉で皿が見え、下段は引き出し。台所・食堂"
 hp = 20
 name = "dish_shelf"
 
@@ -12927,7 +12977,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "ドア"
+description = "青い縦長の扉。出入口"
 name = "door"
 
 [props.spriteRender]
@@ -12939,7 +12989,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "プレイヤーが踏むと扉をロックするトリガー"
+description = "青い縦扉のロック仕掛け。踏むと扉が施錠される"
 name = "door_lock_trigger"
 
 [props.spriteRender]
@@ -12951,7 +13001,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "引き出し付きのチェスト"
+description = "茶の木製チェスト。取っ手付きの引き出しが3〜4段。寝室・収納"
 hp = 20
 name = "drawer_chest"
 
@@ -12963,7 +13013,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "電気式のロッカー"
+description = "灰色の金属製ロッカー3連。縦長の扉に取っ手。更衣室や職場の収納"
 hp = 35
 name = "electric_locker"
 
@@ -12975,7 +13025,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "旗を立てるポット"
+description = "茶色の壺から旗を立てる装飾台。目印や飾り"
 hp = 5
 name = "flag_pot"
 
@@ -12987,7 +13037,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "産業用フォークリフト"
+description = "赤い産業用フォークリフト。倉庫や工場の運搬車"
 hp = 50
 name = "forklift"
 
@@ -12999,7 +13049,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "溶鉱炉。金属を精錬するのに使う"
+description = "灰色の溶鉱炉。前面に赤い炎の焚口。金属精錬や作業場"
 hp = 40
 name = "furnace"
 
@@ -13011,7 +13061,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "計器類が並ぶ機械"
+description = "灰色の機械に計器やダイヤルが並ぶ制御盤。工場や設備"
 hp = 30
 name = "gauge_machine"
 
@@ -13023,7 +13073,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "緑色の発電機"
+description = "緑色の箱型発電機。側面に通気口。電源設備"
 hp = 40
 name = "generator_green"
 
@@ -13035,7 +13085,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "黄色い発電機"
+description = "黄色の箱型発電機。パネルと通気口。電源設備"
 hp = 40
 name = "generator_yellow"
 
@@ -13047,7 +13097,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "商品が並ぶ棚"
+description = "濃茶の金属オープン棚に赤黄白の商品が並ぶ。コンビニや店舗の陳列棚"
 hp = 20
 name = "goods_shelf"
 
@@ -13059,7 +13109,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "鉄製の棚"
+description = "灰色から黒の鉄製ラック棚。倉庫や作業場の収納"
 hp = 30
 name = "iron_shelf"
 
@@ -13068,10 +13118,35 @@ depth = 2
 spriteKey = "iron_shelf"
 spriteSheetName = "field"
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 4000
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 2
+amountMax = 3
+
+[[props.disassembly.yields]]
+name = "鉄"
+amount = 1
+chance = 60
+
+[[props.disassembly.bonus]]
+name = "鉄"
+amount = 1
+minSkill = 10
+
+[[props.disassembly.bonus]]
+name = "鉄"
+amount = 1
+amountMax = 2
+minGrade = 2
+
 [[props]]
 blockPass = true
 blockView = false
-description = "床置きランタン。広い範囲を明るく照らす"
+description = "黒枠のランタンの中にオレンジの炎。床置きの広範囲光源"
 hp = 15
 name = "lantern"
 
@@ -13093,7 +13168,7 @@ r = 255
 [[props]]
 blockPass = true
 blockView = false
-description = "洗濯機。乾いた衣類が入っている"
+description = "水色の洗濯かごに衣類が入る。洗面やランドリー"
 hp = 30
 name = "laundry"
 
@@ -13105,7 +13180,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "電子レンジ"
+description = "白い電子レンジ。前面に扉と操作パネル。台所や給湯"
 hp = 20
 name = "microwave"
 
@@ -13117,7 +13192,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "姿見の鏡"
+description = "銀枠の縦長の姿見。鏡面が反射する。寝室や浴室"
 hp = 5
 name = "mirror"
 
@@ -13129,7 +13204,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "食品用のミキサー"
+description = "灰色の食品用ミキサー。台所や厨房"
 hp = 8
 name = "mixer"
 
@@ -13141,7 +13216,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "動く石。微かに振動している"
+description = "紫の結晶が突き出た石。微かに振動する特殊オブジェクト"
 passCost = 50
 name = "moving_stone"
 
@@ -13153,7 +13228,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "古びたランプ。まだ灯りがつく"
+description = "古びた黒枠のランタン。中に暖色の光。まだ灯る"
 hp = 5
 name = "old_lamp"
 
@@ -13165,7 +13240,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "大きな本棚"
+description = "大きな濃茶の本棚に色とりどりの本。書斎や図書室"
 hp = 25
 name = "prop_bookshelf"
 
@@ -13177,7 +13252,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "木の椅子"
+description = "茶の木製の椅子。背もたれ付きの素朴な座具"
 hp = 15
 name = "prop_chair"
 
@@ -13189,7 +13264,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "小さなテーブル"
+description = "茶の木製の小さなテーブル。素朴な卓"
 hp = 20
 name = "prop_table"
 
@@ -13201,7 +13276,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "冷蔵庫。中に食料が残っているかも"
+description = "銀灰の縦型2ドア冷蔵庫。取っ手付き。台所や店舗。中に食料が残っているかも"
 hp = 35
 name = "refrigerator"
 
@@ -13210,12 +13285,55 @@ depth = 2
 spriteKey = "refrigerator"
 spriteSheetName = "field"
 
+[props.disassembly]
+toolCategory = "cutting"
+baseAP = 6000
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 2
+amountMax = 4
+
+[[props.disassembly.yields]]
+name = "鉄"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "コード束"
+amount = 1
+minSkill = 10
+
+[[props.disassembly.bonus]]
+name = "鉄"
+amount = 1
+minGrade = 3
+
 [[props]]
 blockPass = true
 blockView = false
-description = "レジスター。かつての店の名残"
+description = "橙色の低いレジカウンター。上面に暗色のレジ機。店舗の会計"
 hp = 15
 name = "register"
+
+[props.disassembly]
+toolCategory = "precision"
+baseAP = 3000
+
+[[props.disassembly.yields]]
+name = "電線"
+amount = 1
+amountMax = 2
+
+[[props.disassembly.yields]]
+name = "コード束"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "フェライトコア"
+amount = 1
+minSkill = 10
 
 [props.spriteRender]
 depth = 2
@@ -13225,7 +13343,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "流し台"
+description = "白い流し台。蛇口付き。台所や洗面"
 hp = 25
 name = "sink"
 
@@ -13237,7 +13355,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "革張りのソファ"
+description = "茶色の革張りの2人掛けソファ。居間や待合"
 hp = 20
 name = "sofa"
 
@@ -13249,7 +13367,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "石の柱"
+description = "灰色の石柱。装飾や構造物"
 hp = 50
 name = "stone_pillar"
 
@@ -13261,7 +13379,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "頑丈な木製のテーブル"
+description = "茶の頑丈な木製テーブル。食堂や作業台"
 hp = 25
 name = "table"
 
@@ -13273,7 +13391,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "背の高いスタンドランプ"
+description = "背の高い黒脚に白笠のスタンドランプ。室内照明"
 hp = 8
 name = "tall_lamp"
 
@@ -13285,7 +13403,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "便器。水は出ない"
+description = "白い洋式便器。水は出ない。トイレや浴室"
 hp = 15
 name = "toilet"
 
@@ -13298,7 +13416,7 @@ spriteSheetName = "field"
 animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15" ]
 blockPass = false
 blockView = false
-description = "次の階層へと続くポータル"
+description = "金色に渦巻くポータル。次の階層へ続く"
 name = "warp_next"
 
 [props.spriteRender]
@@ -13321,7 +13439,7 @@ r = 100
 animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15" ]
 blockPass = false
 blockView = false
-description = "1つ上の階層へと戻るポータル"
+description = "金色に渦巻くポータル。1つ上の階層へ戻る"
 name = "warp_prev"
 
 [props.spriteRender]
@@ -13343,7 +13461,7 @@ r = 100
 [[props]]
 blockPass = true
 blockView = false
-description = "木製の本棚"
+description = "茶の木製本棚に色とりどりの本が並ぶ。書斎"
 hp = 25
 name = "wood_bookshelf"
 
@@ -13355,7 +13473,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "木製のチェスト。何か入っているかもしれない"
+description = "茶の木製の長持ち。保管用。何か入っているかも"
 hp = 25
 name = "wood_chest"
 
@@ -13367,7 +13485,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "木製の地図看板"
+description = "茶の木製の地図看板。方向や場所を示す道標"
 hp = 10
 name = "wooden_map_sign"
 
@@ -13379,7 +13497,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "木製の道標"
+description = "茶の木製の看板に矢印板。道標や案内"
 hp = 10
 name = "wooden_sign"
 
@@ -13391,7 +13509,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "シンク"
+description = "茶の木枠に白い流し台と蛇口。台所"
 hp = 25
 name = "シンク"
 
@@ -13403,7 +13521,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "鏡台付きのドレッサー"
+description = "丸鏡とスツールが付いた鏡台ドレッサー。寝室"
 hp = 20
 name = "ドレッサー"
 
@@ -13415,7 +13533,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "ベッドサイドテーブル"
+description = "茶の木製のベッドサイドテーブル。ベッド脇の小卓"
 hp = 10
 name = "ベッドサイド"
 
@@ -13427,7 +13545,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "二人がけのソファ"
+description = "茶色の革張りの2人掛けソファ。居間や待合"
 hp = 25
 name = "二人がけのソファ"
 
@@ -13439,7 +13557,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "使い込まれた仕事机"
+description = "茶の使い込まれた木製の仕事机。オフィス"
 hp = 20
 name = "仕事机"
 
@@ -13451,7 +13569,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "暖炉。かすかに温もりが残る"
+description = "石とレンガの暖炉。中に薪や火。居間の暖房。かすかに温もりが残る"
 hp = 40
 name = "暖炉"
 
@@ -13463,7 +13581,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "毒々しい色の液体が入った危険な樽"
+description = "緑色のドラム缶に毒々しい液体。危険物"
 hp = 15
 name = "毒樽"
 
@@ -13475,7 +13593,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "毛皮張りの高級な椅子"
+description = "茶色の革張りの高級な椅子。座り心地が良い"
 hp = 20
 name = "毛皮張りの椅子"
 
@@ -13487,7 +13605,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "廃墟に残された洗濯機。もう動かない"
+description = "白いドラム式洗濯機。ランドリー。廃墟に残されもう動かない"
 hp = 30
 name = "洗濯機"
 
@@ -13499,7 +13617,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "水が入ったままの洗濯機。重くて動かせない"
+description = "白い洗濯機に青い水が残る。重くて動かせない"
 hp = 35
 name = "洗濯機(満杯)"
 
@@ -13511,7 +13629,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "白く塗られた清潔な樽"
+description = "白く塗られた清潔な木樽。保管用"
 hp = 20
 name = "白い樽"
 
@@ -13523,7 +13641,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "深緑色に塗装されたドラム缶。軍用物資が入っている"
+description = "深緑のドラム缶。軍用物資が入っている"
 hp = 30
 name = "緑のドラム缶"
 
@@ -13535,7 +13653,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "茶色の木製の樽。中に物資が入っていることがある"
+description = "茶色の木製樽。物資が入っていることがある"
 hp = 20
 name = "茶色い樽"
 
@@ -13547,7 +13665,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "赤く塗装されたドラム缶。可燃物の警告マークがある"
+description = "赤いドラム缶に可燃物の警告マーク。危険物"
 hp = 30
 name = "赤いドラム缶"
 
@@ -13559,7 +13677,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "黒い革張りの椅子"
+description = "黒い革張りのオフィス椅子"
 hp = 20
 name = "黒いチェア"
 
@@ -13571,7 +13689,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "艶のある黒い花瓶。高級感がある"
+description = "艶のある黒い花瓶。高級感のある飾り"
 hp = 5
 name = "黒い花瓶"
 
@@ -13583,7 +13701,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "古びた木箱。何か入っているかもしれない"
+description = "古びた茶の木箱。何か入っているかも"
 hp = 20
 name = "木箱"
 
@@ -13598,10 +13716,29 @@ lootTableName = "廃墟"
 lootCountMin = 1
 lootCountMax = 3
 
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2000
+
+[[props.disassembly.yields]]
+name = "硬木"
+amount = 1
+amountMax = 2
+
+[[props.disassembly.yields]]
+name = "鉄くず"
+amount = 1
+chance = 50
+
+[[props.disassembly.bonus]]
+name = "硬木"
+amount = 1
+minSkill = 10
+
 [[props]]
 blockPass = true
 blockView = false
-description = "金属製のロッカー"
+description = "灰色の金属ロッカー2連。更衣室や職場の収納"
 hp = 40
 name = "ロッカー"
 
@@ -13640,6 +13777,10 @@ name = "ビスケット"
 [[professions.items]]
 count = 1
 name = "回復薬"
+
+[[professions.items]]
+count = 1
+name = "モンキーレンチ"
 
 [[professions.equips]]
 name = "布の帽子"
@@ -13977,3 +14118,1101 @@ slot = "LEGS"
 [[professions.equips]]
 name = "革のブーツ"
 slot = "FEET"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 展示冷蔵ケース。飲料や惣菜を並べるオープン型の冷蔵陳列棚。コンビニ向け。実アート未実装の仮素材"
+hp = 15
+name = "display_cooler"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "display_cooler"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 雑誌ラック。雑誌や新聞を立てて並べる棚。店舗や待合。実アート未実装の仮素材"
+hp = 15
+name = "magazine_rack"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "magazine_rack"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 自動販売機。飲料などを売る箱型の機械。屋内外。実アート未実装の仮素材"
+hp = 15
+name = "vending_machine"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "vending_machine"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] 買い物カゴ。手提げの買い物用カゴ。店舗。実アート未実装の仮素材"
+hp = 15
+name = "shopping_basket"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "shopping_basket"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] ゴンドラ什器。店舗中央に置く両面の陳列棚。コンビニやスーパー。実アート未実装の仮素材"
+hp = 15
+name = "gondola_shelf"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "gondola_shelf"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] レジカウンター。会計を行う横長のカウンター。店舗。実アート未実装の仮素材"
+hp = 15
+name = "checkout_counter"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "checkout_counter"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 診察台。患者を診る医療用ベッド。診療所。実アート未実装の仮素材"
+hp = 15
+name = "exam_bed"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "exam_bed"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] 点滴スタンド。点滴バッグを吊るす支柱。診療所。実アート未実装の仮素材"
+hp = 15
+name = "iv_stand"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "iv_stand"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] 車椅子。移動用の車輪付き椅子。診療所。実アート未実装の仮素材"
+hp = 15
+name = "wheelchair"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "wheelchair"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] ストレッチャー。搬送用の車輪付き寝台。診療所。実アート未実装の仮素材"
+hp = 15
+name = "stretcher"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "stretcher"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 薬品キャビネット。薬や医療品を収める戸棚。診療所。実アート未実装の仮素材"
+hp = 15
+name = "medicine_cabinet"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "medicine_cabinet"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 受付カウンター。案内や受付の横長カウンター。診療所や施設。実アート未実装の仮素材"
+hp = 15
+name = "reception_counter"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "reception_counter"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 医療モニタ。生体情報を表示する画面付き機器。診療所。実アート未実装の仮素材"
+hp = 15
+name = "medical_monitor"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "medical_monitor"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] パーティション。オフィスを仕切る間仕切り。事務所。実アート未実装の仮素材"
+hp = 15
+name = "cubicle_partition"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "cubicle_partition"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] サーバラック。サーバ機器を収める縦型ラック。事務所や機械室。実アート未実装の仮素材"
+hp = 15
+name = "server_rack"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "server_rack"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] プリンタ。印刷機。事務所。実アート未実装の仮素材"
+hp = 15
+name = "printer"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "printer"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] ホワイトボード。書き込む白い掲示板。事務所や会議室。実アート未実装の仮素材"
+hp = 15
+name = "whiteboard"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "whiteboard"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] ウォーターサーバー。冷水を供給する給水機。事務所や待合。実アート未実装の仮素材"
+hp = 15
+name = "water_cooler"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "water_cooler"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] パレット。荷を載せる荷役台。倉庫。実アート未実装の仮素材"
+hp = 15
+name = "pallet"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "pallet"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 保管ケージ。金網の保管檻。倉庫。実アート未実装の仮素材"
+hp = 15
+name = "cage"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "cage"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 小さな鳥居。神社の朱い門。祠や境内。実アート未実装の仮素材"
+hp = 15
+name = "torii_small"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "torii_small"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 賽銭箱。参拝の賽銭を入れる木箱。神社。実アート未実装の仮素材"
+hp = 15
+name = "offering_box"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "offering_box"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "[dummy] 狛犬。神社を守る石像の獣。境内。実アート未実装の仮素材"
+hp = 15
+name = "komainu"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "komainu"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] 絵馬掛け。願い事を書く絵馬を吊るす棚。神社。実アート未実装の仮素材"
+hp = 15
+name = "ema_rack"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "ema_rack"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] 香炉。線香を焚く器。神社や仏閣。実アート未実装の仮素材"
+hp = 15
+name = "incense_burner"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "incense_burner"
+spriteSheetName = "field"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "[dummy] リノリウム床。コンビニや病院の滑らかな樹脂床。実アート未実装の仮素材"
+foliage = 0
+name = "floor_linoleum"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "floor_linoleum"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "[dummy] タイル床。浴室や厨房の四角いタイルの床。実アート未実装の仮素材"
+foliage = 0
+name = "floor_tile"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "floor_tile"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "[dummy] コンクリート床。倉庫や地下の無機質な床。実アート未実装の仮素材"
+foliage = 0
+name = "floor_concrete"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "floor_concrete"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "[dummy] フローリング床。民家やオフィスの木の床。実アート未実装の仮素材"
+foliage = 0
+name = "floor_wood"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "floor_wood"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "[dummy] 畳。和室のい草の床。実アート未実装の仮素材"
+foliage = 0
+name = "floor_tatami"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "floor_tatami"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "シアン色の煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_cyan"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_cyan"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青緑の丸石を敷いた床のオートタイル"
+foliage = 0
+name = "cobble_teal"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_teal"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "金色の丸石を敷いた床のオートタイル"
+foliage = 0
+name = "cobble_gold"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_gold"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "灰色の煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_gray"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_gray"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "緑の草地のオートタイル床"
+foliage = 0
+name = "grass_green"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "grass_green"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "クリーム色の丸石を敷いた床のオートタイル"
+foliage = 0
+name = "cobble_cream"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_cream"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青灰色の煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_blue"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_blue"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "オリーブ色の草地のオートタイル床"
+foliage = 0
+name = "grass_olive"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "grass_olive"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "赤い丸石を敷いた床のオートタイル"
+foliage = 0
+name = "cobble_red"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_red"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "紺色の煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_navy"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_navy"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "紫がかった砂利の床のオートタイル"
+foliage = 0
+name = "cobble_purple"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_purple"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "石板色の砂利の床のオートタイル"
+foliage = 0
+name = "cobble_slate"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "cobble_slate"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "桃色の砂の床のオートタイル"
+foliage = 0
+name = "sand_pink"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_pink"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "琥珀色の煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_amber"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_amber"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "クリーム色の滑らかな床のオートタイル"
+foliage = 0
+name = "smooth_cream"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_cream"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "橙色の砂の床のオートタイル"
+foliage = 0
+name = "sand_orange"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_orange"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "テラコッタ色の煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_terracotta"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_terracotta"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "白い滑らかな床のオートタイル"
+foliage = 0
+name = "smooth_white"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_white"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "赤茶の砂の床のオートタイル"
+foliage = 0
+name = "sand_red"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_red"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "ベージュの煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_beige"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_beige"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青緑の滑らかな床や水面のオートタイル"
+foliage = 0
+name = "smooth_teal"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_teal"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "石板色の砂の床のオートタイル"
+foliage = 0
+name = "sand_slate"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "sand_slate"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "錆色の煉瓦を敷いた床のオートタイル"
+foliage = 0
+name = "brick_rust"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "brick_rust"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青灰の滑らかな床のオートタイル"
+foliage = 0
+name = "smooth_bluegray"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "smooth_bluegray"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "橙色の板を張った床のオートタイル"
+foliage = 0
+name = "plank_orange"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_orange"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "茶色の板を張った床のオートタイル"
+foliage = 0
+name = "plank_brown"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_brown"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "紺色の板を張った床のオートタイル"
+foliage = 0
+name = "plank_navy"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_navy"
+spriteSheetName = "tile"
+
+[[tiles]]
+blockPass = false
+blockView = false
+description = "青い板を張った床のオートタイル"
+foliage = 0
+name = "plank_blue"
+shelter = 0
+water = 0
+
+[tiles.spriteRender]
+depth = 0
+spriteKey = "plank_blue"
+spriteSheetName = "tile"
+
+# === 既存スプライトの登録: 従来 raw 未登録だった single シートのスプライトを wire する ===
+# 孤児検査 TestSpriteOrphan の knownOrphanSprites を解消するため、絵に合わせて分類し定義した
+
+[[items]]
+description = "茶色いカップに入った焼き菓子。上に濃い茶色のクリームが渦を巻いて絞られている"
+name = "カップケーキ"
+providesNutrition = 20
+spriteKey = "cake"
+spriteSheetName = "field"
+stackable = true
+value = 20
+weight = "150 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "白い羽毛の鶏。赤いとさかと黄色いくちばしを持つ。食材になる"
+name = "鶏"
+providesNutrition = 30
+spriteKey = "chiken"
+spriteSheetName = "field"
+stackable = true
+value = 40
+weight = "1500 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "黄色く実った細長い穀物の穂"
+name = "とうもろこし"
+providesNutrition = 15
+spriteKey = "corn"
+spriteSheetName = "field"
+stackable = true
+value = 12
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "白い受け皿に乗った紅茶のカップ。琥珀色の液体が入る"
+name = "紅茶"
+providesNutrition = 10
+spriteKey = "cup_tea"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "250 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "きつね色に揚がった鶏肉。表面に衣の凹凸がある"
+name = "からあげ"
+providesNutrition = 30
+spriteKey = "fried_chiken"
+spriteSheetName = "field"
+stackable = true
+value = 30
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "紫色の缶に入った炭酸飲料。側面に白い文字のラベル"
+name = "グレープソーダ"
+providesNutrition = 15
+spriteKey = "grape_soda"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "緑色の瓶に入った炭酸飲料"
+name = "グリーンソーダ"
+providesNutrition = 15
+spriteKey = "green_soda"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "青いトロピカルドリンク。グラスにストローが挿さる"
+name = "ハワイアンソーダ"
+providesNutrition = 15
+spriteKey = "hawai_soda"
+spriteSheetName = "field"
+stackable = true
+value = 18
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "黄色いパッケージの炭酸飲料"
+name = "レモンソーダ"
+providesNutrition = 15
+spriteKey = "lemon_soda"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = "350 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "鮮やかな緑色のミントの葉"
+name = "ミント"
+providesNutrition = 5
+spriteKey = "mint"
+spriteSheetName = "field"
+stackable = true
+value = 8
+weight = "50 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "赤く細長い唐辛子。先が尖る"
+name = "とうがらし"
+providesNutrition = 5
+spriteKey = "pepper"
+spriteSheetName = "field"
+stackable = true
+value = 10
+weight = "50 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "橙色の身に白い脂の筋が入るサーモンの切り身"
+name = "サーモン"
+providesNutrition = 25
+spriteKey = "salmon"
+spriteSheetName = "field"
+stackable = true
+value = 35
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "海苔で巻いた寿司。二切れが並ぶ"
+name = "巻き寿司"
+providesNutrition = 25
+spriteKey = "role"
+spriteSheetName = "field"
+stackable = true
+value = 30
+weight = "150 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[[items]]
+description = "灰色の外付けハードディスク。前面に小さな表示ランプが灯る"
+name = "ハードディスク"
+spriteKey = "hdd"
+spriteSheetName = "field"
+stackable = true
+value = 50
+weight = "300 g"
+material = true
+
+[items.disassembly]
+toolCategory = "precision"
+baseAP = 1000
+
+[[items.disassembly.yields]]
+name = "鉄くず"
+amount = 1
+
+[[items.disassembly.yields]]
+name = "電線"
+amount = 1
+chance = 50
+
+[[items.disassembly.bonus]]
+name = "フェライトコア"
+amount = 1
+minSkill = 10
+
+[[items]]
+description = "紫色の携帯端末。前面に小さな画面とボタンが並ぶ"
+name = "携帯端末"
+spriteKey = "violet_card"
+spriteSheetName = "field"
+stackable = true
+value = 80
+weight = "150 g"
+material = true
+
+[[items]]
+description = "青く輝く八面体の結晶。鋭い面が光を反射する"
+name = "八面体の結晶"
+spriteKey = "octahedron"
+spriteSheetName = "field"
+stackable = true
+value = 100
+weight = "200 g"
+material = true
+
+[[items]]
+description = "表面が虹色に発光する球体"
+name = "虹色の球"
+spriteKey = "rainbow_ball"
+spriteSheetName = "field"
+stackable = true
+value = 100
+weight = "200 g"
+material = true
+
+[[items]]
+description = "白い翼を広げた天使をかたどった像"
+name = "天使像"
+spriteKey = "angel"
+spriteSheetName = "field"
+stackable = true
+value = 60
+weight = "500 g"
+material = true
+
+[[props]]
+blockPass = true
+blockView = true
+description = "こんもりと葉を茂らせた大きな緑の木"
+hp = 30
+name = "big_tree"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "big_tree"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "葉を落とし枝を広げた木"
+hp = 20
+name = "tree_a"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "tree_a"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = true
+description = "緑の葉を茂らせた木"
+hp = 20
+name = "tree_b"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "tree_b"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "大きなラッパ型のホーンが付いた蓄音機。木製の台座に載る"
+hp = 10
+name = "phonograph"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "phonograph"
+spriteSheetName = "field"
+
+[[props]]
+animKeys = [ "warp_escape_0", "warp_escape_1", "warp_escape_2", "warp_escape_3", "warp_escape_4", "warp_escape_5", "warp_escape_6", "warp_escape_7", "warp_escape_8", "warp_escape_9", "warp_escape_10", "warp_escape_11", "warp_escape_12", "warp_escape_13", "warp_escape_14", "warp_escape_15" ]
+blockPass = false
+blockView = false
+description = "青白く明滅する魔法陣。淡い光の輪が脈打つように輝く"
+name = "warp_escape"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "warp_escape_0"
+spriteSheetName = "field"
+
+[props.lightSource]
+enabled = true
+radius = 2
+
+[props.lightSource.color]
+a = 200
+b = 255
+g = 200
+r = 100

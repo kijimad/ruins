@@ -407,7 +407,10 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
-		world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
+		// 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける
+		if !world.Components.StatsChanged.Has(actor) {
+			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
+		}
 
 		actorName := query.GetEntityName(actor, world)
 		gamelog.New(query.GetGameLog(world)).

@@ -45,6 +45,9 @@ func LoadFromFile(path string) (oapi.Raws, error) {
 	if err := ValidateRaws(raws); err != nil {
 		return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
 	}
+	if err := ValidateReferences(raws); err != nil {
+		return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
+	}
 	return raws, nil
 }
 
@@ -422,18 +425,21 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Player = &gc.Player{}
 	}
 
+	// テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
 	if member.CommandTableName != nil && *member.CommandTableName != "" {
 		ct, err := GetCommandTable(raws, *member.CommandTableName)
-		if err == nil {
-			entitySpec.CommandTable = &gc.CommandTable{Name: ct.Name}
+		if err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のコマンドテーブル取得に失敗: %w", name, err)
 		}
+		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Name}
 	}
 
 	if member.DropTableName != nil && *member.DropTableName != "" {
 		dt, err := GetDropTable(raws, *member.DropTableName)
-		if err == nil {
-			entitySpec.DropTable = &gc.DropTable{Name: dt.Name}
+		if err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のドロップテーブル取得に失敗: %w", name, err)
 		}
+		entitySpec.DropTable = &gc.DropTable{Name: dt.Name}
 	}
 
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
@@ -688,11 +694,35 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionStorage)
 	}
 
+	if propRaw.Disassembly != nil {
+		interactions = append(interactions, gc.InteractionDisassemble)
+	}
+
 	if len(interactions) > 0 {
 		entitySpec.Interactable = &gc.Interactable{Interactions: interactions}
 	}
 
 	return entitySpec, nil
+}
+
+// FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す
+func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
+	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name); ok && prop.Disassembly != nil {
+		return prop.Disassembly, true
+	}
+	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name); ok && item.Disassembly != nil {
+		return item.Disassembly, true
+	}
+	return nil, false
+}
+
+// FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す
+func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {
+	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)
+	if !ok || item.DisassemblyTool == nil {
+		return nil, false
+	}
+	return item.DisassemblyTool, true
 }
 
 // GetProfession は指定されたIDの職業データを返す

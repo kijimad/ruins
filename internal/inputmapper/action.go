@@ -26,6 +26,7 @@ const (
 	ActionOpenDebugMenu       ActionID = "open_debug_menu"
 	ActionOpenInteractionMenu ActionID = "open_interaction_menu"
 	ActionOpenFieldInfo       ActionID = "open_field_info"
+	ActionOpenOverworldMap    ActionID = "open_overworld_map"
 	ActionCloseMenu           ActionID = "close_menu"
 )
 

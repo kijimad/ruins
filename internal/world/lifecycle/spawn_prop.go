@@ -54,7 +54,7 @@ func LockAllDoors(world w.World) int {
 	}
 	if locked > 0 {
 		// BlockView が変化したので視界を再計算させる
-		query.GetVisionState(world).NeedsForceUpdate = true
+		query.GetVisionState(world).RequestUpdate()
 	}
 	return locked
 }
@@ -78,7 +78,7 @@ func UnlockAllDoors(world w.World) int {
 	}
 	if opened > 0 {
 		// BlockView が変化したので視界を再計算させる
-		query.GetVisionState(world).NeedsForceUpdate = true
+		query.GetVisionState(world).RequestUpdate()
 	}
 	return opened
 }
@@ -168,7 +168,7 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 }
 
 // SpawnDoor は扉を生成する
-func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorOrientation) (ecs.Entity, error) {
+func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation) (ecs.Entity, error) {
 	var spriteKey string
 	if orientation == gc.DoorOrientationHorizontal {
 		spriteKey = "door_horizontal_closed"
@@ -179,7 +179,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 	entitySpec := gc.EntitySpec{
 		Name:        &gc.Name{Name: "扉"},
 		Description: &gc.Description{Description: "開閉できる扉"},
-		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}},
+		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,

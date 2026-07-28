@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -18,13 +19,13 @@ import (
 const (
 	testChunkW consts.Tile  = 30
 	testChunkH consts.Tile  = 20
-	testK      consts.Chunk = 3
+	testCols   consts.Chunk = 3
 )
 
 func TestDriver_MaybeShift_東へ進むとシフトする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -41,7 +42,7 @@ func TestDriver_MaybeShift_東へ進むとシフトする(t *testing.T) {
 func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -53,8 +54,8 @@ func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing
 	assert.True(t, shifted)
 	assert.Equal(t, 2, int(s.EastIndex()), "収まるまで連続シフトして eastIndex=2")
 	px := world.Components.GridElement.Get(player).X
-	assert.GreaterOrEqual(t, px, consts.Tile(testK/2)*testChunkW, "プレイヤーは中央チャンク内に収まる")
-	assert.Less(t, px, consts.Tile(testK/2+1)*testChunkW, "プレイヤーは中央チャンク内に収まる")
+	assert.GreaterOrEqual(t, px, consts.Tile(testCols/2)*testChunkW, "プレイヤーは中央チャンク内に収まる")
+	assert.Less(t, px, consts.Tile(testCols/2+1)*testChunkW, "プレイヤーは中央チャンク内に収まる")
 }
 
 // TestDriver_MaybeShift_開始点より西へはシフトしない は eastIndex=0 で西へ移動しても
@@ -62,7 +63,7 @@ func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing
 func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	require.Equal(t, 0, int(s.EastIndex()), "前提: 開始時 eastIndex=0")
 
@@ -78,7 +79,7 @@ func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing
 func TestDriver_MaybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	shifted, err := s.MaybeShift(world)
@@ -93,10 +94,10 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 40, 20
-	const k = 3
+	const cols = 3
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, k), &NewGameParams{RunSeed: 12345})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, 1), &NewGameParams{RunSeed: 12345})
 	require.NoError(t, s.Start(world))
 
 	// 東へ1回シフトして eastIndex=1 にする
@@ -124,7 +125,7 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Equal(t, 1, int(sb.EastIndex), "EastIndex が復元される")
 	assert.Equal(t, uint64(12345), sb.RunSeed, "RunSeed が復元される")
 	assert.Equal(t, chunkW, sb.ChunkW, "ChunkW が復元される")
-	assert.Equal(t, k, int(sb.K), "K が復元される")
+	assert.Equal(t, cols, int(sb.Cols), "Cols が復元される")
 
 	// 寒波前線の config が復元される
 	assert.True(t, sb.Front.Active, "FrontActive が復元される")
@@ -136,7 +137,7 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	require.NoError(t, s2.Start(world2))
 	assert.Equal(t, 1, int(s2.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
-	assert.Equal(t, chunkW*k, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
+	assert.Equal(t, chunkW*cols, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
 	assert.True(t, s2.frontCfg.AdvanceTurns == frontAdvanceTurns && s2.frontCfg.Step == frontStep,
 		"ロード復元で寒波前線 config も再構築される")
 
@@ -149,32 +150,48 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Positive(t, count, "帯タイルが serde で復元されている")
 }
 
-// TestDriver_新規開始で街がオーバーワールドに配置される は、新規開始時に店・雇用・合成の会話NPCと
-// 収納propが開始チャンクへ配置され、いずれもオーバーワールド帯へ束縛されることを固定する。
-// これで街が専用ステージでなくオーバーワールドの地物として常在し、遺跡進入時に帯とともに退避される。
-func TestDriver_新規開始で街がオーバーワールドに配置される(t *testing.T) {
+// TestNewChunkGen_集落は種別分類と一致し帯へ束縛される は、chunkTypeAt が集落と分類する
+// チャンクに集落の会話NPCが実際に spawn され、オーバーワールド帯へ束縛され相互作用を持つことを
+// 固定する。開始特例が無くなり chunkTypeAt が地図と生成の唯一の分類になったので、種別で追跡して
+// 検証できる。これで街が専用ステージでなくオーバーワールドの地物として常在し、遺跡進入時に帯とともに
+// 退避される。
+func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testK), &NewGameParams{RunSeed: 42})
-	require.NoError(t, s.Start(world))
 
-	// 街の構成物を名前で探し、配置・帯束縛・相互作用の有無を確認する
-	want := map[string]bool{"商人": false, "酒場の主人": false, "怪しい科学者": false, townStorageProp: false}
+	const chunkW, chunkH consts.Tile = 30, 20
+	const rows consts.Chunk = 1
+	// chunkTypeAt が集落と分類するチャンクを探す
+	var seed uint64
+	var c consts.Coord[consts.Chunk]
+	found := false
+	for s := uint64(1); s < 500 && !found; s++ {
+		for x := range consts.Chunk(12) {
+			if chunkTypeAt(s, consts.Coord[consts.Chunk]{X: x}, rows) == chunkSettlement {
+				seed, c, found = s, consts.Coord[consts.Chunk]{X: x}, true
+				break
+			}
+		}
+	}
+	require.True(t, found, "前提: 集落と分類されるチャンクが見つかる")
+
+	world := testutil.InitTestWorld(t)
+	gen := NewChunkGen(world, seed, chunkW, chunkH, rows, mapplanner.PlannerTypeSmallRoom)
+	require.NoError(t, gen(c, 0, 0))
+
+	// 商人が spawn され、オーバーワールド帯へ束縛され、相互作用を持つ
+	merchantFound := false
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		name := world.Components.Name.Get(e).Name
-		if _, ok := want[name]; !ok {
+		if world.Components.Name.Get(e).Name != "商人" {
 			continue
 		}
-		want[name] = true
-		require.True(t, world.Components.StageBound.Has(e), "%s はステージへ束縛される", name)
-		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "%s はオーバーワールド帯へ束縛される", name)
-		assert.True(t, world.Components.Interactable.Has(e), "%s は相互作用を持つ", name)
+		merchantFound = true
+		require.True(t, world.Components.StageBound.Has(e), "商人はステージへ束縛される")
+		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "商人はオーバーワールド帯へ束縛される")
+		assert.True(t, world.Components.Interactable.Has(e), "商人は相互作用を持つ")
 	}
-	for name, found := range want {
-		assert.True(t, found, "街の構成物 %s が配置される", name)
-	}
+	assert.True(t, merchantFound, "集落と分類されるチャンクに商人が配置される")
 }
 
 // TestDriver_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns から
@@ -185,7 +202,7 @@ func TestDriver_前線が総ターン数で前進する(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 40, 20
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3), &NewGameParams{RunSeed: 1})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &NewGameParams{RunSeed: 1})
 	require.NoError(t, s.Start(world))
 
 	sb := query.GetSeamlessBand(world)
@@ -207,4 +224,162 @@ func TestDriver_前線が総ターン数で前進する(t *testing.T) {
 	before := sb.Front.EastAbsX
 	s.UpdateFront(world)
 	assert.Equal(t, before, sb.Front.EastAbsX, "冪等（導出値）")
+}
+
+// TestDriver_Rowsの書き込みと正規化 は、新規開始が Rows をセーブ対象へ書き込み、
+// ゼロ値の Rows を復元時に 1 へ正規化することを固定する。
+func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	require.NoError(t, s.Start(world))
+	assert.Equal(t, consts.Chunk(1), query.GetSeamlessBand(world).Rows, "新規開始で Rows がセーブ対象へ書き込まれる")
+
+	// Rows がゼロ値で復元される場合。1行帯へ正規化される
+	oldWorld := testutil.InitTestWorld(t)
+	drOld := NewDriver(mapplanner.PlannerTypeSmallRoom, nil, nil)
+	sbOld := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, Cols: testCols}
+	require.NoError(t, drOld.restoreFromSave(oldWorld, sbOld))
+	assert.Equal(t, consts.Chunk(1), drOld.band.Rows(), "旧セーブのゼロ値 Rows は 1 へ正規化される")
+
+	// Rows=3 のセーブはそのまま3行で復元される
+	world3 := testutil.InitTestWorld(t)
+	dr3 := NewDriver(mapplanner.PlannerTypeSmallRoom, nil, nil)
+	sb3 := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, Cols: testCols, Rows: 3}
+	require.NoError(t, dr3.restoreFromSave(world3, sb3))
+	assert.Equal(t, consts.Chunk(3), dr3.band.Rows(), "Rows=3 のセーブは3行で復元される")
+}
+
+// TestDriver_3行帯の通し は rows=3 の帯で、新規開始の全行生成・列単位の東シフト・
+// セーブ復元までが一貫して3行のまま保たれることを固定する。
+func TestDriver_3行帯の通し(t *testing.T) {
+	t.Parallel()
+
+	const rows consts.Chunk = 3
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, rows), &NewGameParams{RunSeed: 900})
+	require.NoError(t, s.Start(world))
+
+	countRows := func(wld w.World) []int {
+		counts := make([]int, int(rows))
+		q := ecs.NewFilter1[gc.GridElement](wld.ECS).Query()
+		for q.Next() {
+			y := wld.Components.GridElement.Get(q.Entity()).Y
+			if y < 0 || y >= rows.Tiles(testChunkH) {
+				continue
+			}
+			counts[int(y/testChunkH)]++
+		}
+		return counts
+	}
+
+	// Level は帯全域になり、全3行にタイルが生成されている
+	field := query.GetCurrentStageField(world)
+	assert.Equal(t, testCols.Tiles(testChunkW), field.Level.TileWidth, "幅は cols*chunkW")
+	assert.Equal(t, rows.Tiles(testChunkH), field.Level.TileHeight, "高さは rows*chunkH")
+	for r, c := range countRows(world) {
+		assert.Positivef(t, c, "行%d にタイルが生成されている", r)
+	}
+
+	// プレイヤーは中央チャンク・中央行に立つ
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	pg := world.Components.GridElement.Get(player)
+	assert.Equal(t, (testCols/2).Tiles(testChunkW)+testChunkW/2, pg.X, "中央チャンクの中央 X")
+	assert.Equal(t, (rows/2).Tiles(testChunkH)+testChunkH/2, pg.Y, "中央行の中央 Y")
+
+	// 東シフトは列単位で全行を入れ替え、3行とも埋まったまま
+	pg.X = 2 * testChunkW
+	shifted, err := s.MaybeShift(world)
+	require.NoError(t, err)
+	require.True(t, shifted, "東へ踏み込むとシフトする")
+	assert.Equal(t, 1, int(s.EastIndex()), "eastIndex が進む")
+	for r, c := range countRows(world) {
+		assert.Positivef(t, c, "シフト後も行%d にタイルがある", r)
+	}
+
+	// セーブ往復で Rows=3 が復元され、帯も3行で再構築される
+	sm, err := save.NewSerializationManager()
+	require.NoError(t, err)
+	jsonData, err := sm.GenerateWorldJSON(world)
+	require.NoError(t, err)
+	world2 := testutil.InitTestWorld(t)
+	require.NoError(t, sm.RestoreWorldFromJSON(world2, jsonData))
+	assert.Equal(t, rows, query.GetSeamlessBand(world2).Rows, "Rows が復元される")
+
+	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, nil, nil)
+	require.NoError(t, s2.Start(world2))
+	assert.Equal(t, rows, s2.band.Rows(), "ロード復元で帯が3行で再構築される")
+	assert.Equal(t, rows.Tiles(testChunkH), query.GetCurrentStageField(world2).Level.TileHeight, "帯全高の Level が保たれる")
+	for r, c := range countRows(world2) {
+		assert.Positivef(t, c, "復元後も行%d にタイルがある", r)
+	}
+}
+
+// TestDriver_シフト後もタイルは座標ごとに1枚 は、市街地を含む帯を東へ複数回シフトしても
+// タイルエンティティが座標ごとに1枚のままであることを固定する。置換や破棄の取りこぼしが
+// あると同一座標に古いタイルが残留し、見えない壁の影などの怪奇現象になる。
+func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
+	t.Parallel()
+
+	// 初期帯の視界内に市街地の断片が入る seed を選ぶ。開始チャンク(スロット1)は避ける
+	var seed uint64
+	for s := uint64(1); s < 500; s++ {
+		if urbanPlacement.At(s, consts.Coord[consts.Chunk]{X: 2}, 1) {
+			seed = s
+			break
+		}
+	}
+	require.NotZero(t, seed, "前提: 市街地がスロット2に当たる seed がある")
+
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: seed})
+	require.NoError(t, s.Start(world))
+
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+
+	for range 3 {
+		world.Components.GridElement.Get(player).X = 2 * testChunkW
+		shifted, err := s.MaybeShift(world)
+		require.NoError(t, err)
+		require.True(t, shifted)
+	}
+
+	counts := map[gc.GridElement]int{}
+	q := ecs.NewFilter2[gc.GridElement, gc.Tile](world.ECS).Query()
+	for q.Next() {
+		counts[*world.Components.GridElement.Get(q.Entity())]++
+	}
+	for g, c := range counts {
+		assert.Equalf(t, 1, c, "座標 (%d,%d) のタイルは1枚", g.X, g.Y)
+	}
+}
+
+// TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイルを返す は、開始チャンクが建物や遺跡入口で
+// 中心が壁でも、プレイヤーを壁の中へ湧かせず近傍の歩行可能タイルへ逃がすことを固定する。
+func TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイルを返す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	center := consts.Coord[consts.Tile]{X: 10, Y: 10}
+
+	// 中心とその 3×3 近傍を BlockPass の壁で埋める。raw に依存せず直接コンポーネントを付ける
+	blockedCoords := map[consts.Coord[consts.Tile]]bool{}
+	for dy := consts.Tile(-1); dy <= 1; dy++ {
+		for dx := consts.Tile(-1); dx <= 1; dx++ {
+			pos := consts.Coord[consts.Tile]{X: center.X + dx, Y: center.Y + dy}
+			e := world.ECS.NewEntity()
+			grid := gc.GridElement{Coord: pos}
+			world.Components.GridElement.Add(e, &grid)
+			world.Components.BlockPass.Add(e, &gc.BlockPass{})
+			blockedCoords[pos] = true
+		}
+	}
+
+	got := walkableSpawnNear(world, center)
+
+	assert.Falsef(t, blockedCoords[got], "返り値 %v は壁でない", got)
+	assert.NotEqual(t, center, got, "壁の中心そのものは返さず外へ逃げる")
 }

@@ -45,6 +45,11 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 		return inputmapper.ActionOpenFieldInfo, true
 	}
 
+	// オーバーワールド地図
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyN) {
+		return inputmapper.ActionOpenOverworldMap, true
+	}
+
 	// 射撃モード
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyF) {
 		return inputmapper.ActionShoot, true
@@ -101,7 +106,7 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionShoot, inputmapper.ActionPickup, inputmapper.ActionPlace:
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionShoot, inputmapper.ActionPickup, inputmapper.ActionPlace:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -129,6 +134,14 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	case inputmapper.ActionOpenFieldInfo:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return &LookAroundState{}, nil },
+		}}, nil
+	case inputmapper.ActionOpenOverworldMap:
+		// 地図は帯モードのオーバーワールドでだけ開く。ダンジョンでは無視する
+		if !st.isSeamless() {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return &OverworldMapState{}, nil },
 		}}, nil
 	case inputmapper.ActionShoot:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
