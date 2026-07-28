@@ -3,7 +3,7 @@ package interior
 // prop の写像。interior の抽象 Ref をゲームの raw prop 名へ写す単一のソース。overworld がこの表で prop を
 // spawn し、VRT がこの表で「in-game に出る物だけ」を描く。両者が同じ表を引くので VRT と in-game が乖離しない。
 // 表に無い Ref は in-game で spawn されず、VRT でも描かれない。KindLoot の戦利品と raw の無い装飾は含めない。
-// urban の v1 は家具と装飾だけを置き、施設固有の戦利品はアイテム設計が固まってから足す。既存の prop へ寄せ、
+// 現状は家具と装飾だけを写し、施設固有の戦利品はアイテム設計が固まってから足す。既存の prop へ寄せ、
 // raw の無い抽象什器は近い実物へ当てる。
 var propRaw = map[string]string{
 	"register":      "register",

@@ -68,7 +68,7 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chu
 // facilityType は建物尺度の施設種別。市街地チャンクの中の1建物を表す。規模で gate した重み付き抽選で
 // 決まり、内装の prop の差になる。チャンク尺度で表示専用の placeType と違い、こちらは表示に加えて
 // 市街地生成にも使うドメイン型。schematic.go の記号2層の説明も参照。
-// v1 は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
+// 現状は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
 // 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
 type facilityType string
 
