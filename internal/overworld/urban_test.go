@@ -121,7 +121,9 @@ func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T)
 		require.True(t, world.Components.StageBound.Has(e), "市街地の敵は StageBound を持つ")
 		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "オーバーワールド帯へ束縛される")
 	}
-	assert.Positive(t, found, "市街地の敵が存在する")
+	// 建物が footprint 全域を占有しても、敵は街路の空きを探して湧くので目標数近くが出る。1回引いて塞がって
+	// いたら諦める実装だと大半が湧かず、この seed では 3 体まで落ちた。8 体を下限にして密度回帰を止める
+	assert.GreaterOrEqual(t, found, 8, "市街地の敵が街路の空きへ湧き、建物占有で激減しない")
 }
 
 // TestNewChunkGen_市街地の建物に見える扉が置かれる は、各建物の開口に扉エンティティが

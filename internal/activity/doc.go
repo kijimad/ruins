@@ -138,15 +138,16 @@
 //	// 直近の結果を取得
 //	lastResult := activity.GetLastResult(player, world)
 //
-// # CDDAとの対応関係
+// # 継続アクションのモデル
 //
-// このパッケージの設計は Cataclysm: Dark Days Ahead の activity_actor システムを参考にしている：
+// アクションを1ターンで完結する即座実行と、複数ターンにわたる継続実行の2種類で表す。継続アクションは
+// 状態を保持し、ターンごとの処理・完了・中断で進行を制御する：
 //
-// - CDDAのactivity_actor → Activity構造体
-// - CDDAのdo_turn() → DoTurn()メソッド
-// - CDDAのfinish() → Complete()メソッド
-// - CDDAのcanceled() → Interrupt()メソッド
-// - CDDAのmove_cost → アクションコスト概念
+//   - Activity 構造体 … 継続アクションの状態を持つ
+//   - DoTurn() … ターン毎に呼ばれ進行を進める
+//   - Complete() … 進行が完了したときの後処理
+//   - Interrupt() … 割り込みで中断するときの処理
+//   - アクションコスト … 各アクションが消費する行動量
 //
 // # 拡張方法
 //

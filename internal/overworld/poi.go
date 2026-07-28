@@ -43,7 +43,7 @@ func (wildernessPOIFeature) place(world w.World, runSeed uint64, c consts.Coord[
 	case roll < 30: // 廃屋。生活の跡が残る小屋
 		return drawHut(world, g, rng, origin, 6, 5, []string{"bed", "closet"})
 	case roll < 55: // 農家跡。納屋に物資の跡
-		return drawHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate", "茶色い樽"})
+		return drawHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate"})
 	case roll < 75: // 祠。石柱と蝋燭だけの露天の構造物
 		return spawnPOIProps(world, origin, []relSpot{
 			{"stone_pillar", 0, 0},
