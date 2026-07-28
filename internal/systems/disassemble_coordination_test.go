@@ -48,8 +48,9 @@ func backpackItemNames(world w.World) []string {
 	return names
 }
 
-// TestTurnSystem_分解を完走してもAPが枯渇しない は、継続アクティビティが
-// ターン交互処理で進み、旧方式のようなAP前借りの借金が発生しないことを検証する
+// TestTurnSystem_分解を完走してもAPが枯渇しない は、継続アクティビティの
+// 毎ターンのAP消費がターン終了の回復と均衡し、完了時に大きな負債が
+// 残らないことを検証する
 func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 	t.Parallel()
 
@@ -80,11 +81,11 @@ func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 	assert.False(t, world.ECS.Alive(crate), "分解したpropは消えるべき")
 	assert.Contains(t, fieldItemNames(world), "硬木", "確定枠の産出が足元に落ちるべき")
 
-	// 旧方式では完了時点でAPが約-2000の借金になっていた。
-	// ターン交互処理では毎ターン消費と回復が均衡し、大きな負債にならない
+	// 毎ターンの消費100はターン終了の回復とおおむね均衡する。
+	// 大きな負債はアクティビティの複数ステップが1ターン内で走った兆候になる
 	turnBased := world.Components.TurnBased.Get(player)
 	assert.Greater(t, turnBased.AP.Current, -200,
-		"AP前借りの借金が発生しないべき。旧方式ではここが約-2000になる")
+		"完了時のAPは毎ターンの回復と均衡し、大きな負債にならないべき")
 }
 
 // TestTurnSystem_分解中も隊員がターンごとに行動する は、プレイヤーの

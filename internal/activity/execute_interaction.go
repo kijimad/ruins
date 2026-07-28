@@ -143,7 +143,8 @@ func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*Ac
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
 		gamelog.New(query.GetGameLog(world)).
-			Append(fmt.Sprintf("「%s」を分解できる工具を持っていない", name)).
+			ItemName(name).
+			Append("を分解できる工具を持っていない").
 			Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "工具がない"}, nil
 	}

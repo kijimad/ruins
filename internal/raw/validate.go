@@ -39,3 +39,116 @@ func ValidateRaws(raws oapi.Raws) error {
 
 	return nil
 }
+
+// ValidateReferences は定義間の名前参照の整合を検証する。
+// スキーマ検証は名前の参照整合を見ないため、ここで補う。実行時の解決失敗を
+// ロード時エラーに前倒しする
+func ValidateReferences(raws oapi.Raws) error {
+	if err := validateDisassemblyReferences(raws); err != nil {
+		return err
+	}
+	if err := validateDropTableReferences(raws); err != nil {
+		return err
+	}
+	return validateCommandTableReferences(raws)
+}
+
+// validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する
+func validateDisassemblyReferences(raws oapi.Raws) error {
+	items := PtrSlice(raws.Items)
+	itemNames := make(map[string]struct{}, len(items))
+	for i := range items {
+		itemNames[items[i].Name] = struct{}{}
+	}
+
+	check := func(ownerKind string, ownerName string, def *oapi.Disassembly) error {
+		if def == nil {
+			return nil
+		}
+		for _, y := range def.Yields {
+			if _, ok := itemNames[y.Name]; !ok {
+				return fmt.Errorf("%s '%s' の分解産出 '%s' がアイテム定義に存在しません", ownerKind, ownerName, y.Name)
+			}
+		}
+		if def.Bonus == nil {
+			return nil
+		}
+		for _, b := range *def.Bonus {
+			if _, ok := itemNames[b.Name]; !ok {
+				return fmt.Errorf("%s '%s' の分解ボーナス '%s' がアイテム定義に存在しません", ownerKind, ownerName, b.Name)
+			}
+		}
+		return nil
+	}
+
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		if err := check("prop", props[i].Name, props[i].Disassembly); err != nil {
+			return err
+		}
+	}
+	for i := range items {
+		if err := check("item", items[i].Name, items[i].Disassembly); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// validateDropTableReferences はドロップテーブルの素材名がアイテム定義に存在すること、
+// メンバーの dropTableName がテーブル定義に存在することを検証する
+func validateDropTableReferences(raws oapi.Raws) error {
+	items := PtrSlice(raws.Items)
+	itemNames := make(map[string]struct{}, len(items))
+	for i := range items {
+		itemNames[items[i].Name] = struct{}{}
+	}
+
+	dropTables := PtrSlice(raws.DropTables)
+	tableNames := make(map[string]struct{}, len(dropTables))
+	for i := range dropTables {
+		tableNames[dropTables[i].Name] = struct{}{}
+		for _, entry := range dropTables[i].Entries {
+			// 空文字はドロップなしを意味する正規の値
+			if entry.Material == "" {
+				continue
+			}
+			if _, ok := itemNames[entry.Material]; !ok {
+				return fmt.Errorf("ドロップテーブル '%s' の素材 '%s' がアイテム定義に存在しません", dropTables[i].Name, entry.Material)
+			}
+		}
+	}
+
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		// 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
+		if members[i].DropTableName == nil || *members[i].DropTableName == "" {
+			continue
+		}
+		if _, ok := tableNames[*members[i].DropTableName]; !ok {
+			return fmt.Errorf("メンバー '%s' のドロップテーブル '%s' が定義に存在しません", members[i].Name, *members[i].DropTableName)
+		}
+	}
+	return nil
+}
+
+// validateCommandTableReferences はメンバーの commandTableName がテーブル定義に存在することを検証する
+func validateCommandTableReferences(raws oapi.Raws) error {
+	commandTables := PtrSlice(raws.CommandTables)
+	tableNames := make(map[string]struct{}, len(commandTables))
+	for i := range commandTables {
+		tableNames[commandTables[i].Name] = struct{}{}
+	}
+
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		// 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
+		if members[i].CommandTableName == nil || *members[i].CommandTableName == "" {
+			continue
+		}
+		if _, ok := tableNames[*members[i].CommandTableName]; !ok {
+			return fmt.Errorf("メンバー '%s' のコマンドテーブル '%s' が定義に存在しません", members[i].Name, *members[i].CommandTableName)
+		}
+	}
+	return nil
+}
