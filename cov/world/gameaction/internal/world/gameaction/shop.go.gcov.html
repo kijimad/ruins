@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">60.6&nbsp;%</td>
+            <td class="headerCovTableEntryMed">75.8&nbsp;%</td>
             <td class="headerCovTableEntry">66</td>
-            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">50</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-28 10:40:01</td>
+            <td class="headerValue">2026-07-28 11:54:49</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,12 +84,12 @@
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         price := query.CalculateBuyPrice(int(baseValue))</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         // 交渉スキルによる買値倍率を適用する</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         if world.Components.CharModifiers.Has(playerEntity) {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :                 mods := world.Components.CharModifiers.Get(playerEntity)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 price = mods.BuyPrice.ApplyInt(price)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         if world.Components.CharModifiers.Has(playerEntity) {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 mods := world.Components.CharModifiers.Get(playerEntity)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 price = mods.BuyPrice.ApplyInt(price)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           2 :         if !query.HasCurrency(world, playerEntity, price) {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 :         if !query.HasCurrency(world, playerEntity, price) {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;地髄が足りません（必要: %d、所持: %d）&quot;, price, query.GetCurrency(world, playerEntity))</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
@@ -99,10 +99,10 @@
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 :         isStackable := itemDef.Stackable != nil &amp;&amp; *itemDef.Stackable</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if isStackable {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 err := lifecycle.ChangeStackableCount(world, itemName, 1)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                         if refundErr := query.AddCurrency(world, playerEntity, price); refundErr != nil {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           2 :         if isStackable {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 err := lifecycle.ChangeStackableCount(world, itemName, 1)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC tlaBgUNC">           0 :                         if refundErr := query.AddCurrency(world, playerEntity, price); refundErr != nil {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %w)&quot;, err, refundErr)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;アイテムの生成に失敗しました: %w&quot;, err)</span></span>
@@ -123,18 +123,18 @@
 <span id="L61"><span class="lineNum">      61</span>              : // SellItem はプレイヤーがアイテムを売却する</span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) error {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         baseValue := query.GetItemValue(world, itemEntity)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         if baseValue == 0 {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;このアイテムは売却できません&quot;)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 :         price := query.CalculateSellPrice(baseValue)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :         if baseValue == 0 {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;このアイテムは売却できません&quot;)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         price := query.CalculateSellPrice(baseValue)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         // 交渉スキルによる売値倍率を適用する</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         if world.Components.CharModifiers.Has(playerEntity) {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 :                 mods := world.Components.CharModifiers.Get(playerEntity)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 price = mods.SellPrice.ApplyInt(price)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           2 :         if world.Components.CharModifiers.Has(playerEntity) {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 mods := world.Components.CharModifiers.Get(playerEntity)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 price = mods.SellPrice.ApplyInt(price)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L74"><span class="lineNum">      74</span>              : </span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := lifecycle.ChangeItemCount(world, itemEntity, -1); err != nil {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         if err := lifecycle.ChangeItemCount(world, itemEntity, -1); err != nil {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;アイテムの売却に失敗した: %w&quot;, err)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
