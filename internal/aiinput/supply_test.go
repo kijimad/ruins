@@ -173,7 +173,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		assert.False(t, ok, "戦闘中は食べないべき")
 	})
 
-	t.Run("プール枯渇では発火せず警告を1回だけ出す", func(t *testing.T) {
+	t.Run("プール枯渇では発火しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
@@ -182,15 +182,5 @@ func TestPlanSupplyAction(t *testing.T) {
 		sp := newSquadPlanner(newTestRNG())
 		_, ok := sp.planSupplyAction(world, member, ctx)
 		assert.False(t, ok, "食料が無ければ行動しない")
-
-		store := query.GetGameLog(world)
-		recent := store.GetRecent(1)
-		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "隊の食料が尽きている")
-
-		// 同一ターン内の2人目では連投しない
-		_, ok = sp.planSupplyAction(world, member, ctx)
-		assert.False(t, ok)
-		assert.Len(t, store.GetRecent(10), 1, "警告はAIターンにつき1回だけ出すべき")
 	})
 }

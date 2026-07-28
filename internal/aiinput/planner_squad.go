@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -28,8 +27,6 @@ type squadPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
 	rng          *rand.Rand
-	// supplyWarned はプール枯渇警告をこのAIターン内で出したかを保持し、隊員数ぶんの連投を防ぐ
-	supplyWarned bool
 }
 
 func newSquadPlanner(rng *rand.Rand) *squadPlanner {
@@ -325,12 +322,7 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, ctx *
 	poolFood, ok := findLowestNutritionFood(world, ctx.LeaderEntity)
 	if !ok {
 		// プール枯渇。受け取れず空腹が進む。食料確保はプレイヤーの兵站判断に残す
-		if !sp.supplyWarned {
-			sp.supplyWarned = true
-			logger := gamelog.New(query.GetGameLog(world))
-			query.AppendNameWithColor(logger, entity, query.GetEntityName(entity, world), world)
-			logger.Append("が空腹だが、隊の食料が尽きている").Log()
-		}
+		sp.logger.Debug("隊の食料が尽きている", "entity", entity)
 		return nil, false
 	}
 	if gridDistance(ctx.Grid, ctx.LeaderGrid) <= 1 {
