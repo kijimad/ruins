@@ -9,7 +9,8 @@ package interior
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
 func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
-	lo, hi, wall := frontWallSpan(s.Building, frontSide(s))
+	fside := frontSide(s)
+	lo, hi, wall := frontWallSpan(s.Building, fside)
 	doorAxis := wall.along(s.Door)
 	winRef := "window"
 	if isShop(facility) && dmg == dmgMajor {
@@ -24,14 +25,24 @@ func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
 		if (a-lo)%3 != 1 { // 角から1つ内で始め、3タイルおきに1枚
 			continue
 		}
+		// 窓とシャッターは壁付きの設備なので前壁のタイルに載せる
 		out = append(out, Placed{Kind: KindDecor, Ref: winRef, Pos: wall.at(a)})
 	}
-	// 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力
+	// 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力。看板は独立物なので壁に埋めると不自然。
+	// 前壁の1マス外の前庭タイルへ立て、店の正面に置く。前庭が無い建物では立てない
 	if isShop(facility) {
-		if a := doorAxis + 2; a <= hi {
-			out = append(out, Placed{Kind: KindDecor, Ref: "sign", Pos: wall.at(a)})
-		} else if a := doorAxis - 2; a >= lo {
-			out = append(out, Placed{Kind: KindDecor, Ref: "sign", Pos: wall.at(a)})
+		in := porchStep(fside)
+		outward := Vec{X: -in.X, Y: -in.Y} // 建物の外向き
+		for _, a := range [2]int{doorAxis + 2, doorAxis - 2} {
+			if a < lo || a > hi {
+				continue
+			}
+			w := wall.at(a)
+			yard := Vec{X: w.X + outward.X, Y: w.Y + outward.Y}
+			if s.Garden[yard] {
+				out = append(out, Placed{Kind: KindDecor, Ref: "sign", Pos: yard})
+				break
+			}
 		}
 	}
 	return out
