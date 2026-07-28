@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/ebitenui/ebitenui v0.7.3
-	github.com/getkin/kin-openapi v0.144.0
+	github.com/getkin/kin-openapi v0.145.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
 	github.com/mlange-42/ark v0.8.3
