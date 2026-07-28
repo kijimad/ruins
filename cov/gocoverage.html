@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.2%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.6%)</option>
 				
@@ -1475,7 +1475,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1489,7 +1489,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
                 CancelActivity(target, "攻撃を受けた", world)
         }</span>
 
