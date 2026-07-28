@@ -296,6 +296,23 @@ func doorSide(footprint Rect, door Vec) side {
 	panic("door が footprint の辺上にない")
 }
 
+// nearestSide は矩形 r の4辺のうち v に最も近い辺を返す。ポーチで入口を1マス内側へ下げた後など、v が辺上に
+// 無いときの前面判定に使う。doorSide が辺上一致を要求して panic するのに対し、こちらは内側の点も最も近い辺へ
+// 丸めるので、内寄せの無い建物でも前面を必ず1つ選べる。
+func nearestSide(r Rect, v Vec) side {
+	best, s := v.Y-r.Y, sideNorth // 北辺までの距離
+	if d := r.Y + r.H - 1 - v.Y; d < best {
+		best, s = d, sideSouth
+	}
+	if d := v.X - r.X; d < best {
+		best, s = d, sideWest
+	}
+	if d := r.X + r.W - 1 - v.X; d < best {
+		s = sideEast
+	}
+	return s
+}
+
 // porchStep は入口を建物内へ下げる向き。辺の内向き。
 func porchStep(s side) Vec {
 	switch s {

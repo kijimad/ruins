@@ -3,6 +3,7 @@ package interior
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/require"
 )
 
@@ -52,5 +53,23 @@ func TestFrontSide_内寄せが無い建物は入口の辺を前面にする(t *
 			s := Site{Building: full, Footprint: full, Door: tc.door}
 			require.Equal(t, tc.want, frontSide(s), "入口の辺を前面にする")
 		})
+	}
+}
+
+// TestFurnishBuilding_内寄せ破綻の小footprintでも完走する は、footprint が小さく insetBuilding が前庭を作れず
+// building==footprint になったうえで、ポーチが入口を1マス内側へ下げる seed でも生成が panic しないことを
+// 固定する。frontSide の fallback が辺上に無い入口を doorSide へ渡すと panic する退行があった。本番の
+// footprint は 17〜20 だが、公開 API の Furnish 経路は呼び出し側の寸法に依らずクラッシュしてはならない。
+func TestFurnishBuilding_内寄せ破綻の小footprintでも完走する(t *testing.T) {
+	t.Parallel()
+
+	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
+		for fp := consts.Tile(5); fp <= 9; fp++ {
+			for seed := range uint64(100) {
+				require.NotPanicsf(t, func() {
+					FurnishBuilding(seed, Rect{X: 0, Y: 0, W: fp, H: fp}, Vec{X: fp / 2, Y: 0}, fac)
+				}, "施設 %q fp=%d seed=%d の生成が panic した", fac, fp, seed)
+			}
+		}
 	}
 }

@@ -96,7 +96,9 @@ func frontSide(s Site) side {
 	case b.X+b.W < f.X+f.W:
 		return sideEast
 	}
-	return doorSide(b, s.Door)
+	// 内寄せが無い建物は辺がずれない。入口の辺を前面にするが、ポーチで入口を内側へ下げた後は s.Door が辺上に
+	// 無いため doorSide では panic する。最も近い辺へ丸めて前面を選ぶ。
+	return nearestSide(b, s.Door)
 }
 
 // frontWallSpan は前壁のタイル列を、壁に沿う軸の範囲[lo,hi](角を除く)と壁のラインで返す。
