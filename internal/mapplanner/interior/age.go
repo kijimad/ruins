@@ -39,7 +39,7 @@ func applyWear(seed uint64, room Room, placed []Placed) []Placed {
 	occupied := occupiedSet(placed)
 	added := make([]Placed, 0)
 	for i, p := range placed {
-		if p.Kind != KindFurniture || !dropChance(childSeed(seed, i), 0, 18) {
+		if p.Kind != KindFurniture || !dropChance(seed, i, 18) {
 			continue
 		}
 		for _, n := range neighbors4(p.Pos) {
