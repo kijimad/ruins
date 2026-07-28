@@ -38,6 +38,14 @@ const roomFixtureDir = "testdata/rooms"
 // 什器の実物を当てるので、ダミーは使わない。什器ごとに別の絵になり、施設の見分けが付く。in-game で spawn
 // される prop すなわち PropRawName が写像を持つ Ref だけを載せ、VRT が in-game に無い戦利品や装飾を描いて
 // 乖離するのを防ぐ。TestSpriteFiles_全てのin-game_propにスプライトがある が両者の集合一致を固定する。
+//
+// TODO: この表が要るのは、一部の raw prop がまだ仮画像で、モンタージュの可読性のため実描画のある別スプライト
+// へ意図的に差し替えているから。例えば reception は in-game では raw prop desk を spawn するが、ここでは診療所
+// らしく見せるため reception_counter_ を描く。各 prop に実画像が揃えばこの差し替えは不要になり、表は
+// 「raw prop の spriteKey + _」の echo に収束する。そうなれば rawMaster から spriteKey を引いて描画へ回し、
+// この手管理の表を畳める。ただし interior は raw 非依存の pure パッケージなので、rawMaster 化はテストを raw へ
+// 結合させる代償を伴う。実画像が揃った時点で、その結合を許すか、echo だけを機械照合する guard を overworld
+// 側に置くかを判断する。
 var spriteFiles = map[string]string{
 	// 店。gondola_shelf_ / display_cooler_ はゲーム側が未だ仮画像なので、実描画のある代替を当てる
 	"gondola":       "goods_shelf_",
