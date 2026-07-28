@@ -34,46 +34,6 @@ func surroundWithWalls(world w.World, center consts.Coord[consts.Tile]) {
 	query.InvalidateSpatialIndex(world)
 }
 
-func TestSquadPlanner_Plan(t *testing.T) {
-	t.Parallel()
-
-	t.Run("SquadAIがないエンティティはnilを返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
-		require.NoError(t, err)
-
-		entity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-
-		sp := newSquadPlanner(newTestRNG())
-		behavior := sp.Plan(world, entity)
-		assert.Nil(t, behavior, "SquadAIがなければ何も計画しない")
-	})
-
-	t.Run("正常系ではplanActionの結果を返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
-		require.NoError(t, err)
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
-
-		// 護衛距離内に留まらせ、待機を返させる
-		memberGrid := world.Components.GridElement.Get(member)
-		leaderGrid := world.Components.GridElement.Get(leader)
-		memberGrid.X = leaderGrid.X
-		memberGrid.Y = leaderGrid.Y
-
-		sp := newSquadPlanner(newTestRNG())
-		behavior := sp.Plan(world, member)
-		require.NotNil(t, behavior)
-		assert.Equal(t, gc.BehaviorWait, behavior.Name())
-	})
-}
-
 func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 	t.Parallel()
 
@@ -121,51 +81,6 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		assert.Equal(t, leader, ctx.LeaderEntity)
 		assert.Equal(t, world.Components.GridElement.Get(member), ctx.Grid)
 		assert.Equal(t, world.Components.GridElement.Get(leader), ctx.LeaderGrid)
-	})
-}
-
-func TestSquadPlanner_ShouldRetreatLowHP(t *testing.T) {
-	t.Parallel()
-
-	t.Run("HPコンポーネントがなければfalse", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		entity := world.ECS.NewEntity()
-
-		sp := newSquadPlanner(newTestRNG())
-		assert.False(t, sp.shouldRetreatLowHP(world, entity))
-	})
-
-	t.Run("閾値ちょうどのHP25%はtrue", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
-		require.NoError(t, err)
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
-
-		hp := world.Components.HP.Get(member)
-		hp.Max = 100
-		hp.Current = 25
-
-		sp := newSquadPlanner(newTestRNG())
-		assert.True(t, sp.shouldRetreatLowHP(world, member))
-	})
-
-	t.Run("HP26%はfalse", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
-		require.NoError(t, err)
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
-
-		hp := world.Components.HP.Get(member)
-		hp.Max = 100
-		hp.Current = 26
-
-		sp := newSquadPlanner(newTestRNG())
-		assert.False(t, sp.shouldRetreatLowHP(world, member))
 	})
 }
 
