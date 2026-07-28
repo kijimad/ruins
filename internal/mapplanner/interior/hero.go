@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // hero 部屋。大多数の背景の建物は密度と散らかりの揺らぎで足りるが、稀に1棟だけ記憶に残る見せ場を置く。
 // 異質なものは孤立しているほど記憶に残るので、landmark 級は狭い確率で1棟に1つに絞る。
 // 中身は 報酬46/雰囲気25/リスクリワード15/危険14 の予算配分で引き、主室の中央へ1つだけ据える。
@@ -25,7 +27,7 @@ func heroCenterpiece(seed uint64) (string, bool) {
 
 // heroSpot は目玉を据えるタイルを返す。廊下を除く最大の部屋の中央。中央が内側床でなければ置かない。
 func heroSpot(s Site) (Vec, bool) {
-	best, bestArea := -1, 0
+	best, bestArea := -1, consts.Tile(0)
 	for i, hr := range s.Rooms {
 		if hr.Role == roleCorridor {
 			continue

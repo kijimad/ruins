@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 民家の間取りテンプレ。玄関という狭い前室から廊下が背骨として伸び、各室は廊下に面して開く。浴室・トイレは
 // 小ブロックに寄せる。純 BSP は均一な部屋しか作れず、廊下という多数の部屋に面する通路も狭い前室も表現できない
 // ため、住居の believability には間取りの階層を保証するテンプレを使う。テンプレは split.go の layout builder の
@@ -48,8 +50,8 @@ func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []r
 // jitterSplit は分割線を seed で ±1 揺らす。固定比率のテンプレでも部屋サイズが seed ごとに変わり、同一
 // スケルトンの見えを崩す。分割線は隣接2室が共有するので、1本を動かしても両室が揃って動き連結は保たれる。
 // index は分割線ごとに変え、ジッタ同士・戸口抽選・型選択の相関を避けるため 5_000_000 番台へ閉じる。
-func jitterSplit(seed uint64, index, base int) int {
-	return base + int(childSeed(seed, 5_000_000+index)%3) - 1
+func jitterSplit(seed uint64, index int, base consts.Tile) consts.Tile {
+	return base + consts.Tile(childSeed(seed, 5_000_000+index)%3) - 1
 }
 
 // PlanHouseMid は横廊下の中型民家。玄関を左上角に置き、上段(玄関・居間・台所)を全幅の横廊下で繋ぎ、下段は

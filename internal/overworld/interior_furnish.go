@@ -34,7 +34,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 	for y := footprint.Y; y < footprint.Y+footprint.H; y++ {
 		for x := footprint.X; x < footprint.X+footprint.W; x++ {
 			v := interior.Vec{X: x, Y: y}
-			coord := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(x), Y: g.offsetY + consts.Tile(y)}
+			coord := consts.Coord[consts.Tile]{X: g.offsetX + x, Y: g.offsetY + y}
 			name := consts.TileNameFloor
 			switch {
 			case site.Garden[v]:
@@ -51,7 +51,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 
 	// 入口の扉を建物辺の site.Door へ置く。前庭ぶん内寄せした建物の辺にあり、前庭が街路との間に挟まる。
 	// 向きは入口も部屋間の戸口も同じ doorOrientation で壁の走る方向から決め、規約を1箇所に集約する
-	dcoord := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(site.Door.X), Y: g.offsetY + consts.Tile(site.Door.Y)}
+	dcoord := consts.Coord[consts.Tile]{X: g.offsetX + site.Door.X, Y: g.offsetY + site.Door.Y}
 	if _, err := lifecycle.SpawnDoor(world, dcoord, doorOrientation(wallSet, site.Door)); err != nil {
 		return nil, nil, fmt.Errorf("内装の扉配置に失敗: %w", err)
 	}
@@ -67,7 +67,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 				continue
 			}
 			doorSeen[dv] = true
-			ic := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(dv.X), Y: g.offsetY + consts.Tile(dv.Y)}
+			ic := consts.Coord[consts.Tile]{X: g.offsetX + dv.X, Y: g.offsetY + dv.Y}
 			if _, err := lifecycle.SpawnDoor(world, ic, doorOrientation(wallSet, dv)); err != nil {
 				return nil, nil, fmt.Errorf("内装の間仕切り扉配置に失敗: %w", err)
 			}
@@ -84,7 +84,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		if !ok {
 			continue // raw の無い戦利品や装飾は置かない
 		}
-		pos := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(p.Pos.X), Y: g.offsetY + consts.Tile(p.Pos.Y)}
+		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.Pos.X, Y: g.offsetY + p.Pos.Y}
 		ent, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y)
 		if err != nil {
 			return nil, nil, fmt.Errorf("内装の配置に失敗 (%s at %d,%d): %w", name, pos.X, pos.Y, err)
@@ -95,7 +95,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		occupied[pos] = true
 	}
 
-	isWall := func(lx, ly consts.Tile) bool { return wallSet[interior.Vec{X: int(lx), Y: int(ly)}] }
+	isWall := func(lx, ly consts.Tile) bool { return wallSet[interior.Vec{X: lx, Y: ly}] }
 	return isWall, occupied, nil
 }
 

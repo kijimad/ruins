@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // lot pass。建物を裸で地面に置かず、敷地を塀で囲い門で出入りさせ、前庭に外構を置く。自然な街並みに
 // 区画分割アルゴリズムは要らず、本質は「建物が裸で地面に置かれない」こと。街路側の footprint 縁へ
 // 塀を並べ、入口の軸に門の隙間を空け、前庭へ外構 prop を1つ置く。FacadePass と同じく壁でなく地面タイルの
@@ -35,7 +37,7 @@ func lotElements(s Site, facility FacilityKind) []Placed {
 
 // lotEdgeSpan は footprint の街路側の縁を、縁に沿う軸の範囲[lo,hi]と縁のラインで返す。塀は角も含めて敷地を
 // ぐるりと閉じるので corners を除かない。
-func lotEdgeSpan(f Rect, fside side) (lo, hi int, edge tileLine) {
+func lotEdgeSpan(f Rect, fside side) (lo, hi consts.Tile, edge tileLine) {
 	switch fside {
 	case sideNorth:
 		return f.X, f.X + f.W - 1, tileLine{cross: f.Y, horiz: true}
@@ -49,7 +51,7 @@ func lotEdgeSpan(f Rect, fside side) (lo, hi int, edge tileLine) {
 }
 
 // yardSpot は前庭の外構を置くタイルを返す。門の脇で塀の1マス内側の前庭タイルを試す。前庭でなければ置かない。
-func yardSpot(s Site, fside side, doorAxis int) (Vec, bool) {
+func yardSpot(s Site, fside side, doorAxis consts.Tile) (Vec, bool) {
 	f := s.Footprint
 	var p Vec
 	switch fside {

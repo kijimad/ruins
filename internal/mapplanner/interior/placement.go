@@ -3,6 +3,8 @@ package interior
 import (
 	"math"
 	"sort"
+
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // Placement は「どこへ置くか」の意味論。散布をやめ各 stuff に置き場所を持たせる主装置。
@@ -162,7 +164,7 @@ func dist(a, b Vec) float64 {
 	return math.Sqrt(dx*dx + dy*dy)
 }
 
-func abs(v int) int {
+func abs(v consts.Tile) consts.Tile {
 	if v < 0 {
 		return -v
 	}

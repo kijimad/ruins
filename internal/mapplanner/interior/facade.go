@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 外皮 FacadePass。分割文法の後、街路側の前壁へ窓・シャッター・看板を付ける。外から見た自然さの多くは「窓が
 // 通りに並ぶ・店が正面に看板」という単層平面で完結する性質が占める。前壁の外側へ prop を載せるだけで、閉じた
 // 箱だった建物が「正面のある建物」に見える。窓と
@@ -33,7 +35,7 @@ func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
 	if isShop(facility) {
 		in := porchStep(fside)
 		outward := Vec{X: -in.X, Y: -in.Y} // 建物の外向き
-		for _, a := range [2]int{doorAxis + 2, doorAxis - 2} {
+		for _, a := range [2]consts.Tile{doorAxis + 2, doorAxis - 2} {
 			if a < lo || a > hi {
 				continue
 			}
@@ -55,12 +57,12 @@ func isShop(facility FacilityKind) bool { return facility == facStore || facilit
 // ように、固定座標と向きが常にセットで決まるものを1つの値にまとめる。along を渡すと列上の1タイルを返すので、
 // 呼び出し側は列に沿う位置だけを渡せばよく、along と cross の取り違えが型で起きなくなる。
 type tileLine struct {
-	cross int
+	cross consts.Tile
 	horiz bool
 }
 
 // at は列に沿う位置 along のタイル座標を返す。
-func (l tileLine) at(along int) Vec {
+func (l tileLine) at(along consts.Tile) Vec {
 	if l.horiz {
 		return Vec{X: along, Y: l.cross}
 	}
@@ -68,7 +70,7 @@ func (l tileLine) at(along int) Vec {
 }
 
 // along は v の列に沿う成分を取り出す。入口の軸座標を得るのに使う。
-func (l tileLine) along(v Vec) int {
+func (l tileLine) along(v Vec) consts.Tile {
 	if l.horiz {
 		return v.X
 	}
@@ -94,7 +96,7 @@ func frontSide(s Site) side {
 }
 
 // frontWallSpan は前壁のタイル列を、壁に沿う軸の範囲[lo,hi](角を除く)と壁のラインで返す。
-func frontWallSpan(b Rect, fside side) (lo, hi int, wall tileLine) {
+func frontWallSpan(b Rect, fside side) (lo, hi consts.Tile, wall tileLine) {
 	switch fside {
 	case sideNorth:
 		return b.X + 1, b.X + b.W - 2, tileLine{cross: b.Y, horiz: true}

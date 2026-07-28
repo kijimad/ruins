@@ -2,12 +2,13 @@ package interior
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// Vec は建物ローカルのタイル座標。共有の Coord を int で実体化して Add/Sub 等を再利用する。overworld の全域
-// 座標 consts.Coord[consts.Tile] とは型引数が違うので別型として扱われ、境界のオフセット変換を型が強制する。
-type Vec = consts.Coord[int]
+// Vec は建物ローカルのタイル座標。座標軸は footprint の入る位置を原点とする局所系だが、単位は overworld の
+// 全域タイル consts.Tile と同じにして、境界での余計な変換を無くす。overworld も chunk 局所座標に consts.Tile を
+// 使い offsetX の足し算でフレームを移すので、interior もその流儀に合わせる。
+type Vec = consts.Coord[consts.Tile]
 
 // Rect はタイル単位の矩形。X,Y が左上、W,H が幅と高さ。
-type Rect struct{ X, Y, W, H int }
+type Rect struct{ X, Y, W, H consts.Tile }
 
 // Room は分割文法の出力の契約。content システムはこの契約のみに依存し、部屋の形の作り方は知らない。
 // layout↔content の契約。ゾーン印は後続 Stage で足す。

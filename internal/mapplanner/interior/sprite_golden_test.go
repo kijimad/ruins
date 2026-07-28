@@ -304,7 +304,7 @@ func recordSeeds(t *testing.T, gen func(seed uint64) (Site, []Placed)) []byte {
 		site, placed := gen(seed)
 		labels[i] = "seed " + strconv.FormatUint(seed, 10)
 		cells[i] = renderStage(t, site, placed)
-		cellW, cellH = site.Footprint.W*cellPx, site.Footprint.H*cellPx
+		cellW, cellH = int(site.Footprint.W)*cellPx, int(site.Footprint.H)*cellPx
 	}
 	return montage(t, cellW, cellH, 3, labels, cells)
 }
@@ -320,7 +320,7 @@ func recordStages(t *testing.T, site Site, stages []FurnishStage) []byte {
 		labels[i] = s.Label
 		cells[i] = renderStage(t, site, s.Placed)
 	}
-	return montage(t, site.Footprint.W*cellPx, site.Footprint.H*cellPx, len(stages), labels, cells)
+	return montage(t, int(site.Footprint.W)*cellPx, int(site.Footprint.H)*cellPx, len(stages), labels, cells)
 }
 
 // montage は同じ大きさのセル画像を cols 列のグリッドへ並べ、各セルの上帯にラベルを添えて1枚に合成する。
@@ -348,7 +348,7 @@ func montage(t *testing.T, cellW, cellH, cols int, labels []string, cells []*ima
 func renderStage(t *testing.T, site Site, placed []Placed) *image.RGBA {
 	t.Helper()
 	f := site.Footprint
-	img := image.NewRGBA(image.Rect(0, 0, f.W*cellPx, f.H*cellPx))
+	img := image.NewRGBA(image.Rect(0, 0, int(f.W)*cellPx, int(f.H)*cellPx))
 
 	floor := site.floorSet()
 	door := site.doorSet()
@@ -366,7 +366,7 @@ func renderStage(t *testing.T, site Site, placed []Placed) *image.RGBA {
 			default:
 				c = tileColor(true, false)
 			}
-			fillCell(img, x*cellPx, y*cellPx, c)
+			fillCell(img, int(x)*cellPx, int(y)*cellPx, c)
 		}
 	}
 
@@ -374,8 +374,8 @@ func renderStage(t *testing.T, site Site, placed []Placed) *image.RGBA {
 
 	// 役割ラベルは什器を描いた後に重ね、家具に埋もれず読めるようにする。左上の床側へ寄せて戸口や壁を避ける
 	for _, hr := range site.Rooms {
-		lx := (hr.Room.Rect.X + 1 - f.X) * cellPx
-		ly := (hr.Room.Rect.Y + 1 - f.Y) * cellPx
+		lx := int(hr.Room.Rect.X+1-f.X) * cellPx
+		ly := int(hr.Room.Rect.Y+1-f.Y) * cellPx
 		drawLabel(img, lx+2, ly+2, string(hr.Role))
 	}
 	return img
@@ -416,7 +416,7 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 		if name == "" {
 			continue // スプライトの無い装飾は下地に委ねる
 		}
-		dx, dy := (p.Pos.X-origin.X)*cellPx, (p.Pos.Y-origin.Y)*cellPx
+		dx, dy := int(p.Pos.X-origin.X)*cellPx, int(p.Pos.Y-origin.Y)*cellPx
 		sp, ok := cache[name]
 		if !ok {
 			sp = loadSprite(t, name)

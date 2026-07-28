@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 建物は footprint を分割文法で複数の部屋へ割る。各部屋は自分の壁を持ち、隣接する部屋は戸口で繋ぐ。
 // content システムはこの部屋群を受け、部屋ごとに中身を流し込む。
 // ここでは決定的 BSP を既定にし、部屋の連結と建物入口までを担う。ゾーン分類は後続 Stage。
@@ -31,13 +33,13 @@ func bspSplit(rect Rect, seed uint64, depth int) []Rect {
 	}
 	if canV && (!canH || rect.W >= rect.H) {
 		lo, hi := rect.X+minRoomSide, rect.X+rect.W-minRoomSide
-		pos := lo + int(childSeed(seed, 0)%uint64(hi-lo+1))
+		pos := lo + consts.Tile(childSeed(seed, 0)%uint64(hi-lo+1))
 		left := Rect{X: rect.X, Y: rect.Y, W: pos - rect.X + 1, H: rect.H}
 		right := Rect{X: pos, Y: rect.Y, W: rect.X + rect.W - pos, H: rect.H}
 		return append(bspSplit(left, childSeed(seed, 1), depth+1), bspSplit(right, childSeed(seed, 2), depth+1)...)
 	}
 	lo, hi := rect.Y+minRoomSide, rect.Y+rect.H-minRoomSide
-	pos := lo + int(childSeed(seed, 3)%uint64(hi-lo+1))
+	pos := lo + consts.Tile(childSeed(seed, 3)%uint64(hi-lo+1))
 	top := Rect{X: rect.X, Y: rect.Y, W: rect.W, H: pos - rect.Y + 1}
 	bot := Rect{X: rect.X, Y: pos, W: rect.W, H: rect.Y + rect.H - pos}
 	return append(bspSplit(top, childSeed(seed, 4), depth+1), bspSplit(bot, childSeed(seed, 5), depth+1)...)
@@ -69,7 +71,7 @@ func sharedDoorway(a, b Rect, seed uint64) (Doorway, bool) {
 		lo := max(a.Y, b.Y) + 1
 		hi := min(a.Y+a.H, b.Y+b.H) - 2
 		if lo <= hi {
-			y := lo + int(seed%uint64(hi-lo+1))
+			y := lo + consts.Tile(seed%uint64(hi-lo+1))
 			return Doorway{X: col, Y: y}, true
 		}
 	}
@@ -78,14 +80,14 @@ func sharedDoorway(a, b Rect, seed uint64) (Doorway, bool) {
 		lo := max(a.X, b.X) + 1
 		hi := min(a.X+a.W, b.X+b.W) - 2
 		if lo <= hi {
-			x := lo + int(seed%uint64(hi-lo+1))
+			x := lo + consts.Tile(seed%uint64(hi-lo+1))
 			return Doorway{X: x, Y: row}, true
 		}
 	}
 	return Doorway{}, false
 }
 
-func sharedColumn(a, b Rect) (int, bool) {
+func sharedColumn(a, b Rect) (consts.Tile, bool) {
 	if a.X+a.W-1 == b.X {
 		return b.X, true
 	}
@@ -95,7 +97,7 @@ func sharedColumn(a, b Rect) (int, bool) {
 	return 0, false
 }
 
-func sharedRow(a, b Rect) (int, bool) {
+func sharedRow(a, b Rect) (consts.Tile, bool) {
 	if a.Y+a.H-1 == b.Y {
 		return b.Y, true
 	}

@@ -1,6 +1,10 @@
 package interior
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // 建物内装のパイプラインと役割ルーティング。footprint を敷地計画して部屋へ割り、各部屋の役割から content を
 // 引いて加工する。overworld の大きな建物外殻を、間仕切りと役割で構造の変化のある内装に変える。
@@ -126,7 +130,7 @@ func planRooms(footprint Rect, seed uint64, facility FacilityKind) ([]Room, []ro
 // その狭さでも施設テンプレを発火させる。民家は幅14・高さ13 のどちらかを欠くと PlanHouseAny が田の字の
 // コンパクト民家へ切り替える。店・診療所は部屋数が少ないので狭くても成立する。下限を下回る建物とテンプレの
 // 無い施設は BSP へ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
-func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom, minW, minH int, ok bool) {
+func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom, minW, minH consts.Tile, ok bool) {
 	switch facility {
 	case facHouse:
 		return PlanHouseAny, 12, 9, true

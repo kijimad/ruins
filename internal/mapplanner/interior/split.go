@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 分割プリミティブ。施設テンプレに散っていた「帯をN分割し各室を背骨へ繋ぐ」反復と、退化を防ぐ最小サイズの
 // 担保を1箇所へ集約する。分割文法の概念だけを翻案し、全文法エンジンは
 // 作らない。house・store・clinic はこの builder の短い合成として書ける。
@@ -80,18 +82,19 @@ func (l *layout) strip(base Rect, axis splitAxis, spine string, cells []cell) {
 
 // splitSpan は [lo, hi] を weights の比で len(weights) 個へ割った境界列を返す。隣接室は境界座標を共有壁として
 // 共有する。内部境界を seed で ±1 揺らし、各室が minRoomSideSplit を割らないよう左右から押し戻して clamp する。
-func (l *layout) splitSpan(lo, hi int, weights []int) []int {
+func (l *layout) splitSpan(lo, hi consts.Tile, weights []int) []consts.Tile {
 	n := len(weights)
-	bounds := make([]int, n+1)
+	bounds := make([]consts.Tile, n+1)
 	bounds[0], bounds[n] = lo, hi
-	span, total := hi-lo+1, 0
+	span := hi - lo + 1
+	total := 0
 	for _, w := range weights {
 		total += w
 	}
 	acc := 0
 	for i := 1; i < n; i++ {
 		acc += weights[i-1]
-		bounds[i] = jitterSplit(l.seed, 5_100_000+l.nsplit*16+i, lo+span*acc/total)
+		bounds[i] = jitterSplit(l.seed, 5_100_000+l.nsplit*16+i, lo+span*consts.Tile(acc)/consts.Tile(total))
 	}
 	// 各室 >= minRoomSideSplit を保つ。まず左から前室に押され、次に右から末尾室に押し戻す
 	for i := 1; i <= n; i++ {

@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 施設固有の間取りテンプレ。汎用 BSP は均一な部屋しか作れず、店も診療所も同じ骨格になってしまう。店なら
 // 開けた売場＋奥のバックヤード、診療所なら入口の待合＋廊下＋診察室の列、という施設ごとの構造を保証する
 // テンプレを持ち、「言われなくても何の施設か分かる」間取りにする。民家の PlanHouseAny と同じく PlannedRoom を
@@ -121,7 +123,7 @@ func PlanClinic(footprint Rect, seed uint64) []PlannedRoom {
 	bi := 0
 	for _, wing := range []struct {
 		key      string
-		xlo, xhi int
+		xlo, xhi consts.Tile
 	}{
 		{"exam_l", x0, cxL},
 		{"exam_r", cxR, right},

@@ -1,8 +1,10 @@
 package interior
 
 import (
+	"slices"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -81,7 +83,7 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 		{"house", []roleName{"kitchen", "bedroom", "bath"}},
 	}
 	for _, c := range cases {
-		for fp := 17; fp <= 20; fp++ { // 本番でテンプレが発火する footprint 範囲
+		for fp := consts.Tile(17); fp <= 20; fp++ { // 本番でテンプレが発火する footprint 範囲
 			for seed := range uint64(20) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				site, _ := FurnishBuilding(seed, footprint, Vec{X: fp / 2, Y: 0}, c.facility)
@@ -111,7 +113,7 @@ func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	t.Parallel()
 
 	for _, fac := range []FacilityKind{"house", "store", "clinic"} {
-		for fp := 17; fp <= 20; fp++ {
+		for fp := consts.Tile(17); fp <= 20; fp++ {
 			doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
 			for dside, door := range doors {
 				for seed := range uint64(30) {
@@ -131,7 +133,7 @@ func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 func TestFurnishBuilding_民家の入口は玄関に開く(t *testing.T) {
 	t.Parallel()
 
-	for fp := 17; fp <= 20; fp++ {
+	for fp := consts.Tile(17); fp <= 20; fp++ {
 		doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
 		for dside, door := range doors {
 			for seed := range uint64(30) {
@@ -146,13 +148,7 @@ func TestFurnishBuilding_民家の入口は玄関に開く(t *testing.T) {
 				if !assert.NotNilf(t, genkan, "民家 fp=%d 玄関=%s seed=%d は玄関の部屋を持つ", fp, dside, seed) {
 					continue
 				}
-				opensToGenkan := false
-				for _, dw := range genkan.Room.Doorways {
-					if dw == site.Door {
-						opensToGenkan = true
-						break
-					}
-				}
+				opensToGenkan := slices.Contains(genkan.Room.Doorways, site.Door)
 				assert.Truef(t, opensToGenkan, "民家 fp=%d 玄関=%s seed=%d の入口 %+v は玄関 %+v へ開く", fp, dside, seed, site.Door, genkan.Room.Rect)
 			}
 		}
@@ -170,10 +166,10 @@ func TestFurnishBuilding_民家は浴室とトイレを持ち居間より小さ�
 		if w < 0 || h < 0 {
 			return 0
 		}
-		return w * h
+		return int(w * h)
 	}
 	const wcMaxInterior = 12 // 浴室・トイレの内側面積の上限。居室並みに広がる退行を止める
-	for fp := 17; fp <= 20; fp++ {
+	for fp := consts.Tile(17); fp <= 20; fp++ {
 		doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
 		for dside, door := range doors {
 			for seed := range uint64(30) {

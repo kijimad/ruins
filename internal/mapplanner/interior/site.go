@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 敷地計画。footprint を矩形のまま全部屋で埋めず、建物を内側へ取り、差分を庭にする。外形が clean な矩形
 // でなくなり、広すぎる部屋の余剰を庭で引き算する。
 //
@@ -81,7 +83,7 @@ func attachDoor(rooms []PlannedRoom, door Vec, s side) {
 // insetBuilding は footprint を入口側の一辺だけ前庭ぶん内寄せした建物矩形を返す。他の3辺は footprint の縁
 // まで建物で埋め、庭を道路側の一辺に集める。狭くて前庭を取ると建物がテンプレ下限を割る footprint では、
 // 内寄せを諦めて footprint をそのまま建物にする。
-func insetBuilding(footprint Rect, door Vec, fy int) Rect {
+func insetBuilding(footprint Rect, door Vec, fy consts.Tile) Rect {
 	f := footprint
 	var b Rect
 	switch doorSide(footprint, door) {
@@ -121,7 +123,7 @@ func chooseDoor(building Rect, rooms []PlannedRoom, s side, desired Vec) Vec {
 // frontSlot は辺 s に面する部屋の内側の帯のうち、望みの横位置 desired に最も近い座標を返す。玄関がこの辺に
 // 面していれば入口を玄関の帯へ寄せ、入口が必ず玄関へ開くようにする。玄関は建物の街路側の角に置くので、北
 // 玄関でも西玄関でも同じ玄関へスナップする。玄関が無ければ望みに最も近い前室の帯へ、前室も無ければ望みを返す。
-func frontSlot(building Rect, rooms []PlannedRoom, s side, desired int) int {
+func frontSlot(building Rect, rooms []PlannedRoom, s side, desired consts.Tile) consts.Tile {
 	for _, hr := range rooms {
 		if hr.Role != "genkan" {
 			continue
@@ -130,7 +132,7 @@ func frontSlot(building Rect, rooms []PlannedRoom, s side, desired int) int {
 			return clamp(desired, lo, hi)
 		}
 	}
-	bestLo, bestHi, found := 0, 0, false
+	bestLo, bestHi, found := consts.Tile(0), consts.Tile(0), false
 	for _, hr := range rooms {
 		lo, hi, ok := frontSpan(hr.Room.Rect, building, s)
 		if !ok {
@@ -151,7 +153,7 @@ func frontSlot(building Rect, rooms []PlannedRoom, s side, desired int) int {
 
 // frontSpan は矩形が建物の辺 s に接するとき、その内側の帯 [lo, hi] を辺に沿う軸で返す。接さなければ ok=false。
 // 接する条件は矩形の該当辺が建物の該当辺と同じ座標にあること。入口はこの帯に落とすと部屋の内側へ開く。
-func frontSpan(r, building Rect, s side) (lo, hi int, ok bool) {
+func frontSpan(r, building Rect, s side) (lo, hi consts.Tile, ok bool) {
 	switch s {
 	case sideNorth:
 		return r.X + 1, r.X + r.W - 2, r.Y == building.Y && r.W >= 3
@@ -165,7 +167,7 @@ func frontSpan(r, building Rect, s side) (lo, hi int, ok bool) {
 }
 
 // spanDist は帯 [lo, hi] から点 v までの距離。帯の中なら 0。
-func spanDist(lo, hi, v int) int {
+func spanDist(lo, hi, v consts.Tile) consts.Tile {
 	if v < lo {
 		return lo - v
 	}
@@ -187,7 +189,7 @@ func carvePorch(building Rect, door Vec, s side, garden, extra, protected map[Ve
 	}
 	// ポケットの側壁は下げた入口の両隣。角に寄りすぎて片側が建物外に出るなら凹ませない
 	along := porchAlong(s)
-	for d := -1; d <= 1; d += 2 {
+	for d := consts.Tile(-1); d <= 1; d += 2 {
 		if !building.contains(Vec{X: inner.X + along.X*d, Y: inner.Y + along.Y*d}) {
 			return door
 		}
@@ -314,7 +316,7 @@ func (r Rect) contains(v Vec) bool {
 }
 
 // clamp は v を [lo, hi] に収める。
-func clamp(v, lo, hi int) int {
+func clamp(v, lo, hi consts.Tile) consts.Tile {
 	if v < lo {
 		return lo
 	}

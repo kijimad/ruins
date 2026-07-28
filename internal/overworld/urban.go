@@ -254,8 +254,8 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 			}
 		}
 	}
-	footprint := interior.Rect{X: int(bx), Y: int(by), W: int(bw), H: int(bh)}
-	door := interior.Vec{X: int(doorX), Y: int(doorY)}
+	footprint := interior.Rect{X: bx, Y: by, W: bw, H: bh}
+	door := interior.Vec{X: doorX, Y: doorY}
 	return footprint, door, nil
 }
 

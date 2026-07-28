@@ -57,7 +57,7 @@ func TestPlanHouse_玄関と廊下と水回りの小部屋を持つ(t *testing.T
 
 	area := map[roleName]int{}
 	for _, hr := range plan {
-		area[hr.Role] = hr.Room.Rect.W * hr.Room.Rect.H
+		area[hr.Role] = int(hr.Room.Rect.W * hr.Room.Rect.H)
 	}
 	for _, role := range []roleName{"genkan", "corridor", "living", "kitchen", "bedroom", "bath", "toilet"} {
 		assert.Containsf(t, area, role, "役割 %s の部屋がある", role)
