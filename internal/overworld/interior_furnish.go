@@ -55,6 +55,29 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		return nil, nil, fmt.Errorf("内装の扉配置に失敗: %w", err)
 	}
 
+	// 部屋間の戸口にも扉を置く。interior は戸口を壁の切れ目として持つが、扉エンティティは overworld が立てる。
+	// 入口と同じく閉状態で通行と視界を遮り、ぶつかると開く。向きは壁の走る方向で決め、左右が壁の東西の壁は
+	// Vertical、上下が壁の南北の壁は Horizontal と入口と同じ規約にする。同じ戸口は隣接2部屋が共有するので
+	// 座標で重複排除し、入口の扉とも重ねない
+	doorSeen := map[interior.Vec]bool{site.Door: true}
+	for _, hr := range site.Rooms {
+		for _, dw := range hr.Room.Doorways {
+			dv := interior.Vec(dw)
+			if doorSeen[dv] {
+				continue
+			}
+			doorSeen[dv] = true
+			ori := gc.DoorOrientationHorizontal
+			if wallSet[interior.Vec{X: dv.X - 1, Y: dv.Y}] && wallSet[interior.Vec{X: dv.X + 1, Y: dv.Y}] {
+				ori = gc.DoorOrientationVertical
+			}
+			ic := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(dv.X), Y: g.offsetY + consts.Tile(dv.Y)}
+			if _, err := lifecycle.SpawnDoor(world, ic, ori); err != nil {
+				return nil, nil, fmt.Errorf("内装の間仕切り扉配置に失敗: %w", err)
+			}
+		}
+	}
+
 	// 家具と装飾を spawn する。写像できる Ref だけを建物の内側へ置く。坪庭の観葉もここで庭の土の上へ乗る。
 	// 写像は interior.PropRawName が持つ単一のソースで、VRT の描画も同じ判定を共有する。収納家具には戦利品を
 	// 格納するので、建物ごとに別ストリーム 0x4 の決定的 RNG で引く。グローバル乱数でなく建物ローカルで
