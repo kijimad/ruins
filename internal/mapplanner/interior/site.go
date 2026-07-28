@@ -41,11 +41,24 @@ func planSite(footprint Rect, seed uint64, door Vec, facility FacilityKind) Site
 		labeled[i] = PlannedRoom{Room: rooms[i], Role: roles[i]}
 	}
 
+	// carvePorch がポケットの側壁で他室の戸口を塞がないよう、既存の戸口とその隣接を保護する。戸口は両側が
+	// 床でないと通れないので、approach タイルを壁にするとその部屋が入口から孤立し softlock になる
+	protected := map[Vec]bool{}
+	for i := range labeled {
+		for _, d := range labeled[i].Room.Doorways {
+			dv := Vec(d)
+			protected[dv] = true
+			for _, n := range neighbors4(dv) {
+				protected[n] = true
+			}
+		}
+	}
+
 	// 入口は建物辺のうち前室の内側に面する位置へ。仕切り列に当たると部屋でなく壁に開くので、前室の内側の
 	// 帯へ寄せる。玄関を凹ませるかは seed で選ぶ。全ての玄関が凹むと単調なので、半分は直線の開口部にする
 	bdoor := chooseDoor(building, labeled, side, door)
 	if childSeed(seed, 8_100_000)%2 == 0 {
-		bdoor = carvePorch(building, bdoor, side, garden, extra)
+		bdoor = carvePorch(building, bdoor, side, garden, extra, protected)
 	}
 	attachDoor(labeled, bdoor, side)
 
@@ -166,7 +179,7 @@ func spanDist(lo, hi, v int) int {
 // 前壁は残し、下げた入口の両隣を壁にして 1幅1奥のポケットにする。開口を1幅にすると前壁と側壁が直交で
 // 繋がり、角を斜めに視線や移動が抜けない。開口を3幅にすると口の角で前壁と側壁が斜め隣接になり漏れる。
 // 凹みを作れない小さな建物では下げず元の door を返す。
-func carvePorch(building Rect, door Vec, s side, garden, extra map[Vec]bool) Vec {
+func carvePorch(building Rect, door Vec, s side, garden, extra, protected map[Vec]bool) Vec {
 	step := porchStep(s)
 	inner := Vec{X: door.X + step.X, Y: door.Y + step.Y}
 	if !building.containsInterior(inner) {
@@ -179,9 +192,15 @@ func carvePorch(building Rect, door Vec, s side, garden, extra map[Vec]bool) Vec
 			return door
 		}
 	}
-	garden[door] = true                                           // 元の入口の1マスだけをポケットの口として庭に開ける。両隣の前壁は残す
-	extra[Vec{X: inner.X + along.X, Y: inner.Y + along.Y}] = true // 下げた入口の両隣を側壁に
-	extra[Vec{X: inner.X - along.X, Y: inner.Y - along.Y}] = true
+	w1 := Vec{X: inner.X + along.X, Y: inner.Y + along.Y}
+	w2 := Vec{X: inner.X - along.X, Y: inner.Y - along.Y}
+	// 側壁が他室の戸口の approach に重なると、その部屋が入口から孤立する。塞ぐくらいなら凹ませない
+	if protected[w1] || protected[w2] {
+		return door
+	}
+	garden[door] = true // 元の入口の1マスだけをポケットの口として庭に開ける。両隣の前壁は残す
+	extra[w1] = true    // 下げた入口の両隣を側壁に
+	extra[w2] = true
 	return inner
 }
 
