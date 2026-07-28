@@ -1,8 +1,9 @@
 package interior
 
 import (
-	"math"
 	"sort"
+
+	"github.com/kijimaD/ruins/internal/geometry"
 
 	"github.com/kijimaD/ruins/internal/consts"
 )
@@ -159,9 +160,7 @@ func nearestDoorDist(room Room, t Vec) float64 {
 }
 
 func dist(a, b Vec) float64 {
-	dx := float64(a.X - b.X)
-	dy := float64(a.Y - b.Y)
-	return math.Sqrt(dx*dx + dy*dy)
+	return geometry.Distance(float64(a.X), float64(a.Y), float64(b.X), float64(b.Y))
 }
 
 func abs(v consts.Tile) consts.Tile {
