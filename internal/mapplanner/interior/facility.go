@@ -59,9 +59,10 @@ func facilityVariants(facility FacilityKind) []Content {
 		return []Content{officeContent()}
 	case facDepot:
 		return []Content{depotContent()}
-	default:
-		return []Content{genericContent()}
 	}
+	// FacilityKind は raw 由来の文字列なので未知値が来うる。既知の全種別を case で網羅しつつ、未知は末尾で
+	// 汎用へ落とす。default を置かないことで、種別を増やして case を足し忘れると exhaustive linter が止める。
+	return []Content{genericContent()}
 }
 
 // applyDensity は content の家具量を密度係数 factor(×/10)で増減する。個数1の必須什器は1を保ち、詰め物の

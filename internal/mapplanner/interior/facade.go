@@ -1,6 +1,10 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"strconv"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // 外皮 FacadePass。分割文法の後、街路側の前壁へ窓・シャッター・看板を付ける。外から見た自然さの多くは「窓が
 // 通りに並ぶ・店が正面に看板」という単層平面で完結する性質が占める。前壁の外側へ prop を載せるだけで、閉じた
@@ -104,7 +108,8 @@ func frontWallSpan(b Rect, fside side) (lo, hi consts.Tile, wall tileLine) {
 		return b.X + 1, b.X + b.W - 2, tileLine{cross: b.Y + b.H - 1, horiz: true}
 	case sideWest:
 		return b.Y + 1, b.Y + b.H - 2, tileLine{cross: b.X, horiz: false}
-	default: // sideEast
+	case sideEast:
 		return b.Y + 1, b.Y + b.H - 2, tileLine{cross: b.X + b.W - 1, horiz: false}
 	}
+	panic("未知の side: " + strconv.Itoa(int(fside)))
 }

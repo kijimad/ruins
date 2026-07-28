@@ -138,9 +138,11 @@ func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom
 		return PlanStore, 12, 9, true
 	case facClinic, facLab:
 		return PlanClinic, 12, 9, true
-	default:
-		return nil, 0, 0, false
+	case facOffice, facDepot:
+		return nil, 0, 0, false // 専用テンプレを持たず BSP へ委ねる
 	}
+	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で BSP へ落とす
+	return nil, 0, 0, false
 }
 
 // roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ
@@ -169,9 +171,11 @@ func roomCatalog(facility FacilityKind) map[roleName]Content {
 		return storeRoomContents()
 	case facClinic, facLab:
 		return clinicRoomContents()
-	default:
-		return nil
+	case facOffice, facDepot:
+		return nil // 専用カタログを持たず、共有役割か奥室既定へ落とす
 	}
+	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で nil を返す
+	return nil
 }
 
 // backRoomContent は奥室の内装。施設ごとに、店は物置、民家は寝室、診療所は診察室にする。既存の家具を
@@ -182,9 +186,11 @@ func backRoomContent(facility FacilityKind) Content {
 		return bedroomContent()
 	case facClinic, facLab:
 		return examRoomContent()
-	default:
+	case facStore, facAntique, facOffice, facDepot:
 		return storageRoomContent()
 	}
+	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で物置へ落とす
+	return storageRoomContent()
 }
 
 // roomOrderByArea は部屋を面積降順の添字列で返す。主室に最大の部屋を選ぶための順序。

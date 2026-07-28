@@ -1,6 +1,10 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"strconv"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // lot pass。建物を裸で地面に置かず、敷地を塀で囲い門で出入りさせ、前庭に外構を置く。自然な街並みに
 // 区画分割アルゴリズムは要らず、本質は「建物が裸で地面に置かれない」こと。街路側の footprint 縁へ
@@ -45,9 +49,10 @@ func lotEdgeSpan(f Rect, fside side) (lo, hi consts.Tile, edge tileLine) {
 		return f.X, f.X + f.W - 1, tileLine{cross: f.Y + f.H - 1, horiz: true}
 	case sideWest:
 		return f.Y, f.Y + f.H - 1, tileLine{cross: f.X, horiz: false}
-	default: // sideEast
+	case sideEast:
 		return f.Y, f.Y + f.H - 1, tileLine{cross: f.X + f.W - 1, horiz: false}
 	}
+	panic("未知の side: " + strconv.Itoa(int(fside)))
 }
 
 // yardSpot は前庭の外構を置くタイルを返す。門の脇で塀の1マス内側の前庭タイルを試す。前庭でなければ置かない。
@@ -61,7 +66,7 @@ func yardSpot(s Site, fside side, doorAxis consts.Tile) (Vec, bool) {
 		p = Vec{X: doorAxis + 2, Y: f.Y + f.H - 2}
 	case sideWest:
 		p = Vec{X: f.X + 1, Y: doorAxis + 2}
-	default: // sideEast
+	case sideEast:
 		p = Vec{X: f.X + f.W - 2, Y: doorAxis + 2}
 	}
 	if s.Garden[p] {

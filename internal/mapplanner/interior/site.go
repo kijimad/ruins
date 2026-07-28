@@ -1,6 +1,10 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"strconv"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // 敷地計画。footprint を矩形のまま全部屋で埋めず、建物を内側へ取り、差分を庭にする。外形が clean な矩形
 // でなくなり、広すぎる部屋の余剰を庭で引き算する。
@@ -93,7 +97,7 @@ func insetBuilding(footprint Rect, door Vec, fy consts.Tile) Rect {
 		b = Rect{X: f.X, Y: f.Y, W: f.W, H: f.H - fy}
 	case sideWest:
 		b = Rect{X: f.X + fy, Y: f.Y, W: f.W - fy, H: f.H}
-	default: // sideEast
+	case sideEast:
 		b = Rect{X: f.X, Y: f.Y, W: f.W - fy, H: f.H}
 	}
 	// 建物が小さすぎると部屋も戸口も作れない。最小 5x5 を割るなら内寄せをやめる
@@ -115,9 +119,10 @@ func chooseDoor(building Rect, rooms []PlannedRoom, s side, desired Vec) Vec {
 		return Vec{X: frontSlot(building, rooms, s, desired.X), Y: bottom}
 	case sideWest:
 		return Vec{X: building.X, Y: frontSlot(building, rooms, s, desired.Y)}
-	default: // sideEast
+	case sideEast:
 		return Vec{X: right, Y: frontSlot(building, rooms, s, desired.Y)}
 	}
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // frontSlot は辺 s に面する部屋の内側の帯のうち、望みの横位置 desired に最も近い座標を返す。玄関がこの辺に
@@ -161,9 +166,10 @@ func frontSpan(r, building Rect, s side) (lo, hi consts.Tile, ok bool) {
 		return r.X + 1, r.X + r.W - 2, r.Y+r.H-1 == building.Y+building.H-1 && r.W >= 3
 	case sideWest:
 		return r.Y + 1, r.Y + r.H - 2, r.X == building.X && r.H >= 3
-	default: // sideEast
+	case sideEast:
 		return r.Y + 1, r.Y + r.H - 2, r.X+r.W-1 == building.X+building.W-1 && r.H >= 3
 	}
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // spanDist は帯 [lo, hi] から点 v までの距離。帯の中なら 0。
@@ -274,7 +280,8 @@ const (
 	sideEast
 )
 
-// doorSide は footprint のどの辺に door が乗るかを返す。
+// doorSide は footprint のどの辺に door が乗るかを返す。4辺を明示し、いずれの辺上でもない door は panic
+// させる。既定を東へ倒すと、辺上にない不正な door を黙って東と誤認するため。
 func doorSide(footprint Rect, door Vec) side {
 	switch {
 	case door.Y == footprint.Y:
@@ -283,9 +290,10 @@ func doorSide(footprint Rect, door Vec) side {
 		return sideSouth
 	case door.X == footprint.X:
 		return sideWest
-	default:
+	case door.X == footprint.X+footprint.W-1:
 		return sideEast
 	}
+	panic("door が footprint の辺上にない")
 }
 
 // porchStep は入口を建物内へ下げる向き。辺の内向き。
@@ -297,17 +305,21 @@ func porchStep(s side) Vec {
 		return Vec{X: 0, Y: -1}
 	case sideWest:
 		return Vec{X: 1, Y: 0}
-	default:
+	case sideEast:
 		return Vec{X: -1, Y: 0}
 	}
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // porchAlong はポーチの走る向き。辺に沿う方向で、北・南は横、西・東は縦。
 func porchAlong(s side) Vec {
-	if s == sideNorth || s == sideSouth {
+	switch s {
+	case sideNorth, sideSouth:
 		return Vec{X: 1, Y: 0}
+	case sideWest, sideEast:
+		return Vec{X: 0, Y: 1}
 	}
-	return Vec{X: 0, Y: 1}
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // contains は矩形が v を含むかを返す。外周を含む。

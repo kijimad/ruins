@@ -1,5 +1,7 @@
 package interior
 
+import "strconv"
+
 // 建物単位の生活感プロファイル。変種・散らかり・損傷・密度の独立軸を建物ごとに1回引き、全室へ一様に
 // 効かせる。少量の語彙を数千通りの見えに乗算し「同じ家を二度見ない」感を機構で作る。各軸は独立の childSeed ストリームで引き相関を
 // 避ける。比率は実測ベースのチューニング初期値。
@@ -126,13 +128,14 @@ func densityFactor(seed uint64) int {
 // 溜まる因果を作る。整頓は0で、汚部屋ほど多い。
 func clutterFurniturePct(level clutterLevel) int {
 	switch level {
+	case clutterTidy:
+		return 0
 	case clutterMessy:
 		return 35
 	case clutterFilthy:
 		return 70
-	default:
-		return 0
 	}
+	panic("未知の clutterLevel: " + strconv.Itoa(int(level)))
 }
 
 // clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。「あるべきでない場所の物」を、寝室には
