@@ -105,71 +105,9 @@ func sharedRow(a, b Rect) (int, bool) {
 	return 0, false
 }
 
-// roomIndex は rooms スライスの添字で、部屋を1つ指す。連結・BFS・union-find が部屋を参照するのに使い、
-// 距離や個数など他の int と混ざらないよう型で区別する。
+// roomIndex は rooms スライスの添字で、部屋を1つ指す。連結と union-find が部屋を参照するのに使い、
+// 個数など他の int と混ざらないよう型で区別する。
 type roomIndex int
-
-// noRoom は該当する部屋が無いことを表す番兵。入口が見つからない、到達不能などに使う。
-const noRoom roomIndex = -1
-
-// roomDepth は入口部屋からの戸口グラフ上のホップ数。タイル距離ではなく、戸口を1つ通るごとに1増える位相量。
-// 0 が入口の間で、増えるほど奥まった私的な部屋になる。
-type roomDepth int
-
-// depthUnreachable は入口から戸口で辿れない部屋の深さを表す番兵。
-const depthUnreachable roomDepth = -1
-
-// roomDepths は建物入口を持つ部屋を起点に、戸口グラフ上の各部屋の入口からの距離を BFS で返す。
-// これがゾーン分類の基礎で、距離 0 は入口の間、距離が増えるほど奥まった私的な部屋になる。手前を公共、
-// 奥を私的とする住居の動線を、面積という幾何量でなく到達構造という位相量で表す。入口が無い、または
-// 入口から孤立した部屋は depthUnreachable にする。SubdivideBuilding は全部屋を連結するので通常は出ない。
-func roomDepths(rooms []Room) []roomDepth {
-	depths := make([]roomDepth, len(rooms))
-	for i := range depths {
-		depths[i] = depthUnreachable
-	}
-
-	// 戸口タイルからそれを共有する部屋群を引く。部屋どうしの内部戸口は2部屋が持ち、建物入口は1部屋だけが
-	// 持つ。だから共有されない戸口を持つ部屋が入口の間になる。玄関ポーチで入口が外周から1マス内へ下がっても、
-	// 入口はやはり1部屋しか持たないので、外周判定でなく共有数で入口を特定すればポーチに強い
-	doorRooms := make(map[Vec][]roomIndex)
-	for i, r := range rooms {
-		for _, d := range r.Doorways {
-			doorRooms[Vec(d)] = append(doorRooms[Vec(d)], roomIndex(i))
-		}
-	}
-	start := noRoom
-	for i, r := range rooms {
-		for _, d := range r.Doorways {
-			if len(doorRooms[Vec(d)]) == 1 {
-				start = roomIndex(i)
-				break
-			}
-		}
-		if start != noRoom {
-			break
-		}
-	}
-	if start == noRoom {
-		return depths
-	}
-
-	depths[start] = 0
-	queue := []roomIndex{start}
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
-		for _, d := range rooms[cur].Doorways {
-			for _, nb := range doorRooms[Vec(d)] {
-				if depths[nb] == depthUnreachable {
-					depths[nb] = depths[cur] + 1
-					queue = append(queue, nb)
-				}
-			}
-		}
-	}
-	return depths
-}
 
 // --- union-find ---
 

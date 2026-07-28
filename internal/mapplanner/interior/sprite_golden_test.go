@@ -161,8 +161,7 @@ func TestGolden_BuildingStore(t *testing.T) {
 }
 
 // TestGolden_BuildingClinic は診療所1棟を9 seed 並べた目視回帰。本番サイズで in-game と同じ BSP に割れ、主室に
-// 受付と診察台、奥室に薬棚が並ぶ。guardedLoot の施錠戦利品は production の furnishBuilding が呼ばないので
-// ここでも重ねず、VRT を in-game と揃える。
+// 受付と診察台、奥室に薬棚が並ぶ。
 func TestGolden_BuildingClinic(t *testing.T) {
 	t.Parallel()
 
@@ -204,7 +203,6 @@ func TestGolden_StagesStore(t *testing.T) {
 }
 
 // TestGolden_StagesClinic は診療所1棟の加工の流れ。診察台と薬棚の fill から、経年と装飾までを追う。
-// guardedLoot の施錠戦利品は別の machine なのでここには含めず、加工パイプラインだけを写す。
 func TestGolden_StagesClinic(t *testing.T) {
 	t.Parallel()
 

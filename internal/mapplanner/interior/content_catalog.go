@@ -369,8 +369,7 @@ func coldroomContent() Content {
 }
 
 // pharmacyRoomContent は奥室1つぶんの薬局・薬品庫。薬棚を壁一面に並べ、奥に薬を置く。店として売る
-// pharmacyContent と違い register/gondola を持たない。診療所の施錠戦利品の受け皿になる部屋型で、待合の
-// 主室に薬棚を積んでいた scope 過大を解く。
+// pharmacyContent と違い register/gondola を持たない。待合の主室に薬棚を積んでいた scope 過大を解く。
 func pharmacyRoomContent() Content {
 	return Content{ID: "pharmacy", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
