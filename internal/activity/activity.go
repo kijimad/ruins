@@ -180,11 +180,9 @@ func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 	return consts.Coord[consts.Tile]{X: comp.Destination.X, Y: comp.Destination.Y}, nil
 }
 
-// progressHunger はターン経過による空腹進行を処理する
+// progressHunger はターン経過による空腹進行を処理する。
+// Hunger を持つ全エンティティが対象で、倍率は各自の CharModifiers と耐餓スキルから求める
 func progressHunger(actor ecs.Entity, world w.World) {
-	if !world.Components.Player.Has(actor) {
-		return
-	}
 	if !world.Components.Hunger.Has(actor) {
 		return
 	}

@@ -130,4 +130,6 @@ type SquadHUDMember struct {
 	Name      string
 	CurrentHP int
 	MaxHP     int
+	// HungerLevel は空腹段階の表示名。空腹以上のときだけ設定され、それ以外は空文字
+	HungerLevel string
 }

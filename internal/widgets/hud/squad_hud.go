@@ -61,5 +61,13 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 			barColor = color.RGBA{200, 200, 50, 255}
 		}
 		vector.FillRect(screen, barX, barY, float32(barWidth)*hpRatio, float32(barHeight), barColor, false)
+
+		// 空腹表示。空腹以上のときだけHPバーの下に出す
+		if member.HungerLevel != "" {
+			hungerOp := &text.DrawOptions{}
+			hungerOp.GeoM.Translate(float64(startX+nameWidth), float64(y+barHeight+2))
+			hungerOp.ColorScale.ScaleWithColor(color.RGBA{230, 160, 60, 255})
+			text.Draw(screen, member.HungerLevel, s.face, hungerOp)
+		}
 	}
 }

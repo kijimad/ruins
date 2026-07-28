@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -27,6 +28,8 @@ type squadPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
 	rng          *rand.Rand
+	// supplyWarned はプール枯渇警告をこのAIターン内で出したかを保持し、隊員数ぶんの連投を防ぐ
+	supplyWarned bool
 }
 
 func newSquadPlanner(rng *rand.Rand) *squadPlanner {
@@ -97,6 +100,10 @@ func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadC
 		if b, ok := sp.planReturnToExploredArea(world, entity, ctx); ok {
 			return b
 		}
+	}
+
+	if b, ok := sp.planSupplyAction(world, entity, ctx); ok {
+		return b
 	}
 
 	if b, ok := sp.planCombatAction(world, entity, ctx); ok {
@@ -288,6 +295,71 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 	}
 
 	return nil, false
+}
+
+// planSupplyAction は空腹の隊員に補給行動を計画する。
+// まず自分の背嚢の食料を食べ、無ければ共有プールであるリーダーの所持品へ接近して受け取る。
+// 敵が視界内にいる間は発火しない
+func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
+	if ctx.Squad.Supply != gc.SupplyAuto {
+		return nil, false
+	}
+	if !world.Components.Hunger.Has(entity) {
+		return nil, false
+	}
+	if world.Components.Hunger.Get(entity).GetLevel() < gc.HungerHungry {
+		return nil, false
+	}
+	// 戦闘中は食べない
+	if enemy, _, _ := sp.findNearestEnemy(world, entity, ctx); enemy != nil {
+		return nil, false
+	}
+
+	// 自分の背嚢から食べる。栄養価の低いものを先に消費して高価値食料を温存する
+	if food, ok := findLowestNutritionFood(world, entity); ok {
+		sp.logger.Debug("隊員が食事する", "entity", entity)
+		return &activity.UseItemActivity{Target: food}, true
+	}
+
+	// 共有プールから受け取る
+	poolFood, ok := findLowestNutritionFood(world, ctx.LeaderEntity)
+	if !ok {
+		// プール枯渇。受け取れず空腹が進む。食料確保はプレイヤーの兵站判断に残す
+		if !sp.supplyWarned {
+			sp.supplyWarned = true
+			logger := gamelog.New(query.GetGameLog(world))
+			query.AppendNameWithColor(logger, entity, query.GetEntityName(entity, world), world)
+			logger.Append("が空腹だが、隊の食料が尽きている").Log()
+		}
+		return nil, false
+	}
+	if gridDistance(ctx.Grid, ctx.LeaderGrid) <= 1 {
+		sp.logger.Debug("隊員が食料を受け取る", "entity", entity)
+		return &activity.TransferActivity{Target: poolFood, Recipient: entity}, true
+	}
+	return sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid)
+}
+
+// findLowestNutritionFood は所持品から最も栄養価の低い食料を返す
+func findLowestNutritionFood(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
+	best := gc.InvalidEntity
+	bestNutrition := -1
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		item := q.Entity()
+		if world.Components.LocationInBackpack.Get(item).Owner != owner {
+			continue
+		}
+		if !world.Components.ProvidesNutrition.Has(item) {
+			continue
+		}
+		nutrition := world.Components.ProvidesNutrition.Get(item).Amount
+		if bestNutrition < 0 || nutrition < bestNutrition {
+			best = item
+			bestNutrition = nutrition
+		}
+	}
+	return best, bestNutrition >= 0
 }
 
 // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。

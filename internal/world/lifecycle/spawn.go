@@ -199,6 +199,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		CharModifiers:  charMods,
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
+		Hunger:         gc.NewHunger(),
 		FactionAlly:    &gc.FactionAlly{},
 		SquadAI: func() *gc.SquadAI {
 			ai := gc.DefaultSquadAI()

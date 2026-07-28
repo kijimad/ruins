@@ -7,7 +7,10 @@ import (
 	"strings"
 	"time"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
+
+	"github.com/mlange-42/ark/ecs"
 )
 
 const saveDataVersion = "1.0.0"
@@ -115,11 +118,27 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 		return fmt.Errorf("failed to reestablish singleton: %w", err)
 	}
 
+	// フィールド追加前のセーブをゼロ値から既定値へ読み替える
+	normalizeSquadPolicies(world)
+
 	// 信頼境界。復元したステージキーの整合を検査する
 	if err := validateStages(world); err != nil {
 		return fmt.Errorf("failed to validate stages: %w", err)
 	}
 	return nil
+}
+
+// normalizeSquadPolicies は SquadAI のポリシーを既定値へ正規化する。
+// Supply フィールドが無いセーブは空文字で復元されるため、既定の自動補給へ読み替える。
+// 空文字自体を auto の意味に使うことはしない
+func normalizeSquadPolicies(world w.World) {
+	q := ecs.NewFilter1[gc.SquadAI](world.ECS).Query()
+	for q.Next() {
+		ai := world.Components.SquadAI.Get(q.Entity())
+		if ai.Supply == "" {
+			ai.Supply = gc.SupplyAuto
+		}
+	}
 }
 
 // LoadWorld はファイルからワールドを復元する

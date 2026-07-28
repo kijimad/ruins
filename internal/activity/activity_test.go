@@ -292,3 +292,22 @@ func TestIsCompleted_TurnsLeftZero(t *testing.T) {
 	comp := &gc.Activity{State: gc.ActivityStateRunning, TurnsLeft: 0}
 	assert.True(t, IsCompleted(comp), "TurnsLeftが0ならCompletedとみなす")
 }
+
+func TestProgressHunger_隊員も空腹が進行する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Config.RNG = rand.New(rand.NewPCG(1, 2))
+
+	// プレイヤーではない Hunger 保持エンティティ
+	member := world.ECS.NewEntity()
+	world.Components.Hunger.Add(member, gc.NewHunger())
+	initial := world.Components.Hunger.Get(member).Current
+
+	for range 100 {
+		progressHunger(member, world)
+	}
+
+	assert.Less(t, world.Components.Hunger.Get(member).Current, initial,
+		"Hungerを持つ非プレイヤーも空腹が進行するべき")
+}
