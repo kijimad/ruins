@@ -6,7 +6,7 @@ import (
 )
 
 // Placement は「どこへ置くか」の意味論。散布をやめ各 stuff に置き場所を持たせる主装置。
-// 実体は文字列。placement 語彙の Stage 2 部分集合。
+// 実体は文字列。
 type Placement string
 
 const (

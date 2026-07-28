@@ -13,6 +13,11 @@ import (
 func walkFrom(site Site, placed []Placed) map[Vec]bool {
 	blocked := blockingTiles(placed)
 	walkable := site.floorSet()
+	// 壁は通れない。玄関ポーチの側壁 ExtraWall は部屋の内側床に混じるが in-game では壁として描かれるので、
+	// floorSet から差し引く。ここを引かないと壁を通り抜ける歩行到達になり softlock を見逃す
+	for _, w := range site.Walls() {
+		delete(walkable, w)
+	}
 	for d := range site.doorSet() {
 		walkable[d] = true // 戸口は壁の切れ目で、部屋と部屋を繋ぐ通り道
 	}
