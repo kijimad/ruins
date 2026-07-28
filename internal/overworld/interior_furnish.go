@@ -17,7 +17,7 @@ import (
 // そのまま埋めず、interior.FurnishBuilding が前庭を空け坪庭を作り玄関を凹ませる。庭は土、壁は壁、残りの
 // 部屋の床と戸口は床として描き、入口の扉と家具を spawn する。内装の乱数は建物幾何と別ストリーム 0x3 に
 // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。
-func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, orient gc.DoorOrientation, fac facilityType, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
+func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac facilityType, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
 	site, placed := interior.FurnishBuilding(iseed, footprint, door, interior.FacilityKind(fac))
 
@@ -49,16 +49,16 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		}
 	}
 
-	// 入口の扉を建物辺の site.Door へ置く。前庭ぶん内寄せした建物の辺にあり、前庭が街路との間に挟まる
+	// 入口の扉を建物辺の site.Door へ置く。前庭ぶん内寄せした建物の辺にあり、前庭が街路との間に挟まる。
+	// 向きは入口も部屋間の戸口も同じ doorOrientation で壁の走る方向から決め、規約を1箇所に集約する
 	dcoord := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(site.Door.X), Y: g.offsetY + consts.Tile(site.Door.Y)}
-	if _, err := lifecycle.SpawnDoor(world, dcoord, orient); err != nil {
+	if _, err := lifecycle.SpawnDoor(world, dcoord, doorOrientation(wallSet, site.Door)); err != nil {
 		return nil, nil, fmt.Errorf("内装の扉配置に失敗: %w", err)
 	}
 
 	// 部屋間の戸口にも扉を置く。interior は戸口を壁の切れ目として持つが、扉エンティティは overworld が立てる。
-	// 入口と同じく閉状態で通行と視界を遮り、ぶつかると開く。向きは壁の走る方向で決め、左右が壁の東西の壁は
-	// Vertical、上下が壁の南北の壁は Horizontal と入口と同じ規約にする。同じ戸口は隣接2部屋が共有するので
-	// 座標で重複排除し、入口の扉とも重ねない
+	// 入口と同じく閉状態で通行と視界を遮り、ぶつかると開く。同じ戸口は隣接2部屋が共有するので座標で重複排除し、
+	// 入口の扉とも重ねない
 	doorSeen := map[interior.Vec]bool{site.Door: true}
 	for _, hr := range site.Rooms {
 		for _, dw := range hr.Room.Doorways {
@@ -67,12 +67,8 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 				continue
 			}
 			doorSeen[dv] = true
-			ori := gc.DoorOrientationHorizontal
-			if wallSet[interior.Vec{X: dv.X - 1, Y: dv.Y}] && wallSet[interior.Vec{X: dv.X + 1, Y: dv.Y}] {
-				ori = gc.DoorOrientationVertical
-			}
 			ic := consts.Coord[consts.Tile]{X: g.offsetX + consts.Tile(dv.X), Y: g.offsetY + consts.Tile(dv.Y)}
-			if _, err := lifecycle.SpawnDoor(world, ic, ori); err != nil {
+			if _, err := lifecycle.SpawnDoor(world, ic, doorOrientation(wallSet, dv)); err != nil {
 				return nil, nil, fmt.Errorf("内装の間仕切り扉配置に失敗: %w", err)
 			}
 		}
@@ -101,6 +97,15 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 
 	isWall := func(lx, ly consts.Tile) bool { return wallSet[interior.Vec{X: int(lx), Y: int(ly)}] }
 	return isWall, occupied, nil
+}
+
+// doorOrientation は扉の向きを、扉が乗る壁の走る方向から決める。左右が壁の東西に走る壁の切れ目は Vertical、
+// 上下が壁の南北に走る壁は Horizontal。入口も部屋間の戸口も同じこの規約で向きを揃え、規約を1箇所に集約する。
+func doorOrientation(wallSet map[interior.Vec]bool, pos interior.Vec) gc.DoorOrientation {
+	if wallSet[interior.Vec{X: pos.X - 1, Y: pos.Y}] && wallSet[interior.Vec{X: pos.X + 1, Y: pos.Y}] {
+		return gc.DoorOrientationVertical
+	}
+	return gc.DoorOrientationHorizontal
 }
 
 // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableName を持てば、その item
