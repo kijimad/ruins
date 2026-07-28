@@ -1,7 +1,10 @@
 package interior
 
-// Vec は建物ローカルのタイル座標。
-type Vec struct{ X, Y int }
+import "github.com/kijimaD/ruins/internal/consts"
+
+// Vec は建物ローカルのタイル座標。共有の Coord を int で実体化して Add/Sub 等を再利用する。overworld の全域
+// 座標 consts.Coord[consts.Tile] とは型引数が違うので別型として扱われ、境界のオフセット変換を型が強制する。
+type Vec = consts.Coord[int]
 
 // Rect はタイル単位の矩形。X,Y が左上、W,H が幅と高さ。
 type Rect struct{ X, Y, W, H int }
@@ -13,8 +16,8 @@ type Room struct {
 	Doorways []Doorway
 }
 
-// Doorway は部屋の戸口タイル。placement はここを塞がない。
-type Doorway struct{ X, Y int }
+// Doorway は部屋の戸口タイル。placement はここを塞がない。座標としては Vec と同じ。
+type Doorway = Vec
 
 // center は矩形の中心タイル。奇数辺なら真ん中、偶数辺なら中心寄り。
 func (r Rect) center() Vec {

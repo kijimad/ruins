@@ -44,7 +44,7 @@ func allRoomsConnected(rooms []Room) bool {
 	doorRooms := make(map[Vec][]int)
 	for i, r := range rooms {
 		for _, d := range r.Doorways {
-			v := Vec(d)
+			v := d
 			doorRooms[v] = append(doorRooms[v], i)
 		}
 	}
@@ -54,7 +54,7 @@ func allRoomsConnected(rooms []Room) bool {
 		cur := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 		for _, d := range rooms[cur].Doorways {
-			for _, nb := range doorRooms[Vec(d)] {
+			for _, nb := range doorRooms[d] {
 				if !seen[nb] {
 					seen[nb] = true
 					stack = append(stack, nb)

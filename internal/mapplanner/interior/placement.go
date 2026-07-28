@@ -148,7 +148,7 @@ func nearestDoorDist(room Room, t Vec) float64 {
 	}
 	best := -1.0
 	for _, d := range room.Doorways {
-		e := dist(t, Vec(d))
+		e := dist(t, d)
 		if best < 0 || e < best {
 			best = e
 		}

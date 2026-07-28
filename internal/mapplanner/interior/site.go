@@ -46,7 +46,7 @@ func planSite(footprint Rect, seed uint64, door Vec, facility FacilityKind) Site
 	protected := map[Vec]bool{}
 	for i := range labeled {
 		for _, d := range labeled[i].Room.Doorways {
-			dv := Vec(d)
+			dv := d
 			protected[dv] = true
 			for _, n := range neighbors4(dv) {
 				protected[n] = true
@@ -72,7 +72,7 @@ func attachDoor(rooms []PlannedRoom, door Vec, s side) {
 	inner := Vec{X: door.X + step.X, Y: door.Y + step.Y}
 	for i := range rooms {
 		if rooms[i].Room.Rect.containsInterior(inner) {
-			rooms[i].Room.Doorways = append(rooms[i].Room.Doorways, Doorway(door))
+			rooms[i].Room.Doorways = append(rooms[i].Room.Doorways, door)
 			return
 		}
 	}
@@ -220,7 +220,7 @@ func (s Site) doorSet() map[Vec]bool {
 	door := map[Vec]bool{s.Door: true}
 	for _, hr := range s.Rooms {
 		for _, d := range hr.Room.Doorways {
-			door[Vec(d)] = true
+			door[d] = true
 		}
 	}
 	return door

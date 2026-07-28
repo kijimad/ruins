@@ -282,7 +282,7 @@ func assertRoomGolden(t *testing.T, room Room, role roleName, fill func(seed uin
 func singleRoomSite(room Room, role roleName) Site {
 	door := Vec{}
 	if len(room.Doorways) > 0 {
-		door = Vec(room.Doorways[0])
+		door = room.Doorways[0]
 	}
 	return Site{
 		Footprint: room.Rect, Building: room.Rect,

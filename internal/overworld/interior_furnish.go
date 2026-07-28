@@ -62,7 +62,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 	doorSeen := map[interior.Vec]bool{site.Door: true}
 	for _, hr := range site.Rooms {
 		for _, dw := range hr.Room.Doorways {
-			dv := interior.Vec(dw)
+			dv := dw
 			if doorSeen[dv] {
 				continue
 			}

@@ -44,7 +44,7 @@ func TestFurnishBuilding_入口が部屋に繋がる(t *testing.T) {
 		connected := false
 		for _, hr := range site.Rooms {
 			for _, d := range hr.Room.Doorways {
-				if Vec(d) == site.Door {
+				if d == site.Door {
 					connected = true
 				}
 			}
@@ -148,7 +148,7 @@ func TestFurnishBuilding_民家の入口は玄関に開く(t *testing.T) {
 				}
 				opensToGenkan := false
 				for _, dw := range genkan.Room.Doorways {
-					if Vec(dw) == site.Door {
+					if dw == site.Door {
 						opensToGenkan = true
 						break
 					}

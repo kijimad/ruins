@@ -37,7 +37,7 @@ func reachableFloor(room Room, blocked map[Vec]bool) map[Vec]bool {
 	}
 	// 最初の戸口の内側隣接タイルだけを起点にする
 	if len(room.Doorways) > 0 {
-		for _, n := range neighbors4(Vec(room.Doorways[0])) {
+		for _, n := range neighbors4(room.Doorways[0]) {
 			enqueue(n)
 		}
 	}
