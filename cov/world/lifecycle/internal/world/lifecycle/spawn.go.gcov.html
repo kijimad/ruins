@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.5&nbsp;%</td>
-            <td class="headerCovTableEntry">277</td>
-            <td class="headerCovTableEntry">209</td>
+            <td class="headerCovTableEntryMed">75.9&nbsp;%</td>
+            <td class="headerCovTableEntry">282</td>
+            <td class="headerCovTableEntry">214</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td class="headerValue">2026-07-29 15:48:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -252,7 +252,7 @@
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC tlaBgGNC">           1 :         skills := gc.NewSkills()</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         charMods := gc.RecalculateCharModifiers(skills, &amp;abilities, nil)</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         memberEntity := world.Components.AddEntity(world.ECS, &amp;gc.EntitySpec{</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 Name:           &amp;gc.Name{Name: name},</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 Abilities:      &amp;abilities,</span></span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 HP:             &amp;gc.HP{},</span></span>
@@ -262,197 +262,192 @@
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 WeightCapacity: &amp;gc.WeightCapacity{},</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 HealthStatus:   &amp;gc.HealthStatus{},</span></span>
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 FactionAlly:    &amp;gc.FactionAlly{},</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           2 :                 SquadAI: func() *gc.SquadAI {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                         ai := gc.DefaultSquadAI()</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                         return &amp;ai</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 }(),</span></span>
-<span id="L207"><span class="lineNum">     207</span>              :                 GridElement: &amp;gc.GridElement{Coord: spawnPos},</span>
-<span id="L208"><span class="lineNum">     208</span>              :                 SpriteRender: &amp;gc.SpriteRender{</span>
-<span id="L209"><span class="lineNum">     209</span>              :                         SpriteSheetName: fieldSpriteSheet,</span>
-<span id="L210"><span class="lineNum">     210</span>              :                         SpriteKey:       spriteKey,</span>
-<span id="L211"><span class="lineNum">     211</span>              :                         Depth:           gc.DepthNumPlayer,</span>
-<span id="L212"><span class="lineNum">     212</span>              :                 },</span>
-<span id="L213"><span class="lineNum">     213</span>              :                 CommandTable: &amp;gc.CommandTable{Name: &quot;素手&quot;},</span>
-<span id="L214"><span class="lineNum">     214</span>              :                 SquadMember:  &amp;gc.SquadMember{},</span>
-<span id="L215"><span class="lineNum">     215</span>              :         }</span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 SquadAI:        new(gc.DefaultSquadAI()),</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 GridElement:    &amp;gc.GridElement{Coord: spawnPos},</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                         SpriteSheetName: fieldSpriteSheet,</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                         SpriteKey:       spriteKey,</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                         Depth:           gc.DepthNumPlayer,</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 CommandTable: &amp;gc.CommandTable{Name: &quot;素手&quot;},</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 SquadMember:  &amp;gc.SquadMember{},</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         if err := FullRecover(world, memberEntity); err != nil {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;隊員の回復処理エラー: %w&quot;, err)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L216"><span class="lineNum">     216</span>              : </span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         memberEntity := world.Components.AddEntity(world.ECS, &amp;entitySpec)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         if err := FullRecover(world, memberEntity); err != nil {</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;隊員の回復処理エラー: %w&quot;, err)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         return memberEntity, nil</span></span>
-<span id="L224"><span class="lineNum">     224</span>              : }</span>
-<span id="L225"><span class="lineNum">     225</span>              : </span>
-<span id="L226"><span class="lineNum">     226</span>              : // SpawnDefaultSquadMember はゲーム開始時のデフォルト隊員を生成する</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 : func SpawnDefaultSquadMember(world w.World, leader ecs.Entity) (ecs.Entity, error) {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         abilities := gc.Abilities{</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 Vitality:  gc.Ability{Base: 8},</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 Strength:  gc.Ability{Base: 7},</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 Sensation: gc.Ability{Base: 6},</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 Dexterity: gc.Ability{Base: 6},</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 Agility:   gc.Ability{Base: 7},</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 Defense:   gc.Ability{Base: 5},</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         return SpawnSquadMember(world, leader, &quot;Jim&quot;, abilities, &quot;general&quot;)</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L238"><span class="lineNum">     238</span>              : </span>
-<span id="L239"><span class="lineNum">     239</span>              : // SpawnBackpackItem はバックパック内にアイテムを生成する</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 : func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         item, err := spawnItemBase(world, name, count)</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, err</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L245"><span class="lineNum">     245</span>              : </span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         var found bool</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           2 :         for playerQuery.Next() {</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 e := playerQuery.Entity()</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 playerEntity = e</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 found = true</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           2 :         if !found {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 world.Components.LocationInBackpack.Add(item, &amp;gc.LocationInBackpack{})</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 return item, nil</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         if err := MoveToBackpack(world, item, playerEntity); err != nil {</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC tlaBgUNC">           0 :                 return item, fmt.Errorf(&quot;バックパックへの移動に失敗: %w&quot;, err)</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC tlaBgGNC">           1 :         return item, nil</span></span>
-<span id="L263"><span class="lineNum">     263</span>              : }</span>
-<span id="L264"><span class="lineNum">     264</span>              : </span>
-<span id="L265"><span class="lineNum">     265</span>              : // spawnItemBase はLocationなしでアイテムエンティティを生成する内部関数</span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 : func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           2 :         if count &lt;= 0 {</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, fmt.Errorf(&quot;count must be positive: %d&quot;, count)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L270"><span class="lineNum">     270</span>              : </span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 itemDef, err := raw.FindItem(world.Resources.RawMaster, name)</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         return gc.InvalidEntity, fmt.Errorf(&quot;item not found: %s&quot;, name)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         return memberEntity, nil</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : }</span>
+<span id="L220"><span class="lineNum">     220</span>              : </span>
+<span id="L221"><span class="lineNum">     221</span>              : // SpawnDefaultSquadMember はゲーム開始時のデフォルト隊員を生成する</span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 : func SpawnDefaultSquadMember(world w.World, leader ecs.Entity) (ecs.Entity, error) {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         abilities := gc.Abilities{</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 Vitality:  gc.Ability{Base: 8},</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 Strength:  gc.Ability{Base: 7},</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 Sensation: gc.Ability{Base: 6},</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 Dexterity: gc.Ability{Base: 6},</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 Agility:   gc.Ability{Base: 7},</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 Defense:   gc.Ability{Base: 5},</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         return SpawnSquadMember(world, leader, &quot;Jim&quot;, abilities, &quot;general&quot;)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L233"><span class="lineNum">     233</span>              : </span>
+<span id="L234"><span class="lineNum">     234</span>              : // SpawnBackpackItem はバックパック内にアイテムを生成する</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 : func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         item, err := spawnItemBase(world, name, count)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, err</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         var found bool</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           2 :         for playerQuery.Next() {</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 e := playerQuery.Entity()</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 playerEntity = e</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 found = true</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           2 :         if !found {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 world.Components.LocationInBackpack.Add(item, &amp;gc.LocationInBackpack{})</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 return item, nil</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         if err := MoveToBackpack(world, item, playerEntity); err != nil {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC tlaBgUNC">           0 :                 return item, fmt.Errorf(&quot;バックパックへの移動に失敗: %w&quot;, err)</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L256"><span class="lineNum">     256</span>              : </span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC tlaBgGNC">           1 :         return item, nil</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : }</span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span>              : // spawnItemBase はLocationなしでアイテムエンティティを生成する内部関数</span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           2 :         if count &lt;= 0 {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, fmt.Errorf(&quot;count must be positive: %d&quot;, count)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L265"><span class="lineNum">     265</span>              : </span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         {</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 itemDef, err := raw.FindItem(world.Resources.RawMaster, name)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                         return gc.InvalidEntity, fmt.Errorf(&quot;item not found: %s&quot;, name)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 isStackable := itemDef.Stackable != nil &amp;&amp; *itemDef.Stackable</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 :                 if !isStackable &amp;&amp; count &gt; 1 {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         return gc.InvalidEntity, fmt.Errorf(&quot;item %s is not stackable, count must be 1 (got %d)&quot;, name, count)</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 isStackable := itemDef.Stackable != nil &amp;&amp; *itemDef.Stackable</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           2 :                 if !isStackable &amp;&amp; count &gt; 1 {</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                         return gc.InvalidEntity, fmt.Errorf(&quot;item %s is not stackable, count must be 1 (got %d)&quot;, name, count)</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L281"><span class="lineNum">     281</span>              :         }</span>
-<span id="L282"><span class="lineNum">     282</span>              : </span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;%w: %w&quot;, ErrItemGeneration, err)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC tlaBgGNC">           2 :         if entitySpec.Stackable != nil {</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 entitySpec.Stackable.Count = count</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L290"><span class="lineNum">     290</span>              : </span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         return world.Components.AddEntity(world.ECS, &amp;entitySpec), nil</span></span>
-<span id="L292"><span class="lineNum">     292</span>              : }</span>
-<span id="L293"><span class="lineNum">     293</span>              : </span>
-<span id="L294"><span class="lineNum">     294</span>              : // FullRecover はエンティティのHP/APを全回復する</span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 : func FullRecover(world w.World, entity ecs.Entity) error {</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :         if err := setMaxStats(world, entity); err != nil {</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;最大HP設定エラー: %w&quot;, err)</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :         }</span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;%w: %w&quot;, ErrItemGeneration, err)</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC tlaBgGNC">           2 :         if entitySpec.Stackable != nil {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 entitySpec.Stackable.Count = count</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         return world.Components.AddEntity(world.ECS, &amp;entitySpec), nil</span></span>
+<span id="L287"><span class="lineNum">     287</span>              : }</span>
+<span id="L288"><span class="lineNum">     288</span>              : </span>
+<span id="L289"><span class="lineNum">     289</span>              : // FullRecover はエンティティのHP/APを全回復する</span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 : func FullRecover(world w.World, entity ecs.Entity) error {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         if err := setMaxStats(world, entity); err != nil {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;最大HP設定エラー: %w&quot;, err)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC tlaBgGNC">           1 :         hp := world.Components.HP.Get(entity)</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :         if hp == nil {</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;HPコンポーネントがありません&quot;)</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L299"><span class="lineNum">     299</span>              : </span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC tlaBgGNC">           1 :         hp := world.Components.HP.Get(entity)</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         if hp == nil {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;HPコンポーネントがありません&quot;)</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC tlaBgGNC">           1 :         hp.Current = hp.Max</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           2 :         if world.Components.TurnBased.Has(entity) {</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 maxAP, err := query.CalculateMaxActionPoints(world, entity)</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;AP計算エラー: %w&quot;, err)</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           1 :                 turnBased := world.Components.TurnBased.Get(entity)</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 turnBased.AP.Current = maxAP</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                 turnBased.AP.Max = maxAP</span></span>
-<span id="L314"><span class="lineNum">     314</span>              :         }</span>
-<span id="L315"><span class="lineNum">     315</span>              : </span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L317"><span class="lineNum">     317</span>              : }</span>
-<span id="L318"><span class="lineNum">     318</span>              : </span>
-<span id="L319"><span class="lineNum">     319</span>              : // setMaxStats はエンティティの最大HPを設定する</span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 : func setMaxStats(world w.World, entity ecs.Entity) error {</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           2 :         if !world.Components.HP.Has(entity) || !world.Components.Abilities.Has(entity) {</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;entity %v does not have required components (HP or Abilities)&quot;, entity)</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L324"><span class="lineNum">     324</span>              : </span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         hp := world.Components.HP.Get(entity)</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         abils := world.Components.Abilities.Get(entity)</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           2 :         if abils.Vitality.Total == 0 {</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 abils.Vitality.Total = abils.Vitality.Base</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           2 :         if abils.Strength.Total == 0 {</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 abils.Strength.Total = abils.Strength.Base</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           2 :         if abils.Sensation.Total == 0 {</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 abils.Sensation.Total = abils.Sensation.Base</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           2 :         if abils.Dexterity.Total == 0 {</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                 abils.Dexterity.Total = abils.Dexterity.Base</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           2 :         if abils.Agility.Total == 0 {</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                 abils.Agility.Total = abils.Agility.Base</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           2 :         if abils.Defense.Total == 0 {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                 abils.Defense.Total = abils.Defense.Base</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         hp.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         hp.Current = hp.Max</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L351"><span class="lineNum">     351</span>              : }</span>
-<span id="L352"><span class="lineNum">     352</span>              : </span>
-<span id="L353"><span class="lineNum">     353</span>              : // SpawnStorageItem は収納内にアイテムを生成する</span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 : func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :         item, err := spawnItemBase(world, itemName, count)</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, err</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L359"><span class="lineNum">     359</span>              : </span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := MoveToStorage(world, item, storage); err != nil {</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC tlaBgUNC">           0 :                 return item, fmt.Errorf(&quot;収納への移動に失敗: %w&quot;, err)</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L363"><span class="lineNum">     363</span>              : </span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC tlaBgGNC">           1 :         return item, nil</span></span>
-<span id="L365"><span class="lineNum">     365</span>              : }</span>
-<span id="L366"><span class="lineNum">     366</span>              : </span>
-<span id="L367"><span class="lineNum">     367</span>              : // SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する</span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 : func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         item, err := spawnItemBase(world, itemName, count)</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, err</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L373"><span class="lineNum">     373</span>              : </span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC tlaBgGNC">           1 :         MoveToField(world, item, nil)</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Add(item, &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :         return item, nil</span></span>
-<span id="L378"><span class="lineNum">     378</span>              : }</span>
-<span id="L379"><span class="lineNum">     379</span>              : </span>
-<span id="L380"><span class="lineNum">     380</span>              : // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する</span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 : func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           2 :         if !world.Components.GridElement.Has(target) {</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L385"><span class="lineNum">     385</span>              : </span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(target)</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         effectEntity := world.ECS.NewEntity()</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Add(effectEntity, &amp;gc.GridElement{Coord: gridElement.Coord})</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                 Effects: []gc.VisualEffect{effect},</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L393"><span class="lineNum">     393</span>              : }</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC tlaBgGNC">           1 :         hp.Current = hp.Max</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           2 :         if world.Components.TurnBased.Has(entity) {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                 maxAP, err := query.CalculateMaxActionPoints(world, entity)</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;AP計算エラー: %w&quot;, err)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC tlaBgGNC">           1 :                 turnBased := world.Components.TurnBased.Get(entity)</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 turnBased.AP.Current = maxAP</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 turnBased.AP.Max = maxAP</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :         }</span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L312"><span class="lineNum">     312</span>              : }</span>
+<span id="L313"><span class="lineNum">     313</span>              : </span>
+<span id="L314"><span class="lineNum">     314</span>              : // setMaxStats はエンティティの最大HPを設定する</span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 : func setMaxStats(world w.World, entity ecs.Entity) error {</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           2 :         if !world.Components.HP.Has(entity) || !world.Components.Abilities.Has(entity) {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;entity %v does not have required components (HP or Abilities)&quot;, entity)</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L319"><span class="lineNum">     319</span>              : </span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         hp := world.Components.HP.Get(entity)</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :         abils := world.Components.Abilities.Get(entity)</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           2 :         if abils.Vitality.Total == 0 {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 abils.Vitality.Total = abils.Vitality.Base</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           2 :         if abils.Strength.Total == 0 {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 abils.Strength.Total = abils.Strength.Base</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           2 :         if abils.Sensation.Total == 0 {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 abils.Sensation.Total = abils.Sensation.Base</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           2 :         if abils.Dexterity.Total == 0 {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                 abils.Dexterity.Total = abils.Dexterity.Base</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           2 :         if abils.Agility.Total == 0 {</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                 abils.Agility.Total = abils.Agility.Base</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           2 :         if abils.Defense.Total == 0 {</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :                 abils.Defense.Total = abils.Defense.Base</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L341"><span class="lineNum">     341</span>              : </span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         hp.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         hp.Current = hp.Max</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L346"><span class="lineNum">     346</span>              : }</span>
+<span id="L347"><span class="lineNum">     347</span>              : </span>
+<span id="L348"><span class="lineNum">     348</span>              : // SpawnStorageItem は収納内にアイテムを生成する</span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 : func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         item, err := spawnItemBase(world, itemName, count)</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, err</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L354"><span class="lineNum">     354</span>              : </span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := MoveToStorage(world, item, storage); err != nil {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC tlaBgUNC">           0 :                 return item, fmt.Errorf(&quot;収納への移動に失敗: %w&quot;, err)</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L358"><span class="lineNum">     358</span>              : </span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC tlaBgGNC">           1 :         return item, nil</span></span>
+<span id="L360"><span class="lineNum">     360</span>              : }</span>
+<span id="L361"><span class="lineNum">     361</span>              : </span>
+<span id="L362"><span class="lineNum">     362</span>              : // SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する</span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 : func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         item, err := spawnItemBase(world, itemName, count)</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, err</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L368"><span class="lineNum">     368</span>              : </span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC tlaBgGNC">           1 :         MoveToField(world, item, nil)</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Add(item, &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         return item, nil</span></span>
+<span id="L373"><span class="lineNum">     373</span>              : }</span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span>              : // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する</span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 : func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           2 :         if !world.Components.GridElement.Has(target) {</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L380"><span class="lineNum">     380</span>              : </span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(target)</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :         effectEntity := world.ECS.NewEntity()</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Add(effectEntity, &amp;gc.GridElement{Coord: gridElement.Coord})</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :         world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :                 Effects: []gc.VisualEffect{effect},</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L388"><span class="lineNum">     388</span>              : }</span>
         </pre>
               </td>
             </tr>

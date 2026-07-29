@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.3&nbsp;%</td>
-            <td class="headerCovTableEntry">120</td>
-            <td class="headerCovTableEntry">100</td>
+            <td class="headerCovTableEntryMed">83.2&nbsp;%</td>
+            <td class="headerCovTableEntry">119</td>
+            <td class="headerCovTableEntry">99</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td class="headerValue">2026-07-29 15:48:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -247,17 +247,16 @@
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         table := styled.NewTableContainer(columnWidths, res)</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           2 :         for _, entry := range pagination.VisibleEntries(props.Items, pg) {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 isSelected := pg.IsSelectedInPage(entry.Index)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 styled.NewTableRow(table, columnWidths,</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                         []string{entry.Item.Name, fmt.Sprintf(&quot;%d&quot;, entry.Item.Count)},</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                         aligns, &amp;isSelected, res,</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 )</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         container.AddChild(table)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         root.AddChild(container)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         return &amp;ebitenui.UI{Container: root}</span></span>
-<span id="L198"><span class="lineNum">     198</span>              : }</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 styled.NewTableRow(table, columnWidths,</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                         []string{entry.Item.Name, fmt.Sprintf(&quot;%d&quot;, entry.Item.Count)},</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                         aligns, new(pg.IsSelectedInPage(entry.Index)), res,</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 )</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         container.AddChild(table)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         root.AddChild(container)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         return &amp;ebitenui.UI{Container: root}</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.1&nbsp;%</td>
-            <td class="headerCovTableEntry">161</td>
-            <td class="headerCovTableEntry">145</td>
+            <td class="headerCovTableEntryHi">90.0&nbsp;%</td>
+            <td class="headerCovTableEntry">160</td>
+            <td class="headerCovTableEntry">144</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td class="headerValue">2026-07-29 15:48:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -396,16 +396,15 @@
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           2 :         if e, ok := tiles[g]; ok &amp;&amp; world.ECS.Alive(e) {</span></span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(e)</span></span>
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         zero := 0</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, &amp;zero)</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L342"><span class="lineNum">     342</span>              :         // 置換後の実体を索引へ書き戻す。索引を地物間で共有するため、後続の地物が同じ座標を</span>
-<span id="L343"><span class="lineNum">     343</span>              :         // 正しく再置換でき、旧タイルの二重残留を防ぐ</span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC tlaBgGNC">           1 :         tiles[g] = e</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L346"><span class="lineNum">     346</span>              : }</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, new(0))</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L341"><span class="lineNum">     341</span>              :         // 置換後の実体を索引へ書き戻す。索引を地物間で共有するため、後続の地物が同じ座標を</span>
+<span id="L342"><span class="lineNum">     342</span>              :         // 正しく再置換でき、旧タイルの二重残留を防ぐ</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC tlaBgGNC">           1 :         tiles[g] = e</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L345"><span class="lineNum">     345</span>              : }</span>
         </pre>
               </td>
             </tr>
