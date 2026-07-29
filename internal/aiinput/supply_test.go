@@ -17,8 +17,6 @@ import (
 )
 
 // setupSupplyTest はリーダーと空腹の隊員を作る。
-// snap は giveFood 等の構造変更でポインタが無効化されるため、ここでは作らず
-// 全準備が済んだ後に buildSupplySnapshot で組み立てる
 func setupSupplyTest(t *testing.T, world w.World) (leader ecs.Entity, member ecs.Entity) {
 	t.Helper()
 
@@ -33,7 +31,7 @@ func setupSupplyTest(t *testing.T, world w.World) (leader ecs.Entity, member ecs
 	return leader, member
 }
 
-// buildSupplySnapshot は構造変更が済んだ後にコンポーネントを取り直して snap を作る
+// buildSupplySnapshot は giveFood 等の構造変更を済ませた後に呼び、最新のコンポーネントで snap を作る
 func buildSupplySnapshot(world w.World, leader ecs.Entity, member ecs.Entity) *squadSnapshot {
 	return &squadSnapshot{
 		Grid:         world.Components.GridElement.Get(member),

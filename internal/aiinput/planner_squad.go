@@ -55,7 +55,7 @@ func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior
 	return sp.planAction(world, entity, snap)
 }
 
-// gatherSquadSnapshot は隊員の行動に必要な情報を毎ターン取り直してまとめる
+// gatherSquadSnapshot は隊員の行動に必要な情報をまとめる
 func (sp *squadPlanner) gatherSquadSnapshot(world w.World, entity ecs.Entity) (*squadSnapshot, bool) {
 	grid := world.Components.GridElement.Get(entity)
 
