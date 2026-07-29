@@ -3,9 +3,12 @@ package vrt
 import (
 	"image"
 	"math/rand/v2"
+	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/sebdah/goldie/v2"
+
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -24,64 +27,97 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 	return func(_ w.World) []es.State[w.World] { return states }
 }
 
-// AssertStateGolden はステートの描画結果をゴールデン画像と比較する。
-// buildStatesはworld初期化後に呼ばれ、セットアップとステート構築を行う。
-// セットアップが不要な場合はStatesアダプタを使う。
-// GOLDIE_UPDATE=1 で実行するとゴールデン画像を更新する。
-// ただし既存ゴールデンとのピクセル差分がトレランス内なら更新をスキップして、
-// ebitenui の時間依存ノイズによる不要な差分を防ぐ
+// AssertStateGolden はステートスタックの決定的な論理内容を .txt ゴールデンと突き合わせる。
+// buildStates は world 初期化後に呼ばれ、セットアップとステート構築を行う。セットアップが不要な場合は
+// States アダプタを使う。
+//
+// world/ECS を描くステートは WorldSnapshot を、メニュー等は GoldenText の返り値をゴールデンにする。
+// どちらも持たない純UIメニューはテキスト assert をしない。画像は目視用で、GOLDIE_UPDATE 時のみ生成して
+// 保存し、通常実行ではピクセル比較も描画もしない。フレークの源である xvfb 描画を通常経路から外すため。
 func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
-	assertPNGGolden(t, RenderStatePNG(t, buildStates))
-}
-
-// RenderStatePNG はステートを描画してPNGバイト列として返す。
-// アサーションは行わず、画像の保存用途で使用する
-func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
-	t.Helper()
-	rendered := renderState(t, buildStates)
-	return encodePNG(t, rendered)
-}
-
-// renderState はステートを描画してimage.NRGBAとして返す。
-// RunTestMain 内で呼ぶ必要がある（ebitenコンテキストが必要）
-func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
-	t.Helper()
-
-	// World初期化・状態構築・描画はいずれも ebitenui のグローバル描画状態に触れて並行アクセス安全でない。
-	// これらを renderMu で直列化する。World 初期化は InitVRTWorld が内部で同じ renderMu を取るので、
-	// ここでは構築から描画までを別区間としてロックする。両区間とも renderMu なので ebitenui グローバルへの
-	// 同時アクセスは起きない。mutex待機中に ebitenui の時間ベースアニメーション（Caretブリンク等）が進むのも防ぐ
 	world := InitVRTWorld(t)
 
 	renderMu.Lock()
 	defer renderMu.Unlock()
 
+	sm := driveStates(t, world, buildStates)
+
+	if text, ok := snapshotStates(world, sm.GetStates()); ok {
+		goldie.New(t, goldie.WithNameSuffix(".txt")).Assert(t, t.Name(), []byte(text))
+	}
+
+	if isGoldieUpdate() {
+		writeImageArtifact(t, encodePNG(t, drawStates(t, world, sm)))
+	}
+}
+
+// snapshotStates はスタックの決定的な論理内容と、それが存在するかを返す。GoldenText を実装するステートが
+// あればそれらの出力を上から連結する。無ければ world を WorldSnapshot にする。マップも GoldenText も無い
+// 純UIメニューは ok=false を返し、呼び出し側はテキスト assert をしない。GoldenText はプロダクションの
+// vrt 非依存を保つため、専用インタフェース型でなく構造的型アサーションで扱う。
+func snapshotStates(world w.World, states []es.State[w.World]) (string, bool) {
+	var parts []string
+	for _, s := range states {
+		if gt, ok := s.(interface{ GoldenText(w.World) string }); ok {
+			parts = append(parts, gt.GoldenText(world))
+		}
+	}
+	if len(parts) > 0 {
+		return strings.Join(parts, "\n"), true
+	}
+	if snap := SnapshotWorld(world); len(snap.Grid) > 0 || len(snap.Entities) > 0 {
+		return snap.String(), true
+	}
+	return "", false
+}
+
+// RenderStatePNG はステートを描画してPNGバイト列として返す。アサーションは行わず、画像の保存用途で使う。
+func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
+	t.Helper()
+	return encodePNG(t, renderState(t, buildStates))
+}
+
+// renderState はステートを構築・駆動して描画し image.NRGBA として返す。RunTestMain 内で呼ぶ必要がある。
+func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
+	t.Helper()
+	world := InitVRTWorld(t)
+	renderMu.Lock()
+	defer renderMu.Unlock()
+	return drawStates(t, world, driveStates(t, world, buildStates))
+}
+
+// driveStates は buildStates からステートを構築し、レイアウト確定までフレームを回す。描画はしない。
+// ebitenui のグローバル描画状態と world 構築に触れるので、renderMu を保持した状態で呼ぶ。
+func driveStates(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) *es.StateMachine[w.World] {
+	t.Helper()
 	states := buildStates(world)
 	require.NotEmpty(t, states, "ステートが1つ以上必要")
 
-	stateMachine, err := es.Init(states[0], world)
+	sm, err := es.Init(states[0], world)
 	require.NoError(t, err)
-	require.NoError(t, stateMachine.Update(world))
+	require.NoError(t, sm.Update(world))
 
 	if len(states) > 1 {
-		require.NoError(t, stateMachine.PushState(world, states[1:]...))
+		require.NoError(t, sm.PushState(world, states[1:]...))
 	}
 
 	// レイアウト確定のためフレームを回す
 	for range 10 {
-		if err := stateMachine.Update(world); err != nil {
+		if err := sm.Update(world); err != nil {
 			break
 		}
 	}
+	return &sm
+}
 
-	width, height := consts.GameWidth, consts.GameHeight
-	screen := ebiten.NewImage(width, height)
-
-	for _, state := range stateMachine.GetStates() {
+// drawStates は駆動済みのステートマシンを1画面へ描画して取り込む。renderMu を保持した状態で呼ぶ。
+func drawStates(t *testing.T, world w.World, sm *es.StateMachine[w.World]) *image.NRGBA {
+	t.Helper()
+	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+	for _, state := range sm.GetStates() {
 		require.NoError(t, state.Draw(world, screen), "描画に失敗")
 	}
-
 	return captureScreen(screen)
 }
 

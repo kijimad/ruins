@@ -1,0 +1,160 @@
+# grid
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dirt dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall dwall dwall dwall dwall floor dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor dwall floor dwall floor dwall floor floor floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor floor floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor floor floor dwall floor floor floor floor dirt dwall floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor floor floor floor floor floor floor floor floor dwall floor floor floor floor floor dwall floor floor floor floor dirt dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall dwall floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt
+dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt floor floor floor floor dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt dirt
+# entities
+(40,1) ai ネズミ
+(51,1) ai 野犬
+(89,1) ai ピンクスライム
+(3,3) prop 木箱
+(65,4) prop fence
+(66,4) prop fence
+(67,4) prop fence
+(68,4) prop fence
+(69,4) prop fence
+(70,4) prop fence
+(71,4) prop fence
+(72,4) prop fence
+(73,4) prop fence
+(74,4) prop fence
+(78,4) prop fence
+(79,4) prop fence
+(80,4) prop fence
+(81,4) prop fence
+(82,4) prop fence
+(83,4) prop fence
+(84,4) prop fence
+(85,4) prop fence
+(86,4) prop fence
+(87,4) prop fence
+(88,4) prop fence
+(89,4) prop fence
+(34,5) prop fence
+(35,5) prop fence
+(36,5) prop fence
+(37,5) prop fence
+(41,5) prop fence
+(42,5) prop fence
+(43,5) prop fence
+(44,5) prop fence
+(45,5) prop fence
+(46,5) prop fence
+(47,5) prop fence
+(48,5) prop fence
+(49,5) prop fence
+(50,5) prop fence
+(51,5) prop fence
+(52,5) prop fence
+(53,5) prop fence
+(54,5) prop fence
+(55,5) prop fence
+(56,5) prop fence
+(57,5) prop fence
+(58,5) prop fence
+(59,5) prop fence
+(78,5) prop plant
+(41,6) prop plant
+(67,7) prop window
+(70,7) prop window
+(73,7) prop window
+(79,7) prop window
+(82,7) prop window
+(85,7) prop window
+(88,7) prop window
+(36,8) prop window
+(39,8) door 扉
+(42,8) prop window
+(45,8) prop window
+(48,8) prop window
+(51,8) prop window
+(54,8) prop window
+(57,8) prop window
+(66,8) prop barrel
+(74,8) prop barrel
+(76,8) door 扉
+(79,8) door 扉
+(35,9) prop barrel
+(36,9) prop rubble
+(37,9) prop rubble
+(42,9) prop crate
+(43,9) prop barrel
+(45,9) prop rubble
+(46,9) prop rubble
+(48,9) prop barrel
+(49,9) prop carpet
+(51,9) prop rubble
+(54,9) prop barrel
+(56,9) prop rubble
+(74,9) prop candle
+(15,10) prop 遺跡入口
+(35,10) prop barrel
+(36,10) prop debris
+(40,10) door 扉
+(42,10) prop debris
+(43,10) prop barrel
+(45,10) player Ash
+(45,10) prop rubble
+(46,10) prop rubble
+(48,10) prop barrel
+(54,10) prop barrel
+(58,10) prop carpet
+(80,10) prop barrel
+(35,11) prop barrel
+(42,11) prop debris
+(43,11) prop barrel
+(46,11) prop rubble
+(48,11) prop barrel
+(52,11) prop rubble
+(54,11) prop barrel
+(73,11) door 扉
+(80,11) prop barrel
+(35,12) prop barrel
+(41,12) prop barrel
+(42,12) prop debris
+(43,12) prop barrel
+(46,12) prop rubble
+(48,12) prop barrel
+(54,12) prop barrel
+(80,12) prop barrel
+(84,12) prop wood_chest
+(41,13) prop barrel
+(42,13) prop debris
+(43,13) prop barrel
+(48,13) prop crate
+(80,13) prop barrel
+(35,14) prop candle
+(41,14) prop barrel
+(43,14) prop carpet
+(41,15) prop barrel
+(48,15) prop rubble
+(58,15) prop rubble
+(66,15) prop carpet
+(88,15) prop carpet
+(35,16) prop rubble
+(41,16) prop barrel
+(53,16) door 扉
+(41,17) prop barrel
+(45,17) prop rubble
+(47,17) door 扉
+(50,17) prop rubble
+(51,17) prop rubble
+(56,17) prop rubble
+(57,17) prop rubble
+(86,18) ai コウモリ

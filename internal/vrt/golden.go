@@ -159,6 +159,24 @@ func newGoldie(t *testing.T, opts ...goldie.Option) *goldie.Goldie {
 	return goldie.New(t, all...)
 }
 
+// writeImageArtifact は目視用の参照画像を testdata へ書き出す。ゴールデンとして assert はしない。
+// state ゴールデンは決定的なテキストで検証し、画像は人が見た目を確認するためだけに保存する。
+// 既存画像とトレランス内で一致するなら書き換えない。xvfb 描画のバイトノイズで updategolden のたびに
+// 画像が churn するのを防ぐ。見た目の実変化があるときだけ更新する。
+func writeImageArtifact(t *testing.T, pngData []byte) {
+	t.Helper()
+	g := newGoldie(t)
+	path := g.GoldenFileName(t, t.Name())
+	if existing, err := os.ReadFile(path); err == nil {
+		if cfg, err := png.DecodeConfig(bytes.NewReader(pngData)); err == nil {
+			if pngPixelEqualFn(toleranceForSize(cfg.Width, cfg.Height))(pngData, existing) {
+				return
+			}
+		}
+	}
+	require.NoError(t, g.Update(t, t.Name(), pngData))
+}
+
 // channelTolerance16 は1チャンネルあたり許容する差分。RGBA() が返す16bit値(0..65535)で表す。
 // 0x101 は color の RGBA() が8bit階調を16bit空間へ拡張する係数(v*0x101)。8bitで16階調ぶん許容する。
 // フォントのアンチエイリアスはグリフ境界で数階調ゆれるが、これを差分として数えない。文字や色の
