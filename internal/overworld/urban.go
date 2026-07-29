@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -67,7 +68,7 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chu
 // facilityType は建物尺度の施設種別。市街地チャンクの中の1建物を表す。規模で gate した重み付き抽選で
 // 決まり、内装の prop の差になる。チャンク尺度で表示専用の placeType と違い、こちらは表示に加えて
 // 市街地生成にも使うドメイン型。schematic.go の記号2層の説明も参照。
-// v1 は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
+// 現状は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
 // 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
 type facilityType string
 
@@ -197,33 +198,37 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 
-	// 施設種別は地図(ChunkPlace)が使う。ここでは規模だけ敵配置に使う
-	_, size, _ := urbanChunkInfo(runSeed, c, rows)
+	// 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
+	fac, size, _ := urbanChunkInfo(runSeed, c, rows)
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-	return renderUrbanChunk(world, g, chunkSeed, size)
+	return renderUrbanChunk(world, g, chunkSeed, size, fac)
 }
 
-// renderUrbanChunk は1チャンクに建物1棟を描き、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk) error {
-	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1 と分けて相互干渉を避ける
+// renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType) error {
+	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
-	isWall, err := drawUrbanBuilding(world, g, rng)
+	footprint, door, err := planUrbanLot(world, g, rng)
 	if err != nil {
 		return err
 	}
-	return spawnUrbanEnemies(world, g, rng, size, isWall)
+	isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, seed)
+	if err != nil {
+		return err
+	}
+	return spawnUrbanEnemies(world, g, rng, size, isWall, occupied)
 }
 
-// drawUrbanBuilding は北辺・西辺の街路と、敷地をほぼ埋める建物1棟の殻を描く。建物は外周が壁・
-// 内側が床で、道路に面した見える扉を持つ。街路は隣接チャンクと連続して格子になる。内装は持たない。
-// 壁判定の関数を返し、敵配置が壁マスを避けるのに使う。
-func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly consts.Tile) bool, error) {
+// planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
+// 内装は furnishBuilding が Site から描くので、ここは街路だけ描いて区画と入口を返す。扉の向きは壁の走る
+// 方向から furnishBuilding が決める。区画の中で前庭を空け坪庭を作り玄関を凹ませるのは interior の敷地計画に委ねる。
+func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, interior.Vec, error) {
 	tiles := g.tiles.get()
 
-	// 建物の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残して前庭や隙間を作る。
-	// 建物は最小 3×3 を保証する。扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が
-	// 破綻しない下限で、市街地チャンクは chunkW,chunkH >= urbanStreetW+3 を前提にする
+	// 建物区画の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残す。区画は最小 3×3 を保証する。
+	// 扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が破綻しない下限で、市街地チャンクは
+	// chunkW,chunkH >= urbanStreetW+3 を前提にする
 	spanX := g.chunkW - urbanStreetW
 	spanY := g.chunkH - urbanStreetW
 	bw := max(3, spanX-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))
@@ -231,76 +236,64 @@ func drawUrbanBuilding(world w.World, g chunkGeom, rng *rand.Rand) (func(lx, ly 
 	bx := urbanStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
 	by := urbanStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
 
-	// 街路が北・西にあるので扉は道路に面する北壁か西壁に開ける。向きは壁の走る方向で決め、
-	// 東西に走る北壁の切れ目は Vertical、南北に走る西壁は Horizontal。door_planner と同じ規約
+	// 街路が北・西にあるので扉は道路に面する北辺か西辺に開ける。位置は interior が前室の内側へ寄せ、
+	// 向きは furnishBuilding が壁の走る方向から決める
 	doorX, doorY := bx+1+consts.Tile(rng.IntN(int(bw-2))), by
-	doorOrient := gc.DoorOrientationVertical
 	if rng.IntN(2) == 0 {
 		doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))
-		doorOrient = gc.DoorOrientationHorizontal
 	}
 
-	inBuilding := func(lx, ly consts.Tile) bool {
-		return lx >= bx && lx < bx+bw && ly >= by && ly < by+bh
-	}
-	isWall := func(lx, ly consts.Tile) bool {
-		if !inBuilding(lx, ly) {
-			return false
-		}
-		perimeter := lx == bx || lx == bx+bw-1 || ly == by || ly == by+bh-1
-		return perimeter && (lx != doorX || ly != doorY)
-	}
+	// 街路を描く。建物区画のタイルは furnishBuilding が Site から描くのでここでは触らない
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
-			name := ""
-			switch {
-			case lx < urbanStreetW || ly < urbanStreetW:
-				name = consts.TileNameFloor // 街路
-			case isWall(lx, ly):
-				name = consts.TileNameDWall
-			case inBuilding(lx, ly):
-				name = consts.TileNameFloor // 屋内・出入口
+			if lx >= urbanStreetW && ly >= urbanStreetW {
+				continue
 			}
-			if name == "" {
-				continue // 前庭・空き地は土のまま残す
-			}
-			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, name); err != nil {
-				return nil, fmt.Errorf("市街地の配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
+				return interior.Rect{}, interior.Vec{}, fmt.Errorf("市街地の街路配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
-	// 開口に道路へ面した見える扉を置く。1マスの床の切れ目だけでは入口と分からないため明示する
-	if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: g.offsetX + doorX, Y: g.offsetY + doorY}, doorOrient); err != nil {
-		return nil, fmt.Errorf("市街地の扉配置に失敗: %w", err)
-	}
-	return isWall, nil
+	footprint := interior.Rect{X: bx, Y: by, W: bw, H: bh}
+	door := interior.Vec{X: doorX, Y: doorY}
+	return footprint, door, nil
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool) error {
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
 	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
 	if err != nil {
 		return fmt.Errorf("市街地の敵テーブル取得に失敗: %w", err)
 	}
 	count := 1 + rng.IntN(int(size))
 	for range count {
-		lx := consts.Tile(rng.IntN(int(g.chunkW)))
-		ly := consts.Tile(rng.IntN(int(g.chunkH)))
 		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))
 		if err != nil {
 			return fmt.Errorf("市街地の敵抽選に失敗: %w", err)
 		}
-		if isWall(lx, ly) {
-			continue // 抽選は消費済みなので決定性は保たれる
-		}
-		pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}
-		if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {
-			return fmt.Errorf("市街地の敵配置に失敗: %w", err)
+		// 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて
+		// 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその
+		// 1体は諦める。抽選順は固定なので同じ seed なら同じ結果になる
+		for range urbanSpawnTries {
+			lx := consts.Tile(rng.IntN(int(g.chunkW)))
+			ly := consts.Tile(rng.IntN(int(g.chunkH)))
+			pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}
+			if isWall(lx, ly) || occupied[pos] {
+				continue
+			}
+			if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {
+				return fmt.Errorf("市街地の敵配置に失敗: %w", err)
+			}
+			break
 		}
 	}
 	return nil
 }
+
+// urbanSpawnTries は敵1体あたり街路の空きタイルを探す最大試行数。建物が footprint 全域を占有し有効タイルが
+// 減るので、数回の引き直しで目標数をほぼ満たせるだけの余裕を持たせる。
+const urbanSpawnTries = 24
 
 // tileIndex はチャンク生成中に地物が共有するタイルの座標引き索引。地物が壁や道を置換する
 // とき使う。最初に必要とした地物が全域スキャンで構築し、以降の地物は再利用する。壁を置かない

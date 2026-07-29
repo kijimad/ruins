@@ -11600,8 +11600,138 @@ weight = 0.8
 packMin = 1
 packMax = 1
 
+[[items]]
+description = "「第三避難所は満員。西の学校へ向かえ」インクは滲み、日付はもう読めない。"
+name = "避難所の張り紙"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+material = true
+
+[[items]]
+description = "壁からはがした落書き。「水は南の給水所。夜は動くな」子どもの字だ。"
+name = "落書きのメモ"
+spriteKey = "photo"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+material = true
+
+[[items]]
+description = "色褪せたレシート。カップ麺2・水4本・ガムテープ。日付は災害の三日前。"
+name = "手書きのレシート"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "5 g"
+material = true
+
+[[items]]
+description = "「今日も誰も来なかった。備蓄はあと五日分」続きは破れて読めない。"
+name = "日記の切れ端"
+spriteKey = "diary"
+spriteSheetName = "field"
+value = 3
+weight = "10 g"
+material = true
+
+[[items]]
+description = "「先に北へ行く。生きてたら祖母の家で。—父」画鋲の跡が四つ残る。"
+name = "家族への伝言"
+spriteKey = "photo"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+material = true
+
+[[items]]
+description = "「解体作業員 急募 日給応相談」電話番号は塗り潰されている。"
+name = "求人の貼り紙"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+material = true
+
+[[items]]
+description = "「この先 崩落につき通行止め 市」錆びたバリケードに括られていた。"
+name = "通行止めの告知"
+spriteKey = "old_book"
+spriteSheetName = "field"
+value = 0
+weight = "20 g"
+material = true
+
+[[items]]
+description = "隅にメモ。「あいつを信じるな。物資は自分で隠せ」筆圧が強い。"
+name = "誰かの走り書き"
+spriteKey = "diary"
+spriteSheetName = "field"
+value = 0
+weight = "10 g"
+material = true
+
+[[itemGroups]]
+name = "紙片"
+subtype = "collection"
+
+[[itemGroups.entries]]
+itemName = "避難所の張り紙"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "落書きのメモ"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "手書きのレシート"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "日記の切れ端"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "家族への伝言"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "求人の貼り紙"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "通行止めの告知"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "誰かの走り書き"
+weight = 1
+packMin = 1
+packMax = 1
+
 [[itemTables]]
 name = "廃墟"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
 
 [[itemTables.entries]]
 groupName = "回復アイテム"
@@ -11801,6 +11931,102 @@ maxDepth = 30
 minDepth = 8
 weight = 0.5
 
+
+[[itemTables]]
+name = "食料庫"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables.entries]]
+groupName = "食料"
+maxDepth = 30
+minDepth = 1
+weight = 5
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables]]
+name = "薬棚"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 5
+
+[[itemTables.entries]]
+groupName = "食料"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables]]
+name = "物入れ"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables.entries]]
+groupName = "素材類"
+maxDepth = 30
+minDepth = 1
+weight = 3
+
+[[itemTables.entries]]
+groupName = "序盤防具"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables]]
+name = "商品棚"
+
+[[itemTables.entries]]
+groupName = "紙片"
+maxDepth = 30
+minDepth = 1
+weight = 1
+
+[[itemTables.entries]]
+groupName = "食料"
+maxDepth = 30
+minDepth = 1
+weight = 3
+
+[[itemTables.entries]]
+groupName = "素材類"
+maxDepth = 30
+minDepth = 1
+weight = 2
+
+[[itemTables.entries]]
+groupName = "回復アイテム"
+maxDepth = 30
+minDepth = 1
+weight = 2
 
 [[enemyTables]]
 name = "廃墟"
@@ -12670,7 +12896,7 @@ name = "barrel"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "prop_barrel"
+spriteKey = "wood_barrel"
 spriteSheetName = "field"
 
 [props.disassembly]
@@ -12809,6 +13035,12 @@ depth = 2
 spriteKey = "wooden_bookshelf"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "物入れ"
+lootCountMin = 1
+lootCountMax = 2
+
 [[props]]
 blockPass = false
 blockView = false
@@ -12832,6 +13064,54 @@ passCost = 10
 [props.spriteRender]
 depth = 0
 spriteKey = "carpet"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "崩れた壁やコンクリの破片が積もった瓦礫の山。廃墟化の跡"
+hp = 20
+name = "rubble"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "rubble"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "床に散らばった埃と紙片と小さな欠片。人がいた頃の散らかり"
+hp = 1
+name = "debris"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "debris"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "鉢植えの観葉植物。緑を添える室内の装飾"
+hp = 3
+name = "plant"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "houseplants"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "白い前面投入式の洗濯機。脱衣所の水回り什器"
+hp = 15
+name = "washer"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "wash_machine_empty"
 spriteSheetName = "field"
 
 [[props]]
@@ -12869,6 +13149,12 @@ name = "closet"
 depth = 2
 spriteKey = "closet"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "物入れ"
+lootCountMin = 1
+lootCountMax = 3
 
 [[props]]
 blockPass = false
@@ -12974,6 +13260,12 @@ depth = 2
 spriteKey = "dish_shelf"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "食料庫"
+lootCountMin = 1
+lootCountMax = 3
+
 [[props]]
 blockPass = true
 blockView = false
@@ -13009,6 +13301,12 @@ name = "drawer_chest"
 depth = 2
 spriteKey = "drawer_chest"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "物入れ"
+lootCountMin = 1
+lootCountMax = 3
 
 [[props]]
 blockPass = true
@@ -13106,6 +13404,12 @@ depth = 2
 spriteKey = "goods_shelf"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "商品棚"
+lootCountMin = 2
+lootCountMax = 5
+
 [[props]]
 blockPass = true
 blockView = false
@@ -13175,6 +13479,78 @@ name = "laundry"
 [props.spriteRender]
 depth = 2
 spriteKey = "laundry"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "建物の外壁の窓。木枠にガラス。居室や店舗の正面。仮画像"
+hp = 15
+name = "window"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "window"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = true
+description = "閉じた金属シャッター。廃業した店舗の正面。仮画像"
+hp = 40
+name = "shutter"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "shutter"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "低い木の塀。敷地の境界を囲う。門で出入りする。仮画像"
+hp = 25
+name = "fence"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "fence"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "濃い木の観音扉に金の内陣の仏壇。和室の一角。仮画像"
+hp = 25
+name = "仏壇"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "butsudan"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "壁上に祀る宮形の神棚。榊と御札。仮画像"
+hp = 15
+name = "神棚"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "kamidana"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "玄関の木の下駄箱。格子の棚に履物。仮画像"
+hp = 20
+name = "下駄箱"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "getabako"
 spriteSheetName = "field"
 
 [[props]]
@@ -13285,6 +13661,12 @@ depth = 2
 spriteKey = "refrigerator"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "食料庫"
+lootCountMin = 1
+lootCountMax = 3
+
 [props.disassembly]
 toolCategory = "cutting"
 baseAP = 6000
@@ -13339,6 +13721,12 @@ minSkill = 10
 depth = 2
 spriteKey = "register"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "商品棚"
+lootCountMin = 1
+lootCountMax = 2
 
 [[props]]
 blockPass = true
@@ -13530,6 +13918,12 @@ depth = 2
 spriteKey = "dresser"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "物入れ"
+lootCountMin = 1
+lootCountMax = 3
+
 [[props]]
 blockPass = false
 blockView = false
@@ -13648,18 +14042,6 @@ name = "緑のドラム缶"
 [props.spriteRender]
 depth = 2
 spriteKey = "drum_green"
-spriteSheetName = "field"
-
-[[props]]
-blockPass = true
-blockView = false
-description = "茶色の木製樽。物資が入っていることがある"
-hp = 20
-name = "茶色い樽"
-
-[props.spriteRender]
-depth = 2
-spriteKey = "barrel_brown"
 spriteSheetName = "field"
 
 [[props]]
@@ -14250,6 +14632,12 @@ name = "medicine_cabinet"
 depth = 0
 spriteKey = "medicine_cabinet"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableName = "薬棚"
+lootCountMin = 1
+lootCountMax = 3
 
 [[props]]
 blockPass = true
