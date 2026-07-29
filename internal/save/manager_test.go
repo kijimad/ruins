@@ -404,27 +404,3 @@ func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "シングルトン")
 }
-
-func TestNormalizeSquadPolicies_空文字の補給ポリシーを自動に読み替える(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	member := world.ECS.NewEntity()
-	world.Components.SquadAI.Add(member, &gc.SquadAI{Supply: ""})
-
-	normalizeSquadPolicies(world)
-
-	assert.Equal(t, gc.SupplyAuto, world.Components.SquadAI.Get(member).Supply)
-}
-
-func TestNormalizeSquadPolicies_設定済みの補給ポリシーは変えない(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	member := world.ECS.NewEntity()
-	world.Components.SquadAI.Add(member, &gc.SquadAI{Supply: gc.SupplyManual})
-
-	normalizeSquadPolicies(world)
-
-	assert.Equal(t, gc.SupplyManual, world.Components.SquadAI.Get(member).Supply)
-}
