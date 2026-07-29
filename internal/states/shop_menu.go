@@ -180,7 +180,8 @@ type shopItemData struct {
 	Label    string
 	Price    int
 	Count    int // 売却時のアイテム個数
-	Entity   ecs.Entity
+	// Entity は操作対象の参照。並び決めと選択にだけ使い、ゴールデンには出さない
+	Entity   ecs.Entity `json:"-"`
 	IsBuy    bool
 	Disabled bool
 }
@@ -258,6 +259,8 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 		}
 	})
 
+	// 表示順をアイテム名で決定化する。ark の反復順に依存させない
+	sortByNameID(items, func(it shopItemData) (string, ecs.Entity) { return it.Label, it.Entity })
 	return items
 }
 

@@ -1,0 +1,74 @@
+{
+  "Tabs": [
+    {
+      "ID": "consumables",
+      "Label": "道具",
+      "Items": [
+        {
+          "RecipeName": "回復薬",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "毒消し",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "煙幕弾",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "閃光弾",
+          "CanCraft": false
+        }
+      ]
+    },
+    {
+      "ID": "weapons",
+      "Label": "武器",
+      "Items": [
+        {
+          "RecipeName": "レイガン",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "冷凍グレネード",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "木刀",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "鉄のナイフ",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "電撃グレネード",
+          "CanCraft": false
+        }
+      ]
+    },
+    {
+      "ID": "wearables",
+      "Label": "装備",
+      "Items": [
+        {
+          "RecipeName": "作業用ヘルメット",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "機械の指輪",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "西洋鎧",
+          "CanCraft": false
+        },
+        {
+          "RecipeName": "革のブーツ",
+          "CanCraft": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "Name": "Jim",
+  "Tabs": [
+    {
+      "Label": "ステータス",
+      "Items": [
+        {
+          "Label": "HP",
+          "Value": "107 / 107"
+        },
+        {
+          "Label": "体力",
+          "Value": "8"
+        },
+        {
+          "Label": "筋力",
+          "Value": "7"
+        },
+        {
+          "Label": "感覚",
+          "Value": "6"
+        },
+        {
+          "Label": "器用",
+          "Value": "6"
+        },
+        {
+          "Label": "敏捷",
+          "Value": "7"
+        },
+        {
+          "Label": "防御",
+          "Value": "5"
+        },
+        {
+          "Label": "重量",
+          "Value": "0.00㎏ / 0.00㎏"
+        }
+      ]
+    }
+  ]
+}

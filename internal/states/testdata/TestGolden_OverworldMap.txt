@@ -1,2 +1,0 @@
-overworld-map player (1,0)
->*Shh.>DDO>T.*D

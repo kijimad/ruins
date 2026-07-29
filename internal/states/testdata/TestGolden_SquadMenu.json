@@ -1,0 +1,16 @@
+{
+  "BatchCommands": [
+    "集合",
+    "全員待機"
+  ],
+  "Members": [
+    {
+      "Name": "Jim",
+      "HP": "107/107",
+      "Position": "護衛",
+      "Combat": "攻撃",
+      "ItemPickup": "回収",
+      "ItemHandling": "分配"
+    }
+  ]
+}

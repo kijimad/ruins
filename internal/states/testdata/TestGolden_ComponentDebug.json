@@ -1,0 +1,305 @@
+{
+  "Items": [
+    {
+      "Name": "Name",
+      "Count": 1947
+    },
+    {
+      "Name": "SpriteRender",
+      "Count": 1947
+    },
+    {
+      "Name": "Description",
+      "Count": 1942
+    },
+    {
+      "Name": "GridElement",
+      "Count": 1937
+    },
+    {
+      "Name": "StageBound",
+      "Count": 1937
+    },
+    {
+      "Name": "Tile",
+      "Count": 1800
+    },
+    {
+      "Name": "TileTemperature",
+      "Count": 1800
+    },
+    {
+      "Name": "BlockPass",
+      "Count": 262
+    },
+    {
+      "Name": "BlockView",
+      "Count": 185
+    },
+    {
+      "Name": "Interactable",
+      "Count": 146
+    },
+    {
+      "Name": "LocationOnField",
+      "Count": 132
+    },
+    {
+      "Name": "Prop",
+      "Count": 132
+    },
+    {
+      "Name": "HP",
+      "Count": 129
+    },
+    {
+      "Name": "Value",
+      "Count": 10
+    },
+    {
+      "Name": "Weight",
+      "Count": 10
+    },
+    {
+      "Name": "Door",
+      "Count": 7
+    },
+    {
+      "Name": "LocationEquipped",
+      "Count": 6
+    },
+    {
+      "Name": "Wearable",
+      "Count": 6
+    },
+    {
+      "Name": "Abilities",
+      "Count": 5
+    },
+    {
+      "Name": "PassCost",
+      "Count": 5
+    },
+    {
+      "Name": "TurnBased",
+      "Count": 5
+    },
+    {
+      "Name": "WeightCapacity",
+      "Count": 5
+    },
+    {
+      "Name": "CommandTable",
+      "Count": 4
+    },
+    {
+      "Name": "DropTable",
+      "Count": 4
+    },
+    {
+      "Name": "FactionEnemy",
+      "Count": 4
+    },
+    {
+      "Name": "LocationInBackpack",
+      "Count": 4
+    },
+    {
+      "Name": "SoloAI",
+      "Count": 4
+    },
+    {
+      "Name": "Consumable",
+      "Count": 3
+    },
+    {
+      "Name": "Stackable",
+      "Count": 3
+    },
+    {
+      "Name": "ProvidesNutrition",
+      "Count": 2
+    },
+    {
+      "Name": "Camera",
+      "Count": 1
+    },
+    {
+      "Name": "CharModifiers",
+      "Count": 1
+    },
+    {
+      "Name": "Dungeon",
+      "Count": 1
+    },
+    {
+      "Name": "DungeonEntrance",
+      "Count": 1
+    },
+    {
+      "Name": "FactionAlly",
+      "Count": 1
+    },
+    {
+      "Name": "GameLog",
+      "Count": 1
+    },
+    {
+      "Name": "GameProgress",
+      "Count": 1
+    },
+    {
+      "Name": "GameTime",
+      "Count": 1
+    },
+    {
+      "Name": "HealthStatus",
+      "Count": 1
+    },
+    {
+      "Name": "Hunger",
+      "Count": 1
+    },
+    {
+      "Name": "LightSource",
+      "Count": 1
+    },
+    {
+      "Name": "Melee",
+      "Count": 1
+    },
+    {
+      "Name": "Player",
+      "Count": 1
+    },
+    {
+      "Name": "Profession",
+      "Count": 1
+    },
+    {
+      "Name": "ProvidesHealing",
+      "Count": 1
+    },
+    {
+      "Name": "SeamlessBand",
+      "Count": 1
+    },
+    {
+      "Name": "Skills",
+      "Count": 1
+    },
+    {
+      "Name": "SpatialIndex",
+      "Count": 1
+    },
+    {
+      "Name": "StageField",
+      "Count": 1
+    },
+    {
+      "Name": "TurnState",
+      "Count": 1
+    },
+    {
+      "Name": "VisionState",
+      "Count": 1
+    },
+    {
+      "Name": "Wallet",
+      "Count": 1
+    },
+    {
+      "Name": "WeaponSelection",
+      "Count": 1
+    },
+    {
+      "Name": "Activity",
+      "Count": 0
+    },
+    {
+      "Name": "Ammo",
+      "Count": 0
+    },
+    {
+      "Name": "Book",
+      "Count": 0
+    },
+    {
+      "Name": "Boss",
+      "Count": 0
+    },
+    {
+      "Name": "Dead",
+      "Count": 0
+    },
+    {
+      "Name": "Dialog",
+      "Count": 0
+    },
+    {
+      "Name": "FactionNeutral",
+      "Count": 0
+    },
+    {
+      "Name": "Fire",
+      "Count": 0
+    },
+    {
+      "Name": "InflictsDamage",
+      "Count": 0
+    },
+    {
+      "Name": "LastActivity",
+      "Count": 0
+    },
+    {
+      "Name": "LocationInStorage",
+      "Count": 0
+    },
+    {
+      "Name": "Material",
+      "Count": 0
+    },
+    {
+      "Name": "PortalConnection",
+      "Count": 0
+    },
+    {
+      "Name": "Position",
+      "Count": 0
+    },
+    {
+      "Name": "Recipe",
+      "Count": 0
+    },
+    {
+      "Name": "SquadAI",
+      "Count": 0
+    },
+    {
+      "Name": "SquadMember",
+      "Count": 0
+    },
+    {
+      "Name": "StateChangeRequest",
+      "Count": 0
+    },
+    {
+      "Name": "StatsChanged",
+      "Count": 0
+    },
+    {
+      "Name": "Suspended",
+      "Count": 0
+    },
+    {
+      "Name": "VisualEffects",
+      "Count": 0
+    },
+    {
+      "Name": "WeightDirty",
+      "Count": 0
+    }
+  ],
+  "Total": 14406
+}

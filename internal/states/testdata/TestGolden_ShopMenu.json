@@ -1,0 +1,94 @@
+{
+  "Tabs": [
+    {
+      "ID": "buy",
+      "Label": "購入",
+      "Items": [
+        {
+          "Label": "木刀",
+          "Price": 152,
+          "Count": 0,
+          "IsBuy": true,
+          "Disabled": false
+        },
+        {
+          "Label": "ハンドガン",
+          "Price": 285,
+          "Count": 0,
+          "IsBuy": true,
+          "Disabled": false
+        },
+        {
+          "Label": "西洋鎧",
+          "Price": 760,
+          "Count": 0,
+          "IsBuy": true,
+          "Disabled": false
+        },
+        {
+          "Label": "作業用ヘルメット",
+          "Price": 285,
+          "Count": 0,
+          "IsBuy": true,
+          "Disabled": false
+        },
+        {
+          "Label": "革のブーツ",
+          "Price": 228,
+          "Count": 0,
+          "IsBuy": true,
+          "Disabled": false
+        },
+        {
+          "Label": "回復薬",
+          "Price": 190,
+          "Count": 0,
+          "IsBuy": true,
+          "Disabled": false
+        },
+        {
+          "Label": "陸軍射撃マニュアル",
+          "Price": 380,
+          "Count": 0,
+          "IsBuy": true,
+          "Disabled": false
+        }
+      ]
+    },
+    {
+      "ID": "sell",
+      "Label": "売却",
+      "Items": [
+        {
+          "Label": "パン",
+          "Price": 15,
+          "Count": 3,
+          "IsBuy": false,
+          "Disabled": false
+        },
+        {
+          "Label": "ビスケット",
+          "Price": 12,
+          "Count": 2,
+          "IsBuy": false,
+          "Disabled": false
+        },
+        {
+          "Label": "モンキーレンチ",
+          "Price": 36,
+          "Count": 1,
+          "IsBuy": false,
+          "Disabled": false
+        },
+        {
+          "Label": "回復薬",
+          "Price": 52,
+          "Count": 1,
+          "IsBuy": false,
+          "Disabled": false
+        }
+      ]
+    }
+  ],
+  "Currency": 10000
+}

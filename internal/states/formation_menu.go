@@ -106,7 +106,8 @@ type formationProps struct {
 }
 
 type formationMemberData struct {
-	Entity ecs.Entity
+	// Entity は操作対象の参照。並び決めと選択にだけ使い、ゴールデンには出さない
+	Entity ecs.Entity `json:"-"`
 	Name   string
 	HP     string
 }
@@ -129,6 +130,8 @@ func (st *FormationMenuState) fetchProps(world w.World) formationProps {
 		})
 	}
 
+	// 表示順を隊員名で決定化する。ark の反復順に依存させない
+	sortByNameID(members, func(m formationMemberData) (string, ecs.Entity) { return m.Name, m.Entity })
 	return formationProps{Members: members}
 }
 

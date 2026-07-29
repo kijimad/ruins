@@ -1,0 +1,1194 @@
+{
+  "PlayerName": "Ash",
+  "Tabs": [
+    {
+      "ID": "basic",
+      "Label": "基本",
+      "Items": [
+        {
+          "Label": "職業",
+          "Value": "避難民",
+          "Modifier": "",
+          "Description": "職業",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "HP",
+          "Value": "80",
+          "Modifier": "",
+          "Description": "体力。0になると死亡する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "最大重量",
+          "Value": "21.00㎏",
+          "Modifier": "",
+          "Description": "所持可能な最大重量",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "空腹度",
+          "Value": "普通",
+          "Modifier": "",
+          "Description": "空腹度。高いと行動に支障が出る",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "環境気温",
+          "Value": "0℃",
+          "Modifier": "",
+          "Description": "現在地の気温",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "時間帯",
+          "Value": "夜明け",
+          "Modifier": "",
+          "Description": "現在の時間帯。屋外では気温に影響する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        }
+      ]
+    },
+    {
+      "ID": "abilities",
+      "Label": "能力",
+      "Items": [
+        {
+          "Label": "体力",
+          "Value": "5",
+          "Modifier": "(+0)",
+          "Description": "体力。HPとSPの最大値に影響する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "筋力",
+          "Value": "5",
+          "Modifier": "(+0)",
+          "Description": "筋力。近接攻撃のダメージに影響する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "感覚",
+          "Value": "5",
+          "Modifier": "(+0)",
+          "Description": "感覚。射撃攻撃のダメージに影響する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "器用",
+          "Value": "5",
+          "Modifier": "(+0)",
+          "Description": "器用さ。命中率に影響する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "敏捷",
+          "Value": "5",
+          "Modifier": "(+0)",
+          "Description": "敏捷。回避率と行動速度に影響する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "防御",
+          "Value": "5",
+          "Modifier": "(+0)",
+          "Description": "防御。被ダメージを軽減する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        }
+      ]
+    },
+    {
+      "ID": "skills",
+      "Label": "スキル",
+      "Items": [
+        {
+          "Label": "近接",
+          "Value": "",
+          "Modifier": "",
+          "Description": "近接カテゴリのスキル",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "刀剣",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "刀剣類の扱いに関する技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "刀剣で攻撃すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "刀剣のダメージと命中が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "長物",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "槍や棒などの長物を扱う技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "長物で攻撃すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "長物のダメージと命中が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "格闘",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "素手や拳で戦う技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "格闘で攻撃すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "格闘のダメージと命中が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "射撃",
+          "Value": "",
+          "Modifier": "",
+          "Description": "射撃カテゴリのスキル",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "弓術",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "弓を扱う技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "弓で攻撃すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "弓のダメージと命中が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "拳銃",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "拳銃の射撃技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "拳銃で攻撃すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "拳銃のダメージと命中が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "小銃",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "小銃の射撃技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "小銃で攻撃すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "小銃のダメージと命中が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "砲撃",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "大型火器の運用技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "砲撃で攻撃すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "砲撃のダメージと命中が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "技巧",
+          "Value": "",
+          "Modifier": "",
+          "Description": "技巧カテゴリのスキル",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "合成",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "素材からアイテムを作る技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "アイテムを合成すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "合成時の素材消費が減少する"
+            }
+          ]
+        },
+        {
+          "Label": "調合",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "素材を精製・調合する技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "素材を調合すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "調合時の品質が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "交渉",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "有利な取引をする話術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "取引を行うと上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "売買の価格が有利になる"
+            }
+          ]
+        },
+        {
+          "Label": "機械",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "機械を理解し修理する技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "分解を行うか機械関連の本を読むと上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "分解が速くなり産出が増える"
+            }
+          ]
+        },
+        {
+          "Label": "機動",
+          "Value": "",
+          "Modifier": "",
+          "Description": "機動カテゴリのスキル",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "走破",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "長距離を素早く移動する能力",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "移動時のAPコストが減少する"
+            }
+          ]
+        },
+        {
+          "Label": "隠密",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "敵に気づかれずに行動する技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "敵に発見される距離が短くなる"
+            }
+          ]
+        },
+        {
+          "Label": "暗視",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "暗所での視認能力",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "暗所での視界が広がる"
+            }
+          ]
+        },
+        {
+          "Label": "荷重",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "重い荷物を運ぶ能力",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "重い装備で行動すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "最大荷重が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "生存",
+          "Value": "",
+          "Modifier": "",
+          "Description": "生存カテゴリのスキル",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "耐寒",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "寒さへの耐性",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "低体温の進行が遅くなる"
+            }
+          ]
+        },
+        {
+          "Label": "耐暑",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "暑さへの耐性",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "高体温の進行が遅くなる"
+            }
+          ]
+        },
+        {
+          "Label": "耐餓",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "空腹への耐性",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "空腹の進行が遅くなる"
+            }
+          ]
+        },
+        {
+          "Label": "治療",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "傷を治す医療技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "回復アイテムを使用すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "回復アイテムの効果が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "探索",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "未知の場所を調査する技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "アイテム発見率が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "防御",
+          "Value": "",
+          "Modifier": "",
+          "Description": "防御カテゴリのスキル",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "重装",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "重い防具を着こなす技術",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "重装備で被弾すると上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "最大荷重が上昇する"
+            }
+          ]
+        },
+        {
+          "Label": "耐火",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "火への耐性",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "火属性ダメージが軽減される"
+            }
+          ]
+        },
+        {
+          "Label": "耐電",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "雷への耐性",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "雷属性ダメージが軽減される"
+            }
+          ]
+        },
+        {
+          "Label": "耐冷",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "氷への耐性",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "氷属性ダメージが軽減される"
+            }
+          ]
+        },
+        {
+          "Label": "耐光",
+          "Value": "0.000",
+          "Modifier": "",
+          "Description": "光への耐性",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "獲得条件",
+              "Value": "装備や本で上がる"
+            },
+            {
+              "Label": "効果",
+              "Value": "光属性ダメージが軽減される"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ID": "effects",
+      "Label": "効果",
+      "Items": [
+        {
+          "Label": "戦闘",
+          "Value": "",
+          "Modifier": "",
+          "Description": "戦闘に関する効果",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "刀剣攻撃力",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "刀剣武器のダメージ倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "STR 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "長物攻撃力",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "長物武器のダメージ倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "STR 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "格闘攻撃力",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "格闘武器のダメージ倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "STR 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "弓術攻撃力",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "弓術武器のダメージ倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "拳銃攻撃力",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "拳銃武器のダメージ倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "小銃攻撃力",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "小銃武器のダメージ倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "砲撃攻撃力",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "砲撃武器のダメージ倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "刀剣命中",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "刀剣武器の命中倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "STR 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "長物命中",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "長物武器の命中倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "STR 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "格闘命中",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "格闘武器の命中倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "STR 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "弓術命中",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "弓術武器の命中倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "拳銃命中",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "拳銃武器の命中倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "小銃命中",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "小銃武器の命中倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "砲撃命中",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "砲撃武器の命中倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "火耐性",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "火属性ダメージの倍率。低いほど軽減される",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEF 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "雷耐性",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "雷属性ダメージの倍率。低いほど軽減される",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEF 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "氷耐性",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "氷属性ダメージの倍率。低いほど軽減される",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEF 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "光耐性",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "光属性ダメージの倍率。低いほど軽減される",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEF 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "生存",
+          "Value": "",
+          "Modifier": "",
+          "Description": "生存に関する効果",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "低体温進行",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "低体温の進行速度。低いほど遅くなる",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "VIT 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "高体温進行",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "高体温の進行速度。低いほど遅くなる",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "VIT 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "空腹進行",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "空腹の進行速度。低いほど遅くなる",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "VIT 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "回復効果",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "回復アイテムの効果倍率。高いほど多く回復する",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "VIT 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "行動",
+          "Value": "",
+          "Modifier": "",
+          "Description": "行動に関する効果",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "移動速度",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "移動時のAPコスト倍率。低いほど少ないAPで移動できる",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "AGI 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "発見",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "アイテム発見率の倍率。高いほど見つけやすい",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "SEN 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "被発見",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "敵に発見される距離の倍率。低いほど見つかりにくい",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "AGI 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "暗所視界",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "暗所での視界の倍率。高いほど見える",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "AGI 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "生産",
+          "Value": "",
+          "Modifier": "",
+          "Description": "生産・取引に関する効果",
+          "IsHeader": true,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "素材消費",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "合成時の素材消費量倍率。低いほど素材が節約できる",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEX 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "合成品質",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "調合時の品質倍率。高いほど良い品ができる",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEX 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "買値",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "買い物の価格倍率。低いほど安く買える",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEX 5",
+              "Value": "-5%"
+            }
+          ]
+        },
+        {
+          "Label": "売値",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "売却の価格倍率。高いほど高く売れる",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEX 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "最大重量",
+          "Value": "105%",
+          "Modifier": "",
+          "Description": "所持可能な最大重量の倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "STR 5",
+              "Value": "+5%"
+            }
+          ]
+        },
+        {
+          "Label": "最大荷重",
+          "Value": "95%",
+          "Modifier": "",
+          "Description": "最大荷重倍率",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": [
+            {
+              "Label": "DEF 5",
+              "Value": "-5%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ID": "health",
+      "Label": "健康",
+      "Items": [
+        {
+          "Label": "頭",
+          "Value": "正常",
+          "Modifier": "",
+          "Description": "頭部",
+          "IsHeader": false,
+          "BodyPart": 0,
+          "Details": null
+        },
+        {
+          "Label": "胴体",
+          "Value": "正常",
+          "Modifier": "",
+          "Description": "胴体",
+          "IsHeader": false,
+          "BodyPart": 1,
+          "Details": null
+        },
+        {
+          "Label": "腕",
+          "Value": "正常",
+          "Modifier": "",
+          "Description": "腕",
+          "IsHeader": false,
+          "BodyPart": 2,
+          "Details": null
+        },
+        {
+          "Label": "手",
+          "Value": "正常",
+          "Modifier": "",
+          "Description": "手",
+          "IsHeader": false,
+          "BodyPart": 3,
+          "Details": null
+        },
+        {
+          "Label": "脚",
+          "Value": "正常",
+          "Modifier": "",
+          "Description": "脚",
+          "IsHeader": false,
+          "BodyPart": 4,
+          "Details": null
+        },
+        {
+          "Label": "足",
+          "Value": "正常",
+          "Modifier": "",
+          "Description": "足",
+          "IsHeader": false,
+          "BodyPart": 5,
+          "Details": null
+        },
+        {
+          "Label": "全身",
+          "Value": "正常",
+          "Modifier": "",
+          "Description": "全身",
+          "IsHeader": false,
+          "BodyPart": 6,
+          "Details": null
+        }
+      ]
+    }
+  ]
+}

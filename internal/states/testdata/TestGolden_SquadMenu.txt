@@ -1,2 +1,0 @@
-squad commands 集合/全員待機
-  Jim HP 107/107 pos 護衛 combat 攻撃 pickup 回収 handling 分配

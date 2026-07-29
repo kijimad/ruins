@@ -154,7 +154,8 @@ type storageTabData struct {
 }
 
 type storageItemData struct {
-	Entity ecs.Entity
+	// Entity は操作対象の参照。選択にだけ使い、ゴールデンには出さない
+	Entity ecs.Entity `json:"-"`
 	Name   string
 	Count  string
 }

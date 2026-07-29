@@ -1,4 +1,0 @@
-look-around cursor (37,12)
-  Ash
-  floor
-  warp_prev

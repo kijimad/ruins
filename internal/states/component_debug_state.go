@@ -132,9 +132,12 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 		total += count
 	}
 
-	// 数が多い順にソートする
+	// 数が多い順にソートする。同数は名前で決定化する
 	sort.Slice(items, func(i, j int) bool {
-		return items[i].Count > items[j].Count
+		if items[i].Count != items[j].Count {
+			return items[i].Count > items[j].Count
+		}
+		return items[i].Name < items[j].Name
 	})
 
 	return componentDebugProps{Items: items, Total: total}

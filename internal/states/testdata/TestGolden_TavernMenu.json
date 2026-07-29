@@ -1,0 +1,40 @@
+{
+  "Candidates": [
+    {
+      "Index": 0,
+      "Name": "ユウ",
+      "Stats": "体5 力5 感7 器11 敏5 防8",
+      "Cost": 1230,
+      "CanAfford": true
+    },
+    {
+      "Index": 1,
+      "Name": "リク",
+      "Stats": "体4 力11 感11 器8 敏5 防7",
+      "Cost": 1380,
+      "CanAfford": true
+    },
+    {
+      "Index": 2,
+      "Name": "レン",
+      "Stats": "体9 力8 感4 器8 敏8 防7",
+      "Cost": 1320,
+      "CanAfford": true
+    },
+    {
+      "Index": 3,
+      "Name": "ジン",
+      "Stats": "体7 力7 感4 器4 敏11 防9",
+      "Cost": 1260,
+      "CanAfford": true
+    },
+    {
+      "Index": 4,
+      "Name": "セイ",
+      "Stats": "体10 力4 感10 器10 敏4 防7",
+      "Cost": 1350,
+      "CanAfford": true
+    }
+  ],
+  "Currency": 10000
+}

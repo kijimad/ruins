@@ -16,8 +16,9 @@ import (
 // WorldSnapshot は spawn 後の world ECS を決定的にテキスト化したゴールデン対象。画像に依らず、
 // タイル配置とエンティティの内容で退行を捉える。世界主体の state ゴールデンが GoldenText の代わりに使う。
 type WorldSnapshot struct {
-	Grid     []string         // Level の各行をタイル名で。y→x の固定順
-	Entities []EntitySnapshot // タイル以外を座標→名前の固定順で
+	Grid        []string         // Level の各行をタイル名で。y→x の固定順
+	Entities    []EntitySnapshot // タイル以外を座標→名前の固定順で
+	OutOfBounds []string         // Level 寸法の外に置かれたタイル。正常な生成では空
 }
 
 // EntitySnapshot はタイル以外のエンティティ1体の決定的要約。座標と種別と表示名を持つ。
@@ -59,6 +60,15 @@ func SnapshotWorld(world w.World) WorldSnapshot {
 		}
 		snap.Grid = append(snap.Grid, strings.Join(cells, " "))
 	}
+
+	// Level 寸法の外に置かれたタイルは上の二重ループから漏れる。エンティティは範囲無制限に列挙するのに
+	// タイルだけ落ちる非対称を塞ぐため、範囲外タイルを別枠で拾う。map 反復順に依存しないよう後でソートする
+	for key, name := range tileName {
+		if key.X < 0 || key.X >= field.Level.TileWidth || key.Y < 0 || key.Y >= field.Level.TileHeight {
+			snap.OutOfBounds = append(snap.OutOfBounds, fmt.Sprintf("%s %s", key.Coord, name))
+		}
+	}
+	sort.Strings(snap.OutOfBounds)
 
 	// タイル以外のエンティティを集め、(Y, X, Name, ID) の順で決定化する。ID は同一セル同一名の並びを
 	// 安定させるためだけに使い、出力には含めない。ID を出すと無関係な spawn 変更でゴールデンが揺れるため
@@ -110,6 +120,13 @@ func (s WorldSnapshot) String() string {
 	b.WriteString("# entities\n")
 	for _, e := range s.Entities {
 		fmt.Fprintf(&b, "%s %s %s\n", e.Pos, e.Kind, e.Name)
+	}
+	if len(s.OutOfBounds) > 0 {
+		b.WriteString("# out-of-bounds\n")
+		for _, line := range s.OutOfBounds {
+			b.WriteString(line)
+			b.WriteByte('\n')
+		}
 	}
 	return b.String()
 }

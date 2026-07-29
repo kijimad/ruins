@@ -1,0 +1,39 @@
+{
+  "Tabs": [
+    {
+      "ID": "retrieve",
+      "Label": "取得",
+      "Items": [
+        {
+          "Name": "回復薬",
+          "Count": "1"
+        }
+      ]
+    },
+    {
+      "ID": "store",
+      "Label": "収納",
+      "Items": [
+        {
+          "Name": "パン",
+          "Count": "3"
+        },
+        {
+          "Name": "ビスケット",
+          "Count": "2"
+        },
+        {
+          "Name": "モンキーレンチ",
+          "Count": ""
+        },
+        {
+          "Name": "回復薬",
+          "Count": "1"
+        }
+      ]
+    }
+  ],
+  "StorageName": "木箱",
+  "WeightText": "0.10㎏ / 20.00㎏",
+  "WeightOverflow": false
+}

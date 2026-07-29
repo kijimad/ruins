@@ -1,9 +1,9 @@
 package vrt
 
 import (
+	"encoding/json"
 	"image"
 	"math/rand/v2"
-	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -27,15 +27,20 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 	return func(_ w.World) []es.State[w.World] { return states }
 }
 
-// AssertStateGolden はステートスタックの決定的な論理内容を .txt ゴールデンと突き合わせる。
+// SnapshotFunc はステートの論理内容をビューモデルとして返す。対応しないステートは ok=false を返す。
+// プロダクションの vrt 非依存を保つため、実装はステート側パッケージのテストが型スイッチで持つ
+type SnapshotFunc func(w.World, es.State[w.World]) (any, bool)
+
+// AssertStateGolden はステートスタックの決定的な論理内容をゴールデンと突き合わせる。
 // buildStates は world 初期化後に呼ばれ、セットアップとステート構築を行う。セットアップが不要な場合は
 // States アダプタを使う。
 //
-// world/ECS を描くステートは WorldSnapshot を、メニュー等は GoldenText の返り値をゴールデンにする。
-// どちらも持たない純UIメニューはテキスト assert をしない。画像はピクセル比較せず、Draw を毎回実行して
-// 描画のパニックやエラーだけを smoke check として検出する。ピクセルを比較しないので描画の非決定性は
-// フレークにならない。画像は目視用に GOLDIE_UPDATE 時のみ保存する。
-func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
+// snapshot がビューモデルを返すステートはそれを JSON にして .json ゴールデンへ。返すステートが無ければ
+// world を WorldSnapshot のテキストとして .txt ゴールデンへ。どちらも無い純UIメニューはテキスト assert を
+// しない。画像はピクセル比較せず、Draw を毎回実行して描画のパニックやエラーだけを smoke check として
+// 検出する。ピクセルを比較しないので描画の非決定性はフレークにならない。画像は目視用に GOLDIE_UPDATE
+// 時のみ保存する。
+func AssertStateGolden(t *testing.T, snapshot SnapshotFunc, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
 	world := InitVRTWorld(t)
 
@@ -44,8 +49,8 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 
 	sm := driveStates(t, world, buildStates)
 
-	if text, ok := snapshotStates(world, sm.GetStates()); ok {
-		goldie.New(t, goldie.WithNameSuffix(".txt")).Assert(t, t.Name(), []byte(text))
+	if content, suffix, ok := snapshotStack(t, world, snapshot, sm.GetStates()); ok {
+		goldie.New(t, goldie.WithNameSuffix(suffix)).Assert(t, t.Name(), []byte(content))
 	}
 
 	// Draw を毎回実行し、パニックやエラーが起きれば drawStates 内の require で落とす。純UIメニューは
@@ -56,24 +61,31 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 	}
 }
 
-// snapshotStates はスタックの決定的な論理内容と、それが存在するかを返す。GoldenText を実装するステートが
-// あればそれらの出力を上から連結する。無ければ world を WorldSnapshot にする。マップも GoldenText も無い
-// 純UIメニューは ok=false を返し、呼び出し側はテキスト assert をしない。GoldenText はプロダクションの
-// vrt 非依存を保つため、専用インタフェース型でなく構造的型アサーションで扱う。
-func snapshotStates(world w.World, states []es.State[w.World]) (string, bool) {
-	var parts []string
+// snapshotStack はスタックの決定的な論理内容とゴールデンの拡張子を返す。snapshot がビューモデルを返す
+// ステートがあればそれらを JSON へ直列化する。ビューモデルを直接直列化するので手書きの整形が要らず、
+// フィールド追加は自動でゴールデンに現れる。ビューモデルが無ければ world を WorldSnapshot にする。
+// マップもビューモデルも無い純UIメニューは ok=false を返し、呼び出し側はテキスト assert をしない
+func snapshotStack(t *testing.T, world w.World, snapshot SnapshotFunc, states []es.State[w.World]) (string, string, bool) {
+	t.Helper()
+	var parts []any
 	for _, s := range states {
-		if gt, ok := s.(interface{ GoldenText(w.World) string }); ok {
-			parts = append(parts, gt.GoldenText(world))
+		if v, ok := snapshot(world, s); ok {
+			parts = append(parts, v)
 		}
 	}
 	if len(parts) > 0 {
-		return strings.Join(parts, "\n"), true
+		payload := parts[0]
+		if len(parts) > 1 {
+			payload = parts
+		}
+		b, err := json.MarshalIndent(payload, "", "  ")
+		require.NoError(t, err, "ビューモデルの JSON 直列化に失敗")
+		return string(b) + "\n", ".json", true
 	}
 	if snap := SnapshotWorld(world); len(snap.Grid) > 0 || len(snap.Entities) > 0 {
-		return snap.String(), true
+		return snap.String(), ".txt", true
 	}
-	return "", false
+	return "", "", false
 }
 
 // RenderStatePNG はステートを描画してPNGバイト列として返す。アサーションは行わず、画像の保存用途で使う。
