@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.1&nbsp;%</td>
-            <td class="headerCovTableEntry">356</td>
-            <td class="headerCovTableEntry">335</td>
+            <td class="headerCovTableEntryHi">93.4&nbsp;%</td>
+            <td class="headerCovTableEntry">361</td>
+            <td class="headerCovTableEntry">337</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-29 15:48:22</td>
+            <td class="headerValue">2026-07-29 15:59:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -481,35 +481,42 @@
 <span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           2 :         for _, member := range query.SquadMembers(world) {</span></span>
 <span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :                 name := query.GetEntityName(member, world)</span></span>
 <span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :                 hp := world.Components.HP.Get(member)</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :                 members = append(members, hud.SquadHUDMember{</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                         Name:      name,</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                         CurrentHP: hp.Current,</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                         MaxHP:     hp.Max,</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L428"><span class="lineNum">     428</span>              : </span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :         return hud.SquadHUDData{</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                 Members: members,</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 ScreenDimensions: hud.ScreenDimensions{</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                         Width:  screenWidth,</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                         Height: screenHeight,</span></span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L436"><span class="lineNum">     436</span>              : }</span>
-<span id="L437"><span class="lineNum">     437</span>              : </span>
-<span id="L438"><span class="lineNum">     438</span>              : // getHungerBadgeColor は空腹度に応じたバッジ色を返す</span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 : func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :         switch level {</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :         case gc.HungerSatiated:</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                 return color.RGBA{100, 200, 100, 255} // 緑（満腹）</span></span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :         case gc.HungerHungry:</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 200, 0, 255} // 黄色（空腹）</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :         case gc.HungerStarving:</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 50, 50, 255} // 赤（飢餓）</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 255, 255, 255}</span></span>
-<span id="L449"><span class="lineNum">     449</span>              :         }</span>
-<span id="L450"><span class="lineNum">     450</span>              : }</span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :                 hungerLevel := &quot;&quot;</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                 if world.Components.Hunger.Has(member) {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC tlaBgUNC">           0 :                         if level := world.Components.Hunger.Get(member).GetLevel(); level &gt;= gc.HungerHungry {</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                                 hungerLevel = level.String()</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L427"><span class="lineNum">     427</span>              :                 }</span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC tlaBgGNC">           1 :                 members = append(members, hud.SquadHUDMember{</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                         Name:        name,</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                         CurrentHP:   hp.Current,</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                         MaxHP:       hp.Max,</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                         HungerLevel: hungerLevel,</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L434"><span class="lineNum">     434</span>              :         }</span>
+<span id="L435"><span class="lineNum">     435</span>              : </span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :         return hud.SquadHUDData{</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 Members: members,</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 ScreenDimensions: hud.ScreenDimensions{</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                         Width:  screenWidth,</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                         Height: screenHeight,</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L443"><span class="lineNum">     443</span>              : }</span>
+<span id="L444"><span class="lineNum">     444</span>              : </span>
+<span id="L445"><span class="lineNum">     445</span>              : // getHungerBadgeColor は空腹度に応じたバッジ色を返す</span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 : func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :         switch level {</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :         case gc.HungerSatiated:</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                 return color.RGBA{100, 200, 100, 255} // 緑（満腹）</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :         case gc.HungerHungry:</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 200, 0, 255} // 黄色（空腹）</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :         case gc.HungerStarving:</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 50, 50, 255} // 赤（飢餓）</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 255, 255, 255}</span></span>
+<span id="L456"><span class="lineNum">     456</span>              :         }</span>
+<span id="L457"><span class="lineNum">     457</span>              : }</span>
         </pre>
               </td>
             </tr>

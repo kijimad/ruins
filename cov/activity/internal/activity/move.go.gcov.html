@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.8&nbsp;%</td>
-            <td class="headerCovTableEntry">177</td>
-            <td class="headerCovTableEntry">143</td>
+            <td class="headerCovTableEntryMed">80.6&nbsp;%</td>
+            <td class="headerCovTableEntry">175</td>
+            <td class="headerCovTableEntry">141</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-29 15:48:22</td>
+            <td class="headerValue">2026-07-29 15:59:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -287,44 +287,42 @@
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 query.UpdateCharacterPositionInIndex(world, swapped, dest, old)</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L227"><span class="lineNum">     227</span>              : </span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         progressHunger(actor, world)</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動完了&quot;,</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, old.String(),</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, dest.String())</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L236"><span class="lineNum">     236</span>              : }</span>
-<span id="L237"><span class="lineNum">     237</span>              : </span>
-<span id="L238"><span class="lineNum">     238</span>              : // swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える。</span>
-<span id="L239"><span class="lineNum">     239</span>              : // 入れ替えた相手と、入れ替えが発生したかを返す</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 : func swapAllyIfNeeded(world w.World, actor ecs.Entity, from, to consts.Coord[consts.Tile]) (ecs.Entity, bool) {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         si := query.GetSpatialIndex(world)</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         if si == nil {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC tlaBgGNC">           1 :         target, ok := si.CharacterAt(to)</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 return ecs.Entity{}, false</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         if !CanSwapPosition(world, actor, target) {</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(target) {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC tlaBgGNC">           1 :         targetGrid := world.Components.GridElement.Get(target)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         targetGrid.Coord = from</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         // 位置入れ替えなので味方は actor と逆向きに動く。味方視点では to から from へ移る</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         log.Debug(&quot;味方と位置入れ替え&quot;,</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 &quot;target&quot;, target,</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, to.String(),</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, from.String())</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         return target, true</span></span>
-<span id="L265"><span class="lineNum">     265</span>              : }</span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動完了&quot;,</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, old.String(),</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, dest.String())</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L234"><span class="lineNum">     234</span>              : }</span>
+<span id="L235"><span class="lineNum">     235</span>              : </span>
+<span id="L236"><span class="lineNum">     236</span>              : // swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える。</span>
+<span id="L237"><span class="lineNum">     237</span>              : // 入れ替えた相手と、入れ替えが発生したかを返す</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : func swapAllyIfNeeded(world w.World, actor ecs.Entity, from, to consts.Coord[consts.Tile]) (ecs.Entity, bool) {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         si := query.GetSpatialIndex(world)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         if si == nil {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC tlaBgGNC">           1 :         target, ok := si.CharacterAt(to)</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 return ecs.Entity{}, false</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         if !CanSwapPosition(world, actor, target) {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(target) {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC tlaBgGNC">           1 :         targetGrid := world.Components.GridElement.Get(target)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         targetGrid.Coord = from</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         // 位置入れ替えなので味方は actor と逆向きに動く。味方視点では to から from へ移る</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         log.Debug(&quot;味方と位置入れ替え&quot;,</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 &quot;target&quot;, target,</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, to.String(),</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, from.String())</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         return target, true</span></span>
+<span id="L263"><span class="lineNum">     263</span>              : }</span>
         </pre>
               </td>
             </tr>
