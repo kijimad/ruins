@@ -53,5 +53,7 @@ func TestProgressTurnHunger_同じ盤面なら決定的に進む(t *testing.T) {
 		return world.Components.Hunger.Get(actor).Current
 	}
 
-	assert.Equal(t, run(), run(), "同じ seed・盤面なら空腹の進みは一意")
+	first := run()
+	second := run()
+	assert.Equal(t, first, second, "同じ seed・盤面なら空腹の進みは一意")
 }
