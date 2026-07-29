@@ -17,14 +17,21 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// sortedNames はエンティティ列を表示名の昇順で返す。ark の反復順や query の未ソートに依存しないよう、
-// ゴールデンに出す前に必ず並べ替える。
+// sortedNames はエンティティ列を表示名の昇順で返す。同名は entity.ID() で並びを固定する。ark の反復順や
+// query の未ソートに依存しないよう、ゴールデンに出す前に名前と ID で並べ替える。
 func sortedNames(world w.World, ents []ecs.Entity) []string {
-	names := make([]string, 0, len(ents))
-	for _, e := range ents {
-		names = append(names, query.GetEntityName(e, world))
+	sorted := append([]ecs.Entity(nil), ents...)
+	sort.Slice(sorted, func(i, j int) bool {
+		ni, nj := query.GetEntityName(sorted[i], world), query.GetEntityName(sorted[j], world)
+		if ni != nj {
+			return ni < nj
+		}
+		return sorted[i].ID() < sorted[j].ID()
+	})
+	names := make([]string, len(sorted))
+	for i, e := range sorted {
+		names[i] = query.GetEntityName(e, world)
 	}
-	sort.Strings(names)
 	return names
 }
 
@@ -81,9 +88,7 @@ func (st *PlaceState) GoldenText(world w.World) string {
 func (st *ShootingState) GoldenText(world w.World) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "shooting target %d/%d\n", st.targetIndex, len(st.enemies))
-	for _, e := range st.enemies {
-		fmt.Fprintf(&b, "  %s\n", query.GetEntityName(e, world))
-	}
+	writeNameLines(&b, sortedNames(world, st.enemies))
 	return b.String()
 }
 
@@ -153,7 +158,12 @@ func (st *StorageMenuState) GoldenText(world w.World) string {
 func (st *SquadMenuState) GoldenText(world w.World) string {
 	p := st.fetchProps(world)
 	members := append([]squadMemberData(nil), p.Members...)
-	sort.Slice(members, func(i, j int) bool { return members[i].Name < members[j].Name })
+	sort.Slice(members, func(i, j int) bool {
+		if members[i].Name != members[j].Name {
+			return members[i].Name < members[j].Name
+		}
+		return members[i].Entity.ID() < members[j].Entity.ID()
+	})
 	var b strings.Builder
 	fmt.Fprintf(&b, "squad commands %s\n", strings.Join(p.BatchCommands, "/"))
 	for _, m := range members {
@@ -167,7 +177,12 @@ func (st *SquadMenuState) GoldenText(world w.World) string {
 func (st *FormationMenuState) GoldenText(world w.World) string {
 	p := st.fetchProps(world)
 	members := append([]formationMemberData(nil), p.Members...)
-	sort.Slice(members, func(i, j int) bool { return members[i].Name < members[j].Name })
+	sort.Slice(members, func(i, j int) bool {
+		if members[i].Name != members[j].Name {
+			return members[i].Name < members[j].Name
+		}
+		return members[i].Entity.ID() < members[j].Entity.ID()
+	})
 	var b strings.Builder
 	b.WriteString("formation\n")
 	for _, m := range members {
@@ -274,7 +289,12 @@ func (st *ShopMenuState) GoldenText(world w.World) string {
 	fmt.Fprintf(&b, "shop currency %d\n", p.Currency)
 	for _, tab := range p.Tabs {
 		items := append([]shopItemData(nil), tab.Items...)
-		sort.Slice(items, func(i, j int) bool { return items[i].Label < items[j].Label })
+		sort.Slice(items, func(i, j int) bool {
+			if items[i].Label != items[j].Label {
+				return items[i].Label < items[j].Label
+			}
+			return items[i].Entity.ID() < items[j].Entity.ID()
+		})
 		fmt.Fprintf(&b, "[%s]\n", tab.Label)
 		for _, it := range items {
 			fmt.Fprintf(&b, "  %s %d\n", it.Label, it.Price)

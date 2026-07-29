@@ -116,12 +116,9 @@ func assertPNGGolden(t *testing.T, pngData []byte) {
 	if isGoldieUpdate() {
 		g := newGoldie(t)
 		goldenPath := g.GoldenFileName(t, t.Name())
-		if existingData, err := os.ReadFile(goldenPath); err == nil {
-			equalFn := pngPixelEqualFn(toleranceRatio)
-			if equalFn(pngData, existingData) {
-				t.Logf("トレランス内のため更新をスキップ: %s", goldenPath)
-				return
-			}
+		if pngWithinTolerance(pngData, goldenPath) {
+			t.Logf("トレランス内のため更新をスキップ: %s", goldenPath)
+			return
 		}
 		require.NoError(t, g.Update(t, t.Name(), pngData))
 		t.Logf("ゴールデン画像を更新: %s", goldenPath)
@@ -166,15 +163,25 @@ func newGoldie(t *testing.T, opts ...goldie.Option) *goldie.Goldie {
 func writeImageArtifact(t *testing.T, pngData []byte) {
 	t.Helper()
 	g := newGoldie(t)
-	path := g.GoldenFileName(t, t.Name())
-	if existing, err := os.ReadFile(path); err == nil {
-		if cfg, err := png.DecodeConfig(bytes.NewReader(pngData)); err == nil {
-			if pngPixelEqualFn(toleranceForSize(cfg.Width, cfg.Height))(pngData, existing) {
-				return
-			}
-		}
+	if pngWithinTolerance(pngData, g.GoldenFileName(t, t.Name())) {
+		return
 	}
 	require.NoError(t, g.Update(t, t.Name(), pngData))
+}
+
+// pngWithinTolerance は path の既存画像が pngData とトレランス内で一致するかを返す。既存が無い/読めない/
+// サイズ差は false。GOLDIE_UPDATE 時に見た目が実質同じ画像を書き換えない判定を assert とアーティファクト
+// 保存で共有する。
+func pngWithinTolerance(pngData []byte, path string) bool {
+	existing, err := os.ReadFile(path)
+	if err != nil {
+		return false
+	}
+	cfg, err := png.DecodeConfig(bytes.NewReader(pngData))
+	if err != nil {
+		return false
+	}
+	return pngPixelEqualFn(toleranceForSize(cfg.Width, cfg.Height))(pngData, existing)
 }
 
 // channelTolerance16 は1チャンネルあたり許容する差分。RGBA() が返す16bit値(0..65535)で表す。

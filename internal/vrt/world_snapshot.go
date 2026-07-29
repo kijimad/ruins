@@ -43,7 +43,7 @@ func SnapshotWorld(world w.World) WorldSnapshot {
 	for tq.Next() {
 		e := tq.Entity()
 		g := world.Components.GridElement.Get(e)
-		tileName[gc.GridElement{Coord: g.Coord}] = nameOf(world, e, "?")
+		tileName[gc.GridElement{Coord: g.Coord}] = query.GetEntityName(e, world)
 	}
 
 	// グリッドを y→x で走査する。タイルの無いセルは "-"
@@ -75,7 +75,7 @@ func SnapshotWorld(world w.World) WorldSnapshot {
 		}
 		g := world.Components.GridElement.Get(e)
 		rows = append(rows, sortableEntity{
-			snap: EntitySnapshot{Pos: g.Coord, Kind: entityKind(world, e), Name: nameOf(world, e, "")},
+			snap: EntitySnapshot{Pos: g.Coord, Kind: entityKind(world, e), Name: query.GetEntityName(e, world)},
 			ent:  e,
 		})
 	}
@@ -112,14 +112,6 @@ func (s WorldSnapshot) String() string {
 		fmt.Fprintf(&b, "%s %s %s\n", e.Pos, e.Kind, e.Name)
 	}
 	return b.String()
-}
-
-// nameOf はエンティティの表示名を返す。Name を持たなければ fallback を返す。
-func nameOf(world w.World, e ecs.Entity, fallback string) string {
-	if world.Components.Name.Has(e) {
-		return world.Components.Name.Get(e).Name
-	}
-	return fallback
 }
 
 // entityKind はエンティティの種別を代表的なタグから決める。タグを持たなければ "entity"。

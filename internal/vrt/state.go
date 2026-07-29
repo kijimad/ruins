@@ -32,8 +32,9 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 // States アダプタを使う。
 //
 // world/ECS を描くステートは WorldSnapshot を、メニュー等は GoldenText の返り値をゴールデンにする。
-// どちらも持たない純UIメニューはテキスト assert をしない。画像は目視用で、GOLDIE_UPDATE 時のみ生成して
-// 保存し、通常実行ではピクセル比較も描画もしない。フレークの源である xvfb 描画を通常経路から外すため。
+// どちらも持たない純UIメニューはテキスト assert をしない。フレークの源だったピクセル一致比較は廃止する。
+// 一方で Draw は毎回実行して、描画のパニックやエラーを検出する smoke check は保つ。ピクセルは比較しないので
+// 描画の非決定性はフレークにならない。画像は目視用に GOLDIE_UPDATE 時のみ保存する。
 func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
 	world := InitVRTWorld(t)
@@ -47,8 +48,11 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 		goldie.New(t, goldie.WithNameSuffix(".txt")).Assert(t, t.Name(), []byte(text))
 	}
 
+	// Draw を毎回実行し、パニックやエラーが起きれば drawStates 内の require で落とす。純UIメニューは
+	// テキスト assert を持たないが、この smoke check で描画の破綻だけは検出する。画像の保存は更新時のみ。
+	img := drawStates(t, world, sm)
 	if isGoldieUpdate() {
-		writeImageArtifact(t, encodePNG(t, drawStates(t, world, sm)))
+		writeImageArtifact(t, encodePNG(t, img))
 	}
 }
 
