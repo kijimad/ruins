@@ -33,9 +33,8 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 	startX := data.ScreenDimensions.Width - theme.Space4 - nameWidth - barWidth
 	startY := theme.Space4 + 160 // ミニマップの下
 
-	for i, member := range data.Members {
-		y := startY + i*(lineHeight+padding)
-
+	y := startY
+	for _, member := range data.Members {
 		// 名前
 		nameOp := &text.DrawOptions{}
 		nameOp.GeoM.Translate(float64(startX), float64(y))
@@ -61,5 +60,16 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 			barColor = color.RGBA{200, 200, 50, 255}
 		}
 		vector.FillRect(screen, barX, barY, float32(barWidth)*hpRatio, float32(barHeight), barColor, false)
+
+		// 空腹表示。空腹以上のときだけHPバーの下に出す。出した分だけ行を高くして次の隊員と重ならないようにする
+		rowHeight := lineHeight + padding
+		if member.HungerLevel != "" {
+			hungerOp := &text.DrawOptions{}
+			hungerOp.GeoM.Translate(float64(startX+nameWidth), float64(y+barHeight+2))
+			hungerOp.ColorScale.ScaleWithColor(color.RGBA{230, 160, 60, 255})
+			text.Draw(screen, member.HungerLevel, s.face, hungerOp)
+			rowHeight = barHeight + 2 + lineHeight + padding
+		}
+		y += rowHeight
 	}
 }

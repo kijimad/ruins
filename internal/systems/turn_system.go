@@ -108,6 +108,9 @@ func processTurnEnd(world w.World) error {
 		return err
 	}
 
+	// 空腹を1ターンにつき1回進める。行動種別に依らず全員が等しく空腹になる
+	progressTurnHunger(world)
+
 	return runTurnEndSystems(world)
 }
 

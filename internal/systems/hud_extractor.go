@@ -419,10 +419,17 @@ func extractSquadHUDData(world w.World) hud.SquadHUDData {
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member)
+		hungerLevel := ""
+		if world.Components.Hunger.Has(member) {
+			if level := world.Components.Hunger.Get(member).GetLevel(); level >= gc.HungerHungry {
+				hungerLevel = level.String()
+			}
+		}
 		members = append(members, hud.SquadHUDMember{
-			Name:      name,
-			CurrentHP: hp.Current,
-			MaxHP:     hp.Max,
+			Name:        name,
+			CurrentHP:   hp.Current,
+			MaxHP:       hp.Max,
+			HungerLevel: hungerLevel,
 		})
 	}
 

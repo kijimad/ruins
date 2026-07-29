@@ -62,6 +62,7 @@ type SquadAI struct {
 	ViewDistance  consts.Tile
 	ItemPickup    ItemPickupPolicy
 	ItemHandling  ItemHandlingPolicy
+	Supply        SupplyPolicy
 }
 
 // Type はPlannerSquadを返す
@@ -90,5 +91,6 @@ func DefaultSquadAI() SquadAI {
 		ViewDistance:  consts.AIVisionDistance,
 		ItemPickup:    PolicyPickup,
 		ItemHandling:  PolicyDistribute,
+		Supply:        SupplyAuto,
 	}
 }

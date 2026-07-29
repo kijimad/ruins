@@ -61,8 +61,8 @@ $ make help
 |---|---|
 | in-progress | 2 |
 | accepted | 2 |
-| draft | 4 |
-| done | 63 |
+| draft | 3 |
+| done | 64 |
 
 ### 進行中
 

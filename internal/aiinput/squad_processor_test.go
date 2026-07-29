@@ -136,14 +136,14 @@ func TestPlanItemPickupAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b, ok := sp.planItemPickupAction(world, member, ctx)
+		b, ok := sp.planItemPickupAction(world, member, snap)
 		assert.True(t, ok, "拾得アクションが返る")
 		assert.NotNil(t, b)
 	})
@@ -164,14 +164,14 @@ func TestPlanItemPickupAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyIgnore, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		_, ok := sp.planItemPickupAction(world, member, ctx)
+		_, ok := sp.planItemPickupAction(world, member, snap)
 		assert.False(t, ok, "PolicyIgnoreでは拾得しない")
 	})
 
@@ -188,14 +188,14 @@ func TestPlanItemPickupAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		_, ok := sp.planItemPickupAction(world, member, ctx)
+		_, ok := sp.planItemPickupAction(world, member, snap)
 		assert.False(t, ok, "アイテムがなければ何もしない")
 	})
 
@@ -215,14 +215,14 @@ func TestPlanItemPickupAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		_, ok := sp.planItemPickupAction(world, member, ctx)
+		_, ok := sp.planItemPickupAction(world, member, snap)
 		assert.False(t, ok, "視界外のアイテムには反応しない")
 	})
 }
@@ -249,14 +249,14 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
 
-		b, ok := sp.planItemHandlingAction(world, member, ctx)
+		b, ok := sp.planItemHandlingAction(world, member, snap)
 		assert.True(t, ok, "転送アクションが返る")
 		assert.NotNil(t, b)
 		transfer, ok := b.(*activity.TransferActivity)
@@ -283,14 +283,14 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyKeep, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
 
-		_, ok := sp.planItemHandlingAction(world, member, ctx)
+		_, ok := sp.planItemHandlingAction(world, member, snap)
 		assert.False(t, ok, "PolicyKeepでは転送しない")
 	})
 
@@ -316,14 +316,14 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
 
-		_, ok := sp.planItemHandlingAction(world, member, ctx)
+		_, ok := sp.planItemHandlingAction(world, member, snap)
 		assert.False(t, ok, "離れているときは転送しない")
 	})
 
@@ -341,14 +341,14 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
 
-		_, ok := sp.planItemHandlingAction(world, member, ctx)
+		_, ok := sp.planItemHandlingAction(world, member, snap)
 		assert.False(t, ok, "バックパックが空なら転送しない")
 	})
 }

@@ -127,9 +127,6 @@ func (sa *ShootActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		return err
 	}
 
-	// 空腹進行
-	progressHunger(actor, world)
-
 	Complete(comp)
 	return nil
 }

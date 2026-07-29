@@ -100,9 +100,6 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	effortPerTurn := ra.calcEffortPerTurn(actor, fire, world)
 	ra.effortAccum += effortPerTurn
 
-	// 空腹進行
-	progressHunger(actor, world)
-
 	comp.TurnsLeft--
 
 	// 工数が目標に達したら装填完了

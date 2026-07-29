@@ -127,9 +127,6 @@ func (ra *ReadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// 工数を進める。対応する能力値が高いほど速く読める
 	book.Effort.Current += ra.calcEffortPerTurn(book, abilityValue)
 
-	// 空腹進行
-	progressHunger(actor, world)
-
 	// 効果の適用（毎ターン）
 	ra.applyPerTurnEffect(book, actor, world, abilityValue)
 

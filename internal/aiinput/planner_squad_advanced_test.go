@@ -47,7 +47,7 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx, ok := sp.gatherSquadContext(world, entity)
+		ctx, ok := sp.gatherSquadSnapshot(world, entity)
 		assert.False(t, ok)
 		assert.Nil(t, ctx)
 	})
@@ -61,7 +61,7 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		world.Components.SquadAI.Add(entity, &gc.SquadAI{})
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx, ok := sp.gatherSquadContext(world, entity)
+		ctx, ok := sp.gatherSquadSnapshot(world, entity)
 		assert.False(t, ok)
 		assert.Nil(t, ctx)
 	})
@@ -75,7 +75,7 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx, ok := sp.gatherSquadContext(world, member)
+		ctx, ok := sp.gatherSquadSnapshot(world, member)
 		require.True(t, ok)
 		require.NotNil(t, ctx)
 		assert.Equal(t, leader, ctx.LeaderEntity)
@@ -98,7 +98,7 @@ func TestSquadPlanner_PlanRetreatAction(t *testing.T) {
 	query.InvalidateSpatialIndex(world)
 
 	sp := newSquadPlanner(newTestRNG())
-	ctx := &squadContext{
+	ctx := &squadSnapshot{
 		Grid:         memberGrid,
 		Squad:        &gc.SquadAI{},
 		LeaderEntity: leader,
@@ -138,7 +138,7 @@ func TestSquadPlanner_PlanReturnToExploredArea(t *testing.T) {
 	query.InvalidateSpatialIndex(world)
 
 	sp := newSquadPlanner(newTestRNG())
-	ctx := &squadContext{
+	ctx := &squadSnapshot{
 		Grid:         memberGrid,
 		Squad:        &gc.SquadAI{},
 		LeaderEntity: leader,
@@ -172,7 +172,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		hp.Current = hp.Max * 10 / 100
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatAttack, ViewDistance: 10},
 			LeaderEntity: leader,
@@ -203,7 +203,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		hp.Current = hp.Max * 10 / 100
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatIgnore, Movement: gc.SquadStationary, ViewDistance: 10},
 			LeaderEntity: leader,
@@ -232,7 +232,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatAttack, ViewDistance: 10},
 			LeaderEntity: leader,
@@ -262,7 +262,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		memberGrid.Y = leaderGrid.Y
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatIgnore, Movement: gc.SquadEscort, ItemPickup: gc.PolicyIgnore, ItemHandling: gc.PolicyKeep, ViewDistance: 10},
 			LeaderEntity: leader,
@@ -294,7 +294,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatAttack, ViewDistance: 10},
 			LeaderEntity: leader,
@@ -324,7 +324,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatEvade, ViewDistance: 10},
 			LeaderEntity: leader,
@@ -345,7 +345,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         world.Components.GridElement.Get(member),
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatIgnore, ViewDistance: 10},
 			LeaderEntity: leader,
@@ -369,7 +369,7 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         world.Components.GridElement.Get(member),
 			Squad:        &gc.SquadAI{ViewDistance: 5},
 			LeaderEntity: leader,
@@ -396,7 +396,7 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ViewDistance: 10},
 			LeaderEntity: leader,
@@ -421,7 +421,7 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         world.Components.GridElement.Get(member),
 			Squad:        &gc.SquadAI{ViewDistance: 5},
 			LeaderEntity: leader,
@@ -450,7 +450,7 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 		initialX := int(memberGrid.X)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{
+		ctx := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ViewDistance: 10},
 			LeaderEntity: leader,
@@ -495,7 +495,7 @@ func TestSquadPlanner_PlanPositionAction(t *testing.T) {
 			memberGrid.Y = leaderGrid.Y
 
 			sp := newSquadPlanner(newTestRNG())
-			ctx := &squadContext{
+			ctx := &squadSnapshot{
 				Grid:         memberGrid,
 				Squad:        &gc.SquadAI{Movement: tt.movement},
 				LeaderEntity: leader,
@@ -525,7 +525,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		memberGrid.Y = leaderGrid.Y
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, LeaderGrid: leaderGrid}
+		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: leaderGrid}
 
 		b := sp.planEscortAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorWait, b.Name())
@@ -545,7 +545,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
+		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planEscortAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
@@ -565,7 +565,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		surroundWithWalls(world, memberGrid.Coord)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
+		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planEscortAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorWait, b.Name(), "壁に囲まれて移動できないときは待機する")
@@ -589,7 +589,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
+		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planVanguardAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
@@ -607,7 +607,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 
 		memberGrid := world.Components.GridElement.Get(member)
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
+		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planVanguardAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
@@ -624,7 +624,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 		// 探索済みタイルを一切設定しないので tryRandomMove は必ず失敗する
 		memberGrid := world.Components.GridElement.Get(member)
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
+		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planVanguardAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorWait, b.Name())
@@ -645,7 +645,7 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 		exploreAllTiles(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
+		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
 
 		b := sp.planSquadPatrolAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
@@ -660,7 +660,7 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
+		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
 
 		b := sp.planSquadPatrolAction(world, member, ctx)
 		assert.Equal(t, gc.BehaviorWait, b.Name())
@@ -689,7 +689,7 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 20}}
+		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 20}}
 
 		gotEntity, gotGrid, dist := sp.findNearestEnemy(world, member, ctx)
 		require.NotNil(t, gotEntity)
@@ -715,7 +715,7 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 5}}
+		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 5}}
 
 		gotEntity, _, _ := sp.findNearestEnemy(world, member, ctx)
 		assert.Nil(t, gotEntity)
@@ -817,7 +817,7 @@ func TestSquadPlanner_TryRandomMove(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: world.Components.GridElement.Get(member)}
+		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member)}
 		_, ok := sp.tryRandomMove(world, member, ctx)
 		assert.False(t, ok)
 	})
@@ -833,7 +833,7 @@ func TestSquadPlanner_TryRandomMove(t *testing.T) {
 		exploreAllTiles(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadContext{Grid: world.Components.GridElement.Get(member)}
+		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member)}
 		_, ok := sp.tryRandomMove(world, member, ctx)
 		assert.True(t, ok)
 	})

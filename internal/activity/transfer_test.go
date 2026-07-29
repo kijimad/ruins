@@ -6,10 +6,29 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// findBackpackItem は owner の背嚢から name のアイテムを1つ返す。見つからなければ nil
+func findBackpackItem(world w.World, owner ecs.Entity, name string) *ecs.Entity {
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		item := q.Entity()
+		if world.Components.LocationInBackpack.Get(item).Owner != owner {
+			continue
+		}
+		if nameComp := world.Components.Name.Get(item); nameComp != nil && nameComp.Name == name {
+			q.Close()
+			return &item
+		}
+	}
+	return nil
+}
 
 func TestTransferActivity_Validate(t *testing.T) {
 	t.Parallel()
@@ -110,12 +129,88 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    1,
 		}
 
-		ta := &TransferActivity{}
+		ta := &TransferActivity{Target: item, Recipient: leader, Count: 1}
 		err = ta.DoTurn(comp, member, world)
 		require.NoError(t, err)
 
 		loc = world.Components.LocationInBackpack.Get(item)
 		assert.Equal(t, leader, loc.Owner)
+	})
+
+	t.Run("Count1は1個だけ渡し主体を所有者にする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		require.NoError(t, err)
+		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
+		require.NoError(t, err)
+
+		// リーダーの共有プールにパンを3個持たせる
+		pool, err := lifecycle.SpawnFieldItem(world, "パン", 5, 5, 3)
+		require.NoError(t, err)
+		require.NoError(t, lifecycle.MoveToBackpack(world, pool, leader))
+		require.Equal(t, 3, world.Components.Stackable.Get(pool).Count)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorTransfer,
+			State:        gc.ActivityStateRunning,
+			Target:       &pool,
+			Recipient:    &member,
+			TurnsTotal:   1,
+			TurnsLeft:    1,
+		}
+		// アクターは受け取る隊員。丸ごとでなく1個だけ引く
+		ta := &TransferActivity{Target: pool, Recipient: member, Count: 1}
+		require.NoError(t, ta.DoTurn(comp, member, world))
+
+		// 元スタックは1減り、隊員は1個だけ受け取る
+		assert.Equal(t, 2, world.Components.Stackable.Get(pool).Count, "プールは1個ずつ減る")
+		memberBread := findBackpackItem(world, member, "パン")
+		require.NotNil(t, memberBread, "隊員がパンを受け取る")
+		assert.Equal(t, 1, world.Components.Stackable.Get(*memberBread).Count, "受け取りは1個")
+
+		// 主体はアクターの隊員でなく食料の所有者リーダー。自己転送の誤ログにならないこと
+		recent := query.GetGameLog(world).GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "Ash", "渡す主体はリーダー")
+		assert.Contains(t, recent[0], "隊員A に渡した", "受取人は隊員")
+	})
+
+	t.Run("Countは指定個数だけ分割して渡す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		require.NoError(t, err)
+		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
+		require.NoError(t, err)
+
+		// リーダーの共有プールにパンを5個持たせ、うち2個だけ渡す
+		pool, err := lifecycle.SpawnFieldItem(world, "パン", 5, 5, 5)
+		require.NoError(t, err)
+		require.NoError(t, lifecycle.MoveToBackpack(world, pool, leader))
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorTransfer,
+			State:        gc.ActivityStateRunning,
+			Target:       &pool,
+			Recipient:    &member,
+			TurnsTotal:   1,
+			TurnsLeft:    1,
+		}
+		ta := &TransferActivity{Target: pool, Recipient: member, Count: 2}
+		require.NoError(t, ta.DoTurn(comp, member, world))
+
+		assert.Equal(t, 3, world.Components.Stackable.Get(pool).Count, "プールは指定個数ぶん減る")
+		memberBread := findBackpackItem(world, member, "パン")
+		require.NotNil(t, memberBread, "隊員がパンを受け取る")
+		assert.Equal(t, 2, world.Components.Stackable.Get(*memberBread).Count, "受け取りは2個")
+
+		// ログは在庫全体でなく渡した個数で表示する
+		recent := query.GetGameLog(world).GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "パン(2個)", "ログは渡した個数を表示する")
 	})
 }
 

@@ -33,6 +33,26 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	return nil
 }
 
+// TransferUnits は item のうち count 個だけ recipient のバックパックへ移す。
+// count が0以下、または在庫数以上なら item を丸ごと移す。在庫数より少なければ、
+// 元スタックを count 個減らし、同名の count 個を生成して recipient のバックパックへ統合する。
+func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error {
+	available := query.GetEntityCount(world, item)
+	if count <= 0 || count >= available {
+		return MoveToBackpack(world, item, recipient)
+	}
+
+	name := world.Components.Name.Get(item).Name
+	if err := ChangeItemCount(world, item, -count); err != nil {
+		return fmt.Errorf("転送元スタックの減算に失敗: %w", err)
+	}
+	moved, err := spawnItemBase(world, name, count)
+	if err != nil {
+		return fmt.Errorf("転送する%d個の生成に失敗: %w", count, err)
+	}
+	return MoveToBackpack(world, moved, recipient)
+}
+
 // MoveToEquip はエンティティを指定スロットに装備する
 func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.EquipmentSlotNumber) {
 	clearLocation(world, entity)

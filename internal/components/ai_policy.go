@@ -191,3 +191,30 @@ func (p ItemHandlingPolicy) String() string {
 func AllItemHandlingPolicies() []ItemHandlingPolicy {
 	return []ItemHandlingPolicy{PolicyKeep, PolicyDistribute}
 }
+
+// SupplyPolicy は隊員の補給方針を表す
+type SupplyPolicy string
+
+const (
+	// SupplyAuto は空腹になったら共有プールから自動で受け取り食べる
+	SupplyAuto SupplyPolicy = "auto"
+	// SupplyManual は自動補給しない。プレイヤーが持たせた分だけ食べる
+	SupplyManual SupplyPolicy = "manual"
+)
+
+// String は日本語表示名を返す
+func (p SupplyPolicy) String() string {
+	switch p {
+	case SupplyAuto:
+		return "自動"
+	case SupplyManual:
+		return "手動"
+	default:
+		return string(p)
+	}
+}
+
+// AllSupplyPolicies は全補給ポリシーを返す
+func AllSupplyPolicies() []SupplyPolicy {
+	return []SupplyPolicy{SupplyAuto, SupplyManual}
+}

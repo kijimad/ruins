@@ -162,6 +162,7 @@ type squadMemberData struct {
 	Combat       string
 	ItemPickup   string
 	ItemHandling string
+	Supply       string
 }
 
 type squadWindowProps struct {
@@ -179,25 +180,34 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 	}
 
 	for _, member := range query.SquadMembers(world) {
-		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member)
-		squad := query.GetSquadAI(world, member)
-		if squad == nil {
+		data, ok := buildSquadMemberData(world, member)
+		if !ok {
 			continue
 		}
-
-		members = append(members, squadMemberData{
-			Entity:       member,
-			Name:         name,
-			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     squad.Movement.String(),
-			Combat:       squad.CombatCurrent.String(),
-			ItemPickup:   squad.ItemPickup.String(),
-			ItemHandling: squad.ItemHandling.String(),
-		})
+		members = append(members, data)
 	}
 
 	return squadProps{BatchCommands: batchCommands, Members: members}
+}
+
+// buildSquadMemberData は隊員の表示データを組み立てる。
+// 一覧表示とポリシー変更後の再表示で同じ構築を共有し、項目の入れ忘れを防ぐ
+func buildSquadMemberData(world w.World, member ecs.Entity) (squadMemberData, bool) {
+	squad := query.GetSquadAI(world, member)
+	if squad == nil {
+		return squadMemberData{}, false
+	}
+	hp := world.Components.HP.Get(member)
+	return squadMemberData{
+		Entity:       member,
+		Name:         query.GetEntityName(member, world),
+		HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
+		Position:     squad.Movement.String(),
+		Combat:       squad.CombatCurrent.String(),
+		ItemPickup:   squad.ItemPickup.String(),
+		ItemHandling: squad.ItemHandling.String(),
+		Supply:       squad.Supply.String(),
+	}, true
 }
 
 // ================
@@ -235,6 +245,7 @@ func (st *SquadMenuState) getActionItems() []string {
 		fmt.Sprintf("戦闘: %s", windowProps.Member.Combat),
 		fmt.Sprintf("回収: %s", windowProps.Member.ItemPickup),
 		fmt.Sprintf("処理: %s", windowProps.Member.ItemHandling),
+		fmt.Sprintf("補給: %s", windowProps.Member.Supply),
 		"解雇",
 		TextClose,
 	}
@@ -365,6 +376,18 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 			squad.ItemHandling = all[0]
 		})
 
+	case strings.HasPrefix(selectedAction, "補給"):
+		all := gc.AllSupplyPolicies()
+		return cycleAndRefresh(func() {
+			for i, v := range all {
+				if v == squad.Supply {
+					squad.Supply = all[(i+1)%len(all)]
+					return
+				}
+			}
+			squad.Supply = all[0]
+		})
+
 	case selectedAction == "解雇":
 		if err := lifecycle.DismissSquadMember(world, member); err != nil {
 			return err
@@ -379,24 +402,11 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 }
 
 func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
-	name := query.GetEntityName(member, world)
-	hp := world.Components.HP.Get(member)
-	squad := query.GetSquadAI(world, member)
-	if squad == nil {
+	data, ok := buildSquadMemberData(world, member)
+	if !ok {
 		return
 	}
-
-	st.windowMount.SetProps(squadWindowProps{
-		Member: squadMemberData{
-			Entity:       member,
-			Name:         name,
-			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     squad.Movement.String(),
-			Combat:       squad.CombatCurrent.String(),
-			ItemPickup:   squad.ItemPickup.String(),
-			ItemHandling: squad.ItemHandling.String(),
-		},
-	})
+	st.windowMount.SetProps(squadWindowProps{Member: data})
 }
 
 // ================
