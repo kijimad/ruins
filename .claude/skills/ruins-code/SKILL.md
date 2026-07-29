@@ -53,7 +53,7 @@ Go のベテランとして、シンプルさとテストしやすさを最優�
 - **画像** → 生成して目視用に保存するだけ。`vrt.RenderStatePNG` と `TestMapGenImages` の「比較なし」を踏襲する。
 - **ピクセル・トレランス比較は原則新規禁止。** 見た目そのものが不変条件の UI 部品だけ例外。
 
-ark の `FilterN.Query()` 反復順は決定的でない。golden 化では `query.SortEntities`(Name 順) か `entity.ID()` で必ずソートしてから並べる。
+ark の `FilterN.Query()` 反復順は決定的でない。golden 化では必ずソートしてから並べる。WorldSnapshot は座標優先の `(Y, X, Name, ID)`、メニュー系の項目列は `(Name, ID)` の2段。ID は同名タイの並びを固定するためのソートキーに留め、出力には含めない。
 
 ## 検証
 

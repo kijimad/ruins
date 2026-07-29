@@ -32,9 +32,9 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 // States アダプタを使う。
 //
 // world/ECS を描くステートは WorldSnapshot を、メニュー等は GoldenText の返り値をゴールデンにする。
-// どちらも持たない純UIメニューはテキスト assert をしない。フレークの源だったピクセル一致比較は廃止する。
-// 一方で Draw は毎回実行して、描画のパニックやエラーを検出する smoke check は保つ。ピクセルは比較しないので
-// 描画の非決定性はフレークにならない。画像は目視用に GOLDIE_UPDATE 時のみ保存する。
+// どちらも持たない純UIメニューはテキスト assert をしない。画像はピクセル比較せず、Draw を毎回実行して
+// 描画のパニックやエラーだけを smoke check として検出する。ピクセルを比較しないので描画の非決定性は
+// フレークにならない。画像は目視用に GOLDIE_UPDATE 時のみ保存する。
 func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
 	world := InitVRTWorld(t)

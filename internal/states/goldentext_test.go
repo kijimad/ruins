@@ -1,6 +1,8 @@
 package states
 
 // 各 State の GoldenText を1箇所へ集める。VRT のゴールデンは画像でなく、この決定的なテキストで退行を捉える。
+// _test.go に置くのは、これらのメソッドがテスト専用で、vrt が構造的型アサーションによりテストバイナリ内から
+// 呼ぶだけだからだ。本体バイナリにはリンクされず、プロダクション API を増やさない。
 // vrt.snapshotStates が構造的型アサーションで GoldenText を拾うので、ここは states パッケージのメソッドとして
 // 各 State のビューモデルを決定的な文字列にするだけでよい。時刻や乱数に依存する値は避け、未ソートの列は
 // 名前で並べ替えて決定化する。
@@ -44,6 +46,7 @@ func writeNameLines(b *strings.Builder, names []string) {
 
 // GoldenText はカーソルとカーソル上のエンティティを返す。ダンジョンのグリッド自体は Dungeon の
 // ゴールデンが担保するので、ここではオーバーレイ固有のカーソルと対象だけを出す。
+// 実UIはカーソル下のタイルも名前表示するため、ここでもタイルを除外せず表示内容と揃える。
 func (st *LookAroundState) GoldenText(world w.World) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "look-around cursor %s\n", st.cursor)
@@ -83,8 +86,9 @@ func (st *PlaceState) GoldenText(world w.World) string {
 	return b.String()
 }
 
-// GoldenText は選択中の対象インデックスと、視界内の射撃対象の敵を返す。敵は距離順で決定的なのでその順で
-// 出す。命中率は乱数を含みうるので出さない。
+// GoldenText は選択中の対象インデックスと、視界内の射撃対象の敵を返す。表示上の並びは距離順だが、
+// 同距離の並びは反復順に依存して揺れるため、ゴールデンでは名前と ID で並べ直して決定化する。
+// 命中率は乱数を含みうるので出さない。
 func (st *ShootingState) GoldenText(world w.World) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "shooting target %d/%d\n", st.targetIndex, len(st.enemies))
