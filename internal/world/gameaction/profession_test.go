@@ -15,9 +15,6 @@ import (
 
 // newTestProfession はテスト用の職業定義を作る
 func newTestProfession() oapi.Profession {
-	skills := []oapi.ProfessionSkill{
-		{Id: string(gc.SkillSword), Value: 5},
-	}
 	return oapi.Profession{
 		Id:   "test-profession",
 		Name: "テスト職業",
@@ -29,7 +26,9 @@ func newTestProfession() oapi.Profession {
 			Vitality:  14,
 			Defense:   15,
 		},
-		Skills: &skills,
+		Skills: &[]oapi.ProfessionSkill{
+			{Id: string(gc.SkillSword), Value: 5},
+		},
 		Items: []oapi.ProfessionItem{
 			{Name: "木の棒", Count: 3},
 		},

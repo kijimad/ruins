@@ -11,10 +11,9 @@ import (
 
 // テスト用のoapi.Rawsを作成する。アイテムグループとアイテムテーブルを含む
 func newTestRawsForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) oapi.Raws {
-	tables := []oapi.ItemTable{table}
 	return oapi.Raws{
 		ItemGroups: &groups,
-		ItemTables: &tables,
+		ItemTables: &[]oapi.ItemTable{table},
 	}
 }
 

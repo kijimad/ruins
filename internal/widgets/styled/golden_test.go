@@ -64,11 +64,10 @@ func TestGolden_TableRow_Selected(t *testing.T) {
 	vrt.AssertGolden(t, func() *widget.Container {
 		widths := []int{100, 200, 80}
 		container := styled.NewTableContainer(widths, res)
-		selected := true
 		styled.NewTableRow(container, widths,
 			[]string{"回復薬", "HPを回復する", "3"},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			&selected, res)
+			new(true), res)
 		return container
 	}, 400, 30)
 }
@@ -79,11 +78,10 @@ func TestGolden_TableRow_Unselected(t *testing.T) {
 	vrt.AssertGolden(t, func() *widget.Container {
 		widths := []int{100, 200, 80}
 		container := styled.NewTableContainer(widths, res)
-		unselected := false
 		styled.NewTableRow(container, widths,
 			[]string{"鉄鉱石", "合成素材", "12"},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			&unselected, res)
+			new(false), res)
 		return container
 	}, 400, 30)
 }
@@ -200,11 +198,10 @@ func TestGolden_TableRow_SingleColumn(t *testing.T) {
 	vrt.AssertGolden(t, func() *widget.Container {
 		widths := []int{300}
 		container := styled.NewTableContainer(widths, res)
-		selected := true
 		styled.NewTableRow(container, widths,
 			[]string{"単一カラムの行"},
 			[]styled.TextAlign{styled.AlignLeft},
-			&selected, res)
+			new(true), res)
 		return container
 	}, 320, 30)
 }
@@ -215,11 +212,10 @@ func TestGolden_TableRow_ManyColumns(t *testing.T) {
 	vrt.AssertGolden(t, func() *widget.Container {
 		widths := []int{80, 80, 60, 60, 60}
 		container := styled.NewTableContainer(widths, res)
-		selected := true
 		styled.NewTableRow(container, widths,
 			[]string{"名前", "種別", "攻撃", "防御", "重量"},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight, styled.AlignRight},
-			&selected, res)
+			new(true), res)
 		return container
 	}, 380, 30)
 }
@@ -230,11 +226,10 @@ func TestGolden_TableRow_AllRightAligned(t *testing.T) {
 	vrt.AssertGolden(t, func() *widget.Container {
 		widths := []int{100, 100, 100}
 		container := styled.NewTableContainer(widths, res)
-		unselected := false
 		styled.NewTableRow(container, widths,
 			[]string{"100", "200", "300"},
 			[]styled.TextAlign{styled.AlignRight, styled.AlignRight, styled.AlignRight},
-			&unselected, res)
+			new(false), res)
 		return container
 	}, 320, 30)
 }

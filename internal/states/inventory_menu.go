@@ -374,8 +374,7 @@ func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabInd
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		isSelected := pg.IsSelectedInPage(entry.Index)
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, entry.Item.Count}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, entry.Item.Count}, aligns, new(pg.IsSelectedInPage(entry.Index)), res)
 	}
 	container.AddChild(table)
 

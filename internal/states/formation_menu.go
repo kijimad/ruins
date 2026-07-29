@@ -189,8 +189,7 @@ func (st *FormationMenuState) buildMemberTable(members []formationMemberData, se
 	styled.NewTableHeaderRow(table, columnWidths, []string{"", "名前", "HP"}, res)
 
 	for i, m := range members {
-		isSelected := i == selectedIndex
-		styled.NewTableRow(table, columnWidths, []string{"", m.Name, m.HP}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", m.Name, m.HP}, aligns, new(i == selectedIndex), res)
 	}
 
 	container.AddChild(table)

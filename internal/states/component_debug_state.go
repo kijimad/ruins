@@ -185,10 +185,9 @@ func (st *ComponentDebugState) buildUI(world w.World) *ebitenui.UI {
 	table := styled.NewTableContainer(columnWidths, res)
 
 	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
-		isSelected := pg.IsSelectedInPage(entry.Index)
 		styled.NewTableRow(table, columnWidths,
 			[]string{entry.Item.Name, fmt.Sprintf("%d", entry.Item.Count)},
-			aligns, &isSelected, res,
+			aligns, new(pg.IsSelectedInPage(entry.Index)), res,
 		)
 	}
 	container.AddChild(table)

@@ -462,8 +462,7 @@ func (st *SquadMenuState) buildMemberTable(members []squadMemberData, batchCount
 	styled.NewTableHeaderRow(table, columnWidths, []string{"", "名前", "HP", "位置", "戦闘"}, res)
 
 	for i, m := range members {
-		isSelected := (i + batchCount) == selectedIndex
-		styled.NewTableRow(table, columnWidths, []string{"", m.Name, m.HP, m.Position, m.Combat}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", m.Name, m.HP, m.Position, m.Combat}, aligns, new((i+batchCount) == selectedIndex), res)
 	}
 
 	container.AddChild(table)
