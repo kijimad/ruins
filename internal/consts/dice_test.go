@@ -88,10 +88,10 @@ func TestDice_MinMax_取りうる範囲を返す(t *testing.T) {
 		d        Dice
 		min, max int
 	}{
-		{Dice{Base: 1, Sides: 3}, 1, 3},       // 1d3 は 1..3
+		{Dice{Base: 1, Sides: 3}, 1, 3},           // 1d3 は 1..3
 		{Dice{Base: 1, Sides: 3, Bonus: 1}, 2, 4}, // 1d3+1 は 2..4
-		{Dice{Base: 2, Sides: 6}, 2, 12},      // 2d6 は 2..12
-		{Dice{Bonus: 5}, 5, 5},                // 定数は 5..5
+		{Dice{Base: 2, Sides: 6}, 2, 12},          // 2d6 は 2..12
+		{Dice{Bonus: 5}, 5, 5},                    // 定数は 5..5
 	}
 	for _, tt := range tests {
 		t.Run(tt.d.String(), func(t *testing.T) {
@@ -136,7 +136,9 @@ func TestDice_Roll_同じseedで同じ列を返す(t *testing.T) {
 		}
 		return out
 	}
-	assert.Equal(t, roll(), roll(), "同じ seed なら抽選列は決定的")
+	first := roll()
+	second := roll()
+	assert.Equal(t, first, second, "同じ seed なら抽選列は決定的")
 }
 
 func TestDice_Roll_一様抽選と等価になる(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -69,6 +70,9 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 			if _, ok := itemNames[y.Name]; !ok {
 				return fmt.Errorf("%s '%s' の分解産出 '%s' がアイテム定義に存在しません", ownerKind, ownerName, y.Name)
 			}
+			if _, err := consts.ParseDice(y.Count); err != nil {
+				return fmt.Errorf("%s '%s' の分解産出 '%s' の個数表記が不正です: %w", ownerKind, ownerName, y.Name, err)
+			}
 		}
 		if def.Bonus == nil {
 			return nil
@@ -76,6 +80,9 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		for _, b := range *def.Bonus {
 			if _, ok := itemNames[b.Name]; !ok {
 				return fmt.Errorf("%s '%s' の分解ボーナス '%s' がアイテム定義に存在しません", ownerKind, ownerName, b.Name)
+			}
+			if _, err := consts.ParseDice(b.Count); err != nil {
+				return fmt.Errorf("%s '%s' の分解ボーナス '%s' の個数表記が不正です: %w", ownerKind, ownerName, b.Name, err)
 			}
 		}
 		return nil

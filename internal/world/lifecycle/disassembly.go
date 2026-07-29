@@ -31,7 +31,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if !full && rng.IntN(100) >= DestroySalvageChance {
 				continue
 			}
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: rollAmount(rng, y.Amount, y.AmountMax)})
+			stacks = append(stacks, YieldStack{Name: y.Name, Count: rollCount(rng, y.Count)})
 			continue
 		}
 		if !full {
@@ -40,7 +40,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 		// グレード補正は1を基準とし、想定外の0以下が来ても確率を下げない
 		chance := min(int(*y.Chance)+skillValue+max(0, (toolGrade-1)*10), 100)
 		if rng.IntN(100) < chance {
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: rollAmount(rng, y.Amount, y.AmountMax)})
+			stacks = append(stacks, YieldStack{Name: y.Name, Count: rollCount(rng, y.Count)})
 		}
 	}
 
@@ -57,20 +57,21 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if b.MinGrade != nil && toolGrade < int(*b.MinGrade) {
 				continue
 			}
-			stacks = append(stacks, YieldStack{Name: b.Name, Count: rollAmount(rng, b.Amount, b.AmountMax)})
+			stacks = append(stacks, YieldStack{Name: b.Name, Count: rollCount(rng, b.Count)})
 		}
 	}
 
 	return stacks
 }
 
-// rollAmount は個数を決める。amountMax があれば amount..amountMax の一様抽選にする
-func rollAmount(rng *rand.Rand, amount oapi.ItemCount, amountMax *oapi.ItemCount) int {
-	minCount := int(amount)
-	if amountMax == nil || int(*amountMax) <= minCount {
-		return minCount
+// rollCount は産出個数をダイス表記から抽選する。表記は raw 検証で担保済みなので、
+// 想定外のパース失敗時は 0 個として産出しない。
+func rollCount(rng *rand.Rand, count oapi.Dice) int {
+	d, err := consts.ParseDice(count)
+	if err != nil {
+		return 0
 	}
-	return minCount + rng.IntN(int(*amountMax)-minCount+1)
+	return d.Roll(rng)
 }
 
 // SpawnDisassemblyYields は産出一覧を指定タイルへフィールドアイテムとして生成する

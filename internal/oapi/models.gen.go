@@ -750,6 +750,9 @@ type Dialog struct {
 	MessageKey MessageKey `json:"messageKey"`
 }
 
+// Dice ダイス表記の個数指定。例: "1d3+1" "2d4" "d6" "5"。consts.ParseDice でパースする
+type Dice = string
+
 // Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
 type Disassembly struct {
 	// BaseAP 分解の基礎工数。100が標準1ターンに相当する
@@ -766,11 +769,8 @@ type DisassemblyBaseAP = int32
 
 // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
-	// Amount アイテム所持数
-	Amount ItemCount `json:"amount"`
-
-	// AmountMax アイテム所持数
-	AmountMax *ItemCount `json:"amountMax,omitempty"`
+	// Count 産出個数のダイス表記。例: "1d3" "2"
+	Count Dice `json:"count"`
 
 	// MinGrade 工具グレードがこの値以上で産出に加わる
 	MinGrade *ToolGrade `json:"minGrade,omitempty"`
@@ -795,14 +795,11 @@ type DisassemblyTool struct {
 
 // DisassemblyYield 分解の産出エントリ。chance 省略は確定枠
 type DisassemblyYield struct {
-	// Amount アイテム所持数
-	Amount ItemCount `json:"amount"`
-
-	// AmountMax 省略時は amount 固定。指定時は amount..amountMax の一様抽選
-	AmountMax *ItemCount `json:"amountMax,omitempty"`
-
 	// Chance 分解産出の確率。百分率
 	Chance *DisassemblyChance `json:"chance,omitempty"`
+
+	// Count 産出個数のダイス表記。例: "1d3" "2" "1d2+1"
+	Count Dice `json:"count"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`

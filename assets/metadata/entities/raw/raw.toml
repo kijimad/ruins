@@ -12905,17 +12905,16 @@ baseAP = 2500
 
 [[props.disassembly.yields]]
 name = "硬木"
-amount = 1
-amountMax = 3
+count = "1d3"
 
 [[props.disassembly.yields]]
 name = "錆びた鎖"
-amount = 1
+count = "1"
 chance = 40
 
 [[props.disassembly.bonus]]
 name = "硬木"
-amount = 1
+count = "1"
 minSkill = 10
 
 [[props]]
@@ -13199,17 +13198,16 @@ baseAP = 2000
 
 [[props.disassembly.yields]]
 name = "硬木"
-amount = 1
-amountMax = 2
+count = "1d2"
 
 [[props.disassembly.yields]]
 name = "鉄くず"
-amount = 1
+count = "1"
 chance = 50
 
 [[props.disassembly.bonus]]
 name = "硬木"
-amount = 1
+count = "1"
 minSkill = 10
 
 [[props]]
@@ -13428,23 +13426,21 @@ baseAP = 4000
 
 [[props.disassembly.yields]]
 name = "鉄くず"
-amount = 2
-amountMax = 3
+count = "1d2+1"
 
 [[props.disassembly.yields]]
 name = "鉄"
-amount = 1
+count = "1"
 chance = 60
 
 [[props.disassembly.bonus]]
 name = "鉄"
-amount = 1
+count = "1"
 minSkill = 10
 
 [[props.disassembly.bonus]]
 name = "鉄"
-amount = 1
-amountMax = 2
+count = "1d2"
 minGrade = 2
 
 [[props]]
@@ -13673,22 +13669,21 @@ baseAP = 6000
 
 [[props.disassembly.yields]]
 name = "鉄くず"
-amount = 2
-amountMax = 4
+count = "1d3+1"
 
 [[props.disassembly.yields]]
 name = "鉄"
-amount = 1
+count = "1"
 chance = 50
 
 [[props.disassembly.bonus]]
 name = "コード束"
-amount = 1
+count = "1"
 minSkill = 10
 
 [[props.disassembly.bonus]]
 name = "鉄"
-amount = 1
+count = "1"
 minGrade = 3
 
 [[props]]
@@ -13704,17 +13699,16 @@ baseAP = 3000
 
 [[props.disassembly.yields]]
 name = "電線"
-amount = 1
-amountMax = 2
+count = "1d2"
 
 [[props.disassembly.yields]]
 name = "コード束"
-amount = 1
+count = "1"
 chance = 50
 
 [[props.disassembly.bonus]]
 name = "フェライトコア"
-amount = 1
+count = "1"
 minSkill = 10
 
 [props.spriteRender]
@@ -14104,17 +14098,16 @@ baseAP = 2000
 
 [[props.disassembly.yields]]
 name = "硬木"
-amount = 1
-amountMax = 2
+count = "1d2"
 
 [[props.disassembly.yields]]
 name = "鉄くず"
-amount = 1
+count = "1"
 chance = 50
 
 [[props.disassembly.bonus]]
 name = "硬木"
-amount = 1
+count = "1"
 minSkill = 10
 
 [[props]]
@@ -15483,16 +15476,16 @@ baseAP = 1000
 
 [[items.disassembly.yields]]
 name = "鉄くず"
-amount = 1
+count = "1"
 
 [[items.disassembly.yields]]
 name = "電線"
-amount = 1
+count = "1"
 chance = 50
 
 [[items.disassembly.bonus]]
 name = "フェライトコア"
-amount = 1
+count = "1"
 minSkill = 10
 
 [[items]]

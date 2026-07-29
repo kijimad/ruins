@@ -1648,6 +1648,10 @@ components:
         messageKey:
           $ref: '#/components/schemas/MessageKey'
       description: 会話データ
+    Dice:
+      type: string
+      pattern: ^(([0-9]+)?[dD][0-9]+([+-][0-9]+)?|[0-9]+)$
+      description: 'ダイス表記の個数指定。例: "1d3+1" "2d4" "d6" "5"。consts.ParseDice でパースする'
     Disassembly:
       type: object
       required:
@@ -1678,14 +1682,14 @@ components:
       type: object
       required:
         - name
-        - amount
+        - count
       properties:
         name:
           $ref: '#/components/schemas/EntityName'
-        amount:
-          $ref: '#/components/schemas/ItemCount'
-        amountMax:
-          $ref: '#/components/schemas/ItemCount'
+        count:
+          allOf:
+            - $ref: '#/components/schemas/Dice'
+          description: '産出個数のダイス表記。例: "1d3" "2"'
         minSkill:
           allOf:
             - $ref: '#/components/schemas/SkillLevel'
@@ -1718,16 +1722,14 @@ components:
       type: object
       required:
         - name
-        - amount
+        - count
       properties:
         name:
           $ref: '#/components/schemas/EntityName'
-        amount:
-          $ref: '#/components/schemas/ItemCount'
-        amountMax:
+        count:
           allOf:
-            - $ref: '#/components/schemas/ItemCount'
-          description: 省略時は amount 固定。指定時は amount..amountMax の一様抽選
+            - $ref: '#/components/schemas/Dice'
+          description: '産出個数のダイス表記。例: "1d3" "2" "1d2+1"'
         chance:
           $ref: '#/components/schemas/DisassemblyChance'
       description: 分解の産出エントリ。chance 省略は確定枠
