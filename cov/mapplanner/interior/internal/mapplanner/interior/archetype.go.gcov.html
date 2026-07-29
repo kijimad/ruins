@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - mapplanner/interior/internal/mapplanner/interior/archetype.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">mapplanner/interior/internal/mapplanner/interior</a> - archetype.go<span style="font-size: 80%;"> (source / <a href="archetype.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package interior</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : // Archetype は家具型が自分の配置作法を知る定義。content レシピは Ref と個数だけ言えばよく、置き方は</span>
+<span id="L4"><span class="lineNum">       4</span>              : // archetype が既定する。同じ家具型は施設をまたいでも同じ置き方になり、レシピ間の重複と食い違いを防ぐ。</span>
+<span id="L5"><span class="lineNum">       5</span>              : //</span>
+<span id="L6"><span class="lineNum">       6</span>              : // Archetype は footprint / clearance / needs_wall / tags まで持ちうるが、まず消費する Default だけを</span>
+<span id="L7"><span class="lineNum">       7</span>              : // 置き、残りは使う段で足す。将来は raw/TOML の語彙へ移す。</span>
+<span id="L8"><span class="lineNum">       8</span>              : type Archetype struct {</span>
+<span id="L9"><span class="lineNum">       9</span>              :         Default Placement // 既定の置き方。Stuff が Placement を空にしたとき使う</span>
+<span id="L10"><span class="lineNum">      10</span>              : }</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // defaultArchetypes は現行デモ什器の既定配置。placement を毎レシピに書かず、家具型の自然な置き方を</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 1箇所へ集約する。レシピは Placement を空にすればここを引き、自然な既定と違う例外だけ明示上書きする。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // これは Go 定義の暫定カタログで、器が固まったら raw/TOML の語彙へ移す。</span>
+<span id="L15"><span class="lineNum">      15</span>              : var defaultArchetypes = map[string]Archetype{</span>
+<span id="L16"><span class="lineNum">      16</span>              :         // 店</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;register&quot;:      {Default: PlaceNearDoor},</span>
+<span id="L18"><span class="lineNum">      18</span>              :         &quot;gondola&quot;:       {Default: PlaceRow},</span>
+<span id="L19"><span class="lineNum">      19</span>              :         &quot;walkin_cooler&quot;: {Default: PlaceFarFromDoor},</span>
+<span id="L20"><span class="lineNum">      20</span>              :         &quot;snacks&quot;:        {Default: PlaceCenter},</span>
+<span id="L21"><span class="lineNum">      21</span>              :         &quot;drinks&quot;:        {Default: PlaceFarFromDoor},</span>
+<span id="L22"><span class="lineNum">      22</span>              :         &quot;bento&quot;:         {Default: PlaceWall},</span>
+<span id="L23"><span class="lineNum">      23</span>              :         &quot;litter&quot;:        {Default: PlaceFullArea},</span>
+<span id="L24"><span class="lineNum">      24</span>              :         // 診療所</span>
+<span id="L25"><span class="lineNum">      25</span>              :         &quot;reception&quot;:  {Default: PlaceNearDoor},</span>
+<span id="L26"><span class="lineNum">      26</span>              :         &quot;waitchair&quot;:  {Default: PlaceNearDoor},</span>
+<span id="L27"><span class="lineNum">      27</span>              :         &quot;exam_bed&quot;:   {Default: PlaceFarFromDoor},</span>
+<span id="L28"><span class="lineNum">      28</span>              :         &quot;medcabinet&quot;: {Default: PlaceWall},</span>
+<span id="L29"><span class="lineNum">      29</span>              :         &quot;meds&quot;:       {Default: PlaceFarFromDoor},</span>
+<span id="L30"><span class="lineNum">      30</span>              :         &quot;bandage&quot;:    {Default: PlaceWall},</span>
+<span id="L31"><span class="lineNum">      31</span>              :         // 民家・建物</span>
+<span id="L32"><span class="lineNum">      32</span>              :         &quot;bed&quot;:     {Default: PlaceFarFromDoor},</span>
+<span id="L33"><span class="lineNum">      33</span>              :         &quot;table&quot;:   {Default: PlaceCenter},</span>
+<span id="L34"><span class="lineNum">      34</span>              :         &quot;chair&quot;:   {Default: PlaceCenter},</span>
+<span id="L35"><span class="lineNum">      35</span>              :         &quot;sofa&quot;:    {Default: PlaceWall},</span>
+<span id="L36"><span class="lineNum">      36</span>              :         &quot;closet&quot;:  {Default: PlaceWall},</span>
+<span id="L37"><span class="lineNum">      37</span>              :         &quot;lantern&quot;: {Default: PlaceWall},</span>
+<span id="L38"><span class="lineNum">      38</span>              :         &quot;plant&quot;:   {Default: PlaceFullArea},</span>
+<span id="L39"><span class="lineNum">      39</span>              :         &quot;pantry&quot;:  {Default: PlaceRow},</span>
+<span id="L40"><span class="lineNum">      40</span>              :         &quot;barrel&quot;:  {Default: PlaceRow},</span>
+<span id="L41"><span class="lineNum">      41</span>              :         &quot;bathtub&quot;: {Default: PlaceFarFromDoor},</span>
+<span id="L42"><span class="lineNum">      42</span>              :         &quot;toilet&quot;:  {Default: PlaceWall},</span>
+<span id="L43"><span class="lineNum">      43</span>              :         &quot;sink&quot;:    {Default: PlaceWall},</span>
+<span id="L44"><span class="lineNum">      44</span>              :         &quot;washer&quot;:  {Default: PlaceWall},</span>
+<span id="L45"><span class="lineNum">      45</span>              : }</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              : // placementOf は配置指示の置き方を決める。明示 Placement を最優先し、空なら archetype の既定、それも</span>
+<span id="L48"><span class="lineNum">      48</span>              : // 無ければ全域とする。レシピが Ref だけ書けば家具型の自然な置き方に落ち、例外だけ明示上書きできる。</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">           1 : func placementOf(ref string, explicit Placement) Placement {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           2 :         if explicit != &quot;&quot; {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return explicit</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         if a, ok := defaultArchetypes[ref]; ok &amp;&amp; a.Default != &quot;&quot; {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return a.Default</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return PlaceFullArea</span></span>
+<span id="L57"><span class="lineNum">      57</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

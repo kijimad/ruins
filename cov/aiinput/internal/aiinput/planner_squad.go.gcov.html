@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.5&nbsp;%</td>
+            <td class="headerCovTableEntryHi">91.0&nbsp;%</td>
             <td class="headerCovTableEntry">234</td>
-            <td class="headerCovTableEntry">207</td>
+            <td class="headerCovTableEntry">213</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-28 12:22:33</td>
+            <td class="headerValue">2026-07-29 14:21:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -149,19 +149,19 @@
 <span id="L87"><span class="lineNum">      87</span>              : // planAction はポリシーと状況に基づいてアクションを決定する。</span>
 <span id="L88"><span class="lineNum">      88</span>              : // 優先順位: HP低下時後退 → エリア制限 → 戦闘 → アイテム転送 → アイテム拾得 → 位置ポリシー</span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         if sp.shouldRetreatLowHP(world, entity) {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC tlaBgUNC">           0 :                 if b, ok := sp.planRetreatAction(world, entity, ctx); ok {</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                         return b</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :         if sp.shouldRetreatLowHP(world, entity) {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           2 :                 if b, ok := sp.planRetreatAction(world, entity, ctx); ok {</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                         return b</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L94"><span class="lineNum">      94</span>              :         }</span>
 <span id="L95"><span class="lineNum">      95</span>              : </span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC tlaBgGNC">           2 :         if sp.isOutsideExploredArea(world, ctx.Grid) {</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 if b, ok := sp.planReturnToExploredArea(world, entity, ctx); ok {</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC tlaBgUNC">           0 :                         return b</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           2 :         if sp.isOutsideExploredArea(world, ctx.Grid) {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           2 :                 if b, ok := sp.planReturnToExploredArea(world, entity, ctx); ok {</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                         return b</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L100"><span class="lineNum">     100</span>              :         }</span>
 <span id="L101"><span class="lineNum">     101</span>              : </span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC tlaBgGNC">           1 :         if b, ok := sp.planCombatAction(world, entity, ctx); ok {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         if b, ok := sp.planCombatAction(world, entity, ctx); ok {</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC tlaBgUNC">           0 :                 return b</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L105"><span class="lineNum">     105</span>              : </span>
@@ -276,12 +276,12 @@
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 :         if b, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok {</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 return b</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction(&quot;隊員護衛移動失敗&quot;)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         return waitAction(&quot;隊員護衛移動失敗&quot;)</span></span>
 <span id="L218"><span class="lineNum">     218</span>              : }</span>
 <span id="L219"><span class="lineNum">     219</span>              : </span>
 <span id="L220"><span class="lineNum">     220</span>              : // planVanguardAction はリーダーの前方に展開するアクションを計画する。</span>
 <span id="L221"><span class="lineNum">     221</span>              : // リーダーから離れすぎている場合はリーダーに接近する</span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 : func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         dist := gridDistance(ctx.Grid, ctx.LeaderGrid)</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           2 :         if dist &gt; vanguardMaxDistance {</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           2 :                 if b, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok {</span></span>

@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - mapplanner/interior/internal/mapplanner/interior/room.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">mapplanner/interior/internal/mapplanner/interior</a> - room.go<span style="font-size: 80%;"> (source / <a href="room.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package interior</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // Vec は建物ローカルのタイル座標。座標軸は footprint の入る位置を原点とする局所系だが、単位は overworld の</span>
+<span id="L6"><span class="lineNum">       6</span>              : // 全域タイル consts.Tile と同じにして、境界での余計な変換を無くす。overworld も chunk 局所座標に consts.Tile を</span>
+<span id="L7"><span class="lineNum">       7</span>              : // 使い offsetX の足し算でフレームを移すので、interior もその流儀に合わせる。</span>
+<span id="L8"><span class="lineNum">       8</span>              : type Vec = consts.Coord[consts.Tile]</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // Rect はタイル単位の矩形。X,Y が左上、W,H が幅と高さ。</span>
+<span id="L11"><span class="lineNum">      11</span>              : type Rect struct{ X, Y, W, H consts.Tile }</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : // Room は分割文法の出力の契約。content システムはこの契約のみに依存し、部屋の形の作り方は知らない。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // layout↔content の契約。ゾーン印は後続 Stage で足す。</span>
+<span id="L15"><span class="lineNum">      15</span>              : type Room struct {</span>
+<span id="L16"><span class="lineNum">      16</span>              :         Rect     Rect</span>
+<span id="L17"><span class="lineNum">      17</span>              :         Doorways []Doorway</span>
+<span id="L18"><span class="lineNum">      18</span>              : }</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // Doorway は部屋の戸口タイル。placement はここを塞がない。座標としては Vec と同じ。</span>
+<span id="L21"><span class="lineNum">      21</span>              : type Doorway = Vec</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // center は矩形の中心タイル。奇数辺なら真ん中、偶数辺なら中心寄り。</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func (r Rect) center() Vec {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return Vec{X: r.X + r.W/2, Y: r.Y + r.H/2}</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // interiorTiles は外周の壁を除いた内側の床タイルを、y→x の固定順で返す。map を使わず順序を決定的にする。</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : func (r Rect) interiorTiles() []Vec {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         out := make([]Vec, 0, (r.W-2)*(r.H-2))</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           2 :         for y := r.Y + 1; y &lt; r.Y+r.H-1; y++ {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :                 for x := r.X + 1; x &lt; r.X+r.W-1; x++ {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         out = append(out, Vec{X: x, Y: y})</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L35"><span class="lineNum">      35</span>              :         }</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

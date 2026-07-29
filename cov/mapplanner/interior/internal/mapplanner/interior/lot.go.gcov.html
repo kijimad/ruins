@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - mapplanner/interior/internal/mapplanner/interior/lot.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">mapplanner/interior/internal/mapplanner/interior</a> - lot.go<span style="font-size: 80%;"> (source / <a href="lot.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">80.4&nbsp;%</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">37</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package interior</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;strconv&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // lot pass。建物を裸で地面に置かず、敷地を塀で囲い門で出入りさせ、前庭に外構を置く。自然な街並みに</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 区画分割アルゴリズムは要らず、本質は「建物が裸で地面に置かれない」こと。街路側の footprint 縁へ</span>
+<span id="L11"><span class="lineNum">      11</span>              : // 塀を並べ、入口の軸に門の隙間を空け、前庭へ外構 prop を1つ置く。FacadePass と同じく壁でなく地面タイルの</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 上に載る prop なので、既存の spawn 経路にそのまま乗る。塀は仮画像。</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              : // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には</span>
+<span id="L15"><span class="lineNum">      15</span>              : // 店なら自販機、民家なら観葉を1つ置く。</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 : func lotElements(s Site, facility FacilityKind) []Placed {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         fside := frontSide(s)</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         lo, hi, edge := lotEdgeSpan(s.Footprint, fside)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         doorAxis := edge.along(s.Door)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         var out []Placed</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         // 塀で敷地を囲い、入口の軸を門として開ける。商店街は街路に面して開くので塀を張らない</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         if s.Type != siteShopfront {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :                 for a := lo; a &lt;= hi; a++ {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :                         if abs(a-doorAxis) &lt;= 1 { // 門の隙間。街路から前庭へ入る</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L27"><span class="lineNum">      27</span>              :                         }</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                         out = append(out, Placed{Kind: KindDecor, Ref: &quot;fence&quot;, Pos: edge.at(a)})</span></span>
+<span id="L29"><span class="lineNum">      29</span>              :                 }</span>
+<span id="L30"><span class="lineNum">      30</span>              :         }</span>
+<span id="L31"><span class="lineNum">      31</span>              :         // 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         if spot, ok := yardSpot(s, fside, doorAxis); ok {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 ref := &quot;plant&quot;</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :                 if isShop(facility) {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         ref = &quot;vending&quot;</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 out = append(out, Placed{Kind: KindDecor, Ref: ref, Pos: spot})</span></span>
+<span id="L38"><span class="lineNum">      38</span>              :         }</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : }</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : // lotEdgeSpan は footprint の街路側の縁を、縁に沿う軸の範囲[lo,hi]と縁のラインで返す。塀は角も含めて敷地を</span>
+<span id="L43"><span class="lineNum">      43</span>              : // ぐるりと閉じるので corners を除かない。</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : func lotEdgeSpan(f Rect, fside side) (lo, hi consts.Tile, edge tileLine) {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         switch fside {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         case sideNorth:</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return f.X, f.X + f.W - 1, tileLine{cross: f.Y, horiz: true}</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideSouth:</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return f.X, f.X + f.W - 1, tileLine{cross: f.Y + f.H - 1, horiz: true}</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 :         case sideWest:</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return f.Y, f.Y + f.H - 1, tileLine{cross: f.X, horiz: false}</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideEast:</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 return f.Y, f.Y + f.H - 1, tileLine{cross: f.X + f.W - 1, horiz: false}</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :         }</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         panic(&quot;未知の side: &quot; + strconv.Itoa(int(fside)))</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : }</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : // yardSpot は前庭の外構を置くタイルを返す。門の脇で塀の1マス内側の前庭タイルを試す。前庭でなければ置かない。</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">           1 : func yardSpot(s Site, fside side, doorAxis consts.Tile) (Vec, bool) {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         f := s.Footprint</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         var p Vec</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         switch fside {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         case sideNorth:</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 p = Vec{X: doorAxis + 2, Y: f.Y + 1}</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideSouth:</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 p = Vec{X: doorAxis + 2, Y: f.Y + f.H - 2}</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 :         case sideWest:</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 p = Vec{X: f.X + 1, Y: doorAxis + 2}</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideEast:</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 p = Vec{X: f.X + f.W - 2, Y: doorAxis + 2}</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :         }</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           2 :         if s.Garden[p] {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 return p, true</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         return Vec{}, false</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

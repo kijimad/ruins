@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - mapplanner/interior/internal/mapplanner/interior/hero.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">mapplanner/interior/internal/mapplanner/interior</a> - hero.go<span style="font-size: 80%;"> (source / <a href="hero.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">90.0&nbsp;%</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">27</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package interior</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // hero 部屋。大多数の背景の建物は密度と散らかりの揺らぎで足りるが、稀に1棟だけ記憶に残る見せ場を置く。</span>
+<span id="L6"><span class="lineNum">       6</span>              : // 異質なものは孤立しているほど記憶に残るので、landmark 級は狭い確率で1棟に1つに絞る。</span>
+<span id="L7"><span class="lineNum">       7</span>              : // 中身は 報酬46/雰囲気25/リスクリワード15/危険14 の予算配分で引き、主室の中央へ1つだけ据える。</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // heroCenterpiece は建物が hero なら主室に据える目玉 prop の Ref を返す。大半の建物は hero でない。予算配分で</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 4種を引く。報酬は宝箱、雰囲気は鳥居や蓄音機の landmark、リスクリワードは檻の中の獲物、危険は毒樽。</span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">           1 : func heroCenterpiece(seed uint64) (string, bool) {</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           2 :         if childSeed(seed, 13_000_000)%12 != 0 {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false // 12棟に1棟だけ見せ場を持つ。rare を孤立させる</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         switch r := childSeed(seed, 13_100_000) % 100; {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         case r &lt; 46: // 報酬</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return &quot;chest&quot;, true</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         case r &lt; 71: // 雰囲気。landmark を seed で1つ</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 atmos := []string{&quot;torii&quot;, &quot;phonograph&quot;, &quot;komainu&quot;, &quot;pillar&quot;}</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return atmos[int(childSeed(seed, 13_200_000)%uint64(len(atmos)))], true</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         case r &lt; 86: // リスクリワード。檻に入った獲物</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return &quot;cage&quot;, true</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         default: // 危険</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return &quot;poison&quot;, true</span></span>
+<span id="L25"><span class="lineNum">      25</span>              :         }</span>
+<span id="L26"><span class="lineNum">      26</span>              : }</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // heroSpot は目玉を据えるタイルを返す。廊下を除く最大の部屋の中央。中央が内側床でなければ置かない。</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : func heroSpot(s Site) (Vec, bool) {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         best, bestArea := -1, consts.Tile(0)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           2 :         for i, hr := range s.Rooms {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :                 if hr.Role == roleCorridor {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :                 }</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :                 if a := hr.Room.Rect.W * hr.Room.Rect.H; a &gt; bestArea {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         best, bestArea = i, a</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L38"><span class="lineNum">      38</span>              :         }</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         if best &lt; 0 {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 :                 return Vec{}, false</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         c := s.Rooms[best].Room.Rect.center()</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           2 :         if s.Rooms[best].Room.Rect.containsInterior(c) {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 return c, true</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :         return Vec{}, false</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

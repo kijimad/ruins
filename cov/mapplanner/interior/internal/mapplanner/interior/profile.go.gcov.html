@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - mapplanner/interior/internal/mapplanner/interior/profile.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">mapplanner/interior/internal/mapplanner/interior</a> - profile.go<span style="font-size: 80%;"> (source / <a href="profile.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">99.0&nbsp;%</td>
+            <td class="headerCovTableEntry">102</td>
+            <td class="headerCovTableEntry">101</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-29 14:21:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package interior</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;strconv&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // 建物単位の生活感プロファイル。変種・散らかり・損傷・密度の独立軸を建物ごとに1回引き、全室へ一様に</span>
+<span id="L6"><span class="lineNum">       6</span>              : // 効かせる。少量の語彙を数千通りの見えに乗算し「同じ家を二度見ない」感を機構で作る。各軸は独立の childSeed ストリームで引き相関を</span>
+<span id="L7"><span class="lineNum">       7</span>              : // 避ける。比率は実測ベースのチューニング初期値。</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // damageLevel は建物の損傷段階。無傷は経年を掛けず、大破ほど略奪と瓦礫が増える。</span>
+<span id="L10"><span class="lineNum">      10</span>              : type damageLevel int</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : const (</span>
+<span id="L13"><span class="lineNum">      13</span>              :         dmgIntact damageLevel = iota // 無傷</span>
+<span id="L14"><span class="lineNum">      14</span>              :         dmgMinor                     // 小破</span>
+<span id="L15"><span class="lineNum">      15</span>              :         dmgMajor                     // 大破</span>
+<span id="L16"><span class="lineNum">      16</span>              : )</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : // clutterLevel は散らかり段階。あるべきでない場所に落ちた小物の量。</span>
+<span id="L19"><span class="lineNum">      19</span>              : type clutterLevel int</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : const (</span>
+<span id="L22"><span class="lineNum">      22</span>              :         clutterTidy   clutterLevel = iota // 整頓</span>
+<span id="L23"><span class="lineNum">      23</span>              :         clutterMessy                      // 乱雑</span>
+<span id="L24"><span class="lineNum">      24</span>              :         clutterFilthy                     // 汚部屋</span>
+<span id="L25"><span class="lineNum">      25</span>              : )</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // variantKind は建物の事情。大多数は標準で、稀に放棄・建築中・サバイバリスト・ためこみが出る。他軸を</span>
+<span id="L28"><span class="lineNum">      28</span>              : // 上書きし、rare な1軒へ物語を与える。専用 prop の要る建築中・サバイバリストは既存語彙で近似する。</span>
+<span id="L29"><span class="lineNum">      29</span>              : type variantKind int</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : const (</span>
+<span id="L32"><span class="lineNum">      32</span>              :         varStandard          variantKind = iota // 標準</span>
+<span id="L33"><span class="lineNum">      33</span>              :         varAbandoned                            // 放棄</span>
+<span id="L34"><span class="lineNum">      34</span>              :         varUnderConstruction                    // 建築中</span>
+<span id="L35"><span class="lineNum">      35</span>              :         varSurvivalist                          // サバイバリスト</span>
+<span id="L36"><span class="lineNum">      36</span>              :         varHoarder                              // ためこみ</span>
+<span id="L37"><span class="lineNum">      37</span>              : )</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : // buildingProfile は建物1棟の生活感の直交軸。FurnishStages が全室へ一様に効かせる。</span>
+<span id="L40"><span class="lineNum">      40</span>              : type buildingProfile struct {</span>
+<span id="L41"><span class="lineNum">      41</span>              :         variant variantKind</span>
+<span id="L42"><span class="lineNum">      42</span>              :         clutter clutterLevel</span>
+<span id="L43"><span class="lineNum">      43</span>              :         damage  damageLevel</span>
+<span id="L44"><span class="lineNum">      44</span>              :         density int // 家具量の倍率 ×/10</span>
+<span id="L45"><span class="lineNum">      45</span>              : }</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              : // rollProfile は seed から建物の生活感プロファイルを決定的に引く。各軸を独立ストリームで引いた後、variant を</span>
+<span id="L48"><span class="lineNum">      48</span>              : // 事情として重ねて他軸を上書きする。放棄は損傷・散らかりを底上げ、ためこみは散らかり最大、建築中は無傷で</span>
+<span id="L49"><span class="lineNum">      49</span>              : // 家具まばら。</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 : func rollProfile(seed uint64) buildingProfile {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         p := buildingProfile{</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 variant: rollVariant(childSeed(seed, 11_100_000)),</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 clutter: rollClutter(childSeed(seed, 11_200_000)),</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 damage:  rollDamage(childSeed(seed, 11_000_000)),</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 density: densityFactor(childSeed(seed, 10_000_000)),</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         switch p.variant {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         case varAbandoned:</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 p.damage = dmgMajor</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :                 if p.clutter &lt; clutterMessy {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                         p.clutter = clutterMessy</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         case varHoarder:</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 p.clutter = clutterFilthy</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         case varUnderConstruction:</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 p.damage = dmgIntact // 新築なので傷はない</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 p.density = 6        // 家具まばら</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :                 if p.clutter &lt; clutterMessy {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         p.clutter = clutterMessy // 資材散乱の代用</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         case varSurvivalist:</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           2 :                 if p.clutter &lt; clutterMessy {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                         p.clutter = clutterMessy // 物資散乱の代用</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         case varStandard:</span></span>
+<span id="L76"><span class="lineNum">      76</span>              :         }</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         return p</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : }</span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              : // rollDamage は損傷軸を引く。無傷2:小破3:大破1。3分の2の建物が何らかの損傷を持つ。</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : func rollDamage(seed uint64) damageLevel {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         switch r := childSeed(seed, 1) % 6; {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         case r &lt; 2:</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 return dmgIntact</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         case r &lt; 5:</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 return dmgMinor</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 return dmgMajor</span></span>
+<span id="L89"><span class="lineNum">      89</span>              :         }</span>
+<span id="L90"><span class="lineNum">      90</span>              : }</span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span>              : // rollClutter は散らかり軸を引く。整頓6:乱雑3:汚部屋1。</span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 : func rollClutter(seed uint64) clutterLevel {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         switch r := childSeed(seed, 1) % 10; {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         case r &lt; 6:</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 return clutterTidy</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         case r &lt; 9:</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                 return clutterMessy</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 return clutterFilthy</span></span>
+<span id="L101"><span class="lineNum">     101</span>              :         }</span>
+<span id="L102"><span class="lineNum">     102</span>              : }</span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              : // rollVariant は変種軸を引く。per-mille で 標準970・放棄6・建築中10・サバイバリスト9・ためこみ5。</span>
+<span id="L105"><span class="lineNum">     105</span>              : // 数十軒に1軒だけ事情のある家が出る。</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : func rollVariant(seed uint64) variantKind {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         switch r := childSeed(seed, 1) % 1000; {</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         case r &lt; 970:</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 return varStandard</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         case r &lt; 976:</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 return varAbandoned</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         case r &lt; 986:</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return varUnderConstruction</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         case r &lt; 995:</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 return varSurvivalist</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return varHoarder</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :         }</span>
+<span id="L119"><span class="lineNum">     119</span>              : }</span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span>              : // densityFactor は密度軸を引く。疎6・普通10・密14 の ×/10。既存 scaleDensity の係数と同じ。</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : func densityFactor(seed uint64) int {</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         factors := []int{6, 10, 14}</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         return factors[int(childSeed(seed, 1)%uint64(len(factors)))]</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L126"><span class="lineNum">     126</span>              : </span>
+<span id="L127"><span class="lineNum">     127</span>              : // clutterFurniturePct は散らかりレベルごとに、家具1つの隣へ小物を落とす割合を返す。机の上・たんすの脇に物が</span>
+<span id="L128"><span class="lineNum">     128</span>              : // 溜まる因果を作る。整頓は0で、汚部屋ほど多い。</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 : func clutterFurniturePct(level clutterLevel) int {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         switch level {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         case clutterTidy:</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         case clutterMessy:</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return 35</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         case clutterFilthy:</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 return 70</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :         }</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;未知の clutterLevel: &quot; + strconv.Itoa(int(level)))</span></span>
+<span id="L139"><span class="lineNum">     139</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : // clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。「あるべきでない場所の物」を、寝室には</span>
+<span id="L142"><span class="lineNum">     142</span>              : // 洗濯かご、その他は木箱、というふうに役割へ寄せて believability を上げる。すべて SpawnProp が要る実在の prop で</span>
+<span id="L143"><span class="lineNum">     143</span>              : // 仮画像でないものだけを使う。食器・写真などの拾える item を家具の上へ載せるのは item spawn 経路が要るので今後。</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC tlaBgGNC">           1 : func clutterRefs(role roleName) []string {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         switch role {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         case &quot;bedroom&quot;:</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 return []string{&quot;laundry&quot;, &quot;crate&quot;, &quot;debris&quot;}</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return []string{&quot;crate&quot;, &quot;debris&quot;}</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         }</span>
+<span id="L151"><span class="lineNum">     151</span>              : }</span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span>              : // applyClutter は散らかりの小物を配置する。物は床の孤立した位置だけに置くと不自然なので、主に家具の隣へ</span>
+<span id="L154"><span class="lineNum">     154</span>              : // 落とし、机の上・たんすの脇に物が溜まる因果を作る。汚部屋のときだけ、加えて床にもまばらに散らす。役割別</span>
+<span id="L155"><span class="lineNum">     155</span>              : // プールから引き、既存の実スプライトへ写る Ref だけを使う。装飾で通行は阻まず、戸口前は避ける。呼び出し側が</span>
+<span id="L156"><span class="lineNum">     156</span>              : // 廊下・狭室を除外する。</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 : func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, role roleName) []Placed {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         furnPct := clutterFurniturePct(level)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :         if furnPct == 0 {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 return placed</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         pool := clutterRefs(role)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         occupied := occupiedSet(placed)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         added := make([]Placed, 0)</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         // 主。家具の隣の空きタイルへ小物を落とす。机やたんすの周りに物が集まる</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           2 :         for i, p := range placed {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :                 if p.Kind != KindFurniture || !dropChance(seed, i, furnPct) {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L169"><span class="lineNum">     169</span>              :                 }</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           2 :                 for _, n := range neighbors4(p.Pos) {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           2 :                         if room.Rect.containsInterior(n) &amp;&amp; !occupied[n] &amp;&amp; !isDoorwayAdjacent(room, n) {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                                 ref := pool[int(childSeed(seed, 2_000+i)%uint64(len(pool)))]</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                                 occupied[n] = true</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                                 added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: n})</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                                 break</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :                         }</span>
+<span id="L177"><span class="lineNum">     177</span>              :                 }</span>
+<span id="L178"><span class="lineNum">     178</span>              :         }</span>
+<span id="L179"><span class="lineNum">     179</span>              :         // 補。汚部屋は家具から離れた床にもまばらに散らす。家具の無い部屋でも散らかるようにする</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           2 :         if level == clutterFilthy {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :                 for i, t := range room.Rect.interiorTiles() {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :                         if occupied[t] || isDoorwayAdjacent(room, t) {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L184"><span class="lineNum">     184</span>              :                         }</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           2 :                         if dropChance(seed, 7_000+i, 7) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                                 ref := pool[int(childSeed(seed, 8_000+i)%uint64(len(pool)))]</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                                 occupied[t] = true</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                                 added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: t})</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L190"><span class="lineNum">     190</span>              :                 }</span>
+<span id="L191"><span class="lineNum">     191</span>              :         }</span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return append(placed, added...)</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
