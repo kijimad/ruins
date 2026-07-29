@@ -36,7 +36,7 @@ func markExploredNeighbors(world w.World, grid *gc.GridElement) {
 func TestGatherSquadSnapshot(t *testing.T) {
 	t.Parallel()
 
-	t.Run("隊員のコンテキストを正しく収集する", func(t *testing.T) {
+	t.Run("隊員のスナップショットを正しく収集する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -103,7 +103,7 @@ func TestSquadPlanner_Plan(t *testing.T) {
 		assert.Nil(t, sp.Plan(world, member))
 	})
 
-	t.Run("コンテキストが揃っていれば行動を返す", func(t *testing.T) {
+	t.Run("スナップショットが揃っていれば行動を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

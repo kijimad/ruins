@@ -48,7 +48,7 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 // マップ描画の寸法。1チャンクを1セルで描く。
 const (
 	mapCellPx consts.ScreenPixel = 22 // 1チャンクのセルの一辺ピクセル
-	marginCh  consts.Chunk       = 6  // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
+	marginCh  consts.Chunk       = 6  // 帯の東西に足す余白チャンク数。この先の地形を先読みできる
 )
 
 // OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため
@@ -60,7 +60,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	}
 	rows := max(sb.Rows, 1)
 
-	// 帯の Rows 行と、Cols 列に東西の文脈チャンクを足した窓の各チャンクを種別文字にする
+	// 帯の Rows 行と、Cols 列に東西の余白チャンクを足した窓の各チャンクを種別文字にする
 	winChunksX := int(sb.Cols + 2*marginCh)
 	winX0 := sb.EastIndex - marginCh
 

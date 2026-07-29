@@ -66,7 +66,7 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		assert.Nil(t, snap)
 	})
 
-	t.Run("正常系ではコンテキストを構築する", func(t *testing.T) {
+	t.Run("正常系ではスナップショットを構築する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
