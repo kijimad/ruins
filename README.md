@@ -62,7 +62,7 @@ $ make help
 | in-progress | 2 |
 | accepted | 1 |
 | draft | 3 |
-| done | 63 |
+| done | 64 |
 
 ### 進行中
 
