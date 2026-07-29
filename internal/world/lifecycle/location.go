@@ -33,6 +33,27 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	return nil
 }
 
+// TransferOneUnit は item を1個だけ recipient のバックパックへ移す。
+// stackable で複数あるときは元スタックを1つ減らし、同名の1個を recipient 側へ生成して統合する。
+// 1個以下、または非 stackable ならエンティティごと移す。空腹の隊員が共有プールから食料を
+// 1食ぶんだけ引くために使う。丸ごと移すとプールが一気に空になってしまうためだ。
+func TransferOneUnit(world w.World, item ecs.Entity, recipient ecs.Entity) error {
+	if query.GetEntityCount(world, item) <= 1 {
+		return MoveToBackpack(world, item, recipient)
+	}
+
+	// item 名は減算の前に読む。ChangeItemCount は Count を書き換える構造前の値参照を安全にするため。
+	name := world.Components.Name.Get(item).Name
+	if err := ChangeItemCount(world, item, -1); err != nil {
+		return fmt.Errorf("転送元スタックの減算に失敗: %w", err)
+	}
+	one, err := spawnItemBase(world, name, 1)
+	if err != nil {
+		return fmt.Errorf("転送する1個の生成に失敗: %w", err)
+	}
+	return MoveToBackpack(world, one, recipient)
+}
+
 // MoveToEquip はエンティティを指定スロットに装備する
 func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.EquipmentSlotNumber) {
 	clearLocation(world, entity)

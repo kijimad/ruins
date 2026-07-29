@@ -334,7 +334,8 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap 
 	}
 	if gridDistance(snap.Grid, snap.LeaderGrid) <= 1 {
 		sp.logger.Debug("隊員が食料を受け取る", "entity", entity)
-		return &activity.TransferActivity{Target: poolFood, Recipient: entity}, true
+		// 1食ぶんだけ引く。丸ごと受け取ると共有プールが一気に空になり、他の隊員が飢える
+		return &activity.TransferActivity{Target: poolFood, Recipient: entity, Single: true}, true
 	}
 	return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)
 }

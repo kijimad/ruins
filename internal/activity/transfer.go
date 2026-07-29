@@ -14,10 +14,12 @@ import (
 )
 
 // TransferActivity はエンティティ間でアイテムを転送するBehavior実装。
-// Targetに転送するアイテム、Recipientに受取人を指定する
+// Targetに転送するアイテム、Recipientに受取人を指定する。
+// Singleが真なら stackable でも1個だけ渡す。補給で隊員が共有プールから1食ぶんだけ引くために使う
 type TransferActivity struct {
 	Target    ecs.Entity
 	Recipient ecs.Entity
+	Single    bool
 }
 
 // Info はBehaviorの実装
@@ -72,8 +74,8 @@ func (ta *TransferActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) e
 }
 
 // DoTurn はアイテム転送アクティビティの1ターン分の処理を実行する
-func (ta *TransferActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if err := ta.performTransfer(comp, actor, world); err != nil {
+func (ta *TransferActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	if err := ta.performTransfer(comp, world); err != nil {
 		Cancel(comp, fmt.Sprintf("アイテム転送エラー: %s", err.Error()))
 		return err
 	}
@@ -95,23 +97,40 @@ func (ta *TransferActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Wo
 }
 
 // performTransfer はアイテムを受取人のバックパックに移動する
-func (ta *TransferActivity) performTransfer(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ta *TransferActivity) performTransfer(comp *gc.Activity, world w.World) error {
 	item := *comp.Target
 	recipient := *comp.Recipient
 
-	formattedName := query.FormatItemName(world, item)
-	actorName := query.GetEntityName(actor, world)
+	// 渡す主体はアクターでなくアイテムの現所有者にする。補給ではアクターの隊員がリーダーの
+	// プールから引くため、アクターを主体にすると「隊員は隊員に渡した」と自己転送の誤ログになる。
+	giver := world.Components.LocationInBackpack.Get(item).Owner
+	giverName := query.GetEntityName(giver, world)
 	recipientName := query.GetEntityName(recipient, world)
 
-	if err := lifecycle.MoveToBackpack(world, item, recipient); err != nil {
-		return fmt.Errorf("アイテム転送に失敗: %w", err)
+	// ログ名は転送前に確定させる。Single では1個だけ渡すので個数を出さず素の名前にする。
+	// 丸ごと転送では移す個数がそのまま渡るので FormatItemName の「(N個)」表記が正しい。
+	itemName := query.FormatItemName(world, item)
+	if ta.Single {
+		if nameComp := world.Components.Name.Get(item); nameComp != nil {
+			itemName = nameComp.Name
+		}
+	}
+
+	if ta.Single {
+		if err := lifecycle.TransferOneUnit(world, item, recipient); err != nil {
+			return fmt.Errorf("アイテム転送に失敗: %w", err)
+		}
+	} else {
+		if err := lifecycle.MoveToBackpack(world, item, recipient); err != nil {
+			return fmt.Errorf("アイテム転送に失敗: %w", err)
+		}
 	}
 
 	logger := gamelog.New(query.GetGameLog(world))
-	query.AppendNameWithColor(logger, actor, actorName, world)
+	query.AppendNameWithColor(logger, giver, giverName, world)
 	logger.
 		Append(" は ").
-		ItemName(formattedName).
+		ItemName(itemName).
 		Append(" を ").
 		Append(recipientName).
 		Append(" に渡した。").

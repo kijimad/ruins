@@ -133,6 +133,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		require.True(t, isTransfer, "隣接なら受け取りになるべき")
 		assert.Equal(t, poolFood, tr.Target)
 		assert.Equal(t, member, tr.Recipient)
+		assert.True(t, tr.Single, "共有プールからは1食ぶんだけ受け取る")
 	})
 
 	t.Run("リーダーが遠ければ接近する", func(t *testing.T) {
