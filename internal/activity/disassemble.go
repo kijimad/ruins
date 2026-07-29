@@ -138,8 +138,6 @@ func (da *DisassembleActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 		return nil
 	}
 
-	progressHunger(actor, world)
-
 	comp.TurnsLeft--
 	if comp.TurnsLeft <= 0 {
 		Complete(comp)

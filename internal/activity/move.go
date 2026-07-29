@@ -225,8 +225,6 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 		query.UpdateCharacterPositionInIndex(world, swapped, dest, old)
 	}
 
-	progressHunger(actor, world)
-
 	log.Debug("移動完了",
 		"actor", actor,
 		"from", old.String(),
