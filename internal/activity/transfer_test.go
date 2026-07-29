@@ -129,7 +129,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    1,
 		}
 
-		ta := &TransferActivity{}
+		ta := &TransferActivity{Target: item, Recipient: leader, Count: 1}
 		err = ta.DoTurn(comp, member, world)
 		require.NoError(t, err)
 
@@ -137,7 +137,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, leader, loc.Owner)
 	})
 
-	t.Run("Singleは1個だけ渡し主体を所有者にする", func(t *testing.T) {
+	t.Run("Count1は1個だけ渡し主体を所有者にする", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -161,7 +161,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    1,
 		}
 		// アクターは受け取る隊員。丸ごとでなく1個だけ引く
-		ta := &TransferActivity{Target: pool, Recipient: member, Single: true}
+		ta := &TransferActivity{Target: pool, Recipient: member, Count: 1}
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		// 元スタックは1減り、隊員は1個だけ受け取る
@@ -175,6 +175,42 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "Ash", "渡す主体はリーダー")
 		assert.Contains(t, recent[0], "隊員A に渡した", "受取人は隊員")
+	})
+
+	t.Run("Countは指定個数だけ分割して渡す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		require.NoError(t, err)
+		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
+		require.NoError(t, err)
+
+		// リーダーの共有プールにパンを5個持たせ、うち2個だけ渡す
+		pool, err := lifecycle.SpawnFieldItem(world, "パン", 5, 5, 5)
+		require.NoError(t, err)
+		require.NoError(t, lifecycle.MoveToBackpack(world, pool, leader))
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorTransfer,
+			State:        gc.ActivityStateRunning,
+			Target:       &pool,
+			Recipient:    &member,
+			TurnsTotal:   1,
+			TurnsLeft:    1,
+		}
+		ta := &TransferActivity{Target: pool, Recipient: member, Count: 2}
+		require.NoError(t, ta.DoTurn(comp, member, world))
+
+		assert.Equal(t, 3, world.Components.Stackable.Get(pool).Count, "プールは指定個数ぶん減る")
+		memberBread := findBackpackItem(world, member, "パン")
+		require.NotNil(t, memberBread, "隊員がパンを受け取る")
+		assert.Equal(t, 2, world.Components.Stackable.Get(*memberBread).Count, "受け取りは2個")
+
+		// ログは在庫全体でなく渡した個数で表示する
+		recent := query.GetGameLog(world).GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "パン(2個)", "ログは渡した個数を表示する")
 	})
 }
 

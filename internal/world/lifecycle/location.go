@@ -33,25 +33,26 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	return nil
 }
 
-// TransferOneUnit は item を1個だけ recipient のバックパックへ移す。
-// stackable で複数あるときは元スタックを1つ減らし、同名の1個を recipient 側へ生成して統合する。
-// 1個以下、または非 stackable ならエンティティごと移す。空腹の隊員が共有プールから食料を
-// 1食ぶんだけ引くために使う。丸ごと移すとプールが一気に空になってしまうためだ。
-func TransferOneUnit(world w.World, item ecs.Entity, recipient ecs.Entity) error {
-	if query.GetEntityCount(world, item) <= 1 {
+// TransferUnits は item のうち count 個だけ recipient のバックパックへ移す。
+// count が0以下、または在庫以上なら entity ごとまとめて移す。stackable で在庫より少なく
+// 指定されたときだけ元スタックを count 減らし、同名の count 個を recipient 側へ生成して統合する。
+// 空腹の隊員が共有プールから1食ぶんだけ引くなど、スタックの一部だけ渡したいときに使う。
+func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error {
+	available := query.GetEntityCount(world, item)
+	if count <= 0 || count >= available {
 		return MoveToBackpack(world, item, recipient)
 	}
 
-	// item 名は減算の前に読む。ChangeItemCount は Count を書き換える構造前の値参照を安全にするため。
+	// item 名は減算の前に読む。ChangeItemCount は Count を書き換えるので構造前の値参照を安全にするため。
 	name := world.Components.Name.Get(item).Name
-	if err := ChangeItemCount(world, item, -1); err != nil {
+	if err := ChangeItemCount(world, item, -count); err != nil {
 		return fmt.Errorf("転送元スタックの減算に失敗: %w", err)
 	}
-	one, err := spawnItemBase(world, name, 1)
+	moved, err := spawnItemBase(world, name, count)
 	if err != nil {
-		return fmt.Errorf("転送する1個の生成に失敗: %w", err)
+		return fmt.Errorf("転送する%d個の生成に失敗: %w", count, err)
 	}
-	return MoveToBackpack(world, one, recipient)
+	return MoveToBackpack(world, moved, recipient)
 }
 
 // MoveToEquip はエンティティを指定スロットに装備する

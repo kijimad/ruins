@@ -15,11 +15,12 @@ import (
 
 // TransferActivity はエンティティ間でアイテムを転送するBehavior実装。
 // Targetに転送するアイテム、Recipientに受取人を指定する。
-// Singleが真なら stackable でも1個だけ渡す。補給で隊員が共有プールから1食ぶんだけ引くために使う
+// Countは渡す個数。在庫数以上を指定すればスタックごとまとめて渡り、少なく指定すればその分だけ分割して渡す。
+// 補給で共有プールから1食ぶんだけ引くときは1、丸ごと渡すときは在庫数を指定する
 type TransferActivity struct {
 	Target    ecs.Entity
 	Recipient ecs.Entity
-	Single    bool
+	Count     int
 }
 
 // Info はBehaviorの実装
@@ -107,23 +108,16 @@ func (ta *TransferActivity) performTransfer(comp *gc.Activity, world w.World) er
 	giverName := query.GetEntityName(giver, world)
 	recipientName := query.GetEntityName(recipient, world)
 
-	// ログ名は転送前に確定させる。Single では1個だけ渡すので個数を出さず素の名前にする。
-	// 丸ごと転送では移す個数がそのまま渡るので FormatItemName の「(N個)」表記が正しい。
-	itemName := query.FormatItemName(world, item)
-	if ta.Single {
-		if nameComp := world.Components.Name.Get(item); nameComp != nil {
-			itemName = nameComp.Name
-		}
+	// 実際に渡す個数を確定する。Count が0以下、または在庫以上なら在庫すべてを渡す。
+	// ログ名は転送前に確定させ、在庫全体でなく移す個数で表示する。
+	moving := query.GetEntityCount(world, item)
+	if ta.Count > 0 && ta.Count < moving {
+		moving = ta.Count
 	}
+	itemName := query.FormatItemNameCount(world, item, moving)
 
-	if ta.Single {
-		if err := lifecycle.TransferOneUnit(world, item, recipient); err != nil {
-			return fmt.Errorf("アイテム転送に失敗: %w", err)
-		}
-	} else {
-		if err := lifecycle.MoveToBackpack(world, item, recipient); err != nil {
-			return fmt.Errorf("アイテム転送に失敗: %w", err)
-		}
+	if err := lifecycle.TransferUnits(world, item, recipient, ta.Count); err != nil {
+		return fmt.Errorf("アイテム転送に失敗: %w", err)
 	}
 
 	logger := gamelog.New(query.GetGameLog(world))
