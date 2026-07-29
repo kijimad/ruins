@@ -47,8 +47,8 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 
 // マップ描画の寸法。1チャンクを1セルで描く。
 const (
-	mapCellPx    consts.ScreenPixel = 22 // 1チャンクのセルの一辺ピクセル
-	mapContextCh consts.Chunk       = 6  // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる
+	mapCellPx   consts.ScreenPixel = 22 // 1チャンクのセルの一辺ピクセル
+	marginChunk consts.Chunk       = 6  // 帯の東西に足す余白チャンク数。この先の地形を先読みできる
 )
 
 // OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため
@@ -60,9 +60,9 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	}
 	rows := max(sb.Rows, 1)
 
-	// 帯の Rows 行と、Cols 列に東西の文脈チャンクを足した窓の各チャンクを種別文字にする
-	winChunksX := int(sb.Cols + 2*mapContextCh)
-	winX0 := sb.EastIndex - mapContextCh
+	// 帯の Rows 行と、Cols 列に東西の余白チャンクを足した窓の各チャンクを種別文字にする
+	winChunksX := int(sb.Cols + 2*marginChunk)
+	winX0 := sb.EastIndex - marginChunk
 
 	st.glyphs = make([][]rune, rows)
 	for cy := range rows {
@@ -73,14 +73,14 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		}
 	}
 
-	// 現在地のチャンク。プレイヤー座標は帯ローカルで、窓の原点は西へ mapContextCh
+	// 現在地のチャンク。プレイヤー座標は帯ローカルで、窓の原点は西へ marginChunk
 	st.playerCol = -1
 	if player, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
 		g := world.Components.GridElement.Get(player)
-		// プレイヤーの帯ローカルなチャンク座標。窓ローカル列は西へ mapContextCh ぶんずらす
+		// プレイヤーの帯ローカルなチャンク座標。窓ローカル列は西へ marginChunk ぶんずらす
 		localCol := consts.Chunk(int(g.X) / int(sb.ChunkW))
 		localRow := consts.Chunk(int(g.Y) / int(sb.ChunkH))
-		st.playerCol = localCol + mapContextCh
+		st.playerCol = localCol + marginChunk
 		st.playerRow = localRow
 		st.playerAbs = consts.Coord[consts.Chunk]{X: sb.EastIndex + localCol, Y: localRow}
 	}
