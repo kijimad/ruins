@@ -33,7 +33,7 @@ func markExploredNeighbors(world w.World, grid *gc.GridElement) {
 	}
 }
 
-func TestGatherSquadContext(t *testing.T) {
+func TestGatherSquadSnapshot(t *testing.T) {
 	t.Parallel()
 
 	t.Run("隊員のコンテキストを正しく収集する", func(t *testing.T) {

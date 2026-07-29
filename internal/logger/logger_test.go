@@ -82,7 +82,7 @@ func TestLogLevelFiltering(t *testing.T) {
 }
 
 //nolint:paralleltest // modifies global config
-func TestContextLevelFiltering(t *testing.T) {
+func TestCategoryLevelFiltering(t *testing.T) {
 	// カテゴリ別設定
 	SetConfig(Config{
 		DefaultLevel: LevelWarn,
