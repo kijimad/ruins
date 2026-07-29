@@ -109,12 +109,20 @@ func (ta *TransferActivity) performTransfer(comp *gc.Activity, world w.World) er
 	recipientName := query.GetEntityName(recipient, world)
 
 	// 実際に渡す個数を確定する。Count が0以下、または在庫以上なら在庫すべてを渡す。
-	// ログ名は転送前に確定させ、在庫全体でなく移す個数で表示する。
 	moving := query.GetEntityCount(world, item)
 	if ta.Count > 0 && ta.Count < moving {
 		moving = ta.Count
 	}
-	itemName := query.FormatItemNameCount(world, item, moving)
+
+	// ログ名は転送前に確定させる。在庫全体でなく実際に移す個数で表示する。
+	// query.FormatItemName は在庫数を出すので分割転送には使えない。
+	itemName := "Unknown Item"
+	if nameComp := world.Components.Name.Get(item); nameComp != nil {
+		itemName = nameComp.Name
+	}
+	if moving > 1 {
+		itemName = fmt.Sprintf("%s(%d個)", itemName, moving)
+	}
 
 	if err := lifecycle.TransferUnits(world, item, recipient, ta.Count); err != nil {
 		return fmt.Errorf("アイテム転送に失敗: %w", err)
