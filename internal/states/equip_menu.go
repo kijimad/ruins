@@ -653,8 +653,7 @@ func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, item
 	columnWidths := []int{20, 80, 120}
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		isSelected := pg.IsSelectedInPage(entry.Index)
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.SlotLabel, entry.Item.ItemName}, nil, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.SlotLabel, entry.Item.ItemName}, nil, new(pg.IsSelectedInPage(entry.Index)), res)
 	}
 	container.AddChild(table)
 
@@ -680,8 +679,7 @@ func (st *EquipMenuState) buildEquipSelectContainer(props equipScreenProps, item
 	columnWidths := []int{20, 150}
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
-		isSelected := pg.IsSelectedInPage(entry.Index)
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.ItemName}, nil, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.ItemName}, nil, new(pg.IsSelectedInPage(entry.Index)), res)
 	}
 	container.AddChild(table)
 

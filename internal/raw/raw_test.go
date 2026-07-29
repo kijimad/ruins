@@ -950,8 +950,7 @@ SpriteKey = "wall"
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	idx := 5
-	spec, err := NewTileSpec(raws, "auto_tile", 0, 0, &idx)
+	spec, err := NewTileSpec(raws, "auto_tile", 0, 0, new(5))
 	require.NoError(t, err)
 	assert.Equal(t, "wall_5", spec.SpriteRender.SpriteKey)
 }

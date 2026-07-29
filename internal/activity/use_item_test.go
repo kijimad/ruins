@@ -253,11 +253,9 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		actor := world.ECS.NewEntity()
 		world.Components.HP.Add(actor, &gc.HP{})
 
-		item := world.ECS.NewEntity()
-
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Target:       &item,
+			Target:       new(world.ECS.NewEntity()),
 		}
 
 		ua := &UseItemActivity{}

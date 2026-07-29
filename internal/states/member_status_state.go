@@ -196,8 +196,7 @@ func (st *MemberStatusState) buildItemTable(items []memberStatusItem, selectedIn
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range items {
-		isSelected := i == selectedIndex
-		styled.NewTableRow(table, columnWidths, []string{"", item.Label, item.Value}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", item.Label, item.Value}, aligns, new(i == selectedIndex), res)
 	}
 
 	container.AddChild(table)

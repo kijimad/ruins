@@ -90,15 +90,13 @@ func TestPtrSlice(t *testing.T) {
 
 	t.Run("有効なポインタ", func(t *testing.T) {
 		t.Parallel()
-		s := []int{1, 2, 3}
-		result := PtrSlice(&s)
+		result := PtrSlice(&[]int{1, 2, 3})
 		assert.Equal(t, []int{1, 2, 3}, result)
 	})
 
 	t.Run("空スライスのポインタ", func(t *testing.T) {
 		t.Parallel()
-		s := []int{}
-		result := PtrSlice(&s)
+		result := PtrSlice(&[]int{})
 		assert.Empty(t, result)
 	})
 }

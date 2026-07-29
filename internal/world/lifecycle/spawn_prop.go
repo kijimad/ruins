@@ -176,7 +176,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 		spriteKey = "door_vertical_closed"
 	}
 
-	entitySpec := gc.EntitySpec{
+	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:        &gc.Name{Name: "扉"},
 		Description: &gc.Description{Description: "開閉できる扉"},
 		GridElement: &gc.GridElement{Coord: pos},
@@ -194,9 +194,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 			Orientation: orientation,
 		},
 		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}},
-	}
-
-	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+	}), nil
 }
 
 // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する

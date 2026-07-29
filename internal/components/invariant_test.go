@@ -338,8 +338,7 @@ func TestCategoryOfSpec(t *testing.T) {
 
 	t.Run("該当なし", func(t *testing.T) {
 		t.Parallel()
-		spec := EntitySpec{Name: &Name{Name: "何か"}}
-		cat, ok := c.CategoryOfSpec(ItemTypeCategoryKey, &spec)
+		cat, ok := c.CategoryOfSpec(ItemTypeCategoryKey, &EntitySpec{Name: &Name{Name: "何か"}})
 		assert.False(t, ok)
 		assert.Empty(t, cat)
 	})

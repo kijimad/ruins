@@ -25,10 +25,9 @@ func TestPickupActivity_Validate(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &destination,
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
 		pa := &PickupActivity{}
@@ -47,10 +46,9 @@ func TestPickupActivity_Validate(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &destination,
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
 		pa := &PickupActivity{}
@@ -108,11 +106,10 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
-			Destination:  &destination,
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
 		pa := &PickupActivity{}
@@ -138,11 +135,10 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
-			Destination:  &destination,
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
 		pa := &PickupActivity{}
@@ -274,10 +270,9 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &destination,
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
 		pa := &PickupActivity{}
@@ -302,10 +297,9 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}})
 
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &destination,
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
 		}
 
 		pa := &PickupActivity{}
@@ -331,11 +325,10 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		destination := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
-			Destination:  &destination,
+			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}},
 		}
 
 		pa := &PickupActivity{}
