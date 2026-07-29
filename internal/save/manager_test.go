@@ -215,13 +215,11 @@ func TestHashConsistencyAcrossRuns(t *testing.T) {
 func TestMissingChecksumValidation(t *testing.T) {
 	t.Parallel()
 
-	envWithoutChecksum := saveEnvelope{
+	err := validateChecksum(&saveEnvelope{
 		Version:   "1.0.0",
 		Timestamp: time.Now(),
 		World:     json.RawMessage(`{}`),
-	}
-
-	err := validateChecksum(&envWithoutChecksum)
+	})
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "checksum field is missing")
 }

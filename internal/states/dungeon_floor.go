@@ -330,8 +330,7 @@ func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, bu
 	}
 	var carriedBack *gc.PortalConnection
 	if up, _, ok := findPortal(world, gc.InteractionPortalPrev); ok && world.Components.PortalConnection.Has(up) {
-		conn := *world.Components.PortalConnection.Get(up)
-		carriedBack = &conn
+		carriedBack = new(*world.Components.PortalConnection.Get(up))
 	}
 
 	stage.Purge(world, target)

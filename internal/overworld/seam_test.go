@@ -57,10 +57,9 @@ func TestRecalcChunkSeams_帯端は自己スキップ(t *testing.T) {
 	const boundaryX consts.Tile = 50
 
 	// 境界の東側(boundaryX 以降)だけに dirt を敷く。西側(boundaryX-1)は空＝隣チャンク無し
-	edge := 0
 	for x := boundaryX; x <= boundaryX+1; x++ {
 		for y := consts.Tile(4); y <= 6; y++ {
-			_, err := lifecycle.SpawnTile(world, "dirt", x, y, &edge)
+			_, err := lifecycle.SpawnTile(world, "dirt", x, y, new(0))
 			require.NoError(t, err)
 		}
 	}
@@ -99,10 +98,9 @@ func TestRecalcChunkSeams_東西境界は隣を見て再計算する(t *testing.
 
 	// 境界の周囲に dirt の 4x3 ブロックを敷く（各境界タイルの4近傍が dirt になるように）。
 	// 端スプライトを模して autoTileIndex=0 で生成する
-	zero := 0
 	for x := boundaryX - 2; x <= boundaryX+1; x++ {
 		for y := consts.Tile(4); y <= 6; y++ {
-			_, err := lifecycle.SpawnTile(world, "dirt", x, y, &zero)
+			_, err := lifecycle.SpawnTile(world, "dirt", x, y, new(0))
 			require.NoError(t, err)
 		}
 	}
@@ -136,10 +134,9 @@ func TestRecalcChunkSeams_南北境界は隣を見て再計算する(t *testing.
 	const boundaryY consts.Tile = 40
 
 	// 境界の周囲に dirt の 3x4 ブロックを敷く。端スプライトを模して autoTileIndex=0 で生成する
-	zero := 0
 	for y := boundaryY - 2; y <= boundaryY+1; y++ {
 		for x := consts.Tile(4); x <= 6; x++ {
-			_, err := lifecycle.SpawnTile(world, "dirt", x, y, &zero)
+			_, err := lifecycle.SpawnTile(world, "dirt", x, y, new(0))
 			require.NoError(t, err)
 		}
 	}
@@ -196,10 +193,9 @@ func TestRecalcChunkSeams_境界の隣接方向が正しいビットになる(t 
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		const boundaryX consts.Tile = 50
-		zero := 0
 		// seam をまたぐ2タイルだけ dirt。上下左は空にして右左のビットだけを残す
 		for _, x := range []consts.Tile{boundaryX - 1, boundaryX} {
-			_, err := lifecycle.SpawnTile(world, "dirt", x, 5, &zero)
+			_, err := lifecycle.SpawnTile(world, "dirt", x, 5, new(0))
 			require.NoError(t, err)
 		}
 		overworld.RecalcChunkSeams(world, boundaryX, 0, 100, 100)
@@ -215,9 +211,8 @@ func TestRecalcChunkSeams_境界の隣接方向が正しいビットになる(t 
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		const boundaryY consts.Tile = 40
-		zero := 0
 		for _, y := range []consts.Tile{boundaryY - 1, boundaryY} {
-			_, err := lifecycle.SpawnTile(world, "dirt", 5, y, &zero)
+			_, err := lifecycle.SpawnTile(world, "dirt", 5, y, new(0))
 			require.NoError(t, err)
 		}
 		overworld.RecalcChunkSeams(world, 0, boundaryY, 100, 100)
@@ -237,15 +232,13 @@ func TestRecalcChunkSeams_非オートタイルは再計算されない(t *testi
 
 	world := testutil.InitTestWorld(t)
 	const boundaryX consts.Tile = 50
-	zero := 0
 
 	// 西側は通常のオートタイル dirt。東側は数値サフィックスの無い "void" を手で置く
-	_, err := lifecycle.SpawnTile(world, "dirt", boundaryX-1, 5, &zero)
+	_, err := lifecycle.SpawnTile(world, "dirt", boundaryX-1, 5, new(0))
 	require.NoError(t, err)
 
 	voidE := world.ECS.NewEntity()
-	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: boundaryX, Y: 5}}
-	world.Components.GridElement.Add(voidE, &grid)
+	world.Components.GridElement.Add(voidE, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: boundaryX, Y: 5}})
 	world.Components.SpriteRender.Add(voidE, &gc.SpriteRender{SpriteKey: "void"})
 	world.Components.Tile.Add(voidE, &gc.Tile{})
 	world.Components.Name.Add(voidE, &gc.Name{Name: "void"})
@@ -263,9 +256,8 @@ func TestRecalcChunkSeams_座標0近傍の境界でも破綻しない(t *testing
 
 	world := testutil.InitTestWorld(t)
 	const boundaryX consts.Tile = 1
-	zero := 0
 	for _, x := range []consts.Tile{0, 1} {
-		_, err := lifecycle.SpawnTile(world, "dirt", x, 5, &zero)
+		_, err := lifecycle.SpawnTile(world, "dirt", x, 5, new(0))
 		require.NoError(t, err)
 	}
 	// offsetY を離して y 境界は空でスキップさせ、x=1 の継ぎ目だけを対象にする

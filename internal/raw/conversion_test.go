@@ -74,7 +74,6 @@ func TestParseFire(t *testing.T) {
 
 	t.Run("正常な射撃攻撃を変換する", func(t *testing.T) {
 		t.Parallel()
-		tag := oapi.AmmoTag("9mm")
 		f := &oapi.Fire{
 			Accuracy:       70,
 			Damage:         30,
@@ -86,7 +85,7 @@ func TestParseFire(t *testing.T) {
 			TargetNum:      "SINGLE",
 			MagazineSize:   10,
 			ReloadEffort:   50,
-			AmmoTag:        &tag,
+			AmmoTag:        new(oapi.AmmoTag("9mm")),
 		}
 		result, err := parseFire(f)
 		require.NoError(t, err)

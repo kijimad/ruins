@@ -334,8 +334,7 @@ func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.
 	if e, ok := tiles[g]; ok && world.ECS.Alive(e) {
 		world.ECS.RemoveEntity(e)
 	}
-	zero := 0
-	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, &zero)
+	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, new(0))
 	if err != nil {
 		return err
 	}

@@ -231,8 +231,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 		grid := world.Components.GridElement.Get(entity)
 		si.Characters[*grid] = entity
 		if world.Components.Player.Has(entity) {
-			e := entity
-			si.PlayerEntity = &e
+			si.PlayerEntity = new(entity)
 		}
 	}
 

@@ -190,7 +190,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	skills := gc.NewSkills()
 	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
 
-	entitySpec := gc.EntitySpec{
+	memberEntity := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:           &gc.Name{Name: name},
 		Abilities:      &abilities,
 		HP:             &gc.HP{},
@@ -200,11 +200,8 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
 		FactionAlly:    &gc.FactionAlly{},
-		SquadAI: func() *gc.SquadAI {
-			ai := gc.DefaultSquadAI()
-			return &ai
-		}(),
-		GridElement: &gc.GridElement{Coord: spawnPos},
+		SquadAI:        new(gc.DefaultSquadAI()),
+		GridElement:    &gc.GridElement{Coord: spawnPos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,
@@ -212,9 +209,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		},
 		CommandTable: &gc.CommandTable{Name: "素手"},
 		SquadMember:  &gc.SquadMember{},
-	}
-
-	memberEntity := world.Components.AddEntity(world.ECS, &entitySpec)
+	})
 	if err := FullRecover(world, memberEntity); err != nil {
 		return gc.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
 	}

@@ -123,8 +123,7 @@ func makeItemRaws(modify func(*oapi.Item)) oapi.Raws {
 		},
 	}
 	modify(&item)
-	items := []oapi.Item{item}
-	return oapi.Raws{Items: &items}
+	return oapi.Raws{Items: &[]oapi.Item{item}}
 }
 
 func TestValidateDisassemblyReferences(t *testing.T) {
@@ -172,14 +171,13 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 
 	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
-		minSkill := oapi.SkillLevel(10)
 		items := []oapi.Item{
 			{Name: "鉄くず"},
 			{Name: "分解対象", Disassembly: &oapi.Disassembly{
 				ToolCategory: oapi.Precision,
 				BaseAP:       100,
 				Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
-				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: &minSkill}},
+				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: new(oapi.SkillLevel(10))}},
 			}},
 		}
 		raws := oapi.Raws{Items: &items}
@@ -226,10 +224,9 @@ func TestValidateDropTableReferences(t *testing.T) {
 
 	t.Run("メンバーのテーブル名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
-		tableName := oapi.EntityName("未定義テーブル")
 		raws := oapi.Raws{
 			Items:   items,
-			Members: &[]oapi.Member{{Name: "スライム", DropTableName: &tableName}},
+			Members: &[]oapi.Member{{Name: "スライム", DropTableName: new(oapi.EntityName("未定義テーブル"))}},
 		}
 		err := validateDropTableReferences(raws)
 		require.Error(t, err)
@@ -244,11 +241,10 @@ func TestValidateCommandTableReferences(t *testing.T) {
 	t.Run("実在するテーブル名と未指定と空文字は通る", func(t *testing.T) {
 		t.Parallel()
 		empty := oapi.EntityName("")
-		tableName := oapi.EntityName("素手")
 		raws := oapi.Raws{
 			CommandTables: &[]oapi.CommandTable{{Name: "素手"}},
 			Members: &[]oapi.Member{
-				{Name: "戦うNPC", CommandTableName: &tableName},
+				{Name: "戦うNPC", CommandTableName: new(oapi.EntityName("素手"))},
 				{Name: "未指定NPC"},
 				{Name: "空文字NPC", CommandTableName: &empty},
 			},
@@ -258,9 +254,8 @@ func TestValidateCommandTableReferences(t *testing.T) {
 
 	t.Run("テーブル名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
-		tableName := oapi.EntityName("未定義テーブル")
 		raws := oapi.Raws{
-			Members: &[]oapi.Member{{Name: "スライム", CommandTableName: &tableName}},
+			Members: &[]oapi.Member{{Name: "スライム", CommandTableName: new(oapi.EntityName("未定義テーブル"))}},
 		}
 		err := validateCommandTableReferences(raws)
 		require.Error(t, err)

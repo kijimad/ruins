@@ -492,8 +492,7 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		isSelected := pg.IsSelectedInPage(entry.Index)
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.RecipeName}, nil, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.RecipeName}, nil, new(pg.IsSelectedInPage(entry.Index)), res)
 	}
 	container.AddChild(table)
 
