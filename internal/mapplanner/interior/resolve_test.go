@@ -1,10 +1,11 @@
 package interior
 
 import (
-	"github.com/kijimaD/ruins/internal/consts"
 	"math/rand/v2"
 	"reflect"
 	"testing"
+
+	"github.com/kijimaD/ruins/internal/consts"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

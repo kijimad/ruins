@@ -1,7 +1,6 @@
 package interior
 
 import (
-	"github.com/kijimaD/ruins/internal/consts"
 	"bytes"
 	"image"
 	"image/color"
@@ -10,6 +9,8 @@ import (
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/kijimaD/ruins/internal/consts"
 
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"

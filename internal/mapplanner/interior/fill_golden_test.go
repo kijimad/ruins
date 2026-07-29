@@ -1,8 +1,9 @@
 package interior
 
 import (
-	"github.com/kijimaD/ruins/internal/consts"
 	"testing"
+
+	"github.com/kijimaD/ruins/internal/consts"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
