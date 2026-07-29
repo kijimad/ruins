@@ -34,16 +34,14 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 }
 
 // TransferUnits は item のうち count 個だけ recipient のバックパックへ移す。
-// count が0以下、または在庫以上なら entity ごとまとめて移す。stackable で在庫より少なく
-// 指定されたときだけ元スタックを count 減らし、同名の count 個を recipient 側へ生成して統合する。
-// 空腹の隊員が共有プールから1食ぶんだけ引くなど、スタックの一部だけ渡したいときに使う。
+// count が0以下、または在庫数以上なら item を丸ごと移す。在庫数より少なければ、
+// 元スタックを count 個減らし、同名の count 個を生成して recipient のバックパックへ統合する。
 func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error {
 	available := query.GetEntityCount(world, item)
 	if count <= 0 || count >= available {
 		return MoveToBackpack(world, item, recipient)
 	}
 
-	// item 名は減算の前に読む。ChangeItemCount は Count を書き換えるので構造前の値参照を安全にするため。
 	name := world.Components.Name.Get(item).Name
 	if err := ChangeItemCount(world, item, -count); err != nil {
 		return fmt.Errorf("転送元スタックの減算に失敗: %w", err)
