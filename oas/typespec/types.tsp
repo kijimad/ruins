@@ -169,16 +169,6 @@ scalar MessageKey extends string;
 @maxValue(9999)
 scalar NutritionAmount extends int32;
 
-/** パックの最大数 */
-@minValue(1)
-@maxValue(100)
-scalar PackMax extends int32;
-
-/** パックの最小数 */
-@minValue(1)
-@maxValue(100)
-scalar PackMin extends int32;
-
 /** パレットID */
 @minLength(1)
 @maxLength(50)

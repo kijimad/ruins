@@ -254,23 +254,16 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 		return fmt.Errorf("ItemTable '%s' の取得に失敗: %w", tableName, err)
 	}
 
-	// ルート数を決定する
-	countMin := 1
-	countMax := 1
-	if propRaw.Storage.LootCountMin != nil {
-		countMin = int(*propRaw.Storage.LootCountMin)
+	// ルート数はダイス表記で決める。省略時は1個
+	lootDice := consts.Dice{Bonus: 1}
+	if propRaw.Storage.LootCount != nil {
+		d, err := consts.ParseDice(*propRaw.Storage.LootCount)
+		if err != nil {
+			return fmt.Errorf("収納 '%s' の lootCount 表記が不正です: %w", propRaw.Name, err)
+		}
+		lootDice = d
 	}
-	if propRaw.Storage.LootCountMax != nil {
-		countMax = int(*propRaw.Storage.LootCountMax)
-	}
-	if countMin > countMax {
-		countMin = countMax
-	}
-
-	lootCount := countMin
-	if countMax > countMin {
-		lootCount = countMin + metaPlan.RNG.IntN(countMax-countMin+1)
-	}
+	lootCount := lootDice.Roll(metaPlan.RNG)
 
 	// 深度は生成中フロアのプランから取る。世界の CurrentStage は生成完了後に確定するため、
 	// ここで参照すると1段ずれる(遺跡進入時は地上の深度0を読んでしまう)。

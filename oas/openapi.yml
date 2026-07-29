@@ -1807,8 +1807,7 @@ components:
         - weight
         - minDepth
         - maxDepth
-        - packMin
-        - packMax
+        - pack
       properties:
         enemyName:
           $ref: '#/components/schemas/EntityName'
@@ -1818,10 +1817,10 @@ components:
           $ref: '#/components/schemas/DepthLevel'
         maxDepth:
           $ref: '#/components/schemas/DepthLevel'
-        packMin:
-          $ref: '#/components/schemas/PackMin'
-        packMax:
-          $ref: '#/components/schemas/PackMax'
+        pack:
+          allOf:
+            - $ref: '#/components/schemas/Dice'
+          description: '1群あたりの敵数のダイス表記。例: "1d3" "1"'
       description: 敵テーブルエントリ
     EnemyTableList:
       type: object
@@ -2088,8 +2087,7 @@ components:
       required:
         - itemName
         - weight
-        - packMin
-        - packMax
+        - pack
       properties:
         itemName:
           $ref: '#/components/schemas/EntityName'
@@ -2097,10 +2095,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/EntryWeight'
           description: 'distribution: 相対重み。collection: 確率（0-100）'
-        packMin:
-          $ref: '#/components/schemas/PackMin'
-        packMax:
-          $ref: '#/components/schemas/PackMax'
+        pack:
+          allOf:
+            - $ref: '#/components/schemas/Dice'
+          description: '1山あたりの個数のダイス表記。例: "1d3" "1"'
       description: アイテムグループエントリ
     ItemGroupList:
       type: object
@@ -2335,18 +2333,6 @@ components:
       minimum: 0
       maximum: 9999
       description: 栄養価
-    PackMax:
-      type: integer
-      format: int32
-      minimum: 1
-      maximum: 100
-      description: パックの最大数
-    PackMin:
-      type: integer
-      format: int32
-      minimum: 1
-      maximum: 100
-      description: パックの最小数
     Palette:
       type: object
       required:
@@ -3864,14 +3850,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/EntityName'
           description: 初期アイテムの抽選に使うItemTable名
-        lootCountMin:
-          type: integer
-          format: int32
-          description: 初期アイテムの最小数
-        lootCountMax:
-          type: integer
-          format: int32
-          description: 初期アイテムの最大数
+        lootCount:
+          allOf:
+            - $ref: '#/components/schemas/Dice'
+          description: '初期アイテム数のダイス表記。省略時は1。例: "1d2" "3"'
       description: 収納ローデータ
     Strength:
       type: integer

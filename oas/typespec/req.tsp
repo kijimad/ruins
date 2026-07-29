@@ -215,8 +215,8 @@ model ItemGroupEntry {
   itemName: EntityName;
   /** distribution: 相対重み。collection: 確率（0-100） */
   weight: EntryWeight;
-  packMin: PackMin;
-  packMax: PackMax;
+  /** 1山あたりの個数のダイス表記。例: "1d3" "1" */
+  pack: Dice;
 }
 
 /** アイテムグループ。アイテムの出現セットを定義する */
@@ -247,8 +247,8 @@ model EnemyTableEntry {
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
-  packMin: PackMin;
-  packMax: PackMax;
+  /** 1群あたりの敵数のダイス表記。例: "1d3" "1" */
+  pack: Dice;
 }
 
 /** 敵テーブル */
@@ -298,10 +298,8 @@ model StorageRaw {
   maxWeight: Weight;
   /** 初期アイテムの抽選に使うItemTable名 */
   lootTableName?: EntityName;
-  /** 初期アイテムの最小数 */
-  lootCountMin?: int32;
-  /** 初期アイテムの最大数 */
-  lootCountMax?: int32;
+  /** 初期アイテム数のダイス表記。省略時は1。例: "1d2" "3" */
+  lootCount?: Dice;
 }
 
 /** 置物 */

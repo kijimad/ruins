@@ -856,11 +856,8 @@ type EnemyTableEntry struct {
 	// MinDepth 階層レベル
 	MinDepth DepthLevel `json:"minDepth"`
 
-	// PackMax パックの最大数
-	PackMax PackMax `json:"packMax"`
-
-	// PackMin パックの最小数
-	PackMin PackMin `json:"packMin"`
+	// Pack 1群あたりの敵数のダイス表記。例: "1d3" "1"
+	Pack Dice `json:"pack"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -1061,11 +1058,8 @@ type ItemGroupEntry struct {
 	// ItemName エンティティ名
 	ItemName EntityName `json:"itemName"`
 
-	// PackMax パックの最大数
-	PackMax PackMax `json:"packMax"`
-
-	// PackMin パックの最小数
-	PackMin PackMin `json:"packMin"`
+	// Pack 1山あたりの個数のダイス表記。例: "1d3" "1"
+	Pack Dice `json:"pack"`
 
 	// Weight distribution: 相対重み。collection: 確率（0-100）
 	Weight EntryWeight `json:"weight"`
@@ -1229,12 +1223,6 @@ type MovementPatternType string
 
 // NutritionAmount 栄養価
 type NutritionAmount = int32
-
-// PackMax パックの最大数
-type PackMax = int32
-
-// PackMin パックの最小数
-type PackMin = int32
 
 // Palette パレット
 type Palette struct {
@@ -2272,11 +2260,8 @@ type Stackable = bool
 
 // StorageRaw 収納ローデータ
 type StorageRaw struct {
-	// LootCountMax 初期アイテムの最大数
-	LootCountMax *int32 `json:"lootCountMax,omitempty"`
-
-	// LootCountMin 初期アイテムの最小数
-	LootCountMin *int32 `json:"lootCountMin,omitempty"`
+	// LootCount 初期アイテム数のダイス表記。省略時は1。例: "1d2" "3"
+	LootCount *Dice `json:"lootCount,omitempty"`
 
 	// LootTableName 初期アイテムの抽選に使うItemTable名
 	LootTableName *EntityName `json:"lootTableName,omitempty"`
