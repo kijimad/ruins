@@ -120,7 +120,8 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 	// オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。
 	var indexPtr *int
 	if spec.autotile {
-		indexPtr = new(int(metaPlan.CalculateAutoTileIndex(i, tile.Name)))
+		index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
+		indexPtr = &index
 	}
 	return lifecycle.SpawnTile(world, spec.spawnName, tileX, tileY, indexPtr)
 }
