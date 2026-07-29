@@ -37,25 +37,26 @@ func newSquadPlanner(rng *rand.Rand) *squadPlanner {
 	}
 }
 
-// squadContext は隊員AIに必要な情報をまとめる
-type squadContext struct {
+// squadSnapshot は隊員AIの1ターンの判断に使う情報の束。
+// コンポーネントへのポインタは構造変更で無効化されるため、ターンごとに作り直す
+type squadSnapshot struct {
 	Grid         *gc.GridElement
 	Squad        *gc.SquadAI
 	LeaderEntity ecs.Entity
 	LeaderGrid   *gc.GridElement
 }
 
-// Plan はsquadContextを収集し、優先度チェーンで行動を決定する
+// Plan はsquadSnapshotを収集し、優先度チェーンで行動を決定する
 func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior {
-	ctx, ok := sp.gatherSquadContext(world, entity)
+	snap, ok := sp.gatherSquadSnapshot(world, entity)
 	if !ok {
 		return nil
 	}
-	return sp.planAction(world, entity, ctx)
+	return sp.planAction(world, entity, snap)
 }
 
-// gatherSquadContext は隊員の行動に必要なコンテキストを収集する
-func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*squadContext, bool) {
+// gatherSquadSnapshot は隊員の行動に必要な情報を毎ターン取り直してまとめる
+func (sp *squadPlanner) gatherSquadSnapshot(world w.World, entity ecs.Entity) (*squadSnapshot, bool) {
 	grid := world.Components.GridElement.Get(entity)
 
 	squadComp := world.Components.SquadAI.Get(entity)
@@ -76,7 +77,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 		return nil, false
 	}
 
-	return &squadContext{
+	return &squadSnapshot{
 		Grid:         grid,
 		Squad:        squadComp,
 		LeaderEntity: leader,
@@ -86,36 +87,36 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 
 // planAction はポリシーと状況に基づいてアクションを決定する。
 // 優先順位: HP低下時後退 → エリア制限 → 戦闘 → アイテム転送 → アイテム拾得 → 位置ポリシー
-func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {
+func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {
 	if sp.shouldRetreatLowHP(world, entity) {
-		if b, ok := sp.planRetreatAction(world, entity, ctx); ok {
+		if b, ok := sp.planRetreatAction(world, entity, snap); ok {
 			return b
 		}
 	}
 
-	if sp.isOutsideExploredArea(world, ctx.Grid) {
-		if b, ok := sp.planReturnToExploredArea(world, entity, ctx); ok {
+	if sp.isOutsideExploredArea(world, snap.Grid) {
+		if b, ok := sp.planReturnToExploredArea(world, entity, snap); ok {
 			return b
 		}
 	}
 
-	if b, ok := sp.planSupplyAction(world, entity, ctx); ok {
+	if b, ok := sp.planSupplyAction(world, entity, snap); ok {
 		return b
 	}
 
-	if b, ok := sp.planCombatAction(world, entity, ctx); ok {
+	if b, ok := sp.planCombatAction(world, entity, snap); ok {
 		return b
 	}
 
-	if b, ok := sp.planItemHandlingAction(world, entity, ctx); ok {
+	if b, ok := sp.planItemHandlingAction(world, entity, snap); ok {
 		return b
 	}
 
-	if b, ok := sp.planItemPickupAction(world, entity, ctx); ok {
+	if b, ok := sp.planItemPickupAction(world, entity, snap); ok {
 		return b
 	}
 
-	return sp.planPositionAction(world, entity, ctx)
+	return sp.planPositionAction(world, entity, snap)
 }
 
 // shouldRetreatLowHP はHP25%以下で後退すべきかを判定する
@@ -131,9 +132,9 @@ func (sp *squadPlanner) shouldRetreatLowHP(world w.World, entity ecs.Entity) boo
 }
 
 // planRetreatAction はリーダーに向かって後退するアクションを計画する
-func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
+func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
 	sp.logger.Debug("隊員HP低下、後退", "entity", entity)
-	return sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid)
+	return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)
 }
 
 // isOutsideExploredArea は現在位置が探索済みエリア外かを判定する
@@ -146,18 +147,18 @@ func (sp *squadPlanner) isOutsideExploredArea(world w.World, grid *gc.GridElemen
 }
 
 // planReturnToExploredArea は最寄りの探索済みマスへ移動するアクションを計画する
-func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
+func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
 	sp.logger.Debug("隊員がエリア外、リーダーに向かう", "entity", entity)
-	return sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid)
+	return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)
 }
 
 // planCombatAction は戦闘ポリシーに基づくアクションを計画する
-func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
-	switch ctx.Squad.CombatCurrent {
+func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
+	switch snap.Squad.CombatCurrent {
 	case gc.CombatAttack:
-		return sp.planAttackAction(world, entity, ctx)
+		return sp.planAttackAction(world, entity, snap)
 	case gc.CombatEvade:
-		return sp.planEvadeAction(world, entity, ctx)
+		return sp.planEvadeAction(world, entity, snap)
 	default:
 		return nil, false
 	}
@@ -166,8 +167,8 @@ func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *
 // planAttackAction は攻撃ポリシーに基づくアクションを計画する。
 // 隣接する敵がいれば攻撃し、視界内の敵がいれば接近する。
 // 移動しても敵に近づけない場合は諦めて次の優先度に進む
-func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
-	nearestEnemy, nearestGrid, dist := sp.findNearestEnemy(world, entity, ctx)
+func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
+	nearestEnemy, nearestGrid, dist := sp.findNearestEnemy(world, entity, snap)
 	if nearestEnemy == nil {
 		return nil, false
 	}
@@ -176,46 +177,46 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, ctx *
 		return &activity.AttackActivity{Target: *nearestEnemy}, true
 	}
 
-	return sp.tryMoveToward(world, entity, ctx.Grid, nearestGrid)
+	return sp.tryMoveToward(world, entity, snap.Grid, nearestGrid)
 }
 
 // planEvadeAction は回避ポリシーに基づくアクションを計画する。
 // 視界内の最寄りの敵から距離を取る
-func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
-	nearestEnemy, _, _ := sp.findNearestEnemy(world, entity, ctx)
+func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
+	nearestEnemy, _, _ := sp.findNearestEnemy(world, entity, snap)
 	if nearestEnemy == nil {
 		return nil, false
 	}
 
 	enemyGrid := world.Components.GridElement.Get(*nearestEnemy)
-	return sp.tryMoveAway(world, entity, ctx.Grid, enemyGrid)
+	return sp.tryMoveAway(world, entity, snap.Grid, enemyGrid)
 }
 
 // planPositionAction は位置ポリシーに基づくアクションを計画する
-func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {
-	switch ctx.Squad.Movement {
+func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {
+	switch snap.Squad.Movement {
 	case gc.SquadEscort:
-		return sp.planEscortAction(world, entity, ctx)
+		return sp.planEscortAction(world, entity, snap)
 	case gc.SquadVanguard:
-		return sp.planVanguardAction(world, entity, ctx)
+		return sp.planVanguardAction(world, entity, snap)
 	case gc.SquadPatrol:
-		return sp.planSquadPatrolAction(world, entity, ctx)
+		return sp.planSquadPatrolAction(world, entity, snap)
 	case gc.SquadStationary:
 		return waitAction("隊員待機")
 	case gc.SquadRetreat:
-		return sp.planEscortAction(world, entity, ctx)
+		return sp.planEscortAction(world, entity, snap)
 	default:
 		return waitAction("隊員デフォルト待機")
 	}
 }
 
 // planEscortAction はリーダーから2マス以内にとどまるアクションを計画する
-func (sp *squadPlanner) planEscortAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {
-	dist := gridDistance(ctx.Grid, ctx.LeaderGrid)
+func (sp *squadPlanner) planEscortAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {
+	dist := gridDistance(snap.Grid, snap.LeaderGrid)
 	if dist <= escortMaxDistance {
 		return waitAction("隊員護衛位置")
 	}
-	if b, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok {
+	if b, ok := sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid); ok {
 		return b
 	}
 	return waitAction("隊員護衛移動失敗")
@@ -223,23 +224,23 @@ func (sp *squadPlanner) planEscortAction(world w.World, entity ecs.Entity, ctx *
 
 // planVanguardAction はリーダーの前方に展開するアクションを計画する。
 // リーダーから離れすぎている場合はリーダーに接近する
-func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {
-	dist := gridDistance(ctx.Grid, ctx.LeaderGrid)
+func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {
+	dist := gridDistance(snap.Grid, snap.LeaderGrid)
 	if dist > vanguardMaxDistance {
-		if b, ok := sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid); ok {
+		if b, ok := sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid); ok {
 			return b
 		}
 		return waitAction("隊員前衛接近失敗")
 	}
-	if b, ok := sp.tryRandomMove(world, entity, ctx); ok {
+	if b, ok := sp.tryRandomMove(world, entity, snap); ok {
 		return b
 	}
 	return waitAction("隊員前衛移動失敗")
 }
 
 // planSquadPatrolAction は探索済みエリア内を自律的に巡回するアクションを計画する
-func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, ctx *squadContext) activity.Behavior {
-	if b, ok := sp.tryRandomMove(world, entity, ctx); ok {
+func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {
+	if b, ok := sp.tryRandomMove(world, entity, snap); ok {
 		return b
 	}
 	return waitAction("隊員巡回移動失敗")
@@ -248,8 +249,8 @@ func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, 
 // planItemPickupAction は拾得可能アイテムを拾うアクションを計画する。
 // 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。
 // PolicyIgnoreの場合は何もしない
-func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
-	if ctx.Squad.ItemPickup == gc.PolicyIgnore {
+func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
+	if snap.Squad.ItemPickup == gc.PolicyIgnore {
 		return nil, false
 	}
 
@@ -265,13 +266,13 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 		}
 		grid := world.Components.GridElement.Get(item)
 
-		if grid.X == ctx.Grid.X && grid.Y == ctx.Grid.Y {
+		if grid.X == snap.Grid.X && grid.Y == snap.Grid.Y {
 			hasPickableHere = true
 			continue
 		}
 
-		dist := gridDistance(ctx.Grid, grid)
-		if dist > int(ctx.Squad.ViewDistance) {
+		dist := gridDistance(snap.Grid, grid)
+		if dist > int(snap.Squad.ViewDistance) {
 			continue
 		}
 		if nearestDist < 0 || dist < nearestDist {
@@ -281,14 +282,14 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 	}
 
 	if hasPickableHere {
-		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", ctx.Grid.X, "y", ctx.Grid.Y)
-		dest := *ctx.Grid
+		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", snap.Grid.X, "y", snap.Grid.Y)
+		dest := *snap.Grid
 		return &activity.PickupActivity{Destination: &dest}, true
 	}
 
 	if nearestItemGrid != nil {
 		sp.logger.Debug("隊員アイテムへ移動", "entity", entity, "dist", nearestDist)
-		return sp.tryMoveToward(world, entity, ctx.Grid, nearestItemGrid)
+		return sp.tryMoveToward(world, entity, snap.Grid, nearestItemGrid)
 	}
 
 	return nil, false
@@ -297,8 +298,8 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 // planSupplyAction は空腹の隊員に補給行動を計画する。
 // まず自分の背嚢の食料を食べ、無ければ共有プールであるリーダーの所持品へ接近して受け取る。
 // 敵が視界内にいる間は発火しない
-func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
-	if ctx.Squad.Supply != gc.SupplyAuto {
+func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
+	if snap.Squad.Supply != gc.SupplyAuto {
 		return nil, false
 	}
 	if !world.Components.Hunger.Has(entity) {
@@ -308,7 +309,7 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, ctx *
 		return nil, false
 	}
 	// 戦闘中は食べない
-	if enemy, _, _ := sp.findNearestEnemy(world, entity, ctx); enemy != nil {
+	if enemy, _, _ := sp.findNearestEnemy(world, entity, snap); enemy != nil {
 		return nil, false
 	}
 
@@ -319,17 +320,17 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, ctx *
 	}
 
 	// 共有プールから受け取る
-	poolFood, ok := findLowestNutritionFood(world, ctx.LeaderEntity)
+	poolFood, ok := findLowestNutritionFood(world, snap.LeaderEntity)
 	if !ok {
 		// プール枯渇。受け取れず空腹が進む。食料確保はプレイヤーの兵站判断に残す
 		sp.logger.Debug("隊の食料が尽きている", "entity", entity)
 		return nil, false
 	}
-	if gridDistance(ctx.Grid, ctx.LeaderGrid) <= 1 {
+	if gridDistance(snap.Grid, snap.LeaderGrid) <= 1 {
 		sp.logger.Debug("隊員が食料を受け取る", "entity", entity)
 		return &activity.TransferActivity{Target: poolFood, Recipient: entity}, true
 	}
-	return sp.tryMoveToward(world, entity, ctx.Grid, ctx.LeaderGrid)
+	return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)
 }
 
 // findLowestNutritionFood は所持品から最も栄養価の低い食料を返す
@@ -356,12 +357,12 @@ func findLowestNutritionFood(world w.World, owner ecs.Entity) (ecs.Entity, bool)
 
 // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。
 // PolicyDistributeの場合はリーダーにアイテムを転送する
-func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
-	if ctx.Squad.ItemHandling != gc.PolicyDistribute {
+func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
+	if snap.Squad.ItemHandling != gc.PolicyDistribute {
 		return nil, false
 	}
 
-	dist := gridDistance(ctx.Grid, ctx.LeaderGrid)
+	dist := gridDistance(snap.Grid, snap.LeaderGrid)
 	if dist > 1 {
 		return nil, false
 	}
@@ -384,14 +385,14 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 	}
 
 	sp.logger.Debug("隊員アイテム転送", "entity", entity, "item", *itemToTransfer)
-	return &activity.TransferActivity{Target: *itemToTransfer, Recipient: ctx.LeaderEntity}, true
+	return &activity.TransferActivity{Target: *itemToTransfer, Recipient: snap.LeaderEntity}, true
 }
 
 // findNearestEnemy は視界内の最も近い敵を探す
-func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *squadContext) (*ecs.Entity, *gc.GridElement, int) {
-	return query.FindNearestCharacter(world, entity, ctx.Grid, func(target ecs.Entity) bool {
+func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, snap *squadSnapshot) (*ecs.Entity, *gc.GridElement, int) {
+	return query.FindNearestCharacter(world, entity, snap.Grid, func(target ecs.Entity) bool {
 		return query.FactionRelation(world, entity, target) == query.RelationHostile &&
-			sp.visionSystem.CanSeeTarget(world, entity, target, ctx.Squad.ViewDistance)
+			sp.visionSystem.CanSeeTarget(world, entity, target, snap.Squad.ViewDistance)
 	})
 }
 
@@ -416,9 +417,9 @@ func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, thre
 }
 
 // tryRandomMove は探索済みエリア内でランダム移動を試みる
-func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, bool) {
+func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
 	field := query.GetCurrentStageField(world)
-	from := ctx.Grid.Coord
+	from := snap.Grid.Coord
 
 	for _, d := range shuffledEightDirections(sp.rng) {
 		dest := from.Add(d)

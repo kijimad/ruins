@@ -17,8 +17,8 @@ import (
 )
 
 // setupSupplyTest はリーダーと空腹の隊員を作る。
-// ctx は giveFood 等の構造変更でポインタが無効化されるため、ここでは作らず
-// 全準備が済んだ後に buildSupplyCtx で組み立てる
+// snap は giveFood 等の構造変更でポインタが無効化されるため、ここでは作らず
+// 全準備が済んだ後に buildSupplySnapshot で組み立てる
 func setupSupplyTest(t *testing.T, world w.World) (leader ecs.Entity, member ecs.Entity) {
 	t.Helper()
 
@@ -33,9 +33,9 @@ func setupSupplyTest(t *testing.T, world w.World) (leader ecs.Entity, member ecs
 	return leader, member
 }
 
-// buildSupplyCtx は構造変更が済んだ後にコンポーネントを取り直して ctx を作る
-func buildSupplyCtx(world w.World, leader ecs.Entity, member ecs.Entity) *squadContext {
-	return &squadContext{
+// buildSupplySnapshot は構造変更が済んだ後にコンポーネントを取り直して snap を作る
+func buildSupplySnapshot(world w.World, leader ecs.Entity, member ecs.Entity) *squadSnapshot {
+	return &squadSnapshot{
 		Grid:         world.Components.GridElement.Get(member),
 		Squad:        world.Components.SquadAI.Get(member),
 		LeaderEntity: leader,
@@ -60,11 +60,11 @@ func TestPlanSupplyAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
 		giveFood(t, world, member, "パン")
-		ctx := buildSupplyCtx(world, leader, member)
-		ctx.Squad.Supply = gc.SupplyManual
+		snap := buildSupplySnapshot(world, leader, member)
+		snap.Squad.Supply = gc.SupplyManual
 
 		sp := newSquadPlanner(newTestRNG())
-		_, ok := sp.planSupplyAction(world, member, ctx)
+		_, ok := sp.planSupplyAction(world, member, snap)
 		assert.False(t, ok)
 	})
 
@@ -75,10 +75,10 @@ func TestPlanSupplyAction(t *testing.T) {
 		giveFood(t, world, member, "パン")
 		hunger := world.Components.Hunger.Get(member)
 		hunger.Current = hunger.Max
-		ctx := buildSupplyCtx(world, leader, member)
+		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
-		_, ok := sp.planSupplyAction(world, member, ctx)
+		_, ok := sp.planSupplyAction(world, member, snap)
 		assert.False(t, ok)
 	})
 
@@ -87,10 +87,10 @@ func TestPlanSupplyAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
 		food := giveFood(t, world, member, "パン")
-		ctx := buildSupplyCtx(world, leader, member)
+		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
-		b, ok := sp.planSupplyAction(world, member, ctx)
+		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
 		use, isUse := b.(*activity.UseItemActivity)
 		require.True(t, isUse, "自分の食料は食べるべき")
@@ -103,7 +103,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		leader, member := setupSupplyTest(t, world)
 		low := giveFood(t, world, member, "ビスケット")
 		giveFood(t, world, member, "パン")
-		ctx := buildSupplyCtx(world, leader, member)
+		snap := buildSupplySnapshot(world, leader, member)
 
 		lowN := world.Components.ProvidesNutrition.Get(low).Amount
 		// 前提: ビスケットのほうが低栄養。逆なら raw の変更でこのテストが知らせる
@@ -113,7 +113,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		}
 
 		sp := newSquadPlanner(newTestRNG())
-		b, ok := sp.planSupplyAction(world, member, ctx)
+		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
 		use, isUse := b.(*activity.UseItemActivity)
 		require.True(t, isUse)
@@ -126,10 +126,10 @@ func TestPlanSupplyAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
 		poolFood := giveFood(t, world, leader, "パン")
-		ctx := buildSupplyCtx(world, leader, member)
+		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
-		b, ok := sp.planSupplyAction(world, member, ctx)
+		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
 		tr, isTransfer := b.(*activity.TransferActivity)
 		require.True(t, isTransfer, "隣接なら受け取りになるべき")
@@ -147,10 +147,10 @@ func TestPlanSupplyAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.Coord = consts.Coord[consts.Tile]{X: 20, Y: 10}
 		query.InvalidateSpatialIndex(world)
-		ctx := buildSupplyCtx(world, leader, member)
+		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
-		b, ok := sp.planSupplyAction(world, member, ctx)
+		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
 		_, isUse := b.(*activity.UseItemActivity)
 		_, isTransfer := b.(*activity.TransferActivity)
@@ -166,10 +166,10 @@ func TestPlanSupplyAction(t *testing.T) {
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
-		ctx := buildSupplyCtx(world, leader, member)
+		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
-		_, ok := sp.planSupplyAction(world, member, ctx)
+		_, ok := sp.planSupplyAction(world, member, snap)
 		assert.False(t, ok, "戦闘中は食べないべき")
 	})
 
@@ -177,10 +177,10 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		ctx := buildSupplyCtx(world, leader, member)
+		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
-		_, ok := sp.planSupplyAction(world, member, ctx)
+		_, ok := sp.planSupplyAction(world, member, snap)
 		assert.False(t, ok, "食料が無ければ行動しない")
 	})
 }
