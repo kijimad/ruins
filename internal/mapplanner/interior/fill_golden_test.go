@@ -1,6 +1,7 @@
 package interior
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -35,9 +36,9 @@ func abandonedFlavor() Content {
 		ID: "abandoned",
 		Groups: []Group{
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindDecor, Ref: "carpet", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1}},
-				{Kind: KindDecor, Ref: "broom", Placement: PlaceWall, Amount: Dice{Bonus: 1}},
-				{Kind: KindDecor, Ref: "candle", Placement: PlaceFullArea, Amount: Dice{Base: 1, Sides: 2}},
+				{Kind: KindDecor, Ref: "carpet", Placement: PlaceFarFromDoor, Amount: consts.Dice{Bonus: 1}},
+				{Kind: KindDecor, Ref: "broom", Placement: PlaceWall, Amount: consts.Dice{Bonus: 1}},
+				{Kind: KindDecor, Ref: "candle", Placement: PlaceFullArea, Amount: consts.Dice{Base: 1, Sides: 2}},
 			}},
 		},
 	}

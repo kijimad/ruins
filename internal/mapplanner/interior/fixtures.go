@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 束什器。anchor に衛星を相対配置した Stuff を返す。机だけあって椅子が中央に縦並びする散布事故を、束で
 // 1つの scene に見せて防ぐ。レシピはこの束を1エントリとして抽選に入れる。署名什器は部屋の役割を一目で読ませ、可読性の芯になる。
 
@@ -11,7 +13,7 @@ func diningTable(placement Placement) Stuff {
 		return Satellite{Kind: KindFurniture, Ref: "chair", Offsets: offs}
 	}
 	return Stuff{
-		Kind: KindFurniture, Ref: "table", Placement: placement, Amount: Dice{Bonus: 1},
+		Kind: KindFurniture, Ref: "table", Placement: placement, Amount: consts.Dice{Bonus: 1},
 		Satellites: []Satellite{
 			chair(Vec{X: 0, Y: -1}, Vec{X: -1, Y: -1}, Vec{X: 1, Y: -1}),
 			chair(Vec{X: 0, Y: 1}, Vec{X: -1, Y: 1}, Vec{X: 1, Y: 1}),
@@ -26,7 +28,7 @@ func diningTable(placement Placement) Stuff {
 // クローゼットは4方向を順に試し、壁の向きに依らずベッドの空いた隣へ回り込む。
 func bedSet() Stuff {
 	return Stuff{
-		Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: Dice{Bonus: 1},
+		Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: consts.Dice{Bonus: 1},
 		Satellites: []Satellite{
 			{Kind: KindFurniture, Ref: "closet", Offsets: []Vec{{X: 1}, {X: -1}, {Y: -1}, {Y: 1}}},
 		},
@@ -37,7 +39,7 @@ func bedSet() Stuff {
 // 対になる居間の主家具で、PickOne でどちらが来るかを seed に委ねると、同じ居間が続かない。
 func loungeSet() Stuff {
 	return Stuff{
-		Kind: KindFurniture, Ref: "sofa", Placement: PlaceWall, Amount: Dice{Bonus: 1},
+		Kind: KindFurniture, Ref: "sofa", Placement: PlaceWall, Amount: consts.Dice{Bonus: 1},
 		Satellites: []Satellite{
 			{Kind: KindDecor, Ref: "plant", Offsets: []Vec{{X: 1}, {X: -1}, {Y: -1}, {Y: 1}}},
 		},
@@ -49,7 +51,7 @@ func loungeSet() Stuff {
 // 食器棚は水平の隣を優先し、横壁沿いなら一列に、縦壁沿いなら anchor の内側へ回り込む。
 func kitchenCounter() Stuff {
 	return Stuff{
-		Kind: KindFurniture, Ref: "sink", Placement: PlaceWall, Amount: Dice{Bonus: 1},
+		Kind: KindFurniture, Ref: "sink", Placement: PlaceWall, Amount: consts.Dice{Bonus: 1},
 		Satellites: []Satellite{
 			{Kind: KindFurniture, Ref: "pantry", Offsets: []Vec{{X: 1}, {X: -1}, {Y: 1}, {Y: -1}}},
 			{Kind: KindFurniture, Ref: "pantry", Offsets: []Vec{{X: 2}, {X: -2}, {Y: 2}, {Y: -2}}},
