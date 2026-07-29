@@ -44,12 +44,6 @@ type squadSnapshot struct {
 	Squad        *gc.SquadAI
 	LeaderEntity ecs.Entity
 	LeaderGrid   *gc.GridElement
-
-	// 最寄り敵のメモ化。補給ゲートと戦闘が同一ターンに最寄り敵を要求するので1回だけ計算する
-	enemyDone bool
-	enemy     *ecs.Entity
-	enemyGrid *gc.GridElement
-	enemyDist int
 }
 
 // Plan はsquadSnapshotを収集し、優先度チェーンで行動を決定する
@@ -174,7 +168,7 @@ func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, snap 
 // 隣接する敵がいれば攻撃し、視界内の敵がいれば接近する。
 // 移動しても敵に近づけない場合は諦めて次の優先度に進む
 func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
-	nearestEnemy, nearestGrid, dist := sp.nearestEnemy(world, entity, snap)
+	nearestEnemy, nearestGrid, dist := sp.findNearestEnemy(world, entity, snap)
 	if nearestEnemy == nil {
 		return nil, false
 	}
@@ -189,7 +183,7 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap 
 // planEvadeAction は回避ポリシーに基づくアクションを計画する。
 // 視界内の最寄りの敵から距離を取る
 func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {
-	nearestEnemy, _, _ := sp.nearestEnemy(world, entity, snap)
+	nearestEnemy, _, _ := sp.findNearestEnemy(world, entity, snap)
 	if nearestEnemy == nil {
 		return nil, false
 	}
@@ -315,7 +309,7 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap 
 		return nil, false
 	}
 	// 戦闘中は食べない
-	if enemy, _, _ := sp.nearestEnemy(world, entity, snap); enemy != nil {
+	if enemy, _, _ := sp.findNearestEnemy(world, entity, snap); enemy != nil {
 		return nil, false
 	}
 
@@ -393,15 +387,6 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 
 	sp.logger.Debug("隊員アイテム転送", "entity", entity, "item", *itemToTransfer)
 	return &activity.TransferActivity{Target: *itemToTransfer, Recipient: snap.LeaderEntity}, true
-}
-
-// nearestEnemy は最寄り敵を snapshot にメモ化して返す。同一ターンの補給ゲートと戦闘で二重に走査しない。
-func (sp *squadPlanner) nearestEnemy(world w.World, entity ecs.Entity, snap *squadSnapshot) (*ecs.Entity, *gc.GridElement, int) {
-	if !snap.enemyDone {
-		snap.enemy, snap.enemyGrid, snap.enemyDist = sp.findNearestEnemy(world, entity, snap)
-		snap.enemyDone = true
-	}
-	return snap.enemy, snap.enemyGrid, snap.enemyDist
 }
 
 // findNearestEnemy は視界内の最も近い敵を探す
