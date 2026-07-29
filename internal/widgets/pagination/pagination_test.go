@@ -205,7 +205,9 @@ func TestPagination_GetPageText(t *testing.T) {
 		expected     string
 	}{
 		{"1ページのみは空文字", 0, 5, 10, ""},
+		{"最初のページ", 0, 15, 5, "1/3"},
 		{"中間ページ", 1, 15, 5, "2/3"},
+		{"最後のページ", 2, 15, 5, "3/3"},
 	}
 
 	for _, tt := range tests {
@@ -224,70 +226,58 @@ func TestPagination_GetPageText(t *testing.T) {
 func TestSliceVisible(t *testing.T) {
 	t.Parallel()
 
-	items := []string{"a", "b", "c", "d", "e", "f", "g"}
-	p := Pagination{Page: 1, ItemCount: 7, ItemsPerPage: 3}
+	tests := []struct {
+		name     string
+		items    []string
+		p        Pagination
+		expected []string
+	}{
+		{"通常ページ", []string{"a", "b", "c", "d", "e", "f", "g"}, Pagination{Page: 1, ItemCount: 7, ItemsPerPage: 3}, []string{"d", "e", "f"}},
+		{"開始位置がスライス長以上なら空スライス", []string{"a", "b"}, Pagination{Page: 1, ItemCount: 10, ItemsPerPage: 5}, []string{}},
+		{"終了位置をスライス長で切り詰める", []string{"a", "b"}, Pagination{Page: 0, ItemCount: 5, ItemsPerPage: 5}, []string{"a", "b"}},
+	}
 
-	visible := SliceVisible(items, p)
-	assert.Equal(t, []string{"d", "e", "f"}, visible)
-}
-
-func TestSliceVisible_開始位置がスライス長以上なら空スライスを返す(t *testing.T) {
-	t.Parallel()
-
-	// ページ計算上の開始位置5は実スライス長2以上になる
-	items := []string{"a", "b"}
-	p := Pagination{Page: 1, ItemCount: 10, ItemsPerPage: 5}
-
-	visible := SliceVisible(items, p)
-	assert.Equal(t, []string{}, visible)
-}
-
-func TestSliceVisible_終了位置をスライス長で切り詰める(t *testing.T) {
-	t.Parallel()
-
-	// ページ計算上の終了位置5は実スライス長2を超える
-	items := []string{"a", "b"}
-	p := Pagination{Page: 0, ItemCount: 5, ItemsPerPage: 5}
-
-	visible := SliceVisible(items, p)
-	assert.Equal(t, []string{"a", "b"}, visible)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, SliceVisible(tt.items, tt.p))
+		})
+	}
 }
 
 func TestVisibleEntries(t *testing.T) {
 	t.Parallel()
 
-	items := []string{"a", "b", "c", "d", "e"}
-	p := Pagination{Page: 1, ItemCount: 5, ItemsPerPage: 3}
+	tests := []struct {
+		name     string
+		items    []string
+		p        Pagination
+		expected []IndexedItem[string]
+	}{
+		{
+			"通常ページ",
+			[]string{"a", "b", "c", "d", "e"},
+			Pagination{Page: 1, ItemCount: 5, ItemsPerPage: 3},
+			[]IndexedItem[string]{{Index: 3, Item: "d"}, {Index: 4, Item: "e"}},
+		},
+		{
+			"開始位置がスライス長以上ならnil",
+			[]string{"a", "b"},
+			Pagination{Page: 1, ItemCount: 10, ItemsPerPage: 5},
+			nil,
+		},
+		{
+			"終了位置をスライス長で切り詰める",
+			[]string{"a", "b"},
+			Pagination{Page: 0, ItemCount: 5, ItemsPerPage: 5},
+			[]IndexedItem[string]{{Index: 0, Item: "a"}, {Index: 1, Item: "b"}},
+		},
+	}
 
-	result := VisibleEntries(items, p)
-	assert.Len(t, result, 2)
-	assert.Equal(t, 3, result[0].Index)
-	assert.Equal(t, "d", result[0].Item)
-	assert.Equal(t, 4, result[1].Index)
-	assert.Equal(t, "e", result[1].Item)
-}
-
-func TestVisibleEntries_開始位置がスライス長以上ならnilを返す(t *testing.T) {
-	t.Parallel()
-
-	// ページ計算上の開始位置5は実スライス長2以上になる
-	items := []string{"a", "b"}
-	p := Pagination{Page: 1, ItemCount: 10, ItemsPerPage: 5}
-
-	result := VisibleEntries(items, p)
-	assert.Nil(t, result)
-}
-
-func TestVisibleEntries_終了位置をスライス長で切り詰める(t *testing.T) {
-	t.Parallel()
-
-	// ページ計算上の終了位置5は実スライス長2を超える
-	items := []string{"a", "b"}
-	p := Pagination{Page: 0, ItemCount: 5, ItemsPerPage: 5}
-
-	result := VisibleEntries(items, p)
-	assert.Equal(t, []IndexedItem[string]{
-		{Index: 0, Item: "a"},
-		{Index: 1, Item: "b"},
-	}, result)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, VisibleEntries(tt.items, tt.p))
+		})
+	}
 }
