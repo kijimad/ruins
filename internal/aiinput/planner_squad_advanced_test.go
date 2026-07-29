@@ -34,7 +34,7 @@ func surroundWithWalls(world w.World, center consts.Coord[consts.Tile]) {
 	query.InvalidateSpatialIndex(world)
 }
 
-func TestSquadPlanner_GatherSquadContext(t *testing.T) {
+func TestSquadPlanner_GatherSquadSnapshot(t *testing.T) {
 	t.Parallel()
 
 	t.Run("SquadAIがなければfalse", func(t *testing.T) {
