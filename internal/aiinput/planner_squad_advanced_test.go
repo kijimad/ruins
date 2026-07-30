@@ -34,7 +34,7 @@ func surroundWithWalls(world w.World, center consts.Coord[consts.Tile]) {
 	query.InvalidateSpatialIndex(world)
 }
 
-func TestSquadPlanner_GatherSquadContext(t *testing.T) {
+func TestSquadPlanner_GatherSquadSnapshot(t *testing.T) {
 	t.Parallel()
 
 	t.Run("SquadAIがなければfalse", func(t *testing.T) {
@@ -47,9 +47,9 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx, ok := sp.gatherSquadSnapshot(world, entity)
+		snap, ok := sp.gatherSquadSnapshot(world, entity)
 		assert.False(t, ok)
-		assert.Nil(t, ctx)
+		assert.Nil(t, snap)
 	})
 
 	t.Run("プレイヤーがいなければfalse", func(t *testing.T) {
@@ -61,12 +61,12 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		world.Components.SquadAI.Add(entity, &gc.SquadAI{})
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx, ok := sp.gatherSquadSnapshot(world, entity)
+		snap, ok := sp.gatherSquadSnapshot(world, entity)
 		assert.False(t, ok)
-		assert.Nil(t, ctx)
+		assert.Nil(t, snap)
 	})
 
-	t.Run("正常系ではコンテキストを構築する", func(t *testing.T) {
+	t.Run("正常系ではスナップショットを構築する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
@@ -75,12 +75,12 @@ func TestSquadPlanner_GatherSquadContext(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx, ok := sp.gatherSquadSnapshot(world, member)
+		snap, ok := sp.gatherSquadSnapshot(world, member)
 		require.True(t, ok)
-		require.NotNil(t, ctx)
-		assert.Equal(t, leader, ctx.LeaderEntity)
-		assert.Equal(t, world.Components.GridElement.Get(member), ctx.Grid)
-		assert.Equal(t, world.Components.GridElement.Get(leader), ctx.LeaderGrid)
+		require.NotNil(t, snap)
+		assert.Equal(t, leader, snap.LeaderEntity)
+		assert.Equal(t, world.Components.GridElement.Get(member), snap.Grid)
+		assert.Equal(t, world.Components.GridElement.Get(leader), snap.LeaderGrid)
 	})
 }
 
@@ -98,14 +98,14 @@ func TestSquadPlanner_PlanRetreatAction(t *testing.T) {
 	query.InvalidateSpatialIndex(world)
 
 	sp := newSquadPlanner(newTestRNG())
-	ctx := &squadSnapshot{
+	snap := &squadSnapshot{
 		Grid:         memberGrid,
 		Squad:        &gc.SquadAI{},
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.Get(leader),
 	}
 
-	b, ok := sp.planRetreatAction(world, member, ctx)
+	b, ok := sp.planRetreatAction(world, member, snap)
 	require.True(t, ok, "リーダーに向かって後退できるべき")
 	require.NotNil(t, b)
 	assert.Equal(t, gc.BehaviorMove, b.Name())
@@ -138,14 +138,14 @@ func TestSquadPlanner_PlanReturnToExploredArea(t *testing.T) {
 	query.InvalidateSpatialIndex(world)
 
 	sp := newSquadPlanner(newTestRNG())
-	ctx := &squadSnapshot{
+	snap := &squadSnapshot{
 		Grid:         memberGrid,
 		Squad:        &gc.SquadAI{},
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.Get(leader),
 	}
 
-	b, ok := sp.planReturnToExploredArea(world, member, ctx)
+	b, ok := sp.planReturnToExploredArea(world, member, snap)
 	require.True(t, ok, "リーダーに向かって移動できるべき")
 	assert.Equal(t, gc.BehaviorMove, b.Name())
 }
@@ -172,14 +172,14 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		hp.Current = hp.Max * 10 / 100
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatAttack, ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b := sp.planAction(world, member, ctx)
+		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
 		_, isAttack := b.(*activity.AttackActivity)
 		assert.False(t, isAttack, "HP低下時は攻撃せず後退するべき")
@@ -203,14 +203,14 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		hp.Current = hp.Max * 10 / 100
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatIgnore, Movement: gc.SquadStationary, ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b := sp.planAction(world, member, ctx)
+		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
 		assert.Equal(t, gc.BehaviorWait, b.Name(), "後退できなければ位置ポリシーの待機に落ちる")
 	})
@@ -232,14 +232,14 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatAttack, ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b := sp.planAction(world, member, ctx)
+		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
 		_, isAttack := b.(*activity.AttackActivity)
 		assert.False(t, isAttack, "未探索エリアでは攻撃せずリーダーへ復帰するべき")
@@ -262,14 +262,14 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		memberGrid.Y = leaderGrid.Y
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatIgnore, Movement: gc.SquadEscort, ItemPickup: gc.PolicyIgnore, ItemHandling: gc.PolicyKeep, ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
 
-		b := sp.planAction(world, member, ctx)
+		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
 		assert.Equal(t, gc.BehaviorWait, b.Name(), "護衛距離内では待機するべき")
 	})
@@ -294,14 +294,14 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatAttack, ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b, ok := sp.planCombatAction(world, member, ctx)
+		b, ok := sp.planCombatAction(world, member, snap)
 		require.True(t, ok)
 		attack, ok := b.(*activity.AttackActivity)
 		require.True(t, ok, "型が *activity.AttackActivity であるべき")
@@ -324,14 +324,14 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatEvade, ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b, ok := sp.planCombatAction(world, member, ctx)
+		b, ok := sp.planCombatAction(world, member, snap)
 		require.True(t, ok)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
@@ -345,14 +345,14 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         world.Components.GridElement.Get(member),
 			Squad:        &gc.SquadAI{CombatCurrent: gc.CombatIgnore, ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		_, ok := sp.planCombatAction(world, member, ctx)
+		_, ok := sp.planCombatAction(world, member, snap)
 		assert.False(t, ok, "CombatIgnoreは戦闘計画を持たない")
 	})
 }
@@ -369,14 +369,14 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         world.Components.GridElement.Get(member),
 			Squad:        &gc.SquadAI{ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		_, ok := sp.planAttackAction(world, member, ctx)
+		_, ok := sp.planAttackAction(world, member, snap)
 		assert.False(t, ok)
 	})
 
@@ -396,14 +396,14 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b, ok := sp.planAttackAction(world, member, ctx)
+		b, ok := sp.planAttackAction(world, member, snap)
 		require.True(t, ok)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
@@ -421,14 +421,14 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         world.Components.GridElement.Get(member),
 			Squad:        &gc.SquadAI{ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		_, ok := sp.planEvadeAction(world, member, ctx)
+		_, ok := sp.planEvadeAction(world, member, snap)
 		assert.False(t, ok)
 	})
 
@@ -450,14 +450,14 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 		initialX := int(memberGrid.X)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{
+		snap := &squadSnapshot{
 			Grid:         memberGrid,
 			Squad:        &gc.SquadAI{ViewDistance: 10},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader),
 		}
 
-		b, ok := sp.planEvadeAction(world, member, ctx)
+		b, ok := sp.planEvadeAction(world, member, snap)
 		require.True(t, ok)
 		move, ok := b.(*activity.MoveActivity)
 		require.True(t, ok)
@@ -495,14 +495,14 @@ func TestSquadPlanner_PlanPositionAction(t *testing.T) {
 			memberGrid.Y = leaderGrid.Y
 
 			sp := newSquadPlanner(newTestRNG())
-			ctx := &squadSnapshot{
+			snap := &squadSnapshot{
 				Grid:         memberGrid,
 				Squad:        &gc.SquadAI{Movement: tt.movement},
 				LeaderEntity: leader,
 				LeaderGrid:   leaderGrid,
 			}
 
-			b := sp.planPositionAction(world, member, ctx)
+			b := sp.planPositionAction(world, member, snap)
 			require.NotNil(t, b, "常に何らかの行動を返す")
 		})
 	}
@@ -525,9 +525,9 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		memberGrid.Y = leaderGrid.Y
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: leaderGrid}
+		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: leaderGrid}
 
-		b := sp.planEscortAction(world, member, ctx)
+		b := sp.planEscortAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorWait, b.Name())
 	})
 
@@ -545,9 +545,9 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
+		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
-		b := sp.planEscortAction(world, member, ctx)
+		b := sp.planEscortAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
 
@@ -565,9 +565,9 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		surroundWithWalls(world, memberGrid.Coord)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
+		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
-		b := sp.planEscortAction(world, member, ctx)
+		b := sp.planEscortAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorWait, b.Name(), "壁に囲まれて移動できないときは待機する")
 	})
 }
@@ -589,9 +589,9 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
+		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
-		b := sp.planVanguardAction(world, member, ctx)
+		b := sp.planVanguardAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
 
@@ -607,9 +607,9 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 
 		memberGrid := world.Components.GridElement.Get(member)
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
+		snap := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
 
-		b := sp.planVanguardAction(world, member, ctx)
+		b := sp.planVanguardAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
 
@@ -624,9 +624,9 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 		// 探索済みタイルを一切設定しないので tryRandomMove は必ず失敗する
 		memberGrid := world.Components.GridElement.Get(member)
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
+		snap := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
 
-		b := sp.planVanguardAction(world, member, ctx)
+		b := sp.planVanguardAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorWait, b.Name())
 	})
 }
@@ -645,9 +645,9 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 		exploreAllTiles(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
+		snap := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
 
-		b := sp.planSquadPatrolAction(world, member, ctx)
+		b := sp.planSquadPatrolAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
 
@@ -660,9 +660,9 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
+		snap := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
 
-		b := sp.planSquadPatrolAction(world, member, ctx)
+		b := sp.planSquadPatrolAction(world, member, snap)
 		assert.Equal(t, gc.BehaviorWait, b.Name())
 	})
 }
@@ -689,9 +689,9 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 20}}
+		snap := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 20}}
 
-		gotEntity, gotGrid, dist := sp.findNearestEnemy(world, member, ctx)
+		gotEntity, gotGrid, dist := sp.findNearestEnemy(world, member, snap)
 		require.NotNil(t, gotEntity)
 		assert.Equal(t, near, *gotEntity)
 		assert.NotEqual(t, far, *gotEntity)
@@ -715,9 +715,9 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 		query.InvalidateSpatialIndex(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 5}}
+		snap := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{ViewDistance: 5}}
 
-		gotEntity, _, _ := sp.findNearestEnemy(world, member, ctx)
+		gotEntity, _, _ := sp.findNearestEnemy(world, member, snap)
 		assert.Nil(t, gotEntity)
 	})
 }
@@ -817,8 +817,8 @@ func TestSquadPlanner_TryRandomMove(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member)}
-		_, ok := sp.tryRandomMove(world, member, ctx)
+		snap := &squadSnapshot{Grid: world.Components.GridElement.Get(member)}
+		_, ok := sp.tryRandomMove(world, member, snap)
 		assert.False(t, ok)
 	})
 
@@ -833,8 +833,8 @@ func TestSquadPlanner_TryRandomMove(t *testing.T) {
 		exploreAllTiles(world)
 
 		sp := newSquadPlanner(newTestRNG())
-		ctx := &squadSnapshot{Grid: world.Components.GridElement.Get(member)}
-		_, ok := sp.tryRandomMove(world, member, ctx)
+		snap := &squadSnapshot{Grid: world.Components.GridElement.Get(member)}
+		_, ok := sp.tryRandomMove(world, member, snap)
 		assert.True(t, ok)
 	})
 }
