@@ -20,8 +20,6 @@ func TestParseDice_表記をDiceへ変換する(t *testing.T) {
 		{"d6", Dice{Base: 1, Sides: 6, Bonus: 0}},
 		{"3d4-1", Dice{Base: 3, Sides: 4, Bonus: -1}},
 		{"5", Dice{Base: 0, Sides: 0, Bonus: 5}},
-		{"1D3+1", Dice{Base: 1, Sides: 3, Bonus: 1}}, // 大文字Dも許す
-		{" 2d4 ", Dice{Base: 2, Sides: 4, Bonus: 0}}, // 前後空白は無視
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
@@ -47,7 +45,10 @@ func TestParseDice_不正な表記はエラーになる(t *testing.T) {
 		{"1d3+x", "ボーナスが不正"},
 		{"1d0", "面数は1以上"},
 		{"-1d6", "個数は1以上"},
-		{"0d6", "個数は1以上"}, // d を書いたら個数1以上。定数は "5" と書く
+		{"0d6", "個数は1以上"},  // d を書いたら個数1以上。定数は "5" と書く
+		{"1D3", "数値が不正"},   // 大文字 D は受け付けない。d に統一する
+		{" 2d4 ", "個数が不正"}, // 前後空白も厳密に弾く
+		{"5 ", "数値が不正"},    // 定数も空白を許さない
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {

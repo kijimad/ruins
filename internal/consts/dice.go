@@ -17,18 +17,19 @@ type Dice struct {
 }
 
 // ParseDice は "1d3+1" "2d4" "d6" "5" のような表記を Dice へ変換する。
-// d/D の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数を省くと1、d が無ければ定数として扱う。
+// d の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数を省くと1、d が無ければ定数として扱う。
+// 区切りは小文字 d に統一する。大文字 D は受け付けない。
 // 動的入力用。固定リテラルには MustParseDice を使う。regexp は使わず strings で足りる。ParseWeight と同じ方針。
 func ParseDice(s string) (Dice, error) {
-	str := strings.TrimSpace(s)
-	if str == "" {
+	if s == "" {
 		return Dice{}, fmt.Errorf("ダイスが空です")
 	}
 
-	// d/D が無ければ定数。"5" は {Sides:0, Bonus:5}
-	di := strings.IndexAny(str, "dD")
-	if di < 0 {
-		n, err := strconv.Atoi(str)
+	// 前後空白も含め厳密に扱う。空白混じりは各数値の Atoi が弾く
+	// d が無ければ定数。"5" は {Sides:0, Bonus:5}
+	before, after, ok := strings.Cut(s, "d")
+	if !ok {
+		n, err := strconv.Atoi(s)
 		if err != nil {
 			return Dice{}, fmt.Errorf("ダイスの数値が不正です: %q（例: \"1d3+1\" \"5\"）", s)
 		}
@@ -37,7 +38,7 @@ func ParseDice(s string) (Dice, error) {
 
 	// 個数部。省略時は1
 	base := 1
-	if basePart := str[:di]; basePart != "" {
+	if basePart := before; basePart != "" {
 		b, err := strconv.Atoi(basePart)
 		if err != nil {
 			return Dice{}, fmt.Errorf("ダイスの個数が不正です: %q", s)
@@ -46,7 +47,7 @@ func ParseDice(s string) (Dice, error) {
 	}
 
 	// 面数部と Bonus 部。sides[+/-bonus]
-	rest := str[di+1:]
+	rest := after
 	bonus := 0
 	sidesPart := rest
 	if bi := strings.IndexAny(rest, "+-"); bi >= 0 {

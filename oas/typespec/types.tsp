@@ -132,7 +132,7 @@ scalar ItemValue extends int32;
 scalar Weight extends string;
 
 /** ダイス表記の個数指定。例: "1d3+1" "2d4" "d6" "5"。consts.ParseDice でパースする */
-@pattern("^(([0-9]+)?[dD][0-9]+([+-][0-9]+)?|[0-9]+)$")
+@pattern("^(([0-9]+)?d[0-9]+([+-][0-9]+)?|[0-9]+)$")
 scalar Dice extends string;
 
 /** 光源が有効かどうか */
