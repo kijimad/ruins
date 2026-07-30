@@ -153,6 +153,7 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 	if err != nil {
 		return nil, err
 	}
+	// AmmoTag の enum 値は LoadFromFile の OpenAPI スキーマ検証で保証済みなので、domain 型へそのままキャストする
 	var ammoTag gc.AmmoTag
 	if f.AmmoTag != nil {
 		ammoTag = gc.AmmoTag(*f.AmmoTag)
@@ -253,6 +254,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Ammo != nil {
+		// AmmoTag の enum 値はスキーマ検証済みなので domain 型へそのままキャストする
 		var ammoAmmoTag gc.AmmoTag
 		if item.Ammo.AmmoTag != nil {
 			ammoAmmoTag = gc.AmmoTag(*item.Ammo.AmmoTag)
