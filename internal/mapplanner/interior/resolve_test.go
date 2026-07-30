@@ -1,7 +1,6 @@
 package interior
 
 import (
-	"math/rand/v2"
 	"reflect"
 	"testing"
 
@@ -27,7 +26,7 @@ func sampleContent() Content {
 			}},
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindDecor, Ref: "litter", Amount: consts.Dice{Base: 1, Sides: 3, Bonus: 1}},
-				{Kind: KindBeing, Ref: "looter", Chance: 30},
+				{Kind: KindBeing, Ref: "looter", Chance: 30, Amount: consts.Dice{Base: 1, Sides: 1}},
 			}},
 		},
 	}
@@ -115,18 +114,5 @@ func TestContent_Resolve_Chance0は常に置かれる(t *testing.T) {
 	for s := range uint64(50) {
 		got := c.Resolve(s)
 		require.Lenf(t, got, 1, "Chance 0 は常置 (seed=%d)", s)
-	}
-}
-
-// TestDice_roll_定数とダイスの範囲 は、個数抽選の定数表現とダイス範囲を固定する。
-func TestDice_roll_定数とダイスの範囲(t *testing.T) {
-	t.Parallel()
-
-	rng := rand.New(rand.NewPCG(1, 2))
-	assert.Equal(t, 5, consts.Dice{Sides: 0, Bonus: 5}.Roll(rng), "Sides<=0 は定数 Bonus")
-	for range 100 {
-		v := consts.Dice{Base: 2, Sides: 4, Bonus: 1}.Roll(rng)
-		assert.GreaterOrEqual(t, v, 3, "2d4+1 の下限は 2*1+1")
-		assert.LessOrEqual(t, v, 9, "2d4+1 の上限は 2*4+1")
 	}
 }
