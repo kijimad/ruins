@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-29 15:59:24</td>
+            <td class="headerValue">2026-07-30 00:01:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,8 +109,8 @@
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span>              : // マップ描画の寸法。1チャンクを1セルで描く。</span>
 <span id="L49"><span class="lineNum">      49</span>              : const (</span>
-<span id="L50"><span class="lineNum">      50</span>              :         mapCellPx    consts.ScreenPixel = 22 // 1チャンクのセルの一辺ピクセル</span>
-<span id="L51"><span class="lineNum">      51</span>              :         mapContextCh consts.Chunk       = 6  // 帯の東西に足す文脈チャンク数。この先の地形を先読みできる</span>
+<span id="L50"><span class="lineNum">      50</span>              :         mapCellPx   consts.ScreenPixel = 22 // 1チャンクのセルの一辺ピクセル</span>
+<span id="L51"><span class="lineNum">      51</span>              :         marginChunk consts.Chunk       = 6  // 帯の東西に足す余白チャンク数。この先の地形を先読みできる</span>
 <span id="L52"><span class="lineNum">      52</span>              : )</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span>              : // OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため</span>
@@ -122,9 +122,9 @@
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 :         rows := max(sb.Rows, 1)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         // 帯の Rows 行と、Cols 列に東西の文脈チャンクを足した窓の各チャンクを種別文字にする</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         winChunksX := int(sb.Cols + 2*mapContextCh)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         winX0 := sb.EastIndex - mapContextCh</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         // 帯の Rows 行と、Cols 列に東西の余白チャンクを足した窓の各チャンクを種別文字にする</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         winChunksX := int(sb.Cols + 2*marginChunk)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         winX0 := sb.EastIndex - marginChunk</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         st.glyphs = make([][]rune, rows)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :         for cy := range rows {</span></span>
@@ -135,14 +135,14 @@
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L74"><span class="lineNum">      74</span>              :         }</span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
-<span id="L76"><span class="lineNum">      76</span>              :         // 現在地のチャンク。プレイヤー座標は帯ローカルで、窓の原点は西へ mapContextCh</span>
+<span id="L76"><span class="lineNum">      76</span>              :         // 現在地のチャンク。プレイヤー座標は帯ローカルで、窓の原点は西へ marginChunk</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         st.playerCol = -1</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :         if player, err := query.GetPlayerEntity(world); err == nil &amp;&amp; world.Components.GridElement.Has(player) {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 g := world.Components.GridElement.Get(player)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 // プレイヤーの帯ローカルなチャンク座標。窓ローカル列は西へ mapContextCh ぶんずらす</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 // プレイヤーの帯ローカルなチャンク座標。窓ローカル列は西へ marginChunk ぶんずらす</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 localCol := consts.Chunk(int(g.X) / int(sb.ChunkW))</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 localRow := consts.Chunk(int(g.Y) / int(sb.ChunkH))</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 st.playerCol = localCol + mapContextCh</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 st.playerCol = localCol + marginChunk</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 st.playerRow = localRow</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 st.playerAbs = consts.Coord[consts.Chunk]{X: sb.EastIndex + localCol, Y: localRow}</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         }</span></span>
