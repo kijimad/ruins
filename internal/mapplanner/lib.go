@@ -83,39 +83,11 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool {
-	if slices.Contains(bm.NextPortals, pos) {
-		return true
-	}
-
-	// NPCをチェック
-	for _, npc := range bm.NPCs {
-		if npc.Coord == pos {
-			return true
-		}
-	}
-
-	// アイテムをチェック
-	for _, item := range bm.Items {
-		if item.Coord == pos {
-			return true
-		}
-	}
-
-	// Propsをチェック
-	for _, prop := range bm.Props {
-		if prop.Coord == pos {
-			return true
-		}
-	}
-
-	// ドアをチェック
-	for _, door := range bm.Doors {
-		if door.Coord == pos {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(bm.NextPortals, pos) ||
+		slices.ContainsFunc(bm.NPCs, func(npc NPCSpec) bool { return npc.Coord == pos }) ||
+		slices.ContainsFunc(bm.Items, func(item ItemSpec) bool { return item.Coord == pos }) ||
+		slices.ContainsFunc(bm.Props, func(prop PropsSpec) bool { return prop.Coord == pos }) ||
+		slices.ContainsFunc(bm.Doors, func(door DoorSpec) bool { return door.Coord == pos })
 }
 
 // UpTile は上にあるタイルを調べる
