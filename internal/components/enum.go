@@ -245,6 +245,21 @@ func (enum EquipmentType) String() string {
 
 // ================
 
+// AmmoTag は弾薬の口径タグを表す。武器の AmmoTag と弾薬の AmmoTag が一致すると装填できる。
+// 生成元スキーマ oapi.AmmoTag を raw のパース境界で本型へ変換する。値は oapi と揃える。
+type AmmoTag string
+
+const (
+	// AmmoTagEnergyCell はエネルギーセル
+	AmmoTagEnergyCell AmmoTag = "energy_cell"
+	// AmmoTag9mm は9mm弾
+	AmmoTag9mm AmmoTag = "9mm"
+	// AmmoTagRifle はライフル弾
+	AmmoTagRifle AmmoTag = "rifle"
+	// AmmoTagShell はショットシェル
+	AmmoTagShell AmmoTag = "shell"
+)
+
 // ElementType は攻撃属性を表す
 type ElementType string
 

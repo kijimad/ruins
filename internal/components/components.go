@@ -164,9 +164,9 @@ type WeightDirty struct{}
 
 // Ammo は弾薬アイテムの性能を定義する
 type Ammo struct {
-	AmmoTag       string // 口径タグ。武器の AmmoTag とマッチする
-	DamageBonus   int    // ダメージ修正値
-	AccuracyBonus int    // 命中率修正値
+	AmmoTag       AmmoTag // 口径タグ。武器の AmmoTag とマッチする
+	DamageBonus   int     // ダメージ修正値
+	AccuracyBonus int     // 命中率修正値
 }
 
 // Attacker は近接・遠距離攻撃の共通インターフェース。
@@ -224,12 +224,12 @@ type Fire struct {
 	Cost           int         // 行動コスト
 	TargetType     TargetType  // 対象タイプ
 	// 弾薬管理
-	Magazine            int    // 現在の装弾数
-	MagazineSize        int    // 最大装弾数
-	ReloadEffort        int    // リロード完了に必要な総工数
-	AmmoTag             string // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
-	LoadedDamageBonus   int    // 装填中の弾薬によるダメージ修正値。リロード時に設定される
-	LoadedAccuracyBonus int    // 装填中の弾薬による命中修正値。リロード時に設定される
+	Magazine            int     // 現在の装弾数
+	MagazineSize        int     // 最大装弾数
+	ReloadEffort        int     // リロード完了に必要な総工数
+	AmmoTag             AmmoTag // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
+	LoadedDamageBonus   int     // 装填中の弾薬によるダメージ修正値。リロード時に設定される
+	LoadedAccuracyBonus int     // 装填中の弾薬による命中修正値。リロード時に設定される
 }
 
 // GetAccuracy はAttackerの実装

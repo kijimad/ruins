@@ -95,7 +95,7 @@ func TestParseFire(t *testing.T) {
 		assert.Equal(t, gc.AttackRifle, result.AttackCategory)
 		assert.Equal(t, 10, result.MagazineSize)
 		assert.Equal(t, 50, result.ReloadEffort)
-		assert.Equal(t, "9mm", result.AmmoTag)
+		assert.Equal(t, gc.AmmoTag9mm, result.AmmoTag)
 	})
 
 	t.Run("AmmoTagがnilでも変換できる", func(t *testing.T) {

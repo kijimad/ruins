@@ -153,9 +153,9 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 	if err != nil {
 		return nil, err
 	}
-	var ammoTag string
+	var ammoTag gc.AmmoTag
 	if f.AmmoTag != nil {
-		ammoTag = string(*f.AmmoTag)
+		ammoTag = gc.AmmoTag(*f.AmmoTag)
 	}
 	return &gc.Fire{
 		Accuracy:       int(f.Accuracy),
@@ -253,9 +253,9 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Ammo != nil {
-		var ammoAmmoTag string
+		var ammoAmmoTag gc.AmmoTag
 		if item.Ammo.AmmoTag != nil {
-			ammoAmmoTag = string(*item.Ammo.AmmoTag)
+			ammoAmmoTag = gc.AmmoTag(*item.Ammo.AmmoTag)
 		}
 		entitySpec.Ammo = &gc.Ammo{
 			AmmoTag:       ammoAmmoTag,
