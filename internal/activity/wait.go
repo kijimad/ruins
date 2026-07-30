@@ -14,7 +14,7 @@ import (
 
 // WaitActivity はBehaviorの実装
 type WaitActivity struct {
-	Duration int
+	Duration consts.Turn
 	Reason   string
 }
 

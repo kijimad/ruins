@@ -75,7 +75,7 @@ func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 
 	// 最大ターン数の見積もり（最低能力の場合）
-	maxTurns := max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1)
+	maxTurns := consts.Turn(max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1))
 	comp.TurnsTotal = maxTurns
 	comp.TurnsLeft = maxTurns
 

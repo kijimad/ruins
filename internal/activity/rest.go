@@ -14,7 +14,7 @@ import (
 
 // RestActivity はBehaviorの実装
 type RestActivity struct {
-	Duration int
+	Duration consts.Turn
 }
 
 // Info はBehaviorの実装

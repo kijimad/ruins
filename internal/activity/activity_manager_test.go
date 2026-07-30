@@ -229,15 +229,15 @@ func TestProcessContinuousActivities(t *testing.T) {
 	ProcessContinuousActivities(world)
 
 	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する
-	assert.Equal(t, 1, query.GetActivity(world, actor1).TurnsLeft, "Expected short activity to have 1 turn left")
-	assert.Equal(t, 4, query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 4 turns left")
+	assert.Equal(t, consts.Turn(1), query.GetActivity(world, actor1).TurnsLeft, "Expected short activity to have 1 turn left")
+	assert.Equal(t, consts.Turn(4), query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 4 turns left")
 
 	// 2ターン目処理
 	ProcessContinuousActivities(world)
 
 	// 短いアクティビティが完了。完了時は削除されるため結果コンポーネントで確認する
 	assert.Equal(t, gc.ActivityStateCompleted, GetLastResult(actor1, world).State, "Expected short activity to be completed")
-	assert.Equal(t, 3, query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 3 turns left")
+	assert.Equal(t, consts.Turn(3), query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 3 turns left")
 
 	// 完了したアクティビティは管理対象から削除される
 	assert.Nil(t, query.GetActivity(world, actor1), "Expected completed activity to be removed")

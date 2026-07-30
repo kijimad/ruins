@@ -580,7 +580,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		if remaining <= 0 {
 			remaining = 1
 		}
-		_, err = activity.Execute(&activity.ReadActivity{Target: entity, Duration: remaining}, playerEntity, world)
+		_, err = activity.Execute(&activity.ReadActivity{Target: entity, Duration: consts.Turn(remaining)}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
