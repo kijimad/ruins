@@ -1,7 +1,8 @@
 package interior
 
 import (
-	"sort"
+	"cmp"
+	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
 )
@@ -199,9 +200,9 @@ func roomOrderByArea(rooms []Room) []int {
 	for i := range idx {
 		idx[i] = i
 	}
-	sort.SliceStable(idx, func(a, b int) bool {
-		ra, rb := rooms[idx[a]].Rect, rooms[idx[b]].Rect
-		return ra.W*ra.H > rb.W*rb.H
+	slices.SortStableFunc(idx, func(a, b int) int {
+		ra, rb := rooms[a].Rect, rooms[b].Rect
+		return cmp.Compare(rb.W*rb.H, ra.W*ra.H)
 	})
 	return idx
 }

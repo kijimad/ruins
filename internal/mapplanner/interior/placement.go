@@ -1,7 +1,8 @@
 package interior
 
 import (
-	"sort"
+	"cmp"
+	"slices"
 
 	"github.com/kijimaD/ruins/internal/geometry"
 
@@ -76,24 +77,24 @@ func selectTiles(room Room, p Placement, occupied map[Vec]bool, seed uint64, cou
 
 // sortColumnMajor は候補を x→y の順に並べる。棚を左から列ごとに連続で詰め、平行列を線に見せる。
 func sortColumnMajor(cands []scoredTile) {
-	sort.Slice(cands, func(i, j int) bool {
-		if cands[i].pos.X != cands[j].pos.X {
-			return cands[i].pos.X < cands[j].pos.X
+	slices.SortFunc(cands, func(a, b scoredTile) int {
+		if a.pos.X != b.pos.X {
+			return cmp.Compare(a.pos.X, b.pos.X)
 		}
-		return cands[i].pos.Y < cands[j].pos.Y
+		return cmp.Compare(a.pos.Y, b.pos.Y)
 	})
 }
 
 // sortByScore はスコア降順に並べ、同点は座標で安定化して再訪一致を保証する。
 func sortByScore(cands []scoredTile) {
-	sort.SliceStable(cands, func(i, j int) bool {
-		if cands[i].score != cands[j].score {
-			return cands[i].score > cands[j].score
+	slices.SortStableFunc(cands, func(a, b scoredTile) int {
+		if a.score != b.score {
+			return cmp.Compare(b.score, a.score)
 		}
-		if cands[i].pos.Y != cands[j].pos.Y {
-			return cands[i].pos.Y < cands[j].pos.Y
+		if a.pos.Y != b.pos.Y {
+			return cmp.Compare(a.pos.Y, b.pos.Y)
 		}
-		return cands[i].pos.X < cands[j].pos.X
+		return cmp.Compare(a.pos.X, b.pos.X)
 	})
 }
 

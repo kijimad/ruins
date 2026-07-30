@@ -1,8 +1,9 @@
 package states
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -133,8 +134,8 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 	}
 
 	// 数が多い順にソートする
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].Count > items[j].Count
+	slices.SortFunc(items, func(a, b componentDebugItem) int {
+		return cmp.Compare(b.Count, a.Count)
 	})
 
 	return componentDebugProps{Items: items, Total: total}

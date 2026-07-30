@@ -3,7 +3,7 @@ package states
 import (
 	"fmt"
 	"image/color"
-	"sort"
+	"slices"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -250,7 +250,7 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 		}
 	}
 
-	sort.Strings(items)
+	slices.Sort(items)
 	return items
 }
 
@@ -268,7 +268,7 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 		}
 	}
 
-	sort.Strings(items)
+	slices.Sort(items)
 	return items
 }
 
@@ -285,7 +285,7 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 		}
 	}
 
-	sort.Strings(items)
+	slices.Sort(items)
 	return items
 }
 

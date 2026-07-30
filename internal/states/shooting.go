@@ -1,9 +1,10 @@
 package states
 
 import (
+	"cmp"
 	"fmt"
 	"math"
-	"sort"
+	"slices"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -185,10 +186,10 @@ func (st *ShootingState) refreshEnemies(world w.World) error {
 	}
 
 	// プレイヤーからの距離順にソート
-	sort.Slice(shootable, func(i, j int) bool {
-		di := activity.EntityDistance(playerEntity, shootable[i], world)
-		dj := activity.EntityDistance(playerEntity, shootable[j], world)
-		return di < dj
+	slices.SortFunc(shootable, func(a, b ecs.Entity) int {
+		da := activity.EntityDistance(playerEntity, a, world)
+		db := activity.EntityDistance(playerEntity, b, world)
+		return cmp.Compare(da, db)
 	})
 
 	st.enemies = shootable
