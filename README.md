@@ -59,17 +59,16 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| in-progress | 2 |
+| in-progress | 1 |
 | accepted | 3 |
 | draft | 4 |
-| done | 65 |
+| done | 66 |
 
 ### 進行中
 
 | No. | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | [64](docs/design/20260719_64.md) | 型ユーティリティによる堅牢化・利便化の調査と適用方針 | 0/9 |  |
-| [69](docs/design/20260724_69.md) | オーバーワールド生成の統合設計 | 15/21 | worldgen |
 
 
 ## Reference
