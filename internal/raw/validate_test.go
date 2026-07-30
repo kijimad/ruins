@@ -235,6 +235,41 @@ func TestValidateDropTableReferences(t *testing.T) {
 	})
 }
 
+func TestValidateSpawnDice(t *testing.T) {
+	t.Parallel()
+
+	t.Run("正しいダイス表記は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "1d3"}}}},
+			ItemGroups:  &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{ItemName: "回復薬", Pack: "2"}}}},
+			Props:       &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("1d2"))}}},
+		}
+		require.NoError(t, validateSpawnDice(raws))
+	})
+
+	t.Run("敵テーブルの不正なパック表記はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "0d6"}}}},
+		}
+		err := validateSpawnDice(raws)
+		require.Error(t, err)
+		assert.ErrorContains(t, err, "スライム")
+		assert.ErrorContains(t, err, "個数は1以上")
+	})
+
+	t.Run("収納の不正なlootCountはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props: &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("abc"))}}},
+		}
+		err := validateSpawnDice(raws)
+		require.Error(t, err)
+		assert.ErrorContains(t, err, "木箱")
+	})
+}
+
 func TestValidateCommandTableReferences(t *testing.T) {
 	t.Parallel()
 
