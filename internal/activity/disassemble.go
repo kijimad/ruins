@@ -162,7 +162,10 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 	}
 
 	name := query.GetEntityName(target, world)
-	stacks := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)
+	stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)
+	if err != nil {
+		return fmt.Errorf("分解産出の抽選に失敗: %w", err)
+	}
 
 	if world.Components.Prop.Has(target) && world.Components.GridElement.Has(target) {
 		// 座標は除去前に値で控える

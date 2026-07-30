@@ -23,7 +23,7 @@ type YieldStack struct {
 // full が真なら工具による通常分解として扱い、確率枠にスキルと工具グレードの補正を
 // 加算し、ボーナス枠の条件判定も行う。偽なら攻撃破壊の回収として扱い、確定枠のみを
 // DestroySalvageChance で抽選して確率枠とボーナス枠は出さない
-func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int, toolGrade int, full bool) []YieldStack {
+func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int, toolGrade int, full bool) ([]YieldStack, error) {
 	var stacks []YieldStack
 
 	for _, y := range def.Yields {
@@ -32,7 +32,11 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if !full && rng.IntN(100) >= DestroySalvageChance {
 				continue
 			}
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: rollCount(rng, y.Count)})
+			count, err := rollCount(rng, y.Count)
+			if err != nil {
+				return nil, err
+			}
+			stacks = append(stacks, YieldStack{Name: y.Name, Count: count})
 			continue
 		}
 		if !full {
@@ -41,7 +45,11 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 		// グレード補正は1を基準とし、想定外の0以下が来ても確率を下げない
 		chance := min(int(*y.Chance)+skillValue+max(0, (toolGrade-1)*10), 100)
 		if rng.IntN(100) < chance {
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: rollCount(rng, y.Count)})
+			count, err := rollCount(rng, y.Count)
+			if err != nil {
+				return nil, err
+			}
+			stacks = append(stacks, YieldStack{Name: y.Name, Count: count})
 		}
 	}
 
@@ -58,22 +66,25 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if b.MinGrade != nil && toolGrade < int(*b.MinGrade) {
 				continue
 			}
-			stacks = append(stacks, YieldStack{Name: b.Name, Count: rollCount(rng, b.Count)})
+			count, err := rollCount(rng, b.Count)
+			if err != nil {
+				return nil, err
+			}
+			stacks = append(stacks, YieldStack{Name: b.Name, Count: count})
 		}
 	}
 
-	return stacks
+	return stacks, nil
 }
 
-// rollCount は産出個数をダイス表記から抽選する。表記は raw ロード時の検証で担保済みなので、
-// ここでのパース失敗は到達しえないプログラミングエラー。0 個を黙って返すと産出が消えて
-// 気づけないため panic で顕在化させる。
-func rollCount(rng *rand.Rand, count oapi.Dice) int {
+// rollCount は産出個数をダイス表記から抽選する。表記は raw ロード時の検証で担保済みだが、
+// 万一パースに失敗したら 0 個を黙って返さず error を返し、呼び出し側で気づけるようにする。
+func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {
 	d, err := consts.ParseDice(count)
 	if err != nil {
-		panic(fmt.Sprintf("分解産出の個数表記が不正です。raw 検証を通過しているはずです: %q: %v", count, err))
+		return 0, fmt.Errorf("分解産出の個数表記が不正です: %q: %w", count, err)
 	}
-	return d.Roll(rng)
+	return d.Roll(rng), nil
 }
 
 // SpawnDisassemblyYields は産出一覧を指定タイルへフィールドアイテムとして生成する

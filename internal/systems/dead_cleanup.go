@@ -96,9 +96,12 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
-		stacks := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
-		// 産出名はロード時に参照検証済みで、ここで失敗するのは整合性バグ。
+		// 産出名・個数表記はロード時に検証済みで、ここで失敗するのは整合性バグ。
 		// 握りつぶすと産出が静かに消えるため loud に返す
+		stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
+		if err != nil {
+			return fmt.Errorf("破壊回収アイテムの抽選に失敗: %w", err)
+		}
 		if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil {
 			return fmt.Errorf("破壊回収アイテムの生成に失敗: %w", err)
 		}
