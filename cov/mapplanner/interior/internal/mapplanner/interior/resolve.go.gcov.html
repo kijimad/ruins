@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">95.5&nbsp;%</td>
-            <td class="headerCovTableEntry">88</td>
-            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntryHi">92.4&nbsp;%</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">73</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 14:14:55</td>
+            <td class="headerValue">2026-07-30 15:38:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,7 +97,7 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 if !chancePass(rng, it.Chance) {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :                 }</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           2 :                 if n := it.Amount.roll(rng); n &gt; 0 {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           2 :                 if n := it.Amount.Roll(rng); n &gt; 0 {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                         out = append(out, selectionOf(it, n))</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              :         }</span>
@@ -114,11 +114,11 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 i := weightedIndex(rng, pool)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 it := pool[i]</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 pool = append(pool[:i], pool[i+1:]...)</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 count := it.Amount.roll(rng)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :                 if count &lt;= 0 {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                         count = 1</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 out = append(out, selectionOf(it, count))</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 count := it.Amount.Roll(rng)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 if count &lt;= 0 {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC tlaBgUNC">           0 :                         count = 1</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">           1 :                 out = append(out, selectionOf(it, count))</span></span>
 <span id="L60"><span class="lineNum">      60</span>              :         }</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         return out</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : }</span>
@@ -166,29 +166,17 @@
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC tlaBgUNC">           0 :         return rng.IntN(100) &lt; chance</span></span>
 <span id="L105"><span class="lineNum">     105</span>              : }</span>
 <span id="L106"><span class="lineNum">     106</span>              : </span>
-<span id="L107"><span class="lineNum">     107</span>              : // roll は Base 個の Sides 面ダイスの和に Bonus を足す。Sides&lt;=0 は定数 Bonus。</span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC tlaBgGNC">           1 : func (d Dice) roll(rng *rand.Rand) int {</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           2 :         if d.Sides &lt;= 0 {</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :                 return d.Bonus</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         sum := d.Bonus</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         for range d.Base {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 sum += rng.IntN(d.Sides) + 1</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         return sum</span></span>
-<span id="L117"><span class="lineNum">     117</span>              : }</span>
-<span id="L118"><span class="lineNum">     118</span>              : </span>
-<span id="L119"><span class="lineNum">     119</span>              : // childSeed は親 seed と添字から子 seed を導く。splitmix64 の finalizer で撹拌し、添字の1違いでも</span>
-<span id="L120"><span class="lineNum">     120</span>              : // 出力を無相関へ散らす。可変な乱数器を持ち回らず、seed を引数導出で分岐させるための純関数。</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : func childSeed(parent uint64, index int) uint64 {</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         x := parent + uint64(index+1)*0x9E3779B97F4A7C15</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         x *= 0x94D049BB133111EB</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 31</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         return x</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : // childSeed は親 seed と添字から子 seed を導く。splitmix64 の finalizer で撹拌し、添字の1違いでも</span>
+<span id="L108"><span class="lineNum">     108</span>              : // 出力を無相関へ散らす。可変な乱数器を持ち回らず、seed を引数導出で分岐させるための純関数。</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC tlaBgGNC">           1 : func childSeed(parent uint64, index int) uint64 {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         x := parent + uint64(index+1)*0x9E3779B97F4A7C15</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         x *= 0x94D049BB133111EB</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 31</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         return x</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

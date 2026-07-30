@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.2&nbsp;%</td>
-            <td class="headerCovTableEntry">180</td>
-            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntryMed">75.6&nbsp;%</td>
+            <td class="headerCovTableEntry">176</td>
+            <td class="headerCovTableEntry">133</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 14:14:55</td>
+            <td class="headerValue">2026-07-30 15:38:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -316,44 +316,37 @@
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;ItemTable '%s' の取得に失敗: %w&quot;, tableName, err)</span></span>
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L256"><span class="lineNum">     256</span>              : </span>
-<span id="L257"><span class="lineNum">     257</span>              :         // ルート数を決定する</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         countMin := 1</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         countMax := 1</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           2 :         if propRaw.Storage.LootCountMin != nil {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 countMin = int(*propRaw.Storage.LootCountMin)</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           2 :         if propRaw.Storage.LootCountMax != nil {</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 countMax = int(*propRaw.Storage.LootCountMax)</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           2 :         if countMin &gt; countMax {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 countMin = countMax</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L269"><span class="lineNum">     269</span>              : </span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         lootCount := countMin</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           2 :         if countMax &gt; countMin {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 lootCount = countMin + metaPlan.RNG.IntN(countMax-countMin+1)</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L274"><span class="lineNum">     274</span>              : </span>
-<span id="L275"><span class="lineNum">     275</span>              :         // 深度は生成中フロアのプランから取る。世界の CurrentStage は生成完了後に確定するため、</span>
-<span id="L276"><span class="lineNum">     276</span>              :         // ここで参照すると1段ずれる(遺跡進入時は地上の深度0を読んでしまう)。</span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         depth := metaPlan.Depth</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           2 :         for range lootCount {</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;アイテム抽選エラー: %w&quot;, err)</span></span>
+<span id="L257"><span class="lineNum">     257</span>              :         // ルート数はダイス表記で決める。省略時は1個</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         lootDice := consts.Dice{Base: 1, Sides: 1}</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           2 :         if propRaw.Storage.LootCount != nil {</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 d, err := consts.ParseDice(*propRaw.Storage.LootCount)</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;収納 '%s' の lootCount 表記が不正です: %w&quot;, propRaw.Name, err)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC tlaBgGNC">           1 :                 lootDice = d</span></span>
+<span id="L265"><span class="lineNum">     265</span>              :         }</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         lootCount := lootDice.Roll(metaPlan.RNG)</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         // 深度は生成中フロアのプランから取る。世界の CurrentStage は生成完了後に確定するため、</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         // ここで参照すると1段ずれる(遺跡進入時は地上の深度0を読んでしまう)。</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         depth := metaPlan.Depth</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           2 :         for range lootCount {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;アイテム抽選エラー: %w&quot;, err)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L279"><span class="lineNum">     279</span>              :                 }</span>
+<span id="L280"><span class="lineNum">     280</span>              : </span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil {</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;アイテム '%s' の生成に失敗: %w&quot;, itemName, err)</span></span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L286"><span class="lineNum">     286</span>              :                 }</span>
-<span id="L287"><span class="lineNum">     287</span>              : </span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil {</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;アイテム '%s' の生成に失敗: %w&quot;, itemName, err)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L291"><span class="lineNum">     291</span>              :         }</span>
-<span id="L292"><span class="lineNum">     292</span>              : </span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L294"><span class="lineNum">     294</span>              : }</span>
+<span id="L284"><span class="lineNum">     284</span>              :         }</span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L287"><span class="lineNum">     287</span>              : }</span>
         </pre>
               </td>
             </tr>

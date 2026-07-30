@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.9&nbsp;%</td>
-            <td class="headerCovTableEntry">104</td>
-            <td class="headerCovTableEntry">81</td>
+            <td class="headerCovTableEntryMed">78.1&nbsp;%</td>
+            <td class="headerCovTableEntry">96</td>
+            <td class="headerCovTableEntry">75</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 14:14:55</td>
+            <td class="headerValue">2026-07-30 15:38:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -186,38 +186,32 @@
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           1 :         countMin, countMax := 1, 1</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           2 :         if propRaw.Storage.LootCountMin != nil {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 countMin = int(*propRaw.Storage.LootCountMin)</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           2 :         if propRaw.Storage.LootCountMax != nil {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 countMax = int(*propRaw.Storage.LootCountMax)</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         if countMin &gt; countMax {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC tlaBgUNC">           0 :                 // min だけ設定され max が既定の1 のままだと、下限を切り捨ててしまう。設定された下限を尊重して</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 // max を min まで引き上げる</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 countMax = countMin</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC tlaBgGNC">           1 :         n := countMin</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           2 :         if countMax &gt; countMin {</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 n = countMin + rng.IntN(countMax-countMin+1)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           2 :         for range n {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 // 深度は地上の建物なので浅い loot の1を使う。廃墟テーブルは全 entry が minDepth&gt;=1 なので深度0では</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 // 何も引けない。地上の廃屋あさりは最も浅い戦利品が出る</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, 1)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :         // ルート数はダイス表記で決める。省略時は1個</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           1 :         lootDice := consts.Dice{Base: 1, Sides: 1}</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           2 :         if propRaw.Storage.LootCount != nil {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 d, err := consts.ParseDice(*propRaw.Storage.LootCount)</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;収納 '%s' の lootCount 表記が不正です: %w&quot;, propName, err)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 :                 lootDice = d</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :         }</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         n := lootDice.Roll(rng)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           2 :         for range n {</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 // 深度は地上の建物なので浅い loot の1を使う。廃墟テーブルは全 entry が minDepth&gt;=1 なので深度0では</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 // 何も引けない。地上の廃屋あさりは最も浅い戦利品が出る</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, 1)</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :                 }</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L152"><span class="lineNum">     152</span>              :                 }</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L156"><span class="lineNum">     156</span>              :         }</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L158"><span class="lineNum">     158</span>              : }</span>
+<span id="L150"><span class="lineNum">     150</span>              :         }</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L152"><span class="lineNum">     152</span>              : }</span>
         </pre>
               </td>
             </tr>

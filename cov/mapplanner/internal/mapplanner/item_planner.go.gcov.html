@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">71.2&nbsp;%</td>
+            <td class="headerCovTableEntryLo">69.7&nbsp;%</td>
             <td class="headerCovTableEntry">132</td>
-            <td class="headerCovTableEntry">94</td>
+            <td class="headerCovTableEntry">92</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 14:14:55</td>
+            <td class="headerValue">2026-07-30 15:38:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -203,9 +203,9 @@
 <span id="L141"><span class="lineNum">     141</span>              : // resolveItemSource はソースからアイテムリストを解決する</span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : func resolveItemSource(source ItemSource, planData *MetaPlan) ([]resolvedItem, error) {</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         switch source.Subtype {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         case ItemGroupCollection:</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 return resolveCollection(source.Entries, planData), nil</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         case ItemGroupDistribution:</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC tlaBgUNC">           0 :         case ItemGroupCollection:</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 return resolveCollection(source.Entries, planData), nil</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC tlaBgGNC">           1 :         case ItemGroupDistribution:</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 return resolveDistribution(source.Entries, planData), nil</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;未知のItemGroupSubtype: %s&quot;, source.Subtype)</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.1&nbsp;%</td>
-            <td class="headerCovTableEntry">219</td>
+            <td class="headerCovTableEntryMed">77.4&nbsp;%</td>
+            <td class="headerCovTableEntry">221</td>
             <td class="headerCovTableEntry">171</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 14:14:55</td>
+            <td class="headerValue">2026-07-30 15:38:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -224,152 +224,155 @@
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L163"><span class="lineNum">     163</span>              : </span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 :         name := query.GetEntityName(target, world)</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         stacks := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :         if world.Components.Prop.Has(target) &amp;&amp; world.Components.GridElement.Has(target) {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 // 座標は除去前に値で控える</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 coord := world.Components.GridElement.Get(target).Coord</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 // 収納propの場合は中身を足元へ出してから取り壊す</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 lifecycle.SpillStorageItems(world, target, coord.X, coord.Y)</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(target)</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 query.InvalidateSpatialIndex(world)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;分解産出の生成に失敗: %w&quot;, err)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC tlaBgGNC">           1 :         } else {</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 if err := lifecycle.ChangeItemCount(world, target, -1); err != nil {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;分解対象の消費に失敗: %w&quot;, err)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC tlaBgGNC">           2 :                 for _, s := range stacks {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         if _, err := lifecycle.SpawnBackpackItem(world, s.Name, s.Count); err != nil {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;分解産出の生成に失敗: %w&quot;, err)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L185"><span class="lineNum">     185</span>              :                 }</span>
-<span id="L186"><span class="lineNum">     186</span>              :         }</span>
-<span id="L187"><span class="lineNum">     187</span>              : </span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 :         logger := gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 ItemName(name).</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 Append(&quot;を分解した。&quot;)</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         appendYields(logger, stacks)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         logger.Log()</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         da.gainMechanicExp(actor, world)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         log.Debug(&quot;分解完了&quot;, &quot;actor&quot;, actor, &quot;target&quot;, name, &quot;yields&quot;, stacks)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L198"><span class="lineNum">     198</span>              : }</span>
-<span id="L199"><span class="lineNum">     199</span>              : </span>
-<span id="L200"><span class="lineNum">     200</span>              : // Canceled は分解キャンセル時の処理を実行する。</span>
-<span id="L201"><span class="lineNum">     201</span>              : // 対象消滅による中断もあるため、名前は対象が生きている場合だけ出す</span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 : func (da *DisassembleActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           2 :         if world.Components.Player.Has(actor) {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 logger := gamelog.New(query.GetGameLog(world))</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 if comp.Target != nil &amp;&amp; world.ECS.Alive(*comp.Target) {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                         logger.ItemName(query.GetEntityName(*comp.Target, world)).Append(&quot;の分解を中断した&quot;)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                         logger.Append(&quot;分解を中断した&quot;)</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 logger.Log()</span></span>
-<span id="L211"><span class="lineNum">     211</span>              :         }</span>
-<span id="L212"><span class="lineNum">     212</span>              : </span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         log.Debug(&quot;分解中断&quot;, &quot;reason&quot;, comp.CancelReason)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L215"><span class="lineNum">     215</span>              : }</span>
-<span id="L216"><span class="lineNum">     216</span>              : </span>
-<span id="L217"><span class="lineNum">     217</span>              : // gainMechanicExp は分解完了で機械スキルの経験値を与える</span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 : func (da *DisassembleActivity) gainMechanicExp(actor ecs.Entity, world w.World) {</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         if !world.Components.Skills.Has(actor) {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         s := world.Components.Skills.Get(actor).Get(gc.SkillMechanic)</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         abilityValue := 0</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         if world.Components.Abilities.Has(actor) {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC tlaBgUNC">           0 :                 abilityValue = world.Components.Abilities.Get(actor).ValueOf(gc.SkillAbilityID(gc.SkillMechanic))</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L228"><span class="lineNum">     228</span>              : </span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           2 :         if skill.GainExp(s, abilityValue) {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 // 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 if !world.Components.StatsChanged.Has(actor) {</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC tlaBgUNC">           0 :                         world.Components.StatsChanged.Add(actor, &amp;gc.StatsChanged{})</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         Append(fmt.Sprintf(&quot;%sスキルが %d に上がった&quot;, gc.SkillName(gc.SkillMechanic), s.Value)).</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                         Log()</span></span>
-<span id="L237"><span class="lineNum">     237</span>              :         }</span>
-<span id="L238"><span class="lineNum">     238</span>              : }</span>
-<span id="L239"><span class="lineNum">     239</span>              : </span>
-<span id="L240"><span class="lineNum">     240</span>              : // RequiredDisassemblyAP は分解に必要な総APを計算する。</span>
-<span id="L241"><span class="lineNum">     241</span>              : // 機械スキル1につき1%短縮し下限50%。工具グレードは1で等倍、2で80%、3で60%</span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : func RequiredDisassemblyAP(baseAP int, skillValue int, toolGrade int) int {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         skillFactor := 1.0 - float64(skillValue)*0.01</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           2 :         if skillFactor &lt; 0.5 {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 skillFactor = 0.5</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         gradeFactor := 1.0</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         switch toolGrade {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         case 2:</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 gradeFactor = 0.8</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         case 3:</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 gradeFactor = 0.6</span></span>
-<span id="L253"><span class="lineNum">     253</span>              :         }</span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         return int(math.Ceil(float64(baseAP) * skillFactor * gradeFactor))</span></span>
-<span id="L255"><span class="lineNum">     255</span>              : }</span>
-<span id="L256"><span class="lineNum">     256</span>              : </span>
-<span id="L257"><span class="lineNum">     257</span>              : // FindBestDisassemblyTool はactorの所持品から分類に適合する最良の分解工具を探す。</span>
-<span id="L258"><span class="lineNum">     258</span>              : // 見つかったらグレードと工具名を返す。同グレードは先に見つかったほうを保つ</span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 : func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.ToolCategory) (int, string, bool) {</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         bestGrade := 0</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         bestName := &quot;&quot;</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 itemEntity := q.Entity()</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 if world.Components.LocationInBackpack.Get(itemEntity).Owner != actor {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L268"><span class="lineNum">     268</span>              :                 }</span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 :                 itemName := query.GetEntityName(itemEntity, world)</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, itemName)</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           2 :                 if !ok || !slices.Contains(tool.Categories, category) {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L273"><span class="lineNum">     273</span>              :                 }</span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           2 :                 if int(tool.Grade) &gt; bestGrade {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                         bestGrade = int(tool.Grade)</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         bestName = itemName</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L278"><span class="lineNum">     278</span>              :         }</span>
-<span id="L279"><span class="lineNum">     279</span>              : </span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         return bestGrade, bestName, bestGrade &gt; 0</span></span>
-<span id="L281"><span class="lineNum">     281</span>              : }</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;分解産出の抽選に失敗: %w&quot;, err)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           2 :         if world.Components.Prop.Has(target) &amp;&amp; world.Components.GridElement.Has(target) {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 // 座標は除去前に値で控える</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 coord := world.Components.GridElement.Get(target).Coord</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 // 収納propの場合は中身を足元へ出してから取り壊す</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 lifecycle.SpillStorageItems(world, target, coord.X, coord.Y)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(target)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 query.InvalidateSpatialIndex(world)</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;分解産出の生成に失敗: %w&quot;, err)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :         } else {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 if err := lifecycle.ChangeItemCount(world, target, -1); err != nil {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;分解対象の消費に失敗: %w&quot;, err)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC tlaBgGNC">           2 :                 for _, s := range stacks {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         if _, err := lifecycle.SpawnBackpackItem(world, s.Name, s.Count); err != nil {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;分解産出の生成に失敗: %w&quot;, err)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :                 }</span>
+<span id="L189"><span class="lineNum">     189</span>              :         }</span>
+<span id="L190"><span class="lineNum">     190</span>              : </span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC tlaBgGNC">           1 :         logger := gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 ItemName(name).</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 Append(&quot;を分解した。&quot;)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         appendYields(logger, stacks)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         logger.Log()</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         da.gainMechanicExp(actor, world)</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         log.Debug(&quot;分解完了&quot;, &quot;actor&quot;, actor, &quot;target&quot;, name, &quot;yields&quot;, stacks)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : }</span>
+<span id="L202"><span class="lineNum">     202</span>              : </span>
+<span id="L203"><span class="lineNum">     203</span>              : // Canceled は分解キャンセル時の処理を実行する。</span>
+<span id="L204"><span class="lineNum">     204</span>              : // 対象消滅による中断もあるため、名前は対象が生きている場合だけ出す</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 : func (da *DisassembleActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           2 :         if world.Components.Player.Has(actor) {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 logger := gamelog.New(query.GetGameLog(world))</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 if comp.Target != nil &amp;&amp; world.ECS.Alive(*comp.Target) {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC tlaBgUNC">           0 :                         logger.ItemName(query.GetEntityName(*comp.Target, world)).Append(&quot;の分解を中断した&quot;)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else {</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                         logger.Append(&quot;分解を中断した&quot;)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 logger.Log()</span></span>
+<span id="L214"><span class="lineNum">     214</span>              :         }</span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         log.Debug(&quot;分解中断&quot;, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L218"><span class="lineNum">     218</span>              : }</span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              : // gainMechanicExp は分解完了で機械スキルの経験値を与える</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 : func (da *DisassembleActivity) gainMechanicExp(actor ecs.Entity, world w.World) {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         if !world.Components.Skills.Has(actor) {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 :         s := world.Components.Skills.Get(actor).Get(gc.SkillMechanic)</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         abilityValue := 0</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         if world.Components.Abilities.Has(actor) {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC tlaBgUNC">           0 :                 abilityValue = world.Components.Abilities.Get(actor).ValueOf(gc.SkillAbilityID(gc.SkillMechanic))</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L231"><span class="lineNum">     231</span>              : </span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC tlaBgGNC">           2 :         if skill.GainExp(s, abilityValue) {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 // 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 if !world.Components.StatsChanged.Has(actor) {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC tlaBgUNC">           0 :                         world.Components.StatsChanged.Add(actor, &amp;gc.StatsChanged{})</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC tlaBgGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                         Append(fmt.Sprintf(&quot;%sスキルが %d に上がった&quot;, gc.SkillName(gc.SkillMechanic), s.Value)).</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                         Log()</span></span>
+<span id="L240"><span class="lineNum">     240</span>              :         }</span>
+<span id="L241"><span class="lineNum">     241</span>              : }</span>
+<span id="L242"><span class="lineNum">     242</span>              : </span>
+<span id="L243"><span class="lineNum">     243</span>              : // RequiredDisassemblyAP は分解に必要な総APを計算する。</span>
+<span id="L244"><span class="lineNum">     244</span>              : // 機械スキル1につき1%短縮し下限50%。工具グレードは1で等倍、2で80%、3で60%</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 : func RequiredDisassemblyAP(baseAP int, skillValue int, toolGrade int) int {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         skillFactor := 1.0 - float64(skillValue)*0.01</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           2 :         if skillFactor &lt; 0.5 {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 skillFactor = 0.5</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         gradeFactor := 1.0</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         switch toolGrade {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         case 2:</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 gradeFactor = 0.8</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         case 3:</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 gradeFactor = 0.6</span></span>
+<span id="L256"><span class="lineNum">     256</span>              :         }</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         return int(math.Ceil(float64(baseAP) * skillFactor * gradeFactor))</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : }</span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span>              : // FindBestDisassemblyTool はactorの所持品から分類に適合する最良の分解工具を探す。</span>
+<span id="L261"><span class="lineNum">     261</span>              : // 見つかったらグレードと工具名を返す。同グレードは先に見つかったほうを保つ</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 : func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.ToolCategory) (int, string, bool) {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         bestGrade := 0</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         bestName := &quot;&quot;</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 itemEntity := q.Entity()</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                 if world.Components.LocationInBackpack.Get(itemEntity).Owner != actor {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L271"><span class="lineNum">     271</span>              :                 }</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC tlaBgGNC">           1 :                 itemName := query.GetEntityName(itemEntity, world)</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, itemName)</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           2 :                 if !ok || !slices.Contains(tool.Categories, category) {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :                 }</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           2 :                 if int(tool.Grade) &gt; bestGrade {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                         bestGrade = int(tool.Grade)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                         bestName = itemName</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L281"><span class="lineNum">     281</span>              :         }</span>
 <span id="L282"><span class="lineNum">     282</span>              : </span>
-<span id="L283"><span class="lineNum">     283</span>              : // findDisassemblyDef は対象エンティティの名前で分解定義を引く</span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 : func findDisassemblyDef(entity ecs.Entity, world w.World) (*oapi.Disassembly, bool) {</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(entity, world)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         return raw.FindDisassembly(world.Resources.RawMaster, name)</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L288"><span class="lineNum">     288</span>              : </span>
-<span id="L289"><span class="lineNum">     289</span>              : // mechanicSkillValue はactorの機械スキル値を返す。スキルを持たなければ0</span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 : func mechanicSkillValue(actor ecs.Entity, world w.World) int {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         if !world.Components.Skills.Has(actor) {</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.Skills.Get(actor).Get(gc.SkillMechanic).Value</span></span>
-<span id="L295"><span class="lineNum">     295</span>              : }</span>
-<span id="L296"><span class="lineNum">     296</span>              : </span>
-<span id="L297"><span class="lineNum">     297</span>              : // appendYields は産出一覧をアイテム名の色付きでログへ追記する</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 : func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack) {</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           2 :         if len(stacks) == 0 {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                 logger.Append(&quot;何も得られなかった&quot;)</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           2 :         for i, s := range stacks {</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           2 :                 if i &gt; 0 {</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                         logger.Append(&quot;、&quot;)</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 logger.ItemName(s.Name).Append(fmt.Sprintf(&quot; x%d&quot;, s.Count))</span></span>
-<span id="L308"><span class="lineNum">     308</span>              :         }</span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         logger.Append(&quot; を得た&quot;)</span></span>
-<span id="L310"><span class="lineNum">     310</span>              : }</span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         return bestGrade, bestName, bestGrade &gt; 0</span></span>
+<span id="L284"><span class="lineNum">     284</span>              : }</span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span>              : // findDisassemblyDef は対象エンティティの名前で分解定義を引く</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 : func findDisassemblyDef(entity ecs.Entity, world w.World) (*oapi.Disassembly, bool) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(entity, world)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         return raw.FindDisassembly(world.Resources.RawMaster, name)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L291"><span class="lineNum">     291</span>              : </span>
+<span id="L292"><span class="lineNum">     292</span>              : // mechanicSkillValue はactorの機械スキル値を返す。スキルを持たなければ0</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 : func mechanicSkillValue(actor ecs.Entity, world w.World) int {</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         if !world.Components.Skills.Has(actor) {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.Skills.Get(actor).Get(gc.SkillMechanic).Value</span></span>
+<span id="L298"><span class="lineNum">     298</span>              : }</span>
+<span id="L299"><span class="lineNum">     299</span>              : </span>
+<span id="L300"><span class="lineNum">     300</span>              : // appendYields は産出一覧をアイテム名の色付きでログへ追記する</span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 : func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack) {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :         if len(stacks) == 0 {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 logger.Append(&quot;何も得られなかった&quot;)</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           2 :         for i, s := range stacks {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           2 :                 if i &gt; 0 {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                         logger.Append(&quot;、&quot;)</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 logger.ItemName(s.Name).Append(fmt.Sprintf(&quot; x%d&quot;, s.Count))</span></span>
+<span id="L311"><span class="lineNum">     311</span>              :         }</span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         logger.Append(&quot; を得た&quot;)</span></span>
+<span id="L313"><span class="lineNum">     313</span>              : }</span>
         </pre>
               </td>
             </tr>
