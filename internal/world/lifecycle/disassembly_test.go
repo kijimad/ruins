@@ -19,7 +19,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "2"}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "2d1"}},
 		}
 
 		for range 100 {
@@ -57,7 +57,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Precision,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1", Chance: new(oapi.DisassemblyChance(60))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(60))}},
 		}
 
 		// chance60 + skill30 + (grade2-1)*10 = 100
@@ -74,7 +74,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Precision,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1", Chance: new(oapi.DisassemblyChance(50))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(50))}},
 		}
 
 		hit := 0
@@ -94,8 +94,8 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1"}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1", MinSkill: new(oapi.SkillLevel(10))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
 		}
 
 		low, err := lifecycle.RollDisassemblyYields(rng, def, 9, 1, true)
@@ -115,8 +115,8 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1"}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1", MinGrade: new(oapi.ToolGrade(2))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1", MinGrade: new(oapi.ToolGrade(2))}},
 		}
 
 		low, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
@@ -136,9 +136,9 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1"}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
 			Bonus: &[]oapi.DisassemblyBonus{
-				{Name: "鉄", Count: "1", MinSkill: new(oapi.SkillLevel(10)), MinGrade: new(oapi.ToolGrade(2))},
+				{Name: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10)), MinGrade: new(oapi.ToolGrade(2))},
 			},
 		}
 
@@ -164,8 +164,8 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1"}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1"}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1"}},
 		}
 
 		stacks, err := lifecycle.RollDisassemblyYields(rng, def, 100, 3, true)
@@ -181,10 +181,10 @@ func TestRollDisassemblyYields(t *testing.T) {
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
 			Yields: []oapi.DisassemblyYield{
-				{Name: "鉄くず", Count: "1"},
-				{Name: "ネジ", Count: "1", Chance: new(oapi.DisassemblyChance(100))},
+				{Name: "鉄くず", Count: "1d1"},
+				{Name: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(100))},
 			},
-			Bonus: &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1", MinSkill: new(oapi.SkillLevel(0))}},
+			Bonus: &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(0))}},
 		}
 
 		hit := 0

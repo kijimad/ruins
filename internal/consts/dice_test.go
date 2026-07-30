@@ -18,7 +18,7 @@ func TestParseDice_表記をDiceへ変換する(t *testing.T) {
 		{"1d3+1", Dice{Base: 1, Sides: 3, Bonus: 1}},
 		{"2d6", Dice{Base: 2, Sides: 6, Bonus: 0}},
 		{"3d4-1", Dice{Base: 3, Sides: 4, Bonus: -1}},
-		{"5", Dice{Base: 0, Sides: 0, Bonus: 5}},
+		{"1d1", Dice{Base: 1, Sides: 1, Bonus: 0}}, // 固定値もダイス形で書く
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
@@ -38,17 +38,18 @@ func TestParseDice_不正な表記はエラーになる(t *testing.T) {
 		contains string
 	}{
 		{"", "空"},
-		{"abc", "数値が不正"},
+		{"abc", "d が必要"}, // d を含まない文字列は定数扱いされず弾かれる
 		{"1dx", "面数が不正"},
 		{"xd6", "個数が不正"},
 		{"1d3+x", "ボーナスが不正"},
 		{"1d0", "面数は1以上"},
 		{"d6", "個数を省略できません"}, // 個数は必須。"1d6" と書く
 		{"-1d6", "個数は1以上"},
-		{"0d6", "個数は1以上"},  // d を書いたら個数1以上。定数は "5" と書く
-		{"1D3", "数値が不正"},   // 大文字 D は受け付けない。d に統一する
+		{"0d6", "個数は1以上"},  // d を書いたら個数1以上
+		{"1D3", "d が必要"},   // 大文字 D は d でないので弾かれる。d に統一する
 		{" 2d4 ", "個数が不正"}, // 前後空白も厳密に弾く
-		{"5 ", "数値が不正"},    // 定数も空白を許さない
+		{"5", "d が必要"},     // 数字だけの定数表記は許さない。"5d1" と書く
+		{"1d6 ", "面数が不正"},  // 末尾空白も弾く
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
@@ -70,7 +71,7 @@ func TestDice_String_ParseDiceと往復する(t *testing.T) {
 		{Dice{Base: 1, Sides: 3, Bonus: 1}, "1d3+1"},
 		{Dice{Base: 2, Sides: 6}, "2d6"},
 		{Dice{Base: 3, Sides: 4, Bonus: -1}, "3d4-1"},
-		{Dice{Bonus: 5}, "5"},
+		{Dice{Base: 5, Sides: 1}, "5d1"}, // 固定値は Nd1
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -93,7 +94,7 @@ func TestDice_MinMax_取りうる範囲を返す(t *testing.T) {
 		{Dice{Base: 1, Sides: 3}, 1, 3},           // 1d3 は 1..3
 		{Dice{Base: 1, Sides: 3, Bonus: 1}, 2, 4}, // 1d3+1 は 2..4
 		{Dice{Base: 2, Sides: 6}, 2, 12},          // 2d6 は 2..12
-		{Dice{Bonus: 5}, 5, 5},                    // 定数は 5..5
+		{Dice{Base: 5, Sides: 1}, 5, 5},           // 固定値 5d1 は 5..5
 	}
 	for _, tt := range tests {
 		t.Run(tt.d.String(), func(t *testing.T) {
@@ -116,13 +117,13 @@ func TestDice_Roll_MinとMaxの範囲に収まる(t *testing.T) {
 	}
 }
 
-func TestDice_Roll_定数はBonusを返す(t *testing.T) {
+func TestDice_Roll_固定値は常にその数を返す(t *testing.T) {
 	t.Parallel()
 
 	rng := rand.New(rand.NewPCG(1, 2))
-	d := MustParseDice("5")
+	d := MustParseDice("5d1") // 1面ダイスは必ず1目なので 5d1 は常に5
 	for range 10 {
-		assert.Equal(t, 5, d.Roll(rng), "定数は常に Bonus")
+		assert.Equal(t, 5, d.Roll(rng), "固定値は常にその数")
 	}
 }
 

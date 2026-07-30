@@ -131,8 +131,8 @@ scalar ItemValue extends int32;
 @pattern("^[0-9]+(\\.[0-9]+)? (mg|g|kg)$")
 scalar Weight extends string;
 
-/** ダイス表記の個数指定。consts.ParseDice でパースする */
-@pattern("^([0-9]+d[0-9]+([+-][0-9]+)?|[0-9]+)$")
+/** ダイス表記の個数指定。固定値も 1d1 のように書く。consts.ParseDice でパースする */
+@pattern("^[0-9]+d[0-9]+([+-][0-9]+)?$")
 @example("1d3+1")
 scalar Dice extends string;
 

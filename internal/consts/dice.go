@@ -8,15 +8,16 @@ import (
 )
 
 // Dice は個数抽選。Base 個の Sides 面ダイスの和に Bonus を足す。1d3+1 は {Base:1, Sides:3, Bonus:1}。
-// 定数個数は Sides<=0 とし、そのとき値は Bonus になる。5固定は {Sides:0, Bonus:5}。
+// 固定値は Nd1 で表す。5固定は {Base:5, Sides:1}。数字だけの定数表記は使わず、常にダイス形にする。
 type Dice struct {
 	Base  int
 	Sides int
 	Bonus int
 }
 
-// ParseDice は "1d3+1" "2d4" "5" のような表記を Dice へ変換する。
-// d の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数は必ず書く。d が無ければ定数として扱う。
+// ParseDice は "1d3+1" "2d4" "1d1" のような表記を Dice へ変換する。
+// d の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数・面数は必ず書く。
+// 固定値も "1d1" のように書き、数字だけの省略表記は許さない。表記が一意になり読み手が迷わない。
 // 区切りは小文字 d に統一する。大文字 D は受け付けない。
 // 動的入力用。固定リテラルには MustParseDice を使う。regexp は使わず strings で足りる。ParseWeight と同じ方針。
 func ParseDice(s string) (Dice, error) {
@@ -25,14 +26,10 @@ func ParseDice(s string) (Dice, error) {
 	}
 
 	// 前後空白も含め厳密に扱う。空白混じりは各数値の Atoi が弾く
-	// d が無ければ定数。"5" は {Sides:0, Bonus:5}
+	// d は必須。数字だけの定数表記は許さず、固定値も "1d1" と書かせる
 	before, after, ok := strings.Cut(s, "d")
 	if !ok {
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return Dice{}, fmt.Errorf("ダイスの数値が不正です: %q（例: \"1d3+1\" \"5\"）", s)
-		}
-		return Dice{Bonus: n}, nil
+		return Dice{}, fmt.Errorf("ダイス表記には d が必要です。固定値も \"1d1\" のように書く: %q", s)
 	}
 
 	// 個数は省略できない。"d6" でなく "1d6" と明示的に書かせて表記を一意にする。

@@ -17,8 +17,8 @@ func sampleContent() Content {
 		ID: "conv_store",
 		Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},
+				{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
 				{Kind: KindLoot, Ref: "snacks", Weight: 3, Amount: consts.Dice{Base: 2, Sides: 4}},
@@ -67,8 +67,8 @@ func TestContent_Resolve_PickEachは保証枠を全部置く(t *testing.T) {
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Bonus: 1}},
-		{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Bonus: 3}},
+		{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
 	}}}}
 	got := c.Resolve(7)
 	require.Len(t, got, 2, "Chance の無い PickEach は全 Item を置く")
@@ -81,9 +81,9 @@ func TestContent_Resolve_PickNはちょうどN個の別種を置く(t *testing.T
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickN, Pick: 2, Items: []Stuff{
-		{Kind: KindLoot, Ref: "a", Amount: consts.Dice{Bonus: 1}},
-		{Kind: KindLoot, Ref: "b", Amount: consts.Dice{Bonus: 1}},
-		{Kind: KindLoot, Ref: "c", Amount: consts.Dice{Bonus: 1}},
+		{Kind: KindLoot, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindLoot, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindLoot, Ref: "c", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(30) {
 		got := c.Resolve(s)
@@ -97,8 +97,8 @@ func TestContent_Resolve_PickOneは1つだけ置く(t *testing.T) {
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickOne, Items: []Stuff{
-		{Kind: KindDecor, Ref: "a", Amount: consts.Dice{Bonus: 1}},
-		{Kind: KindDecor, Ref: "b", Amount: consts.Dice{Bonus: 1}},
+		{Kind: KindDecor, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindDecor, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(30) {
 		require.Lenf(t, c.Resolve(s), 1, "PickOne は1つだけ置く (seed=%d)", s)
@@ -110,7 +110,7 @@ func TestContent_Resolve_Chance0は常に置かれる(t *testing.T) {
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "must", Amount: consts.Dice{Bonus: 1}},
+		{Kind: KindFurniture, Ref: "must", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(50) {
 		got := c.Resolve(s)

@@ -249,7 +249,7 @@ func TestResolveDistribution(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
-		entries := []SpawnEntry{{Name: "回復薬", Weight: 1.0, Pack: consts.MustParseDice("3")}}
+		entries := []SpawnEntry{{Name: "回復薬", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
 		result := resolveDistribution(entries, &chain.PlanData)
 
 		require.Len(t, result, 1)
@@ -262,7 +262,7 @@ func TestResolveDistribution(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
-		entries := []SpawnEntry{{Name: "木刀", Weight: 1.0, Pack: consts.MustParseDice("2")}}
+		entries := []SpawnEntry{{Name: "木刀", Weight: 1.0, Pack: consts.MustParseDice("2d1")}}
 		result := resolveDistribution(entries, &chain.PlanData)
 
 		require.Len(t, result, 2)
@@ -277,7 +277,7 @@ func TestResolveDistribution(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		// RawMaster未設定
 
-		entries := []SpawnEntry{{Name: "回復薬", Weight: 1.0, Pack: consts.MustParseDice("3")}}
+		entries := []SpawnEntry{{Name: "回復薬", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
 		result := resolveDistribution(entries, &chain.PlanData)
 
 		require.Len(t, result, 3)
@@ -296,7 +296,7 @@ func TestResolveCollection(t *testing.T) {
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
 		// weight=100で確実に当選させる
-		entries := []SpawnEntry{{Name: "回復薬", Weight: 100, Pack: consts.MustParseDice("4")}}
+		entries := []SpawnEntry{{Name: "回復薬", Weight: 100, Pack: consts.MustParseDice("4d1")}}
 		result := resolveCollection(entries, &chain.PlanData)
 
 		require.Len(t, result, 1)
@@ -310,7 +310,7 @@ func TestResolveCollection(t *testing.T) {
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
 		// weight=100で確実に当選させる
-		entries := []SpawnEntry{{Name: "木刀", Weight: 100, Pack: consts.MustParseDice("2")}}
+		entries := []SpawnEntry{{Name: "木刀", Weight: 100, Pack: consts.MustParseDice("2d1")}}
 		result := resolveCollection(entries, &chain.PlanData)
 
 		require.Len(t, result, 2)
