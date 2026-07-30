@@ -1,11 +1,12 @@
 package systems
 
 import (
+	"cmp"
 	"fmt"
 	"image"
 	"image/color"
 	"math"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -176,10 +177,8 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		iSprite++
 	}
 
-	sort.Slice(entities[:iSprite], func(i, j int) bool {
-		spriteRender1 := world.Components.SpriteRender.Get(entities[i])
-		spriteRender2 := world.Components.SpriteRender.Get(entities[j])
-		return spriteRender1.Depth < spriteRender2.Depth
+	slices.SortStableFunc(entities[:iSprite], func(a, b ecs.Entity) int {
+		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
 	})
 
 	for i := range iSprite {
@@ -223,10 +222,8 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 		entities = append(entities, entity)
 	}
 
-	sort.Slice(entities, func(i, j int) bool {
-		spriteRender1 := world.Components.SpriteRender.Get(entities[i])
-		spriteRender2 := world.Components.SpriteRender.Get(entities[j])
-		return spriteRender1.Depth < spriteRender2.Depth
+	slices.SortStableFunc(entities, func(a, b ecs.Entity) int {
+		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
 	})
 
 	for _, entity := range entities {
