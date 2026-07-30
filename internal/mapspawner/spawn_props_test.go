@@ -19,7 +19,7 @@ import (
 // WWW
 // WDW
 // WWW
-// 中央がドアで左右が壁のため、縦向きと判定されるはず
+// 中央がドアで左右が壁のため、縦向きと判定される
 func newTestDoorPlan(world w.World) *mapplanner.MetaPlan {
 	tiles := make([]oapi.Tile, 9)
 	for i := range tiles {

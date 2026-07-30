@@ -23,9 +23,8 @@ func TestSpawnAt_オフセット配置(t *testing.T) {
 	require.NoError(t, err)
 
 	const offX, offY consts.Tile = 100, 50
-	if _, err := SpawnAt(world, plan, offX, offY); err != nil {
-		require.NoError(t, err)
-	}
+	_, err = SpawnAt(world, plan, offX, offY)
+	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	count := 0
@@ -49,9 +48,8 @@ func TestSpawn_オフセットなしは原点配置(t *testing.T) {
 	plan, err := mapplanner.Plan(world, wdt, hgt, 1, mapplanner.PlannerTypeSmallRoom)
 	require.NoError(t, err)
 
-	if _, err := Spawn(world, plan); err != nil {
-		require.NoError(t, err)
-	}
+	_, err = Spawn(world, plan)
+	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	minX, minY := consts.Tile(1<<30), consts.Tile(1<<30)
