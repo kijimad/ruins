@@ -9,7 +9,6 @@ import (
 
 // Dice は個数抽選。Base 個の Sides 面ダイスの和に Bonus を足す。1d3+1 は {Base:1, Sides:3, Bonus:1}。
 // 定数個数は Sides<=0 とし、そのとき値は Bonus になる。5固定は {Sides:0, Bonus:5}。
-// フィールドは int のみなので serde 安全で、保存対象コンポーネントに載っても壊れない。
 type Dice struct {
 	Base  int
 	Sides int
@@ -36,10 +35,9 @@ func ParseDice(s string) (Dice, error) {
 		return Dice{Bonus: n}, nil
 	}
 
-	// 個数部。省略時は1
 	base := 1
-	if basePart := before; basePart != "" {
-		b, err := strconv.Atoi(basePart)
+	if before != "" {
+		b, err := strconv.Atoi(before)
 		if err != nil {
 			return Dice{}, fmt.Errorf("ダイスの個数が不正です: %q", s)
 		}
