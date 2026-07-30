@@ -769,7 +769,7 @@ type DisassemblyBaseAP = int32
 
 // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
-	// Count 産出個数のダイス表記。例: "1d3" "2"
+	// Count 産出個数のダイス表記
 	Count Dice `json:"count"`
 
 	// MinGrade 工具グレードがこの値以上で産出に加わる
@@ -798,7 +798,7 @@ type DisassemblyYield struct {
 	// Chance 分解産出の確率。百分率
 	Chance *DisassemblyChance `json:"chance,omitempty"`
 
-	// Count 産出個数のダイス表記。例: "1d3" "2" "1d2+1"
+	// Count 産出個数のダイス表記
 	Count Dice `json:"count"`
 
 	// Name エンティティ名
@@ -856,7 +856,7 @@ type EnemyTableEntry struct {
 	// MinDepth 階層レベル
 	MinDepth DepthLevel `json:"minDepth"`
 
-	// Pack 1群あたりの敵数のダイス表記。例: "1d3" "1"
+	// Pack 1群あたりの敵数のダイス表記
 	Pack Dice `json:"pack"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
@@ -1058,7 +1058,7 @@ type ItemGroupEntry struct {
 	// ItemName エンティティ名
 	ItemName EntityName `json:"itemName"`
 
-	// Pack 1山あたりの個数のダイス表記。例: "1d3" "1"
+	// Pack 1山あたりの個数のダイス表記
 	Pack Dice `json:"pack"`
 
 	// Weight distribution: 相対重み。collection: 確率（0-100）
@@ -2260,7 +2260,7 @@ type Stackable = bool
 
 // StorageRaw 収納ローデータ
 type StorageRaw struct {
-	// LootCount 初期アイテム数のダイス表記。省略時は1。例: "1d2" "3"
+	// LootCount 初期アイテム数のダイス表記。省略時は1
 	LootCount *Dice `json:"lootCount,omitempty"`
 
 	// LootTableName 初期アイテムの抽選に使うItemTable名

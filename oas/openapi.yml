@@ -1690,7 +1690,7 @@ components:
         count:
           allOf:
             - $ref: '#/components/schemas/Dice'
-          description: '産出個数のダイス表記。例: "1d3" "2"'
+          description: 産出個数のダイス表記
         minSkill:
           allOf:
             - $ref: '#/components/schemas/SkillLevel'
@@ -1730,7 +1730,7 @@ components:
         count:
           allOf:
             - $ref: '#/components/schemas/Dice'
-          description: '産出個数のダイス表記。例: "1d3" "2" "1d2+1"'
+          description: 産出個数のダイス表記
         chance:
           $ref: '#/components/schemas/DisassemblyChance'
       description: 分解の産出エントリ。chance 省略は確定枠
@@ -1821,7 +1821,7 @@ components:
         pack:
           allOf:
             - $ref: '#/components/schemas/Dice'
-          description: '1群あたりの敵数のダイス表記。例: "1d3" "1"'
+          description: 1群あたりの敵数のダイス表記
       description: 敵テーブルエントリ
     EnemyTableList:
       type: object
@@ -2099,7 +2099,7 @@ components:
         pack:
           allOf:
             - $ref: '#/components/schemas/Dice'
-          description: '1山あたりの個数のダイス表記。例: "1d3" "1"'
+          description: 1山あたりの個数のダイス表記
       description: アイテムグループエントリ
     ItemGroupList:
       type: object
@@ -3854,7 +3854,7 @@ components:
         lootCount:
           allOf:
             - $ref: '#/components/schemas/Dice'
-          description: '初期アイテム数のダイス表記。省略時は1。例: "1d2" "3"'
+          description: 初期アイテム数のダイス表記。省略時は1
       description: 収納ローデータ
     Strength:
       type: integer

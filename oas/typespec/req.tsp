@@ -215,7 +215,7 @@ model ItemGroupEntry {
   itemName: EntityName;
   /** distribution: 相対重み。collection: 確率（0-100） */
   weight: EntryWeight;
-  /** 1山あたりの個数のダイス表記。例: "1d3" "1" */
+  /** 1山あたりの個数のダイス表記 */
   pack: Dice;
 }
 
@@ -247,7 +247,7 @@ model EnemyTableEntry {
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
-  /** 1群あたりの敵数のダイス表記。例: "1d3" "1" */
+  /** 1群あたりの敵数のダイス表記 */
   pack: Dice;
 }
 
@@ -298,7 +298,7 @@ model StorageRaw {
   maxWeight: Weight;
   /** 初期アイテムの抽選に使うItemTable名 */
   lootTableName?: EntityName;
-  /** 初期アイテム数のダイス表記。省略時は1。例: "1d2" "3" */
+  /** 初期アイテム数のダイス表記。省略時は1 */
   lootCount?: Dice;
 }
 
@@ -324,7 +324,7 @@ model Prop {
 /** 分解の産出エントリ。chance 省略は確定枠 */
 model DisassemblyYield {
   name: EntityName;
-  /** 産出個数のダイス表記。例: "1d3" "2" "1d2+1" */
+  /** 産出個数のダイス表記 */
   count: Dice;
   chance?: DisassemblyChance;
 }
@@ -332,7 +332,7 @@ model DisassemblyYield {
 /** 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある */
 model DisassemblyBonus {
   name: EntityName;
-  /** 産出個数のダイス表記。例: "1d3" "2" */
+  /** 産出個数のダイス表記 */
   count: Dice;
   /** 機械スキルがこの値以上で産出に加わる */
   minSkill?: SkillLevel;
