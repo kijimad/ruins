@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.2%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.5%)</option>
 				
@@ -561,7 +561,7 @@
 				
 				<option value="file252">github.com/kijimaD/ruins/internal/widgets/messagewindow/window.go (35.1%)</option>
 				
-				<option value="file253">github.com/kijimaD/ruins/internal/widgets/pagination/pagination.go (83.7%)</option>
+				<option value="file253">github.com/kijimaD/ruins/internal/widgets/pagination/pagination.go (100.0%)</option>
 				
 				<option value="file254">github.com/kijimaD/ruins/internal/widgets/styled/background.go (0.0%)</option>
 				
@@ -1591,7 +1591,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -52951,7 +52951,7 @@ func (p Pagination) IsEnabled() bool <span class="cov8" title="1">{
 }</span>
 
 // IsSelectedInPage は指定インデックスが現在のページ内で選択中かを返す
-func (p Pagination) IsSelectedInPage(index int) bool <span class="cov0" title="0">{
+func (p Pagination) IsSelectedInPage(index int) bool <span class="cov8" title="1">{
         return index == p.ItemIndex
 }</span>
 
@@ -52979,20 +52979,20 @@ func (p Pagination) GetIndicatorText() string <span class="cov8" title="1">{
 
 // GetPageText はシンプルなページテキストを返す
 // 例: "2/5"
-func (p Pagination) GetPageText() string <span class="cov0" title="0">{
-        if !p.IsEnabled() </span><span class="cov0" title="0">{
+func (p Pagination) GetPageText() string <span class="cov8" title="1">{
+        if !p.IsEnabled() </span><span class="cov8" title="1">{
                 return ""
         }</span>
-        <span class="cov0" title="0">return fmt.Sprintf("%d/%d", p.GetCurrentPage(), p.GetTotalPages())</span>
+        <span class="cov8" title="1">return fmt.Sprintf("%d/%d", p.GetCurrentPage(), p.GetTotalPages())</span>
 }
 
 // SliceVisible は任意のスライスから現在ページの要素を抽出する
 func SliceVisible[T any](items []T, p Pagination) []T <span class="cov8" title="1">{
         start, end := p.GetVisibleRange()
-        if start &gt;= len(items) </span><span class="cov0" title="0">{
+        if start &gt;= len(items) </span><span class="cov8" title="1">{
                 return []T{}
         }</span>
-        <span class="cov8" title="1">if end &gt; len(items) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if end &gt; len(items) </span><span class="cov8" title="1">{
                 end = len(items)
         }</span>
         <span class="cov8" title="1">return items[start:end]</span>
@@ -53007,10 +53007,10 @@ type IndexedItem[T any] struct {
 // VisibleEntries は現在ページの要素と元のインデックスを返す
 func VisibleEntries[T any](items []T, p Pagination) []IndexedItem[T] <span class="cov8" title="1">{
         start, end := p.GetVisibleRange()
-        if start &gt;= len(items) </span><span class="cov0" title="0">{
+        if start &gt;= len(items) </span><span class="cov8" title="1">{
                 return nil
         }</span>
-        <span class="cov8" title="1">if end &gt; len(items) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if end &gt; len(items) </span><span class="cov8" title="1">{
                 end = len(items)
         }</span>
 
