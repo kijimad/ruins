@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.2%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.3%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.0%)</option>
 				
@@ -361,7 +361,7 @@
 				
 				<option value="file152">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (100.0%)</option>
 				
-				<option value="file153">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (80.5%)</option>
+				<option value="file153">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (87.0%)</option>
 				
 				<option value="file154">github.com/kijimaD/ruins/internal/maptemplate/palette.go (92.3%)</option>
 				
@@ -1503,7 +1503,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1593,7 +1593,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -22268,7 +22268,7 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
                 TileHeight: metaPlan.Level.TileHeight,
         }
 
-        if err := spawnTiles(world, metaPlan, offsetX, offsetY); err != nil </span><span class="cov0" title="0">{
+        if err := spawnTiles(world, metaPlan, offsetX, offsetY); err != nil </span><span class="cov8" title="1">{
                 return gc.Level{}, err
         }</span>
         <span class="cov8" title="1">if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil </span><span class="cov0" title="0">{
@@ -22298,7 +22298,7 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
                 tileX, tileY := pos.X+offsetX, pos.Y+offsetY
 
                 tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         return fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(pos.X), int(pos.Y), err)
                 }</span>
 
@@ -22350,7 +22350,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
         }</span>
 
         <span class="cov8" title="1">spec, ok := specs[tile.Name]
-        if !ok </span><span class="cov0" title="0">{
+        if !ok </span><span class="cov8" title="1">{
                 return gc.InvalidEntity, fmt.Errorf("未対応の%sタイル名: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
         }</span>
 
@@ -22412,7 +22412,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
                 tileX, tileY := prop.X+offsetX, prop.Y+offsetY
 
                 propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         return fmt.Errorf("props取得エラー (%s): %w", prop.Name, err)
                 }</span>
 
@@ -22422,7 +22422,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
                 }</span>
 
                 // Door componentがあれば向きを設定して閉じた状態で初期化
-                <span class="cov8" title="1">if propRaw.Door != nil </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if propRaw.Door != nil </span><span class="cov8" title="1">{
                         doorComp := world.Components.Door.Get(propEntity)
                         doorComp.Orientation = detectPropDoorOrientation(metaPlan, int(prop.X), int(prop.Y))
                         if err := lifecycle.CloseDoor(world, propEntity); err != nil </span><span class="cov0" title="0">{
@@ -22431,7 +22431,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
                 }
 
                 // Storage propにルートアイテムを格納する
-                <span class="cov8" title="1">if propRaw.Storage != nil &amp;&amp; propRaw.Storage.LootTableName != nil &amp;&amp; *propRaw.Storage.LootTableName != "" </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if propRaw.Storage != nil &amp;&amp; propRaw.Storage.LootTableName != nil &amp;&amp; *propRaw.Storage.LootTableName != "" </span><span class="cov8" title="1">{
                         if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil </span><span class="cov0" title="0">{
                                 return fmt.Errorf("収納アイテム生成エラー (%d, %d): %w", prop.X, prop.Y, err)
                         }</span>

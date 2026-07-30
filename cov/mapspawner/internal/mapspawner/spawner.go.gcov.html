@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.6&nbsp;%</td>
+            <td class="headerCovTableEntryMed">82.4&nbsp;%</td>
             <td class="headerCovTableEntry">176</td>
-            <td class="headerCovTableEntry">133</td>
+            <td class="headerCovTableEntry">145</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:34:05</td>
+            <td class="headerValue">2026-07-30 23:38:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -93,10 +93,10 @@
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 TileHeight: metaPlan.Level.TileHeight,</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         if err := spawnTiles(world, metaPlan, offsetX, offsetY); err != nil {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.Level{}, err</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :         if err := spawnTiles(world, metaPlan, offsetX, offsetY); err != nil {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 return gc.Level{}, err</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.Level{}, err</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := spawnItems(world, metaPlan, offsetX, offsetY); err != nil {</span></span>
@@ -123,12 +123,12 @@
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 tileX, tileY := pos.X+offsetX, pos.Y+offsetY</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;タイルエンティティ生成エラー (%d, %d): %w&quot;, int(pos.X), int(pos.Y), err)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;タイルエンティティ生成エラー (%d, %d): %w&quot;, int(pos.X), int(pos.Y), err)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              :                 // TileRaw の環境情報を TileTemperature に設定する</span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           2 :                 if world.Components.TileTemperature.Has(tileEntity) {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           2 :                 if world.Components.TileTemperature.Has(tileEntity) {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         tileTemp := world.Components.TileTemperature.Get(tileEntity)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         tileTemp.Shelter = gc.ShelterType(tile.Shelter)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                         tileTemp.Water = gc.WaterType(tile.Water)</span></span>
@@ -175,12 +175,12 @@
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         spec, ok := specs[tile.Name]</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;未対応の%sタイル名: %s (%d, %d)&quot;, category, tile.Name, int(tileX), int(tileY))</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, fmt.Errorf(&quot;未対応の%sタイル名: %s (%d, %d)&quot;, category, tile.Name, int(tileX), int(tileY))</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L119"><span class="lineNum">     119</span>              : </span>
 <span id="L120"><span class="lineNum">     120</span>              :         // オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC tlaBgGNC">           1 :         var indexPtr *int</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         var indexPtr *int</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           2 :         if spec.autotile {</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 indexPtr = &amp;index</span></span>
@@ -237,28 +237,28 @@
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 tileX, tileY := prop.X+offsetX, prop.Y+offsetY</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;props取得エラー (%s): %w&quot;, prop.Name, err)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;props取得エラー (%s): %w&quot;, prop.Name, err)</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 :                 propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;props生成エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L186"><span class="lineNum">     186</span>              : </span>
 <span id="L187"><span class="lineNum">     187</span>              :                 // Door componentがあれば向きを設定して閉じた状態で初期化</span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 :                 if propRaw.Door != nil {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC tlaBgUNC">           0 :                         doorComp := world.Components.Door.Get(propEntity)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                         doorComp.Orientation = detectPropDoorOrientation(metaPlan, int(prop.X), int(prop.Y))</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         if err := lifecycle.CloseDoor(world, propEntity); err != nil {</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;扉初期化エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           2 :                 if propRaw.Door != nil {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                         doorComp := world.Components.Door.Get(propEntity)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                         doorComp.Orientation = detectPropDoorOrientation(metaPlan, int(prop.X), int(prop.Y))</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                         if err := lifecycle.CloseDoor(world, propEntity); err != nil {</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;扉初期化エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L194"><span class="lineNum">     194</span>              :                 }</span>
 <span id="L195"><span class="lineNum">     195</span>              : </span>
 <span id="L196"><span class="lineNum">     196</span>              :                 // Storage propにルートアイテムを格納する</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">           1 :                 if propRaw.Storage != nil &amp;&amp; propRaw.Storage.LootTableName != nil &amp;&amp; *propRaw.Storage.LootTableName != &quot;&quot; {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC tlaBgUNC">           0 :                         if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;収納アイテム生成エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">           2 :                 if propRaw.Storage != nil &amp;&amp; propRaw.Storage.LootTableName != nil &amp;&amp; *propRaw.Storage.LootTableName != &quot;&quot; {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                         if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;収納アイテム生成エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L201"><span class="lineNum">     201</span>              :                 }</span>
 <span id="L202"><span class="lineNum">     202</span>              :         }</span>
