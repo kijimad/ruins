@@ -255,8 +255,8 @@ func TestValidateSpawnDice(t *testing.T) {
 		}
 		err := validateSpawnDice(raws)
 		require.Error(t, err)
-		assert.ErrorContains(t, err, "スライム")
-		assert.ErrorContains(t, err, "個数は1以上")
+		require.ErrorContains(t, err, "スライム")
+		require.ErrorContains(t, err, "個数は1以上")
 	})
 
 	t.Run("収納の不正なlootCountはエラー", func(t *testing.T) {
@@ -266,7 +266,7 @@ func TestValidateSpawnDice(t *testing.T) {
 		}
 		err := validateSpawnDice(raws)
 		require.Error(t, err)
-		assert.ErrorContains(t, err, "木箱")
+		require.ErrorContains(t, err, "木箱")
 	})
 }
 
