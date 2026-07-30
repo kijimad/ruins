@@ -466,7 +466,7 @@ func (st *EquipMenuState) getActionItems(world w.World, item equipItemData) []st
 
 	equipableItems := st.queryEquipableItemsForSlot(world, item.SlotNumber)
 	if len(equipableItems) > 0 {
-		actionItems = append(actionItems, "装備する")
+		actionItems = append(actionItems, TextEquip)
 	}
 
 	actionItems = append(actionItems, TextClose)
@@ -516,7 +516,7 @@ func (st *EquipMenuState) executeActionItem(world w.World) error {
 	slotData := windowProps.SlotData
 
 	switch selectedAction {
-	case "装備する":
+	case TextEquip:
 		st.subState = subStateEquipSelect
 		st.equipMount = hooks.NewMount[equipScreenProps]()
 		st.equipMount.SetProps(equipScreenProps{

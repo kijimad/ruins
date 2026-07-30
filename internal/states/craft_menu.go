@@ -323,7 +323,7 @@ func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []str
 	actionItems := []string{}
 
 	if canCraft, _ := gameaction.CanCraft(world, recipeName); canCraft {
-		actionItems = append(actionItems, "合成する")
+		actionItems = append(actionItems, TextCraft)
 	}
 	actionItems = append(actionItems, TextClose)
 
@@ -371,7 +371,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 	selectedAction := actionItems[actionIndex]
 
 	switch selectedAction {
-	case "合成する":
+	case TextCraft:
 		resultEntity, err := gameaction.Craft(world, windowProps.RecipeName)
 		if err != nil {
 			return err

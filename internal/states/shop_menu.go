@@ -313,10 +313,10 @@ func (st *ShopMenuState) getActionItems(world w.World, item shopItemData) []stri
 			canAfford = currency >= item.Price
 		})
 		if canAfford {
-			actionItems = append(actionItems, "購入する")
+			actionItems = append(actionItems, TextBuy)
 		}
 	} else {
-		actionItems = append(actionItems, "売却する")
+		actionItems = append(actionItems, TextSell)
 	}
 	actionItems = append(actionItems, TextClose)
 
@@ -365,7 +365,7 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 
 	var actionErr error
 	switch selectedAction {
-	case "購入する":
+	case TextBuy:
 		query.Player(world, func(playerEntity ecs.Entity) {
 			actionErr = gameaction.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
 		})
@@ -373,7 +373,7 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 			return fmt.Errorf("購入に失敗: %w", actionErr)
 		}
 		st.subState = shopSubStateMenu
-	case "売却する":
+	case TextSell:
 		query.Player(world, func(playerEntity ecs.Entity) {
 			actionErr = gameaction.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
 		})
