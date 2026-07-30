@@ -1,9 +1,10 @@
 package interior
 
 import (
-	"math/rand/v2"
 	"reflect"
 	"testing"
+
+	"github.com/kijimaD/ruins/internal/consts"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,17 +16,17 @@ func sampleContent() Content {
 		ID: "conv_store",
 		Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "register", Amount: Dice{Bonus: 1}},
-				{Kind: KindFurniture, Ref: "gondola", Amount: Dice{Bonus: 3}},
+				{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},
+				{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "snacks", Weight: 3, Amount: Dice{Base: 2, Sides: 4}},
-				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: Dice{Base: 1, Sides: 4}},
-				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: Dice{Base: 1, Sides: 3}},
+				{Kind: KindLoot, Ref: "snacks", Weight: 3, Amount: consts.Dice{Base: 2, Sides: 4}},
+				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: consts.Dice{Base: 1, Sides: 4}},
+				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 3}},
 			}},
 			{Style: PickOne, Items: []Stuff{
-				{Kind: KindDecor, Ref: "litter", Amount: Dice{Base: 1, Sides: 3, Bonus: 1}},
-				{Kind: KindBeing, Ref: "looter", Chance: 30},
+				{Kind: KindDecor, Ref: "litter", Amount: consts.Dice{Base: 1, Sides: 3, Bonus: 1}},
+				{Kind: KindBeing, Ref: "looter", Chance: 30, Amount: consts.Dice{Base: 1, Sides: 1}},
 			}},
 		},
 	}
@@ -65,8 +66,8 @@ func TestContent_Resolve_PickEachは保証枠を全部置く(t *testing.T) {
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "register", Amount: Dice{Bonus: 1}},
-		{Kind: KindFurniture, Ref: "gondola", Amount: Dice{Bonus: 3}},
+		{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
 	}}}}
 	got := c.Resolve(7)
 	require.Len(t, got, 2, "Chance の無い PickEach は全 Item を置く")
@@ -79,9 +80,9 @@ func TestContent_Resolve_PickNはちょうどN個の別種を置く(t *testing.T
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickN, Pick: 2, Items: []Stuff{
-		{Kind: KindLoot, Ref: "a", Amount: Dice{Bonus: 1}},
-		{Kind: KindLoot, Ref: "b", Amount: Dice{Bonus: 1}},
-		{Kind: KindLoot, Ref: "c", Amount: Dice{Bonus: 1}},
+		{Kind: KindLoot, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindLoot, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindLoot, Ref: "c", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(30) {
 		got := c.Resolve(s)
@@ -95,8 +96,8 @@ func TestContent_Resolve_PickOneは1つだけ置く(t *testing.T) {
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickOne, Items: []Stuff{
-		{Kind: KindDecor, Ref: "a", Amount: Dice{Bonus: 1}},
-		{Kind: KindDecor, Ref: "b", Amount: Dice{Bonus: 1}},
+		{Kind: KindDecor, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindDecor, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(30) {
 		require.Lenf(t, c.Resolve(s), 1, "PickOne は1つだけ置く (seed=%d)", s)
@@ -108,23 +109,10 @@ func TestContent_Resolve_Chance0は常に置かれる(t *testing.T) {
 	t.Parallel()
 
 	c := Content{Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "must", Amount: Dice{Bonus: 1}},
+		{Kind: KindFurniture, Ref: "must", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(50) {
 		got := c.Resolve(s)
 		require.Lenf(t, got, 1, "Chance 0 は常置 (seed=%d)", s)
-	}
-}
-
-// TestDice_roll_定数とダイスの範囲 は、個数抽選の定数表現とダイス範囲を固定する。
-func TestDice_roll_定数とダイスの範囲(t *testing.T) {
-	t.Parallel()
-
-	rng := rand.New(rand.NewPCG(1, 2))
-	assert.Equal(t, 5, Dice{Sides: 0, Bonus: 5}.roll(rng), "Sides<=0 は定数 Bonus")
-	for range 100 {
-		v := Dice{Base: 2, Sides: 4, Bonus: 1}.roll(rng)
-		assert.GreaterOrEqual(t, v, 3, "2d4+1 の下限は 2*1+1")
-		assert.LessOrEqual(t, v, 9, "2d4+1 の上限は 2*4+1")
 	}
 }

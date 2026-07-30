@@ -54,34 +54,34 @@ func CreateTestRawMaster() *oapi.Raws {
 		{
 			Name: "通常",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 10},
-				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{EnemyName: "軽戦車", Weight: 0.8, MinDepth: 10, MaxDepth: 50},
+				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 0.8, MinDepth: 10, MaxDepth: 50, Pack: "1d1"},
 			},
 		},
 		{
 			Name: "洞窟",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 8},
-				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
-				{EnemyName: "軽戦車", Weight: 0.6, MinDepth: 8, MaxDepth: 25},
+				{EnemyName: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 8, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 0.6, MinDepth: 8, MaxDepth: 25, Pack: "1d1"},
 			},
 		},
 		{
 			Name: "森",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 12},
-				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
-				{EnemyName: "軽戦車", Weight: 0.5, MinDepth: 10, MaxDepth: 20},
+				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 12, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 0.5, MinDepth: 10, MaxDepth: 20, Pack: "1d1"},
 			},
 		},
 		{
 			Name: "廃墟",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 0.9, MinDepth: 1, MaxDepth: 10},
-				{EnemyName: "火の玉", Weight: 0.8, MinDepth: 1, MaxDepth: 20},
-				{EnemyName: "軽戦車", Weight: 1.0, MinDepth: 5, MaxDepth: 30},
-				{EnemyName: "灰の偶像", Weight: 0.7, MinDepth: 15, MaxDepth: 35},
+				{EnemyName: "スライム", Weight: 0.9, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 0.8, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 1.0, MinDepth: 5, MaxDepth: 30, Pack: "1d1"},
+				{EnemyName: "灰の偶像", Weight: 0.7, MinDepth: 15, MaxDepth: 35, Pack: "1d1"},
 			},
 		},
 	}
@@ -92,16 +92,16 @@ func CreateTestRawMaster() *oapi.Raws {
 			Name:    "回復アイテム",
 			Subtype: oapi.Distribution,
 			Entries: []oapi.ItemGroupEntry{
-				{ItemName: "回復薬", Weight: 1.0, PackMin: 1, PackMax: 3},
-				{ItemName: "毒消し", Weight: 0.5, PackMin: 1, PackMax: 1},
+				{ItemName: "回復薬", Weight: 1.0, Pack: "1d3"},
+				{ItemName: "毒消し", Weight: 0.5, Pack: "1d1"},
 			},
 		},
 		{
 			Name:    "鉱石類",
 			Subtype: oapi.Collection,
 			Entries: []oapi.ItemGroupEntry{
-				{ItemName: "黒曜石", Weight: 50, PackMin: 1, PackMax: 2},
-				{ItemName: "銀の欠片", Weight: 30, PackMin: 1, PackMax: 1},
+				{ItemName: "黒曜石", Weight: 50, Pack: "1d2"},
+				{ItemName: "銀の欠片", Weight: 30, Pack: "1d1"},
 			},
 		},
 	}

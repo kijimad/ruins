@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
+
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -266,8 +268,8 @@ func TestGolden_RoomFlavor(t *testing.T) {
 
 	room := Room{Rect: Rect{X: 0, Y: 0, W: 13, H: 10}, Doorways: []Doorway{{X: 6, Y: 9}}}
 	base := Content{ID: "sparse", Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "bed", Amount: Dice{Bonus: 1}},
-		{Kind: KindFurniture, Ref: "closet", Amount: Dice{Bonus: 2}},
+		{Kind: KindFurniture, Ref: "bed", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindFurniture, Ref: "closet", Amount: consts.Dice{Base: 2, Sides: 1}},
 	}}}}
 	assertRoomGolden(t, room, "flavor", func(seed uint64) []Placed {
 		return Flavor(seed, room, FillRoom(seed, room, base), abandonedFlavor())

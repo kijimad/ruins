@@ -60,7 +60,7 @@ $ make help
 | status | 件数 |
 |---|---|
 | in-progress | 2 |
-| accepted | 2 |
+| accepted | 3 |
 | draft | 4 |
 | done | 65 |
 

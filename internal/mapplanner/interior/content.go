@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // StuffKind は配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う。
 // 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
 type StuffKind string
@@ -30,21 +32,13 @@ const (
 	PickN GroupStyle = "pick_n"
 )
 
-// Dice は個数抽選。Base 個の Sides 面ダイスの和に Bonus を足す。1d3+1 は {Base:1, Sides:3, Bonus:1}。
-// 定数個数は Sides<=0 とし、そのとき値は Bonus になる。5固定は {Sides:0, Bonus:5}。
-type Dice struct {
-	Base  int
-	Sides int
-	Bonus int
-}
-
 // Stuff は1つの配置指示。何を・いくつ・どこへ置くか。Satellites があれば anchor と衛星を1回で束ねて置く。
 type Stuff struct {
 	Kind       StuffKind
 	Ref        string      // 家具型や戦利品テーブルの参照名
 	Weight     int         // PickOne / PickN の抽選重み。0 は 1 とみなす
 	Chance     int         // 0..100。PickEach でこの Stuff を置く確率。0 以下は常置
-	Amount     Dice        // 置く個数
+	Amount     consts.Dice // 置く個数
 	Placement  Placement   // どこへ置くか。空なら PlaceFullArea 相当
 	Satellites []Satellite // anchor 相対に一緒に置く衛星。机に対する椅子など
 }

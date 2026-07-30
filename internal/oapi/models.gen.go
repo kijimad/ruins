@@ -750,6 +750,9 @@ type Dialog struct {
 	MessageKey MessageKey `json:"messageKey"`
 }
 
+// Dice ダイス表記の個数指定。固定値も 1d1 のように書く。consts.ParseDice でパースする
+type Dice = string
+
 // Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
 type Disassembly struct {
 	// BaseAP 分解の基礎工数。100が標準1ターンに相当する
@@ -766,11 +769,8 @@ type DisassemblyBaseAP = int32
 
 // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
-	// Amount アイテム所持数
-	Amount ItemCount `json:"amount"`
-
-	// AmountMax アイテム所持数
-	AmountMax *ItemCount `json:"amountMax,omitempty"`
+	// Count 産出個数のダイス表記
+	Count Dice `json:"count"`
 
 	// MinGrade 工具グレードがこの値以上で産出に加わる
 	MinGrade *ToolGrade `json:"minGrade,omitempty"`
@@ -795,14 +795,11 @@ type DisassemblyTool struct {
 
 // DisassemblyYield 分解の産出エントリ。chance 省略は確定枠
 type DisassemblyYield struct {
-	// Amount アイテム所持数
-	Amount ItemCount `json:"amount"`
-
-	// AmountMax 省略時は amount 固定。指定時は amount..amountMax の一様抽選
-	AmountMax *ItemCount `json:"amountMax,omitempty"`
-
 	// Chance 分解産出の確率。百分率
 	Chance *DisassemblyChance `json:"chance,omitempty"`
+
+	// Count 産出個数のダイス表記
+	Count Dice `json:"count"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -859,11 +856,8 @@ type EnemyTableEntry struct {
 	// MinDepth 階層レベル
 	MinDepth DepthLevel `json:"minDepth"`
 
-	// PackMax パックの最大数
-	PackMax PackMax `json:"packMax"`
-
-	// PackMin パックの最小数
-	PackMin PackMin `json:"packMin"`
+	// Pack 1群あたりの敵数のダイス表記
+	Pack Dice `json:"pack"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -1064,11 +1058,8 @@ type ItemGroupEntry struct {
 	// ItemName エンティティ名
 	ItemName EntityName `json:"itemName"`
 
-	// PackMax パックの最大数
-	PackMax PackMax `json:"packMax"`
-
-	// PackMin パックの最小数
-	PackMin PackMin `json:"packMin"`
+	// Pack 1山あたりの個数のダイス表記
+	Pack Dice `json:"pack"`
 
 	// Weight distribution: 相対重み。collection: 確率（0-100）
 	Weight EntryWeight `json:"weight"`
@@ -1232,12 +1223,6 @@ type MovementPatternType string
 
 // NutritionAmount 栄養価
 type NutritionAmount = int32
-
-// PackMax パックの最大数
-type PackMax = int32
-
-// PackMin パックの最小数
-type PackMin = int32
 
 // Palette パレット
 type Palette struct {
@@ -2275,11 +2260,8 @@ type Stackable = bool
 
 // StorageRaw 収納ローデータ
 type StorageRaw struct {
-	// LootCountMax 初期アイテムの最大数
-	LootCountMax *int32 `json:"lootCountMax,omitempty"`
-
-	// LootCountMin 初期アイテムの最小数
-	LootCountMin *int32 `json:"lootCountMin,omitempty"`
+	// LootCount 初期アイテム数のダイス表記。省略時は1
+	LootCount *Dice `json:"lootCount,omitempty"`
 
 	// LootTableName 初期アイテムの抽選に使うItemTable名
 	LootTableName *EntityName `json:"lootTableName,omitempty"`

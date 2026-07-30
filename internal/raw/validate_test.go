@@ -143,7 +143,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
 				},
 			}},
 		}
@@ -159,7 +159,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Amount: 1}},
+					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Count: "1d1"}},
 				},
 			}},
 		}
@@ -176,8 +176,8 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			{Name: "分解対象", Disassembly: &oapi.Disassembly{
 				ToolCategory: oapi.Precision,
 				BaseAP:       100,
-				Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
-				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Amount: 1, MinSkill: new(oapi.SkillLevel(10))}},
+				Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
 			}},
 		}
 		raws := oapi.Raws{Items: &items}
@@ -232,6 +232,52 @@ func TestValidateDropTableReferences(t *testing.T) {
 		require.Error(t, err)
 		require.ErrorContains(t, err, "未定義テーブル")
 		require.ErrorContains(t, err, "スライム")
+	})
+}
+
+func TestValidateSpawnDice(t *testing.T) {
+	t.Parallel()
+
+	t.Run("正しいダイス表記は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "1d3"}}}},
+			ItemGroups:  &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{ItemName: "回復薬", Pack: "2d1"}}}},
+			Props:       &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("1d2"))}}},
+		}
+		require.NoError(t, validateSpawnDice(raws))
+	})
+
+	t.Run("敵テーブルの不正なパック表記はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "0d6"}}}},
+		}
+		err := validateSpawnDice(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "スライム")
+		require.ErrorContains(t, err, "個数は1以上")
+	})
+
+	t.Run("アイテムグループの不正なパック表記はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			ItemGroups: &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{ItemName: "回復薬", Pack: "0d6"}}}},
+		}
+		err := validateSpawnDice(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "回復薬")
+		require.ErrorContains(t, err, "個数は1以上")
+	})
+
+	t.Run("収納の不正なlootCountはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props: &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("abc"))}}},
+		}
+		err := validateSpawnDice(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "木箱")
 	})
 }
 

@@ -397,18 +397,14 @@ func NewBigRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Pla
 
 // SpawnEntry はスポーン対象のエントリを表す。
 type SpawnEntry struct {
-	Name    string
-	Weight  float64
-	PackMin int // パックの最小数。1以上
-	PackMax int // パックの最大数。PackMin以上
+	Name   string
+	Weight float64
+	Pack   consts.Dice // 1山あたりの個数
 }
 
-// PackSize はPackMin〜PackMaxの範囲でランダムなパックサイズを返す
+// PackSize はダイス表記からパックサイズを抽選する
 func (e SpawnEntry) PackSize(rng *rand.Rand) int {
-	if e.PackMin == e.PackMax {
-		return e.PackMin
-	}
-	return e.PackMin + rng.IntN(e.PackMax-e.PackMin+1)
+	return e.Pack.Roll(rng)
 }
 
 // ItemGroupSubtype はアイテムグループの選択方式

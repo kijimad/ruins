@@ -124,22 +124,16 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 	if err != nil {
 		return err
 	}
-	countMin, countMax := 1, 1
-	if propRaw.Storage.LootCountMin != nil {
-		countMin = int(*propRaw.Storage.LootCountMin)
+	// ルート数はダイス表記で決める。省略時は1個
+	lootDice := consts.Dice{Base: 1, Sides: 1}
+	if propRaw.Storage.LootCount != nil {
+		d, err := consts.ParseDice(*propRaw.Storage.LootCount)
+		if err != nil {
+			return fmt.Errorf("収納 '%s' の lootCount 表記が不正です: %w", propName, err)
+		}
+		lootDice = d
 	}
-	if propRaw.Storage.LootCountMax != nil {
-		countMax = int(*propRaw.Storage.LootCountMax)
-	}
-	if countMin > countMax {
-		// min だけ設定され max が既定の1 のままだと、下限を切り捨ててしまう。設定された下限を尊重して
-		// max を min まで引き上げる
-		countMax = countMin
-	}
-	n := countMin
-	if countMax > countMin {
-		n = countMin + rng.IntN(countMax-countMin+1)
-	}
+	n := lootDice.Roll(rng)
 	for range n {
 		// 深度は地上の建物なので浅い loot の1を使う。廃墟テーブルは全 entry が minDepth>=1 なので深度0では
 		// 何も引けない。地上の廃屋あさりは最も浅い戦利品が出る

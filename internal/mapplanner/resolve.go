@@ -3,6 +3,7 @@ package mapplanner
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
@@ -21,11 +22,14 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
+		pack, err := consts.ParseDice(entry.Pack)
+		if err != nil {
+			return nil, fmt.Errorf("敵テーブル '%s' の '%s' のパック表記が不正です: %w", tableName, entry.EnemyName, err)
+		}
 		result = append(result, SpawnEntry{
-			Name:    entry.EnemyName,
-			Weight:  entry.Weight,
-			PackMin: int(entry.PackMin),
-			PackMax: int(entry.PackMax),
+			Name:   entry.EnemyName,
+			Weight: entry.Weight,
+			Pack:   pack,
 		})
 	}
 	return result, nil
@@ -51,11 +55,14 @@ func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]It
 		}
 		spawnEntries := make([]SpawnEntry, len(group.Entries))
 		for i, ge := range group.Entries {
+			pack, err := consts.ParseDice(ge.Pack)
+			if err != nil {
+				return nil, fmt.Errorf("アイテムグループ '%s' の '%s' のパック表記が不正です: %w", entry.GroupName, ge.ItemName, err)
+			}
 			spawnEntries[i] = SpawnEntry{
-				Name:    ge.ItemName,
-				Weight:  ge.Weight,
-				PackMin: int(ge.PackMin),
-				PackMax: int(ge.PackMax),
+				Name:   ge.ItemName,
+				Weight: ge.Weight,
+				Pack:   pack,
 			}
 		}
 		result = append(result, ItemSource{

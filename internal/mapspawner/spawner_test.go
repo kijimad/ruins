@@ -223,39 +223,10 @@ func TestPopulateStorageLoot_ルートテーブルからアイテムを収納す
 			count++
 		}
 	}
-	assert.GreaterOrEqual(t, count, 1, "ルート数の下限以上のアイテムが収納される")
-	assert.LessOrEqual(t, count, 3, "ルート数の上限以下のアイテムが収納される")
-}
-
-func TestPopulateStorageLoot_最小数が最大数を超える場合は最大数に丸める(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	plan := newTestSpawnPlan(world)
-	plan.RNG = rand.New(rand.NewPCG(1, 1))
-	plan.Depth = 1
-
-	tableName := "廃墟"
-	var lootMin, lootMax int32 = 9, 2
-	propRaw := oapi.Prop{
-		Storage: &oapi.StorageRaw{
-			LootTableName: &tableName,
-			LootCountMin:  &lootMin,
-			LootCountMax:  &lootMax,
-		},
-	}
-	storageEntity := world.ECS.NewEntity()
-
-	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	// 上限・下限は raw の lootCount 表記から導く。データを変えてもテストが追従する
+	require.NotNil(t, propRaw.Storage.LootCount)
+	lootDice, err := consts.ParseDice(*propRaw.Storage.LootCount)
 	require.NoError(t, err)
-
-	query := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
-	count := 0
-	for query.Next() {
-		loc := world.Components.LocationInStorage.Get(query.Entity())
-		if loc.Owner == storageEntity {
-			count++
-		}
-	}
-	assert.Equal(t, 2, count, "countMinがcountMaxを超える場合はcountMaxに丸められる")
+	assert.GreaterOrEqual(t, count, lootDice.Min(), "ルート数の下限以上のアイテムが収納される")
+	assert.LessOrEqual(t, count, lootDice.Max(), "ルート数の上限以下のアイテムが収納される")
 }

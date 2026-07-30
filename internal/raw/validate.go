@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -50,7 +51,42 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateDropTableReferences(raws); err != nil {
 		return err
 	}
+	if err := validateSpawnDice(raws); err != nil {
+		return err
+	}
 	return validateCommandTableReferences(raws)
+}
+
+// validateSpawnDice はスポーン系のダイス表記をロード時に検証する。スキーマの pattern は
+// "0d6" のような個数0を通すが ParseDice は弾くため、生成時でなくロード時にまとめて弾いて
+// 分解産出の count 検証と一貫させる。
+func validateSpawnDice(raws oapi.Raws) error {
+	enemyTables := PtrSlice(raws.EnemyTables)
+	for i := range enemyTables {
+		for _, e := range enemyTables[i].Entries {
+			if _, err := consts.ParseDice(e.Pack); err != nil {
+				return fmt.Errorf("敵テーブル '%s' の '%s' のパック表記が不正です: %w", enemyTables[i].Name, e.EnemyName, err)
+			}
+		}
+	}
+	itemGroups := PtrSlice(raws.ItemGroups)
+	for i := range itemGroups {
+		for _, e := range itemGroups[i].Entries {
+			if _, err := consts.ParseDice(e.Pack); err != nil {
+				return fmt.Errorf("アイテムグループ '%s' の '%s' のパック表記が不正です: %w", itemGroups[i].Name, e.ItemName, err)
+			}
+		}
+	}
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		if props[i].Storage == nil || props[i].Storage.LootCount == nil {
+			continue
+		}
+		if _, err := consts.ParseDice(*props[i].Storage.LootCount); err != nil {
+			return fmt.Errorf("収納 '%s' の lootCount 表記が不正です: %w", props[i].Name, err)
+		}
+	}
+	return nil
 }
 
 // validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する
@@ -69,6 +105,9 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 			if _, ok := itemNames[y.Name]; !ok {
 				return fmt.Errorf("%s '%s' の分解産出 '%s' がアイテム定義に存在しません", ownerKind, ownerName, y.Name)
 			}
+			if _, err := consts.ParseDice(y.Count); err != nil {
+				return fmt.Errorf("%s '%s' の分解産出 '%s' の個数表記が不正です: %w", ownerKind, ownerName, y.Name, err)
+			}
 		}
 		if def.Bonus == nil {
 			return nil
@@ -76,6 +115,9 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		for _, b := range *def.Bonus {
 			if _, ok := itemNames[b.Name]; !ok {
 				return fmt.Errorf("%s '%s' の分解ボーナス '%s' がアイテム定義に存在しません", ownerKind, ownerName, b.Name)
+			}
+			if _, err := consts.ParseDice(b.Count); err != nil {
+				return fmt.Errorf("%s '%s' の分解ボーナス '%s' の個数表記が不正です: %w", ownerKind, ownerName, b.Name, err)
 			}
 		}
 		return nil

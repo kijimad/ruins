@@ -22,23 +22,23 @@ var testGroups = []oapi.ItemGroup{
 		Name:    "回復",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
-			{ItemName: "回復薬", Weight: 1.0, PackMin: 1, PackMax: 1},
+			{ItemName: "回復薬", Weight: 1.0, Pack: "1d1"},
 		},
 	},
 	{
 		Name:    "武器",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
-			{ItemName: "毒消し", Weight: 0.8, PackMin: 1, PackMax: 1},
-			{ItemName: "手榴弾", Weight: 0.5, PackMin: 1, PackMax: 1},
+			{ItemName: "毒消し", Weight: 0.8, Pack: "1d1"},
+			{ItemName: "手榴弾", Weight: 0.5, Pack: "1d1"},
 		},
 	},
 	{
 		Name:    "素材",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
-			{ItemName: "アイテム1", Weight: 1.0, PackMin: 1, PackMax: 1},
-			{ItemName: "アイテム2", Weight: 1.0, PackMin: 1, PackMax: 1},
+			{ItemName: "アイテム1", Weight: 1.0, Pack: "1d1"},
+			{ItemName: "アイテム2", Weight: 1.0, Pack: "1d1"},
 		},
 	},
 }

@@ -19,11 +19,12 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 2}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "2d1"}},
 		}
 
 		for range 100 {
-			stacks := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+			stacks, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+			require.NoError(t, err)
 			require.Len(t, stacks, 1)
 			assert.Equal(t, lifecycle.YieldStack{Name: "鉄くず", Count: 2}, stacks[0])
 		}
@@ -35,12 +36,13 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "硬木", Amount: 1, AmountMax: new(oapi.ItemCount(3))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "硬木", Count: "1d3"}},
 		}
 
 		seen := map[int]bool{}
 		for range 200 {
-			stacks := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+			stacks, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+			require.NoError(t, err)
 			require.Len(t, stacks, 1)
 			assert.GreaterOrEqual(t, stacks[0].Count, 1)
 			assert.LessOrEqual(t, stacks[0].Count, 3)
@@ -55,12 +57,13 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Precision,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Amount: 1, Chance: new(oapi.DisassemblyChance(60))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(60))}},
 		}
 
 		// chance60 + skill30 + (grade2-1)*10 = 100
 		for range 100 {
-			stacks := lifecycle.RollDisassemblyYields(rng, def, 30, 2, true)
+			stacks, err := lifecycle.RollDisassemblyYields(rng, def, 30, 2, true)
+			require.NoError(t, err)
 			require.Len(t, stacks, 1)
 		}
 	})
@@ -71,12 +74,14 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Precision,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Amount: 1, Chance: new(oapi.DisassemblyChance(50))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(50))}},
 		}
 
 		hit := 0
 		for range 2000 {
-			if len(lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)) == 1 {
+			stacks, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+			require.NoError(t, err)
+			if len(stacks) == 1 {
 				hit++
 			}
 		}
@@ -89,14 +94,18 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Amount: 1, MinSkill: new(oapi.SkillLevel(10))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
 		}
 
-		low := lifecycle.RollDisassemblyYields(rng, def, 9, 1, true)
+		low, err := lifecycle.RollDisassemblyYields(rng, def, 9, 1, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, low, "スキル9ではボーナスが出ないべき")
 
-		high := lifecycle.RollDisassemblyYields(rng, def, 10, 1, true)
+		high, err := lifecycle.RollDisassemblyYields(rng, def, 10, 1, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}, {Name: "鉄", Count: 1}}, high)
 	})
 
@@ -106,14 +115,18 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Amount: 1, MinGrade: new(oapi.ToolGrade(2))}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1", MinGrade: new(oapi.ToolGrade(2))}},
 		}
 
-		low := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+		low, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, low, "グレード1ではボーナスが出ないべき")
 
-		high := lifecycle.RollDisassemblyYields(rng, def, 0, 2, true)
+		high, err := lifecycle.RollDisassemblyYields(rng, def, 0, 2, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}, {Name: "鉄", Count: 1}}, high)
 	})
 
@@ -123,19 +136,25 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
 			Bonus: &[]oapi.DisassemblyBonus{
-				{Name: "鉄", Amount: 1, MinSkill: new(oapi.SkillLevel(10)), MinGrade: new(oapi.ToolGrade(2))},
+				{Name: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10)), MinGrade: new(oapi.ToolGrade(2))},
 			},
 		}
 
-		skillOnly := lifecycle.RollDisassemblyYields(rng, def, 10, 1, true)
+		skillOnly, err := lifecycle.RollDisassemblyYields(rng, def, 10, 1, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, skillOnly, "スキルだけ満たしても出ないべき")
 
-		gradeOnly := lifecycle.RollDisassemblyYields(rng, def, 0, 2, true)
+		gradeOnly, err := lifecycle.RollDisassemblyYields(rng, def, 0, 2, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, gradeOnly, "グレードだけ満たしても出ないべき")
 
-		both := lifecycle.RollDisassemblyYields(rng, def, 10, 2, true)
+		both, err := lifecycle.RollDisassemblyYields(rng, def, 10, 2, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}, {Name: "鉄", Count: 1}}, both)
 	})
 
@@ -145,11 +164,13 @@ func TestRollDisassemblyYields(t *testing.T) {
 		def := &oapi.Disassembly{
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
-			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Amount: 1}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Amount: 1}},
+			Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1"}},
 		}
 
-		stacks := lifecycle.RollDisassemblyYields(rng, def, 100, 3, true)
+		stacks, err := lifecycle.RollDisassemblyYields(rng, def, 100, 3, true)
+
+		require.NoError(t, err)
 		assert.Equal(t, []lifecycle.YieldStack{{Name: "鉄くず", Count: 1}}, stacks, "無条件のボーナス定義は無効として扱うべき")
 	})
 
@@ -160,15 +181,16 @@ func TestRollDisassemblyYields(t *testing.T) {
 			ToolCategory: oapi.Prying,
 			BaseAP:       100,
 			Yields: []oapi.DisassemblyYield{
-				{Name: "鉄くず", Amount: 1},
-				{Name: "ネジ", Amount: 1, Chance: new(oapi.DisassemblyChance(100))},
+				{Name: "鉄くず", Count: "1d1"},
+				{Name: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(100))},
 			},
-			Bonus: &[]oapi.DisassemblyBonus{{Name: "鉄", Amount: 1, MinSkill: new(oapi.SkillLevel(0))}},
+			Bonus: &[]oapi.DisassemblyBonus{{Name: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(0))}},
 		}
 
 		hit := 0
 		for range 2000 {
-			stacks := lifecycle.RollDisassemblyYields(rng, def, 100, 3, false)
+			stacks, err := lifecycle.RollDisassemblyYields(rng, def, 100, 3, false)
+			require.NoError(t, err)
 			for _, s := range stacks {
 				assert.Equal(t, "鉄くず", s.Name, "破壊回収では確定枠以外が出ないべき")
 			}

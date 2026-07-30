@@ -35,7 +35,7 @@ func pickEach(rng *rand.Rand, items []Stuff) []Selection {
 		if !chancePass(rng, it.Chance) {
 			continue
 		}
-		if n := it.Amount.roll(rng); n > 0 {
+		if n := it.Amount.Roll(rng); n > 0 {
 			out = append(out, selectionOf(it, n))
 		}
 	}
@@ -52,7 +52,7 @@ func pickDistinct(rng *rand.Rand, items []Stuff, n int) []Selection {
 		i := weightedIndex(rng, pool)
 		it := pool[i]
 		pool = append(pool[:i], pool[i+1:]...)
-		count := it.Amount.roll(rng)
+		count := it.Amount.Roll(rng)
 		if count <= 0 {
 			count = 1
 		}
@@ -102,18 +102,6 @@ func chancePass(rng *rand.Rand, chance int) bool {
 		return true
 	}
 	return rng.IntN(100) < chance
-}
-
-// roll は Base 個の Sides 面ダイスの和に Bonus を足す。Sides<=0 は定数 Bonus。
-func (d Dice) roll(rng *rand.Rand) int {
-	if d.Sides <= 0 {
-		return d.Bonus
-	}
-	sum := d.Bonus
-	for range d.Base {
-		sum += rng.IntN(d.Sides) + 1
-	}
-	return sum
 }
 
 // childSeed は親 seed と添字から子 seed を導く。splitmix64 の finalizer で撹拌し、添字の1違いでも
