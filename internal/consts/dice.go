@@ -15,8 +15,8 @@ type Dice struct {
 	Bonus int
 }
 
-// ParseDice は "1d3+1" "2d4" "d6" "5" のような表記を Dice へ変換する。
-// d の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数を省くと1、d が無ければ定数として扱う。
+// ParseDice は "1d3+1" "2d4" "5" のような表記を Dice へ変換する。
+// d の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数は必ず書く。d が無ければ定数として扱う。
 // 区切りは小文字 d に統一する。大文字 D は受け付けない。
 // 動的入力用。固定リテラルには MustParseDice を使う。regexp は使わず strings で足りる。ParseWeight と同じ方針。
 func ParseDice(s string) (Dice, error) {
@@ -35,13 +35,13 @@ func ParseDice(s string) (Dice, error) {
 		return Dice{Bonus: n}, nil
 	}
 
-	base := 1
-	if before != "" {
-		b, err := strconv.Atoi(before)
-		if err != nil {
-			return Dice{}, fmt.Errorf("ダイスの個数が不正です: %q", s)
-		}
-		base = b
+	// 個数は省略できない。"d6" でなく "1d6" と明示的に書かせて表記を一意にする。
+	if before == "" {
+		return Dice{}, fmt.Errorf("ダイスの個数を省略できません。例: \"1d6\": %q", s)
+	}
+	base, err := strconv.Atoi(before)
+	if err != nil {
+		return Dice{}, fmt.Errorf("ダイスの個数が不正です: %q", s)
 	}
 
 	// 面数部と Bonus 部。sides[+/-bonus]

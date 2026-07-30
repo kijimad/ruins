@@ -17,7 +17,6 @@ func TestParseDice_表記をDiceへ変換する(t *testing.T) {
 	}{
 		{"1d3+1", Dice{Base: 1, Sides: 3, Bonus: 1}},
 		{"2d6", Dice{Base: 2, Sides: 6, Bonus: 0}},
-		{"d6", Dice{Base: 1, Sides: 6, Bonus: 0}},
 		{"3d4-1", Dice{Base: 3, Sides: 4, Bonus: -1}},
 		{"5", Dice{Base: 0, Sides: 0, Bonus: 5}},
 	}
@@ -44,6 +43,7 @@ func TestParseDice_不正な表記はエラーになる(t *testing.T) {
 		{"xd6", "個数が不正"},
 		{"1d3+x", "ボーナスが不正"},
 		{"1d0", "面数は1以上"},
+		{"d6", "個数を省略できません"}, // 個数は必須。"1d6" と書く
 		{"-1d6", "個数は1以上"},
 		{"0d6", "個数は1以上"},  // d を書いたら個数1以上。定数は "5" と書く
 		{"1D3", "数値が不正"},   // 大文字 D は受け付けない。d に統一する
