@@ -79,11 +79,13 @@ func MustParseDice(s string) Dice {
 	return d
 }
 
-// Roll は Base 個の Sides 面ダイスの和に Bonus を足す。Sides<=0 は定数 Bonus。
+// Roll は Base 個の Sides 面ダイスの和に Bonus を足す。
+// 有効な Dice は Base>=1・Sides>=1。ParseDice が保証する。ゼロ値など不正な Dice を
+// 直接渡したバグを即座に気づけるよう panic する。
 // rng は呼び出し側が渡す。共有 RNG を汚さず決定的に抽選するため、内部で乱数器を持たない。
 func (d Dice) Roll(rng *rand.Rand) int {
-	if d.Sides <= 0 {
-		return d.Bonus
+	if d.Base < 1 || d.Sides < 1 {
+		panic(fmt.Sprintf("不正な Dice です。ParseDice 経由で作る: %+v", d))
 	}
 	sum := d.Bonus
 	for range d.Base {
@@ -92,28 +94,19 @@ func (d Dice) Roll(rng *rand.Rand) int {
 	return sum
 }
 
-// Min は取りうる最小値。Sides<=0 なら Bonus、そうでなければ Base 個の最小目1 の和に Bonus を足す。
+// Min は取りうる最小値。Base 個の最小目1 の和に Bonus を足す。
 func (d Dice) Min() int {
-	if d.Sides <= 0 {
-		return d.Bonus
-	}
 	return d.Base + d.Bonus
 }
 
-// Max は取りうる最大値。Sides<=0 なら Bonus、そうでなければ Base 個の最大目 Sides の和に Bonus を足す。
+// Max は取りうる最大値。Base 個の最大目 Sides の和に Bonus を足す。
 func (d Dice) Max() int {
-	if d.Sides <= 0 {
-		return d.Bonus
-	}
 	return d.Base*d.Sides + d.Bonus
 }
 
 // String は正規化表記を返す。ParseDice(d.String()) が元の Dice に戻る往復性を保つ。
-// 表示・save 往復・ゴールデンで表記が揺れないようにするため、個数は常に明示する。
+// 表示・save 往復・ゴールデンで表記が揺れないようにするため、常に NdM 形で出す。
 func (d Dice) String() string {
-	if d.Sides <= 0 {
-		return strconv.Itoa(d.Bonus)
-	}
 	s := fmt.Sprintf("%dd%d", d.Base, d.Sides)
 	switch {
 	case d.Bonus > 0:

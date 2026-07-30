@@ -127,6 +127,14 @@ func TestDice_Roll_固定値は常にその数を返す(t *testing.T) {
 	}
 }
 
+func TestDice_Roll_不正なDiceはpanicする(t *testing.T) {
+	t.Parallel()
+
+	rng := rand.New(rand.NewPCG(1, 2))
+	// ゼロ値 Dice{} は Sides=0 で不正。ParseDice 経由でしか作れない前提を破ると panic で気づける
+	assert.Panics(t, func() { Dice{}.Roll(rng) }, "ゼロ値の Dice は panic する")
+}
+
 func TestDice_Roll_同じseedで同じ列を返す(t *testing.T) {
 	t.Parallel()
 
