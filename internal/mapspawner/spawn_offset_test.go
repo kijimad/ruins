@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -22,9 +23,8 @@ func TestSpawnAt_オフセット配置(t *testing.T) {
 	require.NoError(t, err)
 
 	const offX, offY consts.Tile = 100, 50
-	if _, err := SpawnAt(world, plan, offX, offY); err != nil {
-		require.NoError(t, err)
-	}
+	_, err = SpawnAt(world, plan, offX, offY)
+	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	count := 0
@@ -48,9 +48,8 @@ func TestSpawn_オフセットなしは原点配置(t *testing.T) {
 	plan, err := mapplanner.Plan(world, wdt, hgt, 1, mapplanner.PlannerTypeSmallRoom)
 	require.NoError(t, err)
 
-	if _, err := Spawn(world, plan); err != nil {
-		require.NoError(t, err)
-	}
+	_, err = Spawn(world, plan)
+	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	minX, minY := consts.Tile(1<<30), consts.Tile(1<<30)
@@ -63,4 +62,21 @@ func TestSpawn_オフセットなしは原点配置(t *testing.T) {
 	}
 	assert.Equal(t, consts.Tile(0), minX, "原点 X=0 のタイルが存在する")
 	assert.Equal(t, consts.Tile(0), minY, "原点 Y=0 のタイルが存在する")
+}
+
+// TestSpawnAt_タイル生成エラーを伝播する は SpawnAt が内部ステップのエラーを
+// そのまま呼び出し元へ返し、Level をゼロ値のまま打ち切ることを固定する。
+func TestSpawnAt_タイル生成エラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	plan := &mapplanner.MetaPlan{
+		Level:     gc.Level{TileWidth: 1, TileHeight: 1},
+		RawMaster: &world.Resources.RawMaster,
+		Tiles:     []oapi.Tile{{Name: "存在しないタイル", BlockPass: false}},
+	}
+
+	level, err := SpawnAt(world, plan, 0, 0)
+	require.ErrorContains(t, err, "存在しないタイル")
+	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
 }
