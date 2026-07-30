@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RUINS — キューブ（方向性モック）</title>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141b24; --panel2:#0f151d; --card:#111820; --line:#26333f;
+    --ink:#c3d2df; --ink2:#7f8f9d; --dim:#4a5a68;
+    --crystal:#5fd0ff; --fire:#ff9d3c; --gold:#e5c675; --warm:#ffb570;
+    --hp:#57c06a; --enemy:#ff5b57; --cold:#7fd6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#05070a;}
+  body{font-family:"DejaVu Sans Mono","Noto Sans JP",monospace;color:var(--ink);}
+  .screen{width:1280px;min-height:900px;margin:0 auto;background:var(--bg);position:relative;
+    display:grid;grid-template-columns:24px 1fr 24px;grid-template-rows:26px 1fr 24px;}
+  .titlebar{grid-column:1/4;grid-row:1;background:var(--panel2);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:14px;padding:0 12px;font-size:12px;}
+  .titlebar .b{color:var(--gold);} .titlebar .s{color:var(--ink2);}
+  .titlebar .right{margin-left:auto;color:var(--ink2);}
+  .titlebar .right .cold{color:var(--cold);}
+  .wrap{grid-column:2;grid-row:2;padding:14px 0;display:grid;grid-template-columns:1fr 372px;gap:14px;}
+  .col{display:flex;flex-direction:column;gap:12px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .ch{font-size:11px;letter-spacing:2px;color:var(--ink2);padding:8px 12px;border-bottom:1px solid var(--line);text-transform:uppercase;display:flex;justify-content:space-between;}
+  .ch .r{color:var(--dim);letter-spacing:0;}
+  .view{position:relative;background:radial-gradient(circle at 50% 40%, #10151d 0%, #0a0d12 55%, #05080c 100%);}
+  #lane{display:block;width:100%;height:330px;}
+  #inner{display:block;width:100%;height:300px;}
+  .vtitle{position:absolute;left:14px;top:10px;font-size:11px;letter-spacing:2px;color:var(--ink2);z-index:5;}
+  .vtitle .em{color:var(--gold);}
+  .note{position:absolute;right:14px;bottom:12px;z-index:5;font-size:11px;color:var(--warm);
+    background:rgba(20,14,8,.62);padding:6px 10px;border-radius:4px;max-width:330px;line-height:1.5;}
+  /* 右カラム：計器盤 */
+  .cb{padding:11px 12px;}
+  .gauge{margin:9px 0;}
+  .gauge .l{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
+  .gauge .l .k{color:var(--ink2);} .gauge .l .v{color:#dce7f0;}
+  .gauge .l .v.warn{color:var(--gold);} .gauge .l .v.bad{color:var(--enemy);}
+  .bar{height:8px;border-radius:2px;background:#0a1119;overflow:hidden;box-shadow:inset 0 0 0 1px #05090d;}
+  .bar>i{display:block;height:100%;}
+  .big{display:flex;align-items:baseline;gap:8px;padding:6px 0 2px;}
+  .big .n{font-size:26px;color:#eaf3fb;} .big .u{font-size:11px;color:var(--ink2);}
+  .big .sub{margin-left:auto;font-size:11px;color:var(--ink2);text-align:right;line-height:1.5;}
+  .expl{font-size:10px;color:var(--dim);line-height:1.6;padding:8px 0 2px;border-top:1px dotted #1b2530;margin-top:8px;}
+  /* 積荷リスト */
+  .cargo{padding:6px 12px 8px;}
+  .crow{display:flex;align-items:center;gap:9px;font-size:12px;padding:7px 0;border-bottom:1px dotted #1b2530;}
+  .crow .ic{width:20px;text-align:center;font-size:15px;}
+  .crow .nm{flex:1;color:#dce7f0;} .crow .nm small{display:block;color:var(--ink2);font-size:10px;margin-top:1px;}
+  .crow .w{color:var(--gold);font-size:12px;}
+  .csum{display:flex;justify-content:space-between;font-size:12px;padding:9px 0 2px;color:#eaf3fb;}
+  .csum .w{color:var(--gold);}
+  .foot{grid-column:2;grid-row:3;color:var(--dim);font-size:10px;padding-top:2px;}
+  .foot .em{color:var(--ink2);}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="titlebar">
+    <span class="b">◆ RUINS</span><span>キューブ &nbsp;―― 押して進める我が家</span>
+    <span class="s">|</span><span class="s">専用レーン・左右のみ・ほぼ戻らない</span>
+    <span class="right">ラン・ターン <span style="color:#dce7f0">42</span> · <span class="cold">❄ 寒波前線まで 6タイル</span> · 隊 8人</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- 左：外のレーンと、中の内装 -->
+    <div class="col">
+      <div class="card view">
+        <div class="vtitle">外 ── レーンとキューブと寒波 &nbsp;<span class="em">押すのは単タイル。回転しない</span></div>
+        <svg id="lane" viewBox="0 0 1000 330" preserveAspectRatio="none"></svg>
+        <div class="note">1タイルの押しは重い（歩行の10倍AP）。押しっぱなしで実時間は速いが、ターンは進み寒波が迫る。余裕を切らせば呑まれる</div>
+      </div>
+
+      <div class="card view">
+        <div class="vtitle">中 ── 異次元の内装 &nbsp;<span class="em">建てず、置いて表現する</span></div>
+        <svg id="inner" viewBox="0 0 1000 300" preserveAspectRatio="none"></svg>
+        <div class="note">部屋は単なる空間。置いた prop が部屋を表す。効果は「置いてあること」から出る。配置は効かせない。空間は固定で寛容、重量が主制約</div>
+      </div>
+    </div>
+
+    <!-- 右：重量押し経済 と 積荷 -->
+    <div class="col">
+      <div class="card">
+        <div class="ch">重量押し経済 <span class="r">ターン数 対 寒波</span></div>
+        <div class="cb">
+          <div class="big"><span class="n">48</span><span class="u">AP / 1タイル</span>
+            <span class="sub">総重量 340 が決める<br>重いほど高い・不変</span></div>
+
+          <div class="gauge"><div class="l"><span class="k">総重量（置いた物の合計）</span><span class="v warn">340</span></div>
+            <div class="bar"><i style="width:68%;background:var(--gold)"></i></div></div>
+          <div class="gauge"><div class="l"><span class="k">パーティAP / ターン（隊8人）</span><span class="v">120</span></div>
+            <div class="bar"><i style="width:60%;background:var(--crystal)"></i></div></div>
+          <div class="gauge"><div class="l"><span class="k">→ 1ターンに進めるタイル</span><span class="v">約 2.5</span></div>
+            <div class="bar"><i style="width:50%;background:var(--hp)"></i></div></div>
+          <div class="gauge"><div class="l"><span class="k">寒波前線までの余裕</span><span class="v bad">6タイル ― 長居は危険</span></div>
+            <div class="bar"><i style="width:30%;background:var(--enemy)"></i></div></div>
+
+          <div class="expl">重量は1タイルのコストを決める。仲間はコストを下げず、パーティAPを増やして同じコストを少ないターンで払わせる。速く進めるのはターンが減るからで、寒波への露出が減る。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">積荷 ── 何を残すか <span class="r">ブレーキと引力の対</span></div>
+        <div class="cargo" id="cargo"></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot"><span class="em">※ 検証したい賭け：押しの重さと寒波の余裕が「緊張ある前進」として読めるか。無地のキューブが「携帯できる我が家」として読めるか。</span> 方向性モック。実装中のUIとは異なる（77.md）。</div>
+</div>
+
+<script>
+/* ============ 外：レーン・キューブ・寒波（インライン SVG） ============ */
+(function(){
+  const W=1000,H=330;
+  let s='';
+  s+='<defs>'
+   +'<linearGradient id="freeze" x1="0" y1="0" x2="1" y2="0">'
+   +'<stop offset="0" stop-color="#123049" stop-opacity="0.95"/>'
+   +'<stop offset="0.7" stop-color="#0d1f31" stop-opacity="0.8"/>'
+   +'<stop offset="1" stop-color="#0d1f31" stop-opacity="0"/></linearGradient>'
+   +'<radialGradient id="cubeglow"><stop offset="0" stop-color="#e5c675" stop-opacity="0.22"/>'
+   +'<stop offset="1" stop-color="#e5c675" stop-opacity="0"/></radialGradient>'
+   +'</defs>';
+
+  /* 地平・凍原 */
+  s+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="none"/>';
+  /* レーン（水平の軌道） */
+  const laneY=214;
+  s+='<rect x="0" y="'+(laneY-2)+'" width="'+W+'" height="60" fill="#0b1119" opacity="0.7"/>';
+  s+='<line x1="0" y1="'+laneY+'" x2="'+W+'" y2="'+laneY+'" stroke="#26333f" stroke-width="2"/>';
+  s+='<line x1="0" y1="'+(laneY+56)+'" x2="'+W+'" y2="'+(laneY+56)+'" stroke="#1b2836" stroke-width="1"/>';
+  /* タイル刻み */
+  for(var x=0;x<=W;x+=72){ s+='<line x1="'+x+'" y1="'+(laneY+2)+'" x2="'+x+'" y2="'+(laneY+56)+'" stroke="#16212c" stroke-width="1"/>'; }
+
+  /* 寒波（左＝西・迫る） */
+  s+='<rect x="0" y="0" width="360" height="'+H+'" fill="url(#freeze)"/>';
+  /* 前線のギザギザ */
+  var jag=''; for(var y=0;y<=H;y+=26){ jag+=(240+(y/26%2?26:0))+','+y+' '; }
+  s+='<polyline points="'+jag+'" fill="none" stroke="#7fd6ff" stroke-width="1.5" opacity="0.5"/>';
+  for(var i=0;i<7;i++){ s+='<text x="'+(30+i%3*70)+'" y="'+(50+i*40)+'" fill="#7fd6ff" font-size="15" opacity="0.5" font-family="monospace">❄</text>'; }
+  s+='<text x="150" y="26" fill="#7fd6ff" font-size="12" font-family="monospace" text-anchor="middle">寒波前線 ▶ 迫る</text>';
+  s+='<text x="120" y="'+(H-16)+'" fill="#3a4a58" font-size="10" font-family="monospace" text-anchor="middle">凍結済み ―― 戻れない</text>';
+
+  /* 余裕ブラケット（前線→キューブ左） */
+  var frontX=260, cubeX=560, cubeW=96;
+  s+='<line x1="'+frontX+'" y1="140" x2="'+(cubeX-6)+'" y2="140" stroke="#ff5b57" stroke-width="1" stroke-dasharray="5 4" opacity="0.8"/>';
+  s+='<text x="'+((frontX+cubeX)/2)+'" y="130" fill="#ff5b57" font-size="11" font-family="monospace" text-anchor="middle">余裕 6タイル ―― 切れたら呑まれる</text>';
+
+  /* キューブ＝我が家 */
+  s+='<ellipse cx="'+(cubeX+cubeW/2)+'" cy="'+(laneY+30)+'" rx="120" ry="52" fill="url(#cubeglow)"/>';
+  s+='<rect x="'+cubeX+'" y="'+(laneY-58)+'" width="'+cubeW+'" height="92" rx="4" fill="#1a2330" stroke="#e5c675" stroke-width="2"/>';
+  /* 面の陰影で立体感 */
+  s+='<rect x="'+cubeX+'" y="'+(laneY-58)+'" width="'+cubeW+'" height="30" fill="#e5c675" opacity="0.10"/>';
+  s+='<rect x="'+(cubeX+cubeW-16)+'" y="'+(laneY-58)+'" width="16" height="92" fill="#000" opacity="0.22"/>';
+  /* 扉 */
+  s+='<rect x="'+(cubeX+cubeW/2-11)+'" y="'+(laneY-24)+'" width="22" height="58" rx="2" fill="#0c1219" stroke="#5fd0ff" stroke-width="1.5"/>';
+  s+='<text x="'+(cubeX+cubeW/2)+'" y="'+(laneY-66)+'" fill="#e5c675" font-size="12" font-family="monospace" text-anchor="middle">キューブ＝我が家</text>';
+  s+='<text x="'+(cubeX+cubeW/2)+'" y="'+(laneY+50)+'" fill="#5fd0ff" font-size="10" font-family="monospace" text-anchor="middle">扉 ⇨ 異次元の内装</text>';
+
+  /* 担ぎ手（AP供給） */
+  [[cubeX-30,'A'],[cubeX-52,'B'],[cubeX-30,'C']].forEach(function(p,idx){
+    var py=laneY-8+ (idx===2? 22 : (idx===0? -2 : 10));
+    s+='<rect x="'+(p[0]-8)+'" y="'+(py-8)+'" width="16" height="16" rx="3" fill="#5fd0ff" stroke="#08111a"/>';
+    s+='<text x="'+p[0]+'" y="'+(py+4)+'" fill="#062033" font-size="9" font-weight="bold" font-family="monospace" text-anchor="middle">'+p[1]+'</text>';
+  });
+  s+='<text x="'+(cubeX-40)+'" y="'+(laneY+50)+'" fill="#7f8f9d" font-size="10" font-family="monospace" text-anchor="middle">担ぎ手＝AP供給</text>';
+
+  /* 押す方向 */
+  s+='<text x="800" y="'+(laneY-14)+'" fill="#ffb570" font-size="14" font-family="monospace" text-anchor="middle">→ 押す（1タイル 48AP）</text>';
+  s+='<text x="900" y="'+(H-16)+'" fill="#3a4a58" font-size="10" font-family="monospace" text-anchor="middle">東へ ―― 戻れない</text>';
+
+  document.getElementById('lane').innerHTML=s;
+})();
+
+/* ============ 中：異次元の内装（置いて表現） ============ */
+(function(){
+  const W=1000,H=300;
+  let s='';
+  s+='<defs><radialGradient id="warm2"><stop offset="0" stop-color="#ff9d3c" stop-opacity="0.28"/>'
+   +'<stop offset="0.6" stop-color="#ff9d3c" stop-opacity="0.05"/>'
+   +'<stop offset="1" stop-color="#ff9d3c" stop-opacity="0"/></radialGradient></defs>';
+  /* 異次元の袋（固定で寛容な空間） */
+  s+='<rect x="40" y="34" width="920" height="232" rx="10" fill="#0a1119" stroke="#2a3a4a" stroke-width="1.5"/>';
+  s+='<rect x="40" y="34" width="920" height="232" rx="10" fill="none" stroke="#5fd0ff" stroke-width="1" opacity="0.15"/>';
+  /* 扉（左辺・キューブ外へ） */
+  s+='<rect x="34" y="128" width="14" height="44" rx="2" fill="#0c1219" stroke="#5fd0ff" stroke-width="1.5"/>';
+  s+='<text x="86" y="156" fill="#5fd0ff" font-size="10" font-family="monospace">⇦ 扉</text>';
+
+  function prop(x,y,glow,ring,glyph,label,sub){
+    if(glow) s+='<ellipse cx="'+x+'" cy="'+y+'" rx="'+glow+'" ry="'+(glow*0.7)+'" fill="url(#warm2)"/>';
+    s+='<circle cx="'+x+'" cy="'+y+'" r="21" fill="#131c26" stroke="'+ring+'" stroke-width="2"/>';
+    s+='<text x="'+x+'" y="'+(y+7)+'" text-anchor="middle" font-size="19">'+glyph+'</text>';
+    s+='<text x="'+x+'" y="'+(y-28)+'" text-anchor="middle" fill="'+ring+'" font-size="12" font-family="monospace">'+label+'</text>';
+    s+='<text x="'+x+'" y="'+(y+36)+'" text-anchor="middle" fill="#7f8f9d" font-size="10" font-family="monospace">'+sub+'</text>';
+  }
+  /* 置いた prop。配置は表現だけ、効果には関与しない */
+  prop(210,120,64,'#ff9d3c','◉','ストーブ','暖');
+  prop(370,180,0,'#5fd0ff','⚒','作業台','加工');
+  prop(500,110,0,'#e5c675','⛺','寝床','休');
+  prop(590,180,0,'#e5c675','⛺','寝床','休');
+  prop(700,120,0,'#5fd0ff','⚙','溶接機','改造');
+  prop(840,175,0,'#ffb570','▤','収納','蓄え');
+  /* 積んだ交易品の山 */
+  s+='<text x="770" y="230" fill="#5fd0ff" font-size="16" font-family="monospace" text-anchor="middle">◆◆◆</text>';
+  s+='<text x="770" y="248" fill="#7f8f9d" font-size="10" font-family="monospace" text-anchor="middle">凍晶鉱石（交易）</text>';
+
+  s+='<text x="500" y="290" fill="#4a5a68" font-size="10" font-family="monospace" text-anchor="middle">料理器具を置けば台所、溶接機を置けば工房 ―― 部屋の意味は置いた物から立ち上がる</text>';
+  document.getElementById('inner').innerHTML=s;
+})();
+
+/* ============ 右：積荷（何を残すか） ============ */
+(function(){
+  const cargo=[
+    {ic:'◉',c:'#ff9d3c',nm:'ストーブ',sub:'暖 ―― 野営で凍えない',w:40},
+    {ic:'⚒',c:'#5fd0ff',nm:'作業台',sub:'加工 ―― レシピ解放',w:55},
+    {ic:'⛺',c:'#e5c675',nm:'寝床 ×2',sub:'休 ―― 回復と乗員枠',w:30},
+    {ic:'⚙',c:'#5fd0ff',nm:'溶接機',sub:'改造 ―― 装備を強化',w:60},
+    {ic:'▤',c:'#ffb570',nm:'収納',sub:'蓄え ―― 容量',w:20},
+    {ic:'◆',c:'#5fd0ff',nm:'凍晶鉱石 ×12',sub:'交易 ―― 街で売る',w:135},
+  ];
+  const el=document.getElementById('cargo');
+  var sum=0;
+  cargo.forEach(function(m){
+    sum+=m.w;
+    el.insertAdjacentHTML('beforeend',
+      '<div class="crow"><span class="ic" style="color:'+m.c+'">'+m.ic+'</span>'
+      +'<span class="nm">'+m.nm+'<small>'+m.sub+'</small></span>'
+      +'<span class="w">'+m.w+'</span></div>');
+  });
+  el.insertAdjacentHTML('beforeend',
+    '<div class="csum"><span>総重量</span><span class="w">'+sum+'</span></div>'
+    +'<div class="expl">どれも使い道がある。だから重くても連れて行きたい。捨てれば軽く速いが、能力と蓄えを失う。ブレーキ（重量）に釣り合う引力（有用さ）があって、初めて「何を残すか」が決断になる。</div>');
+})();
+</script>
+</body>
+</html>
