@@ -223,6 +223,10 @@ func TestPopulateStorageLoot_ルートテーブルからアイテムを収納す
 			count++
 		}
 	}
-	assert.GreaterOrEqual(t, count, 1, "ルート数の下限以上のアイテムが収納される")
-	assert.LessOrEqual(t, count, 3, "ルート数の上限以下のアイテムが収納される")
+	// 上限・下限は raw の lootCount 表記から導く。データを変えてもテストが追従する
+	require.NotNil(t, propRaw.Storage.LootCount)
+	lootDice, err := consts.ParseDice(*propRaw.Storage.LootCount)
+	require.NoError(t, err)
+	assert.GreaterOrEqual(t, count, lootDice.Min(), "ルート数の下限以上のアイテムが収納される")
+	assert.LessOrEqual(t, count, lootDice.Max(), "ルート数の上限以下のアイテムが収納される")
 }

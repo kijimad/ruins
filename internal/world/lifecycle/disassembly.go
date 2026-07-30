@@ -1,6 +1,7 @@
 package lifecycle
 
 import (
+	"fmt"
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -64,12 +65,13 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 	return stacks
 }
 
-// rollCount は産出個数をダイス表記から抽選する。表記は raw 検証で担保済みなので、
-// 想定外のパース失敗時は 0 個として産出しない。
+// rollCount は産出個数をダイス表記から抽選する。表記は raw ロード時の検証で担保済みなので、
+// ここでのパース失敗は到達しえないプログラミングエラー。0 個を黙って返すと産出が消えて
+// 気づけないため panic で顕在化させる。
 func rollCount(rng *rand.Rand, count oapi.Dice) int {
 	d, err := consts.ParseDice(count)
 	if err != nil {
-		return 0
+		panic(fmt.Sprintf("分解産出の個数表記が不正です。raw 検証を通過しているはずです: %q: %v", count, err))
 	}
 	return d.Roll(rng)
 }

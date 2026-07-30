@@ -62,8 +62,10 @@ func ParseDice(s string) (Dice, error) {
 		return Dice{}, fmt.Errorf("ダイスの面数が不正です: %q", s)
 	}
 
-	if base < 0 {
-		return Dice{}, fmt.Errorf("ダイスの個数は負にできません: %q", s)
+	// d を書いたなら個数は1以上を要求する。"0d6" は定数のつもりの誤記とみなして弾く。
+	// 定数は "5" のように d を書かずに表す。
+	if base < 1 {
+		return Dice{}, fmt.Errorf("ダイスの個数は1以上です: %q", s)
 	}
 	if sides < 1 {
 		return Dice{}, fmt.Errorf("ダイスの面数は1以上です: %q", s)
