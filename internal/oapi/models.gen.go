@@ -750,7 +750,7 @@ type Dialog struct {
 	MessageKey MessageKey `json:"messageKey"`
 }
 
-// Dice ダイス表記の個数指定。例: "1d3+1" "2d4" "d6" "5"。consts.ParseDice でパースする
+// Dice ダイス表記の個数指定。consts.ParseDice でパースする
 type Dice = string
 
 // Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
