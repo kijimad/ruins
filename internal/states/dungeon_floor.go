@@ -258,6 +258,13 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 		return err
 	}
 
+	// presence 効果 prop を1つ据える。置いてあることで灯り(効果)を出し、重量は CubeWeight に
+	// 加算されて押しを重くする。ブレーキと引力の対を最小構成で示す。将来はプレイヤーが
+	// 拾って持ち込み置く形にするが、今は最初から据える
+	if _, err := lifecycle.SpawnProp(world, "ランタン", start.X, start.Y); err != nil {
+		return err
+	}
+
 	// 生成物をこの内装ステージへ束縛する
 	stage.Bind(world, key)
 	return nil

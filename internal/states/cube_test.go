@@ -46,6 +46,11 @@ func TestEnterExitCube_内装へ入り元の位置へ戻る(t *testing.T) {
 	require.True(t, world.Components.PortalConnection.Has(exitProp))
 	assert.Equal(t, playerPos, world.Components.PortalConnection.Get(exitProp).Coord, "戻り先は入場時のプレイヤータイル")
 
+	// 据えたランタンの重量が総重量に乗り、押しコストが基準より重くなる
+	// これがブレーキと引力の対。置いた物が押しを重くする
+	assert.Positive(t, query.CubeWeight(world, interiorKey), "内装のランタンが総重量に乗る")
+	assert.Greater(t, query.PushCost(query.CubeWeight(world, interiorKey)), consts.PushCostBase, "物を置くと空のキューブより押しが重い")
+
 	// 出る: オーバーワールドが再稼働し、入場した元タイルへ戻る
 	require.NoError(t, st.exitCube(world))
 	assert.Equal(t, gc.NewOverworldStage(), d.CurrentStage, "オーバーワールドへ戻る")
