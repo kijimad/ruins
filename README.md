@@ -59,9 +59,9 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| accepted | 3 |
+| accepted | 2 |
 | draft | 4 |
-| done | 67 |
+| done | 68 |
 
 ### 進行中
 
