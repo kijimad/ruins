@@ -11,8 +11,12 @@ var statusDisplayOrder = []Status{
 	StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
 }
 
+// listableStatuses は未完了一覧に載せる status。まだ動いているバックログに絞り、
+// done と終状態の superseded・dropped は件数のみで一覧しない。
+var listableStatuses = []Status{StatusInProgress, StatusAccepted, StatusDraft}
+
 // RenderStatusSection は README に埋め込む状況テーブルを Markdown で返す。
-// status 別の件数と、進行中ドキュメントの一覧を出す。docs は表示したい順に並んでいる前提。
+// status 別の件数と、未完了ドキュメントの一覧を出す。docs は表示したい順に並んでいる前提。
 func RenderStatusSection(docs []*Document) string {
 	counts := map[Status]int{}
 	for _, d := range docs {
@@ -28,19 +32,21 @@ func RenderStatusSection(docs []*Document) string {
 		fmt.Fprintf(&b, "| %s | %d |\n", s, counts[s])
 	}
 
-	b.WriteString("\n### 進行中\n\n")
-	b.WriteString("| No. | ドキュメント | 進捗 | tags |\n|---|---|---|---|\n")
+	b.WriteString("\n### 未完了\n\n")
+	b.WriteString("| No. | status | ドキュメント | 進捗 | tags |\n|---|---|---|---|---|\n")
 	found := false
-	for _, d := range docs {
-		if d.Front.Status != StatusInProgress {
-			continue
+	for _, s := range listableStatuses {
+		for _, d := range docs {
+			if d.Front.Status != s {
+				continue
+			}
+			found = true
+			fmt.Fprintf(&b, "| %s | %s | %s | %s | %s |\n",
+				numberCell(d), d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))
 		}
-		found = true
-		fmt.Fprintf(&b, "| %s | %s | %s | %s |\n",
-			numberCell(d), titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))
 	}
 	if !found {
-		b.WriteString("| | 進行中のドキュメントなし | | |\n")
+		b.WriteString("| | | 未完了のドキュメントなし | | |\n")
 	}
 
 	return b.String()

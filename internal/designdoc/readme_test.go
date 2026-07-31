@@ -25,22 +25,23 @@ func TestRenderStatusSection(t *testing.T) {
 	// 0件の status は出さない。
 	assert.NotContains(t, out, "superseded")
 
-	// 進行中リストは 連番リンク・タイトル・進捗・tags を並べる。
-	assert.Contains(t, out, "### 進行中")
-	assert.Contains(t, out, "| [58](docs/design/20260715_58.md) | 走り | 13/26 |  |")
+	// 未完了リストは 連番リンク・status・タイトル・進捗・tags を並べる。
+	assert.Contains(t, out, "### 未完了")
+	assert.Contains(t, out, "| [58](docs/design/20260715_58.md) | in-progress | 走り | 13/26 |  |")
 	// 見送りは分母から外し、別表記で添える。
-	assert.Contains(t, out, "| [51](docs/design/20260710_51.md) | Ark移行 | 30/33（見送り2） | ecs |")
-	// draft や done は進行中リストに出さない。
-	assert.NotContains(t, out, "| 下書き |")
+	assert.Contains(t, out, "| [51](docs/design/20260710_51.md) | in-progress | Ark移行 | 30/33（見送り2） | ecs |")
+	// draft も未完了リストに出す。
+	assert.Contains(t, out, "| [1](docs/design/20260122_1.md) | draft | 下書き | - |  |")
+	// done は未完了リストに出さない。
 	assert.NotContains(t, out, "| 完了 |")
 }
 
-func TestRenderStatusSection_NoInProgress(t *testing.T) {
+func TestRenderStatusSection_未完了なし(t *testing.T) {
 	t.Parallel()
 
-	docs := []*Document{{Title: "下書き", Front: Frontmatter{Status: StatusDraft}}}
+	docs := []*Document{{Title: "完了", Front: Frontmatter{Status: StatusDone}}}
 	out := RenderStatusSection(docs)
-	assert.Contains(t, out, "進行中のドキュメントなし")
+	assert.Contains(t, out, "未完了のドキュメントなし")
 }
 
 func TestTitleCell(t *testing.T) {

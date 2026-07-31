@@ -59,15 +59,16 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| accepted | 1 |
-| draft | 4 |
-| done | 69 |
+| draft | 3 |
+| done | 71 |
 
-### 進行中
+### 未完了
 
-| No. | ドキュメント | 進捗 | tags |
-|---|---|---|---|
-| | 進行中のドキュメントなし | | |
+| No. | status | ドキュメント | 進捗 | tags |
+|---|---|---|---|---|
+| [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
+| [70](docs/design/20260725_70.md) | draft | 施設内装の生成 —— Zorbus の content モデルの翻案 | 29/61（見送り13） | worldgen |
+| [77](docs/design/20260730_77.md) | draft | 拡張可能な移動拠点を中核に据える | 1/6（見送り2） | gamedesign |
 
 
 ## Reference
