@@ -166,18 +166,33 @@ func (dr *Driver) startNewBand(world w.World) error {
 		if _, serr := lifecycle.SpawnPlayer(world, spawn, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
 		}
-		// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く。
-		// 新規生成時だけ。セーブからの復帰時はワールドに復元される
-		cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
-		if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
-			return fmt.Errorf("キューブ生成失敗: %w", cerr)
-		}
 	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}
 
+	// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く。プレイヤーはキャラ作成で
+	// 先に生成されるので、プレイヤーの有無でなくキューブの有無で判定する。セーブ復帰時は
+	// キューブが復元済みなので二重生成しない
+	if !cubeExists(world) {
+		cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+		if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
+			return fmt.Errorf("キューブ生成失敗: %w", cerr)
+		}
+	}
+
 	query.InvalidateSpatialIndex(world)
 	return nil
+}
+
+// cubeExists は押せるキューブが既に存在するかを返す。クエリは早期 return せず最後まで回す。
+// 途中で抜けると world がロックされたままになる
+func cubeExists(world w.World) bool {
+	found := false
+	q := query.ActiveFilter1[gc.Pushable](world).Query()
+	for q.Next() {
+		found = true
+	}
+	return found
 }
 
 // walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を

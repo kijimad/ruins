@@ -10,11 +10,48 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// countCubes は押せるキューブの数を返す。クエリは最後まで回す
+func countCubes(world w.World) int {
+	count := 0
+	q := query.ActiveFilter1[gc.Pushable](world).Query()
+	for q.Next() {
+		count++
+	}
+	return count
+}
+
+func TestDriver_Start_プレイヤー先在でもキューブをスポーンする(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 本番はキャラ作成で先にプレイヤーが湧く。その状況を再現する
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	require.NoError(t, s.Start(world))
+
+	assert.Equal(t, 1, countCubes(world), "プレイヤーが先在してもキューブが1体スポーンする")
+}
+
+func TestDriver_Start_既存キューブがあれば二重生成しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// セーブ復帰でキューブが復元済みの状況を再現する
+	_, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
+	require.NoError(t, err)
+
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	require.NoError(t, s.Start(world))
+
+	assert.Equal(t, 1, countCubes(world), "既存キューブがあれば二重生成しない")
+}
 
 const (
 	testChunkW consts.Tile  = 30
