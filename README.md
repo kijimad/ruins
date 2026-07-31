@@ -68,7 +68,7 @@ $ make help
 |---|---|---|---|---|
 | [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | [70](docs/design/20260725_70.md) | draft | 施設内装の生成 —— Zorbus の content モデルの翻案 | 29/61（見送り13） | worldgen |
-| [77](docs/design/20260730_77.md) | draft | 拡張可能な移動拠点を中核に据える | 1/11（見送り2） | gamedesign, movement, ecs |
+| [77](docs/design/20260730_77.md) | draft | 拡張可能な移動拠点を中核に据える | 1/12（見送り2） | gamedesign, movement, ecs |
 
 
 ## Reference
