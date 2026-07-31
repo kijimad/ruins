@@ -9,6 +9,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestIsNeutral_中立派閥コンポーネントを持つエンティティはtrue(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	neutral := world.ECS.NewEntity()
+	world.Components.FactionNeutral.Add(neutral, &gc.FactionNeutral{})
+	assert.True(t, query.IsNeutral(world, neutral))
+}
+
+func TestIsNeutral_中立派閥コンポーネントを持たないエンティティはfalse(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	ally := world.ECS.NewEntity()
+	world.Components.FactionAlly.Add(ally, &gc.FactionAlly{})
+	assert.False(t, query.IsNeutral(world, ally))
+}
+
 func TestFactionRelation(t *testing.T) {
 	t.Parallel()
 
