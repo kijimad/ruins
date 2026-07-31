@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-31 00:12:17</td>
+            <td class="headerValue">2026-07-31 00:52:07</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,7 +72,7 @@
 <span id="L10"><span class="lineNum">      10</span>              :         StatusAccepted Status = &quot;accepted&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         // StatusInProgress は実装途中。進捗に未完タスクが残る。</span>
 <span id="L12"><span class="lineNum">      12</span>              :         StatusInProgress Status = &quot;in-progress&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         // StatusDone は完了。進捗が全て済んでいる。</span>
+<span id="L13"><span class="lineNum">      13</span>              :         // StatusDone は完了。open なタスクが無い。進捗を持たない意思決定ドキュメントも該当する。</span>
 <span id="L14"><span class="lineNum">      14</span>              :         StatusDone Status = &quot;done&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         // StatusSuperseded は後続ドキュメントに置き換えられた。</span>
 <span id="L16"><span class="lineNum">      16</span>              :         StatusSuperseded Status = &quot;superseded&quot;</span>
@@ -90,8 +90,8 @@
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return false</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span>              : // IsOpen は未完了、すなわちバックログとして着手対象かを返す。</span>
-<span id="L32"><span class="lineNum">      32</span>              : // done・superseded・dropped は閉じた状態とみなす。</span>
+<span id="L31"><span class="lineNum">      31</span>              : // IsOpen は未完了、すなわちバックログとして着手対象かを返す。アクションが要るかの単一の基準で、</span>
+<span id="L32"><span class="lineNum">      32</span>              : // README の未完了一覧に載せる範囲もこれで決める。done・superseded・dropped は閉じた状態とみなす。</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func (s Status) IsOpen() bool {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         switch s {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         case StatusDraft, StatusAccepted, StatusInProgress:</span></span>

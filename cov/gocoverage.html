@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.2%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.0%)</option>
 				
@@ -1503,7 +1503,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1517,7 +1517,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
                 CancelActivity(target, "攻撃を受けた", world)
         }</span>
 
@@ -12495,7 +12495,7 @@ const (
         StatusAccepted Status = "accepted"
         // StatusInProgress は実装途中。進捗に未完タスクが残る。
         StatusInProgress Status = "in-progress"
-        // StatusDone は完了。進捗が全て済んでいる。
+        // StatusDone は完了。open なタスクが無い。進捗を持たない意思決定ドキュメントも該当する。
         StatusDone Status = "done"
         // StatusSuperseded は後続ドキュメントに置き換えられた。
         StatusSuperseded Status = "superseded"
@@ -12513,8 +12513,8 @@ func (s Status) Valid() bool <span class="cov8" title="1">{
         <span class="cov8" title="1">return false</span>
 }
 
-// IsOpen は未完了、すなわちバックログとして着手対象かを返す。
-// done・superseded・dropped は閉じた状態とみなす。
+// IsOpen は未完了、すなわちバックログとして着手対象かを返す。アクションが要るかの単一の基準で、
+// README の未完了一覧に載せる範囲もこれで決める。done・superseded・dropped は閉じた状態とみなす。
 func (s Status) IsOpen() bool <span class="cov8" title="1">{
         switch s </span>{
         case StatusDraft, StatusAccepted, StatusInProgress:<span class="cov8" title="1">
@@ -12746,7 +12746,8 @@ var statusDisplayOrder = []Status{
 }
 
 // RenderStatusSection は README に埋め込む状況テーブルを Markdown で返す。
-// status 別の件数と、進行中ドキュメントの一覧を出す。docs は表示したい順に並んでいる前提。
+// status 別の件数と、未完了ドキュメントの一覧を出す。docs は表示したい順に並んでいる前提。
+// 一覧に載せるのはアクションが要る status、すなわち Status.IsOpen が true のものに限る。
 func RenderStatusSection(docs []*Document) string <span class="cov8" title="1">{
         counts := map[Status]int{}
         for _, d := range docs </span><span class="cov8" title="1">{
@@ -12762,19 +12763,24 @@ func RenderStatusSection(docs []*Document) string <span class="cov8" title="1">{
                 <span class="cov8" title="1">fmt.Fprintf(&amp;b, "| %s | %d |\n", s, counts[s])</span>
         }
 
-        <span class="cov8" title="1">b.WriteString("\n### 進行中\n\n")
-        b.WriteString("| No. | ドキュメント | 進捗 | tags |\n|---|---|---|---|\n")
+        <span class="cov8" title="1">b.WriteString("\n### 未完了\n\n")
+        b.WriteString("| No. | status | ドキュメント | 進捗 | tags |\n|---|---|---|---|---|\n")
         found := false
-        for _, d := range docs </span><span class="cov8" title="1">{
-                if d.Front.Status != StatusInProgress </span><span class="cov8" title="1">{
+        for _, s := range statusDisplayOrder </span><span class="cov8" title="1">{
+                if !s.IsOpen() </span><span class="cov8" title="1">{
                         continue</span>
                 }
-                <span class="cov8" title="1">found = true
-                fmt.Fprintf(&amp;b, "| %s | %s | %s | %s |\n",
-                        numberCell(d), titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))</span>
+                <span class="cov8" title="1">for _, d := range docs </span><span class="cov8" title="1">{
+                        if d.Front.Status != s </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">found = true
+                        fmt.Fprintf(&amp;b, "| %s | %s | %s | %s | %s |\n",
+                                numberCell(d), d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))</span>
+                }
         }
         <span class="cov8" title="1">if !found </span><span class="cov8" title="1">{
-                b.WriteString("| | 進行中のドキュメントなし | | |\n")
+                b.WriteString("| | | 未完了のドキュメントなし | | |\n")
         }</span>
 
         <span class="cov8" title="1">return b.String()</span>
