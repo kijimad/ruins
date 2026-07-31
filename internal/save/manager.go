@@ -3,7 +3,7 @@ package save
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 	"time"
 
@@ -171,8 +171,8 @@ func (sm *SerializationManager) ListSaves() ([]string, error) {
 		timestamps[name] = ts
 	}
 
-	sort.Slice(valid, func(i, j int) bool {
-		return timestamps[valid[i]].After(timestamps[valid[j]])
+	slices.SortFunc(valid, func(a, b string) int {
+		return timestamps[b].Compare(timestamps[a])
 	})
 	return valid, nil
 }

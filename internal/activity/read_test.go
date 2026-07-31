@@ -146,7 +146,7 @@ func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
 	err := ra.DoTurn(comp, actor, world)
 	require.NoError(t, err)
 	assert.Equal(t, 10, book.Effort.Current, "基本工数10ぶん進んでいる")
-	assert.Equal(t, 99, comp.TurnsLeft, "ターンが1減っている")
+	assert.Equal(t, consts.Turn(99), comp.TurnsLeft, "ターンが1減っている")
 }
 
 func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {

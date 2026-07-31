@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -30,7 +31,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
-func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
+func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 

@@ -17,7 +17,7 @@ import (
 // ReadActivity は読書アクティビティの実装
 type ReadActivity struct {
 	Target   ecs.Entity
-	Duration int
+	Duration consts.Turn
 }
 
 // Info はBehaviorの実装

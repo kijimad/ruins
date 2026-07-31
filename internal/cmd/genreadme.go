@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/designdoc"
@@ -73,7 +73,7 @@ func buildImageTableFrom(dir string) (string, error) {
 			images = append(images, e.Name())
 		}
 	}
-	sort.Strings(images)
+	slices.Sort(images)
 
 	if len(images) == 0 {
 		return "*画像なし*", nil

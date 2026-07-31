@@ -60,9 +60,9 @@ func (da *DisassembleActivity) BuildActivity(actor ecs.Entity, world w.World) (*
 	if err != nil {
 		return nil, err
 	}
-	duration := 1
+	duration := consts.Turn(1)
 	if characterAP > 0 {
-		duration = (requiredAP + characterAP - 1) / characterAP
+		duration = consts.Turn((requiredAP + characterAP - 1) / characterAP)
 	}
 
 	comp, err := NewActivity(da, duration)

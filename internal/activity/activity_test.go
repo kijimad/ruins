@@ -20,8 +20,8 @@ func TestActivityCreation(t *testing.T) {
 
 	assert.Equal(t, gc.BehaviorRest, behavior.Name(), "Expected behavior to be Rest")
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected initial state to be Running")
-	assert.Equal(t, 10, comp.TurnsTotal, "Expected turns total 10")
-	assert.Equal(t, 10, comp.TurnsLeft, "Expected turns left 10")
+	assert.Equal(t, consts.Turn(10), comp.TurnsTotal, "Expected turns total 10")
+	assert.Equal(t, consts.Turn(10), comp.TurnsLeft, "Expected turns left 10")
 }
 
 func TestActivityInfo(t *testing.T) {
@@ -95,7 +95,7 @@ func TestActivityComplete(t *testing.T) {
 	Complete(comp)
 
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State, "Expected state to be Completed after complete")
-	assert.Equal(t, 0, comp.TurnsLeft, "Expected turns left 0 after complete")
+	assert.Equal(t, consts.Turn(0), comp.TurnsLeft, "Expected turns left 0 after complete")
 	assert.True(t, IsCompleted(comp), "Expected IsCompleted() to return true")
 }
 
@@ -134,18 +134,18 @@ func TestActivityDoTurn(t *testing.T) {
 	// 1ターン目
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 1")
-	assert.Equal(t, 2, comp.TurnsLeft, "Expected 2 turns left after turn 1")
+	assert.Equal(t, consts.Turn(2), comp.TurnsLeft, "Expected 2 turns left after turn 1")
 	assert.False(t, IsCompleted(comp), "Expected activity not to be completed after turn 1")
 
 	// 2ターン目
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 2")
-	assert.Equal(t, 1, comp.TurnsLeft, "Expected 1 turn left after turn 2")
+	assert.Equal(t, consts.Turn(1), comp.TurnsLeft, "Expected 1 turn left after turn 2")
 
 	// 3ターン目（完了）
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 3")
-	assert.Equal(t, 0, comp.TurnsLeft, "Expected 0 turns left after turn 3")
+	assert.Equal(t, consts.Turn(0), comp.TurnsLeft, "Expected 0 turns left after turn 3")
 	assert.True(t, IsCompleted(comp), "Expected activity to be completed after turn 3")
 }
 
@@ -201,7 +201,7 @@ func TestCalculateRequiredTurns(t *testing.T) {
 		info := behavior.Info()
 		if info.TotalRequiredAP > 0 {
 			turns := CalculateRequiredTurns(behavior, 100)
-			assert.GreaterOrEqual(t, turns, 1)
+			assert.GreaterOrEqual(t, turns, consts.Turn(1))
 		}
 	})
 
@@ -209,14 +209,14 @@ func TestCalculateRequiredTurns(t *testing.T) {
 		t.Parallel()
 		behavior := &WaitActivity{} // TotalRequiredAP=500
 		turns := CalculateRequiredTurns(behavior, 100)
-		assert.Equal(t, 5, turns) // 500 / 100 = 5
+		assert.Equal(t, consts.Turn(5), turns) // 500 / 100 = 5
 	})
 
 	t.Run("characterAPが0の場合は1を返す", func(t *testing.T) {
 		t.Parallel()
 		behavior := &RestActivity{}
 		turns := CalculateRequiredTurns(behavior, 0)
-		assert.Equal(t, 1, turns)
+		assert.Equal(t, consts.Turn(1), turns)
 	})
 }
 

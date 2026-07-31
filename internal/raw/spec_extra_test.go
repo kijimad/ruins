@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -101,7 +102,7 @@ DamageBonus = -2
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Ammo)
-	assert.Equal(t, "9mm", spec.Ammo.AmmoTag)
+	assert.Equal(t, oapi.N9mm, spec.Ammo.AmmoTag)
 	assert.Equal(t, -2, spec.Ammo.DamageBonus)
 	assert.Equal(t, 5, spec.Ammo.AccuracyBonus)
 }

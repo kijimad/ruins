@@ -301,7 +301,7 @@ func (st *TavernMenuState) getActionItems() []string {
 	}
 	items := []string{}
 	if windowProps.Candidate.CanAfford {
-		items = append(items, "雇用する")
+		items = append(items, TextHire)
 	}
 	items = append(items, TextClose)
 	return items
@@ -338,7 +338,7 @@ func (st *TavernMenuState) executeWindowAction(world w.World) error {
 
 	selectedAction := actionItems[actionIndex]
 	switch selectedAction {
-	case "雇用する":
+	case TextHire:
 		candidate := st.candidates[windowProps.Candidate.Index]
 
 		playerEntity, err := query.GetPlayerEntity(world)

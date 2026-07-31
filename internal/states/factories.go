@@ -75,7 +75,7 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("閉じる", func(_ w.World) error {
+		WithChoice(TextClose, func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
 			})
@@ -396,7 +396,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("閉じる", func(_ w.World) error {
+		WithChoice(TextClose, func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
 			})
@@ -541,7 +541,7 @@ func NewAllClearEventState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
 	messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
-		WithChoice("閉じる", func(_ w.World) error {
+		WithChoice(TextClose, func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
 		})

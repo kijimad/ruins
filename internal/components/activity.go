@@ -1,6 +1,7 @@
 package components
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -65,8 +66,8 @@ const (
 type Activity struct {
 	BehaviorName BehaviorName  // アクティビティの種類
 	State        ActivityState // 実行状態
-	TurnsTotal   int           // 総必要ターン数
-	TurnsLeft    int           // 残りターン数
+	TurnsTotal   consts.Turn   // 総必要ターン数
+	TurnsLeft    consts.Turn   // 残りターン数
 	Target       *ecs.Entity   // 操作対象のエンティティ
 	Recipient    *ecs.Entity   // 受取人エンティティ。アイテム転送の転送先など
 	Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う

@@ -73,7 +73,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 		err = wa.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
-		assert.Equal(t, 2, comp.TurnsLeft)
+		assert.Equal(t, consts.Turn(2), comp.TurnsLeft)
 	})
 
 	t.Run("TurnsLeftが0以下なら完了", func(t *testing.T) {
@@ -116,7 +116,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		assert.Equal(t, 0, comp.TurnsLeft)
+		assert.Equal(t, consts.Turn(0), comp.TurnsLeft)
 	})
 }
 

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"sort"
 	"strings"
 )
 
@@ -31,7 +30,7 @@ func listMarkdownFiles(dir string) ([]string, error) {
 		}
 		paths = append(paths, filepath.Join(dir, name))
 	}
-	sort.Strings(paths)
+	slices.Sort(paths)
 
 	return paths, nil
 }

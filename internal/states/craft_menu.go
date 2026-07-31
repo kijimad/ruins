@@ -3,7 +3,7 @@ package states
 import (
 	"fmt"
 	"image/color"
-	"sort"
+	"slices"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -250,7 +250,7 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 		}
 	}
 
-	sort.Strings(items)
+	slices.Sort(items)
 	return items
 }
 
@@ -268,7 +268,7 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 		}
 	}
 
-	sort.Strings(items)
+	slices.Sort(items)
 	return items
 }
 
@@ -285,7 +285,7 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 		}
 	}
 
-	sort.Strings(items)
+	slices.Sort(items)
 	return items
 }
 
@@ -323,7 +323,7 @@ func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []str
 	actionItems := []string{}
 
 	if canCraft, _ := gameaction.CanCraft(world, recipeName); canCraft {
-		actionItems = append(actionItems, "合成する")
+		actionItems = append(actionItems, TextCraft)
 	}
 	actionItems = append(actionItems, TextClose)
 
@@ -371,7 +371,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 	selectedAction := actionItems[actionIndex]
 
 	switch selectedAction {
-	case "合成する":
+	case TextCraft:
 		resultEntity, err := gameaction.Craft(world, windowProps.RecipeName)
 		if err != nil {
 			return err

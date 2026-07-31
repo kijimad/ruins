@@ -247,7 +247,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		err = ra.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
-		assert.Equal(t, 2, comp.TurnsLeft)
+		assert.Equal(t, consts.Turn(2), comp.TurnsLeft)
 	})
 
 	t.Run("敵が近くにいる場合はキャンセルされる", func(t *testing.T) {
@@ -320,7 +320,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		assert.Equal(t, 0, comp.TurnsLeft)
+		assert.Equal(t, consts.Turn(0), comp.TurnsLeft)
 	})
 }
 

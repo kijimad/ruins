@@ -67,7 +67,7 @@ type Info struct {
 }
 
 // NewActivity は新しいActivityコンポーネントを作成する
-func NewActivity(behavior Behavior, duration int) (*gc.Activity, error) {
+func NewActivity(behavior Behavior, duration consts.Turn) (*gc.Activity, error) {
 	if duration <= 0 {
 		return nil, ErrInvalidDuration
 	}
@@ -81,9 +81,9 @@ func NewActivity(behavior Behavior, duration int) (*gc.Activity, error) {
 }
 
 // CalculateRequiredTurns はキャラクターのAP量に基づいて必要ターン数を計算する
-func CalculateRequiredTurns(behavior Behavior, characterAP int) int {
+func CalculateRequiredTurns(behavior Behavior, characterAP int) consts.Turn {
 	if behavior.Info().TotalRequiredAP > 0 && characterAP > 0 {
-		return (behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP
+		return consts.Turn((behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP)
 	}
 	return 1
 }

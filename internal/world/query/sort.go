@@ -1,7 +1,8 @@
 package query
 
 import (
-	"sort"
+	"cmp"
+	"slices"
 
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -15,32 +16,16 @@ func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity {
 		return entities
 	}
 
-	type entityWithName struct {
-		entity ecs.Entity
-		name   string
-	}
-
-	withNames := make([]entityWithName, 0, len(entities))
+	named := make([]ecs.Entity, 0, len(entities))
 	for _, entity := range entities {
 		if world.Components.Name.Has(entity) {
-			nameComp := world.Components.Name.Get(entity)
-			if nameComp != nil {
-				withNames = append(withNames, entityWithName{
-					entity: entity,
-					name:   nameComp.Name,
-				})
-			}
+			named = append(named, entity)
 		}
 	}
 
-	sort.Slice(withNames, func(i, j int) bool {
-		return withNames[i].name < withNames[j].name
+	slices.SortStableFunc(named, func(a, b ecs.Entity) int {
+		return cmp.Compare(world.Components.Name.Get(a).Name, world.Components.Name.Get(b).Name)
 	})
 
-	result := make([]ecs.Entity, len(withNames))
-	for i, item := range withNames {
-		result[i] = item.entity
-	}
-
-	return result
+	return named
 }

@@ -1,7 +1,7 @@
 package balance
 
 import (
-	"sort"
+	"slices"
 )
 
 // Percentile はソート済みスライスからパーセンタイル値を返す。
@@ -24,7 +24,7 @@ func Median(values []int) int {
 	}
 	s := make([]int, len(values))
 	copy(s, values)
-	sort.Ints(s)
+	slices.Sort(s)
 	return Percentile(s, 0.5)
 }
 
@@ -66,7 +66,7 @@ func (s RunStats) hpPercentile(depth int, selector func(RunResult) map[int]int, 
 	if len(hps) == 0 {
 		return 0
 	}
-	sort.Ints(hps)
+	slices.Sort(hps)
 	return Percentile(hps, p)
 }
 
@@ -217,7 +217,7 @@ func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int {
 	if len(damages) == 0 {
 		return 0
 	}
-	sort.Ints(damages)
+	slices.Sort(damages)
 	return Percentile(damages, p)
 }
 
@@ -236,7 +236,7 @@ func (s RunStats) floorHealingPercentile(depth int, p float64) int {
 	if len(heals) == 0 {
 		return 0
 	}
-	sort.Ints(heals)
+	slices.Sort(heals)
 	return Percentile(heals, p)
 }
 
