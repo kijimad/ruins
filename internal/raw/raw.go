@@ -641,6 +641,15 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	entitySpec.SpriteRender = &spriteRender
 
+	// 置物も物なので重量を持てる。内装に置いた物はキューブ総重量に加算される。item と対称に付与する
+	if propRaw.Weight != nil {
+		mg, err := consts.ParseWeight(*propRaw.Weight)
+		if err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("置物 '%s' の重量: %w", name, err)
+		}
+		entitySpec.Weight = &gc.Weight{Milligram: mg}
+	}
+
 	if propRaw.BlockPass && propRaw.PassCost != nil {
 		return gc.EntitySpec{}, fmt.Errorf("prop '%s': blockPassとpassCostは同時に設定できません。通行不可ならpassCostは不要です", name)
 	}

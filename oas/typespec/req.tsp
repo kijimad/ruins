@@ -319,6 +319,8 @@ model Prop {
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
+  /** 置物重量。内装に置く物はキューブ総重量に加算される。item の weight と対称 */
+  weight?: Weight;
 }
 
 /** 分解の産出エントリ。chance 省略は確定枠 */
