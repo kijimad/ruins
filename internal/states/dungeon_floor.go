@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -237,19 +238,31 @@ func (st *DungeonState) exitCube(world w.World) error {
 // 将来パワーアップで広げる余地を残す。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
 	const side consts.Tile = 5 // 外周の壁込み。内側は 3x3
-	idx := 0
-	for y := consts.Tile(0); y < side; y++ {
-		for x := consts.Tile(0); x < side; x++ {
-			name := consts.TileNameFloor
+
+	// タイルだけの最小プランを組み、mapspawner に通す。これでオートタイルの添字が近傍から
+	// 正しく計算される。プランに階段ポータルを置かないので階段は湧かず1階層になる
+	tiles := make([]oapi.Tile, int(side)*int(side))
+	for y := range side {
+		for x := range side {
+			i := int(y)*int(side) + int(x)
 			if x == 0 || y == 0 || x == side-1 || y == side-1 {
-				name = consts.TileNameDWall
-			}
-			if _, err := lifecycle.SpawnTile(world, name, x, y, &idx); err != nil {
-				return err
+				tiles[i] = oapi.Tile{Name: consts.TileNameWall, BlockPass: true, BlockView: true}
+			} else {
+				tiles[i] = oapi.Tile{Name: consts.TileNameFloor}
 			}
 		}
 	}
-	query.EnsureStageField(world, key).Level = gc.Level{TileWidth: side, TileHeight: side}
+	plan := &mapplanner.MetaPlan{
+		Level:     gc.Level{TileWidth: side, TileHeight: side},
+		Tiles:     tiles,
+		RNG:       rand.New(rand.NewPCG(world.Config.RNG.Uint64(), 0)),
+		RawMaster: &world.Resources.RawMaster,
+	}
+	level, err := mapspawner.Spawn(world, plan)
+	if err != nil {
+		return err
+	}
+	query.EnsureStageField(world, key).Level = level
 
 	// 出口 prop を中央の床に置く。warp_prev のスプライトを流用し、相互作用を出口へ差し替える。
 	// プレイヤーはここへ入場し、同じタイルで「出る」を選ぶ
