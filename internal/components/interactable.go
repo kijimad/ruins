@@ -53,6 +53,10 @@ const (
 	InteractionMelee InteractionKind = "MELEE"
 	// InteractionDisassemble は工具による分解の相互作用
 	InteractionDisassemble InteractionKind = "DISASSEMBLE"
+	// InteractionEnterCube は移動拠点キューブの内装へ入る相互作用
+	InteractionEnterCube InteractionKind = "ENTER_CUBE"
+	// InteractionExitCube は移動拠点キューブの内装から出る相互作用
+	InteractionExitCube InteractionKind = "EXIT_CUBE"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -66,8 +70,10 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
 	case InteractionDoorLock:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}
-	case InteractionStorage, InteractionDisassemble:
+	case InteractionStorage, InteractionDisassemble, InteractionEnterCube:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
+	case InteractionExitCube:
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	}
 	return InteractionConfig{}
 }

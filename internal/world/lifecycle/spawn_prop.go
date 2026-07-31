@@ -215,6 +215,8 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		Pushable:        &gc.Pushable{},
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
+		// 隣接して手動で内装へ入れる。歩き込みは押し、明示的な入るは内装と入力経路を分ける
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube}},
 	}), nil
 }
 

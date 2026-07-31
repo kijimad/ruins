@@ -321,6 +321,18 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case gc.WarpCubeEnter:
+		// 移動拠点キューブの内装へ入る。同一 State 内 swapTo でオーバーワールドを退避する
+		if err := st.enterCube(world, p.Cube); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case gc.WarpCubeExit:
+		// キューブ内装からオーバーワールドへ戻る
+		if err := st.exitCube(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.OpenStorage:
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{

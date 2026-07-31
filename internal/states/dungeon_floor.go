@@ -164,6 +164,105 @@ func (st *DungeonState) descend(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, pos)
 }
 
+// enterCube は移動拠点キューブの内装へ swapTo で入る。未訪問なら小部屋を生成し出口 prop を置く。
+// 出口 prop の戻り先を、入場時のプレイヤータイル(キューブに隣接)へ毎回貼り直す。内装滞在中は
+// オーバーワールドが退避しキューブは動かないので、この戻り先は退場時も有効になる。
+func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
+	if !world.Components.GridElement.Has(cube) {
+		return fmt.Errorf("キューブに位置がありません")
+	}
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	returnPos := world.Components.GridElement.Get(player).Coord
+
+	// 内装キーはキューブごとに一意。初回入場で決めてキューブの PortalConnection へ焼き、
+	// 再訪時はそこから引く
+	firstVisit := !world.Components.PortalConnection.Has(cube)
+	var interiorKey gc.StageKey
+	if firstVisit {
+		interiorKey = gc.StageKey{Name: fmt.Sprintf("キューブ内装#%d", cube.ID()), Depth: 1}
+	} else {
+		interiorKey = world.Components.PortalConnection.Get(cube).Stage
+	}
+
+	if err := stage.SwapTo(world, interiorKey, func(world w.World, key gc.StageKey) error {
+		return spawnCubeInterior(world, key)
+	}); err != nil {
+		return err
+	}
+
+	// 出口 prop の位置が入場点。戻り先をプレイヤーの元タイルへ貼り直す
+	exitProp, exitPos, ok := findPortal(world, gc.InteractionExitCube)
+	if !ok {
+		return fmt.Errorf("キューブ内装に出口が見つかりません")
+	}
+	if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil {
+		return err
+	}
+	if firstVisit {
+		if err := setPortalConnection(world, cube, interiorKey, exitPos); err != nil {
+			return err
+		}
+	}
+	return lifecycle.MovePlayerToPosition(world, exitPos)
+}
+
+// exitCube はキューブ内装から出口 prop の PortalConnection を辿ってオーバーワールドへ戻る。
+func (st *DungeonState) exitCube(world w.World) error {
+	exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
+	if !ok {
+		return fmt.Errorf("キューブ内装に出口が見つかりません")
+	}
+	if !world.Components.PortalConnection.Has(exitProp) {
+		return fmt.Errorf("出口に戻り先が結線されていません")
+	}
+	conn := world.Components.PortalConnection.Get(exitProp)
+	target := conn.Stage
+	returnPos := conn.Coord
+	if err := stage.SwapTo(world, target, func(w.World, gc.StageKey) error {
+		return fmt.Errorf("戻り先のオーバーワールドが存在しません")
+	}); err != nil {
+		return err
+	}
+	return lifecycle.MovePlayerToPosition(world, returnPos)
+}
+
+// spawnCubeInterior はキューブ内装の小部屋を生成し、開始位置に出口 prop を置く。
+// 敵・アイテムのテーブルは指定せず、凍らない安全な空き部屋にする。戻り先の結線は enterCube が貼る。
+func spawnCubeInterior(world w.World, key gc.StageKey) error {
+	stageSeed := world.Config.RNG.Uint64()
+	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, mapplanner.PlannerTypeSmallRoom)
+	if err != nil {
+		return err
+	}
+	level, err := mapspawner.Spawn(world, plan)
+	if err != nil {
+		return err
+	}
+	query.EnsureStageField(world, key).Level = level
+
+	start, err := plan.GetPlayerStartPosition()
+	if err != nil {
+		return err
+	}
+	// 出口 prop を開始位置に置く。warp_prev のスプライトを流用し、相互作用を出口へ差し替える。
+	// プレイヤーはここへ入場し、同じタイルで「出る」を選ぶ
+	exitProp, err := lifecycle.SpawnProp(world, "warp_prev", start.X, start.Y)
+	if err != nil {
+		return err
+	}
+	if err := gc.Upsert(world.ECS, world.Components.Interactable, exitProp,
+		&gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionExitCube}}); err != nil {
+		return err
+	}
+
+	// 生成物をこの内装ステージへ束縛する
+	stage.Bind(world, key)
+	return nil
+}
+
 // findPortal は現ステージの指定種別ポータルのエンティティと位置を返す。
 // 退避中ステージのポータルは ActiveFilter で除外される。先着1件を採用するが、途中 return せず
 // 反復は最後まで続ける。Ark のワールドロックを外すため。実ゲームでは各ステージにポータルは

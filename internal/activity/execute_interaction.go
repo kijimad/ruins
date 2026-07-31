@@ -48,6 +48,10 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeMelee(actor, target, world)
 	case gc.InteractionDisassemble:
 		return executeDisassemble(actor, target, world)
+	case gc.InteractionEnterCube:
+		return executeEnterCube(target, world)
+	case gc.InteractionExitCube:
+		return executeExitCube(world)
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
@@ -72,6 +76,23 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 		return nil, fmt.Errorf("遺跡進入状態変更要求エラー: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "遺跡進入"}, nil
+}
+
+// executeEnterCube はキューブ内装への入場を要求する。実際の SwapTo と内装生成は状態機械が担う。
+// target は入る対象のキューブ本体で、退場時の戻り先解決のためイベントに載せて運ぶ。
+func executeEnterCube(target ecs.Entity, world w.World) (*ActionResult, error) {
+	if err := lifecycle.RequestStateChange(world, gc.WarpCubeEnterEvent(target)); err != nil {
+		return nil, fmt.Errorf("キューブ入場状態変更要求エラー: %w", err)
+	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "キューブに入る"}, nil
+}
+
+// executeExitCube はキューブ内装からの退場を要求する。戻り先は内装の出口 prop の PortalConnection が持つ。
+func executeExitCube(world w.World) (*ActionResult, error) {
+	if err := lifecycle.RequestStateChange(world, gc.WarpCubeExitEvent()); err != nil {
+		return nil, fmt.Errorf("キューブ退場状態変更要求エラー: %w", err)
+	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "キューブから出る"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
