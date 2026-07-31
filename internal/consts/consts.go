@@ -35,6 +35,11 @@ const (
 	MinorActionCost = 50
 	// DefaultPlayerMoves はプレイヤーの初期移動ポイント
 	DefaultPlayerMoves = 100
+	// PushCostBase は空のキューブを1タイル押すのに要する基準AP。歩行の10倍規模にし、
+	// 何も積んでいなくても押しは重い決断になるようにする
+	PushCostBase = 10 * StandardActionCost
+	// PushCostPerKg はキューブ総重量1kgあたりに加算する押しAP。総重量に比例して重くする
+	PushCostPerKg = StandardActionCost
 )
 
 // ========== ゲーム定数 ==========
