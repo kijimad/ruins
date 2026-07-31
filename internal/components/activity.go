@@ -59,6 +59,8 @@ const (
 	BehaviorTransfer  BehaviorName = "Transfer"
 	// BehaviorDisassemble は工具でpropやアイテムを分解して素材を得る
 	BehaviorDisassemble BehaviorName = "Disassemble"
+	// BehaviorPush は隣接する移動拠点キューブを押して動かす
+	BehaviorPush BehaviorName = "Push"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント
