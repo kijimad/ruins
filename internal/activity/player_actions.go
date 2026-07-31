@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -64,6 +65,13 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
+	// 移動先に押せるキューブがあれば、通行でなく押しになる。キューブは BlockPass なので
+	// 通常の CanMoveTo では弾かれる。歩き込みは押し、入るは手動アクションと入力経路を分ける
+	if cube, ok := pushableAt(world, next); ok {
+		_, err := Execute(NewPushActivity(cube, direction), entity, world)
+		return err
+	}
+
 	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
 		destination := gc.GridElement{Coord: next}
@@ -72,6 +80,22 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	return nil
+}
+
+// pushableAt は指定タイルにある押せるキューブを返す。無ければ ok=false。
+// クエリは早期 return せず最後まで回す。途中で抜けると world がロックされたままになる
+func pushableAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
+	var found ecs.Entity
+	ok := false
+	pushableQuery := query.ActiveFilter2[gc.GridElement, gc.Pushable](world).Query()
+	for pushableQuery.Next() {
+		entity := pushableQuery.Entity()
+		if !ok && world.Components.GridElement.Get(entity).Coord == coord {
+			found = entity
+			ok = true
+		}
+	}
+	return found, ok
 }
 
 // ExecuteWaitAction は待機アクションを実行する

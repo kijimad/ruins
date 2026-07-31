@@ -83,3 +83,18 @@ func TestPushActivity_APが無ければ押せない(t *testing.T) {
 	require.Error(t, err, "APが無ければ押せない")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord)
 }
+
+func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// プレイヤーの右隣にキューブ。AP は1タイルぶん足りる
+	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
+
+	// 右へ移動入力すると、歩行でなく押しアクティビティが始まる
+	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
+
+	// AP がちょうど足りるので1ターンで押し切れ、キューブと押し手が前進する
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord)
+}
