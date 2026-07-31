@@ -10,7 +10,7 @@ const (
 	StatusAccepted Status = "accepted"
 	// StatusInProgress は実装途中。進捗に未完タスクが残る。
 	StatusInProgress Status = "in-progress"
-	// StatusDone は完了。進捗が全て済んでいる。
+	// StatusDone は完了。open なタスクが無い。進捗を持たない意思決定ドキュメントも該当する。
 	StatusDone Status = "done"
 	// StatusSuperseded は後続ドキュメントに置き換えられた。
 	StatusSuperseded Status = "superseded"
@@ -28,8 +28,8 @@ func (s Status) Valid() bool {
 	return false
 }
 
-// IsOpen は未完了、すなわちバックログとして着手対象かを返す。
-// done・superseded・dropped は閉じた状態とみなす。
+// IsOpen は未完了、すなわちバックログとして着手対象かを返す。アクションが要るかの単一の基準で、
+// README の未完了一覧に載せる範囲もこれで決める。done・superseded・dropped は閉じた状態とみなす。
 func (s Status) IsOpen() bool {
 	switch s {
 	case StatusDraft, StatusAccepted, StatusInProgress:

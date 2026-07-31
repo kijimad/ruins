@@ -11,7 +11,7 @@ description: docs/design/YYYYMMDD_NN.md の設計ドキュメントを規約ど�
    - 日ごとにリセットしない。同じ日に2本作るなら連番が2つ進む。
    - `ls docs/design/*.md | sed -E 's/.*_([0-9]+)\.md/\1/' | sort -n | tail -1` で全体の最大番号を確認する。
 2. **雛形を使う**: `docs/design/tmpl.md` を土台にする。冒頭の frontmatter を必ず埋める。
-   - `status`: 新規は基本 `draft`。方針だけ合意済みなら `accepted`。
+   - `status`: 新規は基本 `draft`。方針だけ合意済みなら `accepted`。各 status の意味と遷移基準は `internal/designdoc/doc.go` に定義する。完了して `done` にする条件、および README の未完了一覧に載る範囲もそこを参照する。
    - `tags`: 領域ラベル。使える語彙は `internal/designdoc` の `KnownTags`。ここに無いタグは検証で弾かれるので、増やすときは `KnownTags` に追加する。
    - `auto`: 人の判断が要るなら `needs-decision`、意思決定不要の機械的タスクなら `mechanical`。ルーチンが無人着手してよいのは `mechanical` だけ。
    - frontmatter は Issue のラベル兼状態として機能する。`go run . designdoc list --open` でバックログを一覧できる。
