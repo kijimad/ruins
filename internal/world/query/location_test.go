@@ -92,7 +92,7 @@ func TestCanAddToStorage_容量を超えるなら追加できない(t *testing.T
 	assert.False(t, query.CanAddToStorage(world, storage, item))
 }
 
-func TestCanAddToStorage_ちょうど上限なら追加できる(t *testing.T) {
+func TestCanAddToStorage_残量ちょうどなら追加できる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -114,7 +114,6 @@ func TestCanAddToStorage_WeightCapacityが無ければ追加できない(t *test
 
 	storage := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
-	world.Components.Weight.Add(item, &gc.Weight{Milligram: consts.MustParseWeight("1 kg")})
 
 	assert.False(t, query.CanAddToStorage(world, storage, item))
 }
