@@ -38,6 +38,7 @@ type EntitySpec struct {
 	PassCost           *PassCost           // タイルの移動コスト修正を保持する
 	Door               *Door               // 開閉可能な扉であることを表す
 	Prop               *Prop               // 置物であることを示す
+	Pushable           *Pushable           // 押して動かせる移動拠点キューブであることを示す
 	LightSource        *LightSource        // 光源であることを表す
 	Interactable       *Interactable       // 相互作用可能であることを示す
 	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
@@ -118,6 +119,7 @@ type Components struct {
 	PassCost           *ecs.Map[PassCost]           // タイルの移動コスト修正を保持する
 	Door               *ecs.Map[Door]               // 開閉可能な扉であることを表す
 	Prop               *ecs.Map[Prop]               // 置物であることを示す
+	Pushable           *ecs.Map[Pushable]           // 押して動かせる移動拠点キューブであることを示す
 	LightSource        *ecs.Map[LightSource]        // 光源であることを表す
 	Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す
 	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
@@ -198,6 +200,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.PassCost = ecs.NewMap[PassCost](world)
 	c.Door = ecs.NewMap[Door](world)
 	c.Prop = ecs.NewMap[Prop](world)
+	c.Pushable = ecs.NewMap[Pushable](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
@@ -280,6 +283,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.PassCost, entity, spec.PassCost)
 	addComp(c.Door, entity, spec.Door)
 	addComp(c.Prop, entity, spec.Prop)
+	addComp(c.Pushable, entity, spec.Pushable)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
