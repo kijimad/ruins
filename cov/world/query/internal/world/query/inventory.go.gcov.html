@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,77 +66,78 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              : )</span>
-<span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC tlaBgUNC">           0 : func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC">           0 :         var foundEntity ecs.Entity</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :         var found bool</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :         stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         for stackableQuery.Next() {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :                 entity := stackableQuery.Entity()</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 if found {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L21"><span class="lineNum">      21</span>              :                 }</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                 itemName := world.Components.Name.Get(entity)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 if itemName.Name == name {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                         foundEntity = entity</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                         found = true</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L27"><span class="lineNum">      27</span>              :         }</span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         return foundEntity, found</span></span>
-<span id="L30"><span class="lineNum">      30</span>              : }</span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         var foundEntity ecs.Entity</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         var found bool</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.ECS).Query()</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         for ammoQuery.Next() {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 entity := ammoQuery.Entity()</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 if found {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L42"><span class="lineNum">      42</span>              :                 }</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 ammo := world.Components.Ammo.Get(entity)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 if ammo.AmmoTag == ammoTag {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                         foundEntity = entity</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                         found = true</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L48"><span class="lineNum">      48</span>              :         }</span>
-<span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         return foundEntity, found</span></span>
-<span id="L51"><span class="lineNum">      51</span>              : }</span>
-<span id="L52"><span class="lineNum">      52</span>              : </span>
-<span id="L53"><span class="lineNum">      53</span>              : // GetEntityCount はエンティティの個数を返す。</span>
-<span id="L54"><span class="lineNum">      54</span>              : // Stackableであれば Stackable.Count を返し、そうでなければ1を返す。</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func GetEntityCount(world w.World, entity ecs.Entity) int {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return world.Components.Stackable.Get(entity).Count</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         return 1</span></span>
-<span id="L60"><span class="lineNum">      60</span>              : }</span>
-<span id="L61"><span class="lineNum">      61</span>              : </span>
-<span id="L62"><span class="lineNum">      62</span>              : // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。</span>
-<span id="L63"><span class="lineNum">      63</span>              : // 名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す。</span>
-<span id="L64"><span class="lineNum">      64</span>              : // 個数が1以下の場合は名前のみ、2以上の場合は &quot;名前(個数)&quot; の形式で返す</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         name := &quot;Unknown Item&quot;</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           2 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 name = nameComp.Name</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L70"><span class="lineNum">      70</span>              : </span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         count := GetEntityCount(world, itemEntity)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :         if count &lt;= 1 {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return name</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;%s(%d個)&quot;, name, count)</span></span>
-<span id="L77"><span class="lineNum">      77</span>              : }</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する</span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC tlaBgUNC">           0 : func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :         var foundEntity ecs.Entity</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         var found bool</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         for stackableQuery.Next() {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 entity := stackableQuery.Entity()</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 if found {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L22"><span class="lineNum">      22</span>              :                 }</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 itemName := world.Components.Name.Get(entity)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 if itemName.Name == name {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                         foundEntity = entity</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :                         found = true</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         }</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         return foundEntity, found</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : }</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 : func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         var foundEntity ecs.Entity</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         var found bool</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.ECS).Query()</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         for ammoQuery.Next() {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 entity := ammoQuery.Entity()</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 if found {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L43"><span class="lineNum">      43</span>              :                 }</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 ammo := world.Components.Ammo.Get(entity)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 if ammo.AmmoTag == ammoTag {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                         foundEntity = entity</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                         found = true</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         }</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         return foundEntity, found</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : }</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : // GetEntityCount はエンティティの個数を返す。</span>
+<span id="L55"><span class="lineNum">      55</span>              : // Stackableであれば Stackable.Count を返し、そうでなければ1を返す。</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 : func GetEntityCount(world w.World, entity ecs.Entity) int {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return world.Components.Stackable.Get(entity).Count</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return 1</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : }</span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              : // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。</span>
+<span id="L64"><span class="lineNum">      64</span>              : // 名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す。</span>
+<span id="L65"><span class="lineNum">      65</span>              : // 個数が1以下の場合は名前のみ、2以上の場合は &quot;名前(個数)&quot; の形式で返す</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         name := &quot;Unknown Item&quot;</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 name = nameComp.Name</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         count := GetEntityCount(world, itemEntity)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :         if count &lt;= 1 {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 return name</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;%s(%d個)&quot;, name, count)</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -528,7 +528,7 @@
 <span id="L466"><span class="lineNum">     466</span>              : </span>
 <span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC tlaBgGNC">           1 :         equipableItems := st.queryEquipableItemsForSlot(world, item.SlotNumber)</span></span>
 <span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :         if len(equipableItems) &gt; 0 {</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC tlaBgUNC">           0 :                 actionItems = append(actionItems, &quot;装備する&quot;)</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC tlaBgUNC">           0 :                 actionItems = append(actionItems, TextEquip)</span></span>
 <span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L471"><span class="lineNum">     471</span>              : </span>
 <span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC tlaBgGNC">           1 :         actionItems = append(actionItems, TextClose)</span></span>
@@ -578,7 +578,7 @@
 <span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :         slotData := windowProps.SlotData</span></span>
 <span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :         case &quot;装備する&quot;:</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :         case TextEquip:</span></span>
 <span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                 st.subState = subStateEquipSelect</span></span>
 <span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                 st.equipMount = hooks.NewMount[equipScreenProps]()</span></span>
 <span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                 st.equipMount.SetProps(equipScreenProps{</span></span>

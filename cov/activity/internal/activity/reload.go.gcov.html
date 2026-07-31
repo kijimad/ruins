@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -137,7 +137,7 @@
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              :         // 最大ターン数の見積もり（最低能力の場合）</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 :         maxTurns := max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1)</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 :         maxTurns := consts.Turn(max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1))</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         comp.TurnsTotal = maxTurns</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         comp.TurnsLeft = maxTurns</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : </span></span>

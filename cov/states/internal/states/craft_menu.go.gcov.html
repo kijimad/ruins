@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;image/color&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;sort&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;slices&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/ebitenui/ebitenui&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/ebitenui/ebitenui/widget&quot;</span>
@@ -312,7 +312,7 @@
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L251"><span class="lineNum">     251</span>              :         }</span>
 <span id="L252"><span class="lineNum">     252</span>              : </span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         sort.Strings(items)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         slices.Sort(items)</span></span>
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         return items</span></span>
 <span id="L255"><span class="lineNum">     255</span>              : }</span>
 <span id="L256"><span class="lineNum">     256</span>              : </span>
@@ -330,7 +330,7 @@
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L269"><span class="lineNum">     269</span>              :         }</span>
 <span id="L270"><span class="lineNum">     270</span>              : </span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         sort.Strings(items)</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         slices.Sort(items)</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         return items</span></span>
 <span id="L273"><span class="lineNum">     273</span>              : }</span>
 <span id="L274"><span class="lineNum">     274</span>              : </span>
@@ -347,7 +347,7 @@
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L286"><span class="lineNum">     286</span>              :         }</span>
 <span id="L287"><span class="lineNum">     287</span>              : </span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         sort.Strings(items)</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         slices.Sort(items)</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         return items</span></span>
 <span id="L290"><span class="lineNum">     290</span>              : }</span>
 <span id="L291"><span class="lineNum">     291</span>              : </span>
@@ -385,7 +385,7 @@
 <span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         actionItems := []string{}</span></span>
 <span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         if canCraft, _ := gameaction.CanCraft(world, recipeName); canCraft {</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC tlaBgUNC">           0 :                 actionItems = append(actionItems, &quot;合成する&quot;)</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC tlaBgUNC">           0 :                 actionItems = append(actionItems, TextCraft)</span></span>
 <span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC tlaBgGNC">           1 :         actionItems = append(actionItems, TextClose)</span></span>
 <span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 : </span></span>
@@ -433,7 +433,7 @@
 <span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         selectedAction := actionItems[actionIndex]</span></span>
 <span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         case &quot;合成する&quot;:</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         case TextCraft:</span></span>
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 resultEntity, err := gameaction.Craft(world, windowProps.RecipeName)</span></span>
 <span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                         return err</span></span>

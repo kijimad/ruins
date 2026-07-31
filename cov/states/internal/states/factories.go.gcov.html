@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -137,7 +137,7 @@
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                         })</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 }).</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;閉じる&quot;, func(_ w.World) error {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 WithChoice(TextClose, func(_ w.World) error {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                                 Type: es.TransPop,</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                         })</span></span>
@@ -458,7 +458,7 @@
 <span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                         })</span></span>
 <span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 }).</span></span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;閉じる&quot;, func(_ w.World) error {</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                 WithChoice(TextClose, func(_ w.World) error {</span></span>
 <span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{</span></span>
 <span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :                                 Type: es.TransPop,</span></span>
 <span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :                         })</span></span>
@@ -603,7 +603,7 @@
 <span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :         messageState := &amp;MessageState{}</span></span>
 <span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :         messageData := messagedata.NewSystemMessage(&quot;すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。&quot;).</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;閉じる&quot;, func(_ w.World) error {</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 WithChoice(TextClose, func(_ w.World) error {</span></span>
 <span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
 <span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :                 })</span></span>

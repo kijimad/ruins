@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -363,7 +363,7 @@
 <span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC tlaBgUNC">           0 :         items := []string{}</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         if windowProps.Candidate.CanAfford {</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 items = append(items, &quot;雇用する&quot;)</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 items = append(items, TextHire)</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         items = append(items, TextClose)</span></span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :         return items</span></span>
@@ -400,7 +400,7 @@
 <span id="L338"><span class="lineNum">     338</span>              : </span>
 <span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         selectedAction := actionItems[actionIndex]</span></span>
 <span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         case &quot;雇用する&quot;:</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         case TextHire:</span></span>
 <span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 candidate := st.candidates[windowProps.Candidate.Index]</span></span>
 <span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>

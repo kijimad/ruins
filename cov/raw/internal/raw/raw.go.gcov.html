@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -215,9 +215,9 @@
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         var ammoTag string</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         var ammoTag oapi.AmmoTag</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           2 :         if f.AmmoTag != nil {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 ammoTag = string(*f.AmmoTag)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 ammoTag = *f.AmmoTag</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         return &amp;gc.Fire{</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 Accuracy:       int(f.Accuracy),</span></span>
@@ -315,9 +315,9 @@
 <span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L254"><span class="lineNum">     254</span>              : </span>
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           2 :         if item.Ammo != nil {</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 var ammoAmmoTag string</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 var ammoAmmoTag oapi.AmmoTag</span></span>
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           2 :                 if item.Ammo.AmmoTag != nil {</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                         ammoAmmoTag = string(*item.Ammo.AmmoTag)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                         ammoAmmoTag = *item.Ammo.AmmoTag</span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 entitySpec.Ammo = &amp;gc.Ammo{</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                         AmmoTag:       ammoAmmoTag,</span></span>

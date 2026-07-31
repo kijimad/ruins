@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-30 23:38:29</td>
+            <td class="headerValue">2026-07-31 00:12:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;encoding/json&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;fmt&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;sort&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;slices&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;strings&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;time&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
@@ -233,8 +233,8 @@
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 timestamps[name] = ts</span></span>
 <span id="L172"><span class="lineNum">     172</span>              :         }</span>
 <span id="L173"><span class="lineNum">     173</span>              : </span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           2 :         sort.Slice(valid, func(i, j int) bool {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 return timestamps[valid[i]].After(timestamps[valid[j]])</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           2 :         slices.SortFunc(valid, func(a, b string) int {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 return timestamps[b].Compare(timestamps[a])</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         return valid, nil</span></span>
 <span id="L178"><span class="lineNum">     178</span>              : }</span>

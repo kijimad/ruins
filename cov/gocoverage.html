@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.2%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.0%)</option>
 				
@@ -329,7 +329,7 @@
 				
 				<option value="file136">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (71.6%)</option>
 				
-				<option value="file137">github.com/kijimaD/ruins/internal/mapplanner/lib.go (76.6%)</option>
+				<option value="file137">github.com/kijimaD/ruins/internal/mapplanner/lib.go (77.5%)</option>
 				
 				<option value="file138">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -597,7 +597,7 @@
 				
 				<option value="file270">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (75.3%)</option>
 				
-				<option value="file271">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (74.6%)</option>
+				<option value="file271">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.1%)</option>
 				
 				<option value="file272">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.5%)</option>
 				
@@ -734,7 +734,7 @@ type Info struct {
 }
 
 // NewActivity は新しいActivityコンポーネントを作成する
-func NewActivity(behavior Behavior, duration int) (*gc.Activity, error) <span class="cov8" title="1">{
+func NewActivity(behavior Behavior, duration consts.Turn) (*gc.Activity, error) <span class="cov8" title="1">{
         if duration &lt;= 0 </span><span class="cov8" title="1">{
                 return nil, ErrInvalidDuration
         }</span>
@@ -748,9 +748,9 @@ func NewActivity(behavior Behavior, duration int) (*gc.Activity, error) <span cl
 }
 
 // CalculateRequiredTurns はキャラクターのAP量に基づいて必要ターン数を計算する
-func CalculateRequiredTurns(behavior Behavior, characterAP int) int <span class="cov8" title="1">{
+func CalculateRequiredTurns(behavior Behavior, characterAP int) consts.Turn <span class="cov8" title="1">{
         if behavior.Info().TotalRequiredAP &gt; 0 &amp;&amp; characterAP &gt; 0 </span><span class="cov8" title="1">{
-                return (behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP
+                return consts.Turn((behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP)
         }</span>
         <span class="cov8" title="1">return 1</span>
 }
@@ -1593,7 +1593,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1736,9 +1736,9 @@ func (da *DisassembleActivity) BuildActivity(actor ecs.Entity, world w.World) (*
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov8" title="1">duration := 1
+        <span class="cov8" title="1">duration := consts.Turn(1)
         if characterAP &gt; 0 </span><span class="cov8" title="1">{
-                duration = (requiredAP + characterAP - 1) / characterAP
+                duration = consts.Turn((requiredAP + characterAP - 1) / characterAP)
         }</span>
 
         <span class="cov8" title="1">comp, err := NewActivity(da, duration)
@@ -3315,7 +3315,7 @@ import (
 // ReadActivity は読書アクティビティの実装
 type ReadActivity struct {
         Target   ecs.Entity
-        Duration int
+        Duration consts.Turn
 }
 
 // Info はBehaviorの実装
@@ -3631,7 +3631,7 @@ func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
         }</span>
 
         // 最大ターン数の見積もり（最低能力の場合）
-        <span class="cov8" title="1">maxTurns := max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1)
+        <span class="cov8" title="1">maxTurns := consts.Turn(max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1))
         comp.TurnsTotal = maxTurns
         comp.TurnsLeft = maxTurns
 
@@ -3757,7 +3757,7 @@ import (
 
 // RestActivity はBehaviorの実装
 type RestActivity struct {
-        Duration int
+        Duration consts.Turn
 }
 
 // Info はBehaviorの実装
@@ -4712,7 +4712,7 @@ import (
 
 // WaitActivity はBehaviorの実装
 type WaitActivity struct {
-        Duration int
+        Duration consts.Turn
         Reason   string
 }
 
@@ -6670,7 +6670,7 @@ func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantSta
 		<pre class="file" id="file28" style="display: none">package balance
 
 import (
-        "sort"
+        "slices"
 )
 
 // Percentile はソート済みスライスからパーセンタイル値を返す。
@@ -6693,7 +6693,7 @@ func Median(values []int) int <span class="cov8" title="1">{
         }</span>
         <span class="cov8" title="1">s := make([]int, len(values))
         copy(s, values)
-        sort.Ints(s)
+        slices.Sort(s)
         return Percentile(s, 0.5)</span>
 }
 
@@ -6735,7 +6735,7 @@ func (s RunStats) hpPercentile(depth int, selector func(RunResult) map[int]int, 
         <span class="cov8" title="1">if len(hps) == 0 </span><span class="cov0" title="0">{
                 return 0
         }</span>
-        <span class="cov8" title="1">sort.Ints(hps)
+        <span class="cov8" title="1">slices.Sort(hps)
         return Percentile(hps, p)</span>
 }
 
@@ -6886,7 +6886,7 @@ func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int <
         <span class="cov8" title="1">if len(damages) == 0 </span><span class="cov0" title="0">{
                 return 0
         }</span>
-        <span class="cov8" title="1">sort.Ints(damages)
+        <span class="cov8" title="1">slices.Sort(damages)
         return Percentile(damages, p)</span>
 }
 
@@ -6905,7 +6905,7 @@ func (s RunStats) floorHealingPercentile(depth int, p float64) int <span class="
         <span class="cov8" title="1">if len(heals) == 0 </span><span class="cov8" title="1">{
                 return 0
         }</span>
-        <span class="cov8" title="1">sort.Ints(heals)
+        <span class="cov8" title="1">slices.Sort(heals)
         return Percentile(heals, p)</span>
 }
 
@@ -7200,7 +7200,7 @@ import (
         "fmt"
         "os"
         "path/filepath"
-        "sort"
+        "slices"
         "strings"
 
         "github.com/kijimaD/ruins/internal/designdoc"
@@ -7268,7 +7268,7 @@ func buildImageTableFrom(dir string) (string, error) <span class="cov8" title="1
                         images = append(images, e.Name())
                 }</span>
         }
-        <span class="cov8" title="1">sort.Strings(images)
+        <span class="cov8" title="1">slices.Sort(images)
 
         if len(images) == 0 </span><span class="cov8" title="1">{
                 return "*画像なし*", nil
@@ -7574,6 +7574,7 @@ func (a *Abilities) ValueOf(id AbilityID) int <span class="cov8" title="1">{
 		<pre class="file" id="file36" style="display: none">package components
 
 import (
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/mlange-42/ark/ecs"
 )
 
@@ -7638,8 +7639,8 @@ const (
 type Activity struct {
         BehaviorName BehaviorName  // アクティビティの種類
         State        ActivityState // 実行状態
-        TurnsTotal   int           // 総必要ターン数
-        TurnsLeft    int           // 残りターン数
+        TurnsTotal   consts.Turn   // 総必要ターン数
+        TurnsLeft    consts.Turn   // 残りターン数
         Target       *ecs.Entity   // 操作対象のエンティティ
         Recipient    *ecs.Entity   // 受取人エンティティ。アイテム転送の転送先など
         Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う
@@ -8057,6 +8058,7 @@ import (
         "image/color"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
         "github.com/mlange-42/ark/ecs"
 )
 
@@ -8216,9 +8218,9 @@ type WeightDirty struct{}
 
 // Ammo は弾薬アイテムの性能を定義する
 type Ammo struct {
-        AmmoTag       string // 口径タグ。武器の AmmoTag とマッチする
-        DamageBonus   int    // ダメージ修正値
-        AccuracyBonus int    // 命中率修正値
+        AmmoTag       oapi.AmmoTag // 口径タグ。武器の AmmoTag とマッチする
+        DamageBonus   int          // ダメージ修正値
+        AccuracyBonus int          // 命中率修正値
 }
 
 // Attacker は近接・遠距離攻撃の共通インターフェース。
@@ -8276,12 +8278,12 @@ type Fire struct {
         Cost           int         // 行動コスト
         TargetType     TargetType  // 対象タイプ
         // 弾薬管理
-        Magazine            int    // 現在の装弾数
-        MagazineSize        int    // 最大装弾数
-        ReloadEffort        int    // リロード完了に必要な総工数
-        AmmoTag             string // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
-        LoadedDamageBonus   int    // 装填中の弾薬によるダメージ修正値。リロード時に設定される
-        LoadedAccuracyBonus int    // 装填中の弾薬による命中修正値。リロード時に設定される
+        Magazine            int          // 現在の装弾数
+        MagazineSize        int          // 最大装弾数
+        ReloadEffort        int          // リロード完了に必要な総工数
+        AmmoTag             oapi.AmmoTag // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
+        LoadedDamageBonus   int          // 装填中の弾薬によるダメージ修正値。リロード時に設定される
+        LoadedAccuracyBonus int          // 装填中の弾薬による命中修正値。リロード時に設定される
 }
 
 // GetAccuracy はAttackerの実装
@@ -12325,7 +12327,6 @@ import (
         "os"
         "path/filepath"
         "slices"
-        "sort"
         "strings"
 )
 
@@ -12351,7 +12352,7 @@ func listMarkdownFiles(dir string) ([]string, error) <span class="cov8" title="1
                 }
                 <span class="cov8" title="1">paths = append(paths, filepath.Join(dir, name))</span>
         }
-        <span class="cov8" title="1">sort.Strings(paths)
+        <span class="cov8" title="1">slices.Sort(paths)
 
         return paths, nil</span>
 }
@@ -18059,7 +18060,8 @@ func kitchenCounter() Stuff <span class="cov8" title="1">{
 		<pre class="file" id="file123" style="display: none">package interior
 
 import (
-        "sort"
+        "cmp"
+        "slices"
 
         "github.com/kijimaD/ruins/internal/consts"
 )
@@ -18257,9 +18259,9 @@ func roomOrderByArea(rooms []Room) []int <span class="cov8" title="1">{
         for i := range idx </span><span class="cov8" title="1">{
                 idx[i] = i
         }</span>
-        <span class="cov8" title="1">sort.SliceStable(idx, func(a, b int) bool </span><span class="cov8" title="1">{
-                ra, rb := rooms[idx[a]].Rect, rooms[idx[b]].Rect
-                return ra.W*ra.H &gt; rb.W*rb.H
+        <span class="cov8" title="1">slices.SortStableFunc(idx, func(a, b int) int </span><span class="cov8" title="1">{
+                ra, rb := rooms[a].Rect, rooms[b].Rect
+                return cmp.Compare(rb.W*rb.H, ra.W*ra.H)
         }</span>)
         <span class="cov8" title="1">return idx</span>
 }
@@ -18543,7 +18545,8 @@ func yardSpot(s Site, fside side, doorAxis consts.Tile) (Vec, bool) <span class=
 		<pre class="file" id="file127" style="display: none">package interior
 
 import (
-        "sort"
+        "cmp"
+        "slices"
 
         "github.com/kijimaD/ruins/internal/geometry"
 
@@ -18618,24 +18621,24 @@ func selectTiles(room Room, p Placement, occupied map[Vec]bool, seed uint64, cou
 
 // sortColumnMajor は候補を x→y の順に並べる。棚を左から列ごとに連続で詰め、平行列を線に見せる。
 func sortColumnMajor(cands []scoredTile) <span class="cov8" title="1">{
-        sort.Slice(cands, func(i, j int) bool </span><span class="cov8" title="1">{
-                if cands[i].pos.X != cands[j].pos.X </span><span class="cov8" title="1">{
-                        return cands[i].pos.X &lt; cands[j].pos.X
+        slices.SortFunc(cands, func(a, b scoredTile) int </span><span class="cov8" title="1">{
+                if a.pos.X != b.pos.X </span><span class="cov8" title="1">{
+                        return cmp.Compare(a.pos.X, b.pos.X)
                 }</span>
-                <span class="cov8" title="1">return cands[i].pos.Y &lt; cands[j].pos.Y</span>
+                <span class="cov8" title="1">return cmp.Compare(a.pos.Y, b.pos.Y)</span>
         })
 }
 
 // sortByScore はスコア降順に並べ、同点は座標で安定化して再訪一致を保証する。
 func sortByScore(cands []scoredTile) <span class="cov8" title="1">{
-        sort.SliceStable(cands, func(i, j int) bool </span><span class="cov8" title="1">{
-                if cands[i].score != cands[j].score </span><span class="cov8" title="1">{
-                        return cands[i].score &gt; cands[j].score
+        slices.SortStableFunc(cands, func(a, b scoredTile) int </span><span class="cov8" title="1">{
+                if a.score != b.score </span><span class="cov8" title="1">{
+                        return cmp.Compare(b.score, a.score)
                 }</span>
-                <span class="cov0" title="0">if cands[i].pos.Y != cands[j].pos.Y </span><span class="cov0" title="0">{
-                        return cands[i].pos.Y &lt; cands[j].pos.Y
+                <span class="cov0" title="0">if a.pos.Y != b.pos.Y </span><span class="cov0" title="0">{
+                        return cmp.Compare(a.pos.Y, b.pos.Y)
                 }</span>
-                <span class="cov0" title="0">return cands[i].pos.X &lt; cands[j].pos.X</span>
+                <span class="cov0" title="0">return cmp.Compare(a.pos.X, b.pos.X)</span>
         })
 }
 
@@ -20112,39 +20115,11 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool <span class="cov8" title="1">{
-        if slices.Contains(bm.NextPortals, pos) </span><span class="cov0" title="0">{
-                return true
-        }</span>
-
-        // NPCをチェック
-        <span class="cov8" title="1">for _, npc := range bm.NPCs </span><span class="cov8" title="1">{
-                if npc.Coord == pos </span><span class="cov8" title="1">{
-                        return true
-                }</span>
-        }
-
-        // アイテムをチェック
-        <span class="cov8" title="1">for _, item := range bm.Items </span><span class="cov8" title="1">{
-                if item.Coord == pos </span><span class="cov0" title="0">{
-                        return true
-                }</span>
-        }
-
-        // Propsをチェック
-        <span class="cov8" title="1">for _, prop := range bm.Props </span><span class="cov0" title="0">{
-                if prop.Coord == pos </span><span class="cov0" title="0">{
-                        return true
-                }</span>
-        }
-
-        // ドアをチェック
-        <span class="cov8" title="1">for _, door := range bm.Doors </span><span class="cov8" title="1">{
-                if door.Coord == pos </span><span class="cov0" title="0">{
-                        return true
-                }</span>
-        }
-
-        <span class="cov8" title="1">return false</span>
+        return slices.Contains(bm.NextPortals, pos) ||
+                slices.ContainsFunc(bm.NPCs, func(npc NPCSpec) bool </span><span class="cov8" title="1">{ return npc.Coord == pos }</span>) ||
+                slices.ContainsFunc(bm.Items, func(item ItemSpec) bool <span class="cov8" title="1">{ return item.Coord == pos }</span>) ||
+                slices.ContainsFunc(bm.Props, func(prop PropsSpec) bool <span class="cov0" title="0">{ return prop.Coord == pos }</span>) ||
+                slices.ContainsFunc(bm.Doors, func(door DoorSpec) bool <span class="cov8" title="1">{ return door.Coord == pos }</span>)
 }
 
 // UpTile は上にあるタイルを調べる
@@ -33816,9 +33791,9 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) <span class="cov8" title="1">{
         if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
-        <span class="cov8" title="1">var ammoTag string
+        <span class="cov8" title="1">var ammoTag oapi.AmmoTag
         if f.AmmoTag != nil </span><span class="cov8" title="1">{
-                ammoTag = string(*f.AmmoTag)
+                ammoTag = *f.AmmoTag
         }</span>
         <span class="cov8" title="1">return &amp;gc.Fire{
                 Accuracy:       int(f.Accuracy),
@@ -33916,9 +33891,9 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
         }</span>
 
         <span class="cov8" title="1">if item.Ammo != nil </span><span class="cov8" title="1">{
-                var ammoAmmoTag string
+                var ammoAmmoTag oapi.AmmoTag
                 if item.Ammo.AmmoTag != nil </span><span class="cov8" title="1">{
-                        ammoAmmoTag = string(*item.Ammo.AmmoTag)
+                        ammoAmmoTag = *item.Ammo.AmmoTag
                 }</span>
                 <span class="cov8" title="1">entitySpec.Ammo = &amp;gc.Ammo{
                         AmmoTag:       ammoAmmoTag,
@@ -35873,7 +35848,7 @@ func (sm *SerializationManager) deleteSaveImpl(slotName string) error <span clas
 import (
         "encoding/json"
         "fmt"
-        "sort"
+        "slices"
         "strings"
         "time"
 
@@ -36041,8 +36016,8 @@ func (sm *SerializationManager) ListSaves() ([]string, error) <span class="cov8"
                 timestamps[name] = ts</span>
         }
 
-        <span class="cov8" title="1">sort.Slice(valid, func(i, j int) bool </span><span class="cov8" title="1">{
-                return timestamps[valid[i]].After(timestamps[valid[j]])
+        <span class="cov8" title="1">slices.SortFunc(valid, func(a, b string) int </span><span class="cov8" title="1">{
+                return timestamps[b].Compare(timestamps[a])
         }</span>)
         <span class="cov8" title="1">return valid, nil</span>
 }
@@ -37298,8 +37273,9 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI <span class=
 		<pre class="file" id="file190" style="display: none">package states
 
 import (
+        "cmp"
         "fmt"
-        "sort"
+        "slices"
 
         "github.com/ebitenui/ebitenui"
         "github.com/ebitenui/ebitenui/widget"
@@ -37430,8 +37406,8 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps <sp
         }
 
         // 数が多い順にソートする
-        <span class="cov8" title="1">sort.Slice(items, func(i, j int) bool </span><span class="cov8" title="1">{
-                return items[i].Count &gt; items[j].Count
+        <span class="cov8" title="1">slices.SortFunc(items, func(a, b componentDebugItem) int </span><span class="cov8" title="1">{
+                return cmp.Compare(b.Count, a.Count)
         }</span>)
 
         <span class="cov8" title="1">return componentDebugProps{Items: items, Total: total}</span>
@@ -37499,7 +37475,7 @@ func (st *ComponentDebugState) buildUI(world w.World) *ebitenui.UI <span class="
 import (
         "fmt"
         "image/color"
-        "sort"
+        "slices"
 
         "github.com/ebitenui/ebitenui"
         "github.com/ebitenui/ebitenui/widget"
@@ -37746,7 +37722,7 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string <span clas
                 }</span>
         }
 
-        <span class="cov8" title="1">sort.Strings(items)
+        <span class="cov8" title="1">slices.Sort(items)
         return items</span>
 }
 
@@ -37764,7 +37740,7 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string <span class="c
                 }</span>
         }
 
-        <span class="cov8" title="1">sort.Strings(items)
+        <span class="cov8" title="1">slices.Sort(items)
         return items</span>
 }
 
@@ -37781,7 +37757,7 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string <span class=
                 }</span>
         }
 
-        <span class="cov8" title="1">sort.Strings(items)
+        <span class="cov8" title="1">slices.Sort(items)
         return items</span>
 }
 
@@ -37819,7 +37795,7 @@ func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []str
         <span class="cov8" title="1">actionItems := []string{}
 
         if canCraft, _ := gameaction.CanCraft(world, recipeName); canCraft </span><span class="cov0" title="0">{
-                actionItems = append(actionItems, "合成する")
+                actionItems = append(actionItems, TextCraft)
         }</span>
         <span class="cov8" title="1">actionItems = append(actionItems, TextClose)
 
@@ -37867,7 +37843,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error <span class="co
         <span class="cov0" title="0">selectedAction := actionItems[actionIndex]
 
         switch selectedAction </span>{
-        case "合成する":<span class="cov0" title="0">
+        case TextCraft:<span class="cov0" title="0">
                 resultEntity, err := gameaction.Craft(world, windowProps.RecipeName)
                 if err != nil </span><span class="cov0" title="0">{
                         return err
@@ -39691,7 +39667,7 @@ func (st *EquipMenuState) getActionItems(world w.World, item equipItemData) []st
 
         <span class="cov8" title="1">equipableItems := st.queryEquipableItemsForSlot(world, item.SlotNumber)
         if len(equipableItems) &gt; 0 </span><span class="cov0" title="0">{
-                actionItems = append(actionItems, "装備する")
+                actionItems = append(actionItems, TextEquip)
         }</span>
 
         <span class="cov8" title="1">actionItems = append(actionItems, TextClose)
@@ -39741,7 +39717,7 @@ func (st *EquipMenuState) executeActionItem(world w.World) error <span class="co
         slotData := windowProps.SlotData
 
         switch selectedAction </span>{
-        case "装備する":<span class="cov0" title="0">
+        case TextEquip:<span class="cov0" title="0">
                 st.subState = subStateEquipSelect
                 st.equipMount = hooks.NewMount[equipScreenProps]()
                 st.equipMount.SetProps(equipScreenProps{
@@ -40118,7 +40094,7 @@ func NewDungeonMenuState() (es.State[w.World], error) <span class="cov8" title="
                         })
                         return nil
                 }</span>).
-                WithChoice("閉じる", func(_ w.World) error <span class="cov0" title="0">{
+                WithChoice(TextClose, func(_ w.World) error <span class="cov0" title="0">{
                         persistentState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPop,
                         })
@@ -40439,7 +40415,7 @@ func NewDebugMenuState() (es.State[w.World], error) <span class="cov8" title="1"
                         })
                         return nil
                 }</span>).
-                WithChoice("閉じる", func(_ w.World) error <span class="cov0" title="0">{
+                WithChoice(TextClose, func(_ w.World) error <span class="cov0" title="0">{
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPop,
                         })
@@ -40584,7 +40560,7 @@ func NewAllClearEventState() (es.State[w.World], error) <span class="cov0" title
         messageState := &amp;MessageState{}
 
         messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
-                WithChoice("閉じる", func(_ w.World) error </span><span class="cov0" title="0">{
+                WithChoice(TextClose, func(_ w.World) error </span><span class="cov0" title="0">{
                         messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
                         return nil
                 }</span>)
@@ -41679,7 +41655,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error <span class
                 if remaining &lt;= 0 </span><span class="cov0" title="0">{
                         remaining = 1
                 }</span>
-                <span class="cov0" title="0">_, err = activity.Execute(&amp;activity.ReadActivity{Target: entity, Duration: remaining}, playerEntity, world)
+                <span class="cov0" title="0">_, err = activity.Execute(&amp;activity.ReadActivity{Target: entity, Duration: consts.Turn(remaining)}, playerEntity, world)
                 if err != nil </span><span class="cov0" title="0">{
                         st.subState = invSubStateMenu
                         return err
@@ -41756,6 +41732,13 @@ const (
         // UI表示用の定数
         TextNoDescription = "説明なし" // アイテムの説明がない場合の表示文字列
         TextClose         = "閉じる"  // メニューやウィンドウを閉じる際の表示文字列
+        // メニューアクションのラベル。選択肢の生成と分岐で同じ定数を使い、
+        // ラベル変更で switch 分岐が黙って死ぬのを防ぐ
+        TextCraft = "合成する" // 合成メニューの合成アクション
+        TextBuy   = "購入する" // 商店メニューの購入アクション
+        TextSell  = "売却する" // 商店メニューの売却アクション
+        TextHire  = "雇用する" // 酒場メニューの雇用アクション
+        TextEquip = "装備する" // 装備メニューの装備アクション
 )
 </pre>
 		
@@ -44021,9 +44004,10 @@ func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI <span class="co
 		<pre class="file" id="file211" style="display: none">package states
 
 import (
+        "cmp"
         "fmt"
         "math"
-        "sort"
+        "slices"
         "sync"
 
         "github.com/hajimehoshi/ebiten/v2"
@@ -44205,10 +44189,10 @@ func (st *ShootingState) refreshEnemies(world w.World) error <span class="cov8" 
         }
 
         // プレイヤーからの距離順にソート
-        <span class="cov8" title="1">sort.Slice(shootable, func(i, j int) bool </span><span class="cov0" title="0">{
-                di := activity.EntityDistance(playerEntity, shootable[i], world)
-                dj := activity.EntityDistance(playerEntity, shootable[j], world)
-                return di &lt; dj
+        <span class="cov8" title="1">slices.SortFunc(shootable, func(a, b ecs.Entity) int </span><span class="cov0" title="0">{
+                da := activity.EntityDistance(playerEntity, a, world)
+                db := activity.EntityDistance(playerEntity, b, world)
+                return cmp.Compare(da, db)
         }</span>)
 
         <span class="cov8" title="1">st.enemies = shootable
@@ -44715,10 +44699,10 @@ func (st *ShopMenuState) getActionItems(world w.World, item shopItemData) []stri
                         canAfford = currency &gt;= item.Price
                 }</span>)
                 <span class="cov8" title="1">if canAfford </span><span class="cov0" title="0">{
-                        actionItems = append(actionItems, "購入する")
+                        actionItems = append(actionItems, TextBuy)
                 }</span>
         } else<span class="cov8" title="1"> {
-                actionItems = append(actionItems, "売却する")
+                actionItems = append(actionItems, TextSell)
         }</span>
         <span class="cov8" title="1">actionItems = append(actionItems, TextClose)
 
@@ -44767,7 +44751,7 @@ func (st *ShopMenuState) executeActionItem(world w.World) error <span class="cov
 
         var actionErr error
         switch selectedAction </span>{
-        case "購入する":<span class="cov0" title="0">
+        case TextBuy:<span class="cov0" title="0">
                 query.Player(world, func(playerEntity ecs.Entity) </span><span class="cov0" title="0">{
                         actionErr = gameaction.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
                 }</span>)
@@ -44775,7 +44759,7 @@ func (st *ShopMenuState) executeActionItem(world w.World) error <span class="cov
                         return fmt.Errorf("購入に失敗: %w", actionErr)
                 }</span>
                 <span class="cov0" title="0">st.subState = shopSubStateMenu</span>
-        case "売却する":<span class="cov0" title="0">
+        case TextSell:<span class="cov0" title="0">
                 query.Player(world, func(playerEntity ecs.Entity) </span><span class="cov0" title="0">{
                         actionErr = gameaction.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
                 }</span>)
@@ -46837,7 +46821,7 @@ func (st *TavernMenuState) getActionItems() []string <span class="cov8" title="1
         }</span>
         <span class="cov0" title="0">items := []string{}
         if windowProps.Candidate.CanAfford </span><span class="cov0" title="0">{
-                items = append(items, "雇用する")
+                items = append(items, TextHire)
         }</span>
         <span class="cov0" title="0">items = append(items, TextClose)
         return items</span>
@@ -46874,7 +46858,7 @@ func (st *TavernMenuState) executeWindowAction(world w.World) error <span class=
 
         <span class="cov0" title="0">selectedAction := actionItems[actionIndex]
         switch selectedAction </span>{
-        case "雇用する":<span class="cov0" title="0">
+        case TextHire:<span class="cov0" title="0">
                 candidate := st.candidates[windowProps.Candidate.Index]
 
                 playerEntity, err := query.GetPlayerEntity(world)
@@ -48273,11 +48257,12 @@ func hungerNoise(entity ecs.Entity, turn consts.Turn) uint64 <span class="cov8" 
 		<pre class="file" id="file228" style="display: none">package systems
 
 import (
+        "cmp"
         "fmt"
         "image"
         "image/color"
         "math"
-        "sort"
+        "slices"
         "strings"
 
         "github.com/hajimehoshi/ebiten/v2"
@@ -48448,10 +48433,8 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
                 iSprite++</span>
         }
 
-        <span class="cov0" title="0">sort.Slice(entities[:iSprite], func(i, j int) bool </span><span class="cov0" title="0">{
-                spriteRender1 := world.Components.SpriteRender.Get(entities[i])
-                spriteRender2 := world.Components.SpriteRender.Get(entities[j])
-                return spriteRender1.Depth &lt; spriteRender2.Depth
+        <span class="cov0" title="0">slices.SortStableFunc(entities[:iSprite], func(a, b ecs.Entity) int </span><span class="cov0" title="0">{
+                return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
         }</span>)
 
         <span class="cov0" title="0">for i := range iSprite </span><span class="cov0" title="0">{
@@ -48495,10 +48478,8 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
                 <span class="cov0" title="0">entities = append(entities, entity)</span>
         }
 
-        <span class="cov0" title="0">sort.Slice(entities, func(i, j int) bool </span><span class="cov0" title="0">{
-                spriteRender1 := world.Components.SpriteRender.Get(entities[i])
-                spriteRender2 := world.Components.SpriteRender.Get(entities[j])
-                return spriteRender1.Depth &lt; spriteRender2.Depth
+        <span class="cov0" title="0">slices.SortStableFunc(entities, func(a, b ecs.Entity) int </span><span class="cov0" title="0">{
+                return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
         }</span>)
 
         <span class="cov0" title="0">for _, entity := range entities </span><span class="cov0" title="0">{
@@ -55520,7 +55501,7 @@ func initialPatrolDir() consts.Tile <span class="cov8" title="1">{
         if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
@@ -56645,6 +56626,7 @@ import (
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/oapi"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/mlange-42/ark/ecs"
 )
@@ -56671,7 +56653,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) <sp
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
-func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) <span class="cov0" title="0">{
+func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) <span class="cov0" title="0">{
         var foundEntity ecs.Entity
         var found bool
 
@@ -57221,7 +57203,8 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) <span class="cov8" ti
 		<pre class="file" id="file288" style="display: none">package query
 
 import (
-        "sort"
+        "cmp"
+        "slices"
 
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/mlange-42/ark/ecs"
@@ -57235,34 +57218,18 @@ func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity <span class
                 return entities
         }</span>
 
-        <span class="cov8" title="1">type entityWithName struct {
-                entity ecs.Entity
-                name   string
-        }
-
-        withNames := make([]entityWithName, 0, len(entities))
+        <span class="cov8" title="1">named := make([]ecs.Entity, 0, len(entities))
         for _, entity := range entities </span><span class="cov8" title="1">{
                 if world.Components.Name.Has(entity) </span><span class="cov8" title="1">{
-                        nameComp := world.Components.Name.Get(entity)
-                        if nameComp != nil </span><span class="cov8" title="1">{
-                                withNames = append(withNames, entityWithName{
-                                        entity: entity,
-                                        name:   nameComp.Name,
-                                })
-                        }</span>
-                }
+                        named = append(named, entity)
+                }</span>
         }
 
-        <span class="cov8" title="1">sort.Slice(withNames, func(i, j int) bool </span><span class="cov8" title="1">{
-                return withNames[i].name &lt; withNames[j].name
+        <span class="cov8" title="1">slices.SortStableFunc(named, func(a, b ecs.Entity) int </span><span class="cov8" title="1">{
+                return cmp.Compare(world.Components.Name.Get(a).Name, world.Components.Name.Get(b).Name)
         }</span>)
 
-        <span class="cov8" title="1">result := make([]ecs.Entity, len(withNames))
-        for i, item := range withNames </span><span class="cov8" title="1">{
-                result[i] = item.entity
-        }</span>
-
-        <span class="cov8" title="1">return result</span>
+        <span class="cov8" title="1">return named</span>
 }
 </pre>
 		
