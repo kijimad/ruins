@@ -11,12 +11,9 @@ var statusDisplayOrder = []Status{
 	StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
 }
 
-// listableStatuses は未完了一覧に載せる status。まだ動いているバックログに絞り、
-// done と終状態の superseded・dropped は件数のみで一覧しない。
-var listableStatuses = []Status{StatusInProgress, StatusAccepted, StatusDraft}
-
 // RenderStatusSection は README に埋め込む状況テーブルを Markdown で返す。
 // status 別の件数と、未完了ドキュメントの一覧を出す。docs は表示したい順に並んでいる前提。
+// 一覧に載せるのはアクションが要る status、すなわち Status.IsOpen が true のものに限る。
 func RenderStatusSection(docs []*Document) string {
 	counts := map[Status]int{}
 	for _, d := range docs {
@@ -35,7 +32,10 @@ func RenderStatusSection(docs []*Document) string {
 	b.WriteString("\n### 未完了\n\n")
 	b.WriteString("| No. | status | ドキュメント | 進捗 | tags |\n|---|---|---|---|---|\n")
 	found := false
-	for _, s := range listableStatuses {
+	for _, s := range statusDisplayOrder {
+		if !s.IsOpen() {
+			continue
+		}
 		for _, d := range docs {
 			if d.Front.Status != s {
 				continue
