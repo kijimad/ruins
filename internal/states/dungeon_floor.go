@@ -229,27 +229,32 @@ func (st *DungeonState) exitCube(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, returnPos)
 }
 
-// spawnCubeInterior はキューブ内装の小部屋を生成し、開始位置に出口 prop を置く。
-// 敵・アイテムのテーブルは指定せず、凍らない安全な空き部屋にする。戻り先の結線は enterCube が貼る。
+// spawnCubeInterior はキューブ内装を手組みで生成する。壁で囲った 3x3 の狭い安全な空間に、
+// 中央へ出口 prop、隣へ presence 効果 prop を置く。戻り先の結線は enterCube が貼る。
+//
+// ダンジョン生成器は階段ポータル前提で極小サイズを作れず、置いた階段を降りると内装キーを
+// 遺跡定義として解決しようとして panic する。内装は1階層なので生成器を使わず直接敷く。
+// 将来パワーアップで広げる余地を残す。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
-	stageSeed := world.Config.RNG.Uint64()
-	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, mapplanner.PlannerTypeSmallRoom)
-	if err != nil {
-		return err
+	const side consts.Tile = 5 // 外周の壁込み。内側は 3x3
+	idx := 0
+	for y := consts.Tile(0); y < side; y++ {
+		for x := consts.Tile(0); x < side; x++ {
+			name := consts.TileNameFloor
+			if x == 0 || y == 0 || x == side-1 || y == side-1 {
+				name = consts.TileNameDWall
+			}
+			if _, err := lifecycle.SpawnTile(world, name, x, y, &idx); err != nil {
+				return err
+			}
+		}
 	}
-	level, err := mapspawner.Spawn(world, plan)
-	if err != nil {
-		return err
-	}
-	query.EnsureStageField(world, key).Level = level
+	query.EnsureStageField(world, key).Level = gc.Level{TileWidth: side, TileHeight: side}
 
-	start, err := plan.GetPlayerStartPosition()
-	if err != nil {
-		return err
-	}
-	// 出口 prop を開始位置に置く。warp_prev のスプライトを流用し、相互作用を出口へ差し替える。
+	// 出口 prop を中央の床に置く。warp_prev のスプライトを流用し、相互作用を出口へ差し替える。
 	// プレイヤーはここへ入場し、同じタイルで「出る」を選ぶ
-	exitProp, err := lifecycle.SpawnProp(world, "warp_prev", start.X, start.Y)
+	center := consts.Coord[consts.Tile]{X: 2, Y: 2}
+	exitProp, err := lifecycle.SpawnProp(world, "warp_prev", center.X, center.Y)
 	if err != nil {
 		return err
 	}
@@ -258,10 +263,10 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 		return err
 	}
 
-	// presence 効果 prop を1つ据える。置いてあることで灯り(効果)を出し、重量は CubeWeight に
-	// 加算されて押しを重くする。ブレーキと引力の対を最小構成で示す。将来はプレイヤーが
-	// 拾って持ち込み置く形にするが、今は最初から据える
-	if _, err := lifecycle.SpawnProp(world, "ランタン", start.X, start.Y); err != nil {
+	// presence 効果 prop のランタンを内側の別マスに据える。置いてあることで灯り(効果)を出し、
+	// 重量は CubeWeight に加算されて押しを重くする。ブレーキと引力の対を最小構成で示す。
+	// 将来はプレイヤーが拾って持ち込み置く形にするが、今は最初から据える
+	if _, err := lifecycle.SpawnProp(world, "ランタン", center.X+1, center.Y); err != nil {
 		return err
 	}
 
