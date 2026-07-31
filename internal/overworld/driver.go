@@ -166,6 +166,12 @@ func (dr *Driver) startNewBand(world w.World) error {
 		if _, serr := lifecycle.SpawnPlayer(world, spawn, "Ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
 		}
+		// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く。
+		// 新規生成時だけ。セーブからの復帰時はワールドに復元される
+		cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+		if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
+			return fmt.Errorf("キューブ生成失敗: %w", cerr)
+		}
 	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}

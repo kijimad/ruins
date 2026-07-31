@@ -12,6 +12,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSpawnCube_押せる移動拠点として生成される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 8})
+	require.NoError(t, err)
+
+	assert.True(t, world.Components.Pushable.Has(cube), "押せる印を持つ")
+	assert.True(t, world.Components.BlockPass.Has(cube), "通行不可を持つ")
+	assert.True(t, world.Components.Prop.Has(cube), "置物である")
+	require.True(t, world.Components.GridElement.Has(cube))
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 8}, world.Components.GridElement.Get(cube).Coord)
+	require.True(t, world.Components.StageBound.Has(cube), "帯へ束縛される")
+	assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(cube).Key)
+}
+
 func TestLockAllDoors(t *testing.T) {
 	t.Parallel()
 
