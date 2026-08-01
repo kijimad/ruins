@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -179,6 +180,22 @@ func TestGolden_Dungeon(t *testing.T) {
 		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}))
+}
+
+// TestGolden_CubePanel はキューブ内部のコントロールパネルの描画を固定する。
+// 現ステージを内部にし重量物を1つ置いて、総重量が出る状態でパネルを描く。
+func TestGolden_CubePanel(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		// 内部を現ステージにする。パネルの OnStart はここから総重量を算出する
+		query.GetDungeon(world).CurrentStage = gc.NewCubeInteriorStage()
+		// 内部の床へ重量物を1つ置き、総重量が非ゼロで出るようにする
+		item := world.ECS.NewEntity()
+		world.Components.Weight.Add(item, &gc.Weight{Milligram: 5 * consts.MilligramPerKg})
+		world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+		world.Components.StageBound.Add(item, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
+		return []es.State[w.World]{&gs.CubePanelState{}}
+	})
 }
 
 func TestGolden_Overworld(t *testing.T) {
