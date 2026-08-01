@@ -170,8 +170,6 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryMaterial, Pred: c.has(c.Material)},
 			{Name: CategoryAmmo, Pred: c.has(c.Ammo)},
 			{Name: CategoryBook, Pred: c.has(c.Book)},
-			// ItemType は CategoryOfSpec で raw 定義の種別分類にも使う(widgets/views/spec.go)ので固定物を含む。
-			// 実行時の所持分類である InventoryCategoryKey が固定物を除いたのと対比する。固定物は所持へ入らないため。
 			{Name: CategoryFixed, Pred: c.has(c.Fixed)},
 			{Name: CategoryConsumable, Pred: c.has(c.Consumable)},
 			// Fire は Melee より先に判定する。射撃武器は殴打性能として Melee も持つため

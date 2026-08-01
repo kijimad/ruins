@@ -98,8 +98,7 @@ type Wallet struct {
 }
 
 // HP は生命力・耐久を表すコンポーネント
-// なくなるとキャラクターはゲームオーバー、物は壊れる。生命力にも破壊可能な物の耐久にも使う。
-// 破壊可能かは HP の有無で決まり、Fixed とは直交する。ポータルやキューブは Fixed だが HP を持たず壊れない。
+// なくなるとキャラクターはゲームオーバー、物は壊れる
 type HP Pool[int]
 
 // WeightCapacity は重量容量を表すコンポーネント。
@@ -319,9 +318,7 @@ type LocationInStorage struct {
 // 合成や売却の材料となるアイテムに付与される
 type Material struct{}
 
-// Fixed は item が世界に固定され拾えない固定物であることを表すマーカーである。
-// location と直交し、LocationOnField と重ねて持つ。世界に在ることは LocationOnField、
-// 固定されて拾えないことは Fixed、と別軸で表す。Prop 種別タグの後継である。
+// Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント
 type Fixed struct{}
 
 // LightSource は光源コンポーネント
