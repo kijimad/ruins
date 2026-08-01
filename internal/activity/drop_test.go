@@ -289,7 +289,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 func TestDropActivity_PropDerivedItem(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Prop由来アイテムをドロップするとPropコンポーネントが保持される", func(t *testing.T) {
+	t.Run("Prop由来アイテムをドロップすると Fixed コンポーネントが保持される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
