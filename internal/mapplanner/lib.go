@@ -495,6 +495,18 @@ var (
 		},
 	}
 
+	// PlannerTypeCubeInterior は移動拠点キューブの内部のテンプレートプランナー。壁で囲った狭い
+	// 1階層で、階段ポータルを持たない閉じた部屋。実際の生成は enterCube の SwapTo が同じテンプレートで
+	// 行う。ポータルが無いため、到達可能ポータルを要求する接続性/golden 検査対象の AllPlannerTypes
+	// には入れない。
+	PlannerTypeCubeInterior = PlannerType{
+		Name:              "キューブ内部",
+		UseFixedPortalPos: true,
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeCubeInteriorInitial, seed)
+		},
+	}
+
 	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。
 	// ランダム選択用のPlannerTypeRandomは含まない
 	AllPlannerTypes = []PlannerType{

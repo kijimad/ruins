@@ -85,9 +85,11 @@ var (
 		description: "移動拠点キューブの内部",
 		totalFloors: 1,
 		baseTemp:    15, // 内部はシェルター。要調整
-		// フロア生成には使わない。SelectPlanner が万一呼ばれても落ちないための保険
+		// 内部のレイアウトはこの planner のテンプレート。実際の生成は enterCube の SwapTo が
+		// 同じテンプレートで行うので、この pool は spawnFloor 経由では引かれない。他の定義と形を
+		// そろえ、レイアウトの出所を示すために持つ
 		plannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
+			{PlannerType: mapplanner.PlannerTypeCubeInterior, Weight: 1},
 		},
 	}
 )
