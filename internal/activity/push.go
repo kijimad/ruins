@@ -15,8 +15,11 @@ import (
 // gc.Activity のカウントダウンで進捗を表す。重いキューブほど所要ターンが増え、
 // パーティAPが多いほど減る。
 //
-// Cube と Dir はアクティビティ着手時のパラメータで、継続処理のマップ singleton では
-// ゼロ値になる。DoTurn 以降は gc.Activity の Target と Destination だけを読む。
+// Cube と Dir は着手時のパラメータで、BuildActivity だけが読む。BuildActivity はこの2つから
+// 押す対象と押し先を求め、gc.Activity の Target と Destination へ書き写す。
+// 多ターンの継続処理は behaviors マップの共有インスタンス、すなわち NewPushActivity で作った物では
+// なく Cube も Dir もゼロ値の1個で Validate・DoTurn・Finish を呼ぶ。だから着手後はフィールドを
+// 当てにせず、gc.Activity の Target と Destination だけを読む。
 type PushActivity struct {
 	Cube ecs.Entity
 	Dir  gc.Direction
@@ -172,8 +175,9 @@ func buildCubeMove(behavior Behavior, cube *ecs.Entity, dest consts.Coord[consts
 
 // PullActivity は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
 // 自分は1タイル後退する。押しでは動かせない壁際・角のキューブを引き出して詰みを解く。
-// 所要ターンは押しと同じく総重量とパーティAPで決まる。Cube は着手時のパラメータで、継続処理の
-// singleton ではゼロ値。DoTurn 以降は gc.Activity の Target と Destination だけを読む。
+// 所要ターンは押しと同じく総重量とパーティAPで決まる。Cube は着手時のパラメータで BuildActivity
+// だけが読み、gc.Activity の Target と Destination へ書き写す。継続処理は behaviors マップの
+// 共有インスタンス、Cube がゼロ値の1個で呼ばれるので、着手後は gc.Activity 側だけを読む。
 type PullActivity struct {
 	Cube ecs.Entity
 }
