@@ -253,10 +253,10 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 		return err
 	}
 
-	// presence 効果 prop のランタンを隣のマスに据える。置いてあることで灯り(効果)を出し、
+	// presence 効果 prop の lantern を隣のマスに据える。置いてあることで灯り(効果)を出し、
 	// 重量は CubeWeight に加算されて押しを重くする。ブレーキと引力の対を最小構成で示す。
 	// 将来はプレイヤーが拾って持ち込み置く形にするが、今は最初から据える
-	if _, err := lifecycle.SpawnProp(world, "ランタン", center.X-1, center.Y); err != nil {
+	if _, err := lifecycle.SpawnProp(world, "lantern", center.X-1, center.Y); err != nil {
 		return err
 	}
 

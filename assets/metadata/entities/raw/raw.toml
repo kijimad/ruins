@@ -12666,28 +12666,6 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
-description = "重い金属製のランタン。置いた場所を照らす。キューブ内装に据えると暖と灯りになるが、重みは押しにのしかかる"
-name = "ランタン"
-weight = "8 kg"
-
-[props.spriteRender]
-depth = 1
-spriteKey = "old_lamp"
-spriteSheetName = "field"
-
-[props.lightSource]
-enabled = true
-radius = 3
-
-[props.lightSource.color]
-a = 255
-b = 150
-g = 220
-r = 255
-
-[[props]]
-blockPass = false
-blockView = false
 description = "濃茶のジグザグに組まれた装飾的な木製オープン棚。洒落た室内の飾り棚"
 hp = 20
 name = "artistic_shelf"
@@ -13251,9 +13229,10 @@ minGrade = 2
 [[props]]
 blockPass = true
 blockView = false
-description = "黒枠のランタンの中にオレンジの炎。床置きの広範囲光源"
+description = "黒枠のランタンの中にオレンジの炎。床置きの広範囲光源。金属製で重く、キューブ内装に据えると灯りになるが重みは押しにのしかかる"
 hp = 15
 name = "lantern"
+weight = "8 kg"
 
 [props.spriteRender]
 depth = 2
