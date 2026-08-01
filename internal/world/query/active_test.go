@@ -46,3 +46,53 @@ func TestActiveFilter_退避中を除外し追加除外も効く(t *testing.T) {
 	assert.NotContains(t, got2, suspended, "Suspended は依然除外される")
 	assert.NotContains(t, got2, tile, "追加除外の Tile は外れる")
 }
+
+func TestActiveFilter3_退避中を除外する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	active := world.ECS.NewEntity()
+	world.Components.GridElement.Add(active, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
+	world.Components.Name.Add(active, &gc.Name{Name: "active"})
+	world.Components.Tile.Add(active, &gc.Tile{})
+
+	suspended := world.ECS.NewEntity()
+	world.Components.GridElement.Add(suspended, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}})
+	world.Components.Name.Add(suspended, &gc.Name{Name: "suspended"})
+	world.Components.Tile.Add(suspended, &gc.Tile{})
+	world.Components.Suspended.Add(suspended, &gc.Suspended{})
+
+	var got []ecs.Entity
+	q := query.ActiveFilter3[gc.GridElement, gc.Name, gc.Tile](world).Query()
+	for q.Next() {
+		got = append(got, q.Entity())
+	}
+	assert.Contains(t, got, active, "現ステージのエンティティは含まれる")
+	assert.NotContains(t, got, suspended, "Suspended は除外される")
+}
+
+func TestActiveFilter4_退避中を除外する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	active := world.ECS.NewEntity()
+	world.Components.GridElement.Add(active, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
+	world.Components.Name.Add(active, &gc.Name{Name: "active"})
+	world.Components.Tile.Add(active, &gc.Tile{})
+	world.Components.FactionAlly.Add(active, &gc.FactionAlly{})
+
+	suspended := world.ECS.NewEntity()
+	world.Components.GridElement.Add(suspended, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}})
+	world.Components.Name.Add(suspended, &gc.Name{Name: "suspended"})
+	world.Components.Tile.Add(suspended, &gc.Tile{})
+	world.Components.FactionAlly.Add(suspended, &gc.FactionAlly{})
+	world.Components.Suspended.Add(suspended, &gc.Suspended{})
+
+	var got []ecs.Entity
+	q := query.ActiveFilter4[gc.GridElement, gc.Name, gc.Tile, gc.FactionAlly](world).Query()
+	for q.Next() {
+		got = append(got, q.Entity())
+	}
+	assert.Contains(t, got, active, "現ステージのエンティティは含まれる")
+	assert.NotContains(t, got, suspended, "Suspended は除外される")
+}
