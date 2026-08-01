@@ -168,7 +168,8 @@ func (st *DungeonState) descend(world w.World) error {
 // 永続ステージで、初回だけ生成され以後は再稼働する。出口 prop の戻り先を、入場時のプレイヤー
 // タイル、すなわちキューブに隣接する位置へ毎回貼り直す。内部滞在中はオーバーワールドが退避し
 // キューブは動かないので、この戻り先は退場時も有効になる。
-func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
+// フロア遷移と違い state を使わないので DungeonState のメソッドでなく自由関数にする。
+func enterCube(world w.World, cube ecs.Entity) error {
 	if !world.Components.GridElement.Has(cube) {
 		return fmt.Errorf("キューブに位置がありません")
 	}
@@ -195,7 +196,8 @@ func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 }
 
 // exitCube はキューブ内部から出口 prop の PortalConnection を辿ってオーバーワールドへ戻る。
-func (st *DungeonState) exitCube(world w.World) error {
+// enterCube と同じく state を使わないので自由関数にする。
+func exitCube(world w.World) error {
 	exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
 	if !ok {
 		return fmt.Errorf("キューブ内部に出口が見つかりません")
@@ -217,8 +219,8 @@ func (st *DungeonState) exitCube(world w.World) error {
 // spawnCubeInterior はキューブ内部を生成する。通常ダンジョンと同じ mapplanner.Plan → mapspawner.Spawn
 // で生成する。レイアウトも据え置きの prop も、すべてテンプレート levels/facilities/cube_interior.toml と
 // palette が持つ。出口 cube_exit・コントロールパネル・ランタンはパレット文字で置かれ、相互作用は
-// raw のトリガーから付くので、DungeonState は prop を手置きしない。テンプレートは階段ポータルを
-// 含まない閉じた部屋だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。
+// raw のトリガーから付くので、prop を手置きしない。テンプレートは階段ポータルを含まない閉じた部屋
+// だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。
 // 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
 	seed := world.Config.RNG.Uint64()

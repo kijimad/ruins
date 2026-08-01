@@ -324,13 +324,13 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpCubeEnter:
 		// 移動拠点キューブの内部へ入る。同一 State 内 swapTo でオーバーワールドを退避する
-		if err := st.enterCube(world, p.Cube); err != nil {
+		if err := enterCube(world, p.Cube); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpCubeExit:
 		// キューブ内部からオーバーワールドへ戻る
-		if err := st.exitCube(world); err != nil {
+		if err := exitCube(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil

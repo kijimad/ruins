@@ -42,10 +42,8 @@ func TestEnterExitCube_内部へ入り元の位置へ戻る(t *testing.T) {
 	d.CurrentStage = gc.NewOverworldStage()
 	band := addStageEntity(t, world, gc.NewOverworldStage())
 
-	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-
 	// 入る: オーバーワールドを退避し、キューブ内部が現ステージになる
-	require.NoError(t, st.enterCube(world, cube))
+	require.NoError(t, enterCube(world, cube))
 	interiorKey := gc.NewCubeInteriorStage()
 	assert.Equal(t, interiorKey, d.CurrentStage, "現ステージはキューブ内部")
 	assert.True(t, world.Components.Suspended.Has(band), "オーバーワールドは退避される")
@@ -63,7 +61,7 @@ func TestEnterExitCube_内部へ入り元の位置へ戻る(t *testing.T) {
 	assert.False(t, hasPrev, "内部に上り階段は無い")
 
 	// 出る: オーバーワールドが再稼働し、入場した元タイルへ戻る
-	require.NoError(t, st.exitCube(world))
+	require.NoError(t, exitCube(world))
 	assert.Equal(t, gc.NewOverworldStage(), d.CurrentStage, "オーバーワールドへ戻る")
 	assert.False(t, world.Components.Suspended.Has(band), "オーバーワールドが再稼働する")
 	assert.Equal(t, playerPos, world.Components.GridElement.Get(player).Coord, "入場した元タイルへ戻る")
@@ -83,8 +81,7 @@ func TestEnterCube_内部で保存して読み込んでも落ちない(t *testin
 	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 	addStageEntity(t, world, gc.NewOverworldStage())
 
-	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	require.NoError(t, st.enterCube(world, cube))
+	require.NoError(t, enterCube(world, cube))
 	interiorKey := gc.NewCubeInteriorStage()
 	require.Equal(t, interiorKey, query.GetDungeon(world).CurrentStage)
 
@@ -130,8 +127,7 @@ func TestEnterCube_内部ではオーバーワールド判定が偽(t *testing.T
 	}
 	require.True(t, found, "オーバーワールドにキューブがいる")
 
-	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	require.NoError(t, st.enterCube(world, cube))
+	require.NoError(t, enterCube(world, cube))
 	assert.False(t, query.IsOnOverworld(world), "内部ではオーバーワールド判定が偽。地図は開かない")
 }
 
@@ -148,8 +144,7 @@ func TestCubePanelState_内部の総重量を表示できる(t *testing.T) {
 	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 	addStageEntity(t, world, gc.NewOverworldStage())
 
-	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	require.NoError(t, st.enterCube(world, cube))
+	require.NoError(t, enterCube(world, cube))
 
 	// 内部の床へ重量物を1つ置く。管制盤はこれを総重量として読む
 	item := world.ECS.NewEntity()
