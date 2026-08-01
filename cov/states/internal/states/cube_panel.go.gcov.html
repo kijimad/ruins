@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">13.2&nbsp;%</td>
+            <td class="headerCovTableEntryMed">78.9&nbsp;%</td>
             <td class="headerCovTableEntry">38</td>
-            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">30</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-01 10:00:48</td>
+            <td class="headerValue">2026-08-01 11:12:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -110,38 +110,38 @@
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
 <span id="L50"><span class="lineNum">      50</span>              : // Update はキー入力で閉じるだけ。パネル表示中は時間を進めない。</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *CubePanelState) Update(_ w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : func (st *CubePanelState) Update(_ w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         return st.ConsumeTransition(), nil</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : }</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              : // Draw は全体情報を行で描く。将来はこの下へ拡張の操作項目を並べる。</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 : func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :                 op := &amp;text.DrawOptions{}</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(float64(x), float64(y))</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 op.ColorScale.ScaleWithColor(c)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 text.Draw(screen, str, face, op)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           2 :         drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 op := &amp;text.DrawOptions{}</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 op.GeoM.Translate(float64(x), float64(y))</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 op.ColorScale.ScaleWithColor(c)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 text.Draw(screen, str, face, op)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         const x consts.ScreenPixel = 40</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         y := consts.ScreenPixel(40)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         line := func(s string, c color.Color) {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                 drawText(s, x, y, c)</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 y += 28</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         const x consts.ScreenPixel = 40</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         y := consts.ScreenPixel(40)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           2 :         line := func(s string, c color.Color) {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 drawText(s, x, y, c)</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 y += 28</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         line(&quot;コントロールパネル&quot;, theme.TextPrimary)</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         y += 8</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         line(fmt.Sprintf(&quot;総重量: %s&quot;, st.totalWeight.KgString()), theme.TextPrimary)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         y += 8</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         line(&quot;Esc で閉じる&quot;, theme.TextAccent)</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         line(&quot;コントロールパネル&quot;, theme.TextPrimary)</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         y += 8</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         line(fmt.Sprintf(&quot;総重量: %s&quot;, st.totalWeight.KgString()), theme.TextPrimary)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         y += 8</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         line(&quot;Esc で閉じる&quot;, theme.TextAccent)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L83"><span class="lineNum">      83</span>              : }</span>
         </pre>
               </td>

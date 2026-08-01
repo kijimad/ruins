@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.0%)</option>
 				
@@ -441,7 +441,7 @@
 				
 				<option value="file192">github.com/kijimaD/ruins/internal/states/craft_menu.go (57.0%)</option>
 				
-				<option value="file193">github.com/kijimaD/ruins/internal/states/cube_panel.go (10.7%)</option>
+				<option value="file193">github.com/kijimaD/ruins/internal/states/cube_panel.go (82.1%)</option>
 				
 				<option value="file194">github.com/kijimaD/ruins/internal/states/demo_start.go (52.9%)</option>
 				
@@ -1525,7 +1525,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
                 CancelActivity(target, "攻撃を受けた", world)
         }</span>
 
@@ -38663,33 +38663,33 @@ func (st *CubePanelState) OnStart(world w.World) error <span class="cov8" title=
 }</span>
 
 // Update はキー入力で閉じるだけ。パネル表示中は時間を進めない。
-func (st *CubePanelState) Update(_ w.World) (es.Transition[w.World], error) <span class="cov0" title="0">{
+func (st *CubePanelState) Update(_ w.World) (es.Transition[w.World], error) <span class="cov8" title="1">{
         keyboardInput := input.GetSharedKeyboardInput()
         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) </span><span class="cov0" title="0">{
                 return es.Transition[w.World]{Type: es.TransPop}, nil
         }</span>
-        <span class="cov0" title="0">return st.ConsumeTransition(), nil</span>
+        <span class="cov8" title="1">return st.ConsumeTransition(), nil</span>
 }
 
 // Draw は全体情報を行で描く。将来はこの下へ拡張の操作項目を並べる。
-func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error <span class="cov0" title="0">{
+func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error <span class="cov8" title="1">{
         face := world.Resources.UIResources.Text.BodyFace
 
-        drawText := func(str string, x, y consts.ScreenPixel, c color.Color) </span><span class="cov0" title="0">{
+        drawText := func(str string, x, y consts.ScreenPixel, c color.Color) </span><span class="cov8" title="1">{
                 op := &amp;text.DrawOptions{}
                 op.GeoM.Translate(float64(x), float64(y))
                 op.ColorScale.ScaleWithColor(c)
                 text.Draw(screen, str, face, op)
         }</span>
 
-        <span class="cov0" title="0">const x consts.ScreenPixel = 40
+        <span class="cov8" title="1">const x consts.ScreenPixel = 40
         y := consts.ScreenPixel(40)
-        line := func(s string, c color.Color) </span><span class="cov0" title="0">{
+        line := func(s string, c color.Color) </span><span class="cov8" title="1">{
                 drawText(s, x, y, c)
                 y += 28
         }</span>
 
-        <span class="cov0" title="0">line("コントロールパネル", theme.TextPrimary)
+        <span class="cov8" title="1">line("コントロールパネル", theme.TextPrimary)
         y += 8
         line(fmt.Sprintf("総重量: %s", st.totalWeight.KgString()), theme.TextPrimary)
         y += 8
