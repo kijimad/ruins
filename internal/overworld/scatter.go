@@ -114,9 +114,12 @@ var wildCatalog = scatterCatalog{
 	},
 }
 
-// scatterCatalogFor は zone の散布定義を返す。outdoorZone は string の enum だが、exhaustive linter は
-// 型付き定数の網羅も検査するので、default を置かず末尾 panic にすると zone を1つ足したとき case 漏れを
-// lint が止める。末尾 panic は未知 zone のランタイム保護も兼ねる。
+// scatterCatalogFor は zone の散布定義を返す。exhaustive linter は iota 整数だけでなく、同一 package に
+// 型付き定数を持つ named 型を enum とみなすので、string の outdoorZone も網羅検査の対象になる。default を
+// 置かなければ zone を1つ足したとき case 漏れを lint が止める。.golangci.yml の
+// default-signifies-exhaustive=true が前提で、chunkType など既存の string enum も同じ方式に依る。実際に
+// case を1つ消すと「missing cases in switch of type outdoorZone」で lint が落ちることを確認済み。末尾
+// panic は網羅漏れ防止に加え、未知 zone のランタイム保護も兼ねる。
 func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 	switch zone {
 	case zoneRoadside:
