@@ -69,18 +69,24 @@ type feature interface {
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
 func features() []feature {
-	// 点在POIは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう最後に評価する
-	return []feature{settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessPOIFeature{}, roadFeature{}}
+	// 点在POIは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に評価する。
+	// 散布は占有と道の実状態を読むため最後に評価する
+	return []feature{
+		settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessPOIFeature{},
+		roadFeature{}, scatterFeature{},
+	}
 }
 
 // 地物ごとのソルト。ハッシュ入力を地物ごとにずらし、配置と抽選を他地物と無相関にするタグ。
 // 互いに異なりさえすればよく、ChunkSeed2D の finalizer が1ビット差でも出力を無相関へ散らす。
-// iota で一意性を自動保証する。値を変えると同じ RunSeed でも別の世界になる。
+// iota で一意性を自動保証する。値を変えると同じ RunSeed でも別の世界になる。scatter は必ず末尾へ
+// 足す。途中へ挿入すると後続の salt 値がずれ、既存地物の配置が変わって再訪一致が壊れる。
 const (
 	settlementSalt uint64 = iota + 1
 	urbanSalt
 	dungeonEntranceSalt
 	poiSalt
+	scatterSalt
 )
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
