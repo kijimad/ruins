@@ -120,7 +120,6 @@ var (
 	// OverworldMapPlayerMarker は現在地セルを囲む白枠の色
 	OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	// OverworldMapCubeMarker は移動拠点キューブのチャンク位置を示すマーカー色。blue_cube に寄せた水色。
-	// 半透明化は描画側の ColorScale.ScaleAlpha で行うので、色自体は不透明にする
 	OverworldMapCubeMarker = color.RGBA{R: 90, G: 180, B: 255, A: 255}
 	// OverworldMapCubeOutline はキューブアイコンの縁取り色。地形を塗りつぶさず、アイコンだけに
 	// 暗い縁を付けてどの地形色の上でも読めるようにする
