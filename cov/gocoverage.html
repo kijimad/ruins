@@ -605,7 +605,7 @@
 				
 				<option value="file274">github.com/kijimaD/ruins/internal/world/lifecycle/state_event.go (100.0%)</option>
 				
-				<option value="file275">github.com/kijimaD/ruins/internal/world/query/active.go (50.0%)</option>
+				<option value="file275">github.com/kijimaD/ruins/internal/world/query/active.go (100.0%)</option>
 				
 				<option value="file276">github.com/kijimaD/ruins/internal/world/query/activity.go (100.0%)</option>
 				
@@ -617,11 +617,11 @@
 				
 				<option value="file280">github.com/kijimaD/ruins/internal/world/query/equipment.go (44.8%)</option>
 				
-				<option value="file281">github.com/kijimaD/ruins/internal/world/query/faction.go (91.7%)</option>
+				<option value="file281">github.com/kijimaD/ruins/internal/world/query/faction.go (100.0%)</option>
 				
-				<option value="file282">github.com/kijimaD/ruins/internal/world/query/inventory.go (29.4%)</option>
+				<option value="file282">github.com/kijimaD/ruins/internal/world/query/inventory.go (94.1%)</option>
 				
-				<option value="file283">github.com/kijimaD/ruins/internal/world/query/location.go (25.0%)</option>
+				<option value="file283">github.com/kijimaD/ruins/internal/world/query/location.go (100.0%)</option>
 				
 				<option value="file284">github.com/kijimaD/ruins/internal/world/query/nearest.go (92.7%)</option>
 				
@@ -56194,12 +56194,12 @@ func ActiveFilter2[A, B any](world w.World) *ecs.Filter2[A, B] <span class="cov8
 }</span>
 
 // ActiveFilter3 は現ステージ限定の Filter3 を返す。
-func ActiveFilter3[A, B, C any](world w.World) *ecs.Filter3[A, B, C] <span class="cov0" title="0">{
+func ActiveFilter3[A, B, C any](world w.World) *ecs.Filter3[A, B, C] <span class="cov8" title="1">{
         return ecs.NewFilter3[A, B, C](world.ECS).Without(suspendedExclude...)
 }</span>
 
 // ActiveFilter4 は現ステージ限定の Filter4 を返す。
-func ActiveFilter4[A, B, C, D any](world w.World) *ecs.Filter4[A, B, C, D] <span class="cov0" title="0">{
+func ActiveFilter4[A, B, C, D any](world w.World) *ecs.Filter4[A, B, C, D] <span class="cov8" title="1">{
         return ecs.NewFilter4[A, B, C, D](world.ECS).Without(suspendedExclude...)
 }</span>
 </pre>
@@ -56603,7 +56603,7 @@ func IsAlly(world w.World, e ecs.Entity) bool <span class="cov8" title="1">{
 }</span>
 
 // IsNeutral はエンティティが中立派閥かを返す
-func IsNeutral(world w.World, e ecs.Entity) bool <span class="cov0" title="0">{
+func IsNeutral(world w.World, e ecs.Entity) bool <span class="cov8" title="1">{
         return world.Components.FactionNeutral.Has(e)
 }</span>
 
@@ -56638,45 +56638,45 @@ import (
 )
 
 // FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する
-func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) <span class="cov0" title="0">{
+func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) <span class="cov8" title="1">{
         var foundEntity ecs.Entity
         var found bool
 
         stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
-        for stackableQuery.Next() </span><span class="cov0" title="0">{
+        for stackableQuery.Next() </span><span class="cov8" title="1">{
                 entity := stackableQuery.Entity()
                 if found </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov0" title="0">itemName := world.Components.Name.Get(entity)
-                if itemName.Name == name </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">itemName := world.Components.Name.Get(entity)
+                if itemName.Name == name </span><span class="cov8" title="1">{
                         foundEntity = entity
                         found = true
                 }</span>
         }
 
-        <span class="cov0" title="0">return foundEntity, found</span>
+        <span class="cov8" title="1">return foundEntity, found</span>
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
-func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) <span class="cov0" title="0">{
+func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) <span class="cov8" title="1">{
         var foundEntity ecs.Entity
         var found bool
 
         ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
-        for ammoQuery.Next() </span><span class="cov0" title="0">{
+        for ammoQuery.Next() </span><span class="cov8" title="1">{
                 entity := ammoQuery.Entity()
                 if found </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov0" title="0">ammo := world.Components.Ammo.Get(entity)
-                if ammo.AmmoTag == ammoTag </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">ammo := world.Components.Ammo.Get(entity)
+                if ammo.AmmoTag == ammoTag </span><span class="cov8" title="1">{
                         foundEntity = entity
                         found = true
                 }</span>
         }
 
-        <span class="cov0" title="0">return foundEntity, found</span>
+        <span class="cov8" title="1">return foundEntity, found</span>
 }
 
 // GetEntityCount はエンティティの個数を返す。
@@ -56716,17 +56716,17 @@ import (
 )
 
 // GetStorageItems は収納内のアイテムを取得する
-func GetStorageItems(world w.World, storage ecs.Entity) []ecs.Entity <span class="cov0" title="0">{
+func GetStorageItems(world w.World, storage ecs.Entity) []ecs.Entity <span class="cov8" title="1">{
         var items []ecs.Entity
         itemsQuery := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
-        for itemsQuery.Next() </span><span class="cov0" title="0">{
+        for itemsQuery.Next() </span><span class="cov8" title="1">{
                 entity := itemsQuery.Entity()
                 loc := world.Components.LocationInStorage.Get(entity)
-                if loc.Owner == storage </span><span class="cov0" title="0">{
+                if loc.Owner == storage </span><span class="cov8" title="1">{
                         items = append(items, entity)
                 }</span>
         }
-        <span class="cov0" title="0">return items</span>
+        <span class="cov8" title="1">return items</span>
 }
 
 // GetEntityWeight はエンティティの総重量を返す。Stackableの場合は個数を掛ける
@@ -56740,19 +56740,19 @@ func GetEntityWeight(world w.World, entity ecs.Entity) consts.Milligram <span cl
 }
 
 // GetStorageCurrentWeight は収納の現在重量を返す
-func GetStorageCurrentWeight(world w.World, storage ecs.Entity) consts.Milligram <span class="cov0" title="0">{
-        if !world.Components.WeightCapacity.Has(storage) </span><span class="cov0" title="0">{
+func GetStorageCurrentWeight(world w.World, storage ecs.Entity) consts.Milligram <span class="cov8" title="1">{
+        if !world.Components.WeightCapacity.Has(storage) </span><span class="cov8" title="1">{
                 return 0
         }</span>
-        <span class="cov0" title="0">return world.Components.WeightCapacity.Get(storage).Current</span>
+        <span class="cov8" title="1">return world.Components.WeightCapacity.Get(storage).Current</span>
 }
 
 // CanAddToStorage は収納にアイテムを追加できるか判定する
-func CanAddToStorage(world w.World, storage ecs.Entity, item ecs.Entity) bool <span class="cov0" title="0">{
-        if !world.Components.WeightCapacity.Has(storage) </span><span class="cov0" title="0">{
+func CanAddToStorage(world w.World, storage ecs.Entity, item ecs.Entity) bool <span class="cov8" title="1">{
+        if !world.Components.WeightCapacity.Has(storage) </span><span class="cov8" title="1">{
                 return false
         }</span>
-        <span class="cov0" title="0">wc := world.Components.WeightCapacity.Get(storage)
+        <span class="cov8" title="1">wc := world.Components.WeightCapacity.Get(storage)
         return wc.Current+GetEntityWeight(world, item) &lt;= wc.Max</span>
 }
 </pre>
