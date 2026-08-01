@@ -224,7 +224,7 @@ func (st *DungeonState) exitCube(world w.World) error {
 // テンプレートは階段を含まないので1階層になる。パワーアップで内部を差し替える余地も残る。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
 	seed := world.Config.RNG.Uint64()
-	chain, err := mapplanner.NewPlannerChainByTemplateType(mapplanner.TemplateTypeCubeInterior, seed)
+	chain, err := mapplanner.NewPlannerChainByTemplateType(mapplanner.TemplateTypeCubeInteriorInitial, seed)
 	if err != nil {
 		return err
 	}
