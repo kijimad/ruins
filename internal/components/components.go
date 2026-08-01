@@ -318,8 +318,10 @@ type LocationInStorage struct {
 // 合成や売却の材料となるアイテムに付与される
 type Material struct{}
 
-// Prop は置物を表すマーカーコンポーネント
-type Prop struct{}
+// Fixed は item が世界に固定され拾えない固定物であることを表すマーカーである。
+// location と直交し、LocationOnField と重ねて持つ。世界に在ることは LocationOnField、
+// 固定されて拾えないことは Fixed、と別軸で表す。Prop 種別タグの後継である。
+type Fixed struct{}
 
 // LightSource は光源コンポーネント
 type LightSource struct {

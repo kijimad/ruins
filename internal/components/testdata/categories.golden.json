@@ -13,8 +13,8 @@
       "pred": "(FactionAlly OR FactionNeutral)"
     },
     {
-      "name": "置物",
-      "pred": "Prop"
+      "name": "固定物",
+      "pred": "Fixed"
     },
     {
       "name": "タイル",
@@ -24,7 +24,7 @@
   "inventory": [
     {
       "name": "道具",
-      "pred": "(Material OR Ammo OR Book OR Prop OR Consumable)"
+      "pred": "(Material OR Ammo OR Book OR Consumable)"
     },
     {
       "name": "武器",
@@ -49,8 +49,8 @@
       "pred": "Book"
     },
     {
-      "name": "置物",
-      "pred": "Prop"
+      "name": "固定物",
+      "pred": "Fixed"
     },
     {
       "name": "消耗品",

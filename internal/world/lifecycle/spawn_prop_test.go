@@ -21,7 +21,7 @@ func TestSpawnCube_押せる移動拠点として生成される(t *testing.T) {
 
 	assert.True(t, world.Components.Pushable.Has(cube), "押せる印を持つ")
 	assert.True(t, world.Components.BlockPass.Has(cube), "通行不可を持つ")
-	assert.True(t, world.Components.Prop.Has(cube), "置物である")
+	assert.True(t, world.Components.Fixed.Has(cube), "固定物である")
 	require.True(t, world.Components.GridElement.Has(cube))
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 8}, world.Components.GridElement.Get(cube).Coord)
 	require.True(t, world.Components.StageBound.Has(cube), "帯へ束縛される")

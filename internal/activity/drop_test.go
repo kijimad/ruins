@@ -298,7 +298,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 
 		// Propを拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
 		prop := world.ECS.NewEntity()
-		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Fixed.Add(prop, &gc.Fixed{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
 		world.Components.BlockPass.Add(prop, &gc.BlockPass{})
 		require.NoError(t, lifecycle.MoveToBackpack(world, prop, player))
@@ -315,7 +315,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		require.NoError(t, err)
 
 		// Propコンポーネントが保持されていることを確認
-		assert.True(t, world.Components.Prop.Has(prop))
+		assert.True(t, world.Components.Fixed.Has(prop))
 		// BlockPassも保持されていることを確認
 		assert.True(t, world.Components.BlockPass.Has(prop))
 		// フィールドに配置されていることを確認
@@ -371,6 +371,6 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		assert.Equal(t, 9, int(gridElement.X))
 		assert.Equal(t, 9, int(gridElement.Y))
 		// 通常アイテムはPropコンポーネントを持たない
-		assert.False(t, world.Components.Prop.Has(item))
+		assert.False(t, world.Components.Fixed.Has(item))
 	})
 }

@@ -45,7 +45,7 @@ var Registry = []Def{
 	{Field: "BlockPass", Comment: "通行不可であることを示す"},
 	{Field: "PassCost", Comment: "タイルの移動コスト修正を保持する"},
 	{Field: "Door", Comment: "開閉可能な扉であることを表す"},
-	{Field: "Prop", Comment: "置物であることを示す"},
+	{Field: "Fixed", Comment: "世界に固定され拾えない固定物であることを示す"},
 	{Field: "Pushable", Comment: "押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用"},
 	{Field: "LightSource", Comment: "光源であることを表す"},
 	{Field: "Interactable", Comment: "相互作用可能であることを示す"},
