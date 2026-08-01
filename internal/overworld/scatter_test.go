@@ -127,9 +127,9 @@ func TestScatterFeature_同じseedは同じ配置(t *testing.T) {
 	assert.Equal(t, a, b, "同じ seed と座標なら同じ配置になる")
 }
 
-// TestScatterFeature_自然地面の空きにだけ置く は、散布した prop が必ず自然地面、すなわち土か草地の
-// 上にあり、かつ2つの prop が同じタイルへ重ならないことを固定する。占有回避と非地面回避の回帰。
-func TestScatterFeature_自然地面の空きにだけ置く(t *testing.T) {
+// TestScatterFeature_土系の空きにだけ置く は、散布した prop が必ず土系の地面の上にあり、かつ2つの
+// prop が同じタイルへ重ならないことを固定する。占有回避と非地面回避の回帰。
+func TestScatterFeature_土系の空きにだけ置く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	c := firstWastelandChunk(t)
@@ -141,33 +141,29 @@ func TestScatterFeature_自然地面の空きにだけ置く(t *testing.T) {
 	props := collectProps(world)
 	require.NotEmpty(t, props)
 	for _, p := range props {
-		assert.True(t, isNaturalGround(world, tiles, p.pos), "散布は自然地面の上にだけ置く: %v", p)
+		assert.True(t, isEarthTile(world, tiles, p.pos), "散布は土系の地面の上にだけ置く: %v", p)
 		key := gc.GridElement{Coord: p.pos}
 		assert.False(t, seen[key], "2つの prop が同じタイルへ重ならない: %v", p)
 		seen[key] = true
 	}
 }
 
-// TestScatterFeature_地面を草地に変える は、散布が dirt を歩行可能な草地タイルへ置換して野原の質感を
-// 出すことを固定する。草地は BlockPass を持たないので通行を塞がない。
-func TestScatterFeature_地面を草地に変える(t *testing.T) {
+// TestScatterFeature_草を撒く は、散布が地面へ草・雑草の prop を撒いて野原の質感を出すことを固定する。
+// 草は透明背景の prop でタイルのオートタイルを経由しないため、縁や暗いフィルが出ない。歩行可能。
+func TestScatterFeature_草を撒く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	c := firstWastelandChunk(t)
 	g := newDirtChunk(t, world)
 	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
-	tiles := g.tiles.get()
 	grass := 0
-	for y := range scatterTestChunk {
-		for x := range scatterTestChunk {
-			switch tileNameAt(world, tiles, consts.Coord[consts.Tile]{X: x, Y: y}) {
-			case scatterGrassPrimary, scatterGrassAccent:
-				grass++
-			}
+	for _, p := range collectProps(world) {
+		if p.name == scatterGrassProp || p.name == scatterWeedProp {
+			grass++
 		}
 	}
-	assert.Positive(t, grass, "一部の土が草地へ変わる")
+	assert.Positive(t, grass, "地面へ草の prop が撒かれる")
 }
 
 // TestScatterFeature_wasteland以外は置かない は、v1 のスコープが wasteland 限定であることを固定する。

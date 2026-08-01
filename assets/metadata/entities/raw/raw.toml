@@ -13407,6 +13407,31 @@ depth = 0
 spriteKey = "dummy_rock"
 spriteSheetName = "field"
 
+# 屋外散布の草の房のダミー。透明背景の prop なのでタイルのオートタイル縁が出ず地面に自然に重なる。
+# 歩行可能で通行を塞がない。正規の草スプライトが起きたら差し替える
+[[props]]
+blockPass = false
+blockView = false
+description = "地面に生えた草の房"
+name = "dummy_grass"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "dummy_grass"
+spriteSheetName = "field"
+
+# 屋外散布の枯れ草・雑草のダミー。草より乾いた色味で単調さを崩す
+[[props]]
+blockPass = false
+blockView = false
+description = "乾いた雑草の茂み"
+name = "dummy_weeds"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "dummy_weeds"
+spriteSheetName = "field"
+
 [[props]]
 blockPass = false
 blockView = false
