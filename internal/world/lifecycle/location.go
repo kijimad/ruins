@@ -74,6 +74,19 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	// フィールド配置ではGridElement（座標）を残す
 	if previousOwner != nil {
 		ensureMarker(world, world.Components.WeightDirty, *previousOwner, &gc.WeightDirty{})
+		// 所有者からフィールドへ移す実行時の移送は現ステージに属す。すぐ現ステージへ束縛し、
+		// 置いた物が総重量など現ステージのクエリに即座に乗るようにする。次の swap を待つ遅延束縛
+		// では、内装で置いた物が退場するまで総重量に現れない。
+		// 生成時のフィールド生成は previousOwner が nil で来るのでここを通らず、生成後の
+		// stage.Bind に束縛を委ねる。生成中は CurrentStage がまだ旧ステージなので誤束縛を避ける。
+		if d := query.GetDungeon(world); d != nil {
+			key := d.CurrentStage
+			if world.Components.StageBound.Has(entity) {
+				world.Components.StageBound.Set(entity, &gc.StageBound{Key: key})
+			} else {
+				world.Components.StageBound.Add(entity, &gc.StageBound{Key: key})
+			}
+		}
 	}
 }
 

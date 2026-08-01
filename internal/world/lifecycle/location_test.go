@@ -6,9 +6,31 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestMoveToField_所有者からの移送で現ステージへ束縛する は、背包などからフィールドへ置いた物が
+// 即座に現ステージへ束縛され、総重量へ乗ることを検証する。次の swap を待つ遅延束縛では、内装で
+// 置いた物が退場するまで総重量に現れない不具合の回帰。
+func TestMoveToField_所有者からの移送で現ステージへ束縛する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	interior := gc.NewCubeInteriorStage()
+	query.SetDungeon(world, &gc.Dungeon{CurrentStage: interior})
+
+	owner := world.ECS.NewEntity()
+	item := world.ECS.NewEntity()
+	world.Components.Weight.Add(item, &gc.Weight{Milligram: 8 * consts.MilligramPerKg})
+	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
+
+	MoveToField(world, item, &owner)
+
+	require.True(t, world.Components.StageBound.Has(item), "床へ移すと現ステージへ束縛される")
+	assert.Equal(t, interior, world.Components.StageBound.Get(item).Key, "束縛先は現ステージ")
+	assert.Equal(t, consts.Milligram(8*consts.MilligramPerKg), query.CubeWeight(world, interior), "置いた物が即座に総重量へ乗る")
+}
 
 func TestMovePlayerToPosition(t *testing.T) {
 	t.Parallel()

@@ -11,10 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// addWeightEntity は指定ステージに束縛した重量エンティティを作る。suspended で退避中にする
+// addWeightEntity は指定ステージのフィールド上に束縛した重量エンティティを作る。suspended で退避中にする
 func addWeightEntity(world w.World, mg consts.Milligram, stage gc.StageKey, suspended bool) {
 	e := world.ECS.NewEntity()
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
+	world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
 	world.Components.StageBound.Add(e, &gc.StageBound{Key: stage})
 	if suspended {
 		world.Components.Suspended.Add(e, &gc.Suspended{})
@@ -62,6 +63,22 @@ func TestCubeWeight_退避中の内装エンティティも集計する(t *testi
 	addWeightEntity(world, consts.Milligram(4*consts.MilligramPerKg), interior, true)
 
 	assert.Equal(t, consts.Milligram(4*consts.MilligramPerKg), query.CubeWeight(world, interior))
+}
+
+func TestCubeWeight_床に無い物は数えない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	interior := gc.NewDungeonStage("キューブ内装", 1)
+
+	// 床にある物は数える
+	addWeightEntity(world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
+
+	// 内装で拾って背包へ移した物。LocationOnField は外れるが StageBound は残る。総重量から抜ける
+	carried := world.ECS.NewEntity()
+	world.Components.Weight.Add(carried, &gc.Weight{Milligram: consts.Milligram(9 * consts.MilligramPerKg)})
+	world.Components.StageBound.Add(carried, &gc.StageBound{Key: interior})
+
+	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, interior), "床にある物だけを数え、持ち去った物は除く")
 }
 
 func TestPartyPushPower_PlayerとSquadMemberのAPを合算し他を除く(t *testing.T) {

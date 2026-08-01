@@ -60,10 +60,11 @@ func TestPushActivity_総重量とパーティAPで決まる複数ターンを�
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "押し手はキューブの空けたタイルへ追随する")
 }
 
-// addInteriorWeight はキューブ内装ステージへ重量物を1つ据える。押しコストに乗るかの検証に使う。
+// addInteriorWeight はキューブ内装ステージの床へ重量物を1つ据える。押しコストに乗るかの検証に使う。
 func addInteriorWeight(world w.World, mg consts.Milligram) {
 	e := world.ECS.NewEntity()
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
+	world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
 	world.Components.StageBound.Add(e, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
 }
 

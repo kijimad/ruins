@@ -19,9 +19,9 @@ import (
 // TestPlacedItemBindsToCurrentStage は、プレイ中にアイテムを置くと、その現物が
 // 現ステージへ束縛され、ステージを離れると一緒に退避されることを実際の設置経路で検証する。
 //
-// 置いたアイテムは GridElement を持つが StageBound を持たない未束縛の湧きになる。
-// swapTo 冒頭の Bind がこれを現ステージへ回収する。これで置いたアイテムは置いた階に残り、
-// 戻れば現物が復元される。設置が GridElement を付ける限り、この保証は自動で効く。
+// 設置は MoveToField を通り、所有者からの移送は設置時に現ステージへ束縛される。これで置いた物は
+// その場のクエリ、たとえば総重量に即座に乗り、置いた階に残り、戻れば現物が復元される。
+// swapTo 冒頭の Bind は取りこぼした未束縛エンティティを回収する保険として残る。
 func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -42,13 +42,13 @@ func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 	}, player, world)
 	require.NoError(t, err)
 
-	// 置いた直後はフィールド座標を持つが、まだ現ステージへ束縛されていない
+	// 置いた直後にフィールド座標を持ち、その場で現ステージAへ束縛される
 	require.True(t, world.Components.GridElement.Has(item), "置いたアイテムはフィールド座標を持つ")
 	require.True(t, world.Components.LocationOnField.Has(item), "置いたアイテムはフィールド上にある")
-	require.False(t, world.Components.StageBound.Has(item), "置いた直後はまだ束縛されていない")
+	require.True(t, world.Components.StageBound.Has(item), "置いた直後に現ステージへ束縛される")
+	assert.Equal(t, stageA, world.Components.StageBound.Get(item).Key, "束縛先は置いた階A")
 
-	// 別ステージBへ移ると、swapTo 冒頭の Bind が置いたアイテムを現ステージAへ束縛し、
-	// A を離れるので一緒に退避される
+	// 別ステージBへ移ると、A を離れるので置いたアイテムも一緒に退避される
 	var stageBEntity ecs.Entity
 	require.NoError(t, stage.SwapTo(world, stageB, func(world w.World, key gc.StageKey) error {
 		stageBEntity = world.ECS.NewEntity()
