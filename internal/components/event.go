@@ -48,7 +48,7 @@ type ShowDialog struct {
 
 // OpenStorage は収納メニューを開く
 type OpenStorage struct {
-	StorageEntity ecs.Entity // 収納Propのエンティティ
+	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
 
 func (WarpDescend) isStatePayload()      {}

@@ -45,7 +45,7 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 }
 
 // IsPickable はエンティティが拾得可能かを判定する。
-// LocationOnField を持つ非Propエンティティが対象。
+// LocationOnField を持ち Fixed でないエンティティが対象。
 // Fixed は固定物なので拾えない。破壊や収納経由でアイテムを取得する
 func IsPickable(entity ecs.Entity, world w.World) bool {
 	if !world.Components.LocationOnField.Has(entity) {

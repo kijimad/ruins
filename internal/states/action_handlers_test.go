@@ -403,7 +403,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		err := activity.ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 
-		// Propに自動攻撃せず、移動もブロックされる
+		// 固定物に自動攻撃せず、移動もブロックされる
 		grid := world.Components.GridElement.Get(player)
 		assert.Equal(t, 10, int(grid.X))
 		assert.Equal(t, 10, int(grid.Y))

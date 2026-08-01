@@ -290,7 +290,7 @@ func TestPickupActivity_Validate_Fixed(t *testing.T) {
 
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
-		// Interactableを持つPropも同じタイルにある
+		// Interactableを持つ固定物も同じタイルにある
 		prop := world.ECS.NewEntity()
 		world.Components.Fixed.Add(prop, &gc.Fixed{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})

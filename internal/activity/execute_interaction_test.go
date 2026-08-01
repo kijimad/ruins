@@ -444,8 +444,8 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	assert.Contains(t, err.Error(), "Dialogコンポーネントがありません")
 }
 
-// TestExecuteInteraction_Prop はPropへのMeleeInteractionの動作を確認する
-func TestExecuteInteraction_Prop(t *testing.T) {
+// TestExecuteInteraction_Fixed は固定物へのMeleeInteractionの動作を確認する
+func TestExecuteInteraction_Fixed(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Propを攻撃できる", func(t *testing.T) {
