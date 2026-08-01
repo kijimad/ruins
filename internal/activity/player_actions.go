@@ -222,7 +222,8 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 					Log()
 			case gc.InteractionEnterCube:
 				gamelog.New(query.GetGameLog(world)).
-					Append("キューブがある。Spaceのアクションメニューから入れる。").
+					ItemName(query.GetEntityName(entity, world)).
+					Append("がある。Spaceのアクションメニューから入れる。").
 					Log()
 			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
