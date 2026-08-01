@@ -13243,7 +13243,6 @@ blockView = false
 description = "黒枠のランタンの中にオレンジの炎。床置きの広範囲光源。金属製で重い"
 hp = 15
 name = "lantern"
-weight = "8 kg"
 
 [props.spriteRender]
 depth = 2

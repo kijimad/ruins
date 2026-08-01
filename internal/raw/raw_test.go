@@ -613,52 +613,6 @@ Depth = 1
 	assert.Nil(t, entitySpec.Interactable, "HPを持たないPropにはInteractableが設定されないべき")
 }
 
-func TestNewPropSpec_重量指定でWeightが付く(t *testing.T) {
-	t.Parallel()
-	str := `
-[[Props]]
-Name = "重いストーブ"
-Description = "暖を取る置物"
-BlockPass = false
-BlockView = false
-Weight = "3 kg"
-
-[Props.SpriteRender]
-SpriteSheetName = "field"
-SpriteKey = "prop_table"
-Depth = 1
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	entitySpec, err := NewPropSpec(raws, "重いストーブ")
-	require.NoError(t, err)
-	require.NotNil(t, entitySpec.Weight)
-	assert.Equal(t, consts.Milligram(3*consts.MilligramPerKg), entitySpec.Weight.Milligram)
-}
-
-func TestNewPropSpec_重量未指定はWeightを持たない(t *testing.T) {
-	t.Parallel()
-	str := `
-[[Props]]
-Name = "軽い置物"
-Description = "重量のない置物"
-BlockPass = false
-BlockView = false
-
-[Props.SpriteRender]
-SpriteSheetName = "field"
-SpriteKey = "prop_table"
-Depth = 1
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	entitySpec, err := NewPropSpec(raws, "軽い置物")
-	require.NoError(t, err)
-	assert.Nil(t, entitySpec.Weight)
-}
-
 func TestPropWithStorage(t *testing.T) {
 	t.Parallel()
 	str := `

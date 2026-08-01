@@ -1356,9 +1356,6 @@ type Prop struct {
 
 	// WarpPrevTrigger 前階層ワープトリガー
 	WarpPrevTrigger *WarpPrevTriggerRaw `json:"warpPrevTrigger,omitempty"`
-
-	// Weight 置物重量。内部に置く物はキューブ総重量に加算される。item の weight と対称
-	Weight *Weight `json:"weight,omitempty"`
 }
 
 // PropList 置物一覧

@@ -2522,10 +2522,6 @@ components:
           $ref: '#/components/schemas/StorageRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
-        weight:
-          allOf:
-            - $ref: '#/components/schemas/Weight'
-          description: 置物重量。内部に置く物はキューブ総重量に加算される。item の weight と対称
       description: 置物
     PropList:
       type: object

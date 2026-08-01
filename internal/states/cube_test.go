@@ -47,11 +47,6 @@ func TestEnterExitCube_内部へ入り元の位置へ戻る(t *testing.T) {
 	require.True(t, world.Components.PortalConnection.Has(exitProp))
 	assert.Equal(t, playerPos, world.Components.PortalConnection.Get(exitProp).Coord, "戻り先は入場時のプレイヤータイル")
 
-	// 据えたランタンの重量が総重量に乗り、押しコストが基準より重くなる
-	// これがブレーキと引力の対。置いた物が押しを重くする
-	assert.Positive(t, query.CubeWeight(world, interiorKey), "内部のランタンが総重量に乗る")
-	assert.Greater(t, query.PushCost(query.CubeWeight(world, interiorKey)), consts.PushCostBase, "物を置くと空のキューブより押しが重い")
-
 	// 内部は1階層。降り/上りの階段ポータルは無い。あると降りて panic するため
 	_, _, hasNext := findPortal(world, gc.InteractionPortalNext)
 	assert.False(t, hasNext, "内部に降り階段は無い")
@@ -142,10 +137,16 @@ func TestCubePanelState_内部の総重量を表示できる(t *testing.T) {
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
 	require.NoError(t, st.enterCube(world, cube))
 
-	// 内部で管制盤を開くと、据えたランタンぶんの総重量が読める
+	// 内部の床へ重量物を1つ置く。管制盤はこれを総重量として読む
+	item := world.ECS.NewEntity()
+	world.Components.Weight.Add(item, &gc.Weight{Milligram: 5 * consts.MilligramPerKg})
+	world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+	world.Components.StageBound.Add(item, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
+
+	// 内部で管制盤を開くと、置いた物の総重量が読める
 	panel := &CubePanelState{}
 	require.NoError(t, panel.OnStart(world))
-	assert.Positive(t, panel.totalWeight, "内部に置いた物の総重量が管制盤に出る")
+	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), panel.totalWeight, "内部に置いた物の総重量が管制盤に出る")
 }
 
 // TestOverworldMapState_キューブのチャンク位置を出す は大域地図にキューブのチャンク位置が
