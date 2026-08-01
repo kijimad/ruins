@@ -13393,12 +13393,10 @@ depth = 0
 spriteKey = "moving_stone"
 spriteSheetName = "field"
 
-# 屋外散布の「石」用のダミー岩。自然な岩スプライトが起きたら差し替える。乗り越えられるよう通行可能にし
-# passCost で歩きにくさだけ表す。連結性を壊さない
 [[props]]
 blockPass = false
 blockView = false
-description = "ごろりと転がる岩"
+description = "[dummy] ごろりと転がる岩。屋外散布の石。乗り越えられるよう通行可能にし passCost で歩きにくさだけ表す。実アート未実装の仮素材"
 passCost = 50
 name = "rock"
 
@@ -13407,12 +13405,10 @@ depth = 0
 spriteKey = "rock"
 spriteSheetName = "field"
 
-# 屋外散布の草の房のダミー。透明背景の prop なのでタイルのオートタイル縁が出ず地面に自然に重なる。
-# 歩行可能で通行を塞がない。正規の草スプライトが起きたら差し替える
 [[props]]
 blockPass = false
 blockView = false
-description = "地面に生えた草の房"
+description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
 name = "grass"
 
 [props.spriteRender]
@@ -13420,11 +13416,10 @@ depth = 0
 spriteKey = "grass"
 spriteSheetName = "field"
 
-# 屋外散布の枯れ草・雑草のダミー。草より乾いた色味で単調さを崩す
 [[props]]
 blockPass = false
 blockView = false
-description = "乾いた雑草の茂み"
+description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
 name = "weeds"
 
 [props.spriteRender]
