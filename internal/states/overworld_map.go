@@ -124,16 +124,6 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		text.Draw(screen, str, face, op)
 	}
 
-	// drawTextAlpha は不透明度 alpha でテキストを描く。color.RGBA のアルファは乗算済み扱いで
-	// 直に半透明にできないため、色は不透明のまま ColorScale.ScaleAlpha で透過させる
-	drawTextAlpha := func(str string, x, y consts.ScreenPixel, c color.Color, alpha float32) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(float64(x), float64(y))
-		op.ColorScale.ScaleWithColor(c)
-		op.ColorScale.ScaleAlpha(alpha)
-		text.Draw(screen, str, face, op)
-	}
-
 	drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
 	const originX, originY consts.ScreenPixel = 16, 44
@@ -153,9 +143,9 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		x := originX + consts.ScreenPixel(c.X)*mapCellPx
 		y := originY + consts.ScreenPixel(c.Y)*mapCellPx
 		for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
-			drawTextAlpha(consts.IconCube, x+4+off[0], y+1+off[1], theme.OverworldMapCubeOutline, 0.6)
+			drawText(consts.IconCube, x+4+off[0], y+1+off[1], theme.OverworldMapCubeOutline)
 		}
-		drawTextAlpha(consts.IconCube, x+4, y+1, theme.OverworldMapCubeMarker, 0.75)
+		drawText(consts.IconCube, x+4, y+1, theme.OverworldMapCubeMarker)
 	}
 	// 現在地マーカー。白枠でセルを囲む
 	if st.playerCol >= 0 {
