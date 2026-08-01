@@ -118,7 +118,6 @@ func TestCubePanelState_内装の総重量を表示できる(t *testing.T) {
 	panel := &CubePanelState{}
 	require.NoError(t, panel.OnStart(world))
 	assert.Positive(t, panel.totalWeight, "内装に置いた物の総重量が管制盤に出る")
-	assert.Greater(t, panel.pushCost, consts.PushCostBase, "総重量ぶん押しコストが基準より重い")
 }
 
 // TestOverworldMapState_キューブのチャンク位置を出す は大域地図にキューブのチャンク位置が

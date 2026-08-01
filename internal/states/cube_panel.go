@@ -21,7 +21,6 @@ type CubePanelState struct {
 	es.BaseState[w.World]
 
 	totalWeight consts.Milligram // 内装に置いた物の総重量
-	pushCost    int              // 総重量から決まる1タイルの押しコスト
 }
 
 var _ es.State[w.World] = &CubePanelState{}
@@ -45,7 +44,6 @@ func (st *CubePanelState) OnStop(_ w.World) error { return nil }
 func (st *CubePanelState) OnStart(world w.World) error {
 	interior := query.GetDungeon(world).CurrentStage
 	st.totalWeight = query.CubeWeight(world, interior)
-	st.pushCost = query.PushCost(st.totalWeight)
 	return nil
 }
 
@@ -79,7 +77,6 @@ func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error {
 	line("コントロールパネル", theme.TextPrimary)
 	y += 8
 	line(fmt.Sprintf("総重量: %s", st.totalWeight.KgString()), theme.TextPrimary)
-	line(fmt.Sprintf("押しコスト(1タイル): %d AP", st.pushCost), theme.TextPrimary)
 	y += 8
 	line("Esc で閉じる", theme.TextAccent)
 	return nil
