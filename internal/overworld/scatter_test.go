@@ -128,7 +128,8 @@ func TestScatterFeature_同じseedは同じ配置(t *testing.T) {
 }
 
 // TestScatterFeature_土系の空きにだけ置く は、散布した prop が必ず土系の地面の上にあり、かつ2つの
-// prop が同じタイルへ重ならないことを固定する。占有回避と非地面回避の回帰。
+// prop が同じタイルへ重ならないことを固定する。占有回避と非地面回避の回帰。座標の一意性を全 prop で
+// 見るので、anchor 同士だけでなく衛星と anchor、衛星同士の重複もここで捕捉する。
 func TestScatterFeature_土系の空きにだけ置く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -190,30 +191,44 @@ func TestScatterFeature_外周は空けて横断できる(t *testing.T) {
 	// 壁として扱うのは BlockPass を持つ prop だけ。草地・plant・moving_stone は歩行可能
 	blocked := collectBlockingTiles(world)
 
-	// 外周1タイルの環は候補から外れるので常に空く。西端から東端へ flood-fill で到達できる
+	// 外周1タイルの環は候補から外れるので常に空く。西端から東端、北端から南端の双方へ到達できる
 	for y := range scatterTestChunk {
 		assert.False(t, blocked[consts.Coord[consts.Tile]{X: 0, Y: y}], "西端の列は空く")
 		assert.False(t, blocked[consts.Coord[consts.Tile]{X: scatterTestChunk - 1, Y: y}], "東端の列は空く")
 	}
-	assert.True(t, floodReachesEast(blocked, scatterTestChunk, scatterTestChunk), "西端から東端へ到達できる")
+	for x := range scatterTestChunk {
+		assert.False(t, blocked[consts.Coord[consts.Tile]{X: x, Y: 0}], "北端の行は空く")
+		assert.False(t, blocked[consts.Coord[consts.Tile]{X: x, Y: scatterTestChunk - 1}], "南端の行は空く")
+	}
+	assert.True(t, floodCrosses(blocked, scatterTestChunk, scatterTestChunk, true), "西端から東端へ到達できる")
+	assert.True(t, floodCrosses(blocked, scatterTestChunk, scatterTestChunk, false), "北端から南端へ到達できる")
 }
 
-// floodReachesEast は blocked を壁として西端の列から東端の列へ4近傍 flood-fill で到達できるかを返す。
-func floodReachesEast(blocked map[consts.Coord[consts.Tile]]bool, cw, ch consts.Tile) bool {
+// floodCrosses は blocked を壁として、horizontal なら西端の列から東端へ、そうでなければ北端の行から
+// 南端へ、4近傍 flood-fill で到達できるかを返す。隊商が縦横どちらにも横断できることの検証に使う。
+func floodCrosses(blocked map[consts.Coord[consts.Tile]]bool, cw, ch consts.Tile, horizontal bool) bool {
 	visited := make(map[consts.Coord[consts.Tile]]bool)
 	var stack []consts.Coord[consts.Tile]
-	for y := range ch {
-		start := consts.Coord[consts.Tile]{X: 0, Y: y}
-		if !blocked[start] {
-			stack = append(stack, start)
-			visited[start] = true
+	push := func(p consts.Coord[consts.Tile]) {
+		if !blocked[p] && !visited[p] {
+			visited[p] = true
+			stack = append(stack, p)
+		}
+	}
+	if horizontal {
+		for y := range ch {
+			push(consts.Coord[consts.Tile]{X: 0, Y: y})
+		}
+	} else {
+		for x := range cw {
+			push(consts.Coord[consts.Tile]{X: x, Y: 0})
 		}
 	}
 	dirs := []consts.Coord[consts.Tile]{{X: 1}, {X: -1}, {Y: 1}, {Y: -1}}
 	for len(stack) > 0 {
 		cur := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
-		if cur.X == cw-1 {
+		if (horizontal && cur.X == cw-1) || (!horizontal && cur.Y == ch-1) {
 			return true
 		}
 		for _, d := range dirs {
@@ -221,11 +236,7 @@ func floodReachesEast(blocked map[consts.Coord[consts.Tile]]bool, cw, ch consts.
 			if n.X < 0 || n.X >= cw || n.Y < 0 || n.Y >= ch {
 				continue
 			}
-			if visited[n] || blocked[n] {
-				continue
-			}
-			visited[n] = true
-			stack = append(stack, n)
+			push(n)
 		}
 	}
 	return false

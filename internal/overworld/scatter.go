@@ -159,7 +159,7 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 	for _, rel := range interior.ScatterArea(area, accept, grassSeed, grassCount) {
 		bl := bandLocal(rel)
 		name := scatterGrassProp
-		if ChunkSeed2D(grassSeed^scatterWeedChannel, consts.Chunk(rel.X), consts.Chunk(rel.Y))%scatterWeedMod == 0 {
+		if hashTileCoord(grassSeed^scatterWeedChannel, rel)%scatterWeedMod == 0 {
 			name = scatterWeedProp
 		}
 		if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
@@ -173,7 +173,7 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
 	for _, rel := range interior.ScatterArea(area, accept, selSeed, propCount) {
 		bigAllowed := onBigPhase(rel) && !onScatterRoute(runSeed, c, rows, g, absTile(rel))
-		roll := ChunkSeed2D(selSeed, consts.Chunk(rel.X), consts.Chunk(rel.Y))
+		roll := hashTileCoord(selSeed, rel)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {
 			continue // null 重み。ここは置かない
@@ -189,6 +189,8 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 // 先に占有されていれば丸ごと諦める。衛星は土系の地面かつ非占有のタイルにだけ置き、収まらない衛星は
 // 落とす。anchor だけ置いて衛星を諦める、doc 70 の Satellites と同じ「尽きたら諦める」方針。
 func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
+	// ScatterArea は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。
+	// 同じ ScatterArea が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。
 	if occupied[gc.GridElement{Coord: origin}] {
 		return nil
 	}
@@ -233,7 +235,9 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 			return e
 		}
 	}
-	return scatterEntry{}
+	// total は候補の重み合計で r は [0, total) なので、候補の重みを引き切る前に必ず r < 0 になる。
+	// ここへ来るのは重み合計の計算と減算がずれたときだけで、内部データの不変条件違反にあたる
+	panic("pickScatterEntry: 重み抽選が候補を引けなかった")
 }
 
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、
@@ -308,6 +312,13 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 // 生成物は土系でないので散布から外れる。
 func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
 	return scatterEarthTiles[tileNameAt(world, tiles, pos)]
+}
+
+// hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ
+// なのでタイル座標にも使えるが、引数型が consts.Chunk なのでキャストをここへ隔離し、呼び出し側の意味を
+// 「タイル単位の抽選」に保つ。散布物やアクセントの per-tile 抽選に使う。
+func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {
+	return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))
 }
 
 // tileNameAt は帯ローカル座標 pos のタイル名を返す。タイルが無ければ空文字。
