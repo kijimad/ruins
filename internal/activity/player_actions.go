@@ -56,11 +56,8 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-			case gc.InteractionTalk:
-				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
-				return err
-			case gc.InteractionCubePanel:
-				// NPC への話しかけと同じく、パネルへ歩き込むだけで開く
+			case gc.InteractionTalk, gc.InteractionCubePanel:
+				// 会話とコントロールパネルは、歩き込むだけで発動する
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
 			default:
@@ -93,19 +90,13 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 }
 
 // pushableAt は指定タイルにある押せるキューブを返す。無ければ ok=false。
-// クエリは早期 return せず最後まで回す。途中で抜けると world がロックされたままになる
 func pushableAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
-	var found ecs.Entity
-	ok := false
-	pushableQuery := query.ActiveFilter2[gc.GridElement, gc.Pushable](world).Query()
-	for pushableQuery.Next() {
-		entity := pushableQuery.Entity()
-		if !ok && world.Components.GridElement.Get(entity).Coord == coord {
-			found = entity
-			ok = true
+	for _, entity := range query.GetEntitiesAt(world, coord.X, coord.Y) {
+		if world.Components.Pushable.Has(entity) {
+			return entity, true
 		}
 	}
-	return found, ok
+	return ecs.Entity{}, false
 }
 
 // ExecuteWaitAction は待機アクションを実行する

@@ -80,12 +80,8 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 		// 生成時のフィールド生成は previousOwner が nil で来るのでここを通らず、生成後の
 		// stage.Bind に束縛を委ねる。生成中は CurrentStage がまだ旧ステージなので誤束縛を避ける。
 		if d := query.GetDungeon(world); d != nil {
-			key := d.CurrentStage
-			if world.Components.StageBound.Has(entity) {
-				world.Components.StageBound.Set(entity, &gc.StageBound{Key: key})
-			} else {
-				world.Components.StageBound.Add(entity, &gc.StageBound{Key: key})
-			}
+			// entity は直前に LocationOnField を付けたので生存が保証され、Upsert は失敗しない
+			_ = gc.Upsert(world.ECS, world.Components.StageBound, entity, &gc.StageBound{Key: d.CurrentStage})
 		}
 	}
 }

@@ -27,9 +27,9 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	switch interaction {
 	case gc.InteractionPortalNext:
 		// 共存方式の下り。同一 State 内 swapTo で現階を退避し、再訪で復元できる
-		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー")
+		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー", "ポータル移動")
 	case gc.InteractionPortalPrev:
-		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー")
+		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー", "ポータル移動")
 	case gc.InteractionDungeonEnter:
 		return executeDungeonEnter(target, world)
 	case gc.InteractionDoor:
@@ -49,24 +49,27 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	case gc.InteractionDisassemble:
 		return executeDisassemble(actor, target, world)
 	case gc.InteractionEnterCube:
-		return executeEnterCube(target, world)
+		// 入る対象のキューブ本体を載せて運ぶ。退場時の戻り先解決に使う
+		return executePortal(world, gc.WarpCubeEnterEvent(target), "キューブ入場状態変更要求エラー", "キューブに入る")
 	case gc.InteractionExitCube:
-		return executeExitCube(world)
+		return executePortal(world, gc.WarpCubeExitEvent(), "キューブ退場状態変更要求エラー", "キューブから出る")
 	case gc.InteractionPullCube:
 		return executePullCube(actor, target, world)
 	case gc.InteractionCubePanel:
-		return executeCubePanel(world)
+		return executePortal(world, gc.OpenCubePanelEvent(), "コントロールパネル状態変更要求エラー", "コントロールパネルを開いた")
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
 	return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 }
 
-func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*ActionResult, error) {
+// executePortal は状態機械へ遷移リクエストを投げる。実際の SwapTo や画面遷移は状態機械が担う。
+// ポータル・キューブの入退場・コントロールパネルなど、リクエストを1つ出して終わる相互作用が共通で使う。
+func executePortal(world w.World, event gc.StateChangeRequest, errMsg, message string) (*ActionResult, error) {
 	if err := lifecycle.RequestStateChange(world, event); err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsg, err)
 	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "ポータル移動"}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: message}, nil
 }
 
 // executeDungeonEnter は遺跡入口の進入先を入口プロップの DungeonEntrance から読み、遺跡進入を要求する。
@@ -82,23 +85,6 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "遺跡進入"}, nil
 }
 
-// executeEnterCube はキューブ内装への入場を要求する。実際の SwapTo と内装生成は状態機械が担う。
-// target は入る対象のキューブ本体で、退場時の戻り先解決のためイベントに載せて運ぶ。
-func executeEnterCube(target ecs.Entity, world w.World) (*ActionResult, error) {
-	if err := lifecycle.RequestStateChange(world, gc.WarpCubeEnterEvent(target)); err != nil {
-		return nil, fmt.Errorf("キューブ入場状態変更要求エラー: %w", err)
-	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "キューブに入る"}, nil
-}
-
-// executeExitCube はキューブ内装からの退場を要求する。戻り先は内装の出口 prop の PortalConnection が持つ。
-func executeExitCube(world w.World) (*ActionResult, error) {
-	if err := lifecycle.RequestStateChange(world, gc.WarpCubeExitEvent()); err != nil {
-		return nil, fmt.Errorf("キューブ退場状態変更要求エラー: %w", err)
-	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "キューブから出る"}, nil
-}
-
 // executePullCube はキューブを自分の側へ引く。後退スペースが無いなど引けないときは、
 // 致命エラーにせずログで知らせて no-op にする。プレイヤーのできない操作は異常系でないため、
 // Execute を呼ぶ前に可否を判定してから分岐する。
@@ -108,15 +94,6 @@ func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionR
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "引けない"}, nil
 	}
 	return Execute(NewPullActivity(cube), actor, world)
-}
-
-// executeCubePanel はキューブ内装のコントロールパネルを開くことを要求する。実際の画面遷移は
-// 状態機械が担う。
-func executeCubePanel(world w.World) (*ActionResult, error) {
-	if err := lifecycle.RequestStateChange(world, gc.OpenCubePanelEvent()); err != nil {
-		return nil, fmt.Errorf("コントロールパネル状態変更要求エラー: %w", err)
-	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "コントロールパネルを開いた"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

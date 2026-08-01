@@ -51,19 +51,7 @@ func (pa *PushActivity) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity
 	}
 	cubeCoord := world.Components.GridElement.Get(pa.Cube).Coord
 	dest := cubeCoord.Add(pa.Dir.GetDelta())
-
-	duration, err := cubePushTurns(world)
-	if err != nil {
-		return nil, err
-	}
-
-	comp, err := NewActivity(pa, duration)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &pa.Cube
-	comp.Destination = &gc.GridElement{Coord: dest}
-	return comp, nil
+	return buildCubeMove(pa, &pa.Cube, dest, world)
 }
 
 // Validate はBehaviorの実装
@@ -171,6 +159,22 @@ func cubePushTurns(world w.World) (consts.Turn, error) {
 	return consts.Turn((cost + power - 1) / power), nil
 }
 
+// buildCubeMove は押しと引きで共通の gc.Activity を組む。所要ターンは総重量とパーティAPで決まり、
+// 押し引きで違うのは対象キューブと移動先だけなので、それを引数で受ける。
+func buildCubeMove(behavior Behavior, cube *ecs.Entity, dest consts.Coord[consts.Tile], world w.World) (*gc.Activity, error) {
+	duration, err := cubePushTurns(world)
+	if err != nil {
+		return nil, err
+	}
+	comp, err := NewActivity(behavior, duration)
+	if err != nil {
+		return nil, err
+	}
+	comp.Target = cube
+	comp.Destination = &gc.GridElement{Coord: dest}
+	return comp, nil
+}
+
 // PullActivity は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
 // 自分は1タイル後退する。押しでは動かせない壁際・角のキューブを引き出して詰みを解く。
 // 所要ターンは押しと同じく総重量とパーティAPで決まる。Cube は着手時のパラメータで、継続処理の
@@ -228,19 +232,7 @@ func (pa *PullActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Acti
 	}
 	// キューブはプレイヤーの立っているタイルへ入る。プレイヤーはそのぶん後退する
 	dest := world.Components.GridElement.Get(actor).Coord
-
-	duration, err := cubePushTurns(world)
-	if err != nil {
-		return nil, err
-	}
-
-	comp, err := NewActivity(pa, duration)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &pa.Cube
-	comp.Destination = &gc.GridElement{Coord: dest}
-	return comp, nil
+	return buildCubeMove(pa, &pa.Cube, dest, world)
 }
 
 // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。
