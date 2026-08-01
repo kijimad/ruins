@@ -732,6 +732,9 @@ type Consumable struct {
 	UsableScene UsableScene `json:"usableScene"`
 }
 
+// CubePanelTriggerRaw 移動拠点キューブのコントロールパネルトリガー
+type CubePanelTriggerRaw = map[string]interface{}
+
 // DamageBonus ダメージ補正値
 type DamageBonus = int32
 
@@ -1321,6 +1324,9 @@ type Prop struct {
 	// BlockView 視線を遮るかどうか
 	BlockView BlocksView `json:"blockView"`
 
+	// CubePanelTrigger 移動拠点キューブのコントロールパネルトリガー
+	CubePanelTrigger *CubePanelTriggerRaw `json:"cubePanelTrigger,omitempty"`
+
 	// Description 説明文
 	Description EntityDescription `json:"description"`
 
@@ -1350,6 +1356,9 @@ type Prop struct {
 
 	// Storage 収納ローデータ
 	Storage *StorageRaw `json:"storage,omitempty"`
+
+	// WarpCubeExitTrigger 移動拠点キューブの内部からの退場トリガー
+	WarpCubeExitTrigger *WarpCubeExitTriggerRaw `json:"warpCubeExitTrigger,omitempty"`
 
 	// WarpNextTrigger 次階層ワープトリガー
 	WarpNextTrigger *WarpNextTriggerRaw `json:"warpNextTrigger,omitempty"`
@@ -2326,6 +2335,9 @@ type ViewDistance = int32
 
 // Vitality 体力。HPに影響する
 type Vitality = int32
+
+// WarpCubeExitTriggerRaw 移動拠点キューブの内部からの退場トリガー
+type WarpCubeExitTriggerRaw = map[string]interface{}
 
 // WarpNextTriggerRaw 次階層ワープトリガー
 type WarpNextTriggerRaw = map[string]interface{}

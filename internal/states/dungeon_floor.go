@@ -214,14 +214,14 @@ func (st *DungeonState) exitCube(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, returnPos)
 }
 
-// spawnCubeInterior はキューブ内部を生成する。マップのレイアウトはテンプレート
-// levels/facilities/cube_interior.toml が持ち、テンプレートプランナーで生成する。壁で囲った
-// 狭い1階層の部屋になる。cube 固有の出口 prop と presence 効果 prop は palette に無いので
-// テンプレート生成後に code で据える。戻り先の結線は enterCube が貼る。
+// spawnCubeInterior はキューブ内部を生成する。レイアウトも据え置きの prop も、すべてテンプレート
+// levels/facilities/cube_interior.toml と palette が持つ。出口 cube_exit・コントロールパネル・
+// ランタンはパレット文字で置かれ、相互作用は raw のトリガーから付くので、通常ダンジョンや施設と
+// 同じ Plan → Spawn だけで生成が完結する。DungeonState は prop を手置きしない。
+// 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。
 //
 // ダンジョン生成器でなくテンプレートを使うのは、階段ポータル前提の生成器では極小サイズを
-// 作れず、置いた階段を降りると内部キーを遺跡定義として解決しようとして panic するため。
-// テンプレートは階段を含まないので1階層になる。パワーアップで内部を差し替える余地も残る。
+// 作れず、置いた階段を降りると panic するため。テンプレートは階段を含まないので1階層になる。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
 	seed := world.Config.RNG.Uint64()
 	chain, err := mapplanner.NewPlannerChainByTemplateType(mapplanner.TemplateTypeCubeInteriorInitial, seed)
@@ -238,36 +238,6 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 		return err
 	}
 	query.EnsureStageField(world, key).Level = level
-
-	// 壁で囲った部屋の中央は必ず床。ここに出口 prop、隣に presence 効果 prop を置く
-	center := consts.Coord[consts.Tile]{X: level.TileWidth / 2, Y: level.TileHeight / 2}
-
-	// 出口 prop。warp_prev のスプライトを流用し、相互作用を出口へ差し替える。
-	// プレイヤーはここへ入場し、同じタイルで「出る」を選ぶ
-	exitProp, err := lifecycle.SpawnProp(world, "warp_prev", center.X, center.Y)
-	if err != nil {
-		return err
-	}
-	if err := gc.Upsert(world.ECS, world.Components.Interactable, exitProp,
-		&gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionExitCube}}); err != nil {
-		return err
-	}
-
-	// presence 効果 prop の lantern を隣のマスに据える。置いてあることで灯り(効果)を出す。
-	// 将来はプレイヤーが拾って持ち込み置く形にするが、今は最初から据える
-	if _, err := lifecycle.SpawnProp(world, "lantern", center.X-1, center.Y); err != nil {
-		return err
-	}
-
-	// コントロールパネルを反対の隣へ据える。調べると全体情報を見られ、将来の拡張UIの入口になる
-	panel, err := lifecycle.SpawnProp(world, "control_panel", center.X+1, center.Y)
-	if err != nil {
-		return err
-	}
-	if err := gc.Upsert(world.ECS, world.Components.Interactable, panel,
-		&gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionCubePanel}}); err != nil {
-		return err
-	}
 
 	// 生成物をこの内部ステージへ束縛する
 	stage.Bind(world, key)

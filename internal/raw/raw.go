@@ -685,6 +685,14 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionPortalPrev)
 	}
 
+	if propRaw.WarpCubeExitTrigger != nil {
+		interactions = append(interactions, gc.InteractionExitCube)
+	}
+
+	if propRaw.CubePanelTrigger != nil {
+		interactions = append(interactions, gc.InteractionCubePanel)
+	}
+
 	if propRaw.Storage != nil {
 		mg, err := consts.ParseWeight(propRaw.Storage.MaxWeight)
 		if err != nil {
