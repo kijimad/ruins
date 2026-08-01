@@ -28,9 +28,9 @@ type scatterEntry struct {
 	Satellites []relSpot
 }
 
-// scatterCatalog は zone ごとの散布定義。GrassDensity は dirt を草地へ置換する面積あたり係数、
-// PropDensity は自然物を撒く係数で、どちらも count = round(area * Density) で個数を密度確率から導く。
-// 個数を反復乱数でなく密度確率で決めるので純関数のまま。
+// scatterCatalog は zone ごとの散布定義。GrassDensity は草の房を撒く面積あたり係数、PropDensity は
+// 自然物を撒く係数で、どちらも count = round(area * Density) で個数を密度確率から導く。個数を反復乱数
+// でなく密度確率で決めるので純関数のまま。
 type scatterCatalog struct {
 	Zone         outdoorZone
 	GrassDensity float64
@@ -49,12 +49,14 @@ const (
 	zoneWild outdoorZone = "wild"
 )
 
-// 草地の見た目。大半をくすんだオリーブにし、時折みずみずしい緑を混ぜて単調さを崩す。凍てついた
-// 世界観に合わせ、鮮やかな緑は少なめにする。
+// 草地の見た目。草タイルは市松の孤立配置にして、常にオートタイルの「房」変種、dirt の上の草むら、で
+// 描く。塗りつぶすと中央が暗いフィルになるので隣接させない。大半をくすんだオリーブにし、みずみずしい
+// 緑をまばらに混ぜて単調さを崩す。凍てついた世界観に合わせ鮮やかな緑は少なめにする。
 const (
-	scatterGrassPrimary   = "grass_olive"
-	scatterGrassAccent    = "grass_green"
-	scatterGrassAccentMod = 4 // hash % mod == 0 のタイルだけ緑にする。約 1/4
+	scatterGrassPrimary = "grass_olive"
+	scatterGrassAccent  = "grass_green"
+	// scatterGrassAccentMod は緑の房の割合。hash がこの法で 0 になる房だけ緑にする。約 1/3。
+	scatterGrassAccentMod = 3
 )
 
 // 位相格子と経路マスクの定数。どちらも Big の大物だけに効き、通行を塞がない小物は制約しない。
@@ -69,37 +71,35 @@ const (
 	// scatterRoadsideRange は道沿いゾーンの半径。集落・市街の当選チャンクからこのチャンク数以内を
 	// 道沿いにする。道は集落間を結ぶので、集落の近傍が道沿いの帯を兼ねる。
 	scatterRoadsideRange consts.Chunk = 1
-	// scatterGrassChannel は草地選定を prop 選定と無相関にするハッシュチャネル。
+	// scatterGrassChannel は草地ノイズを prop 選定と無相関にするハッシュチャネル。
 	scatterGrassChannel uint64 = 0x67726173735f7469 // "grass_ti"
+	// scatterGrassAccentChannel は緑の房の抽選を草地ノイズと無相関にするハッシュチャネル。
+	scatterGrassAccentChannel uint64 = 0x677265656e5f7469 // "green_ti"
 )
 
-// roadsideCatalog は道沿いゾーンの散布定義。踏み分けられた原なので草地は疎、雑草と岩が主で灌木は少ない。
+// roadsideCatalog は道沿いゾーンの散布定義。踏み分けられた原なので草地の房は疎、低木もまばらにする。
 var roadsideCatalog = scatterCatalog{
 	Zone:         zoneRoadside,
-	GrassDensity: 0.20,
-	PropDensity:  0.03,
+	GrassDensity: 0.13,
+	PropDensity:  0.015,
 	Entries: []scatterEntry{
-		{Ref: "", Weight: 45}, // 置かない
-		{Ref: "plant", Weight: 30},
-		{Ref: "moving_stone", Weight: 12},
-		{Ref: "tree_a", Weight: 8},
-		{Ref: "tree_b", Weight: 5},
+		{Ref: "", Weight: 55}, // 置かない
+		{Ref: "tree_a", Weight: 18},
+		{Ref: "tree_b", Weight: 15},
 	},
 }
 
-// wildCatalog は奥地ゾーンの散布定義。草地が濃く、灌木・雑草・岩が茂り、時折木立が立つ。
+// wildCatalog は奥地ゾーンの散布定義。草の房が濃く、低木が茂り、時折木立が立つ。
 var wildCatalog = scatterCatalog{
 	Zone:         zoneWild,
-	GrassDensity: 0.45,
-	PropDensity:  0.05,
+	GrassDensity: 0.28,
+	PropDensity:  0.035,
 	Entries: []scatterEntry{
-		{Ref: "", Weight: 30}, // 置かない
-		{Ref: "plant", Weight: 30},
-		{Ref: "tree_a", Weight: 12},
-		{Ref: "tree_b", Weight: 12},
-		{Ref: "moving_stone", Weight: 10},
-		// 木立。大木の周りに灌木と草が寄り添う小クラスタ
-		{Ref: "big_tree", Weight: 4, Big: true, Satellites: []relSpot{{"tree_a", 1, 0}, {"tree_b", -1, 1}, {"plant", 0, 1}}},
+		{Ref: "", Weight: 38}, // 置かない
+		{Ref: "tree_a", Weight: 26},
+		{Ref: "tree_b", Weight: 26},
+		// 木立。大木の周りに低木が寄り添う小クラスタ
+		{Ref: "big_tree", Weight: 6, Big: true, Satellites: []relSpot{{"tree_a", 1, 0}, {"tree_b", -1, 1}}},
 	},
 }
 
@@ -137,15 +137,19 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 	}
 	area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
 
-	// 先に地面を草地へ変える。草地は歩行可能なので通行を塞がず、位相や経路の制約は要らない。
-	// 続く自然物が草地の上にも立てるよう、prop より前に敷く。
+	// 先に地面へ草の房を疎に撒き、野原の下地を作る。草タイルはオートタイルの「房」変種、dirt の上の
+	// 草むら、で描かれるが、隣接して塗りつぶすと中央が暗いフィルになる。密度を低く保って房どうしを
+	// 離し、孤立した草むらが不規則に散る見た目にする。並びは ScatterArea の hash ジッタが担うので格子状に
+	// ならない。草地は歩行可能なので通行を塞がず、位相や経路の制約は要らない。続く自然物が草の上にも
+	// 立てるよう先に撒く。
 	grassSeed := ChunkSeed2D(runSeed^scatterSalt^scatterGrassChannel, c.X, c.Y)
 	grassCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.GrassDensity))
 	for _, rel := range interior.ScatterArea(area, func(rel interior.Vec) bool {
 		return isDirtTile(world, tiles, bandLocal(rel))
 	}, grassSeed, grassCount) {
+		// 大半をくすんだオリーブにし、みずみずしい緑をまばらに混ぜて単調さを崩す
 		name := scatterGrassPrimary
-		if ChunkSeed2D(grassSeed, consts.Chunk(rel.X), consts.Chunk(rel.Y))%scatterGrassAccentMod == 0 {
+		if ChunkSeed2D(grassSeed^scatterGrassAccentChannel, consts.Chunk(rel.X), consts.Chunk(rel.Y))%scatterGrassAccentMod == 0 {
 			name = scatterGrassAccent
 		}
 		if err := replaceTile(world, tiles, bandLocal(rel), name); err != nil {
