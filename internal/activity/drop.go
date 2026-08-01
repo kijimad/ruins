@@ -77,7 +77,7 @@ func (da *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 // DoTurn はアイテムドロップアクティビティの1ターン分の処理を実行する
 func (da *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// アイテムドロップ処理を実行
-	if err := da.performDropBehavior(comp, actor, world); err != nil {
+	if err := da.performDrop(comp, actor, world); err != nil {
 		Cancel(comp, fmt.Sprintf("アイテムドロップエラー: %s", err.Error()))
 		return err
 	}
@@ -99,8 +99,8 @@ func (da *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 	return nil
 }
 
-// performDropBehavior は実際のアイテムドロップ処理を実行する
-func (da *DropBehavior) performDropBehavior(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+// performDrop は実際のアイテムドロップ処理を実行する
+func (da *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	targetTile, err := requireDestination(comp)
 	if err != nil {
 		return err

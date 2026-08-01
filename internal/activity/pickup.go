@@ -99,7 +99,7 @@ func (pa *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 // DoTurn はアイテム拾得アクティビティの1ターン分の処理を実行する
 func (pa *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// アイテム拾得処理を実行
-	if err := pa.performPickupBehavior(comp, actor, world); err != nil {
+	if err := pa.performPickup(comp, actor, world); err != nil {
 		Cancel(comp, fmt.Sprintf("アイテム拾得エラー: %s", err.Error()))
 		return err
 	}
@@ -122,10 +122,10 @@ func (pa *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 	return nil
 }
 
-// performPickupBehavior は実際のアイテム拾得処理を実行する。
+// performPickup は実際のアイテム拾得処理を実行する。
 // Targetが指定されている場合はそのエンティティだけを拾い、
 // 未指定の場合はDestinationタイル上の全拾得可能エンティティを拾う
-func (pa *PickupBehavior) performPickupBehavior(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pa *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// Targetが指定されている場合は、そのエンティティだけを拾う
 	if comp.Target != nil {
 		if !query.IsPickable(*comp.Target, world) {

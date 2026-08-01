@@ -116,7 +116,7 @@ func TestDropBehavior_Name(t *testing.T) {
 	assert.Equal(t, gc.BehaviorDrop, da.Name())
 }
 
-func TestDropBehavior_performDropBehavior(t *testing.T) {
+func TestDropBehavior_performDrop(t *testing.T) {
 	t.Parallel()
 
 	t.Run("アイテムをフィールドにドロップできる", func(t *testing.T) {
@@ -136,7 +136,7 @@ func TestDropBehavior_performDropBehavior(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.performDropBehavior(comp, player, world)
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		// アイテムがフィールドに配置されていることを確認
@@ -171,7 +171,7 @@ func TestDropBehavior_performDropBehavior(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.performDropBehavior(comp, player, world)
+		err = da.performDrop(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
@@ -228,7 +228,7 @@ func TestDropBehavior_DoTurn(t *testing.T) {
 	})
 }
 
-func TestDropBehavior_performDropBehavior_AdjacentTile(t *testing.T) {
+func TestDropBehavior_performDrop_AdjacentTile(t *testing.T) {
 	t.Parallel()
 
 	t.Run("隣接タイルにアイテムをドロップできる", func(t *testing.T) {
@@ -249,7 +249,7 @@ func TestDropBehavior_performDropBehavior_AdjacentTile(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.performDropBehavior(comp, player, world)
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		assert.True(t, world.Components.GridElement.Has(item))
@@ -277,7 +277,7 @@ func TestDropBehavior_performDropBehavior_AdjacentTile(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.performDropBehavior(comp, player, world)
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		gridElement := world.Components.GridElement.Get(item)
@@ -311,7 +311,7 @@ func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.performDropBehavior(comp, player, world)
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		// Fixed コンポーネントが保持されていることを確認
