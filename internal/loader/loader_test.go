@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -82,6 +83,52 @@ func TestLoadSpriteSheets(t *testing.T) {
 		// 合計518個のスプライトがあることを確認。基本65 と床材ダミー5 に、DawnLike フロアオートタイル28素材×16=448 を加えた数
 		assert.Len(t, tileSheet.Sprites, 518, "518個のタイルスプライトが存在すること")
 	})
+}
+
+func TestLoadUIResources_正常にUIリソースを構築できる(t *testing.T) {
+	t.Parallel()
+
+	fonts, err := LoadFonts()
+	require.NoError(t, err)
+
+	ui, err := LoadUIResources(fonts)
+
+	require.NoError(t, err)
+	assert.NotNil(t, ui.Fonts)
+	assert.NotNil(t, ui.Background)
+	assert.NotNil(t, ui.Button)
+	assert.NotNil(t, ui.Label)
+	assert.NotNil(t, ui.Checkbox)
+	assert.NotNil(t, ui.ComboButton)
+	assert.NotNil(t, ui.List)
+}
+
+func TestBuildFaces_フォントマップからFaceマップを構築できる(t *testing.T) {
+	t.Parallel()
+
+	fonts, err := LoadFonts()
+	require.NoError(t, err)
+
+	faces := BuildFaces(fonts)
+
+	require.Len(t, faces, 1)
+	require.Contains(t, faces, "dougenzaka")
+	assert.NotNil(t, faces["dougenzaka"])
+}
+
+func TestLoadSpriteSheets_存在しないパスを指定するとエラー(t *testing.T) {
+	t.Parallel()
+
+	raws := oapi.Raws{
+		SpriteSheets: &[]oapi.SpriteSheet{
+			{Name: "nonexistent", Path: "file/textures/dist/nonexistent.json"},
+		},
+	}
+
+	sheets, err := LoadSpriteSheets(raws)
+
+	require.ErrorContains(t, err, "スプライトシート 'nonexistent' の読み込みに失敗")
+	assert.Nil(t, sheets)
 }
 
 func TestLoadRaws(t *testing.T) {
