@@ -40,17 +40,22 @@ func TestDriver_Start_プレイヤー先在でもキューブをスポーンす�
 	assert.Equal(t, 1, countCubes(world), "プレイヤーが先在してもキューブが1体スポーンする")
 }
 
-func TestDriver_Start_既存キューブがあれば二重生成しない(t *testing.T) {
+// TestDriver_Start_復帰経路ではキューブを生成しない は、帯が active な世界で Start を起動すると
+// restoreFromSave の枝を通り startInitialBand が走らないので、ドライバがキューブを生成しないことを
+// 固定する。実際の復帰ではキューブはプレイヤーと同じく serde で復元され、ドライバは生成しない。
+func TestDriver_Start_復帰経路ではキューブを生成しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	// セーブ復帰でキューブが復元済みの状況を再現する
-	_, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
-	require.NoError(t, err)
 
+	// 新規開始でキューブが1体湧き、帯が active になる
 	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
+	require.Equal(t, 1, countCubes(world), "前提: 新規開始でキューブが1体湧く")
 
-	assert.Equal(t, 1, countCubes(world), "既存キューブがあれば二重生成しない")
+	// 復帰を再現する。active な帯を持つ世界で params nil のドライバを起動すると restoreFromSave を通る
+	s2 := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.DungeonOverworld, nil)
+	require.NoError(t, s2.Start(world))
+	assert.Equal(t, 1, countCubes(world), "復帰経路ではドライバはキューブを生成しない")
 }
 
 const (

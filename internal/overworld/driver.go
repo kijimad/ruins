@@ -70,7 +70,7 @@ func (dr *Driver) Start(world w.World) error {
 	} else {
 		// 新規開始。オーバーワールドから始める。共存機構が現在地を識別するのに使う。
 		d.CurrentStage = gc.NewOverworldStage()
-		if err := dr.startNewBand(world); err != nil {
+		if err := dr.startInitialBand(world); err != nil {
 			return err
 		}
 	}
@@ -109,9 +109,13 @@ func (dr *Driver) front(world w.World) worldstream.Front {
 	return worldstream.FrontAt(dr.frontCfg, totalTurns)
 }
 
-// startNewBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
-// プレイヤーを中央チャンクへ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。
-func (dr *Driver) startNewBand(world w.World) error {
+// startInitialBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
+// プレイヤーとキューブを中央チャンク付近へ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。
+//
+// この関数は新規開始で一度だけ走る。セーブ復帰は Start が restoreFromSave の枝を選ぶのでここは走らず、
+// プレイヤー・キューブ・全エンティティは serde で復元される。したがってここでの生成に復帰時の
+// 二重生成対策は要らない。
+func (dr *Driver) startInitialBand(world w.World) error {
 	p := dr.params
 	if p == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
@@ -170,29 +174,14 @@ func (dr *Driver) startNewBand(world w.World) error {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
 	}
 
-	// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く。プレイヤーはキャラ作成で
-	// 先に生成されるので、プレイヤーの有無でなくキューブの有無で判定する。セーブ復帰時は
-	// キューブが復元済みなので二重生成しない
-	if !cubeExists(world) {
-		cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
-		if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
-			return fmt.Errorf("キューブ生成失敗: %w", cerr)
-		}
+	// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く
+	cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+	if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
+		return fmt.Errorf("キューブ生成失敗: %w", cerr)
 	}
 
 	query.InvalidateSpatialIndex(world)
 	return nil
-}
-
-// cubeExists は押せるキューブが既に存在するかを返す。クエリは早期 return せず最後まで回す。
-// 途中で抜けると world がロックされたままになる
-func cubeExists(world w.World) bool {
-	found := false
-	q := query.ActiveFilter1[gc.Pushable](world).Query()
-	for q.Next() {
-		found = true
-	}
-	return found
 }
 
 // walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を
