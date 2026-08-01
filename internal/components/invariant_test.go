@@ -152,14 +152,13 @@ func TestCategory(t *testing.T) {
 		assert.Equal(t, "道具", cat)
 	})
 
-	t.Run("道具カテゴリは置物を含む", func(t *testing.T) {
+	t.Run("所持カテゴリは固定物を含まない", func(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Prop.Add(entity, &Prop{})
-		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
-		assert.True(t, ok)
-		assert.Equal(t, "道具", cat)
+		c.Fixed.Add(entity, &Fixed{})
+		_, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.False(t, ok, "固定物は所持へ入らないので所持カテゴリに分類されない")
 	})
 
 	t.Run("どのカテゴリにも属さない", func(t *testing.T) {
@@ -264,14 +263,14 @@ func TestCategory(t *testing.T) {
 		assert.Equal(t, "NPC", cat)
 	})
 
-	t.Run("フィールド観察: 置物", func(t *testing.T) {
+	t.Run("フィールド観察: 固定物", func(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Prop.Add(entity, &Prop{})
+		c.Fixed.Add(entity, &Fixed{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "置物", cat)
+		assert.Equal(t, "固定物", cat)
 	})
 
 	t.Run("フィールド観察: タイル", func(t *testing.T) {
@@ -319,7 +318,7 @@ func TestCategoryOfSpec(t *testing.T) {
 		{"素材", EntitySpec{Material: &Material{}}, CategoryMaterial},
 		{"弾薬", EntitySpec{Ammo: &Ammo{}}, CategoryAmmo},
 		{"本", EntitySpec{Book: &Book{}}, CategoryBook},
-		{"置物", EntitySpec{Prop: &Prop{}}, CategoryProp},
+		{"固定物", EntitySpec{Fixed: &Fixed{}}, CategoryFixed},
 		{"消耗品", EntitySpec{Consumable: &Consumable{}}, CategoryConsumable},
 		{"射撃武器", EntitySpec{Fire: &Fire{}}, CategoryFire},
 		{"近接武器", EntitySpec{Melee: &Melee{}}, CategoryMelee},

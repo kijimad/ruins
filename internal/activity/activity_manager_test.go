@@ -347,7 +347,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		// APをリセットしてPassCostありの移動をテスト
 		world.Components.TurnBased.Get(player).AP.Current = apBefore
 
-		// 移動先にPassCostを持つPropを配置
+		// 移動先にPassCostを持つ固定物を配置
 		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}})
 		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})

@@ -250,8 +250,8 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 	moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()
 	for moverShadowQuery.Next() {
 		entity := moverShadowQuery.Entity()
-		// TurnBased または Prop を持つエンティティのみ
-		if !world.Components.TurnBased.Has(entity) && !world.Components.Prop.Has(entity) {
+		// TurnBased または Fixed を持つエンティティのみ
+		if !world.Components.TurnBased.Has(entity) && !world.Components.Fixed.Has(entity) {
 			continue
 		}
 
@@ -288,7 +288,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 	// 下タイル参照用のマップは viewport 内（+margin）だけ構築する。大マップで全タイルを
 	// 毎フレーム map 化するのを避ける
 	tileMap := make(map[gc.GridElement]ecs.Entity)
-	// 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/Prop を走査から除く
+	// 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/固定物を走査から除く
 	tileMapQuery := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()
 	for tileMapQuery.Next() {
 		e := tileMapQuery.Entity()

@@ -11,7 +11,7 @@ import (
 type SpatialIndex struct {
 	// マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位
 	MapWidth, MapHeight consts.Tile
-	// 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つPropが対象
+	// 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つ固定物が対象
 	BlockPass map[GridElement]bool
 	// キャラクター位置のインデックス。プレイヤー・敵・隊員・中立NPCの位置
 	Characters map[GridElement]ecs.Entity

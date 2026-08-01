@@ -167,7 +167,7 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 		return fmt.Errorf("分解産出の抽選に失敗: %w", err)
 	}
 
-	if world.Components.Prop.Has(target) && world.Components.GridElement.Has(target) {
+	if world.Components.Fixed.Has(target) && world.Components.GridElement.Has(target) {
 		// 座標は除去前に値で控える
 		coord := world.Components.GridElement.Get(target).Coord
 		// 収納propの場合は中身を足元へ出してから取り壊す
