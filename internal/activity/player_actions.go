@@ -59,6 +59,10 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 			case gc.InteractionTalk:
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
+			case gc.InteractionCubePanel:
+				// NPC への話しかけと同じく、パネルへ歩き込むだけで開く
+				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
+				return err
 			default:
 				// 衝突時に自動発動しない種類はここでは扱わない
 			}

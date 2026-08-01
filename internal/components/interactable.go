@@ -70,11 +70,11 @@ func (k InteractionKind) Config() InteractionConfig {
 	switch k {
 	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItem, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
-	case InteractionDoor, InteractionTalk, InteractionMelee:
+	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
 	case InteractionDoorLock:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}
-	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionCubePanel:
+	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	case InteractionExitCube:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}

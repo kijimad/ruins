@@ -8,10 +8,37 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestExecuteMoveAction_コントロールパネルへ歩き込むと開く は、パネルが NPC への話しかけと同じく
+// 移動キーの歩き込みだけで開くことを検証する。Config を ActivationWayOnCollision にし、bump 経路の
+// switch に case を繋いだ回帰。
+func TestExecuteMoveAction_コントロールパネルへ歩き込むと開く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := addPusher(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, consts.PushCostBase)
+
+	// プレイヤーの右隣に BlockPass のコントロールパネルを置く
+	panel := world.ECS.NewEntity()
+	world.Components.GridElement.Add(panel, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+	world.Components.BlockPass.Add(panel, &gc.BlockPass{})
+	world.Components.Interactable.Add(panel, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionCubePanel}})
+
+	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
+
+	// 歩き込みでパネルを開くリクエストが出る
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "歩き込みで状態変更リクエストが出る")
+	_, ok := req.Payload.(gc.OpenCubePanel)
+	assert.True(t, ok, "リクエストはコントロールパネルを開く")
+
+	// パネルは BlockPass。開くだけで、そのタイルへは移動しない
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "パネルを開いても移動はしない")
+}
 
 // addCube は指定座標に押せるキューブを作る
 func addCube(world w.World, coord consts.Coord[consts.Tile]) ecs.Entity {
