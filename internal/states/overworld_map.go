@@ -124,9 +124,26 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		text.Draw(screen, str, face, op)
 	}
 
+	// drawCellGlyph はセルの中央に1文字を描く。基準点をセル中央に置き、水平・垂直とも中央揃えに
+	// することで、字形の幅高に依らず四辺の余白が揃う
+	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(float64(cx), float64(cy))
+		op.ColorScale.ScaleWithColor(c)
+		op.PrimaryAlign = text.AlignCenter
+		op.SecondaryAlign = text.AlignCenter
+		text.Draw(screen, str, face, op)
+	}
+
 	drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
 	const originX, originY consts.ScreenPixel = 16, 44
+	// cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 mapCellPx-1
+	cellCenter := func(col, row consts.Chunk) (consts.ScreenPixel, consts.ScreenPixel) {
+		x := originX + consts.ScreenPixel(col)*mapCellPx
+		y := originY + consts.ScreenPixel(row)*mapCellPx
+		return x + (mapCellPx-1)/2, y + (mapCellPx-1)/2
+	}
 	for row := range st.glyphs {
 		for col, r := range st.glyphs[row] {
 			x := originX + consts.ScreenPixel(col)*mapCellPx
@@ -134,18 +151,18 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			// 全チャンクを同一に扱う。色を塗り、種別の文字を重ねて記号でも読めるようにする。
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
-			drawText(string(r), x+5, y+2, theme.OverworldMapGlyphText)
+			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
+			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)
 		}
 	}
 	// キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも
 	// 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く
 	for _, c := range st.cubeCells {
-		x := originX + consts.ScreenPixel(c.X)*mapCellPx
-		y := originY + consts.ScreenPixel(c.Y)*mapCellPx
+		cx, cy := cellCenter(c.X, c.Y)
 		for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
-			drawText(consts.IconCube, x+4+off[0], y+1+off[1], theme.OverworldMapCubeOutline)
+			drawCellGlyph(consts.IconCube, cx+off[0], cy+off[1], theme.OverworldMapCubeOutline)
 		}
-		drawText(consts.IconCube, x+4, y+1, theme.OverworldMapCubeMarker)
+		drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)
 	}
 	// 現在地マーカー。白枠でセルを囲む
 	if st.playerCol >= 0 {
