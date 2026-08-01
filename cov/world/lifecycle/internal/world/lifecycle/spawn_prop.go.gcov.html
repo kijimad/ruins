@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">93.6&nbsp;%</td>
-            <td class="headerCovTableEntry">157</td>
-            <td class="headerCovTableEntry">147</td>
+            <td class="headerCovTableEntryHi">94.3&nbsp;%</td>
+            <td class="headerCovTableEntry">176</td>
+            <td class="headerCovTableEntry">166</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-01 00:37:04</td>
+            <td class="headerValue">2026-08-01 09:58:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -259,22 +259,45 @@
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         }), nil</span></span>
 <span id="L198"><span class="lineNum">     198</span>              : }</span>
 <span id="L199"><span class="lineNum">     199</span>              : </span>
-<span id="L200"><span class="lineNum">     200</span>              : // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する</span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 : func DeleteDoorLockTriggers(world w.World) {</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         var toDelete []ecs.Entity</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         // 退避中ステージの鍵トリガは消さない。現ステージのみ対象にする</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         interactableQuery := query.ActiveFilter1[gc.Interactable](world).Query()</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           2 :         for interactableQuery.Next() {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 triggerEntity := interactableQuery.Entity()</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 interactable := world.Components.Interactable.Get(triggerEntity)</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           2 :                 if slices.Contains(interactable.Interactions, gc.InteractionDoorLock) {</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                         toDelete = append(toDelete, triggerEntity)</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L211"><span class="lineNum">     211</span>              :         }</span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           2 :         for _, entity := range toDelete {</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(entity)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L215"><span class="lineNum">     215</span>              : }</span>
+<span id="L200"><span class="lineNum">     200</span>              : // SpawnCube は押して動かせる移動拠点キューブをオーバーワールドに生成する。</span>
+<span id="L201"><span class="lineNum">     201</span>              : // blue_cube のスプライトを流用した無地のキューブ。BlockPass だが Pushable なので</span>
+<span id="L202"><span class="lineNum">     202</span>              : // 歩き込むと通行でなく押しになる。オーバーワールドの地物として帯へ明示束縛する。</span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         return world.Components.AddEntity(world.ECS, &amp;gc.EntitySpec{</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 Name:        &amp;gc.Name{Name: &quot;キューブ&quot;},</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 Description: &amp;gc.Description{Description: &quot;押して動かせる移動拠点&quot;},</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 GridElement: &amp;gc.GridElement{Coord: pos},</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                         SpriteSheetName: fieldSpriteSheet,</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                         SpriteKey:       &quot;blue_cube&quot;,</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                         Depth:           gc.DepthNumTaller,</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 Prop:            &amp;gc.Prop{},</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 BlockPass:       &amp;gc.BlockPass{},</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 Pushable:        &amp;gc.Pushable{},</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 LocationOnField: &amp;gc.LocationOnField{},</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 // 隣接して手動で内部へ入る、または引く。歩き込みは押し、明示的な入る/引くはメニューから</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube, gc.InteractionPullCube}},</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         }), nil</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : </span>
+<span id="L223"><span class="lineNum">     223</span>              : // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 : func DeleteDoorLockTriggers(world w.World) {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         var toDelete []ecs.Entity</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         // 退避中ステージの鍵トリガは消さない。現ステージのみ対象にする</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         interactableQuery := query.ActiveFilter1[gc.Interactable](world).Query()</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           2 :         for interactableQuery.Next() {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 triggerEntity := interactableQuery.Entity()</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 interactable := world.Components.Interactable.Get(triggerEntity)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           2 :                 if slices.Contains(interactable.Interactions, gc.InteractionDoorLock) {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                         toDelete = append(toDelete, triggerEntity)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L234"><span class="lineNum">     234</span>              :         }</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           2 :         for _, entity := range toDelete {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(entity)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : }</span>
         </pre>
               </td>
             </tr>

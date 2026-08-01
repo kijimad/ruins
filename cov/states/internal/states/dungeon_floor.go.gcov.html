@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">74.9&nbsp;%</td>
-            <td class="headerCovTableEntry">247</td>
-            <td class="headerCovTableEntry">185</td>
+            <td class="headerCovTableEntryLo">72.1&nbsp;%</td>
+            <td class="headerCovTableEntry">301</td>
+            <td class="headerCovTableEntry">217</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-01 00:37:04</td>
+            <td class="headerValue">2026-08-01 09:58:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -226,191 +226,266 @@
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 :         return lifecycle.MovePlayerToPosition(world, pos)</span></span>
 <span id="L165"><span class="lineNum">     165</span>              : }</span>
 <span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span>              : // findPortal は現ステージの指定種別ポータルのエンティティと位置を返す。</span>
-<span id="L168"><span class="lineNum">     168</span>              : // 退避中ステージのポータルは ActiveFilter で除外される。先着1件を採用するが、途中 return せず</span>
-<span id="L169"><span class="lineNum">     169</span>              : // 反復は最後まで続ける。Ark のワールドロックを外すため。実ゲームでは各ステージにポータルは</span>
-<span id="L170"><span class="lineNum">     170</span>              : // 1つなので先着で一意に定まる</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : func findPortal(world w.World, kind gc.InteractionKind) (ecs.Entity, consts.Coord[consts.Tile], bool) {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         var found ecs.Entity</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         var pos consts.Coord[consts.Tile]</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         ok := false</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           2 :                 if !ok &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                         found = e</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                         pos = world.Components.GridElement.Get(e).Coord</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                         ok = true</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L183"><span class="lineNum">     183</span>              :         }</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         return found, pos, ok</span></span>
-<span id="L185"><span class="lineNum">     185</span>              : }</span>
+<span id="L167"><span class="lineNum">     167</span>              : // enterCube は移動拠点キューブの内部へ swapTo で入る。内部はオーバーワールドと同じく単一の</span>
+<span id="L168"><span class="lineNum">     168</span>              : // 永続ステージで、初回だけ生成され以後は再稼働する。出口 prop の戻り先を、入場時のプレイヤー</span>
+<span id="L169"><span class="lineNum">     169</span>              : // タイル、すなわちキューブに隣接する位置へ毎回貼り直す。内部滞在中はオーバーワールドが退避し</span>
+<span id="L170"><span class="lineNum">     170</span>              : // キューブは動かないので、この戻り先は退場時も有効になる。</span>
+<span id="L171"><span class="lineNum">     171</span>              : // フロア遷移と違い state を使わないので DungeonState のメソッドでなく自由関数にする。</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 : func enterCube(world w.World, cube ecs.Entity) error {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(cube) {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;キューブに位置がありません&quot;)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :         returnPos := world.Components.GridElement.Get(player).Coord</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         // 単一の内部ステージへ入る。未訪問なら SwapTo の callback で一度だけ生成される</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, gc.NewCubeInteriorStage(), spawnCubeInterior); err != nil {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span>              : // findPortalPosition は findPortal のうち位置だけを返す薄いラッパー。</span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[consts.Tile], bool) {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         _, pos, ok := findPortal(world, kind)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         return pos, ok</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L192"><span class="lineNum">     192</span>              : </span>
-<span id="L193"><span class="lineNum">     193</span>              : // setPortalConnection はポータルに行き先ステージと着地座標を結線する。</span>
-<span id="L194"><span class="lineNum">     194</span>              : // 生成時に両端を結線し、以降の往復は探索でなくこの結線から行き先を引く。</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : func setPortalConnection(world w.World, portal ecs.Entity, target gc.StageKey, coord consts.Coord[consts.Tile]) error {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         return gc.Upsert(world.ECS, world.Components.PortalConnection, portal, &amp;gc.PortalConnection{Stage: target, Coord: coord})</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L198"><span class="lineNum">     198</span>              : </span>
-<span id="L199"><span class="lineNum">     199</span>              : // ascend は現階の上り階段の結線した戻り先へ swapTo で移動する。上り先は訪問済み前提で再稼働する。</span>
-<span id="L200"><span class="lineNum">     200</span>              : // 戻り先ステージと着地座標は生成時に上り階段へ結線済みなので、探索でなく結線から引く。</span>
-<span id="L201"><span class="lineNum">     201</span>              : // 上り階段の結線があれば移動して true を返す。結線が無い、たとえば最上階の脱出口なら false を</span>
-<span id="L202"><span class="lineNum">     202</span>              : // 返し、街やオーバーワールドへの脱出は呼び出し側が扱う。上り先が浅い階でも遺跡→地上でも同一機構。</span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : func (st *DungeonState) ascend(world w.World) (bool, error) {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         // 現階の上り階段。生成時に戻り先が結線されている</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         upStair, _, ok := findPortal(world, gc.InteractionPortalPrev)</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, nil</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.PortalConnection.Has(upStair) {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC tlaBgUNC">           0 :                 // 結線なし。最上階の脱出口。呼び出し側が脱出を扱う</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 return false, nil</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L213"><span class="lineNum">     213</span>              :         // 行き先を値でコピーする。swapTo が Suspended を付けてアーキタイプが変わると</span>
-<span id="L214"><span class="lineNum">     214</span>              :         // コンポーネントポインタは無効化されるため、構造変更の前に取り出す</span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC tlaBgGNC">           1 :         conn := *world.Components.PortalConnection.Get(upStair)</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         target := conn.Stage</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         // 上り先は訪問済み前提。未訪問なら生成でなくエラーにする</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;上り先の階が存在しません: %+v&quot;, target)</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         }); err != nil {</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                 return false, err</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L224"><span class="lineNum">     224</span>              : </span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 :         st.Depth = target.Depth</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         // SwapTo 後は現ステージ=target なので現在地で判定する</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           2 :         if query.IsOnOverworld(world) {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 // 地上の StageField が resume で帯寸法の Level を戻すため寸法の手復元は不要。視界だけ強制再計算する</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).RequestUpdate()</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L231"><span class="lineNum">     231</span>              : </span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, err</span></span>
+<span id="L187"><span class="lineNum">     187</span>              :         // 出口 prop の位置が入場点。戻り先をプレイヤーの元タイルへ貼り直す</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 :         exitProp, exitPos, ok := findPortal(world, gc.InteractionExitCube)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;キューブ内部に出口が見つかりません&quot;)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil {</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC tlaBgGNC">           1 :         return lifecycle.MovePlayerToPosition(world, exitPos)</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : }</span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span>              : // exitCube はキューブ内部から出口 prop の PortalConnection を辿ってオーバーワールドへ戻る。</span>
+<span id="L199"><span class="lineNum">     199</span>              : // enterCube と同じく state を使わないので自由関数にする。</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 : func exitCube(world w.World) error {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         exitProp, _, ok := findPortal(world, gc.InteractionExitCube)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;キューブ内部に出口が見つかりません&quot;)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.PortalConnection.Has(exitProp) {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;出口に戻り先が結線されていません&quot;)</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC tlaBgGNC">           1 :         conn := world.Components.PortalConnection.Get(exitProp)</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         target := conn.Stage</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         returnPos := conn.Coord</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, target, func(w.World, gc.StageKey) error {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;戻り先のオーバーワールドが存在しません&quot;)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         }); err != nil {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC tlaBgGNC">           1 :         return lifecycle.MovePlayerToPosition(world, returnPos)</span></span>
+<span id="L217"><span class="lineNum">     217</span>              : }</span>
+<span id="L218"><span class="lineNum">     218</span>              : </span>
+<span id="L219"><span class="lineNum">     219</span>              : // spawnCubeInterior はキューブ内部を生成する。通常ダンジョンと同じ mapplanner.Plan → mapspawner.Spawn</span>
+<span id="L220"><span class="lineNum">     220</span>              : // で生成する。レイアウトも据え置きの prop も、すべてテンプレート levels/facilities/cube_interior.toml と</span>
+<span id="L221"><span class="lineNum">     221</span>              : // palette が持つ。出口 cube_exit・コントロールパネル・ランタンはパレット文字で置かれ、相互作用は</span>
+<span id="L222"><span class="lineNum">     222</span>              : // raw のトリガーから付くので、prop を手置きしない。テンプレートは階段ポータルを含まない閉じた部屋</span>
+<span id="L223"><span class="lineNum">     223</span>              : // だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。</span>
+<span id="L224"><span class="lineNum">     224</span>              : // 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。</span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 : func spawnCubeInterior(world w.World, key gc.StageKey) error {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         seed := world.Config.RNG.Uint64()</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, mapplanner.PlannerTypeCubeInterior)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC tlaBgGNC">           1 :         level, err := mapspawner.Spawn(world, plan)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :         return true, nil</span></span>
-<span id="L236"><span class="lineNum">     236</span>              : }</span>
-<span id="L237"><span class="lineNum">     237</span>              : </span>
-<span id="L238"><span class="lineNum">     238</span>              : // enterDungeon はオーバーワールドから遺跡へ入る。現在地(入口座標)を上り階段へ結線して戻れるようにする。</span>
-<span id="L239"><span class="lineNum">     239</span>              : // descend の遺跡版で、行き先が1つ深い階でなく遺跡1階になる。</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 : func (st *DungeonState) enterDungeon(world w.World, defName string) error {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         // プランナーは遺跡定義のプールから選ぶ。Random を渡すと spawnFloor がプール抽選へ回す</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         return st.enterDungeonWith(world, defName, mapplanner.PlannerTypeRandom)</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L244"><span class="lineNum">     244</span>              : </span>
-<span id="L245"><span class="lineNum">     245</span>              : // enterDungeonWith はプランナーを固定して遺跡へ入る。デバッグのプランナー単位進入で使う。</span>
-<span id="L246"><span class="lineNum">     246</span>              : // builderType が Random または PlannerFunc 未設定なら spawnFloor が遺跡定義のプールから選ぶ。</span>
-<span id="L247"><span class="lineNum">     247</span>              : // それ以外は指定プランナーで生成する。共存機構の往復は enterDungeon と同じ。</span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 : func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderType mapplanner.PlannerType) error {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         // spawnFloor は st.BuilderType を読んでプランナーを決める。ここで進入ごとに確定する</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         st.BuilderType = builderType</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         fromStage := query.GetDungeon(world).CurrentStage</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L257"><span class="lineNum">     257</span>              :         // 入口のオーバーワールド座標。swapTo 前に値でコピーする</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC tlaBgGNC">           1 :         fromPos := world.Components.GridElement.Get(player).Coord</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         target := gc.NewDungeonStage(defName, 1)</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         // 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         // 今いる遺跡を選んだ場合など。SwapTo は自己スワップを前提としない</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           2 :         if fromStage == target {</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L266"><span class="lineNum">     266</span>              : </span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         var landing consts.Coord[consts.Tile]</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         var generated bool</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           2 :         if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 def, derr := resolveDungeonDefinition(defName)</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 if derr != nil {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC tlaBgUNC">           0 :                         return derr</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC tlaBgGNC">           1 :                 start, upStair, serr := st.spawnFloor(world, 1, def, key)</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 if serr != nil {</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC tlaBgUNC">           0 :                         return serr</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L278"><span class="lineNum">     278</span>              :                 // 遺跡の上り階段(=出口)に、入ってきたオーバーワールドの入口座標を結線する。</span>
-<span id="L279"><span class="lineNum">     279</span>              :                 // これで exit は入った入口へ正確に戻れる。入口が複数でも曖昧にならない</span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC tlaBgGNC">           1 :                 if cerr := setPortalConnection(world, upStair, fromStage, fromPos); cerr != nil {</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC tlaBgUNC">           0 :                         return cerr</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC tlaBgGNC">           1 :                 landing = start</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 generated = true</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC tlaBgUNC">           0 :         }); err != nil {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L289"><span class="lineNum">     289</span>              : </span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC tlaBgGNC">           1 :         st.Depth = 1</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         // 現ステージ=遺跡1階のキーが定義名を持つため、別途 DefinitionName を記録する必要はない</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :         query.EnsureStageField(world, key).Level = level</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         // 生成物をこの内部ステージへ束縛する</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         stage.Bind(world, key)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : }</span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span>              : // findPortal は現ステージの指定種別ポータルのエンティティと位置を返す。</span>
+<span id="L243"><span class="lineNum">     243</span>              : // 退避中ステージのポータルは ActiveFilter で除外される。先着1件を採用するが、途中 return せず</span>
+<span id="L244"><span class="lineNum">     244</span>              : // 反復は最後まで続ける。Ark のワールドロックを外すため。実ゲームでは各ステージにポータルは</span>
+<span id="L245"><span class="lineNum">     245</span>              : // 1つなので先着で一意に定まる</span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 : func findPortal(world w.World, kind gc.InteractionKind) (ecs.Entity, consts.Coord[consts.Tile], bool) {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         var found ecs.Entity</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         var pos consts.Coord[consts.Tile]</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         ok := false</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           2 :                 if !ok &amp;&amp; slices.Contains(world.Components.Interactable.Get(e).Interactions, kind) {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                         found = e</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         pos = world.Components.GridElement.Get(e).Coord</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                         ok = true</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L258"><span class="lineNum">     258</span>              :         }</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         return found, pos, ok</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : }</span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span>              : // findPortalPosition は findPortal のうち位置だけを返す薄いラッパー。</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 : func findPortalPosition(world w.World, kind gc.InteractionKind) (consts.Coord[consts.Tile], bool) {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         _, pos, ok := findPortal(world, kind)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         return pos, ok</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span>              : // setPortalConnection はポータルに行き先ステージと着地座標を結線する。</span>
+<span id="L269"><span class="lineNum">     269</span>              : // 生成時に両端を結線し、以降の往復は探索でなくこの結線から行き先を引く。</span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 : func setPortalConnection(world w.World, portal ecs.Entity, target gc.StageKey, coord consts.Coord[consts.Tile]) error {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         return gc.Upsert(world.ECS, world.Components.PortalConnection, portal, &amp;gc.PortalConnection{Stage: target, Coord: coord})</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span>              : // ascend は現階の上り階段の結線した戻り先へ swapTo で移動する。上り先は訪問済み前提で再稼働する。</span>
+<span id="L275"><span class="lineNum">     275</span>              : // 戻り先ステージと着地座標は生成時に上り階段へ結線済みなので、探索でなく結線から引く。</span>
+<span id="L276"><span class="lineNum">     276</span>              : // 上り階段の結線があれば移動して true を返す。結線が無い、たとえば最上階の脱出口なら false を</span>
+<span id="L277"><span class="lineNum">     277</span>              : // 返し、街やオーバーワールドへの脱出は呼び出し側が扱う。上り先が浅い階でも遺跡→地上でも同一機構。</span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 : func (st *DungeonState) ascend(world w.World) (bool, error) {</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         // 現階の上り階段。生成時に戻り先が結線されている</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         upStair, _, ok := findPortal(world, gc.InteractionPortalPrev)</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, nil</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.PortalConnection.Has(upStair) {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC tlaBgUNC">           0 :                 // 結線なし。最上階の脱出口。呼び出し側が脱出を扱う</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 return false, nil</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L288"><span class="lineNum">     288</span>              :         // 行き先を値でコピーする。swapTo が Suspended を付けてアーキタイプが変わると</span>
+<span id="L289"><span class="lineNum">     289</span>              :         // コンポーネントポインタは無効化されるため、構造変更の前に取り出す</span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC tlaBgGNC">           1 :         conn := *world.Components.PortalConnection.Get(upStair)</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         target := conn.Stage</span></span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           2 :         if generated {</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 return lifecycle.MovePlayerToPosition(world, landing)</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L296"><span class="lineNum">     296</span>              :         // 再訪。遺跡の上り階段(入口)へ戻す。訪問済みなら必ず存在するはず。</span>
-<span id="L297"><span class="lineNum">     297</span>              :         // 無ければプレイヤーが元座標に取り残されるので silent にせず error にする</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC tlaBgUNC">           0 :         pos, ok := findPortalPosition(world, gc.InteractionPortalPrev)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;再訪した遺跡に上り階段が見つかりません: %s&quot;, defName)</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         return lifecycle.MovePlayerToPosition(world, pos)</span></span>
-<span id="L303"><span class="lineNum">     303</span>              : }</span>
-<span id="L304"><span class="lineNum">     304</span>              : </span>
-<span id="L305"><span class="lineNum">     305</span>              : // enterDebugPlannerFloor はデバッグ遺跡1階を指定プランナーで毎回作り直して入る。</span>
-<span id="L306"><span class="lineNum">     306</span>              : //</span>
-<span id="L307"><span class="lineNum">     307</span>              : // 共存方式では StageKey が永続し、再訪時 SwapTo は再生成せず既存ステージを resume する。</span>
-<span id="L308"><span class="lineNum">     308</span>              : // プランナーを変えて見た目を試すこの用途では、それだと最初に作った階が resume され続けて</span>
-<span id="L309"><span class="lineNum">     309</span>              : // 変わらない。そこで既存の階を Purge してから作り直す。現在地がその遺跡かどうかで分岐する。</span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, builderType mapplanner.PlannerType) error {</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         // spawnFloor は st.BuilderType を読む。自己スワップ経路でも効くよう先に確定する</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         st.BuilderType = builderType</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         st.Depth = 1</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         target := gc.NewDungeonStage(defName, 1)</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         from := query.GetDungeon(world).CurrentStage</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           2 :         if from != target {</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                 // 他ステージから入る。既存のデバッグ階を消してから通常の進入経路に載せる。</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :                 // Purge 済みなので SwapTo は resume でなく generate を通り、新プランナーで作り直す</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 stage.Purge(world, target)</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 return st.enterDungeonWith(world, defName, builderType)</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L324"><span class="lineNum">     324</span>              : </span>
-<span id="L325"><span class="lineNum">     325</span>              :         // 既にその遺跡にいる。SwapTo は自己スワップを前提としないので、その場で作り直す。</span>
-<span id="L326"><span class="lineNum">     326</span>              :         // 上り階段の戻り先結線を引き継がないと ascend が結線なしで失敗するため、Purge 前に控える</span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         def, err := resolveDungeonDefinition(defName)</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC tlaBgGNC">           1 :         var carriedBack *gc.PortalConnection</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           2 :         if up, _, ok := findPortal(world, gc.InteractionPortalPrev); ok &amp;&amp; world.Components.PortalConnection.Has(up) {</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                 conn := *world.Components.PortalConnection.Get(up)</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 carriedBack = &amp;conn</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L336"><span class="lineNum">     336</span>              : </span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         stage.Purge(world, target)</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         landing, upStair, err := st.spawnFloor(world, 1, def, target)</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L342"><span class="lineNum">     342</span>              :         // 控えた戻り先を新しい上り階段へ移す。これで作り直しても元の階へ ascend できる</span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC tlaBgGNC">           2 :         if carriedBack != nil {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                 if cerr := setPortalConnection(world, upStair, carriedBack.Stage, carriedBack.Coord); cerr != nil {</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC tlaBgUNC">           0 :                         return cerr</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L347"><span class="lineNum">     347</span>              :         }</span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC tlaBgGNC">           1 :         stage.ResetExploredTiles(world)</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         return lifecycle.MovePlayerToPosition(world, landing)</span></span>
-<span id="L351"><span class="lineNum">     351</span>              : }</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         // 上り先は訪問済み前提。未訪問なら生成でなくエラーにする</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;上り先の階が存在しません: %+v&quot;, target)</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :         }); err != nil {</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                 return false, err</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L299"><span class="lineNum">     299</span>              : </span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC tlaBgGNC">           1 :         st.Depth = target.Depth</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         // SwapTo 後は現ステージ=target なので現在地で判定する</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :         if query.IsOnOverworld(world) {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 // 地上の StageField が resume で帯寸法の Level を戻すため寸法の手復元は不要。視界だけ強制再計算する</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 query.GetVisionState(world).RequestUpdate()</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L306"><span class="lineNum">     306</span>              : </span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         if err := lifecycle.MovePlayerToPosition(world, conn.Coord); err != nil {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, err</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC tlaBgGNC">           1 :         return true, nil</span></span>
+<span id="L311"><span class="lineNum">     311</span>              : }</span>
+<span id="L312"><span class="lineNum">     312</span>              : </span>
+<span id="L313"><span class="lineNum">     313</span>              : // enterDungeon はオーバーワールドから遺跡へ入る。現在地(入口座標)を上り階段へ結線して戻れるようにする。</span>
+<span id="L314"><span class="lineNum">     314</span>              : // descend の遺跡版で、行き先が1つ深い階でなく遺跡1階になる。</span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 : func (st *DungeonState) enterDungeon(world w.World, defName string) error {</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         // プランナーは遺跡定義のプールから選ぶ。Random を渡すと spawnFloor がプール抽選へ回す</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :         return st.enterDungeonWith(world, defName, mapplanner.PlannerTypeRandom)</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L319"><span class="lineNum">     319</span>              : </span>
+<span id="L320"><span class="lineNum">     320</span>              : // enterDungeonWith はプランナーを固定して遺跡へ入る。デバッグのプランナー単位進入で使う。</span>
+<span id="L321"><span class="lineNum">     321</span>              : // builderType が Random または PlannerFunc 未設定なら spawnFloor が遺跡定義のプールから選ぶ。</span>
+<span id="L322"><span class="lineNum">     322</span>              : // それ以外は指定プランナーで生成する。共存機構の往復は enterDungeon と同じ。</span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 : func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderType mapplanner.PlannerType) error {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         // spawnFloor は st.BuilderType を読んでプランナーを決める。ここで進入ごとに確定する</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         st.BuilderType = builderType</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         fromStage := query.GetDungeon(world).CurrentStage</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L332"><span class="lineNum">     332</span>              :         // 入口のオーバーワールド座標。swapTo 前に値でコピーする</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC tlaBgGNC">           1 :         fromPos := world.Components.GridElement.Get(player).Coord</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         target := gc.NewDungeonStage(defName, 1)</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         // 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         // 今いる遺跡を選んだ場合など。SwapTo は自己スワップを前提としない</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           2 :         if fromStage == target {</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L341"><span class="lineNum">     341</span>              : </span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         var landing consts.Coord[consts.Tile]</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         var generated bool</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           2 :         if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :                 def, derr := resolveDungeonDefinition(defName)</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                 if derr != nil {</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC tlaBgUNC">           0 :                         return derr</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC tlaBgGNC">           1 :                 start, upStair, serr := st.spawnFloor(world, 1, def, key)</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 if serr != nil {</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC tlaBgUNC">           0 :                         return serr</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L353"><span class="lineNum">     353</span>              :                 // 遺跡の上り階段(=出口)に、入ってきたオーバーワールドの入口座標を結線する。</span>
+<span id="L354"><span class="lineNum">     354</span>              :                 // これで exit は入った入口へ正確に戻れる。入口が複数でも曖昧にならない</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC tlaBgGNC">           1 :                 if cerr := setPortalConnection(world, upStair, fromStage, fromPos); cerr != nil {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC tlaBgUNC">           0 :                         return cerr</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC tlaBgGNC">           1 :                 landing = start</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 generated = true</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC tlaBgUNC">           0 :         }); err != nil {</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L364"><span class="lineNum">     364</span>              : </span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC tlaBgGNC">           1 :         st.Depth = 1</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         // 現ステージ=遺跡1階のキーが定義名を持つため、別途 DefinitionName を記録する必要はない</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           2 :         if generated {</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 return lifecycle.MovePlayerToPosition(world, landing)</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L371"><span class="lineNum">     371</span>              :         // 再訪。遺跡の上り階段(入口)へ戻す。訪問済みなら必ず存在するはず。</span>
+<span id="L372"><span class="lineNum">     372</span>              :         // 無ければプレイヤーが元座標に取り残されるので silent にせず error にする</span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC tlaBgUNC">           0 :         pos, ok := findPortalPosition(world, gc.InteractionPortalPrev)</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;再訪した遺跡に上り階段が見つかりません: %s&quot;, defName)</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         return lifecycle.MovePlayerToPosition(world, pos)</span></span>
+<span id="L378"><span class="lineNum">     378</span>              : }</span>
+<span id="L379"><span class="lineNum">     379</span>              : </span>
+<span id="L380"><span class="lineNum">     380</span>              : // enterDebugPlannerFloor はデバッグ遺跡1階を指定プランナーで毎回作り直して入る。</span>
+<span id="L381"><span class="lineNum">     381</span>              : //</span>
+<span id="L382"><span class="lineNum">     382</span>              : // 共存方式では StageKey が永続し、再訪時 SwapTo は再生成せず既存ステージを resume する。</span>
+<span id="L383"><span class="lineNum">     383</span>              : // プランナーを変えて見た目を試すこの用途では、それだと最初に作った階が resume され続けて</span>
+<span id="L384"><span class="lineNum">     384</span>              : // 変わらない。そこで既存の階を Purge してから作り直す。現在地がその遺跡かどうかで分岐する。</span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, builderType mapplanner.PlannerType) error {</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         // spawnFloor は st.BuilderType を読む。自己スワップ経路でも効くよう先に確定する</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         st.BuilderType = builderType</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         st.Depth = 1</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         target := gc.NewDungeonStage(defName, 1)</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         from := query.GetDungeon(world).CurrentStage</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           2 :         if from != target {</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                 // 他ステージから入る。既存のデバッグ階を消してから通常の進入経路に載せる。</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                 // Purge 済みなので SwapTo は resume でなく generate を通り、新プランナーで作り直す</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                 stage.Purge(world, target)</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                 return st.enterDungeonWith(world, defName, builderType)</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              :         // 既にその遺跡にいる。SwapTo は自己スワップを前提としないので、その場で作り直す。</span>
+<span id="L401"><span class="lineNum">     401</span>              :         // 上り階段の戻り先結線を引き継がないと ascend が結線なしで失敗するため、Purge 前に控える</span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         def, err := resolveDungeonDefinition(defName)</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC tlaBgGNC">           1 :         var carriedBack *gc.PortalConnection</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           2 :         if up, _, ok := findPortal(world, gc.InteractionPortalPrev); ok &amp;&amp; world.Components.PortalConnection.Has(up) {</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                 conn := *world.Components.PortalConnection.Get(up)</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :                 carriedBack = &amp;conn</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L411"><span class="lineNum">     411</span>              : </span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :         stage.Purge(world, target)</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :         landing, upStair, err := st.spawnFloor(world, 1, def, target)</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L417"><span class="lineNum">     417</span>              :         // 控えた戻り先を新しい上り階段へ移す。これで作り直しても元の階へ ascend できる</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC tlaBgGNC">           2 :         if carriedBack != nil {</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :                 if cerr := setPortalConnection(world, upStair, carriedBack.Stage, carriedBack.Coord); cerr != nil {</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC tlaBgUNC">           0 :                         return cerr</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L422"><span class="lineNum">     422</span>              :         }</span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC tlaBgGNC">           1 :         stage.ResetExploredTiles(world)</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :         return lifecycle.MovePlayerToPosition(world, landing)</span></span>
+<span id="L426"><span class="lineNum">     426</span>              : }</span>
         </pre>
               </td>
             </tr>
