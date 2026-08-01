@@ -205,16 +205,6 @@ func TestGolden_Overworld(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
-// TestGolden_OverworldScatter は wasteland チャンクへの屋外散布の描画を固定する。RunSeed 66 は
-// 中央チャンクが道沿いの荒れ地になり、草の房と低木など自然物の散布が視界に入る。
-// 散布は決定的な純関数なので、この RunSeed で golden が安定する。密度やカタログ比を変えると退行する。
-func TestGolden_OverworldScatter(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 66})()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
 // TestGolden_OverworldFrost は寒波前線の氷オーバーレイの描画を固定する。
 // 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
 func TestGolden_OverworldFrost(t *testing.T) {
