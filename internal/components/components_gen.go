@@ -38,7 +38,7 @@ type EntitySpec struct {
 	PassCost           *PassCost           // タイルの移動コスト修正を保持する
 	Door               *Door               // 開閉可能な扉であることを表す
 	Prop               *Prop               // 置物であることを示す
-	Pushable           *Pushable           // 押して動かせる移動拠点キューブであることを示す
+	Pushable           *Pushable           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
 	LightSource        *LightSource        // 光源であることを表す
 	Interactable       *Interactable       // 相互作用可能であることを示す
 	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
@@ -119,7 +119,7 @@ type Components struct {
 	PassCost           *ecs.Map[PassCost]           // タイルの移動コスト修正を保持する
 	Door               *ecs.Map[Door]               // 開閉可能な扉であることを表す
 	Prop               *ecs.Map[Prop]               // 置物であることを示す
-	Pushable           *ecs.Map[Pushable]           // 押して動かせる移動拠点キューブであることを示す
+	Pushable           *ecs.Map[Pushable]           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
 	LightSource        *ecs.Map[LightSource]        // 光源であることを表す
 	Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す
 	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する

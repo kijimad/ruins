@@ -64,8 +64,8 @@ type PassCost struct {
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
 
-// Pushable は押して動かせる移動拠点キューブであることを示すマーカー。
-// BlockPass を持つが、この印があると移動解決は通行不可でなく押しへ分岐する。
+// Pushable は押して動かせることを示すマーカー。移動拠点キューブが最初の利用者だが、印は汎用で
+// キューブに限らない。BlockPass を持つ物でも、この印があると移動解決は通行不可でなく押しへ分岐する。
 type Pushable struct{}
 
 // Direction はタイルベース移動の方向
