@@ -34,12 +34,46 @@ type scoredTile struct {
 	score float64
 }
 
+// ScatterArea は矩形 area の中から決定的間引きで count 枚のタイルを選ぶ純関数。戸口も壁も
+// 前提にしない開領域向けで、area の格子上の候補を hash ジッタで並べ上位を取る芯だけを持つ。
+// 候補の可否は accept 述語に委ね、dirt 判定や占有判定を ScatterArea 側に埋め込まない。
+// interior の全域散布と overworld の屋外散布の双方がこれを呼ぶ。外周1タイルは interiorTiles が
+// 除くので、チャンクの継ぎ目や部屋の壁際には置かない。
+func ScatterArea(area Rect, accept func(Vec) bool, seed uint64, count int) []Vec {
+	if count <= 0 {
+		return nil
+	}
+	cands := make([]scoredTile, 0, area.W*area.H)
+	for _, t := range area.interiorTiles() {
+		if !accept(t) {
+			continue
+		}
+		// 密度は一様、hash ジッタだけで決定的に並べる。全域散布はどのタイルも等しく置き得るので
+		// density の差でなくジッタの順で間引く
+		cands = append(cands, scoredTile{pos: t, score: norm01(hashTile(seed, t))})
+	}
+	sortByScore(cands)
+	n := min(count, len(cands))
+	out := make([]Vec, n)
+	for i := range n {
+		out[i] = cands[i].pos
+	}
+	return out
+}
+
 // selectTiles は placement 意味論に従い、部屋の空き床から count 枚のタイルを決定的に選ぶ。
 // 各候補に density を与え、hash 由来のジッタで tie を崩し、スコア降順に安定 sort して上位を取る。
 // 密度場 + 決定的間引きの最小実装。map を抽選に使わず、候補は slice に集めて sort する。
 func selectTiles(room Room, p Placement, occupied map[Vec]bool, seed uint64, count int) []Vec {
 	if count <= 0 {
 		return nil
+	}
+	if p == PlaceFullArea {
+		// 全域散布は Room 非依存の ScatterArea へ委ねる。パリティ格子で通行を残し、戸口隣接を
+		// 避けるという「置ける条件」は accept 述語で表す。並びは ScatterArea のジッタが担う
+		return ScatterArea(room.Rect, func(t Vec) bool {
+			return !occupied[t] && !isDoorwayAdjacent(room, t) && (t.X+t.Y)%2 == 0
+		}, seed, count)
 	}
 	c := room.Rect.center()
 	maxDist := float64(room.Rect.W + room.Rect.H)
@@ -109,11 +143,8 @@ func placementDensity(room Room, p Placement, t, center Vec, maxDist float64) fl
 		}
 		return 1
 	case PlaceFullArea:
-		// パリティ格子に限定して通行を残す
-		if (t.X+t.Y)%2 != 0 {
-			return 0
-		}
-		return 0.5
+		// 全域散布は selectTiles が ScatterArea へ委ねるのでここには来ない。exhaustive のために置く
+		panic("PlaceFullArea は placementDensity を経由しない")
 	case PlaceNearDoor:
 		return 1 - nearestDoorDist(room, t)/maxDist
 	case PlaceFarFromDoor:

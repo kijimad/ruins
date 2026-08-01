@@ -69,7 +69,7 @@ $ make help
 | [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 0/32 | worldgen |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
-| [82](docs/design/20260801_82.md) | draft | 屋外の散布 —— 開けた地表へ自然物とポスアポ人工物を撒く | 0/10（見送り1） | worldgen |
+| [82](docs/design/20260801_82.md) | draft | 屋外の散布 —— 開けた地表へ自然物とポスアポ人工物を撒く | 1/10（見送り1） | worldgen |
 | [83](docs/design/20260801_83.md) | draft | Prop タグを廃し固定物を独立状態 Fixed で表す —— 効果の門は能力ごと | 0/9 | ecs, refactor, item |
 
 
