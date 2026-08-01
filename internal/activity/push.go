@@ -10,28 +10,28 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// PushActivity は BehaviorPush の実装。プレイヤーが隣接する Pushable キューブを押し方向へ
+// PushBehavior は BehaviorPush の実装。プレイヤーが隣接する Pushable キューブを押し方向へ
 // 1タイル動かす。分解などと同じ多ターン行動で、専用の進捗コンポーネントを持たず
 // gc.Activity のカウントダウンで進捗を表す。重いキューブほど所要ターンが増え、
 // パーティAPが多いほど減る。
 //
 // Cube と Dir は着手時のパラメータで、BuildActivity だけが読む。BuildActivity はこの2つから
 // 押す対象と押し先を求め、gc.Activity の Target と Destination へ書き写す。
-// 多ターンの継続処理は behaviors マップの共有インスタンス、すなわち NewPushActivity で作った物では
+// 多ターンの継続処理は behaviors マップの共有インスタンス、すなわち NewPushBehavior で作った物では
 // なく Cube も Dir もゼロ値の1個で Validate・DoTurn・Finish を呼ぶ。だから着手後はフィールドを
 // 当てにせず、gc.Activity の Target と Destination だけを読む。
-type PushActivity struct {
+type PushBehavior struct {
 	Cube ecs.Entity
 	Dir  gc.Direction
 }
 
-// NewPushActivity は押す対象キューブと押し向きを指定して押しアクティビティを作る。
-func NewPushActivity(cube ecs.Entity, dir gc.Direction) *PushActivity {
-	return &PushActivity{Cube: cube, Dir: dir}
+// NewPushBehavior は押す対象キューブと押し向きを指定して押しアクティビティを作る。
+func NewPushBehavior(cube ecs.Entity, dir gc.Direction) *PushBehavior {
+	return &PushBehavior{Cube: cube, Dir: dir}
 }
 
 // Info はBehaviorの実装
-func (pa *PushActivity) Info() Info {
+func (pa *PushBehavior) Info() Info {
 	return Info{
 		Name:            "押す",
 		Description:     "隣接するキューブを押して動かす",
@@ -43,12 +43,12 @@ func (pa *PushActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (pa *PushActivity) Name() gc.BehaviorName {
+func (pa *PushBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorPush
 }
 
 // BuildActivity はBehaviorの実装。押し先タイルを求め、総重量とパーティAPから所要ターンを決める。
-func (pa *PushActivity) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity, error) {
+func (pa *PushBehavior) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity, error) {
 	if !world.Components.GridElement.Has(pa.Cube) {
 		return nil, fmt.Errorf("押す対象に位置がありません")
 	}
@@ -58,7 +58,7 @@ func (pa *PushActivity) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity
 }
 
 // Validate はBehaviorの実装
-func (pa *PushActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pa *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("押す対象が指定されていません")
 	}
@@ -87,13 +87,13 @@ func (pa *PushActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Start はBehaviorの実装
-func (pa *PushActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (pa *PushBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("押し開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はBehaviorの実装。毎ターン対象の生存と押し先の通行可否を確かめ、ターンを1つ消費する。
-func (pa *PushActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (pa *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil || !world.ECS.Alive(*comp.Target) {
 		Cancel(comp, "押す対象が消えたため中断")
 		return nil
@@ -118,7 +118,7 @@ func (pa *PushActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 // Finish はBehaviorの実装。キューブだけを1タイル進める。押し手は追随させない。
 // プレイヤーは次の移動入力で空いたタイルへ普通に一歩進む。押しと移動を別アクティビティに分け、
 // それぞれが自然な通貨、押しはターン、移動はAPで課金される。
-func (pa *PushActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pa *PushBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	cube := *comp.Target
 	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) {
 		return nil
@@ -133,7 +133,7 @@ func (pa *PushActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Canceled はBehaviorの実装
-func (pa *PushActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (pa *PushBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("押しキャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
@@ -169,22 +169,22 @@ func buildCubeMove(behavior Behavior, cube *ecs.Entity, dest consts.Coord[consts
 	return comp, nil
 }
 
-// PullActivity は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
+// PullBehavior は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
 // 自分は1タイル後退する。押しでは動かせない壁際・角のキューブを引き出して詰みを解く。
 // 所要ターンは押しと同じく総重量とパーティAPで決まる。Cube は着手時のパラメータで BuildActivity
 // だけが読み、gc.Activity の Target と Destination へ書き写す。継続処理は behaviors マップの
 // 共有インスタンス、Cube がゼロ値の1個で呼ばれるので、着手後は gc.Activity 側だけを読む。
-type PullActivity struct {
+type PullBehavior struct {
 	Cube ecs.Entity
 }
 
-// NewPullActivity は引く対象キューブを指定して引きアクティビティを作る。
-func NewPullActivity(cube ecs.Entity) *PullActivity {
-	return &PullActivity{Cube: cube}
+// NewPullBehavior は引く対象キューブを指定して引きアクティビティを作る。
+func NewPullBehavior(cube ecs.Entity) *PullBehavior {
+	return &PullBehavior{Cube: cube}
 }
 
 // Info はBehaviorの実装
-func (pa *PullActivity) Info() Info {
+func (pa *PullBehavior) Info() Info {
 	return Info{
 		Name:            "引く",
 		Description:     "隣接するキューブを自分の側へ引く",
@@ -196,7 +196,7 @@ func (pa *PullActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (pa *PullActivity) Name() gc.BehaviorName { return gc.BehaviorPull }
+func (pa *PullBehavior) Name() gc.BehaviorName { return gc.BehaviorPull }
 
 // pullRetreat は引きでプレイヤーが後退する先を返す。プレイヤーはキューブの隣に立ち、
 // キューブから自分へ向かう向きへ1つ退く。キューブはプレイヤーの元タイルへ入る。
@@ -218,7 +218,7 @@ func canPullCube(world w.World, actor, cube ecs.Entity) bool {
 }
 
 // BuildActivity はBehaviorの実装。キューブの移動先はプレイヤーの現在タイル、所要ターンは重量で決まる。
-func (pa *PullActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+func (pa *PullBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
 	if !world.Components.GridElement.Has(pa.Cube) {
 		return nil, fmt.Errorf("引く対象に位置がありません")
 	}
@@ -231,7 +231,7 @@ func (pa *PullActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Acti
 }
 
 // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。
-func (pa *PullActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pa *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil || !world.ECS.Alive(*comp.Target) {
 		return fmt.Errorf("引く対象が存在しません")
 	}
@@ -254,13 +254,13 @@ func (pa *PullActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Start はBehaviorの実装
-func (pa *PullActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (pa *PullBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("引き開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はBehaviorの実装。毎ターン対象の生存と後退先の通行可否を確かめ、ターンを1つ消費する。
-func (pa *PullActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pa *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil || !world.ECS.Alive(*comp.Target) {
 		Cancel(comp, "引く対象が消えたため中断")
 		return nil
@@ -284,7 +284,7 @@ func (pa *PullActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish はBehaviorの実装。キューブをプレイヤーの元タイルへ引き入れ、プレイヤーは1タイル後退する。
-func (pa *PullActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pa *PullBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	cube := *comp.Target
 	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) || !world.Components.GridElement.Has(actor) {
 		return nil
@@ -305,7 +305,7 @@ func (pa *PullActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Canceled はBehaviorの実装
-func (pa *PullActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (pa *PullBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("引きキャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

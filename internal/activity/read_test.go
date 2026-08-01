@@ -10,30 +10,30 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReadActivity_Validate_NoTarget(t *testing.T) {
+func TestReadBehavior_Validate_NoTarget(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: nil}
 	assert.Error(t, ra.Validate(comp, actor, world))
 }
 
-func TestReadActivity_Validate_NotABook(t *testing.T) {
+func TestReadBehavior_Validate_NotABook(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: &item}
 	assert.Error(t, ra.Validate(comp, actor, world))
 }
 
-func TestReadActivity_Validate_AlreadyCompleted(t *testing.T) {
+func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -46,14 +46,14 @@ func TestReadActivity_Validate_AlreadyCompleted(t *testing.T) {
 	}
 	world.Components.Book.Add(bookEntity, book)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: &bookEntity}
 	err := ra.Validate(comp, actor, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "読了済み")
 }
 
-func TestReadActivity_Validate_RequiredLevelNotMet(t *testing.T) {
+func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -68,14 +68,14 @@ func TestReadActivity_Validate_RequiredLevelNotMet(t *testing.T) {
 	}
 	world.Components.Book.Add(bookEntity, book)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: &bookEntity}
 	err := ra.Validate(comp, actor, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "レベル3以上必要")
 }
 
-func TestReadActivity_Validate_RequiredLevelMet(t *testing.T) {
+func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -93,12 +93,12 @@ func TestReadActivity_Validate_RequiredLevelMet(t *testing.T) {
 	}
 	world.Components.Book.Add(bookEntity, book)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: &bookEntity}
 	assert.NoError(t, ra.Validate(comp, actor, world))
 }
 
-func TestReadActivity_Validate_Success(t *testing.T) {
+func TestReadBehavior_Validate_Success(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -112,12 +112,12 @@ func TestReadActivity_Validate_Success(t *testing.T) {
 	}
 	world.Components.Book.Add(bookEntity, book)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: &bookEntity}
 	assert.NoError(t, ra.Validate(comp, actor, world))
 }
 
-func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
+func TestReadBehavior_DoTurn_AdvancesProgress(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -134,7 +134,7 @@ func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
@@ -149,7 +149,7 @@ func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
 	assert.Equal(t, consts.Turn(99), comp.TurnsLeft, "ターンが1減っている")
 }
 
-func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
+func TestReadBehavior_DoTurn_GainsSkillExp(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -168,7 +168,7 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 	}
 	world.Components.Book.Add(bookEntity, book)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
@@ -183,7 +183,7 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 	assert.Greater(t, skills.Get(gc.SkillSword).Exp.Current, before, "経験値が増加する")
 }
 
-func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
+func TestReadBehavior_DoTurn_NoExpWhenTooHard(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -202,7 +202,7 @@ func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
@@ -217,7 +217,7 @@ func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
 	assert.Equal(t, 10, book.Effort.Current, "工数は進む")
 }
 
-func TestReadActivity_DoTurn_CompletesWhenEffortReached(t *testing.T) {
+func TestReadBehavior_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -234,7 +234,7 @@ func TestReadActivity_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
@@ -249,7 +249,7 @@ func TestReadActivity_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State, "アクティビティが完了している")
 }
 
-func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
+func TestReadBehavior_DoTurn_CanceledByEnemy(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -271,7 +271,7 @@ func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
@@ -286,7 +286,7 @@ func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
 	assert.Equal(t, 0, book.Effort.Current, "章は進んでいない")
 }
 
-func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
+func TestReadBehavior_DoTurn_SkillLevelUp(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -309,7 +309,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	}
 	world.Components.Book.Add(bookEntity, book)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
@@ -327,7 +327,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	assert.True(t, world.Components.StatsChanged.Has(actor), "再計算フラグが立っている")
 }
 
-func TestReadActivity_NoSkillsComponent(t *testing.T) {
+func TestReadBehavior_NoSkillsComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -343,7 +343,7 @@ func TestReadActivity_NoSkillsComponent(t *testing.T) {
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
@@ -357,7 +357,7 @@ func TestReadActivity_NoSkillsComponent(t *testing.T) {
 	assert.Equal(t, 10, book.Effort.Current, "工数は進む")
 }
 
-func TestReadActivity_DoTurn_本が消えると中断する(t *testing.T) {
+func TestReadBehavior_DoTurn_本が消えると中断する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -367,7 +367,7 @@ func TestReadActivity_DoTurn_本が消えると中断する(t *testing.T) {
 		Effort: gc.IntPool{Max: 10, Current: 0},
 	})
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: &bookEntity, State: gc.ActivityStateRunning, TurnsTotal: 5, TurnsLeft: 5}
 
 	world.ECS.RemoveEntity(bookEntity)
@@ -380,7 +380,7 @@ func TestReadActivity_DoTurn_本が消えると中断する(t *testing.T) {
 	require.NoError(t, ra.Canceled(comp, actor, world))
 }
 
-func TestReadActivity_Finish_本が消えていれば何もしない(t *testing.T) {
+func TestReadBehavior_Finish_本が消えていれば何もしない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -390,7 +390,7 @@ func TestReadActivity_Finish_本が消えていれば何もしない(t *testing.
 		Effort: gc.IntPool{Max: 10, Current: 10},
 	})
 
-	ra := &ReadActivity{}
+	ra := &ReadBehavior{}
 	comp := &gc.Activity{Target: &bookEntity, State: gc.ActivityStateCompleted}
 
 	world.ECS.RemoveEntity(bookEntity)

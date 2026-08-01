@@ -18,16 +18,16 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// DisassembleActivity は工具でpropやアイテムを分解して素材を得るアクティビティの実装。
+// DisassembleBehavior は工具でpropやアイテムを分解して素材を得るアクティビティの実装。
 // 工具は開始時に固定せず、毎回actorの所持品から分類に適合する最良の1つを解決する。
 // エンティティ参照を持ち越さないのでセーブ互換の考慮が不要になり、
 // 途中で工具を失った場合も次のターン検査で自然に中断へ落ちる
-type DisassembleActivity struct {
+type DisassembleBehavior struct {
 	Target ecs.Entity
 }
 
 // Info はBehaviorの実装
-func (da *DisassembleActivity) Info() Info {
+func (da *DisassembleBehavior) Info() Info {
 	return Info{
 		Name:            "分解",
 		Description:     "工具で対象を分解して素材を得る",
@@ -38,14 +38,14 @@ func (da *DisassembleActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (da *DisassembleActivity) Name() gc.BehaviorName {
+func (da *DisassembleBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorDisassemble
 }
 
 // BuildActivity はBehaviorの実装。
 // 必要ターン数は固定値でなく、対象のbaseAPへ機械スキルと工具グレードの短縮を
 // 掛けた総APから毎回計算する
-func (da *DisassembleActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+func (da *DisassembleBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
 	def, ok := findDisassemblyDef(da.Target, world)
 	if !ok {
 		return nil, fmt.Errorf("対象は分解定義を持っていません")
@@ -74,7 +74,7 @@ func (da *DisassembleActivity) BuildActivity(actor ecs.Entity, world w.World) (*
 }
 
 // Validate は分解アクティビティの検証を行う
-func (da *DisassembleActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (da *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("分解対象が指定されていません")
 	}
@@ -95,7 +95,7 @@ func (da *DisassembleActivity) Validate(comp *gc.Activity, actor ecs.Entity, wor
 }
 
 // Start は分解開始時の処理を実行する
-func (da *DisassembleActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (da *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	def, ok := findDisassemblyDef(*comp.Target, world)
 	if !ok {
 		return fmt.Errorf("分解定義が見つかりません")
@@ -119,7 +119,7 @@ func (da *DisassembleActivity) Start(comp *gc.Activity, actor ecs.Entity, world 
 
 // DoTurn は分解アクティビティの1ターン分の処理を実行する。
 // 対象が消えている可能性があるため、毎ターン先頭で生存を確認する
-func (da *DisassembleActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (da *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if !world.ECS.Alive(*comp.Target) {
 		Cancel(comp, "分解対象が消えたため中断")
 		return nil
@@ -147,7 +147,7 @@ func (da *DisassembleActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 
 // Finish は分解完了時の処理を実行する。産出を抽選し、propは足元へ落として
 // エンティティを除去、アイテムは1個消費して所持品へ加える
-func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (da *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	target := *comp.Target
 	if !world.ECS.Alive(target) {
 		return nil
@@ -202,7 +202,7 @@ func (da *DisassembleActivity) Finish(comp *gc.Activity, actor ecs.Entity, world
 
 // Canceled は分解キャンセル時の処理を実行する。
 // 対象消滅による中断もあるため、名前は対象が生きている場合だけ出す
-func (da *DisassembleActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (da *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
 		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
@@ -218,7 +218,7 @@ func (da *DisassembleActivity) Canceled(comp *gc.Activity, actor ecs.Entity, wor
 }
 
 // gainMechanicExp は分解完了で機械スキルの経験値を与える
-func (da *DisassembleActivity) gainMechanicExp(actor ecs.Entity, world w.World) {
+func (da *DisassembleBehavior) gainMechanicExp(actor ecs.Entity, world w.World) {
 	if !world.Components.Skills.Has(actor) {
 		return
 	}

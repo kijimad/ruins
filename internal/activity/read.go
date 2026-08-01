@@ -14,14 +14,14 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ReadActivity は読書アクティビティの実装
-type ReadActivity struct {
+// ReadBehavior は読書アクティビティの実装
+type ReadBehavior struct {
 	Target   ecs.Entity
 	Duration consts.Turn
 }
 
 // Info はBehaviorの実装
-func (ra *ReadActivity) Info() Info {
+func (ra *ReadBehavior) Info() Info {
 	return Info{
 		Name:            "読書",
 		Description:     "本を読んでスキルやレシピを習得する",
@@ -32,12 +32,12 @@ func (ra *ReadActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ra *ReadActivity) Name() gc.BehaviorName {
+func (ra *ReadBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorRead
 }
 
 // BuildActivity はBehaviorの実装
-func (ra *ReadActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+func (ra *ReadBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
 	duration := ra.Duration
 	if duration <= 0 {
 		characterAP, err := getEntityMaxAP(actor, world)
@@ -55,7 +55,7 @@ func (ra *ReadActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Acti
 }
 
 // Validate は読書アクティビティの検証を行う
-func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("本が指定されていません")
 	}
@@ -82,7 +82,7 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Start は読書開始時の処理を実行する
-func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return ErrReadTargetNotSet
 	}
@@ -103,7 +103,7 @@ func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 
 // DoTurn は読書アクティビティの1ターン分の処理を実行する。
 // スタック統合などで本エンティティが消えている可能性があるため、毎ターン先頭で生存を確認する
-func (ra *ReadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if !world.ECS.Alive(*comp.Target) {
 		Cancel(comp, "本が消えたため中断")
 		return nil
@@ -147,7 +147,7 @@ func (ra *ReadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish は読書完了時の処理を実行する
-func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if !world.ECS.Alive(*comp.Target) {
 		return nil
 	}
@@ -172,7 +172,7 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled は読書キャンセル時の処理を実行する。
 // 本が消えたことによる中断もあるため、名前は本が残っている場合だけ出す
-func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		message := "読書を中断した"
 		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
@@ -188,7 +188,7 @@ func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // applyPerTurnEffect は毎ターンの効果を適用する
-func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, world w.World, abilityValue int) {
+func (ra *ReadBehavior) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, world w.World, abilityValue int) {
 	if book.Skill == nil {
 		return
 	}
@@ -226,7 +226,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 // calcEffortPerTurn は1ターンあたりの読書工数を計算する
 // 基本工数10に、本のスキルに対応する能力値を加算する
-func (ra *ReadActivity) calcEffortPerTurn(book *gc.Book, abilityValue int) int {
+func (ra *ReadBehavior) calcEffortPerTurn(book *gc.Book, abilityValue int) int {
 	const baseEffort = 10
 	if book.Skill == nil {
 		return baseEffort
@@ -235,7 +235,7 @@ func (ra *ReadActivity) calcEffortPerTurn(book *gc.Book, abilityValue int) int {
 }
 
 // getSkillAbilityValue は本のスキルに対応する能力値を取得する
-func (ra *ReadActivity) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, world w.World) int {
+func (ra *ReadBehavior) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, world w.World) int {
 	if book.Skill == nil {
 		return 0
 	}
@@ -248,7 +248,7 @@ func (ra *ReadActivity) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 }
 
 // getBook は対象エンティティのBookコンポーネントを取得する
-func (ra *ReadActivity) getBook(entity ecs.Entity, world w.World) *gc.Book {
+func (ra *ReadBehavior) getBook(entity ecs.Entity, world w.World) *gc.Book {
 	if !world.Components.Book.Has(entity) {
 		return nil
 	}

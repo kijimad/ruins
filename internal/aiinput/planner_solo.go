@@ -178,7 +178,7 @@ func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	if isAdjacent(aiGrid, playerGrid) {
-		return &activity.AttackActivity{Target: playerEntity}
+		return &activity.AttackBehavior{Target: playerEntity}
 	}
 
 	dx := playerGrid.X - aiGrid.X

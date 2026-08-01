@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestOpenDoorActivity(t *testing.T) {
+func TestOpenDoorBehavior(t *testing.T) {
 	t.Parallel()
 
 	t.Run("閉じた扉を開く", func(t *testing.T) {
@@ -32,8 +32,8 @@ func TestOpenDoorActivity(t *testing.T) {
 		world.Components.BlockPass.Add(door, &gc.BlockPass{})
 		world.Components.BlockView.Add(door, &gc.BlockView{})
 
-		// OpenDoorActivityを実行
-		result, err := Execute(&OpenDoorActivity{Target: door}, player, world)
+		// OpenDoorBehaviorを実行
+		result, err := Execute(&OpenDoorBehavior{Target: door}, player, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -65,8 +65,8 @@ func TestOpenDoorActivity(t *testing.T) {
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
-		// OpenDoorActivityを実行
-		result, err := Execute(&OpenDoorActivity{Target: wall}, player, world)
+		// OpenDoorBehaviorを実行
+		result, err := Execute(&OpenDoorBehavior{Target: wall}, player, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)
@@ -92,7 +92,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		world.Components.BlockPass.Add(door, &gc.BlockPass{})
 		world.Components.BlockView.Add(door, &gc.BlockView{})
 
-		result, err := Execute(&OpenDoorActivity{Target: door}, player, world)
+		result, err := Execute(&OpenDoorBehavior{Target: door}, player, world)
 
 		require.NoError(t, err, "ロック済み扉のキャンセルは致命的エラーではない")
 		require.NotNil(t, result)
@@ -123,8 +123,8 @@ func TestOpenDoorActivity(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
-		// OpenDoorActivityを実行（Targetなし → ゼロ値Entityは扉ではない）
-		result, err := Execute(&OpenDoorActivity{}, player, world)
+		// OpenDoorBehaviorを実行（Targetなし → ゼロ値Entityは扉ではない）
+		result, err := Execute(&OpenDoorBehavior{}, player, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)

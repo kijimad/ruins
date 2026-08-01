@@ -23,13 +23,13 @@ const (
 	MeleeAttackRange = 1.5 // 近接攻撃の最大射程（斜めも考慮）
 )
 
-// AttackActivity はBehaviorの実装
-type AttackActivity struct {
+// AttackBehavior はBehaviorの実装
+type AttackBehavior struct {
 	Target ecs.Entity
 }
 
 // Info はBehaviorの実装
-func (aa *AttackActivity) Info() Info {
+func (aa *AttackBehavior) Info() Info {
 	return Info{
 		Name:            "攻撃",
 		Description:     "敵を攻撃する",
@@ -41,12 +41,12 @@ func (aa *AttackActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (aa *AttackActivity) Name() gc.BehaviorName {
+func (aa *AttackBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorAttack
 }
 
 // BuildActivity はBehaviorの実装
-func (aa *AttackActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+func (aa *AttackBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
 	comp, err := NewActivity(aa, 1)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (aa *AttackActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, 
 }
 
 // Validate はBehaviorの実装
-func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (aa *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return ErrAttackTargetNotSet
 	}
@@ -90,13 +90,13 @@ func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // Start はBehaviorの実装
-func (aa *AttackActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (aa *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("攻撃開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (aa *AttackActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (aa *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		Cancel(comp, "攻撃対象が設定されていません")
 		return ErrAttackTargetNotSet
@@ -117,7 +117,7 @@ func (aa *AttackActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はBehaviorの実装
-func (aa *AttackActivity) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (aa *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if comp.Target == nil {
 		log.Debug("攻撃対象が未設定のまま完了処理に到達した。攻撃は実行されていない", "actor", actor)
 		return nil
@@ -130,12 +130,12 @@ func (aa *AttackActivity) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 // Canceled はBehaviorの実装
-func (aa *AttackActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (aa *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("攻撃キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (aa *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	target := *comp.Target
 
 	log.Debug("攻撃実行", "attacker", actor, "target", target)
@@ -148,7 +148,7 @@ func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 	return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
 }
 
-func (aa *AttackActivity) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
+func (aa *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
 	if comp.Target == nil {
 		return false
 	}
@@ -160,7 +160,7 @@ func (aa *AttackActivity) canAttack(comp *gc.Activity, actor ecs.Entity, world w
 	return true
 }
 
-func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) bool {
+func (aa *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) bool {
 	if !world.Components.GridElement.Has(attacker) {
 		return false
 	}
@@ -177,7 +177,7 @@ func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) 
 	return distance <= MeleeAttackRange
 }
 
-func (aa *AttackActivity) canPerformAttack(attacker ecs.Entity, world w.World) bool {
+func (aa *AttackBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bool {
 	// TODO: 装備武器のチェック
 	abils := world.Components.Abilities.Get(attacker)
 	return abils != nil
@@ -277,7 +277,7 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 }
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// ShootActivityからも使用される
+// ShootBehaviorからも使用される
 func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName string, hitRateModifier int, damageModifier int) error {
 	if attack == nil {
 		return fmt.Errorf("attack must not be nil")

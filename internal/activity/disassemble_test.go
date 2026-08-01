@@ -97,7 +97,7 @@ func TestFindBestDisassemblyTool(t *testing.T) {
 	})
 }
 
-func TestDisassembleActivity_Validate_工具がないとエラー(t *testing.T) {
+func TestDisassembleBehavior_Validate_工具がないとエラー(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -106,14 +106,14 @@ func TestDisassembleActivity_Validate_工具がないとエラー(t *testing.T) 
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp := &gc.Activity{Target: &crate}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "工具")
 }
 
-func TestDisassembleActivity_BuildActivity_分解定義のない対象はエラー(t *testing.T) {
+func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラー(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -122,13 +122,13 @@ func TestDisassembleActivity_BuildActivity_分解定義のない対象はエラ�
 	desk, err := lifecycle.SpawnProp(world, "desk", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: desk}
+	da := &DisassembleBehavior{Target: desk}
 	_, err = da.BuildActivity(player, world)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "分解定義")
 }
 
-func TestDisassembleActivity_propを分解すると素材が足元に落ちる(t *testing.T) {
+func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -143,7 +143,7 @@ func TestDisassembleActivity_propを分解すると素材が足元に落ちる(t
 	assert.Contains(t, world.Components.Interactable.Get(crate).Interactions, gc.InteractionDisassemble,
 		"分解定義を持つpropはInteractionDisassembleを持つべき")
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	// baseAP2000 スキル0 グレード1 で必要AP2000、AP100につき20ターン
@@ -172,7 +172,7 @@ func TestDisassembleActivity_propを分解すると素材が足元に落ちる(t
 	assert.Positive(t, mechanic.Exp.Current)
 }
 
-func TestDisassembleActivity_アイテムを分解すると消費して素材が所持品に入る(t *testing.T) {
+func TestDisassembleBehavior_アイテムを分解すると消費して素材が所持品に入る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -184,7 +184,7 @@ func TestDisassembleActivity_アイテムを分解すると消費して素材が
 	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 1)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: hdd}
+	da := &DisassembleBehavior{Target: hdd}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	// baseAP1000 グレード2 で必要AP800、AP100につき8ターン
@@ -206,7 +206,7 @@ func TestDisassembleActivity_アイテムを分解すると消費して素材が
 	assert.Contains(t, backpackNames, "鉄くず", "確定枠の鉄くずが所持品に入るべき")
 }
 
-func TestDisassembleActivity_収納propを分解すると中身が足元に出る(t *testing.T) {
+func TestDisassembleBehavior_収納propを分解すると中身が足元に出る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -223,7 +223,7 @@ func TestDisassembleActivity_収納propを分解すると中身が足元に出�
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MoveToStorage(world, loot, crate))
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
@@ -239,7 +239,7 @@ func TestDisassembleActivity_収納propを分解すると中身が足元に出�
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 10}, lootGrid.Coord, "中身は木箱の足元に落ちるべき")
 }
 
-func TestDisassembleActivity_Finish_対象が既に消えていれば何もしない(t *testing.T) {
+func TestDisassembleBehavior_Finish_対象が既に消えていれば何もしない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -250,7 +250,7 @@ func TestDisassembleActivity_Finish_対象が既に消えていれば何もし�
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
@@ -267,7 +267,7 @@ func TestDisassembleActivity_Finish_対象が既に消えていれば何もし�
 	assert.Equal(t, 0, count, "消えた対象から産出が湧かないべき")
 }
 
-func TestDisassembleActivity_スタックのあるアイテムは1個だけ消費する(t *testing.T) {
+func TestDisassembleBehavior_スタックのあるアイテムは1個だけ消費する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -279,7 +279,7 @@ func TestDisassembleActivity_スタックのあるアイテムは1個だけ消�
 	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 2)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: hdd}
+	da := &DisassembleBehavior{Target: hdd}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
@@ -292,7 +292,7 @@ func TestDisassembleActivity_スタックのあるアイテムは1個だけ消�
 	assert.Equal(t, 1, query.GetEntityCount(world, hdd), "1個だけ消費されるべき")
 }
 
-func TestDisassembleActivity_Finish_レベルアップでStatsChangedが付く(t *testing.T) {
+func TestDisassembleBehavior_Finish_レベルアップでStatsChangedが付く(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -308,7 +308,7 @@ func TestDisassembleActivity_Finish_レベルアップでStatsChangedが付く(t
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
@@ -322,7 +322,7 @@ func TestDisassembleActivity_Finish_レベルアップでStatsChangedが付く(t
 		"レベルアップ時はステータス再計算マーカーが付くべき")
 }
 
-func TestDisassembleActivity_Validate_敵が隣接していると開始できない(t *testing.T) {
+func TestDisassembleBehavior_Validate_敵が隣接していると開始できない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -334,14 +334,14 @@ func TestDisassembleActivity_Validate_敵が隣接していると開始できな
 	require.NoError(t, err)
 	spawnHostileAt(world, 9, 10)
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp := &gc.Activity{Target: &crate}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "敵")
 }
 
-func TestDisassembleActivity_DoTurn_敵が接近すると中断する(t *testing.T) {
+func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -352,7 +352,7 @@ func TestDisassembleActivity_DoTurn_敵が接近すると中断する(t *testing
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Validate(comp, player, world))
@@ -396,7 +396,7 @@ func TestAppendYields(t *testing.T) {
 	}
 }
 
-func TestDisassembleActivity_DoTurn_対象が消えると中断する(t *testing.T) {
+func TestDisassembleBehavior_DoTurn_対象が消えると中断する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -407,7 +407,7 @@ func TestDisassembleActivity_DoTurn_対象が消えると中断する(t *testing
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
@@ -422,7 +422,7 @@ func TestDisassembleActivity_DoTurn_対象が消えると中断する(t *testing
 	require.NoError(t, da.Canceled(comp, player, world))
 }
 
-func TestDisassembleActivity_DoTurn_工具を失うと中断する(t *testing.T) {
+func TestDisassembleBehavior_DoTurn_工具を失うと中断する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -433,7 +433,7 @@ func TestDisassembleActivity_DoTurn_工具を失うと中断する(t *testing.T)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleActivity{Target: crate}
+	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))

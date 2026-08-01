@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPickupActivity_Validate(t *testing.T) {
+func TestPickupBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("同じタイルにアイテムがある場合は成功", func(t *testing.T) {
@@ -30,7 +30,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -51,7 +51,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "拾えるものがありません")
@@ -68,17 +68,17 @@ func TestPickupActivity_Validate(t *testing.T) {
 			BehaviorName: gc.BehaviorPickup,
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 
-func TestPickupActivity_Info(t *testing.T) {
+func TestPickupBehavior_Info(t *testing.T) {
 	t.Parallel()
 
-	pa := &PickupActivity{}
+	pa := &PickupBehavior{}
 	info := pa.Info()
 
 	assert.Equal(t, "拾得", info.Name)
@@ -86,14 +86,14 @@ func TestPickupActivity_Info(t *testing.T) {
 	assert.False(t, info.Resumable)
 }
 
-func TestPickupActivity_Name(t *testing.T) {
+func TestPickupBehavior_Name(t *testing.T) {
 	t.Parallel()
 
-	pa := &PickupActivity{}
+	pa := &PickupBehavior{}
 	assert.Equal(t, gc.BehaviorPickup, pa.Name())
 }
 
-func TestPickupActivity_DoTurn(t *testing.T) {
+func TestPickupBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常にアイテムを拾って完了する", func(t *testing.T) {
@@ -112,7 +112,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -141,7 +141,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
 
 		require.Error(t, err)
@@ -160,7 +160,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 			State:        gc.ActivityStateRunning,
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
 
 		require.Error(t, err)
@@ -168,7 +168,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 	})
 }
 
-func TestPickupActivity_DoTurn_Target(t *testing.T) {
+func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Targetが指定されている場合はそのアイテムだけを拾う", func(t *testing.T) {
@@ -190,7 +190,7 @@ func TestPickupActivity_DoTurn_Target(t *testing.T) {
 			Target:       &item1,
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -206,7 +206,7 @@ func TestPickupActivity_DoTurn_Target(t *testing.T) {
 	})
 }
 
-func TestPickupActivity_Validate_Target(t *testing.T) {
+func TestPickupBehavior_Validate_Target(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Targetが拾得可能なら成功", func(t *testing.T) {
@@ -224,7 +224,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 			Target:       &item,
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -247,14 +247,14 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 			Target:       &prop,
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 }
 
-func TestPickupActivity_Validate_Fixed(t *testing.T) {
+func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 	t.Parallel()
 
 	t.Run("固定物は拾えない", func(t *testing.T) {
@@ -275,7 +275,7 @@ func TestPickupActivity_Validate_Fixed(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "拾えるものがありません")
@@ -302,13 +302,13 @@ func TestPickupActivity_Validate_Fixed(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 }
 
-func TestPickupActivity_DoTurn_Fixed(t *testing.T) {
+func TestPickupBehavior_DoTurn_Fixed(t *testing.T) {
 	t.Parallel()
 
 	t.Run("固定物のみのタイルでは拾得に失敗する", func(t *testing.T) {
@@ -331,7 +331,7 @@ func TestPickupActivity_DoTurn_Fixed(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
 
 		require.Error(t, err, "固定物は拾えない")

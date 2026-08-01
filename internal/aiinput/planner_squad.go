@@ -174,7 +174,7 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap 
 	}
 
 	if dist == 1 {
-		return &activity.AttackActivity{Target: *nearestEnemy}, true
+		return &activity.AttackBehavior{Target: *nearestEnemy}, true
 	}
 
 	return sp.tryMoveToward(world, entity, snap.Grid, nearestGrid)
@@ -284,7 +284,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, s
 	if hasPickableHere {
 		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", snap.Grid.X, "y", snap.Grid.Y)
 		dest := *snap.Grid
-		return &activity.PickupActivity{Destination: &dest}, true
+		return &activity.PickupBehavior{Destination: &dest}, true
 	}
 
 	if nearestItemGrid != nil {
@@ -316,7 +316,7 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap 
 	// 自分の背嚢から食べる。栄養価の低いものを先に消費して高価値食料を温存する
 	if food, ok := findLowestNutritionFood(world, entity); ok {
 		sp.logger.Debug("隊員が食事する", "entity", entity)
-		return &activity.UseItemActivity{Target: food}, true
+		return &activity.UseItemBehavior{Target: food}, true
 	}
 
 	// 共有プールから受け取る
@@ -329,7 +329,7 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap 
 	if gridDistance(snap.Grid, snap.LeaderGrid) <= 1 {
 		sp.logger.Debug("隊員が食料を受け取る", "entity", entity)
 		// 1食ぶんだけ引く。丸ごと受け取ると共有プールが一気に空になり、他の隊員が飢える
-		return &activity.TransferActivity{Target: poolFood, Recipient: entity, Count: 1}, true
+		return &activity.TransferBehavior{Target: poolFood, Recipient: entity, Count: 1}, true
 	}
 	return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)
 }
@@ -388,7 +388,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 	sp.logger.Debug("隊員アイテム転送", "entity", entity, "item", *itemToTransfer)
 	// 拾った物はスタックごとリーダーへ渡す。在庫数を指定してまとめて転送する
 	count := query.GetEntityCount(world, *itemToTransfer)
-	return &activity.TransferActivity{Target: *itemToTransfer, Recipient: snap.LeaderEntity, Count: count}, true
+	return &activity.TransferBehavior{Target: *itemToTransfer, Recipient: snap.LeaderEntity, Count: count}, true
 }
 
 // findNearestEnemy は視界内の最も近い敵を探す

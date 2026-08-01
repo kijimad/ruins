@@ -560,7 +560,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		_, err = activity.Execute(&activity.UseItemActivity{Target: entity}, playerEntity, world)
+		_, err = activity.Execute(&activity.UseItemBehavior{Target: entity}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -580,7 +580,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		if remaining <= 0 {
 			remaining = 1
 		}
-		_, err = activity.Execute(&activity.ReadActivity{Target: entity, Duration: consts.Turn(remaining)}, playerEntity, world)
+		_, err = activity.Execute(&activity.ReadBehavior{Target: entity, Duration: consts.Turn(remaining)}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -594,7 +594,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		_, err = activity.Execute(&activity.DisassembleActivity{Target: entity}, playerEntity, world)
+		_, err = activity.Execute(&activity.DisassembleBehavior{Target: entity}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -610,7 +610,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 		playerGrid := world.Components.GridElement.Get(playerEntity)
 		destination := gc.GridElement{Coord: playerGrid.Coord}
-		_, err = activity.Execute(&activity.DropActivity{Target: entity, Destination: destination}, playerEntity, world)
+		_, err = activity.Execute(&activity.DropBehavior{Target: entity, Destination: destination}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err

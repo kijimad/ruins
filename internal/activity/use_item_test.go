@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUseItemActivity_applyNutrition(t *testing.T) {
+func TestUseItemBehavior_applyNutrition(t *testing.T) {
 	t.Parallel()
 
 	t.Run("満腹度が正常に増加する", func(t *testing.T) {
@@ -24,10 +24,10 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemActivity{}, 1)
+		comp, err := NewActivity(&UseItemBehavior{}, 1)
 		require.NoError(t, err)
 
-		useItemActivity := &UseItemActivity{}
+		useItemActivity := &UseItemBehavior{}
 
 		// 100の満腹度回復
 		err = useItemActivity.applyNutrition(comp, actor, world, 100, item)
@@ -50,10 +50,10 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemActivity{}, 1)
+		comp, err := NewActivity(&UseItemBehavior{}, 1)
 		require.NoError(t, err)
 
-		useItemActivity := &UseItemActivity{}
+		useItemActivity := &UseItemBehavior{}
 
 		// 100の満腹度回復（上限を超える）
 		err = useItemActivity.applyNutrition(comp, actor, world, 100, item)
@@ -78,10 +78,10 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 
-		comp, err := NewActivity(&UseItemActivity{}, 1)
+		comp, err := NewActivity(&UseItemBehavior{}, 1)
 		require.NoError(t, err)
 
-		useItemActivity := &UseItemActivity{}
+		useItemActivity := &UseItemBehavior{}
 
 		// 50の満腹度回復で95%以上になる
 		err = useItemActivity.applyNutrition(comp, actor, world, 50, item)
@@ -101,10 +101,10 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		// Hungerコンポーネントを追加しない
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemActivity{}, 1)
+		comp, err := NewActivity(&UseItemBehavior{}, 1)
 		require.NoError(t, err)
 
-		useItemActivity := &UseItemActivity{}
+		useItemActivity := &UseItemBehavior{}
 
 		// エラーにならずに完了する
 		err = useItemActivity.applyNutrition(comp, actor, world, 200, item)
@@ -122,10 +122,10 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemActivity{}, 1)
+		comp, err := NewActivity(&UseItemBehavior{}, 1)
 		require.NoError(t, err)
 
-		useItemActivity := &UseItemActivity{}
+		useItemActivity := &UseItemBehavior{}
 
 		assert.Equal(t, gc.HungerStarving, hunger.GetLevel(), "初期状態は飢餓状態")
 
@@ -140,7 +140,7 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 	})
 }
 
-func TestUseItemActivity_DoTurn(t *testing.T) {
+func TestUseItemBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("空腹度回復アイテムを使用して完了する", func(t *testing.T) {
@@ -166,7 +166,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 			Target:       &item,
 		}
 
-		ua := &UseItemActivity{}
+		ua := &UseItemBehavior{}
 		err := ua.DoTurn(comp, actor, world)
 
 		require.NoError(t, err)
@@ -195,7 +195,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 			Target:       nil,
 		}
 
-		ua := &UseItemActivity{}
+		ua := &UseItemBehavior{}
 		err := ua.DoTurn(comp, actor, world)
 
 		require.Error(t, err)
@@ -203,7 +203,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 	})
 }
 
-func TestUseItemActivity_Validate(t *testing.T) {
+func TestUseItemBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("有効なアイテムの場合は成功", func(t *testing.T) {
@@ -223,7 +223,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 			Target:       &item,
 		}
 
-		ua := &UseItemActivity{}
+		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
 		assert.NoError(t, err)
 	})
@@ -240,7 +240,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 			Target:       nil,
 		}
 
-		ua := &UseItemActivity{}
+		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
 		require.Error(t, err)
 		assert.Equal(t, ErrItemNotSet, err)
@@ -258,7 +258,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 			Target:       new(world.ECS.NewEntity()),
 		}
 
-		ua := &UseItemActivity{}
+		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
 		require.Error(t, err)
 		assert.Equal(t, ErrItemNoEffect, err)
@@ -279,7 +279,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 			Target:       &item,
 		}
 
-		ua := &UseItemActivity{}
+		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
 		require.Error(t, err)
 		assert.Equal(t, ErrItemNoEffect, err)
@@ -301,17 +301,17 @@ func TestUseItemActivity_Validate(t *testing.T) {
 			Target:       &item,
 		}
 
-		ua := &UseItemActivity{}
+		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
 		require.Error(t, err)
 		assert.Equal(t, ErrActorNoHP, err)
 	})
 }
 
-func TestUseItemActivity_Info(t *testing.T) {
+func TestUseItemBehavior_Info(t *testing.T) {
 	t.Parallel()
 
-	ua := &UseItemActivity{}
+	ua := &UseItemBehavior{}
 	info := ua.Info()
 
 	assert.Equal(t, "アイテム使用", info.Name)

@@ -14,13 +14,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// UseItemActivity はBehaviorの実装
-type UseItemActivity struct {
+// UseItemBehavior はBehaviorの実装
+type UseItemBehavior struct {
 	Target ecs.Entity
 }
 
 // Info はBehaviorの実装
-func (u *UseItemActivity) Info() Info {
+func (u *UseItemBehavior) Info() Info {
 	return Info{
 		Name:            "アイテム使用",
 		Description:     "アイテムを使う",
@@ -32,12 +32,12 @@ func (u *UseItemActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (u *UseItemActivity) Name() gc.BehaviorName {
+func (u *UseItemBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorUseItem
 }
 
 // BuildActivity はBehaviorの実装
-func (u *UseItemActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+func (u *UseItemBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
 	comp, err := NewActivity(u, 1)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (u *UseItemActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, 
 }
 
 // Validate はBehaviorの実装
-func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return ErrItemNotSet
 	}
@@ -72,13 +72,13 @@ func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // Start はBehaviorの実装
-func (u *UseItemActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム使用開始", "actor", actor, "item", *comp.Target)
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		Cancel(comp, "アイテムが指定されていません")
 		return ErrItemNotSet
@@ -123,19 +123,19 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はBehaviorの実装
-func (u *UseItemActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (u *UseItemBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム使用完了", "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
-func (u *UseItemActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (u *UseItemBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム使用キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // applyHealing は回復処理を適用する
-func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {
+func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {
 	// 最大HPを基準に実際の回復量を計算する（絶対量指定の場合は基準値は無視される）
 	hp := world.Components.HP.Get(actor)
 	amount := healing.Calc(hp.Max)
@@ -157,7 +157,7 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 }
 
 // applyNutrition は空腹度回復処理を適用する
-func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
+func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
 	if !world.Components.Hunger.Has(actor) {
 		return nil
 	}
@@ -175,7 +175,7 @@ func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 }
 
 // logItemUse はアイテム使用のログを出力する
-func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {
+func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return
@@ -199,7 +199,7 @@ func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 }
 
 // logNutritionUse は空腹度回復のログを出力する
-func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
+func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return
@@ -221,7 +221,7 @@ func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item 
 }
 
 // getItemName はアイテムの名前を取得する
-func (u *UseItemActivity) getItemName(item ecs.Entity, world w.World) string {
+func (u *UseItemBehavior) getItemName(item ecs.Entity, world w.World) string {
 	if world.Components.Name.Has(item) {
 		return world.Components.Name.Get(item).Name
 	}

@@ -64,7 +64,7 @@ func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 	crate, err := lifecycle.SpawnProp(world, "crate", 6, 5)
 	require.NoError(t, err)
 
-	result, err := activity.Execute(&activity.DisassembleActivity{Target: crate}, player, world)
+	result, err := activity.Execute(&activity.DisassembleBehavior{Target: crate}, player, world)
 	require.NoError(t, err)
 	require.True(t, result.Success)
 
@@ -105,7 +105,7 @@ func TestTurnSystem_分解中も隊員がターンごとに行動する(t *testi
 	crate, err := lifecycle.SpawnProp(world, "crate", 6, 5)
 	require.NoError(t, err)
 
-	_, err = activity.Execute(&activity.DisassembleActivity{Target: crate}, player, world)
+	_, err = activity.Execute(&activity.DisassembleBehavior{Target: crate}, player, world)
 	require.NoError(t, err)
 
 	turnState := query.GetTurnState(world)
@@ -142,7 +142,7 @@ func TestTurnSystem_隊員が分解産出を拾いに来る(t *testing.T) {
 	crate, err := lifecycle.SpawnProp(world, "crate", 6, 5)
 	require.NoError(t, err)
 
-	_, err = activity.Execute(&activity.DisassembleActivity{Target: crate}, player, world)
+	_, err = activity.Execute(&activity.DisassembleBehavior{Target: crate}, player, world)
 	require.NoError(t, err)
 
 	turnState := query.GetTurnState(world)

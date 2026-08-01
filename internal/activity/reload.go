@@ -18,13 +18,13 @@ const (
 	BaseReloadEffort = 10 // 1ターンあたりの基本装填工数
 )
 
-// ReloadActivity はリロードアクティビティの実装
-type ReloadActivity struct {
+// ReloadBehavior はリロードアクティビティの実装
+type ReloadBehavior struct {
 	effortAccum int // 蓄積した装填工数
 }
 
 // Info はBehaviorの実装
-func (ra *ReloadActivity) Info() Info {
+func (ra *ReloadBehavior) Info() Info {
 	return Info{
 		Name:            "装填",
 		Description:     "武器に弾薬を装填する",
@@ -35,12 +35,12 @@ func (ra *ReloadActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ra *ReloadActivity) Name() gc.BehaviorName {
+func (ra *ReloadBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorReload
 }
 
 // BuildActivity はBehaviorの実装
-func (ra *ReloadActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+func (ra *ReloadBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
 	comp, err := NewActivity(ra, 1)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (ra *ReloadActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, 
 }
 
 // Validate はリロードの検証を行う
-func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
@@ -68,7 +68,7 @@ func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 }
 
 // Start はリロード開始時の処理
-func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
@@ -89,7 +89,7 @@ func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 }
 
 // DoTurn はリロードの1ターン分の処理
-func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		Cancel(comp, "遠距離武器が装備されていません")
@@ -141,13 +141,13 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はリロード完了時の処理
-func (ra *ReloadActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (ra *ReloadBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("リロード完了", "actor", actor)
 	return nil
 }
 
 // Canceled はリロードキャンセル時の処理
-func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ra *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を中断した").
 		Log()
@@ -156,7 +156,7 @@ func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // calcEffortPerTurn は1ターンあたりの装填工数を計算する
-func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, world w.World) int {
+func (ra *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, world w.World) int {
 	effort := BaseReloadEffort
 
 	// DEXを加算
@@ -177,7 +177,7 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 // ExecuteReloadAction はリロードアクションを実行する
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
-	_, err := Execute(&ReloadActivity{}, actor, world)
+	_, err := Execute(&ReloadBehavior{}, actor, world)
 	if err != nil {
 		return err
 	}

@@ -13,13 +13,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// TalkActivity は会話アクティビティ
-type TalkActivity struct {
+// TalkBehavior は会話アクティビティ
+type TalkBehavior struct {
 	Target ecs.Entity
 }
 
 // Info はBehaviorの実装
-func (ta *TalkActivity) Info() Info {
+func (ta *TalkBehavior) Info() Info {
 	return Info{
 		Name:            "会話",
 		Description:     "NPCと会話する",
@@ -31,12 +31,12 @@ func (ta *TalkActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ta *TalkActivity) Name() gc.BehaviorName {
+func (ta *TalkBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorTalk
 }
 
 // BuildActivity はBehaviorの実装
-func (ta *TalkActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+func (ta *TalkBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
 	comp, err := NewActivity(ta, 1)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (ta *TalkActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, er
 }
 
 // Validate は会話アクティビティの検証を行う
-func (ta *TalkActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (ta *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("会話対象が指定されていません")
 	}
@@ -67,13 +67,13 @@ func (ta *TalkActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 }
 
 // Start は会話開始時の処理を実行する
-func (ta *TalkActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (ta *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("会話開始", "actor", actor)
 	return nil
 }
 
 // DoTurn は会話アクティビティの1ターン分の処理を実行する
-func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (ta *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
 	if !world.Components.Dialog.Has(targetEntity) {
@@ -98,7 +98,7 @@ func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 }
 
 // Finish は会話完了時の処理を実行する
-func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ta *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("会話アクティビティ完了", "actor", actor)
 
 	if comp.Target == nil {
@@ -131,7 +131,7 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Canceled は会話キャンセル時の処理を実行する
-func (ta *TalkActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (ta *TalkBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("会話キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
