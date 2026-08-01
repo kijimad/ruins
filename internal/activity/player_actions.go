@@ -122,7 +122,8 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 	for interactableQuery.Next() {
 		entity := interactableQuery.Entity()
 		if found != nil {
-			continue // 既に見つかっている
+			// 先着1件を採用する。途中 return せず反復は最後まで続ける。Ark のワールドロックを外すため
+			continue
 		}
 		ge := world.Components.GridElement.Get(entity)
 		// 直上タイルのみ

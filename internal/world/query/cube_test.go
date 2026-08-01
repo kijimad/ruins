@@ -45,7 +45,7 @@ func TestPushCost(t *testing.T) {
 func TestCubeWeight_内部ステージ束縛の重量を合算し他ステージを除く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewDungeonStage("キューブ内部", 1)
+	interior := gc.NewCubeInteriorStage()
 	other := gc.NewDungeonStage("別の内部", 1)
 
 	addWeightEntity(t, world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
@@ -58,7 +58,7 @@ func TestCubeWeight_内部ステージ束縛の重量を合算し他ステージ
 func TestCubeWeight_退避中の内部エンティティも集計する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewDungeonStage("キューブ内部", 1)
+	interior := gc.NewCubeInteriorStage()
 
 	// 外にいる間、内部は Suspended になる。それでも総重量は保持したい
 	addWeightEntity(t, world, consts.Milligram(4*consts.MilligramPerKg), interior, true)
@@ -69,7 +69,7 @@ func TestCubeWeight_退避中の内部エンティティも集計する(t *testi
 func TestCubeWeight_床に無い物は数えない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewDungeonStage("キューブ内部", 1)
+	interior := gc.NewCubeInteriorStage()
 
 	// 床にある物は数える
 	addWeightEntity(t, world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
