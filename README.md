@@ -59,7 +59,7 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| draft | 5 |
+| draft | 6 |
 | done | 72 |
 
 ### 未完了
@@ -71,6 +71,7 @@ $ make help
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 0/32 | worldgen |
 | [80](docs/design/20260731_80.md) | draft | 移動キューブのコア機構 実装設計 | 0/6（見送り1） | movement, ecs, save |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
+| [82](docs/design/20260801_82.md) | draft | 屋外の散布 —— 開けた地表へ自然物とポスアポ人工物を撒く | 0/10（見送り1） | worldgen |
 
 
 ## Reference
