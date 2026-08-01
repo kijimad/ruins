@@ -6,6 +6,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -94,4 +96,17 @@ func TestEnterCube_内装で保存して読み込んでも落ちない(t *testin
 	resume, err := newResumeStateFactory(newWorld)()
 	require.NoError(t, err)
 	require.NoError(t, resume.OnStart(newWorld), "内装で読み込んでも定義解決で落ちない")
+}
+
+// TestOverworldMapState_キューブのチャンク位置を出す は大域地図にキューブのチャンク位置が
+// マーカーとして載ることを検証する。
+func TestOverworldMapState_キューブのチャンク位置を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world)) // プレイヤー近くにキューブを1体スポーンする
+
+	st := &OverworldMapState{}
+	require.NoError(t, st.OnStart(world))
+	assert.NotEmpty(t, st.cubeCells, "大域地図にキューブのチャンク位置が載る")
 }

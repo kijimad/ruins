@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -22,10 +23,11 @@ import (
 type OverworldMapState struct {
 	es.BaseState[w.World]
 
-	glyphs    [][]rune                   // 各チャンクの種別文字。行 = Y、列 = 東西の窓
-	playerCol consts.Chunk               // 現在地の窓ローカル列。範囲外なら -1
-	playerRow consts.Chunk               // 現在地の窓ローカル行
-	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標
+	glyphs    [][]rune                     // 各チャンクの種別文字。行 = Y、列 = 東西の窓
+	playerCol consts.Chunk                 // 現在地の窓ローカル列。範囲外なら -1
+	playerRow consts.Chunk                 // 現在地の窓ローカル行
+	playerAbs consts.Coord[consts.Chunk]   // 現在地の絶対チャンク座標
+	cubeCells []consts.Coord[consts.Chunk] // 押せるキューブの窓ローカル (列, 行)。チャンク粒度
 }
 
 var _ es.State[w.World] = &OverworldMapState{}
@@ -84,6 +86,18 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		st.playerRow = localRow
 		st.playerAbs = consts.Coord[consts.Chunk]{X: sb.EastIndex + localCol, Y: localRow}
 	}
+
+	// 押せるキューブのチャンク位置。窓の中に入るものだけを保持する。反復は最後まで回す
+	st.cubeCells = nil
+	cubeQuery := query.ActiveFilter2[gc.GridElement, gc.Pushable](world).Query()
+	for cubeQuery.Next() {
+		g := world.Components.GridElement.Get(cubeQuery.Entity())
+		col := consts.Chunk(int(g.X)/int(sb.ChunkW)) + marginChunk
+		row := consts.Chunk(int(g.Y) / int(sb.ChunkH))
+		if col >= 0 && int(col) < winChunksX && row >= 0 && row < rows {
+			st.cubeCells = append(st.cubeCells, consts.Coord[consts.Chunk]{X: col, Y: row})
+		}
+	}
 	return nil
 }
 
@@ -122,6 +136,13 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
 			drawText(string(r), x+5, y+2, theme.OverworldMapGlyphText)
 		}
+	}
+	// キューブマーカー。チャンク粒度でセル中央に塗りの四角を置く。現在地の白枠と重なっても見えるよう先に描く
+	for _, c := range st.cubeCells {
+		x := originX + consts.ScreenPixel(c.X)*mapCellPx
+		y := originY + consts.ScreenPixel(c.Y)*mapCellPx
+		const inset consts.ScreenPixel = 5
+		vector.FillRect(screen, float32(x+inset), float32(y+inset), float32(mapCellPx-1-2*inset), float32(mapCellPx-1-2*inset), theme.OverworldMapCubeMarker, false)
 	}
 	// 現在地マーカー。白枠でセルを囲む
 	if st.playerCol >= 0 {
