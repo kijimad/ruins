@@ -32,11 +32,10 @@ func addPusher(world w.World, coord consts.Coord[consts.Tile], ap int) ecs.Entit
 	return e
 }
 
-func addWall(world w.World, coord consts.Coord[consts.Tile]) ecs.Entity {
+func addWall(world w.World, coord consts.Coord[consts.Tile]) {
 	e := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e, &gc.GridElement{Coord: coord})
 	world.Components.BlockPass.Add(e, &gc.BlockPass{})
-	return e
 }
 
 func TestPushActivity_総重量とパーティAPで決まる複数ターンをかけて押す(t *testing.T) {

@@ -8,19 +8,17 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
 
 // addWeightEntity は指定ステージに束縛した重量エンティティを作る。suspended で退避中にする
-func addWeightEntity(world w.World, mg consts.Milligram, stage gc.StageKey, suspended bool) ecs.Entity {
+func addWeightEntity(world w.World, mg consts.Milligram, stage gc.StageKey, suspended bool) {
 	e := world.ECS.NewEntity()
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
 	world.Components.StageBound.Add(e, &gc.StageBound{Key: stage})
 	if suspended {
 		world.Components.Suspended.Add(e, &gc.Suspended{})
 	}
-	return e
 }
 
 func TestPushCost(t *testing.T) {

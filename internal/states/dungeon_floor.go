@@ -179,9 +179,7 @@ func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	returnPos := world.Components.GridElement.Get(player).Coord
 
 	// 単一の内装ステージへ入る。未訪問なら SwapTo の callback で一度だけ生成される
-	if err := stage.SwapTo(world, gc.NewCubeInteriorStage(), func(world w.World, key gc.StageKey) error {
-		return spawnCubeInterior(world, key)
-	}); err != nil {
+	if err := stage.SwapTo(world, gc.NewCubeInteriorStage(), spawnCubeInterior); err != nil {
 		return err
 	}
 

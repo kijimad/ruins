@@ -97,15 +97,15 @@ func executeExitCube(world w.World) (*ActionResult, error) {
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "キューブから出る"}, nil
 }
 
-// executePullCube はキューブを自分の側へ引く。引けないとき、たとえば後退スペースが無いときは
-// 致命エラーにせず、ログで知らせて no-op にする。プレイヤーのできない操作は異常系でないため。
+// executePullCube はキューブを自分の側へ引く。後退スペースが無いなど引けないときは、
+// 致命エラーにせずログで知らせて no-op にする。プレイヤーのできない操作は異常系でないため、
+// Execute を呼ぶ前に可否を判定してから分岐する。
 func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
-	result, err := Execute(NewPullActivity(cube), actor, world)
-	if err != nil {
+	if !canPullCube(world, actor, cube) {
 		gamelog.New(query.GetGameLog(world)).Append("引くスペースがない。").Log()
-		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: err.Error()}, nil
+		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "引けない"}, nil
 	}
-	return result, nil
+	return Execute(NewPullActivity(cube), actor, world)
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

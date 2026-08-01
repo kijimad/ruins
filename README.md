@@ -69,7 +69,7 @@ $ make help
 | [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | [77](docs/design/20260730_77.md) | draft | 拡張可能な移動拠点を中核に据える | - | gamedesign |
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 0/32 | worldgen |
-| [80](docs/design/20260731_80.md) | draft | 移動キューブのコア機構 実装設計 | 9/10（見送り1） | movement, ecs, save |
+| [80](docs/design/20260731_80.md) | draft | 移動キューブのコア機構 実装設計 | 12/12（見送り1） | movement, ecs, save |
 
 
 ## Reference

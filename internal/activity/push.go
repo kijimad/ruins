@@ -142,7 +142,7 @@ func (pa *PushActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// キューブは BlockPass なので通行索引が変わる。全再構築で確実に反映する
 	query.InvalidateSpatialIndex(world)
 
-	log.Debug("押し完了", "actor", actor, "cube", cube, "to", comp.Destination.Coord.String())
+	log.Debug("押し完了", "actor", actor, "cube", cube, "to", comp.Destination.String())
 	return nil
 }
 
@@ -204,6 +204,18 @@ func (pa *PullActivity) Name() gc.BehaviorName { return gc.BehaviorPull }
 func pullRetreat(cubeCoord, playerCoord consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
 	delta := playerCoord.Sub(cubeCoord)
 	return playerCoord.Add(delta)
+}
+
+// canPullCube はプレイヤーがキューブを引けるかを返す。後退先が通行可能なら引ける。
+// アクション実行前の可否判定に使い、引けないときは致命エラーでなく no-op にできるようにする。
+func canPullCube(world w.World, actor, cube ecs.Entity) bool {
+	if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(cube) {
+		return false
+	}
+	playerCoord := world.Components.GridElement.Get(actor).Coord
+	cubeCoord := world.Components.GridElement.Get(cube).Coord
+	retreat := pullRetreat(cubeCoord, playerCoord)
+	return CanMoveTo(world, retreat, playerCoord, actor)
 }
 
 // BuildActivity はBehaviorの実装。キューブの移動先はプレイヤーの現在タイル、所要ターンは重量で決まる。
@@ -301,7 +313,7 @@ func (pa *PullActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// キューブは BlockPass なので通行索引が変わる。全再構築で確実に反映する
 	query.InvalidateSpatialIndex(world)
 
-	log.Debug("引き完了", "actor", actor, "cube", cube, "to", comp.Destination.Coord.String())
+	log.Debug("引き完了", "actor", actor, "cube", cube, "to", comp.Destination.String())
 	return nil
 }
 
