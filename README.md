@@ -59,7 +59,7 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| draft | 6 |
+| draft | 7 |
 | done | 72 |
 
 ### 未完了
@@ -72,6 +72,7 @@ $ make help
 | [80](docs/design/20260731_80.md) | draft | 移動キューブのコア機構 実装設計 | 12/12（見送り2） | movement, ecs, save |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
 | [82](docs/design/20260801_82.md) | draft | 屋外の散布 —— 開けた地表へ自然物とポスアポ人工物を撒く | 0/10（見送り1） | worldgen |
+| [83](docs/design/20260801_83.md) | draft | Prop を廃し設置を item の状態にする —— Minecraft 型の item↔設置モデル | 0/10 | ecs, refactor, item |
 
 
 ## Reference
