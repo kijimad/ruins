@@ -121,8 +121,9 @@ var (
 	OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	// OverworldMapCubeMarker は移動拠点キューブのチャンク位置を示すマーカー色。blue_cube に寄せた水色
 	OverworldMapCubeMarker = color.RGBA{R: 90, G: 180, B: 255, A: 255}
-	// OverworldMapCubeScrim はキューブアイコンの下に敷く半透明の暗幕。下の地形を残しつつアイコンを読めるようにする
-	OverworldMapCubeScrim = color.RGBA{R: 10, G: 12, B: 16, A: 120}
+	// OverworldMapCubeOutline はキューブアイコンの縁取り色。地形を塗りつぶさず、アイコンだけに
+	// 暗い縁を付けてどの地形色の上でも読めるようにする
+	OverworldMapCubeOutline = color.RGBA{R: 10, G: 12, B: 16, A: 255}
 	// OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色
 	OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}
 )

@@ -137,11 +137,14 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			drawText(string(r), x+5, y+2, theme.OverworldMapGlyphText)
 		}
 	}
-	// キューブマーカー。下の地形を残すため半透明の暗幕を敷き、その上にキューブアイコンを重ねる
+	// キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも
+	// 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く
 	for _, c := range st.cubeCells {
 		x := originX + consts.ScreenPixel(c.X)*mapCellPx
 		y := originY + consts.ScreenPixel(c.Y)*mapCellPx
-		vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), theme.OverworldMapCubeScrim, false)
+		for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
+			drawText(consts.IconCube, x+4+off[0], y+1+off[1], theme.OverworldMapCubeOutline)
+		}
 		drawText(consts.IconCube, x+4, y+1, theme.OverworldMapCubeMarker)
 	}
 	// 現在地マーカー。白枠でセルを囲む
