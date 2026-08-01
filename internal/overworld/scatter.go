@@ -67,7 +67,8 @@ const (
 	scatterBigPhaseMod consts.Tile = 3
 	scatterBigPhaseK   consts.Tile = 2
 	// scatterRouteBuffer は経路マスクのバッファ幅。隊商の横断レーンを確保するため、算出した経路の
-	// 直線からこのタイル数以内では Big の大物を置かない。
+	// 直線からこのタイル数以内では Big の大物を置かない。road.go の roadWidth とは独立で、舗装済みの道は
+	// floor 化されて isEarthTile で弾かれ散布対象外になる。ここが守るのは舗装されない wasteland 内の横断レーン。
 	scatterRouteBuffer consts.Tile = 2
 	// scatterRoadsideRange は道沿いゾーンの半径。集落・市街の当選チャンクからこのチャンク数以内を
 	// 道沿いにする。道は集落間を結ぶので、集落の近傍が道沿いの帯を兼ねる。
@@ -112,7 +113,9 @@ var wildCatalog = scatterCatalog{
 	},
 }
 
-// scatterCatalogFor は zone の散布定義を返す。zone を1つ足すと switch の網羅を linter が強制する。
+// scatterCatalogFor は zone の散布定義を返す。outdoorZone は string の enum だが、exhaustive linter は
+// 型付き定数の網羅も検査するので、default を置かず末尾 panic にすると zone を1つ足したとき case 漏れを
+// lint が止める。末尾 panic は未知 zone のランタイム保護も兼ねる。
 func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 	switch zone {
 	case zoneRoadside:
