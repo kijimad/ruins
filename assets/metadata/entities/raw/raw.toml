@@ -13393,6 +13393,20 @@ depth = 0
 spriteKey = "moving_stone"
 spriteSheetName = "field"
 
+# 屋外散布の「石」用のダミー岩。自然な岩スプライトが起きたら差し替える。乗り越えられるよう通行可能にし
+# passCost で歩きにくさだけ表す。連結性を壊さない
+[[props]]
+blockPass = false
+blockView = false
+description = "ごろりと転がる岩"
+passCost = 50
+name = "dummy_rock"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "dummy_rock"
+spriteSheetName = "field"
+
 [[props]]
 blockPass = false
 blockView = false

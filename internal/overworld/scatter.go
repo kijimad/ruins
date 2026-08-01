@@ -86,6 +86,7 @@ var roadsideCatalog = scatterCatalog{
 		{Ref: "", Weight: 55}, // 置かない
 		{Ref: "tree_a", Weight: 18},
 		{Ref: "tree_b", Weight: 15},
+		{Ref: "dummy_rock", Weight: 10},
 	},
 }
 
@@ -96,8 +97,9 @@ var wildCatalog = scatterCatalog{
 	PropDensity:  0.035,
 	Entries: []scatterEntry{
 		{Ref: "", Weight: 38}, // 置かない
-		{Ref: "tree_a", Weight: 26},
-		{Ref: "tree_b", Weight: 26},
+		{Ref: "tree_a", Weight: 24},
+		{Ref: "tree_b", Weight: 24},
+		{Ref: "dummy_rock", Weight: 14},
 		// 木立。大木の周りに低木が寄り添う小クラスタ
 		{Ref: "big_tree", Weight: 6, Big: true, Satellites: []relSpot{{"tree_a", 1, 0}, {"tree_b", -1, 1}}},
 	},
