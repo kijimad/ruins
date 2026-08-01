@@ -13,11 +13,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 屋外の散布は wasteland チャンクの開けた地表へ prop を密に撒く feature。疎な Placement と違い
-// doc 70 の密度場を屋外へ流用し、density 確率で個数を決める。他フィーチャの後に評価し、道が
-// タイルを置換した後の実状態を読んで dirt かつ BlockPass 非占有のタイルだけに置く。
+// 屋外の散布は wasteland チャンクの開けた地表を自然の野原に仕立てる feature。CDDA の野原と森に倣い、
+// 地面を草地へ変え、灌木・雑草・岩を疎に撒く。人工物を原野一面に撒くと不自然なので v1 では置かない。
+// 疎な Placement と違い doc 70 の密度場を屋外へ流用し、density 確率で個数を決める。他フィーチャの後に
+// 評価し、道がタイルを置換した後の実状態を読んで自然地面かつ非占有のタイルだけに置く。
 
-// scatterEntry は散布物の1候補。実スプライトのある prop を優先する。Big は通行を塞ぐ大物の印で、
+// scatterEntry は散布物の1候補。実スプライトのある自然物を使う。Big は通行を塞ぐ大物の印で、
 // 位相格子と経路マスクの対象になる。Ref が空文字なら「置かない」を表し、null 重みとして扱う。
 // Satellites があれば anchor 相対の小クラスタを1回で置く。
 type scatterEntry struct {
@@ -27,12 +28,14 @@ type scatterEntry struct {
 	Satellites []relSpot
 }
 
-// scatterCatalog は zone ごとの散布定義。Density は面積あたり期待個数の係数で、
-// count = round(area * Density)。個数を反復乱数でなく密度確率で決めるので純関数のまま。
+// scatterCatalog は zone ごとの散布定義。GrassDensity は dirt を草地へ置換する面積あたり係数、
+// PropDensity は自然物を撒く係数で、どちらも count = round(area * Density) で個数を密度確率から導く。
+// 個数を反復乱数でなく密度確率で決めるので純関数のまま。
 type scatterCatalog struct {
-	Zone    outdoorZone
-	Density float64
-	Entries []scatterEntry
+	Zone         outdoorZone
+	GrassDensity float64
+	PropDensity  float64
+	Entries      []scatterEntry
 }
 
 // outdoorZone は wasteland チャンクの人の手の残り具合。近傍の道・集落・市街地までの距離で決まる。
@@ -40,10 +43,18 @@ type scatterCatalog struct {
 type outdoorZone string
 
 const (
-	// zoneRoadside は道・集落・市街に近い。放置車両・ドラム缶・瓦礫・自販機など人工物が主。
+	// zoneRoadside は道・集落・市街に近い。人が踏み分けた開けた原で、草地は疎、雑草と岩が主。
 	zoneRoadside outdoorZone = "roadside"
-	// zoneWild は奥地。枯れ木・木立・岩・石柱など自然物が主。
+	// zoneWild は奥地。草地が濃く、灌木・木立・岩が茂る自然の野原。
 	zoneWild outdoorZone = "wild"
+)
+
+// 草地の見た目。大半をくすんだオリーブにし、時折みずみずしい緑を混ぜて単調さを崩す。凍てついた
+// 世界観に合わせ、鮮やかな緑は少なめにする。
+const (
+	scatterGrassPrimary   = "grass_olive"
+	scatterGrassAccent    = "grass_green"
+	scatterGrassAccentMod = 4 // hash % mod == 0 のタイルだけ緑にする。約 1/4
 )
 
 // 位相格子と経路マスクの定数。どちらも Big の大物だけに効き、通行を塞がない小物は制約しない。
@@ -58,39 +69,37 @@ const (
 	// scatterRoadsideRange は道沿いゾーンの半径。集落・市街の当選チャンクからこのチャンク数以内を
 	// 道沿いにする。道は集落間を結ぶので、集落の近傍が道沿いの帯を兼ねる。
 	scatterRoadsideRange consts.Chunk = 1
+	// scatterGrassChannel は草地選定を prop 選定と無相関にするハッシュチャネル。
+	scatterGrassChannel uint64 = 0x67726173735f7469 // "grass_ti"
 )
 
-// roadsideCatalog は道沿いゾーンの散布定義。人工物を主に密度高め。Ref 空の null 重みで疎密を作る。
+// roadsideCatalog は道沿いゾーンの散布定義。踏み分けられた原なので草地は疎、雑草と岩が主で灌木は少ない。
 var roadsideCatalog = scatterCatalog{
-	Zone:    zoneRoadside,
-	Density: 0.05,
+	Zone:         zoneRoadside,
+	GrassDensity: 0.20,
+	PropDensity:  0.03,
 	Entries: []scatterEntry{
-		{Ref: "", Weight: 40}, // 置かない
-		{Ref: "barrel", Weight: 12},
-		{Ref: "crate", Weight: 12},
-		{Ref: "debris", Weight: 10},
-		{Ref: "rubble", Weight: 10},
-		{Ref: "generator_green", Weight: 4},
-		{Ref: "generator_yellow", Weight: 4},
-		{Ref: "bench", Weight: 4},
-		{Ref: "vending_machine", Weight: 3, Big: true},
-		{Ref: "bonfire", Weight: 4, Satellites: []relSpot{{"crate", 1, 1}, {"bench", -1, 0}}},
-		{Ref: "forklift", Weight: 3, Big: true, Satellites: []relSpot{{"barrel", 1, 0}, {"debris", -1, 1}}},
+		{Ref: "", Weight: 45}, // 置かない
+		{Ref: "plant", Weight: 30},
+		{Ref: "moving_stone", Weight: 12},
+		{Ref: "tree_a", Weight: 8},
+		{Ref: "tree_b", Weight: 5},
 	},
 }
 
-// wildCatalog は奥地ゾーンの散布定義。自然物を主に密度低め。
+// wildCatalog は奥地ゾーンの散布定義。草地が濃く、灌木・雑草・岩が茂り、時折木立が立つ。
 var wildCatalog = scatterCatalog{
-	Zone:    zoneWild,
-	Density: 0.04,
+	Zone:         zoneWild,
+	GrassDensity: 0.45,
+	PropDensity:  0.05,
 	Entries: []scatterEntry{
-		{Ref: "", Weight: 45}, // 置かない
-		{Ref: "tree_a", Weight: 14},
-		{Ref: "tree_b", Weight: 14},
-		{Ref: "plant", Weight: 12},
-		{Ref: "moving_stone", Weight: 8},
-		{Ref: "big_tree", Weight: 4, Big: true},
-		{Ref: "stone_pillar", Weight: 3, Big: true},
+		{Ref: "", Weight: 30}, // 置かない
+		{Ref: "plant", Weight: 30},
+		{Ref: "tree_a", Weight: 12},
+		{Ref: "tree_b", Weight: 12},
+		{Ref: "moving_stone", Weight: 10},
+		// 木立。大木の周りに灌木と草が寄り添う小クラスタ
+		{Ref: "big_tree", Weight: 4, Big: true, Satellites: []relSpot{{"tree_a", 1, 0}, {"tree_b", -1, 1}, {"plant", 0, 1}}},
 	},
 }
 
@@ -105,12 +114,12 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 	panic("未知の outdoorZone: " + string(zone))
 }
 
-// scatterFeature は wasteland チャンクの開けた地表へ prop を密に散布する feature。
+// scatterFeature は wasteland チャンクの開けた地表を草地に変え、自然物を疎に散布する feature。
 type scatterFeature struct{}
 
-// place は wasteland チャンクだけで density 場を走らせ、選んだタイルへカタログから prop を1個置く。
-// 選定はチャンク相対座標と絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。占有と
-// dirt 判定は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
+// place は wasteland チャンクだけで密度場を走らせ、まず地面を草地に変え、続けて自然物を撒く。
+// 選定はチャンク相対座標と絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と
+// 占有は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	if chunkTypeAt(runSeed, c, rows) != chunkWasteland {
 		return nil
@@ -118,7 +127,6 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 	cat := scatterCatalogFor(outdoorZoneAt(runSeed, c, rows))
 
 	tiles := g.tiles.get()
-	blocked := blockedTilesInChunk(world, g)
 
 	loX, loY := c.X.Tiles(g.chunkW), c.Y.Tiles(g.chunkH)
 	bandLocal := func(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
@@ -127,18 +135,34 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 	absTile := func(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: loX + rel.X, Y: loY + rel.Y}
 	}
+	area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
 
-	// 候補の可否は accept へ委ね、密度場の芯 ScatterArea は候補の意味を知らないまま純関数で保つ。
-	accept := func(rel interior.Vec) bool {
-		bl := bandLocal(rel)
-		return isDirtTile(world, tiles, bl) && !blocked[gc.GridElement{Coord: bl}]
+	// 先に地面を草地へ変える。草地は歩行可能なので通行を塞がず、位相や経路の制約は要らない。
+	// 続く自然物が草地の上にも立てるよう、prop より前に敷く。
+	grassSeed := ChunkSeed2D(runSeed^scatterSalt^scatterGrassChannel, c.X, c.Y)
+	grassCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.GrassDensity))
+	for _, rel := range interior.ScatterArea(area, func(rel interior.Vec) bool {
+		return isDirtTile(world, tiles, bandLocal(rel))
+	}, grassSeed, grassCount) {
+		name := scatterGrassPrimary
+		if ChunkSeed2D(grassSeed, consts.Chunk(rel.X), consts.Chunk(rel.Y))%scatterGrassAccentMod == 0 {
+			name = scatterGrassAccent
+		}
+		if err := replaceTile(world, tiles, bandLocal(rel), name); err != nil {
+			return fmt.Errorf("草地の敷設に失敗: %w", err)
+		}
 	}
 
+	// 続けて自然物を撒く。dirt でも草地でも「自然の地面」なら置ける。占有は BlockPass 照会で引く。
+	blocked := blockedTilesInChunk(world, g)
+	accept := func(rel interior.Vec) bool {
+		bl := bandLocal(rel)
+		return isNaturalGround(world, tiles, bl) && !blocked[gc.GridElement{Coord: bl}]
+	}
 	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
-	area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
-	count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.Density))
+	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
 
-	for _, rel := range interior.ScatterArea(area, accept, selSeed, count) {
+	for _, rel := range interior.ScatterArea(area, accept, selSeed, propCount) {
 		// Big は位相 0 かつ経路外のタイルにだけ乗せる。二段で通行性を担保する
 		bigAllowed := onBigPhase(rel) && !onScatterRoute(runSeed, c, rows, g, absTile(rel))
 		roll := ChunkSeed2D(selSeed, consts.Chunk(rel.X), consts.Chunk(rel.Y))
@@ -154,7 +178,7 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 }
 
 // placeScatterEntry は anchor へ prop を1個置き、Satellites を anchor 相対へ順に置く。anchor が
-// 先の衛星に占有されていれば丸ごと諦める。衛星は dirt 非占有のタイルにだけ置き、収まらない衛星は
+// 先の衛星に占有されていれば丸ごと諦める。衛星は自然地面かつ非占有のタイルにだけ置き、収まらない衛星は
 // 落とす。anchor だけ置いて衛星を諦める、doc 70 の Satellites と同じ「尽きたら諦める」方針。
 func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, blocked map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
 	if blocked[gc.GridElement{Coord: origin}] {
@@ -167,7 +191,7 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, block
 	for _, s := range entry.Satellites {
 		pos := consts.Coord[consts.Tile]{X: origin.X + s.dx, Y: origin.Y + s.dy}
 		key := gc.GridElement{Coord: pos}
-		if blocked[key] || !isDirtTile(world, tiles, pos) {
+		if blocked[key] || !isNaturalGround(world, tiles, pos) {
 			continue
 		}
 		if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {
@@ -273,13 +297,28 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 }
 
 // isDirtTile は帯ローカル座標 pos のタイルが土かを返す。道の floor や他フィーチャの生成物は土でない
-// ので散布から外れる。road.go の replaceDirtTile と同じ土判定。
+// ので草地化から外れる。road.go の replaceDirtTile と同じ土判定。
 func isDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
+	return tileNameAt(world, tiles, pos) == consts.TileNameDirt
+}
+
+// isNaturalGround は pos が自然物を立てられる地面、すなわち土か草地かを返す。道の floor や壁の上には
+// 立てない。草地は散布自身が敷いたものなので、灌木や岩が草の上に立つのは自然に見える。
+func isNaturalGround(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
+	switch tileNameAt(world, tiles, pos) {
+	case consts.TileNameDirt, scatterGrassPrimary, scatterGrassAccent:
+		return true
+	}
+	return false
+}
+
+// tileNameAt は帯ローカル座標 pos のタイル名を返す。タイルが無ければ空文字。
+func tileNameAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {
 	e, ok := tiles[gc.GridElement{Coord: pos}]
 	if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) {
-		return false
+		return ""
 	}
-	return world.Components.Name.Get(e).Name == consts.TileNameDirt
+	return world.Components.Name.Get(e).Name
 }
 
 // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。

@@ -39,12 +39,12 @@ func newDirtChunk(t *testing.T, world w.World) chunkGeom {
 	}
 }
 
-// firstWastelandChunk は runSeed のもとで最初に見つかる wasteland チャンク座標を返す。
-func firstWastelandChunk(t *testing.T, runSeed uint64, rows consts.Chunk) consts.Coord[consts.Chunk] {
+// firstWastelandChunk は scatterTestSeed のもとで最初に見つかる wasteland チャンク座標を返す。
+func firstWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 	t.Helper()
 	for cx := range consts.Chunk(200) {
 		c := consts.Coord[consts.Chunk]{X: cx, Y: 0}
-		if chunkTypeAt(runSeed, c, rows) == chunkWasteland {
+		if chunkTypeAt(scatterTestSeed, c, scatterTestRows) == chunkWasteland {
 			return c
 		}
 	}
@@ -52,12 +52,12 @@ func firstWastelandChunk(t *testing.T, runSeed uint64, rows consts.Chunk) consts
 	return consts.Coord[consts.Chunk]{}
 }
 
-// firstNonWastelandChunk は runSeed のもとで最初に見つかる wasteland 以外のチャンク座標を返す。
-func firstNonWastelandChunk(t *testing.T, runSeed uint64, rows consts.Chunk) consts.Coord[consts.Chunk] {
+// firstNonWastelandChunk は scatterTestSeed のもとで最初に見つかる wasteland 以外のチャンク座標を返す。
+func firstNonWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 	t.Helper()
 	for cx := range consts.Chunk(200) {
 		c := consts.Coord[consts.Chunk]{X: cx, Y: 0}
-		if chunkTypeAt(runSeed, c, rows) != chunkWasteland {
+		if chunkTypeAt(scatterTestSeed, c, scatterTestRows) != chunkWasteland {
 			return c
 		}
 	}
@@ -71,11 +71,11 @@ type propAt struct {
 	name string
 }
 
-// collectProps は BlockPass を持つ全 prop を座標順で集める。土タイルは BlockPass を持たないので、
-// 土だけのチャンクでは散布した prop だけが並ぶ。
+// collectProps は Prop を持つ全 prop を座標順で集める。plant や moving_stone は BlockPass を持たない
+// ので、散布物の網羅は Prop コンポーネントで引く。タイルは Prop を持たないので散布物だけが並ぶ。
 func collectProps(world w.World) []propAt {
 	var out []propAt
-	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
+	q := query.ActiveFilter2[gc.GridElement, gc.Prop](world).Query()
 	for q.Next() {
 		e := q.Entity()
 		ge := *world.Components.GridElement.Get(e)
@@ -97,11 +97,22 @@ func collectProps(world w.World) []propAt {
 	return out
 }
 
+// collectBlockingTiles は BlockPass を持つエンティティの占有タイルを集める。通行性の flood 判定で
+// 壁として扱うのはこれだけで、歩行可能な草地や plant・moving_stone は含まない。
+func collectBlockingTiles(world w.World) map[consts.Coord[consts.Tile]]bool {
+	blocked := make(map[consts.Coord[consts.Tile]]bool)
+	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
+	for q.Next() {
+		blocked[world.Components.GridElement.Get(q.Entity()).Coord] = true
+	}
+	return blocked
+}
+
 // TestScatterFeature_同じseedは同じ配置 は散布が決定的な純関数であることを固定する。同じ seed と
 // チャンク座標なら別の world でも同じ prop が同じ座標に並ぶ。再訪一致と serde 安全の土台。
 func TestScatterFeature_同じseedは同じ配置(t *testing.T) {
 	t.Parallel()
-	c := firstWastelandChunk(t, scatterTestSeed, scatterTestRows)
+	c := firstWastelandChunk(t)
 
 	run := func() []propAt {
 		world := testutil.InitTestWorld(t)
@@ -116,12 +127,12 @@ func TestScatterFeature_同じseedは同じ配置(t *testing.T) {
 	assert.Equal(t, a, b, "同じ seed と座標なら同じ配置になる")
 }
 
-// TestScatterFeature_dirtの空きにだけ置く は、散布した prop が必ず土タイルの上にあり、かつ2つの
-// prop が同じタイルへ重ならないことを固定する。占有回避と非 dirt 回避の回帰。
-func TestScatterFeature_dirtの空きにだけ置く(t *testing.T) {
+// TestScatterFeature_自然地面の空きにだけ置く は、散布した prop が必ず自然地面、すなわち土か草地の
+// 上にあり、かつ2つの prop が同じタイルへ重ならないことを固定する。占有回避と非地面回避の回帰。
+func TestScatterFeature_自然地面の空きにだけ置く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	c := firstWastelandChunk(t, scatterTestSeed, scatterTestRows)
+	c := firstWastelandChunk(t)
 	g := newDirtChunk(t, world)
 	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
@@ -130,11 +141,33 @@ func TestScatterFeature_dirtの空きにだけ置く(t *testing.T) {
 	props := collectProps(world)
 	require.NotEmpty(t, props)
 	for _, p := range props {
-		assert.True(t, isDirtTile(world, tiles, p.pos), "散布は土タイルの上にだけ置く: %v", p)
+		assert.True(t, isNaturalGround(world, tiles, p.pos), "散布は自然地面の上にだけ置く: %v", p)
 		key := gc.GridElement{Coord: p.pos}
 		assert.False(t, seen[key], "2つの prop が同じタイルへ重ならない: %v", p)
 		seen[key] = true
 	}
+}
+
+// TestScatterFeature_地面を草地に変える は、散布が dirt を歩行可能な草地タイルへ置換して野原の質感を
+// 出すことを固定する。草地は BlockPass を持たないので通行を塞がない。
+func TestScatterFeature_地面を草地に変える(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	c := firstWastelandChunk(t)
+	g := newDirtChunk(t, world)
+	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
+
+	tiles := g.tiles.get()
+	grass := 0
+	for y := range scatterTestChunk {
+		for x := range scatterTestChunk {
+			switch tileNameAt(world, tiles, consts.Coord[consts.Tile]{X: x, Y: y}) {
+			case scatterGrassPrimary, scatterGrassAccent:
+				grass++
+			}
+		}
+	}
+	assert.Positive(t, grass, "一部の土が草地へ変わる")
 }
 
 // TestScatterFeature_wasteland以外は置かない は、v1 のスコープが wasteland 限定であることを固定する。
@@ -142,7 +175,7 @@ func TestScatterFeature_dirtの空きにだけ置く(t *testing.T) {
 func TestScatterFeature_wasteland以外は置かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	c := firstNonWastelandChunk(t, scatterTestSeed, scatterTestRows)
+	c := firstNonWastelandChunk(t)
 	g := newDirtChunk(t, world)
 	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
@@ -154,14 +187,12 @@ func TestScatterFeature_wasteland以外は置かない(t *testing.T) {
 func TestScatterFeature_外周は空けて横断できる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	c := firstWastelandChunk(t, scatterTestSeed, scatterTestRows)
+	c := firstWastelandChunk(t)
 	g := newDirtChunk(t, world)
 	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
-	blocked := make(map[consts.Coord[consts.Tile]]bool)
-	for _, p := range collectProps(world) {
-		blocked[p.pos] = true
-	}
+	// 壁として扱うのは BlockPass を持つ prop だけ。草地・plant・moving_stone は歩行可能
+	blocked := collectBlockingTiles(world)
 
 	// 外周1タイルの環は候補から外れるので常に空く。西端から東端へ flood-fill で到達できる
 	for y := range scatterTestChunk {

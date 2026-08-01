@@ -206,7 +206,7 @@ func TestGolden_Overworld(t *testing.T) {
 }
 
 // TestGolden_OverworldScatter は wasteland チャンクへの屋外散布の描画を固定する。RunSeed 66 は
-// 中央チャンクが道沿いの荒れ地になり、放置車両・ドラム缶・瓦礫など人工物の散布が視界に入る。
+// 中央チャンクが道沿いの荒れ地になり、草地の地面と灌木・雑草・石など自然物の散布が視界に入る。
 // 散布は決定的な純関数なので、この RunSeed で golden が安定する。密度やカタログ比を変えると退行する。
 func TestGolden_OverworldScatter(t *testing.T) {
 	t.Parallel()
