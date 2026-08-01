@@ -14,13 +14,13 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// CubePanelState はキューブ内装のコントロールパネル。現ステージ、すなわち今いる内装の
+// CubePanelState はキューブ内部のコントロールパネル。現ステージ、すなわち今いる内部の
 // 全体情報を表示する。まずは総重量を読めるようにし、将来は拡張の操作UIを
 // ここへ足していく器にする。
 type CubePanelState struct {
 	es.BaseState[w.World]
 
-	totalWeight consts.Milligram // 内装に置いた物の総重量
+	totalWeight consts.Milligram // 内部に置いた物の総重量
 }
 
 var _ es.State[w.World] = &CubePanelState{}

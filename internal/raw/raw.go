@@ -641,7 +641,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	entitySpec.SpriteRender = &spriteRender
 
-	// 置物も物なので重量を持てる。内装に置いた物はキューブ総重量に加算される。item と対称に付与する
+	// 置物も物なので重量を持てる。内部に置いた物はキューブ総重量に加算される。item と対称に付与する
 	if propRaw.Weight != nil {
 		mg, err := consts.ParseWeight(*propRaw.Weight)
 		if err != nil {

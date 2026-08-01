@@ -87,7 +87,7 @@ func TestPushActivity_総重量とパーティAPで決まる複数ターンを�
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "押し手はキューブの空けたタイルへ追随する")
 }
 
-// addInteriorWeight はキューブ内装ステージの床へ重量物を1つ据える。押しコストに乗るかの検証に使う。
+// addInteriorWeight はキューブ内部ステージの床へ重量物を1つ据える。押しコストに乗るかの検証に使う。
 func addInteriorWeight(world w.World, mg consts.Milligram) {
 	e := world.ECS.NewEntity()
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
@@ -95,21 +95,21 @@ func addInteriorWeight(world w.World, mg consts.Milligram) {
 	world.Components.StageBound.Add(e, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
 }
 
-// TestPushActivity_内装に置いた物の重量が押しターンに乗る は、内装の総重量が実際の押しコストへ
-// 反映されることを検証する。空なら1ターンで押し切れるAPでも、内装に重量物があると所要ターンが
-// 増えて初回では完了しない。キューブと内装のリンク解決が壊れて総重量が常に0になる回帰を防ぐ。
-func TestPushActivity_内装に置いた物の重量が押しターンに乗る(t *testing.T) {
+// TestPushActivity_内部に置いた物の重量が押しターンに乗る は、内部の総重量が実際の押しコストへ
+// 反映されることを検証する。空なら1ターンで押し切れるAPでも、内部に重量物があると所要ターンが
+// 増えて初回では完了しない。キューブと内部のリンク解決が壊れて総重量が常に0になる回帰を防ぐ。
+func TestPushActivity_内部に置いた物の重量が押しターンに乗る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	// 空のキューブなら PushCostBase ちょうどのAPで1ターンで押し切れる
 	player := addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
-	// 内装に 8kg を据えると PushCost が基準を超え、同じAPでは1ターンで足りなくなる
+	// 内部に 8kg を据えると PushCost が基準を超え、同じAPでは1ターンで足りなくなる
 	addInteriorWeight(world, 8*consts.MilligramPerKg)
 
 	result, err := activity.Execute(activity.NewPushActivity(cube, gc.DirectionRight), player, world)
 	require.NoError(t, err)
-	assert.Equal(t, gc.ActivityStateRunning, result.State, "内装の重量ぶん所要ターンが増え、初回では完了しない")
+	assert.Equal(t, gc.ActivityStateRunning, result.State, "内部の重量ぶん所要ターンが増え、初回では完了しない")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "重くて1ターンでは動かない")
 }
 

@@ -164,9 +164,9 @@ func (st *DungeonState) descend(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, pos)
 }
 
-// enterCube は移動拠点キューブの内装へ swapTo で入る。内装はオーバーワールドと同じく単一の
+// enterCube は移動拠点キューブの内部へ swapTo で入る。内部はオーバーワールドと同じく単一の
 // 永続ステージで、初回だけ生成され以後は再稼働する。出口 prop の戻り先を、入場時のプレイヤー
-// タイル、すなわちキューブに隣接する位置へ毎回貼り直す。内装滞在中はオーバーワールドが退避し
+// タイル、すなわちキューブに隣接する位置へ毎回貼り直す。内部滞在中はオーバーワールドが退避し
 // キューブは動かないので、この戻り先は退場時も有効になる。
 func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	if !world.Components.GridElement.Has(cube) {
@@ -178,7 +178,7 @@ func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	}
 	returnPos := world.Components.GridElement.Get(player).Coord
 
-	// 単一の内装ステージへ入る。未訪問なら SwapTo の callback で一度だけ生成される
+	// 単一の内部ステージへ入る。未訪問なら SwapTo の callback で一度だけ生成される
 	if err := stage.SwapTo(world, gc.NewCubeInteriorStage(), spawnCubeInterior); err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	// 出口 prop の位置が入場点。戻り先をプレイヤーの元タイルへ貼り直す
 	exitProp, exitPos, ok := findPortal(world, gc.InteractionExitCube)
 	if !ok {
-		return fmt.Errorf("キューブ内装に出口が見つかりません")
+		return fmt.Errorf("キューブ内部に出口が見つかりません")
 	}
 	if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil {
 		return err
@@ -194,11 +194,11 @@ func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	return lifecycle.MovePlayerToPosition(world, exitPos)
 }
 
-// exitCube はキューブ内装から出口 prop の PortalConnection を辿ってオーバーワールドへ戻る。
+// exitCube はキューブ内部から出口 prop の PortalConnection を辿ってオーバーワールドへ戻る。
 func (st *DungeonState) exitCube(world w.World) error {
 	exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
 	if !ok {
-		return fmt.Errorf("キューブ内装に出口が見つかりません")
+		return fmt.Errorf("キューブ内部に出口が見つかりません")
 	}
 	if !world.Components.PortalConnection.Has(exitProp) {
 		return fmt.Errorf("出口に戻り先が結線されていません")
@@ -214,14 +214,14 @@ func (st *DungeonState) exitCube(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, returnPos)
 }
 
-// spawnCubeInterior はキューブ内装を生成する。マップのレイアウトはテンプレート
+// spawnCubeInterior はキューブ内部を生成する。マップのレイアウトはテンプレート
 // levels/facilities/cube_interior.toml が持ち、テンプレートプランナーで生成する。壁で囲った
 // 狭い1階層の部屋になる。cube 固有の出口 prop と presence 効果 prop は palette に無いので
 // テンプレート生成後に code で据える。戻り先の結線は enterCube が貼る。
 //
 // ダンジョン生成器でなくテンプレートを使うのは、階段ポータル前提の生成器では極小サイズを
-// 作れず、置いた階段を降りると内装キーを遺跡定義として解決しようとして panic するため。
-// テンプレートは階段を含まないので1階層になる。パワーアップで内装を差し替える余地も残る。
+// 作れず、置いた階段を降りると内部キーを遺跡定義として解決しようとして panic するため。
+// テンプレートは階段を含まないので1階層になる。パワーアップで内部を差し替える余地も残る。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
 	seed := world.Config.RNG.Uint64()
 	chain, err := mapplanner.NewPlannerChainByTemplateType(mapplanner.TemplateTypeCubeInterior, seed)
@@ -270,7 +270,7 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 		return err
 	}
 
-	// 生成物をこの内装ステージへ束縛する
+	// 生成物をこの内部ステージへ束縛する
 	stage.Bind(world, key)
 	return nil
 }

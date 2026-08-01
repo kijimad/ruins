@@ -7,14 +7,14 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// CubeWeight は内装ステージのフィールド上にある全 gc.Weight 保有エンティティの重量総和を返す。
-// item も、暖や作業の効果を持つ prop も、内装の床へ置けば等しく重量になる。
+// CubeWeight は内部ステージのフィールド上にある全 gc.Weight 保有エンティティの重量総和を返す。
+// item も、暖や作業の効果を持つ prop も、内部の床へ置けば等しく重量になる。
 // 所有者ベースの calculateOwnedWeight とは別軸で、StageBound.Key で集計する。
 //
 // LocationOnField を条件に含め、床にある物だけを数える。拾って背包へ移すと LocationOnField が
 // 外れて総重量から抜ける。StageBound は拾っても残るため、これが無いと持ち去った物まで数えてしまう。
 //
-// 内装は外にいる間 Suspended になるが、総重量は退避中も保持したい。Suspended は退避で付くが
+// 内部は外にいる間 Suspended になるが、総重量は退避中も保持したい。Suspended は退避で付くが
 // LocationOnField は残るので、Suspended を除外する ActiveFilter でなく生のフィルタで全ステージを
 // 走査し、Key 一致で絞る。
 func CubeWeight(world w.World, interior gc.StageKey) consts.Milligram {

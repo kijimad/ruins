@@ -20,7 +20,7 @@ const (
 	TemplateTypeTownPlaza
 	// TemplateTypeBossFloor はボスフロア
 	TemplateTypeBossFloor
-	// TemplateTypeCubeInterior は移動拠点キューブの内装。壁で囲った狭い1階層の部屋
+	// TemplateTypeCubeInterior は移動拠点キューブの内部。壁で囲った狭い1階層の部屋
 	TemplateTypeCubeInterior
 )
 

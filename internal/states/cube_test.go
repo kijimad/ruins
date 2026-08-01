@@ -17,9 +17,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestEnterExitCube_内装へ入り元の位置へ戻る はキューブ内装への出入りを検証する。
-// 入るとオーバーワールドが退避しキューブ内装が現ステージになり、出ると元のタイルへ戻る。
-func TestEnterExitCube_内装へ入り元の位置へ戻る(t *testing.T) {
+// TestEnterExitCube_内部へ入り元の位置へ戻る はキューブ内部への出入りを検証する。
+// 入るとオーバーワールドが退避しキューブ内部が現ステージになり、出ると元のタイルへ戻る。
+func TestEnterExitCube_内部へ入り元の位置へ戻る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -35,28 +35,28 @@ func TestEnterExitCube_内装へ入り元の位置へ戻る(t *testing.T) {
 
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
 
-	// 入る: オーバーワールドを退避し、キューブ内装が現ステージになる
+	// 入る: オーバーワールドを退避し、キューブ内部が現ステージになる
 	require.NoError(t, st.enterCube(world, cube))
 	interiorKey := gc.NewCubeInteriorStage()
-	assert.Equal(t, interiorKey, d.CurrentStage, "現ステージはキューブ内装")
+	assert.Equal(t, interiorKey, d.CurrentStage, "現ステージはキューブ内部")
 	assert.True(t, world.Components.Suspended.Has(band), "オーバーワールドは退避される")
 
 	// 出口 prop の戻り先は入場時のプレイヤータイル
 	exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
-	require.True(t, ok, "内装に出口がある")
+	require.True(t, ok, "内部に出口がある")
 	require.True(t, world.Components.PortalConnection.Has(exitProp))
 	assert.Equal(t, playerPos, world.Components.PortalConnection.Get(exitProp).Coord, "戻り先は入場時のプレイヤータイル")
 
 	// 据えたランタンの重量が総重量に乗り、押しコストが基準より重くなる
 	// これがブレーキと引力の対。置いた物が押しを重くする
-	assert.Positive(t, query.CubeWeight(world, interiorKey), "内装のランタンが総重量に乗る")
+	assert.Positive(t, query.CubeWeight(world, interiorKey), "内部のランタンが総重量に乗る")
 	assert.Greater(t, query.PushCost(query.CubeWeight(world, interiorKey)), consts.PushCostBase, "物を置くと空のキューブより押しが重い")
 
-	// 内装は1階層。降り/上りの階段ポータルは無い。あると降りて panic するため
+	// 内部は1階層。降り/上りの階段ポータルは無い。あると降りて panic するため
 	_, _, hasNext := findPortal(world, gc.InteractionPortalNext)
-	assert.False(t, hasNext, "内装に降り階段は無い")
+	assert.False(t, hasNext, "内部に降り階段は無い")
 	_, _, hasPrev := findPortal(world, gc.InteractionPortalPrev)
-	assert.False(t, hasPrev, "内装に上り階段は無い")
+	assert.False(t, hasPrev, "内部に上り階段は無い")
 
 	// 出る: オーバーワールドが再稼働し、入場した元タイルへ戻る
 	require.NoError(t, st.exitCube(world))
@@ -65,10 +65,10 @@ func TestEnterExitCube_内装へ入り元の位置へ戻る(t *testing.T) {
 	assert.Equal(t, playerPos, world.Components.GridElement.Get(player).Coord, "入場した元タイルへ戻る")
 }
 
-// TestEnterCube_内装で保存して読み込んでも落ちない はキューブ内装での serde 往復を検証する。
-// 内装は定義を持たないランタイムステージなので、復帰時に遺跡定義として解決しようとして落ちる
+// TestEnterCube_内部で保存して読み込んでも落ちない はキューブ内部での serde 往復を検証する。
+// 内部は定義を持たないランタイムステージなので、復帰時に遺跡定義として解決しようとして落ちる
 // 不具合の回帰。復帰では世界が復元済みで定義解決は不要にする。
-func TestEnterCube_内装で保存して読み込んでも落ちない(t *testing.T) {
+func TestEnterCube_内部で保存して読み込んでも落ちない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -84,32 +84,32 @@ func TestEnterCube_内装で保存して読み込んでも落ちない(t *testin
 	interiorKey := gc.NewCubeInteriorStage()
 	require.Equal(t, interiorKey, query.GetDungeon(world).CurrentStage)
 
-	// 内装にいる状態で保存して別 world へ読み込む
+	// 内部にいる状態で保存して別 world へ読み込む
 	manager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 	require.NoError(t, manager.SaveWorld(world, "cube_interior"))
 	newWorld := testutil.InitTestWorld(t)
 	require.NoError(t, manager.LoadWorld(newWorld, "cube_interior"))
 
-	assert.Equal(t, interiorKey, query.GetDungeon(newWorld).CurrentStage, "内装が現ステージのまま復元される")
+	assert.Equal(t, interiorKey, query.GetDungeon(newWorld).CurrentStage, "内部が現ステージのまま復元される")
 
 	// 復帰状態を組み立てて開始する。以前はここで定義解決に失敗して落ちていた
 	resume, err := newResumeStateFactory(newWorld)()
 	require.NoError(t, err)
-	require.NoError(t, resume.OnStart(newWorld), "内装で読み込んでも定義解決で落ちない")
+	require.NoError(t, resume.OnStart(newWorld), "内部で読み込んでも定義解決で落ちない")
 }
 
-// TestEnterCube_内装ではオーバーワールド判定が偽 は、内装で大域マップを開くと帯が無く落ちる
+// TestEnterCube_内部ではオーバーワールド判定が偽 は、内部で大域マップを開くと帯が無く落ちる
 // 不具合の回帰。地図の開閉は State 属性でなく現ステージの IsOnOverworld で判定するので、
-// 内装では偽になり地図は開かない。
-func TestEnterCube_内装ではオーバーワールド判定が偽(t *testing.T) {
+// 内部では偽になり地図は開かない。
+func TestEnterCube_内部ではオーバーワールド判定が偽(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
 	require.NoError(t, drv.Start(world)) // 実オーバーワールド。帯とプレイヤーとキューブが揃う
 	require.True(t, query.IsOnOverworld(world), "地上ではオーバーワールド判定が真")
 
-	// スポーンされたキューブを引き当てて内装へ入る
+	// スポーンされたキューブを引き当てて内部へ入る
 	var cube ecs.Entity
 	found := false
 	cubeQuery := query.ActiveFilter1[gc.Pushable](world).Query()
@@ -123,12 +123,12 @@ func TestEnterCube_内装ではオーバーワールド判定が偽(t *testing.T
 
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
 	require.NoError(t, st.enterCube(world, cube))
-	assert.False(t, query.IsOnOverworld(world), "内装ではオーバーワールド判定が偽。地図は開かない")
+	assert.False(t, query.IsOnOverworld(world), "内部ではオーバーワールド判定が偽。地図は開かない")
 }
 
-// TestCubePanelState_内装の総重量を表示できる はコントロールパネルが現内装の全体情報、
+// TestCubePanelState_内部の総重量を表示できる はコントロールパネルが現内部の全体情報、
 // すなわち総重量を算出できることを検証する。
-func TestCubePanelState_内装の総重量を表示できる(t *testing.T) {
+func TestCubePanelState_内部の総重量を表示できる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -142,10 +142,10 @@ func TestCubePanelState_内装の総重量を表示できる(t *testing.T) {
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
 	require.NoError(t, st.enterCube(world, cube))
 
-	// 内装で管制盤を開くと、据えたランタンぶんの総重量が読める
+	// 内部で管制盤を開くと、据えたランタンぶんの総重量が読める
 	panel := &CubePanelState{}
 	require.NoError(t, panel.OnStart(world))
-	assert.Positive(t, panel.totalWeight, "内装に置いた物の総重量が管制盤に出る")
+	assert.Positive(t, panel.totalWeight, "内部に置いた物の総重量が管制盤に出る")
 }
 
 // TestOverworldMapState_キューブのチャンク位置を出す は大域地図にキューブのチャンク位置が

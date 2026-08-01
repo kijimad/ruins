@@ -53,13 +53,13 @@ const (
 	InteractionMelee InteractionKind = "MELEE"
 	// InteractionDisassemble は工具による分解の相互作用
 	InteractionDisassemble InteractionKind = "DISASSEMBLE"
-	// InteractionEnterCube は移動拠点キューブの内装へ入る相互作用
+	// InteractionEnterCube は移動拠点キューブの内部へ入る相互作用
 	InteractionEnterCube InteractionKind = "ENTER_CUBE"
-	// InteractionExitCube は移動拠点キューブの内装から出る相互作用
+	// InteractionExitCube は移動拠点キューブの内部から出る相互作用
 	InteractionExitCube InteractionKind = "EXIT_CUBE"
 	// InteractionPullCube は移動拠点キューブを自分の側へ引く相互作用。壁際・角の詰みを解く
 	InteractionPullCube InteractionKind = "PULL_CUBE"
-	// InteractionCubePanel はキューブ内装のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
+	// InteractionCubePanel はキューブ内部のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
 	InteractionCubePanel InteractionKind = "CUBE_PANEL"
 )
 

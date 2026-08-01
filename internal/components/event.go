@@ -26,15 +26,15 @@ type WarpDungeonEnter struct {
 	PlannerName string
 }
 
-// WarpCubeEnter は移動拠点キューブの内装への入場。Cube は入る対象のキューブ本体
+// WarpCubeEnter は移動拠点キューブの内部への入場。Cube は入る対象のキューブ本体
 type WarpCubeEnter struct {
 	Cube ecs.Entity
 }
 
-// WarpCubeExit は移動拠点キューブの内装からの退場
+// WarpCubeExit は移動拠点キューブの内部からの退場
 type WarpCubeExit struct{}
 
-// OpenCubePanel はキューブ内装のコントロールパネルを開く
+// OpenCubePanel はキューブ内部のコントロールパネルを開く
 type OpenCubePanel struct{}
 
 // GameClear はゲームクリア
@@ -85,15 +85,15 @@ func WarpDungeonEnterWithPlannerEvent(definitionName, plannerName string) StateC
 	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName, PlannerName: plannerName}}
 }
 
-// WarpCubeEnterEvent は移動拠点キューブの内装への入場リクエストを生成する
+// WarpCubeEnterEvent は移動拠点キューブの内部への入場リクエストを生成する
 func WarpCubeEnterEvent(cube ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: WarpCubeEnter{Cube: cube}}
 }
 
-// WarpCubeExitEvent は移動拠点キューブの内装からの退場リクエストを生成する
+// WarpCubeExitEvent は移動拠点キューブの内部からの退場リクエストを生成する
 func WarpCubeExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpCubeExit{}} }
 
-// OpenCubePanelEvent はキューブ内装のコントロールパネルを開くリクエストを生成する
+// OpenCubePanelEvent はキューブ内部のコントロールパネルを開くリクエストを生成する
 func OpenCubePanelEvent() StateChangeRequest { return StateChangeRequest{Payload: OpenCubePanel{}} }
 
 // GameClearEvent はゲームクリアリクエストを生成する

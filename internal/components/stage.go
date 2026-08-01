@@ -43,10 +43,10 @@ func NewDungeonStage(name string, depth int) StageKey {
 	return StageKey{Name: name, Depth: depth}
 }
 
-// cubeInteriorStageName は移動拠点キューブの内装ステージの固定名。
-const cubeInteriorStageName = "キューブ内装"
+// cubeInteriorStageName は移動拠点キューブの内部ステージの固定名。
+const cubeInteriorStageName = "キューブ内部"
 
-// NewCubeInteriorStage は移動拠点キューブの内装ステージキーを返す。オーバーワールドと同じく
+// NewCubeInteriorStage は移動拠点キューブの内部ステージキーを返す。オーバーワールドと同じく
 // 単一の永続ステージで、初回進入時に一度だけ生成され以後は再稼働する。ダンジョン定義は持たない。
 func NewCubeInteriorStage() StageKey { return StageKey{Name: cubeInteriorStageName, Depth: 1} }
 

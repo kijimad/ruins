@@ -319,7 +319,7 @@ model Prop {
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
-  /** 置物重量。内装に置く物はキューブ総重量に加算される。item の weight と対称 */
+  /** 置物重量。内部に置く物はキューブ総重量に加算される。item の weight と対称 */
   weight?: Weight;
 }
 

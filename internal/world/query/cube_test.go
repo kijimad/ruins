@@ -41,11 +41,11 @@ func TestPushCost(t *testing.T) {
 	}
 }
 
-func TestCubeWeight_内装ステージ束縛の重量を合算し他ステージを除く(t *testing.T) {
+func TestCubeWeight_内部ステージ束縛の重量を合算し他ステージを除く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewDungeonStage("キューブ内装", 1)
-	other := gc.NewDungeonStage("別の内装", 1)
+	interior := gc.NewDungeonStage("キューブ内部", 1)
+	other := gc.NewDungeonStage("別の内部", 1)
 
 	addWeightEntity(world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
 	addWeightEntity(world, consts.Milligram(3*consts.MilligramPerKg), interior, false)
@@ -54,12 +54,12 @@ func TestCubeWeight_内装ステージ束縛の重量を合算し他ステージ
 	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, interior))
 }
 
-func TestCubeWeight_退避中の内装エンティティも集計する(t *testing.T) {
+func TestCubeWeight_退避中の内部エンティティも集計する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewDungeonStage("キューブ内装", 1)
+	interior := gc.NewDungeonStage("キューブ内部", 1)
 
-	// 外にいる間、内装は Suspended になる。それでも総重量は保持したい
+	// 外にいる間、内部は Suspended になる。それでも総重量は保持したい
 	addWeightEntity(world, consts.Milligram(4*consts.MilligramPerKg), interior, true)
 
 	assert.Equal(t, consts.Milligram(4*consts.MilligramPerKg), query.CubeWeight(world, interior))
@@ -68,12 +68,12 @@ func TestCubeWeight_退避中の内装エンティティも集計する(t *testi
 func TestCubeWeight_床に無い物は数えない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewDungeonStage("キューブ内装", 1)
+	interior := gc.NewDungeonStage("キューブ内部", 1)
 
 	// 床にある物は数える
 	addWeightEntity(world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
 
-	// 内装で拾って背包へ移した物。LocationOnField は外れるが StageBound は残る。総重量から抜ける
+	// 内部で拾って背包へ移した物。LocationOnField は外れるが StageBound は残る。総重量から抜ける
 	carried := world.ECS.NewEntity()
 	world.Components.Weight.Add(carried, &gc.Weight{Milligram: consts.Milligram(9 * consts.MilligramPerKg)})
 	world.Components.StageBound.Add(carried, &gc.StageBound{Key: interior})

@@ -140,9 +140,9 @@ func (pa *PushActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 	return nil
 }
 
-// cubeInteriorWeight は内装ステージに置いた物の総重量を返す。内装はオーバーワールドと同じく
-// 単一の永続ステージなので、固定キーで直接引く。どのキューブを押しても同じ内装の総重量が
-// 押しの重さになる。内装をキューブごとに分ける拡張へ進むときは、キューブから内装への
+// cubeInteriorWeight は内部ステージに置いた物の総重量を返す。内部はオーバーワールドと同じく
+// 単一の永続ステージなので、固定キーで直接引く。どのキューブを押しても同じ内部の総重量が
+// 押しの重さになる。内部をキューブごとに分ける拡張へ進むときは、キューブから内部への
 // リンクをここで解決し直す。
 func cubeInteriorWeight(world w.World) consts.Milligram {
 	return query.CubeWeight(world, gc.NewCubeInteriorStage())

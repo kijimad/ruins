@@ -113,7 +113,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// ダンジョン種別を取得する。ここは Seamless 判定を抜けた通常ダンジョンなので DungeonDefinition のはず
 	def, err := resolveDungeonDefinition(defName)
 	if err != nil {
-		// 定義を持たないランタイムステージ、たとえばキューブ内装で保存して読み込んだ場合。
+		// 定義を持たないランタイムステージ、たとえばキューブ内部で保存して読み込んだ場合。
 		// 復帰では世界が復元済みで再生成も定義も要らないので、索引だけ作り直してそのまま使う。
 		// 新規開始でここに来るのは定義解決の不具合なので、その場合は error で落とす
 		if st.Resume {
