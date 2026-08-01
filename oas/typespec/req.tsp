@@ -292,6 +292,12 @@ model WarpNextTriggerRaw {}
 /** 前階層ワープトリガー */
 model WarpPrevTriggerRaw {}
 
+/** 移動拠点キューブの内部からの退場トリガー */
+model WarpCubeExitTriggerRaw {}
+
+/** 移動拠点キューブのコントロールパネルトリガー */
+model CubePanelTriggerRaw {}
+
 /** 収納ローデータ */
 model StorageRaw {
   /** 収納の最大格納重量 */
@@ -317,6 +323,8 @@ model Prop {
   doorLockTrigger?: DoorLockTriggerRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
+  warpCubeExitTrigger?: WarpCubeExitTriggerRaw;
+  cubePanelTrigger?: CubePanelTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
 }

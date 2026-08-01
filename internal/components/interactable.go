@@ -53,6 +53,14 @@ const (
 	InteractionMelee InteractionKind = "MELEE"
 	// InteractionDisassemble は工具による分解の相互作用
 	InteractionDisassemble InteractionKind = "DISASSEMBLE"
+	// InteractionEnterCube は移動拠点キューブの内部へ入る相互作用
+	InteractionEnterCube InteractionKind = "ENTER_CUBE"
+	// InteractionExitCube は移動拠点キューブの内部から出る相互作用
+	InteractionExitCube InteractionKind = "EXIT_CUBE"
+	// InteractionPullCube は移動拠点キューブを自分の側へ引く相互作用。壁際・角の詰みを解く
+	InteractionPullCube InteractionKind = "PULL_CUBE"
+	// InteractionCubePanel はキューブ内部のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
+	InteractionCubePanel InteractionKind = "CUBE_PANEL"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -62,12 +70,14 @@ func (k InteractionKind) Config() InteractionConfig {
 	switch k {
 	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItem, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
-	case InteractionDoor, InteractionTalk, InteractionMelee:
+	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
 	case InteractionDoorLock:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}
-	case InteractionStorage, InteractionDisassemble:
+	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
+	case InteractionExitCube:
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	}
 	return InteractionConfig{}
 }

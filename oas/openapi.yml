@@ -1616,6 +1616,9 @@ components:
         targetNum:
           $ref: '#/components/schemas/TargetNum'
       description: 消費可能アイテムの設定
+    CubePanelTriggerRaw:
+      type: object
+      description: 移動拠点キューブのコントロールパネルトリガー
     DamageBonus:
       type: integer
       format: int32
@@ -2518,6 +2521,10 @@ components:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
         warpPrevTrigger:
           $ref: '#/components/schemas/WarpPrevTriggerRaw'
+        warpCubeExitTrigger:
+          $ref: '#/components/schemas/WarpCubeExitTriggerRaw'
+        cubePanelTrigger:
+          $ref: '#/components/schemas/CubePanelTriggerRaw'
         storage:
           $ref: '#/components/schemas/StorageRaw'
         disassembly:
@@ -3951,6 +3958,9 @@ components:
       minimum: -100
       maximum: 100
       description: 体力。HPに影響する
+    WarpCubeExitTriggerRaw:
+      type: object
+      description: 移動拠点キューブの内部からの退場トリガー
     WarpNextTriggerRaw:
       type: object
       description: 次階層ワープトリガー

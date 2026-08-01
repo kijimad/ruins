@@ -189,6 +189,30 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 					Interaction: interaction,
 				})
 			}
+		case gc.InteractionEnterCube:
+			result = append(result, InteractionAction{
+				Label:       "入る(" + dirLabel + ")",
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
+		case gc.InteractionExitCube:
+			result = append(result, InteractionAction{
+				Label:       "出る",
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
+		case gc.InteractionPullCube:
+			result = append(result, InteractionAction{
+				Label:       "引く(" + dirLabel + ")",
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
+		case gc.InteractionCubePanel:
+			result = append(result, InteractionAction{
+				Label:       "調べる(コントロールパネル)",
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
 		case gc.InteractionDoorLock, gc.InteractionItemAll:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する

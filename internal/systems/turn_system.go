@@ -11,7 +11,20 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// TurnSystem はターン管理を行うシステム
+// TurnSystem はターン管理を行うシステム。
+//
+// 1ゲームターンは Player → AI → End の3フェーズで進む。Update は毎フレーム1回呼ばれ、
+// 通常は1回につき1フェーズだけ進めるので、1ターン = 3フレームで消化される。
+//
+//	Player: プレイヤーの行動。入力を待つか、継続アクティビティを1ステップ進める
+//	AI:     敵・NPC・隊員を一括処理し、視界の再計算を要求する
+//	End:    AP回復・空腹・気温・寒波前線の前進・GameTime を1ターン進める
+//
+// 継続アクティビティ中(押し・休息・分解など)は例外で、fastForwardActivity が完了・中断・
+// 上限まで1フレーム内で複数ターンをまとめて回す。各ターンは通常と同じ3ステップを通すので、
+// 敵・時間の進行も毎ターンの中断判定も保たれ、ゲーム上の結果は1フレーム1ターンと変わらない。
+// 縮むのは実時間で、省かれるのは途中ターンの描画だけ。継続中の入力は DungeonState が
+// HasActivity で塞ぐため、フェーズが Player のままでも操作は受け付けない。
 type TurnSystem struct{}
 
 // String はシステム名を返す
@@ -20,6 +33,11 @@ func (sys TurnSystem) String() string {
 	return "TurnSystem"
 }
 
+// fastForwardTurnsPerFrame は継続アクティビティ中に1フレームで進める最大ターン数。
+// 大量ターンの押し・休息・分解を実時間で待たせないよう複数ターンをまとめて進めつつ、
+// 1フレームの処理が跳ね上がらないよう上限を設ける。上限を超えても次フレームで続きを進める。
+const fastForwardTurnsPerFrame = 100
+
 // Update はターン管理を行う
 // w.Updater interfaceを実装
 func (sys *TurnSystem) Update(world w.World) error {
@@ -27,13 +45,11 @@ func (sys *TurnSystem) Update(world w.World) error {
 
 	switch turnState.Phase {
 	case gc.TurnPhasePlayer:
-		// プレイヤーが継続アクション中かチェック
-		if processPlayerContinuousActivity(world) {
-			// 継続アクションの1ステップを1ゲームターンとして扱い、AIフェーズへ渡す。
-			// アクティビティ中も敵・NPC・時間が同じ速さで進み、
-			// 敵接近による中断判定が毎ターン意味を持つ
-			turnState.Phase = gc.TurnPhaseAI
-			return nil
+		// プレイヤーが継続アクション中なら、実時間を食わないよう複数ターンを一気に進める。
+		// 各ターンは通常と同じ 継続ステップ→AI→終了 を回すので、敵・NPC・時間は同じ速さで進み、
+		// 敵接近などによる毎ターンの中断判定も保たれる。縮むのは実時間だけ。
+		if playerHasActivity(world) {
+			return sys.fastForwardActivity(world, turnState)
 		}
 		// APが最小行動コストを満たさない場合は自動でターンを終了
 		if shouldAutoEndTurn(world) {
@@ -42,27 +58,74 @@ func (sys *TurnSystem) Update(world w.World) error {
 		}
 		// プレイヤー入力処理はDungeonStateで実行される
 	case gc.TurnPhaseAI:
-		// AIターン: 全AI・NPCを一括処理
-		if err := processAITurn(world); err != nil {
+		if err := runAIPhase(world); err != nil {
 			return err
 		}
-		// AIターン完了後に視界を再計算させる
-		query.GetVisionState(world).RequestUpdate()
 		turnState.Phase = gc.TurnPhaseEnd
 	case gc.TurnPhaseEnd:
-		// ターン終了処理
-		if err := processTurnEnd(world); err != nil {
+		if err := runEndPhase(world, turnState); err != nil {
 			return err
 		}
-		// 空間インデックスを無効化する。次ターンで再構築される
-		query.InvalidateSpatialIndex(world)
-		turnState.TurnNumber++
-		// ゲーム内時間を1ターン進める。昼夜・気温の時間修正・寒波前線の前進がこれに依存する。
-		// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
-		query.GetGameTime(world).Advance()
 		turnState.Phase = gc.TurnPhasePlayer
 	}
 	return nil
+}
+
+// fastForwardActivity はプレイヤーの継続アクティビティを、完了・中断・上限まで1フレーム内で
+// 複数ターン進める。1ターンは通常フローと同じ 継続ステップ→AI→ターン終了 を回すので、
+// ゲーム上の結果は1フレーム1ターンで進めた場合と変わらず、縮むのは実時間だけ。
+func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnState) error {
+	for range fastForwardTurnsPerFrame {
+		if !playerHasActivity(world) {
+			break // 完了・中断したら通常進行へ戻す
+		}
+		processPlayerContinuousActivity(world)
+		if err := runAIPhase(world); err != nil {
+			return err
+		}
+		if err := runEndPhase(world, turnState); err != nil {
+			return err
+		}
+	}
+	// フェーズは Player のまま。継続中なら次フレームで続きを、完了なら通常の入力待ちへ。
+	// 継続中の入力は DungeonState が HasActivity で塞ぐのでフェーズが Player でも受け付けない。
+	turnState.Phase = gc.TurnPhasePlayer
+	return nil
+}
+
+// runAIPhase は全AI・NPCを一括処理し、視界の再計算を要求する。
+func runAIPhase(world w.World) error {
+	// AIターン: 全AI・NPCを一括処理
+	if err := processAITurn(world); err != nil {
+		return err
+	}
+	// AIターン完了後に視界を再計算させる
+	query.GetVisionState(world).RequestUpdate()
+	return nil
+}
+
+// runEndPhase はターン終了処理をして1ゲームターンを確定させる。
+func runEndPhase(world w.World, turnState *gc.TurnState) error {
+	// ターン終了処理
+	if err := processTurnEnd(world); err != nil {
+		return err
+	}
+	// 空間インデックスを無効化する。次ターンで再構築される
+	query.InvalidateSpatialIndex(world)
+	turnState.TurnNumber++
+	// ゲーム内時間を1ターン進める。昼夜・気温の時間修正・寒波前線の前進がこれに依存する。
+	// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
+	query.GetGameTime(world).Advance()
+	return nil
+}
+
+// playerHasActivity はプレイヤーが継続アクティビティ中かを返す。
+func playerHasActivity(world w.World) bool {
+	playerEntity, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return false
+	}
+	return query.HasActivity(world, playerEntity)
 }
 
 // shouldAutoEndTurn はプレイヤーのAPがマイナスの場合にtrueを返す

@@ -70,7 +70,7 @@ func (dr *Driver) Start(world w.World) error {
 	} else {
 		// 新規開始。オーバーワールドから始める。共存機構が現在地を識別するのに使う。
 		d.CurrentStage = gc.NewOverworldStage()
-		if err := dr.startNewBand(world); err != nil {
+		if err := dr.startInitialBand(world); err != nil {
 			return err
 		}
 	}
@@ -109,9 +109,13 @@ func (dr *Driver) front(world w.World) worldstream.Front {
 	return worldstream.FrontAt(dr.frontCfg, totalTurns)
 }
 
-// startNewBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
-// プレイヤーを中央チャンクへ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。
-func (dr *Driver) startNewBand(world w.World) error {
+// startInitialBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
+// プレイヤーとキューブを中央チャンク付近へ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。
+//
+// この関数は新規開始で一度だけ走る。セーブ復帰は Start が restoreFromSave の枝を選ぶのでここは走らず、
+// プレイヤー・キューブ・全エンティティは serde で復元される。したがってここでの生成に復帰時の
+// 二重生成対策は要らない。
+func (dr *Driver) startInitialBand(world w.World) error {
 	p := dr.params
 	if p == nil {
 		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
@@ -168,6 +172,12 @@ func (dr *Driver) startNewBand(world w.World) error {
 		}
 	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {
 		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
+	}
+
+	// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く
+	cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+	if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
+		return fmt.Errorf("キューブ生成失敗: %w", cerr)
 	}
 
 	query.InvalidateSpatialIndex(world)

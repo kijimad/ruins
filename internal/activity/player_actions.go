@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -55,13 +56,29 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-			case gc.InteractionTalk:
+			case gc.InteractionTalk, gc.InteractionCubePanel:
+				// 会話とコントロールパネルは、歩き込むだけで発動する
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
 			default:
 				// 衝突時に自動発動しない種類はここでは扱わない
 			}
 		}
+	}
+
+	// 移動先に押せるキューブがあれば、通行でなく押しになる。キューブは BlockPass なので
+	// 通常の CanMoveTo では弾かれる。歩き込みは押し、入るは手動アクションと入力経路を分ける。
+	// 押しはキューブだけを動かす。プレイヤーの追随は次入力の通常移動が担い、方向を押し続けると
+	// 押しと一歩が交互に起きてキューブが進む
+	if cube, ok := pushableAt(world, next); ok {
+		// 押し先が塞がっていれば、壁に歩き込むのと同じく何もしない。エラーにすると
+		// 入力層で致命化するため、実行可否をここで判定して不可なら no-op にする
+		cubeCoord := world.Components.GridElement.Get(cube).Coord
+		if !CanMoveTo(world, cubeCoord.Add(direction.GetDelta()), cubeCoord, cube) {
+			return nil
+		}
+		_, err := Execute(NewPushActivity(cube, direction), entity, world)
+		return err
 	}
 
 	canMove := CanMoveTo(world, next, current, entity)
@@ -72,6 +89,16 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	return nil
+}
+
+// pushableAt は指定タイルにある押せるキューブを返す。無ければ ok=false。
+func pushableAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
+	for _, entity := range query.GetEntitiesAt(world, coord.X, coord.Y) {
+		if world.Components.Pushable.Has(entity) {
+			return entity, true
+		}
+	}
+	return ecs.Entity{}, false
 }
 
 // ExecuteWaitAction は待機アクションを実行する
@@ -95,7 +122,8 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 	for interactableQuery.Next() {
 		entity := interactableQuery.Entity()
 		if found != nil {
-			continue // 既に見つかっている
+			// 先着1件を採用する。途中 return せず反復は最後まで続ける。Ark のワールドロックを外すため
+			continue
 		}
 		ge := world.Components.GridElement.Get(entity)
 		// 直上タイルのみ
@@ -190,7 +218,12 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Append("遺跡の入口がある。Enterキーで入る。").
 					Log()
-			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble:
+			case gc.InteractionEnterCube:
+				gamelog.New(query.GetGameLog(world)).
+					ItemName(query.GetEntityName(entity, world)).
+					Append("がある。Spaceのアクションメニューから入れる。").
+					Log()
+			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

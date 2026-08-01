@@ -27,9 +27,9 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	switch interaction {
 	case gc.InteractionPortalNext:
 		// 共存方式の下り。同一 State 内 swapTo で現階を退避し、再訪で復元できる
-		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー")
+		return executePortal(world, gc.WarpDescendEvent(), "次フロアワープ状態変更要求エラー", "ポータル移動")
 	case gc.InteractionPortalPrev:
-		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー")
+		return executePortal(world, gc.WarpAscendEvent(), "前フロアワープ状態変更要求エラー", "ポータル移動")
 	case gc.InteractionDungeonEnter:
 		return executeDungeonEnter(target, world)
 	case gc.InteractionDoor:
@@ -48,17 +48,29 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeMelee(actor, target, world)
 	case gc.InteractionDisassemble:
 		return executeDisassemble(actor, target, world)
+	case gc.InteractionEnterCube:
+		// 入る対象のキューブ本体を載せて運ぶ。退場時の戻り先解決に使う
+		return executePortal(world, gc.WarpCubeEnterEvent(target), "キューブ入場状態変更要求エラー", "キューブに入る")
+	case gc.InteractionExitCube:
+		return executePortal(world, gc.WarpCubeExitEvent(), "キューブ退場状態変更要求エラー", "キューブから出る")
+	case gc.InteractionPullCube:
+		return executePullCube(actor, target, world)
+	case gc.InteractionCubePanel:
+		return executePortal(world, gc.OpenCubePanelEvent(), "コントロールパネル状態変更要求エラー", "コントロールパネルを開いた")
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
 	return nil, fmt.Errorf("未知の相互作用タイプ: %s", interaction)
 }
 
-func executePortal(world w.World, event gc.StateChangeRequest, errMsg string) (*ActionResult, error) {
+// executePortal は状態機械へ遷移リクエストを投げる。実際の SwapTo や画面遷移は状態機械が担う。
+// ポータル・キューブの入退場・コントロールパネルなど、リクエストを1つ出して終わる相互作用が共通で使う。
+// failMsg はリクエスト失敗時にエラーへ前置する文脈、successMsg は成功時に ActionResult へ載せる表示。
+func executePortal(world w.World, event gc.StateChangeRequest, failMsg, successMsg string) (*ActionResult, error) {
 	if err := lifecycle.RequestStateChange(world, event); err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsg, err)
+		return nil, fmt.Errorf("%s: %w", failMsg, err)
 	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "ポータル移動"}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: successMsg}, nil
 }
 
 // executeDungeonEnter は遺跡入口の進入先を入口プロップの DungeonEntrance から読み、遺跡進入を要求する。
@@ -72,6 +84,17 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 		return nil, fmt.Errorf("遺跡進入状態変更要求エラー: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "遺跡進入"}, nil
+}
+
+// executePullCube はキューブを自分の側へ引く。後退スペースが無いなど引けないときは、
+// 致命エラーにせずログで知らせて no-op にする。プレイヤーのできない操作は異常系でないため、
+// Execute を呼ぶ前に可否を判定してから分岐する。
+func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
+	if !canPullCube(world, actor, cube) {
+		gamelog.New(query.GetGameLog(world)).Append("引くスペースがない。").Log()
+		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "引けない"}, nil
+	}
+	return Execute(NewPullActivity(cube), actor, world)
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

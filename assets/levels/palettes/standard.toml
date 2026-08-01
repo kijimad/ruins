@@ -29,6 +29,14 @@ tile = 'floor'
 id = 'desk'
 tile = 'floor'
 
+[palette.props.E]
+id = 'cube_exit'
+tile = 'floor'
+
+[palette.props.P]
+id = 'control_panel'
+tile = 'floor'
+
 [palette.props.F]
 id = 'bonfire'
 tile = 'floor'

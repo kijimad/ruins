@@ -164,6 +164,81 @@ func (st *DungeonState) descend(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, pos)
 }
 
+// enterCube は移動拠点キューブの内部へ swapTo で入る。内部はオーバーワールドと同じく単一の
+// 永続ステージで、初回だけ生成され以後は再稼働する。出口 prop の戻り先を、入場時のプレイヤー
+// タイル、すなわちキューブに隣接する位置へ毎回貼り直す。内部滞在中はオーバーワールドが退避し
+// キューブは動かないので、この戻り先は退場時も有効になる。
+// フロア遷移と違い state を使わないので DungeonState のメソッドでなく自由関数にする。
+func enterCube(world w.World, cube ecs.Entity) error {
+	if !world.Components.GridElement.Has(cube) {
+		return fmt.Errorf("キューブに位置がありません")
+	}
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	returnPos := world.Components.GridElement.Get(player).Coord
+
+	// 単一の内部ステージへ入る。未訪問なら SwapTo の callback で一度だけ生成される
+	if err := stage.SwapTo(world, gc.NewCubeInteriorStage(), spawnCubeInterior); err != nil {
+		return err
+	}
+
+	// 出口 prop の位置が入場点。戻り先をプレイヤーの元タイルへ貼り直す
+	exitProp, exitPos, ok := findPortal(world, gc.InteractionExitCube)
+	if !ok {
+		return fmt.Errorf("キューブ内部に出口が見つかりません")
+	}
+	if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil {
+		return err
+	}
+	return lifecycle.MovePlayerToPosition(world, exitPos)
+}
+
+// exitCube はキューブ内部から出口 prop の PortalConnection を辿ってオーバーワールドへ戻る。
+// enterCube と同じく state を使わないので自由関数にする。
+func exitCube(world w.World) error {
+	exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
+	if !ok {
+		return fmt.Errorf("キューブ内部に出口が見つかりません")
+	}
+	if !world.Components.PortalConnection.Has(exitProp) {
+		return fmt.Errorf("出口に戻り先が結線されていません")
+	}
+	conn := world.Components.PortalConnection.Get(exitProp)
+	target := conn.Stage
+	returnPos := conn.Coord
+	if err := stage.SwapTo(world, target, func(w.World, gc.StageKey) error {
+		return fmt.Errorf("戻り先のオーバーワールドが存在しません")
+	}); err != nil {
+		return err
+	}
+	return lifecycle.MovePlayerToPosition(world, returnPos)
+}
+
+// spawnCubeInterior はキューブ内部を生成する。通常ダンジョンと同じ mapplanner.Plan → mapspawner.Spawn
+// で生成する。レイアウトも据え置きの prop も、すべてテンプレート levels/facilities/cube_interior.toml と
+// palette が持つ。出口 cube_exit・コントロールパネル・ランタンはパレット文字で置かれ、相互作用は
+// raw のトリガーから付くので、prop を手置きしない。テンプレートは階段ポータルを含まない閉じた部屋
+// だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。
+// 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。
+func spawnCubeInterior(world w.World, key gc.StageKey) error {
+	seed := world.Config.RNG.Uint64()
+	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, mapplanner.PlannerTypeCubeInterior)
+	if err != nil {
+		return err
+	}
+	level, err := mapspawner.Spawn(world, plan)
+	if err != nil {
+		return err
+	}
+	query.EnsureStageField(world, key).Level = level
+
+	// 生成物をこの内部ステージへ束縛する
+	stage.Bind(world, key)
+	return nil
+}
+
 // findPortal は現ステージの指定種別ポータルのエンティティと位置を返す。
 // 退避中ステージのポータルは ActiveFilter で除外される。先着1件を採用するが、途中 return せず
 // 反復は最後まで続ける。Ark のワールドロックを外すため。実ゲームでは各ステージにポータルは

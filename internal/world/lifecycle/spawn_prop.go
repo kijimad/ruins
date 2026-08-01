@@ -197,6 +197,29 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	}), nil
 }
 
+// SpawnCube は押して動かせる移動拠点キューブをオーバーワールドに生成する。
+// blue_cube のスプライトを流用した無地のキューブ。BlockPass だが Pushable なので
+// 歩き込むと通行でなく押しになる。オーバーワールドの地物として帯へ明示束縛する。
+func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
+	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
+		Name:        &gc.Name{Name: "キューブ"},
+		Description: &gc.Description{Description: "押して動かせる移動拠点"},
+		GridElement: &gc.GridElement{Coord: pos},
+		SpriteRender: &gc.SpriteRender{
+			SpriteSheetName: fieldSpriteSheet,
+			SpriteKey:       "blue_cube",
+			Depth:           gc.DepthNumTaller,
+		},
+		Prop:            &gc.Prop{},
+		BlockPass:       &gc.BlockPass{},
+		Pushable:        &gc.Pushable{},
+		LocationOnField: &gc.LocationOnField{},
+		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
+		// 隣接して手動で内部へ入る、または引く。歩き込みは押し、明示的な入る/引くはメニューから
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube, gc.InteractionPullCube}},
+	}), nil
+}
+
 // DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
 func DeleteDoorLockTriggers(world w.World) {
 	var toDelete []ecs.Entity

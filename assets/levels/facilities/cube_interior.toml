@@ -1,0 +1,22 @@
+[[chunk]]
+name = '5x5_cube_interior'
+weight = 100
+palettes = ['standard']
+map = """
+#####
+#...#
+#LEP#
+#...#
+#####
+"""
+placements = []
+
+[chunk.Size]
+W = 5
+H = 5
+
+# プレイヤー開始位置。出口タイルに置く。ポータルを持たない閉じた部屋でも、これがあれば
+# 生成時の到達性検証がポータルを要求せずここを起点に通る
+[[chunk.spawn_points]]
+x = 2
+y = 2

@@ -56,4 +56,5 @@ const (
 	IconWarning  = "\uf071"
 	IconInfo     = "\uf129"
 	IconQuestion = "\uf128"
+	IconCube     = "\uf1b2" // fa-cube
 )

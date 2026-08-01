@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -22,10 +23,11 @@ import (
 type OverworldMapState struct {
 	es.BaseState[w.World]
 
-	glyphs    [][]rune                   // 各チャンクの種別文字。行 = Y、列 = 東西の窓
-	playerCol consts.Chunk               // 現在地の窓ローカル列。範囲外なら -1
-	playerRow consts.Chunk               // 現在地の窓ローカル行
-	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標
+	glyphs    [][]rune                     // 各チャンクの種別文字。行 = Y、列 = 東西の窓
+	playerCol consts.Chunk                 // 現在地の窓ローカル列。範囲外なら -1
+	playerRow consts.Chunk                 // 現在地の窓ローカル行
+	playerAbs consts.Coord[consts.Chunk]   // 現在地の絶対チャンク座標
+	cubeCells []consts.Coord[consts.Chunk] // 押せるキューブの窓ローカル (列, 行)。チャンク粒度
 }
 
 var _ es.State[w.World] = &OverworldMapState{}
@@ -84,6 +86,18 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		st.playerRow = localRow
 		st.playerAbs = consts.Coord[consts.Chunk]{X: sb.EastIndex + localCol, Y: localRow}
 	}
+
+	// 押せるキューブのチャンク位置。窓の中に入るものだけを保持する。反復は最後まで回す
+	st.cubeCells = nil
+	cubeQuery := query.ActiveFilter2[gc.GridElement, gc.Pushable](world).Query()
+	for cubeQuery.Next() {
+		g := world.Components.GridElement.Get(cubeQuery.Entity())
+		col := consts.Chunk(int(g.X)/int(sb.ChunkW)) + marginChunk
+		row := consts.Chunk(int(g.Y) / int(sb.ChunkH))
+		if col >= 0 && int(col) < winChunksX && row >= 0 && row < rows {
+			st.cubeCells = append(st.cubeCells, consts.Coord[consts.Chunk]{X: col, Y: row})
+		}
+	}
 	return nil
 }
 
@@ -110,9 +124,26 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		text.Draw(screen, str, face, op)
 	}
 
+	// drawCellGlyph はセルの中央に1文字を描く。基準点をセル中央に置き、水平・垂直とも中央揃えに
+	// することで、字形の幅高に依らず四辺の余白が揃う
+	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(float64(cx), float64(cy))
+		op.ColorScale.ScaleWithColor(c)
+		op.PrimaryAlign = text.AlignCenter
+		op.SecondaryAlign = text.AlignCenter
+		text.Draw(screen, str, face, op)
+	}
+
 	drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
 	const originX, originY consts.ScreenPixel = 16, 44
+	// cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 mapCellPx-1
+	cellCenter := func(col, row consts.Chunk) (consts.ScreenPixel, consts.ScreenPixel) {
+		x := originX + consts.ScreenPixel(col)*mapCellPx
+		y := originY + consts.ScreenPixel(row)*mapCellPx
+		return x + (mapCellPx-1)/2, y + (mapCellPx-1)/2
+	}
 	for row := range st.glyphs {
 		for col, r := range st.glyphs[row] {
 			x := originX + consts.ScreenPixel(col)*mapCellPx
@@ -120,8 +151,18 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 			// 全チャンクを同一に扱う。色を塗り、種別の文字を重ねて記号でも読めるようにする。
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
-			drawText(string(r), x+5, y+2, theme.OverworldMapGlyphText)
+			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
+			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)
 		}
+	}
+	// キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも
+	// 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く
+	for _, c := range st.cubeCells {
+		cx, cy := cellCenter(c.X, c.Y)
+		for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
+			drawCellGlyph(consts.IconCube, cx+off[0], cy+off[1], theme.OverworldMapCubeOutline)
+		}
+		drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)
 	}
 	// 現在地マーカー。白枠でセルを囲む
 	if st.playerCol >= 0 {
