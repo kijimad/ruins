@@ -52,7 +52,7 @@ func (pa *PushActivity) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity
 	cubeCoord := world.Components.GridElement.Get(pa.Cube).Coord
 	dest := cubeCoord.Add(pa.Dir.GetDelta())
 
-	duration, err := cubePushTurns(world, pa.Cube)
+	duration, err := cubePushTurns(world)
 	if err != nil {
 		return nil, err
 	}
@@ -152,22 +152,22 @@ func (pa *PushActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 	return nil
 }
 
-// cubeInteriorWeight はキューブの内装ステージの総重量を返す。内装リンク PortalConnection を持たなければ0。
-func cubeInteriorWeight(world w.World, cube ecs.Entity) consts.Milligram {
-	if !world.Components.PortalConnection.Has(cube) {
-		return 0
-	}
-	return query.CubeWeight(world, world.Components.PortalConnection.Get(cube).Stage)
+// cubeInteriorWeight は内装ステージに置いた物の総重量を返す。内装はオーバーワールドと同じく
+// 単一の永続ステージなので、固定キーで直接引く。どのキューブを押しても同じ内装の総重量が
+// 押しの重さになる。内装をキューブごとに分ける拡張へ進むときは、キューブから内装への
+// リンクをここで解決し直す。
+func cubeInteriorWeight(world w.World) consts.Milligram {
+	return query.CubeWeight(world, gc.NewCubeInteriorStage())
 }
 
 // cubePushTurns はキューブを1タイル動かすのに要するターン数を返す。総重量が重いほど、
 // パーティAPが少ないほど増える。押しと引きで共通。APが無ければエラー。
-func cubePushTurns(world w.World, cube ecs.Entity) (consts.Turn, error) {
+func cubePushTurns(world w.World) (consts.Turn, error) {
 	power := query.PartyPushPower(world)
 	if power <= 0 {
 		return 0, fmt.Errorf("APが足りず動かせません")
 	}
-	cost := query.PushCost(cubeInteriorWeight(world, cube))
+	cost := query.PushCost(cubeInteriorWeight(world))
 	return consts.Turn((cost + power - 1) / power), nil
 }
 
@@ -229,7 +229,7 @@ func (pa *PullActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Acti
 	// キューブはプレイヤーの立っているタイルへ入る。プレイヤーはそのぶん後退する
 	dest := world.Components.GridElement.Get(actor).Coord
 
-	duration, err := cubePushTurns(world, pa.Cube)
+	duration, err := cubePushTurns(world)
 	if err != nil {
 		return nil, err
 	}
