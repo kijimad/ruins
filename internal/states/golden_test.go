@@ -188,7 +188,7 @@ func TestGolden_CubePanel(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		// 内部を現ステージにする。パネルの OnStart はここから総重量を算出する
-		query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewCubeInteriorStage()})
+		query.GetDungeon(world).CurrentStage = gc.NewCubeInteriorStage()
 		// 内部の床へ重量物を1つ置き、総重量が非ゼロで出るようにする
 		item := world.ECS.NewEntity()
 		world.Components.Weight.Add(item, &gc.Weight{Milligram: 5 * consts.MilligramPerKg})
