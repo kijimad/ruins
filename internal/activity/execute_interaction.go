@@ -65,11 +65,12 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 
 // executePortal は状態機械へ遷移リクエストを投げる。実際の SwapTo や画面遷移は状態機械が担う。
 // ポータル・キューブの入退場・コントロールパネルなど、リクエストを1つ出して終わる相互作用が共通で使う。
-func executePortal(world w.World, event gc.StateChangeRequest, errMsg, message string) (*ActionResult, error) {
+// failMsg はリクエスト失敗時にエラーへ前置する文脈、successMsg は成功時に ActionResult へ載せる表示。
+func executePortal(world w.World, event gc.StateChangeRequest, failMsg, successMsg string) (*ActionResult, error) {
 	if err := lifecycle.RequestStateChange(world, event); err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsg, err)
+		return nil, fmt.Errorf("%s: %w", failMsg, err)
 	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: message}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: successMsg}, nil
 }
 
 // executeDungeonEnter は遺跡入口の進入先を入口プロップの DungeonEntrance から読み、遺跡進入を要求する。
