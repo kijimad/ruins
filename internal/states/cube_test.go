@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -96,6 +97,33 @@ func TestEnterCube_内装で保存して読み込んでも落ちない(t *testin
 	resume, err := newResumeStateFactory(newWorld)()
 	require.NoError(t, err)
 	require.NoError(t, resume.OnStart(newWorld), "内装で読み込んでも定義解決で落ちない")
+}
+
+// TestEnterCube_内装ではオーバーワールド判定が偽 は、内装で大域マップを開くと帯が無く落ちる
+// 不具合の回帰。地図の開閉は State 属性でなく現ステージの IsOnOverworld で判定するので、
+// 内装では偽になり地図は開かない。
+func TestEnterCube_内装ではオーバーワールド判定が偽(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world)) // 実オーバーワールド。帯とプレイヤーとキューブが揃う
+	require.True(t, query.IsOnOverworld(world), "地上ではオーバーワールド判定が真")
+
+	// スポーンされたキューブを引き当てて内装へ入る
+	var cube ecs.Entity
+	found := false
+	cubeQuery := query.ActiveFilter1[gc.Pushable](world).Query()
+	for cubeQuery.Next() {
+		if !found {
+			cube = cubeQuery.Entity()
+			found = true
+		}
+	}
+	require.True(t, found, "オーバーワールドにキューブがいる")
+
+	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
+	require.NoError(t, st.enterCube(world, cube))
+	assert.False(t, query.IsOnOverworld(world), "内装ではオーバーワールド判定が偽。地図は開かない")
 }
 
 // TestCubePanelState_内装の総重量を表示できる はコントロールパネルが現内装の全体情報、

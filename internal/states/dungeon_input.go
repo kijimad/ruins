@@ -136,8 +136,9 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			func() (es.State[w.World], error) { return &LookAroundState{}, nil },
 		}}, nil
 	case inputmapper.ActionOpenOverworldMap:
-		// 地図は帯モードのオーバーワールドでだけ開く。ダンジョンでは無視する
-		if !st.isSeamless() {
+		// 地図は今まさにオーバーワールドにいるときだけ開く。ダンジョンやキューブ内装では
+		// 帯が現ステージにないので無視する。State 属性の isSeamless でなく現ステージで判定する
+		if !query.IsOnOverworld(world) {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
