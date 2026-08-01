@@ -1,0 +1,17 @@
+[[chunk]]
+name = '5x5_cube_interior'
+weight = 100
+palettes = ['standard']
+map = """
+#####
+#...#
+#...#
+#...#
+#####
+"""
+placements = []
+spawn_points = []
+
+[chunk.Size]
+W = 5
+H = 5

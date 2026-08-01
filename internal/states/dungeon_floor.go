@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
-	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -230,43 +229,36 @@ func (st *DungeonState) exitCube(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, returnPos)
 }
 
-// spawnCubeInterior はキューブ内装を手組みで生成する。壁で囲った 3x3 の狭い安全な空間に、
-// 中央へ出口 prop、隣へ presence 効果 prop を置く。戻り先の結線は enterCube が貼る。
+// spawnCubeInterior はキューブ内装を生成する。マップのレイアウトはテンプレート
+// levels/facilities/cube_interior.toml が持ち、テンプレートプランナーで生成する。壁で囲った
+// 狭い1階層の部屋になる。cube 固有の出口 prop と presence 効果 prop は palette に無いので
+// テンプレート生成後に code で据える。戻り先の結線は enterCube が貼る。
 //
-// ダンジョン生成器は階段ポータル前提で極小サイズを作れず、置いた階段を降りると内装キーを
-// 遺跡定義として解決しようとして panic する。内装は1階層なので生成器を使わず直接敷く。
-// 将来パワーアップで広げる余地を残す。
+// ダンジョン生成器でなくテンプレートを使うのは、階段ポータル前提の生成器では極小サイズを
+// 作れず、置いた階段を降りると内装キーを遺跡定義として解決しようとして panic するため。
+// テンプレートは階段を含まないので1階層になる。パワーアップで内装を差し替える余地も残る。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
-	const side consts.Tile = 5 // 外周の壁込み。内側は 3x3
-
-	// タイルだけの最小プランを組み、mapspawner に通す。これでオートタイルの添字が近傍から
-	// 正しく計算される。プランに階段ポータルを置かないので階段は湧かず1階層になる
-	tiles := make([]oapi.Tile, int(side)*int(side))
-	for y := range side {
-		for x := range side {
-			i := int(y)*int(side) + int(x)
-			if x == 0 || y == 0 || x == side-1 || y == side-1 {
-				tiles[i] = oapi.Tile{Name: consts.TileNameWall, BlockPass: true, BlockView: true}
-			} else {
-				tiles[i] = oapi.Tile{Name: consts.TileNameFloor}
-			}
-		}
+	seed := world.Config.RNG.Uint64()
+	chain, err := mapplanner.NewPlannerChainByTemplateType(mapplanner.TemplateTypeCubeInterior, seed)
+	if err != nil {
+		return err
 	}
-	plan := &mapplanner.MetaPlan{
-		Level:     gc.Level{TileWidth: side, TileHeight: side},
-		Tiles:     tiles,
-		RNG:       rand.New(rand.NewPCG(world.Config.RNG.Uint64(), 0)),
-		RawMaster: &world.Resources.RawMaster,
+	// タイル生成に RawMaster を要する。テンプレートプランナーは付けないので Plan の前に渡す
+	chain.PlanData.RawMaster = &world.Resources.RawMaster
+	if err := chain.Plan(); err != nil {
+		return err
 	}
-	level, err := mapspawner.Spawn(world, plan)
+	level, err := mapspawner.Spawn(world, &chain.PlanData)
 	if err != nil {
 		return err
 	}
 	query.EnsureStageField(world, key).Level = level
 
-	// 出口 prop を中央の床に置く。warp_prev のスプライトを流用し、相互作用を出口へ差し替える。
+	// 壁で囲った部屋の中央は必ず床。ここに出口 prop、隣に presence 効果 prop を置く
+	center := consts.Coord[consts.Tile]{X: level.TileWidth / 2, Y: level.TileHeight / 2}
+
+	// 出口 prop。warp_prev のスプライトを流用し、相互作用を出口へ差し替える。
 	// プレイヤーはここへ入場し、同じタイルで「出る」を選ぶ
-	center := consts.Coord[consts.Tile]{X: 2, Y: 2}
 	exitProp, err := lifecycle.SpawnProp(world, "warp_prev", center.X, center.Y)
 	if err != nil {
 		return err
@@ -276,10 +268,10 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 		return err
 	}
 
-	// presence 効果 prop のランタンを内側の別マスに据える。置いてあることで灯り(効果)を出し、
+	// presence 効果 prop のランタンを隣のマスに据える。置いてあることで灯り(効果)を出し、
 	// 重量は CubeWeight に加算されて押しを重くする。ブレーキと引力の対を最小構成で示す。
 	// 将来はプレイヤーが拾って持ち込み置く形にするが、今は最初から据える
-	if _, err := lifecycle.SpawnProp(world, "ランタン", center.X+1, center.Y); err != nil {
+	if _, err := lifecycle.SpawnProp(world, "ランタン", center.X-1, center.Y); err != nil {
 		return err
 	}
 

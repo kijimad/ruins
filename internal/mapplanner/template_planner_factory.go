@@ -20,6 +20,8 @@ const (
 	TemplateTypeTownPlaza
 	// TemplateTypeBossFloor はボスフロア
 	TemplateTypeBossFloor
+	// TemplateTypeCubeInterior は移動拠点キューブの内装。壁で囲った狭い1階層の部屋
+	TemplateTypeCubeInterior
 )
 
 // NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する
@@ -56,6 +58,8 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		templateName = "50x20_town_plaza"
 	case TemplateTypeBossFloor:
 		templateName = "50x50_boss_floor"
+	case TemplateTypeCubeInterior:
+		templateName = "5x5_cube_interior"
 	default:
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}
