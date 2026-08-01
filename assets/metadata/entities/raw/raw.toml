@@ -13240,7 +13240,7 @@ minGrade = 2
 [[props]]
 blockPass = true
 blockView = false
-description = "黒枠のランタンの中にオレンジの炎。床置きの広範囲光源。金属製で重く、キューブ内装に据えると灯りになるが重みは押しにのしかかる"
+description = "黒枠のランタンの中にオレンジの炎。床置きの広範囲光源。金属製で重い"
 hp = 15
 name = "lantern"
 weight = "8 kg"
