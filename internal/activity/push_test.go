@@ -99,6 +99,33 @@ func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord)
 }
 
+func TestPullActivity_壁際のキューブを引き出せる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// キューブの西は壁。押しでは西へ動かせない。東に立つプレイヤーが引いて剥がす
+	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	addWall(world, consts.Coord[consts.Tile]{X: 4, Y: 5})
+	player := addPusher(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
+
+	_, err := activity.Execute(activity.NewPullActivity(cube), player, world)
+	require.NoError(t, err)
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord, "キューブはプレイヤーの元タイルへ引かれる")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 5}, world.Components.GridElement.Get(player).Coord, "プレイヤーは1タイル後退する")
+}
+
+func TestPullActivity_後退スペースが無ければ引けない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
+	addWall(world, consts.Coord[consts.Tile]{X: 7, Y: 5}) // 後退先を塞ぐ
+
+	_, err := activity.Execute(activity.NewPullActivity(cube), player, world)
+	require.Error(t, err, "後退スペースが無ければ引けない")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "引けないのでキューブは動かない")
+}
+
 func TestExecuteMoveAction_押し先が壁ならエラーにせず何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

@@ -61,6 +61,8 @@ const (
 	BehaviorDisassemble BehaviorName = "Disassemble"
 	// BehaviorPush は隣接する移動拠点キューブを押して動かす
 	BehaviorPush BehaviorName = "Push"
+	// BehaviorPull は隣接する移動拠点キューブを自分の側へ引いて動かす
+	BehaviorPull BehaviorName = "Pull"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

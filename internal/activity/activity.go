@@ -34,6 +34,7 @@ var behaviors = map[gc.BehaviorName]Behavior{
 
 	gc.BehaviorDisassemble: &DisassembleActivity{},
 	gc.BehaviorPush:        &PushActivity{},
+	gc.BehaviorPull:        &PullActivity{},
 }
 
 // GetBehavior は名前からBehavior実装を取得する

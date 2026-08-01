@@ -224,7 +224,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Append("キューブがある。Spaceのアクションメニューから入れる。").
 					Log()
-			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube:
+			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

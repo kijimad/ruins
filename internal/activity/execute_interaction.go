@@ -52,6 +52,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeEnterCube(target, world)
 	case gc.InteractionExitCube:
 		return executeExitCube(world)
+	case gc.InteractionPullCube:
+		return executePullCube(actor, target, world)
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
@@ -93,6 +95,17 @@ func executeExitCube(world w.World) (*ActionResult, error) {
 		return nil, fmt.Errorf("キューブ退場状態変更要求エラー: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "キューブから出る"}, nil
+}
+
+// executePullCube はキューブを自分の側へ引く。引けないとき、たとえば後退スペースが無いときは
+// 致命エラーにせず、ログで知らせて no-op にする。プレイヤーのできない操作は異常系でないため。
+func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
+	result, err := Execute(NewPullActivity(cube), actor, world)
+	if err != nil {
+		gamelog.New(query.GetGameLog(world)).Append("引くスペースがない。").Log()
+		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: err.Error()}, nil
+	}
+	return result, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
