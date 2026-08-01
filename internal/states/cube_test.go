@@ -98,6 +98,29 @@ func TestEnterCube_内装で保存して読み込んでも落ちない(t *testin
 	require.NoError(t, resume.OnStart(newWorld), "内装で読み込んでも定義解決で落ちない")
 }
 
+// TestCubePanelState_内装の総重量を表示できる はコントロールパネルが現内装の全体情報、
+// すなわち総重量を算出できることを検証する。
+func TestCubePanelState_内装の総重量を表示できる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, "Ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	addStageEntity(t, world, gc.NewOverworldStage())
+
+	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
+	require.NoError(t, st.enterCube(world, cube))
+
+	// 内装で管制盤を開くと、据えたランタンぶんの総重量が読める
+	panel := &CubePanelState{}
+	require.NoError(t, panel.OnStart(world))
+	assert.Positive(t, panel.totalWeight, "内装に置いた物の総重量が管制盤に出る")
+	assert.Greater(t, panel.pushCost, consts.PushCostBase, "総重量ぶん押しコストが基準より重い")
+}
+
 // TestOverworldMapState_キューブのチャンク位置を出す は大域地図にキューブのチャンク位置が
 // マーカーとして載ることを検証する。
 func TestOverworldMapState_キューブのチャンク位置を出す(t *testing.T) {

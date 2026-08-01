@@ -333,6 +333,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case gc.OpenCubePanel:
+		// キューブ内装のコントロールパネルを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return &CubePanelState{}, nil },
+		}}, nil
 	case gc.OpenStorage:
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{

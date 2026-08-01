@@ -260,6 +260,16 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 		return err
 	}
 
+	// コントロールパネルを反対の隣へ据える。調べると全体情報を見られ、将来の拡張UIの入口になる
+	panel, err := lifecycle.SpawnProp(world, "control_panel", center.X+1, center.Y)
+	if err != nil {
+		return err
+	}
+	if err := gc.Upsert(world.ECS, world.Components.Interactable, panel,
+		&gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionCubePanel}}); err != nil {
+		return err
+	}
+
 	// 生成物をこの内装ステージへ束縛する
 	stage.Bind(world, key)
 	return nil

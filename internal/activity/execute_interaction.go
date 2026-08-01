@@ -54,6 +54,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeExitCube(world)
 	case gc.InteractionPullCube:
 		return executePullCube(actor, target, world)
+	case gc.InteractionCubePanel:
+		return executeCubePanel(world)
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
@@ -106,6 +108,15 @@ func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionR
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "引けない"}, nil
 	}
 	return Execute(NewPullActivity(cube), actor, world)
+}
+
+// executeCubePanel はキューブ内装のコントロールパネルを開くことを要求する。実際の画面遷移は
+// 状態機械が担う。
+func executeCubePanel(world w.World) (*ActionResult, error) {
+	if err := lifecycle.RequestStateChange(world, gc.OpenCubePanelEvent()); err != nil {
+		return nil, fmt.Errorf("コントロールパネル状態変更要求エラー: %w", err)
+	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "コントロールパネルを開いた"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

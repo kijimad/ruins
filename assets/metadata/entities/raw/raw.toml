@@ -12664,6 +12664,17 @@ spriteKey = "alarm_clock"
 spriteSheetName = "field"
 
 [[props]]
+blockPass = true
+blockView = false
+description = "各種の計器が並ぶ管制盤。キューブ全体の状態を映し、拡張の操作もここから行う"
+name = "control_panel"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "gauge_machine"
+spriteSheetName = "field"
+
+[[props]]
 blockPass = false
 blockView = false
 description = "濃茶のジグザグに組まれた装飾的な木製オープン棚。洒落た室内の飾り棚"

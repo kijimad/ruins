@@ -34,6 +34,9 @@ type WarpCubeEnter struct {
 // WarpCubeExit は移動拠点キューブの内装からの退場
 type WarpCubeExit struct{}
 
+// OpenCubePanel はキューブ内装のコントロールパネルを開く
+type OpenCubePanel struct{}
+
 // GameClear はゲームクリア
 type GameClear struct{}
 
@@ -53,6 +56,7 @@ func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
 func (WarpCubeEnter) isStatePayload()    {}
 func (WarpCubeExit) isStatePayload()     {}
+func (OpenCubePanel) isStatePayload()    {}
 func (GameClear) isStatePayload()        {}
 func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
@@ -88,6 +92,9 @@ func WarpCubeEnterEvent(cube ecs.Entity) StateChangeRequest {
 
 // WarpCubeExitEvent は移動拠点キューブの内装からの退場リクエストを生成する
 func WarpCubeExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpCubeExit{}} }
+
+// OpenCubePanelEvent はキューブ内装のコントロールパネルを開くリクエストを生成する
+func OpenCubePanelEvent() StateChangeRequest { return StateChangeRequest{Payload: OpenCubePanel{}} }
 
 // GameClearEvent はゲームクリアリクエストを生成する
 func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }
