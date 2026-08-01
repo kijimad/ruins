@@ -12,7 +12,8 @@ import (
 )
 
 // addWeightEntity は指定ステージのフィールド上に束縛した重量エンティティを作る。suspended で退避中にする
-func addWeightEntity(world w.World, mg consts.Milligram, stage gc.StageKey, suspended bool) {
+func addWeightEntity(t *testing.T, world w.World, mg consts.Milligram, stage gc.StageKey, suspended bool) {
+	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
 	world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
@@ -47,9 +48,9 @@ func TestCubeWeight_内部ステージ束縛の重量を合算し他ステージ
 	interior := gc.NewDungeonStage("キューブ内部", 1)
 	other := gc.NewDungeonStage("別の内部", 1)
 
-	addWeightEntity(world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
-	addWeightEntity(world, consts.Milligram(3*consts.MilligramPerKg), interior, false)
-	addWeightEntity(world, consts.Milligram(5*consts.MilligramPerKg), other, false)
+	addWeightEntity(t, world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
+	addWeightEntity(t, world, consts.Milligram(3*consts.MilligramPerKg), interior, false)
+	addWeightEntity(t, world, consts.Milligram(5*consts.MilligramPerKg), other, false)
 
 	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, interior))
 }
@@ -60,7 +61,7 @@ func TestCubeWeight_退避中の内部エンティティも集計する(t *testi
 	interior := gc.NewDungeonStage("キューブ内部", 1)
 
 	// 外にいる間、内部は Suspended になる。それでも総重量は保持したい
-	addWeightEntity(world, consts.Milligram(4*consts.MilligramPerKg), interior, true)
+	addWeightEntity(t, world, consts.Milligram(4*consts.MilligramPerKg), interior, true)
 
 	assert.Equal(t, consts.Milligram(4*consts.MilligramPerKg), query.CubeWeight(world, interior))
 }
@@ -71,7 +72,7 @@ func TestCubeWeight_床に無い物は数えない(t *testing.T) {
 	interior := gc.NewDungeonStage("キューブ内部", 1)
 
 	// 床にある物は数える
-	addWeightEntity(world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
+	addWeightEntity(t, world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
 
 	// 内部で拾って背包へ移した物。LocationOnField は外れるが StageBound は残る。総重量から抜ける
 	carried := world.ECS.NewEntity()

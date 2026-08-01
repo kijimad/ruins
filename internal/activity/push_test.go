@@ -20,7 +20,7 @@ import (
 func TestExecuteMoveAction_コントロールパネルへ歩き込むと開く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, consts.PushCostBase)
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5}, consts.PushCostBase)
 
 	// プレイヤーの右隣に BlockPass のコントロールパネルを置く
 	panel := world.ECS.NewEntity()
@@ -41,7 +41,8 @@ func TestExecuteMoveAction_コントロールパネルへ歩き込むと開く(t
 }
 
 // addCube は指定座標に押せるキューブを作る
-func addCube(world w.World, coord consts.Coord[consts.Tile]) ecs.Entity {
+func addCube(t *testing.T, world w.World, coord consts.Coord[consts.Tile]) ecs.Entity {
+	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e, &gc.GridElement{Coord: coord})
 	world.Components.Prop.Add(e, &gc.Prop{})
@@ -51,7 +52,8 @@ func addCube(world w.World, coord consts.Coord[consts.Tile]) ecs.Entity {
 }
 
 // addPusher は指定座標・APのプレイヤーを作る
-func addPusher(world w.World, coord consts.Coord[consts.Tile], ap int) ecs.Entity {
+func addPusher(t *testing.T, world w.World, coord consts.Coord[consts.Tile], ap int) ecs.Entity {
+	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e, &gc.GridElement{Coord: coord})
 	world.Components.Player.Add(e, &gc.Player{})
@@ -59,7 +61,8 @@ func addPusher(world w.World, coord consts.Coord[consts.Tile], ap int) ecs.Entit
 	return e
 }
 
-func addWall(world w.World, coord consts.Coord[consts.Tile]) {
+func addWall(t *testing.T, world w.World, coord consts.Coord[consts.Tile]) {
+	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e, &gc.GridElement{Coord: coord})
 	world.Components.BlockPass.Add(e, &gc.BlockPass{})
@@ -69,8 +72,8 @@ func TestPushActivity_総重量とパーティAPで決まる複数ターンを�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	// 空のキューブの PushCost は基準 1000。AP 500 なので所要2ターン
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase/2)
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase/2)
 
 	result, err := activity.Execute(activity.NewPushActivity(cube, gc.DirectionRight), player, world)
 	require.NoError(t, err)
@@ -88,7 +91,8 @@ func TestPushActivity_総重量とパーティAPで決まる複数ターンを�
 }
 
 // addInteriorWeight はキューブ内部ステージの床へ重量物を1つ据える。押しコストに乗るかの検証に使う。
-func addInteriorWeight(world w.World, mg consts.Milligram) {
+func addInteriorWeight(t *testing.T, world w.World, mg consts.Milligram) {
+	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
 	world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
@@ -101,11 +105,11 @@ func addInteriorWeight(world w.World, mg consts.Milligram) {
 func TestPushActivity_内部に置いた物の重量が押しターンに乗る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	// 空のキューブなら PushCostBase ちょうどのAPで1ターンで押し切れる
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
 	// 内部に 8kg を据えると PushCost が基準を超え、同じAPでは1ターンで足りなくなる
-	addInteriorWeight(world, 8*consts.MilligramPerKg)
+	addInteriorWeight(t, world, 8*consts.MilligramPerKg)
 
 	result, err := activity.Execute(activity.NewPushActivity(cube, gc.DirectionRight), player, world)
 	require.NoError(t, err)
@@ -116,9 +120,9 @@ func TestPushActivity_内部に置いた物の重量が押しターンに乗る(
 func TestPushActivity_プレイヤーが行けない先へは押せない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
-	addWall(world, consts.Coord[consts.Tile]{X: 6, Y: 5})
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
+	addWall(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5})
 
 	_, err := activity.Execute(activity.NewPushActivity(cube, gc.DirectionRight), player, world)
 	require.Error(t, err, "押し先が壁なら押せない")
@@ -128,8 +132,8 @@ func TestPushActivity_プレイヤーが行けない先へは押せない(t *tes
 func TestPushActivity_APが無ければ押せない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, 0)
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, 0)
 
 	_, err := activity.Execute(activity.NewPushActivity(cube, gc.DirectionRight), player, world)
 	require.Error(t, err, "APが無ければ押せない")
@@ -140,8 +144,8 @@ func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	// プレイヤーの右隣にキューブ。AP は1タイルぶん足りる
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
 
 	// 右へ移動入力すると、歩行でなく押しアクティビティが始まる
 	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
@@ -155,9 +159,9 @@ func TestPullActivity_壁際のキューブを引き出せる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	// キューブの西は壁。押しでは西へ動かせない。東に立つプレイヤーが引いて剥がす
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	addWall(world, consts.Coord[consts.Tile]{X: 4, Y: 5})
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	addWall(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5})
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
 
 	_, err := activity.Execute(activity.NewPullActivity(cube), player, world)
 	require.NoError(t, err)
@@ -169,9 +173,9 @@ func TestPullActivity_壁際のキューブを引き出せる(t *testing.T) {
 func TestPullActivity_後退スペースが無ければ引けない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	player := addPusher(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
-	addWall(world, consts.Coord[consts.Tile]{X: 7, Y: 5}) // 後退先を塞ぐ
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
+	addWall(t, world, consts.Coord[consts.Tile]{X: 7, Y: 5}) // 後退先を塞ぐ
 
 	_, err := activity.Execute(activity.NewPullActivity(cube), player, world)
 	require.Error(t, err, "後退スペースが無ければ引けない")
@@ -181,9 +185,9 @@ func TestPullActivity_後退スペースが無ければ引けない(t *testing.T
 func TestExecuteMoveAction_押し先が壁ならエラーにせず何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
-	addWall(world, consts.Coord[consts.Tile]{X: 6, Y: 5}) // 押し先を塞ぐ
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
+	addWall(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5}) // 押し先を塞ぐ
 
 	// 壁に歩き込むのと同じく、押せないときは致命エラーでなく no-op になる
 	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
