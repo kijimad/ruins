@@ -19,9 +19,9 @@
 | <img src="internal/states/testdata/TestGolden_FormationMenu.png" width="200" /><br>FormationMenu | <img src="internal/states/testdata/TestGolden_GameOver.png" width="200" /><br>GameOver | <img src="internal/states/testdata/TestGolden_InventoryMenu.png" width="200" /><br>InventoryMenu | <img src="internal/states/testdata/TestGolden_LanguageMenu.png" width="200" /><br>LanguageMenu |
 | <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu | <img src="internal/states/testdata/TestGolden_MemberStatus.png" width="200" /><br>MemberStatus |
 | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldFrost.png" width="200" /><br>OverworldFrost | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap |
-| <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_Pickup.png" width="200" /><br>Pickup | <img src="internal/states/testdata/TestGolden_Place.png" width="200" /><br>Place | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu |
-| <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu | <img src="internal/states/testdata/TestGolden_SquadMenu.png" width="200" /><br>SquadMenu |
-| <img src="internal/states/testdata/TestGolden_Status.png" width="200" /><br>Status | <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu | <img src="internal/states/testdata/TestGolden_TavernMenu.png" width="200" /><br>TavernMenu | |
+| <img src="internal/states/testdata/TestGolden_OverworldScatter.png" width="200" /><br>OverworldScatter | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_Pickup.png" width="200" /><br>Pickup | <img src="internal/states/testdata/TestGolden_Place.png" width="200" /><br>Place |
+| <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu |
+| <img src="internal/states/testdata/TestGolden_SquadMenu.png" width="200" /><br>SquadMenu | <img src="internal/states/testdata/TestGolden_Status.png" width="200" /><br>Status | <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu | <img src="internal/states/testdata/TestGolden_TavernMenu.png" width="200" /><br>TavernMenu |
 
 
 各画像はゴールデンテストで自動生成される。
@@ -69,7 +69,7 @@ $ make help
 | [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 0/32 | worldgen |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
-| [82](docs/design/20260801_82.md) | draft | 屋外の散布 —— 開けた地表へ自然物とポスアポ人工物を撒く | 1/10（見送り1） | worldgen |
+| [82](docs/design/20260801_82.md) | draft | 屋外の散布 —— 開けた地表へ自然物とポスアポ人工物を撒く | 8/10（見送り1） | worldgen |
 | [83](docs/design/20260801_83.md) | draft | Prop タグを廃し固定物を独立状態 Fixed で表す —— 効果の門は能力ごと | 0/9 | ecs, refactor, item |
 
 
