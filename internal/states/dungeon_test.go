@@ -445,7 +445,7 @@ func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
 	// SplashFontFace は nil のままで良い（NewSplashTextEffect は face を保持するだけ）
 	world.Resources.UIResources.Text = &resources.TextResources{}
 
-	// 復元済みワールドを模す。プレイヤーを既知の位置に置き、地形代わりの Prop を配置する
+	// 復元済みワールドを模す。プレイヤーを既知の位置に置き、地形代わりの固定物を配置する
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	prop, err := lifecycle.SpawnProp(world, "木箱", 6, 6)
@@ -462,6 +462,6 @@ func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
 	assert.Equal(t, 5, int(grid.X), "復帰モードではプレイヤーが再配置されない")
 	assert.Equal(t, 5, int(grid.Y), "復帰モードではプレイヤーが再配置されない")
 
-	// 復元済みの地形（Prop）が再生成で破棄されずに残る
+	// 復元済みの地形（固定物）が再生成で破棄されずに残る
 	assert.True(t, world.ECS.Alive(prop), "復元済みエンティティが保持される")
 }

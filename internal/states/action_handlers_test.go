@@ -324,7 +324,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Fixed.Add(prop, &gc.Fixed{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
@@ -392,7 +392,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}})
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Fixed.Add(prop, &gc.Fixed{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 		world.Components.BlockPass.Add(prop, &gc.BlockPass{})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
@@ -403,7 +403,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		err := activity.ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 
-		// Propに自動攻撃せず、移動もブロックされる
+		// 固定物に自動攻撃せず、移動もブロックされる
 		grid := world.Components.GridElement.Get(player)
 		assert.Equal(t, 10, int(grid.X))
 		assert.Equal(t, 10, int(grid.Y))

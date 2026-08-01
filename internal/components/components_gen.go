@@ -37,7 +37,7 @@ type EntitySpec struct {
 	BlockPass          *BlockPass          // 通行不可であることを示す
 	PassCost           *PassCost           // タイルの移動コスト修正を保持する
 	Door               *Door               // 開閉可能な扉であることを表す
-	Prop               *Prop               // 置物であることを示す
+	Fixed              *Fixed              // 世界に固定され拾えない固定物であることを示す
 	Pushable           *Pushable           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
 	LightSource        *LightSource        // 光源であることを表す
 	Interactable       *Interactable       // 相互作用可能であることを示す
@@ -118,7 +118,7 @@ type Components struct {
 	BlockPass          *ecs.Map[BlockPass]          // 通行不可であることを示す
 	PassCost           *ecs.Map[PassCost]           // タイルの移動コスト修正を保持する
 	Door               *ecs.Map[Door]               // 開閉可能な扉であることを表す
-	Prop               *ecs.Map[Prop]               // 置物であることを示す
+	Fixed              *ecs.Map[Fixed]              // 世界に固定され拾えない固定物であることを示す
 	Pushable           *ecs.Map[Pushable]           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
 	LightSource        *ecs.Map[LightSource]        // 光源であることを表す
 	Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す
@@ -199,7 +199,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.BlockPass = ecs.NewMap[BlockPass](world)
 	c.PassCost = ecs.NewMap[PassCost](world)
 	c.Door = ecs.NewMap[Door](world)
-	c.Prop = ecs.NewMap[Prop](world)
+	c.Fixed = ecs.NewMap[Fixed](world)
 	c.Pushable = ecs.NewMap[Pushable](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
@@ -282,7 +282,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.BlockPass, entity, spec.BlockPass)
 	addComp(c.PassCost, entity, spec.PassCost)
 	addComp(c.Door, entity, spec.Door)
-	addComp(c.Prop, entity, spec.Prop)
+	addComp(c.Fixed, entity, spec.Fixed)
 	addComp(c.Pushable, entity, spec.Pushable)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)

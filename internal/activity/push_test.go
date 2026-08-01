@@ -45,7 +45,7 @@ func addCube(t *testing.T, world w.World, coord consts.Coord[consts.Tile]) ecs.E
 	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.GridElement.Add(e, &gc.GridElement{Coord: coord})
-	world.Components.Prop.Add(e, &gc.Prop{})
+	world.Components.Fixed.Add(e, &gc.Fixed{})
 	world.Components.BlockPass.Add(e, &gc.BlockPass{})
 	world.Components.Pushable.Add(e, &gc.Pushable{})
 	return e

@@ -131,7 +131,7 @@ const (
 	CategoryMaterial   = "素材"
 	CategoryAmmo       = "弾薬"
 	CategoryBook       = "本"
-	CategoryProp       = "置物"
+	CategoryFixed      = "固定物"
 	CategoryConsumable = "消耗品"
 	CategoryMelee      = "近接武器"
 	CategoryFire       = "射撃武器"
@@ -162,7 +162,7 @@ func (c *Components) has(comp hasser) Has {
 func (c *Components) Categories() map[CategoryGroupKey][]Category {
 	return map[CategoryGroupKey][]Category{
 		InventoryCategoryKey: {
-			{Name: CategoryGoods, Pred: Or{c.has(c.Material), c.has(c.Ammo), c.has(c.Book), c.has(c.Prop), c.has(c.Consumable)}},
+			{Name: CategoryGoods, Pred: Or{c.has(c.Material), c.has(c.Ammo), c.has(c.Book), c.has(c.Consumable)}},
 			{Name: CategoryWeapon, Pred: Or{c.has(c.Melee), c.has(c.Fire)}},
 			{Name: CategoryArmor, Pred: c.has(c.Wearable)},
 		},
@@ -170,7 +170,7 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryMaterial, Pred: c.has(c.Material)},
 			{Name: CategoryAmmo, Pred: c.has(c.Ammo)},
 			{Name: CategoryBook, Pred: c.has(c.Book)},
-			{Name: CategoryProp, Pred: c.has(c.Prop)},
+			{Name: CategoryFixed, Pred: c.has(c.Fixed)},
 			{Name: CategoryConsumable, Pred: c.has(c.Consumable)},
 			// Fire は Melee より先に判定する。射撃武器は殴打性能として Melee も持つため
 			{Name: CategoryFire, Pred: c.has(c.Fire)},
@@ -182,7 +182,7 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryPlayer, Pred: c.has(c.Player)},
 			{Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},
 			{Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},
-			{Name: CategoryProp, Pred: c.has(c.Prop)},
+			{Name: CategoryFixed, Pred: c.has(c.Fixed)},
 			{Name: CategoryTile, Pred: c.has(c.Tile)},
 		},
 	}

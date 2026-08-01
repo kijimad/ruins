@@ -123,7 +123,7 @@ func TestApplyDamage_Prop(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Fixed.Add(prop, &gc.Fixed{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 
 		ApplyDamage(world, prop, 10, source)
@@ -142,7 +142,7 @@ func TestApplyDamage_Prop(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Fixed.Add(prop, &gc.Fixed{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 10})
 
 		ApplyDamage(world, prop, 10, source)
@@ -161,7 +161,7 @@ func TestApplyDamage_Prop(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Fixed.Add(prop, &gc.Fixed{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 5})
 
 		ApplyDamage(world, prop, 100, source)

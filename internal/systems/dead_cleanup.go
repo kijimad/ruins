@@ -88,7 +88,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	// 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、
 	// 確定枠のみを低確率で落とす。工具分解より明確に不利な入手経路にする
 	for _, entity := range toDelete {
-		if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) {
+		if !world.Components.Fixed.Has(entity) || !world.Components.GridElement.Has(entity) {
 			continue
 		}
 		def, ok := raw.FindDisassembly(rawMaster, query.GetEntityName(entity, world))

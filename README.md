@@ -69,7 +69,7 @@ $ make help
 | [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 1/33 | worldgen |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
-| [83](docs/design/20260801_83.md) | draft | Prop タグを廃し固定物を独立状態 Fixed で表す —— 効果の門は能力ごと | 0/9 | ecs, refactor, item |
+| [83](docs/design/20260801_83.md) | draft | Prop タグを廃し固定物を独立状態 Fixed で表す —— 効果の門は能力ごと | 8/9 | ecs, refactor, item |
 
 
 ## Reference
