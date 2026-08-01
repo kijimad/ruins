@@ -311,7 +311,7 @@ type LocationOnField struct{}
 
 // LocationInStorage は収納内位置
 type LocationInStorage struct {
-	Owner ecs.Entity // 収納固定物のエンティティ
+	Owner ecs.Entity // 収納コンテナのエンティティ
 }
 
 // Material は素材を表すマーカーコンポーネント。
