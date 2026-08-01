@@ -42,7 +42,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		assert.Equal(t, gc.TurnPhaseAI, turnState.Phase, "APがマイナスならAITurnへ遷移するべき")
 	})
 
-	t.Run("継続アクション中は1ステップごとにAIフェーズへ渡す", func(t *testing.T) {
+	t.Run("継続アクション中は複数ターンを早送りして完走する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -58,14 +58,16 @@ func TestTurnSystem_Update(t *testing.T) {
 
 		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhasePlayer
+		startTurn := turnState.TurnNumber
 
 		sys := &TurnSystem{}
 		err = sys.Update(world)
 		require.NoError(t, err)
 
-		assert.Equal(t, gc.TurnPhaseAI, turnState.Phase,
-			"アクティビティ中も世界が進むよう、ステップ後はAIフェーズへ遷移するべき")
-		assert.True(t, query.HasActivity(world, player), "アクティビティは継続しているべき")
+		// 5ターンの待機は1フレームで早送りされ完走する。実時間は縮むが世界は5ターンぶん進む
+		assert.False(t, query.HasActivity(world, player), "早送りでアクティビティが完走する")
+		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "完走後は入力待ちの Player フェーズへ戻る")
+		assert.Equal(t, startTurn+5, turnState.TurnNumber, "待機5ターンぶん世界が進む")
 	})
 
 	t.Run("PlayerTurnでAPが0以上なら遷移しない", func(t *testing.T) {

@@ -71,8 +71,8 @@ func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 	turnState := query.GetTurnState(world)
 	turnState.Phase = gc.TurnPhasePlayer
 
-	// 1ステップ=1ゲームターン、1ターン=Player/AI/Endの3フレームで進む。
-	// 20ターンの分解に余裕を持たせたフレーム数で完走を待つ
+	// 継続アクティビティは1フレームで複数ターン早送りされるので、通常は1フレームで完走する。
+	// 上限に達しても続きが進むよう、余裕を持たせたフレーム数で完走を待つ
 	for i := 0; i < 300 && query.HasActivity(world, player); i++ {
 		require.NoError(t, runCoordFrame(world))
 	}
@@ -111,12 +111,13 @@ func TestTurnSystem_分解中も隊員がターンごとに行動する(t *testi
 	turnState := query.GetTurnState(world)
 	turnState.Phase = gc.TurnPhasePlayer
 
-	// 数ターン分だけ回す。分解はまだ完了しない
-	for range 9 {
+	// 分解が完了するまで進める。継続アクティビティ中も各ターンで AI フェーズが回るので、
+	// 早送りで一気に進んでも、その間に隊員は行動している
+	for i := 0; i < 300 && query.HasActivity(world, player); i++ {
 		require.NoError(t, runCoordFrame(world))
 	}
 
-	require.True(t, query.HasActivity(world, player), "分解はまだ継続中のはず")
+	require.False(t, query.HasActivity(world, player), "分解が完了する")
 	assert.True(t, world.Components.LastActivity.Has(member),
 		"分解中もAIフェーズが回り、隊員が行動しているべき")
 }
