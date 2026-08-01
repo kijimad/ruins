@@ -229,7 +229,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("TargetがPropの場合はエラー", func(t *testing.T) {
+	t.Run("Targetが固定物の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -254,10 +254,10 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 	})
 }
 
-func TestPickupActivity_Validate_Prop(t *testing.T) {
+func TestPickupActivity_Validate_Fixed(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Propは拾えない", func(t *testing.T) {
+	t.Run("固定物は拾えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

@@ -98,7 +98,7 @@ type Wallet struct {
 }
 
 // HP は生命力を表すコンポーネント
-// なくなるとゲームオーバーになる。キャラクターとProp（破壊可能な置物）の両方が使う
+// なくなるとゲームオーバーになる。キャラクターと Fixed（破壊可能な固定物）の両方が使う
 type HP Pool[int]
 
 // WeightCapacity は重量容量を表すコンポーネント。
@@ -311,7 +311,7 @@ type LocationOnField struct{}
 
 // LocationInStorage は収納内位置
 type LocationInStorage struct {
-	Owner ecs.Entity // 収納Propのエンティティ
+	Owner ecs.Entity // 収納固定物のエンティティ
 }
 
 // Material は素材を表すマーカーコンポーネント。
