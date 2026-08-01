@@ -84,10 +84,10 @@ func TestPushActivity_総重量とパーティAPで決まる複数ターンを�
 	activity.ProcessContinuousActivities(world)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "1ターンでは足りず動かない")
 
-	// 2ターン目で1タイル前進し、押し手も追随する
+	// 2ターン目でキューブだけが1タイル前進する。押し手は追随しない
 	activity.ProcessContinuousActivities(world)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord, "2ターンでキューブが前進する")
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "押し手はキューブの空けたタイルへ追随する")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 4, Y: 5}, world.Components.GridElement.Get(player).Coord, "押し手は追随せず元位置に留まる")
 }
 
 // addInteriorWeight はキューブ内部ステージの床へ重量物を1つ据える。押しコストに乗るかの検証に使う。
@@ -150,9 +150,29 @@ func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing
 	// 右へ移動入力すると、歩行でなく押しアクティビティが始まる
 	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
 
-	// AP がちょうど足りるので1ターンで押し切れ、キューブと押し手が前進する
+	// AP がちょうど足りるので1ターンで押し切れる。キューブだけが前進し、押し手は追随しない
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 4, Y: 5}, world.Components.GridElement.Get(player).Coord, "押し手は追随せず元位置に留まる")
+}
+
+// TestExecuteMoveAction_押しの次の入力で空いたタイルへ進む は、押しでキューブが抜けた後、同じ方向を
+// もう一度入力するとプレイヤーが空いたタイルへ普通に一歩進むことを検証する。方向を押し続けると
+// 押しと移動が交互に起きてキューブが進む、案Aの体感を固定する。
+func TestExecuteMoveAction_押しの次の入力で空いたタイルへ進む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase*2)
+
+	// 1回目: 押し。キューブが {6,5} へ抜け、プレイヤーは {4,5} のまま
+	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
+	require.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
+	require.Equal(t, consts.Coord[consts.Tile]{X: 4, Y: 5}, world.Components.GridElement.Get(player).Coord)
+
+	// 2回目: 前は空いたので通常移動。プレイヤーが {5,5} へ進みキューブに再隣接する
+	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "空いたタイルへ一歩進む")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord, "キューブは動かない")
 }
 
 func TestPullActivity_壁際のキューブを引き出せる(t *testing.T) {

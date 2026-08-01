@@ -112,20 +112,15 @@ func (pa *PushActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 	return nil
 }
 
-// Finish はBehaviorの実装。キューブを1タイル進め、空いたタイルへ押し手も追随する。
+// Finish はBehaviorの実装。キューブだけを1タイル進める。押し手は追随させない。
+// プレイヤーは次の移動入力で空いたタイルへ普通に一歩進む。押しと移動を別アクティビティに分け、
+// それぞれが自然な通貨、押しはターン、移動はAPで課金される。
 func (pa *PushActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	cube := *comp.Target
 	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) {
 		return nil
 	}
-	cubeGrid := world.Components.GridElement.Get(cube)
-	cubeOld := cubeGrid.Coord
-	cubeGrid.Coord = comp.Destination.Coord
-
-	// 押し手はキューブが空けたタイルへ前進する
-	if world.Components.GridElement.Has(actor) {
-		world.Components.GridElement.Get(actor).Coord = cubeOld
-	}
+	world.Components.GridElement.Get(cube).Coord = comp.Destination.Coord
 
 	// キューブは BlockPass なので通行索引が変わる。全再構築で確実に反映する
 	query.InvalidateSpatialIndex(world)
