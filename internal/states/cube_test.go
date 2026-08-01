@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -16,6 +17,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestNewCubeInteriorStage_定義名と一致する は、キューブ内部のステージ名が dungeon 定義の名前と
+// 一致することを固定する。ずれると復帰時に resolveDungeonDefinition が名前解決に失敗して落ちる。
+func TestNewCubeInteriorStage_定義名と一致する(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, gc.NewCubeInteriorStage().Name, dungeon.DungeonCubeInterior.Name(),
+		"内部のステージ名は dungeon 定義名と一致する")
+}
 
 // TestEnterExitCube_内部へ入り元の位置へ戻る はキューブ内部への出入りを検証する。
 // 入るとオーバーワールドが退避しキューブ内部が現ステージになり、出ると元のタイルへ戻る。
@@ -88,7 +97,12 @@ func TestEnterCube_内部で保存して読み込んでも落ちない(t *testin
 
 	assert.Equal(t, interiorKey, query.GetDungeon(newWorld).CurrentStage, "内部が現ステージのまま復元される")
 
-	// 復帰状態を組み立てて開始する。以前はここで定義解決に失敗して落ちていた
+	// OnStart はタイトル演出でUIリソースを参照するため、空の TextResources を用意する。
+	// SplashFontFace は nil のままで良い
+	newWorld.Resources.UIResources.Text = &resources.TextResources{}
+
+	// 復帰状態を組み立てて開始する。内部は定義を持つので定義解決に成功し、通常ダンジョンと
+	// 同じ経路で復帰できる。以前は定義解決に失敗して落ちていた
 	resume, err := newResumeStateFactory(newWorld)()
 	require.NoError(t, err)
 	require.NoError(t, resume.OnStart(newWorld), "内部で読み込んでも定義解決で落ちない")

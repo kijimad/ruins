@@ -74,6 +74,22 @@ var (
 			{PlannerType: mapplanner.PlannerTypeBigRoom, Weight: 2},
 		},
 	}
+
+	// DungeonCubeInterior は移動拠点キューブの内部の定義。選択画面にも地上の入口にも出さない
+	// 内部用ステージなので internalDefinitions に置く。実体の生成は enterCube の SwapTo が
+	// テンプレートから行い、この定義のフロア生成やテーブルは使わない。定義を持たせる目的は、
+	// 他ステージと同じく名前で解決でき、復帰時のスプラッシュ表示に名前を使えるようにすること。
+	// name は gc.NewCubeInteriorStage().Name と一致させる。ずれると復帰で定義解決に失敗する。
+	DungeonCubeInterior = &DungeonDefinition{
+		name:        "キューブ内部",
+		description: "移動拠点キューブの内部",
+		totalFloors: 1,
+		baseTemp:    15, // 内部はシェルター。要調整
+		// フロア生成には使わない。SelectPlanner が万一呼ばれても落ちないための保険
+		plannerPool: []PlannerWeight{
+			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
+		},
+	}
 )
 
 // allDungeons は選択画面に表示する登録済みダンジョンの一覧
@@ -102,6 +118,7 @@ func GetAllDungeonNames() []string {
 var internalDefinitions = []StageDefinition{
 	DungeonDebug,
 	DungeonOverworld,
+	DungeonCubeInterior,
 }
 
 // GetStageDefinition は名前からステージ定義のマスタを取得する。
