@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -335,7 +336,7 @@ func tileNameAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.C
 
 // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。
 func chunkChebyshev(a, b consts.Coord[consts.Chunk]) consts.Chunk {
-	return max(absInt(a.X-b.X), absInt(a.Y-b.Y))
+	return max(geometry.Abs(a.X-b.X), geometry.Abs(a.Y-b.Y))
 }
 
 // chebToHSeg は点 p から水平線分、y=segY で x が [x0, x1]、までのチェビシェフ距離を返す。
@@ -347,7 +348,7 @@ func chebToHSeg(p consts.Coord[consts.Tile], segY, x0, x1 consts.Tile) consts.Ti
 	} else if p.X > hi {
 		dx = p.X - hi
 	}
-	return max(dx, absInt(p.Y-segY))
+	return max(dx, geometry.Abs(p.Y-segY))
 }
 
 // chebToVSeg は点 p から垂直線分、x=segX で y が [y0, y1]、までのチェビシェフ距離を返す。
@@ -359,13 +360,5 @@ func chebToVSeg(p consts.Coord[consts.Tile], segX, y0, y1 consts.Tile) consts.Ti
 	} else if p.Y > hi {
 		dy = p.Y - hi
 	}
-	return max(dy, absInt(p.X-segX))
-}
-
-// absInt は Tile と Chunk の双方で使う絶対値。どちらも基底が int なので型引数で共有する。
-func absInt[T ~int](v T) T {
-	if v < 0 {
-		return -v
-	}
-	return v
+	return max(dy, geometry.Abs(p.X-segX))
 }
