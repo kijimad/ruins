@@ -98,3 +98,15 @@ func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord)
 }
+
+func TestExecuteMoveAction_押し先が壁ならエラーにせず何もしない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := addCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	addPusher(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
+	addWall(world, consts.Coord[consts.Tile]{X: 6, Y: 5}) // 押し先を塞ぐ
+
+	// 壁に歩き込むのと同じく、押せないときは致命エラーでなく no-op になる
+	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "押せないのでキューブは動かない")
+}

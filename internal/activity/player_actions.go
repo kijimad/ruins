@@ -68,6 +68,12 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	// 移動先に押せるキューブがあれば、通行でなく押しになる。キューブは BlockPass なので
 	// 通常の CanMoveTo では弾かれる。歩き込みは押し、入るは手動アクションと入力経路を分ける
 	if cube, ok := pushableAt(world, next); ok {
+		// 押し先が塞がっていれば、壁に歩き込むのと同じく何もしない。エラーにすると
+		// 入力層で致命化するため、実行可否をここで判定して不可なら no-op にする
+		cubeCoord := world.Components.GridElement.Get(cube).Coord
+		if !CanMoveTo(world, cubeCoord.Add(direction.GetDelta()), cubeCoord, cube) {
+			return nil
+		}
 		_, err := Execute(NewPushActivity(cube, direction), entity, world)
 		return err
 	}
