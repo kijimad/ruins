@@ -496,9 +496,9 @@ var (
 	}
 
 	// PlannerTypeCubeInterior は移動拠点キューブの内部のテンプレートプランナー。壁で囲った狭い
-	// 1階層で、階段ポータルを持たない閉じた部屋。実際の生成は enterCube の SwapTo が同じテンプレートで
-	// 行う。ポータルが無いため、到達可能ポータルを要求する接続性/golden 検査対象の AllPlannerTypes
-	// には入れない。
+	// 1階層で、階段ポータルを持たない閉じた部屋。テンプレートが spawn_points を持つので Plan の
+	// 到達性検証はポータルを要求せず通る。移動拠点キューブ専用の内部で、手続きダンジョンの
+	// ランダム選択セットではないため AllPlannerTypes には入れない。
 	PlannerTypeCubeInterior = PlannerType{
 		Name:              "キューブ内部",
 		UseFixedPortalPos: true,

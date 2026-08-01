@@ -214,26 +214,19 @@ func (st *DungeonState) exitCube(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, returnPos)
 }
 
-// spawnCubeInterior はキューブ内部を生成する。レイアウトも据え置きの prop も、すべてテンプレート
-// levels/facilities/cube_interior.toml と palette が持つ。出口 cube_exit・コントロールパネル・
-// ランタンはパレット文字で置かれ、相互作用は raw のトリガーから付くので、通常ダンジョンや施設と
-// 同じ Plan → Spawn だけで生成が完結する。DungeonState は prop を手置きしない。
+// spawnCubeInterior はキューブ内部を生成する。通常ダンジョンと同じ mapplanner.Plan → mapspawner.Spawn
+// で生成する。レイアウトも据え置きの prop も、すべてテンプレート levels/facilities/cube_interior.toml と
+// palette が持つ。出口 cube_exit・コントロールパネル・ランタンはパレット文字で置かれ、相互作用は
+// raw のトリガーから付くので、DungeonState は prop を手置きしない。テンプレートは階段ポータルを
+// 含まない閉じた部屋だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。
 // 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。
-//
-// ダンジョン生成器でなくテンプレートを使うのは、階段ポータル前提の生成器では極小サイズを
-// 作れず、置いた階段を降りると panic するため。テンプレートは階段を含まないので1階層になる。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
 	seed := world.Config.RNG.Uint64()
-	chain, err := mapplanner.NewPlannerChainByTemplateType(mapplanner.TemplateTypeCubeInteriorInitial, seed)
+	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, mapplanner.PlannerTypeCubeInterior)
 	if err != nil {
 		return err
 	}
-	// タイル生成に RawMaster を要する。テンプレートプランナーは付けないので Plan の前に渡す
-	chain.PlanData.RawMaster = &world.Resources.RawMaster
-	if err := chain.Plan(); err != nil {
-		return err
-	}
-	level, err := mapspawner.Spawn(world, &chain.PlanData)
+	level, err := mapspawner.Spawn(world, plan)
 	if err != nil {
 		return err
 	}
