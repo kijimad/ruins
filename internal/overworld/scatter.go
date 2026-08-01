@@ -54,8 +54,8 @@ const (
 // 草の見た目。透明 prop なので地面へ重なり、オートタイルの縁や暗いフィルが出ない。大半をみずみずしい
 // 草にし、乾いた雑草をまばらに混ぜて単調さを崩す。
 const (
-	scatterGrassProp = "dummy_grass"
-	scatterWeedProp  = "dummy_weeds"
+	scatterGrassProp = "grass"
+	scatterWeedProp  = "weeds"
 	// scatterWeedMod は雑草の割合。hash がこの法で 0 になるタイルだけ雑草にする。約 1/4。
 	scatterWeedMod = 4
 )
@@ -93,7 +93,7 @@ var roadsideCatalog = scatterCatalog{
 		{Ref: "", Weight: 55}, // 置かない
 		{Ref: "tree_a", Weight: 16},
 		{Ref: "tree_b", Weight: 13},
-		{Ref: "dummy_rock", Weight: 10},
+		{Ref: "rock", Weight: 10},
 	},
 }
 
@@ -106,7 +106,7 @@ var wildCatalog = scatterCatalog{
 		{Ref: "", Weight: 38}, // 置かない
 		{Ref: "tree_a", Weight: 24},
 		{Ref: "tree_b", Weight: 24},
-		{Ref: "dummy_rock", Weight: 14},
+		{Ref: "rock", Weight: 14},
 		// 木立。大木の周りに低木が寄り添う小クラスタ
 		{Ref: "big_tree", Weight: 6, Big: true, Satellites: []relSpot{{"tree_a", 1, 0}, {"tree_b", -1, 1}}},
 	},
