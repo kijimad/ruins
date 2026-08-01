@@ -138,22 +138,18 @@ func (pa *PushActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 	return nil
 }
 
-// cubeInteriorWeight は内部ステージに置いた物の総重量を返す。内部はオーバーワールドと同じく
-// 単一の永続ステージなので、固定キーで直接引く。どのキューブを押しても同じ内部の総重量が
-// 押しの重さになる。内部をキューブごとに分ける拡張へ進むときは、キューブから内部への
-// リンクをここで解決し直す。
-func cubeInteriorWeight(world w.World) consts.Milligram {
-	return query.CubeWeight(world, gc.NewCubeInteriorStage())
-}
-
 // cubePushTurns はキューブを1タイル動かすのに要するターン数を返す。総重量が重いほど、
 // パーティAPが少ないほど増える。押しと引きで共通。APが無ければエラー。
+//
+// 総重量は内部ステージに置いた物の総和。内部はオーバーワールドと同じく単一の永続ステージなので、
+// 固定キー NewCubeInteriorStage で直接引く。どのキューブを押しても同じ内部の総重量が押しの重さに
+// なる。内部をキューブごとに分ける拡張へ進むときは、キューブから内部へのリンクをここで解決し直す。
 func cubePushTurns(world w.World) (consts.Turn, error) {
 	power := query.PartyPushPower(world)
 	if power <= 0 {
 		return 0, fmt.Errorf("APが足りず動かせません")
 	}
-	cost := query.PushCost(cubeInteriorWeight(world))
+	cost := query.PushCost(query.CubeWeight(world, gc.NewCubeInteriorStage()))
 	return consts.Turn((cost + power - 1) / power), nil
 }
 
