@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-01 11:22:08</td>
+            <td class="headerValue">2026-08-01 15:07:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -312,8 +312,8 @@
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         for moverShadowQuery.Next() {</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                 entity := moverShadowQuery.Entity()</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 // TurnBased または Prop を持つエンティティのみ</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                 if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Prop.Has(entity) {</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 // TurnBased または Fixed を持つエンティティのみ</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                 if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Fixed.Has(entity) {</span></span>
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L256"><span class="lineNum">     256</span>              :                 }</span>
 <span id="L257"><span class="lineNum">     257</span>              : </span>
@@ -350,7 +350,7 @@
 <span id="L288"><span class="lineNum">     288</span>              :         // 下タイル参照用のマップは viewport 内（+margin）だけ構築する。大マップで全タイルを</span>
 <span id="L289"><span class="lineNum">     289</span>              :         // 毎フレーム map 化するのを避ける</span>
 <span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         tileMap := make(map[gc.GridElement]ecs.Entity)</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         // 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/Prop を走査から除く</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         // 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/固定物を走査から除く</span></span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         tileMapQuery := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         for tileMapQuery.Next() {</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 e := tileMapQuery.Entity()</span></span>

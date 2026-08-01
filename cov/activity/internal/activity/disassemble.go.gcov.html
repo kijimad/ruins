@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-01 11:22:08</td>
+            <td class="headerValue">2026-08-01 15:07:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -229,7 +229,7 @@
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;分解産出の抽選に失敗: %w&quot;, err)</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L169"><span class="lineNum">     169</span>              : </span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           2 :         if world.Components.Prop.Has(target) &amp;&amp; world.Components.GridElement.Has(target) {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           2 :         if world.Components.Fixed.Has(target) &amp;&amp; world.Components.GridElement.Has(target) {</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 // 座標は除去前に値で控える</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 coord := world.Components.GridElement.Get(target).Coord</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 // 収納propの場合は中身を足元へ出してから取り壊す</span></span>

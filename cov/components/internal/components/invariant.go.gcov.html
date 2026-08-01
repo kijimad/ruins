@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-01 11:22:08</td>
+            <td class="headerValue">2026-08-01 15:07:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -193,7 +193,7 @@
 <span id="L131"><span class="lineNum">     131</span>              :         CategoryMaterial   = &quot;素材&quot;</span>
 <span id="L132"><span class="lineNum">     132</span>              :         CategoryAmmo       = &quot;弾薬&quot;</span>
 <span id="L133"><span class="lineNum">     133</span>              :         CategoryBook       = &quot;本&quot;</span>
-<span id="L134"><span class="lineNum">     134</span>              :         CategoryProp       = &quot;置物&quot;</span>
+<span id="L134"><span class="lineNum">     134</span>              :         CategoryFixed      = &quot;固定物&quot;</span>
 <span id="L135"><span class="lineNum">     135</span>              :         CategoryConsumable = &quot;消耗品&quot;</span>
 <span id="L136"><span class="lineNum">     136</span>              :         CategoryMelee      = &quot;近接武器&quot;</span>
 <span id="L137"><span class="lineNum">     137</span>              :         CategoryFire       = &quot;射撃武器&quot;</span>
@@ -224,7 +224,7 @@
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC tlaBgGNC">           1 : func (c *Components) Categories() map[CategoryGroupKey][]Category {</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         return map[CategoryGroupKey][]Category{</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 InventoryCategoryKey: {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         {Name: CategoryGoods, Pred: Or{c.has(c.Material), c.has(c.Ammo), c.has(c.Book), c.has(c.Prop), c.has(c.Consumable)}},</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         {Name: CategoryGoods, Pred: Or{c.has(c.Material), c.has(c.Ammo), c.has(c.Book), c.has(c.Consumable)}},</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         {Name: CategoryWeapon, Pred: Or{c.has(c.Melee), c.has(c.Fire)}},</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         {Name: CategoryArmor, Pred: c.has(c.Wearable)},</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 },</span></span>
@@ -232,7 +232,7 @@
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         {Name: CategoryMaterial, Pred: c.has(c.Material)},</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         {Name: CategoryAmmo, Pred: c.has(c.Ammo)},</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                         {Name: CategoryBook, Pred: c.has(c.Book)},</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                         {Name: CategoryProp, Pred: c.has(c.Prop)},</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                         {Name: CategoryFixed, Pred: c.has(c.Fixed)},</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                         {Name: CategoryConsumable, Pred: c.has(c.Consumable)},</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                         // Fire は Melee より先に判定する。射撃武器は殴打性能として Melee も持つため</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                         {Name: CategoryFire, Pred: c.has(c.Fire)},</span></span>
@@ -244,7 +244,7 @@
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         {Name: CategoryPlayer, Pred: c.has(c.Player)},</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                         {Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                         {Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         {Name: CategoryProp, Pred: c.has(c.Prop)},</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         {Name: CategoryFixed, Pred: c.has(c.Fixed)},</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                         {Name: CategoryTile, Pred: c.has(c.Tile)},</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 },</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         }</span></span>

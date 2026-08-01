@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-01 11:22:08</td>
+            <td class="headerValue">2026-08-01 15:07:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -99,7 +99,7 @@
 <span id="L37"><span class="lineNum">      37</span>              :         BlockPass          *BlockPass          // 通行不可であることを示す</span>
 <span id="L38"><span class="lineNum">      38</span>              :         PassCost           *PassCost           // タイルの移動コスト修正を保持する</span>
 <span id="L39"><span class="lineNum">      39</span>              :         Door               *Door               // 開閉可能な扉であることを表す</span>
-<span id="L40"><span class="lineNum">      40</span>              :         Prop               *Prop               // 置物であることを示す</span>
+<span id="L40"><span class="lineNum">      40</span>              :         Fixed              *Fixed              // 世界に固定され拾えない固定物であることを示す</span>
 <span id="L41"><span class="lineNum">      41</span>              :         Pushable           *Pushable           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用</span>
 <span id="L42"><span class="lineNum">      42</span>              :         LightSource        *LightSource        // 光源であることを表す</span>
 <span id="L43"><span class="lineNum">      43</span>              :         Interactable       *Interactable       // 相互作用可能であることを示す</span>
@@ -180,7 +180,7 @@
 <span id="L118"><span class="lineNum">     118</span>              :         BlockPass          *ecs.Map[BlockPass]          // 通行不可であることを示す</span>
 <span id="L119"><span class="lineNum">     119</span>              :         PassCost           *ecs.Map[PassCost]           // タイルの移動コスト修正を保持する</span>
 <span id="L120"><span class="lineNum">     120</span>              :         Door               *ecs.Map[Door]               // 開閉可能な扉であることを表す</span>
-<span id="L121"><span class="lineNum">     121</span>              :         Prop               *ecs.Map[Prop]               // 置物であることを示す</span>
+<span id="L121"><span class="lineNum">     121</span>              :         Fixed              *ecs.Map[Fixed]              // 世界に固定され拾えない固定物であることを示す</span>
 <span id="L122"><span class="lineNum">     122</span>              :         Pushable           *ecs.Map[Pushable]           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用</span>
 <span id="L123"><span class="lineNum">     123</span>              :         LightSource        *ecs.Map[LightSource]        // 光源であることを表す</span>
 <span id="L124"><span class="lineNum">     124</span>              :         Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す</span>
@@ -261,7 +261,7 @@
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         c.BlockPass = ecs.NewMap[BlockPass](world)</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         c.PassCost = ecs.NewMap[PassCost](world)</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         c.Door = ecs.NewMap[Door](world)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         c.Prop = ecs.NewMap[Prop](world)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         c.Fixed = ecs.NewMap[Fixed](world)</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         c.Pushable = ecs.NewMap[Pushable](world)</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         c.LightSource = ecs.NewMap[LightSource](world)</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         c.Interactable = ecs.NewMap[Interactable](world)</span></span>
@@ -344,7 +344,7 @@
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         addComp(c.BlockPass, entity, spec.BlockPass)</span></span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         addComp(c.PassCost, entity, spec.PassCost)</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         addComp(c.Door, entity, spec.Door)</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         addComp(c.Prop, entity, spec.Prop)</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         addComp(c.Fixed, entity, spec.Fixed)</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         addComp(c.Pushable, entity, spec.Pushable)</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         addComp(c.LightSource, entity, spec.LightSource)</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         addComp(c.Interactable, entity, spec.Interactable)</span></span>
