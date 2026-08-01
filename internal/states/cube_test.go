@@ -1,12 +1,12 @@
 package states
 
 import (
-	"fmt"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -34,11 +34,9 @@ func TestEnterExitCube_内装へ入り元の位置へ戻る(t *testing.T) {
 
 	// 入る: オーバーワールドを退避し、キューブ内装が現ステージになる
 	require.NoError(t, st.enterCube(world, cube))
-	interiorKey := gc.StageKey{Name: fmt.Sprintf("キューブ内装#%d", cube.ID()), Depth: 1}
+	interiorKey := gc.NewCubeInteriorStage()
 	assert.Equal(t, interiorKey, d.CurrentStage, "現ステージはキューブ内装")
 	assert.True(t, world.Components.Suspended.Has(band), "オーバーワールドは退避される")
-	require.True(t, world.Components.PortalConnection.Has(cube), "キューブに内装リンクが焼かれる")
-	assert.Equal(t, interiorKey, world.Components.PortalConnection.Get(cube).Stage)
 
 	// 出口 prop の戻り先は入場時のプレイヤータイル
 	exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
@@ -62,4 +60,38 @@ func TestEnterExitCube_内装へ入り元の位置へ戻る(t *testing.T) {
 	assert.Equal(t, gc.NewOverworldStage(), d.CurrentStage, "オーバーワールドへ戻る")
 	assert.False(t, world.Components.Suspended.Has(band), "オーバーワールドが再稼働する")
 	assert.Equal(t, playerPos, world.Components.GridElement.Get(player).Coord, "入場した元タイルへ戻る")
+}
+
+// TestEnterCube_内装で保存して読み込んでも落ちない はキューブ内装での serde 往復を検証する。
+// 内装は定義を持たないランタイムステージなので、復帰時に遺跡定義として解決しようとして落ちる
+// 不具合の回帰。復帰では世界が復元済みで定義解決は不要にする。
+func TestEnterCube_内装で保存して読み込んでも落ちない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, "Ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	addStageEntity(t, world, gc.NewOverworldStage())
+
+	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
+	require.NoError(t, st.enterCube(world, cube))
+	interiorKey := gc.NewCubeInteriorStage()
+	require.Equal(t, interiorKey, query.GetDungeon(world).CurrentStage)
+
+	// 内装にいる状態で保存して別 world へ読み込む
+	manager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+	require.NoError(t, manager.SaveWorld(world, "cube_interior"))
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "cube_interior"))
+
+	assert.Equal(t, interiorKey, query.GetDungeon(newWorld).CurrentStage, "内装が現ステージのまま復元される")
+
+	// 復帰状態を組み立てて開始する。以前はここで定義解決に失敗して落ちていた
+	resume, err := newResumeStateFactory(newWorld)()
+	require.NoError(t, err)
+	require.NoError(t, resume.OnStart(newWorld), "内装で読み込んでも定義解決で落ちない")
 }

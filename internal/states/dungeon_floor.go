@@ -164,9 +164,10 @@ func (st *DungeonState) descend(world w.World) error {
 	return lifecycle.MovePlayerToPosition(world, pos)
 }
 
-// enterCube は移動拠点キューブの内装へ swapTo で入る。未訪問なら小部屋を生成し出口 prop を置く。
-// 出口 prop の戻り先を、入場時のプレイヤータイル(キューブに隣接)へ毎回貼り直す。内装滞在中は
-// オーバーワールドが退避しキューブは動かないので、この戻り先は退場時も有効になる。
+// enterCube は移動拠点キューブの内装へ swapTo で入る。内装はオーバーワールドと同じく単一の
+// 永続ステージで、初回だけ生成され以後は再稼働する。出口 prop の戻り先を、入場時のプレイヤー
+// タイル、すなわちキューブに隣接する位置へ毎回貼り直す。内装滞在中はオーバーワールドが退避し
+// キューブは動かないので、この戻り先は退場時も有効になる。
 func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	if !world.Components.GridElement.Has(cube) {
 		return fmt.Errorf("キューブに位置がありません")
@@ -177,17 +178,8 @@ func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	}
 	returnPos := world.Components.GridElement.Get(player).Coord
 
-	// 内装キーはキューブごとに一意。初回入場で決めてキューブの PortalConnection へ焼き、
-	// 再訪時はそこから引く
-	firstVisit := !world.Components.PortalConnection.Has(cube)
-	var interiorKey gc.StageKey
-	if firstVisit {
-		interiorKey = gc.StageKey{Name: fmt.Sprintf("キューブ内装#%d", cube.ID()), Depth: 1}
-	} else {
-		interiorKey = world.Components.PortalConnection.Get(cube).Stage
-	}
-
-	if err := stage.SwapTo(world, interiorKey, func(world w.World, key gc.StageKey) error {
+	// 単一の内装ステージへ入る。未訪問なら SwapTo の callback で一度だけ生成される
+	if err := stage.SwapTo(world, gc.NewCubeInteriorStage(), func(world w.World, key gc.StageKey) error {
 		return spawnCubeInterior(world, key)
 	}); err != nil {
 		return err
@@ -200,11 +192,6 @@ func (st *DungeonState) enterCube(world w.World, cube ecs.Entity) error {
 	}
 	if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil {
 		return err
-	}
-	if firstVisit {
-		if err := setPortalConnection(world, cube, interiorKey, exitPos); err != nil {
-			return err
-		}
 	}
 	return lifecycle.MovePlayerToPosition(world, exitPos)
 }
