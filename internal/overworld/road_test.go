@@ -42,24 +42,40 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 	sort.Slice(centers, func(i, j int) bool { return centers[i].X < centers[j].X })
 	require.GreaterOrEqual(t, len(centers), 2, "前提: 隣接リージョンに集落が2つある")
 
-	// 西集落の中心 Y の高さの水平路から、上下が原野のままの区間を探す。地物が密になった
-	// ため固定座標では市街地やPOIと重なりうるが、集落間の全区間が覆われることはない
+	// 西集落の中心 Y の高さの水平路から、幅を持たせた横帯の1本を探す。列 x で west.Y を含む床の
+	// 縦連続が丁度 roadWidth なら、他の道や垂直辺と重ならない単独の横帯である。地物が密になったため
+	// 固定座標では市街地やPOIと重なりうるが、集落間の全区間が覆われることはない
+	const roadWidth = 4
 	west, east := centers[0], centers[1]
 	isFloor := func(x, y consts.Tile) bool {
 		return strings.HasPrefix(spriteKeyAtOrEmpty(world, x, y), consts.TileNameFloor)
 	}
 	found := false
 	for x := west.X + 1; x < east.X; x++ {
-		if !isFloor(x, west.Y) || !isFloor(x-1, west.Y) || !isFloor(x+1, west.Y) ||
-			isFloor(x, west.Y-1) || isFloor(x, west.Y+1) {
+		if !isFloor(x, west.Y) || !isFloor(x-1, west.Y) || !isFloor(x+1, west.Y) {
+			continue // 水平に連続する床であること
+		}
+		// west.Y を含む縦の床連続を測る。交差などで厚みが違う列は単独の横帯でないので飛ばす
+		top, bottom := west.Y, west.Y
+		for isFloor(x, top-1) {
+			top--
+		}
+		for isFloor(x, bottom+1) {
+			bottom++
+		}
+		if bottom-top+1 != roadWidth {
 			continue
 		}
-		// 左右にだけ床が続く区間なので、オートタイルは左8|右2=10 になる。
-		// 添字が仮の 0 のままなら孤立タイル絵が並ぶ退行なので、ここで固定する
-		key := spriteKeyAtOrEmpty(world, x, west.Y)
-		assert.True(t, strings.HasSuffix(key, "_10"), "水平路の中間は左右接続の添字10。実際: %q", key)
+		// 幅 roadWidth の横帯。内部タイルは四方が床なのでオートタイル添字15になる。仮の 0 のままなら
+		// 孤立タイル絵が並ぶ退行なので固定する。上下左右すべて床の内部タイルを選ぶ
+		mid := top + 1
+		if !isFloor(x-1, mid) || !isFloor(x+1, mid) || !isFloor(x, mid-1) || !isFloor(x, mid+1) {
+			continue
+		}
+		key := spriteKeyAtOrEmpty(world, x, mid)
+		assert.True(t, strings.HasSuffix(key, "_15"), "幅を持たせた道の内部は四方接続の添字15。実際: %q", key)
 		found = true
 		break
 	}
-	require.True(t, found, "集落間に上下が原野のままの舗装区間がある")
+	require.True(t, found, "集落間に幅 roadWidth の舗装区間がある")
 }
