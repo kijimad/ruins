@@ -238,7 +238,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
@@ -266,7 +266,7 @@ func TestPickupActivity_Validate_Fixed(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
@@ -281,7 +281,7 @@ func TestPickupActivity_Validate_Fixed(t *testing.T) {
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
-	t.Run("アイテムとPropが同じタイルにある場合も拾える", func(t *testing.T) {
+	t.Run("アイテムと固定物が同じタイルにある場合も拾える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -293,7 +293,7 @@ func TestPickupActivity_Validate_Fixed(t *testing.T) {
 		// Interactableを持つ固定物も同じタイルにある
 		prop := world.ECS.NewEntity()
 		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}})
 
@@ -308,10 +308,10 @@ func TestPickupActivity_Validate_Fixed(t *testing.T) {
 	})
 }
 
-func TestPickupActivity_DoTurn_Prop(t *testing.T) {
+func TestPickupActivity_DoTurn_Fixed(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Propのみのタイルでは拾得に失敗する", func(t *testing.T) {
+	t.Run("固定物のみのタイルでは拾得に失敗する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -320,7 +320,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
 		world.Components.HP.Add(prop, &gc.HP{Max: 10, Current: 10})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
@@ -334,7 +334,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		pa := &PickupActivity{}
 		err = pa.DoTurn(comp, player, world)
 
-		require.Error(t, err, "Propは設置物なので拾えない")
+		require.Error(t, err, "固定物は拾えない")
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }

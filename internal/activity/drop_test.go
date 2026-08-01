@@ -286,10 +286,10 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 	})
 }
 
-func TestDropActivity_PropDerivedItem(t *testing.T) {
+func TestDropActivity_FixtureDerivedItem(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Prop由来アイテムをドロップすると Fixed コンポーネントが保持される", func(t *testing.T) {
+	t.Run("固定物由来アイテムをドロップすると Fixed コンポーネントが保持される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -299,7 +299,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		// 固定物を拾った状態をシミュレート: Fixed+Item+BlockPassがバックパックにある
 		prop := world.ECS.NewEntity()
 		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テストProp"})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
 		world.Components.BlockPass.Add(prop, &gc.BlockPass{})
 		require.NoError(t, lifecycle.MoveToBackpack(world, prop, player))
 
