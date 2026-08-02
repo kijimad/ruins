@@ -317,8 +317,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		})
 
 		// 中断可能なアクティビティ（休息）を設定
-		comp, err := NewActivity(gc.BehaviorRest, 10)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorRest, 10)
 		comp.State = gc.ActivityStateRunning
 		world.Components.Activity.Add(target, comp)
 
@@ -357,8 +356,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		})
 
 		// 中断不可のアクティビティ（攻撃）を設定
-		comp, err := NewActivity(gc.BehaviorAttack, 0)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorAttack, 0)
 		comp.State = gc.ActivityStateRunning
 		world.Components.Activity.Add(target, comp)
 
@@ -393,8 +391,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		})
 
 		// 中断不可のアクティビティ（攻撃）を設定
-		comp, err := NewActivity(gc.BehaviorAttack, 0)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorAttack, 0)
 		comp.State = gc.ActivityStateRunning
 		world.Components.Activity.Add(target, comp)
 

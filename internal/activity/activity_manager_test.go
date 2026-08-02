@@ -49,11 +49,10 @@ func TestStartActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを作成
-	comp, err := NewActivity(gc.BehaviorWait, 5)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorWait, 5)
 
 	// アクティビティ開始
-	err = StartActivity(comp, actor, world)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティが登録されているかチェック
@@ -79,12 +78,10 @@ func TestMultipleActivities(t *testing.T) {
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	// 複数のアクターでアクティビティを開始
-	comp1, err := NewActivity(gc.BehaviorWait, 10)
-	require.NoError(t, err)
-	comp2, err := NewActivity(gc.BehaviorWait, 5)
-	require.NoError(t, err)
+	comp1 := NewActivity(gc.BehaviorWait, 10)
+	comp2 := NewActivity(gc.BehaviorWait, 5)
 
-	err = StartActivity(comp1, actor1, world)
+	err := StartActivity(comp1, actor1, world)
 	require.NoError(t, err)
 
 	err = StartActivity(comp2, actor2, world)
@@ -109,17 +106,15 @@ func TestReplaceActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// 最初のアクティビティを開始
-	comp1, err := NewActivity(gc.BehaviorWait, 10)
-	require.NoError(t, err)
-	err = StartActivity(comp1, actor, world)
+	comp1 := NewActivity(gc.BehaviorWait, 10)
+	err := StartActivity(comp1, actor, world)
 	require.NoError(t, err)
 
 	// 最初のアクティビティが実行中であることを確認
 	assert.Equal(t, gc.ActivityStateRunning, comp1.State, "Expected first activity to be running")
 
 	// 新しいアクティビティを開始（古いものを置き換え）
-	comp2, err := NewActivity(gc.BehaviorWait, 5)
-	require.NoError(t, err)
+	comp2 := NewActivity(gc.BehaviorWait, 5)
 	err = StartActivity(comp2, actor, world)
 	require.NoError(t, err)
 
@@ -138,9 +133,8 @@ func TestInterruptAndResume(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewActivity(gc.BehaviorWait, 10)
-	require.NoError(t, err)
-	err = StartActivity(comp, actor, world)
+	comp := NewActivity(gc.BehaviorWait, 10)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティを中断
@@ -177,9 +171,8 @@ func TestCancelActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewActivity(gc.BehaviorWait, 5)
-	require.NoError(t, err)
-	err = StartActivity(comp, actor, world)
+	comp := NewActivity(gc.BehaviorWait, 5)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティをキャンセル
@@ -210,12 +203,10 @@ func TestProcessContinuousActivities(t *testing.T) {
 	world.Components.GridElement.Add(actor2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 
 	// 短いアクティビティと長いアクティビティを開始
-	shortComp, err := NewActivity(gc.BehaviorWait, 2) // 2ターンで完了
-	require.NoError(t, err)
-	longComp, err := NewActivity(gc.BehaviorWait, 5) // 5ターンで完了
-	require.NoError(t, err)
+	shortComp := NewActivity(gc.BehaviorWait, 2) // 2ターンで完了
+	longComp := NewActivity(gc.BehaviorWait, 5)  // 5ターンで完了
 
-	err = StartActivity(shortComp, actor1, world)
+	err := StartActivity(shortComp, actor1, world)
 	require.NoError(t, err)
 	err = StartActivity(longComp, actor2, world)
 	require.NoError(t, err)
@@ -264,12 +255,10 @@ func TestActivitySummary(t *testing.T) {
 	actor2 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
-	comp1, err := NewActivity(gc.BehaviorWait, 10)
-	require.NoError(t, err)
-	comp2, err := NewActivity(gc.BehaviorWait, 5)
-	require.NoError(t, err)
+	comp1 := NewActivity(gc.BehaviorWait, 10)
+	comp2 := NewActivity(gc.BehaviorWait, 5)
 
-	err = StartActivity(comp1, actor1, world)
+	err := StartActivity(comp1, actor1, world)
 	require.NoError(t, err)
 	err = StartActivity(comp2, actor2, world)
 	require.NoError(t, err)

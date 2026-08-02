@@ -35,7 +35,7 @@ func (odb *OpenDoorBehavior) Name() gc.BehaviorName {
 
 // NewOpenDoorActivity は対象扉を指定して開扉アクティビティを組む。
 func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
-	comp := newActivity(gc.BehaviorOpenDoor, 0)
+	comp := NewActivity(gc.BehaviorOpenDoor, 0)
 	comp.Target = &target
 	return comp
 }
@@ -145,7 +145,7 @@ func (cdb *CloseDoorBehavior) Name() gc.BehaviorName {
 
 // NewCloseDoorActivity は対象扉を指定して閉扉アクティビティを組む。
 func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
-	comp := newActivity(gc.BehaviorCloseDoor, 0)
+	comp := NewActivity(gc.BehaviorCloseDoor, 0)
 	comp.Target = &target
 	return comp
 }

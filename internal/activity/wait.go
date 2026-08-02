@@ -39,7 +39,7 @@ func NewWaitActivity(duration consts.Turn) *gc.Activity {
 	if turns <= 0 {
 		turns = 1
 	}
-	return newActivity(gc.BehaviorWait, turns)
+	return NewActivity(gc.BehaviorWait, turns)
 }
 
 // Validate は待機アクティビティの検証を行う

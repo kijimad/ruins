@@ -102,7 +102,7 @@ func (mb *MoveBehavior) Name() gc.BehaviorName {
 
 // NewMoveActivity は移動先を指定して移動アクティビティを組む。
 func NewMoveActivity(destination gc.GridElement) *gc.Activity {
-	comp := newActivity(gc.BehaviorMove, 0)
+	comp := NewActivity(gc.BehaviorMove, 0)
 	comp.Destination = &destination
 	return comp
 }

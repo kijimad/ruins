@@ -45,7 +45,7 @@ func (ab *AttackBehavior) Name() gc.BehaviorName {
 
 // NewAttackActivity は攻撃対象を指定して攻撃アクティビティを組む。
 func NewAttackActivity(target ecs.Entity) *gc.Activity {
-	comp := newActivity(gc.BehaviorAttack, 0)
+	comp := NewActivity(gc.BehaviorAttack, 0)
 	comp.Target = &target
 	return comp
 }

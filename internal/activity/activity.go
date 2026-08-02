@@ -91,16 +91,8 @@ type Info struct {
 }
 
 // NewActivity は名前と必要総量から新しいActivityコンポーネントを作成する。
-// required は完了に必要な総量。初回ステップで満ちれば即時アクションになる。
-func NewActivity(name gc.BehaviorName, required int) (*gc.Activity, error) {
-	if required < 0 {
-		return nil, ErrInvalidRequired
-	}
-	return newActivity(name, required), nil
-}
-
-// newActivity は検証なしでActivityを組む内部ヘルパ。required が静的に非負な構築関数から使う。
-func newActivity(name gc.BehaviorName, required int) *gc.Activity {
+// required は完了に必要な総量で、各構築関数が常に0以上を渡す。初回ステップで満ちれば即時アクションになる。
+func NewActivity(name gc.BehaviorName, required int) *gc.Activity {
 	return &gc.Activity{
 		BehaviorName: name,
 		State:        gc.ActivityStateRunning,

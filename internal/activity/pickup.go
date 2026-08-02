@@ -37,7 +37,7 @@ func (pb *PickupBehavior) Name() gc.BehaviorName {
 // NewPickupActivity は拾得対象または拾得先を指定して拾得アクティビティを組む。
 // target が nil なら足元や指定座標から拾う。
 func NewPickupActivity(target *ecs.Entity, destination *gc.GridElement) *gc.Activity {
-	comp := newActivity(gc.BehaviorPickup, 0)
+	comp := NewActivity(gc.BehaviorPickup, 0)
 	comp.Target = target
 	comp.Destination = destination
 	return comp

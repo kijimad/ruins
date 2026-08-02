@@ -40,7 +40,7 @@ func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
 	if book == nil {
 		return nil, fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
-	comp := newActivity(gc.BehaviorRead, book.Effort.Max)
+	comp := NewActivity(gc.BehaviorRead, book.Effort.Max)
 	comp.Target = &target
 	return comp, nil
 }

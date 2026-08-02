@@ -53,7 +53,7 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activi
 	}
 
 	requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
-	comp := newActivity(gc.BehaviorDisassemble, requiredAP)
+	comp := NewActivity(gc.BehaviorDisassemble, requiredAP)
 	comp.Target = &target
 	return comp, nil
 }

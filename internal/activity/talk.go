@@ -35,7 +35,7 @@ func (tb *TalkBehavior) Name() gc.BehaviorName {
 
 // NewTalkActivity は会話対象を指定して会話アクティビティを組む。
 func NewTalkActivity(target ecs.Entity) *gc.Activity {
-	comp := newActivity(gc.BehaviorTalk, 0)
+	comp := NewActivity(gc.BehaviorTalk, 0)
 	comp.Target = &target
 	return comp
 }

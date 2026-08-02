@@ -34,10 +34,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(gc.BehaviorReload, 0)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err = ra.Validate(comp, player, world)
+		err := ra.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 
@@ -46,10 +45,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(gc.BehaviorReload, 0)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err = ra.Validate(comp, player, world)
+		err := ra.Validate(comp, player, world)
 		assert.ErrorIs(t, err, ErrReloadNotNeeded)
 	})
 
@@ -70,8 +68,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(gc.BehaviorReload, 0)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
 		err = ra.Validate(comp, player, world)
 		assert.ErrorIs(t, err, ErrReloadNoAmmo)
@@ -90,8 +87,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		query.GetWeaponSelection(world).Slot = 1
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(gc.BehaviorReload, 0)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
 		err = ra.Validate(comp, player, world)
 		assert.ErrorIs(t, err, ErrShootNoFireWeapon)

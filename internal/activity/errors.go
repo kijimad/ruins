@@ -8,7 +8,6 @@ var (
 	ErrActivityNil           = errors.New("アクティビティがnilです")
 	ErrActorNotSet           = errors.New("アクターが設定されていません")
 	ErrActivityNotFound      = errors.New("アクティビティが見つかりません")
-	ErrInvalidRequired       = errors.New("required は0以上である必要があります")
 	ErrActivityActorNotFound = errors.New("アクティビティアクターが見つかりません")
 	ErrActivityCannotPause   = errors.New("アクティビティは中断できません")
 	ErrActivityCannotResume  = errors.New("アクティビティは再開できません")

@@ -39,7 +39,7 @@ func (sb *ShootBehavior) Name() gc.BehaviorName {
 
 // NewShootActivity は射撃対象を指定して射撃アクティビティを組む。
 func NewShootActivity(target ecs.Entity) *gc.Activity {
-	comp := newActivity(gc.BehaviorShoot, 0)
+	comp := NewActivity(gc.BehaviorShoot, 0)
 	comp.Target = &target
 	return comp
 }

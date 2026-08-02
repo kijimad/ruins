@@ -36,7 +36,7 @@ func (u *UseItemBehavior) Name() gc.BehaviorName {
 
 // NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
 func NewUseItemActivity(target ecs.Entity) *gc.Activity {
-	comp := newActivity(gc.BehaviorUseItem, 0)
+	comp := NewActivity(gc.BehaviorUseItem, 0)
 	comp.Target = &target
 	return comp
 }

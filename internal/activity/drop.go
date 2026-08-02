@@ -35,7 +35,7 @@ func (db *DropBehavior) Name() gc.BehaviorName {
 
 // NewDropActivity は対象アイテムと落とす先を指定してドロップアクティビティを組む。
 func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity {
-	comp := newActivity(gc.BehaviorDrop, 0)
+	comp := NewActivity(gc.BehaviorDrop, 0)
 	comp.Target = &target
 	comp.Destination = &destination
 	return comp

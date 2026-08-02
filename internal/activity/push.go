@@ -150,7 +150,7 @@ func buildCubeMove(name gc.BehaviorName, cube ecs.Entity, dest consts.Coord[cons
 	if err != nil {
 		return nil, err
 	}
-	comp := newActivity(name, required)
+	comp := NewActivity(name, required)
 	c := cube
 	comp.Target = &c
 	comp.Destination = &gc.GridElement{Coord: dest}

@@ -34,7 +34,7 @@ func (rb *RestBehavior) Name() gc.BehaviorName {
 
 // NewRestActivity は休息アクティビティを組む。必要総APは Info の TotalRequiredAP。
 func NewRestActivity() *gc.Activity {
-	return newActivity(gc.BehaviorRest, (&RestBehavior{}).Info().TotalRequiredAP)
+	return NewActivity(gc.BehaviorRest, (&RestBehavior{}).Info().TotalRequiredAP)
 }
 
 // Validate は休息アクティビティの検証を行う

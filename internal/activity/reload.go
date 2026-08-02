@@ -45,7 +45,7 @@ func NewReloadActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newActivity(gc.BehaviorReload, fire.ReloadEffort), nil
+	return NewActivity(gc.BehaviorReload, fire.ReloadEffort), nil
 }
 
 // Validate はリロードの検証を行う

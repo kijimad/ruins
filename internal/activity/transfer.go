@@ -39,7 +39,7 @@ func (tb *TransferBehavior) Name() gc.BehaviorName {
 // NewTransferActivity は転送アイテム・受取人・個数を指定して転送アクティビティを組む。
 // count が0以下なら在庫全量を渡す。個数は gc.Activity.Count に持たせ、継続処理でも読める。
 func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
-	comp := newActivity(gc.BehaviorTransfer, 0)
+	comp := NewActivity(gc.BehaviorTransfer, 0)
 	comp.Target = &target
 	comp.Recipient = &recipient
 	comp.Count = count
