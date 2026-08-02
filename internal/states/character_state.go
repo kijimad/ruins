@@ -584,62 +584,35 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(
-			widget.NewGridLayout(
-				widget.GridLayoutOpts.Columns(1),
-				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				// 名前・タブ・コンテンツを上詰めし、スペーサー行を伸ばしてフッターを下端へ押す。
-				// これでコンテンツの開始位置がタブ内容量によらず一定になる
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, true, false}),
-				widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space3, Bottom: theme.Space3, Left: theme.Space3, Right: theme.Space3}),
-			),
-		),
-	)
-
-	// Row 0: 対象キャラ名。仲間がいれば左右矢印で切替可能を示す。汎用タイトルは置かない。
+	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
-	nameText := props.TargetName
+	header := props.TargetName
 	if props.HasMultiple {
-		nameText = fmt.Sprintf("%s %s %s", consts.IconArrowLeft, props.TargetName, consts.IconArrowRight)
+		header = fmt.Sprintf("%s %s %s", consts.IconArrowLeft, props.TargetName, consts.IconArrowRight)
 	}
-	nameRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
-	nameLabel := styled.NewMenuText(nameText, res)
-	nameLabel.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
-	nameRow.AddChild(nameLabel)
-	root.AddChild(nameRow)
 
-	// Row 1: タブ帯
-	tabRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
-	tabBar := styled.NewTabBar(characterTabLabels, tabIndex, res)
-	tabBar.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
-	tabRow.AddChild(tabBar)
-	root.AddChild(tabRow)
-
-	// Row 2: コンテンツ。上詰めで置き、タブによらず同じ位置から始める。説明の常時表示は置かない
+	// コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ
+	var content *widget.Container
 	if tabIndex == charScreenEquip {
-		root.AddChild(st.buildEquipList(props.EquipSlots, itemIndex, res))
+		content = st.buildEquipList(props.EquipSlots, itemIndex, res)
 	} else if infoIdx := tabIndex - 1; infoIdx < len(props.InfoTabs) {
-		root.AddChild(st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res))
+		content = st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res)
 	} else {
-		root.AddChild(widget.NewContainer())
+		content = widget.NewContainer()
 	}
 
-	// Row 3: 伸縮スペーサー。フッターを下端へ押す
-	root.AddChild(widget.NewContainer())
-
-	// Row 4: キー案内。切替は仲間がいるときだけ出す
 	hint := "x で詳細"
 	if props.HasMultiple {
 		hint = "[ ] で切替   x で詳細"
 	}
-	hintRow := styled.NewRowContainer()
-	hintRow.AddChild(styled.NewDescriptionText(hint, res))
-	root.AddChild(hintRow)
 
-	// 後ろのフィールドを見せる小さめの中央モーダルにする。下端はゲームログを避ける
-	ui := &ebitenui.UI{Container: wrapModalRoot(root)}
+	ui := newTabScreenUI(res, tabScreen{
+		Header:    header,
+		TabLabels: characterTabLabels,
+		TabIndex:  tabIndex,
+		Content:   content,
+		Footer:    hint,
+	})
 
 	if st.subState == charSubActionWindow {
 		ui.AddWindow(st.buildActionWindow(world, res))

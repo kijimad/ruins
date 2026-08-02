@@ -3,12 +3,75 @@ package states
 import (
 	"image"
 
+	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
+
+// tabScreen はタブ式モーダル画面の共通レイアウト入力。
+// 各画面はこの入力を渡すだけで、見出し・タブ帯・コンテンツ・フッターの配置と
+// モーダル枠、ログ回避、上詰めが標準化される。目視での位置合わせを不要にする。
+type tabScreen struct {
+	// Header は上部中央の見出し。空なら見出し行を置かない
+	Header string
+	// TabLabels はタブ帯の見出し一覧。TabIndex を強調表示する
+	TabLabels []string
+	TabIndex  int
+	// Content は現在タブの中身。ページ表示行を先頭に含めると全画面で開始位置が揃う
+	Content *widget.Container
+	// Footer は下部のキー案内。小さめの補助テキストで表示する
+	Footer string
+}
+
+// newTabScreenUI はタブ式モーダル画面の標準 UI を組み立てる。
+// 行構成は 見出し（任意）/ タブ帯 / コンテンツ / 伸縮スペーサー / フッター で固定する。
+// コンテンツは上詰めされ、フッターは下端でログの手前に収まる。呼び出し側は
+// 返り値へ詳細モーダル等のウィンドウを AddWindow できる。
+func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
+	children := make([]widget.PreferredSizeLocateableWidget, 0, 5)
+	rowStretch := make([]bool, 0, 5)
+	add := func(c widget.PreferredSizeLocateableWidget, stretch bool) {
+		children = append(children, c)
+		rowStretch = append(rowStretch, stretch)
+	}
+
+	if p.Header != "" {
+		add(centerRow(styled.NewMenuText(p.Header, res)), false)
+	}
+	add(centerRow(styled.NewTabBar(p.TabLabels, p.TabIndex, res)), false)
+	add(p.Content, false)
+	add(widget.NewContainer(), true) // 伸縮スペーサー。フッターを下端へ押す
+	footer := styled.NewRowContainer()
+	footer.AddChild(styled.NewDescriptionText(p.Footer, res))
+	add(footer, false)
+
+	root := widget.NewContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Spacing(0, theme.Space2),
+			widget.GridLayoutOpts.Stretch([]bool{true}, rowStretch),
+			widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space3, Bottom: theme.Space3, Left: theme.Space3, Right: theme.Space3}),
+		)),
+	)
+	for _, c := range children {
+		root.AddChild(c)
+	}
+	return &ebitenui.UI{Container: wrapModalRoot(root)}
+}
+
+// centerRow は子を水平中央に置くアンカーコンテナを返す。タブ帯や見出しの中央寄せに使う
+func centerRow(child widget.PreferredSizeLocateableWidget) *widget.Container {
+	row := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
+	child.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
+	row.AddChild(child)
+	return row
+}
 
 // gameLogTopY は画面下部のゲームログのボックス上端 Y を返す。
 // モーダルやウィンドウをこの上端より上に収め、ログと重ならないようにする基準に使う。

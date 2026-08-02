@@ -450,24 +450,6 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(
-			widget.NewGridLayout(
-				widget.GridLayoutOpts.Columns(1),
-				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
-				widget.GridLayoutOpts.Padding(&widget.Insets{
-					Top:    theme.Space3,
-					Bottom: theme.Space3,
-					Left:   theme.Space3,
-					Right:  theme.Space3,
-				}),
-			),
-		),
-	)
-
-	// Row 0: 動詞タブ帯を中央寄せ。タイトルは置かない
 	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -477,22 +459,14 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 			labels[i] = tab.Label
 		}
 	}
-	tabRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
-	tabBar := styled.NewTabBar(labels, tabIndex, res)
-	tabBar.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
-	tabRow.AddChild(tabBar)
-	root.AddChild(tabRow)
 
-	// Row 1: アイテム一覧。行は名前のみ
-	root.AddChild(st.buildItemList(props, tabIndex, itemIndex, res))
-
-	// Row 2: キー案内。詳細は x のモーダルで見る。補助テキストなので小さめにする
-	hintRow := styled.NewRowContainer()
-	hintRow.AddChild(styled.NewDescriptionText("x で詳細", res))
-	root.AddChild(hintRow)
-
-	// 後ろのフィールドを見せる小さめの中央モーダルにする。下端はゲームログを避ける
-	ui := &ebitenui.UI{Container: wrapModalRoot(root)}
+	// タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る
+	ui := newTabScreenUI(res, tabScreen{
+		TabLabels: labels,
+		TabIndex:  tabIndex,
+		Content:   st.buildItemList(props, tabIndex, itemIndex, res),
+		Footer:    "x で詳細",
+	})
 
 	if st.showDetail {
 		if win := st.buildDetailWindow(world, props, tabIndex, itemIndex, res); win != nil {
