@@ -570,7 +570,9 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
+				// 名前・タブ・コンテンツを上詰めし、スペーサー行を伸ばしてフッターを下端へ押す。
+				// これでコンテンツの開始位置がタブ内容量によらず一定になる
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, true, false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space3, Bottom: theme.Space3, Left: theme.Space3, Right: theme.Space3}),
 			),
 		),
@@ -595,14 +597,19 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	tabRow.AddChild(tabBar)
 	root.AddChild(tabRow)
 
-	// 説明の常時表示は置かない。詳細は x のモーダルで見る
+	// Row 2: コンテンツ。上詰めで置き、タブによらず同じ位置から始める。説明の常時表示は置かない
 	if tabIndex == charScreenEquip {
 		root.AddChild(st.buildEquipList(props.EquipSlots, itemIndex, res))
 	} else if infoIdx := tabIndex - 1; infoIdx < len(props.InfoTabs) {
 		root.AddChild(st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res))
+	} else {
+		root.AddChild(widget.NewContainer())
 	}
 
-	// Row 3: キー案内。切替は仲間がいるときだけ出す
+	// Row 3: 伸縮スペーサー。フッターを下端へ押す
+	root.AddChild(widget.NewContainer())
+
+	// Row 4: キー案内。切替は仲間がいるときだけ出す
 	hint := "x で詳細"
 	if props.HasMultiple {
 		hint = "[ ] で切替   x で詳細"
