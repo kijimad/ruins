@@ -90,23 +90,24 @@
 //
 // ### 1. 即座実行アクション（短期間で完了）
 // - 移動、攻撃、アイテム拾得など
-// - `TurnsTotal = 1`で残りAP1でも1ターンで完了
+// - `Required = 0`で初回ステップに完結する
 // - シンプルな実行ロジック
 //
 // ### 2. 継続実行アクション（複数ターンにわたる）
 // - 休息、読書、クラフトなど
-// - `TurnsTotal > 1`で段階的に実行
+// - `Required > 0`の総量に対し、毎ターン注ぐ量を累積して段階的に実行
 // - 中断・再開機能あり
 //
-// ## 統一インターフェース
+// ## 進捗モデル
 //
-// 全てのアクションは`Activity`構造体を通じて統一的に管理される：
+// 継続アクションは残りターン数を凍結せず、必要総量に対する累積で進捗を表す。
+// 毎ターンの注入量はBehaviorごとに再計算するため、APや能力の変動へ追従する。
 //
 //	type Activity struct {
-//		BehaviorName gc.BehaviorName // アクション種別
+//		BehaviorName gc.BehaviorName  // アクション種別
 //		State        gc.ActivityState // 実行状態
-//		TurnsTotal   int              // 必要ターン数
-//		TurnsLeft    int              // 残りターン数
+//		Required     int              // 完了に必要な総量。即時は0
+//		Accumulated  int              // 注ぎ込んだ総量。Requiredに達したら完了
 //		// ...
 //	}
 //
@@ -126,7 +127,7 @@
 //	result, err := activity.Execute(&activity.MoveBehavior{Destination: dest}, player, world)
 //
 //	// 継続実行アクション（休息）
-//	result, err := activity.Execute(&activity.RestBehavior{Duration: 10}, player, world)
+//	result, err := activity.Execute(&activity.RestBehavior{}, player, world)
 //
 //	// アクティビティの管理
 //	activity.InterruptActivity(player, "戦闘開始", world)

@@ -34,7 +34,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewActivity(ra, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -46,7 +46,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewActivity(ra, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -70,7 +70,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewActivity(ra, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -90,7 +90,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		query.GetWeaponSelection(world).Slot = 1
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewActivity(ra, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -101,7 +101,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 func TestReloadBehavior_Start(t *testing.T) {
 	t.Parallel()
 
-	t.Run("ターン数が設定される", func(t *testing.T) {
+	t.Run("必要工数が設定される", func(t *testing.T) {
 		t.Parallel()
 		world, player, _, weaponEntity := setupShootingWorld(t)
 
@@ -109,14 +109,13 @@ func TestReloadBehavior_Start(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewActivity(ra, 0)
 		require.NoError(t, err)
 
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
-		assert.Positive(t, comp.TurnsTotal)
-		assert.Equal(t, comp.TurnsTotal, comp.TurnsLeft)
+		assert.Equal(t, fire.ReloadEffort, comp.Required)
 	})
 }
 
@@ -131,14 +130,14 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewActivity(ra, 0)
 		require.NoError(t, err)
 
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
 		// DoTurnを繰り返してリロード完了させる
-		for range comp.TurnsTotal + 1 {
+		for range comp.Required + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -170,13 +169,13 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewActivity(ra, 0)
 		require.NoError(t, err)
 
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
-		for range comp.TurnsTotal + 1 {
+		for range comp.Required + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -208,11 +207,11 @@ func TestReloadBehavior_共有シングルトンでも進捗が混ざらない(t
 	require.True(t, ok)
 
 	// 同一シングルトンに通す2つの独立したアクティビティを用意する
-	comp1, err := NewActivity(ra, 1)
+	comp1, err := NewActivity(ra, 0)
 	require.NoError(t, err)
 	require.NoError(t, ra.Start(comp1, player, world))
 
-	comp2, err := NewActivity(ra, 1)
+	comp2, err := NewActivity(ra, 0)
 	require.NoError(t, err)
 	require.NoError(t, ra.Start(comp2, player, world))
 

@@ -128,7 +128,7 @@ func TestReplaceActivity(t *testing.T) {
 	currentActivity := query.GetActivity(world, actor)
 	require.NotNil(t, currentActivity)
 	assert.Equal(t, gc.ActivityStateRunning, currentActivity.State, "Expected replaced activity to be running")
-	assert.Equal(t, comp2.TurnsTotal, currentActivity.TurnsTotal, "Expected current activity to be the second activity")
+	assert.Equal(t, comp2.Required, currentActivity.Required, "Expected current activity to be the second activity")
 }
 
 func TestInterruptAndResume(t *testing.T) {
@@ -228,16 +228,16 @@ func TestProcessContinuousActivities(t *testing.T) {
 	// 1ターン目処理
 	ProcessContinuousActivities(world)
 
-	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する
-	assert.Equal(t, consts.Turn(1), query.GetActivity(world, actor1).TurnsLeft, "Expected short activity to have 1 turn left")
-	assert.Equal(t, consts.Turn(4), query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 4 turns left")
+	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する。待機は毎ターン 1 累積する
+	assert.Equal(t, 1, query.GetActivity(world, actor1).Accumulated, "Expected short activity to have accumulated 1")
+	assert.Equal(t, 1, query.GetActivity(world, actor2).Accumulated, "Expected long activity to have accumulated 1")
 
 	// 2ターン目処理
 	ProcessContinuousActivities(world)
 
 	// 短いアクティビティが完了。完了時は削除されるため結果コンポーネントで確認する
 	assert.Equal(t, gc.ActivityStateCompleted, GetLastResult(actor1, world).State, "Expected short activity to be completed")
-	assert.Equal(t, consts.Turn(3), query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 3 turns left")
+	assert.Equal(t, 2, query.GetActivity(world, actor2).Accumulated, "Expected long activity to have accumulated 2")
 
 	// 完了したアクティビティは管理対象から削除される
 	assert.Nil(t, query.GetActivity(world, actor1), "Expected completed activity to be removed")
@@ -374,12 +374,13 @@ func TestLastActivity(t *testing.T) {
 		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "テスト"}, player, world)
 		require.NoError(t, err)
 
+		// 待機は Required>0 の継続アクションなので Execute では開始のみ記録される
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
-			State:        gc.ActivityStateCompleted,
+			State:        gc.ActivityStateRunning,
 			Success:      true,
-			Message:      "アクション完了",
+			Message:      "アクション開始",
 		}
 		assert.Equal(t, expected, result)
 	})
@@ -395,12 +396,13 @@ func TestLastActivity(t *testing.T) {
 		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "待機"}, player, world)
 		require.NoError(t, err)
 
+		// 待機は継続アクションなので開始のみ記録される
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
-			State:        gc.ActivityStateCompleted,
+			State:        gc.ActivityStateRunning,
 			Success:      true,
-			Message:      "アクション完了",
+			Message:      "アクション開始",
 		}
 		assert.Equal(t, expected, result)
 

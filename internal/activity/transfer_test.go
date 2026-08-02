@@ -125,8 +125,6 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 			State:        gc.ActivityStateRunning,
 			Target:       &item,
 			Recipient:    &leader,
-			TurnsTotal:   1,
-			TurnsLeft:    1,
 		}
 
 		ta := &TransferBehavior{Target: item, Recipient: leader, Count: 1}
@@ -157,8 +155,6 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 			State:        gc.ActivityStateRunning,
 			Target:       &pool,
 			Recipient:    &member,
-			TurnsTotal:   1,
-			TurnsLeft:    1,
 		}
 		// アクターは受け取る隊員。丸ごとでなく1個だけ引く
 		ta := &TransferBehavior{Target: pool, Recipient: member, Count: 1}
@@ -196,8 +192,6 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 			State:        gc.ActivityStateRunning,
 			Target:       &pool,
 			Recipient:    &member,
-			TurnsTotal:   1,
-			TurnsLeft:    1,
 		}
 		ta := &TransferBehavior{Target: pool, Recipient: member, Count: 2}
 		require.NoError(t, ta.DoTurn(comp, member, world))

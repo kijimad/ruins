@@ -146,8 +146,8 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	da := &DisassembleBehavior{Target: crate}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
-	// baseAP2000 スキル0 グレード1 で必要AP2000、AP100につき20ターン
-	assert.Equal(t, consts.Turn(20), comp.TurnsTotal)
+	// baseAP2000 スキル0 グレード1 で必要AP2000
+	assert.Equal(t, 2000, comp.Required)
 
 	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
@@ -187,8 +187,8 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	da := &DisassembleBehavior{Target: hdd}
 	comp, err := da.BuildActivity(player, world)
 	require.NoError(t, err)
-	// baseAP1000 グレード2 で必要AP800、AP100につき8ターン
-	assert.Equal(t, consts.Turn(8), comp.TurnsTotal)
+	// baseAP1000 グレード2 で必要AP800
+	assert.Equal(t, 800, comp.Required)
 
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {

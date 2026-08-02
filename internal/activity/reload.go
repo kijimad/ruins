@@ -41,7 +41,7 @@ func (rb *ReloadBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (rb *ReloadBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(rb, 1)
+	comp, err := NewActivity(rb, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -74,10 +74,8 @@ func (rb *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		return err
 	}
 
-	// 最大ターン数の見積もり（最低能力の場合）
-	maxTurns := consts.Turn(max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1))
-	comp.TurnsTotal = maxTurns
-	comp.TurnsLeft = maxTurns
+	// 完了に必要な総装填工数
+	comp.Required = fire.ReloadEffort
 
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
@@ -94,14 +92,11 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return err
 	}
 
-	// 1ターンあたりの工数を計算
-	effortPerTurn := rb.calcEffortPerTurn(actor, fire, world)
-	comp.Accumulated += effortPerTurn
-
-	comp.TurnsLeft--
+	// 1ターンあたりの工数を計算。能力が高いほど速く装填する
+	comp.Accumulated += rb.calcEffortPerTurn(actor, fire, world)
 
 	// 工数が目標に達したら装填完了
-	if comp.Accumulated >= fire.ReloadEffort {
+	if comp.Accumulated >= comp.Required {
 		// 装填数を計算（マガジン容量と弾薬在庫の小さい方）
 		needed := fire.MagazineSize - fire.Magazine
 		ammoEntity, found := query.FindAmmoInInventory(world, fire.AmmoTag)
@@ -129,10 +124,6 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 		Complete(comp)
 		return nil
-	}
-
-	if comp.TurnsLeft <= 0 {
-		Complete(comp)
 	}
 
 	return nil

@@ -41,7 +41,7 @@ func (sb *ShootBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (sb *ShootBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(sb, 1)
+	comp, err := NewActivity(sb, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 // 射撃対象選択UIでのフィルタリング用
 func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
 	sb := &ShootBehavior{}
-	comp, err := NewActivity(sb, 1)
+	comp, err := NewActivity(sb, 0)
 	if err != nil {
 		return false
 	}

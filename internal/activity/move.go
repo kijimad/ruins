@@ -104,7 +104,7 @@ func (mb *MoveBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (mb *MoveBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(mb, 1)
+	comp, err := NewActivity(mb, 0)
 	if err != nil {
 		return nil, err
 	}

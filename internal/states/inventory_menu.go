@@ -574,13 +574,8 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		// Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する
-		book := world.Components.Book.Get(entity)
-		remaining := book.Effort.Max - book.Effort.Current
-		if remaining <= 0 {
-			remaining = 1
-		}
-		_, err = activity.Execute(&activity.ReadBehavior{Target: entity, Duration: consts.Turn(remaining)}, playerEntity, world)
+		// 読書の進捗は本の Effort に保持され、読了は DoTurn 内で判定する
+		_, err = activity.Execute(&activity.ReadBehavior{Target: entity}, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err

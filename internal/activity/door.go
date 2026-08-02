@@ -37,7 +37,7 @@ func (odb *OpenDoorBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (odb *OpenDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(odb, 1)
+	comp, err := NewActivity(odb, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (cdb *CloseDoorBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (cdb *CloseDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(cdb, 1)
+	comp, err := NewActivity(cdb, 0)
 	if err != nil {
 		return nil, err
 	}

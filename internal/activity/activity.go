@@ -80,26 +80,28 @@ type Info struct {
 	TotalRequiredAP int    // アクティビティ完了に必要な総AP量
 }
 
-// NewActivity は新しいActivityコンポーネントを作成する
-func NewActivity(behavior Behavior, duration consts.Turn) (*gc.Activity, error) {
-	if duration <= 0 {
-		return nil, ErrInvalidDuration
+// NewActivity は新しいActivityコンポーネントを作成する。
+// required は完了に必要な総量。即時アクションは 0 を渡す。
+func NewActivity(behavior Behavior, required int) (*gc.Activity, error) {
+	if required < 0 {
+		return nil, ErrInvalidRequired
 	}
 
 	return &gc.Activity{
 		BehaviorName: behavior.Name(),
 		State:        gc.ActivityStateRunning,
-		TurnsTotal:   duration,
-		TurnsLeft:    duration,
+		Required:     required,
 	}, nil
 }
 
-// CalculateRequiredTurns はキャラクターのAP量に基づいて必要ターン数を計算する
-func CalculateRequiredTurns(behavior Behavior, characterAP int) consts.Turn {
-	if behavior.Info().TotalRequiredAP > 0 && characterAP > 0 {
-		return consts.Turn((behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP)
+// perTurnAP はアクターが継続アクションへ今ターン注げるAPを返す。
+// 毎ターン再計算するためAPの変動へ追従する。取得できない場合も進行が止まらないよう最低 1 を返す。
+func perTurnAP(actor ecs.Entity, world w.World) int {
+	ap, err := getEntityMaxAP(actor, world)
+	if err != nil || ap < 1 {
+		return 1
 	}
-	return 1
+	return ap
 }
 
 // CanInterrupt はアクティビティが中断可能かを返す
@@ -156,7 +158,7 @@ func IsActive(comp *gc.Activity) bool {
 
 // IsCompleted はアクティビティが完了しているかを返す
 func IsCompleted(comp *gc.Activity) bool {
-	return comp.State == gc.ActivityStateCompleted || comp.TurnsLeft <= 0
+	return comp.State == gc.ActivityStateCompleted
 }
 
 // IsCanceled はアクティビティがキャンセルされているかを返す
@@ -166,17 +168,15 @@ func IsCanceled(comp *gc.Activity) bool {
 
 // GetProgressPercent は進捗率を0-100の値で返す
 func GetProgressPercent(comp *gc.Activity) float64 {
-	if comp.TurnsTotal <= 0 {
+	if comp.Required <= 0 {
 		return 100.0
 	}
-	completed := float64(comp.TurnsTotal - comp.TurnsLeft)
-	return (completed / float64(comp.TurnsTotal)) * 100.0
+	return (float64(comp.Accumulated) / float64(comp.Required)) * 100.0
 }
 
 // Complete はアクティビティを完了状態にする
 func Complete(comp *gc.Activity) {
 	comp.State = gc.ActivityStateCompleted
-	comp.TurnsLeft = 0
 }
 
 // Cancel はアクティビティをキャンセルする

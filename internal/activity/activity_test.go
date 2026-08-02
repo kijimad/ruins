@@ -20,8 +20,8 @@ func TestActivityCreation(t *testing.T) {
 
 	assert.Equal(t, gc.BehaviorRest, behavior.Name(), "Expected behavior to be Rest")
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected initial state to be Running")
-	assert.Equal(t, consts.Turn(10), comp.TurnsTotal, "Expected turns total 10")
-	assert.Equal(t, consts.Turn(10), comp.TurnsLeft, "Expected turns left 10")
+	assert.Equal(t, 10, comp.Required, "Expected required 10")
+	assert.Equal(t, 0, comp.Accumulated, "Expected accumulated 0")
 }
 
 func TestActivityInfo(t *testing.T) {
@@ -95,7 +95,6 @@ func TestActivityComplete(t *testing.T) {
 	Complete(comp)
 
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State, "Expected state to be Completed after complete")
-	assert.Equal(t, consts.Turn(0), comp.TurnsLeft, "Expected turns left 0 after complete")
 	assert.True(t, IsCompleted(comp), "Expected IsCompleted() to return true")
 }
 
@@ -109,13 +108,13 @@ func TestActivityProgressCalculation(t *testing.T) {
 	progress := GetProgressPercent(comp)
 	assert.Equal(t, 0.0, progress, "Expected initial progress 0%%")
 
-	// 5ターン進行（50%）
-	comp.TurnsLeft = 5
+	// 半分注いだ（50%）
+	comp.Accumulated = 5
 	progress = GetProgressPercent(comp)
 	assert.Equal(t, 50.0, progress, "Expected progress 50%%")
 
-	// 完了（100%）
-	comp.TurnsLeft = 0
+	// 必要量に達した（100%）
+	comp.Accumulated = 10
 	progress = GetProgressPercent(comp)
 	assert.Equal(t, 100.0, progress, "Expected progress 100%%")
 }
@@ -131,21 +130,22 @@ func TestActivityDoTurn(t *testing.T) {
 	comp, err := NewActivity(behavior, 3)
 	require.NoError(t, err)
 
+	// 待機は毎ターン 1 ずつ注ぐ純タイマー。Required 3 なので3ターンで完了する
 	// 1ターン目
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 1")
-	assert.Equal(t, consts.Turn(2), comp.TurnsLeft, "Expected 2 turns left after turn 1")
+	assert.Equal(t, 1, comp.Accumulated, "Expected accumulated 1 after turn 1")
 	assert.False(t, IsCompleted(comp), "Expected activity not to be completed after turn 1")
 
 	// 2ターン目
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 2")
-	assert.Equal(t, consts.Turn(1), comp.TurnsLeft, "Expected 1 turn left after turn 2")
+	assert.Equal(t, 2, comp.Accumulated, "Expected accumulated 2 after turn 2")
 
 	// 3ターン目（完了）
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 3")
-	assert.Equal(t, consts.Turn(0), comp.TurnsLeft, "Expected 0 turns left after turn 3")
+	assert.Equal(t, 3, comp.Accumulated, "Expected accumulated 3 after turn 3")
 	assert.True(t, IsCompleted(comp), "Expected activity to be completed after turn 3")
 }
 
@@ -166,57 +166,30 @@ func TestGetBehavior(t *testing.T) {
 	})
 }
 
-func TestNewActivityInvalidDuration(t *testing.T) {
+func TestNewActivityInvalidRequired(t *testing.T) {
 	t.Parallel()
 
-	t.Run("duration 0でエラー", func(t *testing.T) {
+	t.Run("required 0は即時アクションとして正常", func(t *testing.T) {
 		t.Parallel()
-		_, err := NewActivity(&WaitBehavior{}, 0)
-		assert.Error(t, err)
+		comp, err := NewActivity(&WaitBehavior{}, 0)
+		require.NoError(t, err)
+		assert.Equal(t, 0, comp.Required)
 	})
 
-	t.Run("負のdurationでエラー", func(t *testing.T) {
+	t.Run("負のrequiredでエラー", func(t *testing.T) {
 		t.Parallel()
 		_, err := NewActivity(&WaitBehavior{}, -1)
-		assert.Error(t, err)
+		assert.ErrorIs(t, err, ErrInvalidRequired)
 	})
 }
 
 func TestGetProgressPercentEdgeCases(t *testing.T) {
 	t.Parallel()
 
-	t.Run("TurnsTotal 0の場合は100%を返す", func(t *testing.T) {
+	t.Run("Required 0の場合は100%を返す", func(t *testing.T) {
 		t.Parallel()
-		comp := &gc.Activity{TurnsTotal: 0, TurnsLeft: 0}
+		comp := &gc.Activity{Required: 0}
 		assert.Equal(t, 100.0, GetProgressPercent(comp))
-	})
-}
-
-func TestCalculateRequiredTurns(t *testing.T) {
-	t.Parallel()
-
-	t.Run("APベースの計算", func(t *testing.T) {
-		t.Parallel()
-		behavior := &RestBehavior{}
-		info := behavior.Info()
-		if info.TotalRequiredAP > 0 {
-			turns := CalculateRequiredTurns(behavior, 100)
-			assert.GreaterOrEqual(t, turns, consts.Turn(1))
-		}
-	})
-
-	t.Run("APとcharacterAPで正しく切り上げ除算する", func(t *testing.T) {
-		t.Parallel()
-		behavior := &WaitBehavior{} // TotalRequiredAP=500
-		turns := CalculateRequiredTurns(behavior, 100)
-		assert.Equal(t, consts.Turn(5), turns) // 500 / 100 = 5
-	})
-
-	t.Run("characterAPが0の場合は1を返す", func(t *testing.T) {
-		t.Parallel()
-		behavior := &RestBehavior{}
-		turns := CalculateRequiredTurns(behavior, 0)
-		assert.Equal(t, consts.Turn(1), turns)
 	})
 }
 
@@ -260,9 +233,13 @@ func TestIsActive(t *testing.T) {
 	})
 }
 
-func TestIsCompleted_TurnsLeftZero(t *testing.T) {
+func TestIsCompleted_StateBased(t *testing.T) {
 	t.Parallel()
 
-	comp := &gc.Activity{State: gc.ActivityStateRunning, TurnsLeft: 0}
-	assert.True(t, IsCompleted(comp), "TurnsLeftが0ならCompletedとみなす")
+	// 完了は State のみで判定する。残りターンという概念は廃止した
+	running := &gc.Activity{State: gc.ActivityStateRunning}
+	assert.False(t, IsCompleted(running), "Running は未完了")
+
+	completed := &gc.Activity{State: gc.ActivityStateCompleted}
+	assert.True(t, IsCompleted(completed), "Completed は完了")
 }

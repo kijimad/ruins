@@ -51,12 +51,12 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 		return result, err
 	}
 
-	// 即座実行アクション（1ターン）は、呼び出し側が同じ呼び出しで結果を必要とするため、
+	// 即座実行アクション（Required==0）は、呼び出し側が同じ呼び出しで結果を必要とするため、
 	// ここで1ターン進めてその場で完結させる。継続アクションとの唯一の本質的な差はこの同期性で、
 	// 継続アクションは ProcessContinuousActivities が将来ティックで進める。
 	// アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
 	// 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
-	if comp.TurnsTotal == 1 {
+	if comp.Required == 0 {
 		stepActivity(actor, world)
 
 		// ターン管理システムに移動コストを通知
@@ -206,7 +206,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("アクティビティ開始",
 		"entity", actor,
 		"type", behavior.Name(),
-		"duration", stored.TurnsTotal)
+		"required", stored.Required)
 
 	return nil
 }
@@ -277,7 +277,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 }
 
 // ProcessContinuousActivities は継続中の全アクティビティを1ターン分進める。
-// 即時アクション（TurnsTotal==1）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
+// 即時アクション（Required==0）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
 func ProcessContinuousActivities(world w.World) {
 	var entities []ecs.Entity

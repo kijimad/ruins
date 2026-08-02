@@ -29,8 +29,7 @@ func TestGetActivity(t *testing.T) {
 		activity := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
-			TurnsTotal:   5,
-			TurnsLeft:    5,
+			Required:     5,
 		}
 		world.Components.Activity.Add(entity, activity)
 

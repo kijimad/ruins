@@ -77,7 +77,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			TurnsTotal:   10,
+			Required:     10,
 		}
 
 		ra := &RestBehavior{}
@@ -99,7 +99,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			TurnsTotal:   10,
+			Required:     10,
 		}
 
 		ra := &RestBehavior{}
@@ -108,7 +108,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "敵がいる")
 	})
 
-	t.Run("TurnsTotalが0以下の場合はエラー", func(t *testing.T) {
+	t.Run("Requiredが0以下の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -117,13 +117,13 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			TurnsTotal:   0,
+			Required:     0,
 		}
 
 		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "休息時間が無効")
+		assert.Contains(t, err.Error(), "休息の必要量が無効")
 	})
 }
 
@@ -144,8 +144,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			TurnsTotal:   10,
-			TurnsLeft:    5,
+			Required:     10,
 		}
 
 		ra := &RestBehavior{}
@@ -169,8 +168,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			TurnsTotal:   10,
-			TurnsLeft:    5,
+			Required:     10,
 		}
 
 		ra := &RestBehavior{}
@@ -192,8 +190,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			TurnsTotal:   10,
-			TurnsLeft:    5,
+			Required:     10,
 		}
 
 		ra := &RestBehavior{}
@@ -212,14 +209,51 @@ func TestRestBehavior_performHealing(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			TurnsTotal:   10,
-			TurnsLeft:    5,
+			Required:     10,
 		}
 
 		ra := &RestBehavior{}
 		err := ra.performHealing(comp, player, world)
 		assert.NoError(t, err)
 	})
+}
+
+// TestRestBehavior_所要はAP量で伸縮する は doc 84 の核心を固定する。
+// 同じ必要量でも、毎ターン注げるAPが多いほど少ないターンで完了する。
+// 着手時にターン数を凍結せず、毎ターンのAPを累積するモデルであることを保証する。
+func TestRestBehavior_所要はAP量で伸縮する(t *testing.T) {
+	t.Parallel()
+
+	// 指定したAP最大値で、必要量に達するまでのターン数を数える
+	stepsToComplete := func(apMax int) int {
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		require.NoError(t, err)
+
+		world.Components.TurnBased.Get(player).AP.Max = apMax
+		// HP回復での早期完了を避けるため、回復が追いつかない大きな余地を作る
+		hp := world.Components.HP.Get(player)
+		hp.Max = 1000000
+		hp.Current = 1
+
+		rb := &RestBehavior{}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorRest,
+			State:        gc.ActivityStateRunning,
+			Required:     1000,
+		}
+		steps := 0
+		for !IsCompleted(comp) {
+			require.NoError(t, rb.DoTurn(comp, player, world))
+			steps++
+			require.Less(t, steps, 100000, "無限ループ保険")
+		}
+		return steps
+	}
+
+	fast := stepsToComplete(500)
+	slow := stepsToComplete(100)
+	assert.Less(t, fast, slow, "APが多いほど少ないターンで休息が完了する")
 }
 
 func TestRestBehavior_DoTurn(t *testing.T) {
@@ -236,18 +270,20 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		hp := world.Components.HP.Get(player)
 		hp.Current = hp.Max / 2
 
+		// 必要量を十分大きくして、1ターンでは完了しないようにする
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			TurnsTotal:   5,
-			TurnsLeft:    3,
+			Required:     1000000,
 		}
 
 		ra := &RestBehavior{}
 		err = ra.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
-		assert.Equal(t, consts.Turn(2), comp.TurnsLeft)
+		// 今ターンのAP分だけ累積が進む
+		assert.Equal(t, perTurnAP(player, world), comp.Accumulated)
+		assert.False(t, IsCompleted(comp))
 	})
 
 	t.Run("敵が近くにいる場合はキャンセルされる", func(t *testing.T) {
@@ -265,8 +301,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			TurnsTotal:   5,
-			TurnsLeft:    3,
+			Required:     5,
 		}
 
 		ra := &RestBehavior{}
@@ -276,18 +311,21 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 
-	t.Run("TurnsLeftが0以下なら完了", func(t *testing.T) {
+	t.Run("必要量に達したら完了", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
+		// HPを減らして満タン早期完了を避け、必要量到達での完了を確かめる
+		hp := world.Components.HP.Get(player)
+		hp.Current = hp.Max / 2
+
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			TurnsTotal:   5,
-			TurnsLeft:    0,
+			Required:     1,
 		}
 
 		ra := &RestBehavior{}
@@ -311,8 +349,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			TurnsTotal:   5,
-			TurnsLeft:    1,
+			Required:     1,
 		}
 
 		ra := &RestBehavior{}
@@ -320,7 +357,6 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		assert.Equal(t, consts.Turn(0), comp.TurnsLeft)
 	})
 }
 

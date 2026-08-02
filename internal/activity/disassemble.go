@@ -56,16 +56,8 @@ func (db *DisassembleBehavior) BuildActivity(actor ecs.Entity, world w.World) (*
 	}
 
 	requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
-	characterAP, err := getEntityMaxAP(actor, world)
-	if err != nil {
-		return nil, err
-	}
-	duration := consts.Turn(1)
-	if characterAP > 0 {
-		duration = consts.Turn((requiredAP + characterAP - 1) / characterAP)
-	}
 
-	comp, err := NewActivity(db, duration)
+	comp, err := NewActivity(db, requiredAP)
 	if err != nil {
 		return nil, err
 	}
@@ -138,8 +130,9 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 		return nil
 	}
 
-	comp.TurnsLeft--
-	if comp.TurnsLeft <= 0 {
+	// 今ターンのAPを注ぐ。APが高いほど速く分解が進む
+	comp.Accumulated += perTurnAP(actor, world)
+	if comp.Accumulated >= comp.Required {
 		Complete(comp)
 	}
 	return nil

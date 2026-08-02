@@ -39,7 +39,7 @@ func (pb *PickupBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (pb *PickupBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(pb, 1)
+	comp, err := NewActivity(pb, 0)
 	if err != nil {
 		return nil, err
 	}

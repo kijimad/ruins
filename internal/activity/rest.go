@@ -13,9 +13,7 @@ import (
 )
 
 // RestBehavior はBehaviorの実装
-type RestBehavior struct {
-	Duration consts.Turn
-}
+type RestBehavior struct{}
 
 // Info はBehaviorの実装
 func (rb *RestBehavior) Info() Info {
@@ -34,21 +32,10 @@ func (rb *RestBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorRest
 }
 
-// BuildActivity はBehaviorの実装
-func (rb *RestBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	duration := rb.Duration
-	if duration <= 0 {
-		characterAP, err := getEntityMaxAP(actor, world)
-		if err != nil {
-			return nil, err
-		}
-		duration = CalculateRequiredTurns(rb, characterAP)
-	}
-	comp, err := NewActivity(rb, duration)
-	if err != nil {
-		return nil, err
-	}
-	return comp, nil
+// BuildActivity はBehaviorの実装。完了に必要な総APを Required に据える。
+// 毎ターン注ぐAPは DoTurn で再計算するため、AP変動へ追従する。
+func (rb *RestBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	return NewActivity(rb, rb.Info().TotalRequiredAP)
 }
 
 // Validate は休息アクティビティの検証を行う
@@ -58,9 +45,9 @@ func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return fmt.Errorf("周囲に敵がいるため休息できません")
 	}
 
-	// 休息時間が妥当かチェック
-	if comp.TurnsTotal <= 0 {
-		return fmt.Errorf("休息時間が無効です")
+	// 必要量が妥当かチェック
+	if comp.Required <= 0 {
+		return fmt.Errorf("休息の必要量が無効です")
 	}
 
 	return nil
@@ -68,7 +55,7 @@ func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は休息開始時の処理を実行する
 func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("休息開始", "actor", actor, "duration", comp.TurnsLeft)
+	log.Debug("休息開始", "actor", actor, "required", comp.Required)
 	return nil
 }
 
@@ -80,27 +67,18 @@ func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return fmt.Errorf("周囲に敵がいるため休息できません")
 	}
 
-	// 基本のターン処理
-	if comp.TurnsLeft <= 0 {
-		Complete(comp)
-		return nil
-	}
+	// 今ターンのAPを注ぐ。APが高いほど速く休息が進む
+	comp.Accumulated += perTurnAP(actor, world)
+	log.Debug("休息進行", "progress", GetProgressPercent(comp))
 
-	// 1ターン進行
-	comp.TurnsLeft--
-	log.Debug("休息進行",
-		"turns_left", comp.TurnsLeft,
-		"progress", GetProgressPercent(comp))
-
-	// HP回復処理
+	// HP回復処理。満タンなら早期完了する
 	if err := rb.performHealing(comp, actor, world); err != nil {
 		return err
 	}
 
-	// 完了チェック
-	if comp.TurnsLeft <= 0 {
+	// 必要量に達したら完了
+	if comp.Accumulated >= comp.Required {
 		Complete(comp)
-		return nil
 	}
 
 	return nil
@@ -172,13 +150,6 @@ func (rb *RestBehavior) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 		hp.Current = hp.Max
 	}
 	actualHealing := hp.Current - beforeHP
-
-	// 5ターン毎にゲームログ出力（プレイヤーの場合のみ）
-	if world.Components.Player.Has(actor) && comp.TurnsTotal-comp.TurnsLeft > 0 && (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {
-		gamelog.New(query.GetGameLog(world)).
-			Append(fmt.Sprintf("HPが %d 回復した。", actualHealing)).
-			Log()
-	}
 
 	log.Debug("HP回復", "actor", actor, "amount", actualHealing)
 	return nil

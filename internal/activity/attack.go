@@ -47,7 +47,7 @@ func (ab *AttackBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (ab *AttackBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(ab, 1)
+	comp, err := NewActivity(ab, 0)
 	if err != nil {
 		return nil, err
 	}

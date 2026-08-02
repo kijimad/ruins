@@ -108,8 +108,9 @@ func (pb *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 		return nil
 	}
 
-	comp.TurnsLeft--
-	if comp.TurnsLeft <= 0 {
+	// パーティの押し力を注ぐ。強いパーティほど速く動かす
+	comp.Accumulated += query.PartyPushPower(world)
+	if comp.Accumulated >= comp.Required {
 		Complete(comp)
 	}
 	return nil
@@ -138,29 +139,28 @@ func (pb *PushBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 	return nil
 }
 
-// cubePushTurns はキューブを1タイル動かすのに要するターン数を返す。総重量が重いほど、
-// パーティAPが少ないほど増える。押しと引きで共通。APが無ければエラー。
+// cubePushCost はキューブを1タイル動かすのに要する総コストを返す。総重量が重いほど増える。
+// 押しと引きで共通。APが無ければエラー。毎ターン注ぐAPは DoTurn でパーティの押し力から
+// 再計算するため、着手時に凍結するのは総コストだけにする。
 //
 // 総重量は内部ステージに置いた物の総和。内部はオーバーワールドと同じく単一の永続ステージなので、
 // 固定キー NewCubeInteriorStage で直接引く。どのキューブを押しても同じ内部の総重量が押しの重さに
 // なる。内部をキューブごとに分ける拡張へ進むときは、キューブから内部へのリンクをここで解決し直す。
-func cubePushTurns(world w.World) (consts.Turn, error) {
-	power := query.PartyPushPower(world)
-	if power <= 0 {
+func cubePushCost(world w.World) (int, error) {
+	if query.PartyPushPower(world) <= 0 {
 		return 0, fmt.Errorf("APが足りず動かせません")
 	}
-	cost := query.PushCost(query.CubeWeight(world, gc.NewCubeInteriorStage()))
-	return consts.Turn((cost + power - 1) / power), nil
+	return query.PushCost(query.CubeWeight(world, gc.NewCubeInteriorStage())), nil
 }
 
-// buildCubeMove は押しと引きで共通の gc.Activity を組む。所要ターンは総重量とパーティAPで決まり、
+// buildCubeMove は押しと引きで共通の gc.Activity を組む。総コストは総重量で決まり、
 // 押し引きで違うのは対象キューブと移動先だけなので、それを引数で受ける。
 func buildCubeMove(behavior Behavior, cube *ecs.Entity, dest consts.Coord[consts.Tile], world w.World) (*gc.Activity, error) {
-	duration, err := cubePushTurns(world)
+	required, err := cubePushCost(world)
 	if err != nil {
 		return nil, err
 	}
-	comp, err := NewActivity(behavior, duration)
+	comp, err := NewActivity(behavior, required)
 	if err != nil {
 		return nil, err
 	}
@@ -276,8 +276,9 @@ func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return nil
 	}
 
-	comp.TurnsLeft--
-	if comp.TurnsLeft <= 0 {
+	// パーティの押し力を注ぐ。強いパーティほど速く動かす
+	comp.Accumulated += query.PartyPushPower(world)
+	if comp.Accumulated >= comp.Required {
 		Complete(comp)
 	}
 	return nil

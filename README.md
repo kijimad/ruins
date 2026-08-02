@@ -59,15 +59,13 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| accepted | 1 |
 | draft | 3 |
-| done | 76 |
+| done | 77 |
 
 ### 未完了
 
 | No. | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|---|
-| [84](docs/design/20260802_84.md) | accepted | 継続アクションの進捗を残りターンからAP累積へ統一する | 0/11 | refactor, ecs, gamedesign |
 | [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 1/33 | worldgen |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |

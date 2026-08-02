@@ -42,7 +42,7 @@ func (tb *TransferBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (tb *TransferBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(tb, 1)
+	comp, err := NewActivity(tb, 0)
 	if err != nil {
 		return nil, err
 	}

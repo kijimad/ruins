@@ -38,7 +38,7 @@ func (u *UseItemBehavior) Name() gc.BehaviorName {
 
 // BuildActivity はBehaviorの実装
 func (u *UseItemBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(u, 1)
+	comp, err := NewActivity(u, 0)
 	if err != nil {
 		return nil, err
 	}

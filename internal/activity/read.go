@@ -16,8 +16,7 @@ import (
 
 // ReadBehavior は読書アクティビティの実装
 type ReadBehavior struct {
-	Target   ecs.Entity
-	Duration consts.Turn
+	Target ecs.Entity
 }
 
 // Info はBehaviorの実装
@@ -36,17 +35,14 @@ func (rb *ReadBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorRead
 }
 
-// BuildActivity はBehaviorの実装
-func (rb *ReadBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	duration := rb.Duration
-	if duration <= 0 {
-		characterAP, err := getEntityMaxAP(actor, world)
-		if err != nil {
-			return nil, err
-		}
-		duration = CalculateRequiredTurns(rb, characterAP)
+// BuildActivity はBehaviorの実装。読書の進捗は再開できるよう本エンティティの
+// Effort に保持する。Required には本の総工数を据え、進捗表示を Accumulated と揃える。
+func (rb *ReadBehavior) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity, error) {
+	book := rb.getBook(rb.Target, world)
+	if book == nil {
+		return nil, fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
-	comp, err := NewActivity(rb, duration)
+	comp, err := NewActivity(rb, book.Effort.Max)
 	if err != nil {
 		return nil, err
 	}
@@ -130,16 +126,11 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// 効果の適用（毎ターン）
 	rb.applyPerTurnEffect(book, actor, world, abilityValue)
 
-	// ターン進行
-	comp.TurnsLeft--
+	// 進捗を activity 側にも反映して表示を揃える
+	comp.Accumulated = book.Effort.Current
 
 	// 読了チェック
 	if book.IsCompleted() {
-		Complete(comp)
-		return nil
-	}
-
-	if comp.TurnsLeft <= 0 {
 		Complete(comp)
 	}
 
