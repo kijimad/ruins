@@ -130,17 +130,32 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 	panic("未知の outdoorZone: " + string(zone))
 }
 
+// scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
+// 開けた地形のバイオームごとにカタログを束ねる分岐点で、ここが散布の拡張口になる。砂漠など別の
+// 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
+// 必要なら地面の塗りを用意する。建物・道・POI など開けていないチャンクは散布しないので default で
+// false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
+func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (scatterCatalog, bool) {
+	switch chunkTypeAt(runSeed, c, rows) {
+	case chunkWasteland:
+		return scatterCatalogFor(outdoorZoneAt(runSeed, c, rows)), true
+	default:
+		return scatterCatalog{}, false
+	}
+}
+
 // scatterFeature は wasteland チャンクの開けた地表へ草・低木・岩を散布する feature。
 type scatterFeature struct{}
 
-// place は wasteland チャンクだけで密度場を走らせ、まず草を密に撒き、続けて樹木と岩を疎に撒く。
-// 選定はチャンク相対座標と絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と
-// 占有は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
+// place は散布対象の開けたチャンクで密度場を走らせ、まず草を密に撒き、続けて樹木と岩を疎に撒く。
+// どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。選定はチャンク相対座標と
+// 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
+// エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-	if chunkTypeAt(runSeed, c, rows) != chunkWasteland {
+	cat, ok := scatterCatalogForChunk(runSeed, c, rows)
+	if !ok {
 		return nil
 	}
-	cat := scatterCatalogFor(outdoorZoneAt(runSeed, c, rows))
 
 	tiles := g.tiles.get()
 	occupied := blockedTilesInChunk(world, g)
