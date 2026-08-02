@@ -84,8 +84,24 @@ jobs:
       - uses: ./.github/actions/setup-go-with-x
       - name: test
         # カバレッジは make test が coverage.out に出力し octocov が読む。
-        # テストの別実行を挟まないことで xvfb セッションを1本に保つ
-        run: make test
+        # テストの別実行を挟まないことで xvfb セッションを1本に保つ。
+        # xvfb-run の X サーバ起動が go test の並列パッケージ init に間に合わず
+        # ebiten が稀に panic する。Makefile を触らず、この起動レースのときだけ
+        # 数回リトライして transient な失敗を吸収する。それ以外の失敗は即座に落とす。
+        run: |
+          for attempt in 1 2 3; do
+            if make test 2>&1 | tee test-output.log; then
+              exit 0
+            fi
+            if grep -q "GLFW library is not initialized" test-output.log; then
+              echo "::warning::xvfb 起動レースを検出 (attempt ${attempt})。再試行する"
+              continue
+            fi
+            echo "::error::テストが失敗した。xvfb 起動レース以外の失敗"
+            exit 1
+          done
+          echo "::error::xvfb 起動レースが 3 回連続で発生した"
+          exit 1
       - uses: k1LoW/octocov-action@v1
 
   flaky-check:
@@ -97,7 +113,22 @@ jobs:
       - uses: ./.github/actions/setup-go-with-x
       - name: Flaky check
         # race検出付きで繰り返し実行し、データ競合とフレークを検出する。
-        run: make test RACE=-race COUNT=10
+        # test ジョブと同じ xvfb 起動レースのときだけリトライする。
+        # データ競合など本来検出したい失敗は即座に落とす。
+        run: |
+          for attempt in 1 2 3; do
+            if make test RACE=-race COUNT=10 2>&1 | tee test-output.log; then
+              exit 0
+            fi
+            if grep -q "GLFW library is not initialized" test-output.log; then
+              echo "::warning::xvfb 起動レースを検出 (attempt ${attempt})。再試行する"
+              continue
+            fi
+            echo "::error::flaky-check が失敗した。xvfb 起動レース以外の失敗"
+            exit 1
+          done
+          echo "::error::xvfb 起動レースが 3 回連続で発生した"
+          exit 1
 
   bench-compare:
     # mainとPRでベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
