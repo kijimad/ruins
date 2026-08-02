@@ -12,14 +12,14 @@ import (
 
 // PushBehavior は BehaviorPush の実装。プレイヤーが隣接する Pushable キューブを押し方向へ
 // 1タイル動かす。分解などと同じ多ターン行動で、専用の進捗コンポーネントを持たず
-// gc.Activity のカウントダウンで進捗を表す。重いキューブほど所要ターンが増え、
-// パーティAPが多いほど減る。
+// gc.Activity の Progress にパーティの押し力を累積して進捗を表す。重いキューブほど
+// 必要な総コストが増え、パーティAPが多いほど速く満ちる。
 //
 // Cube と Dir は着手時のパラメータで、BuildActivity だけが読む。BuildActivity はこの2つから
 // 押す対象と押し先を求め、gc.Activity の Target と Destination へ書き写す。
-// 多ターンの継続処理は behaviors マップの共有インスタンス、すなわち NewPushBehavior で作った物では
-// なく Cube も Dir もゼロ値の1個で Validate・DoTurn・Finish を呼ぶ。だから着手後はフィールドを
-// 当てにせず、gc.Activity の Target と Destination だけを読む。
+// 継続処理は GetBehavior が毎回作る Cube も Dir もゼロ値のインスタンスで Validate・DoTurn・Finish を
+// 呼ぶ。すなわち NewPushBehavior で作った物ではない。だから着手後はフィールドを当てにせず、
+// gc.Activity の Target と Destination だけを読む。
 type PushBehavior struct {
 	Cube ecs.Entity
 	Dir  gc.Direction
@@ -172,8 +172,8 @@ func buildCubeMove(behavior Behavior, cube *ecs.Entity, dest consts.Coord[consts
 // PullBehavior は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
 // 自分は1タイル後退する。押しでは動かせない壁際・角のキューブを引き出して詰みを解く。
 // 所要ターンは押しと同じく総重量とパーティAPで決まる。Cube は着手時のパラメータで BuildActivity
-// だけが読み、gc.Activity の Target と Destination へ書き写す。継続処理は behaviors マップの
-// 共有インスタンス、Cube がゼロ値の1個で呼ばれるので、着手後は gc.Activity 側だけを読む。
+// だけが読み、gc.Activity の Target と Destination へ書き写す。継続処理は GetBehavior が毎回作る
+// Cube ゼロ値のインスタンスで呼ばれるので、着手後は gc.Activity 側だけを読む。
 type PullBehavior struct {
 	Cube ecs.Entity
 }

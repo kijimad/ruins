@@ -155,5 +155,5 @@
 //
 // 1. gc.BehaviorNameに新しい定数を追加
 // 2. Behaviorインターフェースを実装した構造体を作成
-// 3. behaviorsマップに登録
+// 3. GetBehaviorのswitchに対応を追加
 package activity

@@ -19,7 +19,7 @@ const (
 )
 
 // ReloadBehavior はリロードアクティビティの実装。
-// 継続アクションの共有シングルトンとして behaviors マップに登録されるため、
+// 継続処理は GetBehavior が毎回作るゼロ値インスタンスで回るため、
 // 蓄積した装填工数などの進捗はフィールドに持たず gc.Activity 側に持たせる。
 type ReloadBehavior struct{}
 

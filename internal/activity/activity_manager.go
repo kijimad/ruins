@@ -102,9 +102,9 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 // （ProcessContinuousActivities）の両方から呼ばれ、両者で「1ターン進める」
 // ロジックを一本化する。即時アクションは1ステップで完結する継続アクションの特殊ケースとして扱う。
 //
-// 実行する Behavior は永続化された BehaviorName から behaviors レジストリの共有シングルトンを
-// 引く。着手時の呼び出し側インスタンスはここでは使わない。ライフサイクルを常にシングルトンで
-// 回すことで、per-アクティビティの状態は gc.Activity に置くという規律が経路によらず一貫する。
+// 実行する Behavior は永続化された BehaviorName から GetBehavior で引く。毎回ゼロ値の新しい
+// インスタンスなので、着手時の呼び出し側インスタンスはここでは使わない。ライフサイクルを常に
+// ゼロ値インスタンスで回すことで、per-アクティビティの状態は gc.Activity に置くという規律が経路によらず一貫する。
 //
 // DoTurn が失敗すればキャンセルし、完了していれば Finish して直近結果を記録し除去する。
 // アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
@@ -306,7 +306,7 @@ func ProcessContinuousActivities(world w.World) {
 }
 
 // consumePassCost はアクションのAPコストを消費する。
-// Behavior は behaviorName から behaviors レジストリのシングルトンを引く。
+// Behavior は behaviorName から GetBehavior で引く。
 func consumePassCost(world w.World, behaviorName gc.BehaviorName, actor ecs.Entity, destination *gc.GridElement) {
 	behavior, err := GetBehavior(behaviorName)
 	if err != nil {

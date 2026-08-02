@@ -14,54 +14,67 @@ import (
 // log はactivityパッケージ用のロガー
 var log = logger.New(logger.CategoryAction)
 
-// behaviors は gc.Activity に永続化された BehaviorName から実装を復元するレジストリ。
-// 値はフィールドがゼロ値の共有シングルトンで、着手後のライフサイクル Validate/Start/DoTurn/Finish/Canceled は
-// すべてこのシングルトンで回る。呼び出し側インスタンスを使うのは着手時の BuildActivity だけ。
-// そのため per-アクティビティの状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。
-var behaviors = map[gc.BehaviorName]Behavior{
-	gc.BehaviorMove:      &MoveBehavior{},
-	gc.BehaviorAttack:    &AttackBehavior{},
-	gc.BehaviorRest:      &RestBehavior{},
-	gc.BehaviorWait:      &WaitBehavior{},
-	gc.BehaviorPickup:    &PickupBehavior{},
-	gc.BehaviorDrop:      &DropBehavior{},
-	gc.BehaviorUseItem:   &UseItemBehavior{},
-	gc.BehaviorTalk:      &TalkBehavior{},
-	gc.BehaviorOpenDoor:  &OpenDoorBehavior{},
-	gc.BehaviorCloseDoor: &CloseDoorBehavior{},
-	gc.BehaviorRead:      &ReadBehavior{},
-	gc.BehaviorShoot:     &ShootBehavior{},
-	gc.BehaviorReload:    &ReloadBehavior{},
-	gc.BehaviorTransfer:  &TransferBehavior{},
-
-	gc.BehaviorDisassemble: &DisassembleBehavior{},
-	gc.BehaviorPush:        &PushBehavior{},
-	gc.BehaviorPull:        &PullBehavior{},
-}
-
-// GetBehavior は名前からBehavior実装を取得する
+// GetBehavior は gc.Activity に永続化された BehaviorName から実装を復元する。
+// 単なる名前と実装の対応付けで、毎回ゼロ値の新しいインスタンスを返す。
+// Behavior は状態を持たない振る舞いの束なので、これで問題ない。着手後のライフサイクル
+// Validate/Start/DoTurn/Finish/Canceled はこのゼロ値インスタンスで回るため、per-アクティビティの
+// 状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。着手パラメータを持つのは
+// BuildActivity へ渡す呼び出し側インスタンスだけ。
 func GetBehavior(name gc.BehaviorName) (Behavior, error) {
-	b, ok := behaviors[name]
-	if !ok {
+	switch name {
+	case gc.BehaviorMove:
+		return &MoveBehavior{}, nil
+	case gc.BehaviorAttack:
+		return &AttackBehavior{}, nil
+	case gc.BehaviorRest:
+		return &RestBehavior{}, nil
+	case gc.BehaviorWait:
+		return &WaitBehavior{}, nil
+	case gc.BehaviorPickup:
+		return &PickupBehavior{}, nil
+	case gc.BehaviorDrop:
+		return &DropBehavior{}, nil
+	case gc.BehaviorUseItem:
+		return &UseItemBehavior{}, nil
+	case gc.BehaviorTalk:
+		return &TalkBehavior{}, nil
+	case gc.BehaviorOpenDoor:
+		return &OpenDoorBehavior{}, nil
+	case gc.BehaviorCloseDoor:
+		return &CloseDoorBehavior{}, nil
+	case gc.BehaviorRead:
+		return &ReadBehavior{}, nil
+	case gc.BehaviorShoot:
+		return &ShootBehavior{}, nil
+	case gc.BehaviorReload:
+		return &ReloadBehavior{}, nil
+	case gc.BehaviorTransfer:
+		return &TransferBehavior{}, nil
+	case gc.BehaviorDisassemble:
+		return &DisassembleBehavior{}, nil
+	case gc.BehaviorPush:
+		return &PushBehavior{}, nil
+	case gc.BehaviorPull:
+		return &PullBehavior{}, nil
+	default:
 		return nil, fmt.Errorf("未登録のBehavior: %s", name)
 	}
-	return b, nil
 }
 
 // Behavior はアクティビティの実行を担当するインターフェース。
 //
 // メソッドは2種類に分かれる。BuildActivity だけは着手時に呼び出し側が生成した
 // インスタンスで呼ばれ、そのフィールドを着手パラメータとして読んでよい。残りの
-// Validate/Start/DoTurn/Finish/Canceled は behaviors レジストリの共有シングルトンで
+// Validate/Start/DoTurn/Finish/Canceled は GetBehavior が毎回作るゼロ値インスタンスで
 // 回るため、インスタンスのフィールドはゼロ値であり読んではいけない。継続する状態は
 // すべて gc.Activity に持たせる。
 //
-// この非対称ゆえ BuildActivity をシングルトンで呼んではならない。着手パラメータが
-// ゼロ値になり、Duration 依存の Behavior などがエラーになる。
+// この非対称ゆえ GetBehavior が返すインスタンスで BuildActivity を呼んではならない。
+// 着手パラメータがゼロ値になり、Duration 依存の Behavior などがエラーになる。
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
-	// BuildActivity は着手時の呼び出し側インスタンスでのみ呼ぶ。シングルトンで呼ばない
+	// BuildActivity は着手時の呼び出し側インスタンスでのみ呼ぶ。GetBehavior が返すインスタンスで呼ばない
 	BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error)
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error

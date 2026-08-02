@@ -188,11 +188,11 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 	})
 }
 
-// TestReloadBehavior_共有シングルトンでも進捗が混ざらない は、装填工数の累積を
+// TestReloadBehavior_進捗はアクティビティごとに独立する は、装填工数の累積を
 // Behavior インスタンスのフィールドではなく gc.Activity 側に持たせる規律を固定する。
-// 継続処理は behaviors マップの共有シングルトンで回るため、進捗をインスタンスに置くと
-// 複数エンティティの同時装填で互いの累積を書き換えてしまう。
-func TestReloadBehavior_共有シングルトンでも進捗が混ざらない(t *testing.T) {
+// 進捗をインスタンスに置くと、1つのインスタンスへ複数アクティビティを通したとき
+// 互いの累積を書き換えてしまう。同時装填の破綻に相当する。
+func TestReloadBehavior_進捗はアクティビティごとに独立する(t *testing.T) {
 	t.Parallel()
 	world, player, _, weaponEntity := setupShootingWorld(t)
 
@@ -200,13 +200,13 @@ func TestReloadBehavior_共有シングルトンでも進捗が混ざらない(t
 	fire.Magazine = 0
 	fire.ReloadEffort = 1_000_000 // 1ターンでは完了しない十分な工数にする
 
-	// 本番の継続処理と同じ共有シングルトンを取得する
+	// Behavior を1つ取得する
 	b, err := GetBehavior(gc.BehaviorReload)
 	require.NoError(t, err)
 	ra, ok := b.(*ReloadBehavior)
 	require.True(t, ok, "GetBehavior(BehaviorReload) は *ReloadBehavior を返すべき")
 
-	// 同一シングルトンに通す2つの独立したアクティビティを用意する
+	// 同一インスタンスに通す2つの独立したアクティビティを用意する
 	comp1, err := NewActivity(ra, 0)
 	require.NoError(t, err)
 	require.NoError(t, ra.Start(comp1, player, world))
