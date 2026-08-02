@@ -98,16 +98,6 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 		}
 	}
 
-	// 対象キャラの切り替え。閲覧中のみ [ ] で主人公と仲間を巡回する
-	if st.subState == charSubBrowse && !st.showDetail {
-		ki := input.GetSharedKeyboardInput()
-		if ki.IsKeyJustPressed(ebiten.KeyBracketRight) {
-			st.switchMember(world, 1)
-		} else if ki.IsKeyJustPressed(ebiten.KeyBracketLeft) {
-			st.switchMember(world, -1)
-		}
-	}
-
 	if action, ok := st.handleInput(); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
@@ -195,6 +185,15 @@ func (st *CharacterState) handleInput() (inputmapper.ActionID, bool) {
 	case charSubActionWindow:
 		return HandleWindowInput()
 	case charSubBrowse, charSubEquipSelect:
+		// 対象切替は閲覧中のみ。[ ] は character 固有のキーなので共有入力ではなくここで読む
+		if st.subState == charSubBrowse {
+			if ki.IsKeyJustPressed(ebiten.KeyBracketLeft) {
+				return inputmapper.ActionMenuSubjectPrev, true
+			}
+			if ki.IsKeyJustPressed(ebiten.KeyBracketRight) {
+				return inputmapper.ActionMenuSubjectNext, true
+			}
+		}
 		if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 			return inputmapper.ActionOpenItemDetail, true
 		}
@@ -219,12 +218,12 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 	case charSubEquipSelect:
 		return st.doEquipSelect(world, action)
 	case charSubBrowse:
-		return st.doBrowse(action)
+		return st.doBrowse(world, action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
-func (st *CharacterState) doBrowse(action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -234,6 +233,12 @@ func (st *CharacterState) doBrowse(action inputmapper.ActionID) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		st.onBrowseSelect()
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionMenuSubjectPrev:
+		st.switchMember(world, -1)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionMenuSubjectNext:
+		st.switchMember(world, 1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
