@@ -56,9 +56,10 @@ func verbs() []itemVerb {
 			ID:     verbPlace,
 			Label:  "置く",
 			Accept: func(_ w.World, _ ecs.Entity) bool { return true },
-			Exec: func(_ w.World, _ ecs.Entity) (es.Transition[w.World], error) {
+			Exec: func(_ w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+				// 選択済みアイテムを渡し、PlaceState をタイル選択から始めて二重選択を避ける
 				return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{
-					func() (es.State[w.World], error) { return &PlaceState{}, nil },
+					func() (es.State[w.World], error) { return &PlaceState{PresetItem: entity}, nil },
 				}}, nil
 			},
 		},

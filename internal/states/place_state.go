@@ -35,9 +35,11 @@ const (
 
 // PlaceState は置くモードのモーダルステート。
 // フェーズ1: 上下キーでバックパック内アイテムを選択しEnterで確定する。
-// フェーズ2: WASD/矢印キーで隣接8タイルにカーソルを移動しEnterで置く
+// フェーズ2: 矢印キーで隣接8タイルにカーソルを移動しEnterで置く。
+// PresetItem を渡すとフェーズ1を飛ばしてタイル選択から始める。動詞タブ画面の置くから使う
 type PlaceState struct {
 	es.BaseState[w.World]
+	PresetItem    ecs.Entity                // 選択済みアイテム。ゼロ値ならフェーズ1から始める
 	phase         placePhase                // 現在のフェーズ
 	cursor        consts.Coord[consts.Tile] // カーソル位置（絶対座標）
 	playerPos     consts.Coord[consts.Tile] // プレイヤー位置（移動制限用）
@@ -68,6 +70,16 @@ func (st *PlaceState) OnStart(world w.World) error {
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 	st.playerPos = playerGrid.Coord
+
+	// 選択済みアイテムが渡されたらフェーズ1を飛ばし、タイル選択から始める
+	if world.ECS.Alive(st.PresetItem) {
+		st.backpackItems = []ecs.Entity{st.PresetItem}
+		st.selectedIndex = 0
+		st.phase = placePhaseSelectTile
+		st.cursor = consts.Coord[consts.Tile]{X: st.playerPos.X, Y: st.playerPos.Y - 1}
+		return nil
+	}
+
 	st.phase = placePhaseSelectItem
 	st.refreshBackpackItems(world)
 	return nil
@@ -97,16 +109,16 @@ func (st *PlaceState) handleInput() (inputmapper.ActionID, bool) {
 		return inputmapper.ActionPlace, true
 	}
 
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyW) || keyboardInput.IsKeyJustPressed(ebiten.KeyUp) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) {
 		return inputmapper.ActionMoveNorth, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyS) || keyboardInput.IsKeyJustPressed(ebiten.KeyDown) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) {
 		return inputmapper.ActionMoveSouth, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyA) || keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) {
 		return inputmapper.ActionMoveWest, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyD) || keyboardInput.IsKeyJustPressed(ebiten.KeyRight) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) {
 		return inputmapper.ActionMoveEast, true
 	}
 

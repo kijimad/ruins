@@ -13,16 +13,16 @@ func HandleMenuInput() (inputmapper.ActionID, bool) {
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
 		return inputmapper.ActionMenuCancel, true
 	}
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
 		return inputmapper.ActionMenuLeft, true
 	}
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
 		return inputmapper.ActionMenuRight, true
 	}
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) {
 		return inputmapper.ActionMenuUp, true
 	}
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) {
 		return inputmapper.ActionMenuDown, true
 	}
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {
@@ -42,11 +42,11 @@ func HandleWindowInput() (inputmapper.ActionID, bool) {
 	keyboardInput := input.GetSharedKeyboardInput()
 
 	// 上移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowUp) {
 		return inputmapper.ActionWindowUp, true
 	}
 	// 下移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowDown) {
 		return inputmapper.ActionWindowDown, true
 	}
 	if keyboardInput.IsEnterJustPressedOnce() {
