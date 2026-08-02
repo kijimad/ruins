@@ -14,9 +14,9 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -287,23 +287,7 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 func (st *ShopMenuState) setupWindowState(world w.World) {
 	windowProps := st.windowMount.GetProps()
 	actionItems := st.getActionItems(world, windowProps.SelectedItem)
-
-	hooks.UseState(st.windowMount.Store(), "shop_window_index", 0, func(v int, action inputmapper.ActionID) int {
-		switch action {
-		case inputmapper.ActionWindowUp:
-			if v > 0 {
-				return v - 1
-			}
-			return len(actionItems) - 1
-		case inputmapper.ActionWindowDown:
-			if v < len(actionItems)-1 {
-				return v + 1
-			}
-			return 0
-		default:
-			return v
-		}
-	})
+	hooks.UseState(st.windowMount.Store(), "shop_window_index", 0, menuscreen.WindowCursorReducer(len(actionItems)))
 }
 
 func (st *ShopMenuState) getActionItems(world w.World, item shopItemData) []string {
@@ -545,20 +529,7 @@ func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, t
 }
 
 func (st *ShopMenuState) buildActionWindow(world w.World, windowProps shopWindowProps) *widget.Window {
-	res := world.Resources.UIResources
 	actionIndex, _ := hooks.GetState[int](st.windowMount, "shop_window_index")
 	actionItems := st.getActionItems(world, windowProps.SelectedItem)
-
-	windowContainer := styled.NewWindowContainer(res)
-	titleContainer := styled.NewWindowHeaderContainer("アクション選択", res)
-	window := styled.NewSmallWindow(titleContainer, windowContainer)
-
-	for i, action := range actionItems {
-		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)
-		windowContainer.AddChild(actionWidget)
-	}
-
-	window.SetLocation(getCenterWinRect(world))
-	return window
+	return menuscreen.BuildActionWindow(world, getCenterWinRect(world), "アクション選択", actionItems, actionIndex)
 }

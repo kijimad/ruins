@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -224,22 +225,7 @@ func buildSquadMemberData(world w.World, member ecs.Entity) (squadMemberData, bo
 func (st *SquadMenuState) setupWindowState(_ w.World) {
 	actionItems := st.getActionItems()
 
-	hooks.UseState(st.windowMount.Store(), "squad_window_index", 0, func(v int, action inputmapper.ActionID) int {
-		switch action {
-		case inputmapper.ActionWindowUp:
-			if v > 0 {
-				return v - 1
-			}
-			return len(actionItems) - 1
-		case inputmapper.ActionWindowDown:
-			if v < len(actionItems)-1 {
-				return v + 1
-			}
-			return 0
-		default:
-			return v
-		}
-	})
+	hooks.UseState(st.windowMount.Store(), "squad_window_index", 0, menuscreen.WindowCursorReducer(len(actionItems)))
 }
 
 func (st *SquadMenuState) getActionItems() []string {
@@ -473,20 +459,8 @@ func (st *SquadMenuState) buildMemberTable(members []squadMemberData, batchCount
 }
 
 func (st *SquadMenuState) buildActionWindow(world w.World) *widget.Window {
-	res := world.Resources.UIResources
 	actionIndex, _ := hooks.GetState[int](st.windowMount, "squad_window_index")
 	actionItems := st.getActionItems()
-
-	windowContainer := styled.NewWindowContainer(res)
 	windowProps := st.windowMount.GetProps()
-	titleContainer := styled.NewWindowHeaderContainer(windowProps.Member.Name, res)
-	window := styled.NewSmallWindow(titleContainer, windowContainer)
-
-	for i, action := range actionItems {
-		isSelected := i == actionIndex
-		windowContainer.AddChild(styled.NewListItemText(action, theme.TextSecondary, isSelected, res))
-	}
-
-	window.SetLocation(getCenterWinRect(world))
-	return window
+	return menuscreen.BuildActionWindow(world, getCenterWinRect(world), windowProps.Member.Name, actionItems, actionIndex)
 }

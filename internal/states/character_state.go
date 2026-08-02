@@ -15,9 +15,9 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -308,19 +308,7 @@ func (st *CharacterState) doEquipSelect(world w.World, action inputmapper.Action
 func (st *CharacterState) setupWindowState(world w.World) {
 	windowProps := st.windowMount.GetProps()
 	actionCount := len(st.slotActions(world, windowProps.SlotData))
-	hooks.UseState(st.windowMount.Store(), "char_window_index", 0, func(v int, a inputmapper.ActionID) int {
-		if actionCount == 0 {
-			return 0
-		}
-		switch a {
-		case inputmapper.ActionWindowUp:
-			return (v - 1 + actionCount) % actionCount
-		case inputmapper.ActionWindowDown:
-			return (v + 1) % actionCount
-		default:
-			return v
-		}
-	})
+	hooks.UseState(st.windowMount.Store(), "char_window_index", 0, menuscreen.WindowCursorReducer(actionCount))
 }
 
 // slotActions はスロットに対して選べるアクションを返す
@@ -645,20 +633,16 @@ func (st *CharacterState) buildEquipCandidateDetail(world w.World, res resources
 }
 
 // newEntityDetailWindow はアイテムエンティティの性能・性質・説明を出す詳細モーダルを作る。タイトルバーは持たない
-func (st *CharacterState) newEntityDetailWindow(world w.World, entity ecs.Entity, res resources.UIResources) *widget.Window {
-	content := styled.NewWindowContainer(res)
+func (st *CharacterState) newEntityDetailWindow(world w.World, entity ecs.Entity, _ resources.UIResources) *widget.Window {
+	name := ""
 	if world.Components.Name.Has(entity) {
-		content.AddChild(styled.NewMenuText(world.Components.Name.Get(entity).Name, res))
+		name = world.Components.Name.Get(entity).Name
 	}
-	spec := styled.NewVerticalContainer()
-	views.UpdateSpec(world, spec, entity)
-	content.AddChild(spec)
+	desc := ""
 	if world.Components.Description.Has(entity) {
-		content.AddChild(styled.NewDescriptionText(world.Components.Description.Get(entity).Description, res))
+		desc = world.Components.Description.Get(entity).Description
 	}
-	win := styled.NewSmallWindow(widget.NewContainer(), content)
-	win.SetLocation(getCenterWinRect(world))
-	return win
+	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), name, desc, entity)
 }
 
 func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
@@ -682,19 +666,11 @@ func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, r
 	return container
 }
 
-func (st *CharacterState) buildActionWindow(world w.World, res resources.UIResources) *widget.Window {
+func (st *CharacterState) buildActionWindow(world w.World, _ resources.UIResources) *widget.Window {
 	windowProps := st.windowMount.GetProps()
 	idx, _ := hooks.GetState[int](st.windowMount, "char_window_index")
 	actions := st.slotActions(world, windowProps.SlotData)
-
-	content := styled.NewWindowContainer(res)
-	title := styled.NewWindowHeaderContainer("アクション選択", res)
-	win := styled.NewSmallWindow(title, content)
-	for i, action := range actions {
-		content.AddChild(styled.NewListItemText(action, theme.TextSecondary, i == idx, res))
-	}
-	win.SetLocation(getCenterWinRect(world))
-	return win
+	return menuscreen.BuildActionWindow(world, getCenterWinRect(world), "アクション選択", actions, idx)
 }
 
 func (st *CharacterState) buildEquipSelectWindow(world w.World, res resources.UIResources) *widget.Window {

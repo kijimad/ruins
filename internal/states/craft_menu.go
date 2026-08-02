@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -304,22 +305,7 @@ func (st *CraftMenuState) setupWindowState(world w.World) {
 	windowProps := st.windowMount.GetProps()
 	actionItems := st.getActionItems(world, windowProps.RecipeName)
 
-	hooks.UseState(st.windowMount.Store(), "craft_window_index", 0, func(v int, action inputmapper.ActionID) int {
-		switch action {
-		case inputmapper.ActionWindowUp:
-			if v > 0 {
-				return v - 1
-			}
-			return len(actionItems) - 1
-		case inputmapper.ActionWindowDown:
-			if v < len(actionItems)-1 {
-				return v + 1
-			}
-			return 0
-		default:
-			return v
-		}
-	})
+	hooks.UseState(st.windowMount.Store(), "craft_window_index", 0, menuscreen.WindowCursorReducer(len(actionItems)))
 }
 
 func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []string {
@@ -400,23 +386,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 
 func (st *CraftMenuState) setupResultState() {
 	resultItems := []string{TextClose}
-
-	hooks.UseState(st.resultMount.Store(), "craft_result_index", 0, func(v int, action inputmapper.ActionID) int {
-		switch action {
-		case inputmapper.ActionWindowUp:
-			if v > 0 {
-				return v - 1
-			}
-			return len(resultItems) - 1
-		case inputmapper.ActionWindowDown:
-			if v < len(resultItems)-1 {
-				return v + 1
-			}
-			return 0
-		default:
-			return v
-		}
-	})
+	hooks.UseState(st.resultMount.Store(), "craft_result_index", 0, menuscreen.WindowCursorReducer(len(resultItems)))
 }
 
 // ================
@@ -574,22 +544,9 @@ func (st *CraftMenuState) buildDescContainer(world w.World, tabs []craftTabData,
 }
 
 func (st *CraftMenuState) buildActionWindow(world w.World, windowProps craftWindowProps) *widget.Window {
-	res := world.Resources.UIResources
 	actionIndex, _ := hooks.GetState[int](st.windowMount, "craft_window_index")
 	actionItems := st.getActionItems(world, windowProps.RecipeName)
-
-	windowContainer := styled.NewWindowContainer(res)
-	titleContainer := styled.NewWindowHeaderContainer("アクション選択", res)
-	window := styled.NewSmallWindow(titleContainer, windowContainer)
-
-	for i, action := range actionItems {
-		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)
-		windowContainer.AddChild(actionWidget)
-	}
-
-	window.SetLocation(getCenterWinRect(world))
-	return window
+	return menuscreen.BuildActionWindow(world, getCenterWinRect(world), "アクション選択", actionItems, actionIndex)
 }
 
 func (st *CraftMenuState) buildResultWindow(world w.World, resultProps craftResultProps) *widget.Window {
