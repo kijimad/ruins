@@ -18,10 +18,10 @@ const (
 	BaseReloadEffort = 10 // 1ターンあたりの基本装填工数
 )
 
-// ReloadBehavior はリロードアクティビティの実装
-type ReloadBehavior struct {
-	effortAccum int // 蓄積した装填工数
-}
+// ReloadBehavior はリロードアクティビティの実装。
+// 継続アクションの共有シングルトンとして behaviors マップに登録されるため、
+// 蓄積した装填工数などの進捗はフィールドに持たず gc.Activity 側に持たせる。
+type ReloadBehavior struct{}
 
 // Info はBehaviorの実装
 func (rb *ReloadBehavior) Info() Info {
@@ -79,7 +79,7 @@ func (rb *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	comp.TurnsTotal = maxTurns
 	comp.TurnsLeft = maxTurns
 
-	rb.effortAccum = 0
+	comp.Accumulated = 0
 
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
@@ -98,12 +98,12 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	// 1ターンあたりの工数を計算
 	effortPerTurn := rb.calcEffortPerTurn(actor, fire, world)
-	rb.effortAccum += effortPerTurn
+	comp.Accumulated += effortPerTurn
 
 	comp.TurnsLeft--
 
 	// 工数が目標に達したら装填完了
-	if rb.effortAccum >= fire.ReloadEffort {
+	if comp.Accumulated >= fire.ReloadEffort {
 		// 装填数を計算（マガジン容量と弾薬在庫の小さい方）
 		needed := fire.MagazineSize - fire.Magazine
 		ammoEntity, found := query.FindAmmoInInventory(world, fire.AmmoTag)

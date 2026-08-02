@@ -72,6 +72,7 @@ type Activity struct {
 	State        ActivityState // 実行状態
 	TurnsTotal   consts.Turn   // 総必要ターン数
 	TurnsLeft    consts.Turn   // 残りターン数
+	Accumulated  int           // 継続アクションの累積量。装填工数などターン数では表せない進捗を持つ Behavior が使う
 	Target       *ecs.Entity   // 操作対象のエンティティ
 	Recipient    *ecs.Entity   // 受取人エンティティ。アイテム転送の転送先など
 	Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う

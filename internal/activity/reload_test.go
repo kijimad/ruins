@@ -189,6 +189,49 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 	})
 }
 
+// TestReloadBehavior_共有シングルトンでも進捗が混ざらない は、装填工数の累積を
+// Behavior インスタンスのフィールドではなく gc.Activity 側に持たせる規律を固定する。
+// 継続処理は behaviors マップの共有シングルトンで回るため、進捗をインスタンスに置くと
+// 複数エンティティの同時装填で互いの累積を書き換えてしまう。
+func TestReloadBehavior_共有シングルトンでも進捗が混ざらない(t *testing.T) {
+	t.Parallel()
+	world, player, _, weaponEntity := setupShootingWorld(t)
+
+	fire := world.Components.Fire.Get(weaponEntity)
+	fire.Magazine = 0
+	fire.ReloadEffort = 1_000_000 // 1ターンでは完了しない十分な工数にする
+
+	// 本番の継続処理と同じ共有シングルトンを取得する
+	b, err := GetBehavior(gc.BehaviorReload)
+	require.NoError(t, err)
+	ra, ok := b.(*ReloadBehavior)
+	require.True(t, ok)
+
+	// 同一シングルトンに通す2つの独立したアクティビティを用意する
+	comp1, err := NewActivity(ra, 1)
+	require.NoError(t, err)
+	require.NoError(t, ra.Start(comp1, player, world))
+
+	comp2, err := NewActivity(ra, 1)
+	require.NoError(t, err)
+	require.NoError(t, ra.Start(comp2, player, world))
+
+	// 1ターンあたりの工数。同一アクター・同一武器なので両アクティビティで等しい
+	expected := ra.calcEffortPerTurn(player, fire, world)
+	require.Positive(t, expected)
+
+	// comp1 を1ターン進める。自分の1ターン分だけ累積し、comp2 へ漏れてはいけない
+	require.NoError(t, ra.DoTurn(comp1, player, world))
+	assert.Equal(t, expected, comp1.Accumulated)
+	assert.Zero(t, comp2.Accumulated, "comp1 の進行が comp2 に漏れてはいけない")
+
+	// comp2 を1ターン進める。comp1 の累積を引き継がず、自分の1ターン分だけになるべき。
+	// 進捗をインスタンスに置くと comp2 は expected の2倍になり、comp1 も書き換わる
+	require.NoError(t, ra.DoTurn(comp2, player, world))
+	assert.Equal(t, expected, comp2.Accumulated, "comp2 は自分の1ターン分だけを累積すべき")
+	assert.Equal(t, expected, comp1.Accumulated, "comp2 の進行が comp1 の進捗を書き換えてはいけない")
+}
+
 func TestReloadBehavior_CalcEffortPerTurn(t *testing.T) {
 	t.Parallel()
 

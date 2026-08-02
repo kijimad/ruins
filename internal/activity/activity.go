@@ -14,8 +14,10 @@ import (
 // log はactivityパッケージ用のロガー
 var log = logger.New(logger.CategoryAction)
 
-// behaviors はProcessContinuousActivities経由の継続アクション処理で使うシングルトンBehaviorのマップ。
-// Execute経路で使うBuildActivityはこのマップのインスタンスでは呼ばれない
+// behaviors は gc.Activity に永続化された BehaviorName から実装を復元するレジストリ。
+// 値はフィールドがゼロ値の共有シングルトンで、着手後のライフサイクル Validate/Start/DoTurn/Finish/Canceled は
+// すべてこのシングルトンで回る。呼び出し側インスタンスを使うのは着手時の BuildActivity だけ。
+// そのため per-アクティビティの状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。
 var behaviors = map[gc.BehaviorName]Behavior{
 	gc.BehaviorMove:      &MoveBehavior{},
 	gc.BehaviorAttack:    &AttackBehavior{},

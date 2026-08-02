@@ -51,14 +51,16 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 		return result, err
 	}
 
-	// 即座実行アクション（1ターン）は、登録済みアクティビティを1ターン進めてその場で完結させる。
+	// 即座実行アクション（1ターン）は、呼び出し側が同じ呼び出しで結果を必要とするため、
+	// ここで1ターン進めてその場で完結させる。継続アクションとの唯一の本質的な差はこの同期性で、
+	// 継続アクションは ProcessContinuousActivities が将来ティックで進める。
 	// アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
 	// 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
 	if comp.TurnsTotal == 1 {
-		stepActivity(behavior, actor, world)
+		stepActivity(actor, world)
 
 		// ターン管理システムに移動コストを通知
-		consumePassCost(world, behavior, actor, comp.Destination)
+		consumePassCost(world, behaviorName, actor, comp.Destination)
 
 		// 結果を確認
 		currentActivity := query.GetActivity(world, actor)
@@ -99,16 +101,27 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 // （ProcessContinuousActivities）の両方から呼ばれ、両者で「1ターン進める」
 // ロジックを一本化する。即時アクションは1ステップで完結する継続アクションの特殊ケースとして扱う。
 //
+// 実行する Behavior は永続化された BehaviorName から behaviors レジストリの共有シングルトンを
+// 引く。着手時の呼び出し側インスタンスはここでは使わない。ライフサイクルを常にシングルトンで
+// 回すことで、per-アクティビティの状態は gc.Activity に置くという規律が経路によらず一貫する。
+//
 // DoTurn が失敗すればキャンセルし、完了していれば Finish して直近結果を記録し除去する。
 // アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
 // 消えても走査中コンポーネントの破壊による panic を招かない。
-func stepActivity(behavior Behavior, entity ecs.Entity, world w.World) {
+func stepActivity(entity ecs.Entity, world w.World) {
 	stored := query.GetActivity(world, entity)
 	if stored == nil {
 		return
 	}
 
-	behaviorName := behavior.Name()
+	behaviorName := stored.BehaviorName
+	behavior, err := GetBehavior(behaviorName)
+	if err != nil {
+		log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
+		query.RemoveActivity(world, entity)
+		return
+	}
+
 	if err := behavior.DoTurn(stored, entity, world); err != nil {
 		log.Error("アクティビティターン処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
 		CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
@@ -287,24 +300,23 @@ func ProcessContinuousActivities(world w.World) {
 			continue
 		}
 
-		behavior, err := GetBehavior(comp.BehaviorName)
-		if err != nil {
-			log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
-			query.RemoveActivity(world, entity)
-			continue
-		}
-
-		stepActivity(behavior, entity, world)
+		stepActivity(entity, world)
 	}
 }
 
-// consumePassCost はアクションのAPコストを消費する
-func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destination *gc.GridElement) {
+// consumePassCost はアクションのAPコストを消費する。
+// Behavior は behaviorName から behaviors レジストリのシングルトンを引く。
+func consumePassCost(world w.World, behaviorName gc.BehaviorName, actor ecs.Entity, destination *gc.GridElement) {
+	behavior, err := GetBehavior(behaviorName)
+	if err != nil {
+		log.Error("Behaviorの取得に失敗", "actor", actor, "error", err.Error())
+		return
+	}
 	info := behavior.Info()
 	cost := info.ActionPointCost
 
 	// 移動行動の場合、移動先タイルのPassCostを加算する
-	if behavior.Name() == gc.BehaviorMove && destination != nil {
+	if behaviorName == gc.BehaviorMove && destination != nil {
 		cost += getPassCostAt(world, int(destination.X), int(destination.Y))
 	}
 
