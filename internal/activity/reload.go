@@ -79,8 +79,6 @@ func (rb *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	comp.TurnsTotal = maxTurns
 	comp.TurnsLeft = maxTurns
 
-	comp.Accumulated = 0
-
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
 		Log()

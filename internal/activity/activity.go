@@ -48,10 +48,20 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 	return b, nil
 }
 
-// Behavior はアクティビティの実行を担当するインターフェース
+// Behavior はアクティビティの実行を担当するインターフェース。
+//
+// メソッドは2種類に分かれる。BuildActivity だけは着手時に呼び出し側が生成した
+// インスタンスで呼ばれ、そのフィールドを着手パラメータとして読んでよい。残りの
+// Validate/Start/DoTurn/Finish/Canceled は behaviors レジストリの共有シングルトンで
+// 回るため、インスタンスのフィールドはゼロ値であり読んではいけない。継続する状態は
+// すべて gc.Activity に持たせる。
+//
+// この非対称ゆえ BuildActivity をシングルトンで呼んではならない。着手パラメータが
+// ゼロ値になり、Duration 依存の Behavior などがエラーになる。
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
+	// BuildActivity は着手時の呼び出し側インスタンスでのみ呼ぶ。シングルトンで呼ばない
 	BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error)
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
