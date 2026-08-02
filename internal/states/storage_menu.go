@@ -8,7 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
@@ -193,10 +192,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 // ================
 
 type storageProps struct {
-	Tabs           []storageTabData
-	StorageName    string
-	WeightText     string
-	WeightOverflow bool
+	Tabs []storageTabData
 }
 
 type storageTabData struct {
@@ -213,29 +209,11 @@ type storageItemData struct {
 }
 
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
-	storageName := query.GetEntityName(st.storageEntity, world)
-	wc := world.Components.WeightCapacity.Get(st.storageEntity)
-	weightText := fmt.Sprintf("%s / %s", wc.Current.KgString(), wc.Max.KgString())
-
-	storeTabs := st.createBackpackItemData(world)
-
-	// 「収納」タブで選択中のアイテムが重量超過かどうか判定する
-	weightOverflow := false
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
-	if ok && menuState.TabIndex == 1 && len(storeTabs) > 0 && menuState.ItemIndex < len(storeTabs) {
-		selectedItem := storeTabs[menuState.ItemIndex]
-		itemWeight := query.GetEntityWeight(world, selectedItem.Entity)
-		weightOverflow = wc.Current+itemWeight > wc.Max
-	}
-
 	return storageProps{
 		Tabs: []storageTabData{
 			{ID: tabIDRetrieve, Label: "取得", Items: st.createStorageItemData(world)},
-			{ID: tabIDStore, Label: "収納", Items: storeTabs},
+			{ID: tabIDStore, Label: "収納", Items: st.createBackpackItemData(world)},
 		},
-		StorageName:    storageName,
-		WeightText:     weightText,
-		WeightOverflow: weightOverflow,
 	}
 }
 
@@ -340,14 +318,7 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 		labels[i] = tab.Label
 	}
 
-	// 重量は見出しに出す。収納しきれない選択中は警告アイコンを添える
-	header := fmt.Sprintf("重量 %s", props.WeightText)
-	if props.WeightOverflow {
-		header += " " + consts.IconWarning
-	}
-
 	eui := newTabScreenUI(res, tabScreen{
-		Header:    header,
 		TabLabels: labels,
 		TabIndex:  tabIndex,
 		Content:   st.buildActiveListContainer(props, tabIndex, itemIndex, res),
