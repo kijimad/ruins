@@ -45,6 +45,13 @@ type StorageMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
+var _ Configurable = &StorageMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *StorageMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &StorageMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -285,8 +292,8 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	// 1行目: タイトル、カテゴリ、重量
-	root.AddChild(styled.NewTitleText(props.StorageName, res))
+	// 1行目: タイトルは置かない、カテゴリ、重量
+	root.AddChild(widget.NewContainer())
 	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
 	root.AddChild(st.buildWeightContainer(props.WeightText, props.WeightOverflow, res))
 
@@ -300,7 +307,7 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(widget.NewContainer())
 	root.AddChild(widget.NewContainer())
 
-	return &ebitenui.UI{Container: root}
+	return &ebitenui.UI{Container: wrapModalRoot(root)}
 }
 
 func (st *StorageMenuState) buildCategoryContainer(tabs []storageTabData, tabIndex int, res resources.UIResources) *widget.Container {

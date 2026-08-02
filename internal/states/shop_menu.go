@@ -47,6 +47,13 @@ type ShopMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
+var _ Configurable = &ShopMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *ShopMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &ShopMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -402,8 +409,8 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	// 1行目: タイトル、カテゴリ、所持金
-	root.AddChild(styled.NewTitleText("店", res))
+	// 1行目: タイトルは置かない、カテゴリ、所持金
+	root.AddChild(widget.NewContainer())
 	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
 	root.AddChild(st.buildCurrencyContainer(props.Currency, res))
 
@@ -417,7 +424,7 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(widget.NewContainer())
 	root.AddChild(widget.NewContainer())
 
-	eui := &ebitenui.UI{Container: root}
+	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
 
 	// ウィンドウを追加
 	if st.subState == shopSubStateWindow {

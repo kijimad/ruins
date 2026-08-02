@@ -40,6 +40,13 @@ type SquadMenuState struct {
 }
 
 var _ es.State[w.World] = &SquadMenuState{}
+var _ Configurable = &SquadMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *SquadMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &SquadMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -423,11 +430,11 @@ func (st *SquadMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	root.AddChild(styled.NewTitleText("命令", res))
+	// タイトルは置かない
 	root.AddChild(st.buildBatchCommands(props.BatchCommands, itemIndex, res))
 	root.AddChild(st.buildMemberTable(props.Members, len(props.BatchCommands), itemIndex, res))
 
-	eui := &ebitenui.UI{Container: root}
+	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
 
 	if st.subState == squadSubStateWindow {
 		window := st.buildActionWindow(world)

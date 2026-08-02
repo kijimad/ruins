@@ -28,6 +28,12 @@ type MemberStatusState struct {
 }
 
 var _ es.State[w.World] = &MemberStatusState{}
+var _ Configurable = &MemberStatusState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *MemberStatusState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *MemberStatusState) OnPause(_ w.World) error { return nil }
@@ -165,14 +171,14 @@ func (st *MemberStatusState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	root.AddChild(styled.NewTitleText(props.Name, res))
+	// タイトルは置かない
 	root.AddChild(st.buildTabBar(props.Tabs, tabIndex, res))
 
 	if tabIndex < len(props.Tabs) {
 		root.AddChild(st.buildItemTable(props.Tabs[tabIndex].Items, itemIndex, res))
 	}
 
-	return &ebitenui.UI{Container: root}
+	return &ebitenui.UI{Container: wrapModalRoot(root)}
 }
 
 func (st *MemberStatusState) buildTabBar(tabs []memberStatusTab, tabIndex int, res resources.UIResources) *widget.Container {

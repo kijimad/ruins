@@ -41,6 +41,13 @@ type TavernMenuState struct {
 }
 
 var _ es.State[w.World] = &TavernMenuState{}
+var _ Configurable = &TavernMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *TavernMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &TavernMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -379,11 +386,11 @@ func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	root.AddChild(styled.NewTitleText("酒場", res))
+	// タイトルは置かない
 	root.AddChild(st.buildCurrencyRow(props.Currency, res))
 	root.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))
 
-	eui := &ebitenui.UI{Container: root}
+	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
 
 	if st.subState == tavernSubStateWindow {
 		window := st.buildActionWindow(world)

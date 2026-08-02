@@ -75,30 +75,6 @@ func NewItemGridContainer(opts ...widget.ContainerOpt) *widget.Container {
 	)
 }
 
-// NewVSplitContainer は縦分割コンテナを作成する
-func NewVSplitContainer(top *widget.Container, bottom *widget.Container, opts ...widget.ContainerOpt) *widget.Container {
-	split := widget.NewContainer(
-		append([]widget.ContainerOpt{
-			widget.ContainerOpts.Layout(
-				widget.NewGridLayout(
-					widget.GridLayoutOpts.Columns(1),
-					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
-					widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true, true}),
-					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    theme.Space3,
-						Bottom: theme.Space3,
-						Left:   theme.Space3,
-						Right:  theme.Space3,
-					}),
-				)),
-		}, opts...)...,
-	)
-	split.AddChild(top)
-	split.AddChild(bottom)
-
-	return split
-}
-
 // NewWSplitContainer は横分割コンテナを作成する
 func NewWSplitContainer(right *widget.Container, left *widget.Container, opts ...widget.ContainerOpt) *widget.Container {
 	split := widget.NewContainer(

@@ -3,8 +3,23 @@ package states
 import (
 	"image"
 
+	"github.com/ebitenui/ebitenui/widget"
 	w "github.com/kijimaD/ruins/internal/world"
 )
+
+// wrapModalRoot は root を画面より一回り小さい中央モーダルとして包む。
+// 外周は背景を持たず透明にし、周囲に後ろのフィールドを覗かせる。動詞タブ画面と各メニューで共通に使う。
+func wrapModalRoot(root *widget.Container) *widget.Container {
+	outer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: 48, Left: 96, Right: 96}),
+		)),
+	)
+	outer.AddChild(root)
+	return outer
+}
 
 // getCenterWinRect はゲームワールドから画面サイズを取得してウィンドウ位置を計算する
 // TODO: package移動する

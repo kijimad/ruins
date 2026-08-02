@@ -50,6 +50,13 @@ type CraftMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
+var _ Configurable = &CraftMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *CraftMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &CraftMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -427,8 +434,8 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	// 1行目: タイトル、カテゴリ、空
-	root.AddChild(styled.NewTitleText("合成", res))
+	// 1行目: タイトルは置かない、カテゴリ、空
+	root.AddChild(widget.NewContainer())
 	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
 	root.AddChild(widget.NewContainer())
 
@@ -442,7 +449,7 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(widget.NewContainer())
 	root.AddChild(widget.NewContainer())
 
-	eui := &ebitenui.UI{Container: root}
+	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
 
 	// ウィンドウを追加
 	switch st.subState {
@@ -510,11 +517,17 @@ func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, 
 	recipeContainer := styled.NewVerticalContainer()
 
 	if tabIndex >= len(props.Tabs) {
-		return styled.NewVSplitContainer(specContainer, recipeContainer)
+		col := styled.NewVerticalContainer()
+		col.AddChild(specContainer)
+		col.AddChild(recipeContainer)
+		return col
 	}
 	tab := props.Tabs[tabIndex]
 	if itemIndex >= len(tab.Items) {
-		return styled.NewVSplitContainer(specContainer, recipeContainer)
+		col := styled.NewVerticalContainer()
+		col.AddChild(specContainer)
+		col.AddChild(recipeContainer)
+		return col
 	}
 	item := tab.Items[itemIndex]
 
@@ -529,7 +542,10 @@ func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, 
 		st.buildRecipeList(world, recipeContainer, spec.Recipe, res)
 	}
 
-	return styled.NewVSplitContainer(specContainer, recipeContainer)
+	col := styled.NewVerticalContainer()
+	col.AddChild(specContainer)
+	col.AddChild(recipeContainer)
+	return col
 }
 
 func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res resources.UIResources) {

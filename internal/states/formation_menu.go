@@ -26,6 +26,13 @@ type FormationMenuState struct {
 }
 
 var _ es.State[w.World] = &FormationMenuState{}
+var _ Configurable = &FormationMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *FormationMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &FormationMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -168,10 +175,10 @@ func (st *FormationMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	root.AddChild(styled.NewTitleText("部隊", res))
+	// タイトルは置かない
 	root.AddChild(st.buildMemberTable(props.Members, itemIndex, res))
 
-	return &ebitenui.UI{Container: root}
+	return &ebitenui.UI{Container: wrapModalRoot(root)}
 }
 
 func (st *FormationMenuState) buildMemberTable(members []formationMemberData, selectedIndex int, res resources.UIResources) *widget.Container {
