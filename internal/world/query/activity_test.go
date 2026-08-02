@@ -29,7 +29,7 @@ func TestGetActivity(t *testing.T) {
 		activity := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
-			Required:     5,
+			Progress:     gc.IntPool{Max: 5},
 		}
 		world.Components.Activity.Add(entity, activity)
 

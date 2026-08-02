@@ -128,7 +128,7 @@ func TestReplaceActivity(t *testing.T) {
 	currentActivity := query.GetActivity(world, actor)
 	require.NotNil(t, currentActivity)
 	assert.Equal(t, gc.ActivityStateRunning, currentActivity.State, "Expected replaced activity to be running")
-	assert.Equal(t, comp2.Required, currentActivity.Required, "Expected current activity to be the second activity")
+	assert.Equal(t, comp2.Progress.Max, currentActivity.Progress.Max, "Expected current activity to be the second activity")
 }
 
 func TestInterruptAndResume(t *testing.T) {
@@ -229,15 +229,15 @@ func TestProcessContinuousActivities(t *testing.T) {
 	ProcessContinuousActivities(world)
 
 	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する。待機は毎ターン 1 累積する
-	assert.Equal(t, 1, query.GetActivity(world, actor1).Accumulated, "Expected short activity to have accumulated 1")
-	assert.Equal(t, 1, query.GetActivity(world, actor2).Accumulated, "Expected long activity to have accumulated 1")
+	assert.Equal(t, 1, query.GetActivity(world, actor1).Progress.Current, "Expected short activity to have accumulated 1")
+	assert.Equal(t, 1, query.GetActivity(world, actor2).Progress.Current, "Expected long activity to have accumulated 1")
 
 	// 2ターン目処理
 	ProcessContinuousActivities(world)
 
 	// 短いアクティビティが完了。完了時は削除されるため結果コンポーネントで確認する
 	assert.Equal(t, gc.ActivityStateCompleted, GetLastResult(actor1, world).State, "Expected short activity to be completed")
-	assert.Equal(t, 2, query.GetActivity(world, actor2).Accumulated, "Expected long activity to have accumulated 2")
+	assert.Equal(t, 2, query.GetActivity(world, actor2).Progress.Current, "Expected long activity to have accumulated 2")
 
 	// 完了したアクティビティは管理対象から削除される
 	assert.Nil(t, query.GetActivity(world, actor1), "Expected completed activity to be removed")

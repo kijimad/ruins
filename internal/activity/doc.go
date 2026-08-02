@@ -106,8 +106,7 @@
 //	type Activity struct {
 //		BehaviorName gc.BehaviorName  // アクション種別
 //		State        gc.ActivityState // 実行状態
-//		Required     int              // 完了に必要な総量。即時は0
-//		Accumulated  int              // 注ぎ込んだ総量。Requiredに達したら完了
+//		Progress     IntPool          // Max=完了に必要な総量、Current=注ぎ込んだ総量。Current>=Maxで完了
 //		// ...
 //	}
 //

@@ -20,8 +20,8 @@ func TestActivityCreation(t *testing.T) {
 
 	assert.Equal(t, gc.BehaviorRest, behavior.Name(), "Expected behavior to be Rest")
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected initial state to be Running")
-	assert.Equal(t, 10, comp.Required, "Expected required 10")
-	assert.Equal(t, 0, comp.Accumulated, "Expected accumulated 0")
+	assert.Equal(t, 10, comp.Progress.Max, "Expected required 10")
+	assert.Equal(t, 0, comp.Progress.Current, "Expected accumulated 0")
 }
 
 func TestActivityInfo(t *testing.T) {
@@ -109,12 +109,12 @@ func TestActivityProgressCalculation(t *testing.T) {
 	assert.Equal(t, 0.0, progress, "Expected initial progress 0%%")
 
 	// 半分注いだ（50%）
-	comp.Accumulated = 5
+	comp.Progress.Current = 5
 	progress = GetProgressPercent(comp)
 	assert.Equal(t, 50.0, progress, "Expected progress 50%%")
 
 	// 必要量に達した（100%）
-	comp.Accumulated = 10
+	comp.Progress.Current = 10
 	progress = GetProgressPercent(comp)
 	assert.Equal(t, 100.0, progress, "Expected progress 100%%")
 }
@@ -134,18 +134,18 @@ func TestActivityDoTurn(t *testing.T) {
 	// 1ターン目
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 1")
-	assert.Equal(t, 1, comp.Accumulated, "Expected accumulated 1 after turn 1")
+	assert.Equal(t, 1, comp.Progress.Current, "Expected accumulated 1 after turn 1")
 	assert.False(t, IsCompleted(comp), "Expected activity not to be completed after turn 1")
 
 	// 2ターン目
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 2")
-	assert.Equal(t, 2, comp.Accumulated, "Expected accumulated 2 after turn 2")
+	assert.Equal(t, 2, comp.Progress.Current, "Expected accumulated 2 after turn 2")
 
 	// 3ターン目（完了）
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 3")
-	assert.Equal(t, 3, comp.Accumulated, "Expected accumulated 3 after turn 3")
+	assert.Equal(t, 3, comp.Progress.Current, "Expected accumulated 3 after turn 3")
 	assert.True(t, IsCompleted(comp), "Expected activity to be completed after turn 3")
 }
 
@@ -173,7 +173,7 @@ func TestNewActivityInvalidRequired(t *testing.T) {
 		t.Parallel()
 		comp, err := NewActivity(&WaitBehavior{}, 0)
 		require.NoError(t, err)
-		assert.Equal(t, 0, comp.Required)
+		assert.Equal(t, 0, comp.Progress.Max)
 	})
 
 	t.Run("負のrequiredでエラー", func(t *testing.T) {
@@ -188,7 +188,7 @@ func TestGetProgressPercentEdgeCases(t *testing.T) {
 
 	t.Run("Required 0の場合は100%を返す", func(t *testing.T) {
 		t.Parallel()
-		comp := &gc.Activity{Required: 0}
+		comp := &gc.Activity{Progress: gc.IntPool{Max: 0}}
 		assert.Equal(t, 100.0, GetProgressPercent(comp))
 	})
 }

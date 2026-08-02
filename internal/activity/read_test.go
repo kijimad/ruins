@@ -138,14 +138,14 @@ func TestReadBehavior_DoTurn_AdvancesProgress(t *testing.T) {
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
-		Required:     100,
+		Progress:     gc.IntPool{Max: 100},
 		Target:       &bookEntity,
 	}
 
 	err := ra.DoTurn(comp, actor, world)
 	require.NoError(t, err)
 	assert.Equal(t, 10, book.Effort.Current, "基本工数10ぶん進んでいる")
-	assert.Equal(t, 10, comp.Accumulated, "進捗がactivityにも反映されている")
+	assert.Equal(t, 10, comp.Progress.Current, "進捗がactivityにも反映されている")
 }
 
 func TestReadBehavior_DoTurn_GainsSkillExp(t *testing.T) {
@@ -171,7 +171,7 @@ func TestReadBehavior_DoTurn_GainsSkillExp(t *testing.T) {
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
-		Required:     10,
+		Progress:     gc.IntPool{Max: 10},
 		Target:       &bookEntity,
 	}
 
@@ -204,7 +204,7 @@ func TestReadBehavior_DoTurn_NoExpWhenTooHard(t *testing.T) {
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
-		Required:     10,
+		Progress:     gc.IntPool{Max: 10},
 		Target:       &bookEntity,
 	}
 
@@ -235,7 +235,7 @@ func TestReadBehavior_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
-		Required:     15,
+		Progress:     gc.IntPool{Max: 15},
 		Target:       &bookEntity,
 	}
 
@@ -271,7 +271,7 @@ func TestReadBehavior_DoTurn_CanceledByEnemy(t *testing.T) {
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
-		Required:     10,
+		Progress:     gc.IntPool{Max: 10},
 		Target:       &bookEntity,
 	}
 
@@ -308,7 +308,7 @@ func TestReadBehavior_DoTurn_SkillLevelUp(t *testing.T) {
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
-		Required:     10,
+		Progress:     gc.IntPool{Max: 10},
 		Target:       &bookEntity,
 	}
 
@@ -341,7 +341,7 @@ func TestReadBehavior_NoSkillsComponent(t *testing.T) {
 	comp := &gc.Activity{
 		BehaviorName: gc.BehaviorRead,
 		State:        gc.ActivityStateRunning,
-		Required:     10,
+		Progress:     gc.IntPool{Max: 10},
 		Target:       &bookEntity,
 	}
 
@@ -361,7 +361,7 @@ func TestReadBehavior_DoTurn_本が消えると中断する(t *testing.T) {
 	})
 
 	ra := &ReadBehavior{}
-	comp := &gc.Activity{Target: &bookEntity, State: gc.ActivityStateRunning, Required: 10}
+	comp := &gc.Activity{Target: &bookEntity, State: gc.ActivityStateRunning, Progress: gc.IntPool{Max: 10}}
 
 	world.ECS.RemoveEntity(bookEntity)
 

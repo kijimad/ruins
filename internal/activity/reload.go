@@ -75,7 +75,7 @@ func (rb *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 
 	// 完了に必要な総装填工数
-	comp.Required = fire.ReloadEffort
+	comp.Progress.Max = fire.ReloadEffort
 
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
@@ -93,10 +93,10 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	// 1ターンあたりの工数を計算。能力が高いほど速く装填する
-	comp.Accumulated += rb.calcEffortPerTurn(actor, fire, world)
+	comp.Progress.Current += rb.calcEffortPerTurn(actor, fire, world)
 
 	// 工数が目標に達したら装填完了
-	if comp.Accumulated >= comp.Required {
+	if comp.Progress.Current >= comp.Progress.Max {
 		// 装填数を計算（マガジン容量と弾薬在庫の小さい方）
 		needed := fire.MagazineSize - fire.Magazine
 		ammoEntity, found := query.FindAmmoInInventory(world, fire.AmmoTag)

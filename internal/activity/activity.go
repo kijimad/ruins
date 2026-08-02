@@ -81,7 +81,7 @@ type Info struct {
 }
 
 // NewActivity は新しいActivityコンポーネントを作成する。
-// required は完了に必要な総量。即時アクションは 0 を渡す。
+// required は完了に必要な総量。初回ステップで満ちれば即時アクションになる。
 func NewActivity(behavior Behavior, required int) (*gc.Activity, error) {
 	if required < 0 {
 		return nil, ErrInvalidRequired
@@ -90,7 +90,7 @@ func NewActivity(behavior Behavior, required int) (*gc.Activity, error) {
 	return &gc.Activity{
 		BehaviorName: behavior.Name(),
 		State:        gc.ActivityStateRunning,
-		Required:     required,
+		Progress:     gc.IntPool{Max: required},
 	}, nil
 }
 
@@ -168,10 +168,10 @@ func IsCanceled(comp *gc.Activity) bool {
 
 // GetProgressPercent は進捗率を0-100の値で返す
 func GetProgressPercent(comp *gc.Activity) float64 {
-	if comp.Required <= 0 {
+	if comp.Progress.Max <= 0 {
 		return 100.0
 	}
-	return (float64(comp.Accumulated) / float64(comp.Required)) * 100.0
+	return (float64(comp.Progress.Current) / float64(comp.Progress.Max)) * 100.0
 }
 
 // Complete はアクティビティを完了状態にする

@@ -133,8 +133,8 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 	}
 
 	// 今ターンのAPを注ぐ。APが高いほど速く分解が進む
-	comp.Accumulated += perTurnAP(actor, world)
-	if comp.Accumulated >= comp.Required {
+	comp.Progress.Current += perTurnAP(actor, world)
+	if comp.Progress.Current >= comp.Progress.Max {
 		Complete(comp)
 	}
 	return nil

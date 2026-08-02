@@ -25,7 +25,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
-			Required:     1,
+			Progress:     gc.IntPool{Max: 1},
 		}
 
 		wa := &WaitBehavior{}
@@ -42,7 +42,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
-			Required:     0,
+			Progress:     gc.IntPool{Max: 0},
 		}
 
 		wa := &WaitBehavior{}
@@ -65,15 +65,14 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
-			Required:     5,
-			Accumulated:  2,
+			Progress:     gc.IntPool{Max: 5, Current: 2},
 		}
 
 		wa := &WaitBehavior{}
 		err = wa.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
-		assert.Equal(t, 3, comp.Accumulated)
+		assert.Equal(t, 3, comp.Progress.Current)
 		assert.False(t, IsCompleted(comp))
 	})
 
@@ -87,8 +86,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
-			Required:     5,
-			Accumulated:  4,
+			Progress:     gc.IntPool{Max: 5, Current: 4},
 		}
 
 		wa := &WaitBehavior{}
@@ -108,8 +106,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
-			Required:     5,
-			Accumulated:  4,
+			Progress:     gc.IntPool{Max: 5, Current: 4},
 		}
 
 		wa := &WaitBehavior{}
@@ -117,7 +114,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		assert.Equal(t, 5, comp.Accumulated)
+		assert.Equal(t, 5, comp.Progress.Current)
 	})
 }
 
@@ -133,7 +130,7 @@ func TestWaitBehavior_Finish(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
-			Required:     1,
+			Progress:     gc.IntPool{Max: 1},
 		}
 
 		wa := &WaitBehavior{}
@@ -153,7 +150,7 @@ func TestWaitBehavior_Finish(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
-			Required:     5,
+			Progress:     gc.IntPool{Max: 5},
 		}
 
 		wa := &WaitBehavior{}
@@ -175,7 +172,7 @@ func TestWaitBehavior_長い待機は敵接近で中断する(t *testing.T) {
 	spawnHostileAt(world, 11, 10)
 
 	wa := &WaitBehavior{}
-	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Required: 5}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Progress: gc.IntPool{Max: 5}}
 
 	require.NoError(t, wa.DoTurn(comp, actor, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
@@ -190,7 +187,7 @@ func TestWaitBehavior_1ターンの待機は敵が隣接していても完結す
 	spawnHostileAt(world, 11, 10)
 
 	wa := &WaitBehavior{}
-	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Required: 1}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Progress: gc.IntPool{Max: 1}}
 
 	require.NoError(t, wa.DoTurn(comp, actor, world))
 	require.NoError(t, wa.DoTurn(comp, actor, world))

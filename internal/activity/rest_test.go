@@ -77,7 +77,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			Required:     10,
+			Progress:     gc.IntPool{Max: 10},
 		}
 
 		ra := &RestBehavior{}
@@ -99,7 +99,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			Required:     10,
+			Progress:     gc.IntPool{Max: 10},
 		}
 
 		ra := &RestBehavior{}
@@ -117,7 +117,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			Required:     0,
+			Progress:     gc.IntPool{Max: 0},
 		}
 
 		ra := &RestBehavior{}
@@ -144,7 +144,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			Required:     10,
+			Progress:     gc.IntPool{Max: 10},
 		}
 
 		ra := &RestBehavior{}
@@ -168,7 +168,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			Required:     10,
+			Progress:     gc.IntPool{Max: 10},
 		}
 
 		ra := &RestBehavior{}
@@ -190,7 +190,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			Required:     10,
+			Progress:     gc.IntPool{Max: 10},
 		}
 
 		ra := &RestBehavior{}
@@ -209,7 +209,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
-			Required:     10,
+			Progress:     gc.IntPool{Max: 10},
 		}
 
 		ra := &RestBehavior{}
@@ -240,7 +240,7 @@ func TestRestBehavior_所要はAP量で伸縮する(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			Required:     1000,
+			Progress:     gc.IntPool{Max: 1000},
 		}
 		steps := 0
 		for !IsCompleted(comp) {
@@ -274,7 +274,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			Required:     1000000,
+			Progress:     gc.IntPool{Max: 1000000},
 		}
 
 		ra := &RestBehavior{}
@@ -282,7 +282,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 
 		require.NoError(t, err)
 		// 今ターンのAP分だけ累積が進む
-		assert.Equal(t, perTurnAP(player, world), comp.Accumulated)
+		assert.Equal(t, perTurnAP(player, world), comp.Progress.Current)
 		assert.False(t, IsCompleted(comp))
 	})
 
@@ -301,7 +301,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			Required:     5,
+			Progress:     gc.IntPool{Max: 5},
 		}
 
 		ra := &RestBehavior{}
@@ -325,7 +325,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			Required:     1,
+			Progress:     gc.IntPool{Max: 1},
 		}
 
 		ra := &RestBehavior{}
@@ -349,7 +349,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateRunning,
-			Required:     1,
+			Progress:     gc.IntPool{Max: 1},
 		}
 
 		ra := &RestBehavior{}

@@ -127,7 +127,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	rb.applyPerTurnEffect(book, actor, world, abilityValue)
 
 	// 進捗を activity 側にも反映して表示を揃える
-	comp.Accumulated = book.Effort.Current
+	comp.Progress.Current = book.Effort.Current
 
 	// 読了チェック
 	if book.IsCompleted() {

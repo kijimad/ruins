@@ -51,7 +51,7 @@ func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 	// ただし、最低限のチェックは行う
 
 	// 待機回数が妥当かチェック
-	if comp.Required <= 0 {
+	if comp.Progress.Max <= 0 {
 		return fmt.Errorf("待機回数が無効です")
 	}
 
@@ -60,7 +60,7 @@ func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 
 // Start は待機開始時の処理を実行する
 func (wb *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("待機開始", "actor", actor, "reason", wb.Reason, "required", comp.Required)
+	log.Debug("待機開始", "actor", actor, "reason", wb.Reason, "required", comp.Progress.Max)
 	return nil
 }
 
@@ -68,17 +68,17 @@ func (wb *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (wb *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 長い待機は敵が近づいたら中断する。1回だけのターン送りとAIの手番調整は
 	// その場で完結する行動なので対象にしない
-	if comp.Required > 1 && !isAreaSafe(actor, world) {
+	if comp.Progress.Max > 1 && !isAreaSafe(actor, world) {
 		Cancel(comp, "周囲に敵がいるため待機を中断")
 		return nil
 	}
 
 	// 1ターン進行
-	comp.Accumulated++
+	comp.Progress.Current++
 	log.Debug("待機進行", "progress", GetProgressPercent(comp))
 
 	// 完了チェック
-	if comp.Accumulated >= comp.Required {
+	if comp.Progress.Current >= comp.Progress.Max {
 		Complete(comp)
 	}
 
@@ -90,7 +90,7 @@ func (wb *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	log.Debug("待機完了", "actor", actor)
 
 	// 複数ターン待機の場合のみログを表示する
-	if comp.Required > 1 && world.Components.Player.Has(actor) {
+	if comp.Progress.Max > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append("待機を終了した").
 			Log()

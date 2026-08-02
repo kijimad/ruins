@@ -207,7 +207,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("アクティビティ開始",
 		"entity", actor,
 		"type", behavior.Name(),
-		"required", stored.Required)
+		"required", stored.Progress.Max)
 
 	return nil
 }

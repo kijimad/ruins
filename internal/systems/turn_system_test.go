@@ -52,7 +52,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		world.Components.Activity.Add(player, &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
-			Required:     5,
+			Progress:     gc.IntPool{Max: 5},
 		})
 
 		turnState := query.GetTurnState(world)

@@ -115,7 +115,7 @@ func TestReloadBehavior_Start(t *testing.T) {
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
-		assert.Equal(t, fire.ReloadEffort, comp.Required)
+		assert.Equal(t, fire.ReloadEffort, comp.Progress.Max)
 	})
 }
 
@@ -137,7 +137,7 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// DoTurnを繰り返してリロード完了させる
-		for range comp.Required + 1 {
+		for range comp.Progress.Max + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -175,7 +175,7 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
-		for range comp.Required + 1 {
+		for range comp.Progress.Max + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -221,14 +221,14 @@ func TestReloadBehavior_共有シングルトンでも進捗が混ざらない(t
 
 	// comp1 を1ターン進める。自分の1ターン分だけ累積し、comp2 へ漏れてはいけない
 	require.NoError(t, ra.DoTurn(comp1, player, world))
-	assert.Equal(t, expected, comp1.Accumulated)
-	assert.Zero(t, comp2.Accumulated, "comp1 の進行が comp2 に漏れてはいけない")
+	assert.Equal(t, expected, comp1.Progress.Current)
+	assert.Zero(t, comp2.Progress.Current, "comp1 の進行が comp2 に漏れてはいけない")
 
 	// comp2 を1ターン進める。comp1 の累積を引き継がず、自分の1ターン分だけになるべき。
 	// 進捗をインスタンスに置くと comp2 は expected の2倍になり、comp1 も書き換わる
 	require.NoError(t, ra.DoTurn(comp2, player, world))
-	assert.Equal(t, expected, comp2.Accumulated, "comp2 は自分の1ターン分だけを累積すべき")
-	assert.Equal(t, expected, comp1.Accumulated, "comp2 の進行が comp1 の進捗を書き換えてはいけない")
+	assert.Equal(t, expected, comp2.Progress.Current, "comp2 は自分の1ターン分だけを累積すべき")
+	assert.Equal(t, expected, comp1.Progress.Current, "comp2 の進行が comp1 の進捗を書き換えてはいけない")
 }
 
 func TestReloadBehavior_CalcEffortPerTurn(t *testing.T) {

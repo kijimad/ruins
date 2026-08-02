@@ -46,7 +46,7 @@ func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	// 必要量が妥当かチェック
-	if comp.Required <= 0 {
+	if comp.Progress.Max <= 0 {
 		return fmt.Errorf("休息の必要量が無効です")
 	}
 
@@ -55,7 +55,7 @@ func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は休息開始時の処理を実行する
 func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("休息開始", "actor", actor, "required", comp.Required)
+	log.Debug("休息開始", "actor", actor, "required", comp.Progress.Max)
 	return nil
 }
 
@@ -68,7 +68,7 @@ func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// 今ターンのAPを注ぐ。APが高いほど速く休息が進む
-	comp.Accumulated += perTurnAP(actor, world)
+	comp.Progress.Current += perTurnAP(actor, world)
 	log.Debug("休息進行", "progress", GetProgressPercent(comp))
 
 	// HP回復処理。満タンなら早期完了する
@@ -77,7 +77,7 @@ func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// 必要量に達したら完了
-	if comp.Accumulated >= comp.Required {
+	if comp.Progress.Current >= comp.Progress.Max {
 		Complete(comp)
 	}
 
