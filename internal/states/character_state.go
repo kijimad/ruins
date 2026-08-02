@@ -650,11 +650,12 @@ func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, r
 		if isSelected {
 			clr = theme.TextPrimary
 		}
-		name := slot.ItemName
-		if name == "" {
-			name = "（なし）"
+		// 未装備はブランクにする。スロット名だけを出す
+		label := slot.SlotLabel
+		if slot.ItemName != "" {
+			label = fmt.Sprintf("%s  %s", slot.SlotLabel, slot.ItemName)
 		}
-		container.AddChild(styled.NewListItemText(fmt.Sprintf("%s  %s", slot.SlotLabel, name), clr, isSelected, res))
+		container.AddChild(styled.NewListItemText(label, clr, isSelected, res))
 	}
 	return container
 }
