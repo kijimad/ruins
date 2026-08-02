@@ -20,6 +20,9 @@ var log = logger.New(logger.CategoryAction)
 // Validate/Start/DoTurn/Finish/Canceled はこのゼロ値インスタンスで回るため、per-アクティビティの
 // 状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。着手パラメータを持つのは
 // BuildActivity へ渡す呼び出し側インスタンスだけ。
+//
+// default 句は置かない。新しい BehaviorName を足したとき case 追加漏れを exhaustive linter に
+// 検知させるため。未知の名前は switch を抜けた後のエラーで扱う。
 func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 	switch name {
 	case gc.BehaviorMove:
@@ -56,9 +59,10 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &PushBehavior{}, nil
 	case gc.BehaviorPull:
 		return &PullBehavior{}, nil
-	default:
-		return nil, fmt.Errorf("未登録のBehavior: %s", name)
+	case gc.BehaviorPortal, gc.BehaviorDoorLock, gc.BehaviorStorage:
+		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}
+	return nil, fmt.Errorf("未登録のBehavior: %s", name)
 }
 
 // Behavior はアクティビティの実行を担当するインターフェース。
