@@ -28,7 +28,7 @@ type verbID string
 const (
 	verbExamine verbID = "examine" // 調べる
 	verbPlace   verbID = "place"   // 置く
-	verbConsume verbID = "consume" // 食べる飲む
+	verbConsume verbID = "consume" // 食べる。飲み物も含む
 	verbRead    verbID = "read"    // 読む
 	verbUse     verbID = "use"     // 使う
 )
@@ -36,10 +36,13 @@ const (
 // itemVerb は動詞タブ1つ分の定義。Accept で対象アイテムを絞り、Exec で選択アイテムへ動詞を適用する。
 // Exec が nil の動詞は実行を持たず、Enter で詳細モーダルを開く。調べるがこれに当たる。
 type itemVerb struct {
-	ID     verbID
-	Label  string
-	Accept func(world w.World, entity ecs.Entity) bool
-	Exec   func(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
+	ID    verbID
+	Label string
+	// KeyHint はタブ見出しに添える直達ショートカットの表記。大文字は Shift 併用を表す。
+	// 調べる X は Shift+x、置く d は KeyD をそのまま押す
+	KeyHint string
+	Accept  func(world w.World, entity ecs.Entity) bool
+	Exec    func(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 }
 
 // verbs は表示順に並べた動詞タブの一覧。タブ順を兼ねる。
@@ -47,15 +50,17 @@ type itemVerb struct {
 func verbs() []itemVerb {
 	return []itemVerb{
 		{
-			ID:     verbExamine,
-			Label:  "調べる",
-			Accept: func(_ w.World, _ ecs.Entity) bool { return true },
-			Exec:   nil,
+			ID:      verbExamine,
+			Label:   "調べる",
+			KeyHint: "X",
+			Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
+			Exec:    nil,
 		},
 		{
-			ID:     verbPlace,
-			Label:  "置く",
-			Accept: func(_ w.World, _ ecs.Entity) bool { return true },
+			ID:      verbPlace,
+			Label:   "置く",
+			KeyHint: "d",
+			Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
 			Exec: func(_ w.World, entity ecs.Entity) (es.Transition[w.World], error) {
 				// 選択済みアイテムを渡し、PlaceState をタイル選択から始めて二重選択を避ける
 				return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{
@@ -64,27 +69,30 @@ func verbs() []itemVerb {
 			},
 		},
 		{
-			ID:     verbConsume,
-			Label:  "食べる飲む",
-			Accept: acceptConsumeFood,
-			Exec:   execUseItem,
+			ID:      verbConsume,
+			Label:   "食べる",
+			KeyHint: "e",
+			Accept:  acceptConsumeFood,
+			Exec:    execUseItem,
 		},
 		{
-			ID:     verbRead,
-			Label:  "読む",
-			Accept: func(world w.World, entity ecs.Entity) bool { return world.Components.Book.Has(entity) },
-			Exec:   execRead,
+			ID:      verbRead,
+			Label:   "読む",
+			KeyHint: "r",
+			Accept:  func(world w.World, entity ecs.Entity) bool { return world.Components.Book.Has(entity) },
+			Exec:    execRead,
 		},
 		{
-			ID:     verbUse,
-			Label:  "使う",
-			Accept: acceptUseTool,
-			Exec:   execUseItem,
+			ID:      verbUse,
+			Label:   "使う",
+			KeyHint: "t",
+			Accept:  acceptUseTool,
+			Exec:    execUseItem,
 		},
 	}
 }
 
-// acceptConsumeFood は栄養か回復を持つ消費物を食べる飲むの対象とする
+// acceptConsumeFood は栄養か回復を持つ消費物を食べるの対象とする。飲み物も含む
 func acceptConsumeFood(world w.World, entity ecs.Entity) bool {
 	if !world.Components.Consumable.Has(entity) {
 		return false
@@ -328,6 +336,7 @@ type itemActionProps struct {
 type verbTabData struct {
 	ID    verbID
 	Label string
+	Key   string // タブ見出しに添える直達ショートカット表記
 	Items []itemActionEntry
 }
 
@@ -355,7 +364,7 @@ func (st *ItemActionState) fetchProps(world w.World) itemActionProps {
 			}
 			items = append(items, newItemActionEntry(world, entity))
 		}
-		tabs[i] = verbTabData{ID: verb.ID, Label: verb.Label, Items: items}
+		tabs[i] = verbTabData{ID: verb.ID, Label: verb.Label, Key: verb.KeyHint, Items: items}
 	}
 	return itemActionProps{Tabs: tabs}
 }
@@ -420,9 +429,14 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(styled.NewTitleText("アイテム操作", res))
 
 	// Row 1: 動詞タブ帯を中央寄せ
+	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
-		labels[i] = tab.Label
+		if tab.Key != "" {
+			labels[i] = fmt.Sprintf("%s(%s)", tab.Label, tab.Key)
+		} else {
+			labels[i] = tab.Label
+		}
 	}
 	tabRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
 	tabBar := styled.NewTabBar(labels, tabIndex, res)

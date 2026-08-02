@@ -17,7 +17,7 @@ func TestVerbByAction_直達アクションを動詞へ対応づける(t *testin
 	}{
 		{"調べる", inputmapper.ActionVerbExamine, verbExamine, true},
 		{"置く", inputmapper.ActionVerbPlace, verbPlace, true},
-		{"食べる飲む", inputmapper.ActionVerbConsume, verbConsume, true},
+		{"食べる", inputmapper.ActionVerbConsume, verbConsume, true},
 		{"読む", inputmapper.ActionVerbRead, verbRead, true},
 		{"使う", inputmapper.ActionVerbUse, verbUse, true},
 		{"投げるは未実装なので対応なし", inputmapper.ActionVerbThrow, verbID(""), false},

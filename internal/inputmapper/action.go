@@ -44,7 +44,7 @@ const (
 const (
 	ActionVerbExamine ActionID = "verb_examine" // 調べる
 	ActionVerbPlace   ActionID = "verb_place"   // 置く
-	ActionVerbConsume ActionID = "verb_consume" // 食べる飲む
+	ActionVerbConsume ActionID = "verb_consume" // 食べる。飲み物も含む
 	ActionVerbRead    ActionID = "verb_read"    // 読む
 	ActionVerbUse     ActionID = "verb_use"     // 使う
 	ActionVerbThrow   ActionID = "verb_throw"   // 投げる
