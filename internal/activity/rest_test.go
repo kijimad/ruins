@@ -65,7 +65,7 @@ func TestIsAreaSafe(t *testing.T) {
 	})
 }
 
-func TestRestActivity_Validate(t *testing.T) {
+func TestRestBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("安全な場所で有効なdurationの場合は成功", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestRestActivity_Validate(t *testing.T) {
 			TurnsTotal:   10,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -102,7 +102,7 @@ func TestRestActivity_Validate(t *testing.T) {
 			TurnsTotal:   10,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "敵がいる")
@@ -120,14 +120,14 @@ func TestRestActivity_Validate(t *testing.T) {
 			TurnsTotal:   0,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "休息時間が無効")
 	})
 }
 
-func TestRestActivity_performHealing(t *testing.T) {
+func TestRestBehavior_performHealing(t *testing.T) {
 	t.Parallel()
 
 	t.Run("HPが回復する", func(t *testing.T) {
@@ -148,7 +148,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 			TurnsLeft:    5,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.performHealing(comp, player, world)
 		require.NoError(t, err)
 
@@ -173,7 +173,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 			TurnsLeft:    5,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.performHealing(comp, player, world)
 		require.NoError(t, err)
 
@@ -196,7 +196,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 			TurnsLeft:    5,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.performHealing(comp, player, world)
 		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
@@ -216,13 +216,13 @@ func TestRestActivity_performHealing(t *testing.T) {
 			TurnsLeft:    5,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err := ra.performHealing(comp, player, world)
 		assert.NoError(t, err)
 	})
 }
 
-func TestRestActivity_DoTurn(t *testing.T) {
+func TestRestBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("安全な場所で1ターン進行する", func(t *testing.T) {
@@ -243,7 +243,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    3,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -269,7 +269,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    3,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.DoTurn(comp, player, world)
 
 		require.Error(t, err)
@@ -290,7 +290,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    0,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -315,7 +315,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    1,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -324,7 +324,7 @@ func TestRestActivity_DoTurn(t *testing.T) {
 	})
 }
 
-func TestRestActivity_Canceled(t *testing.T) {
+func TestRestBehavior_Canceled(t *testing.T) {
 	t.Parallel()
 
 	t.Run("キャンセル時にログが出力される", func(t *testing.T) {
@@ -340,7 +340,7 @@ func TestRestActivity_Canceled(t *testing.T) {
 			CancelReason: "敵の接近",
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.Canceled(comp, player, world)
 		require.NoError(t, err)
 
@@ -352,7 +352,7 @@ func TestRestActivity_Canceled(t *testing.T) {
 	})
 }
 
-func TestRestActivity_Finish(t *testing.T) {
+func TestRestBehavior_Finish(t *testing.T) {
 	t.Parallel()
 
 	t.Run("完了時にログが出力される", func(t *testing.T) {
@@ -370,7 +370,7 @@ func TestRestActivity_Finish(t *testing.T) {
 			BehaviorName: gc.BehaviorRest,
 		}
 
-		ra := &RestActivity{}
+		ra := &RestBehavior{}
 		err = ra.Finish(comp, player, world)
 		require.NoError(t, err)
 

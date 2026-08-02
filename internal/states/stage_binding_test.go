@@ -33,10 +33,10 @@ func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 	stageB := gc.NewDungeonStage("テスト遺跡", 2)
 	query.GetDungeon(world).CurrentStage = stageA
 
-	// バックパックのアイテムを実際の設置経路 DropActivity で足元へ置く
+	// バックパックのアイテムを実際の設置経路 DropBehavior で足元へ置く
 	item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 	require.NoError(t, err)
-	_, err = activity.Execute(&activity.DropActivity{
+	_, err = activity.Execute(&activity.DropBehavior{
 		Target:      item,
 		Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 6}},
 	}, player, world)

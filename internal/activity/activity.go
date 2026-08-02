@@ -17,24 +17,24 @@ var log = logger.New(logger.CategoryAction)
 // behaviors はProcessContinuousActivities経由の継続アクション処理で使うシングルトンBehaviorのマップ。
 // Execute経路で使うBuildActivityはこのマップのインスタンスでは呼ばれない
 var behaviors = map[gc.BehaviorName]Behavior{
-	gc.BehaviorMove:      &MoveActivity{},
-	gc.BehaviorAttack:    &AttackActivity{},
-	gc.BehaviorRest:      &RestActivity{},
-	gc.BehaviorWait:      &WaitActivity{},
-	gc.BehaviorPickup:    &PickupActivity{},
-	gc.BehaviorDrop:      &DropActivity{},
-	gc.BehaviorUseItem:   &UseItemActivity{},
-	gc.BehaviorTalk:      &TalkActivity{},
-	gc.BehaviorOpenDoor:  &OpenDoorActivity{},
-	gc.BehaviorCloseDoor: &CloseDoorActivity{},
-	gc.BehaviorRead:      &ReadActivity{},
-	gc.BehaviorShoot:     &ShootActivity{},
-	gc.BehaviorReload:    &ReloadActivity{},
-	gc.BehaviorTransfer:  &TransferActivity{},
+	gc.BehaviorMove:      &MoveBehavior{},
+	gc.BehaviorAttack:    &AttackBehavior{},
+	gc.BehaviorRest:      &RestBehavior{},
+	gc.BehaviorWait:      &WaitBehavior{},
+	gc.BehaviorPickup:    &PickupBehavior{},
+	gc.BehaviorDrop:      &DropBehavior{},
+	gc.BehaviorUseItem:   &UseItemBehavior{},
+	gc.BehaviorTalk:      &TalkBehavior{},
+	gc.BehaviorOpenDoor:  &OpenDoorBehavior{},
+	gc.BehaviorCloseDoor: &CloseDoorBehavior{},
+	gc.BehaviorRead:      &ReadBehavior{},
+	gc.BehaviorShoot:     &ShootBehavior{},
+	gc.BehaviorReload:    &ReloadBehavior{},
+	gc.BehaviorTransfer:  &TransferBehavior{},
 
-	gc.BehaviorDisassemble: &DisassembleActivity{},
-	gc.BehaviorPush:        &PushActivity{},
-	gc.BehaviorPull:        &PullActivity{},
+	gc.BehaviorDisassemble: &DisassembleBehavior{},
+	gc.BehaviorPush:        &PushBehavior{},
+	gc.BehaviorPull:        &PullBehavior{},
 }
 
 // GetBehavior は名前からBehavior実装を取得する

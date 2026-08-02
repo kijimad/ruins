@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDropActivity_Validate(t *testing.T) {
+func TestDropBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("有効なドロップ対象の場合は成功", func(t *testing.T) {
@@ -32,7 +32,7 @@ func TestDropActivity_Validate(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		da := &DropActivity{}
+		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -49,7 +49,7 @@ func TestDropActivity_Validate(t *testing.T) {
 			Target:       nil,
 		}
 
-		da := &DropActivity{}
+		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "ドロップ対象が指定されていません")
@@ -70,7 +70,7 @@ func TestDropActivity_Validate(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		da := &DropActivity{}
+		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "バックパック内にありません")
@@ -91,17 +91,17 @@ func TestDropActivity_Validate(t *testing.T) {
 			Target:       &item,
 		}
 
-		da := &DropActivity{}
+		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 
-func TestDropActivity_Info(t *testing.T) {
+func TestDropBehavior_Info(t *testing.T) {
 	t.Parallel()
 
-	da := &DropActivity{}
+	da := &DropBehavior{}
 	info := da.Info()
 
 	assert.Equal(t, "ドロップ", info.Name)
@@ -109,14 +109,14 @@ func TestDropActivity_Info(t *testing.T) {
 	assert.False(t, info.Resumable)
 }
 
-func TestDropActivity_Name(t *testing.T) {
+func TestDropBehavior_Name(t *testing.T) {
 	t.Parallel()
 
-	da := &DropActivity{}
+	da := &DropBehavior{}
 	assert.Equal(t, gc.BehaviorDrop, da.Name())
 }
 
-func TestDropActivity_performDropActivity(t *testing.T) {
+func TestDropBehavior_performDrop(t *testing.T) {
 	t.Parallel()
 
 	t.Run("アイテムをフィールドにドロップできる", func(t *testing.T) {
@@ -135,8 +135,8 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		da := &DropActivity{}
-		err = da.performDropActivity(comp, player, world)
+		da := &DropBehavior{}
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		// アイテムがフィールドに配置されていることを確認
@@ -170,14 +170,14 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 			Target:       &item,
 		}
 
-		da := &DropActivity{}
-		err = da.performDropActivity(comp, player, world)
+		da := &DropBehavior{}
+		err = da.performDrop(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 
-func TestDropActivity_DoTurn(t *testing.T) {
+func TestDropBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常にドロップして完了する", func(t *testing.T) {
@@ -197,7 +197,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		da := &DropActivity{}
+		da := &DropBehavior{}
 		err = da.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -220,7 +220,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 			Target:       &item,
 		}
 
-		da := &DropActivity{}
+		da := &DropBehavior{}
 		err = da.DoTurn(comp, player, world)
 
 		require.Error(t, err)
@@ -228,7 +228,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 	})
 }
 
-func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
+func TestDropBehavior_performDrop_AdjacentTile(t *testing.T) {
 	t.Parallel()
 
 	t.Run("隣接タイルにアイテムをドロップできる", func(t *testing.T) {
@@ -248,8 +248,8 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
-		da := &DropActivity{}
-		err = da.performDropActivity(comp, player, world)
+		da := &DropBehavior{}
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		assert.True(t, world.Components.GridElement.Has(item))
@@ -276,8 +276,8 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 11}},
 		}
 
-		da := &DropActivity{}
-		err = da.performDropActivity(comp, player, world)
+		da := &DropBehavior{}
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		gridElement := world.Components.GridElement.Get(item)
@@ -286,7 +286,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 	})
 }
 
-func TestDropActivity_FixtureDerivedItem(t *testing.T) {
+func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 	t.Parallel()
 
 	t.Run("固定物由来アイテムをドロップすると Fixed コンポーネントが保持される", func(t *testing.T) {
@@ -310,8 +310,8 @@ func TestDropActivity_FixtureDerivedItem(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
-		da := &DropActivity{}
-		err = da.performDropActivity(comp, player, world)
+		da := &DropBehavior{}
+		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
 		// Fixed コンポーネントが保持されていることを確認
@@ -347,7 +347,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
 		}
 
-		pa := &PickupActivity{}
+		pa := &PickupBehavior{}
 		err = pa.DoTurn(pickupComp, player, world)
 		require.NoError(t, err)
 
@@ -362,7 +362,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}},
 		}
 
-		da := &DropActivity{}
+		da := &DropBehavior{}
 		err = da.DoTurn(dropComp, player, world)
 		require.NoError(t, err)
 

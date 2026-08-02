@@ -42,11 +42,11 @@
 // result, err := activity.Execute(behavior, actor, world)
 // ```
 //
-// ### 個別Activity実装
-// - **MoveActivity**: 移動アクション（即座実行）
-// - **AttackActivity**: 攻撃アクション（即座実行）
-// - **RestActivity**: 休息アクション（継続実行、中断可能）
-// - **WaitActivity**: 待機アクション（継続実行、中断可能）
+// ### 個別Behavior実装
+// - **MoveBehavior**: 移動アクション（即座実行）
+// - **AttackBehavior**: 攻撃アクション（即座実行）
+// - **RestBehavior**: 休息アクション（継続実行、中断可能）
+// - **WaitBehavior**: 待機アクション（継続実行、中断可能）
 //
 // # 他パッケージとの関係
 //
@@ -123,10 +123,10 @@
 //	// パッケージレベル関数を通じた統一的なアクション実行
 //
 //	// 即座実行アクション（移動）
-//	result, err := activity.Execute(&activity.MoveActivity{Destination: dest}, player, world)
+//	result, err := activity.Execute(&activity.MoveBehavior{Destination: dest}, player, world)
 //
 //	// 継続実行アクション（休息）
-//	result, err := activity.Execute(&activity.RestActivity{Duration: 10}, player, world)
+//	result, err := activity.Execute(&activity.RestBehavior{Duration: 10}, player, world)
 //
 //	// アクティビティの管理
 //	activity.InterruptActivity(player, "戦闘開始", world)

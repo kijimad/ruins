@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTalkActivity_Validate(t *testing.T) {
+func TestTalkBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("有効な会話対象の場合は成功", func(t *testing.T) {
@@ -30,7 +30,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 			Target:       &npc,
 		}
 
-		ta := &TalkActivity{}
+		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -47,7 +47,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 			Target:       nil,
 		}
 
-		ta := &TalkActivity{}
+		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "会話対象が指定されていません")
@@ -69,7 +69,7 @@ func TestTalkActivity_Validate(t *testing.T) {
 			Target:       &npc,
 		}
 
-		ta := &TalkActivity{}
+		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "対象エンティティは会話できません")
@@ -91,17 +91,17 @@ func TestTalkActivity_Validate(t *testing.T) {
 			Target:       &npc,
 		}
 
-		ta := &TalkActivity{}
+		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "対象エンティティは中立派閥ではありません")
 	})
 }
 
-func TestTalkActivity_Info(t *testing.T) {
+func TestTalkBehavior_Info(t *testing.T) {
 	t.Parallel()
 
-	ta := &TalkActivity{}
+	ta := &TalkBehavior{}
 	info := ta.Info()
 
 	assert.Equal(t, "会話", info.Name)
@@ -109,14 +109,14 @@ func TestTalkActivity_Info(t *testing.T) {
 	assert.False(t, info.Resumable)
 }
 
-func TestTalkActivity_Name(t *testing.T) {
+func TestTalkBehavior_Name(t *testing.T) {
 	t.Parallel()
 
-	ta := &TalkActivity{}
+	ta := &TalkBehavior{}
 	assert.Equal(t, gc.BehaviorTalk, ta.Name())
 }
 
-func TestTalkActivity_DoTurn(t *testing.T) {
+func TestTalkBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常に会話して完了する", func(t *testing.T) {
@@ -135,7 +135,7 @@ func TestTalkActivity_DoTurn(t *testing.T) {
 			Target:       &npc,
 		}
 
-		ta := &TalkActivity{}
+		ta := &TalkBehavior{}
 		err = ta.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -160,7 +160,7 @@ func TestTalkActivity_DoTurn(t *testing.T) {
 			Target:       &npc,
 		}
 
-		ta := &TalkActivity{}
+		ta := &TalkBehavior{}
 		err = ta.DoTurn(comp, player, world)
 
 		require.Error(t, err)

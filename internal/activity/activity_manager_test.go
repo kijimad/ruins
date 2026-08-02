@@ -49,7 +49,7 @@ func TestStartActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを作成
-	comp, err := NewActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitBehavior{}, 5)
 	require.NoError(t, err)
 
 	// アクティビティ開始
@@ -79,9 +79,9 @@ func TestMultipleActivities(t *testing.T) {
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	// 複数のアクターでアクティビティを開始
-	comp1, err := NewActivity(&WaitActivity{}, 10)
+	comp1, err := NewActivity(&WaitBehavior{}, 10)
 	require.NoError(t, err)
-	comp2, err := NewActivity(&WaitActivity{}, 5)
+	comp2, err := NewActivity(&WaitBehavior{}, 5)
 	require.NoError(t, err)
 
 	err = StartActivity(comp1, actor1, world)
@@ -109,7 +109,7 @@ func TestReplaceActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// 最初のアクティビティを開始
-	comp1, err := NewActivity(&WaitActivity{}, 10)
+	comp1, err := NewActivity(&WaitBehavior{}, 10)
 	require.NoError(t, err)
 	err = StartActivity(comp1, actor, world)
 	require.NoError(t, err)
@@ -118,7 +118,7 @@ func TestReplaceActivity(t *testing.T) {
 	assert.Equal(t, gc.ActivityStateRunning, comp1.State, "Expected first activity to be running")
 
 	// 新しいアクティビティを開始（古いものを置き換え）
-	comp2, err := NewActivity(&WaitActivity{}, 5)
+	comp2, err := NewActivity(&WaitBehavior{}, 5)
 	require.NoError(t, err)
 	err = StartActivity(comp2, actor, world)
 	require.NoError(t, err)
@@ -138,7 +138,7 @@ func TestInterruptAndResume(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewActivity(&WaitActivity{}, 10)
+	comp, err := NewActivity(&WaitBehavior{}, 10)
 	require.NoError(t, err)
 	err = StartActivity(comp, actor, world)
 	require.NoError(t, err)
@@ -177,7 +177,7 @@ func TestCancelActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitBehavior{}, 5)
 	require.NoError(t, err)
 	err = StartActivity(comp, actor, world)
 	require.NoError(t, err)
@@ -210,9 +210,9 @@ func TestProcessContinuousActivities(t *testing.T) {
 	world.Components.GridElement.Add(actor2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 
 	// 短いアクティビティと長いアクティビティを開始
-	shortComp, err := NewActivity(&WaitActivity{}, 2) // 2ターンで完了
+	shortComp, err := NewActivity(&WaitBehavior{}, 2) // 2ターンで完了
 	require.NoError(t, err)
-	longComp, err := NewActivity(&WaitActivity{}, 5) // 5ターンで完了
+	longComp, err := NewActivity(&WaitBehavior{}, 5) // 5ターンで完了
 	require.NoError(t, err)
 
 	err = StartActivity(shortComp, actor1, world)
@@ -264,9 +264,9 @@ func TestActivitySummary(t *testing.T) {
 	actor2 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
-	comp1, err := NewActivity(&WaitActivity{}, 10)
+	comp1, err := NewActivity(&WaitBehavior{}, 10)
 	require.NoError(t, err)
-	comp2, err := NewActivity(&WaitActivity{}, 5)
+	comp2, err := NewActivity(&WaitBehavior{}, 5)
 	require.NoError(t, err)
 
 	err = StartActivity(comp1, actor1, world)
@@ -339,7 +339,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		// ExecuteはArchetypeを変える構造変更を伴うため、TurnBasedは都度取り直す
 		apBefore := world.Components.TurnBased.Get(player).AP.Current
 
-		_, err = Execute(&MoveActivity{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}}, player, world)
+		_, err = Execute(&MoveBehavior{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}}, player, world)
 		require.NoError(t, err)
 
 		normalCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
@@ -352,7 +352,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}})
 		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 
-		_, err = Execute(&MoveActivity{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}}}, player, world)
+		_, err = Execute(&MoveBehavior{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}}}, player, world)
 		require.NoError(t, err)
 
 		modCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
@@ -371,7 +371,7 @@ func TestLastActivity(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
-		_, err = Execute(&WaitActivity{Duration: 1, Reason: "テスト"}, player, world)
+		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "テスト"}, player, world)
 		require.NoError(t, err)
 
 		result := GetLastResult(player, world)
@@ -392,7 +392,7 @@ func TestLastActivity(t *testing.T) {
 		require.NoError(t, err)
 
 		// 待機
-		_, err = Execute(&WaitActivity{Duration: 1, Reason: "待機"}, player, world)
+		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "待機"}, player, world)
 		require.NoError(t, err)
 
 		result := GetLastResult(player, world)
@@ -405,7 +405,7 @@ func TestLastActivity(t *testing.T) {
 		assert.Equal(t, expected, result)
 
 		// 移動
-		_, err = Execute(&MoveActivity{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}}}, player, world)
+		_, err = Execute(&MoveBehavior{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}}}, player, world)
 		require.NoError(t, err)
 
 		result = GetLastResult(player, world)
@@ -427,7 +427,7 @@ func TestLastActivity(t *testing.T) {
 
 		// 存在しないターゲットへの攻撃（失敗する）
 		nonExistentEntity := gc.InvalidEntity
-		_, _ = Execute(&AttackActivity{Target: nonExistentEntity}, player, world)
+		_, _ = Execute(&AttackBehavior{Target: nonExistentEntity}, player, world)
 
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{

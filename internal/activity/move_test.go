@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMoveActivity_Validate(t *testing.T) {
+func TestMoveBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("有効な移動先の場合は成功", func(t *testing.T) {
@@ -27,7 +27,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
-		ma := &MoveActivity{}
+		ma := &MoveBehavior{}
 		err = ma.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -44,7 +44,7 @@ func TestMoveActivity_Validate(t *testing.T) {
 			Destination:  nil,
 		}
 
-		ma := &MoveActivity{}
+		ma := &MoveBehavior{}
 		err = ma.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Equal(t, ErrMoveTargetNotSet, err)
@@ -63,17 +63,17 @@ func TestMoveActivity_Validate(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
-		ma := &MoveActivity{}
+		ma := &MoveBehavior{}
 		err := ma.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Equal(t, ErrMoveNoGridElement, err)
 	})
 }
 
-func TestMoveActivity_Info(t *testing.T) {
+func TestMoveBehavior_Info(t *testing.T) {
 	t.Parallel()
 
-	ma := &MoveActivity{}
+	ma := &MoveBehavior{}
 	info := ma.Info()
 
 	assert.Equal(t, "移動", info.Name)
@@ -81,14 +81,14 @@ func TestMoveActivity_Info(t *testing.T) {
 	assert.False(t, info.Resumable)
 }
 
-func TestMoveActivity_Name(t *testing.T) {
+func TestMoveBehavior_Name(t *testing.T) {
 	t.Parallel()
 
-	ma := &MoveActivity{}
+	ma := &MoveBehavior{}
 	assert.Equal(t, gc.BehaviorMove, ma.Name())
 }
 
-func TestMoveActivity_DoTurn(t *testing.T) {
+func TestMoveBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常に移動して完了する", func(t *testing.T) {
@@ -104,7 +104,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
-		ma := &MoveActivity{}
+		ma := &MoveBehavior{}
 		err = ma.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -129,7 +129,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 			Destination:  nil,
 		}
 
-		ma := &MoveActivity{}
+		ma := &MoveBehavior{}
 		err = ma.DoTurn(comp, player, world)
 
 		require.Error(t, err)
@@ -150,7 +150,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
 		}
 
-		ma := &MoveActivity{}
+		ma := &MoveBehavior{}
 		err := ma.DoTurn(comp, player, world)
 
 		require.Error(t, err)
@@ -182,7 +182,7 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 			Destination:  &gc.GridElement{Coord: memberGrid.Coord},
 		}
 
-		ma := &MoveActivity{}
+		ma := &MoveBehavior{}
 		err = ma.DoTurn(comp, player, world)
 		require.NoError(t, err)
 

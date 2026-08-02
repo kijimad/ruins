@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestWaitActivity_Validate(t *testing.T) {
+func TestWaitBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("有効なdurationの場合は成功", func(t *testing.T) {
@@ -28,7 +28,7 @@ func TestWaitActivity_Validate(t *testing.T) {
 			TurnsTotal:   1,
 		}
 
-		wa := &WaitActivity{}
+		wa := &WaitBehavior{}
 		err = wa.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -45,14 +45,14 @@ func TestWaitActivity_Validate(t *testing.T) {
 			TurnsTotal:   0,
 		}
 
-		wa := &WaitActivity{}
+		wa := &WaitBehavior{}
 		err = wa.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "待機時間が無効")
 	})
 }
 
-func TestWaitActivity_DoTurn(t *testing.T) {
+func TestWaitBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("1ターン進行する", func(t *testing.T) {
@@ -69,7 +69,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    3,
 		}
 
-		wa := &WaitActivity{}
+		wa := &WaitBehavior{}
 		err = wa.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -90,7 +90,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    0,
 		}
 
-		wa := &WaitActivity{}
+		wa := &WaitBehavior{}
 		err = wa.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -111,7 +111,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    1,
 		}
 
-		wa := &WaitActivity{}
+		wa := &WaitBehavior{}
 		err = wa.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -120,7 +120,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 	})
 }
 
-func TestWaitActivity_Finish(t *testing.T) {
+func TestWaitBehavior_Finish(t *testing.T) {
 	t.Parallel()
 
 	t.Run("1ターン待機ではログを出さない", func(t *testing.T) {
@@ -135,7 +135,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 			TurnsTotal:   1,
 		}
 
-		wa := &WaitActivity{}
+		wa := &WaitBehavior{}
 		err = wa.Finish(comp, player, world)
 		require.NoError(t, err)
 
@@ -155,7 +155,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 			TurnsTotal:   5,
 		}
 
-		wa := &WaitActivity{}
+		wa := &WaitBehavior{}
 		err = wa.Finish(comp, player, world)
 		require.NoError(t, err)
 
@@ -166,14 +166,14 @@ func TestWaitActivity_Finish(t *testing.T) {
 	})
 }
 
-func TestWaitActivity_長い待機は敵接近で中断する(t *testing.T) {
+func TestWaitBehavior_長い待機は敵接近で中断する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	actor := newDisassembleTestPlayer(world)
 	spawnHostileAt(world, 11, 10)
 
-	wa := &WaitActivity{}
+	wa := &WaitBehavior{}
 	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, TurnsTotal: 5, TurnsLeft: 5}
 
 	require.NoError(t, wa.DoTurn(comp, actor, world))
@@ -181,14 +181,14 @@ func TestWaitActivity_長い待機は敵接近で中断する(t *testing.T) {
 	assert.Equal(t, "周囲に敵がいるため待機を中断", comp.CancelReason)
 }
 
-func TestWaitActivity_1ターンの待機は敵が隣接していても完結する(t *testing.T) {
+func TestWaitBehavior_1ターンの待機は敵が隣接していても完結する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	actor := newDisassembleTestPlayer(world)
 	spawnHostileAt(world, 11, 10)
 
-	wa := &WaitActivity{}
+	wa := &WaitBehavior{}
 	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, TurnsTotal: 1, TurnsLeft: 1}
 
 	require.NoError(t, wa.DoTurn(comp, actor, world))

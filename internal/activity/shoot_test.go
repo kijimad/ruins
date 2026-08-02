@@ -47,25 +47,25 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	return world, p, e, we
 }
 
-// === ShootActivity テスト ===
+// === ShootBehavior テスト ===
 
-func TestShootActivity_Info(t *testing.T) {
+func TestShootBehavior_Info(t *testing.T) {
 	t.Parallel()
-	sa := &ShootActivity{}
+	sa := &ShootBehavior{}
 	info := sa.Info()
 	assert.Equal(t, "射撃", info.Name)
 	assert.Equal(t, gc.BehaviorShoot, sa.Name())
 	assert.False(t, info.Interruptible)
 }
 
-func TestShootActivity_Validate(t *testing.T) {
+func TestShootBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常な射撃が検証を通過する", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		activity.Target = &enemy
@@ -78,7 +78,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 
@@ -94,7 +94,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		activity.Target = &enemy
@@ -119,7 +119,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		activity.Target = &enemy
@@ -144,7 +144,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		activity.Target = &enemy
@@ -162,7 +162,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		activity.Target = &enemy
@@ -176,7 +176,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		world, player, enemy, _ := setupShootingWorld(t)
 		world.Components.Dead.Add(player, &gc.Dead{})
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		activity.Target = &enemy
@@ -190,7 +190,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		world, player, enemy, _ := setupShootingWorld(t)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		activity, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		activity.Target = &enemy
@@ -200,7 +200,7 @@ func TestShootActivity_Validate(t *testing.T) {
 	})
 }
 
-func TestShootActivity_DoTurn(t *testing.T) {
+func TestShootBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("弾薬が1消費される", func(t *testing.T) {
@@ -210,7 +210,7 @@ func TestShootActivity_DoTurn(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		before := fire.Magazine
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		comp, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 		comp.Target = &enemy
@@ -226,7 +226,7 @@ func TestShootActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		sa := &ShootActivity{}
+		sa := &ShootBehavior{}
 		comp, err := NewActivity(sa, 1)
 		require.NoError(t, err)
 

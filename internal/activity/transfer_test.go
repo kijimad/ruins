@@ -30,7 +30,7 @@ func findBackpackItem(world w.World, owner ecs.Entity, name string) *ecs.Entity 
 	return nil
 }
 
-func TestTransferActivity_Validate(t *testing.T) {
+func TestTransferBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("アイテムと受取人が指定されていれば検証を通過する", func(t *testing.T) {
@@ -54,7 +54,7 @@ func TestTransferActivity_Validate(t *testing.T) {
 			Recipient:    &leader,
 		}
 
-		ta := &TransferActivity{}
+		ta := &TransferBehavior{}
 		err = ta.Validate(comp, member, world)
 		assert.NoError(t, err)
 	})
@@ -71,7 +71,7 @@ func TestTransferActivity_Validate(t *testing.T) {
 			Recipient:    &leader,
 		}
 
-		ta := &TransferActivity{}
+		ta := &TransferBehavior{}
 		err = ta.Validate(comp, leader, world)
 		assert.Error(t, err)
 	})
@@ -93,13 +93,13 @@ func TestTransferActivity_Validate(t *testing.T) {
 			Target:       &item,
 		}
 
-		ta := &TransferActivity{}
+		ta := &TransferBehavior{}
 		err = ta.Validate(comp, player, world)
 		assert.Error(t, err)
 	})
 }
 
-func TestTransferActivity_DoTurn(t *testing.T) {
+func TestTransferBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("アイテムが受取人のバックパックに移動する", func(t *testing.T) {
@@ -129,7 +129,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    1,
 		}
 
-		ta := &TransferActivity{Target: item, Recipient: leader, Count: 1}
+		ta := &TransferBehavior{Target: item, Recipient: leader, Count: 1}
 		err = ta.DoTurn(comp, member, world)
 		require.NoError(t, err)
 
@@ -161,7 +161,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 			TurnsLeft:    1,
 		}
 		// アクターは受け取る隊員。丸ごとでなく1個だけ引く
-		ta := &TransferActivity{Target: pool, Recipient: member, Count: 1}
+		ta := &TransferBehavior{Target: pool, Recipient: member, Count: 1}
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		// 元スタックは1減り、隊員は1個だけ受け取る
@@ -199,7 +199,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 			TurnsTotal:   1,
 			TurnsLeft:    1,
 		}
-		ta := &TransferActivity{Target: pool, Recipient: member, Count: 2}
+		ta := &TransferBehavior{Target: pool, Recipient: member, Count: 2}
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		assert.Equal(t, 3, world.Components.Stackable.Get(pool).Count, "プールは指定個数ぶん減る")
@@ -214,9 +214,9 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 	})
 }
 
-func TestTransferActivity_Info(t *testing.T) {
+func TestTransferBehavior_Info(t *testing.T) {
 	t.Parallel()
-	ta := &TransferActivity{}
+	ta := &TransferBehavior{}
 	info := ta.Info()
 	assert.Equal(t, "転送", info.Name)
 	assert.Equal(t, gc.BehaviorTransfer, ta.Name())
