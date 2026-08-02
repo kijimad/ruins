@@ -311,13 +311,14 @@ func (st *CharacterState) doEquipSelect(world w.World, action inputmapper.Action
 		if err := st.executeEquip(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
+		st.subState = charSubBrowse
 		st.rebuild = true
 	case inputmapper.ActionOpenItemDetail:
 		st.showDetail = true
 		st.detailPage = 0
 		st.rebuild = true
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
-		// Dispatch で処理される
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+		// Dispatch で処理される。装備選択は単一タブなのでタブ切替は何もしない
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("装備選択: 未対応のアクション: %s", action)
 	}
@@ -366,7 +367,6 @@ func (st *CharacterState) executeEquip(world w.World) error {
 	}
 	lifecycle.MoveToEquip(world, item, props.TargetMember, props.SlotNumber)
 	st.logEquipChange(world, props.TargetMember, itemName, "を装備した。")
-	st.subState = charSubBrowse
 	return nil
 }
 

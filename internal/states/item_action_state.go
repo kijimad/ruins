@@ -45,46 +45,44 @@ type itemVerb struct {
 	Exec    func(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 }
 
-// verbs は表示順に並べた動詞タブの一覧。タブ順を兼ねる。
+// verbList は表示順に並べた動詞タブの一覧。タブ順を兼ねる。内容は定数なのでパッケージ変数で1度だけ構築する。
 // 投げるは Throwable と ThrowActivity の実装後に足す。
-func verbs() []itemVerb {
-	return []itemVerb{
-		{
-			ID:      verbExamine,
-			Label:   "調べる",
-			KeyHint: "X",
-			Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
-			Exec:    nil,
-		},
-		{
-			ID:      verbPlace,
-			Label:   "置く",
-			KeyHint: "d",
-			Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
-			Exec:    execPlace,
-		},
-		{
-			ID:      verbConsume,
-			Label:   "食べる",
-			KeyHint: "e",
-			Accept:  acceptConsumeFood,
-			Exec:    execUseItem,
-		},
-		{
-			ID:      verbRead,
-			Label:   "読む",
-			KeyHint: "r",
-			Accept:  func(world w.World, entity ecs.Entity) bool { return world.Components.Book.Has(entity) },
-			Exec:    execRead,
-		},
-		{
-			ID:      verbUse,
-			Label:   "使う",
-			KeyHint: "t",
-			Accept:  acceptUseTool,
-			Exec:    execUseItem,
-		},
-	}
+var verbList = []itemVerb{
+	{
+		ID:      verbExamine,
+		Label:   "調べる",
+		KeyHint: "X",
+		Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
+		Exec:    nil,
+	},
+	{
+		ID:      verbPlace,
+		Label:   "置く",
+		KeyHint: "d",
+		Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
+		Exec:    execPlace,
+	},
+	{
+		ID:      verbConsume,
+		Label:   "食べる",
+		KeyHint: "e",
+		Accept:  acceptConsumeFood,
+		Exec:    execUseItem,
+	},
+	{
+		ID:      verbRead,
+		Label:   "読む",
+		KeyHint: "r",
+		Accept:  func(world w.World, entity ecs.Entity) bool { return world.Components.Book.Has(entity) },
+		Exec:    execRead,
+	},
+	{
+		ID:      verbUse,
+		Label:   "使う",
+		KeyHint: "t",
+		Accept:  acceptUseTool,
+		Exec:    execUseItem,
+	},
 }
 
 // acceptConsumeFood は栄養か回復を持つ消費物を食べるの対象とする。飲み物も含む
@@ -167,7 +165,7 @@ func verbByAction(action inputmapper.ActionID) (verbID, bool) {
 
 // verbTabIndex は動詞のタブ位置を返す
 func verbTabIndex(id verbID) int {
-	for i, v := range verbs() {
+	for i, v := range verbList {
 		if v.ID == id {
 			return i
 		}
@@ -353,7 +351,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 // jumpToTab は指定した動詞のタブへ移動する。現在タブから差分だけ TabNext を送る
 func (st *ItemActionState) jumpToTab(target verbID) {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
-	n := len(verbs())
+	n := len(verbList)
 	if n == 0 {
 		return
 	}
@@ -367,7 +365,7 @@ func (st *ItemActionState) jumpToTab(target verbID) {
 // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く
 func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World], error) {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
-	vs := verbs()
+	vs := verbList
 	if menuState.TabIndex >= len(vs) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
@@ -417,7 +415,7 @@ func (st *ItemActionState) fetchProps(world w.World) itemActionProps {
 		backpack = playerBackpackItems(world, player)
 	}
 
-	vs := verbs()
+	vs := verbList
 	tabs := make([]verbTabData, len(vs))
 	for i, verb := range vs {
 		items := make([]itemActionEntry, 0, len(backpack))
