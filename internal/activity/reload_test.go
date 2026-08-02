@@ -196,7 +196,7 @@ func TestReloadBehavior_進捗はアクティビティごとに独立する(t *t
 	b, err := GetBehavior(gc.BehaviorReload)
 	require.NoError(t, err)
 	ra, ok := b.(*ReloadBehavior)
-	require.True(t, ok, "GetBehavior(BehaviorReload) は *ReloadBehavior を返すべき")
+	require.Truef(t, ok, "GetBehavior(BehaviorReload) は *ReloadBehavior を返すべきだが %T だった", b)
 
 	// 同一インスタンスに通す2つの独立したアクティビティを用意する
 	comp1, err := NewReloadActivity(player, world)
