@@ -18,6 +18,9 @@ const (
 	AlignRight
 )
 
+// tableRowHeight はテーブル1行の高さ。本文は SmallFace で、行を詰めて1画面に多く収める
+const tableRowHeight = 20
+
 // NewTableContainer はテーブルのコンテナを作成する
 // 各行がコンテナとなる縦並びレイアウトで、行単位の背景色設定が可能
 func NewTableContainer(_ []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {
@@ -135,11 +138,11 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(values[i], &res.Text.BodyFace, textColor),
+			widget.TextOpts.Text(values[i], &res.Text.SmallFace, textColor),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),
-				widget.WidgetOpts.MinSize(width, 24),
+				widget.WidgetOpts.MinSize(width, tableRowHeight),
 			),
 		)
 		row.AddChild(textWidget)
@@ -167,11 +170,11 @@ func addDataRow(container *widget.Container, columnWidths []int, values []string
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(value, &res.Text.BodyFace, theme.TextPrimary),
+			widget.TextOpts.Text(value, &res.Text.SmallFace, theme.TextPrimary),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),
-				widget.WidgetOpts.MinSize(width, 24),
+				widget.WidgetOpts.MinSize(width, tableRowHeight),
 			),
 		)
 		row.AddChild(textWidget)
