@@ -80,11 +80,12 @@ func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Ent
 // UpdateSpecFromSpec はEntitySpecから性能表示コンテナを更新する。
 // エンティティを生成せずに性能を表示できる
 func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec gc.EntitySpec) {
-	RenderSpecSections(targetContainer, specSectionsFromSpec(world, spec))
+	RenderSpecSections(targetContainer, SpecSectionsFromSpec(world, spec))
 }
 
-// specSectionsFromSpec は EntitySpec の性能表示を区画の並びとして返す
-func specSectionsFromSpec(world w.World, spec gc.EntitySpec) []SpecSection {
+// SpecSectionsFromSpec は EntitySpec の性能表示を区画の並びとして返す。
+// エンティティを生成せず raw 定義から詳細を出す商店などで使う
+func SpecSectionsFromSpec(world w.World, spec gc.EntitySpec) []SpecSection {
 	var sections []SpecSection
 	add := func(s SpecSection) { sections = append(sections, s) }
 

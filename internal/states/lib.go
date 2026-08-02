@@ -95,7 +95,7 @@ func newThreeColContent(topRight, midLeft, midRight, bottomLeft widget.Preferred
 	return content
 }
 
-// newCurrencyRow は所持金を表示する行を組み立てる。商店と酒場で共通に使う
+// newCurrencyRow は所持金を表示する行を組み立てる。酒場で使う
 func newCurrencyRow(currency int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))
