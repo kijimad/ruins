@@ -486,9 +486,9 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	// Row 1: アイテム一覧。行は名前のみ
 	root.AddChild(st.buildItemList(props, tabIndex, itemIndex, res))
 
-	// Row 2: キー案内。詳細は x のモーダルで見る
+	// Row 2: キー案内。詳細は x のモーダルで見る。補助テキストなので小さめにする
 	hintRow := styled.NewRowContainer()
-	hintRow.AddChild(styled.NewMenuText("x で詳細", res))
+	hintRow.AddChild(styled.NewDescriptionText("x で詳細", res))
 	root.AddChild(hintRow)
 
 	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする。

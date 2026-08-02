@@ -608,7 +608,7 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 		hint = "[ ] で切替   x で詳細"
 	}
 	hintRow := styled.NewRowContainer()
-	hintRow.AddChild(styled.NewMenuText(hint, res))
+	hintRow.AddChild(styled.NewDescriptionText(hint, res))
 	root.AddChild(hintRow)
 
 	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする
