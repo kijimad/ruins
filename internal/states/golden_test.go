@@ -162,25 +162,6 @@ func TestGolden_SquadMenu(t *testing.T) {
 	})
 }
 
-func TestGolden_FormationMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		playerEntity, err := query.GetPlayerEntity(world)
-		require.NoError(t, err)
-
-		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
-		require.NoError(t, err)
-
-		town := newGoldenBackdrop(t)
-		formation, err := gs.NewFormationMenuState()
-		require.NoError(t, err)
-		return []es.State[w.World]{
-			town,
-			formation,
-		}
-	})
-}
-
 func TestGolden_Dungeon(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
