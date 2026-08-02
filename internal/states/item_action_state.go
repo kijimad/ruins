@@ -456,7 +456,7 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{
 					Top:    theme.Space3,
 					Bottom: theme.Space3,
@@ -488,9 +488,6 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 
 	// Row 2: アイテム一覧。行は名前のみ
 	root.AddChild(st.buildItemList(props, tabIndex, itemIndex, res))
-
-	// Row 3: 選択中アイテムと x の案内
-	root.AddChild(st.buildDescLine(props, tabIndex, itemIndex, res))
 
 	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする。
 	// 外周は背景を持たず透明にし、周囲にフィールドを覗かせる
@@ -538,20 +535,6 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 			container.AddChild(styled.NewListItemText(item.Name, clr, isSelected, res))
 		}
 	}
-	return container
-}
-
-// buildDescLine は最下部に選択中アイテム名と詳細キーの案内を1行で置く
-func (st *ItemActionState) buildDescLine(props itemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	text := " "
-	if tabIndex < len(props.Tabs) {
-		items := props.Tabs[tabIndex].Items
-		if itemIndex < len(items) {
-			text = fmt.Sprintf("%s を選択中   x で詳細", items[itemIndex].Name)
-		}
-	}
-	container.AddChild(styled.NewMenuText(text, res))
 	return container
 }
 
