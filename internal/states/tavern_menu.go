@@ -386,7 +386,7 @@ func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {
 	content.AddChild(st.buildCurrencyRow(props.Currency, res))
 	content.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))
 
-	eui := newTabScreenUI(res, tabScreen{Content: content})
+	eui := newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false)})
 
 	if st.subState == tavernSubStateWindow {
 		window := st.buildActionWindow(world)

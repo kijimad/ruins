@@ -454,7 +454,7 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 		TabLabels: labels,
 		TabIndex:  tabIndex,
 		Content:   st.buildItemList(props, tabIndex, itemIndex, res),
-		Footer:    "x で詳細",
+		Footer:    menuNavHint(true, "x 詳細"),
 	})
 
 	if st.showDetail {

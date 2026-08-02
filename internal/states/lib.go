@@ -2,6 +2,7 @@ package states
 
 import (
 	"image"
+	"strings"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -68,6 +69,22 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 		root.AddChild(c)
 	}
 	return &ebitenui.UI{Container: wrapModalRoot(root)}
+}
+
+// menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、
+// どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに
+// 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、
+// extras に画面固有の案内を後ろへ足す
+func menuNavHint(hasTabs bool, extras ...string) string {
+	parts := make([]string, 0, 4+len(extras))
+	if hasTabs {
+		parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+" タブ")
+	}
+	parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+" 選択")
+	parts = append(parts, consts.IconKeyEnter+" 決定")
+	parts = append(parts, extras...)
+	parts = append(parts, consts.IconKeyEsc+" 戻る")
+	return strings.Join(parts, "   ")
 }
 
 // centerRow は子を水平中央に置くアンカーコンテナを返す。タブ帯や見出しの中央寄せに使う

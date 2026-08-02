@@ -450,7 +450,7 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 	content.AddChild(widget.NewContainer())
 	content.AddChild(widget.NewContainer())
 
-	eui := newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content})
+	eui := newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content, Footer: menuNavHint(true)})
 
 	// ウィンドウを追加
 	switch st.subState {

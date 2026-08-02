@@ -598,10 +598,11 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 		content = widget.NewContainer()
 	}
 
-	hint := "x で詳細"
+	extras := []string{"x 詳細"}
 	if props.HasMultiple {
-		hint = "[ ] で切替   x で詳細"
+		extras = []string{"[ ] 切替", "x 詳細"}
 	}
+	hint := menuNavHint(true, extras...)
 
 	ui := newTabScreenUI(res, tabScreen{
 		Header:    header,

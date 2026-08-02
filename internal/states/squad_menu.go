@@ -430,7 +430,7 @@ func (st *SquadMenuState) buildUI(world w.World) *ebitenui.UI {
 	content.AddChild(st.buildBatchCommands(props.BatchCommands, itemIndex, res))
 	content.AddChild(st.buildMemberTable(props.Members, len(props.BatchCommands), itemIndex, res))
 
-	eui := newTabScreenUI(res, tabScreen{Content: content})
+	eui := newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false)})
 
 	if st.subState == squadSubStateWindow {
 		window := st.buildActionWindow(world)

@@ -28,7 +28,7 @@ const storageItemsPerPage = 20
 // tabID は収納メニューのタブ識別子
 type tabID string
 
-// 収納メニューのタブID。タブ定義・転送処理・ヘルプ表示で参照する。定義型にして任意文字列の混入を防ぐ
+// 収納メニューのタブID。タブ定義・転送処理で参照する。定義型にして任意文字列の混入を防ぐ
 const (
 	tabIDRetrieve tabID = "retrieve"
 	tabIDStore    tabID = "store"
@@ -303,12 +303,12 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 	content.AddChild(st.buildActiveListContainer(props, tabIndex, itemIndex, res))
 	content.AddChild(widget.NewContainer())
 	content.AddChild(st.buildReferenceListContainer(props, tabIndex, res))
-	// 3行目: ヘルプテキスト
-	content.AddChild(st.buildHelpContainer(props.Tabs, tabIndex, res))
+	// 3行目: 予備
+	content.AddChild(widget.NewContainer())
 	content.AddChild(widget.NewContainer())
 	content.AddChild(widget.NewContainer())
 
-	return newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content})
+	return newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content, Footer: menuNavHint(true)})
 }
 
 func (st *StorageMenuState) buildWeightContainer(weightText string, overflow bool, res resources.UIResources) *widget.Container {
@@ -388,15 +388,5 @@ func (st *StorageMenuState) buildReferenceListContainer(props storageProps, tabI
 		container.AddChild(styled.NewDescriptionText("(アイテムなし)", res))
 	}
 
-	return container
-}
-
-func (st *StorageMenuState) buildHelpContainer(tabs []storageTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	helpText := "Enter:取り出す  ←→:タブ切替  Esc:閉じる"
-	if tabIndex < len(tabs) && tabs[tabIndex].ID == tabIDStore {
-		helpText = "Enter:収納する  ←→:タブ切替  Esc:閉じる"
-	}
-	container.AddChild(styled.NewMenuText(helpText, res))
 	return container
 }
