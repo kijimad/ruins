@@ -13,11 +13,13 @@ func HandleMenuInput() (inputmapper.ActionID, bool) {
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
 		return inputmapper.ActionMenuCancel, true
 	}
+	// 左右キーはタブ切替に固定する。全メニューで意味を揃え、ページ送りには使わない。
+	// 長い一覧は上下でカーソルがページ境界を越えると自動でページが繰られる
 	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
-		return inputmapper.ActionMenuLeft, true
+		return inputmapper.ActionMenuTabPrev, true
 	}
 	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
-		return inputmapper.ActionMenuRight, true
+		return inputmapper.ActionMenuTabNext, true
 	}
 	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) {
 		return inputmapper.ActionMenuUp, true
@@ -41,12 +43,11 @@ func HandleMenuInput() (inputmapper.ActionID, bool) {
 func HandleWindowInput() (inputmapper.ActionID, bool) {
 	keyboardInput := input.GetSharedKeyboardInput()
 
-	// 上移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowUp) {
+	// 上下移動はメニュー本体と同じくリピートを効かせる。サブウィンドウでも操作感を揃える
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) {
 		return inputmapper.ActionWindowUp, true
 	}
-	// 下移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowDown) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) {
 		return inputmapper.ActionWindowDown, true
 	}
 	if keyboardInput.IsEnterJustPressedOnce() {

@@ -219,17 +219,7 @@ func (st *ItemActionState) Update(world w.World) (es.Transition[w.World], error)
 		} else if transition.Type != es.TransNone {
 			return transition, nil
 		}
-		// 左右キーはタブ切替に読み替える。ページ送りは持たない
-		dispatch := action
-		switch action {
-		case inputmapper.ActionMenuLeft:
-			dispatch = inputmapper.ActionMenuTabPrev
-		case inputmapper.ActionMenuRight:
-			dispatch = inputmapper.ActionMenuTabNext
-		default:
-			// 他のアクションはそのままタブメニューへ送る
-		}
-		st.mount.Dispatch(dispatch)
+		st.mount.Dispatch(action)
 	}
 
 	props := st.fetchProps(world)

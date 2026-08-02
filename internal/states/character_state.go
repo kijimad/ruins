@@ -170,19 +170,11 @@ func (st *CharacterState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// dispatch は現在のサブステートにアクションを送る。閲覧中の左右キーはタブ切替へ読み替える
+// dispatch は現在のサブステートにアクションを送る
 func (st *CharacterState) dispatch(action inputmapper.ActionID) {
 	switch st.subState {
 	case charSubBrowse:
-		d := action
-		switch action {
-		case inputmapper.ActionMenuLeft:
-			d = inputmapper.ActionMenuTabPrev
-		case inputmapper.ActionMenuRight:
-			d = inputmapper.ActionMenuTabNext
-		default:
-		}
-		st.mount.Dispatch(d)
+		st.mount.Dispatch(action)
 	case charSubEquipSelect:
 		st.equipMount.Dispatch(action)
 	case charSubActionWindow:
