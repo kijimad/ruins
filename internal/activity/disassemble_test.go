@@ -107,7 +107,7 @@ func TestDisassembleBehavior_Validate_工具がないとエラー(t *testing.T) 
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp := &gc.Activity{Target: &crate}
+	comp := &gc.Activity{Params: &gc.TargetParams{Target: crate}}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "工具")
@@ -334,7 +334,7 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 	spawnHostileAt(world, 9, 10)
 
 	da := &DisassembleBehavior{}
-	comp := &gc.Activity{Target: &crate}
+	comp := &gc.Activity{Params: &gc.TargetParams{Target: crate}}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "敵")

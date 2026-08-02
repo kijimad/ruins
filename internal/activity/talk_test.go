@@ -27,7 +27,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,
-			Target:       &npc,
+			Params:       &gc.TargetParams{Target: npc},
 		}
 
 		ta := &TalkBehavior{}
@@ -44,7 +44,6 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,
-			Target:       nil,
 		}
 
 		ta := &TalkBehavior{}
@@ -66,7 +65,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,
-			Target:       &npc,
+			Params:       &gc.TargetParams{Target: npc},
 		}
 
 		ta := &TalkBehavior{}
@@ -88,7 +87,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,
-			Target:       &npc,
+			Params:       &gc.TargetParams{Target: npc},
 		}
 
 		ta := &TalkBehavior{}
@@ -132,7 +131,7 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,
 			State:        gc.ActivityStateRunning,
-			Target:       &npc,
+			Params:       &gc.TargetParams{Target: npc},
 		}
 
 		ta := &TalkBehavior{}
@@ -157,7 +156,7 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTalk,
 			State:        gc.ActivityStateRunning,
-			Target:       &npc,
+			Params:       &gc.TargetParams{Target: npc},
 		}
 
 		ta := &TalkBehavior{}

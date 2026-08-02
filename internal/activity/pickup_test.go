@@ -27,7 +27,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		pa := &PickupBehavior{}
@@ -48,7 +48,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		pa := &PickupBehavior{}
@@ -57,13 +57,15 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
-	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
+	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
+		// 値型パラメータでは目的地未指定を表せない。拾得対象も拾得先も無い不正なアクティビティは
+		// PlaceParams が付いていないため弾かれる
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 		}
@@ -71,7 +73,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "目的地が指定されていません")
+		assert.Contains(t, err.Error(), "拾得対象が指定されていません")
 	})
 }
 
@@ -109,7 +111,7 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		pa := &PickupBehavior{}
@@ -138,7 +140,7 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		pa := &PickupBehavior{}
@@ -187,7 +189,7 @@ func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
-			Target:       &item1,
+			Params:       &gc.PlaceParams{Target: item1},
 		}
 
 		pa := &PickupBehavior{}
@@ -221,7 +223,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Target:       &item,
+			Params:       &gc.PlaceParams{Target: item},
 		}
 
 		pa := &PickupBehavior{}
@@ -244,7 +246,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Target:       &prop,
+			Params:       &gc.PlaceParams{Target: prop},
 		}
 
 		pa := &PickupBehavior{}
@@ -272,7 +274,7 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		pa := &PickupBehavior{}
@@ -299,7 +301,7 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
+			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}},
 		}
 
 		pa := &PickupBehavior{}
@@ -328,7 +330,7 @@ func TestPickupBehavior_DoTurn_Fixed(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}},
+			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}}},
 		}
 
 		pa := &PickupBehavior{}

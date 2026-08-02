@@ -38,16 +38,28 @@ func (pb *PickupBehavior) Name() gc.BehaviorName {
 // target が nil なら足元や指定座標から拾う。
 func NewPickupActivity(target *ecs.Entity, destination *gc.GridElement) *gc.Activity {
 	comp := NewActivity(gc.BehaviorPickup, 0)
-	comp.Target = target
-	comp.Destination = destination
+	// Target 未指定は足元拾得を表すので、無効エンティティを標識に置く
+	p := &gc.PlaceParams{Target: gc.InvalidEntity}
+	if target != nil {
+		p.Target = *target
+	}
+	if destination != nil {
+		p.Destination = *destination
+	}
+	comp.Params = p
 	return comp
 }
 
 // Validate はアイテム拾得アクティビティの検証を行う
 func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return fmt.Errorf("拾得対象が指定されていません")
+	}
+
 	// Targetが指定されている場合は、そのエンティティが拾得可能かだけを確認する
-	if comp.Target != nil {
-		if !query.IsPickable(*comp.Target, world) {
+	if p.Target != gc.InvalidEntity {
+		if !query.IsPickable(p.Target, world) {
 			return fmt.Errorf("拾えるものがありません")
 		}
 		return nil
@@ -117,12 +129,17 @@ func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 // Targetが指定されている場合はそのエンティティだけを拾い、
 // 未指定の場合はDestinationタイル上の全拾得可能エンティティを拾う
 func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return fmt.Errorf("拾得対象が指定されていません")
+	}
+
 	// Targetが指定されている場合は、そのエンティティだけを拾う
-	if comp.Target != nil {
-		if !query.IsPickable(*comp.Target, world) {
+	if p.Target != gc.InvalidEntity {
+		if !query.IsPickable(p.Target, world) {
 			return fmt.Errorf("拾えるものがありません")
 		}
-		return pb.collect(actor, world, *comp.Target)
+		return pb.collect(actor, world, p.Target)
 	}
 
 	target, err := requireDestination(comp)

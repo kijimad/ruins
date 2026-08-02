@@ -18,7 +18,8 @@ var log = logger.New(logger.CategoryAction)
 // 単なる名前と実装の対応付けで、毎回ゼロ値の新しいインスタンスを返す。
 // Behavior は状態を持たない振る舞いの束なので、これで問題ない。着手後のライフサイクル
 // Validate/Start/DoTurn/Finish/Canceled はこのゼロ値インスタンスで回るため、per-アクティビティの
-// 状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。着手パラメータを持つのは
+// 状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。着手パラメータは
+// NewXxxActivity 構築関数が引数から gc.Activity の Params へ書き込む。
 //
 // default 句は置かない。新しい BehaviorName を足したとき case 追加漏れを exhaustive linter に
 // 検知させるため。未知の名前は switch を抜けた後のエラーで扱う。
@@ -191,13 +192,14 @@ func Cancel(comp *gc.Activity, reason string) {
 	comp.CancelReason = reason
 }
 
-// requireDestination はActivityのDestinationからタイル座標を取得する。
-// Destinationが未設定の場合はエラーを返す
+// requireDestination はActivityのPlaceParamsからタイル座標を取得する。
+// PlaceParamsが未設定の場合はエラーを返す
 func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
-	if comp.Destination == nil {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
 		return consts.Coord[consts.Tile]{}, fmt.Errorf("目的地が指定されていません")
 	}
-	return consts.Coord[consts.Tile]{X: comp.Destination.X, Y: comp.Destination.Y}, nil
+	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
 }
 
 // isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする

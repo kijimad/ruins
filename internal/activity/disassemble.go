@@ -54,19 +54,20 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activi
 
 	requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
 	comp := NewActivity(gc.BehaviorDisassemble, requiredAP)
-	comp.Target = &target
+	comp.Params = &gc.TargetParams{Target: target}
 	return comp, nil
 }
 
 // Validate は分解アクティビティの検証を行う
 func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		return fmt.Errorf("分解対象が指定されていません")
 	}
-	if !world.ECS.Alive(*comp.Target) {
+	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("分解対象が存在しません")
 	}
-	def, ok := findDisassemblyDef(*comp.Target, world)
+	def, ok := findDisassemblyDef(p.Target, world)
 	if !ok {
 		return fmt.Errorf("対象は分解定義を持っていません")
 	}
@@ -81,7 +82,11 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 
 // Start は分解開始時の処理を実行する
 func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	def, ok := findDisassemblyDef(*comp.Target, world)
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
+		return fmt.Errorf("分解対象が指定されていません")
+	}
+	def, ok := findDisassemblyDef(p.Target, world)
 	if !ok {
 		return fmt.Errorf("分解定義が見つかりません")
 	}
@@ -90,7 +95,7 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 		return fmt.Errorf("分解に必要な工具を持っていません")
 	}
 
-	name := query.GetEntityName(*comp.Target, world)
+	name := query.GetEntityName(p.Target, world)
 	gamelog.New(query.GetGameLog(world)).
 		ItemName(toolName).
 		Append("で").
@@ -105,7 +110,12 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 // DoTurn は分解アクティビティの1ターン分の処理を実行する。
 // 対象が消えている可能性があるため、毎ターン先頭で生存を確認する
 func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if !world.ECS.Alive(*comp.Target) {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
+		Cancel(comp, "分解対象が指定されていません")
+		return nil
+	}
+	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "分解対象が消えたため中断")
 		return nil
 	}
@@ -113,7 +123,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 		Cancel(comp, "周囲に敵がいるため分解を中断")
 		return nil
 	}
-	def, ok := findDisassemblyDef(*comp.Target, world)
+	def, ok := findDisassemblyDef(p.Target, world)
 	if !ok {
 		Cancel(comp, "分解定義が見つからないため中断")
 		return nil
@@ -134,7 +144,11 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 // Finish は分解完了時の処理を実行する。産出を抽選し、propは足元へ落として
 // エンティティを除去、アイテムは1個消費して所持品へ加える
 func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	target := *comp.Target
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
+		return nil
+	}
+	target := p.Target
 	if !world.ECS.Alive(target) {
 		return nil
 	}
@@ -191,8 +205,8 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
-		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
-			logger.ItemName(query.GetEntityName(*comp.Target, world)).Append("の分解を中断した")
+		if p, ok := comp.Params.(*gc.TargetParams); ok && world.ECS.Alive(p.Target) {
+			logger.ItemName(query.GetEntityName(p.Target, world)).Append("の分解を中断した")
 		} else {
 			logger.Append("分解を中断した")
 		}

@@ -192,7 +192,7 @@ func TestPlanRetreatAction(t *testing.T) {
 	b, ok := sp.planRetreatAction(world, member, snap)
 	require.True(t, ok)
 	require.Equal(t, gc.BehaviorMove, b.BehaviorName)
-	newGrid := &gc.GridElement{Coord: b.Destination.Coord}
+	newGrid := &gc.GridElement{Coord: moveParams(t, b).Destination.Coord}
 	assert.Less(t, gridDistance(newGrid, snap.LeaderGrid), gridDistance(snap.Grid, snap.LeaderGrid), "リーダーに近づく")
 }
 
@@ -210,7 +210,7 @@ func TestPlanReturnToExploredArea(t *testing.T) {
 	b, ok := sp.planReturnToExploredArea(world, member, snap)
 	require.True(t, ok)
 	require.Equal(t, gc.BehaviorMove, b.BehaviorName)
-	newGrid := &gc.GridElement{Coord: b.Destination.Coord}
+	newGrid := &gc.GridElement{Coord: moveParams(t, b).Destination.Coord}
 	assert.Less(t, gridDistance(newGrid, snap.LeaderGrid), gridDistance(snap.Grid, snap.LeaderGrid), "リーダーに近づく")
 }
 
@@ -263,7 +263,7 @@ func TestPlanAttackAction(t *testing.T) {
 		b, ok := sp.planAttackAction(world, member, snap)
 		require.True(t, ok)
 		require.Equal(t, gc.BehaviorAttack, b.BehaviorName)
-		assert.Equal(t, enemy, *b.Target)
+		assert.Equal(t, enemy, targetParams(t, b).Target)
 	})
 
 	t.Run("視界内の離れた敵に接近する", func(t *testing.T) {
@@ -322,7 +322,7 @@ func TestPlanEvadeAction(t *testing.T) {
 		require.True(t, ok)
 		require.Equal(t, gc.BehaviorMove, b.BehaviorName)
 
-		newGrid := &gc.GridElement{Coord: b.Destination.Coord}
+		newGrid := &gc.GridElement{Coord: moveParams(t, b).Destination.Coord}
 		after := gridDistance(newGrid, world.Components.GridElement.Get(enemy))
 		assert.Greater(t, after, before, "敵から遠ざかる")
 	})
@@ -408,7 +408,7 @@ func TestPlanEscortAction(t *testing.T) {
 
 		b := sp.planEscortAction(world, member, snap)
 		require.Equal(t, gc.BehaviorMove, b.BehaviorName)
-		newGrid := &gc.GridElement{Coord: b.Destination.Coord}
+		newGrid := &gc.GridElement{Coord: moveParams(t, b).Destination.Coord}
 		assert.Less(t, gridDistance(newGrid, snap.LeaderGrid), gridDistance(snap.Grid, snap.LeaderGrid))
 	})
 }
@@ -429,7 +429,7 @@ func TestPlanVanguardAction(t *testing.T) {
 
 		b := sp.planVanguardAction(world, member, snap)
 		require.Equal(t, gc.BehaviorMove, b.BehaviorName)
-		newGrid := &gc.GridElement{Coord: b.Destination.Coord}
+		newGrid := &gc.GridElement{Coord: moveParams(t, b).Destination.Coord}
 		assert.Less(t, gridDistance(newGrid, snap.LeaderGrid), gridDistance(snap.Grid, snap.LeaderGrid))
 	})
 
@@ -466,7 +466,7 @@ func TestPlanVanguardAction(t *testing.T) {
 		require.Equal(t, gc.BehaviorMove, b.BehaviorName)
 
 		field := query.GetCurrentStageField(world)
-		assert.True(t, field.ExploredTiles[*b.Destination], "探索済みの隣接マスへ移動する")
+		assert.True(t, field.ExploredTiles[moveParams(t, b).Destination], "探索済みの隣接マスへ移動する")
 	})
 }
 
@@ -500,7 +500,7 @@ func TestPlanSquadPatrolAction(t *testing.T) {
 		require.Equal(t, gc.BehaviorMove, b.BehaviorName)
 
 		field := query.GetCurrentStageField(world)
-		assert.True(t, field.ExploredTiles[*b.Destination], "探索済みの隣接マスへ移動する")
+		assert.True(t, field.ExploredTiles[moveParams(t, b).Destination], "探索済みの隣接マスへ移動する")
 	})
 }
 
@@ -519,7 +519,7 @@ func TestTryMoveToward(t *testing.T) {
 		b, ok := sp.tryMoveToward(world, member, from, target)
 		require.True(t, ok)
 		require.Equal(t, gc.BehaviorMove, b.BehaviorName)
-		newGrid := &gc.GridElement{Coord: b.Destination.Coord}
+		newGrid := &gc.GridElement{Coord: moveParams(t, b).Destination.Coord}
 		assert.Less(t, gridDistance(newGrid, target), gridDistance(from, target))
 	})
 
@@ -549,6 +549,6 @@ func TestTryMoveAway(t *testing.T) {
 	b, ok := sp.tryMoveAway(world, member, from, threat)
 	require.True(t, ok)
 	require.Equal(t, gc.BehaviorMove, b.BehaviorName)
-	newGrid := &gc.GridElement{Coord: b.Destination.Coord}
+	newGrid := &gc.GridElement{Coord: moveParams(t, b).Destination.Coord}
 	assert.Greater(t, gridDistance(newGrid, threat), gridDistance(from, threat))
 }

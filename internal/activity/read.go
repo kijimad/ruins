@@ -41,17 +41,18 @@ func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
 		return nil, fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
 	comp := NewActivity(gc.BehaviorRead, book.Effort.Max)
-	comp.Target = &target
+	comp.Params = &gc.TargetParams{Target: target}
 	return comp, nil
 }
 
 // Validate は読書アクティビティの検証を行う
 func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		return fmt.Errorf("本が指定されていません")
 	}
 
-	book := getBook(*comp.Target, world)
+	book := getBook(p.Target, world)
 	if book == nil {
 		return fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
@@ -74,16 +75,17 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は読書開始時の処理を実行する
 func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		return ErrReadTargetNotSet
 	}
 
-	book := getBook(*comp.Target, world)
+	book := getBook(p.Target, world)
 	if book == nil {
 		return fmt.Errorf("Bookコンポーネントが見つかりません")
 	}
 
-	name := query.GetEntityName(*comp.Target, world)
+	name := query.GetEntityName(p.Target, world)
 	gamelog.New(query.GetGameLog(world)).
 		Append(fmt.Sprintf("「%s」を読み始めた", name)).
 		Log()
@@ -95,7 +97,12 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 // DoTurn は読書アクティビティの1ターン分の処理を実行する。
 // スタック統合などで本エンティティが消えている可能性があるため、毎ターン先頭で生存を確認する
 func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if !world.ECS.Alive(*comp.Target) {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
+		Cancel(comp, "本が指定されていません")
+		return nil
+	}
+	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "本が消えたため中断")
 		return nil
 	}
@@ -106,7 +113,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return nil
 	}
 
-	book := getBook(*comp.Target, world)
+	book := getBook(p.Target, world)
 	if book == nil {
 		Cancel(comp, "本が見つかりません")
 		return nil
@@ -134,12 +141,16 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish は読書完了時の処理を実行する
 func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if !world.ECS.Alive(*comp.Target) {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
+		return nil
+	}
+	if !world.ECS.Alive(p.Target) {
 		return nil
 	}
 
-	book := getBook(*comp.Target, world)
-	name := query.GetEntityName(*comp.Target, world)
+	book := getBook(p.Target, world)
+	name := query.GetEntityName(p.Target, world)
 
 	if book != nil && book.IsCompleted() {
 		gamelog.New(query.GetGameLog(world)).
@@ -147,7 +158,7 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 			Log()
 
 		// 読了した本を消費する
-		if err := lifecycle.ChangeItemCount(world, *comp.Target, -1); err != nil {
+		if err := lifecycle.ChangeItemCount(world, p.Target, -1); err != nil {
 			return fmt.Errorf("本の消費に失敗: %w", err)
 		}
 	}
@@ -161,8 +172,8 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (rb *ReadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		message := "読書を中断した"
-		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
-			message = fmt.Sprintf("「%s」の読書を中断した", query.GetEntityName(*comp.Target, world))
+		if p, ok := comp.Params.(*gc.TargetParams); ok && world.ECS.Alive(p.Target) {
+			message = fmt.Sprintf("「%s」の読書を中断した", query.GetEntityName(p.Target, world))
 		}
 		gamelog.New(query.GetGameLog(world)).
 			Append(message).

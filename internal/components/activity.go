@@ -67,15 +67,52 @@ const (
 // Activity は実行中のアクティビティを保持するコンポーネント
 // 1エンティティにつき最大1つのアクティビティを持つ
 type Activity struct {
-	BehaviorName BehaviorName  // アクティビティの種類
-	State        ActivityState // 実行状態
-	Progress     IntPool       // Max=完了に必要な総量、Current=注ぎ込んだ総量。Current>=Max で完了。初回ステップで満ちれば即時アクションになる
-	Target       *ecs.Entity   // 操作対象のエンティティ
-	Recipient    *ecs.Entity   // 受取人エンティティ。アイテム転送の転送先など
-	Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う
-	Count        int           // 個数パラメータ。アイテム転送で渡す個数など。0は全量を意味する
-	CancelReason string        // キャンセル理由
+	BehaviorName BehaviorName   // アクティビティの種類
+	State        ActivityState  // 実行状態
+	Progress     IntPool        // Max=完了に必要な総量、Current=注ぎ込んだ総量。Current>=Max で完了。初回ステップで満ちれば即時アクションになる
+	Params       ActivityParams // 各アクティビティ固有のパラメータ。無いアクションは nil
+	CancelReason string         // キャンセル理由
 }
+
+// ActivityParams は各アクティビティ固有のパラメータを表すマーカーインターフェース。
+// Activity は serde の skip 対象なので、interface を保持しても保存互換に影響しない。
+// VisualEffect と同じく、依存の無いデータだけを components 層の interface として持つ。
+// 実行ロジックを持つ Behavior は w.World に依存するため activity 層に置く。
+type ActivityParams interface {
+	isActivityParams()
+}
+
+// MoveParams は移動アクションのパラメータ。
+type MoveParams struct {
+	Destination GridElement // 移動先タイル
+}
+
+func (*MoveParams) isActivityParams() {}
+
+// TargetParams は単一の対象エンティティを取るアクションのパラメータ。
+// 攻撃・会話・扉開閉・射撃・アイテム使用・読書・分解などが使う。
+type TargetParams struct {
+	Target ecs.Entity // 操作対象のエンティティ
+}
+
+func (*TargetParams) isActivityParams() {}
+
+// PlaceParams は対象と操作先を取るアクションのパラメータ。拾得・ドロップ・押し引きが使う。
+type PlaceParams struct {
+	Target      ecs.Entity  // 操作対象のエンティティ
+	Destination GridElement // 操作先タイル
+}
+
+func (*PlaceParams) isActivityParams() {}
+
+// TransferParams はアイテム転送のパラメータ。Count が0以下なら在庫全量を渡す。
+type TransferParams struct {
+	Target    ecs.Entity // 渡すアイテム
+	Recipient ecs.Entity // 受取人エンティティ
+	Count     int        // 渡す個数。0以下は全量
+}
+
+func (*TransferParams) isActivityParams() {}
 
 // LastActivity は直近のアクティビティ実行結果を保持するコンポーネント
 type LastActivity struct {

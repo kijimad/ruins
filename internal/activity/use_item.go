@@ -37,17 +37,18 @@ func (u *UseItemBehavior) Name() gc.BehaviorName {
 // NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
 func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorUseItem, 0)
-	comp.Target = &target
+	comp.Params = &gc.TargetParams{Target: target}
 	return comp
 }
 
 // Validate はBehaviorの実装
 func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		return ErrItemNotSet
 	}
 
-	item := *comp.Target
+	item := p.Target
 
 	// 何らかの効果があるかチェック
 	hasEffect := world.Components.ProvidesHealing.Has(item) ||
@@ -68,18 +69,21 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 // Start はBehaviorの実装
 func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム使用開始", "actor", actor, "item", *comp.Target)
+	if p, ok := comp.Params.(*gc.TargetParams); ok {
+		log.Debug("アイテム使用開始", "actor", actor, "item", p.Target)
+	}
 	return nil
 }
 
 // DoTurn はBehaviorの実装
 func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		Cancel(comp, "アイテムが指定されていません")
 		return ErrItemNotSet
 	}
 
-	item := *comp.Target
+	item := p.Target
 
 	// 回復効果があるかチェック
 	if world.Components.ProvidesHealing.Has(item) {

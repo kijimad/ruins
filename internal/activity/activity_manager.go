@@ -61,7 +61,7 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 		result = &ActionResult{Success: true, State: gc.ActivityStateRunning, ActivityName: behaviorName, Message: "アクション開始"}
 	} else {
 		// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
-		consumePassCost(world, behaviorName, actor, comp.Destination)
+		consumePassCost(world, behaviorName, actor, comp)
 		if currentActivity != nil && IsCanceled(currentActivity) {
 			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: currentActivity.CancelReason}
 		} else {
@@ -282,7 +282,7 @@ func ProcessContinuousActivities(world w.World) {
 
 // consumePassCost はアクションのAPコストを消費する。
 // Behavior は behaviorName から GetBehavior で引く。
-func consumePassCost(world w.World, behaviorName gc.BehaviorName, actor ecs.Entity, destination *gc.GridElement) {
+func consumePassCost(world w.World, behaviorName gc.BehaviorName, actor ecs.Entity, comp *gc.Activity) {
 	behavior, err := GetBehavior(behaviorName)
 	if err != nil {
 		log.Error("Behaviorの取得に失敗", "actor", actor, "error", err.Error())
@@ -292,8 +292,8 @@ func consumePassCost(world w.World, behaviorName gc.BehaviorName, actor ecs.Enti
 	cost := info.ActionPointCost
 
 	// 移動行動の場合、移動先タイルのPassCostを加算する
-	if behaviorName == gc.BehaviorMove && destination != nil {
-		cost += getPassCostAt(world, int(destination.X), int(destination.Y))
+	if mp, ok := comp.Params.(*gc.MoveParams); ok && behaviorName == gc.BehaviorMove {
+		cost += getPassCostAt(world, int(mp.Destination.X), int(mp.Destination.Y))
 	}
 
 	if !query.ConsumeActionPoints(world, actor, cost) {

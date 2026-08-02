@@ -36,17 +36,18 @@ func (tb *TalkBehavior) Name() gc.BehaviorName {
 // NewTalkActivity は会話対象を指定して会話アクティビティを組む。
 func NewTalkActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorTalk, 0)
-	comp.Target = &target
+	comp.Params = &gc.TargetParams{Target: target}
 	return comp
 }
 
 // Validate は会話アクティビティの検証を行う
 func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		return fmt.Errorf("会話対象が指定されていません")
 	}
 
-	targetEntity := *comp.Target
+	targetEntity := p.Target
 
 	// Dialogコンポーネントを持っているか確認
 	if !world.Components.Dialog.Has(targetEntity) {
@@ -69,7 +70,12 @@ func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 
 // DoTurn は会話アクティビティの1ターン分の処理を実行する
 func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	targetEntity := *comp.Target
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
+		Cancel(comp, "会話対象が指定されていません")
+		return fmt.Errorf("会話対象が指定されていません")
+	}
+	targetEntity := p.Target
 
 	if !world.Components.Dialog.Has(targetEntity) {
 		Cancel(comp, "会話データが取得できません")
@@ -96,11 +102,12 @@ func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("会話アクティビティ完了", "actor", actor)
 
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		return nil
 	}
 
-	targetEntity := *comp.Target
+	targetEntity := p.Target
 
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {

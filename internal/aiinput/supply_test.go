@@ -90,7 +90,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
 		require.Equal(t, gc.BehaviorUseItem, b.BehaviorName, "自分の食料は食べるべき")
-		assert.Equal(t, food, *b.Target)
+		assert.Equal(t, food, targetParams(t, b).Target)
 	})
 
 	t.Run("栄養価の低い食料を先に消費する", func(t *testing.T) {
@@ -112,7 +112,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
 		require.Equal(t, gc.BehaviorUseItem, b.BehaviorName)
-		got := world.Components.ProvidesNutrition.Get(*b.Target).Amount
+		got := world.Components.ProvidesNutrition.Get(targetParams(t, b).Target).Amount
 		assert.LessOrEqual(t, got, lowN, "最も栄養価の低い食料を選ぶべき")
 	})
 
@@ -127,9 +127,9 @@ func TestPlanSupplyAction(t *testing.T) {
 		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
 		require.Equal(t, gc.BehaviorTransfer, b.BehaviorName, "隣接なら受け取りになるべき")
-		assert.Equal(t, poolFood, *b.Target)
-		assert.Equal(t, member, *b.Recipient)
-		assert.Equal(t, 1, b.Count, "共有プールからは1食ぶんだけ受け取る")
+		assert.Equal(t, poolFood, transferParams(t, b).Target)
+		assert.Equal(t, member, transferParams(t, b).Recipient)
+		assert.Equal(t, 1, transferParams(t, b).Count, "共有プールからは1食ぶんだけ受け取る")
 	})
 
 	t.Run("リーダーが遠ければ接近する", func(t *testing.T) {

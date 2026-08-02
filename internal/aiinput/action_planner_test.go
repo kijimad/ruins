@@ -21,6 +21,30 @@ func newTestRNG() *rand.Rand {
 	return rand.New(rand.NewPCG(0, 0))
 }
 
+// moveParams はActivityから移動パラメータを取り出す。型が違えばテストを失敗させる
+func moveParams(t *testing.T, comp *gc.Activity) *gc.MoveParams {
+	t.Helper()
+	p, ok := comp.Params.(*gc.MoveParams)
+	require.True(t, ok, "MoveParams を期待")
+	return p
+}
+
+// targetParams はActivityから単一対象パラメータを取り出す。型が違えばテストを失敗させる
+func targetParams(t *testing.T, comp *gc.Activity) *gc.TargetParams {
+	t.Helper()
+	p, ok := comp.Params.(*gc.TargetParams)
+	require.True(t, ok, "TargetParams を期待")
+	return p
+}
+
+// transferParams はActivityから転送パラメータを取り出す。型が違えばテストを失敗させる
+func transferParams(t *testing.T, comp *gc.Activity) *gc.TransferParams {
+	t.Helper()
+	p, ok := comp.Params.(*gc.TransferParams)
+	require.True(t, ok, "TransferParams を期待")
+	return p
+}
+
 // setupTestAI はテスト用の敵AIエンティティを作成する
 func setupTestAI(t *testing.T, world w.World, x, y int, solo *gc.SoloAI) ecs.Entity {
 	t.Helper()
@@ -84,7 +108,7 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorAttack, behavior.BehaviorName)
-	attack := behavior
+	attack := targetParams(t, behavior)
 	assert.NotZero(t, attack.Target)
 }
 
@@ -110,7 +134,7 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName)
-	move := behavior
+	move := moveParams(t, behavior)
 	assert.NotZero(t, move.Destination)
 }
 
@@ -352,7 +376,7 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName)
-	move := behavior
+	move := moveParams(t, behavior)
 	assert.Equal(t, consts.Tile(21), move.Destination.X)
 	assert.Equal(t, consts.Tile(20), move.Destination.Y)
 }
@@ -385,7 +409,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 
 	behavior := rp.planPatrolAction(world, entity, solo, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName)
-	move := behavior
+	move := moveParams(t, behavior)
 	assert.Equal(t, consts.Tile(19), move.Destination.X)
 	assert.Equal(t, -1, int(solo.PatrolDir.X))
 }
@@ -446,7 +470,7 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
 		if behavior.BehaviorName == gc.BehaviorMove {
-			move := behavior
+			move := moveParams(t, behavior)
 			grid.X = move.Destination.X
 			grid.Y = move.Destination.Y
 		}
@@ -487,7 +511,7 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	for i := range 50 {
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
 		if behavior.BehaviorName == gc.BehaviorMove {
-			move := behavior
+			move := moveParams(t, behavior)
 			dx := move.Destination.X - solo.Origin.X
 			dy := move.Destination.Y - solo.Origin.Y
 			if dx < 0 {
@@ -629,7 +653,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	for range 50 {
 		behavior := rp.planSwarmAction(world, entity, grid)
 		if behavior.BehaviorName == gc.BehaviorMove {
-			move := behavior
+			move := moveParams(t, behavior)
 			if move.Destination.X > grid.X || move.Destination.Y > grid.Y {
 				moved = true
 				break
@@ -832,7 +856,7 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorAttack, behavior.BehaviorName, "隣接する隊員を攻撃すべき")
-	attack := behavior
+	attack := targetParams(t, behavior)
 	assert.NotZero(t, attack.Target)
 }
 
@@ -868,6 +892,6 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 	behavior := rp.Plan(world, entity)
 	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName, "離れた隊員に向かって移動すべき")
-	move := behavior
+	move := moveParams(t, behavior)
 	assert.Greater(t, int(move.Destination.X), 5, "隊員方向に移動すべき")
 }

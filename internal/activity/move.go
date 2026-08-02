@@ -103,17 +103,18 @@ func (mb *MoveBehavior) Name() gc.BehaviorName {
 // NewMoveActivity は移動先を指定して移動アクティビティを組む。
 func NewMoveActivity(destination gc.GridElement) *gc.Activity {
 	comp := NewActivity(gc.BehaviorMove, 0)
-	comp.Destination = &destination
+	comp.Params = &gc.MoveParams{Destination: destination}
 	return comp
 }
 
 // Validate はBehaviorの実装
 func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Destination == nil {
+	p, ok := comp.Params.(*gc.MoveParams)
+	if !ok {
 		return ErrMoveTargetNotSet
 	}
 
-	if comp.Destination.X < 0 || comp.Destination.Y < 0 {
+	if p.Destination.X < 0 || p.Destination.Y < 0 {
 		return ErrMoveTargetCoordInvalid
 	}
 
@@ -121,7 +122,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveNoGridElement
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-	if !CanMoveTo(world, comp.Destination.Coord, gridElement.Coord, actor) {
+	if !CanMoveTo(world, p.Destination.Coord, gridElement.Coord, actor) {
 		return ErrMoveTargetInvalid
 	}
 
@@ -144,13 +145,16 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start はBehaviorの実装
 func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("移動開始", "actor", actor, "destination", *comp.Destination)
+	if p, ok := comp.Params.(*gc.MoveParams); ok {
+		log.Debug("移動開始", "actor", actor, "destination", p.Destination)
+	}
 	return nil
 }
 
 // DoTurn はBehaviorの実装
 func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Destination == nil {
+	p, ok := comp.Params.(*gc.MoveParams)
+	if !ok {
 		Cancel(comp, "移動先が設定されていません")
 		return ErrMoveTargetNotSet
 	}
@@ -164,7 +168,7 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	// 移動可能かチェック
 	grid := gridElement
-	to := comp.Destination.Coord
+	to := p.Destination.Coord
 	from := grid.Coord
 	if !CanMoveTo(world, to, from, actor) {
 		Cancel(comp, "移動できません")
@@ -185,8 +189,8 @@ func (mb *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
-	if comp.Destination != nil && world.Components.Player.Has(actor) {
-		showTileInteractionMessage(world, comp.Destination)
+	if p, ok := comp.Params.(*gc.MoveParams); ok && world.Components.Player.Has(actor) {
+		showTileInteractionMessage(world, &p.Destination)
 	}
 
 	return nil
@@ -199,12 +203,16 @@ func (mb *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.MoveParams)
+	if !ok {
+		return ErrMoveTargetNotSet
+	}
 	if !world.Components.GridElement.Has(actor) {
 		return ErrGridElementNotFound
 	}
 	grid := world.Components.GridElement.Get(actor)
 	old := grid.Coord
-	dest := comp.Destination.Coord
+	dest := p.Destination.Coord
 
 	// 味方キャラクターのいるタイルに移動する場合、位置を入れ替える
 	swapped, didSwap := swapAllyIfNeeded(world, actor, old, dest)

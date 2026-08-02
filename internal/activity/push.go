@@ -16,8 +16,8 @@ import (
 // 必要な総コストが増え、パーティAPが多いほど速く満ちる。
 //
 // 着手時のパラメータである押す対象キューブと押し向きは NewPushActivity が受け取り、
-// 押し先を求めて gc.Activity の Target と Destination へ書き込む。継続処理は状態を持たない
-// ゼロ値インスタンスで回るので、着手後は gc.Activity の Target と Destination だけを読む。
+// 押し先を求めて gc.Activity の PlaceParams へ書き込む。継続処理は状態を持たない
+// ゼロ値インスタンスで回るので、着手後は gc.Activity の PlaceParams だけを読む。
 type PushBehavior struct{}
 
 // Info はBehaviorの実装
@@ -49,28 +49,26 @@ func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) (*gc.Acti
 
 // Validate はBehaviorの実装
 func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
 		return fmt.Errorf("押す対象が指定されていません")
 	}
-	if !world.ECS.Alive(*comp.Target) {
+	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("押す対象が存在しません")
 	}
-	if !world.Components.Pushable.Has(*comp.Target) {
+	if !world.Components.Pushable.Has(p.Target) {
 		return fmt.Errorf("対象は押せません")
 	}
-	if !world.Components.GridElement.Has(*comp.Target) {
+	if !world.Components.GridElement.Has(p.Target) {
 		return fmt.Errorf("押す対象に位置がありません")
-	}
-	if comp.Destination == nil {
-		return fmt.Errorf("押し先が指定されていません")
 	}
 	if !world.Components.GridElement.Has(actor) {
 		return fmt.Errorf("押し手に位置がありません")
 	}
 	// 押せる先はプレイヤーが行ける先に一致させる。CanMoveTo が寒波前線の破棄域や
 	// 壁を弾くので、押し専用の前線チェックは持たない
-	cubeCoord := world.Components.GridElement.Get(*comp.Target).Coord
-	if !CanMoveTo(world, comp.Destination.Coord, cubeCoord, *comp.Target) {
+	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
+	if !CanMoveTo(world, p.Destination.Coord, cubeCoord, p.Target) {
 		return fmt.Errorf("その方向へは押せません")
 	}
 	return nil
@@ -84,16 +82,17 @@ func (pb *PushBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 
 // DoTurn はBehaviorの実装。毎ターン対象の生存と押し先の通行可否を確かめ、ターンを1つ消費する。
 func (pb *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if comp.Target == nil || !world.ECS.Alive(*comp.Target) {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok || !world.ECS.Alive(p.Target) {
 		Cancel(comp, "押す対象が消えたため中断")
 		return nil
 	}
-	if comp.Destination == nil || !world.Components.GridElement.Has(*comp.Target) {
+	if !world.Components.GridElement.Has(p.Target) {
 		Cancel(comp, "押せなくなったため中断")
 		return nil
 	}
-	cubeCoord := world.Components.GridElement.Get(*comp.Target).Coord
-	if !CanMoveTo(world, comp.Destination.Coord, cubeCoord, *comp.Target) {
+	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
+	if !CanMoveTo(world, p.Destination.Coord, cubeCoord, p.Target) {
 		Cancel(comp, "その方向へは押せなくなった")
 		return nil
 	}
@@ -110,16 +109,20 @@ func (pb *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 // プレイヤーは次の移動入力で空いたタイルへ普通に一歩進む。押しと移動を別アクティビティに分け、
 // それぞれが自然な通貨、押しはターン、移動はAPで課金される。
 func (pb *PushBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	cube := *comp.Target
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return nil
+	}
+	cube := p.Target
 	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) {
 		return nil
 	}
-	world.Components.GridElement.Get(cube).Coord = comp.Destination.Coord
+	world.Components.GridElement.Get(cube).Coord = p.Destination.Coord
 
 	// キューブは BlockPass なので通行索引が変わる。全再構築で確実に反映する
 	query.InvalidateSpatialIndex(world)
 
-	log.Debug("押し完了", "actor", actor, "cube", cube, "to", comp.Destination.String())
+	log.Debug("押し完了", "actor", actor, "cube", cube, "to", p.Destination.String())
 	return nil
 }
 
@@ -151,16 +154,14 @@ func buildCubeMove(name gc.BehaviorName, cube ecs.Entity, dest consts.Coord[cons
 		return nil, err
 	}
 	comp := NewActivity(name, required)
-	c := cube
-	comp.Target = &c
-	comp.Destination = &gc.GridElement{Coord: dest}
+	comp.Params = &gc.PlaceParams{Target: cube, Destination: gc.GridElement{Coord: dest}}
 	return comp, nil
 }
 
 // PullBehavior は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
 // 自分は1タイル後退する。押しでは動かせない壁際・角のキューブを引き出して詰みを解く。
 // 総コストは押しと同じく総重量で決まる。着手時のパラメータである引く対象キューブは
-// NewPullActivity が受け取り、gc.Activity の Target と Destination へ書き込む。継続処理は
+// NewPullActivity が受け取り、gc.Activity の PlaceParams へ書き込む。継続処理は
 // 状態を持たないゼロ値インスタンスで回るので、着手後は gc.Activity 側だけを読む。
 type PullBehavior struct{}
 
@@ -213,22 +214,23 @@ func NewPullActivity(cube, actor ecs.Entity, world w.World) (*gc.Activity, error
 
 // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。
 func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil || !world.ECS.Alive(*comp.Target) {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok || !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("引く対象が存在しません")
 	}
-	if !world.Components.Pushable.Has(*comp.Target) {
+	if !world.Components.Pushable.Has(p.Target) {
 		return fmt.Errorf("対象は引けません")
 	}
-	if !world.Components.GridElement.Has(*comp.Target) || comp.Destination == nil {
+	if !world.Components.GridElement.Has(p.Target) {
 		return fmt.Errorf("引く対象に位置がありません")
 	}
 	if !world.Components.GridElement.Has(actor) {
 		return fmt.Errorf("引き手に位置がありません")
 	}
-	cubeCoord := world.Components.GridElement.Get(*comp.Target).Coord
-	retreat := pullRetreat(cubeCoord, comp.Destination.Coord)
+	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
+	retreat := pullRetreat(cubeCoord, p.Destination.Coord)
 	// 後退先がプレイヤーの行ける先であること。キューブの入る先はプレイヤーが退いて空く
-	if !CanMoveTo(world, retreat, comp.Destination.Coord, actor) {
+	if !CanMoveTo(world, retreat, p.Destination.Coord, actor) {
 		return fmt.Errorf("引くスペースがありません")
 	}
 	return nil
@@ -242,17 +244,18 @@ func (pb *PullBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 
 // DoTurn はBehaviorの実装。毎ターン対象の生存と後退先の通行可否を確かめ、ターンを1つ消費する。
 func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil || !world.ECS.Alive(*comp.Target) {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok || !world.ECS.Alive(p.Target) {
 		Cancel(comp, "引く対象が消えたため中断")
 		return nil
 	}
-	if comp.Destination == nil || !world.Components.GridElement.Has(*comp.Target) || !world.Components.GridElement.Has(actor) {
+	if !world.Components.GridElement.Has(p.Target) || !world.Components.GridElement.Has(actor) {
 		Cancel(comp, "引けなくなったため中断")
 		return nil
 	}
-	cubeCoord := world.Components.GridElement.Get(*comp.Target).Coord
-	retreat := pullRetreat(cubeCoord, comp.Destination.Coord)
-	if !CanMoveTo(world, retreat, comp.Destination.Coord, actor) {
+	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
+	retreat := pullRetreat(cubeCoord, p.Destination.Coord)
+	if !CanMoveTo(world, retreat, p.Destination.Coord, actor) {
 		Cancel(comp, "引くスペースがなくなった")
 		return nil
 	}
@@ -267,22 +270,26 @@ func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish はBehaviorの実装。キューブをプレイヤーの元タイルへ引き入れ、プレイヤーは1タイル後退する。
 func (pb *PullBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	cube := *comp.Target
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return nil
+	}
+	cube := p.Target
 	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) || !world.Components.GridElement.Has(actor) {
 		return nil
 	}
 	cubeGrid := world.Components.GridElement.Get(cube)
 	cubeOld := cubeGrid.Coord
-	retreat := pullRetreat(cubeOld, comp.Destination.Coord)
+	retreat := pullRetreat(cubeOld, p.Destination.Coord)
 
 	// 先にプレイヤーを後退させてタイルを空け、そこへキューブを引き入れる
 	world.Components.GridElement.Get(actor).Coord = retreat
-	cubeGrid.Coord = comp.Destination.Coord
+	cubeGrid.Coord = p.Destination.Coord
 
 	// キューブは BlockPass なので通行索引が変わる。全再構築で確実に反映する
 	query.InvalidateSpatialIndex(world)
 
-	log.Debug("引き完了", "actor", actor, "cube", cube, "to", comp.Destination.String())
+	log.Debug("引き完了", "actor", actor, "cube", cube, "to", p.Destination.String())
 	return nil
 }
 

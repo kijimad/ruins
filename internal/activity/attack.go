@@ -46,13 +46,14 @@ func (ab *AttackBehavior) Name() gc.BehaviorName {
 // NewAttackActivity は攻撃対象を指定して攻撃アクティビティを組む。
 func NewAttackActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorAttack, 0)
-	comp.Target = &target
+	comp.Params = &gc.TargetParams{Target: target}
 	return comp
 }
 
 // Validate はBehaviorの実装
 func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		return ErrAttackTargetNotSet
 	}
 
@@ -61,19 +62,19 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	}
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
-	if !world.ECS.Alive(*comp.Target) {
+	if !world.ECS.Alive(p.Target) {
 		return ErrAttackTargetNotExists
 	}
 
-	if !world.Components.GridElement.Has(*comp.Target) {
+	if !world.Components.GridElement.Has(p.Target) {
 		return ErrAttackTargetNotExists
 	}
 
-	if world.Components.Dead.Has(*comp.Target) {
+	if world.Components.Dead.Has(p.Target) {
 		return ErrAttackTargetDead
 	}
 
-	if !ab.isInRange(actor, *comp.Target, world) {
+	if !ab.isInRange(actor, p.Target, world) {
 		return ErrAttackOutOfRange
 	}
 
@@ -86,13 +87,15 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 // Start はBehaviorの実装
 func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("攻撃開始", "actor", actor, "target", *comp.Target)
+	if p, ok := comp.Params.(*gc.TargetParams); ok {
+		log.Debug("攻撃開始", "actor", actor, "target", p.Target)
+	}
 	return nil
 }
 
 // DoTurn はBehaviorの実装
 func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	if _, ok := comp.Params.(*gc.TargetParams); !ok {
 		Cancel(comp, "攻撃対象が設定されていません")
 		return ErrAttackTargetNotSet
 	}
@@ -113,13 +116,14 @@ func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はBehaviorの実装
 func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
 		log.Debug("攻撃対象が未設定のまま完了処理に到達した。攻撃は実行されていない", "actor", actor)
 		return nil
 	}
 	log.Debug("攻撃アクティビティ完了",
 		"actor", actor,
-		"target", *comp.Target)
+		"target", p.Target)
 
 	return nil
 }
@@ -131,7 +135,11 @@ func (ab *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 }
 
 func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	target := *comp.Target
+	p, ok := comp.Params.(*gc.TargetParams)
+	if !ok {
+		return ErrAttackTargetNotSet
+	}
+	target := p.Target
 
 	log.Debug("攻撃実行", "attacker", actor, "target", target)
 
@@ -144,7 +152,7 @@ func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 }
 
 func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
-	if comp.Target == nil {
+	if _, ok := comp.Params.(*gc.TargetParams); !ok {
 		return false
 	}
 
