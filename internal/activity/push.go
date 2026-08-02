@@ -28,6 +28,7 @@ func (pb *PushBehavior) Info() Info {
 		Interruptible:   true,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
+		// 必要総APはキューブの総重量に応じて buildCubeMove が算出するため、Info では持たず 0 とする
 		TotalRequiredAP: 0,
 	}
 }
@@ -173,6 +174,7 @@ func (pb *PullBehavior) Info() Info {
 		Interruptible:   true,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
+		// 必要総APはキューブの総重量に応じて buildCubeMove が算出するため、Info では持たず 0 とする
 		TotalRequiredAP: 0,
 	}
 }
