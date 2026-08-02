@@ -9,11 +9,16 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 道は隣接リージョンの小集落どうしを結ぶ舗装路。Connection 層の v1。
+// 道は隣接リージョンの小集落どうしを結ぶ舗装路。
 // 集落の位置は Placement.WinnerOf で生成せずに算出できるため、各チャンクは自分を
 // 横切る区間だけを独立に描ける。経路は西の集落から東の集落への L 字で、端点が
 // リージョン順に正規化されているので、どちらのチャンクから生成しても同じ道になる。
 type roadFeature struct{}
+
+// roadWidth は舗装路の幅。中心線に対し進行方向と垂直へこのタイル数だけ広げる。1タイルだと
+// 隊商の街道として細すぎるので幅を持たせる。幅は偶数なので中心は定まらず、オフセットを
+// -roadWidth/2 から始めてわずかに片側へ寄せる。
+const roadWidth consts.Tile = 4
 
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
 	r := floorDiv(c.X, settlementPlacement.Spacing)
@@ -52,14 +57,20 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 		return nil
 	}
 
+	// 水平辺は y=ay を中心に Y 方向へ、垂直辺は x=bx を中心に X 方向へ、幅 roadWidth のバンドで敷く。
+	// 角の (bx, ay) 付近は両バンドが重なるが replaceDirtTile は冪等なので二重舗装は無害。
 	for x := min(ax, bx); x <= max(ax, bx); x++ {
-		if err := pave(x, ay); err != nil {
-			return err
+		for w := range roadWidth {
+			if err := pave(x, ay+w-roadWidth/2); err != nil {
+				return err
+			}
 		}
 	}
 	for y := min(ay, by); y <= max(ay, by); y++ {
-		if err := pave(bx, y); err != nil {
-			return err
+		for w := range roadWidth {
+			if err := pave(bx+w-roadWidth/2, y); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

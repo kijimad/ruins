@@ -13396,6 +13396,40 @@ spriteSheetName = "field"
 [[props]]
 blockPass = false
 blockView = false
+description = "[dummy] ごろりと転がる岩。屋外散布の石。乗り越えられるよう通行可能にし passCost で歩きにくさだけ表す。実アート未実装の仮素材"
+passCost = 50
+name = "rock"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "rock"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
+name = "grass"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
+description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
+name = "weeds"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "weeds"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = false
+blockView = false
 description = "古びた黒枠のランタン。中に暖色の光。まだ灯る"
 hp = 5
 name = "old_lamp"
