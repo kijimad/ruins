@@ -176,6 +176,7 @@ type ItemActionState struct {
 	initialVerb verbID // 開いた直後に表示する動詞タブ
 	tabSeeded   bool   // 初期タブへ寄せたか
 	showDetail  bool   // 詳細モーダルを表示中か
+	detailPage  int    // 詳細モーダルの表示ページ
 	rebuild     bool   // 次フレームで UI を作り直すか
 	mount       *hooks.Mount[itemActionProps]
 	widget      *ebitenui.UI
@@ -264,6 +265,13 @@ func (st *ItemActionState) handleInput() (inputmapper.ActionID, bool) {
 		if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {
 			return inputmapper.ActionMenuCancel, true
 		}
+		// 詳細モーダル表示中の左右キーはページ送りに使う
+		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
+			return inputmapper.ActionMenuLeft, true
+		}
+		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
+			return inputmapper.ActionMenuRight, true
+		}
 		return "", false
 	}
 	// 動詞ショートカットは開いている間もタブ移動に使える。調べる X は Shift+x、詳細 x は Shift 無し
@@ -291,9 +299,22 @@ func (st *ItemActionState) handleInput() (inputmapper.ActionID, bool) {
 // DoAction は Action を実行する
 func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	if st.showDetail {
-		if action == inputmapper.ActionMenuCancel {
+		switch action {
+		case inputmapper.ActionMenuCancel:
 			st.showDetail = false
 			st.rebuild = true
+		case inputmapper.ActionMenuLeft:
+			if st.detailPage > 0 {
+				st.detailPage--
+				st.rebuild = true
+			}
+		case inputmapper.ActionMenuRight:
+			if e, ok := st.selectedEntity(world); ok && st.detailPage < menuscreen.DetailPageCount(world, e)-1 {
+				st.detailPage++
+				st.rebuild = true
+			}
+		default:
+			// 詳細表示中は他のアクションを無視する
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
@@ -303,6 +324,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
 		st.showDetail = true
+		st.detailPage = 0
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse:
@@ -344,6 +366,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 	verb := vs[menuState.TabIndex]
 	if verb.Exec == nil {
 		st.showDetail = true
+		st.detailPage = 0
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
@@ -505,5 +528,19 @@ func (st *ItemActionState) buildDetailWindow(world w.World, props itemActionProp
 		return nil
 	}
 	item := items[itemIndex]
-	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), item.Name, item.Desc, item.Entity)
+	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), item.Name, item.Desc, item.Entity, st.detailPage)
+}
+
+// selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
+func (st *ItemActionState) selectedEntity(world w.World) (ecs.Entity, bool) {
+	props := st.fetchProps(world)
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
+	if menuState.TabIndex >= len(props.Tabs) {
+		return ecs.Entity{}, false
+	}
+	items := props.Tabs[menuState.TabIndex].Items
+	if menuState.ItemIndex >= len(items) {
+		return ecs.Entity{}, false
+	}
+	return items[menuState.ItemIndex].Entity, true
 }

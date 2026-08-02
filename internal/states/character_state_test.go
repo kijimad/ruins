@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -119,6 +120,14 @@ func TestFetchCommandRows_仲間はポリシーと解雇を持ちプレイヤー
 	assert.Equal(t, cmdDismiss, rows[5].Kind, "末尾は解雇")
 
 	assert.Nil(t, fetchCommandRows(world, player), "SquadAI を持たないプレイヤーは命令行を持たない")
+}
+
+func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	entity, err := lifecycle.SpawnBackpackItem(world, "レイガン", 1)
+	require.NoError(t, err)
+	assert.Greater(t, menuscreen.DetailPageCount(world, entity), 1, "性能区画が多いアイテムの詳細は複数ページに分割される")
 }
 
 func TestCharacterState_cycleCommandは位置ポリシーを次の値へ進める(t *testing.T) {

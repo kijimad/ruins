@@ -15,85 +15,108 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// UpdateSpec は性能表示コンテナを更新する
-func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Entity) {
-	targetContainer.RemoveChildren()
+// SpecSection は性能表示の1区画。1つのテーブルを描く関数を持つ。
+// 詳細モーダルはこの区画単位でページ分割する
+type SpecSection func(target *widget.Container)
 
-	// アイテム種別カテゴリを表示する
+// SpecSections はエンティティの性能表示を区画の並びとして返す。
+// 種別・攻撃・防具などコンポーネントごとに1区画で、存在するものだけを含む
+func SpecSections(world w.World, entity ecs.Entity) []SpecSection {
+	var sections []SpecSection
+	add := func(s SpecSection) { sections = append(sections, s) }
+
 	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
-		addCategoryInfo(targetContainer, cat, world)
+		add(func(c *widget.Container) { addCategoryInfo(c, cat, world) })
 	}
-
-	// 各コンポーネントの情報を追加
 	if world.Components.Melee.Has(entity) {
 		melee := world.Components.Melee.Get(entity)
-		addAttackerInfo(targetContainer, melee, world)
+		add(func(c *widget.Container) { addAttackerInfo(c, melee, world) })
 	}
 	if world.Components.Fire.Has(entity) {
 		fire := world.Components.Fire.Get(entity)
-		addAttackerInfo(targetContainer, fire, world)
-		addFireAmmoInfo(targetContainer, fire, world)
+		add(func(c *widget.Container) { addAttackerInfo(c, fire, world) })
+		add(func(c *widget.Container) { addFireAmmoInfo(c, fire, world) })
 	}
 	if world.Components.Wearable.Has(entity) {
 		wearable := world.Components.Wearable.Get(entity)
-		addWearableInfo(targetContainer, wearable, world)
+		add(func(c *widget.Container) { addWearableInfo(c, wearable, world) })
 	}
 	if world.Components.ProvidesHealing.Has(entity) {
 		healing := world.Components.ProvidesHealing.Get(entity)
-		addHealingInfo(targetContainer, healing, world)
+		add(func(c *widget.Container) { addHealingInfo(c, healing, world) })
 	}
 	if world.Components.ProvidesNutrition.Has(entity) {
 		nutrition := world.Components.ProvidesNutrition.Get(entity)
-		addNutritionInfo(targetContainer, nutrition, world)
+		add(func(c *widget.Container) { addNutritionInfo(c, nutrition, world) })
 	}
 	if world.Components.Book.Has(entity) {
 		book := world.Components.Book.Get(entity)
-		addBookInfo(targetContainer, book, world)
+		add(func(c *widget.Container) { addBookInfo(c, book, world) })
 	}
 	if world.Components.Value.Has(entity) {
 		v := world.Components.Value.Get(entity)
-		addValueInfo(targetContainer, v, world)
+		add(func(c *widget.Container) { addValueInfo(c, v, world) })
 	}
 	if world.Components.Weight.Has(entity) {
-		w := world.Components.Weight.Get(entity)
-		addWeightInfo(targetContainer, w, world)
+		weight := world.Components.Weight.Get(entity)
+		add(func(c *widget.Container) { addWeightInfo(c, weight, world) })
+	}
+	return sections
+}
+
+// RenderSpecSections は区画の並びをコンテナへ描く
+func RenderSpecSections(targetContainer *widget.Container, sections []SpecSection) {
+	targetContainer.RemoveChildren()
+	for _, s := range sections {
+		s(targetContainer)
 	}
 }
 
-// UpdateSpecFromSpec はEntitySpecから性能表示コンテナを更新する
+// UpdateSpec は性能表示コンテナを更新する。全区画を描く
+func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Entity) {
+	RenderSpecSections(targetContainer, SpecSections(world, entity))
+}
+
+// UpdateSpecFromSpec はEntitySpecから性能表示コンテナを更新する。
 // エンティティを生成せずに性能を表示できる
 func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec gc.EntitySpec) {
-	targetContainer.RemoveChildren()
+	RenderSpecSections(targetContainer, specSectionsFromSpec(world, spec))
+}
+
+// specSectionsFromSpec は EntitySpec の性能表示を区画の並びとして返す
+func specSectionsFromSpec(world w.World, spec gc.EntitySpec) []SpecSection {
+	var sections []SpecSection
+	add := func(s SpecSection) { sections = append(sections, s) }
 
 	if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &spec); ok {
-		addCategoryInfo(targetContainer, cat, world)
+		add(func(c *widget.Container) { addCategoryInfo(c, cat, world) })
 	}
-
 	if spec.Melee != nil {
-		addAttackerInfo(targetContainer, spec.Melee, world)
+		add(func(c *widget.Container) { addAttackerInfo(c, spec.Melee, world) })
 	}
 	if spec.Fire != nil {
-		addAttackerInfo(targetContainer, spec.Fire, world)
-		addFireAmmoInfo(targetContainer, spec.Fire, world)
+		add(func(c *widget.Container) { addAttackerInfo(c, spec.Fire, world) })
+		add(func(c *widget.Container) { addFireAmmoInfo(c, spec.Fire, world) })
 	}
 	if spec.Wearable != nil {
-		addWearableInfo(targetContainer, spec.Wearable, world)
+		add(func(c *widget.Container) { addWearableInfo(c, spec.Wearable, world) })
 	}
 	if spec.ProvidesHealing != nil {
-		addHealingInfo(targetContainer, spec.ProvidesHealing, world)
+		add(func(c *widget.Container) { addHealingInfo(c, spec.ProvidesHealing, world) })
 	}
 	if spec.ProvidesNutrition != nil {
-		addNutritionInfo(targetContainer, spec.ProvidesNutrition, world)
+		add(func(c *widget.Container) { addNutritionInfo(c, spec.ProvidesNutrition, world) })
 	}
 	if spec.Book != nil {
-		addBookInfo(targetContainer, spec.Book, world)
+		add(func(c *widget.Container) { addBookInfo(c, spec.Book, world) })
 	}
 	if spec.Value != nil {
-		addValueInfo(targetContainer, spec.Value, world)
+		add(func(c *widget.Container) { addValueInfo(c, spec.Value, world) })
 	}
 	if spec.Weight != nil {
-		addWeightInfo(targetContainer, spec.Weight, world)
+		add(func(c *widget.Container) { addWeightInfo(c, spec.Weight, world) })
 	}
+	return sections
 }
 
 // addCategoryInfo はアイテム種別カテゴリのラベルを追加する
