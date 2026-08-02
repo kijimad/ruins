@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
@@ -644,19 +645,23 @@ func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, r
 		container.AddChild(styled.NewDescriptionText("装備スロットがありません", res))
 		return container
 	}
+	// 情報タブと開始位置を揃えるため、先頭に同じページ表示行を置く。装備は1ページに収まる
+	pg := pagination.New(itemIndex, len(slots), statusItemsPerPage)
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
+
+	// 情報タブと同じテーブル描画に揃える。左にスロット名、右に装備名。未装備は空欄
+	columnWidths := []int{110, 220}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
+	table := styled.NewTableContainer(columnWidths, res)
 	for i, slot := range slots {
 		isSelected := i == itemIndex
-		clr := theme.TextSecondary
-		if isSelected {
-			clr = theme.TextPrimary
-		}
-		// 未装備はブランクにする。スロット名だけを出す
-		label := slot.SlotLabel
-		if slot.ItemName != "" {
-			label = fmt.Sprintf("%s  %s", slot.SlotLabel, slot.ItemName)
-		}
-		container.AddChild(styled.NewListItemText(label, clr, isSelected, res))
+		styled.NewTableRow(table, columnWidths, []string{slot.SlotLabel, slot.ItemName}, aligns, &isSelected, res)
 	}
+	container.AddChild(table)
 	return container
 }
 
