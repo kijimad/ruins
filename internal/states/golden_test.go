@@ -259,7 +259,9 @@ func TestGolden_Message(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(town, msgState))
 }
 
-func TestGolden_MemberStatus(t *testing.T) {
+// TestGolden_CharacterMember は仲間を対象に開いた画面タブメニューを固定する。
+// 仲間がいると対象名と切替ヒントが出ることを覆う。
+func TestGolden_CharacterMember(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		playerEntity, err := query.GetPlayerEntity(world)
@@ -269,9 +271,9 @@ func TestGolden_MemberStatus(t *testing.T) {
 		require.NoError(t, err)
 
 		town := newGoldenBackdrop(t)
-		status, err := gs.NewMemberStatusState(member)
+		character, err := gs.NewCharacterStateForMember(member)()
 		require.NoError(t, err)
-		return []es.State[w.World]{town, status}
+		return []es.State[w.World]{town, character}
 	})
 }
 

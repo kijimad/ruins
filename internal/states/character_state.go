@@ -44,9 +44,10 @@ const charScreenEquip = 0
 // characterTabLabels は画面タブの見出し。装備の後ろに読み取り専用タブが並ぶ
 var characterTabLabels = []string{"装備", "能力", "スキル", "効果", "健康", "基本"}
 
-// CharacterState は画面タブメニューのステート
+// CharacterState は画面タブメニューのステート。主人公と仲間で同じ画面を使い、対象を切り替えられる
 type CharacterState struct {
 	es.BaseState[w.World]
+	target      ecs.Entity // 表示対象のキャラクター。ゼロ値なら主人公
 	subState    characterSub
 	showDetail  bool // x の詳細モーダルを表示中か
 	rebuild     bool // 次フレームで UI を作り直すか
@@ -92,6 +93,16 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 			if err := sys.Update(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
+		}
+	}
+
+	// 対象キャラの切り替え。閲覧中のみ [ ] で主人公と仲間を巡回する
+	if st.subState == charSubBrowse && !st.showDetail {
+		ki := input.GetSharedKeyboardInput()
+		if ki.IsKeyJustPressed(ebiten.KeyBracketRight) {
+			st.switchMember(world, 1)
+		} else if ki.IsKeyJustPressed(ebiten.KeyBracketLeft) {
+			st.switchMember(world, -1)
 		}
 	}
 
@@ -381,8 +392,10 @@ func (st *CharacterState) executeEquip(world w.World) error {
 // ================
 
 type characterProps struct {
-	EquipSlots []equipItemData
-	InfoTabs   []statusTabData // 能力・スキル・効果・健康・基本の読み取り専用タブ
+	TargetName  string // 表示対象のキャラクター名
+	HasMultiple bool   // 切り替え可能な仲間がいるか
+	EquipSlots  []equipItemData
+	InfoTabs    []statusTabData // 能力・スキル・効果・健康・基本の読み取り専用タブ
 }
 
 // equipItemData は装備スロット1つ分の表示データ
@@ -408,18 +421,63 @@ type charEquipProps struct {
 }
 
 func (st *CharacterState) fetchProps(world w.World) characterProps {
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
+	target := st.resolveTarget(world)
+	if !world.ECS.Alive(target) {
 		return characterProps{}
 	}
+	name := ""
+	if world.Components.Name.Has(target) {
+		name = query.GetEntityName(target, world)
+	}
 	return characterProps{
-		EquipSlots: playerEquipSlots(world, player),
-		InfoTabs:   st.fetchInfoTabs(world, player),
+		TargetName:  name,
+		HasMultiple: len(characterMembers(world)) > 1,
+		EquipSlots:  memberEquipSlots(world, target),
+		InfoTabs:    st.fetchInfoTabs(world, target),
 	}
 }
 
-// playerEquipSlots はプレイヤーの全装備スロットを列挙する
-func playerEquipSlots(world w.World, player ecs.Entity) []equipItemData {
+// resolveTarget は表示対象を返す。未指定または死亡時は主人公にフォールバックする
+func (st *CharacterState) resolveTarget(world w.World) ecs.Entity {
+	if world.ECS.Alive(st.target) {
+		return st.target
+	}
+	if player, err := query.GetPlayerEntity(world); err == nil {
+		return player
+	}
+	return st.target
+}
+
+// characterMembers は切り替え対象、主人公と仲間、を表示順に返す
+func characterMembers(world w.World) []ecs.Entity {
+	members := []ecs.Entity{}
+	if player, err := query.GetPlayerEntity(world); err == nil {
+		members = append(members, player)
+	}
+	members = append(members, query.SquadMembers(world)...)
+	return members
+}
+
+// switchMember は表示対象を dir 方向の隣のキャラへ巡回で切り替える
+func (st *CharacterState) switchMember(world w.World, dir int) {
+	members := characterMembers(world)
+	if len(members) <= 1 {
+		return
+	}
+	cur := st.resolveTarget(world)
+	idx := 0
+	for i, m := range members {
+		if m == cur {
+			idx = i
+			break
+		}
+	}
+	st.target = members[(idx+dir+len(members))%len(members)]
+	st.rebuild = true
+}
+
+// memberEquipSlots はプレイヤーの全装備スロットを列挙する
+func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	items := make([]equipItemData, 0, 12)
 
 	weapons := query.GetWeapons(world, player)
@@ -511,13 +569,24 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space3, Bottom: theme.Space3, Left: theme.Space3, Right: theme.Space3}),
 			),
 		),
 	)
 
-	// タイトルは置かない
+	// Row 0: 対象キャラ名。仲間がいれば切替ヒントを添える。汎用タイトルは置かない
+	nameText := props.TargetName
+	if props.HasMultiple {
+		nameText = fmt.Sprintf("◂ %s ▸  [ ] で切替", props.TargetName)
+	}
+	nameRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
+	nameLabel := styled.NewMenuText(nameText, res)
+	nameLabel.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
+	nameRow.AddChild(nameLabel)
+	root.AddChild(nameRow)
+
+	// Row 1: タブ帯
 	tabRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
 	tabBar := styled.NewTabBar(characterTabLabels, tabIndex, res)
 	tabBar.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}

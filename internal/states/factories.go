@@ -83,9 +83,17 @@ func NewCraftMenuState() (es.State[w.World], error) {
 	return &CraftMenuState{}, nil
 }
 
-// NewCharacterState は画面タブメニューのStateを作成するファクトリー関数
+// NewCharacterState は画面タブメニューのStateを作成するファクトリー関数。主人公から始まる
 func NewCharacterState() (es.State[w.World], error) {
 	return &CharacterState{}, nil
+}
+
+// NewCharacterStateForMember は指定メンバーを表示対象にした画面タブメニューを作成する。
+// 画面内で切り替えて主人公や他の仲間も見られる
+func NewCharacterStateForMember(member ecs.Entity) es.StateFactory[w.World] {
+	return func() (es.State[w.World], error) {
+		return &CharacterState{target: member}, nil
+	}
 }
 
 // debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
@@ -676,11 +684,6 @@ func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], e
 // NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数
 func NewSquadMenuState() (es.State[w.World], error) {
 	return &SquadMenuState{}, nil
-}
-
-// NewMemberStatusState は隊員ステータス詳細画面のStateを作成するファクトリー関数
-func NewMemberStatusState(member ecs.Entity) (es.State[w.World], error) {
-	return &MemberStatusState{member: member}, nil
 }
 
 // NewFormationMenuState は隊編成画面のStateを作成するファクトリー関数
