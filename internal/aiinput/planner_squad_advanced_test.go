@@ -181,7 +181,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		_, isAttack := b.(*activity.AttackActivity)
+		_, isAttack := b.(*activity.AttackBehavior)
 		assert.False(t, isAttack, "HP低下時は攻撃せず後退するべき")
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
@@ -241,7 +241,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		_, isAttack := b.(*activity.AttackActivity)
+		_, isAttack := b.(*activity.AttackBehavior)
 		assert.False(t, isAttack, "未探索エリアでは攻撃せずリーダーへ復帰するべき")
 		assert.Equal(t, gc.BehaviorMove, b.Name())
 	})
@@ -303,8 +303,8 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 
 		b, ok := sp.planCombatAction(world, member, snap)
 		require.True(t, ok)
-		attack, ok := b.(*activity.AttackActivity)
-		require.True(t, ok, "型が *activity.AttackActivity であるべき")
+		attack, ok := b.(*activity.AttackBehavior)
+		require.True(t, ok, "型が *activity.AttackBehavior であるべき")
 		assert.Equal(t, enemy, attack.Target)
 	})
 
@@ -459,7 +459,7 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 
 		b, ok := sp.planEvadeAction(world, member, snap)
 		require.True(t, ok)
-		move, ok := b.(*activity.MoveActivity)
+		move, ok := b.(*activity.MoveBehavior)
 		require.True(t, ok)
 		assert.Less(t, int(move.Destination.X), initialX, "敵から離れる方向に移動するべき")
 	})
@@ -800,7 +800,7 @@ func TestSquadPlanner_TryMoveAway(t *testing.T) {
 	sp := newSquadPlanner(newTestRNG())
 	b, ok := sp.tryMoveAway(world, member, memberGrid, threat)
 	require.True(t, ok)
-	move, ok := b.(*activity.MoveActivity)
+	move, ok := b.(*activity.MoveBehavior)
 	require.True(t, ok)
 	assert.Less(t, int(move.Destination.X), int(memberGrid.X), "脅威から離れる方向に移動する")
 }

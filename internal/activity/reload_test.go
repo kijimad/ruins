@@ -13,16 +13,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReloadActivity_Info(t *testing.T) {
+func TestReloadBehavior_Info(t *testing.T) {
 	t.Parallel()
-	ra := &ReloadActivity{}
+	ra := &ReloadBehavior{}
 	info := ra.Info()
 	assert.Equal(t, "装填", info.Name)
 	assert.Equal(t, gc.BehaviorReload, ra.Name())
 	assert.True(t, info.Interruptible)
 }
 
-func TestReloadActivity_Validate(t *testing.T) {
+func TestReloadBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常なリロードが検証を通過する", func(t *testing.T) {
@@ -33,7 +33,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		comp, err := NewActivity(ra, 1)
 		require.NoError(t, err)
 
@@ -45,7 +45,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		comp, err := NewActivity(ra, 1)
 		require.NoError(t, err)
 
@@ -69,7 +69,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		fire := world.Components.Fire.Get(we)
 		fire.Magazine = 0
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		comp, err := NewActivity(ra, 1)
 		require.NoError(t, err)
 
@@ -89,7 +89,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		comp, err := NewActivity(ra, 1)
 		require.NoError(t, err)
 
@@ -98,7 +98,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 	})
 }
 
-func TestReloadActivity_Start(t *testing.T) {
+func TestReloadBehavior_Start(t *testing.T) {
 	t.Parallel()
 
 	t.Run("ターン数が設定される", func(t *testing.T) {
@@ -108,7 +108,7 @@ func TestReloadActivity_Start(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		comp, err := NewActivity(ra, 1)
 		require.NoError(t, err)
 
@@ -120,7 +120,7 @@ func TestReloadActivity_Start(t *testing.T) {
 	})
 }
 
-func TestReloadActivity_DoTurn(t *testing.T) {
+func TestReloadBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("工数蓄積で装填が完了する", func(t *testing.T) {
@@ -130,7 +130,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		comp, err := NewActivity(ra, 1)
 		require.NoError(t, err)
 
@@ -169,7 +169,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		_, err = lifecycle.SpawnBackpackItem(world, "9mm FMJ", 2)
 		require.NoError(t, err)
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		comp, err := NewActivity(ra, 1)
 		require.NoError(t, err)
 
@@ -189,7 +189,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 	})
 }
 
-func TestReloadActivity_CalcEffortPerTurn(t *testing.T) {
+func TestReloadBehavior_CalcEffortPerTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("基本工数にDEXが加算される", func(t *testing.T) {
@@ -199,7 +199,7 @@ func TestReloadActivity_CalcEffortPerTurn(t *testing.T) {
 		fire, _, err := getEquippedFire(player, world)
 		require.NoError(t, err)
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		effort := ra.calcEffortPerTurn(player, fire, world)
 
 		// BaseReloadEffort + DEX + weaponSkill
@@ -216,7 +216,7 @@ func TestReloadActivity_CalcEffortPerTurn(t *testing.T) {
 		// Abilitiesを削除
 		world.Components.Abilities.Remove(player)
 
-		ra := &ReloadActivity{}
+		ra := &ReloadBehavior{}
 		effort := ra.calcEffortPerTurn(player, fire, world)
 		assert.Equal(t, BaseReloadEffort, effort)
 	})

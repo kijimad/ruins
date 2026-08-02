@@ -130,14 +130,14 @@ func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, c
 
 // moveAction は指定座標への移動アクションを生成する
 func moveAction(dest consts.Coord[consts.Tile]) activity.Behavior {
-	return &activity.MoveActivity{
+	return &activity.MoveBehavior{
 		Destination: gc.GridElement{Coord: dest},
 	}
 }
 
 // waitAction は待機アクションを生成する
 func waitAction(reason string) activity.Behavior {
-	return &activity.WaitActivity{Duration: 1, Reason: reason}
+	return &activity.WaitBehavior{Duration: 1, Reason: reason}
 }
 
 // shuffledEightDirections は8方向をシャッフルして返す

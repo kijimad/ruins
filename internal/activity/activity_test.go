@@ -14,7 +14,7 @@ func TestActivityCreation(t *testing.T) {
 	t.Parallel()
 
 	// 休息アクティビティの作成テスト
-	behavior := &RestActivity{}
+	behavior := &RestBehavior{}
 	comp, err := NewActivity(behavior, 10)
 	require.NoError(t, err)
 
@@ -27,7 +27,7 @@ func TestActivityCreation(t *testing.T) {
 func TestActivityInfo(t *testing.T) {
 	t.Parallel()
 	// 休息アクティビティの情報テスト
-	actorImpl := &RestActivity{}
+	actorImpl := &RestBehavior{}
 	info := actorImpl.Info()
 
 	assert.Equal(t, "休息", info.Name, "Expected name '休息'")
@@ -38,7 +38,7 @@ func TestActivityInfo(t *testing.T) {
 func TestActivityInterruptAndResume(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&RestActivity{}, 10)
+	comp, err := NewActivity(&RestBehavior{}, 10)
 	require.NoError(t, err)
 
 	// 初期状態での中断可能性チェック
@@ -67,7 +67,7 @@ func TestActivityInterruptAndResume(t *testing.T) {
 func TestActivityCancel(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitBehavior{}, 5)
 	require.NoError(t, err)
 
 	// キャンセル前はIsCanceledがfalse
@@ -88,7 +88,7 @@ func TestActivityCancel(t *testing.T) {
 func TestActivityComplete(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitBehavior{}, 5)
 	require.NoError(t, err)
 
 	// 完了実行
@@ -102,7 +102,7 @@ func TestActivityComplete(t *testing.T) {
 func TestActivityProgressCalculation(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&RestActivity{}, 10)
+	comp, err := NewActivity(&RestBehavior{}, 10)
 	require.NoError(t, err)
 
 	// 初期進捗（0%）
@@ -127,7 +127,7 @@ func TestActivityDoTurn(t *testing.T) {
 	actor := world.ECS.NewEntity()
 	// 長い待機の敵接近チェックは位置を前提とするため、実際のアクターと同様に座標を与える
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-	behavior := &WaitActivity{}
+	behavior := &WaitBehavior{}
 	comp, err := NewActivity(behavior, 3)
 	require.NoError(t, err)
 
@@ -171,13 +171,13 @@ func TestNewActivityInvalidDuration(t *testing.T) {
 
 	t.Run("duration 0でエラー", func(t *testing.T) {
 		t.Parallel()
-		_, err := NewActivity(&WaitActivity{}, 0)
+		_, err := NewActivity(&WaitBehavior{}, 0)
 		assert.Error(t, err)
 	})
 
 	t.Run("負のdurationでエラー", func(t *testing.T) {
 		t.Parallel()
-		_, err := NewActivity(&WaitActivity{}, -1)
+		_, err := NewActivity(&WaitBehavior{}, -1)
 		assert.Error(t, err)
 	})
 }
@@ -197,7 +197,7 @@ func TestCalculateRequiredTurns(t *testing.T) {
 
 	t.Run("APベースの計算", func(t *testing.T) {
 		t.Parallel()
-		behavior := &RestActivity{}
+		behavior := &RestBehavior{}
 		info := behavior.Info()
 		if info.TotalRequiredAP > 0 {
 			turns := CalculateRequiredTurns(behavior, 100)
@@ -207,14 +207,14 @@ func TestCalculateRequiredTurns(t *testing.T) {
 
 	t.Run("APとcharacterAPで正しく切り上げ除算する", func(t *testing.T) {
 		t.Parallel()
-		behavior := &WaitActivity{} // TotalRequiredAP=500
+		behavior := &WaitBehavior{} // TotalRequiredAP=500
 		turns := CalculateRequiredTurns(behavior, 100)
 		assert.Equal(t, consts.Turn(5), turns) // 500 / 100 = 5
 	})
 
 	t.Run("characterAPが0の場合は1を返す", func(t *testing.T) {
 		t.Parallel()
-		behavior := &RestActivity{}
+		behavior := &RestBehavior{}
 		turns := CalculateRequiredTurns(behavior, 0)
 		assert.Equal(t, consts.Turn(1), turns)
 	})

@@ -12,13 +12,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// RestActivity はBehaviorの実装
-type RestActivity struct {
+// RestBehavior はBehaviorの実装
+type RestBehavior struct {
 	Duration consts.Turn
 }
 
 // Info はBehaviorの実装
-func (ra *RestActivity) Info() Info {
+func (rb *RestBehavior) Info() Info {
 	return Info{
 		Name:            "休息",
 		Description:     "体力を回復するために休息する",
@@ -30,21 +30,21 @@ func (ra *RestActivity) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ra *RestActivity) Name() gc.BehaviorName {
+func (rb *RestBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorRest
 }
 
 // BuildActivity はBehaviorの実装
-func (ra *RestActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	duration := ra.Duration
+func (rb *RestBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	duration := rb.Duration
 	if duration <= 0 {
 		characterAP, err := getEntityMaxAP(actor, world)
 		if err != nil {
 			return nil, err
 		}
-		duration = CalculateRequiredTurns(ra, characterAP)
+		duration = CalculateRequiredTurns(rb, characterAP)
 	}
-	comp, err := NewActivity(ra, duration)
+	comp, err := NewActivity(rb, duration)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (ra *RestActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Acti
 }
 
 // Validate は休息アクティビティの検証を行う
-func (ra *RestActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
 		return fmt.Errorf("周囲に敵がいるため休息できません")
@@ -67,13 +67,13 @@ func (ra *RestActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Start は休息開始時の処理を実行する
-func (ra *RestActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("休息開始", "actor", actor, "duration", comp.TurnsLeft)
 	return nil
 }
 
 // DoTurn は休息アクティビティの1ターン分の処理を実行する
-func (ra *RestActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
 		Cancel(comp, "周囲に敵がいるため休息を中断")
@@ -93,7 +93,7 @@ func (ra *RestActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		"progress", GetProgressPercent(comp))
 
 	// HP回復処理
-	if err := ra.performHealing(comp, actor, world); err != nil {
+	if err := rb.performHealing(comp, actor, world); err != nil {
 		return err
 	}
 
@@ -107,7 +107,7 @@ func (ra *RestActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish は休息完了時の処理を実行する
-func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("休息完了", "actor", actor)
 
 	// プレイヤーの場合のみ完了メッセージを表示
@@ -139,7 +139,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 }
 
 // Canceled は休息キャンセル時の処理を実行する
-func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *RestBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// プレイヤーの場合のみ中断時のメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
@@ -153,7 +153,7 @@ func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // performHealing はHP回復処理を実行する
-func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *RestBehavior) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if !world.Components.HP.Has(actor) {
 		return nil
 	}
