@@ -316,8 +316,12 @@ func (st *InventoryMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
 	root.AddChild(styled.NewTitleText("インベントリ", res))
-	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
+	root.AddChild(styled.NewTabBar(labels, tabIndex, res))
 	root.AddChild(widget.NewContainer())
 
 	root.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
@@ -337,19 +341,6 @@ func (st *InventoryMenuState) buildUI(world w.World) *ebitenui.UI {
 	}
 
 	return result
-}
-
-func (st *InventoryMenuState) buildCategoryContainer(tabs []inventoryTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	for i, tab := range tabs {
-		isSelected := i == tabIndex
-		color := theme.TextSecondary
-		if isSelected {
-			color = theme.TextPrimary
-		}
-		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
-	}
-	return container
 }
 
 func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

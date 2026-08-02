@@ -463,7 +463,11 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	tabRow := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
-	categoryInner := st.buildCategoryContainer(props.Tabs, tabIndex, res)
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	categoryInner := styled.NewTabBar(labels, tabIndex, res)
 	categoryInner.GetWidget().LayoutData = widget.AnchorLayoutData{
 		HorizontalPosition: widget.AnchorLayoutPositionCenter,
 	}
@@ -488,19 +492,6 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(st.buildDescContainer(props.Tabs, tabIndex, itemIndex, res))
 
 	return &ebitenui.UI{Container: root}
-}
-
-func (st *StatusState) buildCategoryContainer(tabs []statusTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	for i, tab := range tabs {
-		isSelected := i == tabIndex
-		color := theme.TextSecondary
-		if isSelected {
-			color = theme.TextPrimary
-		}
-		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
-	}
-	return container
 }
 
 func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

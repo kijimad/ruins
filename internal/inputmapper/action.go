@@ -40,6 +40,19 @@ const (
 	ActionUnequip ActionID = "unequip"
 )
 
+// 動詞タブ画面を対応タブで開くアクション。ダンジョン・各メニューから直達する
+const (
+	ActionVerbExamine ActionID = "verb_examine" // 調べる
+	ActionVerbPlace   ActionID = "verb_place"   // 置く
+	ActionVerbConsume ActionID = "verb_consume" // 食べる飲む
+	ActionVerbRead    ActionID = "verb_read"    // 読む
+	ActionVerbUse     ActionID = "verb_use"     // 使う
+	ActionVerbThrow   ActionID = "verb_throw"   // 投げる
+)
+
+// ActionOpenItemDetail は動詞タブ画面で選択中アイテムの詳細モーダルを開く
+const ActionOpenItemDetail ActionID = "open_item_detail"
+
 // 世界との相互作用アクション
 const (
 	ActionInteract ActionID = "interact" // 汎用的な相互作用（ワープ、アイテム拾得など）

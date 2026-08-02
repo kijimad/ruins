@@ -65,6 +65,17 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 		return inputmapper.ActionPlace, true
 	}
 
+	// 動詞タブ画面への直達。食べる飲む・読む・使う
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyE) {
+		return inputmapper.ActionVerbConsume, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyR) {
+		return inputmapper.ActionVerbRead, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyT) {
+		return inputmapper.ActionVerbUse, true
+	}
+
 	// 移動入力
 	if action, ok := handleMoveInput(keyboardInput); ok {
 		return action, true
@@ -106,7 +117,8 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionShoot, inputmapper.ActionPickup, inputmapper.ActionPlace:
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionShoot, inputmapper.ActionPickup, inputmapper.ActionPlace,
+		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -156,6 +168,12 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return &PlaceState{}, nil },
 		}}, nil
+	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
+		verb, ok := verbByAction(action)
+		if !ok {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewItemActionState(verb)}}, nil
 
 	// 移動系アクション
 	case inputmapper.ActionMoveNorth:

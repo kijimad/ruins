@@ -22,6 +22,21 @@ func NewRowContainer(opts ...widget.ContainerOpt) *widget.Container {
 	)
 }
 
+// NewTabBar は上部タブ帯を作成する。動詞タブと画面タブで共有する部品。
+// labels をタブ見出しとして横並びにし、selectedIndex のタブを強調色で描く。
+func NewTabBar(labels []string, selectedIndex int, res resources.UIResources) *widget.Container {
+	container := NewRowContainer()
+	for i, label := range labels {
+		isSelected := i == selectedIndex
+		clr := theme.TextSecondary
+		if isSelected {
+			clr = theme.TextPrimary
+		}
+		container.AddChild(NewListItemText(label, clr, isSelected, res))
+	}
+	return container
+}
+
 // NewVerticalContainer は中身が縦並びのコンテナを作成する
 func NewVerticalContainer(opts ...widget.ContainerOpt) *widget.Container {
 	return widget.NewContainer(
