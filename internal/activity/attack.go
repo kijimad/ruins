@@ -46,13 +46,13 @@ func (ab *AttackBehavior) Name() gc.BehaviorName {
 // NewAttackActivity は攻撃対象を指定して攻撃アクティビティを組む。
 func NewAttackActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorAttack, 0)
-	comp.Params = &gc.TargetParams{Target: target}
+	comp.Params = &gc.AttackParams{Target: target}
 	return comp
 }
 
 // Validate はBehaviorの実装
 func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.AttackParams)
 	if !ok {
 		return ErrAttackTargetNotSet
 	}
@@ -87,7 +87,7 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 // Start はBehaviorの実装
 func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, ok := comp.Params.(*gc.TargetParams); ok {
+	if p, ok := comp.Params.(*gc.AttackParams); ok {
 		log.Debug("攻撃開始", "actor", actor, "target", p.Target)
 	}
 	return nil
@@ -95,7 +95,7 @@ func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 
 // DoTurn はBehaviorの実装
 func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if _, ok := comp.Params.(*gc.TargetParams); !ok {
+	if _, ok := comp.Params.(*gc.AttackParams); !ok {
 		Cancel(comp, "攻撃対象が設定されていません")
 		return ErrAttackTargetNotSet
 	}
@@ -116,7 +116,7 @@ func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はBehaviorの実装
 func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.AttackParams)
 	if !ok {
 		log.Debug("攻撃対象が未設定のまま完了処理に到達した。攻撃は実行されていない", "actor", actor)
 		return nil
@@ -135,7 +135,7 @@ func (ab *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 }
 
 func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.AttackParams)
 	if !ok {
 		return ErrAttackTargetNotSet
 	}
@@ -152,7 +152,7 @@ func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 }
 
 func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
-	if _, ok := comp.Params.(*gc.TargetParams); !ok {
+	if _, ok := comp.Params.(*gc.AttackParams); !ok {
 		return false
 	}
 

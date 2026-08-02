@@ -54,13 +54,13 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activi
 
 	requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
 	comp := NewActivity(gc.BehaviorDisassemble, requiredAP)
-	comp.Params = &gc.TargetParams{Target: target}
+	comp.Params = &gc.DisassembleParams{Target: target}
 	return comp, nil
 }
 
 // Validate は分解アクティビティの検証を行う
 func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
 		return fmt.Errorf("分解対象が指定されていません")
 	}
@@ -82,7 +82,7 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 
 // Start は分解開始時の処理を実行する
 func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
 		return fmt.Errorf("分解対象が指定されていません")
 	}
@@ -110,7 +110,7 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 // DoTurn は分解アクティビティの1ターン分の処理を実行する。
 // 対象が消えている可能性があるため、毎ターン先頭で生存を確認する
 func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
 		Cancel(comp, "分解対象が指定されていません")
 		return nil
@@ -144,7 +144,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 // Finish は分解完了時の処理を実行する。産出を抽選し、propは足元へ落として
 // エンティティを除去、アイテムは1個消費して所持品へ加える
 func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
 		return nil
 	}
@@ -205,7 +205,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
-		if p, ok := comp.Params.(*gc.TargetParams); ok && world.ECS.Alive(p.Target) {
+		if p, ok := comp.Params.(*gc.DisassembleParams); ok && world.ECS.Alive(p.Target) {
 			logger.ItemName(query.GetEntityName(p.Target, world)).Append("の分解を中断した")
 		} else {
 			logger.Append("分解を中断した")

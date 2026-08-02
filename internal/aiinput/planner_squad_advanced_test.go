@@ -303,7 +303,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		b, ok := sp.planCombatAction(world, member, snap)
 		require.True(t, ok)
 		assert.Equal(t, gc.BehaviorAttack, b.BehaviorName)
-		assert.Equal(t, enemy, targetParams(t, b).Target)
+		assert.Equal(t, enemy, activityParams[*gc.AttackParams](t, b).Target)
 	})
 
 	t.Run("CombatEvadeなら回避計画に委譲する", func(t *testing.T) {
@@ -458,7 +458,7 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 		b, ok := sp.planEvadeAction(world, member, snap)
 		require.True(t, ok)
 		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
-		assert.Less(t, int(moveParams(t, b).Destination.X), initialX, "敵から離れる方向に移動するべき")
+		assert.Less(t, int(activityParams[*gc.MoveParams](t, b).Destination.X), initialX, "敵から離れる方向に移動するべき")
 	})
 }
 
@@ -798,7 +798,7 @@ func TestSquadPlanner_TryMoveAway(t *testing.T) {
 	b, ok := sp.tryMoveAway(world, member, memberGrid, threat)
 	require.True(t, ok)
 	assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
-	assert.Less(t, int(moveParams(t, b).Destination.X), int(memberGrid.X), "脅威から離れる方向に移動する")
+	assert.Less(t, int(activityParams[*gc.MoveParams](t, b).Destination.X), int(memberGrid.X), "脅威から離れる方向に移動する")
 }
 
 func TestSquadPlanner_TryRandomMove(t *testing.T) {

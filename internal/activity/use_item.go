@@ -37,13 +37,13 @@ func (u *UseItemBehavior) Name() gc.BehaviorName {
 // NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
 func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorUseItem, 0)
-	comp.Params = &gc.TargetParams{Target: target}
+	comp.Params = &gc.UseItemParams{Target: target}
 	return comp
 }
 
 // Validate はBehaviorの実装
 func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.UseItemParams)
 	if !ok {
 		return ErrItemNotSet
 	}
@@ -69,7 +69,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 // Start はBehaviorの実装
 func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, ok := comp.Params.(*gc.TargetParams); ok {
+	if p, ok := comp.Params.(*gc.UseItemParams); ok {
 		log.Debug("アイテム使用開始", "actor", actor, "item", p.Target)
 	}
 	return nil
@@ -77,7 +77,7 @@ func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 
 // DoTurn はBehaviorの実装
 func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.UseItemParams)
 	if !ok {
 		Cancel(comp, "アイテムが指定されていません")
 		return ErrItemNotSet

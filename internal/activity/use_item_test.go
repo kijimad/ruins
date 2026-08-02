@@ -158,7 +158,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Params:       &gc.TargetParams{Target: item},
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}
@@ -214,7 +214,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.TargetParams{Target: item},
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}
@@ -248,7 +248,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.TargetParams{Target: world.ECS.NewEntity()},
+			Params:       &gc.UseItemParams{Target: world.ECS.NewEntity()},
 		}
 
 		ua := &UseItemBehavior{}
@@ -269,7 +269,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.TargetParams{Target: item},
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}
@@ -291,7 +291,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.TargetParams{Target: item},
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}

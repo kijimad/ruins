@@ -259,7 +259,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		assert.True(t, ok, "転送アクションが返る")
 		assert.NotNil(t, b)
 		require.Equal(t, gc.BehaviorTransfer, b.BehaviorName)
-		require.NotZero(t, transferParams(t, b).Target)
+		require.NotZero(t, activityParams[*gc.TransferParams](t, b).Target)
 	})
 
 	t.Run("PolicyKeepではアイテムがあっても転送しない", func(t *testing.T) {

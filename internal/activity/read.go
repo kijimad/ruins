@@ -41,13 +41,13 @@ func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
 		return nil, fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
 	comp := NewActivity(gc.BehaviorRead, book.Effort.Max)
-	comp.Params = &gc.TargetParams{Target: target}
+	comp.Params = &gc.ReadParams{Target: target}
 	return comp, nil
 }
 
 // Validate は読書アクティビティの検証を行う
 func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
 		return fmt.Errorf("本が指定されていません")
 	}
@@ -75,7 +75,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は読書開始時の処理を実行する
 func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
 		return ErrReadTargetNotSet
 	}
@@ -97,7 +97,7 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 // DoTurn は読書アクティビティの1ターン分の処理を実行する。
 // スタック統合などで本エンティティが消えている可能性があるため、毎ターン先頭で生存を確認する
 func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
 		Cancel(comp, "本が指定されていません")
 		return nil
@@ -141,7 +141,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish は読書完了時の処理を実行する
 func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
 		return nil
 	}
@@ -172,7 +172,7 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (rb *ReadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		message := "読書を中断した"
-		if p, ok := comp.Params.(*gc.TargetParams); ok && world.ECS.Alive(p.Target) {
+		if p, ok := comp.Params.(*gc.ReadParams); ok && world.ECS.Alive(p.Target) {
 			message = fmt.Sprintf("「%s」の読書を中断した", query.GetEntityName(p.Target, world))
 		}
 		gamelog.New(query.GetGameLog(world)).

@@ -89,13 +89,65 @@ type MoveParams struct {
 
 func (*MoveParams) isActivityParams() {}
 
-// TargetParams は単一の対象エンティティを取るアクションのパラメータ。
-// 攻撃・会話・扉開閉・射撃・アイテム使用・読書・分解などが使う。
-type TargetParams struct {
-	Target ecs.Entity // 操作対象のエンティティ
+// 単一の対象エンティティを取るアクションは behavior ごとに専用の Params 型を持つ。
+// 対象の意味が behavior ごとに違うため、共有せず型で区別する。共有ヘルパを介さないので
+// 分割してもコード共有を壊さない。
+
+// AttackParams は近接攻撃のパラメータ。
+type AttackParams struct {
+	Target ecs.Entity // 攻撃対象のエンティティ
 }
 
-func (*TargetParams) isActivityParams() {}
+func (*AttackParams) isActivityParams() {}
+
+// TalkParams は会話のパラメータ。
+type TalkParams struct {
+	Target ecs.Entity // 会話相手のエンティティ
+}
+
+func (*TalkParams) isActivityParams() {}
+
+// OpenDoorParams は扉を開くアクションのパラメータ。
+type OpenDoorParams struct {
+	Target ecs.Entity // 開く扉のエンティティ
+}
+
+func (*OpenDoorParams) isActivityParams() {}
+
+// CloseDoorParams は扉を閉じるアクションのパラメータ。
+type CloseDoorParams struct {
+	Target ecs.Entity // 閉じる扉のエンティティ
+}
+
+func (*CloseDoorParams) isActivityParams() {}
+
+// ShootParams は射撃のパラメータ。
+type ShootParams struct {
+	Target ecs.Entity // 射撃対象のエンティティ
+}
+
+func (*ShootParams) isActivityParams() {}
+
+// UseItemParams はアイテム使用のパラメータ。
+type UseItemParams struct {
+	Target ecs.Entity // 使用するアイテムのエンティティ
+}
+
+func (*UseItemParams) isActivityParams() {}
+
+// ReadParams は読書のパラメータ。
+type ReadParams struct {
+	Target ecs.Entity // 読む本のエンティティ
+}
+
+func (*ReadParams) isActivityParams() {}
+
+// DisassembleParams は分解のパラメータ。
+type DisassembleParams struct {
+	Target ecs.Entity // 分解するアイテムのエンティティ
+}
+
+func (*DisassembleParams) isActivityParams() {}
 
 // PlaceParams は対象と操作先を取るアクションのパラメータ。拾得・ドロップ・押し引きが使う。
 type PlaceParams struct {

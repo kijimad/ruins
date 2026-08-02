@@ -40,13 +40,13 @@ func (sb *ShootBehavior) Name() gc.BehaviorName {
 // NewShootActivity は射撃対象を指定して射撃アクティビティを組む。
 func NewShootActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorShoot, 0)
-	comp.Params = &gc.TargetParams{Target: target}
+	comp.Params = &gc.ShootParams{Target: target}
 	return comp
 }
 
 // Validate は射撃の検証を行う
 func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
 		return ErrAttackTargetNotSet
 	}
@@ -91,7 +91,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 // Start はBehaviorの実装
 func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, ok := comp.Params.(*gc.TargetParams); ok {
+	if p, ok := comp.Params.(*gc.ShootParams); ok {
 		log.Debug("射撃開始", "actor", actor, "target", p.Target)
 	}
 	return nil
@@ -99,7 +99,7 @@ func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 
 // DoTurn は射撃の実行処理
 func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.TargetParams)
+	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
 		Cancel(comp, "射撃対象が設定されていません")
 		return ErrAttackTargetNotSet
