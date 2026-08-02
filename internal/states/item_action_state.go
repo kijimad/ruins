@@ -270,9 +270,24 @@ func (st *ItemActionState) handleInput() (inputmapper.ActionID, bool) {
 		}
 		return "", false
 	}
-	// x は詳細モーダル。X すなわち Shift+x は将来調べるタブへ充てるので Shift 無しに限る
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
+	// 動詞ショートカットは開いている間もタブ移動に使える。調べる X は Shift+x、詳細 x は Shift 無し
+	if ki.IsKeyJustPressed(ebiten.KeyX) {
+		if ki.IsKeyPressed(ebiten.KeyShift) {
+			return inputmapper.ActionVerbExamine, true
+		}
 		return inputmapper.ActionOpenItemDetail, true
+	}
+	if ki.IsKeyJustPressed(ebiten.KeyD) {
+		return inputmapper.ActionVerbPlace, true
+	}
+	if ki.IsKeyJustPressed(ebiten.KeyE) {
+		return inputmapper.ActionVerbConsume, true
+	}
+	if ki.IsKeyJustPressed(ebiten.KeyR) {
+		return inputmapper.ActionVerbRead, true
+	}
+	if ki.IsKeyJustPressed(ebiten.KeyT) {
+		return inputmapper.ActionVerbUse, true
 	}
 	return HandleMenuInput()
 }
@@ -294,6 +309,12 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 		st.showDetail = true
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse:
+		// 開いている間の動詞キーは対応タブへジャンプする
+		if v, ok := verbByAction(action); ok {
+			st.jumpToTab(v)
+		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.executeSelected(world)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
@@ -301,6 +322,20 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
 	}
+}
+
+// jumpToTab は指定した動詞のタブへ移動する。現在タブから差分だけ TabNext を送る
+func (st *ItemActionState) jumpToTab(target verbID) {
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
+	n := len(verbs())
+	if n == 0 {
+		return
+	}
+	steps := ((verbTabIndex(target)-menuState.TabIndex)%n + n) % n
+	for range steps {
+		st.mount.Dispatch(inputmapper.ActionMenuTabNext)
+	}
+	st.rebuild = true
 }
 
 // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く
@@ -478,11 +513,12 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 		if isSelected {
 			clr = theme.TextPrimary
 		}
-		label := item.Name
+		// 個数は行の右端へ寄せる。名前は左寄せのまま
 		if item.Count != "" {
-			label = fmt.Sprintf("%s x%s", item.Name, item.Count)
+			container.AddChild(styled.NewListItemTextWithValue(item.Name, "x"+item.Count, clr, isSelected, res))
+		} else {
+			container.AddChild(styled.NewListItemText(item.Name, clr, isSelected, res))
 		}
-		container.AddChild(styled.NewListItemText(label, clr, isSelected, res))
 	}
 	return container
 }
