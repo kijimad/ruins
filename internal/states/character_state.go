@@ -15,6 +15,7 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -681,37 +682,42 @@ func (st *CharacterState) buildEquipSelectWindow(world w.World, res resources.UI
 }
 
 func (st *CharacterState) buildDetailWindow(world w.World, props characterProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Window {
-	var titleText, body string
+	content := styled.NewWindowContainer(res)
+
 	if tabIndex == charScreenSkills {
 		if itemIndex >= len(props.Skills) {
 			return nil
 		}
 		row := props.Skills[itemIndex]
-		titleText = row.Label
-		body = row.Desc
+		content.AddChild(styled.NewMenuText(row.Label, res))
+		if row.Value != "" {
+			content.AddChild(styled.NewDescriptionText("習熟度 "+row.Value, res))
+		}
+		if row.Desc != "" {
+			content.AddChild(styled.NewDescriptionText(row.Desc, res))
+		}
 	} else {
 		if itemIndex >= len(props.EquipSlots) {
 			return nil
 		}
 		slot := props.EquipSlots[itemIndex]
 		if slot.Entity == nil {
-			titleText = slot.SlotLabel
-			body = "何も装備していない"
+			content.AddChild(styled.NewMenuText(slot.SlotLabel, res))
+			content.AddChild(styled.NewDescriptionText("何も装備していない", res))
 		} else {
-			titleText = slot.ItemName
+			// 装備の性能・性質を細かく出す
+			content.AddChild(styled.NewMenuText(slot.ItemName, res))
+			spec := styled.NewVerticalContainer()
+			views.UpdateSpec(world, spec, *slot.Entity)
+			content.AddChild(spec)
 			if world.Components.Description.Has(*slot.Entity) {
-				body = world.Components.Description.Get(*slot.Entity).Description
+				content.AddChild(styled.NewDescriptionText(world.Components.Description.Get(*slot.Entity).Description, res))
 			}
 		}
 	}
-	if body == "" {
-		body = "説明はない"
-	}
 
-	content := styled.NewWindowContainer(res)
-	content.AddChild(styled.NewDescriptionText(body, res))
-	title := styled.NewWindowHeaderContainer(titleText, res)
-	win := styled.NewSmallWindow(title, content)
+	// タイトルバーは表示しない
+	win := styled.NewSmallWindow(widget.NewContainer(), content)
 	win.SetLocation(getCenterWinRect(world))
 	return win
 }

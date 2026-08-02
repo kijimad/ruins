@@ -16,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -554,7 +555,7 @@ func (st *ItemActionState) buildDescLine(props itemActionProps, tabIndex, itemIn
 	return container
 }
 
-// buildDetailWindow は x で開く詳細モーダルを組み立てる。選択中アイテムの情報を出す
+// buildDetailWindow は x で開く詳細モーダルを組み立てる。選択中アイテムの性能・性質を細かく出す
 func (st *ItemActionState) buildDetailWindow(world w.World, props itemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Window {
 	if tabIndex >= len(props.Tabs) {
 		return nil
@@ -566,17 +567,17 @@ func (st *ItemActionState) buildDetailWindow(world w.World, props itemActionProp
 	item := items[itemIndex]
 
 	content := styled.NewWindowContainer(res)
-	if item.Count != "" {
-		content.AddChild(styled.NewMenuText(fmt.Sprintf("所持 x%s", item.Count), res))
+	// 先頭にアイテム名、続けて性能・性質、最後に説明を並べる
+	content.AddChild(styled.NewMenuText(item.Name, res))
+	spec := styled.NewVerticalContainer()
+	views.UpdateSpec(world, spec, item.Entity)
+	content.AddChild(spec)
+	if item.Desc != "" {
+		content.AddChild(styled.NewDescriptionText(item.Desc, res))
 	}
-	desc := item.Desc
-	if desc == "" {
-		desc = "説明はない"
-	}
-	content.AddChild(styled.NewDescriptionText(desc, res))
 
-	title := styled.NewWindowHeaderContainer(item.Name, res)
-	win := styled.NewSmallWindow(title, content)
+	// タイトルバーは表示しない。空のタイトルコンテナを渡すと NewSmallWindow がバーを描かない
+	win := styled.NewSmallWindow(widget.NewContainer(), content)
 	win.SetLocation(getCenterWinRect(world))
 	return win
 }
