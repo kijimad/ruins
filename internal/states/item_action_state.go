@@ -61,12 +61,7 @@ func verbs() []itemVerb {
 			Label:   "置く",
 			KeyHint: "d",
 			Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
-			Exec: func(_ w.World, entity ecs.Entity) (es.Transition[w.World], error) {
-				// 選択済みアイテムを渡し、PlaceState をタイル選択から始めて二重選択を避ける
-				return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{
-					func() (es.State[w.World], error) { return &PlaceState{PresetItem: entity}, nil },
-				}}, nil
-			},
+			Exec:    execPlace,
 		},
 		{
 			ID:      verbConsume,
@@ -106,6 +101,19 @@ func acceptUseTool(world w.World, entity ecs.Entity) bool {
 		return false
 	}
 	return !world.Components.ProvidesNutrition.Has(entity) && !world.Components.ProvidesHealing.Has(entity)
+}
+
+// execPlace は選択アイテムをプレイヤーの足元に置いてダンジョンへ戻る。置く位置は指定しない
+func execPlace(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return es.Transition[w.World]{}, err
+	}
+	dest := gc.GridElement{Coord: world.Components.GridElement.Get(player).Coord}
+	if _, err := activity.Execute(&activity.DropBehavior{Target: entity, Destination: dest}, player, world); err != nil {
+		return es.Transition[w.World]{}, err
+	}
+	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 
 // execUseItem は選択アイテムへ UseItemBehavior を適用しダンジョンへ戻る。

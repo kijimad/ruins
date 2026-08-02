@@ -265,15 +265,6 @@ func TestGolden_Pickup(t *testing.T) {
 	}, &gs.PickupState{}))
 }
 
-func TestGolden_Place(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name(),
-		BuilderType:    mapplanner.PlannerTypeSmallRoom,
-	}, &gs.PlaceState{}))
-}
-
 func TestGolden_PersistentMessage(t *testing.T) {
 	t.Parallel()
 	town := newGoldenBackdrop(t)

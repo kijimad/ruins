@@ -34,8 +34,6 @@ var (
 var (
 	// CursorPickup は拾うモードのカーソル色。青色
 	CursorPickup = color.RGBA{R: 50, G: 200, B: 255, A: 255}
-	// CursorPlace は置くモードのカーソル色。緑色
-	CursorPlace = color.RGBA{R: 50, G: 255, B: 100, A: 255}
 	// CursorShoot は射撃モードのカーソル色。赤色
 	CursorShoot = color.RGBA{R: 255, G: 50, B: 50, A: 255}
 	// CursorLook は調査モードのカーソル色。白色
