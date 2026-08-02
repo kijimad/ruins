@@ -21,7 +21,7 @@ import (
 // キャラクター情報の読み取り専用タブ、能力・スキル・効果・健康・基本、の構築を担う。
 // 装備タブと同じ CharacterState が持ち、装備の編集フローと1画面に統合する。
 
-const statusItemsPerPage = 20
+const statusItemsPerPage = 14
 
 // 読み取り専用タブの ID
 const (
