@@ -15,9 +15,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// detailSectionsPerPage は詳細ウィンドウ1ページに収める性能区画の数。
-// component が多いアイテムでモーダルからはみ出さないよう区画単位でページ分割する
-const detailSectionsPerPage = 3
+// detailRowsPerPage は詳細ウィンドウ1ページに収める性能行の数。
+// 行数でページ分割することで、短い項目は1ページに収まり、行の多い項目だけがはみ出さないよう分割される
+const detailRowsPerPage = 12
 
 // WindowCursorReducer は選択肢ウィンドウの上下カーソル移動を扱う reducer を返す。
 // 端では循環し、選択肢が無いときは 0 に留まる。各メニューのウィンドウで共通に使う
@@ -51,57 +51,57 @@ func BuildActionWindow(world w.World, rect image.Rectangle, title string, action
 	return window
 }
 
-// detailPageCount は区画数からページ数を返す。区画が無くても1を返す
-func detailPageCount(sectionCount int) int {
-	if sectionCount <= 0 {
+// detailPageCount は行数からページ数を返す。行が無くても1を返す
+func detailPageCount(rowCount int) int {
+	if rowCount <= 0 {
 		return 1
 	}
-	return (sectionCount + detailSectionsPerPage - 1) / detailSectionsPerPage
+	return (rowCount + detailRowsPerPage - 1) / detailRowsPerPage
 }
 
 // DetailPageCount はエンティティの詳細ウィンドウのページ数を返す
 func DetailPageCount(world w.World, entity ecs.Entity) int {
-	return detailPageCount(len(views.SpecSections(world, entity)))
+	return detailPageCount(len(views.SpecRows(world, entity)))
 }
 
 // DetailPageCountFromSpec は EntitySpec の詳細ウィンドウのページ数を返す
 func DetailPageCountFromSpec(world w.World, spec gc.EntitySpec) int {
-	return detailPageCount(len(views.SpecSectionsFromSpec(world, spec)))
+	return detailPageCount(len(views.SpecRowsFromSpec(world, spec)))
 }
 
 // BuildDetailWindow はエンティティの詳細ウィンドウを組み立て、rect の位置に置く
 func BuildDetailWindow(world w.World, rect image.Rectangle, name, desc string, entity ecs.Entity, page int) *widget.Window {
-	return buildDetailFromSections(world, rect, name, desc, views.SpecSections(world, entity), page)
+	return buildDetailFromRows(world, rect, name, desc, views.SpecRows(world, entity), page)
 }
 
 // BuildDetailWindowFromSpec は EntitySpec の詳細ウィンドウを組み立てる。
 // エンティティを生成せず raw 定義から詳細を出す商店などで使う
 func BuildDetailWindowFromSpec(world w.World, rect image.Rectangle, name, desc string, spec gc.EntitySpec, page int) *widget.Window {
-	return buildDetailFromSections(world, rect, name, desc, views.SpecSectionsFromSpec(world, spec), page)
+	return buildDetailFromRows(world, rect, name, desc, views.SpecRowsFromSpec(world, spec), page)
 }
 
-// buildDetailFromSections は性能区画の並びから詳細ウィンドウを組み立てる。
+// buildDetailFromRows は性能行の並びから詳細ウィンドウを組み立てる。
 // name が空なら名前行を省き、desc が空なら説明行を省く。タイトルバーは表示しない。
-// 区画が多いときは page でページ分割し、複数ページなら位置表示を出す。page は範囲外なら内部でクランプする
-func buildDetailFromSections(world w.World, rect image.Rectangle, name, desc string, sections []views.SpecSection, page int) *widget.Window {
+// 行が多いときは page でページ分割し、複数ページなら位置表示を出す。page は範囲外なら内部でクランプする
+func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []views.SpecRow, page int) *widget.Window {
 	res := world.Resources.UIResources
 	content := styled.NewWindowContainer(res)
 	if name != "" {
 		content.AddChild(styled.NewMenuText(name, res))
 	}
 
-	total := detailPageCount(len(sections))
+	total := detailPageCount(len(rows))
 	if page < 0 {
 		page = 0
 	}
 	if page >= total {
 		page = total - 1
 	}
-	start := page * detailSectionsPerPage
-	end := min(start+detailSectionsPerPage, len(sections))
+	start := page * detailRowsPerPage
+	end := min(start+detailRowsPerPage, len(rows))
 
 	spec := styled.NewVerticalContainer()
-	views.RenderSpecSections(spec, sections[start:end])
+	views.RenderSpecRows(spec, rows[start:end], res)
 	content.AddChild(spec)
 
 	// 複数ページあるときだけ位置を示す。左右キーでページを繰る
