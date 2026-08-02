@@ -450,7 +450,7 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
 	entry := itemActionEntry{
 		Entity: entity,
 		Name:   world.Components.Name.Get(entity).Name,
-		Weight: query.GetEntityWeight(world, entity).String(),
+		Weight: query.GetEntityWeight(world, entity).KgString(),
 	}
 	if world.Components.Stackable.Has(entity) {
 		entry.Count = world.Components.Stackable.Get(entity).Count

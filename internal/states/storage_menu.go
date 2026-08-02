@@ -264,7 +264,7 @@ func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Enti
 		item := storageItemData{
 			Entity: entity,
 			Name:   name,
-			Weight: query.GetEntityWeight(world, entity).String(),
+			Weight: query.GetEntityWeight(world, entity).KgString(),
 		}
 		if world.Components.Stackable.Has(entity) {
 			item.Count = world.Components.Stackable.Get(entity).Count

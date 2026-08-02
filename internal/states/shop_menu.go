@@ -302,7 +302,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 
 			items = append(items, shopItemData{
 				Label:  itemName,
-				Weight: query.GetEntityWeight(world, entity).String(),
+				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
 				Count:  count,
 				Entity: entity,
@@ -320,7 +320,7 @@ func shopItemWeight(world w.World, label string) string {
 	if err != nil || spec.Weight == nil {
 		return ""
 	}
-	return spec.Weight.String()
+	return spec.Weight.KgString()
 }
 
 func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {

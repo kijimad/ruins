@@ -96,10 +96,10 @@ func newThreeColContent(topRight, midLeft, midRight, bottomLeft widget.Preferred
 	return content
 }
 
-// nameWithCount は個数が2以上のとき名前に x個数 を添える。1個や非スタックは名前だけを返す
+// nameWithCount は個数が2以上のとき名前に ×個数 を添える。1個や非スタックは名前だけを返す
 func nameWithCount(name string, count int) string {
 	if count > 1 {
-		return fmt.Sprintf("%s x%d", name, count)
+		return fmt.Sprintf("%s %s%d", name, consts.IconTimes, count)
 	}
 	return name
 }
