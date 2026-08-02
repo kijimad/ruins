@@ -36,7 +36,6 @@ func TestCharacterState_OnStartで各マウントを初期化する(t *testing.T
 
 	require.NoError(t, state.OnStart(world))
 	assert.NotNil(t, state.mount)
-	assert.NotNil(t, state.windowMount)
 	assert.NotNil(t, state.equipMount)
 	assert.Equal(t, charSubBrowse, state.subState, "初期状態は閲覧")
 }

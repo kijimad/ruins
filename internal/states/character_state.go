@@ -35,9 +35,8 @@ const characterMenuKey = "character"
 type characterSub int
 
 const (
-	charSubBrowse       characterSub = iota // タブとカーソルの操作
-	charSubActionWindow                     // 装備スロットのアクション選択
-	charSubEquipSelect                      // 装備するアイテムの選択
+	charSubBrowse      characterSub = iota // タブとカーソルの操作
+	charSubEquipSelect                     // 装備するアイテムの選択
 )
 
 // 画面タブ。装備と命令は編集可能、以降は読み取り専用の情報タブ
@@ -52,15 +51,14 @@ var characterTabLabels = []string{"装備", "命令", "能力", "スキル", "�
 // CharacterState は画面タブメニューのステート。主人公と仲間で同じ画面を使い、対象を切り替えられる
 type CharacterState struct {
 	es.BaseState[w.World]
-	target      ecs.Entity // 表示対象のキャラクター。ゼロ値なら主人公
-	subState    characterSub
-	showDetail  bool // x の詳細モーダルを表示中か
-	detailPage  int  // 詳細モーダルの表示ページ
-	rebuild     bool // 次フレームで UI を作り直すか
-	mount       *hooks.Mount[characterProps]
-	windowMount *hooks.Mount[charWindowProps]
-	equipMount  *hooks.Mount[charEquipProps]
-	widget      *ebitenui.UI
+	target     ecs.Entity // 表示対象のキャラクター。ゼロ値なら主人公
+	subState   characterSub
+	showDetail bool // x の詳細モーダルを表示中か
+	detailPage int  // 詳細モーダルの表示ページ
+	rebuild    bool // 次フレームで UI を作り直すか
+	mount      *hooks.Mount[characterProps]
+	equipMount *hooks.Mount[charEquipProps]
+	widget     *ebitenui.UI
 }
 
 var _ es.State[w.World] = &CharacterState{}
@@ -84,7 +82,6 @@ func (st *CharacterState) OnStop(_ w.World) error { return nil }
 func (st *CharacterState) OnStart(_ w.World) error {
 	st.subState = charSubBrowse
 	st.mount = hooks.NewMount[characterProps]()
-	st.windowMount = hooks.NewMount[charWindowProps]()
 	st.equipMount = hooks.NewMount[charEquipProps]()
 	return nil
 }
@@ -143,15 +140,9 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 			ItemCounts: []int{len(eprops.Items)},
 		})
 	}
-	// アクションウィンドウのカーソル
-	if st.subState == charSubActionWindow {
-		st.setupWindowState(world)
-	}
-
 	menuDirty := st.mount.Update()
-	windowDirty := st.windowMount.Update()
 	equipDirty := st.equipMount.Update()
-	if menuDirty || windowDirty || equipDirty || st.widget == nil || st.rebuild {
+	if menuDirty || equipDirty || st.widget == nil || st.rebuild {
 		st.widget = st.buildUI(world)
 		st.rebuild = false
 	}
@@ -173,8 +164,6 @@ func (st *CharacterState) dispatch(action inputmapper.ActionID) {
 		st.mount.Dispatch(action)
 	case charSubEquipSelect:
 		st.equipMount.Dispatch(action)
-	case charSubActionWindow:
-		st.windowMount.Dispatch(action)
 	}
 }
 
@@ -195,8 +184,6 @@ func (st *CharacterState) handleInput() (inputmapper.ActionID, bool) {
 		return "", false
 	}
 	switch st.subState {
-	case charSubActionWindow:
-		return HandleWindowInput()
 	case charSubBrowse, charSubEquipSelect:
 		// 対象切替は閲覧中のみ。character 固有のキーなので共有入力ではなくここで読む。
 		// 角括弧はキーボード配列で物理位置が変わり片方が別のキーコードになるため使わず、配列に依存しない , . を使う
@@ -240,8 +227,6 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 	}
 
 	switch st.subState {
-	case charSubActionWindow:
-		return st.doActionWindow(world, action)
 	case charSubEquipSelect:
 		return st.doEquipSelect(world, action)
 	case charSubBrowse:
@@ -264,8 +249,7 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
-		st.onBrowseSelect(world)
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
 	case inputmapper.ActionMenuSubjectPrev:
 		st.switchMember(world, -1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
@@ -279,22 +263,28 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 	}
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブはアクションウィンドウ、命令タブはポリシー変更や解雇、情報タブは詳細モーダルを開く
-func (st *CharacterState) onBrowseSelect(world w.World) {
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブは外す/装備選択、命令タブはポリシー変更や解雇、情報タブは詳細モーダルを開く
+func (st *CharacterState) onBrowseSelect(world w.World) error {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
 	props := st.mount.GetProps()
 	switch menuState.TabIndex {
 	case charScreenEquip:
 		if menuState.ItemIndex >= len(props.EquipSlots) {
-			return
+			return nil
 		}
-		st.windowMount = hooks.NewMount[charWindowProps]()
-		st.windowMount.SetProps(charWindowProps{SlotData: props.EquipSlots[menuState.ItemIndex]})
-		st.subState = charSubActionWindow
+		slot := props.EquipSlots[menuState.ItemIndex]
+		// 装備済みスロットは Enter で外す。空スロットは Enter で装備選択を開く
+		if slot.Entity != nil {
+			if err := st.unequipSlot(world, slot); err != nil {
+				return err
+			}
+		} else {
+			st.openEquipSelect(world, slot)
+		}
 		st.rebuild = true
 	case charScreenCommand:
 		if menuState.ItemIndex >= len(props.Commands) {
-			return
+			return nil
 		}
 		row := props.Commands[menuState.ItemIndex]
 		if row.Kind == cmdDismiss {
@@ -309,24 +299,7 @@ func (st *CharacterState) onBrowseSelect(world w.World) {
 		st.detailPage = 0
 		st.rebuild = true
 	}
-}
-
-func (st *CharacterState) doActionWindow(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	switch action {
-	case inputmapper.ActionWindowConfirm:
-		if err := st.executeSlotAction(world); err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		st.rebuild = true
-	case inputmapper.ActionWindowCancel:
-		st.subState = charSubBrowse
-		st.rebuild = true
-	case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
-		// Dispatch で処理される
-	default:
-		return es.Transition[w.World]{}, fmt.Errorf("アクションウィンドウ: 未対応のアクション: %s", action)
-	}
-	return es.Transition[w.World]{Type: es.TransNone}, nil
+	return nil
 }
 
 func (st *CharacterState) doEquipSelect(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
@@ -351,57 +324,28 @@ func (st *CharacterState) doEquipSelect(world w.World, action inputmapper.Action
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
-// setupWindowState はアクションウィンドウのカーソルを登録する
-func (st *CharacterState) setupWindowState(world w.World) {
-	windowProps := st.windowMount.GetProps()
-	actionCount := len(st.slotActions(world, windowProps.SlotData))
-	hooks.UseState(st.windowMount.Store(), "char_window_index", 0, menuscreen.WindowCursorReducer(actionCount))
+// openEquipSelect は空スロットに対して装備選択サブステートを開く
+func (st *CharacterState) openEquipSelect(world w.World, slot equipItemData) {
+	st.equipMount = hooks.NewMount[charEquipProps]()
+	st.equipMount.SetProps(charEquipProps{
+		Items:             equipableForSlot(world, slot.SlotNumber),
+		SlotNumber:        slot.SlotNumber,
+		PreviousEquipment: slot.Entity,
+		TargetMember:      slot.Member,
+	})
+	st.subState = charSubEquipSelect
 }
 
-// slotActions はスロットに対して選べるアクションを返す
-func (st *CharacterState) slotActions(world w.World, slot equipItemData) []string {
-	actions := []string{}
-	if slot.Entity != nil {
-		actions = append(actions, "外す")
-	}
-	if len(equipableForSlot(world, slot.SlotNumber)) > 0 {
-		actions = append(actions, TextEquip)
-	}
-	actions = append(actions, TextClose)
-	return actions
-}
-
-// executeSlotAction はアクションウィンドウで選んだアクションを実行する
-func (st *CharacterState) executeSlotAction(world w.World) error {
-	windowProps := st.windowMount.GetProps()
-	idx, _ := hooks.GetState[int](st.windowMount, "char_window_index")
-	actions := st.slotActions(world, windowProps.SlotData)
-	if idx >= len(actions) {
+// unequipSlot は装備済みスロットのアイテムを外して持ち物へ戻す
+func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
+	if slot.Entity == nil {
 		return nil
 	}
-	slot := windowProps.SlotData
-	switch actions[idx] {
-	case TextEquip:
-		st.equipMount = hooks.NewMount[charEquipProps]()
-		st.equipMount.SetProps(charEquipProps{
-			Items:             equipableForSlot(world, slot.SlotNumber),
-			SlotNumber:        slot.SlotNumber,
-			PreviousEquipment: slot.Entity,
-			TargetMember:      slot.Member,
-		})
-		st.subState = charSubEquipSelect
-	case "外す":
-		if slot.Entity != nil {
-			itemName := query.GetEntityName(*slot.Entity, world)
-			if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Member); err != nil {
-				return err
-			}
-			st.logEquipChange(world, slot.Member, itemName, "を外した。")
-		}
-		st.subState = charSubBrowse
-	case TextClose:
-		st.subState = charSubBrowse
+	itemName := query.GetEntityName(*slot.Entity, world)
+	if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Member); err != nil {
+		return err
 	}
+	st.logEquipChange(world, slot.Member, itemName, "を外した。")
 	return nil
 }
 
@@ -459,11 +403,6 @@ type equipItemData struct {
 	SlotNumber gc.EquipmentSlotNumber
 	Entity     *ecs.Entity // 装備中エンティティ。空きなら nil
 	Member     ecs.Entity
-}
-
-// charWindowProps はアクションウィンドウの Props
-type charWindowProps struct {
-	SlotData equipItemData
 }
 
 // charEquipProps は装備選択の Props
@@ -758,9 +697,6 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 		Footer:    hint,
 	})
 
-	if st.subState == charSubActionWindow {
-		ui.AddWindow(st.buildActionWindow(world, res))
-	}
 	if st.subState == charSubEquipSelect {
 		ui.AddWindow(st.buildEquipSelectWindow(world, res))
 	}
@@ -845,13 +781,6 @@ func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, r
 	}
 	container.AddChild(table)
 	return container
-}
-
-func (st *CharacterState) buildActionWindow(world w.World, _ resources.UIResources) *widget.Window {
-	windowProps := st.windowMount.GetProps()
-	idx, _ := hooks.GetState[int](st.windowMount, "char_window_index")
-	actions := st.slotActions(world, windowProps.SlotData)
-	return menuscreen.BuildActionWindow(world, getCenterWinRect(world), "アクション選択", actions, idx)
 }
 
 func (st *CharacterState) buildEquipSelectWindow(world w.World, res resources.UIResources) *widget.Window {
