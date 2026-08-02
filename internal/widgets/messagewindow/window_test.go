@@ -1,8 +1,11 @@
 package messagewindow
 
 import (
+	"errors"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -408,4 +411,210 @@ func TestWindow_Close(t *testing.T) {
 		assert.Equal(t, 0, onCloseCalledCount, "二重に閉じてもonCloseは呼ばれない")
 		assert.True(t, win.IsClosed(), "二重に閉じても閉じたまま")
 	})
+}
+
+func Test_showNextMessage(t *testing.T) {
+	t.Parallel()
+
+	t.Run("queueManagerが未設定なら何もしない", func(t *testing.T) {
+		t.Parallel()
+
+		win := &Window{isOpen: true}
+
+		win.showNextMessage()
+
+		assert.True(t, win.IsOpen(), "queueManagerが無いので状態は変化しない")
+	})
+
+	t.Run("キューが空ならウィンドウを閉じてonCloseを呼ぶ", func(t *testing.T) {
+		t.Parallel()
+
+		onCloseCalled := false
+		win := &Window{
+			isOpen:       true,
+			queueManager: NewQueueManager(),
+			onClose:      func() { onCloseCalled = true },
+		}
+
+		win.showNextMessage()
+
+		assert.True(t, win.IsClosed())
+		assert.True(t, onCloseCalled)
+	})
+}
+
+func Test_updateContentFromMessage(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Actionがエラーを返すとMessageDataはキューに追加されない", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t)
+		wantErr := errors.New("action失敗")
+		followUp := messagedata.NewSystemMessage("フォローアップ")
+		msg := messagedata.NewDialogMessage("どうする？", "NPC").
+			WithChoiceMessage("実行", followUp)
+		msg.Choices[0].Action = func(_ w.World) error { return wantErr }
+
+		win := NewWindow(world, msg)
+		err := win.content.Choices[0].Action()
+
+		require.ErrorIs(t, err, wantErr)
+		assert.False(t, win.queueManager.HasNext(), "Actionがエラーの場合はMessageDataが追加されない")
+	})
+
+	t.Run("queueManager未設定でMessageDataがある選択を実行すると生成して追加する", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t)
+		followUp := messagedata.NewSystemMessage("フォローアップ")
+		msg := messagedata.NewDialogMessage("どうする？", "NPC").
+			WithChoiceMessage("実行", followUp)
+
+		win := &Window{world: world}
+		win.updateContentFromMessage(msg)
+		require.Nil(t, win.queueManager, "この時点ではqueueManagerは未設定")
+
+		err := win.content.Choices[0].Action()
+
+		require.NoError(t, err)
+		require.NotNil(t, win.queueManager, "MessageDataがある選択実行時にqueueManagerが生成される")
+		assert.True(t, win.queueManager.HasNext())
+		assert.Same(t, followUp, win.queueManager.Dequeue())
+	})
+}
+
+func Test_selectChoice(t *testing.T) {
+	t.Parallel()
+
+	t.Run("範囲外のインデックスは何もせずnilを返す", func(t *testing.T) {
+		t.Parallel()
+
+		win := &Window{isOpen: true, content: MessageContent{Choices: []Choice{{Text: "A"}}}}
+
+		err := win.selectChoice(-1)
+		require.NoError(t, err)
+		assert.True(t, win.IsOpen(), "範囲外の負のインデックスではウィンドウは閉じない")
+
+		err = win.selectChoice(1)
+		require.NoError(t, err)
+		assert.True(t, win.IsOpen(), "範囲外の超過インデックスではウィンドウは閉じない")
+	})
+
+	t.Run("onChoiceコールバックに選択した選択肢を渡しウィンドウを閉じる", func(t *testing.T) {
+		t.Parallel()
+
+		var got Choice
+		win := &Window{
+			isOpen:  true,
+			content: MessageContent{Choices: []Choice{{Text: "A"}, {Text: "B"}}},
+			onChoice: func(c Choice) {
+				got = c
+			},
+		}
+
+		err := win.selectChoice(1)
+
+		require.NoError(t, err)
+		assert.Equal(t, "B", got.Text)
+		assert.True(t, win.IsClosed(), "選択後はウィンドウが閉じる")
+	})
+
+	t.Run("Actionがエラーを返すとウィンドウを閉じずにエラーを返す", func(t *testing.T) {
+		t.Parallel()
+
+		wantErr := errors.New("action失敗")
+		win := &Window{
+			isOpen: true,
+			content: MessageContent{
+				Choices: []Choice{{Text: "A", Action: func() error { return wantErr }}},
+			},
+		}
+
+		err := win.selectChoice(0)
+
+		require.ErrorIs(t, err, wantErr)
+		assert.True(t, win.IsOpen(), "Actionがエラーの場合はウィンドウを閉じない")
+	})
+}
+
+func Test_translateChoiceInput(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		setup      func(m *input.MockKeyboardInput)
+		wantAction inputmapper.ActionID
+		wantOK     bool
+	}{
+		{
+			name:       "矢印上キーでメニュー上移動",
+			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyArrowUp, true) },
+			wantAction: inputmapper.ActionMenuUp,
+			wantOK:     true,
+		},
+		{
+			name:       "Wキーでメニュー上移動",
+			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyW, true) },
+			wantAction: inputmapper.ActionMenuUp,
+			wantOK:     true,
+		},
+		{
+			name:       "矢印下キーでメニュー下移動",
+			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyArrowDown, true) },
+			wantAction: inputmapper.ActionMenuDown,
+			wantOK:     true,
+		},
+		{
+			name:       "Sキーでメニュー下移動",
+			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyS, true) },
+			wantAction: inputmapper.ActionMenuDown,
+			wantOK:     true,
+		},
+		{
+			name:       "Enterの押下から押上のワンセットで選択",
+			setup:      func(m *input.MockKeyboardInput) { m.SimulateEnterPressRelease() },
+			wantAction: inputmapper.ActionMenuSelect,
+			wantOK:     true,
+		},
+		{
+			name:       "Escapeキーでキャンセル",
+			setup:      func(m *input.MockKeyboardInput) { m.SetKeyJustPressed(ebiten.KeyEscape, true) },
+			wantAction: inputmapper.ActionMenuCancel,
+			wantOK:     true,
+		},
+		{
+			name:       "何も入力が無ければ空を返す",
+			setup:      func(_ *input.MockKeyboardInput) {},
+			wantAction: "",
+			wantOK:     false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			mock := input.NewMockKeyboardInput()
+			tt.setup(mock)
+			win := &Window{}
+
+			action, ok := win.translateChoiceInput(mock)
+
+			assert.Equal(t, tt.wantAction, action)
+			assert.Equal(t, tt.wantOK, ok)
+		})
+	}
+}
+
+func TestWindow_HandleInput_未入力なら空を返す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+
+	action, ok := win.HandleInput()
+
+	assert.False(t, ok, "キーが押されていなければfalseを返す")
+	assert.Equal(t, inputmapper.ActionID(""), action)
 }
