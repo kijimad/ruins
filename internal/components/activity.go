@@ -69,7 +69,7 @@ const (
 type Activity struct {
 	BehaviorName BehaviorName  // アクティビティの種類
 	State        ActivityState // 実行状態
-	Required     int           // 完了に必要な総量。AP や工数の単位。即時アクションは 0
+	Required     int           // 完了に必要な総量。AP や工数の単位。初回ステップで完了すれば即時アクションになる
 	Accumulated  int           // 注ぎ込んだ総量。Required に達したら完了
 	Target       *ecs.Entity   // 操作対象のエンティティ
 	Recipient    *ecs.Entity   // 受取人エンティティ。アイテム転送の転送先など

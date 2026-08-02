@@ -374,13 +374,13 @@ func TestLastActivity(t *testing.T) {
 		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "テスト"}, player, world)
 		require.NoError(t, err)
 
-		// 待機は Required>0 の継続アクションなので Execute では開始のみ記録される
+		// 待機回数1は初回ステップで Required に達するので即時アクションとして完了する
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
-			State:        gc.ActivityStateRunning,
+			State:        gc.ActivityStateCompleted,
 			Success:      true,
-			Message:      "アクション開始",
+			Message:      "アクション完了",
 		}
 		assert.Equal(t, expected, result)
 	})
@@ -396,13 +396,13 @@ func TestLastActivity(t *testing.T) {
 		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "待機"}, player, world)
 		require.NoError(t, err)
 
-		// 待機は継続アクションなので開始のみ記録される
+		// 待機回数1は初回ステップで完了する即時アクション
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
-			State:        gc.ActivityStateRunning,
+			State:        gc.ActivityStateCompleted,
 			Success:      true,
-			Message:      "アクション開始",
+			Message:      "アクション完了",
 		}
 		assert.Equal(t, expected, result)
 

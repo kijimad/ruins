@@ -147,13 +147,11 @@ func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing
 	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
 
-	// 右へ移動入力すると、歩行でなく押しアクティビティが始まる
+	// 右へ移動入力すると、歩行でなく押しアクティビティが始まる。
+	// AP がちょうど足りるので初回ステップで押し切り、Execute 内で即時完了する
 	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
 
-	// 押しは継続アクション。1ターン処理で押し切る
-	activity.ProcessContinuousActivities(world)
-
-	// AP がちょうど足りるので1ターンで押し切れる。キューブだけが前進し、押し手は追随しない
+	// キューブだけが前進し、押し手は追随しない
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 4, Y: 5}, world.Components.GridElement.Get(player).Coord, "押し手は追随せず元位置に留まる")
 }
@@ -167,9 +165,8 @@ func TestExecuteMoveAction_押しの次の入力で空いたタイルへ進む(t
 	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase*2)
 
-	// 1回目: 押し。継続アクションを1ターン処理でキューブが {6,5} へ抜け、プレイヤーは {4,5} のまま
+	// 1回目: 押し。AP がちょうど足りるので初回ステップで完了し、キューブが {6,5} へ抜け、プレイヤーは {4,5} のまま
 	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
-	activity.ProcessContinuousActivities(world)
 	require.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
 	require.Equal(t, consts.Coord[consts.Tile]{X: 4, Y: 5}, world.Components.GridElement.Get(player).Coord)
 
@@ -187,11 +184,9 @@ func TestPullBehavior_壁際のキューブを引き出せる(t *testing.T) {
 	addWall(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
 
+	// AP がちょうど足りるので初回ステップで引き切り、Execute 内で即時完了する
 	_, err := activity.Execute(activity.NewPullBehavior(cube), player, world)
 	require.NoError(t, err)
-
-	// 引きは継続アクション。1ターン処理で引き切る
-	activity.ProcessContinuousActivities(world)
 
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord, "キューブはプレイヤーの元タイルへ引かれる")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 5}, world.Components.GridElement.Get(player).Coord, "プレイヤーは1タイル後退する")
