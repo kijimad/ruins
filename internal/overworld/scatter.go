@@ -17,9 +17,9 @@ import (
 // 屋外の散布は wasteland チャンクの開けた地表を自然の野原に仕立てる feature。草・低木・岩を撒く。
 // 草は透明背景の prop として地面に重ねる。タイルのオートタイルで草地を作ると、
 // 同種で埋めた面は中央が暗いフィルに、異種の境界は縁取りになり自然に繋がらないためである。prop なら
-// オートタイルを経由せず、地面へそのまま重なる。疎な Placement と違い doc 70 の密度場を屋外へ流用し、
-// density 確率で個数を決める。他フィーチャの後に評価し、道が floor 化した後の実状態を読んで土系の
-// 地面かつ非占有のタイルだけに置く。人工物を原野一面に撒くと不自然なので v1 では置かない。
+// オートタイルを経由せず、地面へそのまま重なる。疎な Placement と違い、密度場と density 確率で個数を
+// 決める。他フィーチャの後に評価し、道が floor 化した後の実状態を読んで土系の地面かつ非占有のタイルだけに
+// 置く。人工物を原野一面に撒くと不自然なので置かない。
 
 // scatterEntry は散布物の1候補。実スプライトのある自然物を使う。Big は通行を塞ぐ大物の印で、
 // 位相格子と経路マスクの対象になる。Ref が空文字なら「置かない」を表し、null 重みとして扱う。
@@ -194,7 +194,7 @@ func (scatterFeature) place(world w.World, runSeed uint64, c consts.Coord[consts
 
 // placeScatterEntry は anchor へ prop を1個置き、Satellites を anchor 相対へ順に置く。anchor が
 // 先に占有されていれば丸ごと諦める。衛星は土系の地面かつ非占有のタイルにだけ置き、収まらない衛星は
-// 落とす。anchor だけ置いて衛星を諦める、doc 70 の Satellites と同じ「尽きたら諦める」方針。
+// 落とす。anchor だけ置いて衛星を諦める「尽きたら諦める」方針にする。
 func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
 	// ScatterArea は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。
 	// 同じ ScatterArea が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。
@@ -266,8 +266,8 @@ func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chu
 	return zoneWild
 }
 
-// onBigPhase は相対タイルが大物を乗せる位相かを返す。doc 70 のパリティ格子 (x+y)%2 を一般の P 位相へ
-// 広げたもの。相対座標で判定するのでチャンクごとに同じ格子が並び、帯の整列に依らず決定的になる。
+// onBigPhase は相対タイルが大物を乗せる位相かを返す。パリティ格子 (x+y)%2 を一般の P 位相へ広げたもの。
+// 相対座標で判定するのでチャンクごとに同じ格子が並び、帯の整列に依らず決定的になる。
 // 負の座標でも周期が途切れないよう剰余を床方向へ寄せる。
 func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 	m := (rel.X + scatterBigPhaseK*rel.Y) % scatterBigPhaseMod

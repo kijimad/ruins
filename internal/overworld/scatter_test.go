@@ -167,7 +167,7 @@ func TestScatterFeature_草を撒く(t *testing.T) {
 	assert.Positive(t, grass, "地面へ草の prop が撒かれる")
 }
 
-// TestScatterFeature_wasteland以外は置かない は、v1 のスコープが wasteland 限定であることを固定する。
+// TestScatterFeature_wasteland以外は置かない は、散布のスコープが wasteland 限定であることを固定する。
 // 集落や市街のチャンクでは散布が何も置かず、建物との占有衝突を構造的に避ける。
 func TestScatterFeature_wasteland以外は置かない(t *testing.T) {
 	t.Parallel()
