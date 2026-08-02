@@ -404,19 +404,12 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 		labels[i] = tab.Label
 	}
 
-	content := styled.NewItemGridContainer()
-	// 1行目: 空、空、空
-	content.AddChild(widget.NewContainer())
-	content.AddChild(widget.NewContainer())
-	content.AddChild(widget.NewContainer())
-	// 2行目: アイテム一覧、空、性能+レシピ表示
-	content.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
-	content.AddChild(widget.NewContainer())
-	content.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
-	// 3行目: 説明文
-	content.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))
-	content.AddChild(widget.NewContainer())
-	content.AddChild(widget.NewContainer())
+	content := newThreeColContent(
+		nil,
+		st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res),
+		st.buildDetailContainer(world, props, tabIndex, itemIndex, res),
+		st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res),
+	)
 
 	eui := newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content, Footer: menuNavHint(true)})
 

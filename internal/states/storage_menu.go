@@ -292,19 +292,12 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 		labels[i] = tab.Label
 	}
 
-	content := styled.NewItemGridContainer()
-	// 1行目: 空、空、重量
-	content.AddChild(widget.NewContainer())
-	content.AddChild(widget.NewContainer())
-	content.AddChild(st.buildWeightContainer(props.WeightText, props.WeightOverflow, res))
-	// 2行目: 操作対象リスト（左）、空、参照リスト（右）
-	content.AddChild(st.buildActiveListContainer(props, tabIndex, itemIndex, res))
-	content.AddChild(widget.NewContainer())
-	content.AddChild(st.buildReferenceListContainer(props, tabIndex, res))
-	// 3行目: 予備
-	content.AddChild(widget.NewContainer())
-	content.AddChild(widget.NewContainer())
-	content.AddChild(widget.NewContainer())
+	content := newThreeColContent(
+		st.buildWeightContainer(props.WeightText, props.WeightOverflow, res),
+		st.buildActiveListContainer(props, tabIndex, itemIndex, res),
+		st.buildReferenceListContainer(props, tabIndex, res),
+		nil,
+	)
 
 	return newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content, Footer: menuNavHint(true)})
 }

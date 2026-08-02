@@ -78,6 +78,23 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 // キャラクター情報タブは見出し行が挟まり行数が変わるため character_info 側で別に持つ
 const menuItemsPerPage = 20
 
+// newThreeColContent は3列3行のメニュー本文を組み立てる。商店・合成・収納で共通に使う。
+// 右上に所持金や重量、中段左に一覧、中段右に性能や参照リスト、左下に説明を置き、
+// 残りのセルは空で埋めて位置を揃える。nil のセルは空コンテナにする
+func newThreeColContent(topRight, midLeft, midRight, bottomLeft widget.PreferredSizeLocateableWidget) *widget.Container {
+	cell := func(c widget.PreferredSizeLocateableWidget) widget.PreferredSizeLocateableWidget {
+		if c == nil {
+			return widget.NewContainer()
+		}
+		return c
+	}
+	content := styled.NewItemGridContainer()
+	content.AddChild(widget.NewContainer(), widget.NewContainer(), cell(topRight))
+	content.AddChild(cell(midLeft), widget.NewContainer(), cell(midRight))
+	content.AddChild(cell(bottomLeft), widget.NewContainer(), widget.NewContainer())
+	return content
+}
+
 // newCurrencyRow は所持金を表示する行を組み立てる。商店と酒場で共通に使う
 func newCurrencyRow(currency int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
