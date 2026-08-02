@@ -73,7 +73,7 @@ func features() []feature {
 	// 散布は占有と道の実状態を読むため最後に評価する
 	return []feature{
 		settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessPOIFeature{},
-		roadFeature{}, scatterFeature{},
+		roadFeature{}, openTerrainFeature{},
 	}
 }
 

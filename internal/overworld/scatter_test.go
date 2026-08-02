@@ -117,7 +117,7 @@ func TestScatterFeature_同じseedは同じ配置(t *testing.T) {
 	run := func() []propAt {
 		world := testutil.InitTestWorld(t)
 		g := newDirtChunk(t, world)
-		require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
+		require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 		return collectProps(world)
 	}
 
@@ -135,7 +135,7 @@ func TestScatterFeature_土系の空きにだけ置く(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	c := firstWastelandChunk(t)
 	g := newDirtChunk(t, world)
-	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
+	require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
 	tiles := g.tiles.get()
 	seen := make(map[gc.GridElement]bool)
@@ -156,7 +156,7 @@ func TestScatterFeature_草を撒く(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	c := firstWastelandChunk(t)
 	g := newDirtChunk(t, world)
-	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
+	require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
 	grass := 0
 	for _, p := range collectProps(world) {
@@ -174,7 +174,7 @@ func TestScatterFeature_wasteland以外は置かない(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	c := firstNonWastelandChunk(t)
 	g := newDirtChunk(t, world)
-	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
+	require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
 	assert.Empty(t, collectProps(world), "wasteland 以外では散布しない")
 }
@@ -186,7 +186,7 @@ func TestScatterFeature_外周は空けて横断できる(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	c := firstWastelandChunk(t)
 	g := newDirtChunk(t, world)
-	require.NoError(t, scatterFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
+	require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
 	// 壁として扱うのは BlockPass を持つ prop だけ。草地・plant・moving_stone は歩行可能
 	blocked := collectBlockingTiles(world)
