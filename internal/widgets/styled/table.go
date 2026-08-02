@@ -18,7 +18,7 @@ const (
 	AlignRight
 )
 
-// tableRowHeight はテーブル1行の高さ。本文は SmallFace で、行を詰めて1画面に多く収める
+// tableRowHeight はテーブル1行の高さ。本文は BodyFace、ヘッダは SmallFace。行を詰めて1画面に多く収める
 const tableRowHeight = 20
 
 // NewTableContainer はテーブルのコンテナを作成する
@@ -138,7 +138,7 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(values[i], &res.Text.SmallFace, textColor),
+			widget.TextOpts.Text(values[i], &res.Text.BodyFace, textColor),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),
@@ -170,7 +170,7 @@ func addDataRow(container *widget.Container, columnWidths []int, values []string
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(value, &res.Text.SmallFace, theme.TextPrimary),
+			widget.TextOpts.Text(value, &res.Text.BodyFace, theme.TextPrimary),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),
