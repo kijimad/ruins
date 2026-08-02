@@ -351,6 +351,7 @@ func (st *CharacterState) executeSlotAction(world w.World) error {
 	case TextEquip:
 		st.equipMount = hooks.NewMount[charEquipProps]()
 		st.equipMount.SetProps(charEquipProps{
+			Items:             equipableForSlot(world, slot.SlotNumber),
 			SlotNumber:        slot.SlotNumber,
 			PreviousEquipment: slot.Entity,
 			TargetMember:      slot.Member,

@@ -3,6 +3,7 @@ package states
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
@@ -10,6 +11,20 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestEquipableForSlot_所持する装備品が候補に出る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnBackpackItem(world, "布の帽子", 1)
+	require.NoError(t, err)
+
+	assert.NotEmpty(t, equipableForSlot(world, gc.SlotWeapon1), "武器を所持していれば武器スロットの候補に出る")
+	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHead), "頭防具を所持していれば頭スロットの候補に出る")
+}
 
 func TestCharacterState_OnStartで各マウントを初期化する(t *testing.T) {
 	t.Parallel()
