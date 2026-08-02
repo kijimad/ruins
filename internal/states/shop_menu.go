@@ -519,7 +519,7 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 			priceStr := query.FormatCurrency(entry.Item.Price)
 			countStr := ""
 			if entry.Item.Count > 1 {
-				countStr = fmt.Sprintf("x%d", entry.Item.Count)
+				countStr = fmt.Sprintf("%d", entry.Item.Count)
 			}
 			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr, countStr}, aligns, &isSelected, res)
 		}

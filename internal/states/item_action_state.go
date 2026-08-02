@@ -515,12 +515,8 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range items {
-		count := ""
-		if item.Count != "" {
-			count = "x" + item.Count
-		}
 		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{item.Name, count}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{item.Name, item.Count}, aligns, &isSelected, res)
 	}
 	container.AddChild(table)
 	return container
