@@ -100,14 +100,14 @@ func acceptUseTool(world w.World, entity ecs.Entity) bool {
 	return !world.Components.ProvidesNutrition.Has(entity) && !world.Components.ProvidesHealing.Has(entity)
 }
 
-// execUseItem は選択アイテムへ UseItemActivity を適用しダンジョンへ戻る。
-// 効果の有無で食べた・使ったのログ文言は UseItemActivity 側が出し分ける。
+// execUseItem は選択アイテムへ UseItemBehavior を適用しダンジョンへ戻る。
+// 効果の有無で食べた・使ったのログ文言は UseItemBehavior 側が出し分ける。
 func execUseItem(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	if _, err := activity.Execute(&activity.UseItemActivity{Target: entity}, player, world); err != nil {
+	if _, err := activity.Execute(&activity.UseItemBehavior{Target: entity}, player, world); err != nil {
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -125,7 +125,7 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 	if remaining <= 0 {
 		remaining = 1
 	}
-	if _, err := activity.Execute(&activity.ReadActivity{Target: entity, Duration: consts.Turn(remaining)}, player, world); err != nil {
+	if _, err := activity.Execute(&activity.ReadBehavior{Target: entity, Duration: consts.Turn(remaining)}, player, world); err != nil {
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
