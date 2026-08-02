@@ -56,6 +56,12 @@ type CharacterState struct {
 }
 
 var _ es.State[w.World] = &CharacterState{}
+var _ Configurable = &CharacterState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *CharacterState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *CharacterState) OnPause(_ w.World) error { return nil }
@@ -544,7 +550,17 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 		root.AddChild(st.buildSkillDesc(props.Skills, itemIndex, res))
 	}
 
-	ui := &ebitenui.UI{Container: root}
+	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする
+	outer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: 48, Left: 96, Right: 96}),
+		)),
+	)
+	outer.AddChild(root)
+
+	ui := &ebitenui.UI{Container: outer}
 
 	if st.subState == charSubActionWindow {
 		ui.AddWindow(st.buildActionWindow(world, res))

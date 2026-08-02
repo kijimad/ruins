@@ -182,6 +182,12 @@ type ItemActionState struct {
 }
 
 var _ es.State[w.World] = &ItemActionState{}
+var _ Configurable = &ItemActionState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *ItemActionState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
 
 // NewItemActionState は動詞タブ画面を initial のタブで開くファクトリを返す
 func NewItemActionState(initial verbID) es.StateFactory[w.World] {
@@ -485,7 +491,18 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	// Row 3: 選択中アイテムと x の案内
 	root.AddChild(st.buildDescLine(props, tabIndex, itemIndex, res))
 
-	ui := &ebitenui.UI{Container: root}
+	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする。
+	// 外周は背景を持たず透明にし、周囲にフィールドを覗かせる
+	outer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: 48, Left: 96, Right: 96}),
+		)),
+	)
+	outer.AddChild(root)
+
+	ui := &ebitenui.UI{Container: outer}
 
 	if st.showDetail {
 		if win := st.buildDetailWindow(world, props, tabIndex, itemIndex, res); win != nil {
