@@ -158,7 +158,7 @@ func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing
 
 // TestExecuteMoveAction_押しの次の入力で空いたタイルへ進む は、押しでキューブが抜けた後、同じ方向を
 // もう一度入力するとプレイヤーが空いたタイルへ普通に一歩進むことを検証する。方向を押し続けると
-// 押しと移動が交互に起きてキューブが進む、案Aの体感を固定する。
+// 押しと移動が交互に起きてキューブが進む、という操作感を固定する。
 func TestExecuteMoveAction_押しの次の入力で空いたタイルへ進む(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

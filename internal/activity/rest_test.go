@@ -218,9 +218,9 @@ func TestRestBehavior_performHealing(t *testing.T) {
 	})
 }
 
-// TestRestBehavior_所要はAP量で伸縮する は doc 84 の核心を固定する。
-// 同じ必要量でも、毎ターン注げるAPが多いほど少ないターンで完了する。
-// 着手時にターン数を凍結せず、毎ターンのAPを累積するモデルであることを保証する。
+// TestRestBehavior_所要はAP量で伸縮する は、同じ必要量でも毎ターン注げるAPが多いほど
+// 少ないターンで完了することを固定する。着手時にターン数を凍結せず、毎ターンのAPを
+// 累積するモデルであることを保証する。
 func TestRestBehavior_所要はAP量で伸縮する(t *testing.T) {
 	t.Parallel()
 
