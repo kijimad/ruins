@@ -228,6 +228,7 @@ type shopTabData struct {
 
 type shopItemData struct {
 	Label    string
+	Weight   string
 	Price    int
 	Count    int // 売却時のアイテム個数
 	Entity   ecs.Entity
@@ -274,6 +275,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 
 		items = append(items, shopItemData{
 			Label:    itemName,
+			Weight:   shopItemWeight(world, itemName),
 			Price:    price,
 			IsBuy:    true,
 			Disabled: !canAfford,
@@ -300,6 +302,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 
 			items = append(items, shopItemData{
 				Label:  itemName,
+				Weight: query.GetEntityWeight(world, entity).String(),
 				Price:  price,
 				Count:  count,
 				Entity: entity,
@@ -309,6 +312,15 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 	})
 
 	return items
+}
+
+// shopItemWeight は raw 定義から商品1個の重量表記を返す。重量を持たない品は空文字を返す
+func shopItemWeight(world w.World, label string) string {
+	spec, err := raw.NewItemSpec(world.Resources.RawMaster, label)
+	if err != nil || spec.Weight == nil {
+		return ""
+	}
+	return spec.Weight.String()
 }
 
 func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {
@@ -496,22 +508,22 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	// ページインジケーター（上部固定位置、右寄せ）
 	container.AddChild(newPageIndicator(pg, res))
 
-	// 購入タブ: カーソル、名前、価格の3列
-	// 売却タブ: カーソル、名前、価格、個数の4列
+	// 購入タブ: 名前、重量、価格の3列
+	// 売却タブ: 名前、重量、価格、個数の4列
 	if currentTab.ID == "buy" {
-		columnWidths := []int{20, 150, 80}
-		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
+		columnWidths := []int{180, 70, 80}
+		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
 		table := styled.NewTableContainer(columnWidths, res)
 		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
 			isSelected := pg.IsSelectedInPage(entry.Index)
 			priceStr := query.FormatCurrency(entry.Item.Price)
-			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr}, aligns, &isSelected, res)
+			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Weight, priceStr}, aligns, &isSelected, res)
 		}
 		container.AddChild(table)
 	} else {
-		columnWidths := []int{20, 150, 80, 40}
-		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+		columnWidths := []int{150, 70, 80, 50}
+		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight, styled.AlignRight}
 
 		table := styled.NewTableContainer(columnWidths, res)
 		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
@@ -521,7 +533,7 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 			if entry.Item.Count > 1 {
 				countStr = fmt.Sprintf("%d", entry.Item.Count)
 			}
-			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr, countStr}, aligns, &isSelected, res)
+			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Weight, priceStr, countStr}, aligns, &isSelected, res)
 		}
 		container.AddChild(table)
 	}
