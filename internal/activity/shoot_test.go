@@ -66,7 +66,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		world, player, enemy, _ := setupShootingWorld(t)
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		activity.Target = &enemy
 
@@ -79,7 +79,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 
 		err = sa.Validate(activity, player, world)
@@ -95,7 +95,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		activity.Target = &enemy
 
@@ -120,7 +120,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		activity.Target = &enemy
 
@@ -145,7 +145,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		activity.Target = &enemy
 
@@ -163,7 +163,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		world.Components.BlockView.Add(wall, &gc.BlockView{})
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		activity.Target = &enemy
 
@@ -177,7 +177,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		world.Components.Dead.Add(player, &gc.Dead{})
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		activity.Target = &enemy
 
@@ -191,7 +191,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
 		sa := &ShootBehavior{}
-		activity, err := NewActivity(sa, 0)
+		activity, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		activity.Target = &enemy
 
@@ -211,7 +211,7 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		before := fire.Magazine
 
 		sa := &ShootBehavior{}
-		comp, err := NewActivity(sa, 0)
+		comp, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 		comp.Target = &enemy
 
@@ -227,7 +227,7 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		sa := &ShootBehavior{}
-		comp, err := NewActivity(sa, 0)
+		comp, err := NewActivity(gc.BehaviorShoot, 0)
 		require.NoError(t, err)
 
 		err = sa.DoTurn(comp, player, world)

@@ -14,10 +14,7 @@ import (
 )
 
 // DropBehavior はBehaviorの実装
-type DropBehavior struct {
-	Target      ecs.Entity
-	Destination gc.GridElement
-}
+type DropBehavior struct{}
 
 // Info はBehaviorの実装
 func (db *DropBehavior) Info() Info {
@@ -36,15 +33,12 @@ func (db *DropBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorDrop
 }
 
-// BuildActivity はBehaviorの実装
-func (db *DropBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(db, 0)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &db.Target
-	comp.Destination = &db.Destination
-	return comp, nil
+// NewDropActivity は対象アイテムと落とす先を指定してドロップアクティビティを組む。
+func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity {
+	comp := newActivity(gc.BehaviorDrop, 0)
+	comp.Target = &target
+	comp.Destination = &destination
+	return comp
 }
 
 // Validate はアイテムドロップアクティビティの検証を行う

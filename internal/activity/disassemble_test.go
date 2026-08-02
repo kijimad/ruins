@@ -106,7 +106,7 @@ func TestDisassembleBehavior_Validate_工具がないとエラー(t *testing.T) 
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: crate}
+	da := &DisassembleBehavior{}
 	comp := &gc.Activity{Target: &crate}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
@@ -122,8 +122,7 @@ func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラ�
 	desk, err := lifecycle.SpawnProp(world, "desk", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: desk}
-	_, err = da.BuildActivity(player, world)
+	_, err = NewDisassembleActivity(desk, player, world)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "分解定義")
 }
@@ -143,8 +142,8 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	assert.Contains(t, world.Components.Interactable.Get(crate).Interactions, gc.InteractionDisassemble,
 		"分解定義を持つpropはInteractionDisassembleを持つべき")
 
-	da := &DisassembleBehavior{Target: crate}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
 	// baseAP2000 スキル0 グレード1 で必要AP2000
 	assert.Equal(t, 2000, comp.Progress.Max)
@@ -184,8 +183,8 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 1)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: hdd}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(hdd, player, world)
 	require.NoError(t, err)
 	// baseAP1000 グレード2 で必要AP800
 	assert.Equal(t, 800, comp.Progress.Max)
@@ -223,8 +222,8 @@ func TestDisassembleBehavior_収納propを分解すると中身が足元に出�
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MoveToStorage(world, loot, crate))
 
-	da := &DisassembleBehavior{Target: crate}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
@@ -250,8 +249,8 @@ func TestDisassembleBehavior_Finish_対象が既に消えていれば何もし�
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: crate}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 
@@ -279,8 +278,8 @@ func TestDisassembleBehavior_スタックのあるアイテムは1個だけ消�
 	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 2)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: hdd}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(hdd, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
@@ -308,8 +307,8 @@ func TestDisassembleBehavior_Finish_レベルアップでStatsChangedが付く(t
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: crate}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
@@ -334,7 +333,7 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 	require.NoError(t, err)
 	spawnHostileAt(world, 9, 10)
 
-	da := &DisassembleBehavior{Target: crate}
+	da := &DisassembleBehavior{}
 	comp := &gc.Activity{Target: &crate}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
@@ -352,8 +351,8 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: crate}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
@@ -407,8 +406,8 @@ func TestDisassembleBehavior_DoTurn_対象が消えると中断する(t *testing
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: crate}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 
@@ -433,8 +432,8 @@ func TestDisassembleBehavior_DoTurn_工具を失うと中断する(t *testing.T)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
-	da := &DisassembleBehavior{Target: crate}
-	comp, err := da.BuildActivity(player, world)
+	da := &DisassembleBehavior{}
+	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 

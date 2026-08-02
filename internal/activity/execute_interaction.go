@@ -94,7 +94,11 @@ func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionR
 		gamelog.New(query.GetGameLog(world)).Append("引くスペースがない。").Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "引けない"}, nil
 	}
-	return Execute(NewPullBehavior(cube), actor, world)
+	comp, err := NewPullActivity(cube, actor, world)
+	if err != nil {
+		return nil, err
+	}
+	return Execute(comp, actor, world)
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
@@ -105,9 +109,9 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 	door := world.Components.Door.Get(doorEntity)
 
 	if door.IsOpen {
-		return Execute(&CloseDoorBehavior{Target: doorEntity}, actor, world)
+		return Execute(NewCloseDoorActivity(doorEntity), actor, world)
 	}
-	return Execute(&OpenDoorBehavior{Target: doorEntity}, actor, world)
+	return Execute(NewOpenDoorActivity(doorEntity), actor, world)
 }
 
 func executeDoorLock(world w.World) (*ActionResult, error) {
@@ -124,7 +128,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 		return nil, fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません")
 	}
 
-	result, err := Execute(&TalkBehavior{Target: npcEntity}, actor, world)
+	result, err := Execute(NewTalkActivity(npcEntity), actor, world)
 	if err != nil {
 		return nil, fmt.Errorf("会話アクション失敗: %w", err)
 	}
@@ -133,7 +137,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 }
 
 func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(&PickupBehavior{Target: &target}, actor, world)
+	return Execute(NewPickupActivity(&target, nil), actor, world)
 }
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
@@ -141,7 +145,7 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 		return nil, fmt.Errorf("位置情報が見つかりません")
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-	return Execute(&PickupBehavior{Destination: &gc.GridElement{Coord: gridElement.Coord}}, actor, world)
+	return Execute(NewPickupActivity(nil, &gc.GridElement{Coord: gridElement.Coord}), actor, world)
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
@@ -152,7 +156,7 @@ func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, err
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(&AttackBehavior{Target: target}, actor, world)
+	return Execute(NewAttackActivity(target), actor, world)
 }
 
 // executeDisassemble は工具の有無を先に確かめ、無ければエラーでなくログで知らせる。
@@ -170,5 +174,9 @@ func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*Ac
 			Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "工具がない"}, nil
 	}
-	return Execute(&DisassembleBehavior{Target: target}, actor, world)
+	comp, err := NewDisassembleActivity(target, actor, world)
+	if err != nil {
+		return nil, err
+	}
+	return Execute(comp, actor, world)
 }

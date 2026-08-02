@@ -24,7 +24,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
+		comp, err := NewActivity(gc.BehaviorUseItem, 1)
 		require.NoError(t, err)
 
 		useItemActivity := &UseItemBehavior{}
@@ -50,7 +50,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
+		comp, err := NewActivity(gc.BehaviorUseItem, 1)
 		require.NoError(t, err)
 
 		useItemActivity := &UseItemBehavior{}
@@ -78,7 +78,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
+		comp, err := NewActivity(gc.BehaviorUseItem, 1)
 		require.NoError(t, err)
 
 		useItemActivity := &UseItemBehavior{}
@@ -101,7 +101,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		// Hungerコンポーネントを追加しない
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
+		comp, err := NewActivity(gc.BehaviorUseItem, 1)
 		require.NoError(t, err)
 
 		useItemActivity := &UseItemBehavior{}
@@ -122,7 +122,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
+		comp, err := NewActivity(gc.BehaviorUseItem, 1)
 		require.NoError(t, err)
 
 		useItemActivity := &UseItemBehavior{}

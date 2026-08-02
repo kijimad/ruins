@@ -73,6 +73,7 @@ type Activity struct {
 	Target       *ecs.Entity   // 操作対象のエンティティ
 	Recipient    *ecs.Entity   // 受取人エンティティ。アイテム転送の転送先など
 	Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う
+	Count        int           // 個数パラメータ。アイテム転送で渡す個数など。0は全量を意味する
 	CancelReason string        // キャンセル理由
 }
 

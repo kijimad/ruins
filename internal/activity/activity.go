@@ -19,7 +19,6 @@ var log = logger.New(logger.CategoryAction)
 // Behavior は状態を持たない振る舞いの束なので、これで問題ない。着手後のライフサイクル
 // Validate/Start/DoTurn/Finish/Canceled はこのゼロ値インスタンスで回るため、per-アクティビティの
 // 状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。着手パラメータを持つのは
-// BuildActivity へ渡す呼び出し側インスタンスだけ。
 //
 // default 句は置かない。新しい BehaviorName を足したとき case 追加漏れを exhaustive linter に
 // 検知させるため。未知の名前は switch を抜けた後のエラーで扱う。
@@ -67,19 +66,13 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 
 // Behavior はアクティビティの実行を担当するインターフェース。
 //
-// メソッドは2種類に分かれる。BuildActivity だけは着手時に呼び出し側が生成した
-// インスタンスで呼ばれ、そのフィールドを着手パラメータとして読んでよい。残りの
-// Validate/Start/DoTurn/Finish/Canceled は GetBehavior が毎回作るゼロ値インスタンスで
-// 回るため、インスタンスのフィールドはゼロ値であり読んではいけない。継続する状態は
-// すべて gc.Activity に持たせる。
-//
-// この非対称ゆえ GetBehavior が返すインスタンスで BuildActivity を呼んではならない。
-// 着手パラメータがゼロ値になり、Duration 依存の Behavior などがエラーになる。
+// 全メソッドは GetBehavior が毎回作るゼロ値インスタンスで回る。インスタンスは状態を持たず、
+// per-アクティビティの状態はすべて gc.Activity に持たせる。着手時のパラメータは Behavior の
+// フィールドではなく、NewXxxActivity 構築関数が引数から gc.Activity へ書き込む。
+// そのため Behavior は状態を持たない振る舞いの束であり、構築とライフサイクルが分離している。
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
-	// BuildActivity は着手時の呼び出し側インスタンスでのみ呼ぶ。GetBehavior が返すインスタンスで呼ばない
-	BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error)
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
@@ -97,18 +90,22 @@ type Info struct {
 	TotalRequiredAP int    // アクティビティ完了に必要な総AP量
 }
 
-// NewActivity は新しいActivityコンポーネントを作成する。
+// NewActivity は名前と必要総量から新しいActivityコンポーネントを作成する。
 // required は完了に必要な総量。初回ステップで満ちれば即時アクションになる。
-func NewActivity(behavior Behavior, required int) (*gc.Activity, error) {
+func NewActivity(name gc.BehaviorName, required int) (*gc.Activity, error) {
 	if required < 0 {
 		return nil, ErrInvalidRequired
 	}
+	return newActivity(name, required), nil
+}
 
+// newActivity は検証なしでActivityを組む内部ヘルパ。required が静的に非負な構築関数から使う。
+func newActivity(name gc.BehaviorName, required int) *gc.Activity {
 	return &gc.Activity{
-		BehaviorName: behavior.Name(),
+		BehaviorName: name,
 		State:        gc.ActivityStateRunning,
 		Progress:     gc.IntPool{Max: required},
-	}, nil
+	}
 }
 
 // perTurnAP はアクターが継続アクションへ今ターン注げるAPを返す。

@@ -34,7 +34,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 0)
+		comp, err := NewActivity(gc.BehaviorReload, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -46,7 +46,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 0)
+		comp, err := NewActivity(gc.BehaviorReload, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -70,7 +70,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 0)
+		comp, err := NewActivity(gc.BehaviorReload, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -90,7 +90,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		query.GetWeaponSelection(world).Slot = 1
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 0)
+		comp, err := NewActivity(gc.BehaviorReload, 0)
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
@@ -108,11 +108,7 @@ func TestReloadBehavior_Start(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 0)
-		require.NoError(t, err)
-
-		err = ra.Start(comp, player, world)
+		comp, err := NewReloadActivity(player, world)
 		require.NoError(t, err)
 
 		assert.Equal(t, fire.ReloadEffort, comp.Progress.Max)
@@ -130,7 +126,7 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 0)
+		comp, err := NewReloadActivity(player, world)
 		require.NoError(t, err)
 
 		err = ra.Start(comp, player, world)
@@ -169,7 +165,7 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 0)
+		comp, err := NewReloadActivity(player, world)
 		require.NoError(t, err)
 
 		err = ra.Start(comp, player, world)
@@ -207,11 +203,11 @@ func TestReloadBehavior_進捗はアクティビティごとに独立する(t *t
 	require.True(t, ok, "GetBehavior(BehaviorReload) は *ReloadBehavior を返すべき")
 
 	// 同一インスタンスに通す2つの独立したアクティビティを用意する
-	comp1, err := NewActivity(ra, 0)
+	comp1, err := NewReloadActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, ra.Start(comp1, player, world))
 
-	comp2, err := NewActivity(ra, 0)
+	comp2, err := NewReloadActivity(player, world)
 	require.NoError(t, err)
 	require.NoError(t, ra.Start(comp2, player, world))
 

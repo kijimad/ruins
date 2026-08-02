@@ -39,13 +39,13 @@ func (rb *ReloadBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorReload
 }
 
-// BuildActivity はBehaviorの実装
-func (rb *ReloadBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(rb, 0)
+// NewReloadActivity は装填アクティビティを組む。必要総工数は装備中の遠距離武器から求める。
+func NewReloadActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return nil, err
 	}
-	return comp, nil
+	return newActivity(gc.BehaviorReload, fire.ReloadEffort), nil
 }
 
 // Validate はリロードの検証を行う
@@ -68,19 +68,10 @@ func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 }
 
 // Start はリロード開始時の処理
-func (rb *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	fire, _, err := getEquippedFire(actor, world)
-	if err != nil {
-		return err
-	}
-
-	// 完了に必要な総装填工数
-	comp.Progress.Max = fire.ReloadEffort
-
+func (rb *ReloadBehavior) Start(_ *gc.Activity, _ ecs.Entity, world w.World) error {
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
 		Log()
-
 	return nil
 }
 
@@ -166,8 +157,11 @@ func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 // ExecuteReloadAction はリロードアクションを実行する
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
-	_, err := Execute(&ReloadBehavior{}, actor, world)
+	comp, err := NewReloadActivity(actor, world)
 	if err != nil {
+		return err
+	}
+	if _, err := Execute(comp, actor, world); err != nil {
 		return err
 	}
 	return nil

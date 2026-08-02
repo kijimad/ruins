@@ -19,9 +19,7 @@ const (
 )
 
 // ShootBehavior は射撃アクティビティの実装
-type ShootBehavior struct {
-	Target ecs.Entity
-}
+type ShootBehavior struct{}
 
 // Info はBehaviorの実装
 func (sb *ShootBehavior) Info() Info {
@@ -39,14 +37,11 @@ func (sb *ShootBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorShoot
 }
 
-// BuildActivity はBehaviorの実装
-func (sb *ShootBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(sb, 0)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &sb.Target
-	return comp, nil
+// NewShootActivity は射撃対象を指定して射撃アクティビティを組む。
+func NewShootActivity(target ecs.Entity) *gc.Activity {
+	comp := newActivity(gc.BehaviorShoot, 0)
+	comp.Target = &target
+	return comp
 }
 
 // Validate は射撃の検証を行う
@@ -220,13 +215,8 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 // CanShootTarget はactorからtargetに射撃可能かを判定する。
 // 射撃対象選択UIでのフィルタリング用
 func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
-	sb := &ShootBehavior{}
-	comp, err := NewActivity(sb, 0)
-	if err != nil {
-		return false
-	}
-	comp.Target = &target
-	return sb.Validate(comp, actor, world) == nil
+	comp := NewShootActivity(target)
+	return (&ShootBehavior{}).Validate(comp, actor, world) == nil
 }
 
 // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用
@@ -244,7 +234,7 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
 
 // ExecuteShootAction は射撃アクションを実行する
 func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error {
-	_, err := Execute(&ShootBehavior{Target: target}, actor, world)
+	_, err := Execute(NewShootActivity(target), actor, world)
 	if err != nil {
 		return err
 	}

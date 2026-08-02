@@ -17,11 +17,7 @@ import (
 // Targetに転送するアイテム、Recipientに受取人を指定する。
 // Countは渡す個数。在庫数以上を指定すればスタックごとまとめて渡り、少なく指定すればその分だけ分割して渡す。
 // 補給で共有プールから1食ぶんだけ引くときは1、丸ごと渡すときは在庫数を指定する
-type TransferBehavior struct {
-	Target    ecs.Entity
-	Recipient ecs.Entity
-	Count     int
-}
+type TransferBehavior struct{}
 
 // Info はBehaviorの実装
 func (tb *TransferBehavior) Info() Info {
@@ -40,15 +36,14 @@ func (tb *TransferBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorTransfer
 }
 
-// BuildActivity はBehaviorの実装
-func (tb *TransferBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(tb, 0)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &tb.Target
-	comp.Recipient = &tb.Recipient
-	return comp, nil
+// NewTransferActivity は転送アイテム・受取人・個数を指定して転送アクティビティを組む。
+// count が0以下なら在庫全量を渡す。個数は gc.Activity.Count に持たせ、継続処理でも読める。
+func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
+	comp := newActivity(gc.BehaviorTransfer, 0)
+	comp.Target = &target
+	comp.Recipient = &recipient
+	comp.Count = count
+	return comp
 }
 
 // Validate はアイテム転送アクティビティの検証を行う
@@ -110,8 +105,8 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 
 	// 実際に渡す個数を確定する。Count が0以下、または在庫以上なら在庫すべてを渡す。
 	moving := query.GetEntityCount(world, item)
-	if tb.Count > 0 && tb.Count < moving {
-		moving = tb.Count
+	if comp.Count > 0 && comp.Count < moving {
+		moving = comp.Count
 	}
 
 	// ログ名は転送前に確定させる。在庫全体でなく実際に移す個数で表示する。
@@ -124,7 +119,7 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 		itemName = fmt.Sprintf("%s(%d個)", itemName, moving)
 	}
 
-	if err := lifecycle.TransferUnits(world, item, recipient, tb.Count); err != nil {
+	if err := lifecycle.TransferUnits(world, item, recipient, comp.Count); err != nil {
 		return fmt.Errorf("アイテム転送に失敗: %w", err)
 	}
 

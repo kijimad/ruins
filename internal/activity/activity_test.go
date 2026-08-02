@@ -15,7 +15,7 @@ func TestActivityCreation(t *testing.T) {
 
 	// 休息アクティビティの作成テスト
 	behavior := &RestBehavior{}
-	comp, err := NewActivity(behavior, 10)
+	comp, err := NewActivity(gc.BehaviorRest, 10)
 	require.NoError(t, err)
 
 	assert.Equal(t, gc.BehaviorRest, behavior.Name(), "Expected behavior to be Rest")
@@ -38,7 +38,7 @@ func TestActivityInfo(t *testing.T) {
 func TestActivityInterruptAndResume(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&RestBehavior{}, 10)
+	comp, err := NewActivity(gc.BehaviorRest, 10)
 	require.NoError(t, err)
 
 	// 初期状態での中断可能性チェック
@@ -67,7 +67,7 @@ func TestActivityInterruptAndResume(t *testing.T) {
 func TestActivityCancel(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&WaitBehavior{}, 5)
+	comp, err := NewActivity(gc.BehaviorWait, 5)
 	require.NoError(t, err)
 
 	// キャンセル前はIsCanceledがfalse
@@ -88,7 +88,7 @@ func TestActivityCancel(t *testing.T) {
 func TestActivityComplete(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&WaitBehavior{}, 5)
+	comp, err := NewActivity(gc.BehaviorWait, 5)
 	require.NoError(t, err)
 
 	// 完了実行
@@ -101,7 +101,7 @@ func TestActivityComplete(t *testing.T) {
 func TestActivityProgressCalculation(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&RestBehavior{}, 10)
+	comp, err := NewActivity(gc.BehaviorRest, 10)
 	require.NoError(t, err)
 
 	// 初期進捗（0%）
@@ -127,7 +127,7 @@ func TestActivityDoTurn(t *testing.T) {
 	// 長い待機の敵接近チェックは位置を前提とするため、実際のアクターと同様に座標を与える
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	behavior := &WaitBehavior{}
-	comp, err := NewActivity(behavior, 3)
+	comp, err := NewActivity(gc.BehaviorWait, 3)
 	require.NoError(t, err)
 
 	// 待機は毎ターン 1 ずつ注ぐ純タイマー。Required 3 なので3ターンで完了する
@@ -171,14 +171,14 @@ func TestNewActivityInvalidRequired(t *testing.T) {
 
 	t.Run("required 0は即時アクションとして正常", func(t *testing.T) {
 		t.Parallel()
-		comp, err := NewActivity(&WaitBehavior{}, 0)
+		comp, err := NewActivity(gc.BehaviorWait, 0)
 		require.NoError(t, err)
 		assert.Equal(t, 0, comp.Progress.Max)
 	})
 
 	t.Run("負のrequiredでエラー", func(t *testing.T) {
 		t.Parallel()
-		_, err := NewActivity(&WaitBehavior{}, -1)
+		_, err := NewActivity(gc.BehaviorWait, -1)
 		assert.ErrorIs(t, err, ErrInvalidRequired)
 	})
 }

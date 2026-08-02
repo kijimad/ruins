@@ -3,7 +3,6 @@ package aiinput
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -108,7 +107,7 @@ func TestSquadPlanner_PlanRetreatAction(t *testing.T) {
 	b, ok := sp.planRetreatAction(world, member, snap)
 	require.True(t, ok, "リーダーに向かって後退できるべき")
 	require.NotNil(t, b)
-	assert.Equal(t, gc.BehaviorMove, b.Name())
+	assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 }
 
 func TestSquadPlanner_IsOutsideExploredArea(t *testing.T) {
@@ -147,7 +146,7 @@ func TestSquadPlanner_PlanReturnToExploredArea(t *testing.T) {
 
 	b, ok := sp.planReturnToExploredArea(world, member, snap)
 	require.True(t, ok, "リーダーに向かって移動できるべき")
-	assert.Equal(t, gc.BehaviorMove, b.Name())
+	assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 }
 
 func TestSquadPlanner_PlanAction(t *testing.T) {
@@ -181,9 +180,9 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		_, isAttack := b.(*activity.AttackBehavior)
+		isAttack := b.BehaviorName == gc.BehaviorAttack
 		assert.False(t, isAttack, "HP低下時は攻撃せず後退するべき")
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("HP低下でも後退できなければ次の優先度に進む", func(t *testing.T) {
@@ -212,7 +211,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		assert.Equal(t, gc.BehaviorWait, b.Name(), "後退できなければ位置ポリシーの待機に落ちる")
+		assert.Equal(t, gc.BehaviorWait, b.BehaviorName, "後退できなければ位置ポリシーの待機に落ちる")
 	})
 
 	t.Run("エリア外なら戦闘より復帰を優先する", func(t *testing.T) {
@@ -241,9 +240,9 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		_, isAttack := b.(*activity.AttackBehavior)
+		isAttack := b.BehaviorName == gc.BehaviorAttack
 		assert.False(t, isAttack, "未探索エリアでは攻撃せずリーダーへ復帰するべき")
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("何も優先条件がなければ位置ポリシーに委ねる", func(t *testing.T) {
@@ -271,7 +270,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		assert.Equal(t, gc.BehaviorWait, b.Name(), "護衛距離内では待機するべき")
+		assert.Equal(t, gc.BehaviorWait, b.BehaviorName, "護衛距離内では待機するべき")
 	})
 }
 
@@ -303,9 +302,8 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 
 		b, ok := sp.planCombatAction(world, member, snap)
 		require.True(t, ok)
-		attack, ok := b.(*activity.AttackBehavior)
-		require.True(t, ok, "型が *activity.AttackBehavior であるべき")
-		assert.Equal(t, enemy, attack.Target)
+		assert.Equal(t, gc.BehaviorAttack, b.BehaviorName)
+		assert.Equal(t, enemy, *b.Target)
 	})
 
 	t.Run("CombatEvadeなら回避計画に委譲する", func(t *testing.T) {
@@ -333,7 +331,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 
 		b, ok := sp.planCombatAction(world, member, snap)
 		require.True(t, ok)
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("CombatIgnoreでは何もしない", func(t *testing.T) {
@@ -405,7 +403,7 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 
 		b, ok := sp.planAttackAction(world, member, snap)
 		require.True(t, ok)
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 }
 
@@ -459,9 +457,8 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 
 		b, ok := sp.planEvadeAction(world, member, snap)
 		require.True(t, ok)
-		move, ok := b.(*activity.MoveBehavior)
-		require.True(t, ok)
-		assert.Less(t, int(move.Destination.X), initialX, "敵から離れる方向に移動するべき")
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
+		assert.Less(t, int(b.Destination.X), initialX, "敵から離れる方向に移動するべき")
 	})
 }
 
@@ -528,7 +525,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: leaderGrid}
 
 		b := sp.planEscortAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorWait, b.Name())
+		assert.Equal(t, gc.BehaviorWait, b.BehaviorName)
 	})
 
 	t.Run("離れていれば追従移動する", func(t *testing.T) {
@@ -548,7 +545,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planEscortAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("離れていて移動もできなければ待機にフォールバックする", func(t *testing.T) {
@@ -568,7 +565,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planEscortAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorWait, b.Name(), "壁に囲まれて移動できないときは待機する")
+		assert.Equal(t, gc.BehaviorWait, b.BehaviorName, "壁に囲まれて移動できないときは待機する")
 	})
 }
 
@@ -592,7 +589,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: memberGrid, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planVanguardAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("距離内でランダム移動できれば移動する", func(t *testing.T) {
@@ -610,7 +607,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planVanguardAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("距離内で移動先がなければ待機する", func(t *testing.T) {
@@ -627,7 +624,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: memberGrid, Squad: &gc.SquadAI{}, LeaderGrid: world.Components.GridElement.Get(leader)}
 
 		b := sp.planVanguardAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorWait, b.Name())
+		assert.Equal(t, gc.BehaviorWait, b.BehaviorName)
 	})
 }
 
@@ -648,7 +645,7 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
 
 		b := sp.planSquadPatrolAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("移動先がなければ待機する", func(t *testing.T) {
@@ -663,7 +660,7 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 		snap := &squadSnapshot{Grid: world.Components.GridElement.Get(member), Squad: &gc.SquadAI{}}
 
 		b := sp.planSquadPatrolAction(world, member, snap)
-		assert.Equal(t, gc.BehaviorWait, b.Name())
+		assert.Equal(t, gc.BehaviorWait, b.BehaviorName)
 	})
 }
 
@@ -743,7 +740,7 @@ func TestSquadPlanner_TryMoveToward(t *testing.T) {
 		sp := newSquadPlanner(newTestRNG())
 		b, ok := sp.tryMoveToward(world, member, memberGrid, target)
 		require.True(t, ok)
-		assert.Equal(t, gc.BehaviorMove, b.Name())
+		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
 
 	t.Run("既に目的地にいれば移動しない", func(t *testing.T) {
@@ -800,9 +797,8 @@ func TestSquadPlanner_TryMoveAway(t *testing.T) {
 	sp := newSquadPlanner(newTestRNG())
 	b, ok := sp.tryMoveAway(world, member, memberGrid, threat)
 	require.True(t, ok)
-	move, ok := b.(*activity.MoveBehavior)
-	require.True(t, ok)
-	assert.Less(t, int(move.Destination.X), int(memberGrid.X), "脅威から離れる方向に移動する")
+	assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
+	assert.Less(t, int(b.Destination.X), int(memberGrid.X), "脅威から離れる方向に移動する")
 }
 
 func TestSquadPlanner_TryRandomMove(t *testing.T) {

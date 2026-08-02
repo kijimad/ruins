@@ -13,10 +13,7 @@ import (
 )
 
 // WaitBehavior はBehaviorの実装
-type WaitBehavior struct {
-	Duration consts.Turn
-	Reason   string
-}
+type WaitBehavior struct{}
 
 // Info はBehaviorの実装
 func (wb *WaitBehavior) Info() Info {
@@ -35,14 +32,14 @@ func (wb *WaitBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorWait
 }
 
-// BuildActivity はBehaviorの実装。待機は作業ではなく時間経過なので、
-// 待機回数を Required に据え、DoTurn で毎ターン 1 ずつ注ぐ。
-func (wb *WaitBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	turns := int(wb.Duration)
+// NewWaitActivity は待機回数を指定して待機アクティビティを組む。待機は時間経過なので
+// Progress.Max に待機回数を直接据える。
+func NewWaitActivity(duration consts.Turn) *gc.Activity {
+	turns := int(duration)
 	if turns <= 0 {
 		turns = 1
 	}
-	return NewActivity(wb, turns)
+	return newActivity(gc.BehaviorWait, turns)
 }
 
 // Validate は待機アクティビティの検証を行う
@@ -60,7 +57,7 @@ func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 
 // Start は待機開始時の処理を実行する
 func (wb *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("待機開始", "actor", actor, "reason", wb.Reason, "required", comp.Progress.Max)
+	log.Debug("待機開始", "actor", actor, "required", comp.Progress.Max)
 	return nil
 }
 

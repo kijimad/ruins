@@ -4,7 +4,6 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -60,7 +59,7 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	// Waiting状態では待機を返す（視界外のプレイヤーでは遷移しない）
 	// Plan()経由でテスト。状態遷移も含む
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorWait, behavior.Name())
+	assert.Equal(t, gc.BehaviorWait, behavior.BehaviorName)
 }
 
 func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
@@ -84,9 +83,8 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorAttack, behavior.Name())
-	attack, ok := behavior.(*activity.AttackBehavior)
-	require.True(t, ok, "型が *activity.AttackBehavior であるべき")
+	assert.Equal(t, gc.BehaviorAttack, behavior.BehaviorName)
+	attack := behavior
 	assert.NotZero(t, attack.Target)
 }
 
@@ -111,9 +109,8 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorMove, behavior.Name())
-	move, ok := behavior.(*activity.MoveBehavior)
-	require.True(t, ok, "型が *activity.MoveBehavior であるべき")
+	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName)
+	move := behavior
 	assert.NotZero(t, move.Destination)
 }
 
@@ -138,7 +135,7 @@ func TestPlanAction_FleeingState(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	behavior := rp.Plan(world, entity)
-	name := behavior.Name()
+	name := behavior.BehaviorName
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait,
 		"逃亡時は移動か待機を返すべき: got %s", name)
 }
@@ -164,7 +161,7 @@ func TestPlanAction_DrivingState(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	behavior := rp.Plan(world, entity)
-	name := behavior.Name()
+	name := behavior.BehaviorName
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait,
 		"Driving状態は移動か待機を返すべき: got %s", name)
 }
@@ -190,7 +187,7 @@ func TestPlanAction_UnknownState(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorWait, behavior.Name())
+	assert.Equal(t, gc.BehaviorWait, behavior.BehaviorName)
 }
 
 func TestPlanDrivingAction_Stationary(t *testing.T) {
@@ -212,7 +209,7 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
-	assert.Equal(t, gc.BehaviorWait, behavior.Name())
+	assert.Equal(t, gc.BehaviorWait, behavior.BehaviorName)
 }
 
 func TestPlanDrivingAction_Wander(t *testing.T) {
@@ -234,7 +231,7 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
-	name := behavior.Name()
+	name := behavior.BehaviorName
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
 
@@ -257,7 +254,7 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
-	name := behavior.Name()
+	name := behavior.BehaviorName
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
 
@@ -280,7 +277,7 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
-	name := behavior.Name()
+	name := behavior.BehaviorName
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
 
@@ -305,7 +302,7 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
-	assert.Equal(t, gc.BehaviorMove, behavior.Name())
+	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName)
 }
 
 func TestPlanDrivingAction_Random(t *testing.T) {
@@ -327,7 +324,7 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
-	name := behavior.Name()
+	name := behavior.BehaviorName
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
 
@@ -354,9 +351,8 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planDrivingAction(world, entity, solo, grid)
-	assert.Equal(t, gc.BehaviorMove, behavior.Name())
-	move, ok := behavior.(*activity.MoveBehavior)
-	require.True(t, ok, "型が *activity.MoveBehavior であるべき")
+	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName)
+	move := behavior
 	assert.Equal(t, consts.Tile(21), move.Destination.X)
 	assert.Equal(t, consts.Tile(20), move.Destination.Y)
 }
@@ -388,9 +384,8 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planPatrolAction(world, entity, solo, grid)
-	assert.Equal(t, gc.BehaviorMove, behavior.Name())
-	move, ok := behavior.(*activity.MoveBehavior)
-	require.True(t, ok, "型が *activity.MoveBehavior であるべき")
+	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName)
+	move := behavior
 	assert.Equal(t, consts.Tile(19), move.Destination.X)
 	assert.Equal(t, -1, int(solo.PatrolDir.X))
 }
@@ -424,7 +419,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planPatrolAction(world, entity, solo, grid)
-	assert.Equal(t, gc.BehaviorWait, behavior.Name())
+	assert.Equal(t, gc.BehaviorWait, behavior.BehaviorName)
 }
 
 func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
@@ -450,9 +445,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 		grid := world.Components.GridElement.Get(entity)
 
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
-		if behavior.Name() == gc.BehaviorMove {
-			move, ok := behavior.(*activity.MoveBehavior)
-			require.True(t, ok, "型が *activity.MoveBehavior であるべき")
+		if behavior.BehaviorName == gc.BehaviorMove {
+			move := behavior
 			grid.X = move.Destination.X
 			grid.Y = move.Destination.Y
 		}
@@ -492,9 +486,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 
 	for i := range 50 {
 		behavior := rp.planTerritorialAction(world, entity, solo, grid)
-		if behavior.Name() == gc.BehaviorMove {
-			move, ok := behavior.(*activity.MoveBehavior)
-			require.True(t, ok, "型が *activity.MoveBehavior であるべき")
+		if behavior.BehaviorName == gc.BehaviorMove {
+			move := behavior
 			dx := move.Destination.X - solo.Origin.X
 			dy := move.Destination.Y - solo.Origin.Y
 			if dx < 0 {
@@ -531,7 +524,7 @@ func TestPlanWanderAction(t *testing.T) {
 	gotWait := false
 	for range 50 {
 		behavior := rp.planWanderAction(world, entity, grid)
-		switch behavior.Name() { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
+		switch behavior.BehaviorName { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
 		case gc.BehaviorMove:
 			gotMove = true
 		case gc.BehaviorWait:
@@ -572,7 +565,7 @@ func TestPlanWallHugAction(t *testing.T) {
 	moved := false
 	for range 50 {
 		behavior := rp.planWallHugAction(world, entity, grid)
-		if behavior.Name() == gc.BehaviorMove {
+		if behavior.BehaviorName == gc.BehaviorMove {
 			moved = true
 			break
 		}
@@ -599,7 +592,7 @@ func TestPlanSwarmAction_NoAllies(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity)
 
 	behavior := rp.planSwarmAction(world, entity, grid)
-	name := behavior.Name()
+	name := behavior.BehaviorName
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait,
 		"仲間がいない場合は移動か待機を返すべき: got %s", name)
 }
@@ -635,9 +628,8 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	moved := false
 	for range 50 {
 		behavior := rp.planSwarmAction(world, entity, grid)
-		if behavior.Name() == gc.BehaviorMove {
-			move, ok := behavior.(*activity.MoveBehavior)
-			require.True(t, ok, "型が *activity.MoveBehavior であるべき")
+		if behavior.BehaviorName == gc.BehaviorMove {
+			move := behavior
 			if move.Destination.X > grid.X || move.Destination.Y > grid.Y {
 				moved = true
 				break
@@ -724,7 +716,7 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	gotWait := false
 	for range 50 {
 		behavior := rp.planRandomMoveAction(world, entity, grid)
-		switch behavior.Name() { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
+		switch behavior.BehaviorName { //nolint:exhaustive // テストはMove/Waitの発生のみ検証するため全caseは扱わない
 		case gc.BehaviorMove:
 			gotMove = true
 		case gc.BehaviorWait:
@@ -839,9 +831,8 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorAttack, behavior.Name(), "隣接する隊員を攻撃すべき")
-	attack, ok := behavior.(*activity.AttackBehavior)
-	require.True(t, ok, "型が *activity.AttackBehavior であるべき")
+	assert.Equal(t, gc.BehaviorAttack, behavior.BehaviorName, "隣接する隊員を攻撃すべき")
+	attack := behavior
 	assert.NotZero(t, attack.Target)
 }
 
@@ -876,8 +867,7 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorMove, behavior.Name(), "離れた隊員に向かって移動すべき")
-	move, ok := behavior.(*activity.MoveBehavior)
-	require.True(t, ok, "型が *activity.MoveBehavior であるべき")
+	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName, "離れた隊員に向かって移動すべき")
+	move := behavior
 	assert.Greater(t, int(move.Destination.X), 5, "隊員方向に移動すべき")
 }

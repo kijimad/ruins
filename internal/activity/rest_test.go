@@ -237,11 +237,8 @@ func TestRestBehavior_所要はAP量で伸縮する(t *testing.T) {
 		hp.Current = 1
 
 		rb := &RestBehavior{}
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorRest,
-			State:        gc.ActivityStateRunning,
-			Progress:     gc.IntPool{Max: 1000},
-		}
+		// 休息の必要総量は NewRestActivity が Info の TotalRequiredAP から据える
+		comp := NewRestActivity()
 		steps := 0
 		for !IsCompleted(comp) {
 			require.NoError(t, rb.DoTurn(comp, player, world))

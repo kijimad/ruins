@@ -125,9 +125,10 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 			State:        gc.ActivityStateRunning,
 			Target:       &item,
 			Recipient:    &leader,
+			Count:        1,
 		}
 
-		ta := &TransferBehavior{Target: item, Recipient: leader, Count: 1}
+		ta := &TransferBehavior{}
 		err = ta.DoTurn(comp, member, world)
 		require.NoError(t, err)
 
@@ -155,9 +156,10 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 			State:        gc.ActivityStateRunning,
 			Target:       &pool,
 			Recipient:    &member,
+			Count:        1,
 		}
 		// アクターは受け取る隊員。丸ごとでなく1個だけ引く
-		ta := &TransferBehavior{Target: pool, Recipient: member, Count: 1}
+		ta := &TransferBehavior{}
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		// 元スタックは1減り、隊員は1個だけ受け取る
@@ -192,8 +194,9 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 			State:        gc.ActivityStateRunning,
 			Target:       &pool,
 			Recipient:    &member,
+			Count:        2,
 		}
-		ta := &TransferBehavior{Target: pool, Recipient: member, Count: 2}
+		ta := &TransferBehavior{}
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		assert.Equal(t, 3, world.Components.Stackable.Get(pool).Count, "プールは指定個数ぶん減る")

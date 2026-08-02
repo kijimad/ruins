@@ -15,20 +15,10 @@ import (
 // gc.Activity の Progress にパーティの押し力を累積して進捗を表す。重いキューブほど
 // 必要な総コストが増え、パーティAPが多いほど速く満ちる。
 //
-// Cube と Dir は着手時のパラメータで、BuildActivity だけが読む。BuildActivity はこの2つから
-// 押す対象と押し先を求め、gc.Activity の Target と Destination へ書き写す。
-// 継続処理は GetBehavior が毎回作る Cube も Dir もゼロ値のインスタンスで Validate・DoTurn・Finish を
-// 呼ぶ。すなわち NewPushBehavior で作った物ではない。だから着手後はフィールドを当てにせず、
-// gc.Activity の Target と Destination だけを読む。
-type PushBehavior struct {
-	Cube ecs.Entity
-	Dir  gc.Direction
-}
-
-// NewPushBehavior は押す対象キューブと押し向きを指定して押しアクティビティを作る。
-func NewPushBehavior(cube ecs.Entity, dir gc.Direction) *PushBehavior {
-	return &PushBehavior{Cube: cube, Dir: dir}
-}
+// 着手時のパラメータである押す対象キューブと押し向きは NewPushActivity が受け取り、
+// 押し先を求めて gc.Activity の Target と Destination へ書き込む。継続処理は状態を持たない
+// ゼロ値インスタンスで回るので、着手後は gc.Activity の Target と Destination だけを読む。
+type PushBehavior struct{}
 
 // Info はBehaviorの実装
 func (pb *PushBehavior) Info() Info {
@@ -47,14 +37,14 @@ func (pb *PushBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorPush
 }
 
-// BuildActivity はBehaviorの実装。押し先タイルを求め、総重量とパーティAPから所要ターンを決める。
-func (pb *PushBehavior) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity, error) {
-	if !world.Components.GridElement.Has(pb.Cube) {
+// NewPushActivity は押すキューブと向きを指定して押しアクティビティを組む。
+func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) (*gc.Activity, error) {
+	if !world.Components.GridElement.Has(cube) {
 		return nil, fmt.Errorf("押す対象に位置がありません")
 	}
-	cubeCoord := world.Components.GridElement.Get(pb.Cube).Coord
-	dest := cubeCoord.Add(pb.Dir.GetDelta())
-	return buildCubeMove(pb, &pb.Cube, dest, world)
+	cubeCoord := world.Components.GridElement.Get(cube).Coord
+	dest := cubeCoord.Add(dir.GetDelta())
+	return buildCubeMove(gc.BehaviorPush, cube, dest, world)
 }
 
 // Validate はBehaviorの実装
@@ -155,33 +145,24 @@ func cubePushCost(world w.World) (int, error) {
 
 // buildCubeMove は押しと引きで共通の gc.Activity を組む。総コストは総重量で決まり、
 // 押し引きで違うのは対象キューブと移動先だけなので、それを引数で受ける。
-func buildCubeMove(behavior Behavior, cube *ecs.Entity, dest consts.Coord[consts.Tile], world w.World) (*gc.Activity, error) {
+func buildCubeMove(name gc.BehaviorName, cube ecs.Entity, dest consts.Coord[consts.Tile], world w.World) (*gc.Activity, error) {
 	required, err := cubePushCost(world)
 	if err != nil {
 		return nil, err
 	}
-	comp, err := NewActivity(behavior, required)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = cube
+	comp := newActivity(name, required)
+	c := cube
+	comp.Target = &c
 	comp.Destination = &gc.GridElement{Coord: dest}
 	return comp, nil
 }
 
 // PullBehavior は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
 // 自分は1タイル後退する。押しでは動かせない壁際・角のキューブを引き出して詰みを解く。
-// 所要ターンは押しと同じく総重量とパーティAPで決まる。Cube は着手時のパラメータで BuildActivity
-// だけが読み、gc.Activity の Target と Destination へ書き写す。継続処理は GetBehavior が毎回作る
-// Cube ゼロ値のインスタンスで呼ばれるので、着手後は gc.Activity 側だけを読む。
-type PullBehavior struct {
-	Cube ecs.Entity
-}
-
-// NewPullBehavior は引く対象キューブを指定して引きアクティビティを作る。
-func NewPullBehavior(cube ecs.Entity) *PullBehavior {
-	return &PullBehavior{Cube: cube}
-}
+// 総コストは押しと同じく総重量で決まる。着手時のパラメータである引く対象キューブは
+// NewPullActivity が受け取り、gc.Activity の Target と Destination へ書き込む。継続処理は
+// 状態を持たないゼロ値インスタンスで回るので、着手後は gc.Activity 側だけを読む。
+type PullBehavior struct{}
 
 // Info はBehaviorの実装
 func (pb *PullBehavior) Info() Info {
@@ -217,9 +198,9 @@ func canPullCube(world w.World, actor, cube ecs.Entity) bool {
 	return CanMoveTo(world, retreat, playerCoord, actor)
 }
 
-// BuildActivity はBehaviorの実装。キューブの移動先はプレイヤーの現在タイル、所要ターンは重量で決まる。
-func (pb *PullBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	if !world.Components.GridElement.Has(pb.Cube) {
+// NewPullActivity は引くキューブと引き手を指定して引きアクティビティを組む。
+func NewPullActivity(cube, actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	if !world.Components.GridElement.Has(cube) {
 		return nil, fmt.Errorf("引く対象に位置がありません")
 	}
 	if !world.Components.GridElement.Has(actor) {
@@ -227,7 +208,7 @@ func (pb *PullBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Acti
 	}
 	// キューブはプレイヤーの立っているタイルへ入る。プレイヤーはそのぶん後退する
 	dest := world.Components.GridElement.Get(actor).Coord
-	return buildCubeMove(pb, &pb.Cube, dest, world)
+	return buildCubeMove(gc.BehaviorPull, cube, dest, world)
 }
 
 // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。

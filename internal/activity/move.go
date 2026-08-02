@@ -81,9 +81,7 @@ func CanSwapPosition(world w.World, mover, target ecs.Entity) bool {
 }
 
 // MoveBehavior はBehaviorの実装
-type MoveBehavior struct {
-	Destination gc.GridElement
-}
+type MoveBehavior struct{}
 
 // Info はBehaviorの実装
 func (mb *MoveBehavior) Info() Info {
@@ -102,14 +100,11 @@ func (mb *MoveBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorMove
 }
 
-// BuildActivity はBehaviorの実装
-func (mb *MoveBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(mb, 0)
-	if err != nil {
-		return nil, err
-	}
-	comp.Destination = &mb.Destination
-	return comp, nil
+// NewMoveActivity は移動先を指定して移動アクティビティを組む。
+func NewMoveActivity(destination gc.GridElement) *gc.Activity {
+	comp := newActivity(gc.BehaviorMove, 0)
+	comp.Destination = &destination
+	return comp
 }
 
 // Validate はBehaviorの実装

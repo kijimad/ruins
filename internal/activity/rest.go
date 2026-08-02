@@ -32,10 +32,9 @@ func (rb *RestBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorRest
 }
 
-// BuildActivity はBehaviorの実装。完了に必要な総APを Required に据える。
-// 毎ターン注ぐAPは DoTurn で再計算するため、AP変動へ追従する。
-func (rb *RestBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	return NewActivity(rb, rb.Info().TotalRequiredAP)
+// NewRestActivity は休息アクティビティを組む。必要総APは Info の TotalRequiredAP。
+func NewRestActivity() *gc.Activity {
+	return newActivity(gc.BehaviorRest, (&RestBehavior{}).Info().TotalRequiredAP)
 }
 
 // Validate は休息アクティビティの検証を行う

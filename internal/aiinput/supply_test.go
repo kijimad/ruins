@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -90,9 +89,8 @@ func TestPlanSupplyAction(t *testing.T) {
 		sp := newSquadPlanner(newTestRNG())
 		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
-		use, isUse := b.(*activity.UseItemBehavior)
-		require.True(t, isUse, "自分の食料は食べるべき")
-		assert.Equal(t, food, use.Target)
+		require.Equal(t, gc.BehaviorUseItem, b.BehaviorName, "自分の食料は食べるべき")
+		assert.Equal(t, food, *b.Target)
 	})
 
 	t.Run("栄養価の低い食料を先に消費する", func(t *testing.T) {
@@ -113,9 +111,8 @@ func TestPlanSupplyAction(t *testing.T) {
 		sp := newSquadPlanner(newTestRNG())
 		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
-		use, isUse := b.(*activity.UseItemBehavior)
-		require.True(t, isUse)
-		got := world.Components.ProvidesNutrition.Get(use.Target).Amount
+		require.Equal(t, gc.BehaviorUseItem, b.BehaviorName)
+		got := world.Components.ProvidesNutrition.Get(*b.Target).Amount
 		assert.LessOrEqual(t, got, lowN, "最も栄養価の低い食料を選ぶべき")
 	})
 
@@ -129,11 +126,10 @@ func TestPlanSupplyAction(t *testing.T) {
 		sp := newSquadPlanner(newTestRNG())
 		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
-		tr, isTransfer := b.(*activity.TransferBehavior)
-		require.True(t, isTransfer, "隣接なら受け取りになるべき")
-		assert.Equal(t, poolFood, tr.Target)
-		assert.Equal(t, member, tr.Recipient)
-		assert.Equal(t, 1, tr.Count, "共有プールからは1食ぶんだけ受け取る")
+		require.Equal(t, gc.BehaviorTransfer, b.BehaviorName, "隣接なら受け取りになるべき")
+		assert.Equal(t, poolFood, *b.Target)
+		assert.Equal(t, member, *b.Recipient)
+		assert.Equal(t, 1, b.Count, "共有プールからは1食ぶんだけ受け取る")
 	})
 
 	t.Run("リーダーが遠ければ接近する", func(t *testing.T) {
@@ -151,8 +147,8 @@ func TestPlanSupplyAction(t *testing.T) {
 		sp := newSquadPlanner(newTestRNG())
 		b, ok := sp.planSupplyAction(world, member, snap)
 		require.True(t, ok)
-		_, isUse := b.(*activity.UseItemBehavior)
-		_, isTransfer := b.(*activity.TransferBehavior)
+		isUse := b.BehaviorName == gc.BehaviorUseItem
+		isTransfer := b.BehaviorName == gc.BehaviorTransfer
 		assert.False(t, isUse || isTransfer, "遠距離では移動行動になるべき")
 	})
 

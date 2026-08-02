@@ -15,9 +15,7 @@ import (
 )
 
 // ReadBehavior は読書アクティビティの実装
-type ReadBehavior struct {
-	Target ecs.Entity
-}
+type ReadBehavior struct{}
 
 // Info はBehaviorの実装
 func (rb *ReadBehavior) Info() Info {
@@ -35,18 +33,15 @@ func (rb *ReadBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorRead
 }
 
-// BuildActivity はBehaviorの実装。読書の進捗は再開できるよう本エンティティの
-// Effort に保持する。Required には本の総工数を据え、進捗表示を Accumulated と揃える。
-func (rb *ReadBehavior) BuildActivity(_ ecs.Entity, world w.World) (*gc.Activity, error) {
-	book := rb.getBook(rb.Target, world)
+// NewReadActivity は読む本を指定して読書アクティビティを組む。進捗は本の Effort に
+// 永続するので、Progress.Max も本の総工数に据えて表示を揃える。
+func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
+	book := getBook(target, world)
 	if book == nil {
 		return nil, fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
-	comp, err := NewActivity(rb, book.Effort.Max)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &rb.Target
+	comp := newActivity(gc.BehaviorRead, book.Effort.Max)
+	comp.Target = &target
 	return comp, nil
 }
 
@@ -56,7 +51,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return fmt.Errorf("本が指定されていません")
 	}
 
-	book := rb.getBook(*comp.Target, world)
+	book := getBook(*comp.Target, world)
 	if book == nil {
 		return fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
@@ -83,7 +78,7 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 		return ErrReadTargetNotSet
 	}
 
-	book := rb.getBook(*comp.Target, world)
+	book := getBook(*comp.Target, world)
 	if book == nil {
 		return fmt.Errorf("Bookコンポーネントが見つかりません")
 	}
@@ -111,7 +106,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return nil
 	}
 
-	book := rb.getBook(*comp.Target, world)
+	book := getBook(*comp.Target, world)
 	if book == nil {
 		Cancel(comp, "本が見つかりません")
 		return nil
@@ -143,7 +138,7 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return nil
 	}
 
-	book := rb.getBook(*comp.Target, world)
+	book := getBook(*comp.Target, world)
 	name := query.GetEntityName(*comp.Target, world)
 
 	if book != nil && book.IsCompleted() {
@@ -239,7 +234,7 @@ func (rb *ReadBehavior) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 }
 
 // getBook は対象エンティティのBookコンポーネントを取得する
-func (rb *ReadBehavior) getBook(entity ecs.Entity, world w.World) *gc.Book {
+func getBook(entity ecs.Entity, world w.World) *gc.Book {
 	if !world.Components.Book.Has(entity) {
 		return nil
 	}

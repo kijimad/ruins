@@ -16,7 +16,7 @@ import (
 // Planner はエンティティの行動計画を担うインターフェースを表す。
 // 各ターンのAPループ内で呼ばれ、次のアクションを返す
 type Planner interface {
-	Plan(world w.World, entity ecs.Entity) activity.Behavior
+	Plan(world w.World, entity ecs.Entity) *gc.Activity
 }
 
 // maxActivitiesPerTurn は1ターン中に実行可能なアクティビティの上限を表す
@@ -32,25 +32,30 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 			break
 		}
 
-		behavior := planner.Plan(world, entity)
-		if behavior == nil {
+		comp := planner.Plan(world, entity)
+		if comp == nil {
 			break
 		}
 
-		actionCost := behavior.Info().ActionPointCost
+		b, err := activity.GetBehavior(comp.BehaviorName)
+		if err != nil {
+			log.Warn("Behavior取得失敗", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
+			break
+		}
+		actionCost := b.Info().ActionPointCost
 		tbComp := world.Components.TurnBased.Get(entity)
 		if tbComp == nil || tbComp.AP.Current < actionCost {
-			log.Debug("AP不足", "entity", entity, "activity", behavior.Name(), "cost", actionCost)
+			log.Debug("AP不足", "entity", entity, "activity", comp.BehaviorName, "cost", actionCost)
 			break
 		}
 
-		result, err := activity.Execute(behavior, entity, world)
+		result, err := activity.Execute(comp, entity, world)
 		if err != nil {
-			log.Warn("アクション実行失敗", "entity", entity, "activity", behavior.Name(), "error", err.Error())
+			log.Warn("アクション実行失敗", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
 			break
 		}
 
-		log.Debug("アクション実行", "entity", entity, "activity", behavior.Name(), "success", result.Success)
+		log.Debug("アクション実行", "entity", entity, "activity", comp.BehaviorName, "success", result.Success)
 		executed++
 
 		if !result.Success {
@@ -117,7 +122,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
 }
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
-func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[consts.Tile]) (activity.Behavior, bool) {
+func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[consts.Tile]) (*gc.Activity, bool) {
 	fromPos := from.Coord
 	for _, c := range candidates {
 		dest := fromPos.Add(c)
@@ -129,15 +134,13 @@ func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, c
 }
 
 // moveAction は指定座標への移動アクションを生成する
-func moveAction(dest consts.Coord[consts.Tile]) activity.Behavior {
-	return &activity.MoveBehavior{
-		Destination: gc.GridElement{Coord: dest},
-	}
+func moveAction(dest consts.Coord[consts.Tile]) *gc.Activity {
+	return activity.NewMoveActivity(gc.GridElement{Coord: dest})
 }
 
 // waitAction は待機アクションを生成する
-func waitAction(reason string) activity.Behavior {
-	return &activity.WaitBehavior{Duration: 1, Reason: reason}
+func waitAction() *gc.Activity {
+	return activity.NewWaitActivity(1)
 }
 
 // shuffledEightDirections は8方向をシャッフルして返す

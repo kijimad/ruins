@@ -3,7 +3,6 @@ package aiinput
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -259,9 +258,8 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		b, ok := sp.planItemHandlingAction(world, member, snap)
 		assert.True(t, ok, "転送アクションが返る")
 		assert.NotNil(t, b)
-		transfer, ok := b.(*activity.TransferBehavior)
-		require.True(t, ok, "型が *activity.TransferBehavior であるべき")
-		assert.NotZero(t, transfer.Target)
+		require.Equal(t, gc.BehaviorTransfer, b.BehaviorName)
+		require.NotNil(t, b.Target)
 	})
 
 	t.Run("PolicyKeepではアイテムがあっても転送しない", func(t *testing.T) {

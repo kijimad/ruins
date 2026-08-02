@@ -14,9 +14,7 @@ import (
 )
 
 // OpenDoorBehavior はBehaviorの実装
-type OpenDoorBehavior struct {
-	Target ecs.Entity
-}
+type OpenDoorBehavior struct{}
 
 // Info はBehaviorの実装
 func (odb *OpenDoorBehavior) Info() Info {
@@ -35,14 +33,11 @@ func (odb *OpenDoorBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorOpenDoor
 }
 
-// BuildActivity はBehaviorの実装
-func (odb *OpenDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(odb, 0)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &odb.Target
-	return comp, nil
+// NewOpenDoorActivity は対象扉を指定して開扉アクティビティを組む。
+func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
+	comp := newActivity(gc.BehaviorOpenDoor, 0)
+	comp.Target = &target
+	return comp
 }
 
 // Validate は扉開閉アクティビティの検証を行う
@@ -129,9 +124,7 @@ func (odb *OpenDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.W
 }
 
 // CloseDoorBehavior はBehaviorの実装
-type CloseDoorBehavior struct {
-	Target ecs.Entity
-}
+type CloseDoorBehavior struct{}
 
 // Info はBehaviorの実装
 func (cdb *CloseDoorBehavior) Info() Info {
@@ -150,14 +143,11 @@ func (cdb *CloseDoorBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorCloseDoor
 }
 
-// BuildActivity はBehaviorの実装
-func (cdb *CloseDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(cdb, 0)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &cdb.Target
-	return comp, nil
+// NewCloseDoorActivity は対象扉を指定して閉扉アクティビティを組む。
+func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
+	comp := newActivity(gc.BehaviorCloseDoor, 0)
+	comp.Target = &target
+	return comp
 }
 
 // Validate は扉閉鎖アクティビティの検証を行う

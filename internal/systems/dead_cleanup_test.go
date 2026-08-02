@@ -229,8 +229,7 @@ func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
 	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
 
-	aa := &activity.AttackBehavior{}
-	comp, err := activity.NewActivity(aa, 1)
+	comp, err := activity.NewActivity(gc.BehaviorAttack, 1)
 	require.NoError(t, err)
 	comp.State = gc.ActivityStateRunning
 	world.Components.Activity.Add(enemy, comp)

@@ -19,26 +19,17 @@ type ActionResult struct {
 	Message      string           // 結果メッセージ
 }
 
-// Execute は指定されたアクティビティを実行する
-// 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する
-func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult, error) {
-	behaviorName := behavior.Name()
+// Execute は構築済みのアクティビティを実行する。
+// 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する。
+// comp は NewXxxActivity 構築関数で作る。
+func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult, error) {
+	if comp == nil {
+		return nil, ErrActivityNil
+	}
+	behaviorName := comp.BehaviorName
 	log.Debug("アクション実行開始",
 		"type", behaviorName,
 		"actor", actor)
-
-	// アクティビティを作成
-	comp, err := behavior.BuildActivity(actor, world)
-	if err != nil {
-		result := &ActionResult{
-			Success:      false,
-			State:        gc.ActivityStateCanceled,
-			ActivityName: behaviorName,
-			Message:      err.Error(),
-		}
-		setLastResult(actor, result, world)
-		return result, err
-	}
 
 	// アクティビティを開始
 	if err := StartActivity(comp, actor, world); err != nil {
@@ -61,37 +52,21 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 
 	currentActivity := query.GetActivity(world, actor)
 
-	// 初回で完了も中断もしなければ継続アクション。この初回ターン分のコストを消費し、
-	// 残りは ProcessContinuousActivities が将来ティックで進める。
+	// 出口は「継続」か「初回で解決」かの2分岐。結果の中身だけが違い、
+	// setLastResult と return は共通なので末尾へ1回だけ置く。
+	var result *ActionResult
 	if currentActivity != nil && !IsCompleted(currentActivity) && !IsCanceled(currentActivity) {
+		// 継続アクション。この初回ターン分のコストを消費し、残りは ProcessContinuousActivities が進める
 		query.ConsumeActionPoints(world, actor, consts.StandardActionCost)
-		result := &ActionResult{
-			Success:      true,
-			State:        gc.ActivityStateRunning,
-			ActivityName: behaviorName,
-			Message:      "アクション開始",
+		result = &ActionResult{Success: true, State: gc.ActivityStateRunning, ActivityName: behaviorName, Message: "アクション開始"}
+	} else {
+		// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
+		consumePassCost(world, behaviorName, actor, comp.Destination)
+		if currentActivity != nil && IsCanceled(currentActivity) {
+			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: currentActivity.CancelReason}
+		} else {
+			result = &ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "アクション完了"}
 		}
-		setLastResult(actor, result, world)
-		return result, nil
-	}
-
-	// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
-	consumePassCost(world, behaviorName, actor, comp.Destination)
-	if currentActivity != nil && IsCanceled(currentActivity) {
-		result := &ActionResult{
-			Success:      false,
-			State:        gc.ActivityStateCanceled,
-			ActivityName: behaviorName,
-			Message:      currentActivity.CancelReason,
-		}
-		setLastResult(actor, result, world)
-		return result, nil
-	}
-	result := &ActionResult{
-		Success:      true,
-		State:        gc.ActivityStateCompleted,
-		ActivityName: behaviorName,
-		Message:      "アクション完了",
 	}
 	setLastResult(actor, result, world)
 	return result, nil

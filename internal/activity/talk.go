@@ -14,9 +14,7 @@ import (
 )
 
 // TalkBehavior は会話アクティビティ
-type TalkBehavior struct {
-	Target ecs.Entity
-}
+type TalkBehavior struct{}
 
 // Info はBehaviorの実装
 func (tb *TalkBehavior) Info() Info {
@@ -35,14 +33,11 @@ func (tb *TalkBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorTalk
 }
 
-// BuildActivity はBehaviorの実装
-func (tb *TalkBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(tb, 0)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &tb.Target
-	return comp, nil
+// NewTalkActivity は会話対象を指定して会話アクティビティを組む。
+func NewTalkActivity(target ecs.Entity) *gc.Activity {
+	comp := newActivity(gc.BehaviorTalk, 0)
+	comp.Target = &target
+	return comp
 }
 
 // Validate は会話アクティビティの検証を行う

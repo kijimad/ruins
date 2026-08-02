@@ -22,11 +22,7 @@ import (
 // 工具は開始時に固定せず、毎回actorの所持品から分類に適合する最良の1つを解決する。
 // エンティティ参照を持ち越さないのでセーブ互換の考慮が不要になり、
 // 途中で工具を失った場合も次のターン検査で自然に中断へ落ちる
-type DisassembleBehavior struct {
-	// Target は着手時のパラメータで BuildActivity だけが読み、gc.Activity.Target へ書き写す。
-	// 継続処理は GetBehavior が毎回作るゼロ値インスタンスで回るので、着手後は comp.Target を読む。
-	Target ecs.Entity
-}
+type DisassembleBehavior struct{}
 
 // Info はBehaviorの実装
 func (db *DisassembleBehavior) Info() Info {
@@ -44,11 +40,10 @@ func (db *DisassembleBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorDisassemble
 }
 
-// BuildActivity はBehaviorの実装。
-// 必要ターン数は固定値でなく、対象のbaseAPへ機械スキルと工具グレードの短縮を
-// 掛けた総APから毎回計算する
-func (db *DisassembleBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	def, ok := findDisassemblyDef(db.Target, world)
+// NewDisassembleActivity は分解対象を指定して分解アクティビティを組む。
+// 必要APは対象のbaseAPに機械スキルと工具グレードの短縮を掛けて求める。
+func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	def, ok := findDisassemblyDef(target, world)
 	if !ok {
 		return nil, fmt.Errorf("対象は分解定義を持っていません")
 	}
@@ -58,12 +53,8 @@ func (db *DisassembleBehavior) BuildActivity(actor ecs.Entity, world w.World) (*
 	}
 
 	requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
-
-	comp, err := NewActivity(db, requiredAP)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &db.Target
+	comp := newActivity(gc.BehaviorDisassemble, requiredAP)
+	comp.Target = &target
 	return comp, nil
 }
 
