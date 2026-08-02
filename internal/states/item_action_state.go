@@ -456,7 +456,7 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{
 					Top:    theme.Space3,
 					Bottom: theme.Space3,
@@ -483,8 +483,13 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	tabRow.AddChild(tabBar)
 	root.AddChild(tabRow)
 
-	// Row 2: アイテム一覧。行は名前のみ
+	// Row 1: アイテム一覧。行は名前のみ
 	root.AddChild(st.buildItemList(props, tabIndex, itemIndex, res))
+
+	// Row 2: キー案内。詳細は x のモーダルで見る
+	hintRow := styled.NewRowContainer()
+	hintRow.AddChild(styled.NewMenuText("x で詳細", res))
+	root.AddChild(hintRow)
 
 	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする。
 	// 外周は背景を持たず透明にし、周囲にフィールドを覗かせる
