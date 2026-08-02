@@ -319,17 +319,3 @@ func (st *CharacterState) buildInfoTable(tab statusTabData, itemIndex int, res r
 	}
 	return container
 }
-
-// buildInfoDesc は読み取り専用タブの選択項目の説明を1行で置く
-func (st *CharacterState) buildInfoDesc(tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	desc := " "
-	if itemIndex < len(tab.Items) {
-		desc = tab.Items[itemIndex].Description
-	}
-	if desc == "" {
-		desc = " "
-	}
-	container.AddChild(styled.NewMenuText(desc, res))
-	return container
-}

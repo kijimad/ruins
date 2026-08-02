@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
@@ -569,16 +570,17 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space3, Bottom: theme.Space3, Left: theme.Space3, Right: theme.Space3}),
 			),
 		),
 	)
 
-	// Row 0: 対象キャラ名。仲間がいれば切替ヒントを添える。汎用タイトルは置かない
+	// Row 0: 対象キャラ名。仲間がいれば切替ヒントを添える。汎用タイトルは置かない。
+	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	nameText := props.TargetName
 	if props.HasMultiple {
-		nameText = fmt.Sprintf("◂ %s ▸  [ ] で切替", props.TargetName)
+		nameText = fmt.Sprintf("%s %s %s  [ ] で切替", consts.IconArrowLeft, props.TargetName, consts.IconArrowRight)
 	}
 	nameRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
 	nameLabel := styled.NewMenuText(nameText, res)
@@ -593,13 +595,11 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	tabRow.AddChild(tabBar)
 	root.AddChild(tabRow)
 
+	// 説明の常時表示は置かない。詳細は x のモーダルで見る
 	if tabIndex == charScreenEquip {
 		root.AddChild(st.buildEquipList(props.EquipSlots, itemIndex, res))
-		root.AddChild(st.buildEquipDesc(props.EquipSlots, itemIndex, res))
 	} else if infoIdx := tabIndex - 1; infoIdx < len(props.InfoTabs) {
-		tab := props.InfoTabs[infoIdx]
-		root.AddChild(st.buildInfoTable(tab, itemIndex, res))
-		root.AddChild(st.buildInfoDesc(tab, itemIndex, res))
+		root.AddChild(st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res))
 	}
 
 	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする
@@ -647,21 +647,6 @@ func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, r
 		}
 		container.AddChild(styled.NewListItemText(fmt.Sprintf("%s  %s", slot.SlotLabel, name), clr, isSelected, res))
 	}
-	return container
-}
-
-func (st *CharacterState) buildEquipDesc(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	text := " "
-	if itemIndex < len(slots) {
-		name := slots[itemIndex].ItemName
-		if name == "" {
-			text = fmt.Sprintf("%s は空き   Enter で装備", slots[itemIndex].SlotLabel)
-		} else {
-			text = fmt.Sprintf("%s を選択中   Enter で着脱   x で詳細", name)
-		}
-	}
-	container.AddChild(styled.NewMenuText(text, res))
 	return container
 }
 
