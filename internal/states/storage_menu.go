@@ -209,7 +209,7 @@ type storageItemData struct {
 	Entity ecs.Entity
 	Name   string
 	Weight string
-	Count  string
+	Count  int
 }
 
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
@@ -267,8 +267,7 @@ func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Enti
 			Weight: query.GetEntityWeight(world, entity).String(),
 		}
 		if world.Components.Stackable.Has(entity) {
-			stackable := world.Components.Stackable.Get(entity)
-			item.Count = fmt.Sprintf("%d", stackable.Count)
+			item.Count = world.Components.Stackable.Get(entity).Count
 		}
 		items[i] = item
 	}
@@ -390,15 +389,15 @@ func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabInde
 	}
 
 	currentTab := props.Tabs[tabIndex]
-	columnWidths := []int{180, 70, 50}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	columnWidths := []int{240, 70}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
 	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
 	container.AddChild(newPageIndicator(pg, res))
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		styled.NewTableRow(table, columnWidths, []string{entry.Item.Name, entry.Item.Weight, entry.Item.Count}, aligns, new(pg.IsSelectedInPage(entry.Index)), res)
+		styled.NewTableRow(table, columnWidths, []string{nameWithCount(entry.Item.Name, entry.Item.Count), entry.Item.Weight}, aligns, new(pg.IsSelectedInPage(entry.Index)), res)
 	}
 	container.AddChild(table)
 

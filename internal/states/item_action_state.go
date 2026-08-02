@@ -406,7 +406,7 @@ type itemActionEntry struct {
 	Entity ecs.Entity
 	Name   string
 	Weight string
-	Count  string
+	Count  int
 	Desc   string
 }
 
@@ -453,7 +453,7 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
 		Weight: query.GetEntityWeight(world, entity).String(),
 	}
 	if world.Components.Stackable.Has(entity) {
-		entry.Count = fmt.Sprintf("%d", world.Components.Stackable.Get(entity).Count)
+		entry.Count = world.Components.Stackable.Get(entity).Count
 	}
 	if world.Components.Description.Has(entity) {
 		entry.Desc = world.Components.Description.Get(entity).Description
@@ -513,12 +513,12 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 		container.AddChild(styled.NewDescriptionText("該当するアイテムがありません", res))
 		return container
 	}
-	columnWidths := []int{200, 70, 60}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	columnWidths := []int{240, 70}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range items {
 		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{item.Name, item.Weight, item.Count}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{nameWithCount(item.Name, item.Count), item.Weight}, aligns, &isSelected, res)
 	}
 	container.AddChild(table)
 	return container

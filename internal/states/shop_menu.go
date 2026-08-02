@@ -508,35 +508,16 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	// ページインジケーター（上部固定位置、右寄せ）
 	container.AddChild(newPageIndicator(pg, res))
 
-	// 購入タブ: 名前、重量、価格の3列
-	// 売却タブ: 名前、重量、価格、個数の4列
-	if currentTab.ID == "buy" {
-		columnWidths := []int{180, 70, 80}
-		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
-
-		table := styled.NewTableContainer(columnWidths, res)
-		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-			isSelected := pg.IsSelectedInPage(entry.Index)
-			priceStr := query.FormatCurrency(entry.Item.Price)
-			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Weight, priceStr}, aligns, &isSelected, res)
-		}
-		container.AddChild(table)
-	} else {
-		columnWidths := []int{150, 70, 80, 50}
-		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight, styled.AlignRight}
-
-		table := styled.NewTableContainer(columnWidths, res)
-		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-			isSelected := pg.IsSelectedInPage(entry.Index)
-			priceStr := query.FormatCurrency(entry.Item.Price)
-			countStr := ""
-			if entry.Item.Count > 1 {
-				countStr = fmt.Sprintf("%d", entry.Item.Count)
-			}
-			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Weight, priceStr, countStr}, aligns, &isSelected, res)
-		}
-		container.AddChild(table)
+	// 名前+個数、重量、価格の3列。売却の個数は名前に x個数 として添える
+	columnWidths := []int{200, 70, 80}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	table := styled.NewTableContainer(columnWidths, res)
+	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		priceStr := query.FormatCurrency(entry.Item.Price)
+		styled.NewTableRow(table, columnWidths, []string{nameWithCount(entry.Item.Label, entry.Item.Count), entry.Item.Weight, priceStr}, aligns, &isSelected, res)
 	}
+	container.AddChild(table)
 
 	if len(currentTab.Items) == 0 {
 		if currentTab.ID == "sell" {
