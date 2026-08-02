@@ -19,7 +19,7 @@ type WaitBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (wa *WaitBehavior) Info() Info {
+func (wb *WaitBehavior) Info() Info {
 	return Info{
 		Name:            "待機",
 		Description:     "指定した時間だけ待機する",
@@ -31,17 +31,17 @@ func (wa *WaitBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (wa *WaitBehavior) Name() gc.BehaviorName {
+func (wb *WaitBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorWait
 }
 
 // BuildActivity はBehaviorの実装
-func (wa *WaitBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	duration := wa.Duration
+func (wb *WaitBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	duration := wb.Duration
 	if duration <= 0 {
 		duration = 1
 	}
-	comp, err := NewActivity(wa, duration)
+	comp, err := NewActivity(wb, duration)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (wa *WaitBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, er
 }
 
 // Validate は待機アクティビティの検証を行う
-func (wa *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) error {
+func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) error {
 	// 待機は基本的に常に実行可能
 	// ただし、最低限のチェックは行う
 
@@ -62,13 +62,13 @@ func (wa *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 }
 
 // Start は待機開始時の処理を実行する
-func (wa *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("待機開始", "actor", actor, "reason", wa.Reason, "duration", comp.TurnsLeft)
+func (wb *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("待機開始", "actor", actor, "reason", wb.Reason, "duration", comp.TurnsLeft)
 	return nil
 }
 
 // DoTurn は待機アクティビティの1ターン分の処理を実行する
-func (wa *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (wb *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 長い待機は敵が近づいたら中断する。1ターンのターン送りとAIの手番調整は
 	// その場で完結する行動なので対象にしない
 	if comp.TurnsTotal > 1 && !isAreaSafe(actor, world) {
@@ -77,7 +77,7 @@ func (wa *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// 環境を観察
-	wa.observeEnvironment(comp, actor, world)
+	wb.observeEnvironment(comp, actor, world)
 
 	// 基本のターン処理
 	if comp.TurnsLeft <= 0 {
@@ -101,7 +101,7 @@ func (wa *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish は待機完了時の処理を実行する
-func (wa *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (wb *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("待機完了", "actor", actor)
 
 	// 複数ターン待機の場合のみログを表示する
@@ -115,13 +115,13 @@ func (wa *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Canceled は待機キャンセル時の処理を実行する
-func (wa *WaitBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (wb *WaitBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("待機キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // observeEnvironment は環境観察処理を実行する
-func (wa *WaitBehavior) observeEnvironment(comp *gc.Activity, actor ecs.Entity, _ w.World) {
+func (wb *WaitBehavior) observeEnvironment(comp *gc.Activity, actor ecs.Entity, _ w.World) {
 	// 待機中の環境観察（5ターン毎）
 	if (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {
 		// TODO: 環境観察の実装

@@ -24,7 +24,7 @@ type TransferBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (ta *TransferBehavior) Info() Info {
+func (tb *TransferBehavior) Info() Info {
 	return Info{
 		Name:            "転送",
 		Description:     "アイテムを他のエンティティに渡す",
@@ -36,23 +36,23 @@ func (ta *TransferBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ta *TransferBehavior) Name() gc.BehaviorName {
+func (tb *TransferBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorTransfer
 }
 
 // BuildActivity はBehaviorの実装
-func (ta *TransferBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(ta, 1)
+func (tb *TransferBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(tb, 1)
 	if err != nil {
 		return nil, err
 	}
-	comp.Target = &ta.Target
-	comp.Recipient = &ta.Recipient
+	comp.Target = &tb.Target
+	comp.Recipient = &tb.Recipient
 	return comp, nil
 }
 
 // Validate はアイテム転送アクティビティの検証を行う
-func (ta *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("転送対象が指定されていません")
 	}
@@ -69,14 +69,14 @@ func (ta *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.Wo
 }
 
 // Start はアイテム転送開始時の処理を実行する
-func (ta *TransferBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (tb *TransferBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム転送開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はアイテム転送アクティビティの1ターン分の処理を実行する
-func (ta *TransferBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if err := ta.performTransfer(comp, world); err != nil {
+func (tb *TransferBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	if err := tb.performTransfer(comp, world); err != nil {
 		Cancel(comp, fmt.Sprintf("アイテム転送エラー: %s", err.Error()))
 		return err
 	}
@@ -86,19 +86,19 @@ func (ta *TransferBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Worl
 }
 
 // Finish はアイテム転送完了時の処理を実行する
-func (ta *TransferBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (tb *TransferBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム転送アクティビティ完了", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテム転送キャンセル時の処理を実行する
-func (ta *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム転送キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // performTransfer はアイテムを受取人のバックパックに移動する
-func (ta *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error {
+func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error {
 	item := *comp.Target
 	recipient := *comp.Recipient
 
@@ -110,8 +110,8 @@ func (ta *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 
 	// 実際に渡す個数を確定する。Count が0以下、または在庫以上なら在庫すべてを渡す。
 	moving := query.GetEntityCount(world, item)
-	if ta.Count > 0 && ta.Count < moving {
-		moving = ta.Count
+	if tb.Count > 0 && tb.Count < moving {
+		moving = tb.Count
 	}
 
 	// ログ名は転送前に確定させる。在庫全体でなく実際に移す個数で表示する。
@@ -124,7 +124,7 @@ func (ta *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 		itemName = fmt.Sprintf("%s(%d個)", itemName, moving)
 	}
 
-	if err := lifecycle.TransferUnits(world, item, recipient, ta.Count); err != nil {
+	if err := lifecycle.TransferUnits(world, item, recipient, tb.Count); err != nil {
 		return fmt.Errorf("アイテム転送に失敗: %w", err)
 	}
 

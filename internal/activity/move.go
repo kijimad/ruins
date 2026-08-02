@@ -86,7 +86,7 @@ type MoveBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (ma *MoveBehavior) Info() Info {
+func (mb *MoveBehavior) Info() Info {
 	return Info{
 		Name:            "移動",
 		Description:     "隣接するタイルに移動する",
@@ -98,22 +98,22 @@ func (ma *MoveBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ma *MoveBehavior) Name() gc.BehaviorName {
+func (mb *MoveBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorMove
 }
 
 // BuildActivity はBehaviorの実装
-func (ma *MoveBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(ma, 1)
+func (mb *MoveBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(mb, 1)
 	if err != nil {
 		return nil, err
 	}
-	comp.Destination = &ma.Destination
+	comp.Destination = &mb.Destination
 	return comp, nil
 }
 
 // Validate はBehaviorの実装
-func (ma *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Destination == nil {
 		return ErrMoveTargetNotSet
 	}
@@ -148,13 +148,13 @@ func (ma *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Start はBehaviorの実装
-func (ma *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("移動開始", "actor", actor, "destination", *comp.Destination)
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (ma *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Destination == nil {
 		Cancel(comp, "移動先が設定されていません")
 		return ErrMoveTargetNotSet
@@ -176,7 +176,7 @@ func (ma *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return ErrMoveTargetInvalid
 	}
 
-	if err := ma.performMove(comp, actor, world); err != nil {
+	if err := mb.performMove(comp, actor, world); err != nil {
 		Cancel(comp, fmt.Sprintf("移動エラー: %s", err.Error()))
 		return err
 	}
@@ -186,7 +186,7 @@ func (ma *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish はBehaviorの実装
-func (ma *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (mb *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
@@ -198,12 +198,12 @@ func (ma *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Canceled はBehaviorの実装
-func (ma *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (mb *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("移動キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (ma *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if !world.Components.GridElement.Has(actor) {
 		return ErrGridElementNotFound
 	}

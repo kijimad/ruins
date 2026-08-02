@@ -24,7 +24,7 @@ type ReloadBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (ra *ReloadBehavior) Info() Info {
+func (rb *ReloadBehavior) Info() Info {
 	return Info{
 		Name:            "装填",
 		Description:     "武器に弾薬を装填する",
@@ -35,13 +35,13 @@ func (ra *ReloadBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ra *ReloadBehavior) Name() gc.BehaviorName {
+func (rb *ReloadBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorReload
 }
 
 // BuildActivity はBehaviorの実装
-func (ra *ReloadBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(ra, 1)
+func (rb *ReloadBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(rb, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (ra *ReloadBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, 
 }
 
 // Validate はリロードの検証を行う
-func (ra *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
@@ -68,7 +68,7 @@ func (ra *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 }
 
 // Start はリロード開始時の処理
-func (ra *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func (ra *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	comp.TurnsTotal = maxTurns
 	comp.TurnsLeft = maxTurns
 
-	ra.effortAccum = 0
+	rb.effortAccum = 0
 
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
@@ -89,7 +89,7 @@ func (ra *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 }
 
 // DoTurn はリロードの1ターン分の処理
-func (ra *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		Cancel(comp, "遠距離武器が装備されていません")
@@ -97,13 +97,13 @@ func (ra *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	// 1ターンあたりの工数を計算
-	effortPerTurn := ra.calcEffortPerTurn(actor, fire, world)
-	ra.effortAccum += effortPerTurn
+	effortPerTurn := rb.calcEffortPerTurn(actor, fire, world)
+	rb.effortAccum += effortPerTurn
 
 	comp.TurnsLeft--
 
 	// 工数が目標に達したら装填完了
-	if ra.effortAccum >= fire.ReloadEffort {
+	if rb.effortAccum >= fire.ReloadEffort {
 		// 装填数を計算（マガジン容量と弾薬在庫の小さい方）
 		needed := fire.MagazineSize - fire.Magazine
 		ammoEntity, found := query.FindAmmoInInventory(world, fire.AmmoTag)
@@ -141,13 +141,13 @@ func (ra *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はリロード完了時の処理
-func (ra *ReloadBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (rb *ReloadBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("リロード完了", "actor", actor)
 	return nil
 }
 
 // Canceled はリロードキャンセル時の処理
-func (ra *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を中断した").
 		Log()
@@ -156,7 +156,7 @@ func (ra *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // calcEffortPerTurn は1ターンあたりの装填工数を計算する
-func (ra *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, world w.World) int {
+func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, world w.World) int {
 	effort := BaseReloadEffort
 
 	// DEXを加算

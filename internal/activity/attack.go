@@ -29,7 +29,7 @@ type AttackBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (aa *AttackBehavior) Info() Info {
+func (ab *AttackBehavior) Info() Info {
 	return Info{
 		Name:            "攻撃",
 		Description:     "敵を攻撃する",
@@ -41,22 +41,22 @@ func (aa *AttackBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (aa *AttackBehavior) Name() gc.BehaviorName {
+func (ab *AttackBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorAttack
 }
 
 // BuildActivity はBehaviorの実装
-func (aa *AttackBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(aa, 1)
+func (ab *AttackBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(ab, 1)
 	if err != nil {
 		return nil, err
 	}
-	comp.Target = &aa.Target
+	comp.Target = &ab.Target
 	return comp, nil
 }
 
 // Validate はBehaviorの実装
-func (aa *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return ErrAttackTargetNotSet
 	}
@@ -78,11 +78,11 @@ func (aa *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return ErrAttackTargetDead
 	}
 
-	if !aa.isInRange(actor, *comp.Target, world) {
+	if !ab.isInRange(actor, *comp.Target, world) {
 		return ErrAttackOutOfRange
 	}
 
-	if !aa.canPerformAttack(actor, world) {
+	if !ab.canPerformAttack(actor, world) {
 		return ErrAttackNoWeapon
 	}
 
@@ -90,24 +90,24 @@ func (aa *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // Start はBehaviorの実装
-func (aa *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("攻撃開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (aa *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		Cancel(comp, "攻撃対象が設定されていません")
 		return ErrAttackTargetNotSet
 	}
 
-	if !aa.canAttack(comp, actor, world) {
+	if !ab.canAttack(comp, actor, world) {
 		Cancel(comp, "攻撃できません")
 		return ErrAttackTargetInvalid
 	}
 
-	if err := aa.performAttack(comp, actor, world); err != nil {
+	if err := ab.performAttack(comp, actor, world); err != nil {
 		Cancel(comp, fmt.Sprintf("攻撃エラー: %s", err.Error()))
 		return err
 	}
@@ -117,7 +117,7 @@ func (aa *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はBehaviorの実装
-func (aa *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if comp.Target == nil {
 		log.Debug("攻撃対象が未設定のまま完了処理に到達した。攻撃は実行されていない", "actor", actor)
 		return nil
@@ -130,12 +130,12 @@ func (aa *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 // Canceled はBehaviorの実装
-func (aa *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (ab *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("攻撃キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (aa *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	target := *comp.Target
 
 	log.Debug("攻撃実行", "attacker", actor, "target", target)
@@ -148,19 +148,19 @@ func (aa *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 	return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
 }
 
-func (aa *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
+func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
 	if comp.Target == nil {
 		return false
 	}
 
-	if err := aa.Validate(comp, actor, world); err != nil {
+	if err := ab.Validate(comp, actor, world); err != nil {
 		return false
 	}
 
 	return true
 }
 
-func (aa *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) bool {
+func (ab *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) bool {
 	if !world.Components.GridElement.Has(attacker) {
 		return false
 	}
@@ -177,7 +177,7 @@ func (aa *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) 
 	return distance <= MeleeAttackRange
 }
 
-func (aa *AttackBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bool {
+func (ab *AttackBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bool {
 	// TODO: 装備武器のチェック
 	abils := world.Components.Abilities.Get(attacker)
 	return abils != nil

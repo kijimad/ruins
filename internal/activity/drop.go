@@ -20,7 +20,7 @@ type DropBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (da *DropBehavior) Info() Info {
+func (db *DropBehavior) Info() Info {
 	return Info{
 		Name:            "ドロップ",
 		Description:     "アイテムを足元に置く",
@@ -32,23 +32,23 @@ func (da *DropBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (da *DropBehavior) Name() gc.BehaviorName {
+func (db *DropBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorDrop
 }
 
 // BuildActivity はBehaviorの実装
-func (da *DropBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(da, 1)
+func (db *DropBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(db, 1)
 	if err != nil {
 		return nil, err
 	}
-	comp.Target = &da.Target
-	comp.Destination = &da.Destination
+	comp.Target = &db.Target
+	comp.Destination = &db.Destination
 	return comp, nil
 }
 
 // Validate はアイテムドロップアクティビティの検証を行う
-func (da *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("ドロップ対象が指定されていません")
 	}
@@ -69,15 +69,15 @@ func (da *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 }
 
 // Start はアイテムドロップ開始時の処理を実行する
-func (da *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテムドロップ開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
 
 // DoTurn はアイテムドロップアクティビティの1ターン分の処理を実行する
-func (da *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// アイテムドロップ処理を実行
-	if err := da.performDrop(comp, actor, world); err != nil {
+	if err := db.performDrop(comp, actor, world); err != nil {
 		Cancel(comp, fmt.Sprintf("アイテムドロップエラー: %s", err.Error()))
 		return err
 	}
@@ -88,19 +88,19 @@ func (da *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish はアイテムドロップ完了時の処理を実行する
-func (da *DropBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (db *DropBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテムドロップアクティビティ完了", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテムドロップキャンセル時の処理を実行する
-func (da *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテムドロップキャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // performDrop は実際のアイテムドロップ処理を実行する
-func (da *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	targetTile, err := requireDestination(comp)
 	if err != nil {
 		return err

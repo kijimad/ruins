@@ -24,7 +24,7 @@ type ShootBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (sa *ShootBehavior) Info() Info {
+func (sb *ShootBehavior) Info() Info {
 	return Info{
 		Name:            "射撃",
 		Description:     "遠距離から敵を攻撃する",
@@ -35,22 +35,22 @@ func (sa *ShootBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (sa *ShootBehavior) Name() gc.BehaviorName {
+func (sb *ShootBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorShoot
 }
 
 // BuildActivity はBehaviorの実装
-func (sa *ShootBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(sa, 1)
+func (sb *ShootBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(sb, 1)
 	if err != nil {
 		return nil, err
 	}
-	comp.Target = &sa.Target
+	comp.Target = &sb.Target
 	return comp, nil
 }
 
 // Validate は射撃の検証を行う
-func (sa *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return ErrAttackTargetNotSet
 	}
@@ -94,13 +94,13 @@ func (sa *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 }
 
 // Start はBehaviorの実装
-func (sa *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("射撃開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
 
 // DoTurn は射撃の実行処理
-func (sa *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		Cancel(comp, "射撃対象が設定されていません")
 		return ErrAttackTargetNotSet
@@ -132,13 +132,13 @@ func (sa *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 }
 
 // Finish はBehaviorの実装
-func (sa *ShootBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (sb *ShootBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("射撃完了", "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
-func (sa *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("射撃キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
@@ -220,13 +220,13 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 // CanShootTarget はactorからtargetに射撃可能かを判定する。
 // 射撃対象選択UIでのフィルタリング用
 func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
-	sa := &ShootBehavior{}
-	comp, err := NewActivity(sa, 1)
+	sb := &ShootBehavior{}
+	comp, err := NewActivity(sb, 1)
 	if err != nil {
 		return false
 	}
 	comp.Target = &target
-	return sa.Validate(comp, actor, world) == nil
+	return sb.Validate(comp, actor, world) == nil
 }
 
 // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用

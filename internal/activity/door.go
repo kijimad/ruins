@@ -19,7 +19,7 @@ type OpenDoorBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (oda *OpenDoorBehavior) Info() Info {
+func (odb *OpenDoorBehavior) Info() Info {
 	return Info{
 		Name:            "扉開閉",
 		Description:     "扉を開く",
@@ -31,22 +31,22 @@ func (oda *OpenDoorBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (oda *OpenDoorBehavior) Name() gc.BehaviorName {
+func (odb *OpenDoorBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorOpenDoor
 }
 
 // BuildActivity はBehaviorの実装
-func (oda *OpenDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(oda, 1)
+func (odb *OpenDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(odb, 1)
 	if err != nil {
 		return nil, err
 	}
-	comp.Target = &oda.Target
+	comp.Target = &odb.Target
 	return comp, nil
 }
 
 // Validate は扉開閉アクティビティの検証を行う
-func (oda *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("扉エンティティが指定されていません")
 	}
@@ -67,13 +67,13 @@ func (oda *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 }
 
 // Start は扉開閉開始時の処理を実行する
-func (oda *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("扉開閉開始", "actor", actor)
 	return nil
 }
 
 // DoTurn は扉開閉アクティビティの1ターン分の処理を実行する
-func (oda *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
 	if !world.Components.Door.Has(targetEntity) {
@@ -109,7 +109,7 @@ func (oda *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 }
 
 // Finish は扉開閉完了時の処理を実行する
-func (oda *OpenDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+func (odb *OpenDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("扉開閉アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
@@ -123,7 +123,7 @@ func (oda *OpenDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Canceled は扉開閉キャンセル時の処理を実行する
-func (oda *OpenDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (odb *OpenDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("扉開閉キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
@@ -134,7 +134,7 @@ type CloseDoorBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (cda *CloseDoorBehavior) Info() Info {
+func (cdb *CloseDoorBehavior) Info() Info {
 	return Info{
 		Name:            "扉閉鎖",
 		Description:     "扉を閉じる",
@@ -146,22 +146,22 @@ func (cda *CloseDoorBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (cda *CloseDoorBehavior) Name() gc.BehaviorName {
+func (cdb *CloseDoorBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorCloseDoor
 }
 
 // BuildActivity はBehaviorの実装
-func (cda *CloseDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(cda, 1)
+func (cdb *CloseDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
+	comp, err := NewActivity(cdb, 1)
 	if err != nil {
 		return nil, err
 	}
-	comp.Target = &cda.Target
+	comp.Target = &cdb.Target
 	return comp, nil
 }
 
 // Validate は扉閉鎖アクティビティの検証を行う
-func (cda *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("扉エンティティが指定されていません")
 	}
@@ -182,13 +182,13 @@ func (cda *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 }
 
 // Start は扉閉鎖開始時の処理を実行する
-func (cda *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("扉閉鎖開始", "actor", actor)
 	return nil
 }
 
 // DoTurn は扉閉鎖アクティビティの1ターン分の処理を実行する
-func (cda *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
 	if !world.Components.Door.Has(targetEntity) {
@@ -221,7 +221,7 @@ func (cda *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 }
 
 // Finish は扉閉鎖完了時の処理を実行する
-func (cda *CloseDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+func (cdb *CloseDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("扉閉鎖アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
@@ -235,7 +235,7 @@ func (cda *CloseDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 }
 
 // Canceled は扉閉鎖キャンセル時の処理を実行する
-func (cda *CloseDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (cdb *CloseDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("扉閉鎖キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

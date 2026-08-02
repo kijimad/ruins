@@ -27,7 +27,7 @@ type DisassembleBehavior struct {
 }
 
 // Info はBehaviorの実装
-func (da *DisassembleBehavior) Info() Info {
+func (db *DisassembleBehavior) Info() Info {
 	return Info{
 		Name:            "分解",
 		Description:     "工具で対象を分解して素材を得る",
@@ -38,15 +38,15 @@ func (da *DisassembleBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (da *DisassembleBehavior) Name() gc.BehaviorName {
+func (db *DisassembleBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorDisassemble
 }
 
 // BuildActivity はBehaviorの実装。
 // 必要ターン数は固定値でなく、対象のbaseAPへ機械スキルと工具グレードの短縮を
 // 掛けた総APから毎回計算する
-func (da *DisassembleBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	def, ok := findDisassemblyDef(da.Target, world)
+func (db *DisassembleBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	def, ok := findDisassemblyDef(db.Target, world)
 	if !ok {
 		return nil, fmt.Errorf("対象は分解定義を持っていません")
 	}
@@ -65,16 +65,16 @@ func (da *DisassembleBehavior) BuildActivity(actor ecs.Entity, world w.World) (*
 		duration = consts.Turn((requiredAP + characterAP - 1) / characterAP)
 	}
 
-	comp, err := NewActivity(da, duration)
+	comp, err := NewActivity(db, duration)
 	if err != nil {
 		return nil, err
 	}
-	comp.Target = &da.Target
+	comp.Target = &db.Target
 	return comp, nil
 }
 
 // Validate は分解アクティビティの検証を行う
-func (da *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("分解対象が指定されていません")
 	}
@@ -95,7 +95,7 @@ func (da *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 }
 
 // Start は分解開始時の処理を実行する
-func (da *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	def, ok := findDisassemblyDef(*comp.Target, world)
 	if !ok {
 		return fmt.Errorf("分解定義が見つかりません")
@@ -119,7 +119,7 @@ func (da *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 
 // DoTurn は分解アクティビティの1ターン分の処理を実行する。
 // 対象が消えている可能性があるため、毎ターン先頭で生存を確認する
-func (da *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if !world.ECS.Alive(*comp.Target) {
 		Cancel(comp, "分解対象が消えたため中断")
 		return nil
@@ -147,7 +147,7 @@ func (da *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 
 // Finish は分解完了時の処理を実行する。産出を抽選し、propは足元へ落として
 // エンティティを除去、アイテムは1個消費して所持品へ加える
-func (da *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	target := *comp.Target
 	if !world.ECS.Alive(target) {
 		return nil
@@ -194,7 +194,7 @@ func (da *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 	appendYields(logger, stacks)
 	logger.Log()
 
-	da.gainMechanicExp(actor, world)
+	db.gainMechanicExp(actor, world)
 
 	log.Debug("分解完了", "actor", actor, "target", name, "yields", stacks)
 	return nil
@@ -202,7 +202,7 @@ func (da *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 
 // Canceled は分解キャンセル時の処理を実行する。
 // 対象消滅による中断もあるため、名前は対象が生きている場合だけ出す
-func (da *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
 		if comp.Target != nil && world.ECS.Alive(*comp.Target) {
@@ -218,7 +218,7 @@ func (da *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, wor
 }
 
 // gainMechanicExp は分解完了で機械スキルの経験値を与える
-func (da *DisassembleBehavior) gainMechanicExp(actor ecs.Entity, world w.World) {
+func (db *DisassembleBehavior) gainMechanicExp(actor ecs.Entity, world w.World) {
 	if !world.Components.Skills.Has(actor) {
 		return
 	}
