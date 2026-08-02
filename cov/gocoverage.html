@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.0%)</option>
 				
@@ -251,7 +251,7 @@
 				
 				<option value="file97">github.com/kijimaD/ruins/internal/input/mock_keyboard.go (100.0%)</option>
 				
-				<option value="file98">github.com/kijimaD/ruins/internal/loader/loader.go (74.2%)</option>
+				<option value="file98">github.com/kijimaD/ruins/internal/loader/loader.go (87.1%)</option>
 				
 				<option value="file99">github.com/kijimaD/ruins/internal/loader/loader_aseprite.go (80.0%)</option>
 				
@@ -1511,7 +1511,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -15144,7 +15144,7 @@ func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error)
 
         for _, spriteSheetDef := range raw.PtrSlice(raws.SpriteSheets) </span><span class="cov8" title="1">{
                 sheet, err := LoadSpriteSheetFromAseprite(spriteSheetDef.Path)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         return nil, fmt.Errorf("スプライトシート '%s' の読み込みに失敗: %w", spriteSheetDef.Name, err)
                 }</span>
                 <span class="cov8" title="1">sheet.Name = spriteSheetDef.Name
@@ -15155,7 +15155,7 @@ func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error)
 }
 
 // LoadUIResources はフォントマップからUIリソースを初期化する
-func LoadUIResources(fonts map[string]resources.Font) (resources.UIResources, error) <span class="cov0" title="0">{
+func LoadUIResources(fonts map[string]resources.Font) (resources.UIResources, error) <span class="cov8" title="1">{
         fontSources := []*text.GoTextFaceSource{
                 fonts["dougenzaka"].FaceSource,
                 fonts["nerd"].FaceSource,
@@ -15165,7 +15165,7 @@ func LoadUIResources(fonts map[string]resources.Font) (resources.UIResources, er
 }</span>
 
 // BuildFaces はフォントマップからFaceマップを構築する
-func BuildFaces(fonts map[string]resources.Font) map[string]text.Face <span class="cov0" title="0">{
+func BuildFaces(fonts map[string]resources.Font) map[string]text.Face <span class="cov8" title="1">{
         return map[string]text.Face{
                 "dougenzaka": &amp;text.GoTextFace{
                         Source: fonts["dougenzaka"].FaceSource,
