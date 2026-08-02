@@ -306,65 +306,6 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res res
 	return wrapper
 }
 
-// NewListItemTextWithValue は左に名前、右端に値を置くリスト項目を作成する。
-// 個数などを行の右端へ寄せたいときに使う。選択状態の見た目は NewListItemText と揃える。
-func NewListItemTextWithValue(text string, value string, textColor color.RGBA, isSelected bool, res resources.UIResources) *widget.Container {
-	bgImage := image.NewNineSliceColor(theme.Transparent)
-	displayTextColor := textColor
-	if isSelected {
-		bgImage = res.Panel.SelectionBar
-		displayTextColor = theme.TextSelected
-	}
-
-	wrapper := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-		)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{Stretch: true}),
-			widget.WidgetOpts.MinSize(120, 0),
-		),
-	)
-
-	// 2列グリッドで左列に余白を吸わせ、右列の値を右端へ寄せる
-	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(bgImage),
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Stretch([]bool{true, false}, []bool{false}),
-			widget.GridLayoutOpts.Spacing(theme.Space2, 0),
-			widget.GridLayoutOpts.Padding(&widget.Insets{
-				Top:    theme.Space1,
-				Bottom: theme.Space1,
-				Left:   theme.Space3,
-				Right:  theme.Space3,
-			}),
-		)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{Stretch: true}),
-		),
-	)
-
-	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.BodyFace, displayTextColor),
-		widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
-		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
-			HorizontalPosition: widget.GridLayoutPositionStart,
-		})),
-	))
-	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(value, &res.Text.BodyFace, displayTextColor),
-		widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter),
-		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
-			HorizontalPosition: widget.GridLayoutPositionEnd,
-		})),
-	))
-
-	wrapper.AddChild(container)
-	wrapper.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
-	return wrapper
-}
-
 // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）
 func NewFragmentText(text string, textColor color.RGBA, res resources.UIResources) *widget.Text {
 	return widget.NewText(

@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -477,7 +476,8 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	return ui
 }
 
-// buildItemList は現在タブのアイテムを名前のみで縦1列に並べる
+// buildItemList は現在タブのアイテムを、他メニューと同じテーブル描画で縦1列に並べる。
+// 左に名前、右に個数。行高とフォントはテーブル共通で揃う
 func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(props.Tabs) {
@@ -490,19 +490,18 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 		container.AddChild(styled.NewDescriptionText("該当するアイテムがありません", res))
 		return container
 	}
+	columnWidths := []int{220, 60}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range items {
-		isSelected := i == itemIndex
-		clr := theme.TextSecondary
-		if isSelected {
-			clr = theme.TextPrimary
-		}
-		// 個数は行の右端へ寄せる。名前は左寄せのまま
+		count := ""
 		if item.Count != "" {
-			container.AddChild(styled.NewListItemTextWithValue(item.Name, "x"+item.Count, clr, isSelected, res))
-		} else {
-			container.AddChild(styled.NewListItemText(item.Name, clr, isSelected, res))
+			count = "x" + item.Count
 		}
+		isSelected := i == itemIndex
+		styled.NewTableRow(table, columnWidths, []string{item.Name, count}, aligns, &isSelected, res)
 	}
+	container.AddChild(table)
 	return container
 }
 
