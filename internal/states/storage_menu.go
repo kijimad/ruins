@@ -37,9 +37,8 @@ const (
 type StorageMenuState struct {
 	es.BaseState[w.World]
 	storageEntity ecs.Entity
-	showDetail    bool // x の詳細モーダルを表示中か
-	detailPage    int  // 詳細モーダルの表示ページ
-	rebuild       bool // 次フレームで UI を作り直すか
+	detail        menuscreen.Detail // 詳細モーダルの表示状態とページ送り
+	rebuild       bool              // 次フレームで UI を作り直すか
 	menuMount     *hooks.Mount[storageProps]
 	widget        *ebitenui.UI
 }
@@ -85,7 +84,11 @@ func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error
 	}
 
 	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
+	if st.detail.Active() {
+		if st.detail.HandleInput(st.detailPageCount(world)) {
+			st.rebuild = true
+		}
+	} else if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
@@ -127,18 +130,6 @@ func (st *StorageMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 // HandleInput はキー入力をActionに変換する
 func (st *StorageMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
-	if st.showDetail {
-		if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {
-			return inputmapper.ActionMenuCancel, true
-		}
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
-			return inputmapper.ActionMenuLeft, true
-		}
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
-			return inputmapper.ActionMenuRight, true
-		}
-		return "", false
-	}
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
@@ -147,33 +138,11 @@ func (st *StorageMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID,
 
 // DoAction はActionを実行する
 func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	if st.showDetail {
-		switch action {
-		case inputmapper.ActionMenuCancel:
-			st.showDetail = false
-			st.rebuild = true
-		case inputmapper.ActionMenuLeft:
-			if st.detailPage > 0 {
-				st.detailPage--
-				st.rebuild = true
-			}
-		case inputmapper.ActionMenuRight:
-			if e, ok := st.selectedEntity(); ok && st.detailPage < menuscreen.DetailPageCount(world, e)-1 {
-				st.detailPage++
-				st.rebuild = true
-			}
-		default:
-			// 詳細表示中は他のアクションを無視する
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	}
-
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.showDetail = true
-		st.detailPage = 0
+		st.detail.Open()
 		st.rebuild = true
 	case inputmapper.ActionMenuSelect:
 		if err := st.executeTransfer(world); err != nil {
@@ -325,18 +294,27 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 		Footer:    menuNavHint(true, "x 詳細"),
 	})
 
-	if st.showDetail {
+	if st.detail.Active() {
 		if e, ok := st.selectedEntity(); ok {
 			name := query.GetEntityName(e, world)
 			desc := ""
 			if world.Components.Description.Has(e) {
 				desc = world.Components.Description.Get(e).Description
 			}
-			eui.AddWindow(menuscreen.BuildDetailWindow(world, getCenterWinRect(world), name, desc, e, st.detailPage))
+			eui.AddWindow(menuscreen.BuildDetailWindow(world, getCenterWinRect(world), name, desc, e, st.detail.Page()))
 		}
 	}
 
 	return eui
+}
+
+// detailPageCount は現在カーソルが当たっているアイテムの詳細ページ数を返す
+func (st *StorageMenuState) detailPageCount(world w.World) int {
+	e, ok := st.selectedEntity()
+	if !ok {
+		return 1
+	}
+	return menuscreen.DetailPageCount(world, e)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

@@ -179,11 +179,10 @@ const itemActionMenuKey = "item_action"
 // 名前のみで一覧する。Enter で即実行しダンジョンへ戻る。x で選択中アイテムの詳細モーダルを開く。
 type ItemActionState struct {
 	es.BaseState[w.World]
-	initialVerb verbID // 開いた直後に表示する動詞タブ
-	tabSeeded   bool   // 初期タブへ寄せたか
-	showDetail  bool   // 詳細モーダルを表示中か
-	detailPage  int    // 詳細モーダルの表示ページ
-	rebuild     bool   // 次フレームで UI を作り直すか
+	initialVerb verbID            // 開いた直後に表示する動詞タブ
+	tabSeeded   bool              // 初期タブへ寄せたか
+	detail      menuscreen.Detail // 詳細モーダルの表示状態とページ送り
+	rebuild     bool              // 次フレームで UI を作り直すか
 	mount       *hooks.Mount[itemActionProps]
 	widget      *ebitenui.UI
 }
@@ -220,7 +219,12 @@ func (st *ItemActionState) OnStart(_ w.World) error {
 
 // Update はステートの更新処理
 func (st *ItemActionState) Update(world w.World) (es.Transition[w.World], error) {
-	if action, ok := st.handleInput(); ok {
+	if st.detail.Active() {
+		// 詳細表示中はページ送りと閉じるだけを扱い、通常のメニュー入力は止める
+		if st.detail.HandleInput(st.detailPageCount(world)) {
+			st.rebuild = true
+		}
+	} else if action, ok := st.handleInput(); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
@@ -264,22 +268,9 @@ func (st *ItemActionState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// handleInput はキー入力を Action に変換する。詳細モーダル表示中は閉じる操作だけを受ける
+// handleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う
 func (st *ItemActionState) handleInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
-	if st.showDetail {
-		if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {
-			return inputmapper.ActionMenuCancel, true
-		}
-		// 詳細モーダル表示中の左右キーはページ送りに使う
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
-			return inputmapper.ActionMenuLeft, true
-		}
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
-			return inputmapper.ActionMenuRight, true
-		}
-		return "", false
-	}
 	// 動詞ショートカットは開いている間もタブ移動に使える。調べる X は Shift+x、詳細 x は Shift 無し
 	if ki.IsKeyJustPressed(ebiten.KeyX) {
 		if ki.IsKeyPressed(ebiten.KeyShift) {
@@ -304,33 +295,11 @@ func (st *ItemActionState) handleInput() (inputmapper.ActionID, bool) {
 
 // DoAction は Action を実行する
 func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	if st.showDetail {
-		switch action {
-		case inputmapper.ActionMenuCancel:
-			st.showDetail = false
-			st.rebuild = true
-		case inputmapper.ActionMenuLeft:
-			if st.detailPage > 0 {
-				st.detailPage--
-				st.rebuild = true
-			}
-		case inputmapper.ActionMenuRight:
-			if e, ok := st.selectedEntity(world); ok && st.detailPage < menuscreen.DetailPageCount(world, e)-1 {
-				st.detailPage++
-				st.rebuild = true
-			}
-		default:
-			// 詳細表示中は他のアクションを無視する
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	}
-
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.showDetail = true
-		st.detailPage = 0
+		st.detail.Open()
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse:
@@ -371,8 +340,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 	}
 	verb := vs[menuState.TabIndex]
 	if verb.Exec == nil {
-		st.showDetail = true
-		st.detailPage = 0
+		st.detail.Open()
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
@@ -488,13 +456,22 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 		Footer:    menuNavHint(true, "x 詳細"),
 	})
 
-	if st.showDetail {
+	if st.detail.Active() {
 		if win := st.buildDetailWindow(world, props, tabIndex, itemIndex, res); win != nil {
 			ui.AddWindow(win)
 		}
 	}
 
 	return ui
+}
+
+// detailPageCount は現在カーソルが当たっているアイテムの詳細ページ数を返す
+func (st *ItemActionState) detailPageCount(world w.World) int {
+	e, ok := st.selectedEntity(world)
+	if !ok {
+		return 1
+	}
+	return menuscreen.DetailPageCount(world, e)
 }
 
 // buildItemList は現在タブのアイテムを、他メニューと同じテーブル描画で縦1列に並べる。
@@ -532,7 +509,7 @@ func (st *ItemActionState) buildDetailWindow(world w.World, props itemActionProp
 		return nil
 	}
 	item := items[itemIndex]
-	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), item.Name, item.Desc, item.Entity, st.detailPage)
+	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), item.Name, item.Desc, item.Entity, st.detail.Page())
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

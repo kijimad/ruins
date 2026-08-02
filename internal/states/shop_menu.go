@@ -37,9 +37,8 @@ const (
 type ShopMenuState struct {
 	es.BaseState[w.World]
 	subState    shopSubState
-	showDetail  bool // x の詳細モーダルを表示中か
-	detailPage  int  // 詳細モーダルの表示ページ
-	rebuild     bool // 次フレームで UI を作り直すか
+	detail      menuscreen.Detail // 詳細モーダルの表示状態とページ送り
+	rebuild     bool              // 次フレームで UI を作り直すか
 	menuMount   *hooks.Mount[shopProps]
 	windowMount *hooks.Mount[shopWindowProps]
 	widget      *ebitenui.UI
@@ -77,7 +76,11 @@ func (st *ShopMenuState) OnStop(_ w.World) error { return nil }
 // Update はゲームステートの更新処理を行う
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
+	if st.detail.Active() {
+		if st.detail.HandleInput(st.detailPageCount(world)) {
+			st.rebuild = true
+		}
+	} else if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
@@ -128,18 +131,6 @@ func (st *ShopMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 // HandleInput はキー入力をActionに変換する
 func (st *ShopMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
-	if st.showDetail {
-		if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {
-			return inputmapper.ActionMenuCancel, true
-		}
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
-			return inputmapper.ActionMenuLeft, true
-		}
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
-			return inputmapper.ActionMenuRight, true
-		}
-		return "", false
-	}
 	switch st.subState {
 	case shopSubStateMenu:
 		if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
@@ -154,27 +145,6 @@ func (st *ShopMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bo
 
 // DoAction はActionを実行する
 func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	if st.showDetail {
-		switch action {
-		case inputmapper.ActionMenuCancel:
-			st.showDetail = false
-			st.rebuild = true
-		case inputmapper.ActionMenuLeft:
-			if st.detailPage > 0 {
-				st.detailPage--
-				st.rebuild = true
-			}
-		case inputmapper.ActionMenuRight:
-			if _, _, spec, ok := st.selectedDetail(world); ok && st.detailPage < menuscreen.DetailPageCountFromSpec(world, spec)-1 {
-				st.detailPage++
-				st.rebuild = true
-			}
-		default:
-			// 詳細表示中は他のアクションを無視する
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	}
-
 	switch st.subState {
 	case shopSubStateWindow:
 		switch action {
@@ -195,8 +165,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		case inputmapper.ActionOpenItemDetail:
-			st.showDetail = true
-			st.detailPage = 0
+			st.detail.Open()
 			st.rebuild = true
 		case inputmapper.ActionMenuSelect:
 			if err := st.handleItemSelection(world); err != nil {
@@ -459,9 +428,9 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	})
 
 	// 詳細モーダル
-	if st.showDetail {
+	if st.detail.Active() {
 		if name, desc, spec, ok := st.selectedDetail(world); ok {
-			eui.AddWindow(menuscreen.BuildDetailWindowFromSpec(world, getCenterWinRect(world), name, desc, spec, st.detailPage))
+			eui.AddWindow(menuscreen.BuildDetailWindowFromSpec(world, getCenterWinRect(world), name, desc, spec, st.detail.Page()))
 		}
 	}
 
@@ -471,6 +440,14 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	}
 
 	return eui
+}
+
+// detailPageCount は現在カーソルが当たっている商品の詳細ページ数を返す
+func (st *ShopMenuState) detailPageCount(world w.World) int {
+	if _, _, spec, ok := st.selectedDetail(world); ok {
+		return menuscreen.DetailPageCountFromSpec(world, spec)
+	}
+	return 1
 }
 
 // selectedDetail は現在カーソルが当たっている商品の詳細を raw 定義から解決する

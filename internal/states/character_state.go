@@ -53,9 +53,8 @@ type CharacterState struct {
 	es.BaseState[w.World]
 	target     ecs.Entity // 表示対象のキャラクター。ゼロ値なら主人公
 	subState   characterSub
-	showDetail bool // x の詳細モーダルを表示中か
-	detailPage int  // 詳細モーダルの表示ページ
-	rebuild    bool // 次フレームで UI を作り直すか
+	detail     menuscreen.Detail // 詳細モーダルの表示状態とページ送り
+	rebuild    bool              // 次フレームで UI を作り直すか
 	mount      *hooks.Mount[characterProps]
 	equipMount *hooks.Mount[charEquipProps]
 	widget     *ebitenui.UI
@@ -99,7 +98,12 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 		}
 	}
 
-	if action, ok := st.handleInput(); ok {
+	if st.detail.Active() {
+		// 詳細表示中はページ送りと閉じるだけを扱い、通常のメニュー入力は止める
+		if st.detail.HandleInput(st.detailPageCount(world)) {
+			st.rebuild = true
+		}
+	} else if action, ok := st.handleInput(); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
@@ -167,22 +171,9 @@ func (st *CharacterState) dispatch(action inputmapper.ActionID) {
 	}
 }
 
-// handleInput はキー入力を Action に変換する
+// handleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う
 func (st *CharacterState) handleInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
-	if st.showDetail {
-		if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {
-			return inputmapper.ActionMenuCancel, true
-		}
-		// 詳細モーダル表示中の左右キーはページ送りに使う
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
-			return inputmapper.ActionMenuLeft, true
-		}
-		if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
-			return inputmapper.ActionMenuRight, true
-		}
-		return "", false
-	}
 	switch st.subState {
 	case charSubBrowse, charSubEquipSelect:
 		// 対象切替は閲覧中のみ。character 固有のキーなので共有入力ではなくここで読む。
@@ -205,27 +196,6 @@ func (st *CharacterState) handleInput() (inputmapper.ActionID, bool) {
 
 // DoAction は Action を実行する
 func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	if st.showDetail {
-		switch action {
-		case inputmapper.ActionMenuCancel:
-			st.showDetail = false
-			st.rebuild = true
-		case inputmapper.ActionMenuLeft:
-			if st.detailPage > 0 {
-				st.detailPage--
-				st.rebuild = true
-			}
-		case inputmapper.ActionMenuRight:
-			if e, ok := st.resolveDetailEntity(); ok && st.detailPage < menuscreen.DetailPageCount(world, e)-1 {
-				st.detailPage++
-				st.rebuild = true
-			}
-		default:
-			// 詳細表示中は他のアクションを無視する
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	}
-
 	switch st.subState {
 	case charSubEquipSelect:
 		return st.doEquipSelect(world, action)
@@ -244,8 +214,7 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 		if st.currentTabIndex() == charScreenCommand {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
-		st.showDetail = true
-		st.detailPage = 0
+		st.detail.Open()
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
@@ -295,8 +264,7 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 		st.rebuild = true
 	default:
 		// 情報タブは Enter で詳細モーダルを開く
-		st.showDetail = true
-		st.detailPage = 0
+		st.detail.Open()
 		st.rebuild = true
 	}
 	return nil
@@ -314,8 +282,7 @@ func (st *CharacterState) doEquipSelect(world w.World, action inputmapper.Action
 		st.subState = charSubBrowse
 		st.rebuild = true
 	case inputmapper.ActionOpenItemDetail:
-		st.showDetail = true
-		st.detailPage = 0
+		st.detail.Open()
 		st.rebuild = true
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatch で処理される。装備選択は単一タブなのでタブ切替は何もしない
@@ -700,7 +667,7 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	if st.subState == charSubEquipSelect {
 		ui.AddWindow(st.buildEquipSelectWindow(world, res))
 	}
-	if st.showDetail {
+	if st.detail.Active() {
 		var win *widget.Window
 		if st.subState == charSubEquipSelect {
 			// 装備選択中は選択している候補の詳細を出す
@@ -736,7 +703,15 @@ func (st *CharacterState) newEntityDetailWindow(world w.World, entity ecs.Entity
 	if world.Components.Description.Has(entity) {
 		desc = world.Components.Description.Get(entity).Description
 	}
-	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), name, desc, entity, st.detailPage)
+	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), name, desc, entity, st.detail.Page())
+}
+
+// detailPageCount は詳細モーダルの対象エンティティのページ数を返す。spec を持たない詳細は1
+func (st *CharacterState) detailPageCount(world w.World) int {
+	if e, ok := st.resolveDetailEntity(); ok {
+		return menuscreen.DetailPageCount(world, e)
+	}
+	return 1
 }
 
 // resolveDetailEntity は詳細モーダルが対象とするエンティティを返す。
