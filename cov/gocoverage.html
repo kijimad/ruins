@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.0%)</option>
 				
@@ -567,7 +567,7 @@
 				
 				<option value="file255">github.com/kijimaD/ruins/internal/widgets/messagewindow/queue.go (100.0%)</option>
 				
-				<option value="file256">github.com/kijimaD/ruins/internal/widgets/messagewindow/window.go (35.1%)</option>
+				<option value="file256">github.com/kijimaD/ruins/internal/widgets/messagewindow/window.go (46.5%)</option>
 				
 				<option value="file257">github.com/kijimaD/ruins/internal/widgets/pagination/pagination.go (100.0%)</option>
 				
@@ -603,7 +603,7 @@
 				
 				<option value="file273">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (75.7%)</option>
 				
-				<option value="file274">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (74.6%)</option>
+				<option value="file274">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.1%)</option>
 				
 				<option value="file275">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.6%)</option>
 				
@@ -1513,7 +1513,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -53537,17 +53537,17 @@ func (w *Window) Close() <span class="cov8" title="1">{
 
 // showNextMessage はキューから次のメッセージを取り出して表示する
 func (w *Window) showNextMessage() <span class="cov8" title="1">{
-        if w.queueManager == nil </span><span class="cov0" title="0">{
+        if w.queueManager == nil </span><span class="cov8" title="1">{
                 return
         }</span>
 
         <span class="cov8" title="1">nextMessage := w.queueManager.Dequeue()
-        if nextMessage == nil </span><span class="cov0" title="0">{
+        if nextMessage == nil </span><span class="cov8" title="1">{
                 w.isOpen = false
-                if w.onClose != nil </span><span class="cov0" title="0">{
+                if w.onClose != nil </span><span class="cov8" title="1">{
                         w.onClose()
                 }</span>
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
         <span class="cov8" title="1">w.currentMessage = nextMessage
@@ -53572,13 +53572,13 @@ func (w *Window) updateContentFromMessage(msg *messagedata.MessageData) <span cl
                         Text: choice.Text,
                         Action: func() error </span><span class="cov8" title="1">{
                                 if choice.Action != nil </span><span class="cov8" title="1">{
-                                        if err := choice.Action(w.world); err != nil </span><span class="cov0" title="0">{
+                                        if err := choice.Action(w.world); err != nil </span><span class="cov8" title="1">{
                                                 return err
                                         }</span>
                                 }
                                 // 選択肢に関連メッセージがある場合はキュー先頭に追加して即座に表示
                                 <span class="cov8" title="1">if choice.MessageData != nil </span><span class="cov8" title="1">{
-                                        if w.queueManager == nil </span><span class="cov0" title="0">{
+                                        if w.queueManager == nil </span><span class="cov8" title="1">{
                                                 w.queueManager = NewQueueManager()
                                         }</span>
                                         <span class="cov8" title="1">w.queueManager.EnqueueFront(choice.MessageData)</span>
@@ -53890,20 +53890,20 @@ func (w *Window) createEnterPrompt() *widget.Container <span class="cov0" title=
 }</span>
 
 // HandleInput はキーボード入力をActionに変換する
-func (w *Window) HandleInput() (inputmapper.ActionID, bool) <span class="cov0" title="0">{
+func (w *Window) HandleInput() (inputmapper.ActionID, bool) <span class="cov8" title="1">{
         keyboardInput := input.GetSharedKeyboardInput()
 
-        for _, key := range w.config.SkippableKeys </span><span class="cov0" title="0">{
-                if key == ebiten.KeyEnter </span><span class="cov0" title="0">{
+        for _, key := range w.config.SkippableKeys </span><span class="cov8" title="1">{
+                if key == ebiten.KeyEnter </span><span class="cov8" title="1">{
                         if keyboardInput.IsEnterJustPressedOnce() </span><span class="cov0" title="0">{
                                 return inputmapper.ActionConfirm, true
                         }</span>
-                } else<span class="cov0" title="0"> if keyboardInput.IsKeyJustPressed(key) </span><span class="cov0" title="0">{
+                } else<span class="cov8" title="1"> if keyboardInput.IsKeyJustPressed(key) </span><span class="cov0" title="0">{
                         return inputmapper.ActionSkip, true
                 }</span>
         }
 
-        <span class="cov0" title="0">return "", false</span>
+        <span class="cov8" title="1">return "", false</span>
 }
 
 // DoAction はActionを実行する
@@ -53996,20 +53996,20 @@ func (w *Window) handleChoiceInput() error <span class="cov0" title="0">{
 }
 
 // translateChoiceInput はキーボード入力を選択肢メニューのアクションに変換する
-func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) <span class="cov0" title="0">{
-        if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) </span><span class="cov0" title="0">{
+func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) <span class="cov8" title="1">{
+        if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) </span><span class="cov8" title="1">{
                 return inputmapper.ActionMenuUp, true
         }</span>
-        <span class="cov0" title="0">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) </span><span class="cov8" title="1">{
                 return inputmapper.ActionMenuDown, true
         }</span>
-        <span class="cov0" title="0">if keyboardInput.IsEnterJustPressedOnce() </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if keyboardInput.IsEnterJustPressedOnce() </span><span class="cov8" title="1">{
                 return inputmapper.ActionMenuSelect, true
         }</span>
-        <span class="cov0" title="0">if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) </span><span class="cov8" title="1">{
                 return inputmapper.ActionMenuCancel, true
         }</span>
-        <span class="cov0" title="0">return "", false</span>
+        <span class="cov8" title="1">return "", false</span>
 }
 
 // rebuildUI はUIを再構築する
@@ -54060,27 +54060,27 @@ func (w *Window) calculateItemsPerPage(totalItems int) int <span class="cov8" ti
 }
 
 // selectChoice は選択肢を選択する
-func (w *Window) selectChoice(index int) error <span class="cov0" title="0">{
-        if index &lt; 0 || index &gt;= len(w.content.Choices) </span><span class="cov0" title="0">{
+func (w *Window) selectChoice(index int) error <span class="cov8" title="1">{
+        if index &lt; 0 || index &gt;= len(w.content.Choices) </span><span class="cov8" title="1">{
                 return nil
         }</span>
 
-        <span class="cov0" title="0">choice := w.content.Choices[index]
+        <span class="cov8" title="1">choice := w.content.Choices[index]
 
         // コールバック実行
-        if w.onChoice != nil </span><span class="cov0" title="0">{
+        if w.onChoice != nil </span><span class="cov8" title="1">{
                 w.onChoice(choice)
         }</span>
 
         // アクション実行
-        <span class="cov0" title="0">if choice.Action != nil </span><span class="cov0" title="0">{
-                if err := choice.Action(); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if choice.Action != nil </span><span class="cov8" title="1">{
+                if err := choice.Action(); err != nil </span><span class="cov8" title="1">{
                         return err
                 }</span>
         }
 
         // ウィンドウを閉じる
-        <span class="cov0" title="0">w.Close()
+        <span class="cov8" title="1">w.Close()
         return nil</span>
 }
 
@@ -56758,7 +56758,7 @@ var (
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile <span class="cov8" title="1">{
-        if rand.IntN(2) == 0 </span><span class="cov0" title="0">{
+        if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
         <span class="cov8" title="1">return -1</span>
