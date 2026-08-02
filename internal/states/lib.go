@@ -4,17 +4,30 @@ import (
 	"image"
 
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// gameLogTopY は画面下部のゲームログのボックス上端 Y を返す。
+// モーダルやウィンドウをこの上端より上に収め、ログと重ならないようにする基準に使う。
+func gameLogTopY(screenHeight int) int {
+	cfg := hud.DefaultMessageAreaConfig
+	logHeight := cfg.LogAreaMargin*2 + cfg.MaxLogLines*cfg.LineHeight + cfg.YPadding*2
+	return screenHeight - logHeight - theme.Space3
+}
+
 // wrapModalRoot は root を画面より一回り小さい中央モーダルとして包む。
 // 外周は背景を持たず透明にし、周囲に後ろのフィールドを覗かせる。動詞タブ画面と各メニューで共通に使う。
+// 下端はゲームログの上端より上で止め、ログと重ならないようにする。
 func wrapModalRoot(root *widget.Container) *widget.Container {
+	bottom := consts.GameHeight - gameLogTopY(consts.GameHeight) + theme.Space3
 	outer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
 			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
-			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: 48, Left: 96, Right: 96}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: bottom, Left: 96, Right: 96}),
 		)),
 	)
 	outer.AddChild(root)
@@ -30,9 +43,10 @@ func getCenterWinRect(world w.World) image.Rectangle {
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 
-	// ウィンドウの中心が画面の中心に来るように左上角の座標を計算
+	// 横は画面中央。縦はゲームログの上端より上の領域に収めて、ログと重ならないようにする
 	x := screenWidth/2 - windowWidth/2
-	y := screenHeight/2 - windowHeight/2
+	logTop := gameLogTopY(screenHeight)
+	y := max((logTop-windowHeight)/2, theme.Space3)
 
 	rect := image.Rect(x, y, x+windowWidth, y+windowHeight)
 	return rect

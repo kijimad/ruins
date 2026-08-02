@@ -491,18 +491,8 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	hintRow.AddChild(styled.NewDescriptionText("x で詳細", res))
 	root.AddChild(hintRow)
 
-	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする。
-	// 外周は背景を持たず透明にし、周囲にフィールドを覗かせる
-	outer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
-			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: 48, Left: 96, Right: 96}),
-		)),
-	)
-	outer.AddChild(root)
-
-	ui := &ebitenui.UI{Container: outer}
+	// 後ろのフィールドを見せる小さめの中央モーダルにする。下端はゲームログを避ける
+	ui := &ebitenui.UI{Container: wrapModalRoot(root)}
 
 	if st.showDetail {
 		if win := st.buildDetailWindow(world, props, tabIndex, itemIndex, res); win != nil {

@@ -9,6 +9,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -359,9 +360,11 @@ func (st *CharacterState) executeSlotAction(world w.World) error {
 		st.subState = charSubEquipSelect
 	case "外す":
 		if slot.Entity != nil {
+			itemName := query.GetEntityName(*slot.Entity, world)
 			if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Member); err != nil {
 				return err
 			}
+			st.logEquipChange(world, slot.Member, itemName, "を外した。")
 		}
 		st.subState = charSubBrowse
 	case TextClose:
@@ -378,6 +381,7 @@ func (st *CharacterState) executeEquip(world w.World) error {
 		return nil
 	}
 	item := props.Items[menuState.ItemIndex]
+	itemName := query.GetEntityName(item, world)
 
 	if props.PreviousEquipment != nil {
 		if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember); err != nil {
@@ -385,8 +389,23 @@ func (st *CharacterState) executeEquip(world w.World) error {
 		}
 	}
 	lifecycle.MoveToEquip(world, item, props.TargetMember, props.SlotNumber)
+	st.logEquipChange(world, props.TargetMember, itemName, "を装備した。")
 	st.subState = charSubBrowse
 	return nil
+}
+
+// logEquipChange は装備の着脱をゲームログに出す。対象キャラ名とアイテム名を添える
+func (st *CharacterState) logEquipChange(world w.World, member ecs.Entity, itemName, verb string) {
+	memberName := ""
+	if world.ECS.Alive(member) && world.Components.Name.Has(member) {
+		memberName = query.GetEntityName(member, world)
+	}
+	gamelog.New(query.GetGameLog(world)).
+		Append(memberName).
+		Append(" は ").
+		ItemName(itemName).
+		Append(" " + verb).
+		Log()
 }
 
 // ================
@@ -619,17 +638,8 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	hintRow.AddChild(styled.NewDescriptionText(hint, res))
 	root.AddChild(hintRow)
 
-	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする
-	outer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
-			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: 48, Left: 96, Right: 96}),
-		)),
-	)
-	outer.AddChild(root)
-
-	ui := &ebitenui.UI{Container: outer}
+	// 後ろのフィールドを見せる小さめの中央モーダルにする。下端はゲームログを避ける
+	ui := &ebitenui.UI{Container: wrapModalRoot(root)}
 
 	if st.subState == charSubActionWindow {
 		ui.AddWindow(st.buildActionWindow(world, res))
