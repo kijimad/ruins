@@ -43,7 +43,7 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 		WithChoice("装備", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewEquipMenuState},
+				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterState},
 			})
 			return nil
 		}).
@@ -98,6 +98,11 @@ func NewInventoryMenuState() (es.State[w.World], error) {
 // NewEquipMenuState は新しいEquipMenuStateインスタンスを作成するファクトリー関数
 func NewEquipMenuState() (es.State[w.World], error) {
 	return &EquipMenuState{}, nil
+}
+
+// NewCharacterState は画面タブメニューのStateを作成するファクトリー関数
+func NewCharacterState() (es.State[w.World], error) {
+	return &CharacterState{}, nil
 }
 
 // debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
