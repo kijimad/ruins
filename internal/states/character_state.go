@@ -190,12 +190,13 @@ func (st *CharacterState) handleInput() (inputmapper.ActionID, bool) {
 	case charSubActionWindow:
 		return HandleWindowInput()
 	case charSubBrowse, charSubEquipSelect:
-		// 対象切替は閲覧中のみ。[ ] は character 固有のキーなので共有入力ではなくここで読む
+		// 対象切替は閲覧中のみ。character 固有のキーなので共有入力ではなくここで読む。
+		// 角括弧はキーボード配列で物理位置が変わり片方が別のキーコードになるため使わず、配列に依存しない , . を使う
 		if st.subState == charSubBrowse {
-			if ki.IsKeyJustPressed(ebiten.KeyBracketLeft) {
+			if ki.IsKeyJustPressed(ebiten.KeyComma) {
 				return inputmapper.ActionMenuSubjectPrev, true
 			}
-			if ki.IsKeyJustPressed(ebiten.KeyBracketRight) {
+			if ki.IsKeyJustPressed(ebiten.KeyPeriod) {
 				return inputmapper.ActionMenuSubjectNext, true
 			}
 		}
@@ -721,7 +722,7 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 
 	extras := []string{"x 詳細"}
 	if props.HasMultiple {
-		extras = []string{"[ ] 切替", "x 詳細"}
+		extras = []string{", . 切替", "x 詳細"}
 	}
 	hint := menuNavHint(true, extras...)
 
