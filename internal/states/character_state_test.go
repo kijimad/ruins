@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -93,4 +94,46 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 		}
 	}
 	assert.True(t, hasHeader, "スキルタブはカテゴリ見出し行を持つ")
+}
+
+func TestNextPolicy_端で循環し未知の値は先頭を返す(t *testing.T) {
+	t.Parallel()
+	all := []string{"a", "b", "c"}
+	assert.Equal(t, "b", nextPolicy(all, "a"))
+	assert.Equal(t, "c", nextPolicy(all, "b"))
+	assert.Equal(t, "a", nextPolicy(all, "c"), "末尾の次は先頭へ循環する")
+	assert.Equal(t, "a", nextPolicy(all, "x"), "未知の値は先頭を返す")
+}
+
+func TestFetchCommandRows_仲間はポリシーと解雇を持ちプレイヤーは持たない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	member, err := lifecycle.SpawnDefaultSquadMember(world, player)
+	require.NoError(t, err)
+
+	rows := fetchCommandRows(world, member)
+	require.Len(t, rows, 6, "位置・戦闘・回収・処理・補給・解雇の6行")
+	assert.Equal(t, cmdMovement, rows[0].Kind)
+	assert.Equal(t, cmdDismiss, rows[5].Kind, "末尾は解雇")
+
+	assert.Nil(t, fetchCommandRows(world, player), "SquadAI を持たないプレイヤーは命令行を持たない")
+}
+
+func TestCharacterState_cycleCommandは位置ポリシーを次の値へ進める(t *testing.T) {
+	t.Parallel()
+	state := &CharacterState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	member, err := lifecycle.SpawnDefaultSquadMember(world, player)
+	require.NoError(t, err)
+
+	state.target = member
+	before := query.GetSquadAI(world, member).Movement
+	state.cycleCommand(world, cmdMovement)
+	after := query.GetSquadAI(world, member).Movement
+	assert.Equal(t, nextPolicy(gc.AllSquadMovements(), before), after, "位置ポリシーは次の値へ進む")
 }

@@ -143,25 +143,6 @@ func TestGolden_ComponentDebug(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
-func TestGolden_SquadMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		playerEntity, err := query.GetPlayerEntity(world)
-		require.NoError(t, err)
-
-		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
-		require.NoError(t, err)
-
-		town := newGoldenBackdrop(t)
-		squad, err := gs.NewSquadMenuState()
-		require.NoError(t, err)
-		return []es.State[w.World]{
-			town,
-			squad,
-		}
-	})
-}
-
 func TestGolden_Dungeon(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{

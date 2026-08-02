@@ -40,11 +40,14 @@ const (
 	charSubEquipSelect                      // 装備するアイテムの選択
 )
 
-// 画面タブ。装備は編集可能、以降は読み取り専用の情報タブ
-const charScreenEquip = 0
+// 画面タブ。装備と命令は編集可能、以降は読み取り専用の情報タブ
+const (
+	charScreenEquip   = 0 // 装備タブ
+	charScreenCommand = 1 // 命令タブ。仲間の隊列ポリシーを編集する
+)
 
-// characterTabLabels は画面タブの見出し。装備の後ろに読み取り専用タブが並ぶ
-var characterTabLabels = []string{"装備", "能力", "スキル", "効果", "健康", "基本"}
+// characterTabLabels は画面タブの見出し。編集可能な装備・命令の後ろに読み取り専用タブが並ぶ
+var characterTabLabels = []string{"装備", "命令", "能力", "スキル", "効果", "健康", "基本"}
 
 // CharacterState は画面タブメニューのステート。主人公と仲間で同じ画面を使い、対象を切り替えられる
 type CharacterState struct {
@@ -111,10 +114,12 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 	props := st.mount.GetProps()
 
 	// 画面タブのカーソル。装備 + 情報タブ。左右キーはタブ切替に読み替える
-	itemCounts := make([]int, 0, 1+len(props.InfoTabs))
-	skips := make([][]bool, 0, 1+len(props.InfoTabs))
+	itemCounts := make([]int, 0, 2+len(props.InfoTabs))
+	skips := make([][]bool, 0, 2+len(props.InfoTabs))
 	itemCounts = append(itemCounts, len(props.EquipSlots))
 	skips = append(skips, make([]bool, len(props.EquipSlots)))
+	itemCounts = append(itemCounts, len(props.Commands))
+	skips = append(skips, make([]bool, len(props.Commands)))
 	for _, tab := range props.InfoTabs {
 		itemCounts = append(itemCounts, len(tab.Items))
 		s := make([]bool, len(tab.Items))
@@ -228,11 +233,15 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
+		// 命令タブには行ごとの詳細が無いので x を無視する
+		if st.currentTabIndex() == charScreenCommand {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
 		st.showDetail = true
 		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
-		st.onBrowseSelect()
+		st.onBrowseSelect(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSubjectPrev:
 		st.switchMember(world, -1)
@@ -247,22 +256,35 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 	}
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブはアクションウィンドウ、情報タブは詳細モーダルを開く
-func (st *CharacterState) onBrowseSelect() {
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブはアクションウィンドウ、命令タブはポリシー変更や解雇、情報タブは詳細モーダルを開く
+func (st *CharacterState) onBrowseSelect(world w.World) {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-	if menuState.TabIndex != charScreenEquip {
+	props := st.mount.GetProps()
+	switch menuState.TabIndex {
+	case charScreenEquip:
+		if menuState.ItemIndex >= len(props.EquipSlots) {
+			return
+		}
+		st.windowMount = hooks.NewMount[charWindowProps]()
+		st.windowMount.SetProps(charWindowProps{SlotData: props.EquipSlots[menuState.ItemIndex]})
+		st.subState = charSubActionWindow
+		st.rebuild = true
+	case charScreenCommand:
+		if menuState.ItemIndex >= len(props.Commands) {
+			return
+		}
+		row := props.Commands[menuState.ItemIndex]
+		if row.Kind == cmdDismiss {
+			st.dismissTarget(world)
+		} else {
+			st.cycleCommand(world, row.Kind)
+		}
+		st.rebuild = true
+	default:
+		// 情報タブは Enter で詳細モーダルを開く
 		st.showDetail = true
 		st.rebuild = true
-		return
 	}
-	props := st.mount.GetProps()
-	if menuState.ItemIndex >= len(props.EquipSlots) {
-		return
-	}
-	st.windowMount = hooks.NewMount[charWindowProps]()
-	st.windowMount.SetProps(charWindowProps{SlotData: props.EquipSlots[menuState.ItemIndex]})
-	st.subState = charSubActionWindow
-	st.rebuild = true
 }
 
 func (st *CharacterState) doActionWindow(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
@@ -401,6 +423,7 @@ type characterProps struct {
 	TargetName  string // 表示対象のキャラクター名
 	HasMultiple bool   // 切り替え可能な仲間がいるか
 	EquipSlots  []equipItemData
+	Commands    []commandRow    // 命令タブの隊列ポリシー。SquadAI を持つ仲間のみ行を持つ
 	InfoTabs    []statusTabData // 能力・スキル・効果・健康・基本の読み取り専用タブ
 }
 
@@ -439,8 +462,116 @@ func (st *CharacterState) fetchProps(world w.World) characterProps {
 		TargetName:  name,
 		HasMultiple: len(characterMembers(world)) > 1,
 		EquipSlots:  memberEquipSlots(world, target),
+		Commands:    fetchCommandRows(world, target),
 		InfoTabs:    st.fetchInfoTabs(world, target),
 	}
+}
+
+// ================
+// 命令タブ
+// ================
+
+// commandKind は命令タブで編集する隊列ポリシーの種類
+type commandKind string
+
+const (
+	cmdMovement     commandKind = "位置"
+	cmdCombat       commandKind = "戦闘"
+	cmdItemPickup   commandKind = "回収"
+	cmdItemHandling commandKind = "処理"
+	cmdSupply       commandKind = "補給"
+	cmdDismiss      commandKind = "解雇"
+)
+
+// commandRow は命令タブの1行。種類と現在値を持つ。解雇の行は値を持たない
+type commandRow struct {
+	Kind  commandKind
+	Value string
+}
+
+// fetchCommandRows は対象の隊列ポリシーを命令タブの行にする。SquadAI を持たない対象では空を返す
+func fetchCommandRows(world w.World, target ecs.Entity) []commandRow {
+	squad := query.GetSquadAI(world, target)
+	if squad == nil {
+		return nil
+	}
+	return []commandRow{
+		{Kind: cmdMovement, Value: squad.Movement.String()},
+		{Kind: cmdCombat, Value: squad.CombatCurrent.String()},
+		{Kind: cmdItemPickup, Value: squad.ItemPickup.String()},
+		{Kind: cmdItemHandling, Value: squad.ItemHandling.String()},
+		{Kind: cmdSupply, Value: squad.Supply.String()},
+		{Kind: cmdDismiss},
+	}
+}
+
+// nextPolicy は候補列の中で cur の次の値を循環で返す
+func nextPolicy[T comparable](all []T, cur T) T {
+	for i, v := range all {
+		if v == cur {
+			return all[(i+1)%len(all)]
+		}
+	}
+	if len(all) > 0 {
+		return all[0]
+	}
+	return cur
+}
+
+// cycleCommand は対象の指定ポリシーを次の値へ進める。SquadAI のフィールドはポインタ経由で直接書き換える
+func (st *CharacterState) cycleCommand(world w.World, kind commandKind) {
+	squad := query.GetSquadAI(world, st.resolveTarget(world))
+	if squad == nil {
+		return
+	}
+	switch kind {
+	case cmdMovement:
+		squad.Movement = nextPolicy(gc.AllSquadMovements(), squad.Movement)
+	case cmdCombat:
+		squad.CombatCurrent = nextPolicy(gc.AllSquadCombatPolicies(), squad.CombatCurrent)
+	case cmdItemPickup:
+		squad.ItemPickup = nextPolicy(gc.AllItemPickupPolicies(), squad.ItemPickup)
+	case cmdItemHandling:
+		squad.ItemHandling = nextPolicy(gc.AllItemHandlingPolicies(), squad.ItemHandling)
+	case cmdSupply:
+		squad.Supply = nextPolicy(gc.AllSupplyPolicies(), squad.Supply)
+	case cmdDismiss:
+		// 解雇は値を巡回しない。onBrowseSelect が別に処理する
+	}
+}
+
+// dismissTarget は現在の対象を解雇し、表示を主人公へ戻す
+func (st *CharacterState) dismissTarget(world w.World) {
+	target := st.resolveTarget(world)
+	if err := lifecycle.DismissSquadMember(world, target); err != nil {
+		return
+	}
+	st.target = ecs.Entity{}
+}
+
+// currentTabIndex は現在の画面タブの番号を返す
+func (st *CharacterState) currentTabIndex() int {
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
+	return menuState.TabIndex
+}
+
+// buildCommandTable は命令タブの本文を組み立てる。ポリシー行と解雇行を並べ、対象が仲間でなければ案内を出す
+func (st *CharacterState) buildCommandTable(rows []commandRow, itemIndex int, res resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer()
+	container.AddChild(newPageIndicatorRow(itemIndex, len(rows), res))
+	if len(rows) == 0 {
+		container.AddChild(styled.NewDescriptionText("この対象に隊列指示はない", res))
+		return container
+	}
+	columnWidths := []int{120, 160}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
+	table := styled.NewTableContainer(columnWidths, res)
+	for i, row := range rows {
+		isSelected := i == itemIndex
+		styled.NewTableRow(table, columnWidths, []string{string(row.Kind), row.Value}, aligns, &isSelected, res)
+	}
+	container.AddChild(table)
+	return container
 }
 
 // resolveTarget は表示対象を返す。未指定または死亡時は主人公にフォールバックする
@@ -580,7 +711,9 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	var content *widget.Container
 	if tabIndex == charScreenEquip {
 		content = st.buildEquipList(props.EquipSlots, itemIndex, res)
-	} else if infoIdx := tabIndex - 1; infoIdx < len(props.InfoTabs) {
+	} else if tabIndex == charScreenCommand {
+		content = st.buildCommandTable(props.Commands, itemIndex, res)
+	} else if infoIdx := tabIndex - 2; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
 		content = st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res)
 	} else {
 		content = widget.NewContainer()
@@ -692,6 +825,10 @@ func (st *CharacterState) buildEquipSelectWindow(world w.World, res resources.UI
 }
 
 func (st *CharacterState) buildDetailWindow(world w.World, props characterProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Window {
+	// 命令タブは行ごとの詳細を持たない
+	if tabIndex == charScreenCommand {
+		return nil
+	}
 	content := styled.NewWindowContainer(res)
 
 	if tabIndex == charScreenEquip {
@@ -707,8 +844,8 @@ func (st *CharacterState) buildDetailWindow(world w.World, props characterProps,
 			return st.newEntityDetailWindow(world, *slot.Entity, res)
 		}
 	} else {
-		infoIdx := tabIndex - 1
-		if infoIdx >= len(props.InfoTabs) {
+		infoIdx := tabIndex - 2
+		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
 			return nil
 		}
 		items := props.InfoTabs[infoIdx].Items
