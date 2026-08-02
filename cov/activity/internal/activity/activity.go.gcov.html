@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,24 +79,24 @@
 <span id="L17"><span class="lineNum">      17</span>              : // behaviors はProcessContinuousActivities経由の継続アクション処理で使うシングルトンBehaviorのマップ。</span>
 <span id="L18"><span class="lineNum">      18</span>              : // Execute経路で使うBuildActivityはこのマップのインスタンスでは呼ばれない</span>
 <span id="L19"><span class="lineNum">      19</span>              : var behaviors = map[gc.BehaviorName]Behavior{</span>
-<span id="L20"><span class="lineNum">      20</span>              :         gc.BehaviorMove:      &amp;MoveActivity{},</span>
-<span id="L21"><span class="lineNum">      21</span>              :         gc.BehaviorAttack:    &amp;AttackActivity{},</span>
-<span id="L22"><span class="lineNum">      22</span>              :         gc.BehaviorRest:      &amp;RestActivity{},</span>
-<span id="L23"><span class="lineNum">      23</span>              :         gc.BehaviorWait:      &amp;WaitActivity{},</span>
-<span id="L24"><span class="lineNum">      24</span>              :         gc.BehaviorPickup:    &amp;PickupActivity{},</span>
-<span id="L25"><span class="lineNum">      25</span>              :         gc.BehaviorDrop:      &amp;DropActivity{},</span>
-<span id="L26"><span class="lineNum">      26</span>              :         gc.BehaviorUseItem:   &amp;UseItemActivity{},</span>
-<span id="L27"><span class="lineNum">      27</span>              :         gc.BehaviorTalk:      &amp;TalkActivity{},</span>
-<span id="L28"><span class="lineNum">      28</span>              :         gc.BehaviorOpenDoor:  &amp;OpenDoorActivity{},</span>
-<span id="L29"><span class="lineNum">      29</span>              :         gc.BehaviorCloseDoor: &amp;CloseDoorActivity{},</span>
-<span id="L30"><span class="lineNum">      30</span>              :         gc.BehaviorRead:      &amp;ReadActivity{},</span>
-<span id="L31"><span class="lineNum">      31</span>              :         gc.BehaviorShoot:     &amp;ShootActivity{},</span>
-<span id="L32"><span class="lineNum">      32</span>              :         gc.BehaviorReload:    &amp;ReloadActivity{},</span>
-<span id="L33"><span class="lineNum">      33</span>              :         gc.BehaviorTransfer:  &amp;TransferActivity{},</span>
+<span id="L20"><span class="lineNum">      20</span>              :         gc.BehaviorMove:      &amp;MoveBehavior{},</span>
+<span id="L21"><span class="lineNum">      21</span>              :         gc.BehaviorAttack:    &amp;AttackBehavior{},</span>
+<span id="L22"><span class="lineNum">      22</span>              :         gc.BehaviorRest:      &amp;RestBehavior{},</span>
+<span id="L23"><span class="lineNum">      23</span>              :         gc.BehaviorWait:      &amp;WaitBehavior{},</span>
+<span id="L24"><span class="lineNum">      24</span>              :         gc.BehaviorPickup:    &amp;PickupBehavior{},</span>
+<span id="L25"><span class="lineNum">      25</span>              :         gc.BehaviorDrop:      &amp;DropBehavior{},</span>
+<span id="L26"><span class="lineNum">      26</span>              :         gc.BehaviorUseItem:   &amp;UseItemBehavior{},</span>
+<span id="L27"><span class="lineNum">      27</span>              :         gc.BehaviorTalk:      &amp;TalkBehavior{},</span>
+<span id="L28"><span class="lineNum">      28</span>              :         gc.BehaviorOpenDoor:  &amp;OpenDoorBehavior{},</span>
+<span id="L29"><span class="lineNum">      29</span>              :         gc.BehaviorCloseDoor: &amp;CloseDoorBehavior{},</span>
+<span id="L30"><span class="lineNum">      30</span>              :         gc.BehaviorRead:      &amp;ReadBehavior{},</span>
+<span id="L31"><span class="lineNum">      31</span>              :         gc.BehaviorShoot:     &amp;ShootBehavior{},</span>
+<span id="L32"><span class="lineNum">      32</span>              :         gc.BehaviorReload:    &amp;ReloadBehavior{},</span>
+<span id="L33"><span class="lineNum">      33</span>              :         gc.BehaviorTransfer:  &amp;TransferBehavior{},</span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span>              :         gc.BehaviorDisassemble: &amp;DisassembleActivity{},</span>
-<span id="L36"><span class="lineNum">      36</span>              :         gc.BehaviorPush:        &amp;PushActivity{},</span>
-<span id="L37"><span class="lineNum">      37</span>              :         gc.BehaviorPull:        &amp;PullActivity{},</span>
+<span id="L35"><span class="lineNum">      35</span>              :         gc.BehaviorDisassemble: &amp;DisassembleBehavior{},</span>
+<span id="L36"><span class="lineNum">      36</span>              :         gc.BehaviorPush:        &amp;PushBehavior{},</span>
+<span id="L37"><span class="lineNum">      37</span>              :         gc.BehaviorPull:        &amp;PullBehavior{},</span>
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // GetBehavior は名前からBehavior実装を取得する</span>

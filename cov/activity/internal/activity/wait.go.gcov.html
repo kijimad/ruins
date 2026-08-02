@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,14 +74,14 @@
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              : )</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span>              : // WaitActivity はBehaviorの実装</span>
-<span id="L16"><span class="lineNum">      16</span>              : type WaitActivity struct {</span>
+<span id="L15"><span class="lineNum">      15</span>              : // WaitBehavior はBehaviorの実装</span>
+<span id="L16"><span class="lineNum">      16</span>              : type WaitBehavior struct {</span>
 <span id="L17"><span class="lineNum">      17</span>              :         Duration consts.Turn</span>
 <span id="L18"><span class="lineNum">      18</span>              :         Reason   string</span>
 <span id="L19"><span class="lineNum">      19</span>              : }</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // Info はBehaviorの実装</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 : func (wa *WaitActivity) Info() Info {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 : func (wb *WaitBehavior) Info() Info {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         return Info{</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 Name:            &quot;待機&quot;,</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 Description:     &quot;指定した時間だけ待機する&quot;,</span></span>
@@ -93,17 +93,17 @@
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // Name はBehaviorの実装</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) Name() gc.BehaviorName {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) Name() gc.BehaviorName {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return gc.BehaviorWait</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // BuildActivity はBehaviorの実装</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         duration := wa.Duration</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         duration := wb.Duration</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         if duration &lt;= 0 {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                 duration = 1</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         comp, err := NewActivity(wa, duration)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         comp, err := NewActivity(wb, duration)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -111,7 +111,7 @@
 <span id="L49"><span class="lineNum">      49</span>              : }</span>
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span>              : // Validate は待機アクティビティの検証を行う</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) error {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) error {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         // 待機は基本的に常に実行可能</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         // ただし、最低限のチェックは行う</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 : </span></span>
@@ -124,13 +124,13 @@
 <span id="L62"><span class="lineNum">      62</span>              : }</span>
 <span id="L63"><span class="lineNum">      63</span>              : </span>
 <span id="L64"><span class="lineNum">      64</span>              : // Start は待機開始時の処理を実行する</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         log.Debug(&quot;待機開始&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, wa.Reason, &quot;duration&quot;, comp.TurnsLeft)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         log.Debug(&quot;待機開始&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, wb.Reason, &quot;duration&quot;, comp.TurnsLeft)</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              : // DoTurn は待機アクティビティの1ターン分の処理を実行する</span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         // 長い待機は敵が近づいたら中断する。1ターンのターン送りとAIの手番調整は</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         // その場で完結する行動なので対象にしない</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :         if comp.TurnsTotal &gt; 1 &amp;&amp; !isAreaSafe(actor, world) {</span></span>
@@ -139,7 +139,7 @@
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              :         // 環境を観察</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         wa.observeEnvironment(comp, actor, world)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         wb.observeEnvironment(comp, actor, world)</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         // 基本のターン処理</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           2 :         if comp.TurnsLeft &lt;= 0 {</span></span>
@@ -163,7 +163,7 @@
 <span id="L101"><span class="lineNum">     101</span>              : }</span>
 <span id="L102"><span class="lineNum">     102</span>              : </span>
 <span id="L103"><span class="lineNum">     103</span>              : // Finish は待機完了時の処理を実行する</span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         log.Debug(&quot;待機完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         // 複数ターン待機の場合のみログを表示する</span></span>
@@ -177,13 +177,13 @@
 <span id="L115"><span class="lineNum">     115</span>              : }</span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
 <span id="L117"><span class="lineNum">     117</span>              : // Canceled は待機キャンセル時の処理を実行する</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         log.Debug(&quot;待機キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              : // observeEnvironment は環境観察処理を実行する</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : func (wa *WaitActivity) observeEnvironment(comp *gc.Activity, actor ecs.Entity, _ w.World) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : func (wb *WaitBehavior) observeEnvironment(comp *gc.Activity, actor ecs.Entity, _ w.World) {</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         // 待機中の環境観察（5ターン毎）</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         if (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 // TODO: 環境観察の実装</span></span>

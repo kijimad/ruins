@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,13 +76,13 @@
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              : )</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
-<span id="L17"><span class="lineNum">      17</span>              : // UseItemActivity はBehaviorの実装</span>
-<span id="L18"><span class="lineNum">      18</span>              : type UseItemActivity struct {</span>
+<span id="L17"><span class="lineNum">      17</span>              : // UseItemBehavior はBehaviorの実装</span>
+<span id="L18"><span class="lineNum">      18</span>              : type UseItemBehavior struct {</span>
 <span id="L19"><span class="lineNum">      19</span>              :         Target ecs.Entity</span>
 <span id="L20"><span class="lineNum">      20</span>              : }</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // Info はBehaviorの実装</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) Info() Info {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemBehavior) Info() Info {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return Info{</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 Name:            &quot;アイテム使用&quot;,</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 Description:     &quot;アイテムを使う&quot;,</span></span>
@@ -94,12 +94,12 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // Name はBehaviorの実装</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func (u *UseItemActivity) Name() gc.BehaviorName {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func (u *UseItemBehavior) Name() gc.BehaviorName {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return gc.BehaviorUseItem</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // BuildActivity はBehaviorの実装</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         comp, err := NewActivity(u, 1)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span>              : }</span>
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // Validate はBehaviorの実装</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         if comp.Target == nil {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return ErrItemNotSet</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -134,13 +134,13 @@
 <span id="L72"><span class="lineNum">      72</span>              : }</span>
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span>              : // Start はBehaviorの実装</span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム使用開始&quot;, &quot;actor&quot;, actor, &quot;item&quot;, *comp.Target)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L79"><span class="lineNum">      79</span>              : </span>
 <span id="L80"><span class="lineNum">      80</span>              : // DoTurn はBehaviorの実装</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           2 :         if comp.Target == nil {</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;アイテムが指定されていません&quot;)</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 return ErrItemNotSet</span></span>
@@ -185,19 +185,19 @@
 <span id="L123"><span class="lineNum">     123</span>              : }</span>
 <span id="L124"><span class="lineNum">     124</span>              : </span>
 <span id="L125"><span class="lineNum">     125</span>              : // Finish はBehaviorの実装</span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム使用完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
 <span id="L131"><span class="lineNum">     131</span>              : // Canceled はBehaviorの実装</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 : func (u *UseItemActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 : func (u *UseItemBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム使用キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L136"><span class="lineNum">     136</span>              : </span>
 <span id="L137"><span class="lineNum">     137</span>              : // applyHealing は回復処理を適用する</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 : func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 : func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         // 最大HPを基準に実際の回復量を計算する（絶対量指定の場合は基準値は無視される）</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         hp := world.Components.HP.Get(actor)</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         amount := healing.Calc(hp.Max)</span></span>
@@ -219,7 +219,7 @@
 <span id="L157"><span class="lineNum">     157</span>              : }</span>
 <span id="L158"><span class="lineNum">     158</span>              : </span>
 <span id="L159"><span class="lineNum">     159</span>              : // applyNutrition は空腹度回復処理を適用する</span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           2 :         if !world.Components.Hunger.Has(actor) {</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -237,7 +237,7 @@
 <span id="L175"><span class="lineNum">     175</span>              : }</span>
 <span id="L176"><span class="lineNum">     176</span>              : </span>
 <span id="L177"><span class="lineNum">     177</span>              : // logItemUse はアイテム使用のログを出力する</span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         // プレイヤーが関わる場合のみログ出力</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         if !world.Components.Player.Has(actor) {</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 return</span></span>
@@ -261,7 +261,7 @@
 <span id="L199"><span class="lineNum">     199</span>              : }</span>
 <span id="L200"><span class="lineNum">     200</span>              : </span>
 <span id="L201"><span class="lineNum">     201</span>              : // logNutritionUse は空腹度回復のログを出力する</span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         // プレイヤーが関わる場合のみログ出力</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           2 :         if !world.Components.Player.Has(actor) {</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 return</span></span>
@@ -283,7 +283,7 @@
 <span id="L221"><span class="lineNum">     221</span>              : }</span>
 <span id="L222"><span class="lineNum">     222</span>              : </span>
 <span id="L223"><span class="lineNum">     223</span>              : // getItemName はアイテムの名前を取得する</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 : func (u *UseItemActivity) getItemName(item ecs.Entity, world w.World) string {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 : func (u *UseItemBehavior) getItemName(item ecs.Entity, world w.World) string {</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           2 :         if world.Components.Name.Has(item) {</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 return world.Components.Name.Get(item).Name</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         }</span></span>

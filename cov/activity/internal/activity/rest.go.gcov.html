@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,13 +74,13 @@
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              : )</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span>              : // RestActivity はBehaviorの実装</span>
-<span id="L16"><span class="lineNum">      16</span>              : type RestActivity struct {</span>
+<span id="L15"><span class="lineNum">      15</span>              : // RestBehavior はBehaviorの実装</span>
+<span id="L16"><span class="lineNum">      16</span>              : type RestBehavior struct {</span>
 <span id="L17"><span class="lineNum">      17</span>              :         Duration consts.Turn</span>
 <span id="L18"><span class="lineNum">      18</span>              : }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // Info はBehaviorの実装</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func (ra *RestActivity) Info() Info {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func (rb *RestBehavior) Info() Info {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return Info{</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 Name:            &quot;休息&quot;,</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 Description:     &quot;体力を回復するために休息する&quot;,</span></span>
@@ -92,21 +92,21 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // Name はBehaviorの実装</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func (ra *RestActivity) Name() gc.BehaviorName {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func (rb *RestBehavior) Name() gc.BehaviorName {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return gc.BehaviorRest</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // BuildActivity はBehaviorの実装</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 : func (ra *RestActivity) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         duration := ra.Duration</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 : func (rb *RestBehavior) BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         duration := rb.Duration</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         if duration &lt;= 0 {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 characterAP, err := getEntityMaxAP(actor, world)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                         return nil, err</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 duration = CalculateRequiredTurns(ra, characterAP)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 duration = CalculateRequiredTurns(rb, characterAP)</span></span>
 <span id="L46"><span class="lineNum">      46</span>              :         }</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         comp, err := NewActivity(ra, duration)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         comp, err := NewActivity(rb, duration)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span>              : }</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span>              : // Validate は休息アクティビティの検証を行う</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func (ra *RestActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         // 周囲の安全性をチェック</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if !isAreaSafe(actor, world) {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;周囲に敵がいるため休息できません&quot;)</span></span>
@@ -129,13 +129,13 @@
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : // Start は休息開始時の処理を実行する</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 : func (ra *RestActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 : func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         log.Debug(&quot;休息開始&quot;, &quot;actor&quot;, actor, &quot;duration&quot;, comp.TurnsLeft)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L74"><span class="lineNum">      74</span>              : </span>
 <span id="L75"><span class="lineNum">      75</span>              : // DoTurn は休息アクティビティの1ターン分の処理を実行する</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           1 : func (ra *RestActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           1 : func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         // 周囲の安全性をチェック</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :         if !isAreaSafe(actor, world) {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;周囲に敵がいるため休息を中断&quot;)</span></span>
@@ -155,7 +155,7 @@
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 &quot;progress&quot;, GetProgressPercent(comp))</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         // HP回復処理</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         if err := ra.performHealing(comp, actor, world); err != nil {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         if err := rb.performHealing(comp, actor, world); err != nil {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L99"><span class="lineNum">      99</span>              : </span>
@@ -169,7 +169,7 @@
 <span id="L107"><span class="lineNum">     107</span>              : }</span>
 <span id="L108"><span class="lineNum">     108</span>              : </span>
 <span id="L109"><span class="lineNum">     109</span>              : // Finish は休息完了時の処理を実行する</span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 : func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 : func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         log.Debug(&quot;休息完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         // プレイヤーの場合のみ完了メッセージを表示</span></span>
@@ -201,7 +201,7 @@
 <span id="L139"><span class="lineNum">     139</span>              : }</span>
 <span id="L140"><span class="lineNum">     140</span>              : </span>
 <span id="L141"><span class="lineNum">     141</span>              : // Canceled は休息キャンセル時の処理を実行する</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : func (rb *RestBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         // プレイヤーの場合のみ中断時のメッセージを表示</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :         if world.Components.Player.Has(actor) {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
@@ -215,7 +215,7 @@
 <span id="L153"><span class="lineNum">     153</span>              : }</span>
 <span id="L154"><span class="lineNum">     154</span>              : </span>
 <span id="L155"><span class="lineNum">     155</span>              : // performHealing はHP回復処理を実行する</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func (rb *RestBehavior) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           2 :         if !world.Components.HP.Has(actor) {</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         }</span></span>

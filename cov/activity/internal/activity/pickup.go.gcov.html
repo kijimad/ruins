@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,14 +76,14 @@
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              : )</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
-<span id="L17"><span class="lineNum">      17</span>              : // PickupActivity はBehaviorの実装</span>
-<span id="L18"><span class="lineNum">      18</span>              : type PickupActivity struct {</span>
+<span id="L17"><span class="lineNum">      17</span>              : // PickupBehavior はBehaviorの実装</span>
+<span id="L18"><span class="lineNum">      18</span>              : type PickupBehavior struct {</span>
 <span id="L19"><span class="lineNum">      19</span>              :         Target      *ecs.Entity</span>
 <span id="L20"><span class="lineNum">      20</span>              :         Destination *gc.GridElement</span>
 <span id="L21"><span class="lineNum">      21</span>              : }</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // Info はBehaviorの実装</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func (pa *PickupActivity) Info() Info {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func (pb *PickupBehavior) Info() Info {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return Info{</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 Name:            &quot;拾得&quot;,</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Description:     &quot;アイテムを拾得する&quot;,</span></span>
@@ -95,27 +95,27 @@
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // Name はBehaviorの実装</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) Name() gc.BehaviorName {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func (pb *PickupBehavior) Name() gc.BehaviorName {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return gc.BehaviorPickup</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // BuildActivity はBehaviorの実装</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(pa, 1)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : func (pb *PickupBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(pb, 1)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           2 :         if pa.Target != nil {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 comp.Target = pa.Target</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           2 :         if pb.Target != nil {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 comp.Target = pb.Target</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         if pa.Destination != nil {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                 comp.Destination = pa.Destination</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         if pb.Destination != nil {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                 comp.Destination = pb.Destination</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :         return comp, nil</span></span>
 <span id="L53"><span class="lineNum">      53</span>              : }</span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              : // Validate はアイテム拾得アクティビティの検証を行う</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         // Targetが指定されている場合は、そのエンティティが拾得可能かだけを確認する</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :         if comp.Target != nil {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           2 :                 if !query.IsPickable(*comp.Target, world) {</span></span>
@@ -153,15 +153,15 @@
 <span id="L91"><span class="lineNum">      91</span>              : }</span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
 <span id="L93"><span class="lineNum">      93</span>              : // Start はアイテム拾得開始時の処理を実行する</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC tlaBgUNC">           0 : func (pa *PickupActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC tlaBgUNC">           0 : func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム拾得開始&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L98"><span class="lineNum">      98</span>              : </span>
 <span id="L99"><span class="lineNum">      99</span>              : // DoTurn はアイテム拾得アクティビティの1ターン分の処理を実行する</span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC tlaBgGNC">           1 : func (pa *PickupActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC tlaBgGNC">           1 : func (pb *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         // アイテム拾得処理を実行</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 :         if err := pa.performPickupActivity(comp, actor, world); err != nil {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 :         if err := pb.performPickup(comp, actor, world); err != nil {</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 Cancel(comp, fmt.Sprintf(&quot;アイテム拾得エラー: %s&quot;, err.Error()))</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -173,27 +173,27 @@
 <span id="L111"><span class="lineNum">     111</span>              : }</span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
 <span id="L113"><span class="lineNum">     113</span>              : // Finish はアイテム拾得完了時の処理を実行する</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 : func (pa *PickupActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 : func (pb *PickupBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム拾得アクティビティ完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L118"><span class="lineNum">     118</span>              : </span>
 <span id="L119"><span class="lineNum">     119</span>              : // Canceled はアイテム拾得キャンセル時の処理を実行する</span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 : func (pa *PickupActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 : func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム拾得キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L124"><span class="lineNum">     124</span>              : </span>
-<span id="L125"><span class="lineNum">     125</span>              : // performPickupActivity は実際のアイテム拾得処理を実行する。</span>
+<span id="L125"><span class="lineNum">     125</span>              : // performPickup は実際のアイテム拾得処理を実行する。</span>
 <span id="L126"><span class="lineNum">     126</span>              : // Targetが指定されている場合はそのエンティティだけを拾い、</span>
 <span id="L127"><span class="lineNum">     127</span>              : // 未指定の場合はDestinationタイル上の全拾得可能エンティティを拾う</span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           1 : func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           1 : func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         // Targetが指定されている場合は、そのエンティティだけを拾う</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           2 :         if comp.Target != nil {</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 if !query.IsPickable(*comp.Target, world) {</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;拾えるものがありません&quot;)</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 :                 return pa.collect(actor, world, *comp.Target)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 :                 return pb.collect(actor, world, *comp.Target)</span></span>
 <span id="L135"><span class="lineNum">     135</span>              :         }</span>
 <span id="L136"><span class="lineNum">     136</span>              : </span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         target, err := requireDestination(comp)</span></span>
@@ -222,7 +222,7 @@
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         collectedCount := 0</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         var errs []error</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :         for _, entity := range toCollect {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 if err := pa.collect(actor, world, entity); err != nil {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 if err := pb.collect(actor, world, entity); err != nil {</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC tlaBgUNC">           0 :                         errs = append(errs, err)</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L166"><span class="lineNum">     166</span>              :                 }</span>
@@ -249,7 +249,7 @@
 <span id="L187"><span class="lineNum">     187</span>              : }</span>
 <span id="L188"><span class="lineNum">     188</span>              : </span>
 <span id="L189"><span class="lineNum">     189</span>              : // collect はフィールド上のエンティティをバックパックに移動する</span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : func (pb *PickupBehavior) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         // MoveToBackpack内のmergeでentityが削除される可能性があるため、名前を先に取得する</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         formattedName := query.FormatItemName(world, entity)</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         actorName := query.GetEntityName(actor, world)</span></span>

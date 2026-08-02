@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,13 +80,13 @@
 <span id="L18"><span class="lineNum">      18</span>              :         CoverPenaltyPerObject = 15 // 射線上の遮蔽物1つにつきの命中率ペナルティ(%)</span>
 <span id="L19"><span class="lineNum">      19</span>              : )</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
-<span id="L21"><span class="lineNum">      21</span>              : // ShootActivity は射撃アクティビティの実装</span>
-<span id="L22"><span class="lineNum">      22</span>              : type ShootActivity struct {</span>
+<span id="L21"><span class="lineNum">      21</span>              : // ShootBehavior は射撃アクティビティの実装</span>
+<span id="L22"><span class="lineNum">      22</span>              : type ShootBehavior struct {</span>
 <span id="L23"><span class="lineNum">      23</span>              :         Target ecs.Entity</span>
 <span id="L24"><span class="lineNum">      24</span>              : }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // Info はBehaviorの実装</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 : func (sa *ShootActivity) Info() Info {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 : func (sb *ShootBehavior) Info() Info {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return Info{</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 Name:            &quot;射撃&quot;,</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 Description:     &quot;遠距離から敵を攻撃する&quot;,</span></span>
@@ -97,22 +97,22 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // Name はBehaviorの実装</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func (sa *ShootActivity) Name() gc.BehaviorName {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) Name() gc.BehaviorName {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return gc.BehaviorShoot</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // BuildActivity はBehaviorの実装</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func (sa *ShootActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(sa, 1)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(sb, 1)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.Target = &amp;sa.Target</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.Target = &amp;sb.Target</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return comp, nil</span></span>
 <span id="L50"><span class="lineNum">      50</span>              : }</span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // Validate は射撃の検証を行う</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func (sa *ShootActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         if comp.Target == nil {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 return ErrAttackTargetNotSet</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -156,13 +156,13 @@
 <span id="L94"><span class="lineNum">      94</span>              : }</span>
 <span id="L95"><span class="lineNum">      95</span>              : </span>
 <span id="L96"><span class="lineNum">      96</span>              : // Start はBehaviorの実装</span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 : func (sa *ShootActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         log.Debug(&quot;射撃開始&quot;, &quot;actor&quot;, actor, &quot;target&quot;, *comp.Target)</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L101"><span class="lineNum">     101</span>              : </span>
 <span id="L102"><span class="lineNum">     102</span>              : // DoTurn は射撃の実行処理</span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 : func (sa *ShootActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :         if comp.Target == nil {</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;射撃対象が設定されていません&quot;)</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 return ErrAttackTargetNotSet</span></span>
@@ -194,13 +194,13 @@
 <span id="L132"><span class="lineNum">     132</span>              : }</span>
 <span id="L133"><span class="lineNum">     133</span>              : </span>
 <span id="L134"><span class="lineNum">     134</span>              : // Finish はBehaviorの実装</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 : func (sa *ShootActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         log.Debug(&quot;射撃完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L139"><span class="lineNum">     139</span>              : </span>
 <span id="L140"><span class="lineNum">     140</span>              : // Canceled はBehaviorの実装</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC tlaBgUNC">           0 : func (sa *ShootActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC tlaBgUNC">           0 : func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         log.Debug(&quot;射撃キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 : }</span></span>
@@ -282,13 +282,13 @@
 <span id="L220"><span class="lineNum">     220</span>              : // CanShootTarget はactorからtargetに射撃可能かを判定する。</span>
 <span id="L221"><span class="lineNum">     221</span>              : // 射撃対象選択UIでのフィルタリング用</span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 : func CanShootTarget(actor, target ecs.Entity, world w.World) bool {</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         sa := &amp;ShootActivity{}</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(sa, 1)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         sb := &amp;ShootBehavior{}</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(sb, 1)</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.Target = &amp;target</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         return sa.Validate(comp, actor, world) == nil</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         return sb.Validate(comp, actor, world) == nil</span></span>
 <span id="L230"><span class="lineNum">     230</span>              : }</span>
 <span id="L231"><span class="lineNum">     231</span>              : </span>
 <span id="L232"><span class="lineNum">     232</span>              : // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用</span>
@@ -306,7 +306,7 @@
 <span id="L244"><span class="lineNum">     244</span>              : </span>
 <span id="L245"><span class="lineNum">     245</span>              : // ExecuteShootAction は射撃アクションを実行する</span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 : func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         _, err := Execute(&amp;ShootActivity{Target: target}, actor, world)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         _, err := Execute(&amp;ShootBehavior{Target: target}, actor, world)</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         }</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,18 +75,18 @@
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : // TransferActivity はエンティティ間でアイテムを転送するBehavior実装。</span>
+<span id="L16"><span class="lineNum">      16</span>              : // TransferBehavior はエンティティ間でアイテムを転送するBehavior実装。</span>
 <span id="L17"><span class="lineNum">      17</span>              : // Targetに転送するアイテム、Recipientに受取人を指定する。</span>
 <span id="L18"><span class="lineNum">      18</span>              : // Countは渡す個数。在庫数以上を指定すればスタックごとまとめて渡り、少なく指定すればその分だけ分割して渡す。</span>
 <span id="L19"><span class="lineNum">      19</span>              : // 補給で共有プールから1食ぶんだけ引くときは1、丸ごと渡すときは在庫数を指定する</span>
-<span id="L20"><span class="lineNum">      20</span>              : type TransferActivity struct {</span>
+<span id="L20"><span class="lineNum">      20</span>              : type TransferBehavior struct {</span>
 <span id="L21"><span class="lineNum">      21</span>              :         Target    ecs.Entity</span>
 <span id="L22"><span class="lineNum">      22</span>              :         Recipient ecs.Entity</span>
 <span id="L23"><span class="lineNum">      23</span>              :         Count     int</span>
 <span id="L24"><span class="lineNum">      24</span>              : }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // Info はBehaviorの実装</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 : func (ta *TransferActivity) Info() Info {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 : func (tb *TransferBehavior) Info() Info {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return Info{</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 Name:            &quot;転送&quot;,</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 Description:     &quot;アイテムを他のエンティティに渡す&quot;,</span></span>
@@ -98,23 +98,23 @@
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // Name はBehaviorの実装</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func (ta *TransferActivity) Name() gc.BehaviorName {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func (tb *TransferBehavior) Name() gc.BehaviorName {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return gc.BehaviorTransfer</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              : // BuildActivity はBehaviorの実装</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 : func (ta *TransferActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         comp, err := NewActivity(ta, 1)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 : func (tb *TransferBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         comp, err := NewActivity(tb, 1)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         comp.Target = &amp;ta.Target</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         comp.Recipient = &amp;ta.Recipient</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         comp.Target = &amp;tb.Target</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         comp.Recipient = &amp;tb.Recipient</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         return comp, nil</span></span>
 <span id="L52"><span class="lineNum">      52</span>              : }</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span>              : // Validate はアイテム転送アクティビティの検証を行う</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func (ta *TransferActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         if comp.Target == nil {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;転送対象が指定されていません&quot;)</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -131,14 +131,14 @@
 <span id="L69"><span class="lineNum">      69</span>              : }</span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
 <span id="L71"><span class="lineNum">      71</span>              : // Start はアイテム転送開始時の処理を実行する</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC tlaBgUNC">           0 : func (ta *TransferActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC tlaBgUNC">           0 : func (tb *TransferBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム転送開始&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // DoTurn はアイテム転送アクティビティの1ターン分の処理を実行する</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 : func (ta *TransferActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         if err := ta.performTransfer(comp, world); err != nil {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 : func (tb *TransferBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         if err := tb.performTransfer(comp, world); err != nil {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, fmt.Sprintf(&quot;アイテム転送エラー: %s&quot;, err.Error()))</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -148,19 +148,19 @@
 <span id="L86"><span class="lineNum">      86</span>              : }</span>
 <span id="L87"><span class="lineNum">      87</span>              : </span>
 <span id="L88"><span class="lineNum">      88</span>              : // Finish はアイテム転送完了時の処理を実行する</span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC tlaBgUNC">           0 : func (ta *TransferActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC tlaBgUNC">           0 : func (tb *TransferBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム転送アクティビティ完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L93"><span class="lineNum">      93</span>              : </span>
 <span id="L94"><span class="lineNum">      94</span>              : // Canceled はアイテム転送キャンセル時の処理を実行する</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 : func (ta *TransferActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 : func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         log.Debug(&quot;アイテム転送キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L99"><span class="lineNum">      99</span>              : </span>
 <span id="L100"><span class="lineNum">     100</span>              : // performTransfer はアイテムを受取人のバックパックに移動する</span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC tlaBgGNC">           1 : func (ta *TransferActivity) performTransfer(comp *gc.Activity, world w.World) error {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC tlaBgGNC">           1 : func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         item := *comp.Target</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         recipient := *comp.Recipient</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 : </span></span>
@@ -172,8 +172,8 @@
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         // 実際に渡す個数を確定する。Count が0以下、または在庫以上なら在庫すべてを渡す。</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         moving := query.GetEntityCount(world, item)</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         if ta.Count &gt; 0 &amp;&amp; ta.Count &lt; moving {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 moving = ta.Count</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         if tb.Count &gt; 0 &amp;&amp; tb.Count &lt; moving {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 moving = tb.Count</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
 <span id="L117"><span class="lineNum">     117</span>              :         // ログ名は転送前に確定させる。在庫全体でなく実際に移す個数で表示する。</span>
@@ -186,7 +186,7 @@
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 itemName = fmt.Sprintf(&quot;%s(%d個)&quot;, itemName, moving)</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L126"><span class="lineNum">     126</span>              : </span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         if err := lifecycle.TransferUnits(world, item, recipient, ta.Count); err != nil {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         if err := lifecycle.TransferUnits(world, item, recipient, tb.Count); err != nil {</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;アイテム転送に失敗: %w&quot;, err)</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -214,7 +214,7 @@
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L154"><span class="lineNum">     154</span>              : </span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         _, err = activity.Execute(&amp;activity.PickupActivity{Destination: &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}}}, playerEntity, world)</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         _, err = activity.Execute(&amp;activity.PickupBehavior{Destination: &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}}}, playerEntity, world)</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         return err</span></span>
 <span id="L157"><span class="lineNum">     157</span>              : }</span>
 <span id="L158"><span class="lineNum">     158</span>              : </span>

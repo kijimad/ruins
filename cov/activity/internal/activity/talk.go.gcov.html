@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 02:43:37</td>
+            <td class="headerValue">2026-08-02 03:21:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,13 +75,13 @@
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : // TalkActivity は会話アクティビティ</span>
-<span id="L17"><span class="lineNum">      17</span>              : type TalkActivity struct {</span>
+<span id="L16"><span class="lineNum">      16</span>              : // TalkBehavior は会話アクティビティ</span>
+<span id="L17"><span class="lineNum">      17</span>              : type TalkBehavior struct {</span>
 <span id="L18"><span class="lineNum">      18</span>              :         Target ecs.Entity</span>
 <span id="L19"><span class="lineNum">      19</span>              : }</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // Info はBehaviorの実装</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 : func (ta *TalkActivity) Info() Info {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 : func (tb *TalkBehavior) Info() Info {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         return Info{</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 Name:            &quot;会話&quot;,</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 Description:     &quot;NPCと会話する&quot;,</span></span>
@@ -93,22 +93,22 @@
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // Name はBehaviorの実装</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func (ta *TalkActivity) Name() gc.BehaviorName {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func (tb *TalkBehavior) Name() gc.BehaviorName {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return gc.BehaviorTalk</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // BuildActivity はBehaviorの実装</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func (ta *TalkActivity) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(ta, 1)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func (tb *TalkBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(tb, 1)</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.Target = &amp;ta.Target</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.Target = &amp;tb.Target</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return comp, nil</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : }</span>
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span>              : // Validate は会話アクティビティの検証を行う</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : func (ta *TalkActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           2 :         if comp.Target == nil {</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;会話対象が指定されていません&quot;)</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -129,13 +129,13 @@
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : // Start は会話開始時の処理を実行する</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 : func (ta *TalkActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 : func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         log.Debug(&quot;会話開始&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L74"><span class="lineNum">      74</span>              : </span>
 <span id="L75"><span class="lineNum">      75</span>              : // DoTurn は会話アクティビティの1ターン分の処理を実行する</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         targetEntity := *comp.Target</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         if !world.Components.Dialog.Has(targetEntity) {</span></span>
@@ -160,7 +160,7 @@
 <span id="L98"><span class="lineNum">      98</span>              : }</span>
 <span id="L99"><span class="lineNum">      99</span>              : </span>
 <span id="L100"><span class="lineNum">     100</span>              : // Finish は会話完了時の処理を実行する</span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         log.Debug(&quot;会話アクティビティ完了&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         if comp.Target == nil {</span></span>
@@ -193,7 +193,7 @@
 <span id="L131"><span class="lineNum">     131</span>              : }</span>
 <span id="L132"><span class="lineNum">     132</span>              : </span>
 <span id="L133"><span class="lineNum">     133</span>              : // Canceled は会話キャンセル時の処理を実行する</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 : func (ta *TalkActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 : func (tb *TalkBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         log.Debug(&quot;会話キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : }</span></span>
