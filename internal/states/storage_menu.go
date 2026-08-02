@@ -288,39 +288,27 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewItemGridContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-
-	// 1行目: タイトルは置かない、カテゴリ、重量
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
-	root.AddChild(st.buildWeightContainer(props.WeightText, props.WeightOverflow, res))
-
-	// 2行目: 操作対象リスト（左）、空、参照リスト（右）
-	root.AddChild(st.buildActiveListContainer(props, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildReferenceListContainer(props, tabIndex, res))
-
-	// 3行目: ヘルプテキスト
-	root.AddChild(st.buildHelpContainer(props.Tabs, tabIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(widget.NewContainer())
-
-	return &ebitenui.UI{Container: wrapModalRoot(root)}
-}
-
-func (st *StorageMenuState) buildCategoryContainer(tabs []storageTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	for i, tab := range tabs {
-		isSelected := i == tabIndex
-		color := theme.TextSecondary
-		if isSelected {
-			color = theme.TextPrimary
-		}
-		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
+	// カテゴリは標準のタブ帯に寄せる。本体は 重量 / 操作対象+参照リスト / ヘルプ のグリッド
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
 	}
-	return container
+
+	content := styled.NewItemGridContainer()
+	// 1行目: 空、空、重量
+	content.AddChild(widget.NewContainer())
+	content.AddChild(widget.NewContainer())
+	content.AddChild(st.buildWeightContainer(props.WeightText, props.WeightOverflow, res))
+	// 2行目: 操作対象リスト（左）、空、参照リスト（右）
+	content.AddChild(st.buildActiveListContainer(props, tabIndex, itemIndex, res))
+	content.AddChild(widget.NewContainer())
+	content.AddChild(st.buildReferenceListContainer(props, tabIndex, res))
+	// 3行目: ヘルプテキスト
+	content.AddChild(st.buildHelpContainer(props.Tabs, tabIndex, res))
+	content.AddChild(widget.NewContainer())
+	content.AddChild(widget.NewContainer())
+
+	return newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content})
 }
 
 func (st *StorageMenuState) buildWeightContainer(weightText string, overflow bool, res resources.UIResources) *widget.Container {

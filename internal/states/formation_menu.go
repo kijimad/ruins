@@ -171,14 +171,10 @@ func (st *FormationMenuState) buildUI(world w.World) *ebitenui.UI {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "formation")
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
+	content := styled.NewVerticalContainer()
+	content.AddChild(st.buildMemberTable(props.Members, itemIndex, res))
 
-	// タイトルは置かない
-	root.AddChild(st.buildMemberTable(props.Members, itemIndex, res))
-
-	return &ebitenui.UI{Container: wrapModalRoot(root)}
+	return newTabScreenUI(res, tabScreen{Content: content})
 }
 
 func (st *FormationMenuState) buildMemberTable(members []formationMemberData, selectedIndex int, res resources.UIResources) *widget.Container {

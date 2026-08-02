@@ -430,26 +430,27 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewItemGridContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
+	// カテゴリは標準のタブ帯に寄せる。本体は アイテム一覧+性能レシピ / 説明文 のグリッド
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
 
-	// 1行目: タイトルは置かない、カテゴリ、空
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
-	root.AddChild(widget.NewContainer())
-
+	content := styled.NewItemGridContainer()
+	// 1行目: 空、空、空
+	content.AddChild(widget.NewContainer())
+	content.AddChild(widget.NewContainer())
+	content.AddChild(widget.NewContainer())
 	// 2行目: アイテム一覧、空、性能+レシピ表示
-	root.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
-
+	content.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
+	content.AddChild(widget.NewContainer())
+	content.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
 	// 3行目: 説明文
-	root.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(widget.NewContainer())
+	content.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))
+	content.AddChild(widget.NewContainer())
+	content.AddChild(widget.NewContainer())
 
-	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
+	eui := newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content})
 
 	// ウィンドウを追加
 	switch st.subState {
@@ -464,19 +465,6 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 	}
 
 	return eui
-}
-
-func (st *CraftMenuState) buildCategoryContainer(tabs []craftTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	for i, tab := range tabs {
-		isSelected := i == tabIndex
-		color := theme.TextSecondary
-		if isSelected {
-			color = theme.TextPrimary
-		}
-		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
-	}
-	return container
 }
 
 func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

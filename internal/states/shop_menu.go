@@ -405,26 +405,27 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewItemGridContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
+	// カテゴリは標準のタブ帯に寄せる。本体は 所持金 / アイテム一覧+性能 / 説明文 の3列グリッド
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
 
-	// 1行目: タイトルは置かない、カテゴリ、所持金
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
-	root.AddChild(st.buildCurrencyContainer(props.Currency, res))
-
+	content := styled.NewItemGridContainer()
+	// 1行目: 空、空、所持金
+	content.AddChild(widget.NewContainer())
+	content.AddChild(widget.NewContainer())
+	content.AddChild(st.buildCurrencyContainer(props.Currency, res))
 	// 2行目: アイテム一覧、空、性能表示
-	root.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildSpecContainer(world, props, tabIndex, itemIndex, res))
-
+	content.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
+	content.AddChild(widget.NewContainer())
+	content.AddChild(st.buildSpecContainer(world, props, tabIndex, itemIndex, res))
 	// 3行目: 説明文
-	root.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(widget.NewContainer())
+	content.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))
+	content.AddChild(widget.NewContainer())
+	content.AddChild(widget.NewContainer())
 
-	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
+	eui := newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content})
 
 	// ウィンドウを追加
 	if st.subState == shopSubStateWindow {
@@ -433,19 +434,6 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	}
 
 	return eui
-}
-
-func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	for i, tab := range tabs {
-		isSelected := i == tabIndex
-		color := theme.TextSecondary
-		if isSelected {
-			color = theme.TextPrimary
-		}
-		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
-	}
-	return container
 }
 
 func (st *ShopMenuState) buildCurrencyContainer(currency int, res resources.UIResources) *widget.Container {

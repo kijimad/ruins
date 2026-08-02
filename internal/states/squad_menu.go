@@ -426,15 +426,11 @@ func (st *SquadMenuState) buildUI(world w.World) *ebitenui.UI {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "squad")
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
+	content := styled.NewVerticalContainer()
+	content.AddChild(st.buildBatchCommands(props.BatchCommands, itemIndex, res))
+	content.AddChild(st.buildMemberTable(props.Members, len(props.BatchCommands), itemIndex, res))
 
-	// タイトルは置かない
-	root.AddChild(st.buildBatchCommands(props.BatchCommands, itemIndex, res))
-	root.AddChild(st.buildMemberTable(props.Members, len(props.BatchCommands), itemIndex, res))
-
-	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
+	eui := newTabScreenUI(res, tabScreen{Content: content})
 
 	if st.subState == squadSubStateWindow {
 		window := st.buildActionWindow(world)

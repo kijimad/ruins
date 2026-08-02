@@ -382,15 +382,11 @@ func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "tavern")
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
+	content := styled.NewVerticalContainer()
+	content.AddChild(st.buildCurrencyRow(props.Currency, res))
+	content.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))
 
-	// タイトルは置かない
-	root.AddChild(st.buildCurrencyRow(props.Currency, res))
-	root.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))
-
-	eui := &ebitenui.UI{Container: wrapModalRoot(root)}
+	eui := newTabScreenUI(res, tabScreen{Content: content})
 
 	if st.subState == tavernSubStateWindow {
 		window := st.buildActionWindow(world)
