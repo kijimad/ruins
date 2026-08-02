@@ -59,8 +59,8 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| draft | 5 |
-| done | 76 |
+| draft | 4 |
+| done | 77 |
 
 ### 未完了
 
@@ -70,7 +70,6 @@ $ make help
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 1/33 | worldgen |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
 | [84](docs/design/20260802_84.md) | draft | メニューをタブ化して手数を減らす —— 動詞タブ・画面タブ・1カラム統一 | 15/15（見送り1） | ui, item |
-| [85](docs/design/20260802_85.md) | draft | メニュー画面を宣言的 MenuScreen コンポーネントへ統一する | 1/4 | ui, refactor |
 
 
 ## Reference
