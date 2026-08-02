@@ -520,6 +520,8 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 		return container
 	}
 	items := props.Tabs[tabIndex].Items
+	// 全タブで開始位置と高さを揃えるための行。アイテムメニューはページ送りしないので空行にする
+	container.AddChild(styled.NewPageIndicator(" ", res))
 	if len(items) == 0 {
 		container.AddChild(styled.NewDescriptionText("該当するアイテムがありません", res))
 		return container

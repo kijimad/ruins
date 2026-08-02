@@ -278,11 +278,7 @@ func (st *CharacterState) buildInfoTable(tab statusTabData, itemIndex int, res r
 	container := styled.NewVerticalContainer()
 
 	pg := pagination.New(itemIndex, len(tab.Items), statusItemsPerPage)
-	pageText := pg.GetPageText()
-	if pageText == "" {
-		pageText = " "
-	}
-	container.AddChild(styled.NewPageIndicator(pageText, res))
+	container.AddChild(newPageIndicatorRow(itemIndex, len(tab.Items), res))
 
 	hasModifier := tab.ID == tabAbilities
 	var columnWidths []int
@@ -318,4 +314,14 @@ func (st *CharacterState) buildInfoTable(tab statusTabData, itemIndex int, res r
 		container.AddChild(styled.NewDescriptionText("(項目なし)", res))
 	}
 	return container
+}
+
+// newPageIndicatorRow はタブ先頭に置くページ表示行を作る。ページが無くても空行として
+// 常に1行を確保し、タブを切り替えてもコンテンツの開始位置と高さが変わらないようにする。
+func newPageIndicatorRow(itemIndex, count int, res resources.UIResources) *widget.Container {
+	pageText := pagination.New(itemIndex, count, statusItemsPerPage).GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	return styled.NewPageIndicator(pageText, res)
 }
