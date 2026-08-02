@@ -9,9 +9,11 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // tabScreen はモーダル画面の共通レイアウト入力。
@@ -69,6 +71,28 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 		root.AddChild(c)
 	}
 	return &ebitenui.UI{Container: wrapModalRoot(root)}
+}
+
+// menuItemsPerPage はメニュー一覧の1ページ表示件数。shop/craft/storage など標準の
+// タブ一覧で共通に使う。文字サイズと行高から1画面に収まる件数を基準にする。
+// キャラクター情報タブは見出し行が挟まり行数が変わるため character_info 側で別に持つ
+const menuItemsPerPage = 20
+
+// newCurrencyRow は所持金を表示する行を組み立てる。商店と酒場で共通に使う
+func newCurrencyRow(currency int, res resources.UIResources) *widget.Container {
+	container := styled.NewRowContainer()
+	container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))
+	return container
+}
+
+// newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも
+// 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う
+func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	return styled.NewPageIndicator(pageText, res)
 }
 
 // menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、

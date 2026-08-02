@@ -33,8 +33,6 @@ const (
 	shopSubStateWindow                     // アクションウィンドウ
 )
 
-const shopItemsPerPage = 20
-
 // ShopMenuState はショップメニューのゲームステート
 type ShopMenuState struct {
 	es.BaseState[w.World]
@@ -101,7 +99,7 @@ func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	hooks.UseTabMenu(st.menuMount.Store(), "shop", hooks.TabMenuConfig{
 		TabCount:     len(props.Tabs),
 		ItemCounts:   itemCounts,
-		ItemsPerPage: shopItemsPerPage,
+		ItemsPerPage: menuItemsPerPage,
 	})
 
 	// ウィンドウ用のステート
@@ -399,7 +397,7 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	// 1行目: 空、空、所持金
 	content.AddChild(widget.NewContainer())
 	content.AddChild(widget.NewContainer())
-	content.AddChild(st.buildCurrencyContainer(props.Currency, res))
+	content.AddChild(newCurrencyRow(props.Currency, res))
 	// 2行目: アイテム一覧、空、性能表示
 	content.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
 	content.AddChild(widget.NewContainer())
@@ -420,12 +418,6 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	return eui
 }
 
-func (st *ShopMenuState) buildCurrencyContainer(currency int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))
-	return container
-}
-
 func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
@@ -433,14 +425,10 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	}
 
 	currentTab := tabs[tabIndex]
-	pg := pagination.New(itemIndex, len(currentTab.Items), shopItemsPerPage)
+	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
 
 	// ページインジケーター（上部固定位置、右寄せ）
-	pageText := pg.GetPageText()
-	if pageText == "" {
-		pageText = " "
-	}
-	container.AddChild(styled.NewPageIndicator(pageText, res))
+	container.AddChild(newPageIndicator(pg, res))
 
 	// 購入タブ: カーソル、名前、価格の3列
 	// 売却タブ: カーソル、名前、価格、個数の4列

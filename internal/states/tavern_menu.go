@@ -368,7 +368,7 @@ func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {
 	itemIndex := menuState.ItemIndex
 
 	content := styled.NewVerticalContainer()
-	content.AddChild(st.buildCurrencyRow(props.Currency, res))
+	content.AddChild(newCurrencyRow(props.Currency, res))
 	content.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))
 
 	eui := newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false)})
@@ -379,12 +379,6 @@ func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {
 	}
 
 	return eui
-}
-
-func (st *TavernMenuState) buildCurrencyRow(currency int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))
-	return container
 }
 
 func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {

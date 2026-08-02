@@ -27,8 +27,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-const craftItemsPerPage = 20
-
 // craftSubState はクラフトメニュー内のサブステート
 type craftSubState int
 
@@ -108,7 +106,7 @@ func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) 
 	hooks.UseTabMenu(st.menuMount.Store(), "craft", hooks.TabMenuConfig{
 		TabCount:     len(props.Tabs),
 		ItemCounts:   itemCounts,
-		ItemsPerPage: craftItemsPerPage,
+		ItemsPerPage: menuItemsPerPage,
 	})
 
 	// ウィンドウ用のステート
@@ -444,14 +442,10 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	}
 
 	currentTab := tabs[tabIndex]
-	pg := pagination.New(itemIndex, len(currentTab.Items), craftItemsPerPage)
+	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
 
 	// ページインジケーター
-	pageText := pg.GetPageText()
-	if pageText == "" {
-		pageText = " "
-	}
-	container.AddChild(styled.NewPageIndicator(pageText, res))
+	container.AddChild(newPageIndicator(pg, res))
 
 	columnWidths := []int{20, 180}
 

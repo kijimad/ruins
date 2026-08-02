@@ -23,8 +23,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-const storageItemsPerPage = 20
-
 // tabID は収納メニューのタブ識別子
 type tabID string
 
@@ -103,7 +101,7 @@ func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error
 	hooks.UseTabMenu(st.menuMount.Store(), "storage", hooks.TabMenuConfig{
 		TabCount:     len(props.Tabs),
 		ItemCounts:   itemCounts,
-		ItemsPerPage: storageItemsPerPage,
+		ItemsPerPage: menuItemsPerPage,
 	})
 
 	menuDirty := st.menuMount.Update()
@@ -336,13 +334,8 @@ func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabInde
 	columnWidths := []int{20, 150, 50}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
 
-	pg := pagination.New(itemIndex, len(currentTab.Items), storageItemsPerPage)
-
-	pageText := pg.GetPageText()
-	if pageText == "" {
-		pageText = " "
-	}
-	container.AddChild(styled.NewPageIndicator(pageText, res))
+	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
+	container.AddChild(newPageIndicator(pg, res))
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
@@ -374,10 +367,10 @@ func (st *StorageMenuState) buildReferenceListContainer(props storageProps, tabI
 
 	container.AddChild(styled.NewPageIndicator(" ", res))
 
-	// 参照リストはスクロール非対応のため、先頭からstorageItemsPerPage件のみ表示する
+	// 参照リストはスクロール非対応のため、先頭から menuItemsPerPage 件のみ表示する
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range refTab.Items {
-		if i >= storageItemsPerPage {
+		if i >= menuItemsPerPage {
 			break
 		}
 		styled.NewTableRow(table, columnWidths, []string{item.Name, item.Count}, aligns, nil, res)
