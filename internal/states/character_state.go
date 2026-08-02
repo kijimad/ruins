@@ -570,17 +570,17 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space3, Bottom: theme.Space3, Left: theme.Space3, Right: theme.Space3}),
 			),
 		),
 	)
 
-	// Row 0: 対象キャラ名。仲間がいれば切替ヒントを添える。汎用タイトルは置かない。
+	// Row 0: 対象キャラ名。仲間がいれば左右矢印で切替可能を示す。汎用タイトルは置かない。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	nameText := props.TargetName
 	if props.HasMultiple {
-		nameText = fmt.Sprintf("%s %s %s  [ ] で切替", consts.IconArrowLeft, props.TargetName, consts.IconArrowRight)
+		nameText = fmt.Sprintf("%s %s %s", consts.IconArrowLeft, props.TargetName, consts.IconArrowRight)
 	}
 	nameRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
 	nameLabel := styled.NewMenuText(nameText, res)
@@ -601,6 +601,15 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	} else if infoIdx := tabIndex - 1; infoIdx < len(props.InfoTabs) {
 		root.AddChild(st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res))
 	}
+
+	// Row 3: キー案内。切替は仲間がいるときだけ出す
+	hint := "x で詳細"
+	if props.HasMultiple {
+		hint = "[ ] で切替   x で詳細"
+	}
+	hintRow := styled.NewRowContainer()
+	hintRow.AddChild(styled.NewMenuText(hint, res))
+	root.AddChild(hintRow)
 
 	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする
 	outer := widget.NewContainer(
