@@ -82,6 +82,7 @@ func (st *CharacterState) OnStart(_ w.World) error {
 	st.subState = charSubBrowse
 	st.mount = hooks.NewMount[characterProps]()
 	st.equipMount = hooks.NewMount[charEquipProps]()
+	st.detail = menuscreen.NewDetail(st.detailContent)
 	return nil
 }
 
@@ -100,7 +101,7 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 
 	if st.detail.Active() {
 		// 詳細表示中はページ送りと閉じるだけを扱い、通常のメニュー入力は止める
-		if st.detail.HandleInput(st.detailPageCount(world)) {
+		if st.detail.HandleInput(world) {
 			st.rebuild = true
 		}
 	} else if action, ok := st.handleInput(); ok {
@@ -668,14 +669,7 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 		ui.AddWindow(st.buildEquipSelectWindow(world, res))
 	}
 	if st.detail.Active() {
-		var win *widget.Window
-		if st.subState == charSubEquipSelect {
-			// 装備選択中は選択している候補の詳細を出す
-			win = st.buildEquipCandidateDetail(world, res)
-		} else {
-			win = st.buildDetailWindow(world, props, tabIndex, itemIndex, res)
-		}
-		if win != nil {
+		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
 			ui.AddWindow(win)
 		}
 	}
@@ -683,18 +677,48 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	return ui
 }
 
-// buildEquipCandidateDetail は装備選択中の候補アイテムの詳細モーダルを作る
-func (st *CharacterState) buildEquipCandidateDetail(world w.World, res resources.UIResources) *widget.Window {
-	props := st.equipMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
-	if menuState.ItemIndex >= len(props.Items) {
-		return nil
+// detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
+// 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける。命令タブは詳細を持たない
+func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+	if st.subState == charSubEquipSelect {
+		props := st.equipMount.GetProps()
+		menuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
+		if menuState.ItemIndex >= len(props.Items) {
+			return menuscreen.DetailContent{}, false
+		}
+		return entityDetailContent(world, props.Items[menuState.ItemIndex]), true
 	}
-	return st.newEntityDetailWindow(world, props.Items[menuState.ItemIndex], res)
+
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
+	props := st.mount.GetProps()
+	switch menuState.TabIndex {
+	case charScreenEquip:
+		if menuState.ItemIndex >= len(props.EquipSlots) {
+			return menuscreen.DetailContent{}, false
+		}
+		slot := props.EquipSlots[menuState.ItemIndex]
+		if slot.Entity != nil {
+			return entityDetailContent(world, *slot.Entity), true
+		}
+		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
+		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: "何も装備していない", Rows: []menuscreen.SpecRow{}}, true
+	case charScreenCommand:
+		return menuscreen.DetailContent{}, false
+	default:
+		infoIdx := menuState.TabIndex - 2
+		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
+			return menuscreen.DetailContent{}, false
+		}
+		items := props.InfoTabs[infoIdx].Items
+		if menuState.ItemIndex >= len(items) {
+			return menuscreen.DetailContent{}, false
+		}
+		return infoDetailContent(items[menuState.ItemIndex]), true
+	}
 }
 
-// newEntityDetailWindow はアイテムエンティティの性能・性質・説明を出す詳細モーダルを作る。タイトルバーは持たない
-func (st *CharacterState) newEntityDetailWindow(world w.World, entity ecs.Entity, _ resources.UIResources) *widget.Window {
+// entityDetailContent はエンティティの名前・説明・性能を詳細内容にする
+func entityDetailContent(world w.World, entity ecs.Entity) menuscreen.DetailContent {
 	name := ""
 	if world.Components.Name.Has(entity) {
 		name = world.Components.Name.Get(entity).Name
@@ -703,38 +727,23 @@ func (st *CharacterState) newEntityDetailWindow(world w.World, entity ecs.Entity
 	if world.Components.Description.Has(entity) {
 		desc = world.Components.Description.Get(entity).Description
 	}
-	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), name, desc, entity, st.detail.Page())
+	return menuscreen.DetailContent{Name: name, Desc: desc, Entity: entity}
 }
 
-// detailPageCount は詳細モーダルの対象エンティティのページ数を返す。spec を持たない詳細は1
-func (st *CharacterState) detailPageCount(world w.World) int {
-	if e, ok := st.resolveDetailEntity(); ok {
-		return menuscreen.DetailPageCount(world, e)
+// infoDetailContent は情報タブの1行を詳細内容にする。見出しと説明、内訳の行を出す
+func infoDetailContent(item statusItemData) menuscreen.DetailContent {
+	heading := item.Label
+	if item.Value != "" {
+		heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
 	}
-	return 1
-}
-
-// resolveDetailEntity は詳細モーダルが対象とするエンティティを返す。
-// 装備選択中は候補、閲覧中の装備タブは装備中アイテム。情報タブなど spec を持たない詳細では false を返す
-func (st *CharacterState) resolveDetailEntity() (ecs.Entity, bool) {
-	if st.subState == charSubEquipSelect {
-		props := st.equipMount.GetProps()
-		menuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
-		if menuState.ItemIndex < len(props.Items) {
-			return props.Items[menuState.ItemIndex], true
+	rows := []menuscreen.SpecRow{}
+	for _, d := range item.Details {
+		if d.Value == "" {
+			continue
 		}
-		return ecs.Entity{}, false
+		rows = append(rows, menuscreen.SpecRow{Label: d.Label, Value: d.Value})
 	}
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-	if menuState.TabIndex == charScreenEquip {
-		props := st.mount.GetProps()
-		if menuState.ItemIndex < len(props.EquipSlots) {
-			if slot := props.EquipSlots[menuState.ItemIndex]; slot.Entity != nil {
-				return *slot.Entity, true
-			}
-		}
-	}
-	return ecs.Entity{}, false
+	return menuscreen.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
 }
 
 func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
@@ -772,57 +781,6 @@ func (st *CharacterState) buildEquipSelectWindow(world w.World, res resources.UI
 		name := world.Components.Name.Get(entity).Name
 		content.AddChild(styled.NewListItemText(name, theme.TextSecondary, i == menuState.ItemIndex, res))
 	}
-	win.SetLocation(getCenterWinRect(world))
-	return win
-}
-
-func (st *CharacterState) buildDetailWindow(world w.World, props characterProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Window {
-	// 命令タブは行ごとの詳細を持たない
-	if tabIndex == charScreenCommand {
-		return nil
-	}
-	content := styled.NewWindowContainer(res)
-
-	if tabIndex == charScreenEquip {
-		if itemIndex >= len(props.EquipSlots) {
-			return nil
-		}
-		slot := props.EquipSlots[itemIndex]
-		if slot.Entity == nil {
-			content.AddChild(styled.NewMenuText(slot.SlotLabel, res))
-			content.AddChild(styled.NewDescriptionText("何も装備していない", res))
-		} else {
-			// 装備中アイテムの性能・性質を細かく出す
-			return st.newEntityDetailWindow(world, *slot.Entity, res)
-		}
-	} else {
-		infoIdx := tabIndex - 2
-		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
-			return nil
-		}
-		items := props.InfoTabs[infoIdx].Items
-		if itemIndex >= len(items) {
-			return nil
-		}
-		item := items[itemIndex]
-		heading := item.Label
-		if item.Value != "" {
-			heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
-		}
-		content.AddChild(styled.NewMenuText(heading, res))
-		if item.Description != "" {
-			content.AddChild(styled.NewDescriptionText(item.Description, res))
-		}
-		for _, d := range item.Details {
-			if d.Value == "" {
-				continue
-			}
-			content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s: %s", d.Label, d.Value), res))
-		}
-	}
-
-	// タイトルバーは表示しない
-	win := styled.NewSmallWindow(widget.NewContainer(), content)
 	win.SetLocation(getCenterWinRect(world))
 	return win
 }

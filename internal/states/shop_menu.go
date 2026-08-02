@@ -67,6 +67,7 @@ func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.subState = shopSubStateMenu
 	st.menuMount = hooks.NewMount[shopProps]()
 	st.windowMount = hooks.NewMount[shopWindowProps]()
+	st.detail = menuscreen.NewDetail(st.detailContent)
 	return nil
 }
 
@@ -77,7 +78,7 @@ func (st *ShopMenuState) OnStop(_ w.World) error { return nil }
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	// 入力処理
 	if st.detail.Active() {
-		if st.detail.HandleInput(st.detailPageCount(world)) {
+		if st.detail.HandleInput(world) {
 			st.rebuild = true
 		}
 	} else if action, ok := st.HandleInput(world.Config); ok {
@@ -429,8 +430,8 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 
 	// 詳細モーダル
 	if st.detail.Active() {
-		if name, desc, spec, ok := st.selectedDetail(world); ok {
-			eui.AddWindow(menuscreen.BuildDetailWindowFromSpec(world, getCenterWinRect(world), name, desc, spec, st.detail.Page()))
+		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
+			eui.AddWindow(win)
 		}
 	}
 
@@ -442,15 +443,16 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	return eui
 }
 
-// detailPageCount は現在カーソルが当たっている商品の詳細ページ数を返す
-func (st *ShopMenuState) detailPageCount(world w.World) int {
-	if _, _, spec, ok := st.selectedDetail(world); ok {
-		return menuscreen.DetailPageCountFromSpec(world, spec)
+// detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点
+func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+	name, desc, spec, ok := st.selectedDetail(world)
+	if !ok {
+		return menuscreen.DetailContent{}, false
 	}
-	return 1
+	return menuscreen.DetailContent{Name: name, Desc: desc, Spec: &spec}, true
 }
 
-// selectedDetail は現在カーソルが当たっている商品の詳細を raw 定義から解決する
+// selectedDetail は現在カーソルが当たっている商品の名前・説明・性能を raw 定義から解決する
 func (st *ShopMenuState) selectedDetail(world w.World) (name, desc string, spec gc.EntitySpec, ok bool) {
 	props := st.menuMount.GetProps()
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "shop")

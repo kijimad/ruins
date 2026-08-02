@@ -214,6 +214,7 @@ func (st *ItemActionState) OnStop(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
 	st.mount = hooks.NewMount[itemActionProps]()
+	st.detail = menuscreen.NewDetail(st.detailContent)
 	return nil
 }
 
@@ -221,7 +222,7 @@ func (st *ItemActionState) OnStart(_ w.World) error {
 func (st *ItemActionState) Update(world w.World) (es.Transition[w.World], error) {
 	if st.detail.Active() {
 		// 詳細表示中はページ送りと閉じるだけを扱い、通常のメニュー入力は止める
-		if st.detail.HandleInput(st.detailPageCount(world)) {
+		if st.detail.HandleInput(world) {
 			st.rebuild = true
 		}
 	} else if action, ok := st.handleInput(); ok {
@@ -457,21 +458,12 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 	})
 
 	if st.detail.Active() {
-		if win := st.buildDetailWindow(world, props, tabIndex, itemIndex, res); win != nil {
+		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
 			ui.AddWindow(win)
 		}
 	}
 
 	return ui
-}
-
-// detailPageCount は現在カーソルが当たっているアイテムの詳細ページ数を返す
-func (st *ItemActionState) detailPageCount(world w.World) int {
-	e, ok := st.selectedEntity(world)
-	if !ok {
-		return 1
-	}
-	return menuscreen.DetailPageCount(world, e)
 }
 
 // buildItemList は現在タブのアイテムを、他メニューと同じテーブル描画で縦1列に並べる。
@@ -499,29 +491,17 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 	return container
 }
 
-// buildDetailWindow は x で開く詳細モーダルを組み立てる。選択中アイテムの性能・性質を細かく出す
-func (st *ItemActionState) buildDetailWindow(world w.World, props itemActionProps, tabIndex, itemIndex int, _ resources.UIResources) *widget.Window {
-	if tabIndex >= len(props.Tabs) {
-		return nil
-	}
-	items := props.Tabs[tabIndex].Items
-	if itemIndex >= len(items) {
-		return nil
-	}
-	item := items[itemIndex]
-	return menuscreen.BuildDetailWindow(world, getCenterWinRect(world), item.Name, item.Desc, item.Entity, st.detail.Page())
-}
-
-// selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
-func (st *ItemActionState) selectedEntity(world w.World) (ecs.Entity, bool) {
+// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
+func (st *ItemActionState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	props := st.fetchProps(world)
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
 	if menuState.TabIndex >= len(props.Tabs) {
-		return ecs.Entity{}, false
+		return menuscreen.DetailContent{}, false
 	}
 	items := props.Tabs[menuState.TabIndex].Items
 	if menuState.ItemIndex >= len(items) {
-		return ecs.Entity{}, false
+		return menuscreen.DetailContent{}, false
 	}
-	return items[menuState.ItemIndex].Entity, true
+	item := items[menuState.ItemIndex]
+	return menuscreen.DetailContent{Name: item.Name, Desc: item.Desc, Entity: item.Entity}, true
 }

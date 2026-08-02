@@ -64,6 +64,7 @@ func (st *StorageMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
 	st.menuMount = hooks.NewMount[storageProps]()
+	st.detail = menuscreen.NewDetail(st.detailContent)
 	return nil
 }
 
@@ -85,7 +86,7 @@ func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error
 
 	// 入力処理
 	if st.detail.Active() {
-		if st.detail.HandleInput(st.detailPageCount(world)) {
+		if st.detail.HandleInput(world) {
 			st.rebuild = true
 		}
 	} else if action, ok := st.HandleInput(world.Config); ok {
@@ -295,26 +296,25 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 	})
 
 	if st.detail.Active() {
-		if e, ok := st.selectedEntity(); ok {
-			name := query.GetEntityName(e, world)
-			desc := ""
-			if world.Components.Description.Has(e) {
-				desc = world.Components.Description.Get(e).Description
-			}
-			eui.AddWindow(menuscreen.BuildDetailWindow(world, getCenterWinRect(world), name, desc, e, st.detail.Page()))
+		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
+			eui.AddWindow(win)
 		}
 	}
 
 	return eui
 }
 
-// detailPageCount は現在カーソルが当たっているアイテムの詳細ページ数を返す
-func (st *StorageMenuState) detailPageCount(world w.World) int {
+// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
+func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	e, ok := st.selectedEntity()
 	if !ok {
-		return 1
+		return menuscreen.DetailContent{}, false
 	}
-	return menuscreen.DetailPageCount(world, e)
+	desc := ""
+	if world.Components.Description.Has(e) {
+		desc = world.Components.Description.Get(e).Description
+	}
+	return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

@@ -5,7 +5,6 @@ import (
 	"image"
 
 	"github.com/ebitenui/ebitenui/widget"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -64,25 +63,10 @@ func DetailPageCount(world w.World, entity ecs.Entity) int {
 	return detailPageCount(len(views.SpecRows(world, entity)))
 }
 
-// DetailPageCountFromSpec は EntitySpec の詳細ウィンドウのページ数を返す
-func DetailPageCountFromSpec(world w.World, spec gc.EntitySpec) int {
-	return detailPageCount(len(views.SpecRowsFromSpec(world, spec)))
-}
-
-// BuildDetailWindow はエンティティの詳細ウィンドウを組み立て、rect の位置に置く
-func BuildDetailWindow(world w.World, rect image.Rectangle, name, desc string, entity ecs.Entity, page int) *widget.Window {
-	return buildDetailFromRows(world, rect, name, desc, views.SpecRows(world, entity), page)
-}
-
-// BuildDetailWindowFromSpec は EntitySpec の詳細ウィンドウを組み立てる。
-// エンティティを生成せず raw 定義から詳細を出す商店などで使う
-func BuildDetailWindowFromSpec(world w.World, rect image.Rectangle, name, desc string, spec gc.EntitySpec, page int) *widget.Window {
-	return buildDetailFromRows(world, rect, name, desc, views.SpecRowsFromSpec(world, spec), page)
-}
-
 // buildDetailFromRows は性能行の並びから詳細ウィンドウを組み立てる。
 // name が空なら名前行を省き、desc が空なら説明行を省く。タイトルバーは表示しない。
-// 行が多いときは page でページ分割し、複数ページなら位置表示を出す。page は範囲外なら内部でクランプする
+// 行が多いときは page でページ分割する。位置表示は1ページでも常に出し、ページ有無で
+// 位置がずれないようにする。page は範囲外なら内部でクランプする
 func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []views.SpecRow, page int) *widget.Window {
 	res := world.Resources.UIResources
 	content := styled.NewWindowContainer(res)
@@ -104,10 +88,8 @@ func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string,
 	views.RenderSpecRows(spec, rows[start:end], res)
 	content.AddChild(spec)
 
-	// 複数ページあるときだけ位置を示す。左右キーでページを繰る
-	if total > 1 {
-		content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, page+1, total, consts.IconArrowRight), res))
-	}
+	// 位置表示は1ページでも常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る
+	content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, page+1, total, consts.IconArrowRight), res))
 	if desc != "" {
 		content.AddChild(styled.NewDescriptionText(desc, res))
 	}
