@@ -79,12 +79,6 @@ func TestGolden_OverworldMap(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
 }
 
-func TestGolden_EquipMenu(t *testing.T) {
-	t.Parallel()
-	town := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(town, &gs.EquipMenuState{}))
-}
-
 // TestGolden_ItemAction は動詞タブ画面を固定する。調べるタブでバックパックの
 // アイテムを名前のみで一覧する経路を覆う。
 func TestGolden_ItemAction(t *testing.T) {
@@ -263,14 +257,6 @@ func TestGolden_Message(t *testing.T) {
 	msgState, err := gs.NewMessageState(messageData)
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, msgState))
-}
-
-func TestGolden_Status(t *testing.T) {
-	t.Parallel()
-	town := newGoldenBackdrop(t)
-	s, err := gs.NewStatusState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
 }
 
 func TestGolden_MemberStatus(t *testing.T) {

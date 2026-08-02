@@ -38,11 +38,11 @@ const (
 	charSubEquipSelect                      // 装備するアイテムの選択
 )
 
-// 画面タブのインデックス
-const (
-	charScreenEquip  = 0
-	charScreenSkills = 1
-)
+// 画面タブ。装備は編集可能、以降は読み取り専用の情報タブ
+const charScreenEquip = 0
+
+// characterTabLabels は画面タブの見出し。装備の後ろに読み取り専用タブが並ぶ
+var characterTabLabels = []string{"装備", "能力", "スキル", "効果", "健康", "基本"}
 
 // CharacterState は画面タブメニューのステート
 type CharacterState struct {
@@ -107,17 +107,23 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 	st.mount.SetProps(st.fetchProps(world))
 	props := st.mount.GetProps()
 
-	// 画面タブのカーソル。左右キーはタブ切替に読み替える
-	itemCounts := []int{len(props.EquipSlots), len(props.Skills)}
-	skills := props.Skills
-	skillSkips := make([]bool, len(skills))
-	for i, s := range skills {
-		skillSkips[i] = s.IsHeader
+	// 画面タブのカーソル。装備 + 情報タブ。左右キーはタブ切替に読み替える
+	itemCounts := make([]int, 0, 1+len(props.InfoTabs))
+	skips := make([][]bool, 0, 1+len(props.InfoTabs))
+	itemCounts = append(itemCounts, len(props.EquipSlots))
+	skips = append(skips, make([]bool, len(props.EquipSlots)))
+	for _, tab := range props.InfoTabs {
+		itemCounts = append(itemCounts, len(tab.Items))
+		s := make([]bool, len(tab.Items))
+		for i, item := range tab.Items {
+			s[i] = item.IsHeader
+		}
+		skips = append(skips, s)
 	}
 	hooks.UseTabMenu(st.mount.Store(), characterMenuKey, hooks.TabMenuConfig{
-		TabCount:   2,
+		TabCount:   len(itemCounts),
 		ItemCounts: itemCounts,
-		Skips:      [][]bool{make([]bool, len(props.EquipSlots)), skillSkips},
+		Skips:      skips,
 	})
 
 	// 装備選択サブステートのカーソル
@@ -231,10 +237,10 @@ func (st *CharacterState) doBrowse(action inputmapper.ActionID) (es.Transition[w
 	}
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブはアクションウィンドウ、スキルタブは詳細モーダルを開く
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブはアクションウィンドウ、情報タブは詳細モーダルを開く
 func (st *CharacterState) onBrowseSelect() {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-	if menuState.TabIndex == charScreenSkills {
+	if menuState.TabIndex != charScreenEquip {
 		st.showDetail = true
 		st.rebuild = true
 		return
@@ -376,14 +382,16 @@ func (st *CharacterState) executeEquip(world w.World) error {
 
 type characterProps struct {
 	EquipSlots []equipItemData
-	Skills     []characterSkillRow
+	InfoTabs   []statusTabData // 能力・スキル・効果・健康・基本の読み取り専用タブ
 }
 
-type characterSkillRow struct {
-	Label    string
-	Value    string
-	Desc     string
-	IsHeader bool
+// equipItemData は装備スロット1つ分の表示データ
+type equipItemData struct {
+	SlotLabel  string
+	ItemName   string
+	SlotNumber gc.EquipmentSlotNumber
+	Entity     *ecs.Entity // 装備中エンティティ。空きなら nil
+	Member     ecs.Entity
 }
 
 // charWindowProps はアクションウィンドウの Props
@@ -406,7 +414,7 @@ func (st *CharacterState) fetchProps(world w.World) characterProps {
 	}
 	return characterProps{
 		EquipSlots: playerEquipSlots(world, player),
-		Skills:     playerSkillRows(world, player),
+		InfoTabs:   st.fetchInfoTabs(world, player),
 	}
 }
 
@@ -437,32 +445,6 @@ func playerEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	}
 
 	return items
-}
-
-// playerSkillRows はプレイヤーのスキル一覧をカテゴリ見出し付きで返す
-func playerSkillRows(world w.World, player ecs.Entity) []characterSkillRow {
-	rows := []characterSkillRow{}
-	if !aliveHas(world, world.Components.Skills, player) {
-		return rows
-	}
-	skills := world.Components.Skills.Get(player)
-	for _, cat := range gc.SkillCategories {
-		rows = append(rows, characterSkillRow{Label: cat.Name, IsHeader: true, Desc: fmt.Sprintf("%sカテゴリのスキル", cat.Name)})
-		for _, id := range cat.IDs {
-			s := skills.Get(id)
-			expFrac := 0
-			if s.Exp.Max > 0 {
-				expFrac = s.Exp.Current * 1000 / s.Exp.Max
-			}
-			info := gc.SkillDescription(id)
-			rows = append(rows, characterSkillRow{
-				Label: gc.SkillName(id),
-				Value: fmt.Sprintf("%d.%03d", s.Value, expFrac),
-				Desc:  info.Summary,
-			})
-		}
-	}
-	return rows
 }
 
 // equipableForSlot は指定スロットに装備できるバックパック内アイテムを返す
@@ -537,7 +519,7 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 
 	// タイトルは置かない
 	tabRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
-	tabBar := styled.NewTabBar([]string{"装備", "スキル"}, tabIndex, res)
+	tabBar := styled.NewTabBar(characterTabLabels, tabIndex, res)
 	tabBar.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
 	tabRow.AddChild(tabBar)
 	root.AddChild(tabRow)
@@ -545,9 +527,10 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	if tabIndex == charScreenEquip {
 		root.AddChild(st.buildEquipList(props.EquipSlots, itemIndex, res))
 		root.AddChild(st.buildEquipDesc(props.EquipSlots, itemIndex, res))
-	} else {
-		root.AddChild(st.buildSkillList(props.Skills, itemIndex, res))
-		root.AddChild(st.buildSkillDesc(props.Skills, itemIndex, res))
+	} else if infoIdx := tabIndex - 1; infoIdx < len(props.InfoTabs) {
+		tab := props.InfoTabs[infoIdx]
+		root.AddChild(st.buildInfoTable(tab, itemIndex, res))
+		root.AddChild(st.buildInfoDesc(tab, itemIndex, res))
 	}
 
 	// 後ろのフィールドを見せるため、モーダルを画面より一回り小さい中央ボックスにする
@@ -598,27 +581,6 @@ func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, r
 	return container
 }
 
-func (st *CharacterState) buildSkillList(rows []characterSkillRow, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-	if len(rows) == 0 {
-		container.AddChild(styled.NewDescriptionText("スキルがありません", res))
-		return container
-	}
-	for i, row := range rows {
-		if row.IsHeader {
-			container.AddChild(styled.NewDescriptionText(row.Label, res))
-			continue
-		}
-		isSelected := i == itemIndex
-		clr := theme.TextSecondary
-		if isSelected {
-			clr = theme.TextPrimary
-		}
-		container.AddChild(styled.NewListItemText(fmt.Sprintf("%s  %s", row.Label, row.Value), clr, isSelected, res))
-	}
-	return container
-}
-
 func (st *CharacterState) buildEquipDesc(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	text := " "
@@ -629,19 +591,6 @@ func (st *CharacterState) buildEquipDesc(slots []equipItemData, itemIndex int, r
 		} else {
 			text = fmt.Sprintf("%s を選択中   Enter で着脱   x で詳細", name)
 		}
-	}
-	container.AddChild(styled.NewMenuText(text, res))
-	return container
-}
-
-func (st *CharacterState) buildSkillDesc(rows []characterSkillRow, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	text := " "
-	if itemIndex < len(rows) {
-		text = rows[itemIndex].Desc
-	}
-	if text == "" {
-		text = " "
 	}
 	container.AddChild(styled.NewMenuText(text, res))
 	return container
@@ -683,19 +632,7 @@ func (st *CharacterState) buildEquipSelectWindow(world w.World, res resources.UI
 func (st *CharacterState) buildDetailWindow(world w.World, props characterProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Window {
 	content := styled.NewWindowContainer(res)
 
-	if tabIndex == charScreenSkills {
-		if itemIndex >= len(props.Skills) {
-			return nil
-		}
-		row := props.Skills[itemIndex]
-		content.AddChild(styled.NewMenuText(row.Label, res))
-		if row.Value != "" {
-			content.AddChild(styled.NewDescriptionText("習熟度 "+row.Value, res))
-		}
-		if row.Desc != "" {
-			content.AddChild(styled.NewDescriptionText(row.Desc, res))
-		}
-	} else {
+	if tabIndex == charScreenEquip {
 		if itemIndex >= len(props.EquipSlots) {
 			return nil
 		}
@@ -712,6 +649,30 @@ func (st *CharacterState) buildDetailWindow(world w.World, props characterProps,
 			if world.Components.Description.Has(*slot.Entity) {
 				content.AddChild(styled.NewDescriptionText(world.Components.Description.Get(*slot.Entity).Description, res))
 			}
+		}
+	} else {
+		infoIdx := tabIndex - 1
+		if infoIdx >= len(props.InfoTabs) {
+			return nil
+		}
+		items := props.InfoTabs[infoIdx].Items
+		if itemIndex >= len(items) {
+			return nil
+		}
+		item := items[itemIndex]
+		heading := item.Label
+		if item.Value != "" {
+			heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
+		}
+		content.AddChild(styled.NewMenuText(heading, res))
+		if item.Description != "" {
+			content.AddChild(styled.NewDescriptionText(item.Description, res))
+		}
+		for _, d := range item.Details {
+			if d.Value == "" {
+				continue
+			}
+			content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s: %s", d.Label, d.Value), res))
 		}
 	}
 

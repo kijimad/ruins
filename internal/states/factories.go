@@ -26,13 +26,6 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 	persistentState := NewPersistentMessageState(nil)
 
 	persistentState.messageData = messagedata.NewSystemMessage("").
-		WithChoice("状態", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewStatusState},
-			})
-			return nil
-		}).
 		WithChoice("所持", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
@@ -40,7 +33,7 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 			})
 			return nil
 		}).
-		WithChoice("装備", func(_ w.World) error {
+		WithChoice("キャラクター", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterState},
@@ -88,11 +81,6 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 // NewCraftMenuState は新しいCraftMenuStateインスタンスを作成するファクトリー関数
 func NewCraftMenuState() (es.State[w.World], error) {
 	return &CraftMenuState{}, nil
-}
-
-// NewEquipMenuState は新しいEquipMenuStateインスタンスを作成するファクトリー関数
-func NewEquipMenuState() (es.State[w.World], error) {
-	return &EquipMenuState{}, nil
 }
 
 // NewCharacterState は画面タブメニューのStateを作成するファクトリー関数
