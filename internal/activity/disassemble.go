@@ -23,6 +23,8 @@ import (
 // エンティティ参照を持ち越さないのでセーブ互換の考慮が不要になり、
 // 途中で工具を失った場合も次のターン検査で自然に中断へ落ちる
 type DisassembleBehavior struct {
+	// Target は着手時のパラメータで BuildActivity だけが読み、gc.Activity.Target へ書き写す。
+	// 継続処理は behaviors マップのゼロ値シングルトンで回るので、着手後は comp.Target を読む。
 	Target ecs.Entity
 }
 

@@ -204,7 +204,7 @@ func TestReloadBehavior_共有シングルトンでも進捗が混ざらない(t
 	b, err := GetBehavior(gc.BehaviorReload)
 	require.NoError(t, err)
 	ra, ok := b.(*ReloadBehavior)
-	require.True(t, ok)
+	require.True(t, ok, "GetBehavior(BehaviorReload) は *ReloadBehavior を返すべき")
 
 	// 同一シングルトンに通す2つの独立したアクティビティを用意する
 	comp1, err := NewActivity(ra, 0)
