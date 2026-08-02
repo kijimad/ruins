@@ -474,16 +474,8 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	tabRow.AddChild(categoryInner)
 	root.AddChild(tabRow)
 
-	// Row 2: コンテンツ。常に2列で半々に分割する
-	content := widget.NewContainer(
-		widget.ContainerOpts.Layout(
-			widget.NewGridLayout(
-				widget.GridLayoutOpts.Columns(2),
-				widget.GridLayoutOpts.Spacing(theme.Space3, 0),
-				widget.GridLayoutOpts.Stretch([]bool{true, true}, []bool{true}),
-			),
-		),
-	)
+	// Row 2: コンテンツ。1カラムで項目一覧の下に詳細を積む
+	content := styled.NewVerticalContainer()
 	content.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
 	content.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
 	root.AddChild(content)
