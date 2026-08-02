@@ -456,7 +456,7 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{
 					Top:    theme.Space3,
 					Bottom: theme.Space3,
@@ -467,10 +467,7 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 		),
 	)
 
-	// Row 0: タイトル
-	root.AddChild(styled.NewTitleText("アイテム操作", res))
-
-	// Row 1: 動詞タブ帯を中央寄せ
+	// Row 0: 動詞タブ帯を中央寄せ。タイトルは置かない
 	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {

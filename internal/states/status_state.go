@@ -34,6 +34,12 @@ type StatusState struct {
 }
 
 var _ es.State[w.World] = &StatusState{}
+var _ Configurable = &StatusState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。動詞タブ画面と同じ形式に揃える
+func (st *StatusState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *StatusState) OnPause(_ w.World) error { return nil }
@@ -445,7 +451,7 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{
 					Top:    theme.Space3,
 					Bottom: theme.Space3,
@@ -456,10 +462,7 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 		),
 	)
 
-	// Row 0: タイトル
-	root.AddChild(styled.NewTitleText(props.PlayerName, res))
-
-	// Row 1: カテゴリタブを中央寄せ
+	// Row 0: カテゴリタブを中央寄せ。タイトルは置かない
 	tabRow := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
@@ -480,10 +483,20 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	content.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
 	root.AddChild(content)
 
-	// Row 3: 説明文
+	// Row 2: 説明文
 	root.AddChild(st.buildDescContainer(props.Tabs, tabIndex, itemIndex, res))
 
-	return &ebitenui.UI{Container: root}
+	// 動詞タブ画面と同じく、後ろのフィールドを見せる小さめの中央モーダルにする
+	outer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{Top: 48, Bottom: 48, Left: 96, Right: 96}),
+		)),
+	)
+	outer.AddChild(root)
+
+	return &ebitenui.UI{Container: outer}
 }
 
 func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

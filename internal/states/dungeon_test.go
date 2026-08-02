@@ -46,11 +46,11 @@ func TestDoActionUIActions(t *testing.T) {
 			expectedStateType: "*states.PersistentMessageState",
 		},
 		{
-			name:              "インベントリを開く",
+			name:              "所持品を開く",
 			action:            inputmapper.ActionOpenInventory,
 			expectedType:      es.TransPush,
 			shouldHaveFunc:    true,
-			expectedStateType: "*states.InventoryMenuState",
+			expectedStateType: "*states.ItemActionState",
 		},
 		{
 			name:           "未知のアクション",

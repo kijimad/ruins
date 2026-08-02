@@ -36,7 +36,7 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 		WithChoice("所持", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewInventoryMenuState},
+				NewStateFuncs: []es.StateFactory[w.World]{NewItemActionState(verbExamine)},
 			})
 			return nil
 		}).
@@ -88,11 +88,6 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 // NewCraftMenuState は新しいCraftMenuStateインスタンスを作成するファクトリー関数
 func NewCraftMenuState() (es.State[w.World], error) {
 	return &CraftMenuState{}, nil
-}
-
-// NewInventoryMenuState は新しいInventoryMenuStateインスタンスを作成するファクトリー関数
-func NewInventoryMenuState() (es.State[w.World], error) {
-	return &InventoryMenuState{}, nil
 }
 
 // NewEquipMenuState は新しいEquipMenuStateインスタンスを作成するファクトリー関数

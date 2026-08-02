@@ -79,7 +79,7 @@
 // ## 参考実装
 //
 // - DungeonState: 8方向移動とメニュー操作の実装例
-// - InventoryMenuState: メニュー操作の実装例
+// - ItemActionState: 動詞タブ画面の実装例
 //
 // ## メリット
 //

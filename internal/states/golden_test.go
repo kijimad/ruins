@@ -79,12 +79,6 @@ func TestGolden_OverworldMap(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
 }
 
-func TestGolden_InventoryMenu(t *testing.T) {
-	t.Parallel()
-	town := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(town, &gs.InventoryMenuState{}))
-}
-
 func TestGolden_EquipMenu(t *testing.T) {
 	t.Parallel()
 	town := newGoldenBackdrop(t)

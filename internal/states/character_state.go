@@ -529,14 +529,13 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space3, Bottom: theme.Space3, Left: theme.Space3, Right: theme.Space3}),
 			),
 		),
 	)
 
-	root.AddChild(styled.NewTitleText("キャラクター", res))
-
+	// タイトルは置かない
 	tabRow := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
 	tabBar := styled.NewTabBar([]string{"装備", "スキル"}, tabIndex, res)
 	tabBar.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
