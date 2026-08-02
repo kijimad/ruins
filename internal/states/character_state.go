@@ -638,12 +638,46 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 		ui.AddWindow(st.buildEquipSelectWindow(world, res))
 	}
 	if st.showDetail {
-		if win := st.buildDetailWindow(world, props, tabIndex, itemIndex, res); win != nil {
+		var win *widget.Window
+		if st.subState == charSubEquipSelect {
+			// 装備選択中は選択している候補の詳細を出す
+			win = st.buildEquipCandidateDetail(world, res)
+		} else {
+			win = st.buildDetailWindow(world, props, tabIndex, itemIndex, res)
+		}
+		if win != nil {
 			ui.AddWindow(win)
 		}
 	}
 
 	return ui
+}
+
+// buildEquipCandidateDetail は装備選択中の候補アイテムの詳細モーダルを作る
+func (st *CharacterState) buildEquipCandidateDetail(world w.World, res resources.UIResources) *widget.Window {
+	props := st.equipMount.GetProps()
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
+	if menuState.ItemIndex >= len(props.Items) {
+		return nil
+	}
+	return st.newEntityDetailWindow(world, props.Items[menuState.ItemIndex], res)
+}
+
+// newEntityDetailWindow はアイテムエンティティの性能・性質・説明を出す詳細モーダルを作る。タイトルバーは持たない
+func (st *CharacterState) newEntityDetailWindow(world w.World, entity ecs.Entity, res resources.UIResources) *widget.Window {
+	content := styled.NewWindowContainer(res)
+	if world.Components.Name.Has(entity) {
+		content.AddChild(styled.NewMenuText(world.Components.Name.Get(entity).Name, res))
+	}
+	spec := styled.NewVerticalContainer()
+	views.UpdateSpec(world, spec, entity)
+	content.AddChild(spec)
+	if world.Components.Description.Has(entity) {
+		content.AddChild(styled.NewDescriptionText(world.Components.Description.Get(entity).Description, res))
+	}
+	win := styled.NewSmallWindow(widget.NewContainer(), content)
+	win.SetLocation(getCenterWinRect(world))
+	return win
 }
 
 func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
@@ -712,14 +746,8 @@ func (st *CharacterState) buildDetailWindow(world w.World, props characterProps,
 			content.AddChild(styled.NewMenuText(slot.SlotLabel, res))
 			content.AddChild(styled.NewDescriptionText("何も装備していない", res))
 		} else {
-			// 装備の性能・性質を細かく出す
-			content.AddChild(styled.NewMenuText(slot.ItemName, res))
-			spec := styled.NewVerticalContainer()
-			views.UpdateSpec(world, spec, *slot.Entity)
-			content.AddChild(spec)
-			if world.Components.Description.Has(*slot.Entity) {
-				content.AddChild(styled.NewDescriptionText(world.Components.Description.Get(*slot.Entity).Description, res))
-			}
+			// 装備中アイテムの性能・性質を細かく出す
+			return st.newEntityDetailWindow(world, *slot.Entity, res)
 		}
 	} else {
 		infoIdx := tabIndex - 1
