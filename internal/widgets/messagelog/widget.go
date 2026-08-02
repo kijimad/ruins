@@ -64,6 +64,10 @@ func (widget *Widget) Draw(screen *ebiten.Image, x, y, width, height int) {
 		return
 	}
 
+	// モーダルなど別 state が前面にある間、このウィジェットを所有する state は Update されない。
+	// それでも最新ログを映すため、描画時にも取り込みを行う。version 一致時は即座に戻るため軽量
+	widget.updateUI()
+
 	// オフスクリーン作成
 	if width > 0 && height > 0 {
 		offscreen := ebiten.NewImage(width, height)
