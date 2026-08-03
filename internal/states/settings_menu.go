@@ -8,10 +8,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -21,8 +20,7 @@ import (
 // メインメニューから push される。現状は設定項目が無く、将来の設定（音量など）を追加する土台。
 type SettingsMenuState struct {
 	es.BaseState[w.World]
-	menuMount *hooks.Mount[settingsMenuProps]
-	widget    *ebitenui.UI
+	screen Screen[settingsMenuProps]
 }
 
 // State interface ================
@@ -38,7 +36,7 @@ func (st *SettingsMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う。メインメニューの上に重なるためワールドは操作しない
 func (st *SettingsMenuState) OnStart(_ w.World) error {
-	st.menuMount = hooks.NewMount[settingsMenuProps]()
+	st.screen = NewScreen[settingsMenuProps]()
 	return nil
 }
 
@@ -47,28 +45,7 @@ func (st *SettingsMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *SettingsMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	if action, ok := st.HandleInput(world.Config); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.menuMount.Dispatch(action)
-	}
-
-	st.menuMount.SetProps(st.fetchProps(world))
-	props := st.menuMount.GetProps()
-	hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
-	})
-
-	if st.menuMount.Update() || st.widget == nil {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world, st)
 }
 
 // Draw はスクリーンに描画する
@@ -79,7 +56,7 @@ func (st *SettingsMenuState) Draw(world w.World, screen *ebiten.Image) error {
 	}
 	screen.DrawImage(bgImage, nil)
 
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
@@ -129,7 +106,7 @@ type settingsMenuItem struct {
 	Value string // 現在値の表示。値を持たない項目は空
 }
 
-func (st *SettingsMenuState) fetchProps(world w.World) settingsMenuProps {
+func (st *SettingsMenuState) fetch(world w.World) settingsMenuProps {
 	return settingsMenuProps{
 		Items: []settingsMenuItem{
 			{Kind: settingsItemLanguage, Label: "言語", Value: currentLanguageLabel(world.Config.User.Language)},
@@ -139,13 +116,17 @@ func (st *SettingsMenuState) fetchProps(world w.World) settingsMenuProps {
 }
 
 // focusedItem は現在カーソルが当たっている項目を返す
+func (st *SettingsMenuState) menu(props settingsMenuProps) MenuConfig {
+	return MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+}
+
 func (st *SettingsMenuState) focusedItem() (settingsMenuItem, bool) {
-	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-	if !ok || menuState.ItemIndex < 0 || menuState.ItemIndex >= len(props.Items) {
+	props := st.screen.Props()
+	sel := st.screen.Selection()
+	if sel.ItemIndex < 0 || sel.ItemIndex >= len(props.Items) {
 		return settingsMenuItem{}, false
 	}
-	return props.Items[menuState.ItemIndex], true
+	return props.Items[sel.ItemIndex], true
 }
 
 func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
@@ -192,38 +173,35 @@ func currentLanguageLabel(code string) string {
 // NewLanguageMenuState は言語選択のモーダルを作成する。
 // 選択した言語をユーザー設定に保存して設定画面へ戻る。実際の表示言語の切り替えは未実装。
 func NewLanguageMenuState() (es.State[w.World], error) {
-	messageState := &MessageState{}
-	// 本文を空にして選択肢のみを表示する。本文があるとメッセージ用の固定高さ領域が確保され、選択肢の上に大きな余白が生じるため
-	messageData := messagedata.NewSystemMessage("")
+	return NewChoiceMenu(languageChoices), nil
+}
+
+// languageChoices は選択できる表示言語を選択肢にする。選ぶと設定を保存して閉じる
+func languageChoices(_ w.World) (string, []Choice) {
+	choices := make([]Choice, 0, len(languagePresets))
 	for _, l := range languagePresets {
-		messageData.WithChoice(l.Label, func(world w.World) error {
+		choices = append(choices, Choice{Label: l.Label, Run: func(world w.World) (es.Transition[w.World], error) {
 			world.Config.User.Language = l.Code
 			if err := world.Config.SaveUserConfig(); err != nil {
 				logger.New(logger.CategorySave).Warn("言語設定の保存に失敗しました", "error", err)
 			}
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		}})
 	}
-	messageState.messageData = messageData
-	return messageState, nil
+	return "", choices
 }
 
 // ================
 // buildUI
 // ================
 
-func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-
+func (st *SettingsMenuState) view(_ w.World, props settingsMenuProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
 	columnWidths := []int{200, 100}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range props.Items {
-		isSelected := i == menuState.ItemIndex
+		isSelected := i == sel.ItemIndex
 		styled.NewTableRow(table, columnWidths, []string{item.Label, item.Value}, aligns, &isSelected, res)
 	}
 

@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -177,11 +177,8 @@ const itemActionMenuKey = "item_action"
 type ItemActionState struct {
 	es.BaseState[w.World]
 	initialVerb verbID            // 開いた直後に表示する動詞タブ
-	tabSeeded   bool              // 初期タブへ寄せたか
-	detail      menuscreen.Detail // 詳細モーダルの表示状態とページ送り
-	rebuild     bool              // 次フレームで UI を作り直すか
-	mount       *hooks.Mount[itemActionProps]
-	widget      *ebitenui.UI
+	detail      menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen      Screen[itemActionProps]
 }
 
 var _ es.State[w.World] = &ItemActionState{}
@@ -210,66 +207,24 @@ func (st *ItemActionState) OnStop(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
-	st.mount = hooks.NewMount[itemActionProps]()
 	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.screen = NewScreen[itemActionProps](&st.detail)
 	return nil
 }
 
 // Update はステートの更新処理
 func (st *ItemActionState) Update(world w.World) (es.Transition[w.World], error) {
-	if st.detail.Active() {
-		// 詳細表示中はページ送りと閉じるだけを扱い、通常のメニュー入力は止める
-		if dirty, err := st.detail.HandleInput(world); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if dirty {
-			st.rebuild = true
-		}
-	} else if action, ok := st.handleInput(); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.mount.Dispatch(action)
-	}
-
-	props := st.fetchProps(world)
-	st.mount.SetProps(props)
-
-	itemCounts := make([]int, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		itemCounts[i] = len(tab.Items)
-	}
-	hooks.UseTabMenu(st.mount.Store(), itemActionMenuKey, hooks.TabMenuConfig{
-		TabCount:   len(props.Tabs),
-		ItemCounts: itemCounts,
-	})
-
-	// 開いた直後は指定タブへ寄せる。Store に直接書けないため公開 API の Dispatch で送る
-	if !st.tabSeeded {
-		for range verbTabIndex(st.initialVerb) {
-			st.mount.Dispatch(inputmapper.ActionMenuTabNext)
-		}
-		st.tabSeeded = true
-	}
-
-	if st.mount.Update() || st.widget == nil || st.rebuild {
-		st.widget = st.buildUI(world)
-		st.rebuild = false
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world, st)
 }
 
 // Draw はステートの描画処理
 func (st *ItemActionState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
-// handleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う
-func (st *ItemActionState) handleInput() (inputmapper.ActionID, bool) {
+// HandleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う
+func (st *ItemActionState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
 	// 動詞ショートカットは開いている間もタブ移動に使える。調べる X は Shift+x、詳細 x は Shift 無し
 	if ki.IsKeyJustPressed(ebiten.KeyX) {
@@ -300,7 +255,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
 		st.detail.Open()
-		st.rebuild = true
+		st.screen.MarkDirty()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse:
 		// 開いている間の動詞キーは対応タブへジャンプする
@@ -319,38 +274,37 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 
 // jumpToTab は指定した動詞のタブへ移動する。現在タブから差分だけ TabNext を送る
 func (st *ItemActionState) jumpToTab(target verbID) {
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
 	n := len(verbList)
 	if n == 0 {
 		return
 	}
-	steps := ((verbTabIndex(target)-menuState.TabIndex)%n + n) % n
+	steps := ((verbTabIndex(target)-st.screen.Selection().TabIndex)%n + n) % n
 	for range steps {
-		st.mount.Dispatch(inputmapper.ActionMenuTabNext)
+		st.screen.Dispatch(inputmapper.ActionMenuTabNext)
 	}
-	st.rebuild = true
+	st.screen.MarkDirty()
 }
 
 // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く
 func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World], error) {
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
+	sel := st.screen.Selection()
 	vs := verbList
-	if menuState.TabIndex >= len(vs) {
+	if sel.TabIndex >= len(vs) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-	verb := vs[menuState.TabIndex]
+	verb := vs[sel.TabIndex]
 	if verb.Exec == nil {
 		st.detail.Open()
-		st.rebuild = true
+		st.screen.MarkDirty()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 
-	props := st.mount.GetProps()
-	tab := props.Tabs[menuState.TabIndex]
-	if menuState.ItemIndex >= len(tab.Items) {
+	props := st.screen.Props()
+	tab := props.Tabs[sel.TabIndex]
+	if sel.ItemIndex >= len(tab.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-	return verb.Exec(world, tab.Items[menuState.ItemIndex].Entity)
+	return verb.Exec(world, tab.Items[sel.ItemIndex].Entity)
 }
 
 // ================
@@ -376,7 +330,7 @@ type itemActionEntry struct {
 	Desc   string
 }
 
-func (st *ItemActionState) fetchProps(world w.World) itemActionProps {
+func (st *ItemActionState) fetch(world w.World) itemActionProps {
 	player, err := query.GetPlayerEntity(world)
 	var backpack []ecs.Entity
 	if err == nil {
@@ -431,13 +385,7 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
 // buildUI
 // ================
 
-func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.mount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
-	tabIndex := menuState.TabIndex
-	itemIndex := menuState.ItemIndex
-
+func (st *ItemActionState) view(_ w.World, props itemActionProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -447,26 +395,25 @@ func (st *ItemActionState) buildUI(world w.World) *ebitenui.UI {
 			labels[i] = tab.Label
 		}
 	}
-
 	// タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る
-	ui := newTabScreenUI(res, tabScreen{
+	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
-		TabIndex:  tabIndex,
-		Content:   st.buildItemList(props, tabIndex, itemIndex, res),
+		TabIndex:  sel.TabIndex,
+		Content:   st.buildItemList(props, sel.TabIndex, sel.ItemIndex, res),
 		Footer:    menuNavHint(true, "x 詳細"),
 	})
-
-	if st.detail.Active() {
-		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
-			ui.AddWindow(win)
-		}
-	}
-
-	return ui
 }
 
 // buildItemList は現在タブのアイテムを、他メニューと同じテーブル描画で縦1列に並べる。
 // 左に名前、右に個数。行高とフォントはテーブル共通で揃う
+func (st *ItemActionState) menu(props itemActionProps) MenuConfig {
+	itemCounts := make([]int, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+	return MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, InitialTab: verbTabIndex(st.initialVerb)}
+}
+
 func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(props.Tabs) {
@@ -491,16 +438,16 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 }
 
 // detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *ItemActionState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	props := st.fetchProps(world)
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, itemActionMenuKey)
-	if menuState.TabIndex >= len(props.Tabs) {
+func (st *ItemActionState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
+	props := st.screen.Props()
+	sel := st.screen.Selection()
+	if sel.TabIndex >= len(props.Tabs) {
 		return menuscreen.DetailContent{}, false
 	}
-	items := props.Tabs[menuState.TabIndex].Items
-	if menuState.ItemIndex >= len(items) {
+	items := props.Tabs[sel.TabIndex].Items
+	if sel.ItemIndex >= len(items) {
 		return menuscreen.DetailContent{}, false
 	}
-	item := items[menuState.ItemIndex]
+	item := items[sel.ItemIndex]
 	return menuscreen.DetailContent{Name: item.Name, Desc: item.Desc, Entity: item.Entity}, true
 }

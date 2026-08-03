@@ -283,7 +283,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // buildUI
 // ================
 
-func (st *ShopMenuState) view(props shopProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ShopMenuState) view(_ w.World, props shopProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {

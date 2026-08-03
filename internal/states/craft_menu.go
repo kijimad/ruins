@@ -11,7 +11,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -30,12 +29,10 @@ import (
 // CraftMenuState はクラフトメニューのゲームステート
 type CraftMenuState struct {
 	es.BaseState[w.World]
-	actionWin    menuscreen.ActionWindow // 合成のアクション選択ウィンドウ
-	result       menuscreen.Detail       // 合成結果の詳細モーダル
+	actionWin    menuscreen.ActionWindow // 合成のアクション選択。overlay として Screen に登録する
+	result       menuscreen.Detail       // 合成結果の詳細モーダル。overlay として Screen に登録する
 	resultEntity ecs.Entity              // 直近で合成したアイテム
-	rebuild      bool                    // 次フレームで UI を作り直すか
-	menuMount    *hooks.Mount[craftProps]
-	widget       *ebitenui.UI
+	screen       Screen[craftProps]
 }
 
 // State interface ================
@@ -58,9 +55,10 @@ func (st *CraftMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
-	st.menuMount = hooks.NewMount[craftProps]()
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
 	st.result = menuscreen.NewDetail(st.resultDetailContent)
+	// result を actionWin より前に登録する。合成結果が開いている間はそちらが入力を専有する
+	st.screen = NewScreen[craftProps](&st.result, &st.actionWin)
 	return nil
 }
 
@@ -69,56 +67,12 @@ func (st *CraftMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// 入力処理。合成結果・アクション窓が開いていればそちらが優先し、通常のメニュー入力は止まる
-	if st.result.Active() {
-		if dirty, err := st.result.HandleInput(world); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if dirty {
-			st.rebuild = true
-		}
-	} else if st.actionWin.Active() {
-		dirty, err := st.actionWin.HandleInput(world)
-		if err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		if dirty {
-			st.rebuild = true
-		}
-	} else if action, ok := st.HandleInput(world.Config); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.menuMount.Dispatch(action)
-	}
-
-	props := st.fetchProps(world)
-	st.menuMount.SetProps(props)
-
-	// UseTabMenuでreducerを登録・更新
-	itemCounts := make([]int, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		itemCounts[i] = len(tab.Items)
-	}
-	hooks.UseTabMenu(st.menuMount.Store(), "craft", hooks.TabMenuConfig{
-		TabCount:     len(props.Tabs),
-		ItemCounts:   itemCounts,
-		ItemsPerPage: menuItemsPerPage,
-	})
-
-	if st.menuMount.Update() || st.widget == nil || st.rebuild {
-		st.widget = st.buildUI(world)
-		st.rebuild = false
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world, st)
 }
 
 // Draw はゲームステートの描画処理を行う
 func (st *CraftMenuState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
@@ -136,7 +90,7 @@ func (st *CraftMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.T
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		st.actionWin.Open()
-		st.rebuild = true
+		st.screen.MarkDirty()
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
@@ -164,10 +118,18 @@ type craftItemData struct {
 	CanCraft   bool
 }
 
-func (st *CraftMenuState) fetchProps(world w.World) craftProps {
+func (st *CraftMenuState) fetch(world w.World) craftProps {
 	return craftProps{
 		Tabs: st.createTabs(world),
 	}
+}
+
+func (st *CraftMenuState) menu(props craftProps) MenuConfig {
+	itemCounts := make([]int, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+	return MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
 func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
@@ -265,7 +227,7 @@ func (st *CraftMenuState) actionWindowContent(_ w.World) (string, []menuscreen.A
 			}
 			st.resultEntity = resultEntity
 			st.result.Open()
-			st.rebuild = true
+			st.screen.MarkDirty()
 			return nil
 		}})
 	}
@@ -275,16 +237,16 @@ func (st *CraftMenuState) actionWindowContent(_ w.World) (string, []menuscreen.A
 
 // selectedRecipe は現在カーソルが当たっているレシピを返す
 func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
-	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "craft")
-	if !ok || menuState.TabIndex >= len(props.Tabs) {
+	props := st.screen.Props()
+	sel := st.screen.Selection()
+	if sel.TabIndex >= len(props.Tabs) {
 		return craftItemData{}, false
 	}
-	items := props.Tabs[menuState.TabIndex].Items
-	if menuState.ItemIndex >= len(items) {
+	items := props.Tabs[sel.TabIndex].Items
+	if sel.ItemIndex >= len(items) {
 		return craftItemData{}, false
 	}
-	return items[menuState.ItemIndex], true
+	return items[sel.ItemIndex], true
 }
 
 // resultDetailContent は直近で合成したアイテムを詳細モーダルの内容にする
@@ -299,12 +261,9 @@ func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailC
 // buildUI
 // ================
 
-func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "craft")
-	tabIndex := menuState.TabIndex
-	itemIndex := menuState.ItemIndex
+func (st *CraftMenuState) view(world w.World, props craftProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+	tabIndex := sel.TabIndex
+	itemIndex := sel.ItemIndex
 
 	// カテゴリは標準のタブ帯に寄せる。本体は アイテム一覧+性能レシピ / 説明文 のグリッド
 	labels := make([]string, len(props.Tabs))
@@ -319,20 +278,7 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 		st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res),
 	)
 
-	eui := newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content, Footer: menuNavHint(true)})
-
-	// 合成結果の詳細モーダル、無ければアクション選択ウィンドウを重ねる
-	if st.result.Active() {
-		if win := st.result.Window(world, getCenterWinRect(world)); win != nil {
-			eui.AddWindow(win)
-		}
-	} else if st.actionWin.Active() {
-		if win := st.actionWin.Window(world, getCenterWinRect(world)); win != nil {
-			eui.AddWindow(win)
-		}
-	}
-
-	return eui
+	return newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content, Footer: menuNavHint(true)})
 }
 
 func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

@@ -300,7 +300,7 @@ func (st *CharacterState) menu(props characterProps) MenuConfig {
 }
 
 // view は現在タブの本体を純粋描画へ委譲する。overlay の窓は Screen が重ねる
-func (st *CharacterState) view(props characterProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+func (st *CharacterState) view(_ w.World, props characterProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	return buildCharacterUI(props, sel, res)
 }
 

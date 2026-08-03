@@ -31,6 +31,7 @@ type MenuConfig struct {
 	ItemCounts   []int
 	ItemsPerPage int      // 1ページの件数。0 はページ送りなし
 	Skips        [][]bool // カーソルを飛ばす見出し行。nil 可
+	InitialTab   int      // 初回に寄せるタブ番号。0 なら先頭のまま。1度だけ適用する
 }
 
 // screenModel はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
@@ -41,7 +42,7 @@ type screenModel[P any] interface {
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
 	fetch(world w.World) P
 	menu(props P) MenuConfig
-	view(props P, sel Selection, res resources.UIResources) *ebitenui.UI
+	view(world w.World, props P, sel Selection, res resources.UIResources) *ebitenui.UI
 }
 
 // Screen はメニューの UI ランタイム。mount・widget・rebuild と overlay・systems を保持し、
@@ -54,6 +55,7 @@ type Screen[P any] struct {
 	overlays []menuscreen.Overlay
 	systems  []w.Updater
 	sel      Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
+	seeded   bool      // 初期タブへ寄せたか
 }
 
 // NewScreen は overlay を優先順位順に登録して Screen を作る。overlay はポインタで渡し、
@@ -124,12 +126,19 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 			ItemsPerPage: cfg.ItemsPerPage,
 			Skips:        cfg.Skips,
 		})
+		// 初回だけ指定タブへ寄せる。Store へ直接書けないため公開 API の Dispatch で送る
+		if !s.seeded {
+			for range cfg.InitialTab {
+				s.mount.Dispatch(inputmapper.ActionMenuTabNext)
+			}
+			s.seeded = true
+		}
 	}
 
 	dirty := s.mount.Update()
 	s.sel = s.selection(cfg)
 	if dirty || s.widget == nil || s.rebuild {
-		s.widget = m.view(props, s.sel, world.Resources.UIResources)
+		s.widget = m.view(world, props, s.sel, world.Resources.UIResources)
 		for _, ov := range s.overlays {
 			if ov.Active() {
 				if win := ov.Window(world, getCenterWinRect(world)); win != nil {
@@ -143,6 +152,10 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 	s.widget.Update()
 	return m.ConsumeTransition(), nil
 }
+
+// Dispatch はカーソル操作アクションを mount へ送る。タブジャンプなど state が能動的に
+// カーソルを動かすときに使う。UseTabMenu 登録後に呼ぶこと
+func (s *Screen[P]) Dispatch(action inputmapper.ActionID) { s.mount.Dispatch(action) }
 
 // Selection は直近フレームで確定したカーソル位置を返す。DoAction は Dispatch より前に
 // 呼ばれるため、ここで得るのは画面に見えている確定位置になる

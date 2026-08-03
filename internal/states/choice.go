@@ -113,7 +113,7 @@ func (st *ChoiceMenuState) menu(props choiceProps) MenuConfig {
 }
 
 // view は本文と選択肢の1カラム一覧を組む純粋描画
-func (st *ChoiceMenuState) view(props choiceProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	list := styled.NewVerticalContainer()
 	for i, c := range props.Choices {
 		isSelected := i == sel.ItemIndex

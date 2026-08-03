@@ -229,7 +229,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 // buildUI
 // ================
 
-func (st *StorageMenuState) view(props storageProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+func (st *StorageMenuState) view(_ w.World, props storageProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {

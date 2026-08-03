@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +18,7 @@ func TestCraftMenuState_OnStart(t *testing.T) {
 
 	err := state.OnStart(world)
 	require.NoError(t, err)
-	assert.NotNil(t, state.menuMount, "menuMountが初期化されている")
+	assert.False(t, state.actionWin.Active(), "初期状態でアクション窓は閉じている")
 }
 
 func TestCraftMenuState_FetchProps(t *testing.T) {
@@ -29,52 +28,12 @@ func TestCraftMenuState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps(world)
+	props := state.fetch(world)
 
 	assert.Len(t, props.Tabs, 3, "タブは3つ（道具、武器、装備）")
 	assert.Equal(t, "consumables", props.Tabs[0].ID)
 	assert.Equal(t, "weapons", props.Tabs[1].ID)
 	assert.Equal(t, "wearables", props.Tabs[2].ID)
-}
-
-func TestCraftMenuState_TabNavigation(t *testing.T) {
-	t.Parallel()
-
-	state := &CraftMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	props := state.fetchProps(world)
-	state.menuMount.SetProps(props)
-
-	itemCounts := make([]int, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		itemCounts[i] = len(tab.Items)
-	}
-	hooks.UseTabMenu(state.menuMount.Store(), "craft", hooks.TabMenuConfig{
-		TabCount:   len(props.Tabs),
-		ItemCounts: itemCounts,
-	})
-	state.menuMount.Update()
-
-	// 初期状態
-	menuState, _ := hooks.GetState[hooks.TabMenuState](state.menuMount, "craft")
-	assert.Equal(t, 0, menuState.TabIndex, "初期タブインデックスは0")
-
-	// 右に移動
-	state.menuMount.Dispatch(inputmapper.ActionMenuTabNext)
-	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "craft")
-	assert.Equal(t, 1, menuState.TabIndex, "右移動後は1")
-
-	// さらに右に移動
-	state.menuMount.Dispatch(inputmapper.ActionMenuTabNext)
-	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "craft")
-	assert.Equal(t, 2, menuState.TabIndex, "右移動後は2")
-
-	// 循環して戻る
-	state.menuMount.Dispatch(inputmapper.ActionMenuTabNext)
-	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "craft")
-	assert.Equal(t, 0, menuState.TabIndex, "循環して0に戻る")
 }
 
 func TestCraftMenuState_DoAction_Cancel(t *testing.T) {
@@ -169,34 +128,4 @@ func TestNewCraftMenuState(t *testing.T) {
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*CraftMenuState)
 	assert.True(t, ok, "CraftMenuState型である")
-}
-
-func TestCraftMenuState_actionWindowContent_選択ありは末尾に閉じるを含む(t *testing.T) {
-	t.Parallel()
-
-	state := &CraftMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	props := state.fetchProps(world)
-	state.menuMount.SetProps(props)
-	itemCounts := make([]int, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		itemCounts[i] = len(tab.Items)
-	}
-	hooks.UseTabMenu(state.menuMount.Store(), "craft", hooks.TabMenuConfig{
-		TabCount:   len(props.Tabs),
-		ItemCounts: itemCounts,
-	})
-	state.menuMount.Update()
-
-	if len(props.Tabs[0].Items) == 0 {
-		t.Skip("道具レシピが無いためスキップ")
-	}
-
-	title, actions, ok := state.actionWindowContent(world)
-	require.True(t, ok, "レシピ選択中はアクション窓を出す")
-	assert.Equal(t, "アクション選択", title)
-	require.NotEmpty(t, actions)
-	assert.Equal(t, TextClose, actions[len(actions)-1].Label, "末尾は閉じる")
 }
