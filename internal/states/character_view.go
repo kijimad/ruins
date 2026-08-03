@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"image"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -12,15 +13,9 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// characterSelection は人物画面の描画に必要なカーソル位置。どのタブのどの行を強調するかを表す
-type characterSelection struct {
-	TabIndex  int
-	ItemIndex int
-}
-
 // buildCharacterUI は人物画面のタブ本体を props と選択位置だけから組み立てる。
 // state に触れない純粋描画で、詳細や装備選択のオーバーレイ窓は呼び出し側が重ねる
-func buildCharacterUI(props characterProps, sel characterSelection, res resources.UIResources) *ebitenui.UI {
+func buildCharacterUI(props characterProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	header := props.TargetName
@@ -94,9 +89,9 @@ func buildCommandTable(rows []commandRow, itemIndex int, res resources.UIResourc
 	return container
 }
 
-// buildEquipSelectWindow は装備選択のサブウィンドウを組み立てる。
+// buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。
 // 候補名は world から引くため world を受け取るが、選択状態は selectedIndex で明示的に渡す
-func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) *widget.Window {
+func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex int, rect image.Rectangle, res resources.UIResources) *widget.Window {
 	content := styled.NewWindowContainer(res)
 	title := styled.NewWindowHeaderContainer("装備を選ぶ", res)
 	win := styled.NewSmallWindow(title, content)
@@ -107,6 +102,6 @@ func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex i
 		name := world.Components.Name.Get(entity).Name
 		content.AddChild(styled.NewListItemText(name, theme.TextSecondary, i == selectedIndex, res))
 	}
-	win.SetLocation(getCenterWinRect(world))
+	win.SetLocation(rect)
 	return win
 }
