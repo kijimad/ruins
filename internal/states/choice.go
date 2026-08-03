@@ -127,13 +127,22 @@ func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res
 	columnWidths := []int{320}
 	aligns := []styled.TextAlign{styled.AlignLeft}
 	table := styled.NewTableContainer(columnWidths, res)
-	for _, entry := range pagination.VisibleEntries(props.Choices, pg) {
+	visible := pagination.VisibleEntries(props.Choices, pg)
+	for _, entry := range visible {
 		if entry.Item.Header {
 			styled.NewTableHeaderRow(table, columnWidths, []string{entry.Item.Label}, res)
 			continue
 		}
 		isSelected := pg.IsSelectedInPage(entry.Index)
 		styled.NewTableRow(table, columnWidths, []string{entry.Item.Label}, aligns, &isSelected, res)
+	}
+	// 複数ページの画面は各ページを1ページ件数ぶんの行に埋め、ページを繰ってもパネルの高さが変わらないようにする。
+	// 単一ページの画面は埋めず、エントリ数相応の大きさに縮む
+	if len(props.Choices) > menuItemsPerPage {
+		for i := len(visible); i < menuItemsPerPage; i++ {
+			notSelected := false
+			styled.NewTableRow(table, columnWidths, []string{" "}, aligns, &notSelected, res)
+		}
 	}
 	list.AddChild(table)
 
