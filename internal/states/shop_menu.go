@@ -342,7 +342,7 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	container.AddChild(newPageIndicator(pg, res))
 
 	// 名前+個数、重量、価格の3列。売却の個数は名前に x個数 として添える
-	columnWidths := []int{200, 70, 80}
+	columnWidths := []int{200, 60, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {

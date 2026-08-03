@@ -293,7 +293,7 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	// ページインジケーター
 	container.AddChild(newPageIndicator(pg, res))
 
-	columnWidths := []int{20, 180}
+	columnWidths := []int{20, 320}
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {

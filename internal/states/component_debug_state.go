@@ -132,7 +132,7 @@ func (st *ComponentDebugState) view(_ w.World, props componentDebugProps, sel Se
 	pg := pagination.New(sel.ItemIndex, len(props.Items), menuItemsPerPage)
 	container.AddChild(newPageIndicator(pg, res))
 
-	columnWidths := []int{160, 60}
+	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(props.Items, pg) {

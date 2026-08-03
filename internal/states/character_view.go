@@ -59,7 +59,7 @@ func buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResour
 		return container
 	}
 
-	columnWidths := []int{110, 220}
+	columnWidths := []int{120, 220}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, slot := range slots {
@@ -78,7 +78,7 @@ func buildCommandTable(rows []commandRow, itemIndex int, res resources.UIResourc
 		container.AddChild(styled.NewDescriptionText("この対象に隊列指示はない", res))
 		return container
 	}
-	columnWidths := []int{120, 160}
+	columnWidths := []int{180, 160}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, row := range rows {

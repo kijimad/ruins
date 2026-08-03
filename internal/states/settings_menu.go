@@ -197,7 +197,7 @@ func languageChoices(_ w.World) (string, []Choice) {
 
 func (st *SettingsMenuState) view(_ w.World, props settingsMenuProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
-	columnWidths := []int{200, 100}
+	columnWidths := []int{240, 100}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range props.Items {

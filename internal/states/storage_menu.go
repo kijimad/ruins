@@ -277,7 +277,7 @@ func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabInde
 	}
 
 	currentTab := props.Tabs[tabIndex]
-	columnWidths := []int{240, 70}
+	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
 	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)

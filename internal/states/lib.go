@@ -105,6 +105,10 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 // キャラクター情報タブは見出し行が挟まり行数が変わるため character_info 側で別に持つ
 const menuItemsPerPage = 20
 
+// menuRowWidth はメニュー一覧の行の総幅。全メニューで揃えて、画面ごとにエントリ幅がぶれないようにする。
+// 各メニューは列の内訳を変えてもよいが、合計はこの値にする
+const menuRowWidth = 340
+
 // newThreeColContent は3列3行のメニュー本文を組み立てる。商店・合成・収納で共通に使う。
 // 右上に所持金や重量、中段左に一覧、中段右に性能や参照リスト、左下に説明を置き、
 // 残りのセルは空で埋めて位置を揃える。nil のセルは空コンテナにする

@@ -426,7 +426,7 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 		container.AddChild(styled.NewDescriptionText("該当するアイテムがありません", res))
 		return container
 	}
-	columnWidths := []int{240, 70}
+	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range items {

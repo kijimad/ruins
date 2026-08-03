@@ -124,7 +124,7 @@ func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res
 	pg := pagination.New(sel.ItemIndex, len(props.Choices), menuItemsPerPage)
 	list.AddChild(newPageIndicator(pg, res))
 
-	columnWidths := []int{320}
+	columnWidths := []int{menuRowWidth}
 	aligns := []styled.TextAlign{styled.AlignLeft}
 	table := styled.NewTableContainer(columnWidths, res)
 	visible := pagination.VisibleEntries(props.Choices, pg)
