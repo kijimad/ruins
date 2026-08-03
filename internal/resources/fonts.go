@@ -20,11 +20,11 @@ type fonts struct {
 // loadFonts は指定されたサイズでフォントフェイスを作成する
 // 複数のFaceSourceを指定した場合、順番にフォールバックする
 func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
-	smallFace, err := loadFont(sources, 16)
+	smallFace, err := loadFont(sources, 13)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load small font: %w", err)
 	}
-	bodyFace, err := loadFont(sources, 20)
+	bodyFace, err := loadFont(sources, 16)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load body font: %w", err)
 	}

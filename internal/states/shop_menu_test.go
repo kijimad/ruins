@@ -20,7 +20,6 @@ func TestShopMenuState_OnStart(t *testing.T) {
 	err := state.OnStart(world)
 	require.NoError(t, err)
 	assert.NotNil(t, state.menuMount, "menuMountが初期化されている")
-	assert.NotNil(t, state.windowMount, "windowMountが初期化されている")
 }
 
 func TestShopMenuState_FetchProps(t *testing.T) {
@@ -120,72 +119,28 @@ func TestShopMenuState_DoAction_Navigation(t *testing.T) {
 	}
 }
 
-func TestShopMenuState_WindowProps(t *testing.T) {
+func TestShopMenuState_DoAction_MenuSelectでアクション窓を開く(t *testing.T) {
 	t.Parallel()
 
 	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 初期状態ではメニューモード
-	assert.Equal(t, shopSubStateMenu, state.subState, "初期状態ではメニューモード")
+	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransNone, transition.Type, "選択はTransNone")
+	assert.True(t, state.actionWin.Active(), "アクション選択ウィンドウが開く")
 }
 
-func TestShopMenuState_DoAction_WindowMode(t *testing.T) {
+func TestShopMenuState_actionWindowContent_選択なしは表示しない(t *testing.T) {
 	t.Parallel()
 
 	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// ウィンドウを開く
-	state.subState = shopSubStateWindow
-	state.windowMount.SetProps(shopWindowProps{
-		SelectedItem: shopItemData{
-			Label: "テスト",
-			Price: 100,
-			IsBuy: true,
-		},
-	})
-
-	// ウィンドウモードでのキャンセル
-	transition, err := state.DoAction(world, inputmapper.ActionWindowCancel)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type, "ウィンドウキャンセルはTransNone")
-
-	// ウィンドウが閉じている
-	assert.Equal(t, shopSubStateMenu, state.subState, "キャンセル後はメニューモード")
-}
-
-func TestShopMenuState_DoAction_WindowNavigation(t *testing.T) {
-	t.Parallel()
-
-	state := &ShopMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	// ウィンドウを開く
-	state.subState = shopSubStateWindow
-	state.windowMount.SetProps(shopWindowProps{
-		SelectedItem: shopItemData{
-			Label: "テスト",
-			Price: 100,
-			IsBuy: true,
-		},
-	})
-
-	// ウィンドウ用のUseStateを登録
-	state.setupWindowState(world)
-	state.windowMount.Update()
-
-	// ウィンドウモードでの上下移動
-	transition, err := state.DoAction(world, inputmapper.ActionWindowDown)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type)
-
-	transition, err = state.DoAction(world, inputmapper.ActionWindowUp)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type)
+	_, _, ok := state.actionWindowContent(world)
+	assert.False(t, ok, "商品未選択ではアクション窓を出さない")
 }
 
 func TestNewShopMenuState(t *testing.T) {
@@ -199,23 +154,31 @@ func TestNewShopMenuState(t *testing.T) {
 	assert.True(t, ok, "ShopMenuState型である")
 }
 
-func TestShopMenuState_GetActionItems(t *testing.T) {
+func TestShopMenuState_actionWindowContent_購入タブは末尾に閉じるを含む(t *testing.T) {
 	t.Parallel()
 
 	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 空のアイテムの場合は閉じるのみ
-	actions := state.getActionItems(world, shopItemData{})
-	assert.Equal(t, []string{TextClose}, actions, "空のアイテムは閉じるのみ")
-
-	// 売却アイテムの場合
-	sellActions := state.getActionItems(world, shopItemData{
-		Label: "テスト",
-		Price: 100,
-		IsBuy: false,
+	props := state.fetchProps(world)
+	state.menuMount.SetProps(props)
+	itemCounts := make([]int, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+	hooks.UseTabMenu(state.menuMount.Store(), "shop", hooks.TabMenuConfig{
+		TabCount:   len(props.Tabs),
+		ItemCounts: itemCounts,
 	})
-	assert.Contains(t, sellActions, "売却する", "売却オプションがある")
-	assert.Contains(t, sellActions, TextClose, "閉じるオプションがある")
+	state.menuMount.Update()
+
+	// 購入タブは店の在庫が常にあり、先頭商品が選択される
+	require.NotEmpty(t, props.Tabs[0].Items, "購入タブに在庫がある")
+
+	title, actions, ok := state.actionWindowContent(world)
+	require.True(t, ok, "商品選択中はアクション窓を出す")
+	assert.Equal(t, "アクション選択", title)
+	require.NotEmpty(t, actions)
+	assert.Equal(t, TextClose, actions[len(actions)-1].Label, "末尾は閉じる")
 }

@@ -10,12 +10,13 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -23,12 +24,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-const storageItemsPerPage = 20
-
 // tabID は収納メニューのタブ識別子
 type tabID string
 
-// 収納メニューのタブID。タブ定義・転送処理・ヘルプ表示で参照する。定義型にして任意文字列の混入を防ぐ
+// 収納メニューのタブID。タブ定義・転送処理で参照する。定義型にして任意文字列の混入を防ぐ
 const (
 	tabIDRetrieve tabID = "retrieve"
 	tabIDStore    tabID = "store"
@@ -38,6 +37,8 @@ const (
 type StorageMenuState struct {
 	es.BaseState[w.World]
 	storageEntity ecs.Entity
+	detail        menuscreen.Detail // 詳細モーダルの表示状態とページ送り
+	rebuild       bool              // 次フレームで UI を作り直すか
 	menuMount     *hooks.Mount[storageProps]
 	widget        *ebitenui.UI
 }
@@ -45,6 +46,13 @@ type StorageMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
+var _ Configurable = &StorageMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *StorageMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &StorageMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -56,6 +64,7 @@ func (st *StorageMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
 	st.menuMount = hooks.NewMount[storageProps]()
+	st.detail = menuscreen.NewDetail(st.detailContent)
 	return nil
 }
 
@@ -76,7 +85,11 @@ func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error
 	}
 
 	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
+	if st.detail.Active() {
+		if st.detail.HandleInput(world) {
+			st.rebuild = true
+		}
+	} else if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
@@ -96,12 +109,13 @@ func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error
 	hooks.UseTabMenu(st.menuMount.Store(), "storage", hooks.TabMenuConfig{
 		TabCount:     len(props.Tabs),
 		ItemCounts:   itemCounts,
-		ItemsPerPage: storageItemsPerPage,
+		ItemsPerPage: menuItemsPerPage,
 	})
 
 	menuDirty := st.menuMount.Update()
-	if menuDirty || st.widget == nil {
+	if menuDirty || st.widget == nil || st.rebuild {
 		st.widget = st.buildUI(world)
+		st.rebuild = false
 	}
 
 	st.widget.Update()
@@ -116,6 +130,10 @@ func (st *StorageMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 
 // HandleInput はキー入力をActionに変換する
 func (st *StorageMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+	ki := input.GetSharedKeyboardInput()
+	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
+		return inputmapper.ActionOpenItemDetail, true
+	}
 	return HandleMenuInput()
 }
 
@@ -124,6 +142,9 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionOpenItemDetail:
+		st.detail.Open()
+		st.rebuild = true
 	case inputmapper.ActionMenuSelect:
 		if err := st.executeTransfer(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -141,10 +162,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 // ================
 
 type storageProps struct {
-	Tabs           []storageTabData
-	StorageName    string
-	WeightText     string
-	WeightOverflow bool
+	Tabs []storageTabData
 }
 
 type storageTabData struct {
@@ -156,33 +174,16 @@ type storageTabData struct {
 type storageItemData struct {
 	Entity ecs.Entity
 	Name   string
-	Count  string
+	Weight string
+	Count  int
 }
 
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
-	storageName := query.GetEntityName(st.storageEntity, world)
-	wc := world.Components.WeightCapacity.Get(st.storageEntity)
-	weightText := fmt.Sprintf("%s / %s", wc.Current.KgString(), wc.Max.KgString())
-
-	storeTabs := st.createBackpackItemData(world)
-
-	// 「収納」タブで選択中のアイテムが重量超過かどうか判定する
-	weightOverflow := false
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
-	if ok && menuState.TabIndex == 1 && len(storeTabs) > 0 && menuState.ItemIndex < len(storeTabs) {
-		selectedItem := storeTabs[menuState.ItemIndex]
-		itemWeight := query.GetEntityWeight(world, selectedItem.Entity)
-		weightOverflow = wc.Current+itemWeight > wc.Max
-	}
-
 	return storageProps{
 		Tabs: []storageTabData{
 			{ID: tabIDRetrieve, Label: "取得", Items: st.createStorageItemData(world)},
-			{ID: tabIDStore, Label: "収納", Items: storeTabs},
+			{ID: tabIDStore, Label: "収納", Items: st.createBackpackItemData(world)},
 		},
-		StorageName:    storageName,
-		WeightText:     weightText,
-		WeightOverflow: weightOverflow,
 	}
 }
 
@@ -211,10 +212,10 @@ func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Enti
 		item := storageItemData{
 			Entity: entity,
 			Name:   name,
+			Weight: query.GetEntityWeight(world, entity).KgString(),
 		}
 		if world.Components.Stackable.Has(entity) {
-			stackable := world.Components.Stackable.Get(entity)
-			item.Count = fmt.Sprintf("%d", stackable.Count)
+			item.Count = world.Components.Stackable.Get(entity).Count
 		}
 		items[i] = item
 	}
@@ -281,54 +282,53 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewItemGridContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
+	// カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
 
-	// 1行目: タイトル、カテゴリ、重量
-	root.AddChild(styled.NewTitleText(props.StorageName, res))
-	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
-	root.AddChild(st.buildWeightContainer(props.WeightText, props.WeightOverflow, res))
+	eui := newTabScreenUI(res, tabScreen{
+		TabLabels: labels,
+		TabIndex:  tabIndex,
+		Content:   st.buildActiveListContainer(props, tabIndex, itemIndex, res),
+		Footer:    menuNavHint(true, "x 詳細"),
+	})
 
-	// 2行目: 操作対象リスト（左）、空、参照リスト（右）
-	root.AddChild(st.buildActiveListContainer(props, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildReferenceListContainer(props, tabIndex, res))
-
-	// 3行目: ヘルプテキスト
-	root.AddChild(st.buildHelpContainer(props.Tabs, tabIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(widget.NewContainer())
-
-	return &ebitenui.UI{Container: root}
-}
-
-func (st *StorageMenuState) buildCategoryContainer(tabs []storageTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	for i, tab := range tabs {
-		isSelected := i == tabIndex
-		color := theme.TextSecondary
-		if isSelected {
-			color = theme.TextPrimary
+	if st.detail.Active() {
+		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
+			eui.AddWindow(win)
 		}
-		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
 	}
-	return container
+
+	return eui
 }
 
-func (st *StorageMenuState) buildWeightContainer(weightText string, overflow bool, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	textColor := theme.TextPrimary
-	if overflow {
-		textColor = theme.HUDWeightDanger
+// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
+func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+	e, ok := st.selectedEntity()
+	if !ok {
+		return menuscreen.DetailContent{}, false
 	}
-	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(weightText, &res.Text.BodyFace, textColor),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
-		),
-	))
-	return container
+	desc := ""
+	if world.Components.Description.Has(e) {
+		desc = world.Components.Description.Get(e).Description
+	}
+	return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true
+}
+
+// selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
+func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {
+	props := st.menuMount.GetProps()
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
+	if menuState.TabIndex >= len(props.Tabs) {
+		return ecs.Entity{}, false
+	}
+	items := props.Tabs[menuState.TabIndex].Items
+	if menuState.ItemIndex >= len(items) {
+		return ecs.Entity{}, false
+	}
+	return items[menuState.ItemIndex].Entity, true
 }
 
 func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
@@ -338,20 +338,15 @@ func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabInde
 	}
 
 	currentTab := props.Tabs[tabIndex]
-	columnWidths := []int{20, 150, 50}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
+	columnWidths := []int{240, 70}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
-	pg := pagination.New(itemIndex, len(currentTab.Items), storageItemsPerPage)
-
-	pageText := pg.GetPageText()
-	if pageText == "" {
-		pageText = " "
-	}
-	container.AddChild(styled.NewPageIndicator(pageText, res))
+	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
+	container.AddChild(newPageIndicator(pg, res))
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, entry.Item.Count}, aligns, new(pg.IsSelectedInPage(entry.Index)), res)
+		styled.NewTableRow(table, columnWidths, []string{nameWithCount(entry.Item.Name, entry.Item.Count), entry.Item.Weight}, aligns, new(pg.IsSelectedInPage(entry.Index)), res)
 	}
 	container.AddChild(table)
 
@@ -359,49 +354,5 @@ func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabInde
 		container.AddChild(styled.NewDescriptionText("(アイテムなし)", res))
 	}
 
-	return container
-}
-
-func (st *StorageMenuState) buildReferenceListContainer(props storageProps, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-
-	// 操作対象の反対側のタブのアイテムを表示する
-	refTabIndex := 1 - tabIndex
-	if refTabIndex < 0 || refTabIndex >= len(props.Tabs) {
-		return container
-	}
-
-	refTab := props.Tabs[refTabIndex]
-	columnWidths := []int{150, 50}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-
-	container.AddChild(styled.NewPageIndicator(" ", res))
-
-	// 参照リストはスクロール非対応のため、先頭からstorageItemsPerPage件のみ表示する
-	table := styled.NewTableContainer(columnWidths, res)
-	for i, item := range refTab.Items {
-		if i >= storageItemsPerPage {
-			break
-		}
-		styled.NewTableRow(table, columnWidths, []string{item.Name, item.Count}, aligns, nil, res)
-	}
-	container.AddChild(table)
-
-	if len(refTab.Items) == 0 {
-		container.AddChild(styled.NewDescriptionText("(アイテムなし)", res))
-	}
-
-	return container
-}
-
-func (st *StorageMenuState) buildHelpContainer(tabs []storageTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	helpText := "Enter:取り出す  ←→:タブ切替  Esc:閉じる"
-	if tabIndex < len(tabs) && tabs[tabIndex].ID == tabIDStore {
-		helpText = "Enter:収納する  ←→:タブ切替  Esc:閉じる"
-	}
-	container.AddChild(styled.NewMenuText(helpText, res))
 	return container
 }

@@ -27,38 +27,17 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 	persistentState := NewPersistentMessageState(nil)
 
 	persistentState.messageData = messagedata.NewSystemMessage("").
-		WithChoice("状態", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewStatusState},
-			})
-			return nil
-		}).
 		WithChoice("所持", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewInventoryMenuState},
-			})
-			return nil
-		}).
-		WithChoice("装備", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewEquipMenuState},
-			})
-			return nil
-		}).
-		WithChoice("命令", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewSquadMenuState},
+				NewStateFuncs: []es.StateFactory[w.World]{NewItemActionState(verbExamine)},
 			})
 			return nil
 		}).
 		WithChoice("部隊", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewFormationMenuState},
+				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterState},
 			})
 			return nil
 		}).
@@ -91,14 +70,17 @@ func NewCraftMenuState() (es.State[w.World], error) {
 	return &CraftMenuState{}, nil
 }
 
-// NewInventoryMenuState は新しいInventoryMenuStateインスタンスを作成するファクトリー関数
-func NewInventoryMenuState() (es.State[w.World], error) {
-	return &InventoryMenuState{}, nil
+// NewCharacterState は画面タブメニューのStateを作成するファクトリー関数。主人公から始まる
+func NewCharacterState() (es.State[w.World], error) {
+	return &CharacterState{}, nil
 }
 
-// NewEquipMenuState は新しいEquipMenuStateインスタンスを作成するファクトリー関数
-func NewEquipMenuState() (es.State[w.World], error) {
-	return &EquipMenuState{}, nil
+// NewCharacterStateForMember は指定メンバーを表示対象にした画面タブメニューを作成する。
+// 画面内で切り替えて主人公や他の仲間も見られる
+func NewCharacterStateForMember(member ecs.Entity) es.StateFactory[w.World] {
+	return func() (es.State[w.World], error) {
+		return &CharacterState{target: member}, nil
+	}
 }
 
 // debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
@@ -688,21 +670,6 @@ func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], e
 	return &MessageState{
 		messageData: messageData,
 	}, nil
-}
-
-// NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数
-func NewSquadMenuState() (es.State[w.World], error) {
-	return &SquadMenuState{}, nil
-}
-
-// NewMemberStatusState は隊員ステータス詳細画面のStateを作成するファクトリー関数
-func NewMemberStatusState(member ecs.Entity) (es.State[w.World], error) {
-	return &MemberStatusState{member: member}, nil
-}
-
-// NewFormationMenuState は隊編成画面のStateを作成するファクトリー関数
-func NewFormationMenuState() (es.State[w.World], error) {
-	return &FormationMenuState{}, nil
 }
 
 // NewTavernMenuState は酒場の雇用画面のStateを作成するファクトリー関数

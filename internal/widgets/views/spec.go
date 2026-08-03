@@ -10,181 +10,185 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/mlange-42/ark/ecs"
 )
 
-// UpdateSpec は性能表示コンテナを更新する
-func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Entity) {
-	targetContainer.RemoveChildren()
-
-	// アイテム種別カテゴリを表示する
-	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
-		addCategoryInfo(targetContainer, cat, world)
-	}
-
-	// 各コンポーネントの情報を追加
-	if world.Components.Melee.Has(entity) {
-		melee := world.Components.Melee.Get(entity)
-		addAttackerInfo(targetContainer, melee, world)
-	}
-	if world.Components.Fire.Has(entity) {
-		fire := world.Components.Fire.Get(entity)
-		addAttackerInfo(targetContainer, fire, world)
-		addFireAmmoInfo(targetContainer, fire, world)
-	}
-	if world.Components.Wearable.Has(entity) {
-		wearable := world.Components.Wearable.Get(entity)
-		addWearableInfo(targetContainer, wearable, world)
-	}
-	if world.Components.ProvidesHealing.Has(entity) {
-		healing := world.Components.ProvidesHealing.Get(entity)
-		addHealingInfo(targetContainer, healing, world)
-	}
-	if world.Components.ProvidesNutrition.Has(entity) {
-		nutrition := world.Components.ProvidesNutrition.Get(entity)
-		addNutritionInfo(targetContainer, nutrition, world)
-	}
-	if world.Components.Book.Has(entity) {
-		book := world.Components.Book.Get(entity)
-		addBookInfo(targetContainer, book, world)
-	}
-	if world.Components.Value.Has(entity) {
-		v := world.Components.Value.Get(entity)
-		addValueInfo(targetContainer, v, world)
-	}
-	if world.Components.Weight.Has(entity) {
-		w := world.Components.Weight.Get(entity)
-		addWeightInfo(targetContainer, w, world)
-	}
-}
-
-// UpdateSpecFromSpec はEntitySpecから性能表示コンテナを更新する
-// エンティティを生成せずに性能を表示できる
-func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec gc.EntitySpec) {
-	targetContainer.RemoveChildren()
-
-	if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &spec); ok {
-		addCategoryInfo(targetContainer, cat, world)
-	}
-
-	if spec.Melee != nil {
-		addAttackerInfo(targetContainer, spec.Melee, world)
-	}
-	if spec.Fire != nil {
-		addAttackerInfo(targetContainer, spec.Fire, world)
-		addFireAmmoInfo(targetContainer, spec.Fire, world)
-	}
-	if spec.Wearable != nil {
-		addWearableInfo(targetContainer, spec.Wearable, world)
-	}
-	if spec.ProvidesHealing != nil {
-		addHealingInfo(targetContainer, spec.ProvidesHealing, world)
-	}
-	if spec.ProvidesNutrition != nil {
-		addNutritionInfo(targetContainer, spec.ProvidesNutrition, world)
-	}
-	if spec.Book != nil {
-		addBookInfo(targetContainer, spec.Book, world)
-	}
-	if spec.Value != nil {
-		addValueInfo(targetContainer, spec.Value, world)
-	}
-	if spec.Weight != nil {
-		addWeightInfo(targetContainer, spec.Weight, world)
-	}
-}
-
-// addCategoryInfo はアイテム種別カテゴリのラベルを追加する
-func addCategoryInfo(targetContainer *widget.Container, cat string, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"種別", cat}, specTableAligns, nil, res)
-	targetContainer.AddChild(table)
+// SpecRow は性能表示の1行。Header が真ならカテゴリ見出し行、偽なら ラベル/値 のデータ行。
+// 詳細モーダルはこの行の並びを単位としてページ分割する。行の高さは一定なので行数が高さの目安になる
+type SpecRow struct {
+	Label  string
+	Value  string
+	Header bool
 }
 
 // specTableAligns はspec表示テーブルの揃え方向（ラベル左、値右）
 var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
-// addAttackerInfo は攻撃パラメータの共通表示を行う
-func addAttackerInfo(targetContainer *widget.Container, attack gc.Attacker, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableHeaderRow(table, columnWidths, []string{attack.GetAttackCategory().Label, ""}, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.DamageLabel, strconv.Itoa(attack.GetDamage())}, specTableAligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.AccuracyLabel, strconv.Itoa(attack.GetAccuracy())}, specTableAligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.AttackCountLabel, strconv.Itoa(attack.GetAttackCount())}, specTableAligns, nil, res)
-
-	styled.NewTableRow(table, columnWidths, []string{"コスト", strconv.Itoa(attack.GetCost())}, specTableAligns, nil, res)
-
-	if attack.GetElement() != gc.ElementTypeNone {
-		styled.NewTableRow(table, columnWidths, []string{"属性", attack.GetElement().String()}, specTableAligns, nil, res)
+// SpecRows はエンティティの性能表示を行の並びとして返す。
+// 種別・攻撃・防具などコンポーネントごとに数行で、存在するものだけを含む
+func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
+	var rows []SpecRow
+	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
+		rows = append(rows, SpecRow{Label: "種別", Value: cat})
 	}
+	if world.Components.Melee.Has(entity) {
+		rows = append(rows, attackerRows(world.Components.Melee.Get(entity))...)
+	}
+	if world.Components.Fire.Has(entity) {
+		fire := world.Components.Fire.Get(entity)
+		rows = append(rows, attackerRows(fire)...)
+		rows = append(rows, fireAmmoRows(fire)...)
+	}
+	if world.Components.Wearable.Has(entity) {
+		rows = append(rows, wearableRows(world.Components.Wearable.Get(entity))...)
+	}
+	if world.Components.ProvidesHealing.Has(entity) {
+		rows = append(rows, healingRows(world.Components.ProvidesHealing.Get(entity))...)
+	}
+	if world.Components.ProvidesNutrition.Has(entity) {
+		rows = append(rows, nutritionRows(world.Components.ProvidesNutrition.Get(entity))...)
+	}
+	if world.Components.Book.Has(entity) {
+		rows = append(rows, bookRows(world.Components.Book.Get(entity))...)
+	}
+	if world.Components.Value.Has(entity) {
+		rows = append(rows, valueRows(world.Components.Value.Get(entity))...)
+	}
+	if world.Components.Weight.Has(entity) {
+		rows = append(rows, weightRows(world.Components.Weight.Get(entity))...)
+	}
+	return rows
+}
 
+// SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。
+// エンティティを生成せず raw 定義から詳細を出す商店などで使う
+func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
+	var rows []SpecRow
+	if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &spec); ok {
+		rows = append(rows, SpecRow{Label: "種別", Value: cat})
+	}
+	if spec.Melee != nil {
+		rows = append(rows, attackerRows(spec.Melee)...)
+	}
+	if spec.Fire != nil {
+		rows = append(rows, attackerRows(spec.Fire)...)
+		rows = append(rows, fireAmmoRows(spec.Fire)...)
+	}
+	if spec.Wearable != nil {
+		rows = append(rows, wearableRows(spec.Wearable)...)
+	}
+	if spec.ProvidesHealing != nil {
+		rows = append(rows, healingRows(spec.ProvidesHealing)...)
+	}
+	if spec.ProvidesNutrition != nil {
+		rows = append(rows, nutritionRows(spec.ProvidesNutrition)...)
+	}
+	if spec.Book != nil {
+		rows = append(rows, bookRows(spec.Book)...)
+	}
+	if spec.Value != nil {
+		rows = append(rows, valueRows(spec.Value)...)
+	}
+	if spec.Weight != nil {
+		rows = append(rows, weightRows(spec.Weight)...)
+	}
+	return rows
+}
+
+// RenderSpecRows は行の並びをコンテナへ1つのテーブルとして描く
+func RenderSpecRows(targetContainer *widget.Container, rows []SpecRow, res resources.UIResources) {
+	targetContainer.RemoveChildren()
+	columnWidths := []int{70, 80}
+	table := styled.NewTableContainer(columnWidths, res)
+	for _, r := range rows {
+		if r.Header {
+			styled.NewTableHeaderRow(table, columnWidths, []string{r.Label, ""}, res)
+			continue
+		}
+		styled.NewTableRow(table, columnWidths, []string{r.Label, r.Value}, specTableAligns, nil, res)
+	}
 	targetContainer.AddChild(table)
 }
 
-// addWearableInfo はWearableコンポーネントの情報を追加する
-func addWearableInfo(targetContainer *widget.Container, wearable *gc.Wearable, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
+// UpdateSpec は性能表示コンテナを更新する。全行を描く
+func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Entity) {
+	RenderSpecRows(targetContainer, SpecRows(world, entity), world.Resources.UIResources)
+}
 
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableHeaderRow(table, columnWidths, []string{wearable.EquipmentCategory.String(), ""}, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf("%+d", wearable.Defense)}, specTableAligns, nil, res)
+// UpdateSpecFromSpec はEntitySpecから性能表示コンテナを更新する。エンティティを生成せずに性能を表示できる
+func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec gc.EntitySpec) {
+	RenderSpecRows(targetContainer, SpecRowsFromSpec(world, spec), world.Resources.UIResources)
+}
 
+// attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し
+func attackerRows(attack gc.Attacker) []SpecRow {
+	rows := []SpecRow{
+		{Label: attack.GetAttackCategory().Label, Header: true},
+		{Label: consts.DamageLabel, Value: strconv.Itoa(attack.GetDamage())},
+		{Label: consts.AccuracyLabel, Value: strconv.Itoa(attack.GetAccuracy())},
+		{Label: consts.AttackCountLabel, Value: strconv.Itoa(attack.GetAttackCount())},
+		{Label: "コスト", Value: strconv.Itoa(attack.GetCost())},
+	}
+	if attack.GetElement() != gc.ElementTypeNone {
+		rows = append(rows, SpecRow{Label: "属性", Value: attack.GetElement().String()})
+	}
+	return rows
+}
+
+// fireAmmoRows は射程・弾薬の行を返す
+func fireAmmoRows(fire *gc.Fire) []SpecRow {
+	var rows []SpecRow
+	if rangeParams, ok := gc.GetRangeParams(fire.AttackCategory); ok {
+		rows = append(rows,
+			SpecRow{Label: "適射程", Value: strconv.Itoa(rangeParams.OptimalRange)},
+			SpecRow{Label: "射程長", Value: strconv.Itoa(rangeParams.MaxRange)},
+		)
+	}
+	if fire.MagazineSize > 0 {
+		rows = append(rows,
+			SpecRow{Label: "弾数", Value: fmt.Sprintf("%d/%d", fire.Magazine, fire.MagazineSize)},
+			SpecRow{Label: "装填", Value: strconv.Itoa(fire.ReloadEffort)},
+		)
+	}
+	return rows
+}
+
+// wearableRows は防具の行を返す。先頭は装備部位の見出し
+func wearableRows(wearable *gc.Wearable) []SpecRow {
+	rows := []SpecRow{
+		{Label: wearable.EquipmentCategory.String(), Header: true},
+		{Label: consts.DefenseLabel, Value: fmt.Sprintf("%+d", wearable.Defense)},
+	}
 	if wearable.InsulationCold != 0 {
-		styled.NewTableRow(table, columnWidths, []string{"耐寒", fmt.Sprintf("%+d", wearable.InsulationCold)}, specTableAligns, nil, res)
+		rows = append(rows, SpecRow{Label: "耐寒", Value: fmt.Sprintf("%+d", wearable.InsulationCold)})
 	}
 	if wearable.InsulationHeat != 0 {
-		styled.NewTableRow(table, columnWidths, []string{"耐熱", fmt.Sprintf("%+d", wearable.InsulationHeat)}, specTableAligns, nil, res)
+		rows = append(rows, SpecRow{Label: "耐熱", Value: fmt.Sprintf("%+d", wearable.InsulationHeat)})
 	}
-
-	addEquipBonusToTable(table, columnWidths, wearable.EquipBonus, res)
-	targetContainer.AddChild(table)
+	rows = append(rows, equipBonusRows(wearable.EquipBonus)...)
+	return rows
 }
 
-// addFireAmmoInfo はFireの射程・弾薬関連情報を追加する
-func addFireAmmoInfo(targetContainer *widget.Container, fire *gc.Fire, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
-
-	table := styled.NewTableContainer(columnWidths, res)
-
-	if rangeParams, ok := gc.GetRangeParams(fire.AttackCategory); ok {
-		styled.NewTableRow(table, columnWidths, []string{"適射程", strconv.Itoa(rangeParams.OptimalRange)}, specTableAligns, nil, res)
-		styled.NewTableRow(table, columnWidths, []string{"射程長", strconv.Itoa(rangeParams.MaxRange)}, specTableAligns, nil, res)
+// equipBonusRows は装備ボーナスの行を返す。0 の項目は出さない
+func equipBonusRows(equipBonus gc.EquipBonus) []SpecRow {
+	var rows []SpecRow
+	add := func(label string, v int) {
+		if v != 0 {
+			rows = append(rows, SpecRow{Label: label, Value: fmt.Sprintf("%+d", v)})
+		}
 	}
-
-	if fire.MagazineSize > 0 {
-		ammo := fmt.Sprintf("%d/%d", fire.Magazine, fire.MagazineSize)
-		styled.NewTableRow(table, columnWidths, []string{"弾数", ammo}, specTableAligns, nil, res)
-		styled.NewTableRow(table, columnWidths, []string{"装填", strconv.Itoa(fire.ReloadEffort)}, specTableAligns, nil, res)
-	}
-
-	targetContainer.AddChild(table)
+	add(consts.VitalityLabel, equipBonus.Vitality)
+	add(consts.StrengthLabel, equipBonus.Strength)
+	add(consts.SensationLabel, equipBonus.Sensation)
+	add(consts.DexterityLabel, equipBonus.Dexterity)
+	add(consts.AgilityLabel, equipBonus.Agility)
+	return rows
 }
 
-// addValueInfo はValueコンポーネントの情報を追加する
-func addValueInfo(targetContainer *widget.Container, value *gc.Value, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"価値", query.FormatCurrency(value.Value)}, specTableAligns, nil, res)
-	targetContainer.AddChild(table)
-}
-
-// addHealingInfo はProvidesHealingコンポーネントの情報を追加する
-func addHealingInfo(targetContainer *widget.Container, healing *gc.ProvidesHealing, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
-
+// healingRows は回復量の行を返す
+func healingRows(healing *gc.ProvidesHealing) []SpecRow {
 	var healValue string
 	switch healing.Kind {
 	case gc.HealNumeral:
@@ -194,72 +198,36 @@ func addHealingInfo(targetContainer *widget.Container, healing *gc.ProvidesHeali
 	default:
 		healValue = "-"
 	}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"体力", healValue}, specTableAligns, nil, res)
-	targetContainer.AddChild(table)
+	return []SpecRow{{Label: "体力", Value: healValue}}
 }
 
-// addNutritionInfo はProvidesNutritionコンポーネントの情報を追加する
-func addNutritionInfo(targetContainer *widget.Container, nutrition *gc.ProvidesNutrition, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"栄養", strconv.Itoa(nutrition.Amount)}, specTableAligns, nil, res)
-	targetContainer.AddChild(table)
+// nutritionRows は栄養の行を返す
+func nutritionRows(nutrition *gc.ProvidesNutrition) []SpecRow {
+	return []SpecRow{{Label: "栄養", Value: strconv.Itoa(nutrition.Amount)}}
 }
 
-// addWeightInfo はWeightコンポーネントの情報を追加する
-func addWeightInfo(targetContainer *widget.Container, weight *gc.Weight, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"重量", weight.String()}, specTableAligns, nil, res)
-	targetContainer.AddChild(table)
+// valueRows は価値の行を返す
+func valueRows(value *gc.Value) []SpecRow {
+	return []SpecRow{{Label: "価値", Value: query.FormatCurrency(value.Value)}}
 }
 
-// addBookInfo はBookコンポーネントの情報を追加する
-func addBookInfo(targetContainer *widget.Container, book *gc.Book, world w.World) {
-	res := world.Resources.UIResources
-	columnWidths := []int{70, 80}
+// weightRows は重量の行を返す
+func weightRows(weight *gc.Weight) []SpecRow {
+	return []SpecRow{{Label: "重量", Value: weight.String()}}
+}
 
-	table := styled.NewTableContainer(columnWidths, res)
-
-	styled.NewTableHeaderRow(table, columnWidths, []string{"本", ""}, res)
-
+// bookRows は本の行を返す。先頭は見出し
+func bookRows(book *gc.Book) []SpecRow {
+	rows := []SpecRow{{Label: "本", Header: true}}
 	if book.Skill != nil {
-		skillName := gc.SkillName(book.Skill.TargetSkill)
-		styled.NewTableRow(table, columnWidths, []string{"スキル", skillName}, specTableAligns, nil, res)
-
-		lvRange := fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)
-		styled.NewTableRow(table, columnWidths, []string{"Lv", lvRange}, specTableAligns, nil, res)
+		rows = append(rows,
+			SpecRow{Label: "スキル", Value: gc.SkillName(book.Skill.TargetSkill)},
+			SpecRow{Label: "Lv", Value: fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)},
+		)
 	}
-
 	if book.Effort.Current > 0 && book.Effort.Max > 0 {
 		pct := book.Effort.Current * 100 / book.Effort.Max
-		styled.NewTableRow(table, columnWidths, []string{"進捗", fmt.Sprintf("%d%%", pct)}, specTableAligns, nil, res)
+		rows = append(rows, SpecRow{Label: "進捗", Value: fmt.Sprintf("%d%%", pct)})
 	}
-
-	targetContainer.AddChild(table)
-}
-
-// addEquipBonusToTable は装備ボーナスをテーブルに追加する
-func addEquipBonusToTable(table *widget.Container, columnWidths []int, equipBonus gc.EquipBonus, res resources.UIResources) {
-	if equipBonus.Vitality != 0 {
-		styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%+d", equipBonus.Vitality)}, specTableAligns, nil, res)
-	}
-	if equipBonus.Strength != 0 {
-		styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf("%+d", equipBonus.Strength)}, specTableAligns, nil, res)
-	}
-	if equipBonus.Sensation != 0 {
-		styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf("%+d", equipBonus.Sensation)}, specTableAligns, nil, res)
-	}
-	if equipBonus.Dexterity != 0 {
-		styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf("%+d", equipBonus.Dexterity)}, specTableAligns, nil, res)
-	}
-	if equipBonus.Agility != 0 {
-		styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%+d", equipBonus.Agility)}, specTableAligns, nil, res)
-	}
+	return rows
 }

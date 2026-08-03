@@ -11,13 +11,13 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -25,28 +25,26 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// shopSubState はショップメニュー内のサブステート
-type shopSubState int
-
-const (
-	shopSubStateMenu   shopSubState = iota // メニュー選択
-	shopSubStateWindow                     // アクションウィンドウ
-)
-
-const shopItemsPerPage = 20
-
 // ShopMenuState はショップメニューのゲームステート
 type ShopMenuState struct {
 	es.BaseState[w.World]
-	subState    shopSubState
-	menuMount   *hooks.Mount[shopProps]
-	windowMount *hooks.Mount[shopWindowProps]
-	widget      *ebitenui.UI
+	detail    menuscreen.Detail       // 詳細モーダルの表示状態とページ送り
+	actionWin menuscreen.ActionWindow // 購入・売却のアクション選択ウィンドウ
+	rebuild   bool                    // 次フレームで UI を作り直すか
+	menuMount *hooks.Mount[shopProps]
+	widget    *ebitenui.UI
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
+var _ Configurable = &ShopMenuState{}
+
+// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
+func (st *ShopMenuState) StateConfig() StateConfig {
+	return StateConfig{BlurBackground: false}
+}
+
 var _ es.ActionHandler[w.World] = &ShopMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
@@ -57,9 +55,9 @@ func (st *ShopMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
-	st.subState = shopSubStateMenu
 	st.menuMount = hooks.NewMount[shopProps]()
-	st.windowMount = hooks.NewMount[shopWindowProps]()
+	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
 	return nil
 }
 
@@ -68,19 +66,26 @@ func (st *ShopMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
+	// 入力処理。詳細・アクション窓が開いていればそちらが優先し、通常のメニュー入力は止まる
+	if st.detail.Active() {
+		if st.detail.HandleInput(world) {
+			st.rebuild = true
+		}
+	} else if st.actionWin.Active() {
+		dirty, err := st.actionWin.HandleInput(world)
+		if err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		if dirty {
+			st.rebuild = true
+		}
+	} else if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
 			return transition, nil
 		}
-		switch st.subState {
-		case shopSubStateMenu:
-			st.menuMount.Dispatch(action)
-		case shopSubStateWindow:
-			st.windowMount.Dispatch(action)
-		}
+		st.menuMount.Dispatch(action)
 	}
 
 	props := st.fetchProps(world)
@@ -94,16 +99,12 @@ func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	hooks.UseTabMenu(st.menuMount.Store(), "shop", hooks.TabMenuConfig{
 		TabCount:     len(props.Tabs),
 		ItemCounts:   itemCounts,
-		ItemsPerPage: shopItemsPerPage,
+		ItemsPerPage: menuItemsPerPage,
 	})
 
-	// ウィンドウ用のステート
-	st.setupWindowState(world)
-
-	menuDirty := st.menuMount.Update()
-	windowDirty := st.windowMount.Update()
-	if menuDirty || windowDirty || st.widget == nil {
+	if st.menuMount.Update() || st.widget == nil || st.rebuild {
 		st.widget = st.buildUI(world)
+		st.rebuild = false
 	}
 
 	st.widget.Update()
@@ -116,47 +117,30 @@ func (st *ShopMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// HandleInput はキー入力をActionに変換する
+// HandleInput はキー入力をActionに変換する。アクション窓の入力は Update 側で actionWin が扱う
 func (st *ShopMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	switch st.subState {
-	case shopSubStateMenu:
-		return HandleMenuInput()
-	case shopSubStateWindow:
-		return HandleWindowInput()
+	ki := input.GetSharedKeyboardInput()
+	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
+		return inputmapper.ActionOpenItemDetail, true
 	}
-	return "", false
+	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する
-func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	switch st.subState {
-	case shopSubStateWindow:
-		switch action {
-		case inputmapper.ActionWindowConfirm:
-			if err := st.executeActionItem(world); err != nil {
-				return es.Transition[w.World]{}, err
-			}
-		case inputmapper.ActionWindowCancel:
-			st.subState = shopSubStateMenu
-		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
-			// Dispatchで処理される
-		default:
-			return es.Transition[w.World]{}, fmt.Errorf("shopSubStateWindow: 未対応のアクション: %s", action)
-		}
-
-	case shopSubStateMenu:
-		switch action {
-		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-			return es.Transition[w.World]{Type: es.TransPop}, nil
-		case inputmapper.ActionMenuSelect:
-			if err := st.handleItemSelection(world); err != nil {
-				return es.Transition[w.World]{}, err
-			}
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-			// Dispatchで処理される
-		default:
-			return es.Transition[w.World]{}, fmt.Errorf("shopSubStateMenu: 未対応のアクション: %s", action)
-		}
+func (st *ShopMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	switch action {
+	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionOpenItemDetail:
+		st.detail.Open()
+		st.rebuild = true
+	case inputmapper.ActionMenuSelect:
+		st.actionWin.Open()
+		st.rebuild = true
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+		// Dispatchで処理される
+	default:
+		return es.Transition[w.World]{}, fmt.Errorf("shopMenu: 未対応のアクション: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -166,8 +150,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 // ================
 
 type shopProps struct {
-	Tabs     []shopTabData
-	Currency int
+	Tabs []shopTabData
 }
 
 type shopTabData struct {
@@ -178,15 +161,12 @@ type shopTabData struct {
 
 type shopItemData struct {
 	Label    string
+	Weight   string
 	Price    int
 	Count    int // 売却時のアイテム個数
 	Entity   ecs.Entity
 	IsBuy    bool
 	Disabled bool
-}
-
-type shopWindowProps struct {
-	SelectedItem shopItemData
 }
 
 func (st *ShopMenuState) fetchProps(world w.World) shopProps {
@@ -202,8 +182,7 @@ func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	})
 
 	return shopProps{
-		Tabs:     st.createTabs(world, currency, buyPriceMod, sellPriceMod),
-		Currency: currency,
+		Tabs: st.createTabs(world, currency, buyPriceMod, sellPriceMod),
 	}
 }
 
@@ -224,6 +203,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 
 		items = append(items, shopItemData{
 			Label:    itemName,
+			Weight:   shopItemWeight(world, itemName),
 			Price:    price,
 			IsBuy:    true,
 			Disabled: !canAfford,
@@ -250,6 +230,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 
 			items = append(items, shopItemData{
 				Label:  itemName,
+				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
 				Count:  count,
 				Entity: entity,
@@ -259,6 +240,15 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 	})
 
 	return items
+}
+
+// shopItemWeight は raw 定義から商品1個の重量表記を返す。重量を持たない品は空文字を返す
+func shopItemWeight(world w.World, label string) string {
+	spec, err := raw.NewItemSpec(world.Resources.RawMaster, label)
+	if err != nil || spec.Weight == nil {
+		return ""
+	}
+	return spec.Weight.KgString()
 }
 
 func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {
@@ -277,114 +267,53 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 // Window
 // ================
 
-func (st *ShopMenuState) setupWindowState(world w.World) {
-	windowProps := st.windowMount.GetProps()
-	actionItems := st.getActionItems(world, windowProps.SelectedItem)
-
-	hooks.UseState(st.windowMount.Store(), "shop_window_index", 0, func(v int, action inputmapper.ActionID) int {
-		switch action {
-		case inputmapper.ActionWindowUp:
-			if v > 0 {
-				return v - 1
-			}
-			return len(actionItems) - 1
-		case inputmapper.ActionWindowDown:
-			if v < len(actionItems)-1 {
-				return v + 1
-			}
-			return 0
-		default:
-			return v
-		}
-	})
-}
-
-func (st *ShopMenuState) getActionItems(world w.World, item shopItemData) []string {
-	if item.Label == "" {
-		return []string{TextClose}
+// actionWindowContent は現在カーソルが当たっている商品の見出しと選択肢を返す。アクション窓の唯一の定義点。
+// 選択肢の実行内容も Run に閉じ込め、購入・売却・閉じるを1箇所で定義する
+func (st *ShopMenuState) actionWindowContent(world w.World) (string, []menuscreen.Action, bool) {
+	item, ok := st.selectedShopItem()
+	if !ok || item.Label == "" {
+		return "", nil, false
 	}
-
-	actionItems := []string{}
-
+	var actions []menuscreen.Action
 	if item.IsBuy {
-		var canAfford bool
-		query.Player(world, func(playerEntity ecs.Entity) {
-			currency := query.GetCurrency(world, playerEntity)
-			canAfford = currency >= item.Price
-		})
+		canAfford := false
+		query.Player(world, func(p ecs.Entity) { canAfford = query.GetCurrency(world, p) >= item.Price })
 		if canAfford {
-			actionItems = append(actionItems, TextBuy)
+			actions = append(actions, menuscreen.Action{Label: TextBuy, Run: func(world w.World) error {
+				var err error
+				query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })
+				if err != nil {
+					return fmt.Errorf("購入に失敗: %w", err)
+				}
+				return nil
+			}})
 		}
 	} else {
-		actionItems = append(actionItems, TextSell)
+		actions = append(actions, menuscreen.Action{Label: TextSell, Run: func(world w.World) error {
+			var err error
+			query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })
+			if err != nil {
+				return fmt.Errorf("売却に失敗: %w", err)
+			}
+			return nil
+		}})
 	}
-	actionItems = append(actionItems, TextClose)
-
-	return actionItems
+	actions = append(actions, menuscreen.Action{Label: TextClose})
+	return "アクション選択", actions, true
 }
 
-func (st *ShopMenuState) handleItemSelection(_ w.World) error {
+// selectedShopItem は現在カーソルが当たっている商品を返す
+func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "shop")
-	if !ok {
-		return fmt.Errorf("shopの取得に失敗")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "shop")
+	if menuState.TabIndex >= len(props.Tabs) {
+		return shopItemData{}, false
 	}
-	tabIndex := menuState.TabIndex
-	itemIndex := menuState.ItemIndex
-
-	if tabIndex >= len(props.Tabs) {
-		return nil
+	items := props.Tabs[menuState.TabIndex].Items
+	if menuState.ItemIndex >= len(items) {
+		return shopItemData{}, false
 	}
-	tab := props.Tabs[tabIndex]
-	if itemIndex >= len(tab.Items) {
-		return nil
-	}
-	item := tab.Items[itemIndex]
-
-	st.subState = shopSubStateWindow
-	st.windowMount = hooks.NewMount[shopWindowProps]()
-	st.windowMount.SetProps(shopWindowProps{
-		SelectedItem: item,
-	})
-	return nil
-}
-
-func (st *ShopMenuState) executeActionItem(world w.World) error {
-	windowProps := st.windowMount.GetProps()
-	actionIndex, ok := hooks.GetState[int](st.windowMount, "shop_window_index")
-	if !ok {
-		return fmt.Errorf("shop_window_indexの取得に失敗")
-	}
-	actionItems := st.getActionItems(world, windowProps.SelectedItem)
-
-	if actionIndex >= len(actionItems) {
-		return nil
-	}
-
-	selectedAction := actionItems[actionIndex]
-
-	var actionErr error
-	switch selectedAction {
-	case TextBuy:
-		query.Player(world, func(playerEntity ecs.Entity) {
-			actionErr = gameaction.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
-		})
-		if actionErr != nil {
-			return fmt.Errorf("購入に失敗: %w", actionErr)
-		}
-		st.subState = shopSubStateMenu
-	case TextSell:
-		query.Player(world, func(playerEntity ecs.Entity) {
-			actionErr = gameaction.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
-		})
-		if actionErr != nil {
-			return fmt.Errorf("売却に失敗: %w", actionErr)
-		}
-		st.subState = shopSubStateMenu
-	case TextClose:
-		st.subState = shopSubStateMenu
-	}
-	return nil
+	return items[menuState.ItemIndex], true
 }
 
 // ================
@@ -398,53 +327,66 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewItemGridContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
+	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
 
-	// 1行目: タイトル、カテゴリ、所持金
-	root.AddChild(styled.NewTitleText("店", res))
-	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
-	root.AddChild(st.buildCurrencyContainer(props.Currency, res))
+	eui := newTabScreenUI(res, tabScreen{
+		TabLabels: labels,
+		TabIndex:  tabIndex,
+		Content:   st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res),
+		Footer:    menuNavHint(true, "x 詳細"),
+	})
 
-	// 2行目: アイテム一覧、空、性能表示
-	root.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(st.buildSpecContainer(world, props, tabIndex, itemIndex, res))
+	// 詳細モーダル
+	if st.detail.Active() {
+		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
+			eui.AddWindow(win)
+		}
+	}
 
-	// 3行目: 説明文
-	root.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(widget.NewContainer())
-
-	eui := &ebitenui.UI{Container: root}
-
-	// ウィンドウを追加
-	if st.subState == shopSubStateWindow {
-		actionWindow := st.buildActionWindow(world, st.windowMount.GetProps())
-		eui.AddWindow(actionWindow)
+	// アクション選択ウィンドウ
+	if st.actionWin.Active() {
+		if win := st.actionWin.Window(world, getCenterWinRect(world)); win != nil {
+			eui.AddWindow(win)
+		}
 	}
 
 	return eui
 }
 
-func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	for i, tab := range tabs {
-		isSelected := i == tabIndex
-		color := theme.TextSecondary
-		if isSelected {
-			color = theme.TextPrimary
-		}
-		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
+// detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点
+func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+	name, desc, spec, ok := st.selectedDetail(world)
+	if !ok {
+		return menuscreen.DetailContent{}, false
 	}
-	return container
+	return menuscreen.DetailContent{Name: name, Desc: desc, Spec: &spec}, true
 }
 
-func (st *ShopMenuState) buildCurrencyContainer(currency int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))
-	return container
+// selectedDetail は現在カーソルが当たっている商品の名前・説明・性能を raw 定義から解決する
+func (st *ShopMenuState) selectedDetail(world w.World) (name, desc string, spec gc.EntitySpec, ok bool) {
+	props := st.menuMount.GetProps()
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "shop")
+	if menuState.TabIndex >= len(props.Tabs) {
+		return "", "", gc.EntitySpec{}, false
+	}
+	items := props.Tabs[menuState.TabIndex].Items
+	if menuState.ItemIndex >= len(items) {
+		return "", "", gc.EntitySpec{}, false
+	}
+	label := items[menuState.ItemIndex].Label
+	s, err := raw.NewItemSpec(world.Resources.RawMaster, label)
+	if err != nil {
+		return "", "", gc.EntitySpec{}, false
+	}
+	d := ""
+	if s.Description != nil {
+		d = s.Description.Description
+	}
+	return label, d, s, true
 }
 
 func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
@@ -454,44 +396,21 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	}
 
 	currentTab := tabs[tabIndex]
-	pg := pagination.New(itemIndex, len(currentTab.Items), shopItemsPerPage)
+	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
 
 	// ページインジケーター（上部固定位置、右寄せ）
-	pageText := pg.GetPageText()
-	if pageText == "" {
-		pageText = " "
+	container.AddChild(newPageIndicator(pg, res))
+
+	// 名前+個数、重量、価格の3列。売却の個数は名前に x個数 として添える
+	columnWidths := []int{200, 70, 80}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	table := styled.NewTableContainer(columnWidths, res)
+	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		priceStr := query.FormatCurrency(entry.Item.Price)
+		styled.NewTableRow(table, columnWidths, []string{nameWithCount(entry.Item.Label, entry.Item.Count), entry.Item.Weight, priceStr}, aligns, &isSelected, res)
 	}
-	container.AddChild(styled.NewPageIndicator(pageText, res))
-
-	// 購入タブ: カーソル、名前、価格の3列
-	// 売却タブ: カーソル、名前、価格、個数の4列
-	if currentTab.ID == "buy" {
-		columnWidths := []int{20, 150, 80}
-		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
-
-		table := styled.NewTableContainer(columnWidths, res)
-		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-			isSelected := pg.IsSelectedInPage(entry.Index)
-			priceStr := query.FormatCurrency(entry.Item.Price)
-			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr}, aligns, &isSelected, res)
-		}
-		container.AddChild(table)
-	} else {
-		columnWidths := []int{20, 150, 80, 40}
-		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}
-
-		table := styled.NewTableContainer(columnWidths, res)
-		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-			isSelected := pg.IsSelectedInPage(entry.Index)
-			priceStr := query.FormatCurrency(entry.Item.Price)
-			countStr := ""
-			if entry.Item.Count > 1 {
-				countStr = fmt.Sprintf("x%d", entry.Item.Count)
-			}
-			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr, countStr}, aligns, &isSelected, res)
-		}
-		container.AddChild(table)
-	}
+	container.AddChild(table)
 
 	if len(currentTab.Items) == 0 {
 		if currentTab.ID == "sell" {
@@ -502,68 +421,4 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	}
 
 	return container
-}
-
-func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-
-	if tabIndex >= len(props.Tabs) {
-		return container
-	}
-	tab := props.Tabs[tabIndex]
-	if itemIndex >= len(tab.Items) {
-		return container
-	}
-	item := tab.Items[itemIndex]
-
-	// RawMasterからEntitySpecを取得して性能を表示
-	rawMaster := world.Resources.RawMaster
-	spec, err := raw.NewItemSpec(rawMaster, item.Label)
-	if err != nil {
-		return container
-	}
-
-	views.UpdateSpecFromSpec(world, container, spec)
-	return container
-}
-
-func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	desc := " "
-
-	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
-		item := tabs[tabIndex].Items[itemIndex]
-		rawMaster := world.Resources.RawMaster
-		spec, err := raw.NewItemSpec(rawMaster, item.Label)
-		if err == nil && spec.Description != nil {
-			desc = spec.Description.Description
-		}
-	}
-
-	if desc == "" {
-		desc = " "
-	}
-	container.AddChild(styled.NewMenuText(desc, res))
-	return container
-}
-
-func (st *ShopMenuState) buildActionWindow(world w.World, windowProps shopWindowProps) *widget.Window {
-	res := world.Resources.UIResources
-	actionIndex, _ := hooks.GetState[int](st.windowMount, "shop_window_index")
-	actionItems := st.getActionItems(world, windowProps.SelectedItem)
-
-	windowContainer := styled.NewWindowContainer(res)
-	titleContainer := styled.NewWindowHeaderContainer("アクション選択", res)
-	window := styled.NewSmallWindow(titleContainer, windowContainer)
-
-	for i, action := range actionItems {
-		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)
-		windowContainer.AddChild(actionWidget)
-	}
-
-	window.SetLocation(getCenterWinRect(world))
-	return window
 }

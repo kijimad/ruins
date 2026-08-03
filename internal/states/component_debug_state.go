@@ -18,8 +18,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-const componentDebugItemsPerPage = 20
-
 // ComponentDebugState はコンポーネント数を一覧表示するデバッグ用ステート
 type ComponentDebugState struct {
 	es.BaseState[w.World]
@@ -62,7 +60,7 @@ func (st *ComponentDebugState) Update(world w.World) (es.Transition[w.World], er
 	hooks.UseTabMenu(st.mount.Store(), "compdbg", hooks.TabMenuConfig{
 		TabCount:     1,
 		ItemCounts:   []int{len(props.Items)},
-		ItemsPerPage: componentDebugItemsPerPage,
+		ItemsPerPage: menuItemsPerPage,
 	})
 
 	if st.mount.Update() {
@@ -174,12 +172,8 @@ func (st *ComponentDebugState) buildUI(world w.World) *ebitenui.UI {
 	// Row 1: リスト
 	container := styled.NewVerticalContainer()
 
-	pg := pagination.New(itemIndex, len(props.Items), componentDebugItemsPerPage)
-	pageText := pg.GetPageText()
-	if pageText == "" {
-		pageText = " "
-	}
-	container.AddChild(styled.NewPageIndicator(pageText, res))
+	pg := pagination.New(itemIndex, len(props.Items), menuItemsPerPage)
+	container.AddChild(newPageIndicator(pg, res))
 
 	columnWidths := []int{160, 60}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
