@@ -23,7 +23,6 @@ func (wb *WaitBehavior) Info() Info {
 		Interruptible:   true,
 		Resumable:       true,
 		ActionPointCost: consts.StandardActionCost,
-		// 待機は時間経過なので TotalRequiredAP は使わない。Required は待機回数を直接持つ
 	}
 }
 
