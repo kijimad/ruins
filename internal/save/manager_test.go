@@ -449,17 +449,14 @@ func TestRestoreWorldFromJSON_PreservesWorldOnFailure(t *testing.T) {
 	badJSON, err := manager.LoadWorldJSON("bad_slot")
 	require.NoError(t, err)
 
-	// 現行ワールドに識別可能な内容を入れておく
 	world := testutil.InitTestWorld(t)
 	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.Name.Add(player, &gc.Name{Name: "生存確認プレイヤー"})
 
-	// 復元は失敗する
 	err = manager.RestoreWorldFromJSON(world, badJSON)
 	require.Error(t, err)
 
-	// 失敗しても現行ワールドのプレイヤーは消えていない
 	survived := false
 	q := ecs.NewFilter1[gc.Player](world.ECS).Query()
 	for q.Next() {
