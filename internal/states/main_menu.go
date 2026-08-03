@@ -10,8 +10,8 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -21,8 +21,7 @@ import (
 // MainMenuState はメインメニューのゲームステート
 type MainMenuState struct {
 	es.BaseState[w.World]
-	menuMount *hooks.Mount[mainMenuProps]
-	widget    *ebitenui.UI
+	screen Screen[mainMenuProps]
 }
 
 // State interface ================
@@ -50,7 +49,7 @@ func (st *MainMenuState) OnStart(world w.World) error {
 	// シングルトンエンティティを再構築する
 	world.InitSingleton()
 
-	st.menuMount = hooks.NewMount[mainMenuProps]()
+	st.screen = NewScreen[mainMenuProps]()
 	return nil
 }
 
@@ -59,31 +58,7 @@ func (st *MainMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.menuMount.Dispatch(action)
-	}
-
-	// Props更新
-	st.menuMount.SetProps(st.fetchProps(world))
-	props := st.menuMount.GetProps()
-	hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
-	})
-
-	// dirty判定とUI再構築
-	if st.menuMount.Update() || st.widget == nil {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world, st)
 }
 
 // Draw はスクリーンに描画する
@@ -95,7 +70,7 @@ func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 	}
 	screen.DrawImage(bgImage, nil)
 
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
@@ -134,7 +109,7 @@ type mainMenuItem struct {
 	Transition es.Transition[w.World]
 }
 
-func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
+func (st *MainMenuState) fetch(world w.World) mainMenuProps {
 	var startFuncs []es.StateFactory[w.World]
 	if world.Config.SkipOpening {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
@@ -153,18 +128,16 @@ func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
 	}
 }
 
-func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
-	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-	if !ok {
-		return es.Transition[w.World]{}, fmt.Errorf("menuの取得に失敗")
-	}
-	itemIndex := menuState.ItemIndex
+func (st *MainMenuState) menu(props mainMenuProps) MenuConfig {
+	return MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+}
 
+func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
+	props := st.screen.Props()
+	itemIndex := st.screen.Selection().ItemIndex
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-
 	return props.Items[itemIndex].Transition, nil
 }
 
@@ -172,11 +145,8 @@ func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 // buildUI
 // ================
 
-func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-	itemIndex := menuState.ItemIndex
+func (st *MainMenuState) view(_ w.World, props mainMenuProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+	itemIndex := sel.ItemIndex
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -105,9 +104,7 @@ func TestCharacterJobState_OnStart(t *testing.T) {
 	state := &CharacterJobState{playerName: "TestPlayer"}
 	world := testutil.InitTestWorld(t)
 
-	err := state.OnStart(world)
-	require.NoError(t, err)
-	assert.NotNil(t, state.menuMount, "menuMountが初期化されている")
+	require.NoError(t, state.OnStart(world))
 }
 
 func TestCharacterJobState_FetchProps(t *testing.T) {
@@ -117,7 +114,7 @@ func TestCharacterJobState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps(world)
+	props := state.fetch(world)
 
 	assert.Len(t, props.Items, 6, "職業は6つ")
 	assert.Equal(t, "避難民", props.Items[0].Profession.Name)
@@ -126,67 +123,6 @@ func TestCharacterJobState_FetchProps(t *testing.T) {
 	assert.Equal(t, "衛生兵", props.Items[3].Profession.Name)
 	assert.Equal(t, "狙撃手", props.Items[4].Profession.Name)
 	assert.Equal(t, "軍人", props.Items[5].Profession.Name)
-}
-
-func TestCharacterJobState_Navigation(t *testing.T) {
-	t.Parallel()
-
-	state := &CharacterJobState{playerName: "TestPlayer"}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	props := state.fetchProps(world)
-	state.menuMount.SetProps(props)
-	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
-	})
-	state.menuMount.Update()
-
-	// 初期状態
-	menuState, ok := hooks.GetState[hooks.TabMenuState](state.menuMount, "job")
-	assert.True(t, ok)
-	assert.Equal(t, 0, menuState.ItemIndex, "初期インデックスは0")
-
-	// 下に移動
-	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
-	state.menuMount.Update()
-	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "job")
-	assert.Equal(t, 1, menuState.ItemIndex, "下移動後は1")
-
-	// 上に移動
-	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
-	state.menuMount.Update()
-	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "job")
-	assert.Equal(t, 0, menuState.ItemIndex, "上移動後は0")
-}
-
-func TestCharacterJobState_CircularNavigation(t *testing.T) {
-	t.Parallel()
-
-	state := &CharacterJobState{playerName: "TestPlayer"}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	props := state.fetchProps(world)
-	state.menuMount.SetProps(props)
-	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
-	})
-	state.menuMount.Update()
-
-	// 最初から上に移動すると最後に
-	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
-	state.menuMount.Update()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](state.menuMount, "job")
-	assert.Equal(t, 5, menuState.ItemIndex, "循環して最後の項目に移動")
-
-	// 最後から下に移動すると最初に
-	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
-	state.menuMount.Update()
-	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "job")
-	assert.Equal(t, 0, menuState.ItemIndex, "循環して最初の項目に移動")
 }
 
 func TestCharacterJobState_DoAction_Cancel(t *testing.T) {

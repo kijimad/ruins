@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -28,8 +27,7 @@ import (
 // CharacterJobState はキャラクター職業選択画面のステート
 type CharacterJobState struct {
 	es.BaseState[w.World]
-	menuMount  *hooks.Mount[jobMenuProps]
-	widget     *ebitenui.UI
+	screen     Screen[jobMenuProps]
 	playerName string // TODO: どうにかする。キャラメイクは複数のstateで構成され、前の決定事項を保持する必要がある...
 }
 
@@ -54,9 +52,8 @@ func (st *CharacterJobState) OnPause(_ w.World) error { return nil }
 func (st *CharacterJobState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
-func (st *CharacterJobState) OnStart(world w.World) error {
-	st.menuMount = hooks.NewMount[jobMenuProps]()
-	st.menuMount.SetProps(st.fetchProps(world))
+func (st *CharacterJobState) OnStart(_ w.World) error {
+	st.screen = NewScreen[jobMenuProps]()
 	return nil
 }
 
@@ -65,36 +62,13 @@ func (st *CharacterJobState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], error) {
-	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.menuMount.Dispatch(action)
-	}
-
-	// Props更新。職業データは静的なのでOnStartでセット済み
-	props := st.menuMount.GetProps()
-	hooks.UseTabMenu(st.menuMount.Store(), "job", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
-	})
-
-	// dirty判定とUI再構築
-	if st.menuMount.Update() || st.widget == nil {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world, st)
 }
 
 // Draw はスクリーンに描画する
 func (st *CharacterJobState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(theme.ScreenBackground)
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
@@ -132,7 +106,7 @@ type jobMenuItem struct {
 	Profession oapi.Profession
 }
 
-func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
+func (st *CharacterJobState) fetch(world w.World) jobMenuProps {
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	items := make([]jobMenuItem, len(professions))
 	for i := range professions {
@@ -141,14 +115,13 @@ func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
 	return jobMenuProps{Items: items}
 }
 
-func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
-	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
-	if !ok {
-		return es.Transition[w.World]{}, fmt.Errorf("jobの取得に失敗")
-	}
-	itemIndex := menuState.ItemIndex
+func (st *CharacterJobState) menu(props jobMenuProps) MenuConfig {
+	return MenuConfig{Key: "job", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+}
 
+func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
+	props := st.screen.Props()
+	itemIndex := st.screen.Selection().ItemIndex
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
@@ -193,11 +166,8 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // buildUI
 // ================
 
-func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
-	itemIndex := menuState.ItemIndex
+func (st *CharacterJobState) view(_ w.World, props jobMenuProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+	itemIndex := sel.ItemIndex
 
 	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
 	rootContainer := widget.NewContainer(

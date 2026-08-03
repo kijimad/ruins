@@ -8,9 +8,10 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -21,8 +22,7 @@ import (
 // ComponentDebugState はコンポーネント数を一覧表示するデバッグ用ステート
 type ComponentDebugState struct {
 	es.BaseState[w.World]
-	mount  *hooks.Mount[componentDebugProps]
-	widget *ebitenui.UI
+	screen Screen[componentDebugProps]
 }
 
 var _ es.State[w.World] = &ComponentDebugState{}
@@ -38,43 +38,24 @@ func (st *ComponentDebugState) OnStop(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
-	st.mount = hooks.NewMount[componentDebugProps]()
+	st.screen = NewScreen[componentDebugProps]()
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *ComponentDebugState) Update(world w.World) (es.Transition[w.World], error) {
-	action, ok := HandleMenuInput()
-	if ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.mount.Dispatch(action)
-	}
-
-	props := st.fetchProps(world)
-	st.mount.SetProps(props)
-
-	hooks.UseTabMenu(st.mount.Store(), "compdbg", hooks.TabMenuConfig{
-		TabCount:     1,
-		ItemCounts:   []int{len(props.Items)},
-		ItemsPerPage: menuItemsPerPage,
-	})
-
-	if st.mount.Update() {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world, st)
 }
 
 // Draw はゲームステートの描画処理を行う
 func (st *ComponentDebugState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
+}
+
+// HandleInput はキー入力を Action に変換する
+func (st *ComponentDebugState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する
@@ -108,7 +89,7 @@ type componentDebugItem struct {
 	Count int
 }
 
-func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
+func (st *ComponentDebugState) fetch(world w.World) componentDebugProps {
 	// Ark に登録された全コンポーネントを走査し、種類ごとの保有エンティティ数を集計する
 	ids := ecs.ComponentIDs(world.ECS)
 	items := make([]componentDebugItem, 0, len(ids))
@@ -139,15 +120,16 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 	return componentDebugProps{Items: items, Total: total}
 }
 
+func (st *ComponentDebugState) menu(props componentDebugProps) MenuConfig {
+	return MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
+}
+
 // ================
-// buildUI
+// view
 // ================
 
-func (st *ComponentDebugState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.mount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "compdbg")
-	itemIndex := menuState.ItemIndex
+func (st *ComponentDebugState) view(_ w.World, props componentDebugProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+	itemIndex := sel.ItemIndex
 
 	root := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
