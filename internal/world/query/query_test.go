@@ -11,6 +11,34 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestAliveHas(t *testing.T) {
+	t.Parallel()
+
+	t.Run("生存しコンポーネントを持つ場合はtrue", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: "テスト"})
+		assert.True(t, AliveHas(world, world.Components.Name, e))
+	})
+
+	t.Run("生存するがコンポーネントを持たない場合はfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		assert.False(t, AliveHas(world, world.Components.Name, e))
+	})
+
+	t.Run("死亡エンティティはパニックせずfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: "テスト"})
+		world.ECS.RemoveEntity(e)
+		assert.False(t, AliveHas(world, world.Components.Name, e))
+	})
+}
+
 func TestPlayer(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

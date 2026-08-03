@@ -53,23 +53,17 @@ type statusDetailRow struct {
 	Value string
 }
 
-// aliveHas はエンティティが生存しコンポーネントを保持する場合のみtrueを返す。
-// Arkは死亡エンティティのHasでパニックするため、生存確認と組み合わせる
-func aliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {
-	return world.ECS.Alive(entity) && comp.Has(entity)
-}
-
 // fetchInfoTabs は能力・スキル・効果・健康・基本の読み取り専用タブを構築する
 func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []statusTabData {
 	envTemp := 0
-	if aliveHas(world, world.Components.GridElement, player) {
+	if query.AliveHas(world, world.Components.GridElement, player) {
 		gridElement := world.Components.GridElement.Get(player)
 		if temp, err := systems.CalculateEnvTemperature(world, gridElement.X, gridElement.Y); err == nil {
 			envTemp = temp
 		}
 	}
 	professionName := ""
-	if aliveHas(world, world.Components.Profession, player) {
+	if query.AliveHas(world, world.Components.Profession, player) {
 		profComp := world.Components.Profession.Get(player)
 		if prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID); err == nil {
 			professionName = prof.Name
@@ -91,15 +85,15 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	if professionName != "" {
 		items = append(items, statusItemData{Label: "職業", Value: professionName, Description: "職業"})
 	}
-	if aliveHas(world, world.Components.HP, playerEntity) {
+	if query.AliveHas(world, world.Components.HP, playerEntity) {
 		hp := world.Components.HP.Get(playerEntity)
 		items = append(items, statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: "体力。0になると死亡する"})
 	}
-	if aliveHas(world, world.Components.WeightCapacity, playerEntity) {
+	if query.AliveHas(world, world.Components.WeightCapacity, playerEntity) {
 		cw := world.Components.WeightCapacity.Get(playerEntity)
 		items = append(items, statusItemData{Label: "最大重量", Value: cw.Max.KgString(), Description: "所持可能な最大重量"})
 	}
-	if aliveHas(world, world.Components.Hunger, playerEntity) {
+	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
 		items = append(items, statusItemData{Label: "空腹度", Value: hunger.GetLevel().String(), Description: "空腹度。高いと行動に支障が出る"})
 	}
@@ -112,7 +106,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 
 func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
-	if aliveHas(world, world.Components.Abilities, playerEntity) {
+	if query.AliveHas(world, world.Components.Abilities, playerEntity) {
 		abils := world.Components.Abilities.Get(playerEntity)
 		items = append(items,
 			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
@@ -128,7 +122,7 @@ func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Ent
 
 func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
-	if !aliveHas(world, world.Components.Skills, playerEntity) {
+	if !query.AliveHas(world, world.Components.Skills, playerEntity) {
 		return items
 	}
 	skills := world.Components.Skills.Get(playerEntity)
@@ -157,7 +151,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 
 func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
-	if !aliveHas(world, world.Components.CharModifiers, playerEntity) {
+	if !query.AliveHas(world, world.Components.CharModifiers, playerEntity) {
 		return items
 	}
 	e := world.Components.CharModifiers.Get(playerEntity)
@@ -212,7 +206,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := make([]statusItemData, 0, int(gc.BodyPartCount))
 	var hs *gc.HealthStatus
-	if aliveHas(world, world.Components.HealthStatus, playerEntity) {
+	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
 		hs = world.Components.HealthStatus.Get(playerEntity)
 	}
 	for i := range int(gc.BodyPartCount) {
