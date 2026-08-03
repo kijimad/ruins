@@ -22,6 +22,21 @@ func NewRowContainer(opts ...widget.ContainerOpt) *widget.Container {
 	)
 }
 
+// NewTabBar は上部タブ帯を作成する。動詞タブと画面タブで共有する部品。
+// labels をタブ見出しとして横並びにし、selectedIndex のタブを強調色で描く。
+func NewTabBar(labels []string, selectedIndex int, res resources.UIResources) *widget.Container {
+	container := NewRowContainer()
+	for i, label := range labels {
+		isSelected := i == selectedIndex
+		clr := theme.TextSecondary
+		if isSelected {
+			clr = theme.TextPrimary
+		}
+		container.AddChild(NewListItemText(label, clr, isSelected, res))
+	}
+	return container
+}
+
 // NewVerticalContainer は中身が縦並びのコンテナを作成する
 func NewVerticalContainer(opts ...widget.ContainerOpt) *widget.Container {
 	return widget.NewContainer(
@@ -58,30 +73,6 @@ func NewItemGridContainer(opts ...widget.ContainerOpt) *widget.Container {
 				)),
 		}, opts...)...,
 	)
-}
-
-// NewVSplitContainer は縦分割コンテナを作成する
-func NewVSplitContainer(top *widget.Container, bottom *widget.Container, opts ...widget.ContainerOpt) *widget.Container {
-	split := widget.NewContainer(
-		append([]widget.ContainerOpt{
-			widget.ContainerOpts.Layout(
-				widget.NewGridLayout(
-					widget.GridLayoutOpts.Columns(1),
-					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
-					widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true, true}),
-					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    theme.Space3,
-						Bottom: theme.Space3,
-						Left:   theme.Space3,
-						Right:  theme.Space3,
-					}),
-				)),
-		}, opts...)...,
-	)
-	split.AddChild(top)
-	split.AddChild(bottom)
-
-	return split
 }
 
 // NewWSplitContainer は横分割コンテナを作成する

@@ -34,11 +34,23 @@ const (
 const (
 	ActionPickup  ActionID = "pickup"
 	ActionDrop    ActionID = "drop"
-	ActionPlace   ActionID = "place"
 	ActionUseItem ActionID = "use_item"
 	ActionEquip   ActionID = "equip"
 	ActionUnequip ActionID = "unequip"
 )
+
+// 動詞タブ画面を対応タブで開くアクション。ダンジョン・各メニューから直達する
+const (
+	ActionVerbExamine ActionID = "verb_examine" // 調べる
+	ActionVerbPlace   ActionID = "verb_place"   // 置く
+	ActionVerbConsume ActionID = "verb_consume" // 食べる。飲み物も含む
+	ActionVerbRead    ActionID = "verb_read"    // 読む
+	ActionVerbUse     ActionID = "verb_use"     // 使う
+	ActionVerbThrow   ActionID = "verb_throw"   // 投げる
+)
+
+// ActionOpenItemDetail は動詞タブ画面で選択中アイテムの詳細モーダルを開く
+const ActionOpenItemDetail ActionID = "open_item_detail"
 
 // 世界との相互作用アクション
 const (
@@ -67,18 +79,13 @@ const (
 	ActionMenuCancel  ActionID = "menu_cancel"
 	ActionMenuTabNext ActionID = "menu_tab_next"
 	ActionMenuTabPrev ActionID = "menu_tab_prev"
+	// 対象切替。キャラクター画面で主人公と仲間を巡回するなど、画面内の対象を前後に切り替える
+	ActionMenuSubjectPrev ActionID = "menu_subject_prev"
+	ActionMenuSubjectNext ActionID = "menu_subject_next"
 )
 
 // メッセージウィンドウ系アクション
 const (
 	ActionConfirm ActionID = "confirm" // メッセージ確認
 	ActionSkip    ActionID = "skip"    // メッセージスキップ
-)
-
-// ウィンドウモード操作アクション
-const (
-	ActionWindowUp      ActionID = "window_up"
-	ActionWindowDown    ActionID = "window_down"
-	ActionWindowConfirm ActionID = "window_confirm"
-	ActionWindowCancel  ActionID = "window_cancel"
 )

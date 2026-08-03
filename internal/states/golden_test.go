@@ -79,16 +79,24 @@ func TestGolden_OverworldMap(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
 }
 
-func TestGolden_InventoryMenu(t *testing.T) {
+// TestGolden_ItemAction は動詞タブ画面を固定する。調べるタブでバックパックの
+// アイテムを名前のみで一覧する経路を覆う。
+func TestGolden_ItemAction(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(town, &gs.InventoryMenuState{}))
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		_, err := lifecycle.SpawnBackpackItem(world, "回復薬", 3)
+		require.NoError(t, err)
+		town := newGoldenBackdrop(t)
+		return []es.State[w.World]{town, &gs.ItemActionState{}}
+	})
 }
 
-func TestGolden_EquipMenu(t *testing.T) {
+// TestGolden_Character は画面タブメニューを固定する。装備タブでプレイヤーの
+// スロット一覧を1カラムで並べる経路を覆う。
+func TestGolden_Character(t *testing.T) {
 	t.Parallel()
 	town := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(town, &gs.EquipMenuState{}))
+	vrt.AssertStateGolden(t, vrt.States(town, &gs.CharacterState{}))
 }
 
 func TestGolden_CraftMenu(t *testing.T) {
@@ -133,44 +141,6 @@ func TestGolden_ComponentDebug(t *testing.T) {
 	s, err := gs.NewComponentDebugState()
 	require.NoError(t, err)
 	vrt.AssertStateGolden(t, vrt.States(town, s))
-}
-
-func TestGolden_SquadMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		playerEntity, err := query.GetPlayerEntity(world)
-		require.NoError(t, err)
-
-		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
-		require.NoError(t, err)
-
-		town := newGoldenBackdrop(t)
-		squad, err := gs.NewSquadMenuState()
-		require.NoError(t, err)
-		return []es.State[w.World]{
-			town,
-			squad,
-		}
-	})
-}
-
-func TestGolden_FormationMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		playerEntity, err := query.GetPlayerEntity(world)
-		require.NoError(t, err)
-
-		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
-		require.NoError(t, err)
-
-		town := newGoldenBackdrop(t)
-		formation, err := gs.NewFormationMenuState()
-		require.NoError(t, err)
-		return []es.State[w.World]{
-			town,
-			formation,
-		}
-	})
 }
 
 func TestGolden_Dungeon(t *testing.T) {
@@ -251,15 +221,9 @@ func TestGolden_Message(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(town, msgState))
 }
 
-func TestGolden_Status(t *testing.T) {
-	t.Parallel()
-	town := newGoldenBackdrop(t)
-	s, err := gs.NewStatusState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
-}
-
-func TestGolden_MemberStatus(t *testing.T) {
+// TestGolden_CharacterMember は仲間を対象に開いた画面タブメニューを固定する。
+// 仲間がいると対象名と切替ヒントが出ることを覆う。
+func TestGolden_CharacterMember(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		playerEntity, err := query.GetPlayerEntity(world)
@@ -269,9 +233,9 @@ func TestGolden_MemberStatus(t *testing.T) {
 		require.NoError(t, err)
 
 		town := newGoldenBackdrop(t)
-		status, err := gs.NewMemberStatusState(member)
+		character, err := gs.NewCharacterStateForMember(member)()
 		require.NoError(t, err)
-		return []es.State[w.World]{town, status}
+		return []es.State[w.World]{town, character}
 	})
 }
 
@@ -290,24 +254,6 @@ func TestGolden_Shooting(t *testing.T) {
 		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
 	}, &gs.ShootingState{}))
-}
-
-func TestGolden_Pickup(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name(),
-		BuilderType:    mapplanner.PlannerTypeSmallRoom,
-	}, &gs.PickupState{}))
-}
-
-func TestGolden_Place(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name(),
-		BuilderType:    mapplanner.PlannerTypeSmallRoom,
-	}, &gs.PlaceState{}))
 }
 
 func TestGolden_PersistentMessage(t *testing.T) {

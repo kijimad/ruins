@@ -44,6 +44,12 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	return entities[0], nil
 }
 
+// AliveHas はエンティティが生存しコンポーネントを保持する場合のみ true を返す。
+// Ark は死亡エンティティへの Has でパニックするため、生存確認と組み合わせて安全に判定する
+func AliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {
+	return world.ECS.Alive(entity) && comp.Has(entity)
+}
+
 // IsPickable はエンティティが拾得可能かを判定する。
 // LocationOnField を持ち Fixed でないエンティティが対象。
 // Fixed は固定物なので拾えない。破壊や収納経由でアイテムを取得する

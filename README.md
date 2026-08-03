@@ -14,14 +14,13 @@
 
 | | | | |
 |---|---|---|---|
-| <img src="internal/states/testdata/TestGolden_CharacterJob.png" width="200" /><br>CharacterJob | <img src="internal/states/testdata/TestGolden_CharacterNaming.png" width="200" /><br>CharacterNaming | <img src="internal/states/testdata/TestGolden_ComponentDebug.png" width="200" /><br>ComponentDebug | <img src="internal/states/testdata/TestGolden_CraftMenu.png" width="200" /><br>CraftMenu |
-| <img src="internal/states/testdata/TestGolden_CubePanel.png" width="200" /><br>CubePanel | <img src="internal/states/testdata/TestGolden_DebugMenu.png" width="200" /><br>DebugMenu | <img src="internal/states/testdata/TestGolden_Dungeon.png" width="200" /><br>Dungeon | <img src="internal/states/testdata/TestGolden_EquipMenu.png" width="200" /><br>EquipMenu |
-| <img src="internal/states/testdata/TestGolden_FormationMenu.png" width="200" /><br>FormationMenu | <img src="internal/states/testdata/TestGolden_GameOver.png" width="200" /><br>GameOver | <img src="internal/states/testdata/TestGolden_InventoryMenu.png" width="200" /><br>InventoryMenu | <img src="internal/states/testdata/TestGolden_LanguageMenu.png" width="200" /><br>LanguageMenu |
-| <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu | <img src="internal/states/testdata/TestGolden_MemberStatus.png" width="200" /><br>MemberStatus |
+| <img src="internal/states/testdata/TestGolden_Character.png" width="200" /><br>Character | <img src="internal/states/testdata/TestGolden_CharacterJob.png" width="200" /><br>CharacterJob | <img src="internal/states/testdata/TestGolden_CharacterMember.png" width="200" /><br>CharacterMember | <img src="internal/states/testdata/TestGolden_CharacterNaming.png" width="200" /><br>CharacterNaming |
+| <img src="internal/states/testdata/TestGolden_ComponentDebug.png" width="200" /><br>ComponentDebug | <img src="internal/states/testdata/TestGolden_CraftMenu.png" width="200" /><br>CraftMenu | <img src="internal/states/testdata/TestGolden_CubePanel.png" width="200" /><br>CubePanel | <img src="internal/states/testdata/TestGolden_DebugMenu.png" width="200" /><br>DebugMenu |
+| <img src="internal/states/testdata/TestGolden_Dungeon.png" width="200" /><br>Dungeon | <img src="internal/states/testdata/TestGolden_GameOver.png" width="200" /><br>GameOver | <img src="internal/states/testdata/TestGolden_ItemAction.png" width="200" /><br>ItemAction | <img src="internal/states/testdata/TestGolden_ItemActionDetail.png" width="200" /><br>ItemActionDetail |
+| <img src="internal/states/testdata/TestGolden_LanguageMenu.png" width="200" /><br>LanguageMenu | <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu |
 | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldFrost.png" width="200" /><br>OverworldFrost | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap |
-| <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_Pickup.png" width="200" /><br>Pickup | <img src="internal/states/testdata/TestGolden_Place.png" width="200" /><br>Place | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu |
-| <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu | <img src="internal/states/testdata/TestGolden_SquadMenu.png" width="200" /><br>SquadMenu |
-| <img src="internal/states/testdata/TestGolden_Status.png" width="200" /><br>Status | <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu | <img src="internal/states/testdata/TestGolden_TavernMenu.png" width="200" /><br>TavernMenu | |
+| <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting |
+| <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu | <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu | <img src="internal/states/testdata/TestGolden_TavernMenu.png" width="200" /><br>TavernMenu | |
 
 
 各画像はゴールデンテストで自動生成される。
@@ -60,7 +59,7 @@ $ make help
 | status | 件数 |
 |---|---|
 | draft | 4 |
-| done | 77 |
+| done | 79 |
 
 ### 未完了
 

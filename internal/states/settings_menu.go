@@ -13,7 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -114,13 +113,13 @@ type settingsMenuProps struct {
 }
 
 // settingsItemKind は設定項目の種類を表す
-type settingsItemKind int
+type settingsItemKind string
 
 const (
 	// settingsItemLanguage は言語を設定する項目を表す
-	settingsItemLanguage settingsItemKind = iota
+	settingsItemLanguage settingsItemKind = "language"
 	// settingsItemBack は前の画面へ戻る項目を表す
-	settingsItemBack
+	settingsItemBack settingsItemKind = "back"
 )
 
 // settingsMenuItem は設定メニューの1項目を表す
@@ -219,25 +218,14 @@ func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI {
 	props := st.menuMount.GetProps()
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
 
-	// 項目リストの描画は tabmenu.View に任せる。値は AdditionalLabels で右側に表示する
-	items := make([]tabmenu.Item, len(props.Items))
+	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
+	columnWidths := []int{200, 100}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range props.Items {
-		it := tabmenu.Item{ID: item.Label, Label: item.Label}
-		if item.Value != "" {
-			// 現在値を右側に表示する。変更は Enter で開くモーダルから行う
-			it.AdditionalLabels = []string{item.Value}
-		}
-		items[i] = it
+		isSelected := i == menuState.ItemIndex
+		styled.NewTableRow(table, columnWidths, []string{item.Label, item.Value}, aligns, &isSelected, res)
 	}
-	view := tabmenu.NewView(tabmenu.Config{
-		Tabs: []tabmenu.TabItem{{ID: "settings", Items: items}},
-	}, world)
-	view.SetState(tabmenu.ViewState{ItemIndex: menuState.ItemIndex})
-	listContainer := view.BuildUI()
-
-	rootContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
 
 	menuContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
@@ -254,8 +242,12 @@ func (st *SettingsMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.TextOpts.Text("設定", &res.Text.BodyFace, theme.TextPrimary),
 	)
 	menuContainer.AddChild(titleText)
-	menuContainer.AddChild(listContainer)
+	menuContainer.AddChild(table)
+	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(false), res))
 
+	rootContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
 	rootContainer.AddChild(menuContainer)
 	return &ebitenui.UI{Container: rootContainer}
 }

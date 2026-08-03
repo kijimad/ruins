@@ -46,11 +46,11 @@ func TestDoActionUIActions(t *testing.T) {
 			expectedStateType: "*states.PersistentMessageState",
 		},
 		{
-			name:              "インベントリを開く",
+			name:              "所持品を開く",
 			action:            inputmapper.ActionOpenInventory,
 			expectedType:      es.TransPush,
 			shouldHaveFunc:    true,
-			expectedStateType: "*states.InventoryMenuState",
+			expectedStateType: "*states.ItemActionState",
 		},
 		{
 			name:           "未知のアクション",
@@ -245,10 +245,6 @@ func TestHandleMoveInput_Cardinal(t *testing.T) {
 		key      ebiten.Key
 		expected inputmapper.ActionID
 	}{
-		{"上", ebiten.KeyW, inputmapper.ActionMoveNorth},
-		{"下", ebiten.KeyS, inputmapper.ActionMoveSouth},
-		{"左", ebiten.KeyA, inputmapper.ActionMoveWest},
-		{"右", ebiten.KeyD, inputmapper.ActionMoveEast},
 		{"上矢印", ebiten.KeyUp, inputmapper.ActionMoveNorth},
 		{"下矢印", ebiten.KeyDown, inputmapper.ActionMoveSouth},
 		{"左矢印", ebiten.KeyLeft, inputmapper.ActionMoveWest},
@@ -268,13 +264,30 @@ func TestHandleMoveInput_Cardinal(t *testing.T) {
 	}
 }
 
+// TestHandleMoveInput_WASDは移動しない は英字を動詞へ空けるためWASDが移動しないことを検証する
+func TestHandleMoveInput_WASDは移動しない(t *testing.T) {
+	t.Parallel()
+
+	keys := []ebiten.Key{ebiten.KeyW, ebiten.KeyA, ebiten.KeyS, ebiten.KeyD}
+	for _, key := range keys {
+		t.Run(key.String(), func(t *testing.T) {
+			t.Parallel()
+			mock := input.NewMockKeyboardInput()
+			mock.SetKeyPressedWithRepeat(key, true)
+
+			_, ok := handleMoveInput(mock)
+			assert.False(t, ok, "WASDは移動しないべき")
+		})
+	}
+}
+
 // TestHandleMoveInput_NoShiftNoDiagonal はShiftなしでは2キー同時押しでも斜め移動しないことを検証する
 func TestHandleMoveInput_NoShiftNoDiagonal(t *testing.T) {
 	t.Parallel()
 
 	mock := input.NewMockKeyboardInput()
-	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
-	mock.SetKeyPressedWithRepeat(ebiten.KeyA, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyLeft, true)
 
 	action, ok := handleMoveInput(mock)
 	assert.True(t, ok)
@@ -293,10 +306,6 @@ func TestHandleShiftDiagonalInput(t *testing.T) {
 		horizontalKey ebiten.Key
 		expected      inputmapper.ActionID
 	}{
-		{"左上（W+A）", ebiten.KeyW, ebiten.KeyA, inputmapper.ActionMoveNorthWest},
-		{"右上（W+D）", ebiten.KeyW, ebiten.KeyD, inputmapper.ActionMoveNorthEast},
-		{"左下（S+A）", ebiten.KeyS, ebiten.KeyA, inputmapper.ActionMoveSouthWest},
-		{"右下（S+D）", ebiten.KeyS, ebiten.KeyD, inputmapper.ActionMoveSouthEast},
 		{"左上（矢印）", ebiten.KeyUp, ebiten.KeyLeft, inputmapper.ActionMoveNorthWest},
 		{"右上（矢印）", ebiten.KeyUp, ebiten.KeyRight, inputmapper.ActionMoveNorthEast},
 		{"左下（矢印）", ebiten.KeyDown, ebiten.KeyLeft, inputmapper.ActionMoveSouthWest},
@@ -322,7 +331,7 @@ func TestHandleShiftDiagonalInput(t *testing.T) {
 func TestHandleShiftDiagonalInput_SingleKey(t *testing.T) {
 	t.Parallel()
 
-	keys := []ebiten.Key{ebiten.KeyW, ebiten.KeyA, ebiten.KeyS, ebiten.KeyD}
+	keys := []ebiten.Key{ebiten.KeyUp, ebiten.KeyDown, ebiten.KeyLeft, ebiten.KeyRight}
 	for _, key := range keys {
 		t.Run(key.String(), func(t *testing.T) {
 			t.Parallel()
@@ -342,8 +351,8 @@ func TestHandleMoveInput_ShiftDelegates(t *testing.T) {
 
 	mock := input.NewMockKeyboardInput()
 	mock.SetKeyPressed(ebiten.KeyShift, true)
-	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
-	mock.SetKeyPressed(ebiten.KeyA, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
+	mock.SetKeyPressed(ebiten.KeyLeft, true)
 
 	action, ok := handleMoveInput(mock)
 	assert.True(t, ok)
@@ -356,7 +365,7 @@ func TestHandleMoveInput_ShiftSingleKeyNoAction(t *testing.T) {
 
 	mock := input.NewMockKeyboardInput()
 	mock.SetKeyPressed(ebiten.KeyShift, true)
-	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
 
 	_, ok := handleMoveInput(mock)
 	assert.False(t, ok, "Shift+単一キーでは移動しないべき")
