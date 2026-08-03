@@ -136,12 +136,7 @@ func (st *PickupState) doAction(world w.World, action inputmapper.ActionID) (es.
 
 // refreshItems はカーソル位置のタイル上の拾得可能エンティティを更新する
 func (st *PickupState) refreshItems(world w.World) {
-	st.itemsAtTarget = nil
-	for _, entity := range query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {
-		if query.IsPickable(entity, world) {
-			st.itemsAtTarget = append(st.itemsAtTarget, entity)
-		}
-	}
+	st.itemsAtTarget = query.PickablesAt(world, consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y})
 }
 
 // executePickup は拾得アクションを実行する

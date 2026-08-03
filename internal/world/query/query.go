@@ -59,15 +59,10 @@ func IsPickable(entity ecs.Entity, world w.World) bool {
 
 // PickablesAt は指定タイル上の拾得可能なエンティティを返す。拾得アクションの構築側が
 // 「どのタイルを拾うか」から「どのエンティティを拾うか」へ解決するのに使う。
+// タイル上のエンティティ列挙は空間索引を引く GetEntitiesAt に任せる。
 func PickablesAt(world w.World, tile consts.Coord[consts.Tile]) []ecs.Entity {
 	var result []ecs.Entity
-	q := ActiveFilter1[gc.GridElement](world).Query()
-	for q.Next() {
-		entity := q.Entity()
-		grid := world.Components.GridElement.Get(entity)
-		if grid.X != tile.X || grid.Y != tile.Y {
-			continue
-		}
+	for _, entity := range GetEntitiesAt(world, tile.X, tile.Y) {
 		if IsPickable(entity, world) {
 			result = append(result, entity)
 		}
