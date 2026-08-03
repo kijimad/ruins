@@ -149,13 +149,22 @@ type DisassembleParams struct {
 
 func (*DisassembleParams) isActivityParams() {}
 
-// PlaceParams は対象と操作先を取るアクションのパラメータ。拾得・ドロップ・押し引きが使う。
+// PlaceParams は対象と操作先を取るアクションのパラメータ。ドロップ・押し引きが使う。
 type PlaceParams struct {
 	Target      ecs.Entity  // 操作対象のエンティティ
 	Destination GridElement // 操作先タイル
 }
 
 func (*PlaceParams) isActivityParams() {}
+
+// PickupParams は拾得アクションのパラメータ。拾う対象は呼び出し側が確定して渡す。
+// 単一のアイテムでも足元一掃でも、拾うエンティティの並びを Targets として同じ形で持つ。
+// タイル上の何を拾うかという決定は behavior でなく構築側にあり、標識に頼らない。
+type PickupParams struct {
+	Targets []ecs.Entity // 拾うエンティティ。空なら検証で弾く
+}
+
+func (*PickupParams) isActivityParams() {}
 
 // TransferParams はアイテム転送のパラメータ。Count が0以下なら在庫全量を渡す。
 type TransferParams struct {

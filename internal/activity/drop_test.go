@@ -324,12 +324,8 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		// 拾う
-		pickupComp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Params:       &gc.PlaceParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
-		}
+		// 拾う。拾得対象は構築時にタイルから解決する
+		pickupComp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(pickupComp, player, world)

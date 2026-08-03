@@ -137,7 +137,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 }
 
 func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(NewPickupActivity(&target, nil), actor, world)
+	return Execute(NewPickupActivity(target), actor, world)
 }
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
@@ -145,7 +145,7 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 		return nil, fmt.Errorf("位置情報が見つかりません")
 	}
 	gridElement := world.Components.GridElement.Get(actor)
-	return Execute(NewPickupActivity(nil, &gc.GridElement{Coord: gridElement.Coord}), actor, world)
+	return Execute(NewPickupTileActivity(world, gridElement.Coord), actor, world)
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {

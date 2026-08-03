@@ -284,7 +284,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, s
 	if hasPickableHere {
 		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", snap.Grid.X, "y", snap.Grid.Y)
 		dest := *snap.Grid
-		return activity.NewPickupActivity(nil, &dest), true
+		return activity.NewPickupTileActivity(world, dest.Coord), true
 	}
 
 	if nearestItemGrid != nil {

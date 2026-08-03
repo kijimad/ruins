@@ -9,7 +9,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/geometry"
@@ -152,7 +151,7 @@ func (st *PickupState) executePickup(world w.World) error {
 		return err
 	}
 
-	_, err = activity.Execute(activity.NewPickupActivity(nil, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}}), playerEntity, world)
+	_, err = activity.Execute(activity.NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}), playerEntity, world)
 	return err
 }
 
