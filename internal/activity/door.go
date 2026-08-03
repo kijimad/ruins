@@ -14,9 +14,7 @@ import (
 )
 
 // OpenDoorBehavior はBehaviorの実装
-type OpenDoorBehavior struct {
-	Target ecs.Entity
-}
+type OpenDoorBehavior struct{}
 
 // Info はBehaviorの実装
 func (odb *OpenDoorBehavior) Info() Info {
@@ -35,23 +33,21 @@ func (odb *OpenDoorBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorOpenDoor
 }
 
-// BuildActivity はBehaviorの実装
-func (odb *OpenDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(odb, 1)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &odb.Target
-	return comp, nil
+// NewOpenDoorActivity は対象扉を指定して開扉アクティビティを組む。
+func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorOpenDoor, 0)
+	comp.Params = &gc.OpenDoorParams{Target: target}
+	return comp
 }
 
 // Validate は扉開閉アクティビティの検証を行う
 func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.OpenDoorParams)
+	if !ok {
 		return fmt.Errorf("扉エンティティが指定されていません")
 	}
 
-	targetEntity := *comp.Target
+	targetEntity := p.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
@@ -74,7 +70,12 @@ func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 
 // DoTurn は扉開閉アクティビティの1ターン分の処理を実行する
 func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	targetEntity := *comp.Target
+	p, ok := comp.Params.(*gc.OpenDoorParams)
+	if !ok {
+		Cancel(comp, "扉エンティティが指定されていません")
+		return fmt.Errorf("扉エンティティが指定されていません")
+	}
+	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
 		Cancel(comp, "扉コンポーネントが取得できません")
@@ -129,9 +130,7 @@ func (odb *OpenDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.W
 }
 
 // CloseDoorBehavior はBehaviorの実装
-type CloseDoorBehavior struct {
-	Target ecs.Entity
-}
+type CloseDoorBehavior struct{}
 
 // Info はBehaviorの実装
 func (cdb *CloseDoorBehavior) Info() Info {
@@ -150,23 +149,21 @@ func (cdb *CloseDoorBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorCloseDoor
 }
 
-// BuildActivity はBehaviorの実装
-func (cdb *CloseDoorBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(cdb, 1)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &cdb.Target
-	return comp, nil
+// NewCloseDoorActivity は対象扉を指定して閉扉アクティビティを組む。
+func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorCloseDoor, 0)
+	comp.Params = &gc.CloseDoorParams{Target: target}
+	return comp
 }
 
 // Validate は扉閉鎖アクティビティの検証を行う
 func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.CloseDoorParams)
+	if !ok {
 		return fmt.Errorf("扉エンティティが指定されていません")
 	}
 
-	targetEntity := *comp.Target
+	targetEntity := p.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
@@ -189,7 +186,12 @@ func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 
 // DoTurn は扉閉鎖アクティビティの1ターン分の処理を実行する
 func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	targetEntity := *comp.Target
+	p, ok := comp.Params.(*gc.CloseDoorParams)
+	if !ok {
+		Cancel(comp, "扉エンティティが指定されていません")
+		return fmt.Errorf("扉エンティティが指定されていません")
+	}
+	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
 		Cancel(comp, "扉コンポーネントが取得できません")

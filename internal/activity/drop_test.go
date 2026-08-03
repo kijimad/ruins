@@ -28,8 +28,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &item,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Target: item, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		da := &DropBehavior{}
@@ -46,7 +45,6 @@ func TestDropBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       nil,
 		}
 
 		da := &DropBehavior{}
@@ -66,8 +64,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		item := world.ECS.NewEntity()
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &item,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Target: item, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		da := &DropBehavior{}
@@ -76,25 +73,23 @@ func TestDropBehavior_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "バックパック内にありません")
 	})
 
-	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
+	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
-		require.NoError(t, err)
-
+		// 値型パラメータでは目的地未指定を表せない。ドロップ対象と目的地は構築関数が必ずまとめて渡す。
+		// PlaceParams が付かない不正なアクティビティは弾かれる
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &item,
 		}
 
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "目的地が指定されていません")
+		assert.Contains(t, err.Error(), "ドロップ対象が指定されていません")
 	})
 }
 
@@ -131,8 +126,7 @@ func TestDropBehavior_performDrop(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &item,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Target: item, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		da := &DropBehavior{}
@@ -155,25 +149,22 @@ func TestDropBehavior_performDrop(t *testing.T) {
 		assert.Contains(t, recent[0], "を置いた")
 	})
 
-	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
+	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
-		require.NoError(t, err)
-
+		// PlaceParams が付かない不正なアクティビティは performDrop でも弾かれる
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &item,
 		}
 
 		da := &DropBehavior{}
 		err = da.performDrop(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "目的地が指定されていません")
+		assert.Contains(t, err.Error(), "ドロップ対象が指定されていません")
 	})
 }
 
@@ -193,8 +184,7 @@ func TestDropBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			State:        gc.ActivityStateRunning,
-			Target:       &item,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
+			Params:       &gc.PlaceParams{Target: item, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
 		}
 
 		da := &DropBehavior{}
@@ -204,20 +194,17 @@ func TestDropBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	})
 
-	t.Run("Destinationがない場合はキャンセルされる", func(t *testing.T) {
+	t.Run("パラメータがない場合はキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
-		require.NoError(t, err)
-
+		// PlaceParams が付かない不正なアクティビティは DoTurn でキャンセルへ落ちる
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			State:        gc.ActivityStateRunning,
-			Target:       &item,
 		}
 
 		da := &DropBehavior{}
@@ -244,8 +231,7 @@ func TestDropBehavior_performDrop_AdjacentTile(t *testing.T) {
 		// プレイヤーの右隣にドロップ
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &item,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
+			Params:       &gc.PlaceParams{Target: item, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}},
 		}
 
 		da := &DropBehavior{}
@@ -272,8 +258,7 @@ func TestDropBehavior_performDrop_AdjacentTile(t *testing.T) {
 		// 右下斜めにドロップ
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &item,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 11}},
+			Params:       &gc.PlaceParams{Target: item, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 11}}},
 		}
 
 		da := &DropBehavior{}
@@ -306,8 +291,7 @@ func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 		// ドロップ実行
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			Target:       &prop,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
+			Params:       &gc.PlaceParams{Target: prop, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}},
 		}
 
 		da := &DropBehavior{}
@@ -340,12 +324,8 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		// 拾う
-		pickupComp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
-		}
+		// 拾う。拾得対象は構築時にタイルから解決する
+		pickupComp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(pickupComp, player, world)
@@ -358,8 +338,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		dropComp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			State:        gc.ActivityStateRunning,
-			Target:       &item,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}},
+			Params:       &gc.PlaceParams{Target: item, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}},
 		}
 
 		da := &DropBehavior{}

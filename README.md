@@ -60,7 +60,7 @@ $ make help
 | status | 件数 |
 |---|---|
 | draft | 3 |
-| done | 76 |
+| done | 77 |
 
 ### 未完了
 

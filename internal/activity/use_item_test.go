@@ -24,13 +24,12 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorUseItem, 1)
 
 		useItemActivity := &UseItemBehavior{}
 
 		// 100の満腹度回復
-		err = useItemActivity.applyNutrition(comp, actor, world, 100, item)
+		err := useItemActivity.applyNutrition(comp, actor, world, 100, item)
 		require.NoError(t, err)
 
 		// 満腹度が250 + 100 = 350になっているはず
@@ -50,13 +49,12 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorUseItem, 1)
 
 		useItemActivity := &UseItemBehavior{}
 
 		// 100の満腹度回復（上限を超える）
-		err = useItemActivity.applyNutrition(comp, actor, world, 100, item)
+		err := useItemActivity.applyNutrition(comp, actor, world, 100, item)
 		require.NoError(t, err)
 
 		hungerComp := world.Components.Hunger.Get(actor)
@@ -78,13 +76,12 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorUseItem, 1)
 
 		useItemActivity := &UseItemBehavior{}
 
 		// 50の満腹度回復で95%以上になる
-		err = useItemActivity.applyNutrition(comp, actor, world, 50, item)
+		err := useItemActivity.applyNutrition(comp, actor, world, 50, item)
 		require.NoError(t, err)
 
 		hungerComp := world.Components.Hunger.Get(actor)
@@ -101,13 +98,12 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		// Hungerコンポーネントを追加しない
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorUseItem, 1)
 
 		useItemActivity := &UseItemBehavior{}
 
 		// エラーにならずに完了する
-		err = useItemActivity.applyNutrition(comp, actor, world, 200, item)
+		err := useItemActivity.applyNutrition(comp, actor, world, 200, item)
 		assert.NoError(t, err)
 	})
 
@@ -122,15 +118,14 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp, err := NewActivity(&UseItemBehavior{}, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorUseItem, 1)
 
 		useItemActivity := &UseItemBehavior{}
 
 		assert.Equal(t, gc.HungerStarving, hunger.GetLevel(), "初期状態は飢餓状態")
 
 		// 300の満腹度回復で70%になる
-		err = useItemActivity.applyNutrition(comp, actor, world, 300, item)
+		err := useItemActivity.applyNutrition(comp, actor, world, 300, item)
 		require.NoError(t, err)
 
 		hungerComp := world.Components.Hunger.Get(actor)
@@ -163,7 +158,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Target:       &item,
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}
@@ -192,7 +187,6 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Target:       nil,
 		}
 
 		ua := &UseItemBehavior{}
@@ -220,7 +214,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Target:       &item,
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}
@@ -237,7 +231,6 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Target:       nil,
 		}
 
 		ua := &UseItemBehavior{}
@@ -255,7 +248,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Target:       new(world.ECS.NewEntity()),
+			Params:       &gc.UseItemParams{Target: world.ECS.NewEntity()},
 		}
 
 		ua := &UseItemBehavior{}
@@ -276,7 +269,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Target:       &item,
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}
@@ -298,7 +291,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Target:       &item,
+			Params:       &gc.UseItemParams{Target: item},
 		}
 
 		ua := &UseItemBehavior{}

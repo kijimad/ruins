@@ -77,14 +77,18 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		if !CanMoveTo(world, cubeCoord.Add(direction.GetDelta()), cubeCoord, cube) {
 			return nil
 		}
-		_, err := Execute(NewPushBehavior(cube, direction), entity, world)
+		comp, err := NewPushActivity(cube, direction, world)
+		if err != nil {
+			return err
+		}
+		_, err = Execute(comp, entity, world)
 		return err
 	}
 
 	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
 		destination := gc.GridElement{Coord: next}
-		_, err := Execute(&MoveBehavior{Destination: destination}, entity, world)
+		_, err := Execute(NewMoveActivity(destination), entity, world)
 		return err
 	}
 
@@ -108,7 +112,7 @@ func ExecuteWaitAction(world w.World) error {
 		return err
 	}
 
-	_, err = Execute(&WaitBehavior{Duration: 1, Reason: "プレイヤー待機"}, entity, world)
+	_, err = Execute(NewWaitActivity(1), entity, world)
 	return err
 }
 

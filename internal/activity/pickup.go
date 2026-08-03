@@ -15,10 +15,7 @@ import (
 )
 
 // PickupBehavior はBehaviorの実装
-type PickupBehavior struct {
-	Target      *ecs.Entity
-	Destination *gc.GridElement
-}
+type PickupBehavior struct{}
 
 // Info はBehaviorの実装
 func (pb *PickupBehavior) Info() Info {
@@ -37,57 +34,33 @@ func (pb *PickupBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorPickup
 }
 
-// BuildActivity はBehaviorの実装
-func (pb *PickupBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(pb, 1)
-	if err != nil {
-		return nil, err
-	}
-	if pb.Target != nil {
-		comp.Target = pb.Target
-	}
-	if pb.Destination != nil {
-		comp.Destination = pb.Destination
-	}
-	return comp, nil
+// NewPickupActivity は特定のエンティティ1つを拾う拾得アクティビティを組む。
+func NewPickupActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorPickup, 0)
+	comp.Params = &gc.PickupParams{Targets: []ecs.Entity{target}}
+	return comp
 }
 
-// Validate はアイテム拾得アクティビティの検証を行う
+// NewPickupTileActivity は指定タイル上の拾得可能なエンティティを全部拾う拾得アクティビティを組む。
+// 何を拾うかはここで解決して Targets に確定させる。behavior はタイル走査を持たない。
+func NewPickupTileActivity(world w.World, tile consts.Coord[consts.Tile]) *gc.Activity {
+	comp := NewActivity(gc.BehaviorPickup, 0)
+	comp.Params = &gc.PickupParams{Targets: query.PickablesAt(world, tile)}
+	return comp
+}
+
+// Validate はアイテム拾得アクティビティの検証を行う。1つでも拾えるものがあれば有効。
 func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	// Targetが指定されている場合は、そのエンティティが拾得可能かだけを確認する
-	if comp.Target != nil {
-		if !query.IsPickable(*comp.Target, world) {
-			return fmt.Errorf("拾えるものがありません")
-		}
-		return nil
+	p, ok := comp.Params.(*gc.PickupParams)
+	if !ok {
+		return fmt.Errorf("拾得対象が指定されていません")
 	}
-
-	target, err := requireDestination(comp)
-	if err != nil {
-		return err
-	}
-
-	hasPickable := false
-	pickableQuery := query.ActiveFilter1[gc.GridElement](world).Query()
-	for pickableQuery.Next() {
-		entity := pickableQuery.Entity()
-		if hasPickable {
-			continue
-		}
-		grid := world.Components.GridElement.Get(entity)
-		if grid.X != target.X || grid.Y != target.Y {
-			continue
-		}
+	for _, entity := range p.Targets {
 		if query.IsPickable(entity, world) {
-			hasPickable = true
+			return nil
 		}
 	}
-
-	if !hasPickable {
-		return fmt.Errorf("拾えるものがありません")
-	}
-
-	return nil
+	return fmt.Errorf("拾えるものがありません")
 }
 
 // Start はアイテム拾得開始時の処理を実行する
@@ -122,44 +95,20 @@ func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 	return nil
 }
 
-// performPickup は実際のアイテム拾得処理を実行する。
-// Targetが指定されている場合はそのエンティティだけを拾い、
-// 未指定の場合はDestinationタイル上の全拾得可能エンティティを拾う
+// performPickup は Params に確定済みの Targets を順に拾う。拾得不能になったものは飛ばす。
 func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	// Targetが指定されている場合は、そのエンティティだけを拾う
-	if comp.Target != nil {
-		if !query.IsPickable(*comp.Target, world) {
-			return fmt.Errorf("拾えるものがありません")
-		}
-		return pb.collect(actor, world, *comp.Target)
-	}
-
-	target, err := requireDestination(comp)
-	if err != nil {
-		return err
-	}
-
-	// 対象タイルの拾得可能なエンティティを検索
-	var toCollect []ecs.Entity
-	collectQuery := query.ActiveFilter1[gc.GridElement](world).Query()
-	for collectQuery.Next() {
-		entity := collectQuery.Entity()
-		grid := world.Components.GridElement.Get(entity)
-		if grid.X != target.X || grid.Y != target.Y {
-			continue
-		}
-		if query.IsPickable(entity, world) {
-			toCollect = append(toCollect, entity)
-		}
-	}
-
-	if len(toCollect) == 0 {
-		return fmt.Errorf("拾えるものがありません")
+	p, ok := comp.Params.(*gc.PickupParams)
+	if !ok {
+		return fmt.Errorf("拾得対象が指定されていません")
 	}
 
 	collectedCount := 0
 	var errs []error
-	for _, entity := range toCollect {
+	for _, entity := range p.Targets {
+		// 構築後に拾えなくなったものは飛ばす。着手時に他の拾得や消滅で状態が変わりうる
+		if !query.IsPickable(entity, world) {
+			continue
+		}
 		if err := pb.collect(actor, world, entity); err != nil {
 			errs = append(errs, err)
 			continue
@@ -168,7 +117,10 @@ func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, wor
 	}
 
 	if collectedCount == 0 {
-		return fmt.Errorf("拾得に失敗しました")
+		if len(errs) > 0 {
+			return fmt.Errorf("一部の拾得に失敗: %w", errors.Join(errs...))
+		}
+		return fmt.Errorf("拾えるものがありません")
 	}
 
 	log.Debug("拾得完了", "count", collectedCount)

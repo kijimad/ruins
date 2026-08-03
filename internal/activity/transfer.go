@@ -17,11 +17,7 @@ import (
 // Targetに転送するアイテム、Recipientに受取人を指定する。
 // Countは渡す個数。在庫数以上を指定すればスタックごとまとめて渡り、少なく指定すればその分だけ分割して渡す。
 // 補給で共有プールから1食ぶんだけ引くときは1、丸ごと渡すときは在庫数を指定する
-type TransferBehavior struct {
-	Target    ecs.Entity
-	Recipient ecs.Entity
-	Count     int
-}
+type TransferBehavior struct{}
 
 // Info はBehaviorの実装
 func (tb *TransferBehavior) Info() Info {
@@ -40,27 +36,30 @@ func (tb *TransferBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorTransfer
 }
 
-// BuildActivity はBehaviorの実装
-func (tb *TransferBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(tb, 1)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &tb.Target
-	comp.Recipient = &tb.Recipient
-	return comp, nil
+// NewTransferActivity は転送アイテム・受取人・個数を指定して転送アクティビティを組む。
+// count が0以下なら在庫全量を渡す。個数は TransferParams.Count に持たせ、継続処理でも読める。
+func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
+	comp := NewActivity(gc.BehaviorTransfer, 0)
+	comp.Params = &gc.TransferParams{Target: target, Recipient: recipient, Count: count}
+	return comp
 }
 
 // Validate はアイテム転送アクティビティの検証を行う
 func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TransferParams)
+	if !ok {
 		return fmt.Errorf("転送対象が指定されていません")
 	}
-	if comp.Recipient == nil {
+	// 値型のパラメータでは未指定が無効エンティティになる。ArkのHasはゼロ値でパニックするため、
+	// Aliveで存在を確かめてから所持判定へ進む
+	if !world.ECS.Alive(p.Target) {
+		return fmt.Errorf("転送対象が指定されていません")
+	}
+	if !world.ECS.Alive(p.Recipient) {
 		return fmt.Errorf("受取人が指定されていません")
 	}
 
-	target := *comp.Target
+	target := p.Target
 	if !world.Components.LocationInBackpack.Has(target) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
@@ -99,8 +98,12 @@ func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Wo
 
 // performTransfer はアイテムを受取人のバックパックに移動する
 func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error {
-	item := *comp.Target
-	recipient := *comp.Recipient
+	p, ok := comp.Params.(*gc.TransferParams)
+	if !ok {
+		return fmt.Errorf("転送対象が指定されていません")
+	}
+	item := p.Target
+	recipient := p.Recipient
 
 	// 渡す主体はアクターでなくアイテムの現所有者にする。補給ではアクターの隊員がリーダーの
 	// プールから引くため、アクターを主体にすると「隊員は隊員に渡した」と自己転送の誤ログになる。
@@ -110,8 +113,8 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 
 	// 実際に渡す個数を確定する。Count が0以下、または在庫以上なら在庫すべてを渡す。
 	moving := query.GetEntityCount(world, item)
-	if tb.Count > 0 && tb.Count < moving {
-		moving = tb.Count
+	if p.Count > 0 && p.Count < moving {
+		moving = p.Count
 	}
 
 	// ログ名は転送前に確定させる。在庫全体でなく実際に移す個数で表示する。
@@ -124,7 +127,7 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 		itemName = fmt.Sprintf("%s(%d個)", itemName, moving)
 	}
 
-	if err := lifecycle.TransferUnits(world, item, recipient, tb.Count); err != nil {
+	if err := lifecycle.TransferUnits(world, item, recipient, p.Count); err != nil {
 		return fmt.Errorf("アイテム転送に失敗: %w", err)
 	}
 

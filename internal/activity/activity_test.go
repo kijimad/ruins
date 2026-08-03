@@ -15,13 +15,12 @@ func TestActivityCreation(t *testing.T) {
 
 	// 休息アクティビティの作成テスト
 	behavior := &RestBehavior{}
-	comp, err := NewActivity(behavior, 10)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorRest, 10)
 
 	assert.Equal(t, gc.BehaviorRest, behavior.Name(), "Expected behavior to be Rest")
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected initial state to be Running")
-	assert.Equal(t, consts.Turn(10), comp.TurnsTotal, "Expected turns total 10")
-	assert.Equal(t, consts.Turn(10), comp.TurnsLeft, "Expected turns left 10")
+	assert.Equal(t, 10, comp.Progress.Max, "Expected required 10")
+	assert.Equal(t, 0, comp.Progress.Current, "Expected accumulated 0")
 }
 
 func TestActivityInfo(t *testing.T) {
@@ -38,14 +37,13 @@ func TestActivityInfo(t *testing.T) {
 func TestActivityInterruptAndResume(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&RestBehavior{}, 10)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorRest, 10)
 
 	// 初期状態での中断可能性チェック
 	assert.True(t, CanInterrupt(comp), "Expected activity to be interruptible initially")
 
 	// 中断実行
-	err = Interrupt(comp, "テスト中断")
+	err := Interrupt(comp, "テスト中断")
 	require.NoError(t, err, "Unexpected error during interrupt")
 	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected state to be Paused after interrupt")
 	assert.Equal(t, "テスト中断", comp.CancelReason, "Expected cancel reason 'テスト中断'")
@@ -67,8 +65,7 @@ func TestActivityInterruptAndResume(t *testing.T) {
 func TestActivityCancel(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&WaitBehavior{}, 5)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorWait, 5)
 
 	// キャンセル前はIsCanceledがfalse
 	assert.False(t, IsCanceled(comp), "Expected IsCanceled to be false before cancel")
@@ -88,34 +85,31 @@ func TestActivityCancel(t *testing.T) {
 func TestActivityComplete(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&WaitBehavior{}, 5)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorWait, 5)
 
 	// 完了実行
 	Complete(comp)
 
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State, "Expected state to be Completed after complete")
-	assert.Equal(t, consts.Turn(0), comp.TurnsLeft, "Expected turns left 0 after complete")
 	assert.True(t, IsCompleted(comp), "Expected IsCompleted() to return true")
 }
 
 func TestActivityProgressCalculation(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewActivity(&RestBehavior{}, 10)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorRest, 10)
 
 	// 初期進捗（0%）
 	progress := GetProgressPercent(comp)
 	assert.Equal(t, 0.0, progress, "Expected initial progress 0%%")
 
-	// 5ターン進行（50%）
-	comp.TurnsLeft = 5
+	// 半分注いだ（50%）
+	comp.Progress.Current = 5
 	progress = GetProgressPercent(comp)
 	assert.Equal(t, 50.0, progress, "Expected progress 50%%")
 
-	// 完了（100%）
-	comp.TurnsLeft = 0
+	// 必要量に達した（100%）
+	comp.Progress.Current = 10
 	progress = GetProgressPercent(comp)
 	assert.Equal(t, 100.0, progress, "Expected progress 100%%")
 }
@@ -128,24 +122,24 @@ func TestActivityDoTurn(t *testing.T) {
 	// 長い待機の敵接近チェックは位置を前提とするため、実際のアクターと同様に座標を与える
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	behavior := &WaitBehavior{}
-	comp, err := NewActivity(behavior, 3)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorWait, 3)
 
+	// 待機は毎ターン 1 ずつ注ぐ純タイマー。Required 3 なので3ターンで完了する
 	// 1ターン目
-	err = behavior.DoTurn(comp, actor, world)
+	err := behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 1")
-	assert.Equal(t, consts.Turn(2), comp.TurnsLeft, "Expected 2 turns left after turn 1")
+	assert.Equal(t, 1, comp.Progress.Current, "Expected accumulated 1 after turn 1")
 	assert.False(t, IsCompleted(comp), "Expected activity not to be completed after turn 1")
 
 	// 2ターン目
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 2")
-	assert.Equal(t, consts.Turn(1), comp.TurnsLeft, "Expected 1 turn left after turn 2")
+	assert.Equal(t, 2, comp.Progress.Current, "Expected accumulated 2 after turn 2")
 
 	// 3ターン目（完了）
 	err = behavior.DoTurn(comp, actor, world)
 	require.NoError(t, err, "Unexpected error in turn 3")
-	assert.Equal(t, consts.Turn(0), comp.TurnsLeft, "Expected 0 turns left after turn 3")
+	assert.Equal(t, 3, comp.Progress.Current, "Expected accumulated 3 after turn 3")
 	assert.True(t, IsCompleted(comp), "Expected activity to be completed after turn 3")
 }
 
@@ -166,57 +160,20 @@ func TestGetBehavior(t *testing.T) {
 	})
 }
 
-func TestNewActivityInvalidDuration(t *testing.T) {
+func TestNewActivity(t *testing.T) {
 	t.Parallel()
-
-	t.Run("duration 0でエラー", func(t *testing.T) {
-		t.Parallel()
-		_, err := NewActivity(&WaitBehavior{}, 0)
-		assert.Error(t, err)
-	})
-
-	t.Run("負のdurationでエラー", func(t *testing.T) {
-		t.Parallel()
-		_, err := NewActivity(&WaitBehavior{}, -1)
-		assert.Error(t, err)
-	})
+	comp := NewActivity(gc.BehaviorWait, 0)
+	assert.Equal(t, gc.BehaviorWait, comp.BehaviorName)
+	assert.Equal(t, 0, comp.Progress.Max)
 }
 
 func TestGetProgressPercentEdgeCases(t *testing.T) {
 	t.Parallel()
 
-	t.Run("TurnsTotal 0の場合は100%を返す", func(t *testing.T) {
+	t.Run("Required 0の場合は100%を返す", func(t *testing.T) {
 		t.Parallel()
-		comp := &gc.Activity{TurnsTotal: 0, TurnsLeft: 0}
+		comp := &gc.Activity{Progress: gc.IntPool{Max: 0}}
 		assert.Equal(t, 100.0, GetProgressPercent(comp))
-	})
-}
-
-func TestCalculateRequiredTurns(t *testing.T) {
-	t.Parallel()
-
-	t.Run("APベースの計算", func(t *testing.T) {
-		t.Parallel()
-		behavior := &RestBehavior{}
-		info := behavior.Info()
-		if info.TotalRequiredAP > 0 {
-			turns := CalculateRequiredTurns(behavior, 100)
-			assert.GreaterOrEqual(t, turns, consts.Turn(1))
-		}
-	})
-
-	t.Run("APとcharacterAPで正しく切り上げ除算する", func(t *testing.T) {
-		t.Parallel()
-		behavior := &WaitBehavior{} // TotalRequiredAP=500
-		turns := CalculateRequiredTurns(behavior, 100)
-		assert.Equal(t, consts.Turn(5), turns) // 500 / 100 = 5
-	})
-
-	t.Run("characterAPが0の場合は1を返す", func(t *testing.T) {
-		t.Parallel()
-		behavior := &RestBehavior{}
-		turns := CalculateRequiredTurns(behavior, 0)
-		assert.Equal(t, consts.Turn(1), turns)
 	})
 }
 
@@ -260,9 +217,13 @@ func TestIsActive(t *testing.T) {
 	})
 }
 
-func TestIsCompleted_TurnsLeftZero(t *testing.T) {
+func TestIsCompleted_StateBased(t *testing.T) {
 	t.Parallel()
 
-	comp := &gc.Activity{State: gc.ActivityStateRunning, TurnsLeft: 0}
-	assert.True(t, IsCompleted(comp), "TurnsLeftが0ならCompletedとみなす")
+	// 完了は State のみで判定する。残りターンという概念は廃止した
+	running := &gc.Activity{State: gc.ActivityStateRunning}
+	assert.False(t, IsCompleted(running), "Running は未完了")
+
+	completed := &gc.Activity{State: gc.ActivityStateCompleted}
+	assert.True(t, IsCompleted(completed), "Completed は完了")
 }
