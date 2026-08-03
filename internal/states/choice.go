@@ -9,8 +9,8 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -107,18 +107,27 @@ func (st *ChoiceMenuState) fetch(world w.World) choiceProps {
 	return choiceProps{Title: title, Choices: choices}
 }
 
-// menu は単一タブの選択リストとして構成を返す
+// menu は単一タブの選択リストとして構成を返す。項目が多い画面でもモーダルに収めるためページ送りする
 func (st *ChoiceMenuState) menu(props choiceProps) MenuConfig {
-	return MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}}
+	return MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage}
 }
 
-// view は本文と選択肢の1カラム一覧を組む純粋描画
+// view は本文と選択肢の1カラム一覧を組む純粋描画。他の1カラムメニューと同じ密なテーブル描画に
+// 揃え、選択肢が多いときはページ送りしてモーダルからはみ出さない
 func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	list := styled.NewVerticalContainer()
-	for i, c := range props.Choices {
-		isSelected := i == sel.ItemIndex
-		list.AddChild(styled.NewListItemText(c.Label, theme.TextSecondary, isSelected, res))
+	pg := pagination.New(sel.ItemIndex, len(props.Choices), menuItemsPerPage)
+	list.AddChild(newPageIndicator(pg, res))
+
+	columnWidths := []int{320}
+	aligns := []styled.TextAlign{styled.AlignLeft}
+	table := styled.NewTableContainer(columnWidths, res)
+	for _, entry := range pagination.VisibleEntries(props.Choices, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{entry.Item.Label}, aligns, &isSelected, res)
 	}
+	list.AddChild(table)
+
 	return newTabScreenUI(res, tabScreen{
 		Header:  props.Title,
 		Content: list,
