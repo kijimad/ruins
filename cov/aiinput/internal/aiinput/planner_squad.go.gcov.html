@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 23:35:46</td>
+            <td class="headerValue">2026-08-03 14:31:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span>              : }</span>
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // Plan はsquadSnapshotを収集し、優先度チェーンで行動を決定する</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         snap, ok := sp.gatherSquadSnapshot(world, entity)</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return nil</span></span>
@@ -149,7 +149,7 @@
 <span id="L87"><span class="lineNum">      87</span>              : </span>
 <span id="L88"><span class="lineNum">      88</span>              : // planAction はポリシーと状況に基づいてアクションを決定する。</span>
 <span id="L89"><span class="lineNum">      89</span>              : // 優先順位: HP低下時後退 → エリア制限 → 補給 → 戦闘 → アイテム転送 → アイテム拾得 → 位置ポリシー</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planAction(world w.World, entity ecs.Entity, snap *squadSnapshot) *gc.Activity {</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           2 :         if sp.shouldRetreatLowHP(world, entity) {</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           2 :                 if b, ok := sp.planRetreatAction(world, entity, snap); ok {</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                         return b</span></span>
@@ -194,7 +194,7 @@
 <span id="L132"><span class="lineNum">     132</span>              : }</span>
 <span id="L133"><span class="lineNum">     133</span>              : </span>
 <span id="L134"><span class="lineNum">     134</span>              : // planRetreatAction はリーダーに向かって後退するアクションを計画する</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         sp.logger.Debug(&quot;隊員HP低下、後退&quot;, &quot;entity&quot;, entity)</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 : }</span></span>
@@ -209,13 +209,13 @@
 <span id="L147"><span class="lineNum">     147</span>              : }</span>
 <span id="L148"><span class="lineNum">     148</span>              : </span>
 <span id="L149"><span class="lineNum">     149</span>              : // planReturnToExploredArea は最寄りの探索済みマスへ移動するアクションを計画する</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         sp.logger.Debug(&quot;隊員がエリア外、リーダーに向かう&quot;, &quot;entity&quot;, entity)</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L154"><span class="lineNum">     154</span>              : </span>
 <span id="L155"><span class="lineNum">     155</span>              : // planCombatAction は戦闘ポリシーに基づくアクションを計画する</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         switch snap.Squad.CombatCurrent {</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         case gc.CombatAttack:</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 return sp.planAttackAction(world, entity, snap)</span></span>
@@ -229,14 +229,14 @@
 <span id="L167"><span class="lineNum">     167</span>              : // planAttackAction は攻撃ポリシーに基づくアクションを計画する。</span>
 <span id="L168"><span class="lineNum">     168</span>              : // 隣接する敵がいれば攻撃し、視界内の敵がいれば接近する。</span>
 <span id="L169"><span class="lineNum">     169</span>              : // 移動しても敵に近づけない場合は諦めて次の優先度に進む</span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         nearestEnemy, nearestGrid, dist := sp.findNearestEnemy(world, entity, snap)</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           2 :         if nearestEnemy == nil {</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L175"><span class="lineNum">     175</span>              : </span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :         if dist == 1 {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return &amp;activity.AttackBehavior{Target: *nearestEnemy}, true</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return activity.NewAttackActivity(*nearestEnemy), true</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L179"><span class="lineNum">     179</span>              : </span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         return sp.tryMoveToward(world, entity, snap.Grid, nearestGrid)</span></span>
@@ -244,7 +244,7 @@
 <span id="L182"><span class="lineNum">     182</span>              : </span>
 <span id="L183"><span class="lineNum">     183</span>              : // planEvadeAction は回避ポリシーに基づくアクションを計画する。</span>
 <span id="L184"><span class="lineNum">     184</span>              : // 視界内の最寄りの敵から距離を取る</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         nearestEnemy, _, _ := sp.findNearestEnemy(world, entity, snap)</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           2 :         if nearestEnemy == nil {</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
@@ -255,7 +255,7 @@
 <span id="L193"><span class="lineNum">     193</span>              : }</span>
 <span id="L194"><span class="lineNum">     194</span>              : </span>
 <span id="L195"><span class="lineNum">     195</span>              : // planPositionAction は位置ポリシーに基づくアクションを計画する</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, snap *squadSnapshot) *gc.Activity {</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         switch snap.Squad.Movement {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         case gc.SquadEscort:</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 return sp.planEscortAction(world, entity, snap)</span></span>
@@ -264,54 +264,54 @@
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         case gc.SquadPatrol:</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 return sp.planSquadPatrolAction(world, entity, snap)</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         case gc.SquadStationary:</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 return waitAction(&quot;隊員待機&quot;)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         case gc.SquadRetreat:</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 return sp.planEscortAction(world, entity, snap)</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 return waitAction(&quot;隊員デフォルト待機&quot;)</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
 <span id="L210"><span class="lineNum">     210</span>              :         }</span>
 <span id="L211"><span class="lineNum">     211</span>              : }</span>
 <span id="L212"><span class="lineNum">     212</span>              : </span>
 <span id="L213"><span class="lineNum">     213</span>              : // planEscortAction はリーダーから2マス以内にとどまるアクションを計画する</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planEscortAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planEscortAction(world w.World, entity ecs.Entity, snap *squadSnapshot) *gc.Activity {</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         dist := gridDistance(snap.Grid, snap.LeaderGrid)</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :         if dist &lt;= escortMaxDistance {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 return waitAction(&quot;隊員護衛位置&quot;)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :         if b, ok := sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid); ok {</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 return b</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         return waitAction(&quot;隊員護衛移動失敗&quot;)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         return waitAction()</span></span>
 <span id="L223"><span class="lineNum">     223</span>              : }</span>
 <span id="L224"><span class="lineNum">     224</span>              : </span>
 <span id="L225"><span class="lineNum">     225</span>              : // planVanguardAction はリーダーの前方に展開するアクションを計画する。</span>
 <span id="L226"><span class="lineNum">     226</span>              : // リーダーから離れすぎている場合はリーダーに接近する</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planVanguardAction(world w.World, entity ecs.Entity, snap *squadSnapshot) *gc.Activity {</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         dist := gridDistance(snap.Grid, snap.LeaderGrid)</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           2 :         if dist &gt; vanguardMaxDistance {</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           2 :                 if b, ok := sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid); ok {</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                         return b</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                 return waitAction(&quot;隊員前衛接近失敗&quot;)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                 return waitAction()</span></span>
 <span id="L234"><span class="lineNum">     234</span>              :         }</span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           2 :         if b, ok := sp.tryRandomMove(world, entity, snap); ok {</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 return b</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         return waitAction(&quot;隊員前衛移動失敗&quot;)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         return waitAction()</span></span>
 <span id="L239"><span class="lineNum">     239</span>              : }</span>
 <span id="L240"><span class="lineNum">     240</span>              : </span>
 <span id="L241"><span class="lineNum">     241</span>              : // planSquadPatrolAction は探索済みエリア内を自律的に巡回するアクションを計画する</span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, snap *squadSnapshot) activity.Behavior {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, snap *squadSnapshot) *gc.Activity {</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           2 :         if b, ok := sp.tryRandomMove(world, entity, snap); ok {</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 return b</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         return waitAction(&quot;隊員巡回移動失敗&quot;)</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         return waitAction()</span></span>
 <span id="L247"><span class="lineNum">     247</span>              : }</span>
 <span id="L248"><span class="lineNum">     248</span>              : </span>
 <span id="L249"><span class="lineNum">     249</span>              : // planItemPickupAction は拾得可能アイテムを拾うアクションを計画する。</span>
 <span id="L250"><span class="lineNum">     250</span>              : // 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。</span>
 <span id="L251"><span class="lineNum">     251</span>              : // PolicyIgnoreの場合は何もしない</span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           2 :         if snap.Squad.ItemPickup == gc.PolicyIgnore {</span></span>
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -346,7 +346,7 @@
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC tlaBgGNC">           2 :         if hasPickableHere {</span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 sp.logger.Debug(&quot;隊員アイテム拾得&quot;, &quot;entity&quot;, entity, &quot;x&quot;, snap.Grid.X, &quot;y&quot;, snap.Grid.Y)</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 dest := *snap.Grid</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                 return &amp;activity.PickupBehavior{Destination: &amp;dest}, true</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                 return activity.NewPickupTileActivity(world, dest.Coord), true</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L289"><span class="lineNum">     289</span>              : </span>
 <span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         if nearestItemGrid != nil {</span></span>
@@ -360,7 +360,7 @@
 <span id="L298"><span class="lineNum">     298</span>              : // planSupplyAction は空腹の隊員に補給行動を計画する。</span>
 <span id="L299"><span class="lineNum">     299</span>              : // まず自分の背嚢の食料を食べ、無ければ共有プールであるリーダーの所持品へ接近して受け取る。</span>
 <span id="L300"><span class="lineNum">     300</span>              : // 敵が視界内にいる間は発火しない</span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :         if snap.Squad.Supply != gc.SupplyAuto {</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -378,7 +378,7 @@
 <span id="L316"><span class="lineNum">     316</span>              :         // 自分の背嚢から食べる。栄養価の低いものを先に消費して高価値食料を温存する</span>
 <span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           2 :         if food, ok := findLowestNutritionFood(world, entity); ok {</span></span>
 <span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                 sp.logger.Debug(&quot;隊員が食事する&quot;, &quot;entity&quot;, entity)</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                 return &amp;activity.UseItemBehavior{Target: food}, true</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                 return activity.NewUseItemActivity(food), true</span></span>
 <span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L321"><span class="lineNum">     321</span>              : </span>
 <span id="L322"><span class="lineNum">     322</span>              :         // 共有プールから受け取る</span>
@@ -391,7 +391,7 @@
 <span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           2 :         if gridDistance(snap.Grid, snap.LeaderGrid) &lt;= 1 {</span></span>
 <span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 sp.logger.Debug(&quot;隊員が食料を受け取る&quot;, &quot;entity&quot;, entity)</span></span>
 <span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 // 1食ぶんだけ引く。丸ごと受け取ると共有プールが一気に空になり、他の隊員が飢える</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 return &amp;activity.TransferBehavior{Target: poolFood, Recipient: entity, Count: 1}, true</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 return activity.NewTransferActivity(poolFood, entity, 1), true</span></span>
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)</span></span>
 <span id="L335"><span class="lineNum">     335</span>              : }</span>
@@ -420,7 +420,7 @@
 <span id="L358"><span class="lineNum">     358</span>              : </span>
 <span id="L359"><span class="lineNum">     359</span>              : // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。</span>
 <span id="L360"><span class="lineNum">     360</span>              : // PolicyDistributeの場合はリーダーにアイテムを転送する</span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           2 :         if snap.Squad.ItemHandling != gc.PolicyDistribute {</span></span>
 <span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
 <span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -450,7 +450,7 @@
 <span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         sp.logger.Debug(&quot;隊員アイテム転送&quot;, &quot;entity&quot;, entity, &quot;item&quot;, *itemToTransfer)</span></span>
 <span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :         // 拾った物はスタックごとリーダーへ渡す。在庫数を指定してまとめて転送する</span></span>
 <span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         count := query.GetEntityCount(world, *itemToTransfer)</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         return &amp;activity.TransferBehavior{Target: *itemToTransfer, Recipient: snap.LeaderEntity, Count: count}, true</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         return activity.NewTransferActivity(*itemToTransfer, snap.LeaderEntity, count), true</span></span>
 <span id="L392"><span class="lineNum">     392</span>              : }</span>
 <span id="L393"><span class="lineNum">     393</span>              : </span>
 <span id="L394"><span class="lineNum">     394</span>              : // findNearestEnemy は視界内の最も近い敵を探す</span>
@@ -462,7 +462,7 @@
 <span id="L400"><span class="lineNum">     400</span>              : }</span>
 <span id="L401"><span class="lineNum">     401</span>              : </span>
 <span id="L402"><span class="lineNum">     402</span>              : // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる</span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, bool) {</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (*gc.Activity, bool) {</span></span>
 <span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         next, ok := activity.FindNextStep(world, entity, from.Coord, target.Coord)</span></span>
 <span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
 <span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
@@ -476,13 +476,13 @@
 <span id="L414"><span class="lineNum">     414</span>              : }</span>
 <span id="L415"><span class="lineNum">     415</span>              : </span>
 <span id="L416"><span class="lineNum">     416</span>              : // tryMoveAway はターゲットから離れる移動を試みる</span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, threat *gc.GridElement) (activity.Behavior, bool) {</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, threat *gc.GridElement) (*gc.Activity, bool) {</span></span>
 <span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         candidates := calculateMoveCandidates(from.Sub(threat.Coord))</span></span>
 <span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :         return tryMoveCandidates(world, entity, from, candidates)</span></span>
 <span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L421"><span class="lineNum">     421</span>              : </span>
 <span id="L422"><span class="lineNum">     422</span>              : // tryRandomMove は探索済みエリア内でランダム移動を試みる</span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, snap *squadSnapshot) (activity.Behavior, bool) {</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 : func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {</span></span>
 <span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :         field := query.GetCurrentStageField(world)</span></span>
 <span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :         from := snap.Grid.Coord</span></span>
 <span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 : </span></span>

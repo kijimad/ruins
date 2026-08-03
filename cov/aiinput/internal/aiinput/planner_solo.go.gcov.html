@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-02 23:35:46</td>
+            <td class="headerValue">2026-08-03 14:31:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,7 +97,7 @@
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // Plan は状態遷移の評価とアクション決定を一体的に行う。</span>
 <span id="L37"><span class="lineNum">      37</span>              : // APループ内で繰り返し呼ばれ、状態遷移は同一ターン内でべき等</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) activity.Behavior {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         solo := world.Components.SoloAI.Get(entity)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if solo == nil {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 rp.logger.Warn(&quot;SoloAIコンポーネントなし&quot;, &quot;entity&quot;, entity)</span></span>
@@ -122,9 +122,9 @@
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         case gc.AIStateDriving:</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return rp.planDrivingAction(world, entity, solo, grid)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         case gc.AIStateWaiting:</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return waitAction(&quot;AI待機&quot;)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 return waitAction(&quot;AIデフォルト待機&quot;)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 return waitAction()</span></span>
 <span id="L66"><span class="lineNum">      66</span>              :         }</span>
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
@@ -236,11 +236,11 @@
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span>              : // ========== アクション計画ロジック ==========</span>
 <span id="L176"><span class="lineNum">     176</span>              : </span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           2 :         if isAdjacent(aiGrid, playerGrid) {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 return &amp;activity.AttackBehavior{Target: playerEntity}</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 return activity.NewAttackActivity(playerEntity)</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L183"><span class="lineNum">     183</span>              : </span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         dx := playerGrid.X - aiGrid.X</span></span>
@@ -251,10 +251,10 @@
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 return b</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L191"><span class="lineNum">     191</span>              : </span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return waitAction(&quot;AI追跡失敗&quot;)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return waitAction()</span></span>
 <span id="L193"><span class="lineNum">     193</span>              : }</span>
 <span id="L194"><span class="lineNum">     194</span>              : </span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         dx := aiGrid.X - playerGrid.X</span></span>
@@ -268,9 +268,9 @@
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :         return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span></span>
 <span id="L207"><span class="lineNum">     207</span>              : }</span>
 <span id="L208"><span class="lineNum">     208</span>              : </span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 : func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 : func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           2 :         if rp.rng.Float64() &lt; 0.3 {</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 return waitAction(&quot;AIランダム待機&quot;)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L213"><span class="lineNum">     213</span>              : </span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         from := aiGrid.Coord</span></span>
@@ -281,13 +281,13 @@
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L220"><span class="lineNum">     220</span>              :         }</span>
 <span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction(&quot;AIランダム移動失敗&quot;)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction()</span></span>
 <span id="L223"><span class="lineNum">     223</span>              : }</span>
 <span id="L224"><span class="lineNum">     224</span>              : </span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 : func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 : func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         switch solo.Movement {</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         case gc.SoloStationary:</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 return waitAction(&quot;AI固定待機&quot;)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         case gc.SoloWander:</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 return rp.planWanderAction(world, aiEntity, grid)</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         case gc.SoloWallHug:</span></span>
@@ -303,16 +303,16 @@
 <span id="L241"><span class="lineNum">     241</span>              :         }</span>
 <span id="L242"><span class="lineNum">     242</span>              : }</span>
 <span id="L243"><span class="lineNum">     243</span>              : </span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           2 :         if rp.rng.Float64() &lt; 0.8 {</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return waitAction(&quot;AI徘徊待機&quot;)</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span></span>
 <span id="L249"><span class="lineNum">     249</span>              : }</span>
 <span id="L250"><span class="lineNum">     250</span>              : </span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         if rp.rng.Float64() &lt; 0.3 {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC tlaBgUNC">           0 :                 return waitAction(&quot;AI壁沿い待機&quot;)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC tlaBgUNC">           0 :                 return waitAction()</span></span>
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L255"><span class="lineNum">     255</span>              : </span>
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC tlaBgGNC">           1 :         si := query.GetSpatialIndex(world)</span></span>
@@ -341,7 +341,7 @@
 <span id="L279"><span class="lineNum">     279</span>              :         }</span>
 <span id="L280"><span class="lineNum">     280</span>              : </span>
 <span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         if len(candidates) == 0 {</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC tlaBgUNC">           0 :                 return waitAction(&quot;AI壁沿い移動失敗&quot;)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC tlaBgUNC">           0 :                 return waitAction()</span></span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L284"><span class="lineNum">     284</span>              : </span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC tlaBgGNC">           1 :         best := candidates[0].score</span></span>
@@ -361,7 +361,7 @@
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :         return moveAction(consts.Coord[consts.Tile]{X: from.X + chosen.X, Y: from.Y + chosen.Y})</span></span>
 <span id="L300"><span class="lineNum">     300</span>              : }</span>
 <span id="L301"><span class="lineNum">     301</span>              : </span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           2 :         _, nearestGrid, nearestDist := query.FindNearestCharacter(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 return world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity)</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         })</span></span>
@@ -381,7 +381,7 @@
 <span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC tlaBgUNC">           0 :         return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span></span>
 <span id="L320"><span class="lineNum">     320</span>              : }</span>
 <span id="L321"><span class="lineNum">     321</span>              : </span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC tlaBgGNC">           1 : func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC tlaBgGNC">           1 : func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         from := grid.Coord</span></span>
 <span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         dest := from.Add(solo.PatrolDir)</span></span>
@@ -397,10 +397,10 @@
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 return moveAction(dest)</span></span>
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L337"><span class="lineNum">     337</span>              : </span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         return waitAction(&quot;AI巡回移動失敗&quot;)</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         return waitAction()</span></span>
 <span id="L339"><span class="lineNum">     339</span>              : }</span>
 <span id="L340"><span class="lineNum">     340</span>              : </span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) activity.Behavior {</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         from := grid.Coord</span></span>
 <span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           2 :         for _, d := range shuffledEightDirections(rp.rng) {</span></span>
@@ -417,7 +417,7 @@
 <span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L356"><span class="lineNum">     356</span>              :         }</span>
 <span id="L357"><span class="lineNum">     357</span>              : </span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction(&quot;AI縄張り移動失敗&quot;)</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction()</span></span>
 <span id="L359"><span class="lineNum">     359</span>              : }</span>
         </pre>
               </td>
