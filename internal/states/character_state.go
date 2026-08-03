@@ -32,11 +32,11 @@ import (
 const characterMenuKey = "character"
 
 // characterSub は画面タブメニュー内のサブステート
-type characterSub int
+type characterSub string
 
 const (
-	charSubBrowse      characterSub = iota // タブとカーソルの操作
-	charSubEquipSelect                     // 装備するアイテムの選択
+	charSubBrowse      characterSub = "browse"       // タブとカーソルの操作
+	charSubEquipSelect characterSub = "equip_select" // 装備するアイテムの選択
 )
 
 // 画面タブ。装備と命令は編集可能、以降は読み取り専用の情報タブ
