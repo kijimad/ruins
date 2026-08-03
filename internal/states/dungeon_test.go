@@ -43,7 +43,7 @@ func TestDoActionUIActions(t *testing.T) {
 			action:            inputmapper.ActionOpenDungeonMenu,
 			expectedType:      es.TransPush,
 			shouldHaveFunc:    true,
-			expectedStateType: "*states.PersistentMessageState",
+			expectedStateType: "*states.ChoiceMenuState",
 		},
 		{
 			name:              "所持品を開く",
@@ -409,7 +409,7 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			require.NotNil(t, newState, "NewStateFunc が nil を返しました")
 
 			// ステートが正しい型であることを検証
-			assert.IsType(t, &PersistentMessageState{}, newState, "期待するステート型と異なります")
+			assert.IsType(t, &ChoiceMenuState{}, newState, "期待するステート型と異なります")
 		})
 	}
 }
