@@ -39,14 +39,53 @@ const (
 	charSubEquipSelect characterSub = "equip_select" // 装備するアイテムの選択
 )
 
-// 画面タブ。装備と命令は編集可能、以降は読み取り専用の情報タブ
+// charTab は画面タブの種別。装備と命令は編集可能、以降は読み取り専用の情報タブ
+type charTab string
+
 const (
-	charScreenEquip   = 0 // 装備タブ
-	charScreenCommand = 1 // 命令タブ。仲間の隊列ポリシーを編集する
+	charTabEquip   charTab = "equip"   // 装備。編集可能
+	charTabCommand charTab = "command" // 命令。仲間の隊列ポリシーを編集する
+	charTabAbility charTab = "ability" // 能力
+	charTabSkill   charTab = "skill"   // スキル
+	charTabEffect  charTab = "effect"  // 効果
+	charTabHealth  charTab = "health"  // 健康
+	charTabBasic   charTab = "basic"   // 基本
 )
 
-// characterTabLabels は画面タブの見出し。編集可能な装備・命令の後ろに読み取り専用タブが並ぶ
-var characterTabLabels = []string{"装備", "命令", "能力", "スキル", "効果", "健康", "基本"}
+// characterTabs はタブの種別と見出しを表示順に対応づける。タブ番号はこの並び順で決まる。
+// 編集可能な装備・命令の後ろに読み取り専用の情報タブが並ぶ
+var characterTabs = []struct {
+	Kind  charTab
+	Label string
+}{
+	{charTabEquip, "装備"},
+	{charTabCommand, "命令"},
+	{charTabAbility, "能力"},
+	{charTabSkill, "スキル"},
+	{charTabEffect, "効果"},
+	{charTabHealth, "健康"},
+	{charTabBasic, "基本"},
+}
+
+// charFirstInfoTab は情報タブが始まるタブ番号。編集タブの装備・命令2つの後に並ぶ
+const charFirstInfoTab = 2
+
+// charTabAt はタブ番号に対応するタブ種別を返す。範囲外は空文字を返す
+func charTabAt(index int) charTab {
+	if index < 0 || index >= len(characterTabs) {
+		return ""
+	}
+	return characterTabs[index].Kind
+}
+
+// characterTabLabels はタブの見出し一覧を表示順で返す
+func characterTabLabels() []string {
+	labels := make([]string, len(characterTabs))
+	for i, t := range characterTabs {
+		labels[i] = t.Label
+	}
+	return labels
+}
 
 // CharacterState は画面タブメニューのステート。主人公と仲間で同じ画面を使い、対象を切り替えられる
 type CharacterState struct {
@@ -212,7 +251,7 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
 		// 命令タブには行ごとの詳細が無いので x を無視する
-		if st.currentTabIndex() == charScreenCommand {
+		if charTabAt(st.currentTabIndex()) == charTabCommand {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		st.detail.Open()
@@ -237,8 +276,8 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 func (st *CharacterState) onBrowseSelect(world w.World) error {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
 	props := st.mount.GetProps()
-	switch menuState.TabIndex {
-	case charScreenEquip:
+	switch charTabAt(menuState.TabIndex) {
+	case charTabEquip:
 		if menuState.ItemIndex >= len(props.EquipSlots) {
 			return nil
 		}
@@ -252,7 +291,7 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 			st.openEquipSelect(world, slot)
 		}
 		st.rebuild = true
-	case charScreenCommand:
+	case charTabCommand:
 		if menuState.ItemIndex >= len(props.Commands) {
 			return nil
 		}
@@ -641,11 +680,11 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 
 	// コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ
 	var content *widget.Container
-	if tabIndex == charScreenEquip {
+	if charTabAt(tabIndex) == charTabEquip {
 		content = st.buildEquipList(props.EquipSlots, itemIndex, res)
-	} else if tabIndex == charScreenCommand {
+	} else if charTabAt(tabIndex) == charTabCommand {
 		content = st.buildCommandTable(props.Commands, itemIndex, res)
-	} else if infoIdx := tabIndex - 2; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
+	} else if infoIdx := tabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
 		content = st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res)
 	} else {
 		content = widget.NewContainer()
@@ -659,7 +698,7 @@ func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 
 	ui := newTabScreenUI(res, tabScreen{
 		Header:    header,
-		TabLabels: characterTabLabels,
+		TabLabels: characterTabLabels(),
 		TabIndex:  tabIndex,
 		Content:   content,
 		Footer:    hint,
@@ -691,8 +730,8 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
 	props := st.mount.GetProps()
-	switch menuState.TabIndex {
-	case charScreenEquip:
+	switch charTabAt(menuState.TabIndex) {
+	case charTabEquip:
 		if menuState.ItemIndex >= len(props.EquipSlots) {
 			return menuscreen.DetailContent{}, false
 		}
@@ -702,10 +741,10 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 		}
 		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
 		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: "何も装備していない", Rows: []menuscreen.SpecRow{}}, true
-	case charScreenCommand:
+	case charTabCommand:
 		return menuscreen.DetailContent{}, false
 	default:
-		infoIdx := menuState.TabIndex - 2
+		infoIdx := menuState.TabIndex - charFirstInfoTab
 		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
 			return menuscreen.DetailContent{}, false
 		}
