@@ -6,7 +6,6 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
@@ -17,24 +16,6 @@ import (
 // detailRowsPerPage は詳細ウィンドウ1ページに収める性能行の数。
 // 行数でページ分割することで、短い項目は1ページに収まり、行の多い項目だけがはみ出さないよう分割される
 const detailRowsPerPage = 12
-
-// WindowCursorReducer は選択肢ウィンドウの上下カーソル移動を扱う reducer を返す。
-// 端では循環し、選択肢が無いときは 0 に留まる。各メニューのウィンドウで共通に使う
-func WindowCursorReducer(count int) func(int, inputmapper.ActionID) int {
-	return func(v int, action inputmapper.ActionID) int {
-		if count == 0 {
-			return 0
-		}
-		switch action {
-		case inputmapper.ActionWindowUp:
-			return (v - 1 + count) % count
-		case inputmapper.ActionWindowDown:
-			return (v + 1) % count
-		default:
-			return v
-		}
-	}
-}
 
 // BuildActionWindow は選択肢を縦に並べるサブウィンドウを組み立て、rect の位置に置く。
 // selectedIndex の行にカーソルを表示する。title が空でもヘッダ帯は描かれる

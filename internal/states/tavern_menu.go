@@ -22,22 +22,14 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// tavernSubState はサブステート
-type tavernSubState int
-
-const (
-	tavernSubStateMenu   tavernSubState = iota // 候補一覧
-	tavernSubStateWindow                       // アクションウィンドウ
-)
-
 // TavernMenuState は酒場の雇用画面のゲームステート
 type TavernMenuState struct {
 	es.BaseState[w.World]
-	subState    tavernSubState
-	menuMount   *hooks.Mount[tavernProps]
-	windowMount *hooks.Mount[tavernWindowProps]
-	widget      *ebitenui.UI
-	candidates  []tavernCandidate
+	actionWin  menuscreen.ActionWindow // 雇用のアクション選択ウィンドウ
+	rebuild    bool                    // 次フレームで UI を作り直すか
+	menuMount  *hooks.Mount[tavernProps]
+	widget     *ebitenui.UI
+	candidates []tavernCandidate
 }
 
 var _ es.State[w.World] = &TavernMenuState{}
@@ -61,27 +53,29 @@ func (st *TavernMenuState) OnStop(_ w.World) error { return nil }
 
 // OnStart はステートが開始する際に呼ばれる
 func (st *TavernMenuState) OnStart(world w.World) error {
-	st.subState = tavernSubStateMenu
 	st.menuMount = hooks.NewMount[tavernProps]()
-	st.windowMount = hooks.NewMount[tavernWindowProps]()
+	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
 	st.candidates = generateCandidates(world.Config.RNG)
 	return nil
 }
 
 // Update はステートの更新処理を行う
 func (st *TavernMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	if action, ok := st.HandleInput(world.Config); ok {
+	if st.actionWin.Active() {
+		dirty, err := st.actionWin.HandleInput(world)
+		if err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		if dirty {
+			st.rebuild = true
+		}
+	} else if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
 			return transition, nil
 		}
-		switch st.subState {
-		case tavernSubStateMenu:
-			st.menuMount.Dispatch(action)
-		case tavernSubStateWindow:
-			st.windowMount.Dispatch(action)
-		}
+		st.menuMount.Dispatch(action)
 	}
 
 	props := st.fetchProps(world)
@@ -92,12 +86,9 @@ func (st *TavernMenuState) Update(world w.World) (es.Transition[w.World], error)
 		ItemCounts: []int{len(props.Candidates)},
 	})
 
-	st.setupWindowState()
-
-	menuDirty := st.menuMount.Update()
-	windowDirty := st.windowMount.Update()
-	if menuDirty || windowDirty || st.widget == nil {
+	if st.menuMount.Update() || st.widget == nil || st.rebuild {
 		st.widget = st.buildUI(world)
+		st.rebuild = false
 	}
 
 	st.widget.Update()
@@ -112,43 +103,21 @@ func (st *TavernMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 
 // HandleInput は入力を処理してアクションIDを返す
 func (st *TavernMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	switch st.subState {
-	case tavernSubStateMenu:
-		return HandleMenuInput()
-	case tavernSubStateWindow:
-		return HandleWindowInput()
-	}
-	return "", false
+	return HandleMenuInput()
 }
 
 // DoAction はアクションを実行してステート遷移を返す
-func (st *TavernMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	switch st.subState {
-	case tavernSubStateWindow:
-		switch action {
-		case inputmapper.ActionWindowConfirm:
-			if err := st.executeWindowAction(world); err != nil {
-				return es.Transition[w.World]{}, err
-			}
-		case inputmapper.ActionWindowCancel:
-			st.subState = tavernSubStateMenu
-		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
-			// Dispatchで処理
-		default:
-			return es.Transition[w.World]{}, fmt.Errorf("tavernSubStateWindow: 未対応のアクション: %s", action)
-		}
-
-	case tavernSubStateMenu:
-		switch action {
-		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-			return es.Transition[w.World]{Type: es.TransPop}, nil
-		case inputmapper.ActionMenuSelect:
-			st.handleCandidateSelection()
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-			// Dispatchで処理
-		default:
-			return es.Transition[w.World]{}, fmt.Errorf("tavernSubStateMenu: 未対応のアクション: %s", action)
-		}
+func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	switch action {
+	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionMenuSelect:
+		st.actionWin.Open()
+		st.rebuild = true
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+		// Dispatchで処理
+	default:
+		return es.Transition[w.World]{}, fmt.Errorf("tavernMenu: 未対応のアクション: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -248,10 +217,6 @@ type tavernCandidateData struct {
 	CanAfford bool
 }
 
-type tavernWindowProps struct {
-	Candidate tavernCandidateData
-}
-
 func (st *TavernMenuState) fetchProps(world w.World) tavernProps {
 	var currency int
 	query.Player(world, func(playerEntity ecs.Entity) {
@@ -280,80 +245,53 @@ func (st *TavernMenuState) fetchProps(world w.World) tavernProps {
 // Window
 // ================
 
-func (st *TavernMenuState) setupWindowState() {
-	actionItems := st.getActionItems()
-
-	hooks.UseState(st.windowMount.Store(), "tavern_window_index", 0, menuscreen.WindowCursorReducer(len(actionItems)))
+// actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。
+// 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する
+func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.Action, bool) {
+	c, ok := st.selectedCandidate()
+	if !ok || c.Name == "" {
+		return "", nil, false
+	}
+	var actions []menuscreen.Action
+	if c.CanAfford {
+		idx := c.Index
+		actions = append(actions, menuscreen.Action{Label: TextHire, Run: func(world w.World) error {
+			return st.hireCandidate(world, idx)
+		}})
+	}
+	actions = append(actions, menuscreen.Action{Label: TextClose})
+	return c.Name, actions, true
 }
 
-func (st *TavernMenuState) getActionItems() []string {
-	windowProps := st.windowMount.GetProps()
-	if windowProps.Candidate.Name == "" {
-		return []string{TextClose}
-	}
-	items := []string{}
-	if windowProps.Candidate.CanAfford {
-		items = append(items, TextHire)
-	}
-	items = append(items, TextClose)
-	return items
-}
-
-func (st *TavernMenuState) handleCandidateSelection() {
+// selectedCandidate は現在カーソルが当たっている雇用候補を返す
+func (st *TavernMenuState) selectedCandidate() (tavernCandidateData, bool) {
 	props := st.menuMount.GetProps()
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "tavern")
-	if !ok {
-		return
+	if !ok || menuState.ItemIndex >= len(props.Candidates) {
+		return tavernCandidateData{}, false
 	}
-	itemIndex := menuState.ItemIndex
-	if itemIndex >= len(props.Candidates) {
-		return
-	}
-
-	st.subState = tavernSubStateWindow
-	st.windowMount = hooks.NewMount[tavernWindowProps]()
-	st.windowMount.SetProps(tavernWindowProps{
-		Candidate: props.Candidates[itemIndex],
-	})
+	return props.Candidates[menuState.ItemIndex], true
 }
 
-func (st *TavernMenuState) executeWindowAction(world w.World) error {
-	windowProps := st.windowMount.GetProps()
-	actionIndex, ok := hooks.GetState[int](st.windowMount, "tavern_window_index")
-	if !ok {
+// hireCandidate は idx 番目の候補を雇用し、候補リストから取り除く。所持金が足りなければ何もしない
+func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
+	if idx < 0 || idx >= len(st.candidates) {
 		return nil
 	}
-	actionItems := st.getActionItems()
-	if actionIndex >= len(actionItems) {
+	candidate := st.candidates[idx]
+
+	playerEntity, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !query.ConsumeCurrency(world, playerEntity, candidate.Cost) {
 		return nil
 	}
-
-	selectedAction := actionItems[actionIndex]
-	switch selectedAction {
-	case TextHire:
-		candidate := st.candidates[windowProps.Candidate.Index]
-
-		playerEntity, err := query.GetPlayerEntity(world)
-		if err != nil {
-			return err
-		}
-
-		if !query.ConsumeCurrency(world, playerEntity, candidate.Cost) {
-			return nil
-		}
-
-		if _, err := lifecycle.SpawnSquadMember(world, playerEntity, candidate.Name, candidate.Abilities, candidate.SpriteKey); err != nil {
-			return fmt.Errorf("雇用に失敗: %w", err)
-		}
-
-		// 候補リストから削除する
-		st.candidates = append(st.candidates[:windowProps.Candidate.Index], st.candidates[windowProps.Candidate.Index+1:]...)
-		st.subState = tavernSubStateMenu
-
-	case TextClose:
-		st.subState = tavernSubStateMenu
+	if _, err := lifecycle.SpawnSquadMember(world, playerEntity, candidate.Name, candidate.Abilities, candidate.SpriteKey); err != nil {
+		return fmt.Errorf("雇用に失敗: %w", err)
 	}
 
+	st.candidates = append(st.candidates[:idx], st.candidates[idx+1:]...)
 	return nil
 }
 
@@ -373,9 +311,10 @@ func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {
 
 	eui := newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false)})
 
-	if st.subState == tavernSubStateWindow {
-		window := st.buildActionWindow(world)
-		eui.AddWindow(window)
+	if st.actionWin.Active() {
+		if win := st.actionWin.Window(world, getCenterWinRect(world)); win != nil {
+			eui.AddWindow(win)
+		}
 	}
 
 	return eui
@@ -403,11 +342,4 @@ func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData,
 
 	container.AddChild(table)
 	return container
-}
-
-func (st *TavernMenuState) buildActionWindow(world w.World) *widget.Window {
-	actionIndex, _ := hooks.GetState[int](st.windowMount, "tavern_window_index")
-	actionItems := st.getActionItems()
-	windowProps := st.windowMount.GetProps()
-	return menuscreen.BuildActionWindow(world, getCenterWinRect(world), windowProps.Candidate.Name, actionItems, actionIndex)
 }

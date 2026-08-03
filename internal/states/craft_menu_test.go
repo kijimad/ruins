@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,8 +20,6 @@ func TestCraftMenuState_OnStart(t *testing.T) {
 	err := state.OnStart(world)
 	require.NoError(t, err)
 	assert.NotNil(t, state.menuMount, "menuMountが初期化されている")
-	assert.NotNil(t, state.windowMount, "windowMountが初期化されている")
-	assert.NotNil(t, state.resultMount, "resultMountが初期化されている")
 }
 
 func TestCraftMenuState_FetchProps(t *testing.T) {
@@ -128,86 +125,39 @@ func TestCraftMenuState_DoAction_Navigation(t *testing.T) {
 	}
 }
 
-func TestCraftMenuState_WindowProps(t *testing.T) {
+func TestCraftMenuState_DoAction_MenuSelectでアクション窓を開く(t *testing.T) {
 	t.Parallel()
 
 	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 初期状態ではメニューモード
-	assert.Equal(t, craftSubStateMenu, state.subState, "初期状態ではメニューモード")
+	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransNone, transition.Type, "選択はTransNone")
+	assert.True(t, state.actionWin.Active(), "アクション選択ウィンドウが開く")
 }
 
-func TestCraftMenuState_DoAction_WindowMode(t *testing.T) {
+func TestCraftMenuState_actionWindowContent_選択なしは表示しない(t *testing.T) {
 	t.Parallel()
 
 	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// ウィンドウを開く
-	state.subState = craftSubStateWindow
-	state.windowMount.SetProps(craftWindowProps{
-		RecipeName: "テストレシピ",
-	})
-
-	// ウィンドウモードでのキャンセル
-	transition, err := state.DoAction(world, inputmapper.ActionWindowCancel)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type, "ウィンドウキャンセルはTransNone")
-
-	// ウィンドウが閉じている
-	assert.Equal(t, craftSubStateMenu, state.subState, "キャンセル後はメニューモード")
+	_, _, ok := state.actionWindowContent(world)
+	assert.False(t, ok, "レシピ未選択ではアクション窓を出さない")
 }
 
-func TestCraftMenuState_DoAction_ResultMode(t *testing.T) {
+func TestCraftMenuState_resultDetailContent_合成前は表示しない(t *testing.T) {
 	t.Parallel()
 
 	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 結果ウィンドウを開く
-	state.subState = craftSubStateResult
-	state.resultMount.SetProps(craftResultProps{
-		ResultEntity: ecs.Entity{},
-	})
-
-	// 結果ウィンドウモードでのキャンセル
-	transition, err := state.DoAction(world, inputmapper.ActionWindowCancel)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type, "結果ウィンドウキャンセルはTransNone")
-
-	// 結果ウィンドウが閉じている
-	assert.Equal(t, craftSubStateMenu, state.subState, "キャンセル後はメニューモード")
-}
-
-func TestCraftMenuState_DoAction_WindowNavigation(t *testing.T) {
-	t.Parallel()
-
-	state := &CraftMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	// ウィンドウを開く
-	state.subState = craftSubStateWindow
-	state.windowMount.SetProps(craftWindowProps{
-		RecipeName: "テストレシピ",
-	})
-
-	// ウィンドウ用のUseStateを登録
-	state.setupWindowState(world)
-	state.windowMount.Update()
-
-	// ウィンドウモードでの上下移動
-	transition, err := state.DoAction(world, inputmapper.ActionWindowDown)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type)
-
-	transition, err = state.DoAction(world, inputmapper.ActionWindowUp)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type)
+	_, ok := state.resultDetailContent(world)
+	assert.False(t, ok, "合成前は結果モーダルを出さない")
 }
 
 func TestNewCraftMenuState(t *testing.T) {
@@ -221,14 +171,32 @@ func TestNewCraftMenuState(t *testing.T) {
 	assert.True(t, ok, "CraftMenuState型である")
 }
 
-func TestCraftMenuState_GetActionItems(t *testing.T) {
+func TestCraftMenuState_actionWindowContent_選択ありは末尾に閉じるを含む(t *testing.T) {
 	t.Parallel()
 
 	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 空のレシピ名の場合は閉じるのみ
-	actions := state.getActionItems(world, "")
-	assert.Equal(t, []string{TextClose}, actions, "空のレシピ名は閉じるのみ")
+	props := state.fetchProps(world)
+	state.menuMount.SetProps(props)
+	itemCounts := make([]int, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+	hooks.UseTabMenu(state.menuMount.Store(), "craft", hooks.TabMenuConfig{
+		TabCount:   len(props.Tabs),
+		ItemCounts: itemCounts,
+	})
+	state.menuMount.Update()
+
+	if len(props.Tabs[0].Items) == 0 {
+		t.Skip("道具レシピが無いためスキップ")
+	}
+
+	title, actions, ok := state.actionWindowContent(world)
+	require.True(t, ok, "レシピ選択中はアクション窓を出す")
+	assert.Equal(t, "アクション選択", title)
+	require.NotEmpty(t, actions)
+	assert.Equal(t, TextClose, actions[len(actions)-1].Label, "末尾は閉じる")
 }
