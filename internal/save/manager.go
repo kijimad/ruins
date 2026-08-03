@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -103,10 +104,29 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 		return fmt.Errorf("unsupported save data version: %s", env.Version)
 	}
 
+	// 本番ワールドを破壊する前に、使い捨ての probe ワールドで復元の全工程を検証する。
+	// ark-serde の Deserialize はリセット済みワールドを要求し、途中で失敗しても巻き戻せない。
+	// 先に probe を通し、成功したときだけ本番ワールドへ適用することで、ロード失敗時も
+	// 本番ワールドを無傷で残し、呼び出し側がアプリを継続できるようにする。
+	// 復元を2回走らせるコストは、ロードがゲーム開始時の1回きりの操作なので許容する。
+	probe, err := w.InitWorld(&gc.Components{})
+	if err != nil {
+		return fmt.Errorf("検証用ワールドの生成に失敗: %w", err)
+	}
+	if err := restoreInto(probe, env.World); err != nil {
+		return err
+	}
+
+	return restoreInto(world, env.World)
+}
+
+// restoreInto はリセット済みワールドへ復元の全工程を適用する。deserialize は事前の
+// world.ECS.Reset() を要求する。probe と本番ワールドの両方でこの手順を共有する。
+func restoreInto(world w.World, worldJSON []byte) error {
 	// ark-serdeのDeserializeはリセット済みワールドを要求する
 	world.ECS.Reset()
 
-	if err := deserializeWorld(world, env.World); err != nil {
+	if err := deserializeWorld(world, worldJSON); err != nil {
 		return fmt.Errorf("failed to restore world data: %w", err)
 	}
 

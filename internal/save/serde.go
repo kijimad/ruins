@@ -108,6 +108,20 @@ func reestablishSingleton(world w.World) error {
 			field.ExploredTiles = make(map[gc.GridElement]bool)
 		}
 	}
+
+	// CharModifiers.Sources は json:"-" で除外され、ロード時に再計算する規約。
+	// 再計算は StatsChangedSystem が StatsChanged ダーティフラグの立ったエンティティにだけ行うが、
+	// StatsChanged 自体も serde 除外でロード直後は全消えしている。Abilities を持つ全エンティティに
+	// 付け直し、次の更新で Sources が再構築されるようにする。
+	// ロック中の反復では構造変更しないため、対象を集めてから付与する
+	var statsTargets []ecs.Entity
+	aq := ecs.NewFilter1[gc.Abilities](world.ECS).Query()
+	for aq.Next() {
+		statsTargets = append(statsTargets, aq.Entity())
+	}
+	for _, e := range statsTargets {
+		world.Components.StatsChanged.Add(e, &gc.StatsChanged{})
+	}
 	return nil
 }
 
