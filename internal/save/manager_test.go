@@ -431,3 +431,41 @@ func TestLoadWorld_ReaddsStatsChanged(t *testing.T) {
 	}
 	assert.True(t, found, "ロード後、Abilities保持エンティティに StatsChanged が再付与される")
 }
+
+// TestRestoreWorldFromJSON_PreservesWorldOnFailure はロードが復元段階で失敗しても、現行ワールドが
+// 破壊されずに残ることを検証する。RestoreWorldFromJSON は本番ワールドを Reset する前に使い捨ての
+// probe で全工程を検証するため、失敗は本番ワールドに波及しない。
+func TestRestoreWorldFromJSON_PreservesWorldOnFailure(t *testing.T) {
+	t.Parallel()
+
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	// 復元段階で失敗するセーブを用意する。GameProgress を外すと reestablishSingleton が
+	// シングルトンを特定できず失敗する。チェックサム・バージョンは通る
+	bad := testutil.InitTestWorld(t)
+	bad.Components.GameProgress.Remove(bad.Resources.SingletonEntity)
+	require.NoError(t, manager.SaveWorld(bad, "bad_slot"))
+	badJSON, err := manager.LoadWorldJSON("bad_slot")
+	require.NoError(t, err)
+
+	// 現行ワールドに識別可能な内容を入れておく
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Name.Add(player, &gc.Name{Name: "生存確認プレイヤー"})
+
+	// 復元は失敗する
+	err = manager.RestoreWorldFromJSON(world, badJSON)
+	require.Error(t, err)
+
+	// 失敗しても現行ワールドのプレイヤーは消えていない
+	survived := false
+	q := ecs.NewFilter1[gc.Player](world.ECS).Query()
+	for q.Next() {
+		if world.Components.Name.Get(q.Entity()).Name == "生存確認プレイヤー" {
+			survived = true
+		}
+	}
+	assert.True(t, survived, "ロード失敗時も現行ワールドは破壊されず保持される")
+}
