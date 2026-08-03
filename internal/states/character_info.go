@@ -274,7 +274,8 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 }
 
 // buildInfoTable は読み取り専用タブのアイテム一覧をテーブルで組み立てる
-func (st *CharacterState) buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
+// buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える
+func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 
 	pg := pagination.New(itemIndex, len(tab.Items), statusItemsPerPage)

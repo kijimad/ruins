@@ -4,20 +4,15 @@ import (
 	"fmt"
 
 	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -527,24 +522,6 @@ func (st *CharacterState) currentTabIndex() int {
 }
 
 // buildCommandTable は命令タブの本文を組み立てる。ポリシー行と解雇行を並べ、対象が仲間でなければ案内を出す
-func (st *CharacterState) buildCommandTable(rows []commandRow, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-	container.AddChild(newPageIndicatorRow(itemIndex, len(rows), res))
-	if len(rows) == 0 {
-		container.AddChild(styled.NewDescriptionText("この対象に隊列指示はない", res))
-		return container
-	}
-	columnWidths := []int{120, 160}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	table := styled.NewTableContainer(columnWidths, res)
-	for i, row := range rows {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{string(row.Kind), row.Value}, aligns, &isSelected, res)
-	}
-	container.AddChild(table)
-	return container
-}
-
 // resolveTarget は表示対象を返す。未指定または死亡時は主人公にフォールバックする
 func (st *CharacterState) resolveTarget(world w.World) ecs.Entity {
 	if world.ECS.Alive(st.target) {
@@ -664,48 +641,19 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 // buildUI
 // ================
 
+// buildUI は現在の state から描画に必要なデータを取り出し、純粋描画の buildCharacterUI へ渡す。
+// 詳細と装備選択のオーバーレイ窓は world とコントローラを要するため、ここで重ねる
 func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.mount.GetProps()
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-	tabIndex := menuState.TabIndex
-	itemIndex := menuState.ItemIndex
 
-	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
-	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
-	header := props.TargetName
-	if props.HasMultiple {
-		header = fmt.Sprintf("%s %s %s", consts.IconArrowLeft, props.TargetName, consts.IconArrowRight)
-	}
-
-	// コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ
-	var content *widget.Container
-	if charTabAt(tabIndex) == charTabEquip {
-		content = st.buildEquipList(props.EquipSlots, itemIndex, res)
-	} else if charTabAt(tabIndex) == charTabCommand {
-		content = st.buildCommandTable(props.Commands, itemIndex, res)
-	} else if infoIdx := tabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
-		content = st.buildInfoTable(props.InfoTabs[infoIdx], itemIndex, res)
-	} else {
-		content = widget.NewContainer()
-	}
-
-	extras := []string{"x 詳細"}
-	if props.HasMultiple {
-		extras = []string{", . 切替", "x 詳細"}
-	}
-	hint := menuNavHint(true, extras...)
-
-	ui := newTabScreenUI(res, tabScreen{
-		Header:    header,
-		TabLabels: characterTabLabels(),
-		TabIndex:  tabIndex,
-		Content:   content,
-		Footer:    hint,
-	})
+	ui := buildCharacterUI(props, characterSelection{TabIndex: menuState.TabIndex, ItemIndex: menuState.ItemIndex}, res)
 
 	if st.subState == charSubEquipSelect {
-		ui.AddWindow(st.buildEquipSelectWindow(world, res))
+		equipProps := st.equipMount.GetProps()
+		equipState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
+		ui.AddWindow(buildEquipSelectWindow(world, equipProps, equipState.ItemIndex, res))
 	}
 	if st.detail.Active() {
 		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
@@ -783,43 +731,4 @@ func infoDetailContent(item statusItemData) menuscreen.DetailContent {
 		rows = append(rows, menuscreen.SpecRow{Label: d.Label, Value: d.Value})
 	}
 	return menuscreen.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
-}
-
-func (st *CharacterState) buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-	// 情報タブと開始位置を揃えるため、先頭に同じページ表示行を必ず置く
-	container.AddChild(newPageIndicatorRow(itemIndex, len(slots), res))
-	if len(slots) == 0 {
-		container.AddChild(styled.NewDescriptionText("装備スロットがありません", res))
-		return container
-	}
-
-	// 情報タブと同じテーブル描画に揃える。左にスロット名、右に装備名。未装備は空欄
-	columnWidths := []int{110, 220}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	table := styled.NewTableContainer(columnWidths, res)
-	for i, slot := range slots {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{slot.SlotLabel, slot.ItemName}, aligns, &isSelected, res)
-	}
-	container.AddChild(table)
-	return container
-}
-
-func (st *CharacterState) buildEquipSelectWindow(world w.World, res resources.UIResources) *widget.Window {
-	props := st.equipMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
-
-	content := styled.NewWindowContainer(res)
-	title := styled.NewWindowHeaderContainer("装備を選ぶ", res)
-	win := styled.NewSmallWindow(title, content)
-	if len(props.Items) == 0 {
-		content.AddChild(styled.NewDescriptionText("装備できるものがない", res))
-	}
-	for i, entity := range props.Items {
-		name := world.Components.Name.Get(entity).Name
-		content.AddChild(styled.NewListItemText(name, theme.TextSecondary, i == menuState.ItemIndex, res))
-	}
-	win.SetLocation(getCenterWinRect(world))
-	return win
 }
