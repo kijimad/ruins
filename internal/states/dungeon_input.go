@@ -243,7 +243,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			}
 		default:
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() (es.State[w.World], error) { return newActionChoiceMenu(actions), nil },
+				func() (es.State[w.World], error) { return NewChoiceMenu(sameTileActionChoices), nil },
 			}}, nil
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil

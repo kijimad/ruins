@@ -684,45 +684,44 @@ func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する
 func NewInteractionMenuState(world w.World) (es.State[w.World], error) {
-	interactionActions := GetInteractionActions(world)
-
-	if len(interactionActions) == 0 {
+	if len(GetInteractionActions(world)) == 0 {
 		messageState := &MessageState{}
 		messageState.messageData = messagedata.NewSystemMessage("実行可能なアクションがありません。")
 		return messageState, nil
 	}
+	return NewChoiceMenu(interactionChoices), nil
+}
 
-	return newActionChoiceMenu(interactionActions), nil
+// interactionActionChoices は交流アクション列を選択肢へ変換する。選ぶと実行してダンジョンへ戻る。
+// キャンセルは選択肢でなく Esc で閉じる。他メニューと操作を揃える
+func interactionActionChoices(actions []InteractionAction) []Choice {
+	choices := make([]Choice, 0, len(actions))
+	for _, action := range actions {
+		choices = append(choices, Choice{Label: action.Label, Run: func(world w.World) (es.Transition[w.World], error) {
+			playerEntity, err := query.GetPlayerEntity(world)
+			if err != nil {
+				return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの取得に失敗: %w", err)
+			}
+			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, action.Interaction, world); err != nil {
+				return es.Transition[w.World]{}, fmt.Errorf("アクション実行失敗: %w", err)
+			}
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		}})
+	}
+	return choices
+}
+
+// interactionChoices は範囲内の交流アクションを選択肢にする。交流メニューで使う
+func interactionChoices(world w.World) (string, []Choice) {
+	return "", interactionActionChoices(GetInteractionActions(world))
+}
+
+// sameTileActionChoices は足元タイルの手動アクションを選択肢にする。ダンジョンの相互作用キーで使う
+func sameTileActionChoices(world w.World) (string, []Choice) {
+	return "", interactionActionChoices(GetSameTileManualActions(world))
 }
 
 // newActionChoiceMenu はInteractionActionのリストから選択メニューを作成する
-func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] {
-	messageState := &MessageState{}
-	messageState.messageData = messagedata.NewSystemMessage("")
-
-	for _, action := range actions {
-		messageState.messageData.WithChoice(action.Label, func(world w.World) error {
-			playerEntity, err := query.GetPlayerEntity(world)
-			if err != nil {
-				return fmt.Errorf("failed to get player entity: %w", err)
-			}
-
-			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, action.Interaction, world); err != nil {
-				return fmt.Errorf("アクション実行失敗: %w", err)
-			}
-
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
-	}
-
-	messageState.messageData.WithChoice("キャンセル", func(_ w.World) error {
-		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		return nil
-	})
-
-	return messageState
-}
 
 // NewMerchantDialogState は商人との会話ステートを作成
 func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
