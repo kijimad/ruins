@@ -150,8 +150,7 @@ func (st *ShopMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
 // ================
 
 type shopProps struct {
-	Tabs     []shopTabData
-	Currency int
+	Tabs []shopTabData
 }
 
 type shopTabData struct {
@@ -183,8 +182,7 @@ func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	})
 
 	return shopProps{
-		Tabs:     st.createTabs(world, currency, buyPriceMod, sellPriceMod),
-		Currency: currency,
+		Tabs: st.createTabs(world, currency, buyPriceMod, sellPriceMod),
 	}
 }
 
@@ -336,7 +334,6 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	}
 
 	eui := newTabScreenUI(res, tabScreen{
-		Header:    fmt.Sprintf("所持 %s", query.FormatCurrency(props.Currency)),
 		TabLabels: labels,
 		TabIndex:  tabIndex,
 		Content:   st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res),
