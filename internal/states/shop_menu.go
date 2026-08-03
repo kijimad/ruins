@@ -68,7 +68,9 @@ func (st *ShopMenuState) OnStop(_ w.World) error { return nil }
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	// 入力処理。詳細・アクション窓が開いていればそちらが優先し、通常のメニュー入力は止まる
 	if st.detail.Active() {
-		if st.detail.HandleInput(world) {
+		if dirty, err := st.detail.HandleInput(world); err != nil {
+			return es.Transition[w.World]{}, err
+		} else if dirty {
 			st.rebuild = true
 		}
 	} else if st.actionWin.Active() {

@@ -86,7 +86,9 @@ func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error
 
 	// 入力処理
 	if st.detail.Active() {
-		if st.detail.HandleInput(world) {
+		if dirty, err := st.detail.HandleInput(world); err != nil {
+			return es.Transition[w.World]{}, err
+		} else if dirty {
 			st.rebuild = true
 		}
 	} else if action, ok := st.HandleInput(world.Config); ok {

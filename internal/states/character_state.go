@@ -146,7 +146,9 @@ func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) 
 
 	if st.detail.Active() {
 		// 詳細表示中はページ送りと閉じるだけを扱い、通常のメニュー入力は止める
-		if st.detail.HandleInput(world) {
+		if dirty, err := st.detail.HandleInput(world); err != nil {
+			return es.Transition[w.World]{}, err
+		} else if dirty {
 			st.rebuild = true
 		}
 	} else if action, ok := st.handleInput(); ok {

@@ -71,7 +71,9 @@ func (st *CraftMenuState) OnStop(_ w.World) error { return nil }
 func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	// 入力処理。合成結果・アクション窓が開いていればそちらが優先し、通常のメニュー入力は止まる
 	if st.result.Active() {
-		if st.result.HandleInput(world) {
+		if dirty, err := st.result.HandleInput(world); err != nil {
+			return es.Transition[w.World]{}, err
+		} else if dirty {
 			st.rebuild = true
 		}
 	} else if st.actionWin.Active() {
