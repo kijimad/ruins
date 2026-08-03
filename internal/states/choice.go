@@ -15,10 +15,11 @@ import (
 )
 
 // Choice は選択メニューの1項目。Run が選択時の実行で、戻り値のステート遷移で
-// 画面を閉じる、別画面へ進む、などを表す
+// 画面を閉じる、別画面へ進む、などを表す。Header が真の行はカーソルが止まらない見出し
 type Choice struct {
-	Label string
-	Run   func(world w.World) (es.Transition[w.World], error)
+	Label  string
+	Run    func(world w.World) (es.Transition[w.World], error)
+	Header bool
 }
 
 // choiceProps は選択メニューの表示スナップショット
@@ -89,7 +90,7 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuSelect:
 		choices := st.screen.Props().Choices
 		i := st.screen.Selection().ItemIndex
-		if i < 0 || i >= len(choices) || choices[i].Run == nil {
+		if i < 0 || i >= len(choices) || choices[i].Header || choices[i].Run == nil {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		return choices[i].Run(world)
@@ -107,13 +108,17 @@ func (st *ChoiceMenuState) fetch(world w.World) choiceProps {
 	return choiceProps{Title: title, Choices: choices}
 }
 
-// menu は単一タブの選択リストとして構成を返す。項目が多い画面でもモーダルに収めるためページ送りする
+// menu は単一タブの選択リストとして構成を返す。見出し行はカーソルを飛ばし、多い画面はページ送りする
 func (st *ChoiceMenuState) menu(props choiceProps) MenuConfig {
-	return MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage}
+	skips := make([]bool, len(props.Choices))
+	for i, c := range props.Choices {
+		skips[i] = c.Header
+	}
+	return MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage, Skips: [][]bool{skips}}
 }
 
-// view は本文と選択肢の1カラム一覧を組む純粋描画。他の1カラムメニューと同じ密なテーブル描画に
-// 揃え、選択肢が多いときはページ送りしてモーダルからはみ出さない
+// view は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
+// 見た目に揃え、エントリ数相応の大きさに縮む。多いときはページ送りしてはみ出さない
 func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	list := styled.NewVerticalContainer()
 	pg := pagination.New(sel.ItemIndex, len(props.Choices), menuItemsPerPage)
@@ -123,14 +128,14 @@ func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res
 	aligns := []styled.TextAlign{styled.AlignLeft}
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(props.Choices, pg) {
+		if entry.Item.Header {
+			styled.NewTableHeaderRow(table, columnWidths, []string{entry.Item.Label}, res)
+			continue
+		}
 		isSelected := pg.IsSelectedInPage(entry.Index)
 		styled.NewTableRow(table, columnWidths, []string{entry.Item.Label}, aligns, &isSelected, res)
 	}
 	list.AddChild(table)
 
-	return newTabScreenUI(res, tabScreen{
-		Header:  props.Title,
-		Content: list,
-		Footer:  menuNavHint(false),
-	})
+	return newPanelScreenUI(res, props.Title, list, menuNavHint(false))
 }

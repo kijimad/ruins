@@ -37,6 +37,32 @@ type tabScreen struct {
 // 行構成は 見出し（任意）/ タブ帯（任意）/ コンテンツ / 伸縮スペーサー / フッター（任意）。
 // コンテンツは上詰めされ、フッターは下端でログの手前に収まる。呼び出し側は
 // 返り値へ詳細モーダル等のウィンドウを AddWindow できる。
+// newPanelScreenUI は中央に寄せた、内容サイズに縮む小さめパネルのメニュー画面を組む。
+// タイトル・本体・フッターを縦に積む。メインメニューやセーブロードのような簡易コマンドメニューの見た目に揃える。
+// 大きめモーダルの newTabScreenUI と違い、項目数が少ない画面がエントリ数相応の大きさに収まる
+func newPanelScreenUI(res resources.UIResources, title string, content *widget.Container, footer string) *ebitenui.UI {
+	panel := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+				HorizontalPosition: widget.AnchorLayoutPositionCenter,
+				VerticalPosition:   widget.AnchorLayoutPositionCenter,
+			}),
+			widget.WidgetOpts.MinSize(300, 0),
+		),
+	)
+	if title != "" {
+		panel.AddChild(styled.NewMenuText(title, res))
+	}
+	panel.AddChild(content)
+	if footer != "" {
+		panel.AddChild(styled.NewDescriptionText(footer, res))
+	}
+	root := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
+	root.AddChild(panel)
+	return &ebitenui.UI{Container: root}
+}
+
 func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 	children := make([]widget.PreferredSizeLocateableWidget, 0, 5)
 	rowStretch := make([]bool, 0, 5)

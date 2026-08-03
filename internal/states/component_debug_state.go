@@ -6,7 +6,6 @@ import (
 	"slices"
 
 	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -14,7 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -129,38 +127,14 @@ func (st *ComponentDebugState) menu(props componentDebugProps) MenuConfig {
 // ================
 
 func (st *ComponentDebugState) view(_ w.World, props componentDebugProps, sel Selection, res resources.UIResources) *ebitenui.UI {
-	itemIndex := sel.ItemIndex
-
-	root := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(
-			widget.NewGridLayout(
-				widget.GridLayoutOpts.Columns(1),
-				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
-				widget.GridLayoutOpts.Padding(&widget.Insets{
-					Top:    theme.Space3,
-					Bottom: theme.Space3,
-					Left:   theme.Space3,
-					Right:  theme.Space3,
-				}),
-			),
-		),
-	)
-
-	// Row 0: タイトル
-	root.AddChild(styled.NewTitleText(fmt.Sprintf("コンポーネント (合計: %d)", props.Total), res))
-
-	// Row 1: リスト
 	container := styled.NewVerticalContainer()
 
-	pg := pagination.New(itemIndex, len(props.Items), menuItemsPerPage)
+	pg := pagination.New(sel.ItemIndex, len(props.Items), menuItemsPerPage)
 	container.AddChild(newPageIndicator(pg, res))
 
 	columnWidths := []int{160, 60}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
-
 	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
 		styled.NewTableRow(table, columnWidths,
 			[]string{entry.Item.Name, fmt.Sprintf("%d", entry.Item.Count)},
@@ -168,7 +142,11 @@ func (st *ComponentDebugState) view(_ w.World, props componentDebugProps, sel Se
 		)
 	}
 	container.AddChild(table)
-	root.AddChild(container)
 
-	return &ebitenui.UI{Container: root}
+	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
+	return newTabScreenUI(res, tabScreen{
+		Header:  fmt.Sprintf("コンポーネント (合計: %d)", props.Total),
+		Content: container,
+		Footer:  menuNavHint(false),
+	})
 }

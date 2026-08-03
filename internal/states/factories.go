@@ -354,56 +354,38 @@ func NewAllClearEventState() (es.State[w.World], error) {
 // NewSaveMenuState は手動セーブ画面を作成するファクトリー関数。
 // 固定4スロットで、主人公名とタイムスタンプを表示する。
 func NewSaveMenuState() (es.State[w.World], error) {
-	messageState := &MessageState{}
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
 		return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
 	}
-	messageData := messagedata.NewSystemMessage("")
-
+	choices := make([]Choice, 0, 5)
 	for i := 1; i <= 4; i++ {
 		slotName := fmt.Sprintf("slot%d", i)
-		label := formatSaveSlotLabel(saveManager, slotName)
-
-		messageData.WithChoice(label, func(world w.World) error {
+		choices = append(choices, Choice{Label: formatSaveSlotLabel(saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
 			if err := saveManager.SaveWorld(world, slotName); err != nil {
-				return fmt.Errorf("save failed: %w", err)
+				return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
 			}
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransSwitch,
-				NewStateFuncs: []es.StateFactory[w.World]{NewSaveMenuState}})
-			return nil
-		})
+			// 保存後はメニューを開き直してラベルを更新する
+			return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewSaveMenuState}}, nil
+		}})
 	}
-
-	messageData.WithChoice("戻る", func(_ w.World) error {
-		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		return nil
-	})
-
-	messageState.messageData = messageData
-	return messageState, nil
+	choices = append(choices, backChoice())
+	return NewChoiceMenu(func(_ w.World) (string, []Choice) { return "セーブ", choices }), nil
 }
 
 // NewLoadMenuState はロード画面を作成するファクトリー関数。
 // 手動4スロットとオートセーブ4スロットをセクション分けで表示する。
 func NewLoadMenuState() (es.State[w.World], error) {
-	messageState := &MessageState{}
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
 		return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
 	}
-	messageData := messagedata.NewSystemMessage("")
-
-	// 手動セーブセクション
-	messageData.WithChoice("手動セーブ", nil)
+	choices := make([]Choice, 0, 12)
+	choices = append(choices, Choice{Label: "手動セーブ", Header: true})
 	for i := 1; i <= 4; i++ {
-		slotName := fmt.Sprintf("slot%d", i)
-		addLoadSlot(messageData, messageState, saveManager, slotName)
+		choices = append(choices, loadSlotChoice(saveManager, fmt.Sprintf("slot%d", i)))
 	}
-
-	// オートセーブセクション
-	messageData.WithChoice("オートセーブ", nil)
+	choices = append(choices, Choice{Label: "オートセーブ", Header: true})
 	autoSaves, err := saveManager.ListAutoSaves()
 	if err != nil {
 		return nil, fmt.Errorf("オートセーブ一覧の取得に失敗: %w", err)
@@ -413,42 +395,36 @@ func NewLoadMenuState() (es.State[w.World], error) {
 	}
 	for i := range 4 {
 		if i < len(autoSaves) {
-			addLoadSlot(messageData, messageState, saveManager, autoSaves[i])
+			choices = append(choices, loadSlotChoice(saveManager, autoSaves[i]))
 		} else {
-			messageData.WithChoice("  ---", nil)
+			choices = append(choices, Choice{Label: "  ---", Header: true})
 		}
 	}
-
-	messageData.WithChoice("戻る", func(_ w.World) error {
-		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		return nil
-	})
-
-	messageState.messageData = messageData
-	return messageState, nil
+	choices = append(choices, backChoice())
+	return NewChoiceMenu(func(_ w.World) (string, []Choice) { return "ロード", choices }), nil
 }
 
 // addLoadSlot はロードメニューにスロットを追加する。
 // データが存在するスロットは選択可能、存在しないスロットは "---" で選択不可にする。
-func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageState, saveManager *save.SerializationManager, slotName string) {
-	if !saveManager.SaveFileExists(slotName) {
-		messageData.WithChoice("  ---", nil)
-		return
-	}
+// backChoice は戻る選択肢を返す。選択メニューで共通に使う
+func backChoice() Choice {
+	return Choice{Label: "戻る", Run: func(_ w.World) (es.Transition[w.World], error) {
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}}
+}
 
-	label := formatSaveSlotLabel(saveManager, slotName)
-	messageData.WithChoice(label, func(world w.World) error {
-		err := saveManager.LoadWorld(world, slotName)
-		if err != nil {
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return err
+// loadSlotChoice はロードスロット1つ分の選択肢を返す。空スロットは選べない見出し行にする
+func loadSlotChoice(saveManager *save.SerializationManager, slotName string) Choice {
+	if !saveManager.SaveFileExists(slotName) {
+		return Choice{Label: "  ---", Header: true}
+	}
+	return Choice{Label: formatSaveSlotLabel(saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
+		if err := saveManager.LoadWorld(world, slotName); err != nil {
+			return es.Transition[w.World]{}, err
 		}
 		// 復元済みの現在地から再生成せずに復帰する
-		messageState.SetTransition(es.Transition[w.World]{
-			Type:          es.TransReplace,
-			NewStateFuncs: []es.StateFactory[w.World]{newResumeStateFactory(world)}})
-		return nil
-	})
+		return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newResumeStateFactory(world)}}, nil
+	}}
 }
 
 // newResumeStateFactory はロード復元時の復帰先ステートを保存内容から選ぶ。
