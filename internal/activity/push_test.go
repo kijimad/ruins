@@ -75,7 +75,9 @@ func TestPushBehavior_総重量とパーティAPで決まる複数ターンを�
 	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase/2)
 
-	result, err := activity.Execute(activity.NewPushBehavior(cube, gc.DirectionRight), player, world)
+	pushComp, perr := activity.NewPushActivity(cube, gc.DirectionRight, world)
+	require.NoError(t, perr)
+	result, err := activity.Execute(pushComp, player, world)
 	require.NoError(t, err)
 	assert.Equal(t, gc.ActivityStateRunning, result.State, "重いので初回では完了せず継続する")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "開始だけではまだ動かない")
@@ -111,7 +113,9 @@ func TestPushBehavior_内部に置いた物の重量が押しターンに乗る(
 	// 内部に 8kg を据えると PushCost が基準を超え、同じAPでは1ターンで足りなくなる
 	addInteriorWeight(t, world, 8*consts.MilligramPerKg)
 
-	result, err := activity.Execute(activity.NewPushBehavior(cube, gc.DirectionRight), player, world)
+	pushComp, perr := activity.NewPushActivity(cube, gc.DirectionRight, world)
+	require.NoError(t, perr)
+	result, err := activity.Execute(pushComp, player, world)
 	require.NoError(t, err)
 	assert.Equal(t, gc.ActivityStateRunning, result.State, "内部の重量ぶん所要ターンが増え、初回では完了しない")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "重くて1ターンでは動かない")
@@ -124,7 +128,9 @@ func TestPushBehavior_プレイヤーが行けない先へは押せない(t *tes
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
 	addWall(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5})
 
-	_, err := activity.Execute(activity.NewPushBehavior(cube, gc.DirectionRight), player, world)
+	pushComp, perr := activity.NewPushActivity(cube, gc.DirectionRight, world)
+	require.NoError(t, perr)
+	_, err := activity.Execute(pushComp, player, world)
 	require.Error(t, err, "押し先が壁なら押せない")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "押せなければキューブは動かない")
 }
@@ -133,10 +139,11 @@ func TestPushBehavior_APが無ければ押せない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, 0)
+	addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, 0)
 
-	_, err := activity.Execute(activity.NewPushBehavior(cube, gc.DirectionRight), player, world)
-	require.Error(t, err, "APが無ければ押せない")
+	// APが無ければ押しアクティビティの構築時点でエラーになる
+	_, perr := activity.NewPushActivity(cube, gc.DirectionRight, world)
+	require.Error(t, perr, "APが無ければ押せない")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord)
 }
 
@@ -147,24 +154,25 @@ func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing
 	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase)
 
-	// 右へ移動入力すると、歩行でなく押しアクティビティが始まる
+	// 右へ移動入力すると、歩行でなく押しアクティビティが始まる。
+	// AP がちょうど足りるので初回ステップで押し切り、Execute 内で即時完了する
 	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
 
-	// AP がちょうど足りるので1ターンで押し切れる。キューブだけが前進し、押し手は追随しない
+	// キューブだけが前進し、押し手は追随しない
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 4, Y: 5}, world.Components.GridElement.Get(player).Coord, "押し手は追随せず元位置に留まる")
 }
 
 // TestExecuteMoveAction_押しの次の入力で空いたタイルへ進む は、押しでキューブが抜けた後、同じ方向を
 // もう一度入力するとプレイヤーが空いたタイルへ普通に一歩進むことを検証する。方向を押し続けると
-// 押しと移動が交互に起きてキューブが進む、案Aの体感を固定する。
+// 押しと移動が交互に起きてキューブが進む、という操作感を固定する。
 func TestExecuteMoveAction_押しの次の入力で空いたタイルへ進む(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, consts.PushCostBase*2)
 
-	// 1回目: 押し。キューブが {6,5} へ抜け、プレイヤーは {4,5} のまま
+	// 1回目: 押し。AP がちょうど足りるので初回ステップで完了し、キューブが {6,5} へ抜け、プレイヤーは {4,5} のまま
 	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
 	require.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord)
 	require.Equal(t, consts.Coord[consts.Tile]{X: 4, Y: 5}, world.Components.GridElement.Get(player).Coord)
@@ -183,7 +191,10 @@ func TestPullBehavior_壁際のキューブを引き出せる(t *testing.T) {
 	addWall(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
 
-	_, err := activity.Execute(activity.NewPullBehavior(cube), player, world)
+	// AP がちょうど足りるので初回ステップで引き切り、Execute 内で即時完了する
+	pullComp, perr := activity.NewPullActivity(cube, player, world)
+	require.NoError(t, perr)
+	_, err := activity.Execute(pullComp, player, world)
 	require.NoError(t, err)
 
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord, "キューブはプレイヤーの元タイルへ引かれる")
@@ -197,7 +208,9 @@ func TestPullBehavior_後退スペースが無ければ引けない(t *testing.T
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 6, Y: 5}, consts.PushCostBase)
 	addWall(t, world, consts.Coord[consts.Tile]{X: 7, Y: 5}) // 後退先を塞ぐ
 
-	_, err := activity.Execute(activity.NewPullBehavior(cube), player, world)
+	pullComp, perr := activity.NewPullActivity(cube, player, world)
+	require.NoError(t, perr)
+	_, err := activity.Execute(pullComp, player, world)
 	require.Error(t, err, "後退スペースが無ければ引けない")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "引けないのでキューブは動かない")
 }

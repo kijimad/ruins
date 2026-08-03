@@ -24,7 +24,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
+			Params:       &gc.MoveParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}},
 		}
 
 		ma := &MoveBehavior{}
@@ -41,7 +41,6 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
-			Destination:  nil,
 		}
 
 		ma := &MoveBehavior{}
@@ -60,7 +59,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
+			Params:       &gc.MoveParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}},
 		}
 
 		ma := &MoveBehavior{}
@@ -101,7 +100,7 @@ func TestMoveBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
+			Params:       &gc.MoveParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}},
 		}
 
 		ma := &MoveBehavior{}
@@ -126,7 +125,6 @@ func TestMoveBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  nil,
 		}
 
 		ma := &MoveBehavior{}
@@ -147,7 +145,7 @@ func TestMoveBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}},
+			Params:       &gc.MoveParams{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}},
 		}
 
 		ma := &MoveBehavior{}
@@ -179,7 +177,7 @@ func TestMoveBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: memberGrid.Coord},
+			Params:       &gc.MoveParams{Destination: gc.GridElement{Coord: memberGrid.Coord}},
 		}
 
 		ma := &MoveBehavior{}

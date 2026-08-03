@@ -14,10 +14,7 @@ import (
 )
 
 // DropBehavior はBehaviorの実装
-type DropBehavior struct {
-	Target      ecs.Entity
-	Destination gc.GridElement
-}
+type DropBehavior struct{}
 
 // Info はBehaviorの実装
 func (db *DropBehavior) Info() Info {
@@ -36,24 +33,21 @@ func (db *DropBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorDrop
 }
 
-// BuildActivity はBehaviorの実装
-func (db *DropBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(db, 1)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &db.Target
-	comp.Destination = &db.Destination
-	return comp, nil
+// NewDropActivity は対象アイテムと落とす先を指定してドロップアクティビティを組む。
+func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity {
+	comp := NewActivity(gc.BehaviorDrop, 0)
+	comp.Params = &gc.PlaceParams{Target: target, Destination: destination}
+	return comp
 }
 
 // Validate はアイテムドロップアクティビティの検証を行う
 func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
 		return fmt.Errorf("ドロップ対象が指定されていません")
 	}
 
-	target := *comp.Target
+	target := p.Target
 
 	// Targetがバックパック内にあることを確認する
 	if !world.Components.LocationInBackpack.Has(target) {
@@ -70,7 +64,9 @@ func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 
 // Start はアイテムドロップ開始時の処理を実行する
 func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテムドロップ開始", "actor", actor, "target", *comp.Target)
+	if p, ok := comp.Params.(*gc.PlaceParams); ok {
+		log.Debug("アイテムドロップ開始", "actor", actor, "target", p.Target)
+	}
 	return nil
 }
 
@@ -101,12 +97,16 @@ func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 
 // performDrop は実際のアイテムドロップ処理を実行する
 func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return fmt.Errorf("ドロップ対象が指定されていません")
+	}
 	targetTile, err := requireDestination(comp)
 	if err != nil {
 		return err
 	}
 
-	target := *comp.Target
+	target := p.Target
 	formattedName := query.FormatItemName(world, target)
 
 	lifecycle.MoveToField(world, target, &actor)

@@ -14,43 +14,66 @@ import (
 // log はactivityパッケージ用のロガー
 var log = logger.New(logger.CategoryAction)
 
-// behaviors はProcessContinuousActivities経由の継続アクション処理で使うシングルトンBehaviorのマップ。
-// Execute経路で使うBuildActivityはこのマップのインスタンスでは呼ばれない
-var behaviors = map[gc.BehaviorName]Behavior{
-	gc.BehaviorMove:      &MoveBehavior{},
-	gc.BehaviorAttack:    &AttackBehavior{},
-	gc.BehaviorRest:      &RestBehavior{},
-	gc.BehaviorWait:      &WaitBehavior{},
-	gc.BehaviorPickup:    &PickupBehavior{},
-	gc.BehaviorDrop:      &DropBehavior{},
-	gc.BehaviorUseItem:   &UseItemBehavior{},
-	gc.BehaviorTalk:      &TalkBehavior{},
-	gc.BehaviorOpenDoor:  &OpenDoorBehavior{},
-	gc.BehaviorCloseDoor: &CloseDoorBehavior{},
-	gc.BehaviorRead:      &ReadBehavior{},
-	gc.BehaviorShoot:     &ShootBehavior{},
-	gc.BehaviorReload:    &ReloadBehavior{},
-	gc.BehaviorTransfer:  &TransferBehavior{},
-
-	gc.BehaviorDisassemble: &DisassembleBehavior{},
-	gc.BehaviorPush:        &PushBehavior{},
-	gc.BehaviorPull:        &PullBehavior{},
-}
-
-// GetBehavior は名前からBehavior実装を取得する
+// GetBehavior は gc.Activity に永続化された BehaviorName から実装を復元する。
+// 単なる名前と実装の対応付けで、毎回ゼロ値の新しいインスタンスを返す。
+// Behavior は状態を持たない振る舞いの束なので、これで問題ない。着手後のライフサイクル
+// Validate/Start/DoTurn/Finish/Canceled はこのゼロ値インスタンスで回るため、per-アクティビティの
+// 状態はインスタンスのフィールドに持たず gc.Activity 側に持たせる。着手パラメータは
+// NewXxxActivity 構築関数が引数から gc.Activity の Params へ書き込む。
+//
+// default 句は置かない。新しい BehaviorName を足したとき case 追加漏れを exhaustive linter に
+// 検知させるため。未知の名前は switch を抜けた後のエラーで扱う。
 func GetBehavior(name gc.BehaviorName) (Behavior, error) {
-	b, ok := behaviors[name]
-	if !ok {
-		return nil, fmt.Errorf("未登録のBehavior: %s", name)
+	switch name {
+	case gc.BehaviorMove:
+		return &MoveBehavior{}, nil
+	case gc.BehaviorAttack:
+		return &AttackBehavior{}, nil
+	case gc.BehaviorRest:
+		return &RestBehavior{}, nil
+	case gc.BehaviorWait:
+		return &WaitBehavior{}, nil
+	case gc.BehaviorPickup:
+		return &PickupBehavior{}, nil
+	case gc.BehaviorDrop:
+		return &DropBehavior{}, nil
+	case gc.BehaviorUseItem:
+		return &UseItemBehavior{}, nil
+	case gc.BehaviorTalk:
+		return &TalkBehavior{}, nil
+	case gc.BehaviorOpenDoor:
+		return &OpenDoorBehavior{}, nil
+	case gc.BehaviorCloseDoor:
+		return &CloseDoorBehavior{}, nil
+	case gc.BehaviorRead:
+		return &ReadBehavior{}, nil
+	case gc.BehaviorShoot:
+		return &ShootBehavior{}, nil
+	case gc.BehaviorReload:
+		return &ReloadBehavior{}, nil
+	case gc.BehaviorTransfer:
+		return &TransferBehavior{}, nil
+	case gc.BehaviorDisassemble:
+		return &DisassembleBehavior{}, nil
+	case gc.BehaviorPush:
+		return &PushBehavior{}, nil
+	case gc.BehaviorPull:
+		return &PullBehavior{}, nil
+	case gc.BehaviorPortal, gc.BehaviorDoorLock, gc.BehaviorStorage:
+		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}
-	return b, nil
+	return nil, fmt.Errorf("未登録のBehavior: %s", name)
 }
 
-// Behavior はアクティビティの実行を担当するインターフェース
+// Behavior はアクティビティの実行を担当するインターフェース。
+//
+// 全メソッドは GetBehavior が毎回作るゼロ値インスタンスで回る。インスタンスは状態を持たず、
+// per-アクティビティの状態はすべて gc.Activity に持たせる。着手時のパラメータは Behavior の
+// フィールドではなく、NewXxxActivity 構築関数が引数から gc.Activity へ書き込む。
+// そのため Behavior は状態を持たない振る舞いの束であり、構築とライフサイクルが分離している。
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
-	BuildActivity(actor ecs.Entity, world w.World) (*gc.Activity, error)
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
@@ -68,26 +91,24 @@ type Info struct {
 	TotalRequiredAP int    // アクティビティ完了に必要な総AP量
 }
 
-// NewActivity は新しいActivityコンポーネントを作成する
-func NewActivity(behavior Behavior, duration consts.Turn) (*gc.Activity, error) {
-	if duration <= 0 {
-		return nil, ErrInvalidDuration
-	}
-
+// NewActivity は名前と必要総量から新しいActivityコンポーネントを作成する。
+// required は完了に必要な総量で、各構築関数が常に0以上を渡す。初回ステップで満ちれば即時アクションになる。
+func NewActivity(name gc.BehaviorName, required int) *gc.Activity {
 	return &gc.Activity{
-		BehaviorName: behavior.Name(),
+		BehaviorName: name,
 		State:        gc.ActivityStateRunning,
-		TurnsTotal:   duration,
-		TurnsLeft:    duration,
-	}, nil
+		Progress:     gc.IntPool{Max: required},
+	}
 }
 
-// CalculateRequiredTurns はキャラクターのAP量に基づいて必要ターン数を計算する
-func CalculateRequiredTurns(behavior Behavior, characterAP int) consts.Turn {
-	if behavior.Info().TotalRequiredAP > 0 && characterAP > 0 {
-		return consts.Turn((behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP)
+// perTurnAP はアクターが継続アクションへ今ターン注げるAPを返す。
+// 毎ターン再計算するためAPの変動へ追従する。取得できない場合も進行が止まらないよう最低 1 を返す。
+func perTurnAP(actor ecs.Entity, world w.World) int {
+	ap, err := getEntityMaxAP(actor, world)
+	if err != nil || ap < 1 {
+		return 1
 	}
-	return 1
+	return ap
 }
 
 // CanInterrupt はアクティビティが中断可能かを返す
@@ -144,7 +165,7 @@ func IsActive(comp *gc.Activity) bool {
 
 // IsCompleted はアクティビティが完了しているかを返す
 func IsCompleted(comp *gc.Activity) bool {
-	return comp.State == gc.ActivityStateCompleted || comp.TurnsLeft <= 0
+	return comp.State == gc.ActivityStateCompleted
 }
 
 // IsCanceled はアクティビティがキャンセルされているかを返す
@@ -154,17 +175,15 @@ func IsCanceled(comp *gc.Activity) bool {
 
 // GetProgressPercent は進捗率を0-100の値で返す
 func GetProgressPercent(comp *gc.Activity) float64 {
-	if comp.TurnsTotal <= 0 {
+	if comp.Progress.Max <= 0 {
 		return 100.0
 	}
-	completed := float64(comp.TurnsTotal - comp.TurnsLeft)
-	return (completed / float64(comp.TurnsTotal)) * 100.0
+	return (float64(comp.Progress.Current) / float64(comp.Progress.Max)) * 100.0
 }
 
 // Complete はアクティビティを完了状態にする
 func Complete(comp *gc.Activity) {
 	comp.State = gc.ActivityStateCompleted
-	comp.TurnsLeft = 0
 }
 
 // Cancel はアクティビティをキャンセルする
@@ -173,13 +192,14 @@ func Cancel(comp *gc.Activity, reason string) {
 	comp.CancelReason = reason
 }
 
-// requireDestination はActivityのDestinationからタイル座標を取得する。
-// Destinationが未設定の場合はエラーを返す
+// requireDestination はActivityのPlaceParamsからタイル座標を取得する。
+// PlaceParamsが未設定の場合はエラーを返す
 func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
-	if comp.Destination == nil {
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
 		return consts.Coord[consts.Tile]{}, fmt.Errorf("目的地が指定されていません")
 	}
-	return consts.Coord[consts.Tile]{X: comp.Destination.X, Y: comp.Destination.Y}, nil
+	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
 }
 
 // isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする

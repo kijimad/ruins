@@ -25,10 +25,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
-		}
+		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -46,10 +43,8 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
-		}
+		// 対象タイルには拾えるものがないので Targets が空になる
+		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -57,13 +52,14 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
-	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
+	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
+		// PickupParams が付かない不正なアクティビティは型アサートで弾かれる
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 		}
@@ -71,7 +67,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "目的地が指定されていません")
+		assert.Contains(t, err.Error(), "拾得対象が指定されていません")
 	})
 }
 
@@ -106,11 +102,7 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
-		}
+		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
@@ -135,11 +127,7 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
-		}
+		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
@@ -148,13 +136,14 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 
-	t.Run("Destinationがない場合はキャンセルされる", func(t *testing.T) {
+	t.Run("パラメータがない場合はキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
+		// PickupParams が付かない不正なアクティビティは DoTurn でキャンセルへ落ちる
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
@@ -184,11 +173,8 @@ func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 		item2, err := lifecycle.SpawnFieldItem(world, "回復薬", 10, 10, 1)
 		require.NoError(t, err)
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Target:       &item1,
-		}
+		// 特定のアイテム1つだけを対象にする
+		comp := NewPickupActivity(item1)
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
@@ -219,10 +205,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			Target:       &item,
-		}
+		comp := NewPickupActivity(item)
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -242,10 +225,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			Target:       &prop,
-		}
+		comp := NewPickupActivity(prop)
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -270,10 +250,8 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}},
-		}
+		// 固定物は PickablesAt で除かれ Targets が空になる
+		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -297,10 +275,7 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}})
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}},
-		}
+		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -325,11 +300,7 @@ func TestPickupBehavior_DoTurn_Fixed(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Destination:  &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}},
-		}
+		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 8, Y: 6})
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)

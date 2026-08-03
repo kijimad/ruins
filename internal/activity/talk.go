@@ -14,9 +14,7 @@ import (
 )
 
 // TalkBehavior は会話アクティビティ
-type TalkBehavior struct {
-	Target ecs.Entity
-}
+type TalkBehavior struct{}
 
 // Info はBehaviorの実装
 func (tb *TalkBehavior) Info() Info {
@@ -35,23 +33,21 @@ func (tb *TalkBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorTalk
 }
 
-// BuildActivity はBehaviorの実装
-func (tb *TalkBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(tb, 1)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &tb.Target
-	return comp, nil
+// NewTalkActivity は会話対象を指定して会話アクティビティを組む。
+func NewTalkActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorTalk, 0)
+	comp.Params = &gc.TalkParams{Target: target}
+	return comp
 }
 
 // Validate は会話アクティビティの検証を行う
 func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TalkParams)
+	if !ok {
 		return fmt.Errorf("会話対象が指定されていません")
 	}
 
-	targetEntity := *comp.Target
+	targetEntity := p.Target
 
 	// Dialogコンポーネントを持っているか確認
 	if !world.Components.Dialog.Has(targetEntity) {
@@ -74,7 +70,12 @@ func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 
 // DoTurn は会話アクティビティの1ターン分の処理を実行する
 func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	targetEntity := *comp.Target
+	p, ok := comp.Params.(*gc.TalkParams)
+	if !ok {
+		Cancel(comp, "会話対象が指定されていません")
+		return fmt.Errorf("会話対象が指定されていません")
+	}
+	targetEntity := p.Target
 
 	if !world.Components.Dialog.Has(targetEntity) {
 		Cancel(comp, "会話データが取得できません")
@@ -101,11 +102,12 @@ func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("会話アクティビティ完了", "actor", actor)
 
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.TalkParams)
+	if !ok {
 		return nil
 	}
 
-	targetEntity := *comp.Target
+	targetEntity := p.Target
 
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {

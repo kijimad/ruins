@@ -15,9 +15,7 @@ import (
 )
 
 // UseItemBehavior はBehaviorの実装
-type UseItemBehavior struct {
-	Target ecs.Entity
-}
+type UseItemBehavior struct{}
 
 // Info はBehaviorの実装
 func (u *UseItemBehavior) Info() Info {
@@ -36,23 +34,21 @@ func (u *UseItemBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorUseItem
 }
 
-// BuildActivity はBehaviorの実装
-func (u *UseItemBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(u, 1)
-	if err != nil {
-		return nil, err
-	}
-	comp.Target = &u.Target
-	return comp, nil
+// NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
+func NewUseItemActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorUseItem, 0)
+	comp.Params = &gc.UseItemParams{Target: target}
+	return comp
 }
 
 // Validate はBehaviorの実装
 func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.UseItemParams)
+	if !ok {
 		return ErrItemNotSet
 	}
 
-	item := *comp.Target
+	item := p.Target
 
 	// 何らかの効果があるかチェック
 	hasEffect := world.Components.ProvidesHealing.Has(item) ||
@@ -73,18 +69,21 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 // Start はBehaviorの実装
 func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム使用開始", "actor", actor, "item", *comp.Target)
+	if p, ok := comp.Params.(*gc.UseItemParams); ok {
+		log.Debug("アイテム使用開始", "actor", actor, "item", p.Target)
+	}
 	return nil
 }
 
 // DoTurn はBehaviorの実装
 func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if comp.Target == nil {
+	p, ok := comp.Params.(*gc.UseItemParams)
+	if !ok {
 		Cancel(comp, "アイテムが指定されていません")
 		return ErrItemNotSet
 	}
 
-	item := *comp.Target
+	item := p.Target
 
 	// 回復効果があるかチェック
 	if world.Components.ProvidesHealing.Has(item) {

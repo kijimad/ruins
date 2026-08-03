@@ -34,10 +34,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err = ra.Validate(comp, player, world)
+		err := ra.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 
@@ -46,10 +45,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err = ra.Validate(comp, player, world)
+		err := ra.Validate(comp, player, world)
 		assert.ErrorIs(t, err, ErrReloadNotNeeded)
 	})
 
@@ -70,8 +68,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
 		err = ra.Validate(comp, player, world)
 		assert.ErrorIs(t, err, ErrReloadNoAmmo)
@@ -90,8 +87,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		query.GetWeaponSelection(world).Slot = 1
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
-		require.NoError(t, err)
+		comp := NewActivity(gc.BehaviorReload, 0)
 
 		err = ra.Validate(comp, player, world)
 		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
@@ -101,22 +97,17 @@ func TestReloadBehavior_Validate(t *testing.T) {
 func TestReloadBehavior_Start(t *testing.T) {
 	t.Parallel()
 
-	t.Run("ターン数が設定される", func(t *testing.T) {
+	t.Run("必要工数が設定される", func(t *testing.T) {
 		t.Parallel()
 		world, player, _, weaponEntity := setupShootingWorld(t)
 
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewReloadActivity(player, world)
 		require.NoError(t, err)
 
-		err = ra.Start(comp, player, world)
-		require.NoError(t, err)
-
-		assert.Positive(t, comp.TurnsTotal)
-		assert.Equal(t, comp.TurnsTotal, comp.TurnsLeft)
+		assert.Equal(t, fire.ReloadEffort, comp.Progress.Max)
 	})
 }
 
@@ -131,14 +122,14 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewReloadActivity(player, world)
 		require.NoError(t, err)
 
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
 		// DoTurnを繰り返してリロード完了させる
-		for range comp.TurnsTotal + 1 {
+		for range comp.Progress.Max + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -170,13 +161,13 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewActivity(ra, 1)
+		comp, err := NewReloadActivity(player, world)
 		require.NoError(t, err)
 
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
 
-		for range comp.TurnsTotal + 1 {
+		for range comp.Progress.Max + 1 {
 			if comp.State == gc.ActivityStateCompleted {
 				break
 			}
@@ -187,6 +178,49 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 		assert.Equal(t, 2, fire.Magazine)
 	})
+}
+
+// TestReloadBehavior_進捗はアクティビティごとに独立する は、装填工数の累積を
+// Behavior インスタンスのフィールドではなく gc.Activity 側に持たせる規律を固定する。
+// 進捗をインスタンスに置くと、1つのインスタンスへ複数アクティビティを通したとき
+// 互いの累積を書き換えてしまう。同時装填の破綻に相当する。
+func TestReloadBehavior_進捗はアクティビティごとに独立する(t *testing.T) {
+	t.Parallel()
+	world, player, _, weaponEntity := setupShootingWorld(t)
+
+	fire := world.Components.Fire.Get(weaponEntity)
+	fire.Magazine = 0
+	fire.ReloadEffort = 1_000_000 // 1ターンでは完了しない十分な工数にする
+
+	// Behavior を1つ取得する
+	b, err := GetBehavior(gc.BehaviorReload)
+	require.NoError(t, err)
+	ra, ok := b.(*ReloadBehavior)
+	require.Truef(t, ok, "GetBehavior(BehaviorReload) は *ReloadBehavior を返すべきだが %T だった", b)
+
+	// 同一インスタンスに通す2つの独立したアクティビティを用意する
+	comp1, err := NewReloadActivity(player, world)
+	require.NoError(t, err)
+	require.NoError(t, ra.Start(comp1, player, world))
+
+	comp2, err := NewReloadActivity(player, world)
+	require.NoError(t, err)
+	require.NoError(t, ra.Start(comp2, player, world))
+
+	// 1ターンあたりの工数。同一アクター・同一武器なので両アクティビティで等しい
+	expected := ra.calcEffortPerTurn(player, fire, world)
+	require.Positive(t, expected)
+
+	// comp1 を1ターン進める。自分の1ターン分だけ累積し、comp2 へ漏れてはいけない
+	require.NoError(t, ra.DoTurn(comp1, player, world))
+	assert.Equal(t, expected, comp1.Progress.Current)
+	assert.Zero(t, comp2.Progress.Current, "comp1 の進行が comp2 に漏れてはいけない")
+
+	// comp2 を1ターン進める。comp1 の累積を引き継がず、自分の1ターン分だけになるべき。
+	// 進捗をインスタンスに置くと comp2 は expected の2倍になり、comp1 も書き換わる
+	require.NoError(t, ra.DoTurn(comp2, player, world))
+	assert.Equal(t, expected, comp2.Progress.Current, "comp2 は自分の1ターン分だけを累積すべき")
+	assert.Equal(t, expected, comp1.Progress.Current, "comp2 の進行が comp1 の進捗を書き換えてはいけない")
 }
 
 func TestReloadBehavior_CalcEffortPerTurn(t *testing.T) {

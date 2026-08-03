@@ -8,7 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
@@ -108,7 +107,7 @@ func execPlace(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 		return es.Transition[w.World]{}, err
 	}
 	dest := gc.GridElement{Coord: world.Components.GridElement.Get(player).Coord}
-	if _, err := activity.Execute(&activity.DropBehavior{Target: entity, Destination: dest}, player, world); err != nil {
+	if _, err := activity.Execute(activity.NewDropActivity(entity, dest), player, world); err != nil {
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -121,7 +120,7 @@ func execUseItem(world w.World, entity ecs.Entity) (es.Transition[w.World], erro
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	if _, err := activity.Execute(&activity.UseItemBehavior{Target: entity}, player, world); err != nil {
+	if _, err := activity.Execute(activity.NewUseItemActivity(entity), player, world); err != nil {
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -133,13 +132,11 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	// Duration は上限見積もり。実際の完了は DoTurn 内の IsCompleted で判定する
-	book := world.Components.Book.Get(entity)
-	remaining := book.Effort.Max - book.Effort.Current
-	if remaining <= 0 {
-		remaining = 1
+	act, err := activity.NewReadActivity(entity, world)
+	if err != nil {
+		return es.Transition[w.World]{}, err
 	}
-	if _, err := activity.Execute(&activity.ReadBehavior{Target: entity, Duration: consts.Turn(remaining)}, player, world); err != nil {
+	if _, err := activity.Execute(act, player, world); err != nil {
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
