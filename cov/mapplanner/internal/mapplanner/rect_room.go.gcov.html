@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-03 14:31:27</td>
+            <td class="headerValue">2026-08-03 16:45:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,11 +87,11 @@
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         topRoom := b.createRoom(planData, width, height, 0)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         rooms = append(rooms, topRoom)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         // 下端に必ず1つの部屋を配置（Y2=heightに密着）</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         // 下端に必ず1つの部屋を配置（Y2=height-1に密着）</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         bottomW := 2 + planData.RNG.IntN(8)</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         bottomH := 2 + planData.RNG.IntN(8)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         bottomX := planData.RNG.IntN(width)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         rooms = append(rooms, gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(bottomX), Y: consts.Tile(max(height-bottomH, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(bottomX+bottomW, width)), Y: consts.Tile(height)}})</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         rooms = append(rooms, gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(bottomX), Y: consts.Tile(max(height-bottomH, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(bottomX+bottomW, width) - 1), Y: consts.Tile(height - 1)}})</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         // 残りの部屋はランダム配置</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         maxRooms := 4 + planData.RNG.IntN(10)</span></span>
@@ -108,7 +108,7 @@
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         x := planData.RNG.IntN(width)</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         w := 2 + planData.RNG.IntN(8)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         h := 2 + planData.RNG.IntN(8)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(max(y, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(x+w, width)), Y: consts.Tile(min(y+h, height))}}</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(max(y, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(x+w, width) - 1), Y: consts.Tile(min(y+h, height) - 1)}}</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>

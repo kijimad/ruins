@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.7%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.3%)</option>
 				
@@ -331,7 +331,7 @@
 				
 				<option value="file137">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (71.6%)</option>
 				
-				<option value="file138">github.com/kijimaD/ruins/internal/mapplanner/lib.go (77.1%)</option>
+				<option value="file138">github.com/kijimaD/ruins/internal/mapplanner/lib.go (77.7%)</option>
 				
 				<option value="file139">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -407,7 +407,7 @@
 				
 				<option value="file175">github.com/kijimaD/ruins/internal/raw/raw.go (84.8%)</option>
 				
-				<option value="file176">github.com/kijimaD/ruins/internal/raw/validate.go (90.1%)</option>
+				<option value="file176">github.com/kijimaD/ruins/internal/raw/validate.go (89.8%)</option>
 				
 				<option value="file177">github.com/kijimaD/ruins/internal/raw/weighted.go (93.3%)</option>
 				
@@ -423,9 +423,9 @@
 				
 				<option value="file183">github.com/kijimaD/ruins/internal/save/desktop.go (83.9%)</option>
 				
-				<option value="file184">github.com/kijimaD/ruins/internal/save/manager.go (81.7%)</option>
+				<option value="file184">github.com/kijimaD/ruins/internal/save/manager.go (81.8%)</option>
 				
-				<option value="file185">github.com/kijimaD/ruins/internal/save/serde.go (94.5%)</option>
+				<option value="file185">github.com/kijimaD/ruins/internal/save/serde.go (95.1%)</option>
 				
 				<option value="file186">github.com/kijimaD/ruins/internal/screeneffect/filter.go (100.0%)</option>
 				
@@ -455,7 +455,7 @@
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/states/equip_menu.go (51.2%)</option>
 				
-				<option value="file200">github.com/kijimaD/ruins/internal/states/factories.go (26.5%)</option>
+				<option value="file200">github.com/kijimaD/ruins/internal/states/factories.go (26.4%)</option>
 				
 				<option value="file201">github.com/kijimaD/ruins/internal/states/formation_menu.go (60.6%)</option>
 				
@@ -483,7 +483,7 @@
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/states/settings_menu.go (75.3%)</option>
 				
-				<option value="file214">github.com/kijimaD/ruins/internal/states/shooting.go (41.5%)</option>
+				<option value="file214">github.com/kijimaD/ruins/internal/states/shooting.go (40.9%)</option>
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/states/shop_menu.go (58.5%)</option>
 				
@@ -1613,7 +1613,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -20582,7 +20582,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
         }</span>
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
-        <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span><span class="cov8" title="1">{
                 return false
         }</span>
 
@@ -21810,11 +21810,11 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) <span class="cov8" title=
         topRoom := b.createRoom(planData, width, height, 0)
         rooms = append(rooms, topRoom)
 
-        // 下端に必ず1つの部屋を配置（Y2=heightに密着）
+        // 下端に必ず1つの部屋を配置（Y2=height-1に密着）
         bottomW := 2 + planData.RNG.IntN(8)
         bottomH := 2 + planData.RNG.IntN(8)
         bottomX := planData.RNG.IntN(width)
-        rooms = append(rooms, gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(bottomX), Y: consts.Tile(max(height-bottomH, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(bottomX+bottomW, width)), Y: consts.Tile(height)}})
+        rooms = append(rooms, gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(bottomX), Y: consts.Tile(max(height-bottomH, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(bottomX+bottomW, width) - 1), Y: consts.Tile(height - 1)}})
 
         // 残りの部屋はランダム配置
         maxRooms := 4 + planData.RNG.IntN(10)
@@ -21831,7 +21831,7 @@ func (b RectRoomPlanner) createRoom(planData *MetaPlan, width, height, y int) gc
         x := planData.RNG.IntN(width)
         w := 2 + planData.RNG.IntN(8)
         h := 2 + planData.RNG.IntN(8)
-        return gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(max(y, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(x+w, width)), Y: consts.Tile(min(y+h, height))}}
+        return gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(max(y, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(x+w, width) - 1), Y: consts.Tile(min(y+h, height) - 1)}}
 
 }</span>
 </pre>
@@ -35429,7 +35429,109 @@ func ValidateReferences(raws oapi.Raws) error <span class="cov8" title="1">{
         <span class="cov8" title="1">if err := validateSpawnDice(raws); err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov8" title="1">return validateCommandTableReferences(raws)</span>
+        <span class="cov8" title="1">if err := validateCommandTableReferences(raws); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateItemTableReferences(raws); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateItemGroupReferences(raws); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateEnemyTableReferences(raws); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return validateCommandTableWeaponReferences(raws)</span>
+}
+
+// validateItemTableReferences はアイテムテーブルの参照グループ名がアイテムグループ定義に存在することを検証する。
+// 空文字は参照なしとして扱い、非空の参照だけを検証する
+func validateItemTableReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        groups := PtrSlice(raws.ItemGroups)
+        groupNames := make(map[string]struct{}, len(groups))
+        for i := range groups </span><span class="cov8" title="1">{
+                groupNames[groups[i].Name] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">itemTables := PtrSlice(raws.ItemTables)
+        for i := range itemTables </span><span class="cov8" title="1">{
+                for _, entry := range itemTables[i].Entries </span><span class="cov8" title="1">{
+                        if entry.GroupName == "" </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if _, ok := groupNames[entry.GroupName]; !ok </span><span class="cov8" title="1">{
+                                return fmt.Errorf("アイテムテーブル '%s' の参照グループ '%s' がアイテムグループ定義に存在しません", itemTables[i].Name, entry.GroupName)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateItemGroupReferences はアイテムグループの参照アイテム名がアイテム定義に存在することを検証する
+func validateItemGroupReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        items := PtrSlice(raws.Items)
+        itemNames := make(map[string]struct{}, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                itemNames[items[i].Name] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">groups := PtrSlice(raws.ItemGroups)
+        for i := range groups </span><span class="cov8" title="1">{
+                for _, entry := range groups[i].Entries </span><span class="cov8" title="1">{
+                        if entry.ItemName == "" </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if _, ok := itemNames[entry.ItemName]; !ok </span><span class="cov8" title="1">{
+                                return fmt.Errorf("アイテムグループ '%s' の参照アイテム '%s' がアイテム定義に存在しません", groups[i].Name, entry.ItemName)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateEnemyTableReferences は敵テーブルの参照敵名がメンバー定義に存在することを検証する
+func validateEnemyTableReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        members := PtrSlice(raws.Members)
+        memberNames := make(map[string]struct{}, len(members))
+        for i := range members </span><span class="cov8" title="1">{
+                memberNames[members[i].Name] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">enemyTables := PtrSlice(raws.EnemyTables)
+        for i := range enemyTables </span><span class="cov8" title="1">{
+                for _, entry := range enemyTables[i].Entries </span><span class="cov8" title="1">{
+                        if entry.EnemyName == "" </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if _, ok := memberNames[entry.EnemyName]; !ok </span><span class="cov8" title="1">{
+                                return fmt.Errorf("敵テーブル '%s' の参照敵 '%s' がメンバー定義に存在しません", enemyTables[i].Name, entry.EnemyName)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateCommandTableWeaponReferences はコマンドテーブルの参照武器名がアイテム定義に存在することを検証する。
+// タイプミスは attack.go の getAttackParams が素手攻撃へ握り潰し無音で劣化するため、ロード時に前倒しで弾く。
+func validateCommandTableWeaponReferences(raws oapi.Raws) error <span class="cov8" title="1">{
+        items := PtrSlice(raws.Items)
+        itemNames := make(map[string]struct{}, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                itemNames[items[i].Name] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">commandTables := PtrSlice(raws.CommandTables)
+        for i := range commandTables </span><span class="cov8" title="1">{
+                for _, entry := range commandTables[i].Entries </span><span class="cov8" title="1">{
+                        if entry.Weapon == "" </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if _, ok := itemNames[entry.Weapon]; !ok </span><span class="cov8" title="1">{
+                                return fmt.Errorf("コマンドテーブル '%s' の参照武器 '%s' がアイテム定義に存在しません", commandTables[i].Name, entry.Weapon)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
 }
 
 // validateSpawnDice はスポーン系のダイス表記をロード時に検証する。スキーマの pattern は
@@ -36779,6 +36881,7 @@ import (
         "strings"
         "time"
 
+        gc "github.com/kijimaD/ruins/internal/components"
         w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -36875,10 +36978,29 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
                 return fmt.Errorf("unsupported save data version: %s", env.Version)
         }</span>
 
-        // ark-serdeのDeserializeはリセット済みワールドを要求する
-        <span class="cov8" title="1">world.ECS.Reset()
+        // 本番ワールドを破壊する前に、使い捨ての probe ワールドで復元の全工程を検証する。
+        // ark-serde の Deserialize はリセット済みワールドを要求し、途中で失敗しても巻き戻せない。
+        // 先に probe を通し、成功したときだけ本番ワールドへ適用することで、ロード失敗時も
+        // 本番ワールドを無傷で残し、呼び出し側がアプリを継続できるようにする。
+        // 復元を2回走らせるコストは、ロードがゲーム開始時の1回きりの操作なので許容する。
+        <span class="cov8" title="1">probe, err := w.InitWorld(&amp;gc.Components{})
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("検証用ワールドの生成に失敗: %w", err)
+        }</span>
+        <span class="cov8" title="1">if err := restoreInto(probe, env.World); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
 
-        if err := deserializeWorld(world, env.World); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">return restoreInto(world, env.World)</span>
+}
+
+// restoreInto はリセット済みワールドへ復元の全工程を適用する。deserialize は事前の
+// world.ECS.Reset() を要求する。probe と本番ワールドの両方でこの手順を共有する。
+func restoreInto(world w.World, worldJSON []byte) error <span class="cov8" title="1">{
+        // ark-serdeのDeserializeはリセット済みワールドを要求する
+        world.ECS.Reset()
+
+        if err := deserializeWorld(world, worldJSON); err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("failed to restore world data: %w", err)
         }</span>
 
@@ -37140,6 +37262,20 @@ func reestablishSingleton(world w.World) error <span class="cov8" title="1">{
                         field.ExploredTiles = make(map[gc.GridElement]bool)
                 }</span>
         }
+
+        // CharModifiers.Sources は json:"-" で除外され、ロード時に再計算する規約。
+        // 再計算は StatsChangedSystem が StatsChanged ダーティフラグの立ったエンティティにだけ行うが、
+        // StatsChanged 自体も serde 除外でロード直後は全消えしている。Abilities を持つ全エンティティに
+        // 付け直し、次の更新で Sources が再構築されるようにする。
+        // ロック中の反復では構造変更しないため、対象を集めてから付与する
+        <span class="cov8" title="1">var statsTargets []ecs.Entity
+        aq := ecs.NewFilter1[gc.Abilities](world.ECS).Query()
+        for aq.Next() </span><span class="cov8" title="1">{
+                statsTargets = append(statsTargets, aq.Entity())
+        }</span>
+        <span class="cov8" title="1">for _, e := range statsTargets </span><span class="cov8" title="1">{
+                world.Components.StatsChanged.Add(e, &amp;gc.StatsChanged{})
+        }</span>
         <span class="cov8" title="1">return nil</span>
 }
 
@@ -41156,6 +41292,7 @@ import (
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/dungeon"
         es "github.com/kijimaD/ruins/internal/engine/states"
+        "github.com/kijimaD/ruins/internal/logger"
         mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
         "github.com/kijimaD/ruins/internal/messagedata"
         "github.com/kijimaD/ruins/internal/overworld"
@@ -41787,8 +41924,12 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
         messageData.WithChoice(label, func(world w.World) error </span><span class="cov0" title="0">{
                 err := saveManager.LoadWorld(world, slotName)
                 if err != nil </span><span class="cov0" title="0">{
+                        // ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
+                        // 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
+                        // main の log.Fatal まで波及してプロセスごと落ちてしまう
+                        logger.New(logger.CategorySave).Error("セーブのロードに失敗した", "slot", slotName, "error", err.Error())
                         messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-                        return err
+                        return nil
                 }</span>
                 // 復元済みの現在地から再生成せずに復帰する
                 <span class="cov0" title="0">messageState.SetTransition(es.Transition[w.World]{
@@ -45351,7 +45492,7 @@ func (st *ShootingState) refreshEnemies(world w.World) error <span class="cov8" 
 
         // 射撃可能な敵のみ残す
         <span class="cov8" title="1">var shootable []ecs.Entity
-        for _, e := range enemies </span><span class="cov8" title="1">{
+        for _, e := range enemies </span><span class="cov0" title="0">{
                 if activity.CanShootTarget(playerEntity, e, world) </span><span class="cov0" title="0">{
                         shootable = append(shootable, e)
                 }</span>
