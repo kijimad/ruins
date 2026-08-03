@@ -54,7 +54,109 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateSpawnDice(raws); err != nil {
 		return err
 	}
-	return validateCommandTableReferences(raws)
+	if err := validateCommandTableReferences(raws); err != nil {
+		return err
+	}
+	if err := validateItemTableReferences(raws); err != nil {
+		return err
+	}
+	if err := validateItemGroupReferences(raws); err != nil {
+		return err
+	}
+	if err := validateEnemyTableReferences(raws); err != nil {
+		return err
+	}
+	return validateCommandTableWeaponReferences(raws)
+}
+
+// validateItemTableReferences はアイテムテーブルの参照グループ名がアイテムグループ定義に存在することを検証する。
+// 空文字は参照なしとして扱い、非空の参照だけを検証する
+func validateItemTableReferences(raws oapi.Raws) error {
+	groups := PtrSlice(raws.ItemGroups)
+	groupNames := make(map[string]struct{}, len(groups))
+	for i := range groups {
+		groupNames[groups[i].Name] = struct{}{}
+	}
+
+	itemTables := PtrSlice(raws.ItemTables)
+	for i := range itemTables {
+		for _, entry := range itemTables[i].Entries {
+			if entry.GroupName == "" {
+				continue
+			}
+			if _, ok := groupNames[entry.GroupName]; !ok {
+				return fmt.Errorf("アイテムテーブル '%s' の参照グループ '%s' がアイテムグループ定義に存在しません", itemTables[i].Name, entry.GroupName)
+			}
+		}
+	}
+	return nil
+}
+
+// validateItemGroupReferences はアイテムグループの参照アイテム名がアイテム定義に存在することを検証する
+func validateItemGroupReferences(raws oapi.Raws) error {
+	items := PtrSlice(raws.Items)
+	itemNames := make(map[string]struct{}, len(items))
+	for i := range items {
+		itemNames[items[i].Name] = struct{}{}
+	}
+
+	groups := PtrSlice(raws.ItemGroups)
+	for i := range groups {
+		for _, entry := range groups[i].Entries {
+			if entry.ItemName == "" {
+				continue
+			}
+			if _, ok := itemNames[entry.ItemName]; !ok {
+				return fmt.Errorf("アイテムグループ '%s' の参照アイテム '%s' がアイテム定義に存在しません", groups[i].Name, entry.ItemName)
+			}
+		}
+	}
+	return nil
+}
+
+// validateEnemyTableReferences は敵テーブルの参照敵名がメンバー定義に存在することを検証する
+func validateEnemyTableReferences(raws oapi.Raws) error {
+	members := PtrSlice(raws.Members)
+	memberNames := make(map[string]struct{}, len(members))
+	for i := range members {
+		memberNames[members[i].Name] = struct{}{}
+	}
+
+	enemyTables := PtrSlice(raws.EnemyTables)
+	for i := range enemyTables {
+		for _, entry := range enemyTables[i].Entries {
+			if entry.EnemyName == "" {
+				continue
+			}
+			if _, ok := memberNames[entry.EnemyName]; !ok {
+				return fmt.Errorf("敵テーブル '%s' の参照敵 '%s' がメンバー定義に存在しません", enemyTables[i].Name, entry.EnemyName)
+			}
+		}
+	}
+	return nil
+}
+
+// validateCommandTableWeaponReferences はコマンドテーブルの参照武器名がアイテム定義に存在することを検証する。
+// タイプミスは attack.go の getAttackParams が素手攻撃へ握り潰し無音で劣化するため、ロード時に前倒しで弾く。
+func validateCommandTableWeaponReferences(raws oapi.Raws) error {
+	items := PtrSlice(raws.Items)
+	itemNames := make(map[string]struct{}, len(items))
+	for i := range items {
+		itemNames[items[i].Name] = struct{}{}
+	}
+
+	commandTables := PtrSlice(raws.CommandTables)
+	for i := range commandTables {
+		for _, entry := range commandTables[i].Entries {
+			if entry.Weapon == "" {
+				continue
+			}
+			if _, ok := itemNames[entry.Weapon]; !ok {
+				return fmt.Errorf("コマンドテーブル '%s' の参照武器 '%s' がアイテム定義に存在しません", commandTables[i].Name, entry.Weapon)
+			}
+		}
+	}
+	return nil
 }
 
 // validateSpawnDice はスポーン系のダイス表記をロード時に検証する。スキーマの pattern は
