@@ -69,11 +69,12 @@ func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string,
 	views.RenderSpecRows(spec, rows[start:end], res)
 	content.AddChild(spec)
 
-	// 位置表示は1ページでも常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る
-	content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, page+1, total, consts.IconArrowRight), res))
-	if desc != "" {
+	// 説明は性能行のページ送りとは別物なので、最終ページのページャ直上にだけ出す。全ページへの重複を避ける
+	if desc != "" && page == total-1 {
 		content.AddChild(styled.NewDescriptionText(desc, res))
 	}
+	// 位置表示は最下段に固定する。1ページでも常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る
+	content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, page+1, total, consts.IconArrowRight), res))
 	win := styled.NewSmallWindow(widget.NewContainer(), content)
 	win.SetLocation(rect)
 	return win
