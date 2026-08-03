@@ -67,8 +67,9 @@ func TestView_UpdateTabDisplayContainer(t *testing.T) {
 		view.UpdateTabDisplayContainer(container)
 
 		require.Len(t, container.Children(), 1)
-		_, ok := container.Children()[0].(*widget.Text)
-		assert.True(t, ok)
+		child := container.Children()[0]
+		_, ok := child.(*widget.Text)
+		assert.Truef(t, ok, "want *widget.Text, got %T", child)
 	})
 
 	t.Run("呼び出すたびに既存の子を入れ替えて累積しない", func(t *testing.T) {
