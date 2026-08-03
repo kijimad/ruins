@@ -62,8 +62,19 @@ var characterTabs = []struct {
 	{charTabBasic, "基本"},
 }
 
-// charFirstInfoTab は情報タブが始まるタブ番号。編集タブの装備・命令2つの後に並ぶ
-const charFirstInfoTab = 2
+// charFirstInfoTab は情報タブが始まるタブ番号。編集タブの装備・命令の後に情報タブが並ぶ。
+// 先頭の情報タブ ability の位置から導き、編集タブを増減しても追従させる。マジックナンバーを避ける
+var charFirstInfoTab = indexOfCharTab(charTabAbility)
+
+// indexOfCharTab はタブ種別の表示順での位置を返す。見つからなければ 0
+func indexOfCharTab(kind charTab) int {
+	for i, t := range characterTabs {
+		if t.Kind == kind {
+			return i
+		}
+	}
+	return 0
+}
 
 // charTabAt はタブ番号に対応するタブ種別を返す。範囲外は空文字を返す
 func charTabAt(index int) charTab {
@@ -550,6 +561,8 @@ func (st *CharacterState) switchMember(world w.World, dir int) {
 		return
 	}
 	cur := st.resolveTarget(world)
+	// resolveTarget は主人公か生存メンバーを返すため cur は必ず members に含まれる。
+	// 万一含まれなくても idx は 0 のまま、すなわち主人公を起点に巡回する
 	idx := 0
 	for i, m := range members {
 		if m == cur {
