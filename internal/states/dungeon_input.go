@@ -163,9 +163,16 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			func() (es.State[w.World], error) { return &ShootingState{}, nil },
 		}}, nil
 	case inputmapper.ActionPickup:
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return &PickupState{}, nil },
-		}}, nil
+		// 足元のタイルにある拾得可能物をまとめて拾う。拾う位置は指定しない
+		playerEntity, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
+		coord := world.Components.GridElement.Get(playerEntity).Coord
+		if _, err := activity.Execute(activity.NewPickupTileActivity(world, coord), playerEntity, world); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
 		verb, ok := verbByAction(action)
 		if !ok {
