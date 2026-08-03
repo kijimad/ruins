@@ -78,6 +78,10 @@ type Activity struct {
 // Activity は serde の skip 対象なので、interface を保持しても保存互換に影響しない。
 // VisualEffect と同じく、依存の無いデータだけを components 層の interface として持つ。
 // 実行ロジックを持つ Behavior は w.World に依存するため activity 層に置く。
+//
+// 型の分け方: 対象が1エンティティでも意味が behavior ごとに違うものは共有せず専用型に分ける。
+// 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので AttackParams などに分ける。
+// 一方 PlaceParams のように共有ヘルパを介して同じ形を使い回すものは共有型のままにする。
 type ActivityParams interface {
 	isActivityParams()
 }
@@ -88,10 +92,6 @@ type MoveParams struct {
 }
 
 func (*MoveParams) isActivityParams() {}
-
-// 単一の対象エンティティを取るアクションは behavior ごとに専用の Params 型を持つ。
-// 対象の意味が behavior ごとに違うため、共有せず型で区別する。共有ヘルパを介さないので
-// 分割してもコード共有を壊さない。
 
 // AttackParams は近接攻撃のパラメータ。
 type AttackParams struct {
