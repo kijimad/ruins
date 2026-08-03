@@ -113,13 +113,13 @@ type settingsMenuProps struct {
 }
 
 // settingsItemKind は設定項目の種類を表す
-type settingsItemKind int
+type settingsItemKind string
 
 const (
 	// settingsItemLanguage は言語を設定する項目を表す
-	settingsItemLanguage settingsItemKind = iota
+	settingsItemLanguage settingsItemKind = "language"
 	// settingsItemBack は前の画面へ戻る項目を表す
-	settingsItemBack
+	settingsItemBack settingsItemKind = "back"
 )
 
 // settingsMenuItem は設定メニューの1項目を表す
