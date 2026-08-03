@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/logger"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/overworld"
@@ -621,8 +622,12 @@ func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageStat
 	messageData.WithChoice(label, func(world w.World) error {
 		err := saveManager.LoadWorld(world, slotName)
 		if err != nil {
+			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
+			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
+			// main の log.Fatal まで波及してプロセスごと落ちてしまう
+			logger.New(logger.CategorySave).Error("セーブのロードに失敗した", "slot", slotName, "error", err.Error())
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return err
+			return nil
 		}
 		// 復元済みの現在地から再生成せずに復帰する
 		messageState.SetTransition(es.Transition[w.World]{
