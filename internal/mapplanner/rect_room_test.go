@@ -16,7 +16,7 @@ func TestRectRoomPlanner_RoomsWithinBounds(t *testing.T) {
 	t.Parallel()
 
 	width, height := consts.Tile(10), consts.Tile(10)
-	for seed := uint64(0); seed < 100; seed++ {
+	for seed := range uint64(100) {
 		chain, err := NewSmallRoomPlanner(width, height, seed)
 		require.NoError(t, err)
 
