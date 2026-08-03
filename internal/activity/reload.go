@@ -18,10 +18,10 @@ const (
 	BaseReloadEffort = 10 // 1ターンあたりの基本装填工数
 )
 
-// ReloadBehavior はリロードアクティビティの実装
-type ReloadBehavior struct {
-	effortAccum int // 蓄積した装填工数
-}
+// ReloadBehavior はリロードアクティビティの実装。
+// 継続処理は GetBehavior が毎回作るゼロ値インスタンスで回るため、
+// 蓄積した装填工数などの進捗はフィールドに持たず gc.Activity 側に持たせる。
+type ReloadBehavior struct{}
 
 // Info はBehaviorの実装
 func (rb *ReloadBehavior) Info() Info {
@@ -39,13 +39,13 @@ func (rb *ReloadBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorReload
 }
 
-// BuildActivity はBehaviorの実装
-func (rb *ReloadBehavior) BuildActivity(_ ecs.Entity, _ w.World) (*gc.Activity, error) {
-	comp, err := NewActivity(rb, 1)
+// NewReloadActivity は装填アクティビティを組む。必要総工数は装備中の遠距離武器から求める。
+func NewReloadActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
+	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return nil, err
 	}
-	return comp, nil
+	return NewActivity(gc.BehaviorReload, fire.ReloadEffort), nil
 }
 
 // Validate はリロードの検証を行う
@@ -68,23 +68,10 @@ func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 }
 
 // Start はリロード開始時の処理
-func (rb *ReloadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	fire, _, err := getEquippedFire(actor, world)
-	if err != nil {
-		return err
-	}
-
-	// 最大ターン数の見積もり（最低能力の場合）
-	maxTurns := consts.Turn(max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1))
-	comp.TurnsTotal = maxTurns
-	comp.TurnsLeft = maxTurns
-
-	rb.effortAccum = 0
-
+func (rb *ReloadBehavior) Start(_ *gc.Activity, _ ecs.Entity, world w.World) error {
 	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
 		Log()
-
 	return nil
 }
 
@@ -96,14 +83,11 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return err
 	}
 
-	// 1ターンあたりの工数を計算
-	effortPerTurn := rb.calcEffortPerTurn(actor, fire, world)
-	rb.effortAccum += effortPerTurn
-
-	comp.TurnsLeft--
+	// 1ターンあたりの工数を計算。能力が高いほど速く装填する
+	comp.Progress.Current += rb.calcEffortPerTurn(actor, fire, world)
 
 	// 工数が目標に達したら装填完了
-	if rb.effortAccum >= fire.ReloadEffort {
+	if comp.Progress.Current >= comp.Progress.Max {
 		// 装填数を計算（マガジン容量と弾薬在庫の小さい方）
 		needed := fire.MagazineSize - fire.Magazine
 		ammoEntity, found := query.FindAmmoInInventory(world, fire.AmmoTag)
@@ -131,10 +115,6 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 		Complete(comp)
 		return nil
-	}
-
-	if comp.TurnsLeft <= 0 {
-		Complete(comp)
 	}
 
 	return nil
@@ -177,8 +157,11 @@ func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 // ExecuteReloadAction はリロードアクションを実行する
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
-	_, err := Execute(&ReloadBehavior{}, actor, world)
+	comp, err := NewReloadActivity(actor, world)
 	if err != nil {
+		return err
+	}
+	if _, err := Execute(comp, actor, world); err != nil {
 		return err
 	}
 	return nil

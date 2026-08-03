@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -18,26 +19,17 @@ type ActionResult struct {
 	Message      string           // 結果メッセージ
 }
 
-// Execute は指定されたアクティビティを実行する
-// 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する
-func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult, error) {
-	behaviorName := behavior.Name()
+// Execute は構築済みのアクティビティを実行する。
+// 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する。
+// comp は NewXxxActivity 構築関数で作る。
+func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult, error) {
+	if comp == nil {
+		return nil, ErrActivityNil
+	}
+	behaviorName := comp.BehaviorName
 	log.Debug("アクション実行開始",
 		"type", behaviorName,
 		"actor", actor)
-
-	// アクティビティを作成
-	comp, err := behavior.BuildActivity(actor, world)
-	if err != nil {
-		result := &ActionResult{
-			Success:      false,
-			State:        gc.ActivityStateCanceled,
-			ActivityName: behaviorName,
-			Message:      err.Error(),
-		}
-		setLastResult(actor, result, world)
-		return result, err
-	}
 
 	// アクティビティを開始
 	if err := StartActivity(comp, actor, world); err != nil {
@@ -51,44 +43,30 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 		return result, err
 	}
 
-	// 即座実行アクション（1ターン）は、登録済みアクティビティを1ターン進めてその場で完結させる。
+	// 全アクションを継続アクションとして扱い、常にここで1ターン進める。
+	// たまたま初回ステップで完了したものが即時アクションになる。特別な即時判定は持たない。
+	// 呼び出し側が同じ呼び出しで結果を必要とするため、初回で解決すれば同期的に結果を返す。
 	// アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
 	// 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
-	if comp.TurnsTotal == 1 {
-		stepActivity(behavior, actor, world)
+	stepActivity(actor, world)
 
-		// ターン管理システムに移動コストを通知
-		consumePassCost(world, behavior, actor, comp.Destination)
+	currentActivity := query.GetActivity(world, actor)
 
-		// 結果を確認
-		currentActivity := query.GetActivity(world, actor)
-		if currentActivity == nil || IsCompleted(currentActivity) {
-			result := &ActionResult{
-				Success:      true,
-				State:        gc.ActivityStateCompleted,
-				ActivityName: behaviorName,
-				Message:      "アクション完了",
-			}
-			setLastResult(actor, result, world)
-			return result, nil
-		} else if IsCanceled(currentActivity) {
-			result := &ActionResult{
-				Success:      false,
-				State:        gc.ActivityStateCanceled,
-				ActivityName: behaviorName,
-				Message:      currentActivity.CancelReason,
-			}
-			setLastResult(actor, result, world)
-			return result, nil
+	// 出口は「継続」か「初回で解決」かの2分岐。結果の中身だけが違い、
+	// setLastResult と return は共通なので末尾へ1回だけ置く。
+	var result *ActionResult
+	if currentActivity != nil && !IsCompleted(currentActivity) && !IsCanceled(currentActivity) {
+		// 継続アクション。この初回ターン分のコストを消費し、残りは ProcessContinuousActivities が進める
+		query.ConsumeActionPoints(world, actor, consts.StandardActionCost)
+		result = &ActionResult{Success: true, State: gc.ActivityStateRunning, ActivityName: behaviorName, Message: "アクション開始"}
+	} else {
+		// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
+		consumePassCost(world, actor, comp)
+		if currentActivity != nil && IsCanceled(currentActivity) {
+			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: currentActivity.CancelReason}
+		} else {
+			result = &ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "アクション完了"}
 		}
-	}
-
-	// 継続アクションの場合は開始成功を返す
-	result := &ActionResult{
-		Success:      true,
-		State:        gc.ActivityStateRunning,
-		ActivityName: behaviorName,
-		Message:      "アクション開始",
 	}
 	setLastResult(actor, result, world)
 	return result, nil
@@ -99,16 +77,27 @@ func Execute(behavior Behavior, actor ecs.Entity, world w.World) (*ActionResult,
 // （ProcessContinuousActivities）の両方から呼ばれ、両者で「1ターン進める」
 // ロジックを一本化する。即時アクションは1ステップで完結する継続アクションの特殊ケースとして扱う。
 //
+// 実行する Behavior は永続化された BehaviorName から GetBehavior で引く。毎回ゼロ値の新しい
+// インスタンスなので、着手時の呼び出し側インスタンスはここでは使わない。ライフサイクルを常に
+// ゼロ値インスタンスで回すことで、per-アクティビティの状態は gc.Activity に置くという規律が経路によらず一貫する。
+//
 // DoTurn が失敗すればキャンセルし、完了していれば Finish して直近結果を記録し除去する。
 // アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
 // 消えても走査中コンポーネントの破壊による panic を招かない。
-func stepActivity(behavior Behavior, entity ecs.Entity, world w.World) {
+func stepActivity(entity ecs.Entity, world w.World) {
 	stored := query.GetActivity(world, entity)
 	if stored == nil {
 		return
 	}
 
-	behaviorName := behavior.Name()
+	behaviorName := stored.BehaviorName
+	behavior, err := GetBehavior(behaviorName)
+	if err != nil {
+		log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
+		query.RemoveActivity(world, entity)
+		return
+	}
+
 	if err := behavior.DoTurn(stored, entity, world); err != nil {
 		log.Error("アクティビティターン処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
 		CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
@@ -193,7 +182,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("アクティビティ開始",
 		"entity", actor,
 		"type", behavior.Name(),
-		"duration", stored.TurnsTotal)
+		"required", stored.Progress.Max)
 
 	return nil
 }
@@ -264,7 +253,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 }
 
 // ProcessContinuousActivities は継続中の全アクティビティを1ターン分進める。
-// 即時アクション（TurnsTotal==1）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
+// 即時アクション（Required==0）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
 func ProcessContinuousActivities(world w.World) {
 	var entities []ecs.Entity
@@ -287,25 +276,23 @@ func ProcessContinuousActivities(world w.World) {
 			continue
 		}
 
-		behavior, err := GetBehavior(comp.BehaviorName)
-		if err != nil {
-			log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
-			query.RemoveActivity(world, entity)
-			continue
-		}
-
-		stepActivity(behavior, entity, world)
+		stepActivity(entity, world)
 	}
 }
 
-// consumePassCost はアクションのAPコストを消費する
-func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destination *gc.GridElement) {
-	info := behavior.Info()
-	cost := info.ActionPointCost
+// consumePassCost はアクションのAPコストを消費する。
+// Behavior は comp.BehaviorName から GetBehavior で引く。
+func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
+	behavior, err := GetBehavior(comp.BehaviorName)
+	if err != nil {
+		log.Error("Behaviorの取得に失敗", "actor", actor, "error", err.Error())
+		return
+	}
+	cost := behavior.Info().ActionPointCost
 
-	// 移動行動の場合、移動先タイルのPassCostを加算する
-	if behavior.Name() == gc.BehaviorMove && destination != nil {
-		cost += getPassCostAt(world, int(destination.X), int(destination.Y))
+	// 移動行動の場合、移動先タイルのPassCostを加算する。MoveParams を持つのは移動だけ
+	if mp, ok := comp.Params.(*gc.MoveParams); ok {
+		cost += getPassCostAt(world, int(mp.Destination.X), int(mp.Destination.Y))
 	}
 
 	if !query.ConsumeActionPoints(world, actor, cost) {

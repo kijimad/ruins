@@ -9,7 +9,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/geometry"
@@ -137,12 +136,7 @@ func (st *PickupState) doAction(world w.World, action inputmapper.ActionID) (es.
 
 // refreshItems はカーソル位置のタイル上の拾得可能エンティティを更新する
 func (st *PickupState) refreshItems(world w.World) {
-	st.itemsAtTarget = nil
-	for _, entity := range query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {
-		if query.IsPickable(entity, world) {
-			st.itemsAtTarget = append(st.itemsAtTarget, entity)
-		}
-	}
+	st.itemsAtTarget = query.PickablesAt(world, consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y})
 }
 
 // executePickup は拾得アクションを実行する
@@ -152,7 +146,7 @@ func (st *PickupState) executePickup(world w.World) error {
 		return err
 	}
 
-	_, err = activity.Execute(&activity.PickupBehavior{Destination: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}}}, playerEntity, world)
+	_, err = activity.Execute(activity.NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: st.cursor.X, Y: st.cursor.Y}), playerEntity, world)
 	return err
 }
 

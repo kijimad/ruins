@@ -560,7 +560,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		_, err = activity.Execute(&activity.UseItemBehavior{Target: entity}, playerEntity, world)
+		_, err = activity.Execute(activity.NewUseItemActivity(entity), playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -574,13 +574,13 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		// Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する
-		book := world.Components.Book.Get(entity)
-		remaining := book.Effort.Max - book.Effort.Current
-		if remaining <= 0 {
-			remaining = 1
+		// 読書の進捗は本の Effort に保持され、読了は DoTurn 内で判定する
+		comp, err := activity.NewReadActivity(entity, world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
 		}
-		_, err = activity.Execute(&activity.ReadBehavior{Target: entity, Duration: consts.Turn(remaining)}, playerEntity, world)
+		_, err = activity.Execute(comp, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -594,7 +594,12 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		_, err = activity.Execute(&activity.DisassembleBehavior{Target: entity}, playerEntity, world)
+		comp, err := activity.NewDisassembleActivity(entity, playerEntity, world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
+		}
+		_, err = activity.Execute(comp, playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -610,7 +615,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 		playerGrid := world.Components.GridElement.Get(playerEntity)
 		destination := gc.GridElement{Coord: playerGrid.Coord}
-		_, err = activity.Execute(&activity.DropBehavior{Target: entity, Destination: destination}, playerEntity, world)
+		_, err = activity.Execute(activity.NewDropActivity(entity, destination), playerEntity, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err

@@ -33,7 +33,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 		world.Components.BlockView.Add(door, &gc.BlockView{})
 
 		// OpenDoorBehaviorを実行
-		result, err := Execute(&OpenDoorBehavior{Target: door}, player, world)
+		result, err := Execute(NewOpenDoorActivity(door), player, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -66,7 +66,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
 		// OpenDoorBehaviorを実行
-		result, err := Execute(&OpenDoorBehavior{Target: wall}, player, world)
+		result, err := Execute(NewOpenDoorActivity(wall), player, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)
@@ -92,7 +92,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 		world.Components.BlockPass.Add(door, &gc.BlockPass{})
 		world.Components.BlockView.Add(door, &gc.BlockView{})
 
-		result, err := Execute(&OpenDoorBehavior{Target: door}, player, world)
+		result, err := Execute(NewOpenDoorActivity(door), player, world)
 
 		require.NoError(t, err, "ロック済み扉のキャンセルは致命的エラーではない")
 		require.NotNil(t, result)
@@ -123,8 +123,8 @@ func TestOpenDoorBehavior(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.TurnBased.Add(player, &gc.TurnBased{})
 
-		// OpenDoorBehaviorを実行（Targetなし → ゼロ値Entityは扉ではない）
-		result, err := Execute(&OpenDoorBehavior{}, player, world)
+		// OpenDoorを実行（ゼロ値Entityは扉ではない）
+		result, err := Execute(NewOpenDoorActivity(gc.InvalidEntity), player, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)

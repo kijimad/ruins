@@ -49,11 +49,10 @@ func TestStartActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを作成
-	comp, err := NewActivity(&WaitBehavior{}, 5)
-	require.NoError(t, err)
+	comp := NewActivity(gc.BehaviorWait, 5)
 
 	// アクティビティ開始
-	err = StartActivity(comp, actor, world)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティが登録されているかチェック
@@ -79,12 +78,10 @@ func TestMultipleActivities(t *testing.T) {
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
 	// 複数のアクターでアクティビティを開始
-	comp1, err := NewActivity(&WaitBehavior{}, 10)
-	require.NoError(t, err)
-	comp2, err := NewActivity(&WaitBehavior{}, 5)
-	require.NoError(t, err)
+	comp1 := NewActivity(gc.BehaviorWait, 10)
+	comp2 := NewActivity(gc.BehaviorWait, 5)
 
-	err = StartActivity(comp1, actor1, world)
+	err := StartActivity(comp1, actor1, world)
 	require.NoError(t, err)
 
 	err = StartActivity(comp2, actor2, world)
@@ -109,17 +106,15 @@ func TestReplaceActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// 最初のアクティビティを開始
-	comp1, err := NewActivity(&WaitBehavior{}, 10)
-	require.NoError(t, err)
-	err = StartActivity(comp1, actor, world)
+	comp1 := NewActivity(gc.BehaviorWait, 10)
+	err := StartActivity(comp1, actor, world)
 	require.NoError(t, err)
 
 	// 最初のアクティビティが実行中であることを確認
 	assert.Equal(t, gc.ActivityStateRunning, comp1.State, "Expected first activity to be running")
 
 	// 新しいアクティビティを開始（古いものを置き換え）
-	comp2, err := NewActivity(&WaitBehavior{}, 5)
-	require.NoError(t, err)
+	comp2 := NewActivity(gc.BehaviorWait, 5)
 	err = StartActivity(comp2, actor, world)
 	require.NoError(t, err)
 
@@ -128,7 +123,7 @@ func TestReplaceActivity(t *testing.T) {
 	currentActivity := query.GetActivity(world, actor)
 	require.NotNil(t, currentActivity)
 	assert.Equal(t, gc.ActivityStateRunning, currentActivity.State, "Expected replaced activity to be running")
-	assert.Equal(t, comp2.TurnsTotal, currentActivity.TurnsTotal, "Expected current activity to be the second activity")
+	assert.Equal(t, comp2.Progress.Max, currentActivity.Progress.Max, "Expected current activity to be the second activity")
 }
 
 func TestInterruptAndResume(t *testing.T) {
@@ -138,9 +133,8 @@ func TestInterruptAndResume(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewActivity(&WaitBehavior{}, 10)
-	require.NoError(t, err)
-	err = StartActivity(comp, actor, world)
+	comp := NewActivity(gc.BehaviorWait, 10)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティを中断
@@ -177,9 +171,8 @@ func TestCancelActivity(t *testing.T) {
 	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewActivity(&WaitBehavior{}, 5)
-	require.NoError(t, err)
-	err = StartActivity(comp, actor, world)
+	comp := NewActivity(gc.BehaviorWait, 5)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティをキャンセル
@@ -210,12 +203,10 @@ func TestProcessContinuousActivities(t *testing.T) {
 	world.Components.GridElement.Add(actor2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 
 	// 短いアクティビティと長いアクティビティを開始
-	shortComp, err := NewActivity(&WaitBehavior{}, 2) // 2ターンで完了
-	require.NoError(t, err)
-	longComp, err := NewActivity(&WaitBehavior{}, 5) // 5ターンで完了
-	require.NoError(t, err)
+	shortComp := NewActivity(gc.BehaviorWait, 2) // 2ターンで完了
+	longComp := NewActivity(gc.BehaviorWait, 5)  // 5ターンで完了
 
-	err = StartActivity(shortComp, actor1, world)
+	err := StartActivity(shortComp, actor1, world)
 	require.NoError(t, err)
 	err = StartActivity(longComp, actor2, world)
 	require.NoError(t, err)
@@ -228,16 +219,16 @@ func TestProcessContinuousActivities(t *testing.T) {
 	// 1ターン目処理
 	ProcessContinuousActivities(world)
 
-	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する
-	assert.Equal(t, consts.Turn(1), query.GetActivity(world, actor1).TurnsLeft, "Expected short activity to have 1 turn left")
-	assert.Equal(t, consts.Turn(4), query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 4 turns left")
+	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する。待機は毎ターン 1 累積する
+	assert.Equal(t, 1, query.GetActivity(world, actor1).Progress.Current, "Expected short activity to have accumulated 1")
+	assert.Equal(t, 1, query.GetActivity(world, actor2).Progress.Current, "Expected long activity to have accumulated 1")
 
 	// 2ターン目処理
 	ProcessContinuousActivities(world)
 
 	// 短いアクティビティが完了。完了時は削除されるため結果コンポーネントで確認する
 	assert.Equal(t, gc.ActivityStateCompleted, GetLastResult(actor1, world).State, "Expected short activity to be completed")
-	assert.Equal(t, consts.Turn(3), query.GetActivity(world, actor2).TurnsLeft, "Expected long activity to have 3 turns left")
+	assert.Equal(t, 2, query.GetActivity(world, actor2).Progress.Current, "Expected long activity to have accumulated 2")
 
 	// 完了したアクティビティは管理対象から削除される
 	assert.Nil(t, query.GetActivity(world, actor1), "Expected completed activity to be removed")
@@ -264,12 +255,10 @@ func TestActivitySummary(t *testing.T) {
 	actor2 := world.ECS.NewEntity()
 	world.Components.TurnBased.Add(actor2, &gc.TurnBased{})
 
-	comp1, err := NewActivity(&WaitBehavior{}, 10)
-	require.NoError(t, err)
-	comp2, err := NewActivity(&WaitBehavior{}, 5)
-	require.NoError(t, err)
+	comp1 := NewActivity(gc.BehaviorWait, 10)
+	comp2 := NewActivity(gc.BehaviorWait, 5)
 
-	err = StartActivity(comp1, actor1, world)
+	err := StartActivity(comp1, actor1, world)
 	require.NoError(t, err)
 	err = StartActivity(comp2, actor2, world)
 	require.NoError(t, err)
@@ -339,7 +328,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		// ExecuteはArchetypeを変える構造変更を伴うため、TurnBasedは都度取り直す
 		apBefore := world.Components.TurnBased.Get(player).AP.Current
 
-		_, err = Execute(&MoveBehavior{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}}, player, world)
+		_, err = Execute(NewMoveActivity(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}), player, world)
 		require.NoError(t, err)
 
 		normalCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
@@ -352,7 +341,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}})
 		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
 
-		_, err = Execute(&MoveBehavior{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}}}, player, world)
+		_, err = Execute(NewMoveActivity(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}}), player, world)
 		require.NoError(t, err)
 
 		modCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
@@ -371,9 +360,10 @@ func TestLastActivity(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
-		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "テスト"}, player, world)
+		_, err = Execute(NewWaitActivity(1), player, world)
 		require.NoError(t, err)
 
+		// 待機回数1は初回ステップで Required に達するので即時アクションとして完了する
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
@@ -392,9 +382,10 @@ func TestLastActivity(t *testing.T) {
 		require.NoError(t, err)
 
 		// 待機
-		_, err = Execute(&WaitBehavior{Duration: 1, Reason: "待機"}, player, world)
+		_, err = Execute(NewWaitActivity(1), player, world)
 		require.NoError(t, err)
 
+		// 待機回数1は初回ステップで完了する即時アクション
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
@@ -405,7 +396,7 @@ func TestLastActivity(t *testing.T) {
 		assert.Equal(t, expected, result)
 
 		// 移動
-		_, err = Execute(&MoveBehavior{Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}}}, player, world)
+		_, err = Execute(NewMoveActivity(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}}), player, world)
 		require.NoError(t, err)
 
 		result = GetLastResult(player, world)
@@ -427,7 +418,7 @@ func TestLastActivity(t *testing.T) {
 
 		// 存在しないターゲットへの攻撃（失敗する）
 		nonExistentEntity := gc.InvalidEntity
-		_, _ = Execute(&AttackBehavior{Target: nonExistentEntity}, player, world)
+		_, _ = Execute(NewAttackActivity(nonExistentEntity), player, world)
 
 		result := GetLastResult(player, world)
 		expected := &gc.LastActivity{
