@@ -4,14 +4,15 @@ package mapplanner
 import (
 	"log"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// DebugPopulatePlanner はデバッグステージへ全NPCと全propを配置するプランナー。
-// プレイヤーを除く全 member をNPCとして、収納箱を含む全 prop を1つずつ部屋のグリッドに並べ、
-// すべての種類を一度に目視・操作でテストできるようにする。敵か中立かの判定と収納の中身は
-// spawn 側が member 名と prop 定義から自動で決めるため、ここは名前と座標を積むだけでよい
+// DebugPopulatePlanner はデバッグステージへ街用NPCと全propを配置するプランナー。
+// 中立faction、商人や酒場の主人など、の member をNPCとして、収納箱を含む全 prop を1つずつ
+// 部屋のグリッドに並べ、街の会話・売買・収納などを一度にテストできるようにする。
+// 収納の中身は spawn 側が prop 定義から自動で決めるため、ここは名前と座標を積むだけでよい
 type DebugPopulatePlanner struct{}
 
 // PlanMeta は部屋内のグリッド座標へ全 member と全 prop を配置する
@@ -37,12 +38,12 @@ func (DebugPopulatePlanner) PlanMeta(planData *MetaPlan) error {
 
 	dropped := 0
 
-	// 全 member をNPCとして配置する。プレイヤーキャラクターは除く
+	// 街用NPC、中立faction、だけを配置する。敵やプレイヤーは置かない
 	if planData.RawMaster.Members != nil {
 		members := *planData.RawMaster.Members
 		for i := range members {
 			m := &members[i]
-			if m.Player != nil && *m.Player {
+			if m.FactionType == nil || string(*m.FactionType) != gc.FactionNeutralName {
 				continue
 			}
 			name := m.Name

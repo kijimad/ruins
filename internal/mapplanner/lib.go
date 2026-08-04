@@ -507,11 +507,11 @@ var (
 		},
 	}
 
-	// PlannerTypeDebugAll は全NPCと全propを大部屋へ配置するデバッグ用プランナータイプ。
+	// PlannerTypeDebugAll は街用NPCと全propを大部屋へ配置するデバッグ用プランナータイプ。
 	// EnemyTableName と ItemTableName を空にしてランダムな敵・アイテムを足さず、
-	// DebugPopulatePlanner が積んだ要素だけを配置する。全要素を一度にテストする用途に使う
+	// DebugPopulatePlanner が積んだ要素だけを配置する。街の会話・売買・収納をテストする用途に使う
 	PlannerTypeDebugAll = PlannerType{
-		Name: "デバッグ全部",
+		Name: "デバッグ街",
 		PlannerFunc: func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 			chain, err := NewBigRoomPlanner(width, height, seed)
 			if err != nil {

@@ -3,22 +3,25 @@ package mapplanner
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestDebugPopulatePlanner_プレイヤー以外の全memberと全propを配置する(t *testing.T) {
+func TestDebugPopulatePlanner_街用NPCと全propだけを配置する(t *testing.T) {
 	t.Parallel()
 
 	chain, err := NewBigRoomPlanner(40, 40, 12345)
 	require.NoError(t, err)
 
 	player := oapi.IsPlayer(true)
+	neutral := oapi.FactionMemberType(gc.FactionNeutralName)
 	members := []oapi.Member{
-		{Name: "スライム"},
-		{Name: "火の玉"},
-		{Name: "Ash", Player: &player},
+		{Name: "商人", FactionType: &neutral},
+		{Name: "酒場の主人", FactionType: &neutral},
+		{Name: "火の玉"},                  // 敵、faction 無し
+		{Name: "Ash", Player: &player}, // プレイヤー
 	}
 	props := []oapi.Prop{
 		{Name: "木箱"},
@@ -37,7 +40,8 @@ func TestDebugPopulatePlanner_プレイヤー以外の全memberと全propを配�
 	for _, n := range chain.PlanData.NPCs {
 		npcNames = append(npcNames, n.Name)
 	}
-	assert.ElementsMatch(t, []string{"スライム", "火の玉"}, npcNames, "プレイヤー以外の全memberが配置される")
+	assert.ElementsMatch(t, []string{"商人", "酒場の主人"}, npcNames, "中立factionの街用NPCだけが配置される")
+	assert.NotContains(t, npcNames, "火の玉", "敵は配置しない")
 	assert.NotContains(t, npcNames, "Ash", "プレイヤーキャラクターは配置しない")
 
 	propNames := make([]string, 0, len(chain.PlanData.Props))
