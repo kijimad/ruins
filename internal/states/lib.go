@@ -3,11 +3,9 @@ package states
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"strings"
 
 	"github.com/ebitenui/ebitenui"
-	eimage "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -81,22 +79,6 @@ func newPanelScreenUI(res resources.UIResources, title string, content *widget.C
 	return &ebitenui.UI{Container: root}
 }
 
-// newClipScroll は content をビューポート矩形にクリップする。ページ送りで内容を収める層が
-// 万一破れても、モーダル領域より下のログへ描画が漏れないようにする保険。マスクは不透明一色で
-// ビューポート矩形にクリップし、背景は透明にしてモーダル枠の見た目を変えない。キーボード操作のみで
-// スクロールは繋がず、収まる内容はそのまま上詰めで表示される
-func newClipScroll(content widget.PreferredSizeLocateableWidget) *widget.ScrollContainer {
-	return widget.NewScrollContainer(
-		widget.ScrollContainerOpts.Content(content),
-		widget.ScrollContainerOpts.StretchContentWidth(),
-		widget.ScrollContainerOpts.Image(&widget.ScrollContainerImage{
-			Idle:     eimage.NewNineSliceColor(color.Transparent),
-			Disabled: eimage.NewNineSliceColor(color.Transparent),
-			Mask:     eimage.NewNineSliceColor(color.White),
-		}),
-	)
-}
-
 func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 	children := make([]widget.PreferredSizeLocateableWidget, 0, 5)
 	rowStretch := make([]bool, 0, 5)
@@ -111,9 +93,8 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 	if len(p.TabLabels) > 0 {
 		add(centerRow(styled.NewTabBar(p.TabLabels, p.TabIndex, res)), false)
 	}
-	// content 行を伸縮させ、その領域へクリップする。はみ出しはビューポートで断ち切られログへ漏れない。
-	// 伸縮する content がフッターを下端へ押すので、別途スペーサー行は要らない
-	add(newClipScroll(p.Content), true)
+	add(p.Content, false)
+	add(widget.NewContainer(), true) // 伸縮スペーサー。フッターを下端へ押す
 	if p.Footer != "" {
 		footer := styled.NewRowContainer()
 		footer.AddChild(styled.NewDescriptionText(p.Footer, res))
