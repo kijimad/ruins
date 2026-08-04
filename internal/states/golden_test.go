@@ -101,8 +101,15 @@ func TestGolden_Character(t *testing.T) {
 
 func TestGolden_CraftMenu(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(town, &gs.CraftMenuState{}))
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		// 回復薬の材料を持たせ、合成可能な行にチェックが付く様子を確認する
+		_, err := lifecycle.SpawnBackpackItem(world, "緑ハーブ", 1)
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnBackpackItem(world, "黄ハーブ", 1)
+		require.NoError(t, err)
+		town := newGoldenBackdrop(t)
+		return []es.State[w.World]{town, &gs.CraftMenuState{}}
+	})
 }
 
 func TestGolden_ShopMenu(t *testing.T) {
