@@ -1,0 +1,70 @@
+package mapplanner
+
+import (
+	"testing"
+
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestDebugPopulatePlanner_プレイヤー以外の全memberと全propを配置する(t *testing.T) {
+	t.Parallel()
+
+	chain, err := NewBigRoomPlanner(40, 40, 12345)
+	require.NoError(t, err)
+
+	player := oapi.IsPlayer(true)
+	members := []oapi.Member{
+		{Name: "スライム"},
+		{Name: "火の玉"},
+		{Name: "Ash", Player: &player},
+	}
+	props := []oapi.Prop{
+		{Name: "木箱"},
+		{Name: "barrel"},
+	}
+	rawMaster := CreateTestRawMaster()
+	rawMaster.Members = &members
+	rawMaster.Props = &props
+	chain.PlanData.RawMaster = rawMaster
+
+	// 先に大部屋を描画してから配置する。配置は部屋内のスポーン可能タイルに限る
+	require.NoError(t, chain.Plan())
+	require.NoError(t, DebugPopulatePlanner{}.PlanMeta(&chain.PlanData))
+
+	npcNames := make([]string, 0, len(chain.PlanData.NPCs))
+	for _, n := range chain.PlanData.NPCs {
+		npcNames = append(npcNames, n.Name)
+	}
+	assert.ElementsMatch(t, []string{"スライム", "火の玉"}, npcNames, "プレイヤー以外の全memberが配置される")
+	assert.NotContains(t, npcNames, "Ash", "プレイヤーキャラクターは配置しない")
+
+	propNames := make([]string, 0, len(chain.PlanData.Props))
+	for _, p := range chain.PlanData.Props {
+		propNames = append(propNames, p.Name)
+	}
+	assert.ElementsMatch(t, []string{"木箱", "barrel"}, propNames, "全propが配置される")
+}
+
+func TestDebugPopulatePlanner_RawMasterが無ければ何もしない(t *testing.T) {
+	t.Parallel()
+
+	chain, err := NewBigRoomPlanner(40, 40, 12345)
+	require.NoError(t, err)
+	chain.PlanData.RawMaster = CreateTestRawMaster()
+	require.NoError(t, chain.Plan())
+
+	chain.PlanData.RawMaster = nil
+	require.NoError(t, DebugPopulatePlanner{}.PlanMeta(&chain.PlanData))
+	assert.Empty(t, chain.PlanData.NPCs)
+	assert.Empty(t, chain.PlanData.Props)
+}
+
+func TestPlannerTypeByName_デバッグ専用プランナーも解決できる(t *testing.T) {
+	t.Parallel()
+
+	pt, ok := PlannerTypeByName(PlannerTypeDebugAll.Name)
+	require.True(t, ok, "デバッグ専用プランナーは名前で引ける")
+	assert.Equal(t, PlannerTypeDebugAll.Name, pt.Name)
+}

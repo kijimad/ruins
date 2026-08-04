@@ -507,6 +507,21 @@ var (
 		},
 	}
 
+	// PlannerTypeDebugAll は全NPCと全propを大部屋へ配置するデバッグ用プランナータイプ。
+	// EnemyTableName と ItemTableName を空にしてランダムな敵・アイテムを足さず、
+	// DebugPopulatePlanner が積んだ要素だけを配置する。全要素を一度にテストする用途に使う
+	PlannerTypeDebugAll = PlannerType{
+		Name: "デバッグ全部",
+		PlannerFunc: func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
+			chain, err := NewBigRoomPlanner(width, height, seed)
+			if err != nil {
+				return nil, err
+			}
+			chain.With(DebugPopulatePlanner{})
+			return chain, nil
+		},
+	}
+
 	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。
 	// ランダム選択用のPlannerTypeRandomは含まない
 	AllPlannerTypes = []PlannerType{
@@ -521,12 +536,24 @@ var (
 		PlannerTypeTownPlaza,
 		PlannerTypeBossFloor,
 	}
+
+	// debugPlannerTypes は名前指定でのみ使うデバッグ専用プランナー。ランダム選択や
+	// マップ生成ギャラリーの対象にはせず、PlannerTypeByName の解決だけで使えるようにする
+	debugPlannerTypes = []PlannerType{
+		PlannerTypeDebugAll,
+	}
 )
 
 // PlannerTypeByName は名前から PlannerType を引く。対象は PlannerFunc を持つ AllPlannerTypes で、
 // 見つからなければ ok=false を返す。デバッグでプランナー名を指定してフロアを生成するときに使う。
 func PlannerTypeByName(name string) (PlannerType, bool) {
 	for _, pt := range AllPlannerTypes {
+		if pt.Name == name {
+			return pt, true
+		}
+	}
+	// デバッグ専用プランナーも名前で引けるようにする。ギャラリーやランダム選択には含めない
+	for _, pt := range debugPlannerTypes {
 		if pt.Name == name {
 			return pt, true
 		}

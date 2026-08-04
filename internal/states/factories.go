@@ -135,6 +135,11 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		})})
 	}
 
+	// 全NPC・全propを配置したデバッグステージへ入る。1画面で全種類を目視・操作テストできる
+	choices = append(choices, Choice{Label: "デバッグステージ:全NPC+全prop配置", Run: popAfter(func(world w.World) error {
+		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, mapplanner.PlannerTypeDebugAll.Name))
+	})})
+
 	choices = append(choices,
 		Choice{Label: "メッセージ表示テスト", Run: pushMessage(messagedata.NewSystemMessage("ゲームが自動保存されました。\n\n進行状況は安全に記録されています。"))},
 		Choice{Label: "アイテム入手イベント", Run: func(world w.World) (es.Transition[w.World], error) {
