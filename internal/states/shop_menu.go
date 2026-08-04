@@ -26,9 +26,8 @@ import (
 // ShopMenuState はショップメニューのゲームステート
 type ShopMenuState struct {
 	es.BaseState[w.World]
-	detail    menuscreen.Detail       // 詳細モーダル。overlay として Screen に登録する
-	actionWin menuscreen.ActionWindow // 購入・売却のアクション選択。overlay として Screen に登録する
-	screen    Screen[shopProps]
+	detail menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen Screen[shopProps]
 }
 
 // State interface ================
@@ -46,8 +45,7 @@ var _ es.ActionHandler[w.World] = &ShopMenuState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
-	st.screen = NewScreen[shopProps](&st.detail, &st.actionWin)
+	st.screen = NewScreen[shopProps](&st.detail)
 	return nil
 }
 
@@ -72,14 +70,16 @@ func (st *ShopMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bo
 }
 
 // DoAction はActionを実行する
-func (st *ShopMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
 		st.screen.Open(st.detail.Open)
 	case inputmapper.ActionMenuSelect:
-		st.screen.Open(st.actionWin.Open)
+		if err := st.buySellSelected(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
@@ -220,37 +220,32 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 
 // actionWindowContent は現在カーソルが当たっている商品の見出しと選択肢を返す。アクション窓の唯一の定義点。
 // 選択肢の実行内容も Run に閉じ込め、購入・売却・閉じるを1箇所で定義する
-func (st *ShopMenuState) actionWindowContent(world w.World) (string, []menuscreen.Action, bool) {
+// buySellSelected は現在カーソルが当たっている商品を、購入タブなら購入、売却タブなら売却する。
+// 決定で即実行し、途中のアクション選択は挟まない。購入は所持金が足りなければ何もしない
+func (st *ShopMenuState) buySellSelected(world w.World) error {
 	item, ok := st.selectedShopItem()
 	if !ok || item.Label == "" {
-		return "", nil, false
+		return nil
 	}
-	var actions []menuscreen.Action
 	if item.IsBuy {
 		canAfford := false
 		query.Player(world, func(p ecs.Entity) { canAfford = query.GetCurrency(world, p) >= item.Price })
-		if canAfford {
-			actions = append(actions, menuscreen.Action{Label: TextBuy, Run: func(world w.World) error {
-				var err error
-				query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })
-				if err != nil {
-					return fmt.Errorf("購入に失敗: %w", err)
-				}
-				return nil
-			}})
-		}
-	} else {
-		actions = append(actions, menuscreen.Action{Label: TextSell, Run: func(world w.World) error {
-			var err error
-			query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })
-			if err != nil {
-				return fmt.Errorf("売却に失敗: %w", err)
-			}
+		if !canAfford {
 			return nil
-		}})
+		}
+		var err error
+		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })
+		if err != nil {
+			return fmt.Errorf("購入に失敗: %w", err)
+		}
+		return nil
 	}
-	actions = append(actions, menuscreen.Action{Label: TextClose})
-	return "アクション選択", actions, true
+	var err error
+	query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })
+	if err != nil {
+		return fmt.Errorf("売却に失敗: %w", err)
+	}
+	return nil
 }
 
 // selectedShopItem は現在カーソルが当たっている商品を返す

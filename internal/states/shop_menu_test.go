@@ -18,7 +18,7 @@ func TestShopMenuState_OnStart(t *testing.T) {
 
 	err := state.OnStart(world)
 	require.NoError(t, err)
-	assert.False(t, state.actionWin.Active(), "初期状態でアクション窓は閉じている")
+	assert.False(t, state.detail.Active(), "初期状態で詳細モーダルは閉じている")
 }
 
 func TestShopMenuState_FetchProps(t *testing.T) {
@@ -83,28 +83,28 @@ func TestShopMenuState_DoAction_Navigation(t *testing.T) {
 	}
 }
 
-func TestShopMenuState_DoAction_MenuSelectでアクション窓を開く(t *testing.T) {
+func TestShopMenuState_DoAction_MenuSelectで売買を試みる(t *testing.T) {
 	t.Parallel()
 
 	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
+	// 選択で即売買を試みる。商品未選択なら何もせず TransNone を返す
 	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
 	require.NoError(t, err)
 	assert.Equal(t, es.TransNone, transition.Type, "選択はTransNone")
-	assert.True(t, state.actionWin.Active(), "アクション選択ウィンドウが開く")
 }
 
-func TestShopMenuState_actionWindowContent_選択なしは表示しない(t *testing.T) {
+func TestShopMenuState_detailContent_選択なしは表示しない(t *testing.T) {
 	t.Parallel()
 
 	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	_, _, ok := state.actionWindowContent(world)
-	assert.False(t, ok, "商品未選択ではアクション窓を出さない")
+	_, ok := state.detailContent(world)
+	assert.False(t, ok, "商品未選択では詳細モーダルを出さない")
 }
 
 func TestNewShopMenuState(t *testing.T) {
