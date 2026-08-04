@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 func TestGolden_SingleItem(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		view := tabmenu.NewView(
 			tabmenu.Config{
 				Tabs: []tabmenu.TabItem{
@@ -35,7 +35,7 @@ func TestGolden_SingleItem(t *testing.T) {
 func TestGolden_MultipleItems_FirstSelected(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		view := tabmenu.NewView(
 			tabmenu.Config{
 				Tabs: []tabmenu.TabItem{
@@ -56,7 +56,7 @@ func TestGolden_MultipleItems_FirstSelected(t *testing.T) {
 func TestGolden_MultipleItems_MiddleSelected(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		view := tabmenu.NewView(
 			tabmenu.Config{
 				Tabs: []tabmenu.TabItem{
@@ -79,7 +79,7 @@ func TestGolden_MultipleItems_MiddleSelected(t *testing.T) {
 func TestGolden_EmptyItems(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		view := tabmenu.NewView(
 			tabmenu.Config{
 				Tabs: []tabmenu.TabItem{
@@ -88,6 +88,8 @@ func TestGolden_EmptyItems(t *testing.T) {
 			},
 			world,
 		)
+		// SetState を省くと ViewState のゼロ値 TabIndex:0 ItemIndex:0 になる。
+		// 空タブと組み合わさり computeDisplayRows が空表示の1行を返すので、その見た目を検証する。
 		return view.BuildUI()
 	}, 300, 50)
 }
@@ -95,7 +97,7 @@ func TestGolden_EmptyItems(t *testing.T) {
 func TestGolden_WithPagination(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		items := make([]tabmenu.Item, 10)
 		for i := range items {
 			items[i] = tabmenu.Item{
@@ -120,7 +122,7 @@ func TestGolden_WithPagination(t *testing.T) {
 func TestGolden_WithAdditionalLabels(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		view := tabmenu.NewView(
 			tabmenu.Config{
 				Tabs: []tabmenu.TabItem{
@@ -141,7 +143,7 @@ func TestGolden_WithAdditionalLabels(t *testing.T) {
 func TestGolden_ManyItems_LastPage(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		items := make([]tabmenu.Item, 8)
 		for i := range items {
 			items[i] = tabmenu.Item{
