@@ -510,14 +510,15 @@ var (
 		},
 	}
 
-	// PlannerTypeDebugAll は街用NPCと収納箱を大部屋へ配置するデバッグ用プランナータイプ。
-	// SelfPopulated で遺跡定義の敵・アイテムテーブルを注入させず、DebugPopulatePlanner が積んだ
-	// 要素だけを配置する。街の会話・売買・収納をテストする用途に使う
+	// PlannerTypeDebugAll は街用NPCと収納箱を小部屋へ配置するデバッグ用プランナータイプ。
+	// 狭い部屋にして、入ってすぐデバッグ物へ触れられるようにする。SelfPopulated で遺跡定義の
+	// 敵・アイテムテーブルを注入させず、DebugPopulatePlanner が積んだ要素だけを配置する。
+	// 街の会話・売買・収納をテストする用途に使う
 	PlannerTypeDebugAll = PlannerType{
 		Name:          "デバッグ街",
 		SelfPopulated: true,
 		PlannerFunc: func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-			chain, err := NewBigRoomPlanner(width, height, seed)
+			chain, err := NewSmallRoomPlanner(width, height, seed)
 			if err != nil {
 				return nil, err
 			}
