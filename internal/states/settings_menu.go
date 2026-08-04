@@ -199,7 +199,7 @@ func (st *SettingsMenuState) view(_ w.World, props settingsMenuProps, sel Select
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
 	columnWidths := []int{240, 100}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	table := styled.NewTableContainer(columnWidths, res)
+	table := newMenuListTable(columnWidths, res)
 	for i, item := range props.Items {
 		isSelected := i == sel.ItemIndex
 		styled.NewTableRow(table, columnWidths, []string{item.Label, item.Value}, aligns, &isSelected, res)

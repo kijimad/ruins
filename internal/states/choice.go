@@ -126,7 +126,7 @@ func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res
 
 	columnWidths := []int{menuRowWidth}
 	aligns := []styled.TextAlign{styled.AlignLeft}
-	table := styled.NewTableContainer(columnWidths, res)
+	table := newMenuListTable(columnWidths, res)
 	visible := pagination.VisibleEntries(props.Choices, pg)
 	for _, entry := range visible {
 		if entry.Item.Header {

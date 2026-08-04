@@ -37,6 +37,17 @@ type tabScreen struct {
 // 行構成は 見出し（任意）/ タブ帯（任意）/ コンテンツ / 伸縮スペーサー / フッター（任意）。
 // コンテンツは上詰めされ、フッターは下端でログの手前に収まる。呼び出し側は
 // 返り値へ詳細モーダル等のウィンドウを AddWindow できる。
+// newMenuListTable はコマンドメニュー系の一覧用テーブルを作る。行間を少し空け、項目が少ない
+// 簡易メニューが詰まって見えないようにする。データ一覧系の密なテーブルとは行間だけを変える
+func newMenuListTable(columnWidths []int, res resources.UIResources) *widget.Container {
+	return styled.NewTableContainer(columnWidths, res,
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Spacing(theme.Space2),
+		)),
+	)
+}
+
 // newPanelScreenUI は中央に寄せた、内容サイズに縮む小さめパネルのメニュー画面を組む。
 // タイトル・本体・フッターを縦に積む。メインメニューやセーブロードのような簡易コマンドメニューの見た目に揃える。
 // 大きめモーダルの newTabScreenUI と違い、項目数が少ない画面がエントリ数相応の大きさに収まる
