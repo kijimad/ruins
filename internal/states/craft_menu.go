@@ -285,7 +285,7 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 
 func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	specContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 	)
 	recipeContainer := styled.NewVerticalContainer()
 

@@ -144,7 +144,7 @@ func (st *MainMenuState) view(_ w.World, props mainMenuProps, sel Selection, res
 	)
 
 	menuContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: true,

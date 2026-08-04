@@ -102,7 +102,7 @@ func NewWSplitContainer(right *widget.Container, left *widget.Container, opts ..
 // NewWindowContainer はウィンドウの本体を作成する
 func NewWindowContainer(res resources.UIResources) *widget.Container {
 	return widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Padding(&widget.Insets{
