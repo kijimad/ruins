@@ -122,7 +122,11 @@ func (st *ChoiceMenuState) menu(props choiceProps) MenuConfig {
 func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	list := styled.NewVerticalContainer()
 	pg := pagination.New(sel.ItemIndex, len(props.Choices), menuItemsPerPage)
-	list.AddChild(newPageIndicator(pg, res))
+	// ページ表示は複数ページのときだけ出す。単一ページの簡易メニューは余計な行を置かず、
+	// メインメニューと先頭位置・行間を揃える
+	if pg.IsEnabled() {
+		list.AddChild(newPageIndicator(pg, res))
+	}
 
 	columnWidths := []int{menuRowWidth}
 	aligns := []styled.TextAlign{styled.AlignLeft}
