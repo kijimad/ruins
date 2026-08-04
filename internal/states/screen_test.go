@@ -70,3 +70,27 @@ func TestScreen_ChoiceMenu_UpdateとDrawが通る(t *testing.T) {
 	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 	require.NoError(t, st.Draw(world, screen))
 }
+
+func TestScreen_ChoiceMenu_見出し行はカーソルが飛ばされる(t *testing.T) {
+	t.Parallel()
+	world := vrt.InitVRTWorld(t)
+	var ran bool
+	st := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) {
+		return "", []gs.Choice{
+			{Label: "見出し", Header: true},
+			{Label: "実行", Run: func(_ w.World) (es.Transition[w.World], error) {
+				ran = true
+				return es.Transition[w.World]{Type: es.TransPop}, nil
+			}},
+		}
+	})
+	require.NoError(t, st.OnStart(world))
+	_, err := st.Update(world)
+	require.NoError(t, err)
+
+	// 先頭は見出し行なのでカーソルは実行行へ飛ばされ、選択で Run が走る
+	tr, err := st.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.True(t, ran, "見出しを飛ばし実行行が選ばれる")
+	assert.Equal(t, es.TransPop, tr.Type)
+}

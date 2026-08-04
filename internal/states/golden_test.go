@@ -91,20 +91,6 @@ func TestGolden_ItemAction(t *testing.T) {
 	})
 }
 
-// TestGolden_ItemActionMany は所持アイテムが多いときに一覧がモーダルに収まりログへはみ出さないことを覆う
-func TestGolden_ItemActionMany(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		// 武器は非スタックなので1本ずつ別行になる。1ページに収まらない量を持たせる
-		for range 30 {
-			_, err := lifecycle.SpawnBackpackItem(world, "レイガン", 1)
-			require.NoError(t, err)
-		}
-		town := newGoldenBackdrop(t)
-		return []es.State[w.World]{town, &gs.ItemActionState{}}
-	})
-}
-
 // TestGolden_Character は画面タブメニューを固定する。装備タブでプレイヤーの
 // スロット一覧を1カラムで並べる経路を覆う。
 func TestGolden_Character(t *testing.T) {
@@ -447,4 +433,37 @@ func imgNeedsUpdate(imgPath, jsonPath string, currentJSON []byte) bool {
 		return true
 	}
 	return !bytes.Equal(bytes.TrimSpace(currentJSON), bytes.TrimSpace(goldenJSON))
+}
+
+// TestGolden_ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
+// 各メニュー個別でなく共通実装 ChoiceMenu を一度だけ検証する
+func TestGolden_ChoiceMenuMany(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(_ w.World) []es.State[w.World] {
+		choices := make([]gs.Choice, 0, 30)
+		for i := range 30 {
+			choices = append(choices, gs.Choice{Label: fmt.Sprintf("項目 %d", i+1)})
+		}
+		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "選択", choices })
+		town := newGoldenBackdrop(t)
+		return []es.State[w.World]{town, menu}
+	})
+}
+
+// TestGolden_ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う
+func TestGolden_ChoiceMenuHeaders(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(_ w.World) []es.State[w.World] {
+		choices := []gs.Choice{
+			{Label: "武器", Header: true},
+			{Label: "木刀"},
+			{Label: "レイガン"},
+			{Label: "防具", Header: true},
+			{Label: "革の鎧"},
+			{Label: "戻る"},
+		}
+		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "ロード", choices })
+		town := newGoldenBackdrop(t)
+		return []es.State[w.World]{town, menu}
+	})
 }

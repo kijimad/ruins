@@ -69,7 +69,12 @@ func newPanelScreenUI(res resources.UIResources, title string, content *widget.C
 	if footer != "" {
 		panel.AddChild(styled.NewDescriptionText(footer, res))
 	}
-	root := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
+	// 下部にログ領域ぶんの余白を確保し、その上の領域で中央寄せする。データ一覧のモーダルと
+	// 同じくログに被らないようにする
+	logReserve := consts.GameHeight - gameLogTopY(consts.GameHeight) + theme.Space3
+	root := widget.NewContainer(widget.ContainerOpts.Layout(
+		widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(&widget.Insets{Bottom: logReserve})),
+	))
 	root.AddChild(panel)
 	return &ebitenui.UI{Container: root}
 }
@@ -111,11 +116,9 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 	return &ebitenui.UI{Container: wrapModalRoot(root)}
 }
 
-// menuItemsPerPage はメニュー一覧の1ページ表示件数。shop/craft/storage など標準の
-// タブ一覧で共通に使う。文字サイズと行高から1画面に収まる件数を基準にする。
-// キャラクター情報タブは見出し行が挟まり行数が変わるため character_info 側で別に持つ
-// menuItemsPerPage は一覧1ページの件数。モーダルの高さに収まり、ログ領域へはみ出さない上限にする。
-// テーブル行20px + ページ表示 + タブ帯 + フッターがモーダル領域に収まる件数
+// menuItemsPerPage は一覧1ページの表示件数。全メニュー共通。モーダルの高さに収まり
+// ログ領域へはみ出さない上限にする。テーブル行20px + ページ表示 + タブ帯 + フッターが
+// モーダル領域に収まる件数を基準にする
 const menuItemsPerPage = 16
 
 // menuRowWidth はメニュー一覧の行の総幅。全メニューで揃えて、画面ごとにエントリ幅がぶれないようにする。
