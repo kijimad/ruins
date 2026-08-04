@@ -119,7 +119,7 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 // menuItemsPerPage は一覧1ページの表示件数。全メニュー共通。モーダルの高さに収まり
 // ログ領域へはみ出さない上限にする。テーブル行20px + ページ表示 + タブ帯 + フッターが
 // モーダル領域に収まる件数を基準にする
-const menuItemsPerPage = 16
+const menuItemsPerPage = 18
 
 // menuRowWidth はメニュー一覧の行の総幅。全メニューで揃えて、画面ごとにエントリ幅がぶれないようにする。
 // 各メニューは列の内訳を変えてもよいが、合計はこの値にする
