@@ -269,12 +269,12 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	}
 
 	currentTab := tabs[tabIndex]
-	// 先頭に印の列を置き、合成できるレシピにチェックを付ける。名前の開始位置は揃える
+	// 先頭に印の列を置き、合成できるレシピにはチェック、できないレシピにはバツを付ける。名前の開始位置は揃える
 	columnWidths := []int{20, 320}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		mark := ""
+		mark := consts.IconClose
 		if it.CanCraft {
 			mark = consts.IconCheck
 		}

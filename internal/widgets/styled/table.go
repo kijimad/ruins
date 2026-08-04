@@ -91,9 +91,17 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 	}
 
 	stretch := make([]bool, columns)
-	// 最後の列を伸縮させて親コンテナの幅を埋める
+	// 幅0の列があればそこを伸縮させて親コンテナの幅を埋める。無ければ最後の列を伸縮させる。
+	// 幅0は「ここを伸ばす」印で、名前を伸ばして右側の数値列をまとめたい表で使う
+	stretchIdx := columns - 1
+	for i, cw := range columnWidths {
+		if cw == 0 {
+			stretchIdx = i
+			break
+		}
+	}
 	if columns > 0 {
-		stretch[columns-1] = true
+		stretch[stretchIdx] = true
 	}
 
 	return widget.NewContainer(

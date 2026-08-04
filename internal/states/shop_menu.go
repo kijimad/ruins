@@ -320,8 +320,9 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	}
 
 	currentTab := tabs[tabIndex]
-	// 名前+個数、価格、重さの3列。売却の個数は名前に x個数 として添える。性能は x の詳細モーダルで見る
-	columnWidths := []int{200, 80, 60}
+	// 名前+個数、価格、重さの3列。名前を伸縮させ、価格・重さを右側にまとめる。
+	// 売却の個数は名前に x個数 として添える。性能は x の詳細モーダルで見る
+	columnWidths := []int{0, 80, 60}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
