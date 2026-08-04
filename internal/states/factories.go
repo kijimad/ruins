@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/logger"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/overworld"
@@ -425,7 +426,11 @@ func loadSlotChoice(saveManager *save.SerializationManager, slotName string) Cho
 	}
 	return Choice{Label: formatSaveSlotLabel(saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
-			return es.Transition[w.World]{}, err
+			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
+			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
+			// main の log.Fatal まで波及してプロセスごと落ちてしまう
+			logger.New(logger.CategorySave).Error("セーブのロードに失敗した", "slot", slotName, "error", err.Error())
+			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}
 		// 復元済みの現在地から再生成せずに復帰する
 		return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newResumeStateFactory(world)}}, nil

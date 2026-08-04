@@ -309,3 +309,111 @@ func TestValidateCommandTableReferences(t *testing.T) {
 		require.ErrorContains(t, err, "スライム")
 	})
 }
+
+func TestValidateItemTableReferences(t *testing.T) {
+	t.Parallel()
+
+	groups := &[]oapi.ItemGroup{{Name: "雑貨"}}
+
+	t.Run("実在するグループと空文字は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			ItemGroups: groups,
+			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{GroupName: "雑貨"}, {GroupName: ""}}}},
+		}
+		require.NoError(t, validateItemTableReferences(raws))
+	})
+
+	t.Run("グループ名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			ItemGroups: groups,
+			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{GroupName: "未定義グループ"}}}},
+		}
+		err := validateItemTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義グループ")
+		require.ErrorContains(t, err, "宝箱")
+	})
+}
+
+func TestValidateItemGroupReferences(t *testing.T) {
+	t.Parallel()
+
+	items := &[]oapi.Item{{Name: "鉄くず"}}
+
+	t.Run("実在するアイテムは通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:      items,
+			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{ItemName: "鉄くず"}}}},
+		}
+		require.NoError(t, validateItemGroupReferences(raws))
+	})
+
+	t.Run("アイテム名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:      items,
+			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{ItemName: "未定義アイテム"}}}},
+		}
+		err := validateItemGroupReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義アイテム")
+		require.ErrorContains(t, err, "素材")
+	})
+}
+
+func TestValidateEnemyTableReferences(t *testing.T) {
+	t.Parallel()
+
+	members := &[]oapi.Member{{Name: "スライム"}}
+
+	t.Run("実在するメンバーは通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Members:     members,
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム"}}}},
+		}
+		require.NoError(t, validateEnemyTableReferences(raws))
+	})
+
+	t.Run("敵名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Members:     members,
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "未定義敵"}}}},
+		}
+		err := validateEnemyTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義敵")
+		require.ErrorContains(t, err, "通常")
+	})
+}
+
+func TestValidateCommandTableWeaponReferences(t *testing.T) {
+	t.Parallel()
+
+	items := &[]oapi.Item{{Name: "刀"}}
+
+	t.Run("実在する武器と空文字は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:         items,
+			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Weapon: "刀"}, {Weapon: ""}}}},
+		}
+		require.NoError(t, validateCommandTableWeaponReferences(raws))
+	})
+
+	t.Run("武器名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:         items,
+			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Weapon: "未定義武器"}}}},
+		}
+		err := validateCommandTableWeaponReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "未定義武器")
+		require.ErrorContains(t, err, "剣術")
+	})
+}
