@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -268,11 +269,18 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	}
 
 	currentTab := tabs[tabIndex]
+	// 先頭に印の列を置き、合成できるレシピにチェックを付ける。名前の開始位置は揃える
+	columnWidths := []int{20, 320}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = menuRow{Cells: []string{it.RecipeName}}
+		mark := ""
+		if it.CanCraft {
+			mark = consts.IconCheck
+		}
+		rows[i] = menuRow{Cells: []string{mark, it.RecipeName}}
 	}
-	return renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
@@ -300,7 +308,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d  所持 %d", in.Amount, owned), Color: &rowColor})
+			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
 	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)
