@@ -2,21 +2,19 @@ package states
 
 import (
 	"fmt"
-	"image/color"
 	"slices"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -29,6 +27,7 @@ import (
 type CraftMenuState struct {
 	es.BaseState[w.World]
 	actionWin    menuscreen.ActionWindow // 合成のアクション選択。overlay として Screen に登録する
+	detail       menuscreen.Detail       // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
 	result       menuscreen.Detail       // 合成結果の詳細モーダル。overlay として Screen に登録する
 	resultEntity ecs.Entity              // 直近で合成したアイテム
 	screen       Screen[craftProps]
@@ -49,9 +48,10 @@ var _ es.ActionHandler[w.World] = &CraftMenuState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
+	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.result = menuscreen.NewDetail(st.resultDetailContent)
-	// result を actionWin より前に登録する。合成結果が開いている間はそちらが入力を専有する
-	st.screen = NewScreen[craftProps](&st.result, &st.actionWin)
+	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
+	st.screen = NewScreen[craftProps](&st.result, &st.detail, &st.actionWin)
 	return nil
 }
 
@@ -68,6 +68,10 @@ func (st *CraftMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 
 // HandleInput はキー入力をActionに変換する
 func (st *CraftMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+	ki := input.GetSharedKeyboardInput()
+	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
+		return inputmapper.ActionOpenItemDetail, true
+	}
 	return HandleMenuInput()
 }
 
@@ -78,6 +82,8 @@ func (st *CraftMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.T
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionOpenItemDetail:
+		st.screen.Open(st.detail.Open)
 	case inputmapper.ActionMenuSelect:
 		st.screen.Open(st.actionWin.Open)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
@@ -249,24 +255,18 @@ func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailC
 // buildUI
 // ================
 
-func (st *CraftMenuState) view(world w.World, props craftProps, sel Selection, res resources.UIResources) *ebitenui.UI {
-	tabIndex := sel.TabIndex
-	itemIndex := sel.ItemIndex
-
-	// カテゴリは標準のタブ帯に寄せる。本体は アイテム一覧+性能レシピ / 説明文 のグリッド
+func (st *CraftMenuState) view(_ w.World, props craftProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-
-	content := newThreeColContent(
-		nil,
-		st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res),
-		st.buildDetailContainer(world, props, tabIndex, itemIndex, res),
-		st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res),
-	)
-
-	return newTabScreenUI(res, tabScreen{TabLabels: labels, TabIndex: tabIndex, Content: content, Footer: menuNavHint(true)})
+	return newTabScreenUI(res, tabScreen{
+		TabLabels: labels,
+		TabIndex:  sel.TabIndex,
+		Content:   st.buildItemContainer(props.Tabs, sel.TabIndex, sel.ItemIndex, res),
+		Footer:    menuNavHint(true, "x 詳細"),
+	})
 }
 
 func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
@@ -275,85 +275,40 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	}
 
 	currentTab := tabs[tabIndex]
-	columnWidths := []int{20, 320}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = menuRow{Cells: []string{"", it.RecipeName}}
+		rows[i] = menuRow{Cells: []string{it.RecipeName}}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, nil, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)
+	return renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)
 }
 
-func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	specContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
-	)
-	recipeContainer := styled.NewVerticalContainer()
-
-	if tabIndex >= len(props.Tabs) {
-		col := styled.NewVerticalContainer()
-		col.AddChild(specContainer)
-		col.AddChild(recipeContainer)
-		return col
+// detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
+func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+	item, ok := st.selectedRecipe()
+	if !ok || item.RecipeName == "" {
+		return menuscreen.DetailContent{}, false
 	}
-	tab := props.Tabs[tabIndex]
-	if itemIndex >= len(tab.Items) {
-		col := styled.NewVerticalContainer()
-		col.AddChild(specContainer)
-		col.AddChild(recipeContainer)
-		return col
-	}
-	item := tab.Items[itemIndex]
-
-	// 性能表示
 	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeName)
-	if err == nil {
-		views.UpdateSpecFromSpec(world, specContainer, spec)
+	if err != nil {
+		return menuscreen.DetailContent{}, false
 	}
 
-	// レシピ表示
-	if err == nil && spec.Recipe != nil {
-		st.buildRecipeList(world, recipeContainer, spec.Recipe, res)
-	}
-
-	col := styled.NewVerticalContainer()
-	col.AddChild(specContainer)
-	col.AddChild(recipeContainer)
-	return col
-}
-
-func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res resources.UIResources) {
-	for _, input := range recipe.Inputs {
-		var currentAmount int
-		if entity, found := query.FindStackableInInventory(world, input.Name); found {
-			currentAmount = query.GetEntityCount(world, entity)
-		}
-		str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
-		var textColor color.RGBA
-		if currentAmount >= input.Amount {
-			textColor = theme.StatusSuccess
-		} else {
-			textColor = theme.StatusDanger
-		}
-
-		container.AddChild(styled.NewBodyText(str, textColor, res))
-	}
-}
-
-func (st *CraftMenuState) buildDescContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	desc := " "
-
-	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
-		item := tabs[tabIndex].Items[itemIndex]
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeName)
-		if err == nil && spec.Description != nil {
-			desc = spec.Description.Description
+	// 生成物の性能行に、必要材料と所持数の行を続ける
+	rows := views.SpecRowsFromSpec(world, spec)
+	if spec.Recipe != nil {
+		rows = append(rows, menuscreen.SpecRow{Label: "材料", Header: true})
+		for _, in := range spec.Recipe.Inputs {
+			owned := 0
+			if entity, found := query.FindStackableInInventory(world, in.Name); found {
+				owned = query.GetEntityCount(world, entity)
+			}
+			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d  所持 %d", in.Amount, owned)})
 		}
 	}
 
-	if desc == "" {
-		desc = " "
+	desc := ""
+	if spec.Description != nil {
+		desc = spec.Description.Description
 	}
-	container.AddChild(styled.NewMenuText(desc, res))
-	return container
+	return menuscreen.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
 }

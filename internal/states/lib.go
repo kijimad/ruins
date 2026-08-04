@@ -200,23 +200,6 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 	return container
 }
 
-// newThreeColContent は3列3行のメニュー本文を組み立てる。商店・合成・収納で共通に使う。
-// 右上に所持金や重量、中段左に一覧、中段右に性能や参照リスト、左下に説明を置き、
-// 残りのセルは空で埋めて位置を揃える。nil のセルは空コンテナにする
-func newThreeColContent(topRight, midLeft, midRight, bottomLeft widget.PreferredSizeLocateableWidget) *widget.Container {
-	cell := func(c widget.PreferredSizeLocateableWidget) widget.PreferredSizeLocateableWidget {
-		if c == nil {
-			return widget.NewContainer()
-		}
-		return c
-	}
-	content := styled.NewItemGridContainer()
-	content.AddChild(widget.NewContainer(), widget.NewContainer(), cell(topRight))
-	content.AddChild(cell(midLeft), widget.NewContainer(), cell(midRight))
-	content.AddChild(cell(bottomLeft), widget.NewContainer(), widget.NewContainer())
-	return content
-}
-
 // nameWithCount は個数が2以上のとき名前に ×個数 を添える。1個や非スタックは名前だけを返す
 func nameWithCount(name string, count int) string {
 	if count > 1 {
