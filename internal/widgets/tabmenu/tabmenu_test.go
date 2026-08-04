@@ -57,6 +57,18 @@ func TestGetVisibleItems(t *testing.T) {
 		assert.Empty(t, visible)
 		assert.Empty(t, indices)
 	})
+
+	t.Run("開始位置が総アイテム数以上の場合は空を返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs:         []TabItem{{ID: "t1", Items: items}},
+			ItemsPerPage: 3,
+		}
+		state := ViewState{TabIndex: 0, ItemIndex: 100}
+		visible, indices := getVisibleItems(config, state)
+		assert.Empty(t, visible)
+		assert.Empty(t, indices)
+	})
 }
 
 func TestPageIndicatorText(t *testing.T) {
@@ -118,5 +130,33 @@ func TestTotalPages(t *testing.T) {
 		t.Parallel()
 		config := Config{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 10)}}, ItemsPerPage: 3}
 		assert.Equal(t, 4, totalPages(config, ViewState{}))
+	})
+
+	t.Run("TabIndexがタブ数以上は1ページ", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 10)}}, ItemsPerPage: 3}
+		assert.Equal(t, 1, totalPages(config, ViewState{TabIndex: 5}))
+	})
+}
+
+func TestCurrentPage(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ItemsPerPageが0以下は0を返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{ItemsPerPage: 0}
+		assert.Equal(t, 0, currentPage(config, ViewState{ItemIndex: 5}))
+	})
+
+	t.Run("ItemIndexが負は0を返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{ItemsPerPage: 3}
+		assert.Equal(t, 0, currentPage(config, ViewState{ItemIndex: -1}))
+	})
+
+	t.Run("ItemIndexをItemsPerPageで割った値を返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{ItemsPerPage: 3}
+		assert.Equal(t, 2, currentPage(config, ViewState{ItemIndex: 7}))
 	})
 }
