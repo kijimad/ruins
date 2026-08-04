@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.7%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.3%)</option>
 				
@@ -577,11 +577,11 @@
 				
 				<option value="file260">github.com/kijimaD/ruins/internal/widgets/styled/table.go (98.2%)</option>
 				
-				<option value="file261">github.com/kijimaD/ruins/internal/widgets/tabmenu/tabmenu.go (92.3%)</option>
+				<option value="file261">github.com/kijimaD/ruins/internal/widgets/tabmenu/tabmenu.go (100.0%)</option>
 				
-				<option value="file262">github.com/kijimaD/ruins/internal/widgets/tabmenu/ui_builder.go (31.0%)</option>
+				<option value="file262">github.com/kijimaD/ruins/internal/widgets/tabmenu/ui_builder.go (93.1%)</option>
 				
-				<option value="file263">github.com/kijimaD/ruins/internal/widgets/tabmenu/view.go (42.9%)</option>
+				<option value="file263">github.com/kijimaD/ruins/internal/widgets/tabmenu/view.go (100.0%)</option>
 				
 				<option value="file264">github.com/kijimaD/ruins/internal/widgets/theme/colors.go (0.0%)</option>
 				
@@ -1611,7 +1611,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -53268,7 +53268,7 @@ func getVisibleItems(config Config, state ViewState) ([]Item, []int) <span class
         start := page * config.ItemsPerPage
         end := min(start+config.ItemsPerPage, len(currentTab.Items))
 
-        if start &gt;= len(currentTab.Items) </span><span class="cov0" title="0">{
+        if start &gt;= len(currentTab.Items) </span><span class="cov8" title="1">{
                 return []Item{}, []int{}
         }</span>
 
@@ -53283,7 +53283,7 @@ func getVisibleItems(config Config, state ViewState) ([]Item, []int) <span class
 
 // currentPage は現在のページ番号を返す（0ベース）
 func currentPage(config Config, state ViewState) int <span class="cov8" title="1">{
-        if config.ItemsPerPage &lt;= 0 || state.ItemIndex &lt; 0 </span><span class="cov0" title="0">{
+        if config.ItemsPerPage &lt;= 0 || state.ItemIndex &lt; 0 </span><span class="cov8" title="1">{
                 return 0
         }</span>
         <span class="cov8" title="1">return state.ItemIndex / config.ItemsPerPage</span>
@@ -53295,7 +53295,7 @@ func totalPages(config Config, state ViewState) int <span class="cov8" title="1"
                 return 1
         }</span>
 
-        <span class="cov8" title="1">if len(config.Tabs) == 0 || state.TabIndex &gt;= len(config.Tabs) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if len(config.Tabs) == 0 || state.TabIndex &gt;= len(config.Tabs) </span><span class="cov8" title="1">{
                 return 1
         }</span>
 
@@ -53388,47 +53388,47 @@ func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.Preferred
 }</span>
 
 // UpdateFocus はメニューのフォーカス表示を更新する
-func (b *uiBuilder) UpdateFocus(config Config, state ViewState) <span class="cov0" title="0">{
-        if len(b.itemWidgets) == 0 </span><span class="cov0" title="0">{
+func (b *uiBuilder) UpdateFocus(config Config, state ViewState) <span class="cov8" title="1">{
+        if len(b.itemWidgets) == 0 </span><span class="cov8" title="1">{
                 return
         }</span>
 
-        <span class="cov0" title="0">_, indices := getVisibleItems(config, state)
+        <span class="cov8" title="1">_, indices := getVisibleItems(config, state)
 
-        for i, w := range b.itemWidgets </span><span class="cov0" title="0">{
+        for i, w := range b.itemWidgets </span><span class="cov8" title="1">{
                 if i &gt;= len(indices) </span><span class="cov0" title="0">{
                         continue</span>
                 }
 
-                <span class="cov0" title="0">originalIndex := indices[i]
+                <span class="cov8" title="1">originalIndex := indices[i]
                 isFocused := originalIndex == state.ItemIndex
 
                 wrapper, ok := w.(*widget.Container)
                 if !ok </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov0" title="0">wrapperChildren := wrapper.Children()
+                <span class="cov8" title="1">wrapperChildren := wrapper.Children()
                 if len(wrapperChildren) == 0 </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov0" title="0">contentContainer, ok := wrapperChildren[0].(*widget.Container)
+                <span class="cov8" title="1">contentContainer, ok := wrapperChildren[0].(*widget.Container)
                 if !ok </span><span class="cov0" title="0">{
                         continue</span>
                 }
 
-                <span class="cov0" title="0">if isFocused </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if isFocused </span><span class="cov8" title="1">{
                         contentContainer.SetBackgroundImage(b.world.Resources.UIResources.Panel.SelectionBar)
-                }</span> else<span class="cov0" title="0"> {
+                }</span> else<span class="cov8" title="1"> {
                         contentContainer.SetBackgroundImage(eui_image.NewNineSliceColor(theme.Transparent))
                 }</span>
 
-                <span class="cov0" title="0">textColor := theme.TextSecondary
-                if isFocused </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">textColor := theme.TextSecondary
+                if isFocused </span><span class="cov8" title="1">{
                         textColor = theme.TextSelected
                 }</span>
 
-                <span class="cov0" title="0">for _, child := range contentContainer.Children() </span><span class="cov0" title="0">{
-                        if textWidget, ok := child.(*widget.Text); ok </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">for _, child := range contentContainer.Children() </span><span class="cov8" title="1">{
+                        if textWidget, ok := child.(*widget.Text); ok </span><span class="cov8" title="1">{
                                 textWidget.SetColor(textColor)
                         }</span>
                 }
@@ -53452,18 +53452,18 @@ func (b *uiBuilder) createPageIndicator(pageText string) *widget.Text <span clas
 }</span>
 
 // UpdateTabDisplayContainer はタブ表示コンテナを更新する
-func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) <span class="cov0" title="0">{
+func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) <span class="cov8" title="1">{
         container.RemoveChildren()
 
         pageText := pageIndicatorText(config, state)
-        if pageText != "" </span><span class="cov0" title="0">{
+        if pageText != "" </span><span class="cov8" title="1">{
                 pageIndicator := styled.NewPageIndicator(pageText, b.world.Resources.UIResources)
                 container.AddChild(pageIndicator)
         }</span>
 
-        <span class="cov0" title="0">visibleItems, indices := getVisibleItems(config, state)
+        <span class="cov8" title="1">visibleItems, indices := getVisibleItems(config, state)
 
-        for i, item := range visibleItems </span><span class="cov0" title="0">{
+        for i, item := range visibleItems </span><span class="cov8" title="1">{
                 actualIndex := indices[i]
                 isSelected := actualIndex == state.ItemIndex &amp;&amp; state.ItemIndex &gt;= 0
 
@@ -53471,7 +53471,7 @@ func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, confi
                 container.AddChild(itemWidget)
         }</span>
 
-        <span class="cov0" title="0">if len(config.Tabs) &gt; 0 &amp;&amp; state.TabIndex &lt; len(config.Tabs) &amp;&amp; len(config.Tabs[state.TabIndex].Items) == 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if len(config.Tabs) &gt; 0 &amp;&amp; state.TabIndex &lt; len(config.Tabs) &amp;&amp; len(config.Tabs[state.TabIndex].Items) == 0 </span><span class="cov8" title="1">{
                 emptyText := styled.NewDescriptionText("(アイテムなし)", b.world.Resources.UIResources)
                 container.AddChild(emptyText)
         }</span>
@@ -53511,22 +53511,22 @@ func (v *View) BuildUI() *widget.Container <span class="cov8" title="1">{
 }</span>
 
 // UpdateFocus はフォーカス表示を更新する
-func (v *View) UpdateFocus() <span class="cov0" title="0">{
+func (v *View) UpdateFocus() <span class="cov8" title="1">{
         v.uiBuilder.UpdateFocus(v.config, v.state)
 }</span>
 
 // GetCurrentPage は現在のページ番号を返す（1ベース、表示用）
-func (v *View) GetCurrentPage() int <span class="cov0" title="0">{
+func (v *View) GetCurrentPage() int <span class="cov8" title="1">{
         return currentPage(v.config, v.state) + 1
 }</span>
 
 // UpdateTabDisplayContainer はタブ表示コンテナを更新する
-func (v *View) UpdateTabDisplayContainer(container *widget.Container) <span class="cov0" title="0">{
+func (v *View) UpdateTabDisplayContainer(container *widget.Container) <span class="cov8" title="1">{
         v.uiBuilder.UpdateTabDisplayContainer(container, v.config, v.state)
 }</span>
 
 // UpdateTabs はタブを更新する
-func (v *View) UpdateTabs(tabs []TabItem) <span class="cov0" title="0">{
+func (v *View) UpdateTabs(tabs []TabItem) <span class="cov8" title="1">{
         v.config.Tabs = tabs
 }</span>
 </pre>
