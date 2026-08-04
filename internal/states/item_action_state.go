@@ -196,15 +196,6 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 	}
 }
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *ItemActionState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *ItemActionState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが終了する際に呼ばれる
-func (st *ItemActionState) OnStop(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
@@ -254,8 +245,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.detail.Open)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse:
 		// 開いている間の動詞キーは対応タブへジャンプする
@@ -272,17 +262,9 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	}
 }
 
-// jumpToTab は指定した動詞のタブへ移動する。現在タブから差分だけ TabNext を送る
+// jumpToTab は指定した動詞のタブへ移動する
 func (st *ItemActionState) jumpToTab(target verbID) {
-	n := len(verbList)
-	if n == 0 {
-		return
-	}
-	steps := ((verbTabIndex(target)-st.screen.Selection().TabIndex)%n + n) % n
-	for range steps {
-		st.screen.Dispatch(inputmapper.ActionMenuTabNext)
-	}
-	st.screen.MarkDirty()
+	st.screen.SetTab(st.menu(st.screen.Props()), verbTabIndex(target))
 }
 
 // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く
@@ -294,8 +276,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 	}
 	verb := vs[sel.TabIndex]
 	if verb.Exec == nil {
-		st.detail.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.detail.Open)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 

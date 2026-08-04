@@ -50,15 +50,6 @@ func NewChoiceMenu(provide func(world w.World) (string, []Choice)) *ChoiceMenuSt
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *ChoiceMenuState) StateConfig() StateConfig { return StateConfig{BlurBackground: false} }
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *ChoiceMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *ChoiceMenuState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *ChoiceMenuState) OnStop(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *ChoiceMenuState) OnStart(_ w.World) error {
 	st.screen = NewScreen[choiceProps]()

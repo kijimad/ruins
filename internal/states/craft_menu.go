@@ -46,12 +46,6 @@ func (st *CraftMenuState) StateConfig() StateConfig {
 
 var _ es.ActionHandler[w.World] = &CraftMenuState{}
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *CraftMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *CraftMenuState) OnResume(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
@@ -60,9 +54,6 @@ func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.screen = NewScreen[craftProps](&st.result, &st.actionWin)
 	return nil
 }
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *CraftMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) {
@@ -88,8 +79,7 @@ func (st *CraftMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.T
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
-		st.actionWin.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.actionWin.Open)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
@@ -225,8 +215,7 @@ func (st *CraftMenuState) actionWindowContent(_ w.World) (string, []menuscreen.A
 				return fmt.Errorf("合成に失敗: %w", err)
 			}
 			st.resultEntity = resultEntity
-			st.result.Open()
-			st.screen.MarkDirty()
+			st.screen.Open(st.result.Open)
 			return nil
 		}})
 	}

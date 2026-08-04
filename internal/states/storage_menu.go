@@ -51,12 +51,6 @@ func (st *StorageMenuState) StateConfig() StateConfig {
 
 var _ es.ActionHandler[w.World] = &StorageMenuState{}
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *StorageMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *StorageMenuState) OnResume(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
@@ -64,9 +58,6 @@ func (st *StorageMenuState) OnStart(_ w.World) error {
 	st.screen.WithSystems(&gs.WeightDirtySystem{})
 	return nil
 }
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *StorageMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error) {
@@ -94,8 +85,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.detail.Open)
 	case inputmapper.ActionMenuSelect:
 		if err := st.executeTransfer(world); err != nil {
 			return es.Transition[w.World]{}, err

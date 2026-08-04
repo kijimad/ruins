@@ -28,20 +28,11 @@ type SettingsMenuState struct {
 var _ es.State[w.World] = &SettingsMenuState{}
 var _ es.ActionHandler[w.World] = &SettingsMenuState{}
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *SettingsMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *SettingsMenuState) OnResume(_ w.World) error { return nil }
-
 // OnStart はステート開始時の処理を行う。メインメニューの上に重なるためワールドは操作しない
 func (st *SettingsMenuState) OnStart(_ w.World) error {
 	st.screen = NewScreen[settingsMenuProps]()
 	return nil
 }
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *SettingsMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *SettingsMenuState) Update(world w.World) (es.Transition[w.World], error) {

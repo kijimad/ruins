@@ -39,15 +39,6 @@ func (st *TavernMenuState) StateConfig() StateConfig {
 
 var _ es.ActionHandler[w.World] = &TavernMenuState{}
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *TavernMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *TavernMenuState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが終了する際に呼ばれる
-func (st *TavernMenuState) OnStop(_ w.World) error { return nil }
-
 // OnStart はステートが開始する際に呼ばれる
 func (st *TavernMenuState) OnStart(world w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
@@ -78,8 +69,7 @@ func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
-		st.actionWin.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.actionWin.Open)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理
 	default:

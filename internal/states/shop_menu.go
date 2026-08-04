@@ -43,12 +43,6 @@ func (st *ShopMenuState) StateConfig() StateConfig {
 
 var _ es.ActionHandler[w.World] = &ShopMenuState{}
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *ShopMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *ShopMenuState) OnResume(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
@@ -56,9 +50,6 @@ func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.screen = NewScreen[shopProps](&st.detail, &st.actionWin)
 	return nil
 }
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *ShopMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
@@ -86,11 +77,9 @@ func (st *ShopMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.detail.Open)
 	case inputmapper.ActionMenuSelect:
-		st.actionWin.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.actionWin.Open)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:

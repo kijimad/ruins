@@ -103,15 +103,6 @@ func (st *CharacterState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *CharacterState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *CharacterState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが終了する際に呼ばれる
-func (st *CharacterState) OnStop(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
@@ -159,8 +150,7 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 		if charTabAt(st.screen.Selection().TabIndex) == charTabCommand {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
-		st.detail.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.detail.Open)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
@@ -208,8 +198,7 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 		}
 		st.screen.MarkDirty()
 	default:
-		st.detail.Open()
-		st.screen.MarkDirty()
+		st.screen.Open(st.detail.Open)
 	}
 	return nil
 }

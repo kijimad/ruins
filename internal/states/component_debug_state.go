@@ -24,15 +24,6 @@ type ComponentDebugState struct {
 
 var _ es.State[w.World] = &ComponentDebugState{}
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *ComponentDebugState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *ComponentDebugState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *ComponentDebugState) OnStop(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
 	st.screen = NewScreen[componentDebugProps]()

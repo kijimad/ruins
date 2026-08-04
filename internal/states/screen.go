@@ -73,6 +73,13 @@ func (s *Screen[P]) WithSystems(systems ...w.Updater) *Screen[P] {
 // MarkDirty は次フレームでの UI 再構築を要求する。ドメイン操作で表示が変わったときに呼ぶ
 func (s *Screen[P]) MarkDirty() { s.rebuild = true }
 
+// Open は overlay を開いて再描画を要求する。overlay の Open メソッドを渡すことで、
+// 開いたのに UI の作り直しを忘れる取りこぼしを構造的に防ぐ
+func (s *Screen[P]) Open(open func()) {
+	open()
+	s.rebuild = true
+}
+
 // Props は現在の props を返す。View 以外から現在値を参照する必要があるとき使う
 func (s *Screen[P]) Props() P { return s.mount.GetProps() }
 
@@ -126,10 +133,10 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 			ItemsPerPage: cfg.ItemsPerPage,
 			Skips:        cfg.Skips,
 		})
-		// 初回だけ指定タブへ寄せる。Store へ直接書けないため公開 API の Dispatch で送る
+		// 初回だけ指定タブへ寄せる
 		if !s.seeded {
-			for range cfg.InitialTab {
-				s.mount.Dispatch(inputmapper.ActionMenuTabNext)
+			if cfg.InitialTab > 0 {
+				s.SetTab(cfg, cfg.InitialTab)
 			}
 			s.seeded = true
 		}
@@ -153,9 +160,20 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 	return m.ConsumeTransition(), nil
 }
 
-// Dispatch はカーソル操作アクションを mount へ送る。タブジャンプなど state が能動的に
-// カーソルを動かすときに使う。UseTabMenu 登録後に呼ぶこと
-func (s *Screen[P]) Dispatch(action inputmapper.ActionID) { s.mount.Dispatch(action) }
+// SetTab は指定タブへ直接カーソルを移して再描画を要求する。キー再生をせずにタブを設定する。
+// UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと
+func (s *Screen[P]) SetTab(cfg MenuConfig, tab int) {
+	if cfg.TabCount == 0 {
+		return
+	}
+	hooks.SetTab(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
+		TabCount:     cfg.TabCount,
+		ItemCounts:   cfg.ItemCounts,
+		ItemsPerPage: cfg.ItemsPerPage,
+		Skips:        cfg.Skips,
+	}, tab)
+	s.rebuild = true
+}
 
 // Selection は直近フレームで確定したカーソル位置を返す。DoAction は Dispatch より前に
 // 呼ばれるため、ここで得るのは画面に見えている確定位置になる
