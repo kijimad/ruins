@@ -96,7 +96,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 
-		vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
+		vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex)
 		field.ExploredTiles[gridElement] = true
 		visibleTiles[gridElement] = true
 	}
@@ -284,8 +284,9 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 	}
 }
 
-// calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する
-func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.LightInfo {
+// calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する。
+// 光源からタイルへの視線が壁で遮られている光源は寄与しない。壁の裏へ光が漏れるのを防ぐ。
+func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool) gc.LightInfo {
 	minDarkness := 1.0 // 完全に暗い状態からスタート
 
 	// 加重平均用の累積値
@@ -310,6 +311,12 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.Ligh
 
 		// 光源範囲内かチェック
 		if distance <= float64(lightSource.Radius) {
+			// 光源からタイルまでの視線が壁で遮られているなら、この光は届かない。
+			// プレイヤー視界と同じ遮蔽判定を光源起点で行い、壁の裏へ光が漏れるのを防ぐ。
+			if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) {
+				continue
+			}
+
 			// 光源中心（距離0-1タイル）も周囲と同じ明るさにする
 			if distance < 1.0 {
 				distance = 1.0

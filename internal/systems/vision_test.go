@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -342,5 +343,53 @@ func TestBresenhamLineOfSight(t *testing.T) {
 
 		assert.True(t, bresenhamLineOfSight(5, 5, 6, 5, blockIndex))
 		assert.True(t, bresenhamLineOfSight(5, 5, 5, 6, blockIndex))
+	})
+}
+
+func TestCalculateLightSourceDarkness_壁が光を遮る(t *testing.T) {
+	t.Parallel()
+
+	// 光源を (5,5) に置き Radius 10 とする。(7,5) に壁を立て、壁の手前 (6,5) は照らされ、
+	// 壁の裏 (9,5) は照らされないことを固定する。光の伝播が視界と同じ遮蔽判定を通す回帰テスト。
+	setup := func(t *testing.T) w.World {
+		t.Helper()
+		world := testutil.InitTestWorld(t)
+		lightGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+		lightEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(lightEntity, &lightGrid)
+		world.Components.LightSource.Add(lightEntity, &gc.LightSource{
+			Radius:  10,
+			Color:   color.RGBA{R: 255, G: 220, B: 150, A: 255},
+			Enabled: true,
+		})
+		return world
+	}
+	wall := map[gc.GridElement]bool{
+		{Coord: consts.Coord[consts.Tile]{X: 7, Y: 5}}: true,
+	}
+
+	t.Run("壁の手前のタイルは照らされる", func(t *testing.T) {
+		t.Parallel()
+		world := setup(t)
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 6, Y: 5}, wall)
+		assert.Less(t, info.Darkness, 1.0, "手前のタイルは光が届き暗闇が解消される")
+	})
+
+	t.Run("壁の裏のタイルは照らされない", func(t *testing.T) {
+		t.Parallel()
+		world := setup(t)
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 9, Y: 5}, wall)
+		assert.Equal(t, 1.0, info.Darkness, "壁の裏は光が遮られ完全に暗いまま")
+		// 光が寄与しないと RGB は 0 のまま。A は常に 255 が入るので RGB だけを見る。
+		// Darkness=1.0 なら描画側が色を無視するため、この色は実効に影響しない
+		assert.Equal(t, color.RGBA{A: 255}, info.Color, "光が届かないので色は乗らない。RGBは0")
+	})
+
+	t.Run("遮蔽が無ければ同じタイルが照らされる", func(t *testing.T) {
+		t.Parallel()
+		world := setup(t)
+		// 壁を除いた同座標で照らされることを示し、暗いのは距離でなく遮蔽が原因だと確定する
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 9, Y: 5}, map[gc.GridElement]bool{})
+		assert.Less(t, info.Darkness, 1.0, "壁が無ければ壁の裏と同じ位置でも照らされる")
 	})
 }
