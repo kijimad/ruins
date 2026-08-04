@@ -33,10 +33,6 @@ type tabScreen struct {
 	Footer string
 }
 
-// newTabScreenUI はモーダル画面の標準 UI を組み立てる。
-// 行構成は 見出し（任意）/ タブ帯（任意）/ コンテンツ / 伸縮スペーサー / フッター（任意）。
-// コンテンツは上詰めされ、フッターは下端でログの手前に収まる。呼び出し側は
-// 返り値へ詳細モーダル等のウィンドウを AddWindow できる。
 // newMenuListTable はコマンドメニュー系の一覧用テーブルを作る。行間を少し空け、項目が少ない
 // 簡易メニューが詰まって見えないようにする。データ一覧系の密なテーブルとは行間だけを変える
 func newMenuListTable(columnWidths []int, res resources.UIResources) *widget.Container {
@@ -79,6 +75,10 @@ func newPanelScreenUI(res resources.UIResources, title string, content *widget.C
 	return &ebitenui.UI{Container: root}
 }
 
+// newTabScreenUI はモーダル画面の標準 UI を組み立てる。
+// 行構成は 見出し（任意）/ タブ帯（任意）/ コンテンツ / 伸縮スペーサー / フッター（任意）。
+// コンテンツは上詰めされ、フッターは下端でログの手前に収まる。呼び出し側は
+// 返り値へ詳細モーダル等のウィンドウを AddWindow できる。
 func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 	children := make([]widget.PreferredSizeLocateableWidget, 0, 5)
 	rowStretch := make([]bool, 0, 5)

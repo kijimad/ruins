@@ -120,6 +120,8 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 		} else if tr.Type != es.TransNone {
 			return tr, nil
 		}
+		// 遷移が確定したフレームは上で return 済み。ここに来るのは遷移なしのフレームだけで、
+		// そのときだけカーソル移動やタブ切替を mount へ配送する
 		s.mount.Dispatch(action)
 	}
 
