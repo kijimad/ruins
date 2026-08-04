@@ -57,11 +57,7 @@ func buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResour
 	for i, slot := range slots {
 		rows[i] = menuRow{Cells: []string{slot.SlotLabel, slot.ItemName}}
 	}
-	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-	if len(slots) == 0 {
-		list.AddChild(styled.NewDescriptionText("装備スロットがありません", res))
-	}
-	return list
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "装備スロットがありません"}, res)
 }
 
 // buildCommandTable は命令タブの一覧を組み立てる。左に指示名、右に現在の値を並べる
@@ -72,11 +68,7 @@ func buildCommandTable(cmdRows []commandRow, itemIndex int, res resources.UIReso
 	for i, row := range cmdRows {
 		rows[i] = menuRow{Cells: []string{string(row.Kind), row.Value}}
 	}
-	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-	if len(cmdRows) == 0 {
-		list.AddChild(styled.NewDescriptionText("この対象に隊列指示はない", res))
-	}
-	return list
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "この対象に隊列指示はない"}, res)
 }
 
 // buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。

@@ -281,10 +281,5 @@ func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabInde
 	for i, it := range currentTab.Items {
 		rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
 	}
-	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-
-	if len(currentTab.Items) == 0 {
-		list.AddChild(styled.NewDescriptionText("(アイテムなし)", res))
-	}
-	return list
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(アイテムなし)"}, res)
 }

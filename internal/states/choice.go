@@ -125,6 +125,6 @@ func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res
 	}
 	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
 	// メインメニューと先頭位置・行間を揃える
-	list := renderMenuList(sel, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
+	list := renderMenuList(sel.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
 	return newPanelScreenUI(res, props.Title, list, menuNavHint(false))
 }

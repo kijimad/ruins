@@ -166,7 +166,7 @@ func (st *MainMenuState) view(_ w.World, props mainMenuProps, sel Selection, res
 	for i, item := range props.Items {
 		rows[i] = menuRow{Cells: []string{item.Label}}
 	}
-	menuContainer.AddChild(renderMenuList(Selection{ItemIndex: itemIndex}, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
+	menuContainer.AddChild(renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 
 	// バージョン表示テキストを作成
 	versionInfo := []string{}

@@ -201,7 +201,7 @@ func (st *SettingsMenuState) view(_ w.World, props settingsMenuProps, sel Select
 	for i, item := range props.Items {
 		rows[i] = menuRow{Cells: []string{item.Label, item.Value}}
 	}
-	table := renderMenuList(Selection{ItemIndex: sel.ItemIndex}, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
+	table := renderMenuList(sel.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
 
 	menuContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),

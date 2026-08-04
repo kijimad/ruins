@@ -425,11 +425,7 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 	for i, it := range items {
 		rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
 	}
-	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-	if len(items) == 0 {
-		list.AddChild(styled.NewDescriptionText("該当するアイテムがありません", res))
-	}
-	return list
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "該当するアイテムがありません"}, res)
 }
 
 // detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点

@@ -204,7 +204,7 @@ func (st *CharacterJobState) view(_ w.World, props jobMenuProps, sel Selection, 
 	for i := range props.Items {
 		rows[i] = menuRow{Cells: []string{props.Items[i].Profession.Name}}
 	}
-	leftContainer.AddChild(renderMenuList(Selection{ItemIndex: itemIndex}, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
+	leftContainer.AddChild(renderMenuList(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 	rightContainer := st.buildDetailPanel(props, itemIndex, res)
 	mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)
 

@@ -153,20 +153,33 @@ type menuRow struct {
 
 // menuListOpts は一覧描画の方針。Spaced はコマンドメニュー向けに行間を空けるか、
 // AlwaysIndicator は1ページでもページ表示行を確保しタブ切替で開始位置を揃えるか、
-// HeaderRow は表の先頭に置く列見出し。選択やページ送りの対象には含めない
+// HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には含めない、
+// EmptyText は行が無いときに表の下へ出す説明
 type menuListOpts struct {
 	Spaced          bool
 	AlwaysIndicator bool
 	HeaderRow       []string
+	EmptyText       string
 }
 
 // renderMenuList は一覧を共通の作法で組む唯一の入口。ページ送り・ページ表示・空行埋め・
 // 行間をここに集約し、各メニューは行データ menuRow と列幅を渡すだけにする。これにより
 // ページ送り忘れ・行間ずれを構造的に防ぐ。業界標準の「データ＋行デリゲート」型。
 // 列幅と行の値は呼び出し側が対で用意する。全幅の一覧では列幅の合計を menuRowWidth に揃える
-func renderMenuList(sel Selection, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {
+func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {
+	// 列幅と行の値の対応を検査する。ずれると列が既定幅へ無言で落ちて崩れるため、内部の呼び出し
+	// 不整合として早期に panic させる
+	if opts.HeaderRow != nil && len(opts.HeaderRow) != len(colWidths) {
+		panic(fmt.Sprintf("renderMenuList: HeaderRow の列数 %d が列幅 %d と一致しない", len(opts.HeaderRow), len(colWidths)))
+	}
+	for i, r := range rows {
+		if len(r.Cells) != len(colWidths) {
+			panic(fmt.Sprintf("renderMenuList: 行 %d の列数 %d が列幅 %d と一致しない", i, len(r.Cells), len(colWidths)))
+		}
+	}
+
 	container := styled.NewVerticalContainer()
-	pg := pagination.New(sel.ItemIndex, len(rows), menuItemsPerPage)
+	pg := pagination.New(itemIndex, len(rows), menuItemsPerPage)
 	if opts.AlwaysIndicator || pg.IsEnabled() {
 		container.AddChild(newPageIndicator(pg, res))
 	}
@@ -199,6 +212,10 @@ func renderMenuList(sel Selection, rows []menuRow, colWidths []int, aligns []sty
 		}
 	}
 	container.AddChild(table)
+	// 行が無いときの空表示を一覧側で持つ。各メニューが同じ後処理を書かずに済む
+	if len(rows) == 0 && opts.EmptyText != "" {
+		container.AddChild(styled.NewDescriptionText(opts.EmptyText, res))
+	}
 	return container
 }
 

@@ -290,10 +290,5 @@ func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources)
 		}
 		rows[i] = menuRow{Cells: cells, Header: it.IsHeader}
 	}
-	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-
-	if len(tab.Items) == 0 {
-		list.AddChild(styled.NewDescriptionText("(項目なし)", res))
-	}
-	return list
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(項目なし)"}, res)
 }

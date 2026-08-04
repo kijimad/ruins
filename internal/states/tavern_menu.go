@@ -284,9 +284,5 @@ func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData,
 		rows[i] = menuRow{Cells: []string{"", c.Name, c.Stats, query.FormatCurrency(c.Cost)}}
 	}
 	// 名前・能力・費用の列見出しを固定で置く。選択やページ送りの対象には含めない
-	list := renderMenuList(Selection{ItemIndex: selectedIndex}, rows, columnWidths, aligns, menuListOpts{HeaderRow: []string{"", "名前", "能力", "費用"}}, res)
-	if len(candidates) == 0 {
-		list.AddChild(styled.NewDescriptionText("雇用できる候補がいません", res))
-	}
-	return list
+	return renderMenuList(selectedIndex, rows, columnWidths, aligns, menuListOpts{HeaderRow: []string{"", "名前", "能力", "費用"}, EmptyText: "雇用できる候補がいません"}, res)
 }

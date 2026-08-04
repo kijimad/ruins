@@ -291,12 +291,7 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	for i, it := range currentTab.Items {
 		rows[i] = menuRow{Cells: []string{"", it.RecipeName}}
 	}
-	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, nil, menuListOpts{AlwaysIndicator: true}, res)
-
-	if len(currentTab.Items) == 0 {
-		list.AddChild(styled.NewDescriptionText("(レシピなし)", res))
-	}
-	return list
+	return renderMenuList(itemIndex, rows, columnWidths, nil, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)
 }
 
 func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

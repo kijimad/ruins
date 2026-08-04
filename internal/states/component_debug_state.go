@@ -132,7 +132,7 @@ func (st *ComponentDebugState) view(_ w.World, props componentDebugProps, sel Se
 	for i, it := range props.Items {
 		rows[i] = menuRow{Cells: []string{it.Name, fmt.Sprintf("%d", it.Count)}}
 	}
-	container := renderMenuList(sel, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
+	container := renderMenuList(sel.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
 	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
 	return newTabScreenUI(res, tabScreen{

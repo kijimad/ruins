@@ -341,14 +341,9 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	for i, it := range currentTab.Items {
 		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), it.Weight, query.FormatCurrency(it.Price)}}
 	}
-	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-
-	if len(currentTab.Items) == 0 {
-		if currentTab.ID == "sell" {
-			list.AddChild(styled.NewDescriptionText("売却可能なアイテムがありません", res))
-		} else {
-			list.AddChild(styled.NewDescriptionText("(商品なし)", res))
-		}
+	emptyText := "(商品なし)"
+	if currentTab.ID == "sell" {
+		emptyText = "売却可能なアイテムがありません"
 	}
-	return list
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
 }
