@@ -292,9 +292,10 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 	if !ok {
 		return menuscreen.DetailContent{}, false
 	}
-	desc := fmt.Sprintf("価格 %s", query.FormatCurrency(item.Price))
-	if spec.Description != nil && spec.Description.Description != "" {
-		desc = desc + "\n" + spec.Description.Description
+	// 価格・重さは一覧に出すので、詳細の説明は raw のアイテム説明だけにする
+	desc := ""
+	if spec.Description != nil {
+		desc = spec.Description.Description
 	}
 	return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &spec}, true
 }
@@ -324,14 +325,16 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	}
 
 	currentTab := tabs[tabIndex]
-	// 名前のみの1カラムにして他メニューと揃える。重量・価格・性能は x の詳細モーダルで見る
+	// 名前+個数、価格、重さの3列。売却の個数は名前に x個数 として添える。性能は x の詳細モーダルで見る
+	columnWidths := []int{200, 80, 60}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count)}}
+		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), query.FormatCurrency(it.Price), it.Weight}}
 	}
 	emptyText := "(商品なし)"
 	if currentTab.ID == "sell" {
 		emptyText = "売却可能なアイテムがありません"
 	}
-	return renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
 }
