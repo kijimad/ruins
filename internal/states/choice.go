@@ -9,7 +9,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -120,35 +119,12 @@ func (st *ChoiceMenuState) menu(props choiceProps) MenuConfig {
 // view は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
 // 見た目に揃え、エントリ数相応の大きさに縮む。多いときはページ送りしてはみ出さない
 func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res resources.UIResources) *ebitenui.UI {
-	list := styled.NewVerticalContainer()
-	pg := pagination.New(sel.ItemIndex, len(props.Choices), menuItemsPerPage)
-	// ページ表示は複数ページのときだけ出す。単一ページの簡易メニューは余計な行を置かず、
+	rows := make([]menuRow, len(props.Choices))
+	for i, c := range props.Choices {
+		rows[i] = menuRow{Cells: []string{c.Label}, Header: c.Header}
+	}
+	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
 	// メインメニューと先頭位置・行間を揃える
-	if pg.IsEnabled() {
-		list.AddChild(newPageIndicator(pg, res))
-	}
-
-	columnWidths := []int{menuRowWidth}
-	aligns := []styled.TextAlign{styled.AlignLeft}
-	table := newMenuListTable(columnWidths, res)
-	visible := pagination.VisibleEntries(props.Choices, pg)
-	for _, entry := range visible {
-		if entry.Item.Header {
-			styled.NewTableHeaderRow(table, columnWidths, []string{entry.Item.Label}, res)
-			continue
-		}
-		isSelected := pg.IsSelectedInPage(entry.Index)
-		styled.NewTableRow(table, columnWidths, []string{entry.Item.Label}, aligns, &isSelected, res)
-	}
-	// 複数ページの画面は各ページを1ページ件数ぶんの行に埋め、ページを繰ってもパネルの高さが変わらないようにする。
-	// 単一ページの画面は埋めず、エントリ数相応の大きさに縮む
-	if len(props.Choices) > menuItemsPerPage {
-		for i := len(visible); i < menuItemsPerPage; i++ {
-			notSelected := false
-			styled.NewTableRow(table, columnWidths, []string{" "}, aligns, &notSelected, res)
-		}
-	}
-	list.AddChild(table)
-
+	list := renderMenuList(sel, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
 	return newPanelScreenUI(res, props.Title, list, menuNavHint(false))
 }

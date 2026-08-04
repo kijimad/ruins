@@ -277,25 +277,16 @@ func (st *TavernMenuState) view(_ w.World, props tavernProps, sel Selection, res
 }
 
 func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-
-	if len(candidates) == 0 {
-		container.AddChild(styled.NewDescriptionText("雇用できる候補がいません", res))
-		return container
-	}
-
 	columnWidths := []int{20, 60, 180, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableHeaderRow(table, columnWidths, []string{"", "名前", "能力", "費用"}, res)
-
+	rows := make([]menuRow, len(candidates))
 	for i, c := range candidates {
-		isSelected := i == selectedIndex
-		costStr := query.FormatCurrency(c.Cost)
-		styled.NewTableRow(table, columnWidths, []string{"", c.Name, c.Stats, costStr}, aligns, &isSelected, res)
+		rows[i] = menuRow{Cells: []string{"", c.Name, c.Stats, query.FormatCurrency(c.Cost)}}
 	}
-
-	container.AddChild(table)
-	return container
+	// 名前・能力・費用の列見出しを固定で置く。選択やページ送りの対象には含めない
+	list := renderMenuList(Selection{ItemIndex: selectedIndex}, rows, columnWidths, aligns, menuListOpts{HeaderRow: []string{"", "名前", "能力", "費用"}}, res)
+	if len(candidates) == 0 {
+		list.AddChild(styled.NewDescriptionText("雇用できる候補がいません", res))
+	}
+	return list
 }

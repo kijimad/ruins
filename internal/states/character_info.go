@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -268,11 +267,6 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 // buildInfoTable は読み取り専用タブのアイテム一覧をテーブルで組み立てる
 // buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える
 func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-
-	pg := pagination.New(itemIndex, len(tab.Items), menuItemsPerPage)
-	container.AddChild(newPageIndicatorRow(itemIndex, len(tab.Items), res))
-
 	hasModifier := tab.ID == tabAbilities
 	var columnWidths []int
 	var aligns []styled.TextAlign
@@ -284,37 +278,22 @@ func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources)
 		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	}
 
-	table := styled.NewTableContainer(columnWidths, res)
-	for _, entry := range pagination.VisibleEntries(tab.Items, pg) {
-		if entry.Item.IsHeader {
+	rows := make([]menuRow, len(tab.Items))
+	for i, it := range tab.Items {
+		cells := make([]string, len(columnWidths))
+		cells[0] = it.Label
+		if !it.IsHeader {
+			cells[1] = it.Value
 			if hasModifier {
-				styled.NewTableHeaderRow(table, columnWidths, []string{entry.Item.Label, "", ""}, res)
-			} else {
-				styled.NewTableHeaderRow(table, columnWidths, []string{entry.Item.Label, ""}, res)
+				cells[2] = it.Modifier
 			}
-			continue
 		}
-		isSelected := pg.IsSelectedInPage(entry.Index)
-		if hasModifier {
-			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Value, entry.Item.Modifier}, aligns, &isSelected, res)
-		} else {
-			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Value}, aligns, &isSelected, res)
-		}
+		rows[i] = menuRow{Cells: cells, Header: it.IsHeader}
 	}
-	container.AddChild(table)
+	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
 	if len(tab.Items) == 0 {
-		container.AddChild(styled.NewDescriptionText("(項目なし)", res))
+		list.AddChild(styled.NewDescriptionText("(項目なし)", res))
 	}
-	return container
-}
-
-// newPageIndicatorRow はタブ先頭に置くページ表示行を作る。ページが無くても空行として
-// 常に1行を確保し、タブを切り替えてもコンテンツの開始位置と高さが変わらないようにする。
-func newPageIndicatorRow(itemIndex, count int, res resources.UIResources) *widget.Container {
-	pageText := pagination.New(itemIndex, count, menuItemsPerPage).GetPageText()
-	if pageText == "" {
-		pageText = " "
-	}
-	return styled.NewPageIndicator(pageText, res)
+	return list
 }

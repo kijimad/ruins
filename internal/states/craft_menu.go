@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
-	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
@@ -282,30 +281,22 @@ func (st *CraftMenuState) view(world w.World, props craftProps, sel Selection, r
 }
 
 func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
-		return container
+		return styled.NewVerticalContainer()
 	}
 
 	currentTab := tabs[tabIndex]
-	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
-
-	// ページインジケーター
-	container.AddChild(newPageIndicator(pg, res))
-
 	columnWidths := []int{20, 320}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.RecipeName}, nil, new(pg.IsSelectedInPage(entry.Index)), res)
+	rows := make([]menuRow, len(currentTab.Items))
+	for i, it := range currentTab.Items {
+		rows[i] = menuRow{Cells: []string{"", it.RecipeName}}
 	}
-	container.AddChild(table)
+	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, nil, menuListOpts{AlwaysIndicator: true}, res)
 
 	if len(currentTab.Items) == 0 {
-		container.AddChild(styled.NewDescriptionText("(レシピなし)", res))
+		list.AddChild(styled.NewDescriptionText("(レシピなし)", res))
 	}
-
-	return container
+	return list
 }
 
 func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

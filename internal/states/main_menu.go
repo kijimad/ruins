@@ -161,15 +161,12 @@ func (st *MainMenuState) view(_ w.World, props mainMenuProps, sel Selection, res
 			widget.WidgetOpts.MinSize(200, 0),
 		),
 	)
-	// 行は他メニューと同じ密なテーブル描画に揃える。縦幅と行間を統一する
-	columnWidths := []int{menuRowWidth}
-	aligns := []styled.TextAlign{styled.AlignLeft}
-	table := newMenuListTable(columnWidths, res)
+	// 行は共通ヘルパで組み、縦幅・行間・幅を他メニューと揃える
+	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{item.Label}, aligns, &isSelected, res)
+		rows[i] = menuRow{Cells: []string{item.Label}}
 	}
-	menuContainer.AddChild(table)
+	menuContainer.AddChild(renderMenuList(Selection{ItemIndex: itemIndex}, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 
 	// バージョン表示テキストを作成
 	versionInfo := []string{}

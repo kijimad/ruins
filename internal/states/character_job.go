@@ -200,14 +200,11 @@ func (st *CharacterJobState) view(_ w.World, props jobMenuProps, sel Selection, 
 
 	// メインエリア: 左右分割。左の一覧は他メニューと同じ密なテーブル行で縦幅と行間を揃える
 	leftContainer := styled.NewVerticalContainer()
-	columnWidths := []int{160}
-	aligns := []styled.TextAlign{styled.AlignLeft}
-	table := newMenuListTable(columnWidths, res)
+	rows := make([]menuRow, len(props.Items))
 	for i := range props.Items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{props.Items[i].Profession.Name}, aligns, &isSelected, res)
+		rows[i] = menuRow{Cells: []string{props.Items[i].Profession.Name}}
 	}
-	leftContainer.AddChild(table)
+	leftContainer.AddChild(renderMenuList(Selection{ItemIndex: itemIndex}, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 	rightContainer := st.buildDetailPanel(props, itemIndex, res)
 	mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)
 

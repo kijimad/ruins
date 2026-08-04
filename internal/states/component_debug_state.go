@@ -11,7 +11,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -127,21 +126,13 @@ func (st *ComponentDebugState) menu(props componentDebugProps) MenuConfig {
 // ================
 
 func (st *ComponentDebugState) view(_ w.World, props componentDebugProps, sel Selection, res resources.UIResources) *ebitenui.UI {
-	container := styled.NewVerticalContainer()
-
-	pg := pagination.New(sel.ItemIndex, len(props.Items), menuItemsPerPage)
-	container.AddChild(newPageIndicator(pg, res))
-
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	table := styled.NewTableContainer(columnWidths, res)
-	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
-		styled.NewTableRow(table, columnWidths,
-			[]string{entry.Item.Name, fmt.Sprintf("%d", entry.Item.Count)},
-			aligns, new(pg.IsSelectedInPage(entry.Index)), res,
-		)
+	rows := make([]menuRow, len(props.Items))
+	for i, it := range props.Items {
+		rows[i] = menuRow{Cells: []string{it.Name, fmt.Sprintf("%d", it.Count)}}
 	}
-	container.AddChild(table)
+	container := renderMenuList(sel, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
 	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
 	return newTabScreenUI(res, tabScreen{

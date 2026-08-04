@@ -51,42 +51,32 @@ func buildCharacterUI(props characterProps, sel Selection, res resources.UIResou
 
 // buildEquipList は装備タブの一覧を組み立てる。左にスロット名、右に装備名を並べ、未装備は空欄にする
 func buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-	// 情報タブと開始位置を揃えるため、先頭に同じページ表示行を必ず置く
-	container.AddChild(newPageIndicatorRow(itemIndex, len(slots), res))
-	if len(slots) == 0 {
-		container.AddChild(styled.NewDescriptionText("装備スロットがありません", res))
-		return container
-	}
-
 	columnWidths := []int{120, 220}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	table := styled.NewTableContainer(columnWidths, res)
+	rows := make([]menuRow, len(slots))
 	for i, slot := range slots {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{slot.SlotLabel, slot.ItemName}, aligns, &isSelected, res)
+		rows[i] = menuRow{Cells: []string{slot.SlotLabel, slot.ItemName}}
 	}
-	container.AddChild(table)
-	return container
+	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
+	if len(slots) == 0 {
+		list.AddChild(styled.NewDescriptionText("装備スロットがありません", res))
+	}
+	return list
 }
 
 // buildCommandTable は命令タブの一覧を組み立てる。左に指示名、右に現在の値を並べる
-func buildCommandTable(rows []commandRow, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-	container.AddChild(newPageIndicatorRow(itemIndex, len(rows), res))
-	if len(rows) == 0 {
-		container.AddChild(styled.NewDescriptionText("この対象に隊列指示はない", res))
-		return container
-	}
+func buildCommandTable(cmdRows []commandRow, itemIndex int, res resources.UIResources) *widget.Container {
 	columnWidths := []int{180, 160}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	table := styled.NewTableContainer(columnWidths, res)
-	for i, row := range rows {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{string(row.Kind), row.Value}, aligns, &isSelected, res)
+	rows := make([]menuRow, len(cmdRows))
+	for i, row := range cmdRows {
+		rows[i] = menuRow{Cells: []string{string(row.Kind), row.Value}}
 	}
-	container.AddChild(table)
-	return container
+	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
+	if len(cmdRows) == 0 {
+		list.AddChild(styled.NewDescriptionText("この対象に隊列指示はない", res))
+	}
+	return list
 }
 
 // buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。

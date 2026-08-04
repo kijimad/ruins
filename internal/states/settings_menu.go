@@ -197,13 +197,11 @@ func languageChoices(_ w.World) (string, []Choice) {
 
 func (st *SettingsMenuState) view(_ w.World, props settingsMenuProps, sel Selection, res resources.UIResources) *ebitenui.UI {
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
-	columnWidths := []int{240, 100}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	table := newMenuListTable(columnWidths, res)
+	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
-		isSelected := i == sel.ItemIndex
-		styled.NewTableRow(table, columnWidths, []string{item.Label, item.Value}, aligns, &isSelected, res)
+		rows[i] = menuRow{Cells: []string{item.Label, item.Value}}
 	}
+	table := renderMenuList(Selection{ItemIndex: sel.ItemIndex}, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
 
 	menuContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),

@@ -14,7 +14,6 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
-	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -271,27 +270,21 @@ func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {
 }
 
 func (st *StorageMenuState) buildActiveListContainer(props storageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
 	if tabIndex >= len(props.Tabs) {
-		return container
+		return styled.NewVerticalContainer()
 	}
 
 	currentTab := props.Tabs[tabIndex]
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-
-	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
-	container.AddChild(newPageIndicator(pg, res))
-
-	table := styled.NewTableContainer(columnWidths, res)
-	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		styled.NewTableRow(table, columnWidths, []string{nameWithCount(entry.Item.Name, entry.Item.Count), entry.Item.Weight}, aligns, new(pg.IsSelectedInPage(entry.Index)), res)
+	rows := make([]menuRow, len(currentTab.Items))
+	for i, it := range currentTab.Items {
+		rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
 	}
-	container.AddChild(table)
+	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
 	if len(currentTab.Items) == 0 {
-		container.AddChild(styled.NewDescriptionText("(アイテムなし)", res))
+		list.AddChild(styled.NewDescriptionText("(アイテムなし)", res))
 	}
-
-	return container
+	return list
 }

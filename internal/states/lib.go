@@ -125,6 +125,63 @@ const menuItemsPerPage = 18
 // 各メニューは列の内訳を変えてもよいが、合計はこの値にする
 const menuRowWidth = 340
 
+// menuRow は一覧の1行。Cells は各列の文字列、Header が真なら見出し行でカーソルが止まらない
+type menuRow struct {
+	Cells  []string
+	Header bool
+}
+
+// menuListOpts は一覧描画の方針。Spaced はコマンドメニュー向けに行間を空けるか、
+// AlwaysIndicator は1ページでもページ表示行を確保しタブ切替で開始位置を揃えるか、
+// HeaderRow は表の先頭に置く列見出し。選択やページ送りの対象には含めない
+type menuListOpts struct {
+	Spaced          bool
+	AlwaysIndicator bool
+	HeaderRow       []string
+}
+
+// renderMenuList は一覧を共通の作法で組む唯一の入口。ページ送り・ページ表示・空行埋め・
+// 列幅・行間をここに集約し、各メニューは行データ menuRow と列幅を渡すだけにする。これにより
+// ページ送り忘れ・列幅ドリフト・行間ずれを構造的に防ぐ。業界標準の「データ＋行デリゲート」型。
+// 列幅の合計は menuRowWidth に揃える
+func renderMenuList(sel Selection, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer()
+	pg := pagination.New(sel.ItemIndex, len(rows), menuItemsPerPage)
+	if opts.AlwaysIndicator || pg.IsEnabled() {
+		container.AddChild(newPageIndicator(pg, res))
+	}
+
+	table := styled.NewTableContainer(colWidths, res)
+	if opts.Spaced {
+		table = newMenuListTable(colWidths, res)
+	}
+	if opts.HeaderRow != nil {
+		styled.NewTableHeaderRow(table, colWidths, opts.HeaderRow, res)
+	}
+	visible := pagination.VisibleEntries(rows, pg)
+	for _, entry := range visible {
+		if entry.Item.Header {
+			styled.NewTableHeaderRow(table, colWidths, entry.Item.Cells, res)
+			continue
+		}
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, colWidths, entry.Item.Cells, aligns, &isSelected, res)
+	}
+	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
+	if len(rows) > menuItemsPerPage {
+		blank := make([]string, len(colWidths))
+		for i := range blank {
+			blank[i] = " "
+		}
+		for i := len(visible); i < menuItemsPerPage; i++ {
+			notSelected := false
+			styled.NewTableRow(table, colWidths, blank, aligns, &notSelected, res)
+		}
+	}
+	container.AddChild(table)
+	return container
+}
+
 // newThreeColContent は3列3行のメニュー本文を組み立てる。商店・合成・収納で共通に使う。
 // 右上に所持金や重量、中段左に一覧、中段右に性能や参照リスト、左下に説明を置き、
 // 残りのセルは空で埋めて位置を揃える。nil のセルは空コンテナにする

@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
-	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -330,35 +329,26 @@ func (st *ShopMenuState) selectedDetail(world w.World) (name, desc string, spec 
 }
 
 func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
-		return container
+		return styled.NewVerticalContainer()
 	}
 
 	currentTab := tabs[tabIndex]
-	pg := pagination.New(itemIndex, len(currentTab.Items), menuItemsPerPage)
-
-	// ページインジケーター（上部固定位置、右寄せ）
-	container.AddChild(newPageIndicator(pg, res))
-
 	// 名前+個数、重量、価格の3列。売却の個数は名前に x個数 として添える
 	columnWidths := []int{200, 60, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
-	table := styled.NewTableContainer(columnWidths, res)
-	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
-		isSelected := pg.IsSelectedInPage(entry.Index)
-		priceStr := query.FormatCurrency(entry.Item.Price)
-		styled.NewTableRow(table, columnWidths, []string{nameWithCount(entry.Item.Label, entry.Item.Count), entry.Item.Weight, priceStr}, aligns, &isSelected, res)
+	rows := make([]menuRow, len(currentTab.Items))
+	for i, it := range currentTab.Items {
+		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), it.Weight, query.FormatCurrency(it.Price)}}
 	}
-	container.AddChild(table)
+	list := renderMenuList(Selection{ItemIndex: itemIndex}, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
 	if len(currentTab.Items) == 0 {
 		if currentTab.ID == "sell" {
-			container.AddChild(styled.NewDescriptionText("売却可能なアイテムがありません", res))
+			list.AddChild(styled.NewDescriptionText("売却可能なアイテムがありません", res))
 		} else {
-			container.AddChild(styled.NewDescriptionText("(商品なし)", res))
+			list.AddChild(styled.NewDescriptionText("(商品なし)", res))
 		}
 	}
-
-	return container
+	return list
 }
