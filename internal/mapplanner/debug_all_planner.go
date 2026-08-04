@@ -9,13 +9,16 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// DebugPopulatePlanner はデバッグステージへ街用NPCと全propを配置するプランナー。
-// 中立faction、商人や酒場の主人など、の member をNPCとして、収納箱を含む全 prop を1つずつ
-// 部屋のグリッドに並べ、街の会話・売買・収納などを一度にテストできるようにする。
+// debugStorageBoxName はデバッグステージに置く収納箱の prop 名
+const debugStorageBoxName = "木箱"
+
+// DebugPopulatePlanner はデバッグステージへ街用NPCと収納箱を配置するプランナー。
+// 中立faction、商人や酒場の主人など、の member をNPCとして、収納箱を1つ、部屋のグリッドに並べ、
+// 街の会話・売買・収納を一度にテストできるようにする。
 // 収納の中身は spawn 側が prop 定義から自動で決めるため、ここは名前と座標を積むだけでよい
 type DebugPopulatePlanner struct{}
 
-// PlanMeta は部屋内のグリッド座標へ全 member と全 prop を配置する
+// PlanMeta は部屋内のグリッド座標へ街用NPCと収納箱を配置する
 func (DebugPopulatePlanner) PlanMeta(planData *MetaPlan) error {
 	if planData.RawMaster == nil {
 		return nil
@@ -55,17 +58,11 @@ func (DebugPopulatePlanner) PlanMeta(planData *MetaPlan) error {
 		}
 	}
 
-	// 全 prop を1つずつ配置する。収納箱もここに含まれ、中身は spawn 時に loot が入る
-	if planData.RawMaster.Props != nil {
-		props := *planData.RawMaster.Props
-		for i := range props {
-			name := props[i].Name
-			if !place(func(c consts.Coord[consts.Tile]) {
-				planData.Props = append(planData.Props, PropsSpec{Coord: c, Name: name})
-			}) {
-				dropped++
-			}
-		}
+	// 収納箱を1つ置く。中身は spawn 時に loot が入る
+	if !place(func(c consts.Coord[consts.Tile]) {
+		planData.Props = append(planData.Props, PropsSpec{Coord: c, Name: debugStorageBoxName})
+	}) {
+		dropped++
 	}
 
 	if dropped > 0 {

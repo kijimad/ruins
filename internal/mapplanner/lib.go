@@ -409,6 +409,9 @@ type PlannerType struct {
 	ItemTableName string
 	// 階層の深度。敵やアイテムのフィルタリングに使用する
 	Depth int
+	// SelfPopulated はプランナーが自前でエンティティを配置するか。真なら生成時に遺跡定義の
+	// 敵・アイテムテーブルを注入せず、ランダムな敵・アイテムを湧かせない。デバッグ用に使う
+	SelfPopulated bool
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -507,11 +510,12 @@ var (
 		},
 	}
 
-	// PlannerTypeDebugAll は街用NPCと全propを大部屋へ配置するデバッグ用プランナータイプ。
-	// EnemyTableName と ItemTableName を空にしてランダムな敵・アイテムを足さず、
-	// DebugPopulatePlanner が積んだ要素だけを配置する。街の会話・売買・収納をテストする用途に使う
+	// PlannerTypeDebugAll は街用NPCと収納箱を大部屋へ配置するデバッグ用プランナータイプ。
+	// SelfPopulated で遺跡定義の敵・アイテムテーブルを注入させず、DebugPopulatePlanner が積んだ
+	// 要素だけを配置する。街の会話・売買・収納をテストする用途に使う
 	PlannerTypeDebugAll = PlannerType{
-		Name: "デバッグ街",
+		Name:          "デバッグ街",
+		SelfPopulated: true,
 		PlannerFunc: func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 			chain, err := NewBigRoomPlanner(width, height, seed)
 			if err != nil {

@@ -135,8 +135,8 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		})})
 	}
 
-	// 街用NPC・全propを配置したデバッグステージへ入る。街の会話・売買・収納を1画面でテストできる
-	choices = append(choices, Choice{Label: "デバッグステージ:街用NPC+全prop配置", Run: popAfter(func(world w.World) error {
+	// 街用NPC・収納箱を配置したデバッグステージへ入る。街の会話・売買・収納を1画面でテストできる
+	choices = append(choices, Choice{Label: "デバッグステージ:街用NPC+収納箱", Run: popAfter(func(world w.World) error {
 		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, mapplanner.PlannerTypeDebugAll.Name))
 	})})
 

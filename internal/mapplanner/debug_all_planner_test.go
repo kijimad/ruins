@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDebugPopulatePlanner_街用NPCと全propだけを配置する(t *testing.T) {
+func TestDebugPopulatePlanner_街用NPCと収納箱だけを配置する(t *testing.T) {
 	t.Parallel()
 
 	chain, err := NewBigRoomPlanner(40, 40, 12345)
@@ -23,13 +23,8 @@ func TestDebugPopulatePlanner_街用NPCと全propだけを配置する(t *testin
 		{Name: "火の玉"},                  // 敵、faction 無し
 		{Name: "Ash", Player: &player}, // プレイヤー
 	}
-	props := []oapi.Prop{
-		{Name: "木箱"},
-		{Name: "barrel"},
-	}
 	rawMaster := CreateTestRawMaster()
 	rawMaster.Members = &members
-	rawMaster.Props = &props
 	chain.PlanData.RawMaster = rawMaster
 
 	// 先に大部屋を描画してから配置する。配置は部屋内のスポーン可能タイルに限る
@@ -48,7 +43,7 @@ func TestDebugPopulatePlanner_街用NPCと全propだけを配置する(t *testin
 	for _, p := range chain.PlanData.Props {
 		propNames = append(propNames, p.Name)
 	}
-	assert.ElementsMatch(t, []string{"木箱", "barrel"}, propNames, "全propが配置される")
+	assert.Equal(t, []string{debugStorageBoxName}, propNames, "収納箱だけが配置される")
 }
 
 func TestDebugPopulatePlanner_RawMasterが無ければ何もしない(t *testing.T) {
