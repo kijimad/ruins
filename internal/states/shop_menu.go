@@ -285,36 +285,37 @@ func (st *ShopMenuState) view(_ w.World, props shopProps, sel Selection, res res
 	})
 }
 
-// detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点
+// detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点。
+// 価格は一覧から外したので、詳細の説明の先頭に出す
 func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	name, desc, spec, ok := st.selectedDetail(world)
+	item, spec, ok := st.selectedDetail(world)
 	if !ok {
 		return menuscreen.DetailContent{}, false
 	}
-	return menuscreen.DetailContent{Name: name, Desc: desc, Spec: &spec}, true
+	desc := fmt.Sprintf("価格 %s", query.FormatCurrency(item.Price))
+	if spec.Description != nil && spec.Description.Description != "" {
+		desc = desc + "\n" + spec.Description.Description
+	}
+	return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &spec}, true
 }
 
-// selectedDetail は現在カーソルが当たっている商品の名前・説明・性能を raw 定義から解決する
-func (st *ShopMenuState) selectedDetail(world w.World) (name, desc string, spec gc.EntitySpec, ok bool) {
+// selectedDetail は現在カーソルが当たっている商品と、その raw 由来の性能を解決する
+func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntitySpec, bool) {
 	props := st.screen.Props()
 	sel := st.screen.Selection()
 	if sel.TabIndex >= len(props.Tabs) {
-		return "", "", gc.EntitySpec{}, false
+		return shopItemData{}, gc.EntitySpec{}, false
 	}
 	items := props.Tabs[sel.TabIndex].Items
 	if sel.ItemIndex >= len(items) {
-		return "", "", gc.EntitySpec{}, false
+		return shopItemData{}, gc.EntitySpec{}, false
 	}
-	label := items[sel.ItemIndex].Label
-	s, err := raw.NewItemSpec(world.Resources.RawMaster, label)
+	item := items[sel.ItemIndex]
+	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.Label)
 	if err != nil {
-		return "", "", gc.EntitySpec{}, false
+		return shopItemData{}, gc.EntitySpec{}, false
 	}
-	d := ""
-	if s.Description != nil {
-		d = s.Description.Description
-	}
-	return label, d, s, true
+	return item, s, true
 }
 
 func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
@@ -323,16 +324,14 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	}
 
 	currentTab := tabs[tabIndex]
-	// 名前+個数、重量、価格の3列。売却の個数は名前に x個数 として添える
-	columnWidths := []int{200, 60, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	// 名前のみの1カラムにして他メニューと揃える。重量・価格・性能は x の詳細モーダルで見る
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), it.Weight, query.FormatCurrency(it.Price)}}
+		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count)}}
 	}
 	emptyText := "(商品なし)"
 	if currentTab.ID == "sell" {
 		emptyText = "売却可能なアイテムがありません"
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
+	return renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
 }

@@ -10,6 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
@@ -25,6 +26,7 @@ import (
 type TavernMenuState struct {
 	es.BaseState[w.World]
 	actionWin  menuscreen.ActionWindow // 雇用のアクション選択。overlay として Screen に登録する
+	detail     menuscreen.Detail       // 候補の能力・費用を出す詳細モーダル。overlay として Screen に登録する
 	screen     Screen[tavernProps]
 	candidates []tavernCandidate
 }
@@ -42,7 +44,8 @@ var _ es.ActionHandler[w.World] = &TavernMenuState{}
 // OnStart はステートが開始する際に呼ばれる
 func (st *TavernMenuState) OnStart(world w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
-	st.screen = NewScreen[tavernProps](&st.actionWin)
+	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.screen = NewScreen[tavernProps](&st.detail, &st.actionWin)
 	st.candidates = generateCandidates(world.Config.RNG)
 	return nil
 }
@@ -60,6 +63,10 @@ func (st *TavernMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 
 // HandleInput は入力を処理してアクションIDを返す
 func (st *TavernMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+	ki := input.GetSharedKeyboardInput()
+	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
+		return inputmapper.ActionOpenItemDetail, true
+	}
 	return HandleMenuInput()
 }
 
@@ -68,6 +75,8 @@ func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionOpenItemDetail:
+		st.screen.Open(st.detail.Open)
 	case inputmapper.ActionMenuSelect:
 		st.screen.Open(st.actionWin.Open)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
@@ -263,16 +272,27 @@ func (st *TavernMenuState) view(_ w.World, props tavernProps, sel Selection, res
 	content := styled.NewVerticalContainer()
 	content.AddChild(newCurrencyRow(props.Currency, res))
 	content.AddChild(st.buildCandidateTable(props.Candidates, sel.ItemIndex, res))
-	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false)})
+	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false, "x 詳細")})
 }
 
+// buildCandidateTable は雇用候補を名前のみの1カラムで並べる。能力・費用は x の詳細モーダルで見る
 func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {
-	columnWidths := []int{20, 60, 180, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(candidates))
 	for i, c := range candidates {
-		rows[i] = menuRow{Cells: []string{"", c.Name, c.Stats, query.FormatCurrency(c.Cost)}}
+		rows[i] = menuRow{Cells: []string{c.Name}}
 	}
-	// 名前・能力・費用の列見出しを固定で置く。選択やページ送りの対象には含めない
-	return renderMenuList(selectedIndex, rows, columnWidths, aligns, menuListOpts{HeaderRow: []string{"", "名前", "能力", "費用"}, EmptyText: "雇用できる候補がいません"}, res)
+	return renderMenuList(selectedIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: "雇用できる候補がいません"}, res)
+}
+
+// detailContent は現在カーソルが当たっている候補の能力と費用を返す。詳細モーダルの唯一の定義点
+func (st *TavernMenuState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
+	c, ok := st.selectedCandidate()
+	if !ok {
+		return menuscreen.DetailContent{}, false
+	}
+	return menuscreen.DetailContent{
+		Name: c.Name,
+		Desc: c.Stats,
+		Rows: []menuscreen.SpecRow{{Label: "費用", Value: query.FormatCurrency(c.Cost)}},
+	}, true
 }
