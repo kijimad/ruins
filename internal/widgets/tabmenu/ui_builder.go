@@ -120,28 +120,20 @@ func (b *uiBuilder) createPageIndicator(pageText string) *widget.Text {
 	)
 }
 
-// UpdateTabDisplayContainer はタブ表示コンテナを更新する
+// UpdateTabDisplayContainer はタブ表示コンテナを更新する。
+// 表示内容の計算は computeDisplayRows に委ね、ここは行を ebitenui widget へ変換して並べるだけにする。
 func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) {
 	container.RemoveChildren()
 
-	pageText := pageIndicatorText(config, state)
-	if pageText != "" {
-		pageIndicator := styled.NewPageIndicator(pageText, b.world.Resources.UIResources)
-		container.AddChild(pageIndicator)
-	}
-
-	visibleItems, indices := getVisibleItems(config, state)
-
-	for i, item := range visibleItems {
-		actualIndex := indices[i]
-		isSelected := actualIndex == state.ItemIndex && state.ItemIndex >= 0
-
-		itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, b.world.Resources.UIResources, item.AdditionalLabels...)
-		container.AddChild(itemWidget)
-	}
-
-	if len(config.Tabs) > 0 && state.TabIndex < len(config.Tabs) && len(config.Tabs[state.TabIndex].Items) == 0 {
-		emptyText := styled.NewDescriptionText("(アイテムなし)", b.world.Resources.UIResources)
-		container.AddChild(emptyText)
+	res := b.world.Resources.UIResources
+	for _, row := range computeDisplayRows(config, state) {
+		switch row.Kind {
+		case displayPageIndicator:
+			container.AddChild(styled.NewPageIndicator(row.Label, res))
+		case displayItem:
+			container.AddChild(styled.NewListItemText(row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))
+		case displayEmptyPlaceholder:
+			container.AddChild(styled.NewDescriptionText(row.Label, res))
+		}
 	}
 }

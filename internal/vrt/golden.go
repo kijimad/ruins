@@ -17,9 +17,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// renderMu はebitenuiのグローバル入力ハンドラが並行アクセス安全でないため、
-// ウィジェット生成からレンダリングまでの呼び出しを直列化する
-var renderMu sync.Mutex
+// ebitenuiMu は ebitenui のグローバル状態、遅延イベントキュー・入力ハンドラ・NineSlice キャッシュ等が
+// 並行アクセス安全でないため、それに触れる処理を直列化する。widget 生成、AddChild が遅延イベント
+// キューへ append する、World 初期化、NineSlice キャッシュ、描画のいずれもこのグローバル状態に触れる。
+var ebitenuiMu sync.Mutex
+
+// withUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる
+// 生成・初期化・描画をこのヘルパに通し、ロックを取る箇所を1つに集約する。
+func withUILock(fn func()) {
+	ebitenuiMu.Lock()
+	defer ebitenuiMu.Unlock()
+	fn()
+}
 
 // captureScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。
 // 読み取り後にebiten.Imageを解放する
@@ -31,52 +40,48 @@ func captureScreen(screen *ebiten.Image) *image.NRGBA {
 	return img
 }
 
-// AssertGolden はウィジェットの描画結果をゴールデン画像と比較する。
-// buildFn はrenderMu内で実行されるため、ebitenuiグローバル状態への並行アクセスを防ぐ。
+// AssertContainerGolden は buildFn が返す widget.Container を描画し、ゴールデン画像と比較する。
+// Container を ebitenui.UI に載せてレイアウト・描画までヘルパが行う。宣言的な widget ツリー
+// （メニュー・タブ等）のテストに使う。自前で screen に描くものは AssertScreenGolden。
 // GOLDIE_UPDATE=1 で実行するとゴールデン画像を更新する
-func AssertGolden(t *testing.T, buildFn func() *widget.Container, width, height int) {
+func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width, height int) {
 	t.Helper()
 
-	rendered := renderContainer(buildFn, width, height)
-	pngData := encodePNG(t, rendered)
-	assertPNGGolden(t, pngData)
-}
+	var img *image.NRGBA
+	withUILock(func() {
+		root := buildFn()
+		ui := &ebitenui.UI{Container: root}
+		screen := ebiten.NewImage(width, height)
 
-// AssertScreenGolden はebiten.Image上に描画するコンポーネントのゴールデンテスト用。
-// setupFn はrenderMu内で実行されるため、ebitenuiグローバル状態への並行アクセスを防ぐ。
-// setupFn はウィジェット生成とUpdate等の準備を行い、drawFnを返す。
-// messagelog, HUDなどebitenui.UIを内包するコンポーネントのテストに使用する
-func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image), width, height int) {
-	t.Helper()
+		// レイアウト確定のため数フレーム回す
+		for range 3 {
+			ui.Update()
+		}
+		ui.Draw(screen)
 
-	renderMu.Lock()
-	drawFn := setupFn()
-	screen := ebiten.NewImage(width, height)
-	drawFn(screen)
-	img := captureScreen(screen)
-	renderMu.Unlock()
+		img = captureScreen(screen)
+	})
 
 	pngData := encodePNG(t, img)
 	assertPNGGolden(t, pngData)
 }
 
-// renderContainer はビルダー関数でウィジェットを生成し、描画してimage.NRGBAとして返す。
-// ウィジェット生成からレンダリングまでをrenderMu内で直列化する
-func renderContainer(buildFn func() *widget.Container, width, height int) *image.NRGBA {
-	renderMu.Lock()
-	defer renderMu.Unlock()
+// AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。
+// レイアウト・描画は呼び出し側が制御する。messagelog・HUD など ebitenui.UI を内包する、または明示座標で
+// Draw するコンポーネントに使う。widget.Container を渡すだけのものは AssertContainerGolden。
+func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image), width, height int) {
+	t.Helper()
 
-	root := buildFn()
-	ui := &ebitenui.UI{Container: root}
-	screen := ebiten.NewImage(width, height)
+	var img *image.NRGBA
+	withUILock(func() {
+		drawFn := setupFn()
+		screen := ebiten.NewImage(width, height)
+		drawFn(screen)
+		img = captureScreen(screen)
+	})
 
-	// レイアウト確定のため数フレーム回す
-	for range 3 {
-		ui.Update()
-	}
-	ui.Draw(screen)
-
-	return captureScreen(screen)
+	pngData := encodePNG(t, img)
+	assertPNGGolden(t, pngData)
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする

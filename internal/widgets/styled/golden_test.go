@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 func TestGolden_ListItemText_Selected(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("選択中のアイテム", theme.TextPrimary, true, res))
 		return root
@@ -29,7 +29,7 @@ func TestGolden_ListItemText_Selected(t *testing.T) {
 func TestGolden_ListItemText_Unselected(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("非選択のアイテム", theme.TextPrimary, false, res))
 		return root
@@ -39,7 +39,7 @@ func TestGolden_ListItemText_Unselected(t *testing.T) {
 func TestGolden_ListItemText_WithLabels(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("回復薬", theme.TextPrimary, true, res, "x3", "1.5kg"))
 		return root
@@ -49,7 +49,7 @@ func TestGolden_ListItemText_WithLabels(t *testing.T) {
 func TestGolden_ListItemText_Multiple(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("選択中", theme.TextPrimary, true, res))
 		root.AddChild(styled.NewListItemText("非選択1", theme.TextPrimary, false, res))
@@ -61,7 +61,7 @@ func TestGolden_ListItemText_Multiple(t *testing.T) {
 func TestGolden_TableRow_Selected(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{100, 200, 80}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
@@ -75,7 +75,7 @@ func TestGolden_TableRow_Selected(t *testing.T) {
 func TestGolden_TableRow_Unselected(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{100, 200, 80}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
@@ -89,7 +89,7 @@ func TestGolden_TableRow_Unselected(t *testing.T) {
 func TestGolden_TableHeaderRow(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{100, 200, 80}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableHeaderRow(container, widths, []string{"名前", "説明", "数量"}, res)
@@ -100,7 +100,7 @@ func TestGolden_TableHeaderRow(t *testing.T) {
 func TestGolden_TableWithHeaderAndRows(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{120, 180, 60}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableHeaderRow(container, widths, []string{"名前", "説明", "数量"}, res)
@@ -117,7 +117,7 @@ func TestGolden_TableWithHeaderAndRows(t *testing.T) {
 func TestGolden_MenuText(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewMenuText("メニューテキスト", res))
 		return root
@@ -127,7 +127,7 @@ func TestGolden_MenuText(t *testing.T) {
 func TestGolden_DescriptionText(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewDescriptionText("補助テキスト: 小さめのフォント", res))
 		return root
@@ -137,7 +137,7 @@ func TestGolden_DescriptionText(t *testing.T) {
 func TestGolden_PageIndicator(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewPageIndicator("1/3", res))
 		return root
@@ -151,7 +151,7 @@ func TestGolden_PageIndicator(t *testing.T) {
 func TestGolden_ListItemText_EmptyText(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("", theme.TextPrimary, true, res))
 		return root
@@ -161,7 +161,7 @@ func TestGolden_ListItemText_EmptyText(t *testing.T) {
 func TestGolden_ListItemText_LongText(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("とても長いアイテム名が入ったリスト項目のテスト用テキスト", theme.TextPrimary, true, res))
 		return root
@@ -171,7 +171,7 @@ func TestGolden_ListItemText_LongText(t *testing.T) {
 func TestGolden_ListItemText_ManyLabels(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("装備品", theme.TextPrimary, true, res, "x5", "2.3kg", "500G", "Lv3"))
 		return root
@@ -181,7 +181,7 @@ func TestGolden_ListItemText_ManyLabels(t *testing.T) {
 func TestGolden_ListItemText_UnselectedWithLabels(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("回復薬", theme.TextPrimary, false, res, "x3", "1.5kg"))
 		return root
@@ -195,7 +195,7 @@ func TestGolden_ListItemText_UnselectedWithLabels(t *testing.T) {
 func TestGolden_TableRow_SingleColumn(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{300}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
@@ -209,7 +209,7 @@ func TestGolden_TableRow_SingleColumn(t *testing.T) {
 func TestGolden_TableRow_ManyColumns(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{80, 80, 60, 60, 60}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
@@ -223,7 +223,7 @@ func TestGolden_TableRow_ManyColumns(t *testing.T) {
 func TestGolden_TableRow_AllRightAligned(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{100, 100, 100}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
@@ -237,7 +237,7 @@ func TestGolden_TableRow_AllRightAligned(t *testing.T) {
 func TestGolden_TableRow_NonSelectable(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{100, 200}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
@@ -251,7 +251,7 @@ func TestGolden_TableRow_NonSelectable(t *testing.T) {
 func TestGolden_TableFull(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		widths := []int{100, 100, 60}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableHeaderRow(container, widths, []string{"名前", "説明", "数量"}, res)
@@ -271,7 +271,7 @@ func TestGolden_TableFull(t *testing.T) {
 func TestGolden_TitleText(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewTitleText("タイトルテキスト", res))
 		return root
@@ -281,7 +281,7 @@ func TestGolden_TitleText(t *testing.T) {
 func TestGolden_BodyText(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewBodyText("本文テキストのサンプル", theme.TextPrimary, res))
 		return root
@@ -291,7 +291,7 @@ func TestGolden_BodyText(t *testing.T) {
 func TestGolden_FragmentText_Colors(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := widget.NewContainer(
 			widget.ContainerOpts.Layout(widget.NewRowLayout(
 				widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
@@ -308,7 +308,7 @@ func TestGolden_FragmentText_Colors(t *testing.T) {
 func TestGolden_WindowHeaderContainer(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewWindowHeaderContainer("ウィンドウタイトル", res))
 		return root
@@ -318,7 +318,7 @@ func TestGolden_WindowHeaderContainer(t *testing.T) {
 func TestGolden_PageIndicator_WithArrows(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewPageIndicator("↑ 2/5 ↓", res))
 		return root
@@ -332,7 +332,7 @@ func TestGolden_PageIndicator_WithArrows(t *testing.T) {
 func TestGolden_ListItemText_MixedSelection(t *testing.T) {
 	t.Parallel()
 	res := vrt.SharedUIResources(t)
-	vrt.AssertGolden(t, func() *widget.Container {
+	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
 		root.AddChild(styled.NewListItemText("非選択1", theme.TextPrimary, false, res))
 		root.AddChild(styled.NewListItemText("非選択2", theme.TextPrimary, false, res))
