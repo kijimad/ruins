@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetVisibleItems(t *testing.T) {
@@ -158,5 +159,69 @@ func TestCurrentPage(t *testing.T) {
 		t.Parallel()
 		config := Config{ItemsPerPage: 3}
 		assert.Equal(t, 2, currentPage(config, ViewState{ItemIndex: 7}))
+	})
+}
+
+// TestComputeDisplayRows は表示行の計算を ebitenui widget を作らずに直接検証する。
+// UpdateTabDisplayContainer の配線ロジックはここで純粋にテストし、行→widget の見た目は golden が見る。
+func TestComputeDisplayRows(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ページネーションありなら先頭にインジケーター行、続けて可視アイテム行", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs: []TabItem{{ID: "t", Items: []Item{
+				{ID: "i1", Label: "A"}, {ID: "i2", Label: "B"},
+				{ID: "i3", Label: "C"}, {ID: "i4", Label: "D"},
+			}}},
+			ItemsPerPage: 2,
+		}
+		rows := computeDisplayRows(config, ViewState{TabIndex: 0, ItemIndex: 0})
+
+		require.Len(t, rows, 3)
+		assert.Equal(t, displayPageIndicator, rows[0].Kind)
+		assert.Equal(t, displayItem, rows[1].Kind)
+		assert.Equal(t, "A", rows[1].Label)
+		assert.Equal(t, displayItem, rows[2].Kind)
+		assert.Equal(t, "B", rows[2].Label)
+	})
+
+	t.Run("ページネーションなしならインジケーター行は入らない", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{{ID: "t", Items: []Item{{ID: "i1", Label: "A"}, {ID: "i2", Label: "B"}}}}}
+		rows := computeDisplayRows(config, ViewState{TabIndex: 0, ItemIndex: 0})
+
+		require.Len(t, rows, 2)
+		assert.Equal(t, displayItem, rows[0].Kind)
+		assert.Equal(t, displayItem, rows[1].Kind)
+	})
+
+	t.Run("アイテムが空なら空表示の行が1つ入る", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{{ID: "t", Items: []Item{}}}}
+		rows := computeDisplayRows(config, ViewState{TabIndex: 0, ItemIndex: 0})
+
+		require.Len(t, rows, 1)
+		assert.Equal(t, displayEmptyPlaceholder, rows[0].Kind)
+	})
+
+	t.Run("選択中のアイテム行だけ Selected=true", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{{ID: "t", Items: []Item{{ID: "i1", Label: "A"}, {ID: "i2", Label: "B"}}}}}
+		rows := computeDisplayRows(config, ViewState{TabIndex: 0, ItemIndex: 1})
+
+		require.Len(t, rows, 2)
+		assert.False(t, rows[0].Selected)
+		assert.True(t, rows[1].Selected)
+	})
+
+	t.Run("ItemIndex が負ならどのアイテム行も非選択", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{{ID: "t", Items: []Item{{ID: "i1", Label: "A"}, {ID: "i2", Label: "B"}}}}}
+		rows := computeDisplayRows(config, ViewState{TabIndex: 0, ItemIndex: -1})
+
+		require.Len(t, rows, 2)
+		assert.False(t, rows[0].Selected)
+		assert.False(t, rows[1].Selected)
 	})
 }

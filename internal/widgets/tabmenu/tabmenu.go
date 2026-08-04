@@ -100,3 +100,47 @@ func pageIndicatorText(config Config, state ViewState) string {
 
 	return fmt.Sprintf("%d/%d%s", page+1, total, arrows)
 }
+
+// displayRowKind は表示行の種類。
+type displayRowKind int
+
+const (
+	displayPageIndicator    displayRowKind = iota // ページ番号インジケーター
+	displayItem                                   // 通常のアイテム行
+	displayEmptyPlaceholder                       // アイテムが無いときの代替表示
+)
+
+// displayRow は UpdateTabDisplayContainer が描く1行の内容。ebitenui に依存しないデータ。
+type displayRow struct {
+	Kind             displayRowKind
+	Label            string
+	Selected         bool     // displayItem のみ意味を持つ
+	AdditionalLabels []string // displayItem のみ
+}
+
+// computeDisplayRows は表示すべき行の並びを純粋に計算する。ebitenui widget の構築と分離することで、
+// 表示ロジック、ページインジケーターの有無・可視アイテム・空表示、を widget を作らずにテストできる。
+func computeDisplayRows(config Config, state ViewState) []displayRow {
+	var rows []displayRow
+
+	if pageText := pageIndicatorText(config, state); pageText != "" {
+		rows = append(rows, displayRow{Kind: displayPageIndicator, Label: pageText})
+	}
+
+	visibleItems, indices := getVisibleItems(config, state)
+	for i, item := range visibleItems {
+		selected := indices[i] == state.ItemIndex && state.ItemIndex >= 0
+		rows = append(rows, displayRow{
+			Kind:             displayItem,
+			Label:            item.Label,
+			Selected:         selected,
+			AdditionalLabels: item.AdditionalLabels,
+		})
+	}
+
+	if len(config.Tabs) > 0 && state.TabIndex < len(config.Tabs) && len(config.Tabs[state.TabIndex].Items) == 0 {
+		rows = append(rows, displayRow{Kind: displayEmptyPlaceholder, Label: "(アイテムなし)"})
+	}
+
+	return rows
+}
