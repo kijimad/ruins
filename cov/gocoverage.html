@@ -525,7 +525,7 @@
 				
 				<option value="file234">github.com/kijimaD/ruins/internal/testutil/world.go (0.0%)</option>
 				
-				<option value="file235">github.com/kijimaD/ruins/internal/vrt/golden.go (4.6%)</option>
+				<option value="file235">github.com/kijimaD/ruins/internal/vrt/golden.go (4.5%)</option>
 				
 				<option value="file236">github.com/kijimaD/ruins/internal/vrt/resources.go (0.0%)</option>
 				
@@ -579,9 +579,9 @@
 				
 				<option value="file261">github.com/kijimaD/ruins/internal/widgets/tabmenu/tabmenu.go (100.0%)</option>
 				
-				<option value="file262">github.com/kijimaD/ruins/internal/widgets/tabmenu/ui_builder.go (93.1%)</option>
+				<option value="file262">github.com/kijimaD/ruins/internal/widgets/tabmenu/ui_builder.go (35.3%)</option>
 				
-				<option value="file263">github.com/kijimaD/ruins/internal/widgets/tabmenu/view.go (100.0%)</option>
+				<option value="file263">github.com/kijimaD/ruins/internal/widgets/tabmenu/view.go (71.4%)</option>
 				
 				<option value="file264">github.com/kijimaD/ruins/internal/widgets/theme/colors.go (0.0%)</option>
 				
@@ -49441,9 +49441,18 @@ import (
         "github.com/stretchr/testify/require"
 )
 
-// renderMu はebitenuiのグローバル入力ハンドラが並行アクセス安全でないため、
-// ウィジェット生成からレンダリングまでの呼び出しを直列化する
-var renderMu sync.Mutex
+// ebitenuiMu は ebitenui のグローバル状態、遅延イベントキュー・入力ハンドラ・NineSlice キャッシュ等が
+// 並行アクセス安全でないため、それに触れる処理を直列化する。widget 生成、AddChild が遅延イベント
+// キューへ append する、World 初期化、NineSlice キャッシュ、描画のいずれもこのグローバル状態に触れる。
+var ebitenuiMu sync.Mutex
+
+// withUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる
+// 生成・初期化・描画をこのヘルパに通し、ロックを取る箇所を1つに集約する。
+func withUILock(fn func()) <span class="cov0" title="0">{
+        ebitenuiMu.Lock()
+        defer ebitenuiMu.Unlock()
+        fn()
+}</span>
 
 // captureScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。
 // 読み取り後にebiten.Imageを解放する
@@ -49455,52 +49464,48 @@ func captureScreen(screen *ebiten.Image) *image.NRGBA <span class="cov0" title="
         return img
 }</span>
 
-// AssertGolden はウィジェットの描画結果をゴールデン画像と比較する。
-// buildFn はrenderMu内で実行されるため、ebitenuiグローバル状態への並行アクセスを防ぐ。
+// AssertContainerGolden は buildFn が返す widget.Container を描画し、ゴールデン画像と比較する。
+// Container を ebitenui.UI に載せてレイアウト・描画までヘルパが行う。宣言的な widget ツリー
+// （メニュー・タブ等）のテストに使う。自前で screen に描くものは AssertScreenGolden。
 // GOLDIE_UPDATE=1 で実行するとゴールデン画像を更新する
-func AssertGolden(t *testing.T, buildFn func() *widget.Container, width, height int) <span class="cov0" title="0">{
+func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width, height int) <span class="cov0" title="0">{
         t.Helper()
 
-        rendered := renderContainer(buildFn, width, height)
-        pngData := encodePNG(t, rendered)
-        assertPNGGolden(t, pngData)
-}</span>
+        var img *image.NRGBA
+        withUILock(func() </span><span class="cov0" title="0">{
+                root := buildFn()
+                ui := &amp;ebitenui.UI{Container: root}
+                screen := ebiten.NewImage(width, height)
 
-// AssertScreenGolden はebiten.Image上に描画するコンポーネントのゴールデンテスト用。
-// setupFn はrenderMu内で実行されるため、ebitenuiグローバル状態への並行アクセスを防ぐ。
-// setupFn はウィジェット生成とUpdate等の準備を行い、drawFnを返す。
-// messagelog, HUDなどebitenui.UIを内包するコンポーネントのテストに使用する
+                // レイアウト確定のため数フレーム回す
+                for range 3 </span><span class="cov0" title="0">{
+                        ui.Update()
+                }</span>
+                <span class="cov0" title="0">ui.Draw(screen)
+
+                img = captureScreen(screen)</span>
+        })
+
+        <span class="cov0" title="0">pngData := encodePNG(t, img)
+        assertPNGGolden(t, pngData)</span>
+}
+
+// AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。
+// レイアウト・描画は呼び出し側が制御する。messagelog・HUD など ebitenui.UI を内包する、または明示座標で
+// Draw するコンポーネントに使う。widget.Container を渡すだけのものは AssertContainerGolden。
 func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image), width, height int) <span class="cov0" title="0">{
         t.Helper()
 
-        renderMu.Lock()
-        drawFn := setupFn()
-        screen := ebiten.NewImage(width, height)
-        drawFn(screen)
-        img := captureScreen(screen)
-        renderMu.Unlock()
+        var img *image.NRGBA
+        withUILock(func() </span><span class="cov0" title="0">{
+                drawFn := setupFn()
+                screen := ebiten.NewImage(width, height)
+                drawFn(screen)
+                img = captureScreen(screen)
+        }</span>)
 
-        pngData := encodePNG(t, img)
-        assertPNGGolden(t, pngData)
-}</span>
-
-// renderContainer はビルダー関数でウィジェットを生成し、描画してimage.NRGBAとして返す。
-// ウィジェット生成からレンダリングまでをrenderMu内で直列化する
-func renderContainer(buildFn func() *widget.Container, width, height int) *image.NRGBA <span class="cov0" title="0">{
-        renderMu.Lock()
-        defer renderMu.Unlock()
-
-        root := buildFn()
-        ui := &amp;ebitenui.UI{Container: root}
-        screen := ebiten.NewImage(width, height)
-
-        // レイアウト確定のため数フレーム回す
-        for range 3 </span><span class="cov0" title="0">{
-                ui.Update()
-        }</span>
-        <span class="cov0" title="0">ui.Draw(screen)
-
-        return captureScreen(screen)</span>
+        <span class="cov0" title="0">pngData := encodePNG(t, img)
+        assertPNGGolden(t, pngData)</span>
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする
@@ -49740,81 +49745,83 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
         t.Helper()
 
         // World初期化・状態構築・描画はいずれも ebitenui のグローバル描画状態に触れて並行アクセス安全でない。
-        // これらを renderMu で直列化する。World 初期化は InitVRTWorld が内部で同じ renderMu を取るので、
-        // ここでは構築から描画までを別区間としてロックする。両区間とも renderMu なので ebitenui グローバルへの
+        // InitVRTWorld が内部で withUILock を取るので、構築から描画まではもう1つの withUILock 区間にする。
+        // withUILock は非再入なのでネストさせず2区間に分ける。両区間とも同じロックなので ebitenui グローバルへの
         // 同時アクセスは起きない。mutex待機中に ebitenui の時間ベースアニメーション（Caretブリンク等）が進むのも防ぐ
         world := InitVRTWorld(t)
 
-        renderMu.Lock()
-        defer renderMu.Unlock()
+        var out *image.NRGBA
+        withUILock(func() </span><span class="cov0" title="0">{
+                states := buildStates(world)
+                require.NotEmpty(t, states, "ステートが1つ以上必要")
 
-        states := buildStates(world)
-        require.NotEmpty(t, states, "ステートが1つ以上必要")
+                stateMachine, err := es.Init(states[0], world)
+                require.NoError(t, err)
+                require.NoError(t, stateMachine.Update(world))
 
-        stateMachine, err := es.Init(states[0], world)
-        require.NoError(t, err)
-        require.NoError(t, stateMachine.Update(world))
+                if len(states) &gt; 1 </span><span class="cov0" title="0">{
+                        require.NoError(t, stateMachine.PushState(world, states[1:]...))
+                }</span>
 
-        if len(states) &gt; 1 </span><span class="cov0" title="0">{
-                require.NoError(t, stateMachine.PushState(world, states[1:]...))
-        }</span>
-
-        // レイアウト確定のためフレームを回す
-        <span class="cov0" title="0">for range 10 </span><span class="cov0" title="0">{
-                if err := stateMachine.Update(world); err != nil </span><span class="cov0" title="0">{
-                        break</span>
+                // レイアウト確定のためフレームを回す
+                <span class="cov0" title="0">for range 10 </span><span class="cov0" title="0">{
+                        if err := stateMachine.Update(world); err != nil </span><span class="cov0" title="0">{
+                                break</span>
+                        }
                 }
-        }
 
-        <span class="cov0" title="0">width, height := consts.GameWidth, consts.GameHeight
-        screen := ebiten.NewImage(width, height)
+                <span class="cov0" title="0">width, height := consts.GameWidth, consts.GameHeight
+                screen := ebiten.NewImage(width, height)
 
-        for _, state := range stateMachine.GetStates() </span><span class="cov0" title="0">{
-                require.NoError(t, state.Draw(world, screen), "描画に失敗")
-        }</span>
+                for _, state := range stateMachine.GetStates() </span><span class="cov0" title="0">{
+                        require.NoError(t, state.Draw(world, screen), "描画に失敗")
+                }</span>
 
-        <span class="cov0" title="0">return captureScreen(screen)</span>
+                <span class="cov0" title="0">out = captureScreen(screen)</span>
+        })
+        <span class="cov0" title="0">return out</span>
 }
 
 // InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する。
 // テスト・ベンチ双方から使えるよう testing.TB を受ける。
 //
-// maingame.InitWorld 経由で ebitenui のグローバルな NineSlice キャッシュを触るため renderMu で
+// maingame.InitWorld 経由で ebitenui のグローバルな NineSlice キャッシュを触るため withUILock で
 // 直列化する。触らないと並列ゴールデンテストの初期化と描画が同時にこのキャッシュへアクセスして
-// data race になる。renderMu は非再入なので、renderState はこの関数を描画ロックの外側で呼ぶ。
+// data race になる。withUILock は非再入なので、renderState はこの関数を描画の withUILock 区間の外側で呼ぶ。
 func InitVRTWorld(tb testing.TB) w.World <span class="cov0" title="0">{
         tb.Helper()
-        renderMu.Lock()
-        defer renderMu.Unlock()
 
-        cfg := &amp;config.Config{Profile: config.ProfileDevelopment}
-        cfg.ApplyProfileDefaults()
-        cfg.LogLevel = "ignore"
-        cfg.Seed = 12345
-        cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
-        cfg.DisableAnimation = true
-        require.NoError(tb, cfg.Validate())
+        var world w.World
+        withUILock(func() </span><span class="cov0" title="0">{
+                cfg := &amp;config.Config{Profile: config.ProfileDevelopment}
+                cfg.ApplyProfileDefaults()
+                cfg.LogLevel = "ignore"
+                cfg.Seed = 12345
+                cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
+                cfg.DisableAnimation = true
+                require.NoError(tb, cfg.Validate())
 
-        world, err := maingame.InitWorld(cfg)
-        require.NoError(tb, err)
+                w2, err := maingame.InitWorld(cfg)
+                require.NoError(tb, err)
+                world = w2
 
-        player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
-        require.NoError(tb, err)
+                player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+                require.NoError(tb, err)
 
-        professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-        if len(professions) &gt; 0 </span><span class="cov0" title="0">{
-                require.NoError(tb, gameaction.ApplyProfession(world, player, professions[0]))
-        }</span>
-
-        <span class="cov0" title="0">for _, updater := range []w.Updater{
-                &amp;gs.StatsChangedSystem{},
-                &amp;gs.WeightDirtySystem{},
-        } </span><span class="cov0" title="0">{
-                if sys, ok := world.Updaters[updater.String()]; ok </span><span class="cov0" title="0">{
-                        require.NoError(tb, sys.Update(world))
+                professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
+                if len(professions) &gt; 0 </span><span class="cov0" title="0">{
+                        require.NoError(tb, gameaction.ApplyProfession(world, player, professions[0]))
                 }</span>
-        }
 
+                <span class="cov0" title="0">for _, updater := range []w.Updater{
+                        &amp;gs.StatsChangedSystem{},
+                        &amp;gs.WeightDirtySystem{},
+                } </span><span class="cov0" title="0">{
+                        if sys, ok := world.Updaters[updater.String()]; ok </span><span class="cov0" title="0">{
+                                require.NoError(tb, sys.Update(world))
+                        }</span>
+                }
+        })
         <span class="cov0" title="0">return world</span>
 }
 </pre>
@@ -53327,6 +53334,50 @@ func pageIndicatorText(config Config, state ViewState) string <span class="cov8"
 
         <span class="cov8" title="1">return fmt.Sprintf("%d/%d%s", page+1, total, arrows)</span>
 }
+
+// displayRowKind は表示行の種類。
+type displayRowKind int
+
+const (
+        displayPageIndicator    displayRowKind = iota // ページ番号インジケーター
+        displayItem                                   // 通常のアイテム行
+        displayEmptyPlaceholder                       // アイテムが無いときの代替表示
+)
+
+// displayRow は UpdateTabDisplayContainer が描く1行の内容。ebitenui に依存しないデータ。
+type displayRow struct {
+        Kind             displayRowKind
+        Label            string
+        Selected         bool     // displayItem のみ意味を持つ
+        AdditionalLabels []string // displayItem のみ
+}
+
+// computeDisplayRows は表示すべき行の並びを純粋に計算する。ebitenui widget の構築と分離することで、
+// 表示ロジック、ページインジケーターの有無・可視アイテム・空表示、を widget を作らずにテストできる。
+func computeDisplayRows(config Config, state ViewState) []displayRow <span class="cov8" title="1">{
+        var rows []displayRow
+
+        if pageText := pageIndicatorText(config, state); pageText != "" </span><span class="cov8" title="1">{
+                rows = append(rows, displayRow{Kind: displayPageIndicator, Label: pageText})
+        }</span>
+
+        <span class="cov8" title="1">visibleItems, indices := getVisibleItems(config, state)
+        for i, item := range visibleItems </span><span class="cov8" title="1">{
+                selected := indices[i] == state.ItemIndex &amp;&amp; state.ItemIndex &gt;= 0
+                rows = append(rows, displayRow{
+                        Kind:             displayItem,
+                        Label:            item.Label,
+                        Selected:         selected,
+                        AdditionalLabels: item.AdditionalLabels,
+                })
+        }</span>
+
+        <span class="cov8" title="1">if len(config.Tabs) &gt; 0 &amp;&amp; state.TabIndex &lt; len(config.Tabs) &amp;&amp; len(config.Tabs[state.TabIndex].Items) == 0 </span><span class="cov8" title="1">{
+                rows = append(rows, displayRow{Kind: displayEmptyPlaceholder, Label: "(アイテムなし)"})
+        }</span>
+
+        <span class="cov8" title="1">return rows</span>
+}
 </pre>
 		
 		<pre class="file" id="file262" style="display: none">package tabmenu
@@ -53388,47 +53439,47 @@ func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.Preferred
 }</span>
 
 // UpdateFocus はメニューのフォーカス表示を更新する
-func (b *uiBuilder) UpdateFocus(config Config, state ViewState) <span class="cov8" title="1">{
-        if len(b.itemWidgets) == 0 </span><span class="cov8" title="1">{
+func (b *uiBuilder) UpdateFocus(config Config, state ViewState) <span class="cov0" title="0">{
+        if len(b.itemWidgets) == 0 </span><span class="cov0" title="0">{
                 return
         }</span>
 
-        <span class="cov8" title="1">_, indices := getVisibleItems(config, state)
+        <span class="cov0" title="0">_, indices := getVisibleItems(config, state)
 
-        for i, w := range b.itemWidgets </span><span class="cov8" title="1">{
+        for i, w := range b.itemWidgets </span><span class="cov0" title="0">{
                 if i &gt;= len(indices) </span><span class="cov0" title="0">{
                         continue</span>
                 }
 
-                <span class="cov8" title="1">originalIndex := indices[i]
+                <span class="cov0" title="0">originalIndex := indices[i]
                 isFocused := originalIndex == state.ItemIndex
 
                 wrapper, ok := w.(*widget.Container)
                 if !ok </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov8" title="1">wrapperChildren := wrapper.Children()
+                <span class="cov0" title="0">wrapperChildren := wrapper.Children()
                 if len(wrapperChildren) == 0 </span><span class="cov0" title="0">{
                         continue</span>
                 }
-                <span class="cov8" title="1">contentContainer, ok := wrapperChildren[0].(*widget.Container)
+                <span class="cov0" title="0">contentContainer, ok := wrapperChildren[0].(*widget.Container)
                 if !ok </span><span class="cov0" title="0">{
                         continue</span>
                 }
 
-                <span class="cov8" title="1">if isFocused </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">if isFocused </span><span class="cov0" title="0">{
                         contentContainer.SetBackgroundImage(b.world.Resources.UIResources.Panel.SelectionBar)
-                }</span> else<span class="cov8" title="1"> {
+                }</span> else<span class="cov0" title="0"> {
                         contentContainer.SetBackgroundImage(eui_image.NewNineSliceColor(theme.Transparent))
                 }</span>
 
-                <span class="cov8" title="1">textColor := theme.TextSecondary
-                if isFocused </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">textColor := theme.TextSecondary
+                if isFocused </span><span class="cov0" title="0">{
                         textColor = theme.TextSelected
                 }</span>
 
-                <span class="cov8" title="1">for _, child := range contentContainer.Children() </span><span class="cov8" title="1">{
-                        if textWidget, ok := child.(*widget.Text); ok </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">for _, child := range contentContainer.Children() </span><span class="cov0" title="0">{
+                        if textWidget, ok := child.(*widget.Text); ok </span><span class="cov0" title="0">{
                                 textWidget.SetColor(textColor)
                         }</span>
                 }
@@ -53451,30 +53502,22 @@ func (b *uiBuilder) createPageIndicator(pageText string) *widget.Text <span clas
         )
 }</span>
 
-// UpdateTabDisplayContainer はタブ表示コンテナを更新する
-func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) <span class="cov8" title="1">{
+// UpdateTabDisplayContainer はタブ表示コンテナを更新する。
+// 表示内容の計算は computeDisplayRows に委ね、ここは行を ebitenui widget へ変換して並べるだけにする。
+func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) <span class="cov0" title="0">{
         container.RemoveChildren()
 
-        pageText := pageIndicatorText(config, state)
-        if pageText != "" </span><span class="cov8" title="1">{
-                pageIndicator := styled.NewPageIndicator(pageText, b.world.Resources.UIResources)
-                container.AddChild(pageIndicator)
-        }</span>
-
-        <span class="cov8" title="1">visibleItems, indices := getVisibleItems(config, state)
-
-        for i, item := range visibleItems </span><span class="cov8" title="1">{
-                actualIndex := indices[i]
-                isSelected := actualIndex == state.ItemIndex &amp;&amp; state.ItemIndex &gt;= 0
-
-                itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, b.world.Resources.UIResources, item.AdditionalLabels...)
-                container.AddChild(itemWidget)
-        }</span>
-
-        <span class="cov8" title="1">if len(config.Tabs) &gt; 0 &amp;&amp; state.TabIndex &lt; len(config.Tabs) &amp;&amp; len(config.Tabs[state.TabIndex].Items) == 0 </span><span class="cov8" title="1">{
-                emptyText := styled.NewDescriptionText("(アイテムなし)", b.world.Resources.UIResources)
-                container.AddChild(emptyText)
-        }</span>
+        res := b.world.Resources.UIResources
+        for _, row := range computeDisplayRows(config, state) </span><span class="cov0" title="0">{
+                switch row.Kind </span>{
+                case displayPageIndicator:<span class="cov0" title="0">
+                        container.AddChild(styled.NewPageIndicator(row.Label, res))</span>
+                case displayItem:<span class="cov0" title="0">
+                        container.AddChild(styled.NewListItemText(row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))</span>
+                case displayEmptyPlaceholder:<span class="cov0" title="0">
+                        container.AddChild(styled.NewDescriptionText(row.Label, res))</span>
+                }
+        }
 }
 </pre>
 		
@@ -53511,7 +53554,7 @@ func (v *View) BuildUI() *widget.Container <span class="cov8" title="1">{
 }</span>
 
 // UpdateFocus はフォーカス表示を更新する
-func (v *View) UpdateFocus() <span class="cov8" title="1">{
+func (v *View) UpdateFocus() <span class="cov0" title="0">{
         v.uiBuilder.UpdateFocus(v.config, v.state)
 }</span>
 
@@ -53521,7 +53564,7 @@ func (v *View) GetCurrentPage() int <span class="cov8" title="1">{
 }</span>
 
 // UpdateTabDisplayContainer はタブ表示コンテナを更新する
-func (v *View) UpdateTabDisplayContainer(container *widget.Container) <span class="cov8" title="1">{
+func (v *View) UpdateTabDisplayContainer(container *widget.Container) <span class="cov0" title="0">{
         v.uiBuilder.UpdateTabDisplayContainer(container, v.config, v.state)
 }</span>
 
