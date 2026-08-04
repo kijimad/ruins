@@ -526,8 +526,6 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 	return "", interactionActionChoices(GetSameTileManualActions(world))
 }
 
-// newActionChoiceMenu はInteractionActionのリストから選択メニューを作成する
-
 // NewMerchantDialogState は商人との会話ステートを作成
 func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
 	persistentState := NewPersistentMessageState(nil)

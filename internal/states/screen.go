@@ -31,7 +31,7 @@ type MenuConfig struct {
 	ItemCounts   []int
 	ItemsPerPage int      // 1ページの件数。0 はページ送りなし
 	Skips        [][]bool // カーソルを飛ばす見出し行。nil 可
-	InitialTab   int      // 初回に寄せるタブ番号。0 なら先頭のまま。1度だけ適用する
+	InitialTab   int      // 初回に寄せるタブ番号。0 なら先頭のまま。1度だけ適用する。TabCount 未満を前提とする
 }
 
 // screenModel はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
@@ -161,9 +161,9 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 }
 
 // SetTab は指定タブへ直接カーソルを移して再描画を要求する。キー再生をせずにタブを設定する。
-// UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと
+// UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する
 func (s *Screen[P]) SetTab(cfg MenuConfig, tab int) {
-	if cfg.TabCount == 0 {
+	if cfg.TabCount == 0 || tab < 0 || tab >= cfg.TabCount {
 		return
 	}
 	hooks.SetTab(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
@@ -175,8 +175,8 @@ func (s *Screen[P]) SetTab(cfg MenuConfig, tab int) {
 	s.rebuild = true
 }
 
-// Selection は直近フレームで確定したカーソル位置を返す。DoAction は Dispatch より前に
-// 呼ばれるため、ここで得るのは画面に見えている確定位置になる
+// Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの
+// mount.Update で更新されるため、DoAction 内で読むと画面に見えている確定位置になる
 func (s *Screen[P]) Selection() Selection { return s.sel }
 
 // selection は現在のカーソル位置を mount から読む。一覧を持たない画面はゼロ値

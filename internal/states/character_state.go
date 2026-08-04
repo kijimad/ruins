@@ -443,9 +443,6 @@ func (st *CharacterState) dismissTarget(world w.World) {
 	st.target = ecs.Entity{}
 }
 
-// currentTabIndex は現在の画面タブの番号を返す
-
-// buildCommandTable は命令タブの本文を組み立てる。ポリシー行と解雇行を並べ、対象が仲間でなければ案内を出す
 // resolveTarget は表示対象を返す。未指定または死亡時は主人公にフォールバックする
 func (st *CharacterState) resolveTarget(world w.World) ecs.Entity {
 	if world.ECS.Alive(st.target) {
@@ -544,16 +541,6 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 	}
 	return query.SortEntities(world, items)
 }
-
-// ================
-// buildUI
-// ================
-
-// buildUI は現在の state から描画に必要なデータを取り出し、純粋描画の buildCharacterUI へ渡す。
-// 詳細と装備選択のオーバーレイ窓は world とコントローラを要するため、ここで重ねる
-
-// detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
-// 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける。命令タブは詳細を持たない
 
 // entityDetailContent はエンティティの名前・説明・性能を詳細内容にする
 func entityDetailContent(world w.World, entity ecs.Entity) menuscreen.DetailContent {
