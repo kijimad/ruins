@@ -37,6 +37,7 @@ func (o *characterEquipOverlay) Active() bool { return o.active }
 
 // Open は空スロットに対する装備選択を開き、候補を読み込む
 func (o *characterEquipOverlay) Open(world w.World, slot equipItemData) {
+	// 開くたびに mount を作り直し、再オープン時はカーソルを先頭へ戻す
 	o.mount = hooks.NewMount[charEquipProps]()
 	o.mount.SetProps(charEquipProps{
 		Items:             equipableForSlot(world, slot.SlotNumber),

@@ -464,8 +464,6 @@ func characterMembers(world w.World) []ecs.Entity {
 	return members
 }
 
-// switchMember は表示対象を dir 方向の隣のキャラへ巡回で切り替える
-
 // memberEquipSlots はプレイヤーの全装備スロットを列挙する
 func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	items := make([]equipItemData, 0, 12)
