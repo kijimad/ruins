@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -26,10 +27,9 @@ import (
 // CraftMenuState はクラフトメニューのゲームステート
 type CraftMenuState struct {
 	es.BaseState[w.World]
-	actionWin    menuscreen.ActionWindow // 合成のアクション選択。overlay として Screen に登録する
-	detail       menuscreen.Detail       // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
-	result       menuscreen.Detail       // 合成結果の詳細モーダル。overlay として Screen に登録する
-	resultEntity ecs.Entity              // 直近で合成したアイテム
+	detail       menuscreen.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
+	result       menuscreen.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
+	resultEntity ecs.Entity        // 直近で合成したアイテム
 	screen       Screen[craftProps]
 }
 
@@ -47,11 +47,10 @@ var _ es.ActionHandler[w.World] = &CraftMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
-	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.result = menuscreen.NewDetail(st.resultDetailContent)
 	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
-	st.screen = NewScreen[craftProps](&st.result, &st.detail, &st.actionWin)
+	st.screen = NewScreen[craftProps](&st.result, &st.detail)
 	return nil
 }
 
@@ -76,7 +75,7 @@ func (st *CraftMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, b
 }
 
 // DoAction はActionを実行する
-func (st *CraftMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionOpenDebugMenu:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil
@@ -85,7 +84,9 @@ func (st *CraftMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.T
 	case inputmapper.ActionOpenItemDetail:
 		st.screen.Open(st.detail.Open)
 	case inputmapper.ActionMenuSelect:
-		st.screen.Open(st.actionWin.Open)
+		if err := st.craftSelected(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
@@ -131,7 +132,7 @@ func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
 	return []craftTabData{
 		{ID: "consumables", Label: "道具", Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
 		{ID: "weapons", Label: "武器", Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
-		{ID: "wearables", Label: "装備", Items: st.createMenuItems(world, st.queryMenuWearable(world))},
+		{ID: "wearables", Label: "防具", Items: st.createMenuItems(world, st.queryMenuWearable(world))},
 	}
 }
 
@@ -202,31 +203,23 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 }
 
 // ================
-// Action Window
+// 合成
 // ================
 
-// actionWindowContent は現在カーソルが当たっているレシピの見出しと選択肢を返す。アクション窓の唯一の定義点。
-// 合成の実行内容も Run に閉じ込め、合成・閉じるを1箇所で定義する
-func (st *CraftMenuState) actionWindowContent(_ w.World) (string, []menuscreen.Action, bool) {
+// craftSelected は現在カーソルが当たっているレシピを合成し、結果モーダルを開く。
+// 合成不可のレシピは何もしない。決定で即実行し、途中のアクション選択は挟まない
+func (st *CraftMenuState) craftSelected(world w.World) error {
 	item, ok := st.selectedRecipe()
-	if !ok || item.RecipeName == "" {
-		return "", nil, false
+	if !ok || !item.CanCraft {
+		return nil
 	}
-	var actions []menuscreen.Action
-	if item.CanCraft {
-		recipeName := item.RecipeName
-		actions = append(actions, menuscreen.Action{Label: TextCraft, Run: func(world w.World) error {
-			resultEntity, err := gameaction.Craft(world, recipeName)
-			if err != nil {
-				return fmt.Errorf("合成に失敗: %w", err)
-			}
-			st.resultEntity = resultEntity
-			st.screen.Open(st.result.Open)
-			return nil
-		}})
+	resultEntity, err := gameaction.Craft(world, item.RecipeName)
+	if err != nil {
+		return fmt.Errorf("合成に失敗: %w", err)
 	}
-	actions = append(actions, menuscreen.Action{Label: TextClose})
-	return "アクション選択", actions, true
+	st.resultEntity = resultEntity
+	st.screen.Open(st.result.Open)
+	return nil
 }
 
 // selectedRecipe は現在カーソルが当たっているレシピを返す
@@ -293,8 +286,9 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 		return menuscreen.DetailContent{}, false
 	}
 
-	// 生成物の性能行に、必要材料と所持数の行を続ける
-	rows := views.SpecRowsFromSpec(world, spec)
+	// 必要材料を先頭に置き、所持数が足りていれば成功色、足りなければ警告色で示す。
+	// その後ろに生成物の性能行を続ける
+	var rows []menuscreen.SpecRow
 	if spec.Recipe != nil {
 		rows = append(rows, menuscreen.SpecRow{Label: "材料", Header: true})
 		for _, in := range spec.Recipe.Inputs {
@@ -302,9 +296,14 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 			if entity, found := query.FindStackableInInventory(world, in.Name); found {
 				owned = query.GetEntityCount(world, entity)
 			}
-			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d  所持 %d", in.Amount, owned)})
+			rowColor := theme.StatusDanger
+			if owned >= in.Amount {
+				rowColor = theme.StatusSuccess
+			}
+			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d  所持 %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
+	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)
 
 	desc := ""
 	if spec.Description != nil {

@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"image/color"
 	"strconv"
 
 	"github.com/ebitenui/ebitenui/widget"
@@ -16,11 +17,13 @@ import (
 )
 
 // SpecRow は性能表示の1行。Header が真ならカテゴリ見出し行、偽なら ラベル/値 のデータ行。
-// 詳細モーダルはこの行の並びを単位としてページ分割する。行の高さは一定なので行数が高さの目安になる
+// 詳細モーダルはこの行の並びを単位としてページ分割する。行の高さは一定なので行数が高さの目安になる。
+// Color が非 nil のデータ行はその色で描く。合成の必要素材を条件可否で色分けする用途に使う
 type SpecRow struct {
 	Label  string
 	Value  string
 	Header bool
+	Color  *color.RGBA
 }
 
 // specTableAligns はspec表示テーブルの揃え方向（ラベル左、値右）
@@ -105,6 +108,10 @@ func RenderSpecRows(targetContainer *widget.Container, rows []SpecRow, res resou
 	for _, r := range rows {
 		if r.Header {
 			styled.NewTableHeaderRow(table, columnWidths, []string{r.Label, ""}, res)
+			continue
+		}
+		if r.Color != nil {
+			styled.NewTableRowColored(table, columnWidths, []string{r.Label, r.Value}, specTableAligns, *r.Color, res)
 			continue
 		}
 		styled.NewTableRow(table, columnWidths, []string{r.Label, r.Value}, specTableAligns, nil, res)
