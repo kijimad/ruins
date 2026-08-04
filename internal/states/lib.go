@@ -140,8 +140,9 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 // モーダル領域に収まる件数を基準にする
 const menuItemsPerPage = 18
 
-// menuRowWidth はメニュー一覧の行の総幅。全メニューで揃えて、画面ごとにエントリ幅がぶれないようにする。
-// 各メニューは列の内訳を変えてもよいが、合計はこの値にする
+// menuRowWidth は全幅の一覧の行の総幅。全幅メニューで揃えて、画面ごとにエントリ幅がぶれないようにする。
+// 列の内訳は画面ごとに変えてよいが、全幅の一覧では合計をこの値にする。
+// 分割レイアウト内の小さい一覧、能力タブや職業一覧、は独自の幅にするのでこの限りでない
 const menuRowWidth = 340
 
 // menuRow は一覧の1行。Cells は各列の文字列、Header が真なら見出し行でカーソルが止まらない
@@ -160,9 +161,9 @@ type menuListOpts struct {
 }
 
 // renderMenuList は一覧を共通の作法で組む唯一の入口。ページ送り・ページ表示・空行埋め・
-// 列幅・行間をここに集約し、各メニューは行データ menuRow と列幅を渡すだけにする。これにより
-// ページ送り忘れ・列幅ドリフト・行間ずれを構造的に防ぐ。業界標準の「データ＋行デリゲート」型。
-// 列幅の合計は menuRowWidth に揃える
+// 行間をここに集約し、各メニューは行データ menuRow と列幅を渡すだけにする。これにより
+// ページ送り忘れ・行間ずれを構造的に防ぐ。業界標準の「データ＋行デリゲート」型。
+// 列幅と行の値は呼び出し側が対で用意する。全幅の一覧では列幅の合計を menuRowWidth に揃える
 func renderMenuList(sel Selection, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	pg := pagination.New(sel.ItemIndex, len(rows), menuItemsPerPage)
