@@ -21,8 +21,6 @@ import (
 // キャラクター情報の読み取り専用タブ、能力・スキル・効果・健康・基本、の構築を担う。
 // 装備タブと同じ CharacterState が持ち、装備の編集フローと1画面に統合する。
 
-const statusItemsPerPage = 18
-
 // 読み取り専用タブの ID
 const (
 	tabAbilities = "abilities"
@@ -272,7 +270,7 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 
-	pg := pagination.New(itemIndex, len(tab.Items), statusItemsPerPage)
+	pg := pagination.New(itemIndex, len(tab.Items), menuItemsPerPage)
 	container.AddChild(newPageIndicatorRow(itemIndex, len(tab.Items), res))
 
 	hasModifier := tab.ID == tabAbilities
@@ -314,7 +312,7 @@ func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources)
 // newPageIndicatorRow はタブ先頭に置くページ表示行を作る。ページが無くても空行として
 // 常に1行を確保し、タブを切り替えてもコンテンツの開始位置と高さが変わらないようにする。
 func newPageIndicatorRow(itemIndex, count int, res resources.UIResources) *widget.Container {
-	pageText := pagination.New(itemIndex, count, statusItemsPerPage).GetPageText()
+	pageText := pagination.New(itemIndex, count, menuItemsPerPage).GetPageText()
 	if pageText == "" {
 		pageText = " "
 	}

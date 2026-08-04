@@ -91,6 +91,20 @@ func TestGolden_ItemAction(t *testing.T) {
 	})
 }
 
+// TestGolden_ItemActionMany は所持アイテムが多いときに一覧がモーダルに収まりログへはみ出さないことを覆う
+func TestGolden_ItemActionMany(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		// 武器は非スタックなので1本ずつ別行になる。1ページに収まらない量を持たせる
+		for range 30 {
+			_, err := lifecycle.SpawnBackpackItem(world, "レイガン", 1)
+			require.NoError(t, err)
+		}
+		town := newGoldenBackdrop(t)
+		return []es.State[w.World]{town, &gs.ItemActionState{}}
+	})
+}
+
 // TestGolden_Character は画面タブメニューを固定する。装備タブでプレイヤーの
 // スロット一覧を1カラムで並べる経路を覆う。
 func TestGolden_Character(t *testing.T) {

@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -411,7 +412,7 @@ func (st *ItemActionState) menu(props itemActionProps) MenuConfig {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, InitialTab: verbTabIndex(st.initialVerb)}
+	return MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}
 }
 
 func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
@@ -420,8 +421,9 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 		return container
 	}
 	items := props.Tabs[tabIndex].Items
-	// 全タブで開始位置と高さを揃えるための行。アイテムメニューはページ送りしないので空行にする
-	container.AddChild(styled.NewPageIndicator(" ", res))
+	// 全タブで開始位置と高さを揃えるためのページ表示行。所持が多いときはページ送りしてはみ出さない
+	pg := pagination.New(itemIndex, len(items), menuItemsPerPage)
+	container.AddChild(newPageIndicator(pg, res))
 	if len(items) == 0 {
 		container.AddChild(styled.NewDescriptionText("該当するアイテムがありません", res))
 		return container
@@ -429,9 +431,9 @@ func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIn
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	table := styled.NewTableContainer(columnWidths, res)
-	for i, item := range items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{nameWithCount(item.Name, item.Count), item.Weight}, aligns, &isSelected, res)
+	for _, entry := range pagination.VisibleEntries(items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{nameWithCount(entry.Item.Name, entry.Item.Count), entry.Item.Weight}, aligns, &isSelected, res)
 	}
 	container.AddChild(table)
 	return container
