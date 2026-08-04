@@ -23,6 +23,8 @@ const (
 	// TemplateTypeCubeInteriorInitial は移動拠点キューブの内部の初期レイアウト。壁で囲った狭い1階層の
 	// 部屋を、内部を初めて生成するときに一度だけ引く。以後は永続ステージを再稼働するのでこれは引かない
 	TemplateTypeCubeInteriorInitial
+	// TemplateTypeDebugTown は街用NPCと収納箱をスポーン地点の隣に固定配置したデバッグ用の狭い部屋
+	TemplateTypeDebugTown
 )
 
 // NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する
@@ -61,6 +63,8 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		templateName = "50x50_boss_floor"
 	case TemplateTypeCubeInteriorInitial:
 		templateName = "5x5_cube_interior"
+	case TemplateTypeDebugTown:
+		templateName = "7x7_debug_town"
 	default:
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}

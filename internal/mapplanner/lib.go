@@ -409,9 +409,6 @@ type PlannerType struct {
 	ItemTableName string
 	// 階層の深度。敵やアイテムのフィルタリングに使用する
 	Depth int
-	// SelfPopulated はプランナーが自前でエンティティを配置するか。真なら生成時に遺跡定義の
-	// 敵・アイテムテーブルを注入せず、ランダムな敵・アイテムを湧かせない。デバッグ用に使う
-	SelfPopulated bool
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -510,20 +507,14 @@ var (
 		},
 	}
 
-	// PlannerTypeDebugAll は街用NPCと収納箱を小部屋へ配置するデバッグ用プランナータイプ。
-	// 狭い部屋にして、入ってすぐデバッグ物へ触れられるようにする。SelfPopulated で遺跡定義の
-	// 敵・アイテムテーブルを注入させず、DebugPopulatePlanner が積んだ要素だけを配置する。
-	// 街の会話・売買・収納をテストする用途に使う
-	PlannerTypeDebugAll = PlannerType{
-		Name:          "デバッグ街",
-		SelfPopulated: true,
-		PlannerFunc: func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-			chain, err := NewSmallRoomPlanner(width, height, seed)
-			if err != nil {
-				return nil, err
-			}
-			chain.With(DebugPopulatePlanner{})
-			return chain, nil
+	// PlannerTypeDebugTown は街用NPCと収納箱をスポーン地点の隣に固定配置したデバッグ用テンプレート。
+	// 狭い部屋なので入ってすぐデバッグ物へ触れられる。敵の抑止は敵テーブルの無い DungeonDebugTown 側で
+	// 行うため、ここに特別扱いは要らない。UseFixedPortalPos で手続き的なポータル配置はしない
+	PlannerTypeDebugTown = PlannerType{
+		Name:              "デバッグ街",
+		UseFixedPortalPos: true,
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeDebugTown, seed)
 		},
 	}
 
@@ -545,7 +536,7 @@ var (
 	// debugPlannerTypes は名前指定でのみ使うデバッグ専用プランナー。ランダム選択や
 	// マップ生成ギャラリーの対象にはせず、PlannerTypeByName の解決だけで使えるようにする
 	debugPlannerTypes = []PlannerType{
-		PlannerTypeDebugAll,
+		PlannerTypeDebugTown,
 	}
 )
 

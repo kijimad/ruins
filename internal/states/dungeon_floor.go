@@ -70,13 +70,9 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		builderType = st.BuilderType
 	}
 
-	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う。
-	// 自前で配置するデバッグ用プランナーには定義の敵・アイテムテーブルを注入せず、
-	// ランダムな敵・アイテムを湧かせない
-	if !builderType.SelfPopulated {
-		builderType.EnemyTableName = def.EnemyTableName()
-		builderType.ItemTableName = def.ItemTableName()
-	}
+	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+	builderType.EnemyTableName = def.EnemyTableName()
+	builderType.ItemTableName = def.ItemTableName()
 	builderType.Depth = depth
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)

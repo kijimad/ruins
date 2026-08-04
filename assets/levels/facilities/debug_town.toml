@@ -1,0 +1,22 @@
+[[chunk]]
+name = '7x7_debug_town'
+weight = 100
+palettes = ['standard', 'town']
+map = """
+#######
+#.....#
+#.$1..#
+#.K...#
+#.23..#
+#.....#
+#######
+"""
+placements = []
+
+[[chunk.spawn_points]]
+x = 3
+y = 3
+
+[chunk.Size]
+W = 7
+H = 7
