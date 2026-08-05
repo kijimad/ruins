@@ -28,13 +28,7 @@ type LookAroundState struct {
 	blinkCounter int
 }
 
-// StateConfig はこのステートの設定を返す
-func (st *LookAroundState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
-
 var _ es.State[w.World] = &LookAroundState{}
-var _ Configurable = &LookAroundState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *LookAroundState) OnPause(_ w.World) error { return nil }

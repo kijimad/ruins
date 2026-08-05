@@ -37,18 +37,12 @@ type ChoiceMenuState struct {
 	screen  *menurt.Screen[ChoiceProps]
 }
 
-var (
-	_ es.State[w.World] = &ChoiceMenuState{}
-	_ Configurable      = &ChoiceMenuState{}
-)
+var _ es.State[w.World] = &ChoiceMenuState{}
 
 // NewChoiceMenu は選択肢を返す provide を受け取り選択メニューを作る
 func NewChoiceMenu(provide func(world w.World) (string, []Choice)) *ChoiceMenuState {
 	return &ChoiceMenuState{provide: provide}
 }
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *ChoiceMenuState) StateConfig() StateConfig { return StateConfig{BlurBackground: false} }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ChoiceMenuState) OnStart(_ w.World) error {

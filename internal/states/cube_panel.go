@@ -24,12 +24,6 @@ type CubePanelState struct {
 }
 
 var _ es.State[w.World] = &CubePanelState{}
-var _ Configurable = &CubePanelState{}
-
-// StateConfig はこのステートの設定を返す。背景をぼかして手前のパネルを際立たせる。
-func (st *CubePanelState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: true}
-}
 
 // OnPause はステートが一時停止される際に呼ばれる。
 func (st *CubePanelState) OnPause(_ w.World) error { return nil }
