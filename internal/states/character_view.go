@@ -14,9 +14,9 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// buildCharacterUI は人物画面のタブ本体を props と選択位置だけから組み立てる。
-// state に触れない純粋描画で、詳細や装備選択のオーバーレイ窓は呼び出し側が重ねる
-func buildCharacterUI(props CharacterProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は人物画面のタブ本体を props と選択位置だけから組み立てる純粋描画。world には触れず、
+// 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menurt.Model の View 部にあたる
+func (st *CharacterState) View(_ w.World, props CharacterProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	header := props.TargetName

@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
@@ -12,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menurt"
-	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -284,11 +282,6 @@ func (st *CharacterState) Menu(props CharacterProps) menurt.MenuConfig {
 		skips = append(skips, s)
 	}
 	return menurt.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}
-}
-
-// View は現在タブの本体を純粋描画へ委譲する。overlay の窓は Screen が重ねる
-func (st *CharacterState) View(_ w.World, props CharacterProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
-	return buildCharacterUI(props, sel, res)
 }
 
 // detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
