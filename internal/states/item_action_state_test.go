@@ -36,6 +36,20 @@ func TestVerbByAction_直達アクションを動詞へ対応づける(t *testin
 	}
 }
 
+// TestVerbList_各動詞が直達キーとアクションを持ち往復する は verbList を単一の真実にした不変条件を守る。
+// HandleInput と verbByAction はこの一覧から導くので、動詞を1行足すだけで直達が効く。
+// キーやアクションを欠く行や、アクションが自身へ戻らない不整合を検知し、silent failure を防ぐ
+func TestVerbList_各動詞が直達キーとアクションを持ち往復する(t *testing.T) {
+	t.Parallel()
+	for _, v := range verbList {
+		require.NotZero(t, v.Key, "動詞 %s は直達キーを持つ", v.ID)
+		require.NotEmpty(t, v.Action, "動詞 %s は直達アクションを持つ", v.ID)
+		got, ok := verbByAction(v.Action)
+		assert.True(t, ok, "動詞 %s のアクションが対応づく", v.ID)
+		assert.Equal(t, v.ID, got, "動詞 %s のアクションは自身の動詞へ戻る", v.ID)
+	}
+}
+
 func TestVerbTabIndex_動詞の表示順を返す(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, 0, verbTabIndex(verbExamine))

@@ -35,14 +35,21 @@ const (
 
 // itemVerb は動詞タブ1つ分の定義。Accept で対象アイテムを絞り、Exec で選択アイテムへ動詞を適用する。
 // Exec が nil の動詞は実行を持たず、Enter で詳細モーダルを開く。調べるがこれに当たる。
+// 動詞はこの構造体を単一の真実にする。キー・アクション・表示・振る舞いを1行にまとめ、
+// HandleInput のキー変換と verbByAction のアクション対応はこの一覧から導く。追加は1行で足りる。
 type itemVerb struct {
 	ID    verbID
 	Label string
 	// KeyHint はタブ見出しに添える直達ショートカットの表記。大文字は Shift 併用を表す。
 	// 調べる X は Shift+x、置く d は KeyD をそのまま押す
 	KeyHint string
-	Accept  func(world w.World, entity ecs.Entity) bool
-	Exec    func(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
+	// Key と Shift は直達ショートカットのキー。Shift が真なら Shift 併用を要する。
+	// Action はそのショートカットが発するアクション。ダンジョン等からの直達もこのアクションで届く
+	Key    ebiten.Key
+	Shift  bool
+	Action inputmapper.ActionID
+	Accept func(world w.World, entity ecs.Entity) bool
+	Exec   func(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 }
 
 // verbList は表示順に並べた動詞タブの一覧。タブ順を兼ねる。内容は定数なのでパッケージ変数で1度だけ構築する。
@@ -52,6 +59,9 @@ var verbList = []itemVerb{
 		ID:      verbExamine,
 		Label:   "調べる",
 		KeyHint: "X",
+		Key:     ebiten.KeyX,
+		Shift:   true,
+		Action:  inputmapper.ActionVerbExamine,
 		Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
 		Exec:    nil,
 	},
@@ -59,6 +69,8 @@ var verbList = []itemVerb{
 		ID:      verbPlace,
 		Label:   "置く",
 		KeyHint: "d",
+		Key:     ebiten.KeyD,
+		Action:  inputmapper.ActionVerbPlace,
 		Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
 		Exec:    execPlace,
 	},
@@ -66,6 +78,8 @@ var verbList = []itemVerb{
 		ID:      verbConsume,
 		Label:   "食べる",
 		KeyHint: "e",
+		Key:     ebiten.KeyE,
+		Action:  inputmapper.ActionVerbConsume,
 		Accept:  acceptConsumeFood,
 		Exec:    execUseItem,
 	},
@@ -73,6 +87,8 @@ var verbList = []itemVerb{
 		ID:      verbRead,
 		Label:   "読む",
 		KeyHint: "r",
+		Key:     ebiten.KeyR,
+		Action:  inputmapper.ActionVerbRead,
 		Accept:  func(world w.World, entity ecs.Entity) bool { return world.Components.Book.Has(entity) },
 		Exec:    execRead,
 	},
@@ -80,6 +96,8 @@ var verbList = []itemVerb{
 		ID:      verbUse,
 		Label:   "使う",
 		KeyHint: "t",
+		Key:     ebiten.KeyT,
+		Action:  inputmapper.ActionVerbUse,
 		Accept:  acceptUseTool,
 		Exec:    execUseItem,
 	},
@@ -143,22 +161,14 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 
-// verbByAction はダンジョン等からの直達アクションを対応する動詞へ対応づける
+// verbByAction はダンジョン等からの直達アクションを対応する動詞へ対応づける。verbList から導く
 func verbByAction(action inputmapper.ActionID) (verbID, bool) {
-	switch action {
-	case inputmapper.ActionVerbExamine:
-		return verbExamine, true
-	case inputmapper.ActionVerbPlace:
-		return verbPlace, true
-	case inputmapper.ActionVerbConsume:
-		return verbConsume, true
-	case inputmapper.ActionVerbRead:
-		return verbRead, true
-	case inputmapper.ActionVerbUse:
-		return verbUse, true
-	default:
-		return "", false
+	for _, v := range verbList {
+		if v.Action == action {
+			return v.ID, true
+		}
 	}
+	return "", false
 }
 
 // verbTabIndex は動詞のタブ位置を返す
@@ -215,27 +225,19 @@ func (st *ItemActionState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// HandleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う
+// HandleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う。
+// 動詞ショートカットは verbList から導くので、動詞追加は verbList の1行で足りる
 func (st *ItemActionState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
-	// 動詞ショートカットは開いている間もタブ移動に使える。調べる X は Shift+x、詳細 x は Shift 無し
-	if ki.IsKeyJustPressed(ebiten.KeyX) {
-		if ki.IsKeyPressed(ebiten.KeyShift) {
-			return inputmapper.ActionVerbExamine, true
-		}
+	shift := ki.IsKeyPressed(ebiten.KeyShift)
+	// Shift 無しの x は動詞でなく詳細モーダルを開く。Shift+x の調べるとキーを共有するので先に分ける
+	if ki.IsKeyJustPressed(ebiten.KeyX) && !shift {
 		return inputmapper.ActionOpenItemDetail, true
 	}
-	if ki.IsKeyJustPressed(ebiten.KeyD) {
-		return inputmapper.ActionVerbPlace, true
-	}
-	if ki.IsKeyJustPressed(ebiten.KeyE) {
-		return inputmapper.ActionVerbConsume, true
-	}
-	if ki.IsKeyJustPressed(ebiten.KeyR) {
-		return inputmapper.ActionVerbRead, true
-	}
-	if ki.IsKeyJustPressed(ebiten.KeyT) {
-		return inputmapper.ActionVerbUse, true
+	for _, v := range verbList {
+		if ki.IsKeyJustPressed(v.Key) && (!v.Shift || shift) {
+			return v.Action, true
+		}
 	}
 	return menurt.HandleMenuInput()
 }
