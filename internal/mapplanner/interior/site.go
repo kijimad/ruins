@@ -26,6 +26,7 @@ type Site struct {
 	Building  Rect
 	Garden    map[Vec]bool
 	ExtraWall map[Vec]bool
+	Windows   map[Vec]bool // 視線を通す開口部の前壁タイル。Walls から除外し床の切れ目にする。窓エンティティを立てる
 	Door      Vec
 	Rooms     []PlannedRoom
 	Type      siteType
@@ -68,7 +69,7 @@ func planSite(footprint Rect, seed uint64, door Vec, facility FacilityKind) Site
 	}
 	attachDoor(labeled, bdoor, side)
 
-	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled, Type: st}
+	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Windows: map[Vec]bool{}, Door: bdoor, Rooms: labeled, Type: st}
 }
 
 // attachDoor は入口の内側の部屋へ door を戸口として足す。入口の1マス内側を含む部屋を探す。ポーチで下げた
@@ -244,7 +245,8 @@ func (s Site) Walls() []Vec {
 	for y := s.Footprint.Y; y < s.Footprint.Y+s.Footprint.H; y++ {
 		for x := s.Footprint.X; x < s.Footprint.X+s.Footprint.W; x++ {
 			v := Vec{X: x, Y: y}
-			if s.Garden[v] || door[v] || (floor[v] && !s.ExtraWall[v]) {
+			// 窓は開口部なので壁にしない。床の切れ目にして下の DWall を消し、視線を通す土台にする
+			if s.Garden[v] || door[v] || s.Windows[v] || (floor[v] && !s.ExtraWall[v]) {
 				continue
 			}
 			walls = append(walls, v)

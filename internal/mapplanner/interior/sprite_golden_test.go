@@ -371,6 +371,9 @@ func renderStage(t *testing.T, site Site, placed []Placed) *image.RGBA {
 				c = gardenColor
 			case door[v]:
 				c = tileColor(false, true)
+			case site.Windows[v]:
+				// 窓は壁の切れ目の開口部。床として描き、窓スプライトは drawPlaced が上乗せする
+				c = tileColor(false, false)
 			case floor[v] && !site.ExtraWall[v]:
 				c = tileColor(false, false)
 			default:

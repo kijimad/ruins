@@ -49,6 +49,13 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility FacilityKind)
 	// 外皮 FacadePass。街路側の前壁へ窓・シャッター・看板を付け、閉じた箱を正面のある建物にする。損傷レベルで
 	// 廃業した店のシャッターを決める。壁の上に載る prop なので室内の充填とは別に足す
 	facade := facadeElements(site, facility, prof.damage)
+	// 窓は視線を通す開口部として扱い、壁でなく床の切れ目にする。facadeElements を単一ソースにして、
+	// 描画用の窓スプライトと開口部集合の両方をここから導く。シャッターは不透明の壁のままで集めない
+	for _, p := range facade {
+		if p.Ref == "window" {
+			site.Windows[p.Pos] = true
+		}
+	}
 	flavored = append(flavored, facade...)
 	// lot pass。敷地を塀で囲い門で開け、前庭に外構を置く。建物を裸で地面に置かない
 	flavored = append(flavored, lotElements(site, facility)...)

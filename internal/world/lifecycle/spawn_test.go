@@ -360,6 +360,53 @@ func TestSpawnDoor(t *testing.T) {
 	})
 }
 
+func TestSpawnWindow(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	win, err := SpawnWindow(world, consts.Coord[consts.Tile]{X: 12, Y: 8}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	// スプライトは開閉共通の window
+	require.True(t, world.Components.SpriteRender.Has(win))
+	sprite := world.Components.SpriteRender.Get(win)
+	assert.Equal(t, "field", sprite.SpriteSheetName)
+	assert.Equal(t, "window", sprite.SpriteKey)
+	assert.Equal(t, gc.DepthNumTaller, sprite.Depth)
+
+	// Door を持ち SeeThrough が立つ
+	require.True(t, world.Components.Door.Has(win))
+	doorComp := world.Components.Door.Get(win)
+	assert.False(t, doorComp.IsOpen)
+	assert.True(t, doorComp.SeeThrough, "窓は SeeThrough")
+
+	// 閉状態は通行を遮るが視線は通す
+	assert.True(t, world.Components.BlockPass.Has(win), "閉じた窓は通行を遮る")
+	assert.False(t, world.Components.BlockView.Has(win), "窓は視線を遮らない")
+}
+
+func TestWindow_開閉で通行だけ変わり視線は常に通す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	win, err := SpawnWindow(world, consts.Coord[consts.Tile]{X: 12, Y: 8}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	// 開く。通行が通り、視線は依然通す。スプライトは扉のように差し替わらない
+	require.NoError(t, OpenDoor(world, win))
+	assert.False(t, world.Components.BlockPass.Has(win), "開いた窓は通れる")
+	assert.False(t, world.Components.BlockView.Has(win), "開いても視線は通す")
+	assert.Equal(t, "window", world.Components.SpriteRender.Get(win).SpriteKey, "窓スプライトは開閉で変わらない")
+	assert.True(t, world.Components.Door.Get(win).IsOpen)
+
+	// 閉じる。通行を遮り、視線は依然通す
+	require.NoError(t, CloseDoor(world, win))
+	assert.True(t, world.Components.BlockPass.Has(win), "閉じた窓は通れない")
+	assert.False(t, world.Components.BlockView.Has(win), "閉じても視線は通す")
+	assert.Equal(t, "window", world.Components.SpriteRender.Get(win).SpriteKey)
+	assert.False(t, world.Components.Door.Get(win).IsOpen)
+}
+
 func TestDeleteDoorLockTriggers(t *testing.T) {
 	t.Parallel()
 
