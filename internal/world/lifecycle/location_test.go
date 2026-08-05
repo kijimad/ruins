@@ -152,8 +152,8 @@ func TestMovePlayerToPosition_地図端の密集でも隊員が重ならず散�
 		require.NoError(t, err)
 	}
 
-	// 地図端 (24,0) の近傍リング(squadPlacementMaxRadius)を壁で埋める。
-	// 近傍6タイル探索で打ち切る旧フォールバックでは、空きが尽きて全員が (24,0) へ潰れていた。
+	// 地図端 (24,0) の近傍リング(squadPlacementMaxRadius)を壁で埋め、近傍だけでは空きが尽きる
+	// 状況を作る。この密集でも全隊員が別タイルへ散ることを検証する。
 	target := consts.Coord[consts.Tile]{X: 24, Y: 0}
 	for dx := -squadPlacementMaxRadius; dx <= squadPlacementMaxRadius; dx++ {
 		for dy := -squadPlacementMaxRadius; dy <= squadPlacementMaxRadius; dy++ {
@@ -178,6 +178,32 @@ func TestMovePlayerToPosition_地図端の密集でも隊員が重ならず散�
 		seen[g] = true
 	}
 	assert.Len(t, seen, numMembers, "全隊員が別々のタイルに配置される")
+}
+
+// TestSpawnSquadMember_連続生成で重ならない は、隊員を続けて生成しても互いに重ならないことを固定する。
+// SpawnSquadMember は末尾で SpatialIndex を無効化するので、次の生成の findPlacementTile が索引を
+// 再構築し直前の隊員を占有として見る。ゲーム開始時などの連続生成で同一タイルへ重ならないことの回帰。
+func TestSpawnSquadMember_連続生成で重ならない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	require.NoError(t, err)
+
+	const numMembers = 8
+	for range numMembers {
+		_, err := SpawnSquadMember(world, player, "隊員", testAbilities(), "player")
+		require.NoError(t, err)
+	}
+
+	seen := map[gc.GridElement]bool{}
+	seen[*world.Components.GridElement.Get(player)] = true
+	for _, m := range query.SquadMembers(world) {
+		g := *world.Components.GridElement.Get(m)
+		assert.Falsef(t, seen[g], "(%d,%d) に別キャラと重なった", g.X, g.Y)
+		seen[g] = true
+	}
+	assert.Len(t, seen, numMembers+1, "プレイヤーと全隊員が別タイルに配置される")
 }
 
 func TestUnequipAll(t *testing.T) {
