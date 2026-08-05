@@ -11,8 +11,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// squadPlacementMaxRadius はステージ遷移で隊員を再配置するときの空きタイル探索の最大半径。
-// 街や遺跡入口の密集地でも近くの空きを拾えるだけの広さを確保する。
+// squadPlacementMaxRadius は隊員配置の空きタイル探索で優先する近傍リングの半径。
+// 通常はこの範囲で隣接タイルへ収める。SpatialIndex が無くマップ寸法を引けない場面、
+// テストなどではこの半径を上限に使う。密集地でマップ寸法が引ける場面では
+// findPlacementTile がマップ全体まで探索を広げる。
 const squadPlacementMaxRadius = 6
 
 // MoveToBackpack はエンティティをバックパックに移動する。
@@ -261,8 +263,9 @@ func tileAvailable(si *gc.SpatialIndex, tile consts.Coord[consts.Tile], exclude 
 	return !exclude[gc.GridElement{Coord: tile}]
 }
 
-// findNearbyEmptyTile はcenterから近い順に空きタイルを探す。隣接(半径1)から外側へリングを
-// 広げ、maxRadius まで探す。密集地でも遠くの空きを拾えるようにするための拡張探索。
+// findNearbyEmptyTile はcenterに近いリングから順に空きタイルを探す。隣接(半径1)から外側へ
+// チェビシェフ距離のリングを広げ、maxRadius まで探す。内側リングが先に埋まるが、同一リング内の
+// 走査順はラスタースキャンで、厳密なユークリッド最短ではない。密集地でも遠くの空きを拾える。
 // 見つからなければ ok=false を返す。呼び出し側が最終手段の退避先を決める。
 func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool, maxRadius int) (consts.Coord[consts.Tile], bool) {
 	si := query.GetSpatialIndex(world)
@@ -281,6 +284,22 @@ func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclud
 		}
 	}
 	return consts.Coord[consts.Tile]{}, false
+}
+
+// findPlacementTile は隊員の配置先を探す。center 近傍を優先しつつ、近傍が埋まっていれば
+// マップ全体へ探索を広げて空きを拾う。リング探索は内側のリングから走査するので、範囲を広げても
+// 近いリングから埋まり、近傍が空いていれば隣接タイルへ収まる。地図全体が埋まっている極限だけ
+// ok=false を返し、呼び出し側が最終手段の退避先を決める。
+func findPlacementTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) (consts.Coord[consts.Tile], bool) {
+	maxRadius := squadPlacementMaxRadius
+	// マップ寸法が引けるなら、地図全体を覆う半径まで探索を広げる。どのタイルを中心にしても
+	// 幅と高さの大きい方ぶんのリングでマップ全体を走査できる。近傍優先はリング探索の性質で保たれる。
+	if si := query.GetSpatialIndex(world); si != nil {
+		if mapRadius := max(int(si.MapWidth), int(si.MapHeight)); mapRadius > maxRadius {
+			maxRadius = mapRadius
+		}
+	}
+	return findNearbyEmptyTile(world, center, exclude, maxRadius)
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
@@ -317,7 +336,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	exclude := map[gc.GridElement]bool{}
 	for _, member := range query.SquadMembers(world) {
 		memberGrid := world.Components.GridElement.Get(member)
-		dest, ok := findNearbyEmptyTile(world, pos, exclude, squadPlacementMaxRadius)
+		dest, ok := findPlacementTile(world, pos, exclude)
 		if !ok {
 			dest = pos
 		}
