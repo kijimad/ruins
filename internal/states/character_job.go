@@ -150,7 +150,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 }
 
 // ================
-// buildUI
+// View
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる

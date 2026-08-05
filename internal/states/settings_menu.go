@@ -179,7 +179,7 @@ func languageChoices(_ w.World) (string, []Choice) {
 }
 
 // ================
-// buildUI
+// View
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる

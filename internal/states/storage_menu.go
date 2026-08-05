@@ -217,7 +217,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 }
 
 // ================
-// buildUI
+// View
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる

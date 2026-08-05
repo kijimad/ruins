@@ -263,7 +263,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 }
 
 // ================
-// buildUI
+// View
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる

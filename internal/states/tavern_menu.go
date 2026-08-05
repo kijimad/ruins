@@ -267,7 +267,7 @@ func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
 }
 
 // ================
-// buildUI
+// View
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる

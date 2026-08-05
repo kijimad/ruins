@@ -97,7 +97,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 func (o *characterEquipOverlay) execute(world w.World) error {
 	props := o.mount.GetProps()
 	ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, "char_equip")
-	if ms.ItemIndex >= len(props.Items) {
+	if ms.ItemIndex < 0 || ms.ItemIndex >= len(props.Items) {
 		return nil
 	}
 	item := props.Items[ms.ItemIndex]
