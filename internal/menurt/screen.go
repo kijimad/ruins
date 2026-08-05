@@ -56,14 +56,14 @@ type customInput interface {
 // 毎フレームの手順を回す。state は構造体にこれを値で埋め込み、Update と Draw を委譲する。
 // コピーすると overlay のポインタが旧実体を指すため、コピーせず OnStart で NewScreen して使う
 type Screen[P any] struct {
-	model    Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
-	mount    *hooks.Mount[P]
-	widget   *ebitenui.UI
-	rebuild  bool
-	overlays []menuscreen.Overlay
-	systems  []w.Updater
-	sel      Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
-	seeded   bool      // 初期タブへ寄せたか
+	model         Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
+	mount         *hooks.Mount[P]
+	widget        *ebitenui.UI
+	rebuild       bool
+	overlays      []menuscreen.Overlay
+	systems       []w.Updater
+	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
+	seeded        bool      // 初期タブへ寄せたか
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -163,9 +163,9 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	}
 
 	dirty := s.mount.Update()
-	s.sel = s.selection(cfg)
+	s.lastSelection = s.selection(cfg)
 	if dirty || s.widget == nil || s.rebuild {
-		s.widget = m.View(world, props, s.sel, world.Resources.UIResources)
+		s.widget = m.View(world, props, s.lastSelection, world.Resources.UIResources)
 		for _, ov := range s.overlays {
 			if ov.Active() {
 				if win := ov.Window(world, menuscreen.CenterWindowRect(world)); win != nil {
@@ -203,7 +203,7 @@ func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {
 
 // Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの
 // mount.Update で更新されるため、DoAction 内で読むと画面に見えている確定位置になる
-func (s *Screen[P]) Selection() Selection { return s.sel }
+func (s *Screen[P]) Selection() Selection { return s.lastSelection }
 
 // selection は現在のカーソル位置を mount から読む。一覧を持たない画面はゼロ値
 func (s *Screen[P]) selection(cfg MenuConfig) Selection {
