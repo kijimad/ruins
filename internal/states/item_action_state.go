@@ -262,7 +262,6 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	}
 }
 
-// jumpToTab は指定した動詞のタブへ移動する
 func (st *ItemActionState) jumpToTab(target verbID) {
 	st.screen.SetTab(st.menu(st.screen.Props()), verbTabIndex(target))
 }
@@ -385,8 +384,6 @@ func (st *ItemActionState) view(_ w.World, props itemActionProps, sel Selection,
 	})
 }
 
-// buildItemList は現在タブのアイテムを、他メニューと同じテーブル描画で縦1列に並べる。
-// 左に名前、右に個数。行高とフォントはテーブル共通で揃う
 func (st *ItemActionState) menu(props itemActionProps) MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {

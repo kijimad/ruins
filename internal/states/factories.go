@@ -34,7 +34,6 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(dungeonMenuChoices), nil
 }
 
-// dungeonMenuChoices はダンジョンメニューの選択肢を返す
 func dungeonMenuChoices(_ w.World) (string, []Choice) {
 	return "", []Choice{
 		{Label: "所持", Run: pushChoice(NewItemActionState(verbExamine))},
@@ -411,8 +410,6 @@ func NewLoadMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(func(_ w.World) (string, []Choice) { return "ロード", choices }), nil
 }
 
-// addLoadSlot はロードメニューにスロットを追加する。
-// データが存在するスロットは選択可能、存在しないスロットは "---" で選択不可にする。
 // backChoice は戻る選択肢を返す。選択メニューで共通に使う
 func backChoice() Choice {
 	return Choice{Label: "戻る", Run: func(_ w.World) (es.Transition[w.World], error) {

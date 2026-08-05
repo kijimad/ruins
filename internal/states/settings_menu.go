@@ -106,11 +106,11 @@ func (st *SettingsMenuState) fetch(world w.World) settingsMenuProps {
 	}
 }
 
-// focusedItem は現在カーソルが当たっている項目を返す
 func (st *SettingsMenuState) menu(props settingsMenuProps) MenuConfig {
 	return MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
 }
 
+// focusedItem は現在カーソルが当たっている項目を返す
 func (st *SettingsMenuState) focusedItem() (settingsMenuItem, bool) {
 	props := st.screen.Props()
 	sel := st.screen.Selection()

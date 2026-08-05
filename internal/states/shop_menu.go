@@ -218,8 +218,6 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 // Window
 // ================
 
-// actionWindowContent は現在カーソルが当たっている商品の見出しと選択肢を返す。アクション窓の唯一の定義点。
-// 選択肢の実行内容も Run に閉じ込め、購入・売却・閉じるを1箇所で定義する
 // buySellSelected は現在カーソルが当たっている商品を、購入タブなら購入、売却タブなら売却する。
 // 決定で即実行し、途中のアクション選択は挟まない。購入は所持金が足りなければ何もしない
 func (st *ShopMenuState) buySellSelected(world w.World) error {
@@ -281,7 +279,6 @@ func (st *ShopMenuState) view(_ w.World, props shopProps, sel Selection, res res
 }
 
 // detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点。
-// 価格は一覧から外したので、詳細の説明の先頭に出す
 func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	item, spec, ok := st.selectedDetail(world)
 	if !ok {

@@ -210,12 +210,12 @@ func (st *TavernMenuState) fetch(world w.World) tavernProps {
 // Window
 // ================
 
-// actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。
-// 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する
 func (st *TavernMenuState) menu(props tavernProps) MenuConfig {
 	return MenuConfig{Key: "tavern", TabCount: 1, ItemCounts: []int{len(props.Candidates)}}
 }
 
+// actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。
+// 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する
 func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.Action, bool) {
 	c, ok := st.selectedCandidate()
 	if !ok || c.Name == "" {
